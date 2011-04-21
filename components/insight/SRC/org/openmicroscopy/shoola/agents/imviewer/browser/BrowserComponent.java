@@ -596,7 +596,7 @@ class BrowserComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#hasProjectedPreview()
 	 */
 	public boolean hasProjectedPreview()
@@ -605,7 +605,7 @@ class BrowserComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getDisplayedProjectedImage()
 	 */
 	public BufferedImage getDisplayedProjectedImage()
@@ -614,7 +614,7 @@ class BrowserComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getProjectedImage()
 	 */
 	public BufferedImage getProjectedImage()
@@ -623,7 +623,7 @@ class BrowserComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#onColorModelChange()
 	 */
 	public void onColorModelChange()
@@ -633,13 +633,13 @@ class BrowserComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getUnitInMicrons()
 	 */
 	public double getUnitInMicrons() { return model.getUnitInMicrons(); }
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#createImageFromTexture(int)
 	 */
 	public BufferedImage createImageFromTexture(int type)
@@ -658,8 +658,8 @@ class BrowserComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see Browser#saveImage(SaveObject)
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getImageAsTexture(SaveObject)
 	 */
 	public TextureData getImageAsTexture()
 	{
@@ -667,12 +667,22 @@ class BrowserComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see Browser#saveImage(SaveObject)
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getProjectedImageAsTexture(SaveObject)
 	 */
 	public TextureData getProjectedImageAsTexture()
 	{
 		return model.getProjectedImageAsTexture();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setBirdEyeView(Object)
+	 */
+	public void setBirdEyeView(BufferedImage image)
+	{
+		if (view == null) return;
+		view.setBirdEyeView(image);
 	}
 	
 }

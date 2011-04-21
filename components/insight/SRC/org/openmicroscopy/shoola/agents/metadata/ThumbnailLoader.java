@@ -37,6 +37,8 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
+
 import pojos.ImageData;
 
 /** 
@@ -58,12 +60,6 @@ public class ThumbnailLoader
 	extends MetadataLoader
 {
 
-	/** The standard width of the thumbnail. */
-    private static final int            STANDARD_WIDTH = 96; 
-    
-    /** The standard height of the thumbnail. */
-    private static final int            STANDARD_HEIGHT = 96;
-    
     /** The object the thumbnails are for. */
     private ImageData					image;
     
@@ -99,8 +95,9 @@ public class ThumbnailLoader
      */
     public void load()
     {
-    	handle = mhView.loadThumbnails(image, userIDs, STANDARD_WIDTH,
-                	STANDARD_HEIGHT, this);	
+    	handle = mhView.loadThumbnails(image, userIDs, 
+    			Factory.THUMB_DEFAULT_WIDTH, Factory.THUMB_DEFAULT_HEIGHT, 
+    			this);	
     }
     
     /** 

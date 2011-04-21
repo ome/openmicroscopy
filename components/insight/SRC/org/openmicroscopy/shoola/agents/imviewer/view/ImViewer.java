@@ -1171,7 +1171,7 @@ public interface ImViewer
 	 * 
 	 * @param result The value to set.
 	 */
-	void setBirdEyeView(Object result);
+	void setBirdEyeView(BufferedImage result);
 	
 	/**
 	 * Returns the size of the tile.

@@ -108,8 +108,7 @@ public class ImageLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        if (largeImage) viewer.setBirdEyeView(result);
-        else viewer.setImage(result);
+        viewer.setImage(result);
     }
 
 }

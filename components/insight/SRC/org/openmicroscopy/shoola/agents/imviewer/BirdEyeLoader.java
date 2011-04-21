@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.TileLoader 
+ * org.openmicroscopy.shoola.agents.imviewer.BirdEyeLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
@@ -22,23 +22,24 @@
  */
 package org.openmicroscopy.shoola.agents.imviewer;
 
-
 //Java imports
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.rnd.data.Tile;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
+import pojos.ImageData;
 
 /** 
- * Loads the tiles.
+ * Loads the image for the bird eye view.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,57 +51,41 @@ import org.openmicroscopy.shoola.env.rnd.data.Tile;
  * </small>
  * @since 3.0-Beta4
  */
-public class TileLoader
+public class BirdEyeLoader 
 	extends DataLoader
 {
 
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
-    /** The collection of tiles to load.*/
-    private Collection<Tile> tiles;
-    
-    /** The ID of the pixels set. */
-    private long		pixelsID;
-    
-    /** The plane to render.*/
-    private PlaneDef pDef;
-    
-    /** Count the number of tiles loaded.*/
-    private int count;
+    /** The object the image is for. */
+    private ImageData	image;
     
     /**
      * Creates a new instance.
      * 
      * @param viewer	The view this loader is for.
      * 					Mustn't be <code>null</code>.
-     * @param pixelsID  The id of the pixels set.
-     * @param pDef		The plane to render.
-     * @param tiles		The tiles to handle.
+     * @param image	  	The image to handle.
      */
-	public TileLoader(ImViewer viewer, long pixelsID, PlaneDef pDef,
-			Collection<Tile> tiles)
+	public BirdEyeLoader(ImViewer viewer, ImageData image)
 	{
 		super(viewer);
-		if (tiles == null || tiles.size() == 0)
-			throw new IllegalArgumentException("No tiles to load.");
-		if (pDef == null)
-			throw new IllegalArgumentException("No plane to render.");
-		if (pixelsID < 0)
-			throw new IllegalArgumentException("Pixels ID not valid.");
-		this.tiles = tiles;
-		this.pixelsID = pixelsID;
-		this.pDef = pDef;
+		if (image == null)
+			throw new IllegalArgumentException("No image to load.");
+		this.image = image;
 	}
 	
 	/**
-     * Loads the tiles.
+     * Loads the image.
      * @see DataLoader#load()
      */
     public void load()
     {
-    	boolean asTexture = ImViewerAgent.hasOpenGLSupport();
-    	handle = ivView.loadTiles(pixelsID, pDef, tiles, asTexture, this);
+    	Set<Long> ids = new HashSet<Long>();
+    	ids.add(ImViewerAgent.getUserDetails().getId());
+    	handle = mhView.loadThumbnails(image, ids, Factory.THUMB_DEFAULT_WIDTH,
+    			Factory.THUMB_DEFAULT_HEIGHT, this);
     }
     
     /**
@@ -123,7 +108,7 @@ public class TileLoader
      */
     public void handleException(Throwable exc) 
     {
-        String s = "Tile Retrieval Failure: ";
+        String s = "Bird Eye Retrieval Failure: ";
         registry.getLogger().error(this, s+exc);
         registry.getUserNotifier().notifyError(s, s, exc);
     }
@@ -135,17 +120,9 @@ public class TileLoader
     public void update(DSCallFeedbackEvent fe) 
     {
         if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-        String status = fe.getStatus();
-        int percDone = fe.getPercentDone();
-        if (status == null) 
-            status = (percDone == 100) ? "Done" :  //Else
-                                     ""; //Description wasn't available.   
-        viewer.setStatus(status, percDone);
-        Tile tile = (Tile) fe.getPartialResult();
-        if (tile != null) {
-        	count++;
-        	viewer.setTile(tile, count == tiles.size());
-        } 
+        ThumbnailData td = (ThumbnailData) fe.getPartialResult();
+        if (td != null)
+        	viewer.setBirdEyeView(td.getThumbnail());
     }
 
 }

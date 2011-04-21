@@ -387,4 +387,10 @@ public interface Browser
 	 */
 	public TextureData getProjectedImageAsTexture();
 	
+	/**
+	 * Sets the image displayed in the bird eye view.
+	 * 
+	 * @param result The value to set.
+	 */
+	void setBirdEyeView(BufferedImage result);
 }

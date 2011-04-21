@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.examples.viewer;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 

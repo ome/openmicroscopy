@@ -50,6 +50,7 @@ import com.sun.opengl.util.texture.TextureData;
 import omero.model.PlaneInfo;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.imviewer.BirdEyeLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
@@ -2407,17 +2408,7 @@ class ImViewerModel
 	 */
 	void fireBirdEyeViewRetrieval()
 	{
-		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return;
-		PlaneDef pDef = new PlaneDef();
-		pDef.t = getDefaultT();
-		pDef.z = getDefaultZ();
-		pDef.slice = omero.romio.XY.value;
-		pDef.x = getMaxX()/2;
-		pDef.y = getMaxY()/2;
-		state = ImViewer.LOADING_IMAGE;
-		ImageLoader loader = new ImageLoader(component, getPixelsID(), 
-				pDef, isBigImage());
+		BirdEyeLoader loader = new BirdEyeLoader(component, getImage());
 		loader.load();
 	}
 	

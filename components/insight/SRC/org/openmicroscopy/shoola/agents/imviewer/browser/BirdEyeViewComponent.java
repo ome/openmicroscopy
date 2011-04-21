@@ -25,17 +25,22 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import javax.swing.JPanel;
 
 //Third-party libraries
-import processing.core.PApplet;
-import processing.core.PImage;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 
 /** 
- * Bird eye view using processing.
+ * Bird eye view using <code>JPanel</code>.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,12 +52,13 @@ import processing.core.PImage;
  * </small>
  * @since 3.0-Beta4
  */
-class BirdEyeView 
-	extends PApplet
+class BirdEyeViewComponent 
+	extends JPanel
+	implements MouseListener, MouseMotionListener
 {
 
 	/** Property indicating to render a region. */
-	static final String RENDER_REGION_PROPERTY = "renderRegion";
+	static final String DISPLAY_REGION_PROPERTY = "displayRegion";
 	
 	/** The width of the border. */
 	static final int BORDER = 2;
@@ -61,13 +67,19 @@ class BirdEyeView
 	static final int BORDER_5 = 5*BORDER;
 	
 	/** The default fill color. */
-	private static final int FILL_COLOR = Color.LIGHT_GRAY.getRGB();
+	private static final Color FILL_COLOR = Color.LIGHT_GRAY;
+	
+	/** The default stroke color. */
+	private static final Color STROKE_COLOR = Color.BLACK;
+	
+	/** The default selection color. */
+	private static final Color SELECTION_COLOR = Color.RED;
 	
 	/** The processing image. */
-	private PImage pImage;
+	private BufferedImage pImage;
 	
 	/** Color of the selection rectangle. */
-	private int color;
+	private Color color;
 	
 	/** The width of the rectangle. */
 	private int w = 30; //to change
@@ -132,6 +144,8 @@ class BirdEyeView
 	/** The height of the canvas. */
 	private int canvasHeight;
 	
+	private int mouseX, mouseY;
+	
 	/**
 	 * Returns <code>true</code> if the rectangle is image, <code>false</code>
 	 * otherwise.
@@ -160,12 +174,22 @@ class BirdEyeView
 	}
 	
 	/** Creates a new instance. */
-	BirdEyeView()
+	BirdEyeViewComponent()
 	{
-		init();
+		//init();
 		fullDisplay = true;
 		pImage = null;
 		cross = new Rectangle(0, 0, BORDER_5, BORDER_5);
+	}
+	
+	/**
+	 * Returns the region used to select the part of the image to view.
+	 * 
+	 * @return See above.
+	 */
+	Rectangle getSelectionRegion()
+	{
+		return new Rectangle((int) bx, (int) by, w, h);
 	}
 	
 	/**
@@ -179,7 +203,7 @@ class BirdEyeView
 		bx = x;
 		by = y;
 		inImage();
-		draw();
+		repaint();
 	}
 	
 	/**
@@ -190,9 +214,11 @@ class BirdEyeView
 	 */
 	void setCanvasSize(int w, int h)
 	{
-		size(w, h, P2D);
+		//size(w, h, P2D);
+		setSize(w, h);
 		canvasWidth = w;
 		canvasHeight = h;
+		setSize(w, h);
 	}
 	
 	/** 
@@ -202,98 +228,131 @@ class BirdEyeView
 	 */
 	void setImage(BufferedImage image)
 	{
-		pImage = new PImage(image);
+		pImage = image;
 		if (image != null) {
 			setCanvasSize(image.getWidth(), image.getHeight());
 		}
 		repaint();
 	}
+	
+	/** 
+	 * Sets the selection color.
+	 * 
+	 * @param color The value to set.
+	 */
+	void setSelectionColor(Color color)
+	{
+		if (color != null) {
+			this.color = color;
+		}
+	}
+	
 	/**
 	 * Overridden from @see {@link PApplet#setup()}
 	 */
 	public void setup()
 	{
-		size(100, 100, P2D);
-		hint(ENABLE_NATIVE_FONTS);
-		color = color(0, 0, 255, 100); 
-		noStroke();
+		//size(100, 100, P2D);
+		setSize(100, 100);
+		//hint(ENABLE_NATIVE_FONTS);
+		color = SELECTION_COLOR; 
+		//noStroke();
 		bx = BORDER;
 		by = BORDER;
 		fullDisplay = true;
+		addMouseListener(this);
+		addMouseMotionListener(this);
 	}
 	
 	/**
-	 * Overridden 
-	 * @see {@link PApplet#draw()}
-	 */
-	public void draw()
-	{
+     * Overridden to paint the image.
+     * @see javax.swing.JComponent#paintComponent(Graphics)
+     */
+    public void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
 		if (pImage == null) return;
-
+		Graphics2D g2D = (Graphics2D) g;
+        ImagePaintingFactory.setGraphicRenderingSettings(g2D);
 		if (!fullDisplay) {
-			fill(FILL_COLOR);
-			rect(cross.x, cross.y, cross.width, cross.height);
-			stroke(0);
-			line(xArrow, yArrow, BORDER_5-xArrow, BORDER_5-yArrow);
-			line(BORDER_5-xArrow, BORDER_5-yArrow, BORDER_5-xArrow, 
+			g2D.setColor(FILL_COLOR);
+			g2D.fillRect(cross.x, cross.y, cross.width, cross.height);
+			g2D.setColor(STROKE_COLOR);
+
+			g2D.drawLine(xArrow, yArrow, BORDER_5-xArrow, BORDER_5-yArrow);
+			g2D.drawLine(BORDER_5-xArrow, BORDER_5-yArrow, BORDER_5-xArrow, 
 					BORDER_5-yArrow-v);
-			line(BORDER_5-xArrow, BORDER_5-yArrow, BORDER_5-xArrow-v, 
+			g2D.drawLine(BORDER_5-xArrow, BORDER_5-yArrow, BORDER_5-xArrow-v, 
 					BORDER_5-yArrow);
 			setSize(cross.width, cross.height);
 			return;
 		}
 		if (imageRectangle == null) {
-			imageRectangle = new Rectangle(BORDER, BORDER, pImage.width, 
-					pImage.height);
+			imageRectangle = new Rectangle(BORDER, BORDER, pImage.getWidth(), 
+					pImage.getHeight());
 		}
 		setSize(canvasWidth, canvasHeight);
-		stroke(255);
-		rect(0, 0, canvasWidth, canvasHeight);
+		//stroke(255);
+		g2D.drawRect(0, 0, canvasWidth, canvasHeight);
 
-		image(pImage, BORDER, BORDER);
+		g2D.drawImage(pImage, null, BORDER, BORDER);
 		
-		fill(FILL_COLOR);
-		rect(cross.x, cross.y, cross.width, cross.height);
-		stroke(0);
-		line(xArrow, yArrow, xArrow+v, yArrow);
-		line(xArrow, yArrow, xArrow, yArrow+v);
-		line(xArrow, yArrow, BORDER_5, BORDER_5);
-		fill(color);
-		stroke(color);	
+		g2D.setColor(FILL_COLOR);
+		g2D.fillRect(cross.x, cross.y, cross.width, cross.height);
+		g2D.setColor(STROKE_COLOR);
+		g2D.setColor(Color.BLACK);
+		g2D.drawLine(xArrow, yArrow, xArrow+v, yArrow);
+		g2D.drawLine(xArrow, yArrow, xArrow, yArrow+v);
+		g2D.drawLine(xArrow, yArrow, BORDER_5, BORDER_5);
+		g2D.setColor(color);
+		//stroke(color);	
 		// Test if the cursor is over the box 
 		bover = (mouseX > bx-w && mouseX < bx+w && 
 				mouseY > by-h && mouseY < by+h);
-		rect(bx, by, w, h);
-		noFill();
+		g2D.drawRect((int) bx, (int) by, (int) w, (int) h);
+		//noFill();
 	}
-	
-	/**
-	 * Overridden to handle mouse pressed event.
-	 * @see {@link PApplet#mousePressed()}
-	 */
-	public void mousePressed()
+
+    /**
+     * Depending on mouse click location, shows or hide the bird eye view.
+     * @see MouseListener#mouseReleased(MouseEvent)
+     */
+	public void mousePressed(MouseEvent e)
 	{
+		mouseX = e.getX();
+		mouseY = e.getY();
 		if (cross.contains(mouseX, mouseY)) {
 			fullDisplay = !fullDisplay;
-			draw();
+			repaint();
 			return;
 		}
 		fullDisplay = true;
-		if (bover) { 
-			locked = true; 
-		} else {
-			locked = false;
-		}
+		locked = bover;
 		bdifx = mouseX-bx; 
 		bdify = mouseY-by; 
 	}
 
-	/**
-	 * Overridden to handle mouse pressed event.
-	 * @see {@link PApplet#mouseDragged()}
-	 */
-	public	void mouseDragged()
+    /**
+     * Fires a property to display the selection.
+     * @see MouseListener#mouseReleased(MouseEvent)
+     */
+	public void mouseReleased(MouseEvent e)
 	{
+		if (locked) {
+			locked = false;
+			Rectangle r = new Rectangle((int) bx, (int) by, w, h);
+			firePropertyChange(DISPLAY_REGION_PROPERTY, null, r);
+		} 
+	}
+
+    /**
+     * Sets the location of the mouse when dragging the selection.
+     * @see MouseMotionListener#mouseDragged(MouseEvent)
+     */
+	public void mouseDragged(MouseEvent e)
+	{
+		mouseX = e.getX();
+		mouseY = e.getY();
 		if (!inImage()) 
 			locked = false;
 		if (locked) {
@@ -301,19 +360,35 @@ class BirdEyeView
 			by = mouseY-bdify; 
 		}
 		x = mouseX;
+		repaint();
 	}
 
-	/**
-	 * Overridden to handle mouse pressed event.
-	 * @see {@link PApplet#mouseReleased()}
-	 */
-	public	void mouseReleased()
-	{
-		if (locked) {
-			locked = false;
-			Rectangle r = new Rectangle((int) bx, (int) by, w, h);
-			firePropertyChange(RENDER_REGION_PROPERTY, null, r);
-		} 
-	}
+    /**
+     * Required by the {@link MouseMotionListener} I/F but no-operation
+     * implementation in our case.
+     * @see MouseMotionListener#mouseMoved(MouseEvent)
+     */
+	public void mouseMoved(MouseEvent e) {}
+	
+    /**
+     * Required by the {@link MouseListener} I/F but no-operation implementation
+     * in our case.
+     * @see MouseListener#mouseClicked(MouseEvent)
+     */
+	public void mouseClicked(MouseEvent e) {}
+
+    /**
+     * Required by the {@link MouseListener} I/F but no-operation implementation
+     * in our case.
+     * @see MouseListener#mouseEntered(MouseEvent)
+     */
+	public void mouseEntered(MouseEvent e) {}
+
+    /**
+     * Required by the {@link MouseListener} I/F but no-operation implementation
+     * in our case.
+     * @see MouseListener#mouseExited(MouseEvent)
+     */
+	public void mouseExited(MouseEvent e) {}
 	
 }

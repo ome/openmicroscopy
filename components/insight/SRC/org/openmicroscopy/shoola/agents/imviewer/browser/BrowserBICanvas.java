@@ -69,8 +69,7 @@ class BrowserBICanvas
      */
     public void paintComponent(Graphics g)
     {
-        //super.paintComponent(g);
-    	//Test
+        super.paintComponent(g);
     	Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
         if (model.isBigImage()) {
@@ -79,9 +78,7 @@ class BrowserBICanvas
         	int columns = model.getColumns();
         	Tile tile;
         	int index;
-        	
         	Object img;
-        	
             Region region;
         	for (int i = 0; i < rows; i++) {
     			for (int j = 0; j < columns; j++) {

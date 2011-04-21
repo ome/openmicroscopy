@@ -2751,7 +2751,7 @@ class ImViewerComponent
 		}
 		
 		if (model.isBigImage()) { //bird eye loaded.
-			//model.fireBirdEyeViewRetrieval();
+			model.fireBirdEyeViewRetrieval();
 			model.fireTileLoading();
 		} else renderXYPlane();
 		fireStateChange();
@@ -3148,53 +3148,11 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#setBirdEyeView(Object)
 	 */
-	public void setBirdEyeView(Object image)
+	public void setBirdEyeView(BufferedImage image)
 	{
-		if (model.getState() != LOADING_IMAGE) 
-			throw new IllegalStateException("This method can only be invoked " +
-			"in the LOADING_IMAGE state.");
-		if (image == null) {
-			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Image retrieval", "An error occurred while " +
-					"creating the image.");
+		if (model.getState() == DISCARDED) 
 			return;
-		}
-		if (!(image instanceof BufferedImage || image instanceof TextureData))
-			return;
-			
-		if (newPlane) postMeasurePlane();
-		newPlane = false;
-		Object originalImage;
-		if (ImViewerAgent.hasOpenGLSupport()) {
-			originalImage = model.getImageAsTexture();
-			model.setImageAsTexture((TextureData) image);
-		} else {
-			originalImage = model.getOriginalImage();
-			model.setImage((BufferedImage) image);
-		}
-		
-		view.setLeftStatus();
-		view.setPlaneInfoStatus();
-		if (originalImage == null && model.isZoomFitToWindow()) {
-			controller.setZoomFactor(ZoomAction.ZOOM_FIT_TO_WINDOW);
-		}
-		if (model.isPlayingChannelMovie())
-			model.setState(ImViewer.CHANNEL_MOVIE);
-		if (!model.isPlayingMovie()) {
-			//Post an event
-			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-			BufferedImage icon = model.getImageIcon();
-			bus.post(new ImageRendered(model.getPixelsID(), icon, 
-					model.getBrowser().getRenderedImage()));
-			//if (icon != null) view.setIconImage(icon);
-		}
-			
-		if (!model.isPlayingMovie() && !model.isPlayingChannelMovie()) {
-			if (view.isLensVisible()) view.setLensPlaneImage();
-			view.createHistoryItem(null);
-		}
-		view.setCursor(Cursor.getDefaultCursor());
-		fireStateChange();
+		model.getBrowser().setBirdEyeView(image);
 	}
 	
 	/** 
@@ -3203,6 +3161,7 @@ class ImViewerComponent
 	 */
 	public Dimension getTileSize()
 	{
+		if (model.getState() == DISCARDED) return null;
 		return model.getTileSize();
 	}
 	
@@ -3224,6 +3183,7 @@ class ImViewerComponent
 	 */
 	public Map<Integer, Tile> getTiles()
 	{
+		if (model.getState() == DISCARDED) return null;
 		return model.getTiles();
 	}
 	
