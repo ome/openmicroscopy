@@ -282,7 +282,7 @@ public class StatusLabel
 		} else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
 			errorText = "missing required library";
 		} else if (event instanceof ImportEvent.IMPORT_THUMBNAILING) {
-			setText("thumbnailing");
+			setText("Creating thumbnail");
 		} 
 	}
 	

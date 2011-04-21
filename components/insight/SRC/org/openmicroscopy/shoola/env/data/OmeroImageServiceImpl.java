@@ -75,7 +75,6 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import pojos.ChannelData;
@@ -107,6 +106,9 @@ class OmeroImageServiceImpl
  	implements OmeroImageService
 {
 
+	/** The maximum size before retrieving the plane asynchronously. */
+	private static final int		MAX_SIZE = 1024;
+	
 	/** 
 	 * The collection of arbitrary files extensions to check
 	 * before importing. If a file has one of the extensions, we need
@@ -131,6 +133,23 @@ class OmeroImageServiceImpl
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway            gateway;
 
+	/**
+	 * Returns <code>true</code> if the image is large,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param image The image to handle.
+	 * @return See above.
+	 */
+	private boolean isLargeImage(ImageData image)
+	{
+		if (image == null) return false;
+		PixelsData pixels = image.getDefaultPixels();
+		if (pixels == null) return false;
+		int size = pixels.getSizeX()*pixels.getSizeY();
+		return size > MAX_SIZE*MAX_SIZE;
+	}
+	
+	
 	/**
 	 * Imports the specified candidates.
 	 * 
@@ -184,10 +203,10 @@ class OmeroImageServiceImpl
 					kk = ll.iterator();
 					converted = new ArrayList<Object>(ll.size());
 					while (kk.hasNext()) {
+						image = kk.next();
 						if (thumbnail)
-							converted.add(createImportedImage(userID, 
-									kk.next()));	
-						else converted.add(kk.next());
+							converted.add(createImportedImage(userID, image));	
+						else converted.add(image);
 					}
 					label.setFile(file, converted);
 				} else label.setFile(file, result);
@@ -1021,17 +1040,20 @@ class OmeroImageServiceImpl
 						image = (ImageData) result;
 						images.add(image);
 						annotatedImportedImage(list, images);
-						if (!thumbnail) return image;
-						return createImportedImage(userID, image);
+						if (thumbnail)
+							return createImportedImage(userID, image);
+						return image;
 					} else if (result instanceof Set) {
 						ll = (Set<ImageData>) result;
 						annotatedImportedImage(list, ll);
 						kk = ll.iterator();
 						converted = new ArrayList<Object>(ll.size());
 						while (kk.hasNext()) {
-							if (!thumbnail) converted.add(kk.next());
-							else converted.add(createImportedImage(userID, 
-									kk.next()));	
+							image = kk.next();
+							if (thumbnail)
+								converted.add(createImportedImage(userID, 
+										image));
+							else converted.add(image);	
 						}
 						return converted;
 					}

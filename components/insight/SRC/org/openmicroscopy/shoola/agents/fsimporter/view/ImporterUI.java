@@ -129,7 +129,7 @@ class ImporterUI
 		
 		IconManager icons = IconManager.getInstance();
 		TitlePanel tp = new TitlePanel(TITLE, "", "Select data to import " +
-				"and monitor ongoing/done imports.", 
+				"and monitor imports.", 
 				icons.getIcon(IconManager.IMPORT_48));
 		container.add(tp, BorderLayout.NORTH);
 		container.add(tabs, BorderLayout.CENTER);
