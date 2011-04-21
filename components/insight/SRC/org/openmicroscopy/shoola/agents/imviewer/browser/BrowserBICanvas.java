@@ -24,14 +24,18 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
+import org.openmicroscopy.shoola.env.rnd.data.Region;
+import org.openmicroscopy.shoola.env.rnd.data.Tile;
 
 /** 
  * Paints the image.
@@ -66,13 +70,43 @@ class BrowserBICanvas
     public void paintComponent(Graphics g)
     {
         //super.paintComponent(g);
-        BufferedImage img = model.getDisplayedImage();
-        if (img == null) return;
-        Graphics2D g2D = (Graphics2D) g;
+    	//Test
+    	Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
-        g2D.drawImage(img, null, 0, 0); 
-        paintScaleBar(g2D, img.getWidth(), img.getHeight(), view.getViewport());
-        g2D.dispose();
+        if (model.isBigImage()) {
+        	Map<Integer, Tile> tiles = model.getTiles();
+        	int rows = model.getRows();
+        	int columns = model.getColumns();
+        	Tile tile;
+        	int index;
+        	
+        	Object img;
+        	
+            Region region;
+        	for (int i = 0; i < rows; i++) {
+    			for (int j = 0; j < columns; j++) {
+    				index = i*columns+j;
+    				tile = tiles.get(index);
+    				region = tile.getRegion();
+    				img = tile.getImage();
+    				if (img != null)
+    					 g2D.drawImage((BufferedImage) img, null, 
+    							 region.getX(), region.getY()); 
+    				else {
+    					g2D.setColor(Color.black);
+    					g2D.drawRect(region.getX(), region.getY(), 
+    							region.getWidth(), region.getHeight());
+    				}
+    			}
+    		}
+        } else {
+        	 BufferedImage img = model.getDisplayedImage();
+             if (img == null) return;
+             g2D.drawImage(img, null, 0, 0); 
+             paintScaleBar(g2D, img.getWidth(), img.getHeight(),
+            		 view.getViewport());
+             g2D.dispose();
+        }
     }
     
 }

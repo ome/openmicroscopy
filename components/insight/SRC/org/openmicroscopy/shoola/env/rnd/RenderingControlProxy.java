@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -53,7 +54,6 @@ import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
-import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import pojos.ChannelData;
@@ -131,6 +131,15 @@ class RenderingControlProxy
     
     /** The rendering settings. */
     private Map<String, List<RndProxyDef>> settings;
+    
+    /** The possible resolution levels if it is a big image.*/
+    private int resolutionLevels;
+    
+    /** The selected resolution level.*/
+    private int selectedResolutionLevel;
+    
+    /** The size of a tile. */
+    private Dimension tileSize;
     
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
@@ -383,6 +392,10 @@ class RenderingControlProxy
             default:
                 sizeX1 = pixs.getSizeX().getValue();
                 sizeX2 = pixs.getSizeY().getValue();
+                if (pDef.region != null) {
+                	sizeX1 = pDef.region.width;
+                	sizeX2 = pDef.region.height;
+                }
                 break;
         }
         return new Point(sizeX1, sizeX2);
@@ -468,14 +481,12 @@ class RenderingControlProxy
 	 * 
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
 	 *             or <i>Z</i> axes.
-	 * @param region The region to render, if <code>null</code> the plane is 
-	 * rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	private BufferedImage renderRegionCompressedBI(PlaneDef pDef, Region region)
+	private BufferedImage renderCompressedBI(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//Need to adjust the cache.
@@ -495,14 +506,12 @@ class RenderingControlProxy
 	 * 
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *            or <i>Z</i> axes.
-     * @param region The region to render, if <code>null</code> the plane is 
-     * 				 rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	private BufferedImage renderRegionUncompressed(PlaneDef pDef, Region region)
+	private BufferedImage renderUncompressed(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//See if the requested image is in cache.
@@ -528,15 +537,12 @@ class RenderingControlProxy
 	 * 
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *            or <i>Z</i> axes.
-     * @param region The region to render, if <code>null</code> the plane is 
-     * 				 rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	private TextureData renderRegionUncompressedAsTexture(PlaneDef pDef,
-			Region region)
+	private TextureData renderUncompressedAsTexture(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//See if the requested image is in cache.
@@ -555,15 +561,12 @@ class RenderingControlProxy
 	 * 
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *            or <i>Z</i> axes.
-     * @param region The region to render if <code>null</code> the plane will
-     * be rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	private TextureData renderRegionCompressedAsTexture(PlaneDef pDef, 
-			Region region)
+	private TextureData renderCompressedAsTexture(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		try {
@@ -738,6 +741,8 @@ class RenderingControlProxy
             throw new NullPointerException("No pixels set.");
         if (context == null)
             throw new NullPointerException("No registry.");
+        resolutionLevels = -1;
+        selectedResolutionLevel = -1;
         if (rndDefs == null) rndDefs = new ArrayList<RndProxyDef>();
         this.rndDefs = rndDefs;
         this.cacheSize = cacheSize;
@@ -772,12 +777,10 @@ class RenderingControlProxy
                 }
             }
             tmpSolutionForNoiseReduction();
-            
 		} catch (Exception e) {
 		}
     }
 
-    
     /**
      * Resets the rendering engine.
      * 
@@ -1499,27 +1502,27 @@ class RenderingControlProxy
 	
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#renderRegion(PlaneDef, Region)
+	 * @see RenderingControl#render(PlaneDef)
 	 */
-    public BufferedImage renderRegion(PlaneDef pDef, Region region)
+    public BufferedImage render(PlaneDef pDef)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-        return renderRegion(pDef, region, compression);
+        return render(pDef, compression);
     }
     
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#renderRegion(PlaneDef, Region, int)
+	 * @see RenderingControl#render(PlaneDef, int)
 	 */
-    public BufferedImage renderRegion(PlaneDef pDef, Region region, int value)
+    public BufferedImage render(PlaneDef pDef, int value)
     	throws RenderingServiceException, DSOutOfServiceException
     {
     	if (pDef == null) 
              throw new IllegalArgumentException("Plane def cannot be null.");
     	if (value != compression) setCompression(value);
     	BufferedImage img;
-        if (isCompressed()) img = renderRegionCompressedBI(pDef, region);
-        else img = renderRegionUncompressed(pDef, region);
+        if (isCompressed()) img = renderCompressedBI(pDef);
+        else img = renderUncompressed(pDef);
         if (value != compression) setCompression(compression);
         return img;
     }
@@ -1773,17 +1776,17 @@ class RenderingControlProxy
 
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#renderPlaneAsBuffer(PlaneDef, Region)
+	 * @see RenderingControl#renderAsTexture(PlaneDef)
 	 */
-	public TextureData renderRegionAsTexture(PlaneDef pDef, Region region)
+	public TextureData renderAsTexture(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		 if (pDef == null) 
 	            throw new IllegalArgumentException("Plane def cannot be null.");
 	        //DataServicesFactory.isSessionAlive(context);
 	     if (isCompressed()) 
-	    	 return renderRegionCompressedAsTexture(pDef, region);
-	     return renderRegionUncompressedAsTexture(pDef, region);
+	    	 return renderCompressedAsTexture(pDef);
+	     return renderUncompressedAsTexture(pDef);
 	}
 
 	/** 
@@ -1884,11 +1887,68 @@ class RenderingControlProxy
 
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#getZoomFactor()
+	 * @see RenderingControl#getResolutionLevels()
 	 */
-	public double getZoomFactor()
+	public int getResolutionLevels()
 	{
-		return 1;
+		try {
+			if (resolutionLevels < 0)
+				resolutionLevels = servant.getResolutionLevels();
+		} catch (Exception e) {
+			resolutionLevels = 1;
+		}
+		return resolutionLevels;
 	}
 	
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#getSelectedResolutionLevel()
+	 */
+	public int getSelectedResolutionLevel()
+	{
+		try {
+			if (selectedResolutionLevel < 0)
+				selectedResolutionLevel = servant.getResolutionLevel();
+		} catch (Exception e) {
+			selectedResolutionLevel = 0;
+		}
+		return selectedResolutionLevel;
+	}
+	
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#setSelectedResolutionLevel(int)
+	 */
+	public void setSelectedResolutionLevel(int level)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (level > getResolutionLevels())
+			level = getResolutionLevels();
+		
+		try {
+			servant.setResolutionLevel(level);
+			selectedResolutionLevel = level;
+		} catch (Exception e) {
+			handleException(e, ERROR+" resolution level: "+level);
+		}
+	}
+	
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#getTileSize()
+	 */
+	public Dimension getTileSize()
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		try {
+			if (tileSize == null) {
+				int[] values = servant.getTileSize();
+				tileSize = new Dimension(values[0], values[1]);
+			}
+		} catch (Exception e) {
+			handleException(e, ERROR+" retrieving the tile size.");
+		}
+		return tileSize;
+	}
+
 }

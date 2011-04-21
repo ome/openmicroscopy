@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
+import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -150,6 +151,15 @@ class BrowserModel
     /** Collection of retrieved images composing the grid. */
     private Map<Integer, TextureData>	gridImagesAsTextures;
 
+    /** The tiles to display. */
+    private List<Tile>			tiles;
+    
+    /** The number of rows, default is <code>1</code>.*/
+    private int numberOfRows;
+    
+    /** The number of columns, default is <code>1</code>.*/
+    private int numberOfColumns;
+    
     /**
      * Returns <code>true</code> if the active channels are mapped
      * to <code>Red</code>, <code>Green</code> or <code>Blue</code>,
@@ -429,6 +439,7 @@ class BrowserModel
         gridImages = new ArrayList<BufferedImage>();
         gridImagesAsTextures = new HashMap<Integer, TextureData>();
         zoomFactor = ZoomAction.DEFAULT_ZOOM_FACTOR;
+        tiles = new ArrayList<Tile>();
         if (pref != null) {
         	if (pref.getBackgroundColor() != null)
         		backgroundColor = pref.getBackgroundColor();
@@ -1179,4 +1190,45 @@ class BrowserModel
     	return list;
     }
     
+    /**
+	 * Returns the size of the tile.
+	 * 
+	 * @return See above.
+	 */
+	Dimension getTileSize() { return parent.getTileSize(); }
+	
+    /**
+     * Returns the number of rows, default is <code>1</code>.
+     * 
+     * @return See above.
+     */
+    int getRows() { return parent.getRows(); }
+    
+    /**
+     * Returns the number of columns, default is <code>1</code>.
+     * 
+     * @return See above.
+     */
+    int getColumns() { return parent.getColumns(); }
+    
+    /**
+     * Returns the tiles to display.
+     * 
+     * @return See above.
+     */
+    Map<Integer, Tile> getTiles() { return parent.getTiles(); }
+    
+    /**
+     * Returns <code>true</code> if it is a big image, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isBigImage()
+    {
+    	Map<Integer, Tile> tiles = getTiles();
+    	if (tiles != null && tiles.size() > 1) return true;
+    	return false;
+    }
+
 }

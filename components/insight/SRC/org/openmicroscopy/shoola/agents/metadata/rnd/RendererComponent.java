@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -911,7 +912,7 @@ class RendererComponent
 	{
 		if (pDef == null) return null;
 		try {
-			return model.renderPlane(pDef);
+			return model.render(pDef);
 		} catch (Throwable e) {
 			handleException(e, false);
 		}
@@ -986,7 +987,7 @@ class RendererComponent
 			for (int i = 0; i < model.getMaxC(); i++) {
 				model.setActive(i, channel == i);
 			}
-			BufferedImage img = model.renderPlane(pDef);
+			BufferedImage img = model.render(pDef);
 			//reset active channels
 			model.setActive(channel, false);
 			if (active != null) {
@@ -1076,6 +1077,20 @@ class RendererComponent
 		Action a = controller.getAction(RendererControl.RND_OWNER);
 		a.setEnabled(loading);
 		view.displayViewedBy(results);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#getTileSize()
+	 */
+	public Dimension getTileSize()
+	{
+		try {
+			return model.getTileSize();
+		} catch (Exception e) {
+			
+		}
+		return null;
 	}
 	
 }

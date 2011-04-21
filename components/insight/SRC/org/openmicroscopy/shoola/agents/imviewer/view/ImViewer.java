@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -45,10 +46,10 @@ import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ChannelData;
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
@@ -1172,4 +1173,41 @@ public interface ImViewer
 	 */
 	void setBirdEyeView(Object result);
 	
+	/**
+	 * Returns the size of the tile.
+	 * 
+	 * @return See above.
+	 */
+	Dimension getTileSize();
+	
+    /**
+     * Returns the number of rows, default is <code>1</code>.
+     * 
+     * @return See above.
+     */
+    int getRows();
+    
+    /**
+     * Returns the number of columns, default is <code>1</code>.
+     * 
+     * @return See above.
+     */
+    int getColumns();
+    
+    /**
+     * Returns the tiles to display.
+     * 
+     * @return See above.
+     */
+    Map<Integer, Tile> getTiles();
+
+    /**
+     * Indicates that all the tiles have been loaded.
+     * 
+     * @param tile The tile.
+     * @param done Passed <code>true</code> if the tile is loaded,
+     * 				<code>false</code>
+     */
+	public void setTile(Tile tile, boolean done);
+    
 }

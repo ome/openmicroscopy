@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -86,6 +87,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.SaveEventBox;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -2747,8 +2749,10 @@ class ImViewerComponent
 			model.resetHistory();
 			view.switchRndControl();
 		}
+		
 		if (model.isBigImage()) { //bird eye loaded.
-			model.fireBirdEyeViewRetrieval();
+			//model.fireBirdEyeViewRetrieval();
+			model.fireTileLoading();
 		} else renderXYPlane();
 		fireStateChange();
 	}
@@ -3194,11 +3198,52 @@ class ImViewerComponent
 	}
 	
 	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getTileSize()
+	 */
+	public Dimension getTileSize()
+	{
+		return model.getTileSize();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getRows()
+	 */
+	public int getRows() { return model.getRows(); }
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getColumns()
+	 */
+	public int getColumns() { return model.getColumns(); }
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getTiles()
+	 */
+	public Map<Integer, Tile> getTiles()
+	{
+		return model.getTiles();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setTile(Tile, boolean)
+	 */
+	public void setTile(Tile tile, boolean done)
+	{
+		model.getBrowser().getUI().repaint();
+		if (done) {
+			model.setState(READY);
+			fireStateChange();
+		}
+	}
+	
+	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
 	public String toString() { return getTitle(); }
-
-
 
 }

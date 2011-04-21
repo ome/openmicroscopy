@@ -54,7 +54,7 @@ import pojos.ExperimenterData;
  * </small>
  * @since OME3.0
  */
-public class RenderingSettingsLoader     
+public class RenderingSettingsLoader
 	extends DataLoader
 {
 

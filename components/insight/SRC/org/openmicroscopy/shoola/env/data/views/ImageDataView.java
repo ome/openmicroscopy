@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +36,6 @@ import java.util.Map;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import pojos.WorkflowData;
-import org.openmicroscopy.shoola.env.data.model.ImportContext;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
@@ -43,6 +43,8 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.Tile;
+
 import pojos.DataObject;
 import pojos.PixelsData;
 import pojos.ROIData;
@@ -438,6 +440,21 @@ public interface ImageDataView
 	 * @return See above.
 	 */
 	public CallHandle saveAs(SaveAsParam parameters,
+			AgentEventListener observer);
+
+	/**
+	 * Loads the tiles.
+	 * 
+	 * @param pixelsID 	The id of the pixels set.
+	 * @param pDef		The plane to render.
+	 * @param tiles		The tiles.
+	 * @param asTexture	Pass <code>true</code> to return a texture,
+	 * 					<code>false</code> to return a buffered image.
+	 * @param observer Call-back handler.
+	 * @return See above.
+	 */
+	public CallHandle loadTiles(long pixelsID, PlaneDef pDef, 
+			Collection<Tile> tiles, boolean asTexture,
 			AgentEventListener observer);
 	
 }
