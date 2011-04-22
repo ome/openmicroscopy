@@ -222,7 +222,7 @@ class BlitzObjectWrapper (object):
     def _getParentWrapper (self):
         """
         Returns the wrapper class of the parent of this object. 
-        This is used internally by the L{listParents} method.
+        This is used internally by the L{getParents} method.
         
         @return:    The parent wrapper class. E.g. omero.gateway.DatasetWrapper.__class__
         @rtype:     class
@@ -245,14 +245,6 @@ class BlitzObjectWrapper (object):
         """
         self._obj = self._conn.getContainerService().loadContainerHierarchy(self.OMERO_CLASS, (self._oid,), None)[0]
 
-
-#    def _getParentLink (self):
-#        p = self.listParents()
-#        link = self._conn.getQueryService().findAllByQuery("select l from %s as l where l.parent.id=%i and l.child.id=%i" % (p.LINK_CLASS, p.id, self.id), None)
-#        if len(link):
-#            return link[0]
-#        return None
-
     def _moveLink (self, newParent):
         """ 
         Moves this object from a parent container (first one if there are more than one) to a new parent.
@@ -263,7 +255,7 @@ class BlitzObjectWrapper (object):
                             False if no parent exists or newParent has mismatching type
         @rtype:             Boolean
         """
-        p = self.listParents()
+        p = self.getParent()
         # p._obj.__class__ == p._obj.__class__ ImageWrapper(omero.model.DatasetI())
         if p.OMERO_CLASS == newParent.OMERO_CLASS:
             link = self._conn.getQueryService().findAllByQuery("select l from %s as l where l.parent.id=%i and l.child.id=%i" % (p.LINK_CLASS, p.id, self.id), None)
@@ -480,18 +472,6 @@ class BlitzObjectWrapper (object):
             return True
         return False
     
-    #@timeit
-    #def getUID (self):
-    #    p = self.listParents()
-    #    return p and '%s:%s' % (p.getUID(), str(self.id)) or str(self.id)
-
-    #def getChild (self, oid):
-    #    q = self._conn.getQueryService()
-    #    ds = q.find(self.CHILD_WRAPPER_CLASS.OMERO_CLASS, long(oid))
-    #    if ds is not None:
-    #        ds = self.CHILD_WRAPPER_CLASS(self._conn, ds)
-    #    return ds
-    
     def countChildren (self):
         """
         Counts available number of child objects.
@@ -552,21 +532,33 @@ class BlitzObjectWrapper (object):
         for child in childnodes:
             yield childw(self._conn, child, self._cache)
 
-    def listParents (self, single=True, withlinks=False):
+    def getParent (self, withlinks=False):
+        """
+        List a single parent, if available.
+
+        While the model suports many to many relationships between most objects, there are
+        implementations that assume a single project per dataset, a single dataset per image,
+        etc. This is just a shortcut method to return a single parent object.
+
+        @type withlinks: Boolean
+        @param withlinks: if true result will be a tuple of (linkobj, obj)
+        @rtype: L{BlitzObjectWrapper} ( or tuple(L{BlitzObjectWrapper}, L{BlitzObjectWrapper}) )
+        @return: the parent object with or without the link depending on args
+        """
+
+        rv = self.getParents(withlinks=withlinks)
+        return len(rv) and rv[0] or None
+
+    def getParents (self, withlinks=False):
         """
         Lists available parent objects.
 
-        @type single: Boolean
-        @param single: if True returns only the immediate parent object, else returns a list
-                       of L{BlitzObjectWrapper} with all parents linking to this object
         @type withlinks: Boolean
         @param withlinks: if true each yielded result will be a tuple of (linkobj, obj)
-        @rtype: list of L{BlitzObjectWrapper} (or tuples) or just the object (or tuple)
-        @return: the parent or parents, with or without the links depending on args
+        @rtype: list of L{BlitzObjectWrapper} ( or tuple(L{BlitzObjectWrapper}, L{BlitzObjectWrapper}) )
+        @return: the parent objects, with or without the links depending on args
         """
         if self.PARENT_WRAPPER_CLASS is None:
-            if single:
-                return withlinks and (None, None) or None
             return ()
         parentw = self._getParentWrapper()
         param = omero.sys.Parameters() # TODO: What can I use this for?
@@ -574,24 +566,21 @@ class BlitzObjectWrapper (object):
             parentnodes = [ (parentw(self._conn, x.parent, self._cache), BlitzObjectWrapper(self._conn, x)) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.child.id=%i" % (parentw().LINK_CLASS, self._oid), param)]
         else:
             parentnodes = [ parentw(self._conn, x.parent, self._cache) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.child.id=%i" % (parentw().LINK_CLASS, self._oid), param)]
-        if single:
-            return len(parentnodes) and parentnodes[0] or None
         return parentnodes
-
 
     def getAncestry (self):
         """
         Get a list of Ancestors. First in list is parent of this object. 
-        TODO: Assumes listParents() returns a single parent. 
+        TODO: Assumes getParent() returns a single parent. 
         
         @rtype: List of L{BlitzObjectWrapper}
         @return:    List of Ancestor objects
         """
         rv = []
-        p = self.listParents()
+        p = self.getParent()
         while p:
             rv.append(p)
-            p = p.listParents()
+            p = p.getParent()
         return rv
     
     def getParentLinks(self, pids=None):
@@ -4849,7 +4838,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def getDataset(self):
         """
-        Gets the Dataset that image is in, or None. TODO: Why not use listParents()? 
+        Gets the Dataset that image is in, or None. TODO: Why not use getParent()? 
         Returns None if Image is in more than one Dataset. 
         
         @return:    Dataset

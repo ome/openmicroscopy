@@ -395,8 +395,8 @@ class GetObjectTest (lib.GTest):
         # get all available annotation links on the image
         annLinks = self.gateway.getAnnotationLinks("Image")
         for al in annLinks:
-            self.assertTrue(al.getAnnotation(), omero.gateway.AnnotationWrapper)
-            self.assertTrue(al.getParent().__class__ == omero.model.ImageI)
+            self.assertTrue(isinstance(al.getAnnotation(), omero.gateway.AnnotationWrapper))
+            self.assertEqual(al.getParent().__class__, omero.model.ImageI)
             
         # get selected links - On image only
         annLinks = self.gateway.getAnnotationLinks("Image", parent_ids=[obj.getId()])
@@ -477,6 +477,20 @@ class GetObjectTest (lib.GTest):
         self.assertEqual(testProj.OMERO_CLASS, p.OMERO_CLASS)
         self.assertEqual(testProj.countChildren_cached(), p.countChildren_cached())
         self.assertEqual(testProj.getOwnerOmeName, p.getOwnerOmeName)
+
+    def testTraversal (self):
+        image = self.TESTIMG
+        # This should return image wrapper
+        pr = image.getProject()
+        ds = image.getDataset()
+        
+        self.assertEqual(ds, image.getParent())
+        self.assertEqual(image.getParents()[0], image.getParent())
+        self.assertEqual(ds, image.getParent(withlinks=True)[0])
+        self.assertEqual(image.getParent(withlinks=True), image.getParents(withlinks=True)[0])
+        self.assertEqual(ds.getParent(), pr)
+        self.assertEqual(pr.getParent(), None)
+        self.assertEqual(len(pr.getParents()), 0)
 
 if __name__ == '__main__':
     unittest.main()
