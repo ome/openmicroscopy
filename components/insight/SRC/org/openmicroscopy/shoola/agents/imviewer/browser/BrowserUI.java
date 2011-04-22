@@ -31,7 +31,11 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
@@ -167,9 +171,27 @@ class BrowserUI
        
         canvasListener = new ImageCanvasListener(this, model, canvas);
         canvasListener.setHandleKeyDown(true);
-        //getVerticalScrollBar().addMouseMotionListener(this);
-        //getHorizontalScrollBar().addMouseMotionListener(this);
-        //installScrollbarListener(true);
+        MouseAdapter adapter = new MouseAdapter() {
+        	
+        	/**
+        	 * Removes the adjustment listener to the scroll bars.
+        	 * @see MouseListener#mouseReleased(MouseEvent)
+        	 */
+        	public void mouseReleased(MouseEvent e) {
+				 installScrollbarListener(false);
+			}
+        	
+        	/**
+        	 * Attaches an adjustment listener to the scroll bars.
+        	 * @see MouseListener#mousePressed(MouseEvent)
+        	 */
+        	public void mousePressed(MouseEvent e) {
+				installScrollbarListener(true);
+				
+			}
+		};
+        getVerticalScrollBar().addMouseListener(adapter);
+        getHorizontalScrollBar().addMouseListener(adapter);
     }
     
     /** Builds and lays out the GUI. */
@@ -287,8 +309,6 @@ class BrowserUI
     		birdEyeView.setup();
     		addComponentToLayer(birdEyeView);
     		setBirdEyeViewLocation();
-    		model.checkTilesToLoad(getViewport().getViewRect());
-    		installScrollbarListener(true);
     	}
     	birdEyeView.setImage(image);
 	}
@@ -406,7 +426,7 @@ class BrowserUI
 	 */
 	void scrollTo(Rectangle bounds, boolean blockIncrement)
 	{
-		installScrollbarListener(false);
+		//installScrollbarListener(false);
 		Rectangle viewRect = getViewport().getViewRect();
 		JScrollBar hBar = getHorizontalScrollBar();
 		JScrollBar vBar = getVerticalScrollBar();
@@ -443,7 +463,7 @@ class BrowserUI
 		vBar.setValue(y);
 		hBar.setValue(x);
 		setBirdEyeViewLocation();
-		installScrollbarListener(true);
+		//installScrollbarListener(true);
 	}
 	
 	/**
@@ -455,13 +475,13 @@ class BrowserUI
 	void scrollTo(int vValue, int hValue)
 	{
 		//Rectangle viewRect = getViewport().getViewRect();
-		installScrollbarListener(false);
+		//installScrollbarListener(false);
 		JScrollBar vBar = getVerticalScrollBar();
 		JScrollBar hBar = getHorizontalScrollBar();
 		hBar.setValue(hBar.getValue()+hValue);
 		vBar.setValue(vBar.getValue()+vValue);
 		setBirdEyeViewLocation();
-		installScrollbarListener(true);
+		//installScrollbarListener(true);
 	}
 
 	/** Clears the grid images. */
@@ -481,14 +501,7 @@ class BrowserUI
 		if (!scrollbarsVisible()) return;
 		scrollTo(getViewport().getViewRect(), false);
 	}
-	
-	/**
-	 * Sets the <code>adjusting</code> flag when the experimenter uses 
-	 * the scrollbars.
-	 * @see MouseMotionListener#mouseDragged(MouseEvent)
-	 */
-	public void mouseDragged(MouseEvent e) { adjusting = true; }
-	
+
 	/**
 	 * Sets the location of the bird eye to be sure that it is always visible.
 	 * @see AdjustmentListener#adjustmentValueChanged(AdjustmentEvent)
@@ -500,6 +513,7 @@ class BrowserUI
         	setBirdEyeViewLocation();
         	return;
         }
+        adjusting = false;
         setSelectionRegion();
         model.checkTilesToLoad(getViewport().getViewRect());
 	}
@@ -537,11 +551,4 @@ class BrowserUI
 		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
 	}
 	
-	/**
-	 * Required by the {@link MouseMotionListener} I/F but no-op implementation
-	 * in our case.
-	 * @see MouseMotionListener#mouseMoved(MouseEvent)
-	 */
-	public void mouseMoved(MouseEvent e) {}
-
 }

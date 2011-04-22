@@ -1108,7 +1108,6 @@ class ImViewerUI
 		statusBar = new StatusBar(model);
 		initSplitPanes();
 		refInsets = rendererSplit.getInsets();
-		addComponentListener(controller);
 		planes = new HashMap<Integer, PlaneInfoComponent>();
 		ImageIcon icon = IconManager.getInstance().getImageIcon(
 				IconManager.VIEWER);

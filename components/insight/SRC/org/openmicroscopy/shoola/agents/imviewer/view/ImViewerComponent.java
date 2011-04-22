@@ -31,6 +31,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -790,7 +791,7 @@ class ImViewerComponent
 		}
 		if (!(image instanceof BufferedImage || image instanceof TextureData))
 			return;
-			
+		view.removeComponentListener(controller);
 		if (newPlane) postMeasurePlane();
 		newPlane = false;
 		Object originalImage;
@@ -823,6 +824,7 @@ class ImViewerComponent
 			view.createHistoryItem(null);
 		}
 		view.setCursor(Cursor.getDefaultCursor());
+		view.addComponentListener(controller);
 		fireStateChange();
 	}
 
@@ -2859,55 +2861,6 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#scrollToViewport(Rectangle)
-	 */
-	public void setImageAsTexture(TextureData image)
-	{
-		if (model.getState() != LOADING_IMAGE) 
-			throw new IllegalStateException("This method can only be invoked " +
-			"in the LOADING_IMAGE state.");
-		if (image == null) {
-			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Image retrieval", "An error occurred while " +
-					"creating the image.");
-			return;
-		}
-
-		TextureData originalImage = model.getImageAsTexture();
-		//BufferedImage originalImage = model.getOriginalImage();
-		model.setImageAsTexture(image);
-		if (newPlane) postMeasurePlane();
-		
-		
-		newPlane = false;
-		view.setLeftStatus();
-		view.setPlaneInfoStatus();
-		
-		if (originalImage == null && model.isZoomFitToWindow()) {
-			controller.setZoomFactor(ZoomAction.ZOOM_FIT_TO_WINDOW);
-		}
-		if (model.isPlayingChannelMovie())
-			model.setState(ImViewer.CHANNEL_MOVIE);
-		if (!model.isPlayingMovie()) {
-			//Post an event
-			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-			BufferedImage icon = model.getImageIcon();
-			bus.post(new ImageRendered(model.getPixelsID(), icon, 
-					model.getBrowser().getRenderedImage()));
-			//if (icon != null) view.setIconImage(icon);
-		}
-			
-		if (!model.isPlayingMovie() && !model.isPlayingChannelMovie()) {
-			if (view.isLensVisible()) view.setLensPlaneImage();
-			view.createHistoryItem(null);
-		}
-		
-		view.setCursor(Cursor.getDefaultCursor());
-		fireStateChange();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#createImageFromTexture(int, boolean includeROI)
 	 */
 	public BufferedImage createImageFromTexture(int type, boolean includeROI)
@@ -3200,7 +3153,9 @@ class ImViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		model.getBrowser().getUI().repaint();
+		view.removeComponentListener(controller);
 		if (done) {
+			view.addComponentListener(controller);
 			model.setState(READY);
 			fireStateChange();
 		}
@@ -3213,21 +3168,25 @@ class ImViewerComponent
 	public void loadTiles(Rectangle region)
 	{
 		if (model.getState() == DISCARDED) return;
-		if (region == null) return;
+		if (region == null) 
+			region = model.getBrowser().getVisibleRectangle();
 		Map<Integer, Tile> tiles = getTiles();
     	if (tiles == null) return;
     	Dimension d = getTileSize();
-    	int cs = region.x/d.width-1;
-    	int rs = region.y/d.height-1;
+    	int cs = region.x/d.width;
+    	int rs = region.y/d.height;
     	int ih = region.width/d.width;
     	int iv = region.height/d.height;
     	int columns = getColumns();
     	int index;
     	Tile t;
+    	
+    	int h = rs+iv+1;
+    	int w = cs+ih+1;
+    	cs = cs-1;
+    	rs = rs-1;
     	if (cs < 0) cs = 0;
     	if (rs < 0) rs = 0;
-    	int h = rs+iv+2;
-    	int w = cs+ih+2;
     	List<Tile> l = new ArrayList<Tile>();
     	for (int i = rs; i <= h; i++) {
 			for (int j = cs; j <= w; j++) {

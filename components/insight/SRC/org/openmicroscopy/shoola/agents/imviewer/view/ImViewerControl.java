@@ -912,12 +912,16 @@ class ImViewerControl
 	 */
 	public void componentResized(ComponentEvent e) 
 	{ 
-		if (model.isZoomFitToWindow()) 
-			model.setZoomFactor(-1, ZoomAction.ZOOM_FIT_TO_WINDOW); 
+		//Review that code.
+		if (model.isBigImage()) {
+			model.loadTiles(null);
+		} else {
+			if (model.isZoomFitToWindow()) 
+				model.setZoomFactor(-1, ZoomAction.ZOOM_FIT_TO_WINDOW); 
+		}
 		view.maximizeWindow();
 		setPreferences();
 	}
-
 	/**
 	 * Posts an event to bring the related window to the front.
 	 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
