@@ -14,9 +14,9 @@
 
 <div class='bottom-header'>
     <!-- TODO: handle multiple parents -->
-    {% if object.listParents %}
+    {% if object.getParent %}
     <div id='bottom-header-left'> 
-        <a href="{% url webmobile_dataset object.listParents.id %}">Back to Dataset: {{ object.listParents.getName }}</a>
+        <a href="{% url webmobile_dataset object.getParent.id %}">Back to Dataset: {{ object.getParent.getName }}</a>
     </div>
     {% endif %}
     

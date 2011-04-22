@@ -536,7 +536,7 @@ def image(request, imageId):
         return render_to_response('webemdb/data/image.html', {'image': image, "scripts": scripts})
     default_z = image.getSizeZ()/2
     # enable the django template to access all parents of the image
-    image.showAllParents = image.listParents(single=False)
+    image.showAllParents = image.getParents()
     
     return render_to_response('webemdb/data/image.html', {'image': image, "scripts": scripts, "default_z": default_z})
     
@@ -552,7 +552,7 @@ def dataset(request, datasetId):
     entryId = None
     
     # look for parent project that has EMDB entry name (EMDB ID)
-    for p in dataset.listParents(single = False):
+    for p in dataset.getParents():
         try:
             emdbId = long(p.getName())
             entryId = str(emdbId)
