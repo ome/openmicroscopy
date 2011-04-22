@@ -1324,17 +1324,20 @@ class _BlitzGateway (object):
         """
         Terminates connection with killSession(). If softclose is False, the session is really
         terminate disregarding its connection refcount. 
-        TODO: softclose ignored. 
+
+        @param softclose:   Boolean
         """
-        
         self._connected = False
-        try:
-            self.c.killSession()
-        except Glacier2.SessionNotExistException: #pragma: no cover
-            pass
-        except:
-            logger.warn(traceback.format_exc())
-        
+        if softclose:
+            try:
+                r = self.c.sf.getSessionService().getReferenceCount(self._sessionUuid)
+                self.c.closeSession()
+                if r < 2:
+                    self._session_cb and self._session_cb.close(self)
+            except Ice.OperationNotExistException:
+                self.c.closeSession()
+        else:
+            self._closeSession()
         self._proxies = NoProxies()
         logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
 
@@ -1452,7 +1455,6 @@ class _BlitzGateway (object):
         Creates new omero.client object using self.host or self.ice_config (if host is None)
         Also tries to setAgent for the client
         """
-        
         if self.host is not None:
             self.c = omero.client(host=str(self.host), port=int(self.port))#, pmap=['--Ice.Config='+','.join(self.ice_config)])
         else:
@@ -2697,12 +2699,16 @@ def safeCallWrap (self, attr, f): #pragma: no cover
                 logger.debug("Ice.Exception (2) on safe call %s(%s,%s)" % (attr, str(args), str(kwargs)))
                 logger.debug(traceback.format_exc())
                 try:
-                    # Recreate connection
-                    self._connect()
-                    logger.debug('last try for %s' % attr)
-                    # Last try, don't catch exception
-                    func = getattr(self._obj, attr)
-                    return func(*args, **kwargs)
+                    if self._conn.c.sf.getSessionService().getReferenceCount(self._conn._sessionUuid) > 0:
+                        # Recreate connection
+                        self._connect()
+                        logger.debug('last try for %s' % attr)
+                        # Last try, don't catch exception
+                        func = getattr(self._obj, attr)
+                        return func(*args, **kwargs)
+                    raise Ice.ConnectionLostException()
+                except Ice.ObjectNotExistException:
+                    raise Ice.ConnectionLostException()
                 except:
                     raise
 
@@ -2720,6 +2726,9 @@ def safeCallWrap (self, attr, f): #pragma: no cover
             raise
         except Ice.UnknownException:
             logger.debug("UnknownException, bailing out")
+            raise
+        except Ice.ConnectionLostException:
+            logger.debug("ConnectionLostException, bailing out")
             raise
         except Ice.Exception, x:
             logger.debug('wrapped ' + f.func_name)
@@ -2811,7 +2820,6 @@ class ProxyObjectWrapper (object):
         @return:    True if connection OK
         @rtype:     Boolean
         """
-        
         logger.debug("proxy_connect: a");
         if not self._conn.connect():
             logger.debug('connect failed')

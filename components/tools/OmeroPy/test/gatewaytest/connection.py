@@ -12,6 +12,7 @@ import unittest
 import omero
 import Ice
 import gatewaytest.library as lib
+from omero.gateway.scripts import dbhelpers
 
 class ConnectionMethodsTest (lib.GTest):
 
@@ -51,6 +52,26 @@ class ConnectionMethodsTest (lib.GTest):
         self.loginAsAuthor()
         self.assertNotEqual(self.getTestImage(), None)
         self.gateway.seppuku(softclose=False)
+        self.assertRaises(Ice.ConnectionLostException, self.getTestImage)
+        self._has_connected = False
+        self.doDisconnect()
+        # Also make sure softclose does the right thing
+        self.loginAsAuthor()
+        g2 = self.gateway.clone()
+        def g2_getTestImage():
+            return dbhelpers.getImage(g2, 'testimg1')
+        self.assert_(g2.connect(self.gateway._sessionUuid))
+        self.assertNotEqual(self.getTestImage(), None)
+        self.assertNotEqual(g2_getTestImage(), None)
+        g2.seppuku(softclose=True)
+        self.assertRaises(Ice.ConnectionLostException, g2_getTestImage)
+        self.assertNotEqual(self.getTestImage(), None)
+        g2 = self.gateway.clone()
+        self.assert_(g2.connect(self.gateway._sessionUuid))
+        self.assertNotEqual(self.getTestImage(), None)
+        self.assertNotEqual(g2_getTestImage(), None)
+        g2.seppuku(softclose=False)
+        self.assertRaises(Ice.ConnectionLostException, g2_getTestImage)
         self.assertRaises(Ice.ConnectionLostException, self.getTestImage)
         self._has_connected = False
         self.doDisconnect()
