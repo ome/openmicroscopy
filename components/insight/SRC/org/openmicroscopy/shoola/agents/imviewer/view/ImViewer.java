@@ -1211,10 +1211,10 @@ public interface ImViewer
 	public void setTile(Tile tile, boolean done);
     
 	/**
-	 * Loads the passed tiles.
+	 * Loads the tiles corresponding to the specified region.
 	 * 
-	 * @param tiles The tiles to handle.
+	 * @param region The selected region.
 	 */
-	public void loadTiles(List<Tile> tiles);
+	public void loadTiles(Rectangle region);
 	
 }

@@ -197,15 +197,21 @@ class BirdEyeViewComponent
 	 * 
 	 * @param x The X-coordinate of the location.
 	 * @param y The Y-coordinate of the location.
+	 * @param w The width of the selection region.
+	 * @param h The width of the selection region.
 	 */
-	void setSelection(float x, float y)
+	void setSelection(int x, int y, int w, int h)
 	{
 		bx = x;
 		by = y;
-		inImage();
-		repaint();
+		this.w = w;
+		this.h = h;
+		if (imageRectangle != null) {
+			inImage();
+			repaint();
+		}
 	}
-	
+
 	/**
 	 * Sets the size of the canvas.
 	 *  

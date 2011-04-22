@@ -3203,15 +3203,38 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#loadTiles(List)
+	 * @see ImViewer#loadTiles(Rectangle)
 	 */
-	public void loadTiles(List<Tile> tiles)
+	public void loadTiles(Rectangle region)
 	{
 		if (model.getState() == DISCARDED) return;
-		if (tiles == null || tiles.size() == 0) return;
-		model.fireTileLoading(tiles);
+		if (region == null) return;
+		Map<Integer, Tile> tiles = getTiles();
+    	if (tiles == null) return;
+    	Dimension d = getTileSize();
+    	int cs = region.x/d.width-1;
+    	int rs = region.y/d.height-1;
+    	int ih = region.width/d.width;
+    	int iv = region.height/d.height;
+    	int columns = getColumns();
+    	int index;
+    	Tile t;
+    	if (cs < 0) cs = 0;
+    	if (rs < 0) rs = 0;
+    	int h = rs+iv+2;
+    	int w = cs+ih+2;
+    	List<Tile> l = new ArrayList<Tile>();
+    	for (int i = rs; i <= h; i++) {
+			for (int j = cs; j <= w; j++) {
+				index = i*columns+j;
+				t = tiles.get(index);
+				if (t != null && !t.isImageLoaded()) {
+					l.add(t);
+				}
+			}
+    	}
+		if (l.size() > 0) model.fireTileLoading(l);
 	}
-	
 	
 	/** 
 	 * Overridden to return the name of the instance to save. 

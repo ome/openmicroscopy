@@ -135,6 +135,23 @@ class BrowserUI
     	scrollTo(r, false);
     }
     
+    /** Sets the location of the region.*/
+    private void setSelectionRegion()
+    {
+    	if (birdEyeView == null) return;
+    	Dimension d = birdEyeView.getSize();
+    	Rectangle r = getViewport().getViewRect();
+    	int sizeX = model.getMaxX();
+    	int sizeY = model.getMaxY();
+    	int rx = sizeX/d.width;
+    	int ry = sizeY/d.height;
+    	int x = (int) (r.x/rx);
+    	int y = (int) (r.y/ry);
+    	int w = (int) (r.width/rx);
+    	int h = (int) (r.height/ry);
+    	birdEyeView.setSelection(x, y, w, h);
+    }
+    
     /** Initializes the components composing the display. */
     private void initComponents()
     {
@@ -482,6 +499,7 @@ class BrowserUI
         	setBirdEyeViewLocation();
         	return;
         }
+        setSelectionRegion();
         model.checkTilesToLoad(getViewport().getViewRect());
 	}
 	
@@ -502,6 +520,7 @@ class BrowserUI
 	{
 		super.setBounds(x, y, width, height);
 		if (model.isBigImage()) {
+    		setSelectionRegion();
 			setBirdEyeViewLocation();
 			return;
 		}
