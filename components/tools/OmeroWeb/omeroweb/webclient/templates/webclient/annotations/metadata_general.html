@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
+{% load wikitags %}
 
 {% block link %}
     <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
@@ -145,14 +146,6 @@
                     return false;
                 });
                 
-                $(".commentText").each(function() {
-                    var $comment = $(this);
-                    var html = $comment.html();
-                    console.log(html);
-                    var regexp = /(www\.[\S]+)[\s]/g;   // regex recognises www
-                    var edit = html.replace(regexp,"<a target='new' href='$1'>$1</a> ");
-                    $comment.html(edit);
-                });
 
             });
 
@@ -710,7 +703,7 @@
                                     <input class="button" type="image" src="{% url webstatic "images/cancel12.png" %}" alt="Delete" title="Delete" onclick="deleteItem('comment', '{{ tann.id }}');" />
                                 {% endif %}
                                 <div class='commentText'>
-                                {{ tann.textValue|safe|linebreaks }}
+                                {{ tann.textValue|wikify|safe|linebreaks }}
                                 </div>
                             </div>
                         </div>
