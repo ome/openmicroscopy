@@ -969,6 +969,11 @@ class ImViewerComponent
 			case DISCARDED:
 				return;
 		} 
+		if (model.isBigImage()) {
+			model.clearTiles();
+			loadTiles(model.getBrowser().getVisibleRectangle());
+			return;
+		}
 		boolean stop = false;
 		int index = model.getTabbedIndex();
 		RndProxyDef def;
@@ -2752,8 +2757,8 @@ class ImViewerComponent
 		
 		if (model.isBigImage()) { //bird eye loaded.
 			model.fireBirdEyeViewRetrieval();
-			model.fireTileLoading(null);
-		} else renderXYPlane();
+		}
+		renderXYPlane();
 		fireStateChange();
 	}
 

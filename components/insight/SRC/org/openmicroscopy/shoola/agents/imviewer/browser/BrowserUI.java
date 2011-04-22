@@ -278,7 +278,8 @@ class BrowserUI
 				public void propertyChange(PropertyChangeEvent evt)
 				{
 					String name = evt.getPropertyName();
-					if (BirdEyeViewComponent.DISPLAY_REGION_PROPERTY.equals(name)) {
+					if (BirdEyeViewComponent.DISPLAY_REGION_PROPERTY.equals(
+							name)) {
 						displaySelectedRegion((Rectangle) evt.getNewValue());
 					}
 				}
@@ -520,7 +521,7 @@ class BrowserUI
 	{
 		super.setBounds(x, y, width, height);
 		if (model.isBigImage()) {
-    		setSelectionRegion();
+    		//setSelectionRegion();
 			setBirdEyeViewLocation();
 			return;
 		}

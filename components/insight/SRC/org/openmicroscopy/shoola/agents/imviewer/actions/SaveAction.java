@@ -69,7 +69,8 @@ public class SaveAction
      */
     protected void onTabSelection()
     {
-    	setEnabled(model.getState() == ImViewer.READY);
+    	if (model.isBigImage()) setEnabled(false);
+    	else setEnabled(model.getState() == ImViewer.READY);
     }
     
     /**

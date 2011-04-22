@@ -85,9 +85,13 @@ public class ChannelMovieAction
     			setEnabled(false);
     			return;
     		case ImViewer.CHANNEL_MOVIE:
-    			setEnabled(true);
+    			setEnabled(!model.isBigImage());
     			return;
 		}
+    	if (model.isBigImage()) {
+    		setEnabled(false);
+    		return;
+    	}
         if (play) {
         	if (model.getActiveChannels().size() > 1)
         		setEnabled(true);

@@ -43,8 +43,6 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
-
-
 /** 
  * Implements the {@link Browser} interface to provide the functionality
  * required of the browser component.
@@ -683,6 +681,16 @@ class BrowserComponent
 	{
 		if (view == null) return;
 		view.setBirdEyeView(image);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getVisibleRectangle()
+	 */
+	public 	Rectangle getVisibleRectangle()
+	{
+		if (view == null) return null;
+		return view.getViewport().getVisibleRect();
 	}
 	
 }

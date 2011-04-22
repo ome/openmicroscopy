@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -76,6 +75,10 @@ public class ROIToolAction
      */
     protected void onTabSelection()
     {
+    	if (model.isBigImage()) {
+    		setEnabled(false);
+    		return;
+    	}
     	setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
     }
     
@@ -87,7 +90,7 @@ public class ROIToolAction
     protected void onStateChange(ChangeEvent e)
     {
     	if (model.getState() == ImViewer.READY)
-    		setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+    		onTabSelection();
     }
     
     /**

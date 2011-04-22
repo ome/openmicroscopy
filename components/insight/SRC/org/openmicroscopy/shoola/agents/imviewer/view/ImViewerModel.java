@@ -87,8 +87,6 @@ import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -2452,13 +2450,14 @@ class ImViewerModel
     void fireTileLoading(List<Tile> selection)
     {
     	Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return;
+		if (rnd == null || selection == null) return;
 		PlaneDef pDef = new PlaneDef();
 		pDef.t = getDefaultT();
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
 		state = ImViewer.LOADING_IMAGE;
 		List<Tile> list;
+		/*
 		if (selection == null) { //initialize
 			list = new ArrayList<Tile>();
 			Iterator<Tile> i = tiles.values().iterator();
@@ -2467,14 +2466,21 @@ class ImViewerModel
 			}
 			sortTilesByIndex(list);
 		} else {
-			list = selection;
-			sortTilesByIndex(list);
-			TileLoader loader = new TileLoader(component, currentPixelsID, pDef, 
-					list);
-			loader.load();
 		}
-		
-		
+		*/
+		list = selection;
+		sortTilesByIndex(list);
+		TileLoader loader = new TileLoader(component, currentPixelsID, pDef, 
+				list);
+		loader.load();
     }
-    
+
+    /** Clears the tiles.*/
+    void clearTiles()
+    {
+    	Iterator<Tile> i = tiles.values().iterator();
+		while (i.hasNext())
+			i.next().setImage(null);
+    }
+
 }

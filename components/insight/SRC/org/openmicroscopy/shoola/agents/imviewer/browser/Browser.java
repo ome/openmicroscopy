@@ -393,4 +393,12 @@ public interface Browser
 	 * @param result The value to set.
 	 */
 	void setBirdEyeView(BufferedImage result);
+	
+	/**
+	 * Returns the visible rectangle.
+	 * 
+	 * @return See above.
+	 */
+	Rectangle getVisibleRectangle();
+	
 }
