@@ -31,7 +31,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -675,6 +674,16 @@ class ImViewerComponent
 			throw new IllegalArgumentException("The zoom factor is value " +
 					"between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
 					ZoomAction.MAX_ZOOM_FACTOR);
+		
+		if (model.isBigImage()) {
+			model.setSelectedResolutionLevel(zoomIndex);
+			view.setZoomFactor(factor, zoomIndex);
+			Dimension d = model.getTileSize();
+			model.getBrowser().setComponentsSize(d.width*model.getColumns(),
+					d.height*model.getRows());
+			loadTiles(null);
+			return;
+		}
 		double oldFactor = model.getZoomFactor();
 		if (oldFactor == factor && factor != ZoomAction.ZOOM_FIT_FACTOR) return;
 		try {
@@ -972,7 +981,7 @@ class ImViewerComponent
 				return;
 		} 
 		if (model.isBigImage()) {
-			model.clearTiles();
+			model.resetTiles();
 			loadTiles(model.getBrowser().getVisibleRectangle());
 			return;
 		}
@@ -3115,16 +3124,6 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#getTileSize()
-	 */
-	public Dimension getTileSize()
-	{
-		if (model.getState() == DISCARDED) return null;
-		return model.getTileSize();
-	}
-	
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getRows()
 	 */
 	public int getRows() { return model.getRows(); }
@@ -3172,7 +3171,7 @@ class ImViewerComponent
 			region = model.getBrowser().getVisibleRectangle();
 		Map<Integer, Tile> tiles = getTiles();
     	if (tiles == null) return;
-    	Dimension d = getTileSize();
+    	Dimension d = model.getTileSize();
     	int cs = region.x/d.width;
     	int rs = region.y/d.height;
     	int ih = region.width/d.width;
@@ -3197,7 +3196,10 @@ class ImViewerComponent
 				}
 			}
     	}
-		if (l.size() > 0) model.fireTileLoading(l);
+		if (l.size() > 0) {
+			model.fireTileLoading(l);
+			fireStateChange();
+		}
 	}
 	
 	/** 

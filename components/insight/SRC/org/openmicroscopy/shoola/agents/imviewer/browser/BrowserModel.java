@@ -1190,14 +1190,7 @@ class BrowserModel
 		}
     	return list;
     }
-    
-    /**
-	 * Returns the size of the tile.
-	 * 
-	 * @return See above.
-	 */
-	Dimension getTileSize() { return parent.getTileSize(); }
-	
+
     /**
      * Returns the number of rows, default is <code>1</code>.
      * 

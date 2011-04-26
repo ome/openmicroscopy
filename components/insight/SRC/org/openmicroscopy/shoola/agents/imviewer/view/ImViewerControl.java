@@ -775,6 +775,9 @@ class ImViewerControl
 					historyState = state;
 				}
 				break;
+			case ImViewer.LOADING_TILES:
+				view.onStateChange(false);
+				break;
 			case ImViewer.CHANNEL_MOVIE:
 				historyState = ImViewer.CHANNEL_MOVIE;
 				view.onStateChange(false); 

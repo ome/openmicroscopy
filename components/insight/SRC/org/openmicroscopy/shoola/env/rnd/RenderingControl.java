@@ -821,12 +821,5 @@ public interface RenderingControl
 	 */
 	public Dimension getTileSize()
 		throws RenderingServiceException, DSOutOfServiceException;
-		
-	/**
-	 * Returns the viewport. This should only be available for big images.
-	 * 
-	 * @return See above.
-	 */
-	public Rectangle getViewport();
 	
 }

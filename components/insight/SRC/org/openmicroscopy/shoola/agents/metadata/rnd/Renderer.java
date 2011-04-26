@@ -654,4 +654,29 @@ public interface Renderer
 	 * @return See above.
 	 */
 	Dimension getTileSize();
+	
+	/**
+	 * Returns the possible resolution levels. This method should only be used
+	 * when dealing with large images.
+	 * 
+	 * @return See above.
+	 */
+	int getResolutionLevels();
+	
+	/**
+	 * Returns the currently selected resolution level. This method should only 
+	 * be used when dealing with large images.
+	 * 
+	 * @return See above.
+	 */
+	int getSelectedResolutionLevel();
+	
+	/**
+	 * Sets resolution level. This method should only be used when dealing with
+	 * large images.
+	 * 
+	 * @param level The value to set.
+	 */
+	void setSelectedResolutionLevel(int level);
+	
 }

@@ -84,6 +84,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Region;
+import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -277,11 +278,55 @@ class ImViewerModel
     private Map<Integer, Tile>			tiles;
     
     /** The number of rows, default is <code>1</code>.*/
-    private int numberOfRows;
+    private Integer numberOfRows;
     
     /** The number of columns, default is <code>1</code>.*/
-    private int numberOfColumns;
+    private Integer numberOfColumns;
     
+	/** The size of the tile.*/
+	private Dimension tileSize;
+	
+	/** The power of 2 used to determine the tile size.*/
+	private Map<Integer, ResolutionLevel> resolutionMap;
+	
+	/** Initializes the tiles objects.*/
+	private void initializeTiles()
+	{
+		Dimension d = getTileSize();
+		ResolutionLevel rl = resolutionMap.get(getSelectedResolutionLevel());
+		int px = rl.getPowerAlongX();
+		int py = rl.getPowerAlongX();
+		rl = resolutionMap.get(getResolutionLevels()-1);
+		int mx = rl.getPowerAlongX();
+		int my = rl.getPowerAlongY();
+		int size = (int) (getMaxX()/Math.pow(2, mx-px));
+		int n = size/d.width;
+		if (n*d.width < size) n++;
+		numberOfColumns = n;
+		size = (int) (getMaxY()/Math.pow(2, my-py));
+		n = size/d.height;
+		if (n*d.height < size) n++;
+		numberOfRows = n;
+		int index = 0;
+		Tile tile;
+		Region region;
+		int x = 0;
+		int y = 0;
+		
+		for (int i = 0; i < numberOfRows; i++) {
+			for (int j = 0; j < numberOfColumns; j++) {
+				index = i*numberOfColumns+j;
+				tile = new Tile(index, i, j);
+				region = new Region(x, y, d.width, d.height);
+				tile.setRegion(region);
+				x += d.width;
+				tiles.put(index, tile);
+			}
+			y += d.height;
+			x = 0;
+		}
+	}
+
     /**
      * Sorts the tiles by index.
      * 
@@ -596,7 +641,7 @@ class ImViewerModel
 	{ 
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return 0;
-		return rnd.getPixelsDimensionsX(); 
+		return rnd.getPixelsDimensionsX();
 	}
 
 	/**
@@ -608,7 +653,7 @@ class ImViewerModel
 	{ 
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return 0;
-		return rnd.getPixelsDimensionsY();
+		return rnd.getPixelsDimensionsY(); 
 	}
 
 	/**
@@ -807,46 +852,36 @@ class ImViewerModel
 	void onRndLoaded()
 	{
 		state = ImViewer.READY;
-		//tiles stuff
-		Dimension d = getTileSize();
-		int size = getMaxX();
-		int n = size/d.width;
-		if (n*d.width < size) n++;
-		numberOfColumns = n;
-		size = getMaxY();
-		n = size/d.height;
-		if (n*d.height < size) n++;
-		numberOfRows = n;
-		int index = 0;
-		Tile tile;
-		Region region;
-		int x = 0;
-		int y = 0;
-		for (int i = 0; i < numberOfRows; i++) {
-			for (int j = 0; j < numberOfColumns; j++) {
-				index = i*numberOfColumns+j;
-				tile = new Tile(index, i, j);
-				region = new Region(x, y, d.width, d.height);
-				tile.setRegion(region);
-				x += d.width;
-				tiles.put(index, tile);
+		Renderer rnd = metadataViewer.getRenderer();
+		resolutionMap = new HashMap<Integer, ResolutionLevel>();
+		if (rnd != null) {
+			Dimension d = rnd.getTileSize();
+			int levels = getResolutionLevels();
+			int powerX = (int) (Math.log(d.width)/Math.log(2));
+			int powerY = (int) (Math.log(d.height)/Math.log(2));
+			int index = 0;
+			int vx = 0, vy = 0;
+			for (int i = levels-1; i >= 0; i--) {
+				vx = powerX-index;
+				vy = powerY-index;
+				resolutionMap.put(i, new ResolutionLevel(i, vx, vy));
+				index++;
 			}
-			y += d.height;
-			x = 0;
 		}
+
+		initializeTiles();
 		//
 		double f = initZoomFactor();
 		if (f > 0)
 			browser.initializeMagnificationFactor(f);
 		try {
-			Renderer rnd = metadataViewer.getRenderer();
 			if (alternativeSettings != null && rnd != null)
 				rnd.resetSettings(alternativeSettings, false);
 			alternativeSettings = null;
 			if (rnd != null) originalDef = rnd.getRndSettingsCopy();
 		} catch (Exception e) {}
 	}
-
+	
 	/**
 	 * Returns the {@link Browser}.
 	 * 
@@ -2408,7 +2443,7 @@ class ImViewerModel
 		BirdEyeLoader loader = new BirdEyeLoader(component, getImage());
 		loader.load();
 	}
-	
+
 	/**
 	 * Returns the size of the tile.
 	 * 
@@ -2416,9 +2451,17 @@ class ImViewerModel
 	 */
 	Dimension getTileSize()
 	{
+		if (tileSize != null) return tileSize;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return null;
-		return rnd.getTileSize(); 
+		ResolutionLevel r = resolutionMap.get(getSelectedResolutionLevel());
+		if (r == null) {
+			tileSize = rnd.getTileSize();
+			return tileSize; 
+		}
+		tileSize = new Dimension((int) Math.pow(2, r.getPowerAlongX()), 
+				(int) Math.pow(2, r.getPowerAlongY()));
+		return tileSize; 
 	}
 
     /**
@@ -2455,32 +2498,66 @@ class ImViewerModel
 		pDef.t = getDefaultT();
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
-		state = ImViewer.LOADING_IMAGE;
 		List<Tile> list;
-		/*
-		if (selection == null) { //initialize
-			list = new ArrayList<Tile>();
-			Iterator<Tile> i = tiles.values().iterator();
-			while (i.hasNext()) {
-				list.add(i.next());
-			}
-			sortTilesByIndex(list);
-		} else {
-		}
-		*/
 		list = selection;
 		sortTilesByIndex(list);
+		state = ImViewer.LOADING_TILES;
 		TileLoader loader = new TileLoader(component, currentPixelsID, pDef, 
 				list);
 		loader.load();
     }
-
-    /** Clears the tiles.*/
-    void clearTiles()
+    
+    /** Resets the tiles.*/
+    void resetTiles()
     {
     	Iterator<Tile> i = tiles.values().iterator();
 		while (i.hasNext())
 			i.next().setImage(null);
     }
 
+	/**
+	 * Returns the possible resolution levels. This method should only be used
+	 * when dealing with large images.
+	 * 
+	 * @return See above.
+	 */
+	int getResolutionLevels()
+	{ 
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return 1; 
+		return rnd.getResolutionLevels();
+	}
+	
+	/**
+	 * Returns the currently selected resolution level. This method should only 
+	 * be used when dealing with large images.
+	 * 
+	 * @return See above.
+	 */
+	int getSelectedResolutionLevel()
+	{
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return 0; 
+		return rnd.getSelectedResolutionLevel();
+	}
+	
+	/**
+	 * Sets resolution level. This method should only be used when dealing with
+	 * large images.
+	 * 
+	 * @param level The value to set.
+	 */
+	void setSelectedResolutionLevel(int level)
+	{
+		if (level < 0) level = 0;
+		if (level >= getResolutionLevels())
+			level = getResolutionLevels()-1;
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return; 
+		tiles.clear();
+		rnd.setSelectedResolutionLevel(level);
+		//tileSize = null;
+		initializeTiles();
+	}
+	
 }

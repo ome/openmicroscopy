@@ -60,9 +60,9 @@ import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
@@ -596,6 +596,11 @@ class ControlPane
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
         initSlider(tSliderGrid, maxT, model.getDefaultT(), 
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
+        
+        if (model.isBigImage()) {
+        	ratioSlider.setMaximum(model.getResolutionLevels()-1);
+        	ratioSlider.setValue(model.getSelectedResolutionLevel());
+        }
         
         gridRatioSlider.addChangeListener(this);
         ratioSlider.addChangeListener(this);
@@ -1289,6 +1294,18 @@ class ControlPane
         			((ChannelButton) i.next()).setEnabled(false);
         	}
     	}
+    	//big images.
+    	if (model.isBigImage()) {
+    		if (model.getState() == ImViewer.LOADING_TILES) {
+    			ratioSlider.setEnabled(false);
+    			gridRatioSlider.setEnabled(false);
+    			projectionRatioSlider.setEnabled(false);
+    		} else {
+    			ratioSlider.setEnabled(true);
+    			gridRatioSlider.setEnabled(true);
+    			projectionRatioSlider.setEnabled(true);
+    		}
+    	}
     }
     
     /**
@@ -1545,7 +1562,7 @@ class ControlPane
 	/** Resets the zoom values when the image is large. */
 	void resetZoomValues()
 	{
-		ratioSlider.setMaximum(ZoomAction.ZOOM_100);
+		//ratioSlider.setMaximum(ZoomAction.ZOOM_100);
 	}
 	
 	/**
@@ -1716,7 +1733,7 @@ class ControlPane
 		}
 		return m;
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the overlays are turned on,
 	 * <code>false</code> otherwise.

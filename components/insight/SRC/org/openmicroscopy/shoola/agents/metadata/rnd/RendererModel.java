@@ -1424,4 +1424,42 @@ class RendererModel
 		if (rndControl == null) return null;
 		return rndControl.getTileSize();
 	}
+	
+	/**
+	 * Returns the possible resolution levels. This method should only be used
+	 * when dealing with large images.
+	 * 
+	 * @return See above.
+	 */
+	int getResolutionLevels()
+	{
+		if (rndControl == null) return 1;
+		return rndControl.getResolutionLevels();
+	}
+	
+	/**
+	 * Returns the currently selected resolution level. This method should only 
+	 * be used when dealing with large images.
+	 * 
+	 * @return See above.
+	 */
+	int getSelectedResolutionLevel()
+	{
+		if (rndControl == null) return 0;
+		return rndControl.getSelectedResolutionLevel();
+	}
+	
+	/**
+	 * Sets resolution level. This method should only be used when dealing with
+	 * large images.
+	 * 
+	 * @param level The value to set.
+	 */
+	void setSelectedResolutionLevel(int level)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (rndControl == null) return;
+		rndControl.setSelectedResolutionLevel(level);
+	}
+	
 }

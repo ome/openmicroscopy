@@ -31,12 +31,9 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -126,8 +123,8 @@ class BrowserUI
     {
     	if (region == null) return;
     	Dimension d = birdEyeView.getSize();
-    	int sizeX = model.getMaxX();
-    	int sizeY = model.getMaxY();
+    	int sizeX = model.getMaxX()/2;
+    	int sizeY = model.getMaxY()/2;
     	double vx = sizeX/d.width;
     	double vy = sizeY/d.height;
     	int x = (int) (vx*region.x);
@@ -149,6 +146,8 @@ class BrowserUI
     	int sizeY = model.getMaxY();
     	int rx = sizeX/d.width;
     	int ry = sizeY/d.height;
+    	if (rx == 0) rx = 1;
+    	if (ry == 0) ry = 1;
     	int x = (int) (r.x/rx);
     	int y = (int) (r.y/ry);
     	int w = (int) (r.width/rx);

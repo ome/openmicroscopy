@@ -1092,5 +1092,33 @@ class RendererComponent
 		}
 		return null;
 	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#getResolutionLevels()
+	 */
+	public int getResolutionLevels() { return model.getResolutionLevels(); }
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#getResolutionLevels()
+	 */
+	public int getSelectedResolutionLevel()
+	{
+		return model.getSelectedResolutionLevel();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#setSelectedResolutionLevel(int)
+	 */
+	public void setSelectedResolutionLevel(int level)
+	{
+		try {
+			model.setSelectedResolutionLevel(level);
+		} catch (Exception e) {
+			handleException(e);
+		}
+	}
 	
 }

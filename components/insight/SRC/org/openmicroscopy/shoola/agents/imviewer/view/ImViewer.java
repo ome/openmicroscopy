@@ -163,6 +163,9 @@ public interface ImViewer
 	/** Flag to denote the <i>Pasting settings</i> state. */
 	public static final int     PASTING = 14;
 	
+	/** Flag to denote the <i>Loading The tiles</i> state. */
+	public static final int     LOADING_TILES = 15;
+	
 	/** Bound property name indicating that a new z-section is selected. */
 	public final static String  Z_SELECTED_PROPERTY = "zSelected";
 
@@ -1172,13 +1175,6 @@ public interface ImViewer
 	 * @param result The value to set.
 	 */
 	void setBirdEyeView(BufferedImage result);
-	
-	/**
-	 * Returns the size of the tile.
-	 * 
-	 * @return See above.
-	 */
-	Dimension getTileSize();
 	
     /**
      * Returns the number of rows, default is <code>1</code>.

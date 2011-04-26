@@ -150,7 +150,7 @@ public class OneKnobSliderUI
 
 	/** The height of the thumb. */
 	private int					thumbHeight;
-
+	
 	/** Load the thumb and arrow images. */
 	private void loadThumbArrowImage()
 	{
@@ -311,7 +311,7 @@ public class OneKnobSliderUI
 	{
 		super(slider);
 		showArrows = true;
-		loadThumbArrowImage();    
+		loadThumbArrowImage();
 		showEndLabel = false;
 		endLabelRect = new Rectangle();
 	}
@@ -588,7 +588,7 @@ public class OneKnobSliderUI
 						slider.repaint();
 					}
 					isDragging = false;
-					return;     
+					return;
 				}
 				if (maxArrowRect.contains(currentMouseX, currentMouseY))
 				{

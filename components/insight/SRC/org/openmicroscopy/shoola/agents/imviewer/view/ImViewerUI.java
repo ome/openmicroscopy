@@ -79,7 +79,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomCmd;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
@@ -358,7 +357,8 @@ class ImViewerUI
 		JMenuBar menuBar = new JMenuBar(); 
 		menuBar.add(createControlsMenu(pref));
 		menuBar.add(createViewMenu(pref));
-		menuBar.add(createZoomMenu(pref, true));
+		if (!model.isBigImage())
+			menuBar.add(createZoomMenu(pref, true));
 		menuBar.add(createShowViewMenu());
 		TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
 		//menuBar.add(tb.getWindowsMenu());
@@ -775,6 +775,8 @@ class ImViewerUI
 		Dimension d = model.computeSize();
 		int sizeX = d.width;
 		int sizeY = d.height;
+		/*
+		
 		double f = model.getZoomFactor();
 		if (f > 0) {
 			sizeX = (int) (sizeX*f);
@@ -783,6 +785,7 @@ class ImViewerUI
 			setZoomFactor(factor, ZoomCmd.getZoomIndex(f));
 			setMagnificationStatus(factor);
 		}
+		*/
 		browser.setComponentsSize(sizeX, sizeY);
 		tabs = new ClosableTabbedPane(JTabbedPane.TOP, 
 									JTabbedPane.WRAP_TAB_LAYOUT);
@@ -1149,7 +1152,7 @@ class ImViewerUI
 	 */
 	void setZoomFactor(double factor, int zoomIndex)
 	{
-		setMagnificationStatus(factor);
+		setMagnificationStatus(factor, zoomIndex);
 		JCheckBoxMenuItem b;
 		Enumeration e;
 		Action a;
@@ -1171,14 +1174,18 @@ class ImViewerUI
 	 * selected tabbedPane.
 	 * 
 	 * @param factor The value to set.
+	 * @param zoomIndex The index of the selected zoomFactor.
 	 */
-	void setMagnificationStatus(double factor)
+	void setMagnificationStatus(double factor, int zoomIndex)
 	{
 		if (statusBar == null) return;
 		if (factor != ZoomAction.ZOOM_FIT_FACTOR)
 			statusBar.setRigthStatus("x"+
 					Math.round(factor*model.getOriginalRatio()*100)/100.0);
 		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
+		if (model.isBigImage()) {
+			 statusBar.setRigthStatus("resolution: "+zoomIndex);
+		}
 	}
 	
 	/**
@@ -1259,7 +1266,7 @@ class ImViewerUI
 		controlPane.onStateChange(b); 
 		toolBar.onStateChange(b); 
 	}
-
+	
 	/** Sets the default text of the status bar. */
 	void setLeftStatus()
 	{
@@ -1755,16 +1762,19 @@ class ImViewerUI
 				j = i;
 		}
 		if (j != -1) menuBar.remove(j);
+		double f;
 		switch (index) {
 			case ImViewer.GRID_INDEX:
 				if (j != -1) menuBar.add(zoomGridMenu, j);
-				setMagnificationStatus(model.getBrowser().getGridRatio());
+				f = model.getBrowser().getGridRatio();
+				setMagnificationStatus(f, ZoomAction.getIndex(f));
 				break;
 			case ImViewer.PROJECTION_INDEX:
 			case ImViewer.VIEW_INDEX:
 				default:
 				if (j != -1) menuBar.add(zoomMenu, j);
-				setMagnificationStatus(model.getZoomFactor());
+				f = model.getZoomFactor();
+				setMagnificationStatus(f, ZoomAction.getIndex(f));
 		}
 		int oldIndex = model.getTabbedIndex();
 		model.setTabbedIndex(index);
@@ -2099,7 +2109,7 @@ class ImViewerUI
 	void setGridMagnificationFactor(double factor)
 	{
 		if (model.getTabbedIndex() == ImViewer.GRID_INDEX)
-			setMagnificationStatus(factor);
+			setMagnificationStatus(factor, ZoomAction.getIndex(factor));
 		JCheckBoxMenuItem b;
 		Enumeration e;
 		Action a;
@@ -2446,12 +2456,13 @@ class ImViewerUI
 	/** Invokes when the rendering control is loaded. */
 	void onRndLoaded()
 	{
-		//model.setZoomFactor(ZoomAction.ZOOM_FIT_FACTOR, false);
-		//Depending on the size 
 		clearZoomMenu(zoomingGroup, zoomMenu);
 		clearZoomMenu(zoomingGridGroup, zoomGridMenu);
 		ViewerPreferences pref = ImViewerFactory.getPreferences();
 		createZoomMenu(pref, false);
+		int index = ZoomAction.getIndex(model.getZoomFactor());
+		if (model.isBigImage()) index = model.getSelectedResolutionLevel();
+		setMagnificationStatus(model.getZoomFactor(), index);
 		controlPane.resetZoomValues();
 	}
 	

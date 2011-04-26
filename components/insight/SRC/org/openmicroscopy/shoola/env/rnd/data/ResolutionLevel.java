@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.Tile 
+ * org.openmicroscopy.shoola.agents.imviewer.util.ResolutionLevel 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.env.rnd.data;
 //Application-internal dependencies
 
 /** 
- * Hosts information about a tile.
+ * Store information about the level and the power of 2 along the axis.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -41,97 +41,51 @@ package org.openmicroscopy.shoola.env.rnd.data;
  * </small>
  * @since 3.0-Beta4
  */
-public class Tile 
+public class ResolutionLevel
 {
 
-	/** The row index. */
-	private int row;
+	/** The power of 2 along the X-axis.*/
+	private int powerAlongX;
 	
-	/** The column index. */
-	private int column;
+	/** The power of 2 along the Y-axis.*/
+	private int powerAlongY;
 	
-	/** The image to display if loaded. */
-	private Object image;
-	
-	/** The index associated to the tile.*/
-	private int index;
-	
-	/** The region covered by the tile.*/
-	private Region region;
+	/** The resolution level.*/
+	private int level;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param row The row index.
-	 * @param column The column index;
+	 * @param level The resolution level.
+	 * @param powerAlongX The power of 2 along the X-axis.
+	 * @param powerAlongY The power of 2 along the Y-axis.
 	 */
-	public Tile(int index, int row, int column)
+	public ResolutionLevel(int level, int powerAlongX, int powerAlongY)
 	{
-		this.row = row;
-		this.column = column;
-		this.index = index;
-	}
-	/** 
-	 * Sets the region covered by the tile.
-	 * 
-	 * @param region The region covered.
-	 */
-	public void setRegion(Region region)
-	{
-		this.region = region;
+		this.level = level;
+		this.powerAlongX = powerAlongX;
+		this.powerAlongY = powerAlongY;
 	}
 	
 	/**
-	 * Returns the region covered by the tile.
+	 * Returns the resolution level.
 	 * 
 	 * @return See above.
 	 */
-	public Region getRegion() { return region; }
+	public int getLevel() { return level; }
 	
 	/**
-	 * Returns the index.
+	 * Returns power of 2 along the X-axis.
 	 * 
 	 * @return See above.
 	 */
-	public int getIndex() { return index; }
+	public int getPowerAlongX() { return powerAlongX; }
 	
 	/**
-	 * Returns the row.
+	 * Returns power of 2 along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	public int getRow() { return row; }
-	
-	/**
-	 * Returns the column.
-	 * 
-	 * @return See above.
-	 */
-	public int getColumn() { return column; }
-	
-	/**
-	 * Sets the image to display.
-	 * 
-	 * @param image The image to display
-	 */
-	public void setImage(Object image)
-	{
-		this.image = image;
-	}
-	
-	/**
-	 * Returns the image to display.
-	 * 
-	 * @return See above.
-	 */
-	public Object getImage() { return image; }
-	
-	/**
-	 * Returns <code>true</code> if the image has been loaded,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isImageLoaded() { return image != null; }
+	public int getPowerAlongY() { return powerAlongY; }
 	
 }

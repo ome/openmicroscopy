@@ -236,5 +236,5 @@ public class OneKnobSlider
 	{
 		super.setEnabled(enabled);
 	}
-	
+
 }

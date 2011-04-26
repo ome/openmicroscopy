@@ -85,8 +85,7 @@ public class TileLoader
     	try {
     		pDef.region = new RegionDef(rt.getX(), rt.getY(), 
     				rt.getWidth(), rt.getHeight());
-    		Object image = service.renderImage(pixelsID, pDef, asTexture, false);
-        	tile.setImage(image);
+        	tile.setImage(service.renderImage(pixelsID, pDef, asTexture, false));
 		} catch (Exception e) {
 			tile.setImage(Factory.createDefaultImageThumbnail(rt.getWidth(), 
 					rt.getHeight()));
