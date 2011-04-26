@@ -151,15 +151,6 @@ class BrowserModel
     
     /** Collection of retrieved images composing the grid. */
     private Map<Integer, TextureData>	gridImagesAsTextures;
-
-    /** The tiles to display. */
-    private List<Tile>			tiles;
-    
-    /** The number of rows, default is <code>1</code>.*/
-    private int numberOfRows;
-    
-    /** The number of columns, default is <code>1</code>.*/
-    private int numberOfColumns;
     
     /**
      * Returns <code>true</code> if the active channels are mapped
@@ -440,7 +431,6 @@ class BrowserModel
         gridImages = new ArrayList<BufferedImage>();
         gridImagesAsTextures = new HashMap<Integer, TextureData>();
         zoomFactor = ZoomAction.DEFAULT_ZOOM_FACTOR;
-        tiles = new ArrayList<Tile>();
         if (pref != null) {
         	if (pref.getBackgroundColor() != null)
         		backgroundColor = pref.getBackgroundColor();
@@ -1218,12 +1208,7 @@ class BrowserModel
      * 
      * @return See above.
      */
-    boolean isBigImage()
-    {
-    	Map<Integer, Tile> tiles = getTiles();
-    	if (tiles != null && tiles.size() > 1) return true;
-    	return false;
-    }
+    boolean isBigImage() { return parent.isBigImage(); }
 
     /**
      * Checks if the tiles have to be loaded.

@@ -289,10 +289,18 @@ class ImViewerModel
 	/** The power of 2 used to determine the tile size.*/
 	private Map<Integer, ResolutionLevel> resolutionMap;
 	
+	/** The size of the tiled image along the X-axis.*/
+	private int tiledImageSizeX;
+	
+	/** The size of the tiled image along the Y-axis.*/
+	private int tiledImageSizeY;
+	
 	/** Initializes the tiles objects.*/
 	private void initializeTiles()
 	{
 		Dimension d = getTileSize();
+		int w = d.width;
+		int h = d.height;
 		ResolutionLevel rl = resolutionMap.get(getSelectedResolutionLevel());
 		int px = rl.getPowerAlongX();
 		int py = rl.getPowerAlongX();
@@ -300,10 +308,12 @@ class ImViewerModel
 		int mx = rl.getPowerAlongX();
 		int my = rl.getPowerAlongY();
 		int size = (int) (getMaxX()/Math.pow(2, mx-px));
-		int n = size/d.width;
+		if (size < d.width) w = size;
+		int n = size/w;
 		if (n*d.width < size) n++;
 		numberOfColumns = n;
 		size = (int) (getMaxY()/Math.pow(2, my-py));
+		if (size < d.height) h = size;
 		n = size/d.height;
 		if (n*d.height < size) n++;
 		numberOfRows = n;
@@ -312,12 +322,11 @@ class ImViewerModel
 		Region region;
 		int x = 0;
 		int y = 0;
-		
 		for (int i = 0; i < numberOfRows; i++) {
 			for (int j = 0; j < numberOfColumns; j++) {
 				index = i*numberOfColumns+j;
 				tile = new Tile(index, i, j);
-				region = new Region(x, y, d.width, d.height);
+				region = new Region(x, y, w, h);
 				tile.setRegion(region);
 				x += d.width;
 				tiles.put(index, tile);
@@ -325,6 +334,8 @@ class ImViewerModel
 			y += d.height;
 			x = 0;
 		}
+		tiledImageSizeX = w*numberOfColumns;
+		tiledImageSizeY = h*numberOfRows;
 	}
 
     /**
@@ -1074,7 +1085,7 @@ class ImViewerModel
 	 */
 	boolean isBigImage()
 	{
-		return tiles.size() > 1;
+		return getResolutionLevels() > 1;
 		/*
 		return (getMaxX() > RenderingControl.MAX_SIZE_THREE ||
 				getMaxY() > RenderingControl.MAX_SIZE_THREE);
@@ -2559,5 +2570,21 @@ class ImViewerModel
 		//tileSize = null;
 		initializeTiles();
 	}
+	
+	/**
+	 * Returns the size of the tiled image along the X-axis i.e.
+	 * the size of a tile along the X-axis multiplied by the number of columns.
+	 * 
+	 * @return See above.
+	 */
+	int getTiledImageSizeX() { return tiledImageSizeX; }
+	
+	/**
+	 * Returns the size of the tiled image along the Y-axis i.e.
+	 * the size of a tile along the Y-axis multiplied by the number of rows.
+	 * 
+	 * @return See above.
+	 */
+	int getTiledImageSizeY() { return tiledImageSizeY; }
 	
 }
