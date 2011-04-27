@@ -5434,7 +5434,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             if not isinstance(projection, omero.constants.projection.ProjectionType):
                 rv = self._re.renderCompressed(self._pd)
             else:
-                rv = self._re.renderProjectedCompressed(projection, self._pd.t, 1, 0, self.z_count()-1)
+                rv = self._re.renderProjectedCompressed(projection, self._pd.t, 1, 0, self.getSizeZ()-1)
             return rv
         except omero.InternalException: #pragma: no cover
             logger.debug('On renderJpeg');
@@ -5653,7 +5653,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @rtype:         Dict
         """
         
-        c = self.c_count()
+        c = self.getSizeC()
         # Greyscale, no channel overlayed image
         x = sqrt(c)
         y = int(round(x))
@@ -5698,7 +5698,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         dims = self.splitChannelDims(border=border)[self.isGreyscaleRenderingModel() and 'g' or 'c']
         canvas = Image.new('RGBA', (dims['width'], dims['height']), '#fff')
         cmap = [ch.isActive() and i+1 or 0 for i,ch in enumerate(self.getChannels())]
-        c = self.c_count()
+        c = self.getSizeC()
         pxc = 0
         px = dims['border']
         py = dims['border']
@@ -5948,7 +5948,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return self._obj.getPrimaryPixels().getSizeY().val
 
     @assert_pixels
-    def z_count (self):
+    def getSizeZ (self):
         """
         Gets Z count of the image
         
@@ -5962,7 +5962,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             return self._obj.getPrimaryPixels().getSizeZ().val
 
     @assert_pixels
-    def t_count (self):
+    def getSizeT (self):
         """
         Gets T count of the image
         
@@ -5976,7 +5976,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             return self._obj.getPrimaryPixels().getSizeT().val
 
     @assert_pixels
-    def c_count (self):
+    def getSizeC (self):
         """
         Gets C count of the image (number of channels)
         
