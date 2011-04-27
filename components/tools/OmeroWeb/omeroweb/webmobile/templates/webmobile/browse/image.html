@@ -46,7 +46,7 @@
     <!-- Table of image dimensions -->
     <table class="small">
         <tr><td>Dimensions (XY)</td><td class='gray'>{{ object.getWidth }} x {{ object.getHeight }}</td></tr>
-        <tr><td>Z sections, timepoints</td><td class='gray'>{{ object.z_count }}, {{ object.t_count }}</td></tr>
+        <tr><td>Z sections, timepoints</td><td class='gray'>{{ object.getSizeZ }}, {{ object.getSizeT }}</td></tr>
         {% if object.getPixelSizeX %}
             <tr><td>Pixel Size (XY{% if object.getPixelSizeZ %}Z{% endif %}) (um)</td>
                 <td class='gray'>
