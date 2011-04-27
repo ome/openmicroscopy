@@ -56,12 +56,6 @@ class BirdEyeViewComponent
 	extends JPanel
 	implements MouseListener, MouseMotionListener
 {
-
-	/** Indicate to display the bird eye in <code>TOP LEFT</code>.*/
-	static final int TOP_LEFT = 0;
-	
-	/** Indicate to display the bird eye in <code>TOP LEFT</code>.*/
-	static final int BOTTOM_RIGHT = 1;
 	
 	/** Property indicating to render a region. */
 	static final String DISPLAY_REGION_PROPERTY = "displayRegion";
@@ -162,11 +156,11 @@ class BirdEyeViewComponent
 			return;
 		}
 		switch (locationIndex) {
-			case BOTTOM_RIGHT:
+			case ImageCanvas.BOTTOM_RIGHT:
 				cross.x = canvasWidth-cross.width;
 				cross.y = canvasHeight-cross.height;
 				break;
-			case TOP_LEFT:
+			case ImageCanvas.TOP_LEFT:
 				cross.x = 0;
 				cross.y = 0;
 		}
@@ -207,12 +201,12 @@ class BirdEyeViewComponent
 		fullDisplay = true;
 		pImage = null;
 		switch (locationIndex) {
-			case TOP_LEFT:
-			case BOTTOM_RIGHT:
+			case ImageCanvas.TOP_LEFT:
+			case ImageCanvas.BOTTOM_RIGHT:
 				this.locationIndex = locationIndex;
 				break;
 			default:
-				this.locationIndex = TOP_LEFT;
+				this.locationIndex = ImageCanvas.TOP_LEFT;
 		}
 		cross = new Rectangle(0, 0, BORDER_5, BORDER_5);
 	}
@@ -220,7 +214,7 @@ class BirdEyeViewComponent
 	/** Creates a new instance. */
 	BirdEyeViewComponent()
 	{
-		this(TOP_LEFT);
+		this(ImageCanvas.TOP_LEFT);
 	}
 	
 	/**
@@ -329,12 +323,12 @@ class BirdEyeViewComponent
 			g2D.fillRect(cross.x, cross.y, cross.width, cross.height);
 			g2D.setColor(STROKE_COLOR);
 			switch (locationIndex) {
-				case BOTTOM_RIGHT:
+				case ImageCanvas.BOTTOM_RIGHT:
 					g2D.drawLine(xArrow, yArrow, BORDER_5, BORDER_5);
 					g2D.drawLine(xArrow, yArrow, xArrow+v, yArrow);
 					g2D.drawLine(xArrow, yArrow, xArrow, yArrow+v);
 					break;
-				case TOP_LEFT:
+				case ImageCanvas.TOP_LEFT:
 				default:
 					g2D.drawLine(xArrow, yArrow, BORDER_5-xArrow,
 							BORDER_5-yArrow);
@@ -357,7 +351,7 @@ class BirdEyeViewComponent
 		g2D.fillRect(cross.x, cross.y, cross.width, cross.height);
 		g2D.setColor(STROKE_COLOR);
 		switch (locationIndex) {
-			case BOTTOM_RIGHT:
+			case ImageCanvas.BOTTOM_RIGHT:
 				g2D.drawLine(canvasWidth-BORDER_5+xArrow,
 						canvasHeight-BORDER_5+yArrow,
 						canvasWidth-xArrow, canvasHeight-yArrow);
@@ -366,7 +360,7 @@ class BirdEyeViewComponent
 				g2D.drawLine(canvasWidth-xArrow, canvasHeight-yArrow-v,
 						canvasWidth-xArrow, canvasHeight-yArrow);
 				break;
-			case TOP_LEFT:
+			case ImageCanvas.TOP_LEFT:
 			default:
 				
 				g2D.drawLine(xArrow, yArrow, xArrow+v, yArrow);

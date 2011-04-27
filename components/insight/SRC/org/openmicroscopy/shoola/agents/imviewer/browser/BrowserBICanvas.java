@@ -96,14 +96,16 @@ class BrowserBICanvas
     				}
     			}
     		}
+        	paintScaleBar(g2D, getWidth(), getHeight(),
+           		 view.getViewport());
         } else {
         	 BufferedImage img = model.getDisplayedImage();
              if (img == null) return;
              g2D.drawImage(img, null, 0, 0); 
              paintScaleBar(g2D, img.getWidth(), img.getHeight(),
             		 view.getViewport());
-             g2D.dispose();
         }
+        g2D.dispose();
     }
 
 }

@@ -106,12 +106,12 @@ class BrowserUI
     	if (birdEyeView == null) return;
 		Rectangle r = getViewport().getViewRect();
 		switch (birdEyeView.getLocationIndex()) {
-			case BirdEyeViewComponent.BOTTOM_RIGHT:
+			case ImageCanvas.BOTTOM_RIGHT:
 				Dimension d = birdEyeView.getSize();
 				birdEyeView.setLocation(r.x+r.width-d.width, 
 						r.y+r.height-d.height);
 				break;
-			case BirdEyeViewComponent.TOP_LEFT:
+			case ImageCanvas.TOP_LEFT:
 			default:
 				birdEyeView.setLocation(r.x, r.y);
 		}
@@ -295,7 +295,7 @@ class BrowserUI
 	{
     	if (birdEyeView == null) {
     		birdEyeView = new BirdEyeViewComponent(
-    				BirdEyeViewComponent.BOTTOM_RIGHT);
+    				ImageCanvas.BOTTOM_RIGHT);
     		birdEyeView.addPropertyChangeListener(new PropertyChangeListener() {
 				
     			/**
@@ -509,6 +509,17 @@ class BrowserUI
 		scrollTo(getViewport().getViewRect(), false);
 	}
 
+	/**
+	 * Returns the location of the bird eye view.
+	 * 
+	 * @return See above.
+	 */
+	int getBirdEyeViewLocationIndex()
+	{
+		if (birdEyeView == null) return -1;
+		return birdEyeView.getLocationIndex();
+	}
+	
 	/**
 	 * Sets the location of the bird eye to be sure that it is always visible.
 	 * @see AdjustmentListener#adjustmentValueChanged(AdjustmentEvent)

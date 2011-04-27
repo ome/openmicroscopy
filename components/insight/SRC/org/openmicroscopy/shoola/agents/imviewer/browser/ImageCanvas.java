@@ -55,6 +55,12 @@ class ImageCanvas
 	extends JPanel
 {
 
+	/** Indicate to display the bird eye in <code>Top left</code>.*/
+	static final int TOP_LEFT = 0;
+	
+	/** Indicate to display the bird eye in <code>Bottom right</code>.*/
+	static final int BOTTOM_RIGHT = 1;
+	
 	/** The background color of the text area. */
 	static final Color		BACKGROUND = Color.BLACK;
 	
@@ -133,9 +139,18 @@ class ImageCanvas
 			w = x+viewRect.width;
 			h = y+viewRect.height;
 		}
-		if (viewRect.width >= size && size > 1)
-			ImagePaintingFactory.paintScaleBar(g2D, w-size-10, h-10, size, 
-											value, model.getUnitBarColor());
+		if (viewRect.width >= size && size > 1) {
+			switch (view.getBirdEyeViewLocationIndex()) {
+				case ImageCanvas.BOTTOM_RIGHT:
+					ImagePaintingFactory.paintScaleBar(g2D, x+10, h-10,
+							size, value, model.getUnitBarColor());
+					break;
+				case ImageCanvas.TOP_LEFT:
+				default:
+					ImagePaintingFactory.paintScaleBar(g2D, w-size-10, h-10,
+							size, value, model.getUnitBarColor());
+			}
+		}
 	}
 	
 }
