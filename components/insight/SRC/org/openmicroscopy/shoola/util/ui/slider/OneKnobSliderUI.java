@@ -367,16 +367,42 @@ public class OneKnobSliderUI
 	 */
 	void setArrowsImageIcon(ImageIcon up, ImageIcon down)
 	{
+		setArrowsImageIcon(up, down, null, null);
+	}
+
+	/**
+	 * Replaces the arrows icons by the specified one.
+	 * 
+	 * @param up	The icon displayed at the top of the slider if
+	 * 				vertical, at the right of the slider if horizontal.
+	 * @param down  The icon displayed at the bottom of the slider if
+	 * 				vertical, at the left of the slider if horizontal.
+	 * @param disabledUp The disabled icon displayed at the top of the slider if
+	 * 				vertical, at the right of the slider if horizontal.
+	 * @param disabledDown The disabled icon displayed at the bottom of the 
+	 * 				slider if vertical, at the left of the slider if horizontal.
+	 */
+	void setArrowsImageIcon(ImageIcon up, ImageIcon down, 
+			ImageIcon disabledUp, ImageIcon disabledDown)
+	{
 		if (slider.getOrientation() == JSlider.HORIZONTAL) {
 			rightArrowImage = up.getImage();
-			rightArrowDisabledImage = up.getImage();
+			if (disabledUp != null)
+				rightArrowDisabledImage = disabledUp.getImage();
+			else rightArrowDisabledImage = up.getImage();
 			leftArrowImage = down.getImage();
-			leftArrowDisabledImage = down.getImage();
+			if (disabledDown != null)
+				leftArrowDisabledImage = disabledDown.getImage();
+			else leftArrowDisabledImage = down.getImage();
 		} else {
 			upArrowImage = up.getImage();
-			upArrowDisabledImage = up.getImage();
+			if (disabledUp != null)
+				upArrowDisabledImage = disabledUp.getImage();
+			else upArrowDisabledImage = up.getImage();
 			downArrowImage = down.getImage();
-			downArrowDisabledImage = down.getImage();
+			if (disabledDown != null)
+				downArrowDisabledImage = disabledDown.getImage();
+			else downArrowDisabledImage = down.getImage();
 		}
 		arrowWidth = up.getIconWidth();
 		arrowHeight = up.getIconHeight();
@@ -384,7 +410,7 @@ public class OneKnobSliderUI
 		minArrowHeight = down.getIconHeight();
 		this.calculateGeometry();
 	}
-
+	
 	/**
 	 * Returns <code>true</code> if the  arrows on the track, 
 	 * <code>false</code> otherwise.

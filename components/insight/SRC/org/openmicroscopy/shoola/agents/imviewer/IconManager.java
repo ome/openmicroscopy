@@ -263,11 +263,17 @@ public class IconManager
     /** The 48x48 <code>FLIM</code> icon. */
     public static final int          FLIM_48 = 69;
     
+    /** The <code>Ratio min</code> icon. */
+    public static final int           RATIO_MIN_DISABLED = 70;
+    
+    /** The <code>Ratio max</code> icon. */
+    public static final int           RATIO_MAX_DISABLED = 71;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 69;
+    private static final int          MAX_ID = 71;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -342,6 +348,8 @@ public class IconManager
         relPaths[RND_UNDO] = "nuvola_undo16.png";
         relPaths[REFRESH] = "nuvola_reload16.png";
         relPaths[FLIM_48] = "nuvola_messagebox_info48.png";
+        relPaths[RATIO_MIN_DISABLED] = "nuvola_disabled_viewmag-16.png";
+        relPaths[RATIO_MAX_DISABLED] = "nuvola_disabled_viewmag+16.png";
     }
     
     /** The sole instance. */

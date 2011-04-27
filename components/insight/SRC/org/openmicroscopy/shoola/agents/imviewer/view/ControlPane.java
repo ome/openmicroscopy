@@ -442,7 +442,9 @@ class ControlPane
        
         ratioSlider.setArrowsImageIcon(
         		icons.getImageIcon(IconManager.RATIO_MAX), 
-        		icons.getImageIcon(IconManager.RATIO_MIN));
+        		icons.getImageIcon(IconManager.RATIO_MIN),
+        		icons.getImageIcon(IconManager.RATIO_MAX_DISABLED), 
+        		icons.getImageIcon(IconManager.RATIO_MIN_DISABLED));
         
         projectionRatioSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 
 				ZoomAction.MIN_ZOOM_INDEX, 

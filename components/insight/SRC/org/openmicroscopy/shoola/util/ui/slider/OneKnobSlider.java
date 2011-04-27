@@ -135,6 +135,25 @@ public class OneKnobSlider
 	}
 	
 	/**
+	 * Replaces the arrows icons by the specified one.
+	 * 
+	 * @param up	The icon displayed at the top of the slider if
+	 * 				vertical, at the right of the slider if horizontal.
+	 * @param down  The icon displayed at the bottom of the slider if
+	 * 				vertical, at the left of the slider if horizontal.
+	 * @param disabledUp The disabled icon displayed at the top of the slider if
+	 * 				vertical, at the right of the slider if horizontal.
+	 * @param disabledDown The disabled icon displayed at the bottom of the 
+	 * 				slider if vertical, at the left of the slider if horizontal.
+	 */
+	public void setArrowsImageIcon(ImageIcon up, ImageIcon down, 
+			ImageIcon disabledUp, ImageIcon disabledDown)
+	{
+		if (up == null || down == null) return;
+		sliderUI.setArrowsImageIcon(up, down, disabledUp, disabledDown);
+	}
+	
+	/**
 	 * Sets the string for the tooltip which is displayed when slider changes
 	 * value, as well as the label shown at the end of the text. 
 	 * 
