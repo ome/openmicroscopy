@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -1213,4 +1212,19 @@ public interface ImViewer
 	 */
 	public void loadTiles(Rectangle region);
 	
+	/**
+	 * Returns the size of the tiled image along the X-axis i.e.
+	 * the size of a tile along the X-axis multiplied by the number of columns.
+	 * 
+	 * @return See above.
+	 */
+	int getTiledImageSizeX();
+	
+	/**
+	 * Returns the size of the tiled image along the Y-axis i.e.
+	 * the size of a tile along the Y-axis multiplied by the number of rows.
+	 * 
+	 * @return See above.
+	 */
+	int getTiledImageSizeY();
 }

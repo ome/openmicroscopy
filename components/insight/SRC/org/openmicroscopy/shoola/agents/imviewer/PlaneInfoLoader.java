@@ -31,7 +31,6 @@ import java.util.Collection;
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
@@ -123,5 +122,5 @@ public class PlaneInfoLoader
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
         viewer.setPlaneInfo((Collection) result);
     }
-    
+
 }

@@ -3203,6 +3203,24 @@ class ImViewerComponent
 	}
 	
 	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getTiledImageSizeX()
+	 */
+	public int getTiledImageSizeX()
+	{ 
+		return model.getTiledImageSizeX();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getTiledImageSizeY()
+	 */
+	public int getTiledImageSizeY()
+	{ 
+		return model.getTiledImageSizeY();
+	}
+	
+	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */

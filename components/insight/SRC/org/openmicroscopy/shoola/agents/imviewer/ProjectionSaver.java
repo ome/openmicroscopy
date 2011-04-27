@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 
 //Java imports
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +35,6 @@ import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.log.LogMessage;
-
 import pojos.DataObject;
 import pojos.ImageData;
 

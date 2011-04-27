@@ -154,7 +154,6 @@ public class RenderingSettingsLoader
         } else {
         	viewer.setRenderingSettings(map, ownerID);
         }
-
     }
-    
+
 }

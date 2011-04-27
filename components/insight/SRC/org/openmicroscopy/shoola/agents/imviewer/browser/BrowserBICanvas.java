@@ -81,6 +81,7 @@ class BrowserBICanvas
         	int index;
         	Object img;
             Region region;
+            
         	for (int i = 0; i < rows; i++) {
     			for (int j = 0; j < columns; j++) {
     				index = i*columns+j;
@@ -96,8 +97,8 @@ class BrowserBICanvas
     				}
     			}
     		}
-        	paintScaleBar(g2D, getWidth(), getHeight(),
-           		 view.getViewport());
+        	paintScaleBar(g2D, model.getTiledImageSizeX(),
+        			model.getTiledImageSizeY(), view.getViewport());
         } else {
         	 BufferedImage img = model.getDisplayedImage();
              if (img == null) return;

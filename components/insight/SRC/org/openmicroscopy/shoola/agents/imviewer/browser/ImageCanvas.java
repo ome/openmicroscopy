@@ -139,6 +139,8 @@ class ImageCanvas
 			w = x+viewRect.width;
 			h = y+viewRect.height;
 		}
+		if (imgRect.getWidth() < size)
+			size = 1;
 		if (viewRect.width >= size && size > 1) {
 			switch (view.getBirdEyeViewLocationIndex()) {
 				case ImageCanvas.BOTTOM_RIGHT:
