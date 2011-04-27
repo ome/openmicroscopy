@@ -86,7 +86,7 @@ function openPopup(url) {
         <tr>
             <td>
                 <img class="plane" src="{% url webemdb_slice_axis image.getId 'z' %}" />
-                <div class='caption'>Slice z = {{ z }}/{{ image.z_count }}</div>
+                <div class='caption'>Slice z = {{ z }}/{{ image.getSizeZ }}</div>
             </td>
             <td>
                 <img class="plane" src="{% url webemdb_slice_axis image.getId 'y' %}" />

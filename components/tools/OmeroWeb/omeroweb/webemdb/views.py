@@ -504,7 +504,7 @@ def mapmodel(request, imageId, entryId=None):
     
     image = conn.getObject("Image", imageId)
     
-    z = image.z_count()/2
+    z = image.getSizeZ()/2
     
     return render_to_response('webemdb/data/mapmodel.html', {'image': image, 'z':z, 'entryId': entryId})
     
@@ -534,7 +534,7 @@ def image(request, imageId):
 
     if not image:
         return render_to_response('webemdb/data/image.html', {'image': image, "scripts": scripts})
-    default_z = image.z_count()/2
+    default_z = image.getSizeZ()/2
     # enable the django template to access all parents of the image
     image.showAllParents = image.listParents(single=False)
     
