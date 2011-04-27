@@ -170,9 +170,9 @@ class BlitzStorage(LoggingMixIn, Operations):
                     meta = getattr(p, '_fs_meta', {})
                     print meta
                     if meta.get('context', None) == 'Z':
-                        files = ['%i' % x for x in range(p.z_count())]
+                        files = ['%i' % x for x in range(p.getSizeZ())]
                     elif meta.get('context', None) == 'T':
-                        files = ['%i' % x for x in range(p.t_count())]
+                        files = ['%i' % x for x in range(p.getSizeT())]
                     else:
                         files = ['image.jpg', 'thumb.jpg', 'packedint']
                         files.extend(meta.get('available_context', []))
