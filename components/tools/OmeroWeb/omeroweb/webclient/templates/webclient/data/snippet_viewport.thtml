@@ -71,8 +71,8 @@
     var done_reload = function () {
       return viewport_wait.is(':hidden');
     };
-    $("#t-slider").slider({ min: 1, max: {{ image.t_count }}, repeatCallback: done_reload, tooltip_prefix: 'T=' });
-    $("#z-slider").slider({orientation: 'v', min: 1, max: {{ image.z_count }}, repeatCallback: done_reload, tooltip_prefix: 'Z='});
+    $("#t-slider").slider({ min: 1, max: {{ image.getSizeT }}, repeatCallback: done_reload, tooltip_prefix: 'T=' });
+    $("#z-slider").slider({orientation: 'v', min: 1, max: {{ image.getSizeZ }}, repeatCallback: done_reload, tooltip_prefix: 'Z='});
 
     /* Pan image viewer */
     viewport_img.viewportImage();
@@ -111,7 +111,7 @@
   {% if opts.z %}
     $("#z-slider").get(0).setSliderPos({{ opts.z }}, 1);
   {% else %}
-    $("#z-slider").get(0).setSliderPos(parseInt({{ image.z_count }} / 2 + 1), 1);
+    $("#z-slider").get(0).setSliderPos(parseInt({{ image.getSizeZ }} / 2 + 1), 1);
   {% endif %}
 
     /* Bind the T slider action */

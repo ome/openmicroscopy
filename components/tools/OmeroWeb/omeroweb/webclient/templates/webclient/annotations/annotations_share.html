@@ -180,12 +180,12 @@
             
             <table class="metadata_details">
                 {% if manager.image %}
-                <tr><td><label>{% trans "Dimensions" %} (XYZT): </label></td><td>{{ manager.image.getWidth }} x {{ manager.image.getHeight }} x {{ manager.image.z_count }} x {{ manager.image.t_count }}</td></tr>
+                <tr><td><label>{% trans "Dimensions" %} (XYZT): </label></td><td>{{ manager.image.getWidth }} x {{ manager.image.getHeight }} x {{ manager.image.getSizeZ }} x {{ manager.image.getSizeT }}</td></tr>
                 <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m]: </label></td><td>{{ manager.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
                 <tr><th colspan="2"><br/></th></tr>
                 {% endif %}
                 {% if manager.well %}
-                <tr><td><label>{% trans "Dimensions" %} (XYZT): </label></td><td>{{ manager.well.selectedWellSample.image.getWidth }} x {{ manager.well.selectedWellSample.image.getHeight }} x {{ manager.well.selectedWellSample.image.z_count }} x {{ manager.well.selectedWellSample.image.t_count }}</td></tr>
+                <tr><td><label>{% trans "Dimensions" %} (XYZT): </label></td><td>{{ manager.well.selectedWellSample.image.getWidth }} x {{ manager.well.selectedWellSample.image.getHeight }} x {{ manager.well.selectedWellSample.image.getSizeZ }} x {{ manager.well.selectedWellSample.image.getSizeT }}</td></tr>
                 <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m]: </label></td><td>{{ manager.well.selectedWellSample.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.well.selectedWellSample.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.well.selectedWellSample.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
                 <tr><th colspan="2"><br/></th></tr>
                 {% endif %}

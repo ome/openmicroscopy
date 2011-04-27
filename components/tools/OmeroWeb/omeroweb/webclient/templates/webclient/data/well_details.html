@@ -25,8 +25,8 @@
                 <tr><td><label>{% trans "Image date" %} </label></td><td>{{ manager.well.selectedWellSample.image.getDate|date:"Y-m-d H:i:s" }}</td></tr>
                 <tr><td><label>{% trans "Dimensions" %} (XY) [px] </label></td><td>{{ manager.well.selectedWellSample.image.getWidth }} x {{ manager.well.selectedWellSample.image.getHeight }}</td></tr>
                 <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m] </label></td><td>{{ manager.well.selectedWellSample.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.well.selectedWellSample.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.well.selectedWellSample.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
-                <tr><td><label>{% trans "Z-sections" %} </label></td><td>{{ manager.well.selectedWellSample.image.z_count }}</td></tr>
-                <tr><td><label>{% trans "Timepoints" %} </label></td><td>{{ manager.well.selectedWellSample.image.t_count }}</td></tr>
+                <tr><td><label>{% trans "Z-sections" %} </label></td><td>{{ manager.well.selectedWellSample.image.getSizeZ }}</td></tr>
+                <tr><td><label>{% trans "Timepoints" %} </label></td><td>{{ manager.well.selectedWellSample.image.getSizeT }}</td></tr>
             </table>
         </div>
     </li>
