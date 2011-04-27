@@ -96,13 +96,7 @@ class BrowserUI
 
     /** Flag indicating if the experimenter uses the scrollbars. */
     private boolean					adjusting;
-    
-    /** 
-     * Flag used to set the location of the scroll bars if visible
-     * the first time the image is visible.
-     */
-    private int					init;
-    
+
     /** The bird eye view.*/
     private BirdEyeViewComponent	birdEyeView;
     
@@ -111,7 +105,18 @@ class BrowserUI
     {
     	if (birdEyeView == null) return;
 		Rectangle r = getViewport().getViewRect();
-		birdEyeView.setLocation(r.x, r.y);
+		switch (birdEyeView.getLocationIndex()) {
+			case BirdEyeViewComponent.BOTTOM_RIGHT:
+				Dimension d = birdEyeView.getSize();
+				birdEyeView.setLocation(r.x+r.width-d.width, 
+						r.y+r.height-d.height);
+				break;
+			case BirdEyeViewComponent.TOP_LEFT:
+			default:
+				birdEyeView.setLocation(r.x, r.y);
+		}
+		birdEyeView.validate();
+		birdEyeView.repaint();
     }
     
     /** 
@@ -289,7 +294,8 @@ class BrowserUI
     void setBirdEyeView(BufferedImage image)
 	{
     	if (birdEyeView == null) {
-    		birdEyeView = new BirdEyeViewComponent();
+    		birdEyeView = new BirdEyeViewComponent(
+    				BirdEyeViewComponent.BOTTOM_RIGHT);
     		birdEyeView.addPropertyChangeListener(new PropertyChangeListener() {
 				
     			/**
@@ -302,6 +308,10 @@ class BrowserUI
 					if (BirdEyeViewComponent.DISPLAY_REGION_PROPERTY.equals(
 							name)) {
 						displaySelectedRegion((Rectangle) evt.getNewValue());
+					} else if (
+							BirdEyeViewComponent.FULL_DISPLAY_PROPERTY.equals(
+							name)) {
+						setBirdEyeViewLocation();
 					}
 				}
 			});
@@ -448,7 +458,6 @@ class BrowserUI
 				if (h < 0) h = -h;
 				y = bounds.y-h/2;
 			}
-			
         } else {
         	//lens not centered
         	if (blockIncrement) return;
@@ -462,7 +471,6 @@ class BrowserUI
 		vBar.setValue(y);
 		hBar.setValue(x);
 		setBirdEyeViewLocation();
-		//installScrollbarListener(true);
 	}
 	
 	/**

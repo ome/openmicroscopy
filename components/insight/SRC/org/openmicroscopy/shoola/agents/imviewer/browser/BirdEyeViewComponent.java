@@ -57,8 +57,17 @@ class BirdEyeViewComponent
 	implements MouseListener, MouseMotionListener
 {
 
+	/** Indicate to display the bird eye in <code>TOP LEFT</code>.*/
+	static final int TOP_LEFT = 0;
+	
+	/** Indicate to display the bird eye in <code>TOP LEFT</code>.*/
+	static final int BOTTOM_RIGHT = 1;
+	
 	/** Property indicating to render a region. */
 	static final String DISPLAY_REGION_PROPERTY = "displayRegion";
+	
+	/** Property indicating to the component is collapsed or expanded.*/
+	static final String FULL_DISPLAY_PROPERTY = "fullDisplay";
 	
 	/** The width of the border. */
 	static final int BORDER = 2;
@@ -110,12 +119,6 @@ class BirdEyeViewComponent
 	 * clicked. 
 	 */
 	private float bdify = 0.0f; 
-
-	/** The X-location of the mouse. */
-	private float x = 0;
-	
-	/** The Y-location of the mouse. */
-	private float y = 0;
 	
 	/** Flag indicating to display the full image or only the arrow. */
 	private boolean fullDisplay;
@@ -144,8 +147,30 @@ class BirdEyeViewComponent
 	/** The height of the canvas. */
 	private int canvasHeight;
 	
+	/** The location of the mouse.*/
 	private int mouseX, mouseY;
 	
+	/** One of the constants defined by this class.*/
+	private int locationIndex;
+	
+	/** Sets the location of the cross.*/
+	private void setCrossLocation()
+	{
+		if (!fullDisplay) {
+			cross.x = 0;
+			cross.y = 0;
+			return;
+		}
+		switch (locationIndex) {
+			case BOTTOM_RIGHT:
+				cross.x = canvasWidth-cross.width;
+				cross.y = canvasHeight-cross.height;
+				break;
+			case TOP_LEFT:
+				cross.x = 0;
+				cross.y = 0;
+		}
+	}
 	/**
 	 * Returns <code>true</code> if the rectangle is image, <code>false</code>
 	 * otherwise.
@@ -173,13 +198,29 @@ class BirdEyeViewComponent
 		return true;
 	}
 	
+	/** Creates a new instance.
+	 * 
+	 * @param locationIndex One of the location constants defined by this class.
+	 */
+	BirdEyeViewComponent(int locationIndex)
+	{
+		fullDisplay = true;
+		pImage = null;
+		switch (locationIndex) {
+			case TOP_LEFT:
+			case BOTTOM_RIGHT:
+				this.locationIndex = locationIndex;
+				break;
+			default:
+				this.locationIndex = TOP_LEFT;
+		}
+		cross = new Rectangle(0, 0, BORDER_5, BORDER_5);
+	}
+	
 	/** Creates a new instance. */
 	BirdEyeViewComponent()
 	{
-		//init();
-		fullDisplay = true;
-		pImage = null;
-		cross = new Rectangle(0, 0, BORDER_5, BORDER_5);
+		this(TOP_LEFT);
 	}
 	
 	/**
@@ -220,11 +261,10 @@ class BirdEyeViewComponent
 	 */
 	void setCanvasSize(int w, int h)
 	{
-		//size(w, h, P2D);
 		setSize(w, h);
 		canvasWidth = w;
 		canvasHeight = h;
-		setSize(w, h);
+		setCrossLocation();
 	}
 	
 	/** 
@@ -248,19 +288,22 @@ class BirdEyeViewComponent
 	 */
 	void setSelectionColor(Color color)
 	{
-		if (color != null) {
-			this.color = color;
-		}
+		if (color != null) this.color = color;
 	}
+	
+	/** 
+	 * Returns the location of the bird eye view.
+	 * 
+	 * @return See above.
+	 */
+	int getLocationIndex() { return locationIndex; }
 	
 	/**
 	 * Overridden from @see {@link PApplet#setup()}
 	 */
 	public void setup()
 	{
-		//size(100, 100, P2D);
-		setSize(100, 100);
-		//hint(ENABLE_NATIVE_FONTS);
+		//setCanvasSize(0, 0);
 		color = SELECTION_COLOR; 
 		//noStroke();
 		bx = BORDER;
@@ -280,17 +323,26 @@ class BirdEyeViewComponent
 		if (pImage == null) return;
 		Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
+        setCrossLocation();
 		if (!fullDisplay) {
 			g2D.setColor(FILL_COLOR);
 			g2D.fillRect(cross.x, cross.y, cross.width, cross.height);
 			g2D.setColor(STROKE_COLOR);
-
-			g2D.drawLine(xArrow, yArrow, BORDER_5-xArrow, BORDER_5-yArrow);
-			g2D.drawLine(BORDER_5-xArrow, BORDER_5-yArrow, BORDER_5-xArrow, 
-					BORDER_5-yArrow-v);
-			g2D.drawLine(BORDER_5-xArrow, BORDER_5-yArrow, BORDER_5-xArrow-v, 
-					BORDER_5-yArrow);
-			setSize(cross.width, cross.height);
+			switch (locationIndex) {
+				case BOTTOM_RIGHT:
+					g2D.drawLine(xArrow, yArrow, BORDER_5, BORDER_5);
+					g2D.drawLine(xArrow, yArrow, xArrow+v, yArrow);
+					g2D.drawLine(xArrow, yArrow, xArrow, yArrow+v);
+					break;
+				case TOP_LEFT:
+				default:
+					g2D.drawLine(xArrow, yArrow, BORDER_5-xArrow,
+							BORDER_5-yArrow);
+					g2D.drawLine(BORDER_5-xArrow, BORDER_5-yArrow,
+							BORDER_5-xArrow, BORDER_5-yArrow-v);
+					g2D.drawLine(BORDER_5-xArrow, BORDER_5-yArrow,
+							BORDER_5-xArrow-v, BORDER_5-yArrow);
+			}
 			return;
 		}
 		if (imageRectangle == null) {
@@ -300,16 +352,27 @@ class BirdEyeViewComponent
 		setSize(canvasWidth, canvasHeight);
 		//stroke(255);
 		g2D.drawRect(0, 0, canvasWidth, canvasHeight);
-
 		g2D.drawImage(pImage, null, BORDER, BORDER);
-		
 		g2D.setColor(FILL_COLOR);
 		g2D.fillRect(cross.x, cross.y, cross.width, cross.height);
 		g2D.setColor(STROKE_COLOR);
-		g2D.setColor(Color.BLACK);
-		g2D.drawLine(xArrow, yArrow, xArrow+v, yArrow);
-		g2D.drawLine(xArrow, yArrow, xArrow, yArrow+v);
-		g2D.drawLine(xArrow, yArrow, BORDER_5, BORDER_5);
+		switch (locationIndex) {
+			case BOTTOM_RIGHT:
+				g2D.drawLine(canvasWidth-BORDER_5+xArrow,
+						canvasHeight-BORDER_5+yArrow,
+						canvasWidth-xArrow, canvasHeight-yArrow);
+				g2D.drawLine(canvasWidth-xArrow-v, canvasHeight-yArrow,
+						canvasWidth-xArrow, canvasHeight-yArrow);
+				g2D.drawLine(canvasWidth-xArrow, canvasHeight-yArrow-v,
+						canvasWidth-xArrow, canvasHeight-yArrow);
+				break;
+			case TOP_LEFT:
+			default:
+				
+				g2D.drawLine(xArrow, yArrow, xArrow+v, yArrow);
+				g2D.drawLine(xArrow, yArrow, xArrow, yArrow+v);
+				g2D.drawLine(xArrow, yArrow, BORDER_5, BORDER_5);
+		}
 		g2D.setColor(color);
 		//stroke(color);	
 		// Test if the cursor is over the box 
@@ -328,8 +391,11 @@ class BirdEyeViewComponent
 		mouseX = e.getX();
 		mouseY = e.getY();
 		if (cross.contains(mouseX, mouseY)) {
+			boolean old = fullDisplay;
 			fullDisplay = !fullDisplay;
-			repaint();
+			if (!fullDisplay) setSize(cross.width, cross.height);
+			else setSize(canvasWidth, canvasHeight);
+			firePropertyChange(FULL_DISPLAY_PROPERTY, old, fullDisplay);
 			return;
 		}
 		fullDisplay = true;
@@ -365,7 +431,6 @@ class BirdEyeViewComponent
 			bx = mouseX-bdifx; 
 			by = mouseY-bdify; 
 		}
-		x = mouseX;
 		repaint();
 	}
 
