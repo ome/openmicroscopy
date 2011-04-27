@@ -61,7 +61,7 @@
             <h1>Acquisition metadata:</h1>
             
             <table class="metadata_details">
-                <tr><td><label>Dimensions (XYZT): </label></td><td>{{ image.getWidth }} x {{ image.getHeight }} x {{ image.z_count }} x {{ image.t_count }}</td></tr>
+                <tr><td><label>Dimensions (XYZT): </label></td><td>{{ image.getWidth }} x {{ image.getHeight }} x {{ image.getSizeZ }} x {{ image.getSizeT }}</td></tr>
                 <tr><td><label>Pixel size (XYZ) [&micro;m]: </label></td><td>{{ image.getPixelSizeX|default_if_none:"-" }} x {{ image.getPixelSizeY|default_if_none:"-" }} x {{ image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
                 <tr><th colspan="3"><br/></th></tr>
             </table>

@@ -77,7 +77,7 @@ def channel_overlay_viewer(request, imageId, **kwargs):
     conn = kwargs['conn']
 
     image = conn.getObject("Image", imageId)
-    default_z = image.z_count()/2
+    default_z = image.getSizeZ()/2
     
     # try to work out which channels should be 'red', 'green', 'blue' based on rendering settings
     red = None
@@ -360,7 +360,7 @@ def roi_viewer(request, roi_library, imageId, **kwargs):
     conn = kwargs['conn']
     
     image = conn.getObject("Image", imageId)
-    default_z = image.z_count()/2
+    default_z = image.getSizeZ()/2
     
     templates = {"processing":'webtest/roi_viewers/processing_viewer.html',
             "jquery": "webtest/roi_viewers/jquery_drawing.html",
@@ -491,7 +491,7 @@ def split_view_figure (request, **kwargs):
     for iId in imageIds:
         image = conn.getObject("Image", iId)
         if image == None: continue
-        default_z = image.z_count()/2   # image.getZ() returns 0 - should return default Z? 
+        default_z = image.getSizeZ()/2   # image.getZ() returns 0 - should return default Z? 
         # need z for render_image even if we're projecting
         images.append({"id":iId, "z":default_z, "name": image.getName() })
         if channels == None:
@@ -586,7 +586,7 @@ def dataset_split_view (request, datasetId, **kwargs):
     for image in dataset.listChildren():
         if channels == None:
             channels = getChannelData(image)
-        default_z = image.z_count()/2   # image.getZ() returns 0 - should return default Z? 
+        default_z = image.getSizeZ()/2   # image.getZ() returns 0 - should return default Z? 
         # need z for render_image even if we're projecting
         images.append({"id":image.getId(), "z":default_z, "name": image.getName() })
     
@@ -631,7 +631,7 @@ def image_dimensions (request, imageId, **kwargs):
         return render_to_response('webtest/demo_viewers/image_dimensions.html', {}) 
     
     mode = request.REQUEST.get('mode', None) and 'g' or 'c'
-    dims = {'Z':image.z_count(), 'C': image.c_count(), 'T': image.t_count()}
+    dims = {'Z':image.getSizeZ(), 'C': image.getSizeC(), 'T': image.getSizeT()}
     
     default_yDim = 'Z'
     

@@ -62,11 +62,11 @@
         <a id='load_rois' href="{% url webgateway_get_rois_json image.id %}">LOAD ROIS</a>
     </p>
     <p>
-        Current Z index: <span id='theZ'>{{ default_z }}</span> / <span id='sizeZ'>{{ image.z_count }}</span> 
+        Current Z index: <span id='theZ'>{{ default_z }}</span> / <span id='sizeZ'>{{ image.getSizeZ }}</span> 
         <span class='button' id="incZ">+</span> <span class='button' id="decZ">-</span> 
     </p>
     <p>
-        Current T index: <span id='theT'>0</span> / <span id='sizeT'>{{ image.t_count }}</span>
+        Current T index: <span id='theT'>0</span> / <span id='sizeT'>{{ image.getSizeT }}</span>
         <span class='button' id="incTime">+</span> <span class='button' id="decTime">-</span> 
     </p>
 </div>
