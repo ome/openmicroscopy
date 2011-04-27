@@ -600,8 +600,14 @@ class BaseContainer(BaseController):
             t_ann.setChild(ann)
             self.conn.saveObject(t_ann)
         else:
-            t_ann = getattr(self.conn, "get"+otype.title()+"AnnotationLink")(selfobject.id, ann.id.val)    
-            if t_ann is None:
+            # Tag exists - check it isn't already linked to parent by this user
+            params = omero.sys.Parameters()
+            params.theFilter = omero.sys.Filter()
+            params.theFilter.ownerId = rlong(self.conn.getUser().id) # linked by current user
+            links = self.conn.getAnnotationLinks(otype.title(), parent_ids=[selfobject.id], ann_ids=[ann.id.val], params=params)
+            links = list(links)
+            if len(links) == 0:     # current user has not already tagged this object
+                t_ann = getattr(omero.model, otype.title()+"AnnotationLinkI")()
                 t_ann.setParent(selfobject._obj)
                 t_ann.setChild(ann)
                 self.conn.saveObject(t_ann)
@@ -1014,15 +1020,15 @@ class BaseContainer(BaseController):
     def remove(self, parent):
         if self.tag:
             for al in self.tag.getParentLinks(str(parent[0]), [long(parent[1])]):
-                if al is not None:
+                if al is not None and al.details.owner.id.val == self.conn.getUser().id:
                     self.conn.deleteObject(al._obj)
         elif self.file:
             for al in self.file.getParentLinks(str(parent[0]), [long(parent[1])]):
-                if al is not None:
+                if al is not None and al.details.owner.id.val == self.conn.getUser().id:
                     self.conn.deleteObject(al._obj)
         elif self.comment:
             for al in self.comment.getParentLinks(str(parent[0]), [long(parent[1])]):
-                if al is not None:
+                if al is not None and al.details.owner.id.val == self.conn.getUser().id:
                     self.conn.deleteObject(al._obj)
         
         elif self.dataset is not None:
