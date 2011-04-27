@@ -301,6 +301,8 @@ class ImViewerModel
 		Dimension d = getTileSize();
 		int w = d.width;
 		int h = d.height;
+		int edgeWidth = w;
+		int edgeHeight = h;
 		ResolutionLevel rl = resolutionMap.get(getSelectedResolutionLevel());
 		int px = rl.getPowerAlongX();
 		int py = rl.getPowerAlongX();
@@ -308,25 +310,41 @@ class ImViewerModel
 		int mx = rl.getPowerAlongX();
 		int my = rl.getPowerAlongY();
 		int size = (int) (getMaxX()/Math.pow(2, mx-px));
-		if (size < d.width) w = size;
+		edgeWidth = w;
 		int n = size/w;
-		if (n*d.width < size) n++;
+		tiledImageSizeX = n*w;
+		if (n*w < size) {
+			edgeWidth = size-n*w;
+			tiledImageSizeX += edgeWidth;
+			n++;
+		}
 		numberOfColumns = n;
 		size = (int) (getMaxY()/Math.pow(2, my-py));
-		if (size < d.height) h = size;
-		n = size/d.height;
-		if (n*d.height < size) n++;
+		edgeHeight = h;
+		n = size/h;
+		tiledImageSizeY = n*h;
+		if (n*h < size) {
+			edgeHeight = size-n*h;
+			tiledImageSizeY += edgeHeight;
+			n++;
+		}
 		numberOfRows = n;
 		int index = 0;
 		Tile tile;
 		Region region;
 		int x = 0;
 		int y = 0;
+		int ww;
+		int hh;
 		for (int i = 0; i < numberOfRows; i++) {
+			if (i == (numberOfRows-1)) hh = edgeHeight;
+			else hh = h;
 			for (int j = 0; j < numberOfColumns; j++) {
+				if (j == (numberOfColumns-1)) ww = edgeWidth;
+				else ww = w;
 				index = i*numberOfColumns+j;
 				tile = new Tile(index, i, j);
-				region = new Region(x, y, w, h);
+				region = new Region(x, y, ww, hh);
 				tile.setRegion(region);
 				x += d.width;
 				tiles.put(index, tile);
@@ -334,8 +352,8 @@ class ImViewerModel
 			y += d.height;
 			x = 0;
 		}
-		tiledImageSizeX = w*numberOfColumns;
-		tiledImageSizeY = h*numberOfRows;
+		//tiledImageSizeX = w*numberOfColumns;
+		//tiledImageSizeY = h*numberOfRows;
 	}
 
     /**

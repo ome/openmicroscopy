@@ -1184,7 +1184,20 @@ class ImViewerUI
 					Math.round(factor*model.getOriginalRatio()*100)/100.0);
 		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
 		if (model.isBigImage()) {
-			 statusBar.setRigthStatus("resolution: "+zoomIndex);
+			int levels = model.getResolutionLevels();
+			double f = (double) (100/levels);
+			int value = levels;
+			factor = 100;
+			if (zoomIndex != (levels-1)) {
+				while (value >= 0) {
+					if (value == zoomIndex) {
+						factor = (value+1)*f;
+						value = -1;
+					}
+					value--;
+				}
+			}
+			statusBar.setRigthStatus("x: "+Math.round(factor));
 		}
 	}
 	
