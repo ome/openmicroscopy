@@ -3,7 +3,7 @@
 {% load custom_tags %}
     
 <ul class="simpleTree">
-    <li class="root" id='0'><img class="icon" src="{% url webstatic "images/tree/root.gif" %}" alt="root"/><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
+    <li class="root" id='0'><img class="icon" src="{% url webstatic "images/tree/root_user16.png" %}" alt="root"/><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
         <ul>
             {% for c in manager.containers.projects %}
             <li id='pr-{{ c.id }}' title="{{ c.name }}"><span {% if not c.isOwned %}{% if eContext.isLeader %}id="editonly"{% else %}id="readonly"{% endif %}{% endif %}>{{ c.name|truncatebefor:"35" }}</span> {% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}

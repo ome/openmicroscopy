@@ -5,7 +5,7 @@
 
 {% if manager.t_size %}
 <ul class="simpleTree">
-    <li class="root" id='0'><img class="icon" src="{% url webstatic "images/tree/root.gif" %}" alt="root"/><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
+    <li class="root" id='0'><img class="icon" src="{% url webstatic "images/tree/root_user16.png" %}" alt="root"/><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
         <ul>
             {% for t in manager.tags %}
             {% if t.ns %}
