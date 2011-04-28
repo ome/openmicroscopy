@@ -187,7 +187,7 @@ class ValueResolver(object):
                 'join fetch w.wellSamples as ws '
                 'where s.id = :id', parameters)
         if self.target_object is None:
-            raise MetadataException('Could not find target object!')
+            raise MetadataError('Could not find target object!')
         self.wells_by_location = dict()
         self.plates_by_name = dict()
         for plate in (l.child for l in self.target_object.copyPlateLinks()):
@@ -207,7 +207,7 @@ class ValueResolver(object):
                 'join fetch w.wellSamples as ws '
                 'where p.id = :id', parameters)
         if self.target_object is None:
-            raise MetadataException('Could not find target object!')
+            raise MetadataError('Could not find target object!')
         self.wells_by_location = dict()
         wells_by_location = dict()
         self.wells_by_location[self.target_object.name.val] = wells_by_location
