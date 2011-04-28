@@ -218,8 +218,11 @@ public class PixelsService extends AbstractFileSystemService
      * @return
      */
     public boolean isMetadataOnly(Pixels pixels) {
-        final boolean metadataOnly = pixels.getMethodology().equals(METADATA_ONLY); 
-        return metadataOnly;
+        if (pixels.getMethodology() != null) {
+            final boolean metadataOnly = pixels.getMethodology().equals(METADATA_ONLY); 
+            return metadataOnly;   
+        }
+        return false;
     }
 
     /**
