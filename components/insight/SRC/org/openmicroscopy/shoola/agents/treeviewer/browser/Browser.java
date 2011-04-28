@@ -177,7 +177,7 @@ public interface Browser
     /** 
      * The browser's title corresponding to {@link #PROJECTS_EXPLORER} type.
      */
-    public static final String     HIERARCHY_TITLE = "Hierarchies";//"Projects";
+    public static final String     HIERARCHY_TITLE = "Projects";
 
     /** 
      * The browser's title corresponding to {@link #IMAGES_EXPLORER} type.

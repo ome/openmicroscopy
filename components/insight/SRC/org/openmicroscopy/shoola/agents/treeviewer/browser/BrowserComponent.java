@@ -589,13 +589,13 @@ class BrowserComponent
         IconManager im = IconManager.getInstance();
         switch (model.getBrowserType()) {
             case PROJECTS_EXPLORER:
-                return im.getIcon(IconManager.HIERARCHY_EXPLORER);
+                return im.getIcon(IconManager.PROJECT);//HIERARCHY_EXPLORER);
             case TAGS_EXPLORER:
-                return im.getIcon(IconManager.TAGS_EXPLORER);
+                return im.getIcon(IconManager.TAG);//TAGS_EXPLORER);
             case IMAGES_EXPLORER:
-                return im.getIcon(IconManager.IMAGES_EXPLORER);
+                return im.getIcon(IconManager.IMAGE);//IMAGES_EXPLORER);
             case SCREENS_EXPLORER:
-            	return im.getIcon(IconManager.SCREENS_EXPLORER);
+            	return im.getIcon(IconManager.SCREEN);//SCREENS_EXPLORER);
             case FILES_EXPLORER:
                 return im.getIcon(IconManager.FILES_EXPLORER);
             case FILE_SYSTEM_EXPLORER:
