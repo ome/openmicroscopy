@@ -6246,8 +6246,8 @@ class OMEROGateway
 				//TMP solution
 				List<Long> objects = new ArrayList<Long>(1);
 				objects.add(parameters.getNodeID());
-				Map map = loadAnnotations(PlateData.class, objects, null, null, 
-						new Parameters());
+				Map map = loadAnnotations(parameters.getNodeType(), objects, 
+						null, null, new Parameters());
 				Collection list = (Collection) map.get(parameters.getNodeID());
 				Iterator j = list.iterator();
 				FileAnnotationData fa;

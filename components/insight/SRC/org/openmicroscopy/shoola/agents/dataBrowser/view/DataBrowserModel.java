@@ -73,6 +73,7 @@ import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -742,7 +743,13 @@ abstract class DataBrowserModel
 		TabularDataLoader loader = null;
 		if (data == null) {
 			if (this instanceof WellsModel) {
-				loader = new TabularDataLoader(component, (PlateData) parent);
+				if (grandParent instanceof ScreenData) {
+					loader = new TabularDataLoader(component,
+							(DataObject) grandParent);
+				} else if (parent instanceof PlateData) {
+					loader = new TabularDataLoader(component,
+							(DataObject) parent);
+				}
 			}
 		} else if (data.size() > 0) {
 			List<Long> ids = new ArrayList<Long>();

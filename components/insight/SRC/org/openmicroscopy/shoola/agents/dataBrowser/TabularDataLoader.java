@@ -24,19 +24,18 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 
 //Java imports
-import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.DataObject;
 import pojos.PlateData;
+import pojos.ScreenData;
 
 /** 
  * Loads the tabular data.
@@ -81,14 +80,17 @@ public class TabularDataLoader
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
-     * @param plate The plate to handle.
+     * @param object The object to handle. Mustn't be <code>null</code>.
      */
-    public TabularDataLoader(DataBrowser viewer, PlateData plate)
+    public TabularDataLoader(DataBrowser viewer, DataObject object)
     {
     	 super(viewer);
-    	 if (plate == null)
+    	 if (object == null)
     		 throw new IllegalArgumentException("No file to retrieve.");
-    	 parameters = new TableParameters(PlateData.class, plate.getId());
+    	 if (!(object instanceof PlateData || object instanceof ScreenData)) {
+    		 throw new IllegalArgumentException("Object not supported.");
+    	 }
+    	 parameters = new TableParameters(object.getClass(), object.getId());
     }
     
     /** 
