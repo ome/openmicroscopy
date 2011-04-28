@@ -150,7 +150,7 @@
     <div id="toolbar" class="toolbar_noborder">
         <!-- toolbar buttons hidden initially - shown depending on selection -->
         <input id='copyBtn' class="toolBtn" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();">
-        <input id='unlinkBtn' class="toolBtn" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink('dataset-{{ manager.dataset.id }}');">
+        <input id='unlinkBtn' class="toolBtn" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Cut" title="Cut" onclick="manyUnlink('dataset-{{ manager.dataset.id }}');">
         <input id='deleteBtn' class="toolBtn" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" />
         <input id='basketBtn' class="toolBtn" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();">
         <input id='tableBtn' onclick="changeView('table');" class="toolBtn align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table"></div>
