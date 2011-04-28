@@ -5878,7 +5878,21 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         
         return self._pd.t
-    
+
+    @assert_re
+    def getDefaultZ(self):
+        """
+        Gets the default Z index from the rendering engine
+        """
+        return self._re.getDefaultZ()
+
+    @assert_re
+    def getDefaultT(self):
+        """
+        Gets the default T index from the rendering engine
+        """
+        return self._re.getDefaultT()
+
     @assert_pixels
     def getPixelsType (self):
         """
