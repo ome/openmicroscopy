@@ -243,7 +243,7 @@
             
             <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>    
             <!-- open-image link -->
-            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
+            <div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
                     
             <div class="description">
                 {% if manager.image.isOwned %}<div id="imagedescription-{{ manager.image.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='image_desc'>{{ manager.image.description|default_if_none:""|linebreaks }}</span>{% endif %}

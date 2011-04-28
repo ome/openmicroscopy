@@ -55,6 +55,10 @@
 
 
 <!-- VIEWER "Preview"-->
+
+<!-- open-image link -->
+<div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer imageId %}')"><img src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
+
 <div id="preview_tab">
     <div class="miniview" id="viewport"></div>
 </div>
