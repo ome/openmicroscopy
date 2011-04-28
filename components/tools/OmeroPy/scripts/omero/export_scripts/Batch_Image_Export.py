@@ -137,7 +137,7 @@ def savePlane(renderingEngine, originalName, format, cName, zRange, t=0, channel
     
     image = renderImage(renderingEngine, zRange, t, channel, greyscale)
     if imgWidth:
-        w, h = image.size()
+        w, h = image.size
         newH = (float(imgW) / w ) * h
         image = image.resize((imgWidth, newH))
         
