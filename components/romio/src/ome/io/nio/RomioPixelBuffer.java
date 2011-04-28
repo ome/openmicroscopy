@@ -18,6 +18,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.List;
 
 import ome.conditions.ApiUsageException;
@@ -414,8 +415,11 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     public PixelData getHypercube(List<Integer> offset, List<Integer> size, 
             List<Integer> step) throws IOException, DimensionsOutOfBoundsException 
     {
-        throw new UnsupportedOperationException(
-            "Not yet supported.");
+        PixelData d;
+        byte[] buffer = new byte[getCubeSize(offset,size,step)];
+        getHypercubeDirect(offset,size,step,buffer);
+        d = new PixelData(pixels.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
+        return d;
 	}
                 
     /**
@@ -426,8 +430,11 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             List<Integer> step, byte[] buffer) 
             throws IOException, DimensionsOutOfBoundsException 
     {
-        throw new UnsupportedOperationException(
-            "Not yet supported.");
+        checkCubeBounds(offset, size, step);
+        if (buffer.length != getCubeSize(offset, size, step))
+            throw new RuntimeException("Buffer size incorrect.");
+        getWholeHypercube(offset,size,step,buffer);
+        return buffer;
 	}
                 
     
@@ -831,7 +838,14 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
             Integer y, Integer w, Integer h) throws IOException
     {
-        throw new UnsupportedOperationException("Not implemented.");
+        PixelData d;
+        List<Integer> offset = Arrays.asList(new Integer[]{x,y,z,c,t});
+        List<Integer> size = Arrays.asList(new Integer[]{w,h,1,1,1});
+        List<Integer> step = Arrays.asList(new Integer[]{1,1,1,1,1});
+        byte[] buffer = new byte[getCubeSize(offset,size,step)];
+        getHypercubeDirect(offset,size,step,buffer);
+        d = new PixelData(pixels.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
+        return d;
     }
 
     /* (non-Javadoc)
@@ -840,7 +854,10 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     public byte[] getTileDirect(Integer z, Integer c, Integer t, Integer x,
             Integer y, Integer w, Integer h, byte[] buffer) throws IOException
     {
-        throw new UnsupportedOperationException("Not implemented.");
+        List<Integer> offset = Arrays.asList(new Integer[]{x,y,z,c,t});
+        List<Integer> size = Arrays.asList(new Integer[]{w,h,1,1,1});
+        List<Integer> step = Arrays.asList(new Integer[]{1,1,1,1,1});
+        return getHypercubeDirect(offset, size, step, buffer);
     }
 
     /* (non-Javadoc)
@@ -904,4 +921,87 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         throw new UnsupportedOperationException(
                 "Cannot set resolution levels on a ROMIO pixel buffer.");
     }
+    
+    /*
+     * Temporary helpers. May be factored out.
+     */
+    private byte[] getWholeHypercube(List<Integer> offset, List<Integer> size,
+            List<Integer> step, byte[] cube) throws IOException {
+        int cubeOffset = 0;
+        int xStripes = (size.get(0) + step.get(0) - 1) / step.get(0);
+        int pixelSize = getByteWidth();
+        int tileRowSize = pixelSize * xStripes;
+        byte[] plane = new byte[getPlaneSize()];
+        for(int t = offset.get(4); t < size.get(4)+offset.get(4); t += step.get(4))
+        {
+            for(int c = offset.get(3); c < size.get(3)+offset.get(3); c += step.get(3))
+            {
+                for(int z = offset.get(2); z < size.get(2)+offset.get(2); z += step.get(2))
+                {
+                    getPlaneDirect(z,c,t,plane);
+                    int rowOffset = offset.get(1)*getRowSize();
+                    if(step.get(0)==1)
+                    {
+                        int byteOffset = rowOffset + offset.get(0)*pixelSize;
+                        for(int y = offset.get(1); y < size.get(1)+offset.get(1); y += step.get(1))
+                        {
+                            System.arraycopy(plane, byteOffset, cube, cubeOffset, tileRowSize);
+                            cubeOffset += tileRowSize;
+                            byteOffset += getRowSize()*step.get(1);
+                        }
+                    }
+                    else
+                    {
+                        for(int y = offset.get(1); y < size.get(1)+offset.get(1); y += step.get(1))
+                        {
+                            int byteOffset = offset.get(0)*pixelSize;
+                            for(int x = offset.get(0); x < size.get(0)+offset.get(0); x += step.get(0))
+                            {
+                                System.arraycopy(plane, rowOffset+byteOffset, cube, cubeOffset, pixelSize);
+                                cubeOffset += pixelSize;
+                                byteOffset += step.get(0)*pixelSize;
+                            }
+                            rowOffset += getRowSize()*step.get(1);
+                        }
+                    }
+
+                }
+            }
+        }
+        return cube;
+    }
+    
+    private Integer getCubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
+            throws IOException, DimensionsOutOfBoundsException {
+        // only works for 5d at present
+        int tStripes = (size.get(4) + step.get(4) - 1) / step.get(4);
+        int cStripes = (size.get(3) + step.get(3) - 1) / step.get(3);
+        int zStripes = (size.get(2) + step.get(2) - 1) / step.get(2);
+        int yStripes = (size.get(1) + step.get(1) - 1) / step.get(1);
+        int xStripes = (size.get(0) + step.get(0) - 1) / step.get(0);
+        int tileRowSize = getByteWidth() * xStripes;
+        int cubeSize = tileRowSize * yStripes * zStripes * cStripes * tStripes;
+
+        return cubeSize;
+    }
+
+    private void checkCubeBounds(List<Integer> offset, List<Integer> size, List<Integer> step)
+            throws DimensionsOutOfBoundsException {
+        // At the moment the array must contain 5 values
+        if(offset.size()!=5 || size.size()!=5 || step.size()!=5)
+        {
+            throw new DimensionsOutOfBoundsException(
+                    "Invalid List length: each list must contain 5 elements XYZCT");
+        }
+        checkBounds(offset.get(0),offset.get(1),offset.get(2),offset.get(3),offset.get(4));
+        checkBounds(offset.get(0)+size.get(0)-1,offset.get(1)+size.get(1)-1,
+                offset.get(2)+size.get(2)-1,offset.get(3)+size.get(3)-1,offset.get(4)+size.get(4)-1);
+        if(step.get(0) < 1 ||  step.get(1) < 1 ||  step.get(2) < 1
+                ||  step.get(3) < 1 ||  step.get(4) < 1)
+        {
+            throw new DimensionsOutOfBoundsException(
+                    "Invalid step size: steps sizes must be 1 or greater");
+        }
+    }
+
 }
