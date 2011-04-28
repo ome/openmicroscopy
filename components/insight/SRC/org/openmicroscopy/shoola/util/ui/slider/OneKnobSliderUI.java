@@ -668,6 +668,7 @@ public class OneKnobSliderUI
 			if (thumbRect.contains(currentMouseX, currentMouseY)) 
 				super.mousePressed(event);
 
+			
 			if (showArrows)
 			{
 				if (minArrowRect.contains(currentMouseX, currentMouseY))
@@ -675,11 +676,11 @@ public class OneKnobSliderUI
 					int value = slider.getValue();
 					if (value > slider.getMinimum())
 					{
-						scrollTimer.stop();
+						//scrollTimer.stop();
 						scrollListener.setScrollByBlock(false);
 						scrollListener.setDirection(
 								OneKnobSliderUI.NEGATIVE_SCROLL);
-						scrollTimer.start();
+						//scrollTimer.start();
 						slider.repaint();
 					}
 					isDragging = false;
@@ -690,11 +691,11 @@ public class OneKnobSliderUI
 					int value = slider.getValue();
 					if (value < slider.getMaximum())
 					{
-						scrollTimer.stop();
+						//scrollTimer.stop();
 						scrollListener.setScrollByBlock(false);
 						scrollListener.setDirection(
 								OneKnobSliderUI.POSITIVE_SCROLL);
-						scrollTimer.start();
+						//scrollTimer.start();
 						slider.repaint();
 					}
 					isDragging = false;

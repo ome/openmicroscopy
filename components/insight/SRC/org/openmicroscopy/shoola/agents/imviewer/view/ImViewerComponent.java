@@ -674,8 +674,15 @@ class ImViewerComponent
 			throw new IllegalArgumentException("The zoom factor is value " +
 					"between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
 					ZoomAction.MAX_ZOOM_FACTOR);
-		
+		switch (model.getState()) {
+			case NEW:
+			case LOADING_IMAGE:
+			case LOADING_TILES:
+			case DISCARDED:
+				return;
+		}
 		if (model.isBigImage()) {
+			
 			model.setSelectedResolutionLevel(zoomIndex);
 			view.setZoomFactor(factor, zoomIndex);
 			Dimension d = model.getTileSize();
