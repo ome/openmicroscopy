@@ -91,7 +91,7 @@ class ImageTest (lib.GTest):
         g = ((1,1),(2,1),(2,2),(2,2),(3,2),(3,2),(3,3),(3,3),(3,3),(4,3),(4,3),(4,3),(4,4),(4,4),(4,4),(4,4))
         def c_count2 ():
             return i
-        self.image.c_count = c_count2
+        self.image.getSizeC = c_count2
         for i in range(1,len(g)): # 1..15
             dims = self.image.splitChannelDims()
             self.assertEqual((dims['g']['gridx'], dims['g']['gridy']), g[i-1]) 
@@ -104,13 +104,13 @@ class ImageTest (lib.GTest):
         img = Image.open(gif)
         img.verify() # Raises if invalid
         self.assertEqual(img.format, 'GIF')
-        self.assertEqual(img.size, (self.image.getWidth(), self.image.getHeight()))
+        self.assertEqual(img.size, (self.image.getSizeX(), self.image.getSizeY()))
         # Horizontal plot
         gif = StringIO(self.image.renderRowLinePlotGif (z=0, t=0, y=1))
         img = Image.open(gif)
         img.verify() # Raises if invalid
         self.assertEqual(img.format, 'GIF')
-        self.assertEqual(img.size, (self.image.getWidth(), self.image.getHeight()))
+        self.assertEqual(img.size, (self.image.getSizeX(), self.image.getSizeY()))
         badimage = self.getBadTestImage() # no pixels
         self.assertEqual(badimage.getCol(z=0, t=0, x=1), None)
         self.assertEqual(badimage.getRow(z=0, t=0, y=1), None)
@@ -125,7 +125,7 @@ class ImageTest (lib.GTest):
             img = Image.open(ifile) # Raises if invalid
             img.verify() # Raises if invalid
             self.assertEqual(img.format, 'JPEG')
-            self.assertEqual(img.size, (self.image.getWidth(), self.image.getHeight()))
+            self.assertEqual(img.size, (self.image.getSizeX(), self.image.getSizeY()))
 
     def testProperties (self):
         """ Tests the property getters that are not exercised implicitly on other tests. """

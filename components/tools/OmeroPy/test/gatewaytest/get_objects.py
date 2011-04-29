@@ -431,8 +431,8 @@ class GetObjectTest (lib.GTest):
         ds = image.getDataset()
         
         # test a few methods that involve lazy loading, rendering etc. 
-        self.assertEqual(image.getWidth(), testImage.getWidth())
-        self.assertEqual(image.getHeight(), testImage.getHeight())
+        self.assertEqual(image.getSizeZ(), testImage.getSizeZ())
+        self.assertEqual(image.getSizeY(), testImage.getSizeY())
         image.isGreyscaleRenderingModel()       # loads rendering engine
         testImage.isGreyscaleRenderingModel()
         self.assertEqual(image._re.getDefaultZ(), testImage._re.getDefaultZ())
