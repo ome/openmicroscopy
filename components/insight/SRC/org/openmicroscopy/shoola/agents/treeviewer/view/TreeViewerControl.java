@@ -1025,7 +1025,9 @@ class TreeViewerControl
 			FigureParam param = (FigureParam) object;
 			Collection l;
 			if (param.isSelectedObjects()) {
-				l = model.getSelectedBrowser().getSelectedDataObjects();
+				Browser b = model.getSelectedBrowser();
+				if (b != null) l = b.getSelectedDataObjects();
+				else l = model.getDisplayedImages();
 			} else {
 				l = model.getDisplayedImages();
 			}
