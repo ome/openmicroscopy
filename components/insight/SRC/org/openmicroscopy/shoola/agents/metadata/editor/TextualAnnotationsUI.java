@@ -282,9 +282,9 @@ class TextualAnnotationsUI
     	pane.setBorder(null);
     	JLabel l = new JLabel();
     	
-		Font f = l.getFont();
-		l = UIUtilities.setTextFont("comment", Font.BOLD, f.getSize()-1);
-		l.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+		//Font f = l.getFont();
+		//l = UIUtilities.setTextFont("", Font.BOLD, f.getSize()-1);
+		l.setBorder(BorderFactory.createEmptyBorder(2, 5, 0, 5));
 		setLayout(new GridBagLayout());
 		constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.HORIZONTAL;
