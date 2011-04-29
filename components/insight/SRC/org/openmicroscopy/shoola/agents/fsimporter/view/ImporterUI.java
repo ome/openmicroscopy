@@ -366,25 +366,7 @@ class ImporterUI
 		if (found != null) uiElements.remove(found.getIndex());
 		return found;
 	}
-	
-	/**
-	 * Returns the elements with data to import.
-	 * 
-	 * @return See above.
-	 */
-	List<ImporterUIElement> getElementsWithDataToImport()
-	{
-		ImporterUIElement element;
-		List<ImporterUIElement> elements = new ArrayList<ImporterUIElement>();
-		Iterator<ImporterUIElement> i = uiElements.values().iterator();
-		while (i.hasNext()) {
-			element = i.next();
-			if (!element.isDone())
-				elements.add(element);
-		}
-		return elements;
-	}
-	
+
 	/**
 	 * Returns the elements with data to import.
 	 * 

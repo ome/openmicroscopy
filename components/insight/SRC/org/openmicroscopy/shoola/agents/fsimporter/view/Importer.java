@@ -191,6 +191,13 @@ public interface Importer
 
 	/** Tries to re-import failed import. */
 	public void retryImport();
-	
+
+	/**
+	 * Returns <code>true</code> if it is the last file to import,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isLastImport();
 
 }

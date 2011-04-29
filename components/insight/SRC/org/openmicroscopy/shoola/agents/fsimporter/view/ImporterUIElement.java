@@ -141,9 +141,6 @@ class ImporterUIElement
 	/** The component displaying the number of files to import. */
 	private JLabel numberOfImportLabel;
 	
-	/** Flag indicating if the import is finished. */
-	private boolean done;
-	
 	/** The identifier of the component. */
 	private int id;
 	
@@ -717,10 +714,9 @@ class ImporterUIElement
 		if (c != null) {
 			c.setStatus(false, result);
 			countImported++;
-			done = countImported == totalToImport;
 			setNumberOfImport();
-			setClosable(done);
-			if (done) {
+			setClosable(isDone());
+			if (isDone()) {
 				Iterator<JLabel> i = containerComponents.keySet().iterator();
 				JLabel label;
 				boolean toRefresh = toRefresh();
@@ -786,7 +782,15 @@ class ImporterUIElement
 	 * 
 	 * @return See above.
 	 */
-	boolean isDone() { return done; }
+	boolean isDone() { return countImported == totalToImport; }
+	
+	/**
+	 * Returns <code>true</code> if there is one remaining import,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isLastImport() { return countImported == (totalToImport-1); }
 	
 	/** Indicates that the import has started. */
 	void startImport()

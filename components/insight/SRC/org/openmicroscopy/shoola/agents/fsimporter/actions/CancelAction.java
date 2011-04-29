@@ -62,7 +62,9 @@ public class CancelAction
 	 */
     protected void onStateChange()
     {
-    	setEnabled(model.getState() == Importer.IMPORTING);
+    	if (model.getState() == Importer.IMPORTING) {
+    		setEnabled(!model.isLastImport());
+    	} else setEnabled(false);
     }
     
     /**

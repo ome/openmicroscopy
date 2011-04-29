@@ -208,8 +208,8 @@ class ImporterComponent
 				element = view.getElementToStartImportFor();
 				if (element != null) 
 					importData(element);
-				fireStateChange();
 			}	
+			fireStateChange();
 		}
 	}
 	
@@ -374,6 +374,17 @@ class ImporterComponent
 		if (element == null) return;
 		List<FileImportComponent> l = element.getMarkedFiles();
 		if (l == null || l.size() == 0) return;
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#isLastImport()
+	 */
+	public boolean isLastImport()
+	{
+		ImporterUIElement element = view.getSelectedPane();
+		if (element == null) return false;
+		return element.isLastImport();
 	}
 
 }
