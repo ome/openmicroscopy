@@ -440,8 +440,8 @@
         
         // if the ROI plugin has not been initialised (method not available...)
       if (!viewport.viewportimg.get(0).show_rois) {
-            viewport.viewportimg.roi_display({width:{{ image.getWidth }}, 
-                                            height:{{ image.getHeight }},
+            viewport.viewportimg.roi_display({width:{{ image.getSizeX }}, 
+                                            height:{{ image.getSizeY }},
                                             json_url:'{% url webgateway_get_rois_json image.id %}' });
             var zm = viewport.getZoom();
             viewport.viewportimg.get(0).setRoiZoom(zm);
