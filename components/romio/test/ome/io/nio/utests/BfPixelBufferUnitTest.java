@@ -75,13 +75,11 @@ public class BfPixelBufferUnitTest {
         pixels.setSizeC(sizeC);
         pixels.setSizeT(sizeT);
 
-        pixels.setMethodology(PixelsService.METADATA_ONLY); // FIXME - use constant from elsewhere?
         
         PixelsType type = new PixelsType();
         type.setValue(pixelType);
         pixels.setPixelsType(type);
 
-        service = new PixelsService(root);
     }
 
     @AfterClass
@@ -91,8 +89,17 @@ public class BfPixelBufferUnitTest {
 
     @Test
     public void testBfPixelBufferCreation() {
+        pixels.setMethodology(PixelsService.METADATA_ONLY); // FIXME - use constant from elsewhere?
+        service = new PixelsService(root);
         pixelBuffer = service.getPixelBuffer(pixels, provider, true);
         assertEquals(pixelBuffer.getClass().getName(),"ome.io.bioformats.BfPixelBuffer");
+    }
+
+    @Test
+    public void testRomioPixelBufferCreation() {
+        service = new PixelsService(root);
+        pixelBuffer = service.getPixelBuffer(pixels, provider, true);
+        assertEquals(pixelBuffer.getClass().getName(),"ome.io.nio.RomioPixelBuffer");
     }
 
 }
