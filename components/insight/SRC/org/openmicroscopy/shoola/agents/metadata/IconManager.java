@@ -474,7 +474,7 @@ public class IconManager
         relPaths[PLUS_9] = "plus.png";
         relPaths[MINUS_9] = "minus.png";
         relPaths[EDIT_8] = "nuvola_ksig8.png";
-        relPaths[EDIT_12] = "nuvola_ksig11.png";
+        relPaths[EDIT_12] = "color_line-thin12.png";//nuvola_ksig11.png";
         relPaths[EDIT_48] = "nuvola_ksig48.png";
         relPaths[PLUS_12] = "plus11.png";
         relPaths[MINUS_12] = "minus11.png";
