@@ -685,7 +685,6 @@ class ImViewerComponent
 			
 			model.setSelectedResolutionLevel(zoomIndex);
 			view.setZoomFactor(factor, zoomIndex);
-			Dimension d = model.getTileSize();
 			model.getBrowser().setComponentsSize(model.getTiledImageSizeX(),
 					model.getTiledImageSizeY());
 			loadTiles(null);

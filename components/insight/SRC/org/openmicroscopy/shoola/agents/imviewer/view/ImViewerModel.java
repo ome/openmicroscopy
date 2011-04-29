@@ -336,6 +336,7 @@ class ImViewerModel
 		int y = 0;
 		int ww;
 		int hh;
+		System.err.println(numberOfRows+" "+numberOfColumns);
 		for (int i = 0; i < numberOfRows; i++) {
 			if (i == (numberOfRows-1)) hh = edgeHeight;
 			else hh = h;
@@ -884,10 +885,10 @@ class ImViewerModel
 		Renderer rnd = metadataViewer.getRenderer();
 		resolutionMap = new HashMap<Integer, ResolutionLevel>();
 		if (rnd != null) {
-			Dimension d = rnd.getTileSize();
+			tileSize = rnd.getTileSize();
 			int levels = getResolutionLevels();
-			int powerX = (int) (Math.log(d.width)/Math.log(2));
-			int powerY = (int) (Math.log(d.height)/Math.log(2));
+			int powerX = (int) (Math.log(tileSize.width)/Math.log(2));
+			int powerY = (int) (Math.log(tileSize.height)/Math.log(2));
 			int index = 0;
 			int vx = 0, vy = 0;
 			for (int i = levels-1; i >= 0; i--) {

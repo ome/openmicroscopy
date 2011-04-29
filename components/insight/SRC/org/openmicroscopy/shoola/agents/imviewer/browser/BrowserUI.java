@@ -399,6 +399,8 @@ class BrowserUI
         layeredPane.setSize(d);
         canvas.setPreferredSize(d);
         canvas.setSize(d);
+        if (model.isBigImage())
+        	setBirdEyeViewLocation();
     }
     
     /** 
