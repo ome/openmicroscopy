@@ -152,8 +152,8 @@ def viewer(request, imageId):
         return HttpResponseRedirect(reverse('webmobile_login'))
         
     image = conn.getObject("Image", imageId)
-    w = image.getWidth()
-    h = image.getHeight()
+    w = image.getSizeX()
+    h = image.getSizeY()
     
     return render_to_response('webmobile/viewer.html', {'image':image})
     

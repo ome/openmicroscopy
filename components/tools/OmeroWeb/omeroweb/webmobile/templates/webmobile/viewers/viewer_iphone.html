@@ -181,7 +181,7 @@ img#imagePlane {
     
 </div>
 
-<img id="imagePlane" width="{{ image.getWidth }}" height="{{ image.getHeight }}" src="{% url mobile_static 'img/spacer.gif' %}"/>
+<img id="imagePlane" width="{{ image.getSizeX }}" height="{{ image.getSizeY }}" src="{% url mobile_static 'img/spacer.gif' %}"/>
 
 <!-- element for passing src of images to js -->
 <img id="button-down" style="display:none" src="{% url mobile_static 'img/button-down.png' %}"/>
