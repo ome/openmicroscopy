@@ -593,7 +593,7 @@ class BrowserComponent
             case TAGS_EXPLORER:
                 return im.getIcon(IconManager.TAG);//TAGS_EXPLORER);
             case IMAGES_EXPLORER:
-                return im.getIcon(IconManager.IMAGE);//IMAGES_EXPLORER);
+                return im.getIcon(IconManager.DATE);//IMAGES_EXPLORER);
             case SCREENS_EXPLORER:
             	return im.getIcon(IconManager.SCREEN);//SCREENS_EXPLORER);
             case FILES_EXPLORER:

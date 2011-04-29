@@ -76,10 +76,10 @@ public class ShapeSettingsData
 	public static final int 	DEFAULT_FONT_SIZE = 12;
 	
 	/** The default font family. */
-	public static final String 	DEFAULT_FONT_FAMILY = "Arial";
+	public static final String 	DEFAULT_FONT_FAMILY = "sans-serif";
 	
 	/** The default stroke width. */
-	public final static double DEFAULT_STROKE_WIDTH =  1.0f;
+	public final static double DEFAULT_STROKE_WIDTH = 1.0f;
 
 	/** Set if font italic. */
 	public final static String FONT_ITALIC = "Italic";
@@ -91,7 +91,7 @@ public class ShapeSettingsData
 	public final static String FONT_BOLD_ITALIC = "BoldItalic";
 	
 	/** Set if font bold. */
-	public final static String FONT_REGULAR = "Regular";
+	public final static String FONT_REGULAR = "Normal";
 	
 	/**
 	 * Returns the font style is supported.
@@ -353,6 +353,8 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
+		if (fontFamily == null || fontFamily.trim().length() == 0)
+			fontFamily = DEFAULT_FONT_FAMILY;
 		shape.setFontFamily(rtypes.rstring(fontFamily));
 		setDirty(true);
 	}
@@ -403,7 +405,7 @@ public class ShapeSettingsData
 	}
 
 	/**
-	 * Set the style of the font.
+	 * Sets the style of the font.
 	 * 
 	 * @return See above.
 	 */
@@ -413,6 +415,8 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setFontStyle(rtypes.rstring(formatFontStyle(fontStyle)));
+		//update the font weight.
+		shape.setFontWeight(null);
 		setDirty(true);
 	}
 
@@ -465,7 +469,10 @@ public class ShapeSettingsData
 	public boolean isFontItalic()
 	{ 
 		String value = getFontStyle();
-		return (FONT_ITALIC.equals(value) || FONT_BOLD_ITALIC.equals(value));
+		value = value.toLowerCase();
+		String f = FONT_ITALIC.toLowerCase();
+		String f1 = FONT_BOLD_ITALIC.toLowerCase();
+		return (f.equals(value) || f1.equals(value));
 	}
 	
 	/**
@@ -476,8 +483,23 @@ public class ShapeSettingsData
 	 */
 	public boolean isFontBold()
 	{ 
-		String value = getFontStyle();
-		return (FONT_BOLD.equals(value) || FONT_BOLD_ITALIC.equals(value));
+		//in order to handle the previous value.
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		String f = FONT_BOLD.toLowerCase();
+		String f1 = FONT_BOLD_ITALIC.toLowerCase();
+		String value;
+		RString weight = shape.getFontWeight();
+		if (weight != null) {
+			value = weight.getValue();
+			value = value.toLowerCase();
+			if (value.trim().length() > 0)
+				return (f.equals(value) || f1.equals(value));
+		}
+		value = getFontStyle();
+		value = value.toLowerCase();
+		return (f.equals(value) || f1.equals(value));
 	}
 	
 }

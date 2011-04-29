@@ -461,10 +461,10 @@ class OutputServerStrategy
 		if (MeasurementAttributes.STROKE_WIDTH.get(fig) != null)
 			settings.setStrokeWidth(
 					MeasurementAttributes.STROKE_WIDTH.get(fig));
-		if (MeasurementAttributes.FONT_FACE.get(fig) != null)
-			settings.setFontFamily(
-					MeasurementAttributes.FONT_FACE.get(fig).getName());
-		else
+		if (MeasurementAttributes.FONT_FACE.get(fig) != null) {
+			settings.setFontFamily(UIUtilities.convertFont(
+					MeasurementAttributes.FONT_FACE.get(fig).getName()));
+		} else
 			settings.setFontFamily(ShapeSettingsData.DEFAULT_FONT_FAMILY);
 		if (MeasurementAttributes.FONT_SIZE.get(fig) != null)
 			settings.setFontSize(

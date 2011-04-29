@@ -280,6 +280,9 @@ public class UIUtilities
 	/** The maximum width of the text when wrapping up text. */
 	private static final int		WRAP_UP_MAX_WIDTH = 50;
 
+	/** The fonts used for ROI.*/
+	private static final Map<String, String> FONTS;
+
 	static {
 		LETTERS = new HashMap<Integer, String>();
 		LETTERS.put(1, "A");
@@ -360,6 +363,111 @@ public class UIUtilities
 		LETTERS.put(76, "BX");
 		LETTERS.put(77, "BY");
 		LETTERS.put(78, "BZ");
+		
+		FONTS = new HashMap<String, String>();
+		FONTS.put("Arial", "sans-serif");
+		FONTS.put("Arial Black", "sans-serif");
+		FONTS.put("Book Antiqua", "serif");
+		FONTS.put("Charcoal", "sans-serif");
+		FONTS.put("Comic Sans",	"cursive");
+		FONTS.put("Comic Sans MS",	"cursive");
+		FONTS.put("Courier", "monospace");
+		FONTS.put("Courier New", "monospace");
+		FONTS.put("Gadget",	"sans-serif");
+		FONTS.put("Geneva",	"sans-serif");
+		FONTS.put("Georgia", "serif");
+		FONTS.put("Helvetica",	"sans-serif");
+		FONTS.put("Impact",	"sans-serif");
+		FONTS.put("Lucida Console", "monospace");
+		FONTS.put("Lucida Grande", "sans-serif");
+		FONTS.put("Lucida Sans Unicode", "sans-serif");
+		FONTS.put("Monaco", "monospace");
+		FONTS.put("MS Sans Serif", "sans-serif");
+		FONTS.put("MS Serif", "serif");
+		FONTS.put("New York", "serif");
+		FONTS.put("Palatino", "serif");
+		FONTS.put("Palatino Linotype", "serif");
+		FONTS.put("Tahoma", "sans-serif");
+		FONTS.put("Times", "serif");
+		FONTS.put("Times New Roman", "serif");
+		FONTS.put("Trebuchet MS", "sans-serif");
+		FONTS.put("Verdana", "sans-serif");
+		FONTS.put("Roman", "serif");
+		FONTS.put("Swis", "sans-serif");
+		FONTS.put("Script", "cursive");
+		FONTS.put("Decorative", "fantasy");
+		FONTS.put("serif", "serif");
+		FONTS.put("sans-serif", "sans-serif");
+		FONTS.put("cursive", "cursive");
+		FONTS.put("fantasy", "fantasy");
+		FONTS.put("monospace", "monospace");
+		FONTS.put("Andale Mono", "sans-serif");
+		FONTS.put("Antiqua", "serif");
+		FONTS.put("Avqest", "serif");
+		FONTS.put("Blackletter", "serif");
+		FONTS.put("Calibri", "sans-serif");
+		FONTS.put("Fraktur", "serif");
+		FONTS.put("Frosty", "serif");
+		FONTS.put("Garamond", "serif");
+		FONTS.put("Minion", "serif");
+		FONTS.put("Monotype.com", "sans-serif");
+		FONTS.put("Bitstream Vera Sans", "sans-serif");
+		FONTS.put("Bitstream Vera Sans Mono", "monospace");
+		FONTS.put("Bitstream Vera Serif", "serif");
+		FONTS.put("Caslon Roman", "serif");
+		FONTS.put("Charis SIL", "serif");
+		FONTS.put("DejaVu Sans", "sans-serif");
+		FONTS.put("DejaVu Sans Mono", "monospace");
+		FONTS.put("DejaVu Serif", "serif");
+		FONTS.put("Doulos SIL", "serif");
+		FONTS.put("Droid Sans", "sans-serif");
+		FONTS.put("Droid Sans Mono", "monospace");
+		FONTS.put("Droid Serif", "serif");
+		FONTS.put("FreeMono", "monospace");
+		FONTS.put("FreeSans", "sans-serif");
+		FONTS.put("FreeSerif", "serif");
+		FONTS.put("Gentium", "serif");
+		FONTS.put("GNU Unifont", "monospace");
+		FONTS.put("Junicode", "serif");
+		FONTS.put("Liberation Mono", "monospace");
+		FONTS.put("Liberation Sans", "sans-serif");
+		FONTS.put("Liberation Sans Narrow", "sans-serif");
+		FONTS.put("Liberation Serif", "serif");
+		FONTS.put("Linux Biolinum", "sans-serif");
+		FONTS.put("Linux Libertine", "serif");
+		FONTS.put("Luxi Mono", "monospace");
+		FONTS.put("Luxi Sans", "sans-serif");
+		FONTS.put("Luxi Serif", "serif");
+		FONTS.put("American Typewriter", "serif");
+		FONTS.put("Apple Casual", "cursive");
+		FONTS.put("Apple Chancery", "cursive");
+		FONTS.put("Apple Garamond", "serif");
+		FONTS.put("Baskerville", "serif");
+		FONTS.put("Big Caslon", "serif");
+		FONTS.put("Brush Script", "cursive");
+		FONTS.put("Chalkboard", "sans-serif");
+		FONTS.put("Chicago", "sans-serif");
+		FONTS.put("Cochin", "serif");
+		FONTS.put("Cooper", "serif");
+		FONTS.put("Copperplate", "serif");
+		FONTS.put("Didot", "serif");
+		FONTS.put("Futura", "sans-serif");
+		FONTS.put("Gill Sans", "sans-serif");
+		FONTS.put("Helvetica Neue", "sans-serif");
+		FONTS.put("Herculanum", "cursive");
+		FONTS.put("Hoefler Text", "serif");
+		FONTS.put("LiSong Pro", "serif");
+		FONTS.put("Marker Felt", "cursive");
+		FONTS.put("Menlo", "sans-serif");
+		FONTS.put("New York", "sans-serif");
+		FONTS.put("Optima", "sans-serif");
+		FONTS.put("Papyrus", "sans-serif");
+		FONTS.put("Sand", "cursive");
+		FONTS.put("Skia", "sans-serif");
+		FONTS.put("Techno", "sans-serif");
+		FONTS.put("Textile", "cursive");
+		FONTS.put("Zapf Chancery", "cursive");
+		FONTS.put("Zapfino", "cursive");
 	}
 	
 	/**
@@ -2085,4 +2193,19 @@ public class UIUtilities
 		return b;
     }
     
+    /**
+     * Converts the font.
+     * 
+     * @param family The value to convert.
+     * @return See above.
+     */
+    public static String convertFont(String family)
+    {
+    	if (family == null) return "";
+    	String value = FONTS.get(family);
+    	if (value == null || value.trim().length() == 0)
+    		return "";
+    	return value;
+    }
+
 }
