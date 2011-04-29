@@ -16,8 +16,8 @@
     top:0px;
     left:0px;
     z-index: 1;
-    width:{{ image.getWidth }};
-    height:{{ image.getHeight }};
+    width:{{ image.getSizeX }};
+    height:{{ image.getSizeY }};
 }
 
 #imgOverlay {
@@ -25,8 +25,8 @@
     top:0px;
     left:0px;
     z-index: 2;
-    width:{{ image.getWidth }};
-    height:{{ image.getHeight }};
+    width:{{ image.getSizeX }};
+    height:{{ image.getSizeY }};
 }
 
 #roi_table_div { 
@@ -104,7 +104,7 @@
 </div>
 
 <div style='float:left; position:relative'>
-    <img id='img_panel' src="{% url webgateway.views.render_image image.id default_z 0 %}" width="{{ image.getWidth }}" height="{{ image.getHeight }}"/>
+    <img id='img_panel' src="{% url webgateway.views.render_image image.id default_z 0 %}" width="{{ image.getSizeX }}" height="{{ image.getSizeY }}"/>
     <div id='canvas' class="canvas"></div>
     <div id='imgOverlay'></div>
 </div>

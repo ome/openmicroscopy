@@ -86,8 +86,8 @@
 </div>
 
 <div style='float:left; position:relative'>
-    <img id='img_panel' src="{% url webgateway.views.render_image image.id 0 0 %}" width="{{ image.getWidth }}" height="{{ image.getHeight }}"/>
-    <canvas id="canvas" width="{{ image.getWidth }}" height="{{ image.getHeight }}"></canvas>
+    <img id='img_panel' src="{% url webgateway.views.render_image image.id 0 0 %}" width="{{ image.getSizeX }}" height="{{ image.getSizeY }}"/>
+    <canvas id="canvas" width="{{ image.getSizeX }}" height="{{ image.getSizeY }}"></canvas>
 </div>
 
 

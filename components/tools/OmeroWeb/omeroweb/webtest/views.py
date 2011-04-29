@@ -497,9 +497,9 @@ def split_view_figure (request, **kwargs):
         if channels == None:
             channels = getChannelData(image)
         if height == 0:
-            height = image.getHeight()
+            height = image.getSizeY()
         if width == 0:
-            width = image.getWidth()
+            width = image.getSizeX()
     
     size = {"height": height, "width": width}
     c_strs = []
