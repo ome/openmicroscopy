@@ -336,7 +336,6 @@ class ImViewerModel
 		int y = 0;
 		int ww;
 		int hh;
-		System.err.println(numberOfRows+" "+numberOfColumns);
 		for (int i = 0; i < numberOfRows; i++) {
 			if (i == (numberOfRows-1)) hh = edgeHeight;
 			else hh = h;

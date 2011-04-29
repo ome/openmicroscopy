@@ -1197,7 +1197,7 @@ class ImViewerUI
 					value--;
 				}
 			}
-			statusBar.setRigthStatus("x: "+Math.round(factor/100.0));
+			statusBar.setRigthStatus("x: "+Math.round(factor)/100.0);
 		}
 	}
 	

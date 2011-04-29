@@ -115,8 +115,6 @@ class BrowserUI
 			default:
 				birdEyeView.setLocation(r.x, r.y);
 		}
-		birdEyeView.validate();
-		birdEyeView.repaint();
     }
     
     /** 
@@ -394,13 +392,19 @@ class BrowserUI
      */
     void setComponentsSize(int w, int h)
     {
-        Dimension d = new Dimension(w, h);
-        layeredPane.setPreferredSize(d);
-        layeredPane.setSize(d);
+    	Dimension d = new Dimension(w, h);
+    	if (model.isBigImage()) {
+    		Dimension dl = layeredPane.getPreferredSize();
+    		if (dl != null && (dl.width == 0 || dl.height == 0)) {
+    			layeredPane.setPreferredSize(d);
+                layeredPane.setSize(d);
+    		}
+    	} else {
+    		layeredPane.setPreferredSize(d);
+            layeredPane.setSize(d);
+    	}
         canvas.setPreferredSize(d);
         canvas.setSize(d);
-        if (model.isBigImage())
-        	setBirdEyeViewLocation();
     }
     
     /** 
