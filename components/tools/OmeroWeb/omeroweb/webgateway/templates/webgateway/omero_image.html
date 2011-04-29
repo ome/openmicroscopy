@@ -659,7 +659,7 @@
   function setImageDefaults (obj, callback, skip_apply) {
     if (!skip_apply) applyRDCW();
     var old = $(obj).html();
-    gs_modalJson('/webgateway/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
+    gs_modalJson('/{{ blitzcon.server_id|default:"webgateway" }}/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
                  {},
                  function(success, rv) {
                     $(obj).html(old).attr('disabled', false);
@@ -674,7 +674,7 @@
 {% if image.isOwned %}
   function resetImageDefaults (obj) {
     var msg = '<h2>Resetting rendering settings</h2><ul><li>This will reset the image rendering settings to their original state at time of import.</li></ul>';
-    var url = '/webgateway/resetImgRDef/'+viewport.loadedImg.id+'/';
+    var url = '/{{ blitzcon.server_id|default:"webgateway" }}/resetImgRDef/'+viewport.loadedImg.id+'/';
     gs_choiceModalJson(msg, [
         {label: 'ok', url: url, data: {full: true}},
         {label: 'cancel'}
