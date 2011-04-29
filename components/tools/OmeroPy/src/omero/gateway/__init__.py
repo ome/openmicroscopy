@@ -5045,8 +5045,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             z, t = pos
         img = self.renderImage(z,t)
         if len(size) == 1:
-            w = self.getWidth()
-            h = self.getHeight()
+            w = self.getSizeX()
+            h = self.getSizeY()
             ratio = float(w) / h
             if ratio > 1:
                 h = h * size[0] / w
@@ -5249,7 +5249,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         if channels is None:
             channels = map(lambda x: x._idx, filter(lambda x: x.isActive(), self.getChannels()))
         if range is None:
-            range = axis == 'h' and self.getHeight() or self.getWidth()
+            range = axis == 'h' and self.getSizeY() or self.getSizeX()
         if not isinstance(channels, (TupleType, ListType)):
             channels = (channels,)
         chw = map(lambda x: (x.getWindowMin(), x.getWindowMax()), self.getChannels())
@@ -5524,7 +5524,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         slides = opts.get('slides', None)
         minsize = opts.get('minsize', None)
-        w, h = self.getWidth(), self.getHeight()
+        w, h = self.getSizeX(), self.getSizeY()
         watermark = opts.get('watermark', None)
         if watermark:
             watermark = Image.open(watermark)
@@ -5569,7 +5569,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                     yield slide
         if minsize is not None:
             bg = Image.new("RGBA", (w, h), minsize[2])
-            ovlpos = (w-self.getWidth()) / 2, (h-self.getHeight()) / 2
+            ovlpos = (w-self.getSizeX()) / 2, (h-self.getSizeY()) / 2
             def resize (image):
                 img = bg.copy()
                 img.paste(image, ovlpos, image)
@@ -5661,8 +5661,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             x = y+1
         else:
             x = y
-        rv = {'g':{'width': self.getWidth()*x + border*(x+1),
-              'height': self.getHeight()*y+border*(y+1),
+        rv = {'g':{'width': self.getSizeX()*x + border*(x+1),
+              'height': self.getSizeY()*y+border*(y+1),
               'border': border,
               'gridx': x,
               'gridy': y,}
@@ -5675,8 +5675,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             x = y+1
         else:
             x = y
-        rv['c'] = {'width': self.getWidth()*x + border*(x+1),
-              'height': self.getHeight()*y+border*(y+1),
+        rv['c'] = {'width': self.getSizeX()*x + border*(x+1),
+              'height': self.getSizeY()*y+border*(y+1),
               'border': border,
               'gridx': x,
               'gridy': y,}
@@ -5704,7 +5704,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         py = dims['border']
         
         # Font sizes depends on image width
-        w = self.getWidth()
+        w = self.getSizeX()
         if w >= 640:
             fsize = (int((w-640)/128)*8) + 24
             if fsize > 64:
@@ -5737,11 +5737,11 @@ class _ImageWrapper (BlitzObjectWrapper):
                 canvas.paste(img, (px, py))
             pxc += 1
             if pxc < dims['gridx']:
-                px += self.getWidth() + border
+                px += self.getSizeX() + border
             else:
                 pxc = 0
                 px = border
-                py += self.getHeight() + border
+                py += self.getSizeY() + border
         if not self.isGreyscaleRenderingModel():
             self.setActiveChannels(cmap)
             img = self.renderImage(z,t, compression)
@@ -5762,8 +5762,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         @returns: (Image, width, height).
         """
         channels = filter(lambda x: x.isActive(), self.getChannels())
-        width = self.getWidth()
-        height = self.getHeight()
+        width = self.getSizeX()
+        height = self.getSizeY()
 
         pal = list(self.LP_PALLETE)
         # Prepare the palette taking channel colors in consideration
@@ -5940,7 +5940,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return rv is not None and rv.val or 0
 
     @assert_pixels
-    def getWidth (self):
+    def getSizeX (self):
         """
         Gets width (size X) of the image (in pixels)
         
@@ -5951,7 +5951,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return self._obj.getPrimaryPixels().getSizeX().val
 
     @assert_pixels
-    def getHeight (self):
+    def getSizeY (self):
         """
         Gets height (size Y) of the image (in pixels)
         
