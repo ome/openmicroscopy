@@ -947,8 +947,6 @@ public class ThumbnailCtx
         pixelsIdSettingsMap.put(pixelsId, settings);
         pixelsIdSettingsLastModifiedTimeMap.put(pixelsId, timestemp);
         pixelsIdSettingsOwnerIdMap.put(pixelsId, details.getOwner().getId());
-        // Ensure that no loaded Pixels objects are in the graph (See #5075)
-        settings.setPixels(new Pixels(pixelsId, false));
     }
 
     /**
@@ -962,8 +960,6 @@ public class ThumbnailCtx
         Timestamp t = metadata.getDetails().getUpdateEvent().getTime();
         pixelsIdMetadataMap.put(pixelsId, metadata);
         pixelsIdMetadataLastModifiedTimeMap.put(pixelsId, t);
-        // Ensure that no loaded Pixels objects are in the graph (See #5075)
-        metadata.setPixels(new Pixels(pixelsId, false));
     }
 
     /**
@@ -1008,6 +1004,13 @@ public class ThumbnailCtx
         log.info("Dimension pool size: " + temporaryDimensionPools.size());
         if (toSave.size() > 0)
         {
+            for (Thumbnail thumbnail : toSave)
+            {
+                // Ensure that no loaded Pixels objects are in the graph
+                // (See #5075)
+                thumbnail.setPixels(new Pixels(
+                        thumbnail.getPixels().getId(), false));
+            }
             updateService.saveAndReturnIds(
                     toSave.toArray(new Thumbnail[toSave.size()]));
             loadMetadataByDimensionPool(temporaryDimensionPools);
