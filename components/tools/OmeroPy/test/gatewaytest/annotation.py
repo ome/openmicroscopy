@@ -11,6 +11,7 @@
 import unittest
 import time, datetime
 import omero
+import os
 
 import gatewaytest.library as lib
 
@@ -146,6 +147,33 @@ class AnnotationsTest (lib.GTest):
         obj.removeAnnotations(ns2)
         self.assertEqual(obj.getAnnotation(ns1), None)
         self.assertEqual(obj.getAnnotation(ns2), None)
+
+    def testFileAnnotation (self):
+        """ Creates a file annotation from a local file """
+
+        tempFileName = "tempFile"
+        f = open(tempFileName, 'w')
+        fileText = "Test text for writing to file for upload"
+        f.write(fileText)
+        f.close()
+        fileSize = os.path.getsize(tempFileName)
+        ns = self.TESTANN_NS
+        image = self.TESTIMG
+        fileAnn = omero.gateway.FileAnnotationWrapper.fromLocalFile(self.gateway, tempFileName, mimetype='text/plain', ns=ns)
+        image.linkAnnotation(fileAnn)
+        os.remove(tempFileName)
+
+        ann = image.getAnnotation(ns)
+        self.assertEqual(ann.OMERO_TYPE, omero.model.FileAnnotationI)
+        for t in ann.getFileInChunks():
+            self.assertEqual(str(t), fileText)   # we get whole text in one chunk
+
+        # delete what we created 
+        link = ann.link
+        self.gateway.deleteObject(link._obj)        # delete link
+        self.gateway.deleteObject(ann._obj)         # then the annotation
+        self.gateway.deleteObject(ann._obj.file)    # then the file
+
 
 if __name__ == '__main__':
     unittest.main()
