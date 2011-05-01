@@ -3342,6 +3342,74 @@ class FileAnnotationWrapper (AnnotationWrapper):
                 yield data
         store.close()
     
+    @classmethod
+    def fromLocalFile (klass, conn, localPath, origFilePathAndName=None, mimetype=None, ns=None, desc=None):
+        """
+        Class method to create a L{FileAnnotationWrapper} from a local file. 
+        File is uploaded to create an omero.model.OriginalFileI referenced from this File Annotation.
+        Returns a new L{FileAnnotationWrapper}
+
+        @param conn:                    Blitz connection
+        @param localPath:               Location to find the local file to upload
+        @param origFilePathAndName:     Provides the 'path' and 'name' of the OriginalFile. If None, use localPath
+        @param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
+        @return:                        New L{FileAnnotationWrapper}
+        """
+        updateService = conn.getUpdateService()
+        rawFileStore = conn.createRawFileStore()
+
+        # create original file, set name, path, mimetype
+        if origFilePathAndName == None:
+            origFilePathAndName = localPath
+        originalFile = omero.model.OriginalFileI()
+        path, name = os.path.split(origFilePathAndName)
+        originalFile.setName(rstring(name))
+        originalFile.setPath(rstring(path))
+        if mimetype:
+            originalFile.mimetype = rstring(mimetype)
+        fileSize = os.path.getsize(localPath)
+        originalFile.setSize(rlong(fileSize))
+        # set sha1
+        try:
+            import hashlib
+            hash_sha1 = hashlib.sha1
+        except:
+            import sha
+            hash_sha1 = sha.new
+        fileHandle = open(localPath)
+        h = hash_sha1()
+        h.update(fileHandle.read())
+        shaHast = h.hexdigest()
+        fileHandle.close()
+        originalFile.setSha1(rstring(shaHast))
+        originalFile = updateService.saveAndReturnObject(originalFile)
+
+        # upload file
+        rawFileStore.setFileId(originalFile.getId().getValue())
+        fileHandle = open(localPath, 'rb')
+        buf = 10000
+        for pos in range(0,long(fileSize),buf):
+            block = None
+            if fileSize-pos < buf:
+                blockSize = fileSize-pos
+            else:
+                blockSize = buf
+            fileHandle.seek(pos)
+            block = fileHandle.read(blockSize)
+            rawFileStore.write(block, pos, blockSize)
+        fileHandle.close()
+
+        # create FileAnnotation, set ns & description and return wrapped obj
+        fa = omero.model.FileAnnotationI()
+        fa.setFile(originalFile)
+        if desc:
+            fa.setDescription(rstring(desc))
+        if ns:
+            fa.setNs(rstring(ns))
+        fa = updateService.saveAndReturnObject(fa)
+        return klass(conn, fa)
+
+
 #    def shortTag(self):
 #        if isinstance(self._obj, TagAnnotationI):
 #            try:
