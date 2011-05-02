@@ -118,6 +118,7 @@ public class PixelsService extends AbstractFileSystemService
                                       boolean bypassOriginalFile)
     {
         final boolean requirePyramid = isRequirePyramid(pixels);
+        final boolean metadataOnly = isMetadataOnly(pixels);
         final boolean useRomio = (pixelsFilePath == null);
         if (useRomio) {
             pixelsFilePath = getPixelsPath(pixels.getId());
@@ -168,7 +169,18 @@ public class PixelsService extends AbstractFileSystemService
         }
 
         //
-        // 4. Finally, this must be a ROMIO situation. If the pixels file is
+        // 4. If this is a useRomio scenario but with the Pixels methodology
+        // indicating metadata-only then the Pixels file will be accessed
+        // directly from Bio-Formats, create the buffer and return it.
+        //
+        if (useRomio && metadataOnly)
+        {
+            log.info("Using BfPixelBuffer for metadata-only file: " + pixelsFilePath);
+            return createBfPixelBuffer(pixelsFilePath);
+        }
+
+        //
+        // 5. Finally, this must be a ROMIO situation. If the pixels file is
         // missing, then we attempt a bypass if allowed. Otherwise, we
         // create a new buffer if none exists including a pyramid if necessary,
         // or return the existing one.
@@ -197,6 +209,20 @@ public class PixelsService extends AbstractFileSystemService
         log.info("Pixel buffer file exists returning read-only " +
                  "ROMIO pixel buffer.");
         return createRomioPixelBuffer(pixelsFilePath, pixels, false);
+    }
+
+    /**
+     * Returns true if the given {@link Pixels} is a metadata-only import.
+     *
+     * @param pixels
+     * @return
+     */
+    public boolean isMetadataOnly(Pixels pixels) {
+        if (pixels.getMethodology() != null) {
+            final boolean metadataOnly = pixels.getMethodology().equals(METADATA_ONLY); 
+            return metadataOnly;   
+        }
+        return false;
     }
 
     /**

@@ -7,24 +7,15 @@
 package ome.io.nio.utests;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
-import loci.formats.FormatTools;
 
 import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
-import ome.io.nio.Utils;
-import ome.io.nio.TileLoopIteration;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
-import ome.util.PixelData;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterClass;
@@ -58,8 +49,6 @@ public class BfPixelBufferUnitTest {
 
     private static final int sizeT = 6;
 
-    private int bytesPerPixel;
-
     @BeforeClass
     private void setup() {
         root = PathUtil.getInstance().getTemporaryDataFilePath();
@@ -67,19 +56,15 @@ public class BfPixelBufferUnitTest {
         pixels = new Pixels();
 
         String pixelType = "uint16";
-        bytesPerPixel = FormatTools.getBytesPerPixel(pixelType);
         pixels.setId(1L);
         pixels.setSizeX(sizeX);
         pixels.setSizeY(sizeY);
         pixels.setSizeZ(sizeZ);
         pixels.setSizeC(sizeC);
         pixels.setSizeT(sizeT);
-
-        
         PixelsType type = new PixelsType();
         type.setValue(pixelType);
         pixels.setPixelsType(type);
-
     }
 
     @AfterClass
@@ -96,7 +81,16 @@ public class BfPixelBufferUnitTest {
     }
 
     @Test
-    public void testRomioPixelBufferCreation() {
+    public void testRomioPixelBufferCreationFromNullMethodology() {
+        pixels.setMethodology(null);
+        service = new PixelsService(root);
+        pixelBuffer = service.getPixelBuffer(pixels, provider, true);
+        assertEquals(pixelBuffer.getClass().getName(),"ome.io.nio.RomioPixelBuffer");
+    }
+
+    @Test
+    public void testRomioPixelBufferCreationFromOtherString() {
+        pixels.setMethodology("SOME_OTHER_TEXT");
         service = new PixelsService(root);
         pixelBuffer = service.getPixelBuffer(pixels, provider, true);
         assertEquals(pixelBuffer.getClass().getName(),"ome.io.nio.RomioPixelBuffer");
