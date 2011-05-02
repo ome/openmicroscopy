@@ -78,6 +78,9 @@ public interface Importer
 	/** Flag to denote the <i>Importing</i> state. */
 	public static final int     IMPORTING = 4;
 	
+	/** Flag to denote the <i>Loading Container</i> state. */
+	public static final int     LOADING_CONTAINER = 5;
+	
 	/**
 	 * Starts the data loading process when the current state is {@link #NEW} 
 	 * and puts the window on screen.
@@ -200,4 +203,16 @@ public interface Importer
 	 */
 	boolean isLastImport();
 
+	/**
+	 * Sets the containers.
+	 * 
+	 * @param result The result to display
+	 * @param refreshImport Pass <code>true</code> to refresh the on-going
+	 * 						import, <code>false</code> otherwise.
+	 */
+	public void setContainers(Collection result, boolean refreshImport);
+
+	/** Reloads the containers where to load the data.*/
+	public void refreshContainers();
+	
 }

@@ -128,6 +128,12 @@ public class ImportDialog
 	/** Bound property indicating to import the selected files. */
 	public static final String	IMPORT_PROPERTY = "import";
 
+	/** Bound property indicating to refresh the location. */
+	public static final String	REFRESH_LOCATION_PROPERTY = "refreshLocation";
+
+	/** Bound property indicating to switch the location. */
+	public static final String	SWITCH_LOCATION_PROPERTY = "switchLocation";
+	
 	/** The default text. */
 	private static final String	PROJECT_TXT = "Project";
 	
@@ -149,7 +155,7 @@ public class ImportDialog
 	/** Action id indicating to reset the names. */
 	private static final int	RESET = 3;
 	
-	/** Action id indicating to apply the partial names to all. */
+	/** Action id indicating to apply the partial names to all.*/
 	private static final int	APPLY_TO_ALL = 4;
 	
 	/** Action id indicating to add tags to the file. */
@@ -160,6 +166,9 @@ public class ImportDialog
 	
 	/** Action id indicating to create a new project. */
 	private static final int	CREATE_PROJECT = 7;
+	
+	/** Action id indicating to refresh the containers. */
+	private static final int	REFRESH_LOCATION = 8;
 	
 	/** The title of the dialog. */
 	private static final String TITLE = "Select Data to Import";
@@ -221,6 +230,9 @@ public class ImportDialog
 	
 	/** Button to import the files. */
 	private JButton				refreshButton;
+	
+	/** Button to reload the containers where to import the files. */
+	private JButton				reloadContainerButton;
 	
 	/** 
 	 * Resets the name of all files to either the full path
@@ -661,6 +673,15 @@ public class ImportDialog
 		addButton.setActionCommand(""+CREATE_DATASET);
 		addButton.addActionListener(this);
 
+		IconManager icons = IconManager.getInstance();
+		reloadContainerButton = new JButton(icons.getIcon(IconManager.REFRESH));
+		reloadContainerButton.setBackground(UIUtilities.BACKGROUND);
+		reloadContainerButton.setToolTipText("Reloads the container where to " +
+				"import the data.");
+		reloadContainerButton.setActionCommand(""+REFRESH_LOCATION);
+		reloadContainerButton.addActionListener(this);
+		UIUtilities.unifiedButtonLookAndFeel(reloadContainerButton);
+		
 		listener = new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
@@ -686,7 +707,7 @@ public class ImportDialog
 		//numberOfFolders.setEnabled(false);
 		numberOfFolders.addPropertyChangeListener(this);
 		tagsMap = new LinkedHashMap<JButton, TagAnnotationData>();
-		IconManager icons = IconManager.getInstance();
+
 		tagButton = new JButton(icons.getIcon(IconManager.PLUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(tagButton);
 		tagButton.addActionListener(this);
@@ -808,6 +829,7 @@ public class ImportDialog
 		applyToAllButton.setActionCommand(""+APPLY_TO_ALL);
 		applyToAllButton.addActionListener(this);
 		applyToAllButton.setEnabled(false);
+
 		//getRootPane().setDefaultButton(cancelButton);
 		
 		pixelsSize = new ArrayList<NumericalTextField>();
@@ -1199,6 +1221,21 @@ public class ImportDialog
 	}
 	
 	/**
+	 * Builds and lays out the controls for the location.
+	 * 
+	 * @return See above.
+	 */
+	private JComponent buildLocationBar()
+	{
+		JPanel bar = new JPanel();
+		bar.setBackground(UIUtilities.BACKGROUND);
+		bar.setLayout(new FlowLayout(FlowLayout.LEFT));
+		bar.add(reloadContainerButton);
+		bar.add(Box.createHorizontalStrut(5));
+		return bar;
+	}
+	
+	/**
 	 * Returns the file queue and indicates where the files will be imported.
 	 * 
 	 * @return See above.
@@ -1206,16 +1243,10 @@ public class ImportDialog
 	private void buildLocationPane()
 	{
 		locationPane.removeAll();
-		//locationPane.setBorder(
-		//		BorderFactory.createTitledBorder(MESSAGE_LOCATION));
+		locationPane.add(buildLocationBar());
 		JPanel row = createRow();
 		String message = PROJECT_TXT;
-		IconManager icons = IconManager.getInstance();
-		Icon icon = icons.getIcon(IconManager.PROJECT);
-		if (type == Importer.SCREEN_TYPE) {
-			message = SCREEN_TXT;
-			icon = icons.getIcon(IconManager.SCREEN);
-		}
+		if (type == Importer.SCREEN_TYPE) message = SCREEN_TXT;
 		row.add(UIUtilities.setTextFont(MESSAGE_LOCATION));
 		locationPane.add(row);
 		locationPane.add(Box.createVerticalStrut(2));
@@ -1454,7 +1485,7 @@ public class ImportDialog
      * 
      * @return See above.
      */
-    int getType() { return type; }
+    public int getType() { return type; }
     
     /** Display the size of files to add. */
     void onSelectionChanged()
@@ -1684,7 +1715,7 @@ public class ImportDialog
 				createScreen((ScreenData) ho);
 		}
 	}
-	
+
 	/**
 	 * Cancels or imports the files.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -1726,6 +1757,10 @@ public class ImportDialog
 				else d = new EditorDialog(owner, new ScreenData(), false);
 				d.addPropertyChangeListener(this);
 				UIUtilities.centerAndShow(d);
+				break;
+			case REFRESH_LOCATION:
+				firePropertyChange(REFRESH_LOCATION_PROPERTY, 
+						Boolean.valueOf(false), Boolean.valueOf(true));
 		}
 	}
 	

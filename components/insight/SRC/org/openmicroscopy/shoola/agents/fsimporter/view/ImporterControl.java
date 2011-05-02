@@ -291,7 +291,9 @@ class ImporterControl
 			model.removeImportElement(index);
 		} else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
 			getAction(SEND_BUTTON).setEnabled(model.hasFailuresToSend());
-		} 
+		} else if (ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)) {
+			model.refreshContainers();
+		}
 	}
 	
 }

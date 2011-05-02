@@ -152,6 +152,16 @@ class DataNode
 	}
 	
 	/**
+	 * Sets the data node.
+	 * 
+	 * @param data The data to reset.
+	 */
+	void setData(DataObject data)
+	{
+		this.data = data;
+	}
+	
+	/**
 	 * Sets the node of reference.
 	 * 
 	 * @param refNode The node of reference.

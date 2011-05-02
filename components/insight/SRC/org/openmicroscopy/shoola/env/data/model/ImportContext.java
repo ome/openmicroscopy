@@ -62,10 +62,7 @@ public class ImportContext
 	
 	/** The depth to retrieve for the container's name. */
 	private int 		depth;
-	
-	/** The files to import. */
-	private List<ImportableFile> files;
-	
+
 	/** The metadata to import with the object. */
 	private ImportMetadataContext metadata;
 	
@@ -113,13 +110,6 @@ public class ImportContext
 		if (depth < 0) depth = 0;
 		this.depth = depth;
 	}
-	
-	/**
-	 * Returns the files to import.
-	 * 
-	 * @return See above.
-	 */
-	public List<ImportableFile> getFiles() { return files; }
 	
 	/**
 	 * Returns the container.

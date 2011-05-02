@@ -177,6 +177,64 @@ class ImporterUIElement
 	/** The busy label. */
 	private JXBusyLabel		busyLabel;
 	
+	/**
+	 * Returns the object found by identifier.
+	 * 
+	 * @param data The object to handle.
+	 * @param result The collection of element to check.
+	 * @return See above.
+	 */
+	private DataObject getObjectFromID(DataObject data, Collection result)
+	{
+		Iterator i = result.iterator();
+		DataObject object;
+		String n = "";
+		while (i.hasNext()) {
+			object = (DataObject) i.next();
+			if (object.getClass().equals(data.getClass()) 
+					&& object.getId() == data.getId()) {
+				return object;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the object found by name.
+	 * 
+	 * @param data The object to handle.
+	 * @param result The collection of element to check.
+	 * @return See above.
+	 */
+	private DataObject getObject(DataObject data, Collection result)
+	{
+		String name = "";
+		if (data instanceof ProjectData) {
+			name = ((ProjectData) data).getName();
+		} else if (data instanceof ScreenData) {
+			name = ((ScreenData) data).getName();
+		} else if (data instanceof DatasetData) {
+			name = ((DatasetData) data).getName();
+		}
+		Iterator i = result.iterator();
+		DataObject object;
+		String n = "";
+		while (i.hasNext()) {
+			object = (DataObject) i.next();
+			if (object.getClass().equals(data.getClass())) {
+				if (object instanceof ProjectData) {
+					n = ((ProjectData) object).getName();
+				} else if (object instanceof ScreenData) {
+					n = ((ScreenData) object).getName();
+				} else if (object instanceof DatasetData) {
+					n = ((DatasetData) object).getName();
+				}
+				if (n.equals(name)) return object;
+			}
+		}
+		return null;
+	}
+	
 	/** Sets the text of indicating the number of imports. */
 	private void setNumberOfImport()
 	{
@@ -947,5 +1005,67 @@ class ImporterUIElement
 	
 	/** Invokes when the import is finished. */
 	void onImportEnded() { busyLabel.setBusy(false); }
-	
+
+	/**
+	 * Resets the containers in the file to load.
+	 * 
+	 * @param result The containers to reset.
+	 */
+	void resetContainers(Collection result)
+	{
+		if (result == null || result.size() == 0) return;
+		List<ImportableFile> files = getData().getFiles();
+		if (files == null || files.size() == 0) return;
+		Iterator<ImportableFile> i = files.iterator();
+		ImportableFile f;
+		DataObject parent;
+		DatasetData dataset;
+		DataObject data;
+		ProjectData p;
+		DatasetData r;
+		while (i.hasNext()) {
+			f = i.next();
+			parent = f.getParent();
+			dataset = f.getDataset();
+			if (parent != null) {
+				if (parent.getId() <= 0) { //new project or screen
+					data = getObject(parent, result);
+					r = null;
+					if (dataset != null) {
+						if (dataset.getId() <= 0) {
+							//data is a project
+							r = dataset;
+							p = (ProjectData) data;
+							r = (DatasetData) 
+								getObject(dataset, p.getDatasets());
+						}
+					} 
+					f.setLocation(data, r);
+				} else { //was already created.
+					if (dataset != null) {
+						if (dataset.getId() <= 0) {
+							data = getObjectFromID(parent, result);
+							//data is a project
+							r = dataset;
+							p = (ProjectData) data;
+							r = (DatasetData) 
+								getObject(dataset, p.getDatasets());
+							f.setLocation(data, r);
+						}
+					}
+				}
+			} else { //no parent
+				if (dataset != null) {
+					if (dataset.getId() <= 0) {
+						//data is a project
+						r = dataset;
+						r = (DatasetData) 
+							getObject(dataset, result);
+						f.setLocation(null, r);
+					}
+				}
+			}
+		}
+	}
+
 }

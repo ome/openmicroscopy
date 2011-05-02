@@ -27,7 +27,10 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 import java.awt.Frame;
 import java.io.File;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -37,6 +40,7 @@ import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
@@ -44,6 +48,10 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import pojos.ExperimenterData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Implements the {@link Importer} interface to provide the functionality
@@ -204,10 +212,19 @@ class ImporterComponent
 			if (element.isDone()) {
 				model.importCompleted(element.getID());
 				view.onImportEnded(element);
-				//now check if we have other import to start.
-				element = view.getElementToStartImportFor();
-				if (element != null) 
-					importData(element);
+				boolean b = element.getData().hasNewObjects();
+				if (!b) {
+					element = view.getElementToStartImportFor();
+					if (element != null) 
+						importData(element);
+				} else {
+					//reload the data
+					Class rootType = ProjectData.class;
+					if (chooser != null && 
+							chooser.getType() == Importer.SCREEN_TYPE)
+						rootType = ScreenData.class;
+					model.fireContainerLoading(rootType, true);
+				}
 			}	
 			fireStateChange();
 		}
@@ -385,6 +402,56 @@ class ImporterComponent
 		ImporterUIElement element = view.getSelectedPane();
 		if (element == null) return false;
 		return element.isLastImport();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#refreshContainers()
+	 */
+	public void refreshContainers()
+	{
+		switch (model.getState()) {
+			case DISCARDED:
+			case NEW:
+				return;
+		}
+		Class rootType = ProjectData.class;
+		if (chooser != null && chooser.getType() == Importer.SCREEN_TYPE)
+			rootType = ScreenData.class;
+		model.fireContainerLoading(rootType, false);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#setContainers(Collection, boolean)
+	 */
+	public void setContainers(Collection result, boolean refreshImport)
+	{
+		switch (model.getState()) {
+			case DISCARDED:
+			case NEW:
+				return;
+		}
+		if (chooser == null) return;
+		ExperimenterData exp = ImporterAgent.getUserDetails();
+		Set nodes = TreeViewerTranslator.transformHierarchy(result, exp.getId(),
+				-1);
+		chooser.reset(null, nodes, chooser.getType());
+		if (refreshImport) {
+			Collection<ImporterUIElement> l = view.getImportElements();
+			Iterator<ImporterUIElement> i = l.iterator();
+			ImporterUIElement element;
+			while (i.hasNext()) {
+				element = i.next();
+				if (!element.isDone()) {
+					element.resetContainers(result);
+				}
+			}
+			//restarts The import.
+			element = view.getElementToStartImportFor();
+			if (element != null) 
+				importData(element);
+		}
 	}
 
 }

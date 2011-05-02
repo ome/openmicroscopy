@@ -77,6 +77,9 @@ public abstract class DataImporterLoader
     
     /** Convenience reference for subclasses. */
     protected final AdminView        	adminView;
+
+    /** Convenience reference for subclasses. */
+    protected final DataManagerView        dmView;
     
     /** The id of the user or <code>-1</code>. */
     protected long 						userID;
@@ -125,6 +128,8 @@ public abstract class DataImporterLoader
 		mhView = (MetadataHandlerView) 
 			registry.getDataServicesView(MetadataHandlerView.class);
 		adminView = (AdminView) registry.getDataServicesView(AdminView.class);
+		dmView = (DataManagerView) 
+			registry.getDataServicesView(DataManagerView.class);
 	}
 
 	/** Notifies the {@link #viewer} that the data retrieval is finished. */

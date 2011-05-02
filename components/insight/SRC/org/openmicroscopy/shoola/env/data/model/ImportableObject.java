@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportableObject 
+ * org.openmicroscopy.shoola.env.data.model.ImportableObject 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +33,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.event.ChangeListener;
+
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 //Third-party libraries
 
@@ -278,11 +283,16 @@ public class ImportableObject
 	}
 	
 	/**
-	 * Returns the type used when creating the object.
+	 * Returns the root type used when creating the object.
 	 * 
 	 * @return See above.
 	 */
-	public Class getType() { return type; }
+	public Class getRootType()
+	{ 
+		if (ScreenData.class.equals(type))
+			return type;
+		return ProjectData.class;
+	}
 	
 	/** 
 	 * Returns <code>true</code> if the name set while importing the data
@@ -302,9 +312,8 @@ public class ImportableObject
 	{ 
 		if (pixelsSize != null && pixelsSize.length > 0) {
 			Double[] array = new Double[pixelsSize.length];
-			for (int i = 0; i < pixelsSize.length; i++) {
+			for (int i = 0; i < pixelsSize.length; i++)
 				array[i] = new Double(pixelsSize[i]);
-			}
 			return array;
 		}
 		return null; 
@@ -383,6 +392,19 @@ public class ImportableObject
 	}
 	
 	/**
+	 * Returns <code>true</code> if new objects have to be created,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasNewObjects()
+	{
+		int size = newObjects.size();
+		if (size > 0) return true;
+		return projectDatasetMap.size() > 0;
+	}
+	
+	/**
 	 * Adds a new object.
 	 * 
 	 * @param object The object to add.
@@ -430,13 +452,10 @@ public class ImportableObject
 		Iterator<DatasetData> i = datasets.iterator();
 		DatasetData data;
 		String name = dataset.getName();
-		String n;
 		while (i.hasNext()) {
 			data = i.next();
-			n = data.getName();
-			if (n.equals(name)) {
+			if (data.getName().equals(name))
 				return data;
-			}
 		}
 		return null;
 	}
@@ -457,5 +476,5 @@ public class ImportableObject
 		}
 		datasets.add(dataset);
 	}
-	
+
 }

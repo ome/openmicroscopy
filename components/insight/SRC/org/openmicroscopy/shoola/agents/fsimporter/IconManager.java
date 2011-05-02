@@ -109,11 +109,14 @@ public class IconManager
     /** The <code>Apply Cancel</code> icon. */
     public static final int 	APPLY_CANCEL = 17;
     
+    /** The <code>Refresh</code> icon. */
+    public static final int 	REFRESH = 18;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int	MAX_ID = 17;
+    private static final int	MAX_ID = 18;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -137,6 +140,7 @@ public class IconManager
         relPaths[SCREEN] = "nuvola_folder_blue_open_modified_screen16.png";
         relPaths[APPLY] = "nuvola_apply16.png";
         relPaths[APPLY_CANCEL] = "nuvola_apply_cancel16.png";
+        relPaths[REFRESH] = "nuvola_reload16.png";
     }
     
     /** The sole instance. */

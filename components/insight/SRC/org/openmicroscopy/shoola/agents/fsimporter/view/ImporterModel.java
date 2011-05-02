@@ -32,11 +32,15 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.fsimporter.DataLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+
+import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * The Model component in the <code>Importer</code> MVC triad.
@@ -212,6 +216,21 @@ class ImporterModel
 	{
 		DiskSpaceLoader loader = new DiskSpaceLoader(component);
 		loader.load();
+	}
+	
+	/**
+	 * Fires an asynchronous call to load the container.
+	 * 
+	 * @param rootType The type of nodes to load.
+	 * @param refreshImport Flag indicating to refresh the on-going import.
+	 */
+	void fireContainerLoading(Class rootType, boolean refreshImport)
+	{
+		if (!(ProjectData.class.equals(rootType) ||
+			ScreenData.class.equals(rootType))) return;
+		DataLoader loader = new DataLoader(component, rootType, refreshImport);
+		loader.load();
+		state = Importer.LOADING_CONTAINER;
 	}
 	
 }

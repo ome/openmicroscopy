@@ -85,9 +85,6 @@ public class CancelAction
      * Cancels the on-going import.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    { 
-    	model.cancelImport();
-    }
-    
+    public void actionPerformed(ActionEvent e) { model.cancelImport(); }
+
 }
