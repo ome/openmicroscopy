@@ -501,6 +501,8 @@ public class ThumbnailBean extends AbstractLevel2Service
         pd.setZ(theZ);
         // Use a resolution level that matches our requested size if we can
         PixelBuffer pixelBuffer = renderer.getPixels();
+        int originalSizeX = pixels.getSizeX();
+        int originalSizeY = pixels.getSizeY();
         if (pixelBuffer.getResolutionLevels() > 1)
         {
             int resolutionLevel = pixelBuffer.getResolutionLevels();
@@ -532,6 +534,13 @@ public class ThumbnailBean extends AbstractLevel2Service
             int[] buf = renderer.renderAsPackedInt(pd, null);
             image = ImageUtil.createBufferedImage(
                     buf, pixels.getSizeX(), pixels.getSizeY());
+
+            // Finally, scale our image using scaling factors (percentage).
+            float xScale = (float)
+                    thumbnailMetadata.getSizeX() / pixels.getSizeX();
+            float yScale = (float)
+                    thumbnailMetadata.getSizeY() / pixels.getSizeY();
+            return iScale.scaleBufferedImage(image, xScale, yScale);
         } 
         catch (IOException e)
         {
@@ -547,11 +556,12 @@ public class ThumbnailBean extends AbstractLevel2Service
             ie.initCause(e);
             throw ie;
         }
-
-        // Finally, scale our image using scaling factors (percentage).
-        float xScale = (float) thumbnailMetadata.getSizeX() / pixels.getSizeX();
-        float yScale = (float) thumbnailMetadata.getSizeY() / pixels.getSizeY();
-        return iScale.scaleBufferedImage(image, xScale, yScale);
+        finally
+        {
+            // Reset to our original dimensions (#5075)
+            pixels.setSizeX(originalSizeX);
+            pixels.setSizeY(originalSizeY);
+        }
     }
 
     /**
