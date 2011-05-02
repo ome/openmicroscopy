@@ -655,8 +655,11 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         if (e instanceof BufferOverflowException) {
             throw new ResourceError("BufferOverflowException: " + e.getMessage());
         }
-
+        
         // Fallthrough
+        if (e instanceof RuntimeException) {
+            throw (RuntimeException) e; // No reason to wrap if Runtime
+        }
         throw new RuntimeException(e);
     }
 
