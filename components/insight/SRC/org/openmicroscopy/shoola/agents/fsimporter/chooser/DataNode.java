@@ -207,7 +207,7 @@ class DataNode
 		if (data instanceof ProjectData) {
 			if (refNode != null) {
 				List l = refNode.getChildrenDisplay();
-				if (l != null) {
+				if (l != null && l.size() > 0) {
 					Iterator i = l.iterator();
 					TreeImageDisplay node;
 					DataNode n;
@@ -218,6 +218,8 @@ class DataNode
 						n.parent = this;
 						children.add(n);
 					}
+				} else {
+					children.add(new DataNode(DataNode.createDefaultDataset()));
 				}
 			}
 		}
