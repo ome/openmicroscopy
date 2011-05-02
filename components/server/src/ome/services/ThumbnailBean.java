@@ -660,10 +660,6 @@ public class ThumbnailBean extends AbstractLevel2Service
             thumbnailMetadata = _createThumbnail();
             if (dirtyMetadata)
             {
-                // Ensure that no loaded Pixels objects are in the graph
-                // (See #5075)
-                thumbnailMetadata.setPixels(new Pixels(
-                        thumbnailMetadata.getPixels().getId(), false));
                 thumbnailMetadata = iUpdate.saveAndReturnObject(thumbnailMetadata);
             }
 
@@ -723,10 +719,6 @@ public class ThumbnailBean extends AbstractLevel2Service
             for (Thumbnail thumbnail : thumbnails) {
                 thumbnailMetadata = thumbnail;
                 _createThumbnail();
-                // Ensure that no loaded Pixels objects are in the graph
-                // (See #5075)
-                thumbnailMetadata.setPixels(new Pixels(
-                        thumbnailMetadata.getPixels().getId(), false));
             }
             // We're doing the update or creation and save as a two step 
             // process due to the possible unloaded Pixels. If we do not, 
@@ -843,12 +835,6 @@ public class ThumbnailBean extends AbstractLevel2Service
         // process due to the possible unloaded Pixels. If we do not, 
         // Pixels will be unloaded and we will hit 
         // IllegalStateException's when checking update events.
-        for (Thumbnail thumbnail : toSave)
-        {
-            // Ensure that no loaded Pixels objects are in the graph (See #5075)
-            thumbnail.setPixels(new Pixels(
-                    thumbnail.getPixels().getId(), false));
-        }
         iUpdate.saveArray(toSave.toArray(new Thumbnail[toSave.size()]));
         // Ensure that we do not have "dirty" pixels or rendering settings left
         // around in the Hibernate session cache.
@@ -893,10 +879,6 @@ public class ThumbnailBean extends AbstractLevel2Service
         {
             try
             {
-                // Ensure that no loaded Pixels objects are in the graph
-                // (See #5075)
-                thumbnailMetadata.setPixels(new Pixels(
-                        thumbnailMetadata.getPixels().getId(), false));
                 iUpdate.saveObject(thumbnailMetadata);
             }
             finally
