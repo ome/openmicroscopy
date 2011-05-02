@@ -165,28 +165,29 @@ class BirdEyeViewComponent
 				cross.y = 0;
 		}
 	}
+
 	/**
-	 * Returns <code>true</code> if the rectangle is image, <code>false</code>
-	 * otherwise.
+	 * Returns <code>true</code> if the rectangle is in the image,
+	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
 	private boolean inImage()
 	{
 		if (bx-strokeWeight < imageRectangle.x) {
-			bx = BORDER+strokeWeight;
+			bx = BORDER+2*strokeWeight;
 			return false;
 		}
 		if (by-strokeWeight < imageRectangle.y) {
-			by = BORDER+strokeWeight;
+			by = BORDER+2*strokeWeight;
 			return false;
 		}
 		if (bx+w-strokeWeight > imageRectangle.width) {
-			bx = imageRectangle.width-w+strokeWeight;
+			bx = imageRectangle.width-w-2*strokeWeight;
 			return false;
 		}
 		if (by+h-strokeWeight > imageRectangle.height) {
-			by = imageRectangle.height-h+strokeWeight;
+			by = imageRectangle.height-h-2*strokeWeight;
 			return false;
 		}
 		return true;

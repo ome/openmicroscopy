@@ -317,7 +317,10 @@ class BrowserUI
     		addComponentToLayer(birdEyeView);
     		setBirdEyeViewLocation();
     	}
+    	Dimension d = birdEyeView.getSize();
     	birdEyeView.setImage(image);
+    	if (d.width == 0 || d.height == 0)
+    		setSelectionRegion();
 	}
     
     /**
