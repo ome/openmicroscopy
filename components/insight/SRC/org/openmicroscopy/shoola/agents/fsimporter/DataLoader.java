@@ -104,7 +104,10 @@ public class DataLoader
     {
     	if (viewer.getState() == Importer.DISCARDED)
     		return;
-    	viewer.setContainers((Collection) result, refreshImport);
+    	int type = Importer.PROJECT_TYPE;
+    	if (ScreenData.class.equals(rootType))
+    		type = Importer.SCREEN_TYPE;
+    	viewer.setContainers((Collection) result, refreshImport, type);
     }
     
 }

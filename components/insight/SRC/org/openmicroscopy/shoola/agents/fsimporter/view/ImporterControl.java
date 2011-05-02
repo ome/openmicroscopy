@@ -292,7 +292,10 @@ class ImporterControl
 		} else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
 			getAction(SEND_BUTTON).setEnabled(model.hasFailuresToSend());
 		} else if (ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)) {
-			model.refreshContainers();
+			Integer value = (Integer) evt.getNewValue();
+			int v = Importer.PROJECT_TYPE;
+			if (value != null) v = value.intValue();
+			model.refreshContainers(v);
 		}
 	}
 	

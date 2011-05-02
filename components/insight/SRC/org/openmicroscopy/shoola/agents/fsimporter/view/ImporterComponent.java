@@ -406,37 +406,36 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#refreshContainers()
+	 * @see Importer#refreshContainers(int)
 	 */
-	public void refreshContainers()
+	public void refreshContainers(int type)
 	{
 		switch (model.getState()) {
 			case DISCARDED:
-			case NEW:
 				return;
 		}
 		Class rootType = ProjectData.class;
-		if (chooser != null && chooser.getType() == Importer.SCREEN_TYPE)
+		if (type == Importer.SCREEN_TYPE)
 			rootType = ScreenData.class;
 		model.fireContainerLoading(rootType, false);
 	}
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#setContainers(Collection, boolean)
+	 * @see Importer#setContainers(Collection, boolean, int)
 	 */
-	public void setContainers(Collection result, boolean refreshImport)
+	public void setContainers(Collection result, boolean refreshImport, 
+			int type)
 	{
 		switch (model.getState()) {
 			case DISCARDED:
-			case NEW:
 				return;
 		}
 		if (chooser == null) return;
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		Set nodes = TreeViewerTranslator.transformHierarchy(result, exp.getId(),
 				-1);
-		chooser.reset(null, nodes, chooser.getType());
+		chooser.reset(null, nodes, type);
 		if (refreshImport) {
 			Collection<ImporterUIElement> l = view.getImportElements();
 			Iterator<ImporterUIElement> i = l.iterator();

@@ -68,6 +68,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JToggleButton;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -131,9 +132,6 @@ public class ImportDialog
 	/** Bound property indicating to refresh the location. */
 	public static final String	REFRESH_LOCATION_PROPERTY = "refreshLocation";
 
-	/** Bound property indicating to switch the location. */
-	public static final String	SWITCH_LOCATION_PROPERTY = "switchLocation";
-	
 	/** The default text. */
 	private static final String	PROJECT_TXT = "Project";
 	
@@ -170,27 +168,15 @@ public class ImportDialog
 	/** Action id indicating to refresh the containers. */
 	private static final int	REFRESH_LOCATION = 8;
 	
+	/** Action id indicating to refresh the containers. */
+	private static final int	SWITCH_LOCATION = 9;
+	
 	/** The title of the dialog. */
 	private static final String TITLE = "Select Data to Import";
 	
 	/** The message to display in the header. */
 	private static final String MESSAGE_LOCATION = "Select where to import " +
 			"the data";
-	
-	/** The message to display in the header. */
-	private static final String MESSAGE = "Select the files or directories " +
-			"to import";
-	
-	/** The message to display in the header. */
-	private static final String MESSAGE_PLATE = "Select the plates to import";
-	
-	/** The message to display in the header. */
-	private static final String END = ".";
-	
-	/** Text of the sub-message. */
-	private static final String SUB_MESSAGE = "The name of the file will be, " +
-			"by default, the absolute path. \n You can modify the name " +
-			"by setting the number of directories before the file's name.";
 
 	/** Warning when de-selecting the name overriding option. */
 	private static final List<String> WARNING;
@@ -232,7 +218,10 @@ public class ImportDialog
 	private JButton				refreshButton;
 	
 	/** Button to reload the containers where to import the files. */
-	private JButton				reloadContainerButton;
+	private JToggleButton		reloadContainerButton;
+	
+	/** Button used to switch between location.*/
+	private JButton				switchLocationButton;
 	
 	/** 
 	 * Resets the name of all files to either the full path
@@ -607,6 +596,7 @@ public class ImportDialog
 		//});
 	}
 	
+	
 	/** 
 	 * Initializes the components composing the display. 
 	 * 
@@ -674,13 +664,26 @@ public class ImportDialog
 		addButton.addActionListener(this);
 
 		IconManager icons = IconManager.getInstance();
-		reloadContainerButton = new JButton(icons.getIcon(IconManager.REFRESH));
+		reloadContainerButton = new JToggleButton(
+				icons.getIcon(IconManager.REFRESH));
 		reloadContainerButton.setBackground(UIUtilities.BACKGROUND);
 		reloadContainerButton.setToolTipText("Reloads the container where to " +
 				"import the data.");
 		reloadContainerButton.setActionCommand(""+REFRESH_LOCATION);
 		reloadContainerButton.addActionListener(this);
 		UIUtilities.unifiedButtonLookAndFeel(reloadContainerButton);
+		
+		switchLocationButton = new JButton(icons.getIcon(
+				IconManager.SWITCH_LOCATION));
+		switchLocationButton.setBackground(UIUtilities.BACKGROUND);
+		switchLocationButton.setToolTipText("Toggle between the " +
+				"Project/Dataset and Screen location " +
+				"where to import the data.");
+		
+		//UIUtilities.unifiedButtonLookAndFeel(switchLocationButton);
+		switchLocationButton.setSelected(type == Importer.SCREEN_TYPE);
+		switchLocationButton.addActionListener(this);
+		switchLocationButton.setActionCommand(""+SWITCH_LOCATION);
 		
 		listener = new ActionListener() {
 			
@@ -913,27 +916,6 @@ public class ImportDialog
 		bar.add(Box.createHorizontalStrut(5));
 		bar.add(showThumbnails);
 		return bar;
-	}
-	
-	/**
-	 * Returns the text corresponding to the passed container.
-	 * 
-	 * @param container Container where to import the image.
-	 * @return See above.
-	 */
-	private String getContainerText(Object container)
-	{
-		if (container instanceof DatasetData) {
-			return MESSAGE+" into Dataset: "+
-				((DatasetData) container).getName()+END;
-		} else if (container instanceof ScreenData) {
-			return MESSAGE_PLATE+" into Screen: "+
-			((ScreenData) container).getName()+END;
-		} else if (container instanceof ProjectData) {
-			return MESSAGE_PLATE+" into Project: "+
-			((ProjectData) container).getName()+END;
-		}
-		return MESSAGE+END;
 	}
 	
 	/**
@@ -1232,6 +1214,7 @@ public class ImportDialog
 		bar.setLayout(new FlowLayout(FlowLayout.LEFT));
 		bar.add(reloadContainerButton);
 		bar.add(Box.createHorizontalStrut(5));
+		bar.add(switchLocationButton);
 		return bar;
 	}
 	
@@ -1244,6 +1227,7 @@ public class ImportDialog
 	{
 		locationPane.removeAll();
 		locationPane.add(buildLocationBar());
+		locationPane.add(new JSeparator());
 		JPanel row = createRow();
 		String message = PROJECT_TXT;
 		if (type == Importer.SCREEN_TYPE) message = SCREEN_TXT;
@@ -1568,6 +1552,9 @@ public class ImportDialog
 		int oldType = this.type;
 		this.type = type;
 		table.removeAllFiles();
+		switchLocationButton.removeActionListener(this);
+		switchLocationButton.setSelected(type == Importer.SCREEN_TYPE);
+		switchLocationButton.addActionListener(this);
 		if (oldType != this.type) { 
 			//change filters.
 			//reset name
@@ -1760,7 +1747,13 @@ public class ImportDialog
 				break;
 			case REFRESH_LOCATION:
 				firePropertyChange(REFRESH_LOCATION_PROPERTY, 
-						Boolean.valueOf(false), Boolean.valueOf(true));
+						-1, getType());
+				break;
+			case SWITCH_LOCATION:
+				int t = Importer.SCREEN_TYPE;
+				if (switchLocationButton.isSelected()) 
+					t = Importer.PROJECT_TYPE;
+				firePropertyChange(REFRESH_LOCATION_PROPERTY, getType(), t);
 		}
 	}
 	

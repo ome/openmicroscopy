@@ -209,10 +209,18 @@ public interface Importer
 	 * @param result The result to display
 	 * @param refreshImport Pass <code>true</code> to refresh the on-going
 	 * 						import, <code>false</code> otherwise.
+	 * @param type 	The type of location to reload, either {@link #PROJECT_TYPE}
+	 * 				or {@link #SCREEN_TYPE}.
 	 */
-	public void setContainers(Collection result, boolean refreshImport);
+	public void setContainers(Collection result, boolean refreshImport, 
+			int type);
 
-	/** Reloads the containers where to load the data.*/
-	public void refreshContainers();
+	/** 
+	 * Reloads the containers where to load the data.
+	 * 
+	 * @param type 	The type of location to reload, either {@link #PROJECT_TYPE}
+	 * 				or {@link #SCREEN_TYPE}.
+	 */
+	public void refreshContainers(int type);
 	
 }
