@@ -181,8 +181,9 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
                 re.setRGBA(index,255,255,255,255)    # if not colourChannels - channels are white
             info = (channelNames[index], re.getChannelWindowStart(index), re.getChannelWindowEnd(index))
             log("  Render channel: %s  start: %d  end: %d" % info)
+            box = (roiX, roiY, roiX+roiWidth, roiY+roiHeight)
             if proStart == proEnd:
-                # rendering a region is not supported with projection - only with single plane
+                # if it's a single plane, we can render a region (region not supported with projection)
                 planeDef = omero.romio.PlaneDef()
                 planeDef.z = long(proStart)
                 planeDef.t = long(tIndex)
@@ -197,7 +198,6 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
             else:
                 projection = re.renderProjectedCompressed(algorithm, tIndex, stepping, proStart, proEnd)
                 fullImage = Image.open(StringIO.StringIO(projection))
-                box = (roiX, roiY, roiX+roiWidth, roiY+roiHeight)
                 roiImage = fullImage.crop(box)
                 roiImage.load()        # hoping that when we zoom, don't zoom fullImage
             if roiZoom is not 1:
