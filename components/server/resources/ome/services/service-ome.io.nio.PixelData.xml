@@ -24,6 +24,7 @@
     <constructor-arg ref="sessionManager"/>
     <constructor-arg ref="executor"/>
     <constructor-arg ref="pixelDataHandler"/>
+    <constructor-arg ref="uuid"/>
   </bean>
 
   <bean id="pixelDataHandler" class="ome.services.pixeldata.PixelDataHandler">

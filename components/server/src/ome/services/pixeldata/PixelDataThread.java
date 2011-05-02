@@ -47,6 +47,9 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
     private final static Principal DEFAULT_PRINCIPAL = new Principal("root",
             "system", "Task");
 
+    /** Server session UUID */
+    private final String uuid;
+
     /**
      * Whether this thread should perform actual processing or simply add a
      * PIXELDATA {@link EventLog}. For the moment, this is determined based
@@ -60,18 +63,19 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
      * Uses default {@link Principal} for processing
      */
     public PixelDataThread(SessionManager manager, Executor executor,
-            PixelDataHandler handler) {
-        this(manager, executor, handler, DEFAULT_PRINCIPAL);
+            PixelDataHandler handler, String uuid) {
+        this(manager, executor, handler, DEFAULT_PRINCIPAL, uuid);
     }
 
     /**
      * Main constructor. No arguments can be null.
      */
     public PixelDataThread(SessionManager manager, Executor executor,
-            PixelDataHandler handler, Principal principal) {
+            PixelDataHandler handler, Principal principal, String uuid) {
         super(manager, executor, handler, principal);
         this.performProcessing = executor.getContext()
             .containsBean("pixelDataTrigger");
+        this.uuid = uuid;
     }
 
     /**
@@ -80,7 +84,6 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
     public void start() {
         log.info("Initializing PixelDataThread" +
                 (performProcessing ? "" : " (create events only)"));
-        sessionInit();
     }
 
     /**
@@ -119,7 +122,7 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
 
     private EventLog makeEvent(final EventContext ec,
                                final MissingPyramidMessage mpm) {
-        return (EventLog) this.executor.execute(getPrincipal(),
+        return (EventLog) this.executor.execute(new Principal(uuid),
                     new Executor.SimpleWork(this, "createEvent") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
