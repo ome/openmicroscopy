@@ -596,6 +596,19 @@ public class ImportDialog
 		//});
 	}
 	
+	/** Formats the {@link #switchLocationButton}.*/
+	private void formatSwitchButton()
+	{
+		switchLocationButton.removeActionListener(this);
+		IconManager icons = IconManager.getInstance();
+		switchLocationButton.setSelected(false);
+		switchLocationButton.setIcon(icons.getIcon(IconManager.SCREEN));
+		if (type == Importer.SCREEN_TYPE) {
+			switchLocationButton.setSelected(true);
+			switchLocationButton.setIcon(icons.getIcon(IconManager.PROJECT));
+		}
+		switchLocationButton.addActionListener(this);
+	}
 	
 	/** 
 	 * Initializes the components composing the display. 
@@ -673,15 +686,14 @@ public class ImportDialog
 		reloadContainerButton.addActionListener(this);
 		UIUtilities.unifiedButtonLookAndFeel(reloadContainerButton);
 		
-		switchLocationButton = new JButton(icons.getIcon(
-				IconManager.SWITCH_LOCATION));
+		switchLocationButton = new JButton();
 		switchLocationButton.setBackground(UIUtilities.BACKGROUND);
 		switchLocationButton.setToolTipText("Toggle between the " +
 				"Project/Dataset and Screen location " +
 				"where to import the data.");
 		
 		//UIUtilities.unifiedButtonLookAndFeel(switchLocationButton);
-		switchLocationButton.setSelected(type == Importer.SCREEN_TYPE);
+		formatSwitchButton();
 		switchLocationButton.addActionListener(this);
 		switchLocationButton.setActionCommand(""+SWITCH_LOCATION);
 		
@@ -1211,7 +1223,7 @@ public class ImportDialog
 	{
 		JPanel bar = new JPanel();
 		bar.setBackground(UIUtilities.BACKGROUND);
-		bar.setLayout(new FlowLayout(FlowLayout.LEFT));
+		bar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		bar.add(reloadContainerButton);
 		bar.add(Box.createHorizontalStrut(5));
 		bar.add(switchLocationButton);
@@ -1552,9 +1564,7 @@ public class ImportDialog
 		int oldType = this.type;
 		this.type = type;
 		table.removeAllFiles();
-		switchLocationButton.removeActionListener(this);
-		switchLocationButton.setSelected(type == Importer.SCREEN_TYPE);
-		switchLocationButton.addActionListener(this);
+		formatSwitchButton();
 		if (oldType != this.type) { 
 			//change filters.
 			//reset name
