@@ -48,7 +48,12 @@
                 <li class="home"><a href="{% url webindex %}" title="Home">{% trans "Home" %}</a></li>
             </ul></div>
         </div>    
-        <div id="header2">{% block header %}{% endblock %}</div>
+        <div id="header2">
+            {% block header %}{% endblock %}
+            <div id="logout">
+                <a href="{% url weblogout %}">{% trans "logout" %}</a>
+            </div>
+        </div>
     </div>
     <div id="contentWrapper">{% block content %}{% endblock %}</div>
 </div>

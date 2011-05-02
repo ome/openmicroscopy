@@ -41,7 +41,9 @@ body.zoom {
 }
 #header2 {
     margin: 0;
-    height: 25px;
+    padding: 4px 0px;
+    height: 17px;
+    position: relative;
 }
 
 #menu {
@@ -80,7 +82,6 @@ table.contentWrapper {
 
 #path {
     position: relative;
-    height:22px;
     padding:0;
 }
 
@@ -126,7 +127,7 @@ table.contentWrapper {
 }
 #actionWrapper {
     position: absolute;
-    padding: 4px 0;
+    padding: 0;
     top: 0;
     left: 0;
 }

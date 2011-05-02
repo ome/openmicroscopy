@@ -159,6 +159,15 @@
     </script>
 {% endblock %}
 
+<!-- Add a user-chooser to the toolbar -->
+{% block toolbar %}
+    {% if form_users %}
+    <div style="float:left; padding: 0px 10px">
+        {% for field in form_users %}{{ field }}{% endfor %}&nbsp;&nbsp;&nbsp;
+    </div>
+    {% endif %}
+{% endblock %}
+
 {% block left %}
 
     <div class="toolbar">
