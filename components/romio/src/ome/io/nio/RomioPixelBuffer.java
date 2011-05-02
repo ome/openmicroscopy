@@ -838,14 +838,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
             Integer y, Integer w, Integer h) throws IOException
     {
-        PixelData d;
-        List<Integer> offset = Arrays.asList(new Integer[]{x,y,z,c,t});
-        List<Integer> size = Arrays.asList(new Integer[]{w,h,1,1,1});
-        List<Integer> step = Arrays.asList(new Integer[]{1,1,1,1,1});
-        byte[] buffer = new byte[getCubeSize(offset,size,step)];
-        getHypercubeDirect(offset,size,step,buffer);
-        d = new PixelData(pixels.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
-        return d;
+        return getPlaneRegion(x, y, w, h, z, c, t, 0);
     }
 
     /* (non-Javadoc)

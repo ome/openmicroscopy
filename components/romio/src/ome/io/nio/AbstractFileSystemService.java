@@ -66,15 +66,48 @@ public class AbstractFileSystemService {
         }
     }
 
-    public String getPixelsPath(Long id) {
+    /**
+     * Returns a numbered path relative to the root of this service, but is
+     * ignorant of FS and similar constructs. For example, given an id of 123456
+     * this will return "ROOT/Pixels/Dir-123/Dir-456/123456"
+     *
+     * Should be marked protected in 4.4  because assumptions on the existence
+     * of this file can be dangerous.
+     *
+     * @param id
+     * @return
+     */
+    public /*protected*/ String getPixelsPath(Long id) {
         return getPath(PIXELS_PATH, id);
     }
 
-    public String getFilesPath(Long id) {
+    /**
+     * Returns a numbered path relative to the root of this service, but is
+     * ignorant of FS and similar constructs. For example, given an id of 123456
+     * this will return "ROOT/Files/Dir-123/Dir-456/123456"
+     *
+     * Should be marked protected in 4.4  because assumptions on the existence
+     * of this file can be dangerous.
+     *
+     * @param id
+     * @return
+     */
+    public /*protected*/ String getFilesPath(Long id) {
         return getPath(FILES_PATH, id);
     }
 
-    public String getThumbnailPath(Long id) {
+    /**
+     * Returns a numbered path relative to the root of this service, but is
+     * ignorant of FS and similar constructs. For example, given an id of 123456
+     * this will return "ROOT/Thumbnails/Dir-123/Dir-456/123456"
+     *
+     * Should be marked protected in 4.4  because assumptions on the existence
+     * of this file can be dangerous.
+     *
+     * @param id
+     * @return
+     */
+    public /*protected*/ String getThumbnailPath(Long id) {
         return getPath(THUMBNAILS_PATH, id);
     }
 

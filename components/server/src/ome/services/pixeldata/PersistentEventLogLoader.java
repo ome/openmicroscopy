@@ -7,6 +7,7 @@
 
 package ome.services.pixeldata;
 
+import java.util.Arrays;
 import java.util.List;
 
 import ome.model.meta.EventLog;
@@ -54,7 +55,17 @@ public class PersistentEventLogLoader extends ome.services.eventlogs.PersistentE
             return pop();
         } else {
             final long current_id = getCurrentId();
+            if (log.isDebugEnabled()) {
+                log.debug(String.format(
+                        "Locating next PIXELSDATA EventLog repo:%s > id:%d",
+                        repo, current_id));
+            }
             dataPerUser = sql.nextPixelsDataLogForRepo(repo, current_id);
+            if (log.isDebugEnabled()) {
+                for (long[] data : dataPerUser) {
+                    log.debug("Data: " + Arrays.toString(data));
+                }
+            }
             if (available()) {
                 return pop();
             }
@@ -78,8 +89,10 @@ public class PersistentEventLogLoader extends ome.services.eventlogs.PersistentE
         final long eventLog = data[1];
         final long pixels = data[2];
 
-        log.debug(String.format("Handling pixels %s for user %s", pixels,
-                experimenter));
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Handling pixels id:%d for user id:%d",
+                    pixels, experimenter));
+        }
 
         // Store the lowest of the entity ids.
         if (lowestEntityId < 0) {

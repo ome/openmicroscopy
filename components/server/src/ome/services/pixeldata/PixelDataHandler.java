@@ -102,10 +102,10 @@ public class PixelDataHandler extends SimpleWork {
                             new Parameters().addId(id));
                     
                     try {
-                        // pixelsService.makePyramid(pixels, null /*Don't know path*/,
-                        //    new OmeroOriginalFileMetadataProvider(iQuery),
-                        //    true);
-                        log.debug("Hanlded pixels " + id);
+                        pixelsService.makePyramid(pixels, null,
+                                new OmeroOriginalFileMetadataProvider(iQuery),
+                                true);
+                        log.info("Handled pixels " + id);
                     } catch (Exception t) {
                         log.error("Failed to handle pixels " + id, t);
                     }

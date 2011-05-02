@@ -158,21 +158,22 @@ public class RawPixelsBean extends AbstractStatefulBean implements
                 return null;
             }
 
-            String path = dataService.getPixelsPath(id);
             try {
-
-                byte[] hash = Utils.pathToSha1(path);
+                byte[] hash = buffer.calculateMessageDigest();
                 pixelsInstance.setSha1(Utils.bytesToHex(hash));
 
             } catch (RuntimeException re) {
                 // ticket:3140
                 if (re.getCause() instanceof FileNotFoundException) {
-                    String msg = "Cannot find path. Deleted? " + path;
+                    String msg = "Cannot find path. Deleted? " + buffer;
                     log.warn(msg);
                     clean(); // Prevent a second exception on close.
                     throw new ResourceError(msg);
                 }
                 throw re;
+            } catch (IOException e) {
+                log.warn("calculateMessageDigest failed on " + buffer, e);
+                throw new ResourceError(e.getMessage());
             }
 
             iUpdate.flush();
@@ -655,8 +656,11 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         if (e instanceof BufferOverflowException) {
             throw new ResourceError("BufferOverflowException: " + e.getMessage());
         }
-
+        
         // Fallthrough
+        if (e instanceof RuntimeException) {
+            throw (RuntimeException) e; // No reason to wrap if Runtime
+        }
         throw new RuntimeException(e);
     }
 
