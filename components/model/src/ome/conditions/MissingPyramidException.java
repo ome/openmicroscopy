@@ -10,7 +10,7 @@ package ome.conditions;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.0
  */
-public class MissingPyramidException extends ApiUsageException {
+public class MissingPyramidException extends TryAgain {
 
     /**
      *
@@ -19,8 +19,8 @@ public class MissingPyramidException extends ApiUsageException {
 
     final protected long pixelsID;
 
-    public MissingPyramidException(String msg, long pixelsID) {
-        super(msg);
+    public MissingPyramidException(String msg, long backOffInMilliseconds, long pixelsID) {
+        super(msg, backOffInMilliseconds);
         this.pixelsID = pixelsID;
     }
 

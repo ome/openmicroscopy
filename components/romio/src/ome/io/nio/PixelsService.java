@@ -373,7 +373,9 @@ public class PixelsService extends AbstractFileSystemService
         }
         String msg = "Missing pyramid:" + pixelsPyramidFilePath;
         log.warn(msg);
-        throw new MissingPyramidException(msg, pixels.getId());
+
+        // FIXME make backoff configurable
+        throw new MissingPyramidException(msg, 15*1000, pixels.getId());
     }
 
 	/**
