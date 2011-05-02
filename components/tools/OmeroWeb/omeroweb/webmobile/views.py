@@ -155,7 +155,7 @@ def viewer(request, imageId):
     w = image.getSizeX()
     h = image.getSizeY()
     
-    return render_to_response('webmobile/viewer.html', {'image':image})
+    return render_to_response('webmobile/viewers/viewer_iphone.html', {'image':image})
     
 
 @isUserConnected

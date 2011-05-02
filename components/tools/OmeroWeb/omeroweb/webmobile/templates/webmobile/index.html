@@ -13,6 +13,8 @@
 
 {% block content %}
 
+<!-- Turning off timeline links for 4.3 release 
+
 <div class='sub-header'>
     Recent Activity:
 </div>
@@ -46,6 +48,8 @@
     <div style="clear:both"></div>
 </div>
 
+-->
+
 
 <div class='sub-header'>
     Browse{% if experimenter %} (owned by {{ experimenter.getFullName }}){% endif %}:
@@ -68,7 +72,7 @@
 
 <div class='list-item'>
     <a href="{% url webmobile_groups_members %}">
-        <div class="tab-item"> Group / User</div></a>
+        <div class="tab-item">User</div></a>
     </a>
 
     <div style="clear:both"></div>
