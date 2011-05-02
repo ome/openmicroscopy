@@ -137,7 +137,10 @@ public class PixelsService extends AbstractFileSystemService
                 pixels, pixelsPyramidFilePath);
         final PixelBuffer romio = createRomioPixelBuffer(
                 pixelsFilePath, pixels, true);
-        Dimension tileSize = pixelsPyramid.getTileSize();
+        // Dimension tileSize = pixelsPyramid.getTileSize();
+        // FIXME: This should be configuration or service driven
+        // FIXME: Also implemented in RenderingBean.getTileSize()
+        Dimension tileSize = new Dimension(256, 256);
         Utils.forEachTile(new TileLoopIteration() {
             public void run(int z, int c, int t, int x, int y, int w,
                             int h, int tileCount)

@@ -102,5 +102,45 @@ class TestRPS(lib.ITest):
         rps.close()
         self.check_pix(pix)
 
+    def testRomioToPyramid(self):
+        """
+        Here we create a pixels that is not big,
+        then modify its metadata so that it IS big,
+        in order to trick the service into throwing
+        us a MissingPyramidException
+        """
+        pix = self.pix(x=1, y=1, z=4000, t=4000, c=1)
+        rps = self.client.sf.createRawPixelsStore()
+        rps.setPixelsId(pix.id.val, True)
+        for t in range(4000):
+            rps.setTimepoint([5]*4000, t) # Assuming int8
+        pix = rps.save()
+        rps.close()
+
+        pix.sizeX = omero.rtypes.rint(4000)
+        pix.sizeY = omero.rtypes.rint(4000)
+        pix.sizeZ = omero.rtypes.rint(1)
+        pix.sizeT = omero.rtypes.rint(1)
+        pix = self.update.saveAndReturnObject(pix)
+
+        rps = self.client.sf.createRawPixelsStore()
+        # First execution should certainly fail
+        try:
+            rps.setPixelsId(pix.id.val, True)
+            fail("Should throw!")
+        except omero.MissingPyramidException, mpm:
+           self.assertEquals(pix.id.val, mpm.pixelsID)
+
+        # Eventually, however, it should be generated
+        i = 10
+        success = False
+        while i > 0 and not success:
+            try:
+                rps.setPixelsId(pix.id.val, True)
+                success = True
+            except omero.MissingPyramidException, mpm:
+                self.assertEquals(pix.id.val, mpm.pixelsID)
+        self.assert_(success)
+
 if __name__ == '__main__':
     unittest.main()
