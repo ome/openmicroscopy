@@ -606,7 +606,13 @@ public class ImportDialog
 		screenLocationButton.setSelected(getType() == Importer.SCREEN_TYPE);
 	}
 	
-	void handleLocationSwitch(Object src)
+	/**
+	 * Handles the switch of containers either <code>Project</code>
+	 * or <code>Screen</code>.
+	 * 
+	 * @param src The source component.
+	 */
+	private void handleLocationSwitch(Object src)
 	{
 		int t = Importer.PROJECT_TYPE;
 		if (src == projectLocationButton) {

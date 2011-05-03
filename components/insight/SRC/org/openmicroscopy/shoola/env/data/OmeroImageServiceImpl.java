@@ -894,6 +894,27 @@ class OmeroImageServiceImpl
 							link = (ProjectDatasetLink) 
 							gateway.saveAndReturnObject(link, 
 									parameters);
+						} else {
+							DatasetData d;
+							d = object.isDatasetCreated(
+									createdData.getId(), dataset);
+							if (d == null) {
+								ioContainer = gateway.saveAndReturnObject(
+										dataset.asIObject(), parameters);
+								//register
+								object.registerDataset(
+										createdData.getId(),
+										(DatasetData) 
+										PojoMapper.asDataObject(
+										ioContainer));
+								link = (ProjectDatasetLink) 
+								ModelMapper.linkParentToChild(
+										(Dataset) ioContainer, 
+										(Project) createdData.asProject());
+								link = (ProjectDatasetLink) 
+								gateway.saveAndReturnObject(link, 
+										parameters);
+							} else ioContainer = d.asIObject();
 						}
 					} else { //project already exists.
 						createdData = object.isDatasetCreated(
