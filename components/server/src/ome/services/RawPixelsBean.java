@@ -7,12 +7,15 @@
 
 package ome.services;
 
+import java.awt.Dimension;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +30,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
 import ome.conditions.RootException;
 import ome.conditions.ValidationException;
+import ome.io.bioformats.BfPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
@@ -37,6 +41,7 @@ import ome.parameters.Parameters;
 import ome.security.basic.BasicSecuritySystem;
 import ome.services.messages.EventLogMessage;
 import ome.util.ShallowCopy;
+import ome.util.SqlAction;
 import ome.util.Utils;
 
 import org.apache.commons.logging.Log;
@@ -88,6 +93,12 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     /** Pixels set cache. */
     private transient Map<Long, Pixels> pixelsCache;
 
+    /** SQL action instance for this class. */
+    private transient SqlAction sql;
+
+    /** The server's OMERO data directory. */
+    private transient String omeroDataDir;
+
     /**
      * default constructor
      */
@@ -99,8 +110,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements
      * 
      * @param checking
      */
-    public RawPixelsBean(boolean checking) {
+    public RawPixelsBean(boolean checking, String omeroDataDir) {
         this.diskSpaceChecking = checking;
+        this.omeroDataDir = omeroDataDir;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -127,6 +139,15 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         getBeanHelper()
                 .throwIfAlreadySet(this.iRepositoryInfo, iRepositoryInfo);
         this.iRepositoryInfo = iRepositoryInfo;
+    }
+
+    /**
+     * SQL action Bean injector
+     * @param sql a <code>SqlAction</code>
+     */
+    public final void setSqlAction(SqlAction sql) {
+        getBeanHelper().throwIfAlreadySet(this.sql, sql);
+        this.sql = sql;
     }
 
     // ~ Lifecycle methods
@@ -272,8 +293,26 @@ public class RawPixelsBean extends AbstractStatefulBean implements
                 throw new ValidationException("Cannot read pixels id=" + id);
             }
 
+            File pixelsFile = new File(dataService.getFilesPath(pixelsId));
             OriginalFileMetadataProvider metadataProvider =
-            	new OmeroOriginalFileMetadataProvider(iQuery);
+                new OmeroOriginalFileMetadataProvider(iQuery);
+            if (!pixelsFile.exists() && !bypassOriginalFile)
+            {
+                List<String> namePathRepo = sql.getPixelsNamePathRepo(pixelsId);
+                if (namePathRepo.get(2) == null)  // Default repo
+                {
+                    File f = new File(omeroDataDir);
+                    f = new File(f, namePathRepo.get(1));
+                    f = new File(f, namePathRepo.get(0));
+                    String pixelsFilePath = f.getAbsolutePath();
+                    log.info("Metadata only file, resulting path: " +
+                            pixelsFilePath);
+                    buffer = dataService.getPixelBuffer(
+                            pixelsInstance, pixelsFilePath, metadataProvider,
+                            bypassOriginalFile);
+                    return;
+                }
+            }
             buffer = dataService.getPixelBuffer(
             		pixelsInstance, metadataProvider, bypassOriginalFile);
         }
@@ -687,6 +726,12 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public int[] getTileSize()
     {
+        if (buffer instanceof BfPixelBuffer)
+        {
+            Dimension tileSize = buffer.getTileSize();
+            return new int[] { (int) tileSize.getWidth(),
+                               (int) tileSize.getHeight() };
+        }
         if (hasPixelsPyramid())
         {
             // FIXME: This should be configuration or service driven

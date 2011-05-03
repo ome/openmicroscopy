@@ -7,16 +7,22 @@
 
 package ome.services.blitz.impl;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import ome.conditions.InternalException;
+import ome.conditions.ResourceError;
 import ome.formats.OMEROMetadataStore;
+import ome.io.nio.OriginalFilesService;
 import ome.model.IObject;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
+import ome.model.enums.Format;
 import ome.model.screen.Plate;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
@@ -24,9 +30,11 @@ import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.roi.PopulateRoiJob;
 import ome.services.throttling.Adapter;
 import ome.services.util.Executor;
+import ome.services.util.Executor.SimpleWork;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 import ome.tools.spring.InternalServiceFactory;
+import ome.util.SqlAction;
 import omero.RBool;
 import omero.RDouble;
 import omero.RFloat;
@@ -38,6 +46,7 @@ import omero.ServerError;
 import omero.api.AMD_MetadataStore_createRoot;
 import omero.api.AMD_MetadataStore_populateMinMax;
 import omero.api.AMD_MetadataStore_saveToDB;
+import omero.api.AMD_MetadataStore_setPixelsParams;
 import omero.api.AMD_MetadataStore_updateObjects;
 import omero.api.AMD_MetadataStore_updateReferences;
 import omero.api.AMD_StatefulServiceInterface_activate;
@@ -54,6 +63,7 @@ import omero.util.IceMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
@@ -74,9 +84,20 @@ public class MetadataStoreI extends AbstractAmdServant implements
     
     protected PopulateRoiJob popRoi;
 
-    public MetadataStoreI(final BlitzExecutor be, PopulateRoiJob popRoi) throws Exception {
+    protected final SqlAction sql;
+
+    protected final OriginalFilesService filesService;
+
+    protected final String omeroDataDir;
+
+    public MetadataStoreI(final BlitzExecutor be, PopulateRoiJob popRoi,
+            SqlAction sql, OriginalFilesService filesService,
+            String omeroDataDir) throws Exception {
         super(null, be);
         this.popRoi = popRoi;
+        this.sql = sql;
+        this.filesService = filesService;
+        this.omeroDataDir = omeroDataDir;
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -275,6 +296,64 @@ public class MetadataStoreI extends AbstractAmdServant implements
                         }
                     }
                 }));
+    }
+
+    /* (non-Javadoc)
+     * @see omero.api._MetadataStoreOperations#setPixelsParams_async(omero.api.AMD_MetadataStore_setPixelsParams, long, boolean, Map<String, String>, Ice.Current)
+     */
+    public void setPixelsParams_async(
+            AMD_MetadataStore_setPixelsParams __cb,
+            final long pixelsId, final boolean useOriginalFile,
+            final Map<String, String> params, Current __current)
+        throws ServerError
+    {
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.SimpleWork(
+                        this, "setPixelsParams")
+        {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf)
+            {
+                sql.setPixelsParams(pixelsId, params);
+                if (!useOriginalFile)
+                {
+                    return null;
+                }
+
+                Pixels pixels = sf.getQueryService().get(
+                        Pixels.class, pixelsId);
+                Format format = pixels.getImage().getFormat();
+                List<OriginalFile> files = pixels.linkedOriginalFileList();
+                if (files == null || files.size() == 0)
+                {
+                    throw new ResourceError(String.format(
+                            "Pixels:%d has no linked original files!",
+                            pixelsId));
+                }
+                OriginalFile source = null;
+                for (OriginalFile file : files)
+                {
+                    if (file.getMimetype().equals(format.getValue()))
+                    {
+                        if (source != null)
+                        {
+                            throw new ResourceError(String.format(
+                                    "Pixels:%d has at least two source " +
+                                    "original files %d and %d", pixelsId,
+                                    source.getId(), file.getId()));
+                        }
+                        source = file;
+                    }
+                }
+                File file = new File(filesService.getFilesPath(source.getId()));
+                String path = file.getParent().replaceFirst(omeroDataDir, "");
+                sql.setPixelsNamePathRepo(pixelsId, file.getName(),
+                                          path, null);
+                return null;
+            }
+        }));
     }
 
     /**

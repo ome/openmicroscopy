@@ -452,28 +452,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     {
         // Ensure the reader has been initialized
         reader();
-        if (bfReader instanceof TiffReader)
-        {
-            TiffReader tiffReader = (TiffReader) bfReader;
-            IFDList ifds = tiffReader.getIFDs();
-            if (ifds.size() == 0)
-            {
-                throw new PixelBufferException("Backing reader has no IFDs!");
-            }
-            IFD firstIFD = ifds.get(0);
-            try
-            {
-                return new Dimension((int) firstIFD.getTileWidth(),
-                                     (int) firstIFD.getTileLength());
-            }
-            catch (FormatException e)
-            {
-                String message = "Error retrieving tile width and height!";
-                log.error(message, e);
-                throw new PixelBufferException(message);
-            }
-        }
-        return null;
+        return new Dimension(bfReader.getOptimalTileWidth(),
+                             bfReader.getOptimalTileHeight());
     }
 
     /* (non-Javadoc)

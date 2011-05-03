@@ -624,6 +624,32 @@ public class PostgresSqlAction extends SqlAction.Impl {
         }
     }
 
+    /* (non-Javadoc)
+     * @see ome.util.SqlAction#getPixelsNamePathRepo(long)
+     */
+    public List<String> getPixelsNamePathRepo(long id)
+            throws InternalException
+    {
+        try {
+            return _jdbc().queryForObject(
+                    _lookup("get_pixels_name_path_repo"), //$NON-NLS-1$
+                    new RowMapper<List<String>>() {
+                        public List<String> mapRow(ResultSet arg0, int arg1)
+                                throws SQLException {
+                            final List<String> values = new ArrayList<String>();
+                            values.add(arg0.getString(1));
+                            values.add(arg0.getString(2));
+                            values.add(arg0.getString(3));
+                            return values;
+                        }
+                    }, id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        } catch (UncategorizedSQLException e) {
+            throw new InternalException("Potential jdbc jar error."); //$NON-NLS-1$
+        }
+    }
+
     //
     // End PgArrayHelper
     //

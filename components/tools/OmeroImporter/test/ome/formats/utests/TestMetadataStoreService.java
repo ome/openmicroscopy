@@ -25,6 +25,7 @@ import omero.api.AMI_MetadataStore_createRoot;
 import omero.api.AMI_MetadataStore_populateMinMax;
 import omero.api.AMI_MetadataStore_postProcess;
 import omero.api.AMI_MetadataStore_saveToDB;
+import omero.api.AMI_MetadataStore_setPixelsParams;
 import omero.api.AMI_MetadataStore_updateObjects;
 import omero.api.AMI_MetadataStore_updateReferences;
 import omero.api.AMI_StatefulServiceInterface_activate;
@@ -554,6 +555,35 @@ public class TestMetadataStoreService implements MetadataStorePrx
 
     public boolean postProcess_async(AMI_MetadataStore_postProcess __cb,
             Map<String, String> __ctx) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public void setPixelsParams(long pixelsId, boolean useOriginalFile,
+            Map<String, String> params) throws ServerError
+    {
+        // TODO Auto-generated method stub
+    }
+
+    public void setPixelsParams(long pixelsId, boolean useOriginalFile,
+            Map<String, String> params, Map<String, String> ctx)
+        throws ServerError
+    {
+        // TODO Auto-generated method stub
+    }
+
+    public boolean setPixelsParams_async(AMI_MetadataStore_setPixelsParams cb,
+            long pixelsId, boolean useOriginalFile, Map<String, String> params)
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public boolean setPixelsParams_async(
+            AMI_MetadataStore_setPixelsParams cb, long pixelsId,
+            boolean useOriginalFile, Map<String, String> params,
+            Map<String, String> ctx)
+    {
         // TODO Auto-generated method stub
         return false;
     }

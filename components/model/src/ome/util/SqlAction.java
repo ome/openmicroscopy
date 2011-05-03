@@ -230,6 +230,12 @@ public interface SqlAction {
     Map<String, String> getPixelsParams(final long id) throws InternalException;
 
     /**
+     * Retrieves the name, path and repo for the given pixels set. If the
+     * id is not found, null is returned.
+     */
+    List<String> getPixelsNamePathRepo(final long id) throws InternalException;
+
+    /**
      * Resets the entire original file "params" field.
      */
     int setPixelsParams(final long id, Map<String, String> params);

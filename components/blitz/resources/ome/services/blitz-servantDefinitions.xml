@@ -275,6 +275,9 @@
         <bean class="ome.services.blitz.impl.MetadataStoreI">
             <constructor-arg ref="throttlingStrategy"/>
             <constructor-arg ref="populateRoiJob"/>
+            <constructor-arg ref="simpleSqlAction"/>
+            <constructor-arg ref="/OMERO/Files"/>
+            <constructor-arg value="${omero.data.dir}"/>
         </bean>
     </constructor-arg>
   </bean>

@@ -1772,6 +1772,26 @@ public class OMEROMetadataStoreClient
         }
     }
 
+    /**
+     * Sets extended the properties on a pixel set.
+     * @param pixelsId The pixels set identifier.
+     * @param series The series number to populate.
+     */
+    public void setPixelsParams(long pixelsId, int series)
+    {
+        try
+        {
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("image_no", Integer.toString(series));
+            delegate.setPixelsParams(pixelsId, true, params);
+        }
+        catch (Exception e)
+        {
+            log.error("Server error setting extended properties for Pixels:" +
+                      pixelsId);
+        }
+    }
+
 	/**
 	 * Changes the default group of the currently logged in user.
 	 *
