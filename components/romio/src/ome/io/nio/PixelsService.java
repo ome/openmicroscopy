@@ -17,13 +17,7 @@ import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.FatalBeanException;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-
+import ome.conditions.LockTimeout;
 import ome.conditions.MissingPyramidException;
 import ome.conditions.ResourceError;
 import ome.io.bioformats.BfPixelBuffer;
@@ -31,6 +25,12 @@ import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.messages.MissingPyramidMessage;
 import ome.model.core.Pixels;
 import ome.util.PixelData;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.FatalBeanException;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 
 /**
  * @author <br>
@@ -151,7 +151,23 @@ public class PixelsService extends AbstractFileSystemService
             return;
         }
         final PixelBuffer pixelsPyramid = createPyramidPixelBuffer(
-                pixels, pixelsPyramidFilePath);
+                pixels, pixelsPyramidFilePath, true);
+        try
+        {
+                performWrite(pixels, pixelsPyramidFile, pixelsPyramid,
+                        pixelsFile, pixelsFilePath, originalFilePath);
+        }
+
+        finally
+        {
+            ome.util.Utils.closeQuietly(pixelsPyramid);
+        }
+    }
+
+    private void performWrite(Pixels pixels, final File pixelsPyramidFile,
+            final PixelBuffer pixelsPyramid, final File pixelsFile,
+            final String pixelsFilePath, final String originalFilePath) {
+
         final PixelBuffer source;
         final Dimension tileSize;
         if (pixelsFile.exists())
@@ -166,8 +182,11 @@ public class PixelsService extends AbstractFileSystemService
             source = createBfPixelBuffer(originalFilePath);
             tileSize = source.getTileSize();
         }
-        Utils.forEachTile(new TileLoopIteration() {
-            public void run(int z, int c, int t, int x, int y, int w,
+
+        try
+        {
+            Utils.forEachTile(new TileLoopIteration() {
+                public void run(int z, int c, int t, int x, int y, int w,
                             int h, int tileCount)
             {
                 try
@@ -191,8 +210,18 @@ public class PixelsService extends AbstractFileSystemService
                     return;
                 }
             }
-        }, source, (int) tileSize.getWidth(), (int) tileSize.getHeight());
-        log.info("SUCCESS -- Pyramid created for pixels id:" + pixels.getId());
+            }, source, (int) tileSize.getWidth(), (int) tileSize.getHeight());
+
+            log.info("SUCCESS -- Pyramid created for pixels id:" + pixels.getId());
+
+        }
+
+        finally
+        {
+            ome.util.Utils.closeQuietly(source);
+        }
+
+
     }
 
    /**
@@ -237,7 +266,7 @@ public class PixelsService extends AbstractFileSystemService
         if (pixelsPyramidFile.exists())
         {
             log.info("Using Pyramid BfPixelBuffer: " + pixelsPyramidFilePath);
-            return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath);
+            return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath, false);
         }
 
         //
@@ -252,7 +281,7 @@ public class PixelsService extends AbstractFileSystemService
                 log.info("Creating Pyramid BfPixelBuffer: " +
                         pixelsPyramidFilePath);
                 createSubpath(pixelsPyramidFilePath);
-                return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath);
+                return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath, true);
             } else {
                 if (originalFilePath != null) {
                     log.info("Using BfPixelBuffer: " + pixelsFilePath);
@@ -379,14 +408,17 @@ public class PixelsService extends AbstractFileSystemService
      * @return
      */
     protected PixelBuffer createPyramidPixelBuffer(final Pixels pixels,
-            final String filePath) {
+            final String filePath, boolean write) {
 
         try
         {
-            return new BfPyramidPixelBuffer(pixels, filePath);
+            return new BfPyramidPixelBuffer(pixels, filePath, write);
         }
         catch (Exception e)
         {
+            if (e instanceof LockTimeout) {
+                throw (LockTimeout) e;
+            }
             String msg = "Error instantiating pixel buffer: " + filePath;
             log.error(msg, e);
             throw new ResourceError(msg);
