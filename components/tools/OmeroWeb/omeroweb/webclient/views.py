@@ -982,7 +982,7 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
         if conn_share is None:
             manager.originalMetadata()
         manager.channelMetadata()
-        for ch in manager.channel_metadata:
+        for theC, ch in enumerate(manager.channel_metadata):
             if ch.getLogicalChannel() is not None:
                 channel = dict()
                 channel['form'] = MetadataChannelForm(initial={'logicalChannel': ch.getLogicalChannel(), 
@@ -1016,6 +1016,8 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
                         channel['form_dichroic'] = MetadataDichroicForm(initial={'logicalchannel': ch.getLogicalChannel().getFilterSet().getDichroic()})
                 channel['name'] = ch.getName()
                 channel['color'] = ch.getColor().getHtml()
+                planeInfo = manager.image and manager.image.getPrimaryPixels().copyPlaneInfo(theC=theC, theZ=0)
+                channel['plane_info'] = list(planeInfo)
                 form_channels.append(channel)
 
         try:

@@ -244,7 +244,7 @@ def object_details(request, obj_type, id, **kwargs):
         title = 'Dataset'
     anns = getAnnotations(obj)
     
-    parent = obj.listParents()
+    parent = obj.getParent()
     print "parent", parent
     
     return render_to_response('webmobile/browse/object_details.html', {'client': conn, 'object': obj, 'title': title, 

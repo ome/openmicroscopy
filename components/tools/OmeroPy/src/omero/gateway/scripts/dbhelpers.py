@@ -17,6 +17,13 @@ omero_version = omero_version.omero_version.split('-')[1].split('.')
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 TESTIMG_URL = 'http://users.openmicroscopy.org.uk/~cneves-x/'
 
+if not omero.gateway.BlitzGateway.ICE_CONFIG:
+    try:
+        import settings
+        omero.gateway.BlitzGateway.ICE_CONFIG = os.path.join(settings.OMERO_HOME, 'etc', 'ice.config')
+    except ImportError:
+        pass
+
 #Gateway = omero.gateway.BlitzGateway
 
 def refreshConfig ():

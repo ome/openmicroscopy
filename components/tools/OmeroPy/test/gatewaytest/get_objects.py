@@ -18,6 +18,24 @@ class DeleteObjectTest (lib.GTest):
         self.loginAsAuthor()
         self.TESTIMG = self.getTestImage()
 
+    def testDeleteAnnotation(self):
+
+        self.loginAsAuthor()
+        image = self.TESTIMG
+
+        # create Tag on Image and try to delete Tag
+        tag = omero.gateway.TagAnnotationWrapper(self.gateway)
+        ns_tag = "omero.gateway.test.get_objects.test_delete_annotation_tag"
+        tag.setNs(ns_tag)
+        tag.setValue("Test Delete Tag")
+        tag = image.linkAnnotation(tag)
+        tagId = tag.getId()
+
+
+        self.gateway.deleteObjects("Annotation", [tagId])
+        time.sleep(5)   # time enough for delete queue
+
+        self.assertEqual(None, self.gateway.getObject("Annotation", tagId))
 
     def testDeleteImage(self):
         
@@ -27,8 +45,8 @@ class DeleteObjectTest (lib.GTest):
         imageId = image.getId()
         project = self.getTestProject()
         projectId = project.getId()
-        ns = "omero.gateway.test.get_objects.test_delete_annotations_comment"
-        ns_tag = "omero.gateway.test.get_objects.test_delete_annotations_tag"
+        ns = "omero.gateway.test.get_objects.test_delete_image_comment"
+        ns_tag = "omero.gateway.test.get_objects.test_delete_image_tag"
         
         # create Comment
         ann = omero.gateway.CommentAnnotationWrapper(self.gateway)
@@ -356,6 +374,15 @@ class GetObjectTest (lib.GTest):
         #self.assertEqual(a.OMERO_TYPE, annotation.OMERO_TYPE)
         self.assertEqual(ann.OMERO_TYPE, annotation.OMERO_TYPE)
         
+        # test getObject throws exception if more than 1 returned
+        threw = True
+        try:
+            self.gateway.getObject("Annotation")
+            threw = False
+        except:
+            threw = True
+        self.assertTrue(threw, "getObject() didn't throw exception with >1 result")
+
         # get the Comment and Tag
         annGen = self.gateway.getObjects("Annotation", [ann.id, tag.id])
         anns = list(annGen)
@@ -368,8 +395,8 @@ class GetObjectTest (lib.GTest):
         # get all available annotation links on the image
         annLinks = self.gateway.getAnnotationLinks("Image")
         for al in annLinks:
-            self.assertTrue(al.getAnnotation(), omero.gateway.AnnotationWrapper)
-            self.assertTrue(al.getParent().__class__ == omero.model.ImageI)
+            self.assertTrue(isinstance(al.getAnnotation(), omero.gateway.AnnotationWrapper))
+            self.assertEqual(al.getParent().__class__, omero.model.ImageI)
             
         # get selected links - On image only
         annLinks = self.gateway.getAnnotationLinks("Image", parent_ids=[obj.getId()])
@@ -450,6 +477,20 @@ class GetObjectTest (lib.GTest):
         self.assertEqual(testProj.OMERO_CLASS, p.OMERO_CLASS)
         self.assertEqual(testProj.countChildren_cached(), p.countChildren_cached())
         self.assertEqual(testProj.getOwnerOmeName, p.getOwnerOmeName)
+
+    def testTraversal (self):
+        image = self.TESTIMG
+        # This should return image wrapper
+        pr = image.getProject()
+        ds = image.getDataset()
+        
+        self.assertEqual(ds, image.getParent())
+        self.assertEqual(image.getParents()[0], image.getParent())
+        self.assertEqual(ds, image.getParent(withlinks=True)[0])
+        self.assertEqual(image.getParent(withlinks=True), image.getParents(withlinks=True)[0])
+        self.assertEqual(ds.getParent(), pr)
+        self.assertEqual(pr.getParent(), None)
+        self.assertEqual(len(pr.getParents()), 0)
 
 if __name__ == '__main__':
     unittest.main()

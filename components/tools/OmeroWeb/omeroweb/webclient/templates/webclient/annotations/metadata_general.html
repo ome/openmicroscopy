@@ -233,8 +233,7 @@
             <img src="{% url webstatic "images/spinner.gif" %}" />
         </div>
         {% endif %}
-        
-                
+
         {% if not manager.tag %}
         <!-- ANNOTATIONS "General" -->
         <div id="annotation_tab">
@@ -454,34 +453,6 @@
                     </table>
                     {% endif %}
                 {% endif %}
-            {% endif %}
-            
-            {% if manager.tag %}
-            <h1>
-                {{ manager.tag.name|warphtml:"30" }}
-                {% if manager.tag.isOwned %} <a href="{% url manage_action_containers "edit" "tag" manager.tag.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
-            </h1>                
-            <h2 id='tag_id'>Tag ID: {{ manager.tag.id }}</h2>
-            <div class="description">
-                {% if manager.tag.isOwned %} <a href="{% url manage_action_containers "edit" "tag" manager.tag.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
-                {{ manager.tag.description|default_if_none:"Description:"|linebreaks }}
-            </div>
-            <table>
-                {% if not manager.tag.isOwned %}
-                <tr>
-                    <th>Owner:</th>
-                    <td id='owner_fullname'>{{ manager.tag.getOwner.getFullName }}</td>                    
-                </tr>
-                {% endif %}
-                <tr>
-                    <th>Creation Date:</th>
-                    <td id='creation_date'>{{ manager.tag.getDate|date:"Y-m-d H:i:s" }}</td>
-                </tr>                    
-                <tr>
-                    <th>Image Count:</th>
-                    <td id='child_count'>{{ manager.tag.countChildren }} {% plural manager.tag.countChildren 'tag' 'tags' %}</td>
-                </tr>
-            </table>
             {% endif %}
         
         
@@ -718,6 +689,35 @@
             <div class="clear"></div>          
         </div>
         </div>
+        {% endif %}
+
+        {% if manager.tag %}
+        <h1>{{ manager.tag.getValue|warphtml:"30" }}
+            {% if manager.tag.isOwned %} <a href="{% url manage_action_containers "edit" "tag" manager.tag.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
+        </h1>
+        <h2 id='tag_id'>Tag ID: {{ manager.tag.id }}</h2>
+        <div class="description">
+            {% if manager.tag.isOwned %} <a href="{% url manage_action_containers "edit" "tag" manager.tag.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
+            {{ manager.tag.description|default_if_none:"Description:"|linebreaks }}
+        </div>
+        <table>
+            {% if not manager.tag.isOwned %}
+            <tr>
+                <th>Owner:</th>
+                <td id='owner_fullname'>{{ manager.tag.getOwner.getFullName }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <th>Creation Date:</th>
+                <td id='creation_date'>{{ manager.tag.getDate|date:"Y-m-d H:i:s" }}</td>
+            </tr>
+            <tr>
+                <th>Image Count:</th>
+                {% if False %}
+                <td id='child_count'>{{ manager.tag.countChildren }} {% plural manager.tag.countChildren 'tag' 'tags' %}</td>
+                {% endif %}
+            </tr>
+        </table>
         {% endif %}
     </div>
     

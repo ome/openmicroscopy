@@ -721,7 +721,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             logger.debug(imgs)
             if len(imgs) == 0:
                 raise Http404
-        name = '%s-%s' % (obj.listParents().getName(), obj.getName())
+        name = '%s-%s' % (obj.getParent().getName(), obj.getName())
     else:
         obj = _conn.getObject("Image", cid)
         if obj is None:

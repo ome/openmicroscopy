@@ -31,12 +31,12 @@
         <p>{{ object.description }}</p>
     {% endif %}
     
-    {% if object.listParents %} 
+    {% if object.getParent %} 
     <!-- only Datasets have parents, not Projects. TODO: handle multiple parents -->
         <div>
             Project: 
-            <a href="{% url webmobile_project object.listParents.id %}">
-                {{ object.listParents.getName }}
+            <a href="{% url webmobile_project object.getParent.id %}">
+                {{ object.getParent.getName }}
             </a>
         </div>
     {% endif %}
