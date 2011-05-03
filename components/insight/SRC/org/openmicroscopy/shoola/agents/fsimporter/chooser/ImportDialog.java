@@ -117,7 +117,7 @@ import pojos.TagAnnotationData;
  */
 public class ImportDialog 
 	extends ClosableTabbedPaneComponent//JDialog
-	implements ActionListener, ChangeListener, PropertyChangeListener
+	implements ActionListener, PropertyChangeListener
 {
 
 	/** Bound property indicating to load the tags. */
@@ -602,12 +602,8 @@ public class ImportDialog
 	/** Formats the {@link #projectLocationButton}.*/
 	private void formatSwitchButton()
 	{
-		projectLocationButton.removeChangeListener(this);
-		screenLocationButton.removeChangeListener(this);
 		projectLocationButton.setSelected(getType() == Importer.PROJECT_TYPE);
 		screenLocationButton.setSelected(getType() == Importer.SCREEN_TYPE);
-		projectLocationButton.addChangeListener(this);
-		screenLocationButton.addChangeListener(this);
 	}
 	
 	void handleLocationSwitch(Object src)
@@ -1597,12 +1593,10 @@ public class ImportDialog
 		this.objects = objects;
 		int oldType = this.type;
 		this.type = type;
-		table.removeAllFiles();
 		formatSwitchButton();
 		if (oldType != this.type) { 
 			//change filters.
 			//reset name
-			
 			FileFilter[] filters = chooser.getChoosableFileFilters();
 			for (int i = 0; i < filters.length; i++) {
 				chooser.removeChoosableFileFilter(filters[i]);
@@ -1622,9 +1616,10 @@ public class ImportDialog
 				}
 				chooser.setFileFilter(combinedFilter);
 			}
+			File[] files = chooser.getSelectedFiles();
+			table.reset(files != null && files.length > 0);
 		}
-		File[] files = chooser.getSelectedFiles();
-		table.reset(files != null && files.length > 0);
+
 		handleTagsSelection(new ArrayList());
 		tabbedPane.setSelectedIndex(0);
 		FileFilter[] filters = chooser.getChoosableFileFilters();
@@ -1800,11 +1795,6 @@ public class ImportDialog
 			case LOCATION:
 				handleLocationSwitch(evt.getSource());
 		}
-	}
-
-	public void stateChanged(ChangeEvent e)
-	{
-		//handleLocationSwitch(e.getSource());
 	}
 	
 }
