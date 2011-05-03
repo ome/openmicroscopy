@@ -432,7 +432,12 @@ class ScriptControl(BaseControl):
                     self.ctx.out("    Optional: %s" % v.optional)
                     self.ctx.out("    Type: %s" % v.prototype.ice_staticId())
                     if isinstance(v.prototype, omero.RCollection):
-                        self.ctx.out("    Subtype: %s" % v.prototype.val[0].ice_staticId())
+                        coll = v.prototype.val
+                        if len(coll) == 0:
+                            self.ctx.out("    Subtype: (empty)")
+                        else:
+                            self.ctx.out("    Subtype: %s" % coll[0].ice_staticId())
+
                     elif isinstance(v.prototype, omero.RMap):
                         self.ctx.out("    Subtype: %s" % v.prototype.val.values[0].ice_staticId())
                     self.ctx.out("    Min: %s" % (v.min and v.min.val or ""))
