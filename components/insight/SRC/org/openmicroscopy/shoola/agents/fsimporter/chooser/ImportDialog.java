@@ -117,7 +117,7 @@ import pojos.TagAnnotationData;
  */
 public class ImportDialog 
 	extends ClosableTabbedPaneComponent//JDialog
-	implements ActionListener, PropertyChangeListener
+	implements ActionListener, ChangeListener, PropertyChangeListener
 {
 
 	/** Bound property indicating to load the tags. */
@@ -168,8 +168,8 @@ public class ImportDialog
 	/** Action id indicating to refresh the containers. */
 	private static final int	REFRESH_LOCATION = 8;
 	
-	/** Action id indicating to refresh the containers. */
-	private static final int	SWITCH_LOCATION = 9;
+	/** Action id indicating to select the Project/Dataset or Screen.*/
+	private static final int	LOCATION = 9;
 	
 	/** The title of the dialog. */
 	private static final String TITLE = "Select Data to Import";
@@ -220,8 +220,11 @@ public class ImportDialog
 	/** Button to reload the containers where to import the files. */
 	private JToggleButton		reloadContainerButton;
 	
-	/** Button used to switch between location.*/
-	private JButton				switchLocationButton;
+	/** Button used to select the project as the location.*/
+	private JButton				projectLocationButton;
+	
+	/** Button used to select the screen as the location.*/
+	private JButton				screenLocationButton;
 	
 	/** 
 	 * Resets the name of all files to either the full path
@@ -596,18 +599,40 @@ public class ImportDialog
 		//});
 	}
 	
-	/** Formats the {@link #switchLocationButton}.*/
+	/** Formats the {@link #projectLocationButton}.*/
 	private void formatSwitchButton()
 	{
-		switchLocationButton.removeActionListener(this);
-		IconManager icons = IconManager.getInstance();
-		switchLocationButton.setSelected(false);
-		switchLocationButton.setIcon(icons.getIcon(IconManager.SCREEN));
-		if (type == Importer.SCREEN_TYPE) {
-			switchLocationButton.setSelected(true);
-			switchLocationButton.setIcon(icons.getIcon(IconManager.PROJECT));
+		projectLocationButton.removeChangeListener(this);
+		screenLocationButton.removeChangeListener(this);
+		projectLocationButton.setSelected(getType() == Importer.PROJECT_TYPE);
+		screenLocationButton.setSelected(getType() == Importer.SCREEN_TYPE);
+		projectLocationButton.addChangeListener(this);
+		screenLocationButton.addChangeListener(this);
+	}
+	
+	void handleLocationSwitch(Object src)
+	{
+		int t = Importer.PROJECT_TYPE;
+		if (src == projectLocationButton) {
+			if (projectLocationButton.isSelected()) {
+				screenLocationButton.setSelected(true);
+				projectLocationButton.setSelected(false);
+				t = Importer.SCREEN_TYPE;
+			} else {
+				screenLocationButton.setSelected(false);
+				projectLocationButton.setSelected(true);
+			}
+		} else if (src == screenLocationButton) {
+			if (screenLocationButton.isSelected()) {
+				projectLocationButton.setSelected(true);
+				screenLocationButton.setSelected(false);
+			} else {
+				t = Importer.SCREEN_TYPE;
+				projectLocationButton.setSelected(false);
+				screenLocationButton.setSelected(true);
+			}
 		}
-		switchLocationButton.addActionListener(this);
+		firePropertyChange(REFRESH_LOCATION_PROPERTY, getType(), t);
 	}
 	
 	/** 
@@ -686,17 +711,25 @@ public class ImportDialog
 		reloadContainerButton.addActionListener(this);
 		UIUtilities.unifiedButtonLookAndFeel(reloadContainerButton);
 		
-		switchLocationButton = new JButton();
-		switchLocationButton.setBackground(UIUtilities.BACKGROUND);
-		switchLocationButton.setToolTipText("Toggle between the " +
-				"Project/Dataset and Screen location " +
+		projectLocationButton = new JButton(icons.getIcon(IconManager.PROJECT));
+		projectLocationButton.setBackground(UIUtilities.BACKGROUND);
+		projectLocationButton.setToolTipText("Select the Project/Dataset " +
 				"where to import the data.");
 		
+		screenLocationButton = new JButton(icons.getIcon(IconManager.SCREEN));
+		screenLocationButton.setBackground(UIUtilities.BACKGROUND);
+		screenLocationButton.setToolTipText("Select the Screen " +
+				"where to import the data.");
+		ButtonGroup group = new ButtonGroup();
+		//group.add(projectLocationButton);
+		//group.add(screenLocationButton);
 		//UIUtilities.unifiedButtonLookAndFeel(switchLocationButton);
 		formatSwitchButton();
-		switchLocationButton.addActionListener(this);
-		switchLocationButton.setActionCommand(""+SWITCH_LOCATION);
-		
+		projectLocationButton.addActionListener(this);
+		screenLocationButton.addActionListener(this);
+
+		screenLocationButton.setActionCommand(""+LOCATION);
+		projectLocationButton.setActionCommand(""+LOCATION);
 		listener = new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
@@ -735,7 +768,7 @@ public class ImportDialog
 				"Instead use");
 		overrideName.setToolTipText(UIUtilities.formatToolTipText(WARNING));
 		overrideName.setSelected(true);
-		ButtonGroup group = new ButtonGroup();
+		group = new ButtonGroup();
 		fullName = new JRadioButton("Full Path+File's name");
 		group.add(fullName);
 		partialName = new JRadioButton();
@@ -924,8 +957,8 @@ public class ImportDialog
 	{
 		JPanel bar = new JPanel();
 		bar.setLayout(new FlowLayout(FlowLayout.LEFT));
-		bar.add(refreshButton);
-		bar.add(Box.createHorizontalStrut(5));
+		//bar.add(refreshButton);
+		//bar.add(Box.createHorizontalStrut(5));
 		bar.add(showThumbnails);
 		return bar;
 	}
@@ -1222,11 +1255,12 @@ public class ImportDialog
 	private JComponent buildLocationBar()
 	{
 		JPanel bar = new JPanel();
-		bar.setBackground(UIUtilities.BACKGROUND);
+		//bar.setBackground(UIUtilities.BACKGROUND);
 		bar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		bar.add(reloadContainerButton);
+		bar.add(projectLocationButton);
+		bar.add(screenLocationButton);
 		bar.add(Box.createHorizontalStrut(5));
-		bar.add(switchLocationButton);
+		bar.add(reloadContainerButton);
 		return bar;
 	}
 	
@@ -1238,8 +1272,8 @@ public class ImportDialog
 	private void buildLocationPane()
 	{
 		locationPane.removeAll();
-		locationPane.add(buildLocationBar());
-		locationPane.add(new JSeparator());
+		//locationPane.add(buildLocationBar());
+		//locationPane.add(new JSeparator());
 		JPanel row = createRow();
 		String message = PROJECT_TXT;
 		if (type == Importer.SCREEN_TYPE) message = SCREEN_TXT;
@@ -1247,7 +1281,6 @@ public class ImportDialog
 		locationPane.add(row);
 		locationPane.add(Box.createVerticalStrut(2));
 		row = createRow();
-		//row.add(new JLabel(icon));
 		row.add(UIUtilities.setTextFont(message));
 		row.add(parentsBox);
 		row.add(addProjectButton);
@@ -1291,6 +1324,7 @@ public class ImportDialog
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout(0, 0));
+		add(buildLocationBar(), BorderLayout.NORTH);
 		JPanel p = new JPanel();
 		p.setBorder(null);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -1758,15 +1792,19 @@ public class ImportDialog
 				UIUtilities.centerAndShow(d);
 				break;
 			case REFRESH_LOCATION:
+				chooser.rescanCurrentDirectory();
+				chooser.repaint();
 				firePropertyChange(REFRESH_LOCATION_PROPERTY, 
 						-1, getType());
 				break;
-			case SWITCH_LOCATION:
-				int t = Importer.SCREEN_TYPE;
-				if (switchLocationButton.isSelected()) 
-					t = Importer.PROJECT_TYPE;
-				firePropertyChange(REFRESH_LOCATION_PROPERTY, getType(), t);
+			case LOCATION:
+				handleLocationSwitch(evt.getSource());
 		}
+	}
+
+	public void stateChanged(ChangeEvent e)
+	{
+		//handleLocationSwitch(e.getSource());
 	}
 	
 }
