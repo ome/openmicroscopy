@@ -157,7 +157,10 @@ class ImageCanvasListener
 		Point p = e.getPoint();
 		if (handleKeyDown) {
 			if (e.isShiftDown()) {
-				//SwingUtilities.convertPointToScreen(p, canvas);
+				if (model.isBigImage()) {
+					pan(p, false);
+					return;
+				}
 				if (p.y < pressedPoint.y) model.zoom(true);
 				else if (p.y > pressedPoint.y) model.zoom(false);
 				pressedPoint = p;
@@ -225,6 +228,7 @@ class ImageCanvasListener
 	 */
 	public void mouseWheelMoved(MouseWheelEvent e)
 	{
+		if (model.isBigImage()) return;
 		if (e.isAltDown() || e.isShiftDown() || e.isControlDown()) { //zooming
 			 if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
 				 int v = e.getWheelRotation();
