@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.PlateSaver;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailFieldsLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
+import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
@@ -330,7 +331,8 @@ class WellsModel
 			selected = node.getSelectedWellSample();
 			samples.add(selected);
 			b = false;
-			if (((DataObject) selected.getHierarchyObject()).getId() >= 0) {
+			if (((DataObject) selected.getHierarchyObject()).getId() >= 0 &&
+				wellDimension == null) {
 				wellDimension = selected.getThumbnail().getOriginalSize();
 				b = true;
 			} 
@@ -374,6 +376,9 @@ class WellsModel
 		}
         browser = BrowserFactory.createBrowser(samples);
 		layoutBrowser(LayoutFactory.PLATE_LAYOUT);
+		if (wellDimension == null)
+			wellDimension = new Dimension(ThumbnailProvider.THUMB_MAX_WIDTH,
+					ThumbnailProvider.THUMB_MAX_HEIGHT);
 	}
 	
 	/**
