@@ -1746,6 +1746,7 @@ public class ImportDialog
 			case CREATE_DATASET:
 				d = new EditorDialog(owner, new DatasetData(), false);
 				d.addPropertyChangeListener(this);
+				d.setModal(true);
 				UIUtilities.centerAndShow(d);
 				break;
 			case CREATE_PROJECT:
@@ -1753,6 +1754,7 @@ public class ImportDialog
 					d = new EditorDialog(owner, new ProjectData(), false);
 				else d = new EditorDialog(owner, new ScreenData(), false);
 				d.addPropertyChangeListener(this);
+				d.setModal(true);
 				UIUtilities.centerAndShow(d);
 				break;
 			case REFRESH_LOCATION:
