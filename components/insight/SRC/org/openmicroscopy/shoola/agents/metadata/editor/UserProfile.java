@@ -314,7 +314,6 @@ class UserProfile
 		*/
 		Object parentRootObject = model.getParentRootObject();
 		if (parentRootObject instanceof GroupData) {
-			System.err.println("parentRoot");
 			owner = setGroupOwner((GroupData) parentRootObject);
 		}
 		//Build the array for box.

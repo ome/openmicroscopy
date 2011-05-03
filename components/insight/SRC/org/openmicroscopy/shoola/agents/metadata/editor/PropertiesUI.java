@@ -113,13 +113,16 @@ class PropertiesUI
 	static final String			TITLE = "Properties";
 
 	/** The default text indicating the type of plate displayed. */
-	private static final String	DEFAULT_PLATE_TYPE ="Type: ";
+	private static final String	DEFAULT_TYPE ="Type: ";
 	
 	/** The default description. */
     private static final String	DEFAULT_DESCRIPTION_TEXT = "Description";
     
     /** The text for the external identifier. */
     private static final String	EXTERNAL_IDENTIFIER = "External Identifier:";
+    
+    /** The text for the external description.*/
+    private static final String	EXTERNAL_DESCRIPTION = "External Description:";
     
     /** The text for the id. */
     private static final String ID_TEXT = "ID: ";
@@ -330,7 +333,7 @@ class PropertiesUI
     	String v = plate.getPlateType();
     	JLabel value;
     	if (v != null && v.trim().length() > 0) {
-    		l = UIUtilities.setTextFont(DEFAULT_PLATE_TYPE, Font.BOLD, size);
+    		l = UIUtilities.setTextFont(DEFAULT_TYPE, Font.BOLD, size);
         	value = UIUtilities.createComponent(null);
         	value.setFont(font.deriveFont(font.getStyle(), size));
         	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
@@ -350,6 +353,54 @@ class PropertiesUI
     	value.setFont(font.deriveFont(font.getStyle(), size));
     	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
     	v = plate.getStatus();
+    	if (v == null || v.length() == 0) v = NO_SET_TEXT;
+    	value.setText(v);
+    	components.put(l, value);
+    	layoutComponents(content, components);
+    	return content;
+    }
+    
+    /**
+     * Lays out the well fields.
+     * 
+     * @param well The well to handle.
+     * @return See above.
+     */
+    private JPanel layoutWellContent(WellData well)
+    {
+    	JPanel content = new JPanel();
+    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+    	content.setLayout(new GridBagLayout());
+		JLabel l = new JLabel();
+    	Font font = l.getFont();
+    	int size = font.getSize()-2;
+    	
+    	Map<JLabel, JComponent> components = 
+    		new LinkedHashMap<JLabel, JComponent>();
+    	String v = well.getWellType();
+    	JLabel value;
+    	if (v != null && v.trim().length() > 0) {
+    		l = UIUtilities.setTextFont(DEFAULT_TYPE, Font.BOLD, size);
+        	value = UIUtilities.createComponent(null);
+        	value.setFont(font.deriveFont(font.getStyle(), size));
+        	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+        	value.setText(v);
+        	components.put(l, value);
+    	}
+    	l = UIUtilities.setTextFont(EXTERNAL_DESCRIPTION, Font.BOLD, size);
+    	value = UIUtilities.createComponent(null);
+    	value.setFont(font.deriveFont(font.getStyle(), size));
+    	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	v = well.getExternalDescription();
+    	if (v == null || v.length() == 0) v = NO_SET_TEXT;
+    	value.setText(v);
+    	components.put(l, value);
+    	l = UIUtilities.setTextFont("Status:", Font.BOLD, size);
+    	value = UIUtilities.createComponent(null);
+    	value.setFont(font.deriveFont(font.getStyle(), size));
+    	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	v = well.getStatus();
     	if (v == null || v.length() == 0) v = NO_SET_TEXT;
     	value.setText(v);
     	components.put(l, value);
@@ -763,6 +814,11 @@ class PropertiesUI
         	img = ((WellSampleData) refObject).getImage();
         	if (img != null && img.getId() > 0)
         		data = img.getDefaultPixels();
+        	Object parent = model.getParentRootObject();
+        	if (parent instanceof WellData) {
+        		add(Box.createVerticalStrut(5));
+            	add(layoutWellContent((WellData) parent));
+        	}
         } else if (refObject instanceof FileAnnotationData) {
         	FileAnnotationData fa = (FileAnnotationData) refObject;
         	String ns = fa.getNameSpace();
@@ -844,10 +900,10 @@ class PropertiesUI
 	/**
 	 * Returns the label associated to the well.
 	 * 
-	 * @param well
-	 * @param columnIndex
-	 * @param rowIndex
-	 * @return
+	 * @param well The object to handle.
+	 * @param columnIndex Indicates how to label the columns.
+	 * @param rowIndex Indicates how to label the rows.
+	 * @return See above.
 	 */
 	private String getWellLabel(WellData well, int columnIndex, 
 			int rowIndex)
