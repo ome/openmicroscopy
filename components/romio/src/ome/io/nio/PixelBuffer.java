@@ -8,6 +8,7 @@
 package ome.io.nio;
 
 import java.awt.Dimension;
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
@@ -26,7 +27,7 @@ import ome.util.PixelData;
  * @since 3.0
  * 
  */
-public interface PixelBuffer
+public interface PixelBuffer extends Closeable
 {
     /**
      * Closes the buffer, cleaning up file state.
