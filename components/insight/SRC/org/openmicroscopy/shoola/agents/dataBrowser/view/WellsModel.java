@@ -331,8 +331,7 @@ class WellsModel
 			selected = node.getSelectedWellSample();
 			samples.add(selected);
 			b = false;
-			if (((DataObject) selected.getHierarchyObject()).getId() >= 0 &&
-				wellDimension == null) {
+			if (((DataObject) selected.getHierarchyObject()).getId() >= 0) {
 				wellDimension = selected.getThumbnail().getOriginalSize();
 				b = true;
 			} 
