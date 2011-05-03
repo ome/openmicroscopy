@@ -611,6 +611,7 @@ class ControlPane
         	resetZoom.addActionListener(
         			controller.getZoomActionFromLevels(
         					model.getResolutionLevels()-1));
+        	resetZoom.setToolTipText("Reset to full size.");
         	resetZoom.setText("");
         }
         
