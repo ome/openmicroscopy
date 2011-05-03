@@ -196,25 +196,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
             iUpdate.flush();
             modified = false;
-            triggerCompletePixelData();
             return new ShallowCopy().copy(pixelsInstance);
         }
         return null;
-    }
-
-    /**
-     * If a saving of the Pixels instance, which sets the correct SHA1 etc, is
-     * successful, then the background generation of artifacts from the data
-     * can begin. This is accomplished by adding an EventLog with the action
-     * "PIXELDATA".
-     *
-     * @see ticket:4737
-     */
-    protected void triggerCompletePixelData() {
-        ((BasicSecuritySystem) this.sec).onApplicationEvent(
-                new EventLogMessage(this, "PIXELDATA",
-                        Pixels.class,
-                        Arrays.asList(id)));
     }
 
     @RolesAllowed("user")
