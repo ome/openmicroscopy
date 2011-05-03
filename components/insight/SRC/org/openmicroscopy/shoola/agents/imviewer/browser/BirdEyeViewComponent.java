@@ -193,7 +193,8 @@ class BirdEyeViewComponent
 		return true;
 	}
 	
-	/** Creates a new instance.
+	/** 
+	 * Creates a new instance.
 	 * 
 	 * @param locationIndex One of the location constants defined by this class.
 	 */

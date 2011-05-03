@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
+import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
@@ -67,12 +68,6 @@ class ImageCanvasListener
     /** The canvas this listener is for. */
     private JComponent		canvas;
     
-    /** 
-     * Flag indicating that the mouse entered or not the area. Control
-     * used to handle mouse wheel events.
-     */
-    private boolean			mouseOnCanvas;
-    
     /** The image area. */
     private Rectangle		area;
     
@@ -84,6 +79,17 @@ class ImageCanvasListener
      * keys down is handled or not.
      */
     private boolean			handleKeyDown;
+    
+    /**
+     * Pans to the new location.
+     * 
+     * @param p The location of the mouse.
+     * @param load Passed <code>true</code>
+     */
+    private void pan(Point p, boolean load)
+    {
+		view.pan(p.x-pressedPoint.x, p.y-pressedPoint.y, load);
+    }
     
     /**
      * Creates a new instance.
@@ -103,10 +109,19 @@ class ImageCanvasListener
         this.canvas = canvas;
         this.view = view;
     	area = new Rectangle(0, 0, 0, 0);
-    	//canvas.addMouseListener(this);
-		//canvas.addMouseMotionListener(this);
 		canvas.addMouseWheelListener(this);
+		installMouseListeners();
 		handleKeyDown = false;
+    }
+    
+    /**
+     * Installs <code>MouseListener</code> and a
+     * <code>MouseMotionListener</code>.
+     */
+    void installMouseListeners()
+    {
+    	canvas.addMouseListener(this);
+		canvas.addMouseMotionListener(this);
     }
     
     /**
@@ -142,19 +157,19 @@ class ImageCanvasListener
 		Point p = e.getPoint();
 		if (handleKeyDown) {
 			if (e.isShiftDown()) {
-				SwingUtilities.convertPointToScreen(p, canvas);
+				//SwingUtilities.convertPointToScreen(p, canvas);
 				if (p.y < pressedPoint.y) model.zoom(true);
 				else if (p.y > pressedPoint.y) model.zoom(false);
 				pressedPoint = p;
 				return;
 			} else if (e.isAltDown()) {
-				SwingUtilities.convertPointToScreen(p, canvas);
-				int vMove = (p.y-pressedPoint.y);
-				int hMove = (p.x-pressedPoint.x);
-				view.scrollTo(vMove, hMove);
-				pressedPoint = p;
+				pan(p, false);
 				return;
 			}
+		}
+		if (model.isBigImage()) { //panning
+			pan(p, false);
+			return;
 		}
 		int maxZ = model.getMaxZ();
 		int maxT = model.getMaxT();
@@ -180,7 +195,8 @@ class ImageCanvasListener
 	public void mousePressed(MouseEvent e)
 	{
 		pressedPoint = e.getPoint();
-		SwingUtilities.convertPointToScreen(pressedPoint, canvas);
+		canvas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		//SwingUtilities.convertPointToScreen(pressedPoint, canvas);
 		if (canvas instanceof BrowserBICanvas)
 			((BrowserBICanvas) canvas).setPaintedString(model.getDefaultZ(),
 					model.getDefaultT());
@@ -192,6 +208,11 @@ class ImageCanvasListener
 	 */
 	public void mouseReleased(MouseEvent e)
 	{
+		canvas.setCursor(Cursor.getDefaultCursor());
+		Point p = e.getPoint();
+		if ((handleKeyDown && e.isAltDown()) || model.isBigImage()) {
+			pan(p, true);
+		}
 		pressedPoint = DEFAULT_POINT;
 		SwingUtilities.convertPointToScreen(pressedPoint, canvas);
 		if (canvas instanceof BrowserBICanvas)
@@ -204,7 +225,6 @@ class ImageCanvasListener
 	 */
 	public void mouseWheelMoved(MouseWheelEvent e)
 	{
-		//if (!mouseOnCanvas) return;
 		if (e.isAltDown() || e.isShiftDown() || e.isControlDown()) { //zooming
 			 if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
 				 int v = e.getWheelRotation();
@@ -245,19 +265,18 @@ class ImageCanvasListener
 	}
 	
 	/**
-	 * Sets the value of the {@link #mouseOnCanvas} flag.
+	 * Required by the {@link MouseMotionListener} interface but no-operation 
+	 * implementation in our case.
 	 * @see MouseListener#mouseEntered(MouseEvent)
 	 */
-	public void mouseEntered(MouseEvent e) 
-	{
-		mouseOnCanvas = area.contains(e.getPoint());
-	}
+	public void mouseEntered(MouseEvent e) {}
 
 	/**
-	 * Sets the value of the {@link #mouseOnCanvas} flag to <code>false</code>.
+	 * Required by the {@link MouseMotionListener} interface but no-operation 
+	 * implementation in our case.
 	 * @see MouseListener#mouseExited(MouseEvent)
 	 */
-	public void mouseExited(MouseEvent e) { mouseOnCanvas = false; }
+	public void mouseExited(MouseEvent e) {}
 	
 	/**
 	 * Required by the {@link MouseMotionListener} interface but no-operation 

@@ -41,9 +41,11 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
+import javax.swing.SwingUtilities;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
@@ -108,8 +110,9 @@ class BrowserUI
 		switch (birdEyeView.getLocationIndex()) {
 			case ImageCanvas.BOTTOM_RIGHT:
 				Dimension d = birdEyeView.getSize();
-				birdEyeView.setLocation(r.x+r.width-d.width, 
+				Point p = new Point(r.x+r.width-d.width, 
 						r.y+r.height-d.height);
+				birdEyeView.setLocation(p);
 				break;
 			case ImageCanvas.TOP_LEFT:
 			default:
@@ -434,6 +437,29 @@ class BrowserUI
     	}
     }
     
+    /**
+     * Pans to the new location.
+     * 
+     * @param x The X-coordinate of the mouse dragged minus mouse pressed.
+     * @param y The Y-coordinate of the mouse dragged minus mouse pressed.
+     * @param load Passed <code>true</code>
+     */
+    void pan(int x, int y, boolean load)
+    {
+    	Rectangle r = getViewport().getViewRect();
+    	int vx = r.x;
+    	int vy = r.y;
+    	if (x < 0) vx += -x;
+    	if (x > 0) vx -= x;
+    	if (y < 0) vy += -y;
+    	if (y > 0) vy -= y;
+    	getViewport().setViewPosition(new Point(vx, vy));
+    	setSelectionRegion();
+    	setBirdEyeViewLocation();
+    	if (load)
+    		model.checkTilesToLoad(getViewport().getViewRect());
+    }
+    
 	/**
 	 * Scrolls to the location.
 	 * 
@@ -477,8 +503,9 @@ class BrowserUI
 			if (h < 0) h = -h;
 			y = bounds.y-h/2;
         }
-		vBar.setValue(y);
-		hBar.setValue(x);
+		//vBar.setValue(y);
+		//hBar.setValue(x);
+		getViewport().setViewPosition(new Point(bounds.x, bounds.y));
 		setBirdEyeViewLocation();
 	}
 	
