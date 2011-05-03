@@ -682,7 +682,6 @@ class ImViewerComponent
 				return;
 		}
 		if (model.isBigImage()) {
-			
 			model.setSelectedResolutionLevel(zoomIndex);
 			view.setZoomFactor(factor, zoomIndex);
 			model.getBrowser().setComponentsSize(model.getTiledImageSizeX(),

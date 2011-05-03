@@ -573,6 +573,40 @@ class ImViewerControl
 	ViewerAction getAction(Integer id) { return actionsMap.get(id); }
 
 	/**
+	 * Returns the action corresponding to the levels. This method should
+	 * only be used for big image.
+	 * 
+	 * @param levels The levels to handle.
+	 * @return See above.
+	 */
+	ViewerAction getZoomActionFromLevels(int levels)
+	{
+		switch (levels) {
+			case ZoomAction.ZOOM_50:
+				return getAction(ZOOM_50);
+			case ZoomAction.ZOOM_75:
+				return getAction(ZOOM_75);
+			case ZoomAction.ZOOM_100:
+				return getAction(ZOOM_100);
+			case ZoomAction.ZOOM_125:
+				return getAction(ZOOM_125);
+			case ZoomAction.ZOOM_150:
+				return getAction(ZOOM_150);
+			case ZoomAction.ZOOM_200:
+				return getAction(ZOOM_200);
+			case ZoomAction.ZOOM_225:
+				return getAction(ZOOM_225);
+			case ZoomAction.ZOOM_250:
+				return getAction(ZOOM_250);
+			case ZoomAction.ZOOM_275:
+				return getAction(ZOOM_275);
+			case ZoomAction.ZOOM_300:
+				return getAction(ZOOM_300);
+		}
+		return null;
+	}
+	
+	/**
 	 * Renders the specified XY-Plane.
 	 * 
 	 * @param z   The selected z-section.
@@ -723,7 +757,7 @@ class ImViewerControl
 		} else if (ImViewer.GREY_SCALE_MODEL.equals(m)) {
 			a = getAction(ImViewerControl.RGB_MODEL);
 			a.actionPerformed(e);
-		} 
+		}
 	}
 
 	/**

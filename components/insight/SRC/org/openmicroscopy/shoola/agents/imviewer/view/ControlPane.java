@@ -264,6 +264,9 @@ class ControlPane
     /** The listener attached to the overlays. */
     private ActionListener			overlaysListener;
     
+    /** Button to reset the zoom level to <code>1</code>.*/
+    private JButton					resetZoom;
+    
     /**
      * Sets the selected plane.
      * 
@@ -445,7 +448,10 @@ class ControlPane
         		icons.getImageIcon(IconManager.RATIO_MIN),
         		icons.getImageIcon(IconManager.RATIO_MAX_DISABLED), 
         		icons.getImageIcon(IconManager.RATIO_MIN_DISABLED));
-        
+        resetZoom = new JButton(icons.getImageIcon(IconManager.ZOOM_FIT));
+        resetZoom.setVisible(false);
+        UIUtilities.unifiedButtonLookAndFeel(resetZoom);
+
         projectionRatioSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 
 				ZoomAction.MIN_ZOOM_INDEX, 
 				ZoomAction.MAX_ZOOM_INDEX, 
@@ -540,7 +546,7 @@ class ControlPane
         double size[][] = {{TableLayout.PREFERRED}, 
         				{TableLayout.PREFERRED, TableLayout.PREFERRED,
         				TableLayout.PREFERRED, TableLayout.PREFERRED, 
-        				SLIDER_HEIGHT, TableLayout.PREFERRED}};
+        				SLIDER_HEIGHT, TableLayout.PREFERRED, TableLayout.PREFERRED}};
         controls.setLayout(new TableLayout(size));
     }
     
@@ -572,7 +578,7 @@ class ControlPane
         	slider.setMajorTickSpacing(1);
         }
     }
-    
+
     /**
      * Initializes the value of the components displaying the currently selected
      * z-section and time-point.
@@ -602,6 +608,10 @@ class ControlPane
         if (model.isBigImage()) {
         	ratioSlider.setMaximum(model.getResolutionLevels()-1);
         	ratioSlider.setValue(model.getSelectedResolutionLevel());
+        	resetZoom.addActionListener(
+        			controller.getZoomActionFromLevels(
+        					model.getResolutionLevels()-1));
+        	resetZoom.setText("");
         }
         
         gridRatioSlider.addChangeListener(this);
@@ -632,6 +642,7 @@ class ControlPane
 		initSlider(lifetimeSlider, maxBin, model.getSelectedBin(), 
      			LITEIME_SLIDER_DESCRIPTION, LIFETIME_SLIDER_TIPSTRING);
 		lifetimeSlider.setPaintTicks(false);
+		if (model.isBigImage()) resetZoom.setVisible(true);
     }
     
     /**
@@ -808,6 +819,8 @@ class ControlPane
         }
         k++;
         controls.add(ratioSlider, "0, "+k+", CENTER, CENTER");
+        k++;
+    	controls.add(resetZoom, "0, "+k+", CENTER, CENTER");
         return UIUtilities.buildComponentPanel(controls);
     }
     

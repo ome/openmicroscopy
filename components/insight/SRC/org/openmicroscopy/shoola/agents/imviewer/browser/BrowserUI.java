@@ -41,11 +41,9 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
-import javax.swing.SwingUtilities;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
