@@ -1206,6 +1206,14 @@ public class IceMapper extends ome.util.ModelMapper implements
             return IceMapper.fillServerError(ta, t);
         }
 
+        else if (ome.conditions.LockTimeout.class
+                .isAssignableFrom(c)) {
+            omero.LockTimeout lt = new omero.LockTimeout();
+            lt.backOff = ((ome.conditions.LockTimeout) t).backOff;
+            lt.seconds = ((ome.conditions.LockTimeout) t).seconds;
+            return IceMapper.fillServerError(lt, t);
+        }
+
         else if (ome.conditions.DatabaseBusyException.class.isAssignableFrom(c)) {
             omero.DatabaseBusyException dbe = new omero.DatabaseBusyException();
             return IceMapper.fillServerError(dbe, t);
