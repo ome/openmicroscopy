@@ -72,34 +72,43 @@ class TestRPS(lib.ITest):
         pix = self.query.get("Pixels", pix.id.val)
         self.assert_(pix.sha1.val != "")
         rps = self.client.sf.createRawPixelsStore()
-        rps.setPixelsId(pix.id.val, True)
-        sha1 = hex(rps.calculateMessageDigest())
-        self.assertEquals(sha1, pix.sha1.val)
+        try:
+            rps.setPixelsId(pix.id.val, True)
+            sha1 = hex(rps.calculateMessageDigest())
+            self.assertEquals(sha1, pix.sha1.val)
+        finally:
+            rps.close()
 
     def testTicket4737WithClose(self):
         pix = self.pix()
         rps = self.client.sf.createRawPixelsStore()
-        rps.setPixelsId(pix.id.val, True)
-        self.write(pix, rps)
-        rps.close() # save is automatic
+        try:
+            rps.setPixelsId(pix.id.val, True)
+            self.write(pix, rps)
+        finally:
+            rps.close() # save is automatic
         self.check_pix(pix)
 
     def testTicket4737WithSave(self):
         pix = self.pix()
         rps = self.client.sf.createRawPixelsStore()
-        rps.setPixelsId(pix.id.val, True)
-        self.write(pix, rps)
-        pix = rps.save()
-        self.check_pix(pix)
-        rps.close()
+        try:
+            rps.setPixelsId(pix.id.val, True)
+            self.write(pix, rps)
+            pix = rps.save()
+            self.check_pix(pix)
+        finally:
+            rps.close()
         self.check_pix(pix)
 
     def testBigPlane(self):
         pix = self.pix(x=4000, y=4000, z=1, t=1, c=1)
         rps = self.client.sf.createRawPixelsStore()
-        rps.setPixelsId(pix.id.val, True)
-        self.write(pix, rps)
-        rps.close()
+        try:
+            rps.setPixelsId(pix.id.val, True)
+            self.write(pix, rps)
+        finally:
+            rps.close()
         self.check_pix(pix)
 
     def testRomioToPyramid(self):
@@ -111,11 +120,13 @@ class TestRPS(lib.ITest):
         """
         pix = self.pix(x=1, y=1, z=4000, t=4000, c=1)
         rps = self.client.sf.createRawPixelsStore()
-        rps.setPixelsId(pix.id.val, True)
-        for t in range(4000):
-            rps.setTimepoint([5]*4000, t) # Assuming int8
-        pix = rps.save()
-        rps.close()
+        try:
+            rps.setPixelsId(pix.id.val, True)
+            for t in range(4000):
+                rps.setTimepoint([5]*4000, t) # Assuming int8
+            pix = rps.save()
+        finally:
+            rps.close()
 
         pix.sizeX = omero.rtypes.rint(4000)
         pix.sizeY = omero.rtypes.rint(4000)
@@ -124,23 +135,26 @@ class TestRPS(lib.ITest):
         pix = self.update.saveAndReturnObject(pix)
 
         rps = self.client.sf.createRawPixelsStore()
-        # First execution should certainly fail
         try:
-            rps.setPixelsId(pix.id.val, True)
-            fail("Should throw!")
-        except omero.MissingPyramidException, mpm:
-           self.assertEquals(pix.id.val, mpm.pixelsID)
-
-        # Eventually, however, it should be generated
-        i = 10
-        success = False
-        while i > 0 and not success:
+            # First execution should certainly fail
             try:
                 rps.setPixelsId(pix.id.val, True)
-                success = True
+                fail("Should throw!")
             except omero.MissingPyramidException, mpm:
                 self.assertEquals(pix.id.val, mpm.pixelsID)
-        self.assert_(success)
+
+            # Eventually, however, it should be generated
+            i = 10
+            success = False
+            while i > 0 and not success:
+                try:
+                    rps.setPixelsId(pix.id.val, True)
+                    success = True
+                except omero.MissingPyramidException, mpm:
+                    self.assertEquals(pix.id.val, mpm.pixelsID)
+            self.assert_(success)
+        finally:
+            rps.close()
 
 if __name__ == '__main__':
     unittest.main()

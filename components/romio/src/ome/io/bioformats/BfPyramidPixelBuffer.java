@@ -412,6 +412,16 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         Utils.closeQuietly(delegate);
         delegate = null;
 
+        if (reader != null) {
+            try {
+                reader.close();
+            } catch (Exception e) {
+                log.warn("Failed to close reader", e);
+            } finally {
+                reader = null;
+            }
+        }
+
         try
         {
             if (writer != null)
