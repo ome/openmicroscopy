@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 //Application-internal dependencies
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ScreenData;
 
 /** 
  * Hosts location information displayed in queue.
@@ -109,6 +110,22 @@ class DataNodeElement
 		return parent.getDataObject();
 	}
 	
+	/**
+	 * Returns <code>true</code> of the container is a Screen,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	Boolean isHCSContainer()
+	{
+		Object object = location.getDataObject();
+		if (object == null) {
+			DatasetData d = getLocation();
+			if (d != null) return false;
+			return null;
+		}
+		return (object instanceof ScreenData);
+	}
 	/**
 	 * Returns the location.
 	 * 

@@ -470,6 +470,7 @@ class ImporterUIElement
     	int n;
     	Entry entry;
 		Object h;
+		/*
     	n = containerComponents.size();
     	if (n == 1) {
     		String text = "";
@@ -509,7 +510,7 @@ class ImporterUIElement
 			c.gridy++; 	
 	    	c.gridx = 0;
 		}
-    	
+    	*/
     	
     	
     	

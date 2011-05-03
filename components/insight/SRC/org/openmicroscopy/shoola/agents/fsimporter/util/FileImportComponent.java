@@ -565,10 +565,10 @@ public class FileImportComponent
 				browseButton.setText(((DatasetData) ho).getName());
 			} else if (ho instanceof ProjectData) {
 				containerLabel.setText(TEXT_IMPORTED);
-				browseButton.setText(((ProjectData) data).getName());
+				browseButton.setText(((ProjectData) ho).getName());
 			} else if (ho instanceof ScreenData) {
 				containerLabel.setText(TEXT_IMPORTED);
-				browseButton.setText(((ScreenData) data).getName());
+				browseButton.setText(((ScreenData) ho).getName());
 			}
 			return;
 		}
@@ -676,6 +676,7 @@ public class FileImportComponent
 				fileNameLabel.addMouseListener(adapter);
 				resultLabel.addMouseListener(adapter);
 				addMouseListener(adapter);
+				showContainerLabel = true;
 				browseButton.setVisible(showContainerLabel);
 				containerLabel.setVisible(showContainerLabel);
 			}
@@ -692,6 +693,7 @@ public class FileImportComponent
 				resultLabel.setEnabled(false);
 				resultLabel.setVisible(true);
 				resultLabel.addMouseListener(adapter);
+				showContainerLabel = true;
 				browseButton.setVisible(showContainerLabel);
 				containerLabel.setVisible(showContainerLabel);
 			} else {
@@ -715,6 +717,7 @@ public class FileImportComponent
 			resultLabel.setVisible(true);
 			fileNameLabel.addMouseListener(adapter);
 			resultLabel.addMouseListener(adapter);
+			showContainerLabel = true;
 			browseButton.setVisible(showContainerLabel);
 			containerLabel.setVisible(showContainerLabel);
 		} else if (image instanceof List) {
@@ -743,6 +746,7 @@ public class FileImportComponent
 				}
 			}
 			resultLabel.setVisible(true);
+			showContainerLabel = true;
 			browseButton.setVisible(showContainerLabel);
 			containerLabel.setVisible(showContainerLabel);
 			//control = resultLabel;

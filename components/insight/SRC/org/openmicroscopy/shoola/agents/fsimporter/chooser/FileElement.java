@@ -32,6 +32,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
@@ -65,39 +66,8 @@ class FileElement
 	 */
 	private boolean toggleContainer;
 	
-	/** 
-	 * Creates a new instance. 
-	 * 
-	 * @param file The file to import.
-	 */
-	FileElement(File file)
-	{
-		if (file == null)
-			throw new IllegalArgumentException("No file set");
-		this.file = file;
-		length = -1;
-	}
-	
-	/**
-	 * Sets to <code>true</code> if the container can be modified, 
-	 * <code>false</code> otherwise. The value will only be taken into account
-	 * if the object is a file.
-	 * 
-	 * @param toggleContainer The value to set.
-	 */
-	void setToggleContainer(boolean toggleContainer)
-	{
-		this.toggleContainer = toggleContainer;
-	}
-	
-	/**
-	 * Returns <code>true</code> if the container can be modified, 
-	 * <code>false</code> otherwise. The value will only be taken into account
-	 * if the object is a file.
-	 * 
-	 * @return See above.
-	 */
-	boolean isToggleContainer() { return toggleContainer; }
+	/** The type when the file was added.*/
+	private int type;
 	
 	/**
 	 * Determines the length of the directory depending on the actual
@@ -123,6 +93,48 @@ class FileElement
 		}
 	}
 	
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param file The file to import.
+	 * @param type The type of container when the file was added.
+	 */
+	FileElement(File file, int type)
+	{
+		if (file == null)
+			throw new IllegalArgumentException("No file set");
+		this.file = file;
+		length = -1;
+		this.type = type;
+		if (type == Importer.SCREEN_TYPE)
+			this.toggleContainer = false;
+	}
+	
+	/**
+	 * Sets to <code>true</code> if the container can be modified, 
+	 * <code>false</code> otherwise. The value will only be taken into account
+	 * if the object is a file.
+	 * 
+	 * @param toggleContainer The value to set.
+	 */
+	void setToggleContainer(boolean toggleContainer)
+	{
+		this.toggleContainer = toggleContainer;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the container can be modified, 
+	 * <code>false</code> otherwise. The value will only be taken into account
+	 * if the object is a file.
+	 * 
+	 * @return See above.
+	 */
+	boolean isToggleContainer()
+	{ 
+		if (type == Importer.SCREEN_TYPE) return false;
+		return toggleContainer; 
+	}
+	
 	/**
 	 * Returns the length of the file
 	 * 
@@ -131,8 +143,7 @@ class FileElement
 	double getFileLength()
 	{
 		if (length > 0) return length;
-		if (file.isFile())
-			length = file.length()/1000;
+		if (file.isFile()) length = file.length()/1000;
 		else { 
 			determineLength(file, ImporterAgent.getScanningDepth(), 0);
 			length = length/1000;

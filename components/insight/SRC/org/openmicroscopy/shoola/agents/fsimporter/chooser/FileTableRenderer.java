@@ -35,6 +35,7 @@ import javax.swing.table.DefaultTableModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
+import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 
 /** 
  * Display the name and the icon.
@@ -59,10 +60,18 @@ public class FileTableRenderer
 	/** Reference to the <code>File</code> icon. */
 	private static final Icon FILE_ICON;
 	
+	/** Reference to the <code>Project</code> icon. */
+	private static final Icon PROJECT_ICON;
+	
+	/** Reference to the <code>Project</code> icon. */
+	private static final Icon SCREEN_ICON;
+	
 	static { 
 		IconManager icons = IconManager.getInstance();
 		DIRECTORY_ICON = icons.getIcon(IconManager.DIRECTORY);
 		FILE_ICON = icons.getIcon(IconManager.IMAGE);
+		PROJECT_ICON = icons.getIcon(IconManager.PROJECT);
+		SCREEN_ICON = icons.getIcon(IconManager.SCREEN);
 	}
 
 	/** Creates a default instance. */
@@ -78,14 +87,13 @@ public class FileTableRenderer
 	{
 		super.getTableCellRendererComponent(table, value, isSelected, 
 				hasFocus, row, column);
+		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		if (column == FileSelectionTable.FILE_INDEX) {
-			DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 			FileElement element = (FileElement) dtm.getValueAt(row, column);
 			if (element.isDirectory()) setIcon(DIRECTORY_ICON);
 			else setIcon(FILE_ICON);
 			setText(element.toString());
 		} else if (column == FileSelectionTable.FOLDER_AS_CONTAINER_INDEX) {
-			DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 			FileElement element = (FileElement) dtm.getValueAt(row, 
 					FileSelectionTable.FILE_INDEX);
 			Component 
@@ -99,6 +107,14 @@ public class FileTableRenderer
 				c.setEnabled(element.isToggleContainer());
 			}
 			return c;
+		} else if (column == FileSelectionTable.CONTAINER_INDEX) {
+			DataNodeElement n = (DataNodeElement) dtm.getValueAt(row, column);
+			setText(n.toString());
+			Boolean b = n.isHCSContainer();
+			if (b != null) {
+				if (b.booleanValue()) setIcon(SCREEN_ICON);
+				else setIcon(PROJECT_ICON);
+			}
 		}
 		return this;
 	}

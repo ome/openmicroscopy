@@ -144,16 +144,17 @@ class FileSelectionTable
 	private static final String ARCHIVED_TEXT = "Archive";
 	
 	/** The text displayed to select the files. */
-	private static final String FILE_TEXT = "File or Folder";
+	private static final String FILE_TEXT = "File or\nFolder";
 	
 	/** The text displayed to indicate the size of the file or folder. */
 	private static final String SIZE_TEXT = "Size";
 	
 	/** 
 	 * The text displayed where to import the data to if importing
-	 * to Project / Dataset.
+	 * to Project/Dataset or Screen.
 	 */
-	private static final String CONTAINER_PROJECT_TEXT = "Project/Dataset";
+	private static final String CONTAINER_PROJECT_TEXT = 
+		"Project/Dataset\nor Screen";
 	
 	/** 
 	 * The text displayed where to import the data to if importing
@@ -173,7 +174,7 @@ class FileSelectionTable
 		COLUMNS_TOOLTIP[FILE_INDEX] = "File or Folder to import.";
 		COLUMNS_TOOLTIP[SIZE_INDEX] = "Size of File or Folder.";
 		COLUMNS_TOOLTIP[CONTAINER_INDEX] = 
-			"The container where the data will be imported to.";
+			"The container where to import the data.";
 		COLUMNS_TOOLTIP[FOLDER_AS_CONTAINER_INDEX] = 
 			"Convert the folder as dataset.";
 		COLUMNS_TOOLTIP[ARCHIVED_INDEX] = "Archive the data.";
@@ -236,6 +237,9 @@ class FileSelectionTable
 		TableColumn tc = tcm.getColumn(FILE_INDEX);
 		tc.setCellRenderer(new FileTableRenderer()); 
 		
+		tc = tcm.getColumn(CONTAINER_INDEX);
+		tc.setCellRenderer(new FileTableRenderer()); 
+		
 		tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
 		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
@@ -260,6 +264,10 @@ class FileSelectionTable
 		//renderer = new MultiLineHeader();
 		for (int i = 0; i < table.getColumnCount(); i++) 
 			tcm.getColumn(i).setHeaderRenderer(renderer);
+		tc = tcm.getColumn(FILE_INDEX);
+		tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
+		tc = tcm.getColumn(CONTAINER_INDEX);
+		tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
 		if (n == COLUMNS.size()) {
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
 			tc.setCellRenderer(new FileTableRenderer());
@@ -270,11 +278,13 @@ class FileSelectionTable
 			tcm.getColumn(FOLDER_AS_CONTAINER_INDEX).setHeaderRenderer(
 					new MultilineHeaderSelectionRenderer(table, archivedBox));
 		}
+		/*
 		String text = CONTAINER_PROJECT_TEXT;
 		if (model.getType() == Importer.SCREEN_TYPE)
 			text = CONTAINER_SCREEN_TEXT;
 		tc = tcm.getColumn(CONTAINER_INDEX);
 		tc.setHeaderValue(text);
+		*/
 		table.getTableHeader().resizeAndRepaint();
 		table.getTableHeader().setReorderingAllowed(false);
 	}
@@ -304,11 +314,11 @@ class FileSelectionTable
 		if (b != null) archived = b.booleanValue();
 		b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED_AVAILABLE);
 		if (b != null) archivedTunable = b.booleanValue();
-		if (model.useFolderAsContainer()) {
+		//if (model.useFolderAsContainer()) {
 			selectedColumns = COLUMNS;
-		} else {
-			selectedColumns = COLUMNS_NO_FOLDER_AS_CONTAINER;
-		}
+		//} else {
+		//	selectedColumns = COLUMNS_NO_FOLDER_AS_CONTAINER;
+		//}
 		table = new JXTable(new FileTableModel(selectedColumns));
 		table.getTableHeader().setReorderingAllowed(false);
 		keyListener = new KeyAdapter() {
@@ -572,7 +582,7 @@ class FileSelectionTable
 			f = i.next();
 			if (!inQueue.contains(f.getAbsolutePath())) {
 				value = null;
-				element = new FileElement(f);
+				element = new FileElement(f, model.getType());
 				element.setName(f.getName());
 				if (b) {
 					if (f.isDirectory()) {

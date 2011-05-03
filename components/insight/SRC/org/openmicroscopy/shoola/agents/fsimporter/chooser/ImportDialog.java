@@ -1622,10 +1622,11 @@ public class ImportDialog
 				}
 				chooser.setFileFilter(combinedFilter);
 			}
-			File[] files = chooser.getSelectedFiles();
-			table.reset(files != null && files.length > 0);
+			//File[] files = chooser.getSelectedFiles();
+			//table.reset(files != null && files.length > 0);
 		}
-
+		File[] files = chooser.getSelectedFiles();
+		table.allowAddition(files != null && files.length > 0);
 		handleTagsSelection(new ArrayList());
 		tabbedPane.setSelectedIndex(0);
 		FileFilter[] filters = chooser.getChoosableFileFilters();
