@@ -106,7 +106,7 @@ public class ScriptingDialog
 	public static final String DOWNLOAD_SELECTED_SCRIPT_PROPERTY = 
 		"downloadSelectedScript";
 	
-	/** Bound property indicating to download the script. */
+	/** Bound property indicating to view the script. */
 	public static final String VIEW_SELECTED_SCRIPT_PROPERTY = 
 		"viewSelectedScript";
 	
@@ -325,7 +325,7 @@ public class ScriptingDialog
 		Iterator<Object> i = values.iterator();
 		int j = 0;
 		while (i.hasNext()) {
-			v[j] = i.next();;
+			v[j] = i.next();
 			j++;
 		}
 		JComboBox box = new JComboBox(v);
@@ -513,8 +513,13 @@ public class ScriptingDialog
 				if (grouping.length() > 0) {
 					c.setGrouping(grouping);
 					c.setNameLabel(grouping);
-				} else c.setNameLabel(name);
-				results.add(c);
+					
+				} else {
+					c.setNameLabel(name);
+				}
+				if (c.hasChildren() || parent.length() == 0) {
+					results.add(c);
+				} 
 			}
 		}
 		ScriptComponent key;
