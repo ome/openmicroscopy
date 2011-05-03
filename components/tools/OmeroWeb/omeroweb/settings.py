@@ -50,7 +50,10 @@ else:
 
 # Load custom settings from etc/grid/config.xml
 # Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
+from omero.util.concurrency import get_event
 CONFIG_XML = os.path.join(OMERO_HOME, 'etc', 'grid', 'config.xml')
+count = 10
+event = get_event("websettings")
 while True:
     try:
         CONFIG_XML = omero.config.ConfigXml(CONFIG_XML)
@@ -58,7 +61,14 @@ while True:
         CONFIG_XML.close()
         break
     except LockException:
-        pass
+        count -= 1
+        if not count:
+            raise
+        else:
+            event.wait(1) # Wait a total of 10 seconds
+del event
+del count
+del get_event
 
 FASTCGI = "fastcgi"
 FASTCGITCP = "fastcgi-tcp"

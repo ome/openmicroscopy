@@ -28,7 +28,7 @@ try:
         global_value = getattr(settings, global_name, "(unset)")
         CONFIG_TABLE += CONFIG_TABLE_FMT  % (key, using_default, global_value)
 except:
-    CONFIG_TABLE="INVALID CONFIGURATION! Cannot display default values"
+    CONFIG_TABLE="INVALID OR LOCKED CONFIGURATION! Cannot display default values"
 
 HELP="""OMERO.web configuration/deployment tools
 
