@@ -68,7 +68,7 @@ class ConfigXml(object):
                 raise
 
         # Nothing defined, so create a new tree
-        if not self.XML:
+        if self.XML is None:
             default = self.default()
             self.XML = Element("icegrid")
             properties = SubElement(self.XML, "properties", id=self.INTERNAL)
@@ -81,7 +81,7 @@ class ConfigXml(object):
         if id is None:
             id = self.default()
         properties = self.properties(id)
-        if properties:
+        if properties is not None:
             for x in properties.getchildren():
                 if x.get("name") == self.KEY:
                     return x.get("value")
@@ -119,7 +119,7 @@ class ConfigXml(object):
 
     def properties(self, id = None, filter_internal = False):
 
-        if not self.XML:
+        if self.XML is None:
             return None
 
         props = self.XML.findall("./properties")
@@ -210,7 +210,7 @@ class ConfigXml(object):
             # If we didn't get an XML instance,
             # then something has gone wrong and
             # we should exit.
-            if self.XML:
+            if self.XML is not None:
                 self.save()
         finally:
             try:
