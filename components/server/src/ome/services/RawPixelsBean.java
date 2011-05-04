@@ -31,6 +31,7 @@ import ome.conditions.ResourceError;
 import ome.conditions.RootException;
 import ome.conditions.ValidationException;
 import ome.io.bioformats.BfPixelBuffer;
+import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
@@ -62,9 +63,6 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         RawPixelsStore {
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(RawPixelsBean.class);
-
-    /** Default maximum buffer size for planar data transfer. (1MB) */
-    public static final int MAXIMUM_BUFFER_SIZE = 1048576;
 
     private static final long serialVersionUID = -6640632220587930165L;
 
@@ -704,22 +702,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public int[] getTileSize()
     {
-        if (buffer instanceof BfPixelBuffer)
-        {
-            Dimension tileSize = buffer.getTileSize();
-            return new int[] { (int) tileSize.getWidth(),
-                               (int) tileSize.getHeight() };
-        }
-        if (hasPixelsPyramid())
-        {
-            // FIXME: This should be configuration or service driven
-            // FIXME: Also implemented in RenderingBean.getTileSize()
-            return new int[] { 256, 256 };
-        }
-        return new int[] { pixelsInstance.getSizeX(),
-                Math.min(pixelsInstance.getSizeY(),
-                         (MAXIMUM_BUFFER_SIZE / getByteWidth())
-                          / pixelsInstance.getSizeX()) };
+        Dimension tileSize = buffer.getTileSize();
+        return new int[] { (int) tileSize.getWidth(),
+                           (int) tileSize.getHeight() };
     }
 
     /* (non-Javadoc)

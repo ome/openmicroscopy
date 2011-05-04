@@ -39,9 +39,12 @@ import org.apache.commons.logging.LogFactory;
  * @see PixelBuffer
  */
 public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
-	
+
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(RomioPixelBuffer.class);
+
+    /** Default maximum buffer size for planar data transfer. (1MB) */
+    public static final int MAXIMUM_BUFFER_SIZE = 1048576;
 
     /** Reference to the pixels. */
     private Pixels pixels;
@@ -903,7 +906,10 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
      */
     public Dimension getTileSize()
     {
-        return null;
+        int width = getSizeX();
+        int height = Math.min(getSizeY(),
+                (MAXIMUM_BUFFER_SIZE / getByteWidth()) / getSizeX());
+        return new Dimension(width, height);
     }
 
     /* (non-Javadoc)
