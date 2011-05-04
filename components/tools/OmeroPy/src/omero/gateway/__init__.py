@@ -222,7 +222,7 @@ class BlitzObjectWrapper (object):
     def _getParentWrapper (self):
         """
         Returns the wrapper class of the parent of this object. 
-        This is used internally by the L{getParents} method.
+        This is used internally by the L{listParents} method.
         
         @return:    The parent wrapper class. E.g. omero.gateway.DatasetWrapper.__class__
         @rtype:     class
@@ -546,10 +546,10 @@ class BlitzObjectWrapper (object):
         @return: the parent object with or without the link depending on args
         """
 
-        rv = self.getParents(withlinks=withlinks)
+        rv = self.listParents(withlinks=withlinks)
         return len(rv) and rv[0] or None
 
-    def getParents (self, withlinks=False):
+    def listParents (self, withlinks=False):
         """
         Lists available parent objects.
 
