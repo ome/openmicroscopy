@@ -71,9 +71,12 @@ public interface LocalAdmin extends ome.api.IAdmin {
     List<String> getUserRoles(Experimenter e);
     
     /**
-     * Checks password for given user.
+     * Checks password for given user. ReadOnly determines if a actions can be
+     * taken to create the given user, for example in the case of LDAP.
+     *
+     * @see ticket:4626
      */
-    boolean checkPassword(String user, String password);
+    boolean checkPassword(String user, String password, boolean readOnly);
 
     /**
      * Returns a map from {@link Class} (as string) to a count for all entities

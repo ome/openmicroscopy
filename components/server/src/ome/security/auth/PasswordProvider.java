@@ -42,9 +42,10 @@ public interface PasswordProvider {
      * Authenticates the give user given the password token. May return a null
      * {@link Boolean} in order to signal that this provider is not responsible
      * for the given user and can make no decision. Concrete implementations may
-     * decide to return false for all unknown users.
+     * decide to return false for all unknown users. If readOnly is false, then
+     * some implementations may choose to create new users.
      */
-    Boolean checkPassword(String user, String password);
+    Boolean checkPassword(String user, String password, boolean readOnly);
 
     /**
      * Attempts to change the password for the given user. May throw a

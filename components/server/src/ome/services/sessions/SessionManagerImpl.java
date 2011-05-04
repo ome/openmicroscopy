@@ -21,6 +21,8 @@ import java.util.concurrent.Future;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import ome.api.local.LocalAdmin;
+import ome.api.local.LocalQuery;
+import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
 import ome.conditions.InternalException;
@@ -43,7 +45,6 @@ import ome.services.messages.CreateSessionMessage;
 import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.events.ChangeSecurityContextEvent;
 import ome.services.sessions.events.UserGroupUpdateEvent;
-import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.CounterFactory;
 import ome.services.sessions.stats.SessionStats;
@@ -935,21 +936,14 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     private boolean executeCheckPassword(final Principal _principal,
             final String credentials) {
 
-        Boolean ok = null;
-
-        try {
-            ok = executeCheckPasswordRO(_principal, credentials);
-        } catch (ApiUsageException aue) {
-            // ok. Read-write required.
-        }
-
+        Boolean ok = executeCheckPasswordRO(_principal, credentials);
         if (ok == null) {
             ok = executeCheckPasswordRW(_principal, credentials);
         }
         return ok;
     }
 
-    private boolean executeCheckPasswordRO(final Principal _principal,
+    private Boolean executeCheckPasswordRO(final Principal _principal,
             final String credentials) {
         return (Boolean) executor.execute(asroot, new Executor.SimpleWork(this,
                 "executeCheckPasswordRO", _principal) {
@@ -958,16 +952,19 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                     ServiceFactory sf) {
                 try {
                     return ((LocalAdmin) sf.getAdminService()).checkPassword(
-                            _principal.getName(), credentials);
-                } catch (IllegalStateException e) {
-                    // thrown if ldap is trying to create a user. 
-                    throw new ApiUsageException("Read-write required.");
+                            _principal.getName(), credentials, true);
+                } catch (Exception e) {
+                    // thrown if ldap is trying to create a user;
+                    // primarily a performance optimization to prevent
+                    // creating an event, etc. for all the password
+                    // checks which will *not* try to create a user.
+                    return null;
                 }
             }
         });
     }
 
-    private boolean executeCheckPasswordRW(final Principal _principal,
+    private Boolean executeCheckPasswordRW(final Principal _principal,
             final String credentials) {
         return (Boolean) executor.execute(asroot, new Executor.SimpleWork(this,
                 "executeCheckPasswordRW", _principal) {
@@ -975,7 +972,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
                 return ((LocalAdmin) sf.getAdminService()).checkPassword(
-                        _principal.getName(), credentials);
+                        _principal.getName(), credentials, false);
             }
         });
     }

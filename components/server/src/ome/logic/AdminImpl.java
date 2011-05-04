@@ -1091,7 +1091,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed({"user"})
     public void changePasswordWithOldPassword(String oldPassword, String newPassword) {
         String user = getSecuritySystem().getEventContext().getCurrentUserName();
-        if (!checkPassword(user, oldPassword)) {
+        if (!checkPassword(user, oldPassword, false)) {
             throw new SecurityViolation("Old password is invalid");
         }
         _changePassword(user, newPassword);
@@ -1117,8 +1117,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      * If ldap plugin turned, creates Ldap accounts and authentication by LDAP
      * available.
      */
-    public boolean checkPassword(String name, String password) {
-        Boolean result = passwordProvider.checkPassword(name, password);
+    public boolean checkPassword(String name, String password, boolean readOnly) {
+        Boolean result = passwordProvider.checkPassword(name, password, readOnly);
         if (result == null) {
             getBeanHelper().getLogger().warn("Password provider returned null: "
                     + passwordProvider);

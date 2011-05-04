@@ -79,7 +79,7 @@ public class PasswordTest extends MockObjectTestCase {
      */
     public void testConfigurableDefaultsReturnsFalse() {
         provider = new PP();
-        assertFalse(provider.checkPassword("", ""));
+        assertFalse(provider.checkPassword("", "", false));
         assertFalse(provider.hasPassword(""));
     }
 
@@ -98,14 +98,14 @@ public class PasswordTest extends MockObjectTestCase {
     public void testFileDefaults() throws Exception {
         provider = new FilePasswordProvider(null, file);
         assertTrue(provider.hasPassword("test"));
-        assertTrue(provider.checkPassword("test", "test"));
-        assertFalse(provider.checkPassword("unknown", "anything"));
+        assertTrue(provider.checkPassword("test", "test", false));
+        assertFalse(provider.checkPassword("unknown", "anything", false));
     }
 
     public void testFilesDontIgnoreUnknownReturnsNull() throws Exception {
         provider = new FilePasswordProvider(null, file, true);
         assertFalse(provider.hasPassword("unknown"));
-        assertNull(provider.checkPassword("unknown", "anything"));
+        assertNull(provider.checkPassword("unknown", "anything", false));
     }
 
     @Test(expectedExceptions = PasswordChangeException.class)
@@ -129,25 +129,25 @@ public class PasswordTest extends MockObjectTestCase {
         String encoded = ((PasswordUtility) provider).encodePassword("test");
         queryForObjectReturns(encoded);
         userIdReturns1();
-        assertTrue(provider.checkPassword("test", "test"));
+        assertTrue(provider.checkPassword("test", "test", false));
 
         queryForObjectReturns(encoded);
         userIdReturns1();
-        assertFalse(provider.checkPassword("test", "GARBAGE"));
+        assertFalse(provider.checkPassword("test", "GARBAGE", false));
     }
 
     public void tesJdbcIgnoreUnknownReturnsFalse() throws Exception {
         initJdbc();
         userIdReturnsNull();
         provider = new JdbcPasswordProvider(new PasswordUtil(sql));
-        assertFalse(provider.checkPassword("unknown", "anything"));
+        assertFalse(provider.checkPassword("unknown", "anything", false));
     }
 
     public void tesJdbcDontIgnoreUnknownReturnsNull() throws Exception {
         initJdbc();
         userIdReturnsNull();
         provider = new JdbcPasswordProvider(new PasswordUtil(sql), true);
-        assertNull(provider.checkPassword("unknown", "anything"));
+        assertNull(provider.checkPassword("unknown", "anything", false));
     }
 
     public void testJdbcChangesPassword() throws Exception {
@@ -176,12 +176,12 @@ public class PasswordTest extends MockObjectTestCase {
         queryForObjectReturns(encoded);
         userIdReturns1();
         validateLdapPassword(true);
-        assertTrue(provider.checkPassword("test", "test"));
+        assertTrue(provider.checkPassword("test", "test", false));
 
         queryForObjectReturns(encoded);
         userIdReturns1();
         validateLdapPassword(false);
-        assertFalse(provider.checkPassword("test", "GARBAGE"));
+        assertFalse(provider.checkPassword("test", "GARBAGE", false));
         
         userIdReturnsNull();
         assertFalse(provider.hasPassword("unknown"));
@@ -200,7 +200,7 @@ public class PasswordTest extends MockObjectTestCase {
         userIdReturnsNull();
         ldapCreatesUser(false);
         provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, true);
-        assertNull(provider.checkPassword("unknown", "anything"));
+        assertNull(provider.checkPassword("unknown", "anything", false));
     }
 
     public void tesLdapIgnoreUnknownCreatesSucceedsReturnsTrue()
@@ -209,7 +209,7 @@ public class PasswordTest extends MockObjectTestCase {
         userIdReturnsNull();
         ldapCreatesUser(true);
         provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, true);
-        assertTrue(provider.checkPassword("unknown", "anything"));
+        assertTrue(provider.checkPassword("unknown", "anything", false));
     }
 
     public void tesLdapIgnoreUnknownCreatesThrows() throws Exception {
@@ -217,7 +217,7 @@ public class PasswordTest extends MockObjectTestCase {
         userIdReturnsNull();
         ldapCreatesUserAndThrows();
         provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, true);
-        assertNull(provider.checkPassword("unknown", "anything"));
+        assertNull(provider.checkPassword("unknown", "anything", false));
     }
 
     public void tesLdapDontIgnoreUnknownCreatesFailsReturnsFalse()
@@ -226,7 +226,7 @@ public class PasswordTest extends MockObjectTestCase {
         userIdReturnsNull();
         ldapCreatesUser(false);
         provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, false);
-        assertFalse(provider.checkPassword("unknown", "anything"));
+        assertFalse(provider.checkPassword("unknown", "anything", false));
     }
 
     public void tesLdapDontIgnoreUnknownCreatesSucceedsReturnsTrue()
@@ -235,7 +235,7 @@ public class PasswordTest extends MockObjectTestCase {
         userIdReturnsNull();
         ldapCreatesUser(true);
         provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, false);
-        assertTrue(provider.checkPassword("unknown", "anything"));
+        assertTrue(provider.checkPassword("unknown", "anything", false));
     }
 
     public void tesLdapDontIgnoreUnknownCreatesThrows() throws Exception {
@@ -243,7 +243,7 @@ public class PasswordTest extends MockObjectTestCase {
         userIdReturnsNull();
         ldapCreatesUserAndThrows();
         provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, false);
-        assertFalse(provider.checkPassword("unknown", "anything"));
+        assertFalse(provider.checkPassword("unknown", "anything", false));
     }
 
     @Test(expectedExceptions = PasswordChangeException.class)
@@ -285,7 +285,7 @@ public class PasswordTest extends MockObjectTestCase {
             return check == null ? false : check.booleanValue();
         }
         
-        public Boolean checkPassword(String user, String password) {
+        public Boolean checkPassword(String user, String password, boolean readOnly) {
             checkPasswordCalled = true;
             return check;
         }
@@ -335,7 +335,7 @@ public class PasswordTest extends MockObjectTestCase {
         Stub s1 = new Stub();
         Stub s2 = new Stub();
         provider = new PasswordProviders(s1, s2);
-        assertNull(provider.checkPassword("known", "password"));
+        assertNull(provider.checkPassword("known", "password", false));
         s1.assertCheckPasswordCalled();
         s2.assertCheckPasswordCalled();
     }
@@ -344,7 +344,7 @@ public class PasswordTest extends MockObjectTestCase {
         Stub s1 = new Stub();
         Stub s2 = new Stub(false, false);
         provider = new PasswordProviders(s1, s2);
-        assertFalse(provider.checkPassword("known", "password"));
+        assertFalse(provider.checkPassword("known", "password", false));
         s1.assertCheckPasswordCalled();
         s2.assertCheckPasswordCalled();
     }
@@ -353,7 +353,7 @@ public class PasswordTest extends MockObjectTestCase {
         Stub s1 = new Stub();
         Stub s2 = new Stub(true, false);
         provider = new PasswordProviders(s1, s2);
-        assertTrue(provider.checkPassword("known", "password"));
+        assertTrue(provider.checkPassword("known", "password", false));
         s1.assertCheckPasswordCalled();
         s2.assertCheckPasswordCalled();
     }
@@ -362,7 +362,7 @@ public class PasswordTest extends MockObjectTestCase {
         Stub s1 = new Stub(true, false);
         Stub s2 = new Stub(true, false);
         provider = new PasswordProviders(s1, s2);
-        assertTrue(provider.checkPassword("known", "password"));
+        assertTrue(provider.checkPassword("known", "password", false));
         s1.assertCheckPasswordCalled();
         s2.assertCheckPasswordNotCalled();
     }
@@ -371,7 +371,7 @@ public class PasswordTest extends MockObjectTestCase {
         Stub s1 = new Stub(false, false);
         Stub s2 = new Stub(false, false);
         provider = new PasswordProviders(s1, s2);
-        assertFalse(provider.checkPassword("unknown", "password"));
+        assertFalse(provider.checkPassword("unknown", "password", false));
         s1.assertCheckPasswordCalled();
         s2.assertCheckPasswordNotCalled();
     }
