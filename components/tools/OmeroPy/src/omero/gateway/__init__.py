@@ -2546,9 +2546,10 @@ class _BlitzGateway (object):
     ###################
     # Delete          #
     
-    def deleteObject(self, obj): 
+    def deleteObjectDirect(self, obj):
         """
-        Directly Delete object
+        Directly Delete object (removes row from database).
+        This may fail with various constraint violations if the object is linked to others in the database
         
         @param obj:     Object to delete
         @type obj:      IObject"""
