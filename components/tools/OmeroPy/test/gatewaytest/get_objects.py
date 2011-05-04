@@ -221,15 +221,15 @@ class FindObjectTest (lib.GTest):
         self.assertTrue(timeId in [t.getId() for t in times])
 
         # delete what we created
-        self.gateway.deleteObject(longAnn._obj)  # direct delete
+        self.gateway.deleteObjectDirect(longAnn._obj)  # direct delete
         self.assertTrue( self.gateway.getObject("Annotation", longId) == None)
-        self.gateway.deleteObject(boolAnn._obj)
+        self.gateway.deleteObjectDirect(boolAnn._obj)
         self.assertTrue( self.gateway.getObject("Annotation", boolId) == None)
-        self.gateway.deleteObject(fileAnn._obj)
+        self.gateway.deleteObjectDirect(fileAnn._obj)
         self.assertTrue( self.gateway.getObject("Annotation", fileId) == None)
-        self.gateway.deleteObject(commAnn._obj)
+        self.gateway.deleteObjectDirect(commAnn._obj)
         self.assertTrue( self.gateway.getObject("Annotation", commId) == None)
-        self.gateway.deleteObject(tag._obj)
+        self.gateway.deleteObjectDirect(tag._obj)
         self.assertTrue( self.gateway.getObject("Annotation", tagId) == None)
 
 

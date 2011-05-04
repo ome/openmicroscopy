@@ -164,15 +164,18 @@ class AnnotationsTest (lib.GTest):
         os.remove(tempFileName)
 
         ann = image.getAnnotation(ns)
+        annId = ann.getId()
         self.assertEqual(ann.OMERO_TYPE, omero.model.FileAnnotationI)
         for t in ann.getFileInChunks():
             self.assertEqual(str(t), fileText)   # we get whole text in one chunk
 
         # delete what we created 
+        self.assertNotEqual(self.gateway.getObject("Annotation", annId), None)
         link = ann.link
-        self.gateway.deleteObject(link._obj)        # delete link
-        self.gateway.deleteObject(ann._obj)         # then the annotation
-        self.gateway.deleteObject(ann._obj.file)    # then the file
+        self.gateway.deleteObjectDirect(link._obj)        # delete link
+        self.gateway.deleteObjectDirect(ann._obj)         # then the annotation
+        self.gateway.deleteObjectDirect(ann._obj.file)    # then the file
+        self.assertEqual(self.gateway.getObject("Annotation", annId), None)
 
 
 if __name__ == '__main__':
