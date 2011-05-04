@@ -396,19 +396,19 @@ class GetObjectTest (lib.GTest):
         annLinks = self.gateway.getAnnotationLinks("Image")
         for al in annLinks:
             self.assertTrue(isinstance(al.getAnnotation(), omero.gateway.AnnotationWrapper))
-            self.assertEqual(al.getParent().__class__, omero.model.ImageI)
+            self.assertEqual(al.parent.__class__, omero.model.ImageI)
             
         # get selected links - On image only
         annLinks = self.gateway.getAnnotationLinks("Image", parent_ids=[obj.getId()])
         for al in annLinks:
             self.assertEqual(obj.getId(), al.parent.id.val)
-            self.assertTrue(al.getParent().__class__ == omero.model.ImageI)
+            self.assertTrue(al.parent.__class__ == omero.model.ImageI)
             
         # get selected links - On image only
         annLinks = self.gateway.getAnnotationLinks("Image", parent_ids=[obj.getId()])
         for al in annLinks:
             self.assertEqual(obj.getId(), al.parent.id.val)
-            self.assertTrue(al.getParent().__class__ == omero.model.ImageI)
+            self.assertTrue(al.parent.__class__ == omero.model.ImageI)
 
         # compare with getObjectsByAnnotations
         annImages = list( self.gateway.getObjectsByAnnotations('Image', [tag.getId()]) )

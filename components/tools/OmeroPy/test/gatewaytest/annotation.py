@@ -93,7 +93,7 @@ class AnnotationsTest (lib.GTest):
 
     def testDualLinkedAnnotation (self):
         """ Tests linking the same annotation to 2 separate objects """
-        dataset = self.TESTIMG.listParents(single=True)
+        dataset = self.TESTIMG.getParent()
         self.assertNotEqual(dataset, None)
         self.TESTIMG.removeAnnotations(self.TESTANN_NS)
         self.assertEqual(self.TESTIMG.getAnnotation(self.TESTANN_NS), None)
