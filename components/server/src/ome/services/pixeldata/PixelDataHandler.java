@@ -101,7 +101,7 @@ public class PixelDataHandler extends SimpleWork {
                             new Parameters().addId(id));
                     
                     try {
-                        pixelsService.makePyramid(pixels, null);
+                        pixelsService.makePyramid(pixels);
                         log.info("Handled pixels " + id);
                     } catch (Exception t) {
                         log.error("Failed to handle pixels " + id, t);

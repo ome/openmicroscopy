@@ -131,28 +131,18 @@ public class PixelsService extends AbstractFileSystemService
     /**
      * Creates a pixels pyramid for a given set of pixels.
      * @param pixels Pixels set to retrieve a pixel buffer for.
-     * @param pixelsFilePath Absolute path to the pixels set. If null, this
-     *      represents a {@link RomioPixelBuffer}
-     * @param provider Original file metadata provider.
-     * @param bypassOriginalFile Do not check for the existence of an original
-     * file to back this pixel buffer.
-     * @return See above.
      * @since OMERO-Beta4.3
      */
-    public void makePyramid(Pixels pixels,
-                            String pixelsFilePath)
+    public void makePyramid(Pixels pixels)
     {
-        final boolean useRomio = (pixelsFilePath == null);
-        if (useRomio)
-        {
-            pixelsFilePath = getPixelsPath(pixels.getId());
-        }
-
+        final boolean requirePyramid = isRequirePyramid(pixels);
+        final String pixelsFilePath = getPixelsPath(pixels.getId());
         final File pixelsFile = new File(pixelsFilePath);
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
         final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
+        final String originalFilePath = getOriginalFilePath(pixels);
 
-        if (!pixelsFile.exists())
+        if (!pixelsFile.exists() && originalFilePath == null)
         {
             log.error("FAIL -- Original pixels file does not exist: "
                     + pixelsFile.getAbsolutePath());
@@ -160,19 +150,27 @@ public class PixelsService extends AbstractFileSystemService
         }
         final PixelBuffer pixelsPyramid = createPyramidPixelBuffer(
                 pixels, pixelsPyramidFilePath);
-        final PixelBuffer romio = createRomioPixelBuffer(
-                pixelsFilePath, pixels, true);
-        // Dimension tileSize = pixelsPyramid.getTileSize();
-        // FIXME: This should be configuration or service driven
-        // FIXME: Also implemented in RenderingBean.getTileSize()
-        Dimension tileSize = new Dimension(256, 256);
+        final PixelBuffer source;
+        final Dimension tileSize;
+        if (pixelsFile.exists())
+        {
+            source = createRomioPixelBuffer(pixelsFilePath, pixels, true);
+            // FIXME: This should be configuration or service driven
+            // FIXME: Also implemented in RenderingBean.getTileSize()
+            tileSize = new Dimension(256, 256);
+        }
+        else
+        {
+            source = createBfPixelBuffer(originalFilePath);
+            tileSize = source.getTileSize();
+        }
         Utils.forEachTile(new TileLoopIteration() {
             public void run(int z, int c, int t, int x, int y, int w,
                             int h, int tileCount)
             {
                 try
                 {
-                    PixelData tile = romio.getTile(z, c, t, x, y, w, h);
+                    PixelData tile = source.getTile(z, c, t, x, y, w, h);
                     pixelsPyramid.setTile(
                             tile.getData().array(), z, c, t, x, y, w, h);
                 }
@@ -191,7 +189,7 @@ public class PixelsService extends AbstractFileSystemService
                     return;
                 }
             }
-        }, romio, (int) tileSize.getWidth(), (int) tileSize.getHeight());
+        }, source, (int) tileSize.getWidth(), (int) tileSize.getHeight());
         log.info("SUCCESS -- Pyramid created for pixels id:" + pixels.getId());
     }
 
@@ -209,6 +207,7 @@ public class PixelsService extends AbstractFileSystemService
         final File pixelsFile = new File(pixelsFilePath);
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
         final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
+        final String originalFilePath = getOriginalFilePath(pixels);
 
         //
         // 1. If the pixels file exists, then we know that this isn't
@@ -221,7 +220,7 @@ public class PixelsService extends AbstractFileSystemService
         // a pyramid, the existence of the ROMIO Pixels file implies
         // that this is legacy data.
         //
-        if (pixelsFile.exists() && requirePyramid)
+        if ((pixelsFile.exists() || originalFilePath != null) && requirePyramid)
         {
             while (!pixelsPyramidFile.exists()) {
                 // throws if loop should exit!
@@ -240,9 +239,10 @@ public class PixelsService extends AbstractFileSystemService
         }
 
         //
-        // 3. Finally, this must be a ROMIO or OMERO.fs "light" (where the
-        // original data has been archived. If the relevant OriginalFile can
-        // be resolved use it with BfPixelBuffer, otherwise create a new
+        // 3. Finally, this must be a ROMIO, direct writing to the
+        // BfPyramidPixelBuffer or OMERO.fs "light" (where the original data
+        // has been archived). If the relevant OriginalFile path can be
+        // resolved use it with BfPixelBuffer, otherwise create a new
         // RomioPixelBuffer and return.
         if (!pixelsFile.exists())
         {
@@ -252,7 +252,6 @@ public class PixelsService extends AbstractFileSystemService
                 createSubpath(pixelsPyramidFilePath);
                 return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath);
             } else {
-                final String originalFilePath = getOriginalFilePath(pixels);
                 if (originalFilePath != null) {
                     log.info("Using BfPixelBuffer: " + pixelsFilePath);
                     return createBfPixelBuffer(originalFilePath);
