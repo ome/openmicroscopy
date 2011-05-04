@@ -1208,10 +1208,7 @@ def imageData_json (request, server_id=None, _conn=None, _internal=False, **kwar
 def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs):
     """
     """
-    try:
-        plate = _conn.getPlate(long(pid))
-    except:
-        return 'exception'
+    plate = _conn.getObject('plate', long(pid))
     try:
         field = int(field)
     except ValueError:
