@@ -418,14 +418,8 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
     session = client.getSession()
     scriptParams = {}
 
-    suuid = session.getAdminService().getEventContext().sessionUuid
-    host = client.ic.getProperties().getProperty('omero.host')
-    port = client.ic.getProperties().getProperty('omero.port')
-    print suuid, host, port
-
-    conn = BlitzGateway(host=host, port=port, useragent="OMERO.script")
-    conn.connect(sUuid=suuid)
-
+    conn = BlitzGateway(client_obj=client)
+    
     # process the list of args above. 
     for key in client.getInputKeys():
         if client.getInput(key):
