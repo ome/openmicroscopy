@@ -33,20 +33,14 @@ file for download.
 """
 
 import omero.scripts as scripts
+from omero.gateway import BlitzGateway
 import omero.util.script_utils as script_utils
 import omero
 from omero.rtypes import *
 import os
-import StringIO
 
 import glob
 import zipfile
-
-try:
-    from PIL import Image, ImageDraw # see ticket:2597
-except ImportError:
-    import Image, ImageDraw # see ticket:2597
-
 
 # keep track of log strings. 
 logStrings = []
@@ -111,7 +105,7 @@ def renderImage(renderingEngine, zRange, t=0, channel=None, greyscale=False):
     return pilImage
     
 
-def savePlane(renderingEngine, originalName, format, cName, zRange, t=0, channel=None, greyscale=False, imgWidth=None, folder_name=None):
+def savePlane(image, format, cName, zRange, t=0, channel=None, greyscale=False, imgWidth=None, folder_name=None):
     """
     Renders and saves an image to disk.
     
@@ -124,6 +118,7 @@ def savePlane(renderingEngine, originalName, format, cName, zRange, t=0, channel
     @param imgWidth:            Resize image to this width if specified.
     """
     
+    originalName = image.getName()
     print ""
     print "savePlane.."
     print "originalName", originalName
@@ -135,16 +130,26 @@ def savePlane(renderingEngine, originalName, format, cName, zRange, t=0, channel
     print "greyscale", greyscale
     print "imgWidth", imgWidth
     
-    image = renderImage(renderingEngine, zRange, t, channel, greyscale)
+    # if channel == None: use current rendering settings
+    if channel != None:
+        image.setActiveChannels([channel+1])    # use 1-based Channel indices
+    if greyscale:
+        image.setGreyscaleRenderingModel()
+    else:
+        image.setColorRenderingModel()
+    if len(zRange) > 1:     # current params don't allow users to choose this option
+        image.setProjection('intmax')   # imageWrapper only supports projection of full Z range (can't specify)
+
+    plane = image.renderImage(zRange[0], t)
     if imgWidth:
-        w, h = image.size
-        newH = (float(imgW) / w ) * h
-        image = image.resize((imgWidth, newH))
+        w, h = plane.size
+        newH = (float(imgWidth) / w ) * h
+        plane = plane.resize((imgWidth, newH))
         
     if format == "PNG":
         imgName = makeImageName(originalName, cName, zRange, t, "png", folder_name)
         print "Saving image:", imgName
-        image.save(imgName, "PNG")
+        plane.save(imgName, "PNG")
     else:
         imgName = makeImageName(originalName, cName, zRange, t, "jpg", folder_name)
         print "Saving image:", imgName
@@ -168,7 +173,7 @@ def makeImageName(originalName, cName, zRange, t, extension, folder_name):
     return imgName
     
     
-def savePlanesForImage(renderingEngine, originalName, pixelsId, sizeC, splitCs, mergedCs, channelNames=None,
+def savePlanesForImage(conn, image, sizeC, splitCs, mergedCs, channelNames=None,
         zRange=None, tRange=None, greyscale=False, imgWidth=None, projectZ=False, format="PNG", folder_name=None):
     """
     Saves all the required planes for a single image, either as individual planes or projection.
@@ -192,15 +197,17 @@ def savePlanesForImage(renderingEngine, originalName, pixelsId, sizeC, splitCs, 
         
 
     # set up rendering engine with the pixels
+    """
     renderingEngine.lookupPixels(pixelsId)
     if not renderingEngine.lookupRenderingDef(pixelsId):
         renderingEngine.resetDefaults()
     if not renderingEngine.lookupRenderingDef(pixelsId):
         raise "Failed to lookup Rendering Def"
     renderingEngine.load()
+    """
     
     if tRange == None:
-        tIndexes = [renderingEngine.getDefaultT()]
+        tIndexes = [image.getDefaultT()]
     else:
         if len(tRange) > 1:
             tIndexes = range(tRange[0], tRange[1])
@@ -216,19 +223,19 @@ def savePlanesForImage(renderingEngine, originalName, pixelsId, sizeC, splitCs, 
                 cName = "c%02d" % c
         for t in tIndexes:
             if zRange == None:
-                defaultZ = renderingEngine.getDefaultZ()
-                savePlane(renderingEngine, originalName, format, cName, (defaultZ,), t, c, greyscale, imgWidth, folder_name)
+                defaultZ = image.getDefaultZ()
+                savePlane(image, format, cName, (defaultZ,), t, c, greyscale, imgWidth, folder_name)
             elif projectZ:
-                savePlane(renderingEngine, originalName, format, cName, zRange, t, c, greyscale, imgWidth, folder_name)
+                savePlane(image, format, cName, zRange, t, c, greyscale, imgWidth, folder_name)
             else:
                 if len(zRange) > 1:
                     for z in range(zRange[0], zRange[1]):
-                        savePlane(renderingEngine, originalName, format, cName, (z,), t, c, greyscale, imgWidth, folder_name)
+                        savePlane(image, format, cName, (z,), t, c, greyscale, imgWidth, folder_name)
                 else:
-                    savePlane(renderingEngine, originalName, format, cName, zRange, t, c, greyscale, imgWidth, folder_name)
+                    savePlane(image, format, cName, zRange, t, c, greyscale, imgWidth, folder_name)
 
 
-def batchImageExport(session, scriptParams):
+def batchImageExport(conn, scriptParams):
     
     # for params with default values, we can get the value directly
     splitCs = scriptParams["Export_Individual_Channels"]
@@ -283,51 +290,53 @@ def batchImageExport(session, scriptParams):
                 tEnd = scriptParams["...specify_T_end"]
                 tRange = (min(sizeT-1,tStart), min(sizeT-1,tEnd) )
         return tRange
-    
-    # services we need
-    renderingEngine = session.createRenderingEngine()
-    containerService = session.getContainerService()
-    
+
     # images to export
-    images = containerService.getImages(dataType, ids, None)
+    images = []
+    objects = conn.getObjects(dataType, ids)    # images or datasets
+    if dataType == 'Dataset':
+        for ds in objects:
+            images.extend( list(ds.listChildren()) )
+    else:
+        images = list(objects)
     print "Processing %s images" % len(images)
     
     # somewhere to put images
     curr_dir = os.getcwd()
     exp_dir = os.path.join(curr_dir, folder_name)
-    os.mkdir(exp_dir)
+    try:
+        os.mkdir(exp_dir)
+    except:
+        pass
     
     # do the saving to disk
     for img in images:
-        pixelsId = img.getPrimaryPixels().getId().getValue()
-        originalName = img.getName().getValue()
-        print "\nSaving image", originalName
-        sizeC = img.getPrimaryPixels().getSizeC().getValue()
-        sizeZ = img.getPrimaryPixels().getSizeZ().getValue()
-        sizeT = img.getPrimaryPixels().getSizeT().getValue()
+        print "\nSaving image", img.getName()
+        sizeC = img.getSizeC()
+        sizeZ = img.getSizeZ()
+        sizeT = img.getSizeT()
         zRange = getZrange(sizeZ, scriptParams)
         tRange = getTrange(sizeT, scriptParams)
         print "zRange", zRange
         print "tRange", tRange
-        savePlanesForImage(renderingEngine, originalName, pixelsId, sizeC, splitCs, mergedCs, channelNames,
+        savePlanesForImage(conn, img, sizeC, splitCs, mergedCs, channelNames,
             zRange, tRange, greyscale, imgWidth, projectZ=False, format="PNG", folder_name=folder_name)
-    
-    renderingEngine.close() 
 
     # zip up image folder
     zip_file_name = "%s.zip" % folder_name
     compress(zip_file_name, folder_name)
     
-    queryService = session.getQueryService()
-    updateService = session.getUpdateService()
-    rawFileStore = session.createRawFileStore()
+    queryService = conn.getQueryService()
+    updateService = conn.getUpdateService()
+    rawFileStore = conn.createRawFileStore()
     image = images[0]
     
     fileAnnotation = None
     if os.path.exists(zip_file_name):
-        print "Attaching zip to image... %s" % image.getName().getValue(), image.getId().getValue()
-        fileAnnotation = script_utils.uploadAndAttachFile(queryService, updateService, rawFileStore, image, zip_file_name, mimetype="zip")
-        return fileAnnotation
+        print "Attaching zip to image... %s" % image.getName(), image.getId()
+        fileAnn = omero.gateway.FileAnnotationWrapper.fromLocalFile(conn, zip_file_name, mimetype='zip')
+        image.linkAnnotation(fileAnn)
+        return fileAnn
 
 def runScript():
     """
@@ -409,15 +418,24 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
     session = client.getSession()
     scriptParams = {}
 
+    suuid = session.getAdminService().getEventContext().sessionUuid
+    host = client.ic.getProperties().getProperty('omero.host')
+    port = client.ic.getProperties().getProperty('omero.port')
+    print suuid, host, port
+
+    conn = BlitzGateway(host=host, port=port, useragent="OMERO.script")
+    conn.connect(sUuid=suuid)
+
     # process the list of args above. 
     for key in client.getInputKeys():
         if client.getInput(key):
             scriptParams[key] = unwrap(client.getInput(key))
     print scriptParams
-    # call the main script
-    fileAnnotation = batchImageExport(session, scriptParams)
+    # call the main script - returns a file annotation wrapper
+    fileAnnWrapper = batchImageExport(conn, scriptParams)
     # return this fileAnnotation to the client. 
-    if fileAnnotation:
+    if fileAnnWrapper:
+        fileAnnotation = fileAnnWrapper._obj
         client.setOutput("Message", rstring("Batch Export zip created and attached"))
         client.setOutput("File_Annotation", robject(fileAnnotation))
     
