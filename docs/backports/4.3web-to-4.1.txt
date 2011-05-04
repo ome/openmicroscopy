@@ -4,6 +4,31 @@ omero.gateway and omeroweb.webgateway
 
 List of latest commits merged from develop into dev_4_1_custom
 
+*** 2011-05-03 ***
+
+-- omeroweb.webgateway (d1db7c051f477fff3b1873c25101f991d2c53ef7)
+53db00c Changing all instances of listParents into either getParents or getParent, as appropriate (close #3802)
+3f1a7c9 Updating imageWrapper.getHeight() and getWidth() to getSizeY() and getSizeZ() in webgateway. See #4928
+cf81745 Replacing z_count() t_count() and c_count() with getSizeZ() etc in webgateway. See #4928
+8f10cca Replacing z_count() t_count() and c_count() with getSizeZ() etc in webclient. See #4928
+
+-- omero.gateway (6d710d63926d6a30e615d40a4dee080d860d1a1d)
+5b10de8 Splitting listParents into 2 new methods; getParents and getParent (see #3802)
+6319e36 Getting softclose on BlitzGateway.seppuku working again (see #3478)
+13e642a Blitz pixelWrapper.getPlanes() takes zctList parameter. See 4979
+c1881db Adding getPlane() short-cut to blitz gateway PixelsWrapper. See 4979
+1dc1ab9 Adding getPlanes() to blitz gateway PixelsWrapper. See 4979
+98c5a02 ImageWrapper.getPrimaryPixels() returns PixelsWrapper. See #4820
+1be9e6f Blitz getObject() throws exception if >1 result returned. See 4908
+ab27a87 Removing deleteAnnotation() and simpleDelete() from blitz gateway. See 4773
+c656fd2 Removing deleteScreen() deletePlate() deleteProject() deleteDataset() from blitz gateway. See 4773
+4eb3d02 Removing deleteImages() and deleteImage() from blitz gateway. See 4773
+9f91d2c Adding FileAnnotationWrapper.fromLocalFile() method: uploads file to create file annotation. See #4638
+0e5dd7d Renaming blitz imageWrapper.getHeight() and getWidth() to getSizeY() and getSizeZ(). See #4928
+91bd0f1 Adding getDefaultT() and getDefaultZ() to blitz imageWrapper. See #4928
+1231595 Renaming blitz imagewrapper.z_count() t_count() and c_count() to getSizeZ() etc. See #4928
+
+
 *** 2011-04-19 ***
 
 -- omeroweb.webgateway (497a12db4eed69303ff13e058b1899a4d1c11c59)
