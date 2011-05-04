@@ -290,7 +290,7 @@ public class PixelsService extends AbstractFileSystemService
      * @return The original file path or <code>null</code> if the original file
      * path could not be located or the <code>resolver</code> has not been set.
      */
-    private String getOriginalFilePath(Pixels pixels)
+    protected String getOriginalFilePath(Pixels pixels)
     {
         if (resolver == null)
         {

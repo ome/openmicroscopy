@@ -139,14 +139,16 @@ public class GetPixelBufferUnitTest {
     public void testDontUseRomio() {
         service.allowCreateBf = true;
         service.isRequirePyramid = false;
-        File bf = new File(root, "bf.tiff");
+        service.path = new File(root, "bf.tiff").getAbsolutePath();
         pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
     @Test
     public void testHandleOriginalFileReturnsSomething() {
-        service.allowHandle = true;
+        service.allowCreateBf = true;
+        service.isRequirePyramid = false;
+        service.path = "/tmp/foo";
         pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
@@ -253,6 +255,11 @@ public class GetPixelBufferUnitTest {
          */
         Boolean retry = null;
 
+        /**
+         * Path to be returned by invocations of {@link #getOriginalFilePath(Pixels)}
+         */
+        String path = null;
+
         Mock pbMock = new Mock(PixelBuffer.class);
 
         /**
@@ -312,6 +319,10 @@ public class GetPixelBufferUnitTest {
             return pb;
         }
 
+        @Override
+        protected String getOriginalFilePath(Pixels pixels) {
+            return path;
+        }
     }
 
 }
