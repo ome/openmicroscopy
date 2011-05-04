@@ -7,6 +7,7 @@ package ome.services.blitz.test;
 
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
 import ome.formats.MockedOMEROImportFixture;
@@ -97,7 +98,7 @@ public abstract class AbstractServantTest extends TestCase {
         user = new ManagedContextFixture(ctx);
         user_sf = user.createServiceFactoryI();
         user_initializer = new AopContextInitializer(
-                new ServiceFactory(ctx), user.login.p, false);
+                new ServiceFactory(ctx), user.login.p, new AtomicBoolean(true));
 
         user_delete = (DeleteI) ctx.getBean("DeleteI");
         user_delete.setServiceFactory(user_sf);
@@ -117,7 +118,7 @@ public abstract class AbstractServantTest extends TestCase {
         root.setCurrentUserAndGroup("root", "system");
         root_sf = root.createServiceFactoryI();
         root_initializer = new AopContextInitializer(
-                new ServiceFactory(ctx), root.login.p, false);
+                new ServiceFactory(ctx), root.login.p, new AtomicBoolean(true));
 
         root_delete = (DeleteI) ctx.getBean("DeleteI");
         root_delete.setServiceFactory(root_sf);

@@ -1054,6 +1054,17 @@ public class TestServiceFactory implements ServiceFactoryPrx
         throw new RuntimeException("Not implemented yet.");
     }
 
+    public void setSecurityPassword(String password) throws ServerError {
+        // TODO Auto-generated method stub
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setSecurityPassword(String password, Map<String, String> __ctx)
+            throws ServerError {
+        // TODO Auto-generated method stub
+        throw new RuntimeException("Not implemented yet.");
+    }
+
     public IObject setSecurityContext(IObject obj, Map<String, String> __ctx)
             throws ServerError {
         // TODO Auto-generated method stub
