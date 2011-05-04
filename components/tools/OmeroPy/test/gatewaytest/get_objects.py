@@ -485,12 +485,12 @@ class GetObjectTest (lib.GTest):
         ds = image.getDataset()
         
         self.assertEqual(ds, image.getParent())
-        self.assertEqual(image.getParents()[0], image.getParent())
+        self.assertEqual(image.listParents()[0], image.getParent())
         self.assertEqual(ds, image.getParent(withlinks=True)[0])
-        self.assertEqual(image.getParent(withlinks=True), image.getParents(withlinks=True)[0])
+        self.assertEqual(image.getParent(withlinks=True), image.listParents(withlinks=True)[0])
         self.assertEqual(ds.getParent(), pr)
         self.assertEqual(pr.getParent(), None)
-        self.assertEqual(len(pr.getParents()), 0)
+        self.assertEqual(len(pr.listParents()), 0)
 
 if __name__ == '__main__':
     unittest.main()
