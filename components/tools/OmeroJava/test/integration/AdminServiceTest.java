@@ -479,11 +479,12 @@ public class AdminServiceTest
     }
 	
 	/**
-	 * Tests the update of the details of the user currently logged in.
+	 * Tests the update of the details of the user currently logged in 
+	 * using the <code>updateSelf</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test
-    public void testUpdateExperimenterByUser() 
+    public void testUpdateExperimenterByUserUsingUpdateSelf() 
     	throws Exception
     {
 		//First create a new user.
@@ -511,11 +512,68 @@ public class AdminServiceTest
 		assertNotNull(e);
 		
 		String name = "userModified";
-		uuid = UUID.randomUUID().toString();
+		//uuid = UUID.randomUUID().toString();
 		e.setOmeName(omero.rtypes.rstring(uuid));
 		e.setFirstName(omero.rtypes.rstring(name));
         e.setLastName(omero.rtypes.rstring(name));
-		svc.updateExperimenter(e);
+        //
+        //owner logs in.
+        omero.client client = newOmeroClient();
+        client.createSession(uuid, uuid);
+        init(client);
+		iAdmin.updateSelf(e);
+		e = (Experimenter) query.findByQuery(
+				"select distinct e from Experimenter e where e.id = :id", p);
+		assertNotNull(e);
+		assertTrue(e.getOmeName().getValue().equals(uuid));
+		assertTrue(e.getFirstName().getValue().equals(name));
+		assertTrue(e.getLastName().getValue().equals(name));
+    }
+	
+	/**
+	 * Tests the update of the details of the user currently logged in 
+	 * using the <code>updateExperimenter</code> method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test(enabled = false)
+    public void testUpdateExperimenterByUserUsingUpdateExperimenter() 
+    	throws Exception
+    {
+		//First create a new user.
+		String uuid = UUID.randomUUID().toString();
+        Experimenter e = new ExperimenterI();
+        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setFirstName(omero.rtypes.rstring("user"));
+        e.setLastName(omero.rtypes.rstring("user"));
+        IAdminPrx svc = root.getSession().getAdminService();
+        
+        //already tested
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(omero.rtypes.rstring(uuid));
+        g.getDetails().setPermissions(new PermissionsI("rw----"));
+
+        //create group.
+        svc.createGroup(g);
+        
+		long id = svc.createUser(e, uuid);
+		IQueryPrx query = root.getSession().getQueryService();
+		ParametersI p = new ParametersI();
+		p.addId(id);
+		e = (Experimenter) query.findByQuery(
+				"select distinct e from Experimenter e where e.id = :id", p);
+		assertNotNull(e);
+		
+		String name = "userModified";
+		//uuid = UUID.randomUUID().toString();
+		e.setOmeName(omero.rtypes.rstring(uuid));
+		e.setFirstName(omero.rtypes.rstring(name));
+        e.setLastName(omero.rtypes.rstring(name));
+        //
+        //owner logs in.
+        omero.client client = newOmeroClient();
+        client.createSession(uuid, uuid);
+        init(client);
+		iAdmin.updateExperimenter(e);
 		e = (Experimenter) query.findByQuery(
 				"select distinct e from Experimenter e where e.id = :id", p);
 		assertNotNull(e);
@@ -684,7 +742,7 @@ public class AdminServiceTest
     }
 	
 	/**
-	 * Tests the deletion of a group.
+	 * Tests to make a user the owner of a group.
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test
@@ -968,6 +1026,112 @@ public class AdminServiceTest
         	fail("Not possible to turn group back to private");
 		} catch (Exception e) {
 		}
+    }
+	
+    /**
+	 * Tests the addition of existing user by the owner of the group.
+	 * The owner is NOT an administator.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test(enabled = false)
+    public void testOwnerAddExistingExperimenterToGroup()
+    	throws Exception
+    {
+		//First create a new user.
+		String uuid = UUID.randomUUID().toString();
+        Experimenter e = new ExperimenterI();
+        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setFirstName(omero.rtypes.rstring("user"));
+        e.setLastName(omero.rtypes.rstring("user"));
+        IAdminPrx svc = root.getSession().getAdminService();
+        
+        //already tested
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(omero.rtypes.rstring(uuid));
+        g.getDetails().setPermissions(new PermissionsI("rw----"));
+
+        //create group.
+        long groupId = svc.createGroup(g);
+        g = svc.lookupGroup(uuid);
+        //create the user.
+        long expId = svc.createUser(e, uuid);
+        Experimenter owner = svc.lookupExperimenter(uuid);
+        //set the user as the group owner.
+        svc.setGroupOwner(g, owner);
+        
+        
+        //create another group and user
+        String uuidGroup = UUID.randomUUID().toString();
+        ExperimenterGroup g2 = new ExperimenterGroupI();
+        g2.setName(omero.rtypes.rstring(uuidGroup));
+        g2.getDetails().setPermissions(new PermissionsI("rw----"));
+        svc.createGroup(g2);
+        
+        String uuid2 = UUID.randomUUID().toString();
+        e = new ExperimenterI();
+        e.setOmeName(omero.rtypes.rstring(uuid2));
+        e.setFirstName(omero.rtypes.rstring("user"));
+        e.setLastName(omero.rtypes.rstring("user"));
+        expId = svc.createUser(e, uuidGroup);
+        e = svc.lookupExperimenter(uuid2);
+        //owner logs in.
+        omero.client client = newOmeroClient();
+        client.createSession(uuid, uuid);
+        init(client);
+        //iAdmin.
+        List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+        groups.add(g);
+        iAdmin.addGroups(e, groups);
+    }
+	
+    /**
+	 * Tests the removal of a member of the group by the owner of the group.
+	 * The owner is NOT an administator.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test(enabled = false)
+    public void testOwnerRemoveExperimenterToGroup()
+    	throws Exception
+    {
+		//First create a new user.
+		String uuid = UUID.randomUUID().toString();
+        Experimenter e = new ExperimenterI();
+        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setFirstName(omero.rtypes.rstring("user"));
+        e.setLastName(omero.rtypes.rstring("user"));
+        IAdminPrx svc = root.getSession().getAdminService();
+        
+        //already tested
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(omero.rtypes.rstring(uuid));
+        g.getDetails().setPermissions(new PermissionsI("rw----"));
+
+        //create group.
+        long groupId = svc.createGroup(g);
+        g = svc.lookupGroup(uuid);
+        //create the user.
+        long expId = svc.createUser(e, uuid);
+        Experimenter owner = svc.lookupExperimenter(uuid);
+        //set the user as the group owner.
+        svc.setGroupOwner(g, owner);
+        
+        
+        //create another group and user
+        String uuid2 = UUID.randomUUID().toString();
+        e = new ExperimenterI();
+        e.setOmeName(omero.rtypes.rstring(uuid2));
+        e.setFirstName(omero.rtypes.rstring("user"));
+        e.setLastName(omero.rtypes.rstring("user"));
+        expId = svc.createUser(e, uuid);
+        e = svc.lookupExperimenter(uuid2);
+        //owner logs in.
+        omero.client client = newOmeroClient();
+        client.createSession(uuid, uuid);
+        init(client);
+        //iAdmin.
+        List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+        groups.add(g);
+        iAdmin.removeGroups(e, groups);
     }
 	
 }
