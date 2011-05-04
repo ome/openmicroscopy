@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import loci.formats.ChannelFiller;
+import loci.formats.ChannelSeparator;
+import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 
 import org.apache.commons.logging.Log;
@@ -357,7 +360,10 @@ public class PixelsService extends AbstractFileSystemService
     protected PixelBuffer createBfPixelBuffer(final String filePath) {
         try
         {
-            return new BfPixelBuffer(filePath, new ImageReader());
+            IFormatReader reader = new ImageReader();
+            reader = new ChannelFiller(reader);
+            reader = new ChannelSeparator(reader);
+            return new BfPixelBuffer(filePath, reader);
         }
         catch (Exception e)
         {
