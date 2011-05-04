@@ -156,7 +156,6 @@ import omero.model.LaserType;
 import omero.model.LightEmittingDiode;
 import omero.model.LightPath;
 import omero.model.LightSettings;
-import omero.model.LightSource;
 import omero.model.Line;
 import omero.model.ListAnnotation;
 import omero.model.LogicalChannel;
@@ -166,7 +165,6 @@ import omero.model.Medium;
 import omero.model.MicrobeamManipulation;
 import omero.model.MicrobeamManipulationType;
 import omero.model.Microscope;
-import omero.model.MicroscopeI;
 import omero.model.MicroscopeType;
 import omero.model.OTF;
 import omero.model.Objective;
@@ -311,7 +309,7 @@ public class OMEROMetadataStoreClient
 
     /** Companion file namespace */
     private static final String NS_COMPANION =
-	"openmicroscopy.org/omero/import/companionFile";
+    	omero.constants.namespaces.NSCOMPANIONFILE.value;
 
     /** Original metadata text file key */
     private static final String ORIGINAL_METADATA_KEY =
@@ -357,7 +355,8 @@ public class OMEROMetadataStoreClient
         iRepoInfo = serviceFactory.getRepositoryInfoService();
         iContainer = serviceFactory.getContainerService();
         iSettings = serviceFactory.getRenderingSettingsService();
-        delegate = MetadataStorePrxHelper.checkedCast(serviceFactory.getByName(METADATASTORE.value));
+        delegate = MetadataStorePrxHelper.checkedCast(
+        		serviceFactory.getByName(METADATASTORE.value));
 
         // Client side services
         enumProvider = new IQueryEnumProvider(iQuery);
@@ -425,14 +424,14 @@ public class OMEROMetadataStoreClient
         throws ServerError
     {
         this.c = c;
-        c.setAgent("OMERO.importer");
+        //c.setAgent("OMERO.importer"); Should probably happen elsewhere
         serviceFactory = c.getSession();
         initializeServices();
     }
 
     /**
      * Initializes the MetadataStore taking string parameters to feed to the
-     * OMERO Blitz client object. Using this method creates an unsecure
+     * OMERO Blitz client object. Using this method creates an unsecured
      * session.
      *
      * @param username User's omename.
@@ -487,7 +486,7 @@ public class OMEROMetadataStoreClient
     /**
      * Initializes the MetadataStore taking string parameters to feed to the
      * OMERO Blitz client object. Using this method to create either secure
-     * or unsecure sessions and sets the user's group to supplied group.
+     * or unsecured sessions and sets the user's group to supplied group.
      *
      * @param username User's omename.
      * @param password User's password.
@@ -521,7 +520,7 @@ public class OMEROMetadataStoreClient
 
     /**
      * Initializes the MetadataStore by joining an existing session.
-     * Use this method only with unsecure sessions.
+     * Use this method only with unsecured sessions.
      *
      * @param server Server hostname.
      * @param port Server port.
@@ -536,7 +535,7 @@ public class OMEROMetadataStoreClient
 
     /**
      * Initializes the MetadataStore by joining an existing session.
-     * Use this method only with unsecure sessions.
+     * Use this method only with unsecured sessions.
      *
      * @param server Server hostname.
      * @param port Server port.
@@ -569,7 +568,7 @@ public class OMEROMetadataStoreClient
                     "Attempting initial SSL connection to %s:%d",
                     server, port));
         c = new client(server, port);
-        c.setAgent("OMERO.importer");
+        //c.setAgent("OMERO.importer");
     }
 
     /**
@@ -1522,7 +1521,8 @@ public class OMEROMetadataStoreClient
 				originalFile.setPath(toRType(String.format("%s%s/",
 				        omero.constants.namespaces.NSORIGINALMETADATA.value,
 				        uuid)));
-				originalFile.setName(toRType("original_metadata.txt"));
+				originalFile.setName(toRType(
+						omero.constants.annotation.file.ORIGINALMETADATA.value));
 				log.debug("originalFile path created");
                     indexes = new LinkedHashMap<Index, Integer>();
                     indexes.put(Index.IMAGE_INDEX, series);
