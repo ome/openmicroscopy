@@ -50,8 +50,7 @@ def log(text):
     Adds the text to a list of logs. Compiled into text file at the end.
     """
     print text
-    logStrings.append(text)
-    
+    logStrings.append(str(text))
 
 def compress(target, base):
     """
@@ -68,42 +67,6 @@ def compress(target, base):
 
     finally:
         zip_file.close()
-        
-
-def renderImage(renderingEngine, zRange, t=0, channel=None, greyscale=False):
-    """
-    Generates a rendered image of the specified plane, with various active channels.
-    Simply activates the appropriate channels and renders plane (no other rendering adjustments).
-    Returns a PIL image of the rendered plane.
-    
-    @param renderingEngine:     Rendering Engine should already be initialised with the correct pixels etc
-    @param zRange:              Tuple of (zIndex,) OR (zStart, zStop) for projection
-    @param t:                   T index
-    @param channel:             Active channel index. If None, use current rendering settings
-    @param greyscale:           If true, all visible channels will be greyscale
-    """
-    
-    if channel != None:
-        pixels = renderingEngine.getPixels()
-        for i in range(pixels.getSizeC().getValue()):
-            renderingEngine.setActive(i, i == channel)
-            if greyscale:
-                renderingEngine.setRGBA(i,255,255,255,255)
-
-    if len(zRange) == 1:
-        planeDef = omero.romio.PlaneDef()
-        planeDef.z = long(zRange[0])
-        planeDef.t = long(t)
-        img = renderingEngine.renderCompressed(planeDef)    # compressed String
-    else:
-        algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
-        stepping = 1
-        img = renderingEngine.renderProjectedCompressed(algorithm, t, stepping, zRange[0], zRange[1])
-        
-    pilImage = Image.open(StringIO.StringIO(img))
-    #pilImage.show()
-    return pilImage
-    
 
 def savePlane(image, format, cName, zRange, t=0, channel=None, greyscale=False, imgWidth=None, folder_name=None):
     """
@@ -119,16 +82,16 @@ def savePlane(image, format, cName, zRange, t=0, channel=None, greyscale=False, 
     """
     
     originalName = image.getName()
-    print ""
-    print "savePlane.."
-    print "originalName", originalName
-    print "format", format
-    print "cName", cName
-    print "zRange", zRange
-    print "t", t
-    print "channel", channel
-    print "greyscale", greyscale
-    print "imgWidth", imgWidth
+    log("")
+    log("savePlane..")
+    log("originalName %s" % originalName)
+    log("format %s" % format)
+    log("cName %s" % cName)
+    log("zRange %s" % zRange)
+    log("t %s" % t)
+    log("channel %s" % channel)
+    log("greyscale %s" % greyscale)
+    log("imgWidth %s" % imgWidth)
     
     # if channel == None: use current rendering settings
     if channel != None:
@@ -148,11 +111,11 @@ def savePlane(image, format, cName, zRange, t=0, channel=None, greyscale=False, 
         
     if format == "PNG":
         imgName = makeImageName(originalName, cName, zRange, t, "png", folder_name)
-        print "Saving image:", imgName
+        log("Saving image: %s" % imgName)
         plane.save(imgName, "PNG")
     else:
         imgName = makeImageName(originalName, cName, zRange, t, "jpg", folder_name)
-        print "Saving image:", imgName
+        log("Saving image: %s" % imgName)
         image.save(imgName)
         
         
@@ -246,7 +209,7 @@ def batchImageExport(conn, scriptParams):
     folder_name = scriptParams["Folder_Name"]
     
     if (not splitCs) and (not mergedCs):
-        print "Not chosen to save Individual Channels OR Merged Image"
+        log("Not chosen to save Individual Channels OR Merged Image")
         return
         
     # check if we have these params
@@ -299,7 +262,7 @@ def batchImageExport(conn, scriptParams):
             images.extend( list(ds.listChildren()) )
     else:
         images = list(objects)
-    print "Processing %s images" % len(images)
+    log("Processing %s images" % len(images))
     
     # somewhere to put images
     curr_dir = os.getcwd()
@@ -311,30 +274,26 @@ def batchImageExport(conn, scriptParams):
     
     # do the saving to disk
     for img in images:
-        print "\nSaving image", img.getName()
+        log("\nSaving image %s" % img.getName())
         sizeC = img.getSizeC()
         sizeZ = img.getSizeZ()
         sizeT = img.getSizeT()
         zRange = getZrange(sizeZ, scriptParams)
         tRange = getTrange(sizeT, scriptParams)
-        print "zRange", zRange
-        print "tRange", tRange
+        log("zRange %s" % zRange)
+        log("tRange %s" % tRange)
         savePlanesForImage(conn, img, sizeC, splitCs, mergedCs, channelNames,
             zRange, tRange, greyscale, imgWidth, projectZ=False, format="PNG", folder_name=folder_name)
 
     # zip up image folder
     zip_file_name = "%s.zip" % folder_name
     compress(zip_file_name, folder_name)
-    
-    queryService = conn.getQueryService()
-    updateService = conn.getUpdateService()
-    rawFileStore = conn.createRawFileStore()
+
+    description = "\n".join(logStrings)
     image = images[0]
-    
-    fileAnnotation = None
     if os.path.exists(zip_file_name):
-        print "Attaching zip to image... %s" % image.getName(), image.getId()
-        fileAnn = omero.gateway.FileAnnotationWrapper.fromLocalFile(conn, zip_file_name, mimetype='zip')
+        log("Attaching zip to image... %s %s" % (image.getName(), image.getId()) )
+        fileAnn = omero.gateway.FileAnnotationWrapper.fromLocalFile(conn, zip_file_name, mimetype='zip', desc=description)
         image.linkAnnotation(fileAnn)
         return fileAnn
 
@@ -424,7 +383,7 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
     for key in client.getInputKeys():
         if client.getInput(key):
             scriptParams[key] = unwrap(client.getInput(key))
-    print scriptParams
+    log(scriptParams)
     # call the main script - returns a file annotation wrapper
     fileAnnWrapper = batchImageExport(conn, scriptParams)
     # return this fileAnnotation to the client. 
