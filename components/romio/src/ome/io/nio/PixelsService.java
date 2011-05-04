@@ -138,7 +138,6 @@ public class PixelsService extends AbstractFileSystemService
      */
     public void makePyramid(Pixels pixels)
     {
-        final boolean requirePyramid = isRequirePyramid(pixels);
         final String pixelsFilePath = getPixelsPath(pixels.getId());
         final File pixelsFile = new File(pixelsFilePath);
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
