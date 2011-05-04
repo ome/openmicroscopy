@@ -100,7 +100,7 @@ function openPopup(url) {
         
         <p>
         Datasets: 
-        {% for d in image.showAllParents %}
+        {% for d in image.listParents %}
             <a href="{% url webemdb_dataset d.getId %}">{{ d.getName }}</a> |
         {% endfor %}
         </p>
