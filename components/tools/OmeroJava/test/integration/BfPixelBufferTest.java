@@ -20,12 +20,10 @@ import loci.formats.ImageReader;
 
 import ome.io.nio.AbstractFileSystemService;
 import ome.io.nio.DimensionsOutOfBoundsException;
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.RomioPixelBuffer;
 import ome.io.bioformats.BfPixelBuffer;
-import ome.services.OmeroOriginalFileMetadataProvider;
 import ome.util.PixelData;
 import omero.api.IPixelsPrx;
 import omero.api.IQuery;

@@ -15,7 +15,6 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.*;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
@@ -42,8 +41,6 @@ public class HugePixelBufferUnitTest {
 
     @BeforeMethod
     public void setUp() {
-    	OriginalFileMetadataProvider provider =
-    		new TestingOriginalFileMetadataProvider();
         pixels = new Pixels();
 
         pixels.setId(1L);
@@ -58,7 +55,7 @@ public class HugePixelBufferUnitTest {
         pixels.setPixelsType(type);
 
         PixelsService service = new PixelsService(ROOT);
-        pixelBuffer = service.getPixelBuffer(pixels, provider, true);
+        pixelBuffer = service.getPixelBuffer(pixels);
     }
 
 

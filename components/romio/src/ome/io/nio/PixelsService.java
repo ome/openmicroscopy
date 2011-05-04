@@ -26,7 +26,6 @@ import ome.conditions.ResourceError;
 import ome.io.bioformats.BfPixelBuffer;
 import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.messages.MissingPyramidMessage;
-import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.util.PixelData;
 
@@ -53,11 +52,11 @@ public class PixelsService extends AbstractFileSystemService
     /** Suffix for an the image pyramid of a given pixels set. */
     public static final String PYRAMID_SUFFIX = "_pyramid";
 
-    /** Methodology string for a metadata-only import */
-    public static final String METADATA_ONLY = "METADATA_ONLY"; // FIXME ?
-
 	/** Null plane size constant. */
 	public static final int NULL_PLANE_SIZE = 64;
+
+    /** Resolver of archived original file paths for pixels sets. */
+    protected FilePathResolver resolver;
 
 	/** Null plane byte array. */
 	public static final byte[] nullPlane = new byte[] { -128, 127, -128, 127,
@@ -69,15 +68,38 @@ public class PixelsService extends AbstractFileSystemService
 			-128, 127, -128, 127, -128, 127, -128, 127, -128, 127, // 60
 			-128, 127, -128, 127 }; // 64
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param path The root of the ROMIO proprietary pixels store. (usually
-	 * <code>/OMERO/Pixels</code>).
-	 */
-	public PixelsService(String path) {
-		super(path);
-	}
+    /**
+     * Constructor.
+     * @param path The root of the ROMIO proprietary pixels store. (usually
+     * <code>/OMERO/Pixels</code>).
+     */
+    public PixelsService(String path)
+    {
+        super(path);
+        this.resolver = null;
+        if (log.isInfoEnabled())
+        {
+            log.info("Constructed pixel buffer with path: " + path);
+        }
+
+    }
+
+    /**
+     * Constructor.
+     * @param path The root of the ROMIO proprietary pixels store. (usually
+     * <code>/OMERO/Pixels</code>).
+     * @param resolver Original file path resolver for pixels sets.
+     */
+    public PixelsService(String path, FilePathResolver resolver)
+    {
+        super(path);
+        this.resolver = resolver;
+        if (log.isInfoEnabled())
+        {
+            log.info("Constructed pixel buffer with path: " +
+                     path + " resolver: " + resolver);
+        }
+    }
 
 	public void setApplicationEventPublisher(ApplicationEventPublisher pub) {
 	    if (this.pub != null) {
@@ -85,6 +107,11 @@ public class PixelsService extends AbstractFileSystemService
 	    }
 	    this.pub = pub;
 	}
+
+    public void setFilePathResolver(FilePathResolver resolver)
+    {
+        this.resolver = resolver;
+    }
 
 	/**
 	 * Creates a PixelBuffer for a given pixels set.
@@ -113,9 +140,7 @@ public class PixelsService extends AbstractFileSystemService
      * @since OMERO-Beta4.3
      */
     public void makePyramid(Pixels pixels,
-                            String pixelsFilePath,
-                            OriginalFileMetadataProvider provider,
-                            boolean bypassOriginalFile)
+                            String pixelsFilePath)
     {
         final boolean useRomio = (pixelsFilePath == null);
         if (useRomio)
@@ -174,26 +199,13 @@ public class PixelsService extends AbstractFileSystemService
      * Returns a pixel buffer for a given set of pixels. Either a proprietary
      * ROMIO pixel buffer or a specific pixel buffer implementation.
      * @param pixels Pixels set to retrieve a pixel buffer for.
-     * @param pixelsFilePath Absolute path to the pixels set. If null, this
-     *      represents a {@link RomioPixelBuffer}
-     * @param provider Original file metadata provider.
-     * @param bypassOriginalFile Do not check for the existence of an original
-     * file to back this pixel buffer.
      * @return See above.
      * @since OMERO-Beta4.3
      */
-    public PixelBuffer getPixelBuffer(Pixels pixels,
-                                      String pixelsFilePath,
-                                      OriginalFileMetadataProvider provider,
-                                      boolean bypassOriginalFile)
+    public PixelBuffer getPixelBuffer(Pixels pixels)
     {
         final boolean requirePyramid = isRequirePyramid(pixels);
-        final boolean metadataOnly = isMetadataOnly(pixels);
-        final boolean useRomio = (pixelsFilePath == null);
-        if (useRomio) {
-            pixelsFilePath = getPixelsPath(pixels.getId());
-        }
-
+        final String pixelsFilePath = getPixelsPath(pixels.getId());
         final File pixelsFile = new File(pixelsFilePath);
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
         final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
@@ -228,48 +240,23 @@ public class PixelsService extends AbstractFileSystemService
         }
 
         //
-        // 3. If this is not a useRomio scenario (i.e. if the file will be
-        // accessed directly from Bio-Formats), then we simply create the
-        // buffer and return it.
-        //
-        if (!useRomio)
-        {
-            log.info("Using BfPixelBuffer: " + pixelsFilePath);
-            return createBfPixelBuffer(pixelsFilePath);
-        }
-
-        //
-        // 4. If this is a useRomio scenario but with the Pixels methodology
-        // indicating metadata-only then the Pixels file will be accessed
-        // directly from Bio-Formats, create the buffer and return it.
-        //
-        if (useRomio && metadataOnly)
-        {
-            log.info("Using BfPixelBuffer for metadata-only file: " + pixelsFilePath);
-            return createBfPixelBuffer(pixelsFilePath);
-        }
-
-        //
-        // 5. Finally, this must be a ROMIO situation. If the pixels file is
-        // missing, then we attempt a bypass if allowed. Otherwise, we
-        // create a new buffer if none exists including a pyramid if necessary,
-        // or return the existing one.
-        //
+        // 3. Finally, this must be a ROMIO or OMERO.fs "light" (where the
+        // original data has been archived. If the relevant OriginalFile can
+        // be resolved use it with BfPixelBuffer, otherwise create a new
+        // RomioPixelBuffer and return.
         if (!pixelsFile.exists())
         {
-            if (!bypassOriginalFile)
-            {
-                PixelBuffer pb = handleOriginalFile(pixels, provider);
-                if (pb != null) {
-                    return pb;
-                }
-            }
-
             if (requirePyramid) {
-                log.info("Creating Pyramid BfPixelBuffer: " + pixelsPyramidFilePath);
+                log.info("Creating Pyramid BfPixelBuffer: " +
+                        pixelsPyramidFilePath);
                 createSubpath(pixelsPyramidFilePath);
                 return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath);
             } else {
+                final String originalFilePath = getOriginalFilePath(pixels);
+                if (originalFilePath != null) {
+                    log.info("Using BfPixelBuffer: " + pixelsFilePath);
+                    return createBfPixelBuffer(originalFilePath);
+                }
                 log.info("Creating ROMIO Pixel buffer.");
                 createSubpath(pixelsFilePath);
                 return createRomioPixelBuffer(pixelsFilePath, pixels, true);
@@ -279,20 +266,6 @@ public class PixelsService extends AbstractFileSystemService
         log.info("Pixel buffer file exists returning read-only " +
                  "ROMIO pixel buffer.");
         return createRomioPixelBuffer(pixelsFilePath, pixels, false);
-    }
-
-    /**
-     * Returns true if the given {@link Pixels} is a metadata-only import.
-     *
-     * @param pixels
-     * @return
-     */
-    public boolean isMetadataOnly(Pixels pixels) {
-        if (pixels.getMethodology() != null) {
-            final boolean metadataOnly = pixels.getMethodology().equals(METADATA_ONLY); 
-            return metadataOnly;   
-        }
-        return false;
     }
 
     /**
@@ -311,20 +284,18 @@ public class PixelsService extends AbstractFileSystemService
     }
 
     /**
-     * Returns a pixel buffer for a given set of pixels. Either a proprietary
-     * ROMIO pixel buffer or a specific pixel buffer implementation.
-     * @param pixels Pixels set to retrieve a pixel buffer for.
-     * @param provider Original file metadata provider.
-     * @param bypassOriginalFile Do not check for the existence of an original
-     * file to back this pixel buffer.
-     * @return See above.
+     * Retrieves the original file path for a given set of pixels.
+     * @param pixels Set of pixels to return an orignal file path for.
+     * @return The original file path or <code>null</code> if the original file
+     * path could not be located or the <code>resolver</code> has not been set.
      */
-    public PixelBuffer getPixelBuffer(Pixels pixels,
-                                      OriginalFileMetadataProvider provider,
-                                      boolean bypassOriginalFile)
+    private String getOriginalFilePath(Pixels pixels)
     {
-        return getPixelBuffer(pixels, null,
-                              provider, bypassOriginalFile);
+        if (resolver == null)
+        {
+            return null;
+        }
+        return resolver.getOriginalFilePath(this, pixels);
     }
 
 	/**
@@ -376,30 +347,6 @@ public class PixelsService extends AbstractFileSystemService
 
         // FIXME make backoff configurable
         throw new MissingPyramidException(msg, 15*1000, pixels.getId());
-    }
-
-	/**
-	 * Helper for bypassing pixel data and using original files directly.
-	 *
-	 * @param pixels
-	 * @param provider
-	 * @return
-	 */
-    protected PixelBuffer handleOriginalFile(Pixels pixels,
-            OriginalFileMetadataProvider provider) {
-
-        OriginalFile originalFile = provider
-                .getOriginalFileWhereFormatStartsWith(pixels, DV_FORMAT);
-
-        if (originalFile != null) {
-            String originalFilePath = getFilesPath(originalFile.getId());
-            if (new File(originalFilePath).exists()) {
-                log.info("Non-existant pixel buffer file, using DeltaVision "
-                        + "original file: " + originalFilePath);
-                return new DeltaVision(originalFilePath, originalFile);
-            }
-        }
-        return null;
     }
 
     /**

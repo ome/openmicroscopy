@@ -17,7 +17,6 @@ import java.util.List;
 
 import loci.formats.FormatTools;
 
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.Utils;
@@ -42,8 +41,6 @@ public class PyramidPixelBufferUnitTest {
     private ome.model.core.Pixels pixels;
 
     private PixelBuffer pixelBuffer;
-
-    private OriginalFileMetadataProvider provider;
 
     private PixelsService service;
 
@@ -70,7 +67,6 @@ public class PyramidPixelBufferUnitTest {
     @BeforeClass
     private void setup() {
         root = PathUtil.getInstance().getTemporaryDataFilePath();
-        provider = new TestingOriginalFileMetadataProvider();
         pixels = new Pixels();
 
         String pixelType = "uint16";
@@ -100,7 +96,7 @@ public class PyramidPixelBufferUnitTest {
 
     @Test
     public void testTruePyramidCreation() {
-        pixelBuffer = service.getPixelBuffer(pixels, null, null, true);
+        pixelBuffer = service.getPixelBuffer(pixels);
     }
 
     @Test(dependsOnMethods={"testTruePyramidCreation"}, enabled=true)

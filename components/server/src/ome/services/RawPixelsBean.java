@@ -32,7 +32,6 @@ import ome.conditions.RootException;
 import ome.conditions.ValidationException;
 import ome.io.bioformats.BfPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
@@ -293,28 +292,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
                 throw new ValidationException("Cannot read pixels id=" + id);
             }
 
-            File pixelsFile = new File(dataService.getFilesPath(pixelsId));
-            OriginalFileMetadataProvider metadataProvider =
-                new OmeroOriginalFileMetadataProvider(iQuery);
-            if (!pixelsFile.exists() && !bypassOriginalFile)
-            {
-                List<String> namePathRepo = sql.getPixelsNamePathRepo(pixelsId);
-                if (namePathRepo.get(2) == null)  // Default repo
-                {
-                    File f = new File(omeroDataDir);
-                    f = new File(f, namePathRepo.get(1));
-                    f = new File(f, namePathRepo.get(0));
-                    String pixelsFilePath = f.getAbsolutePath();
-                    log.info("Metadata only file, resulting path: " +
-                            pixelsFilePath);
-                    buffer = dataService.getPixelBuffer(
-                            pixelsInstance, pixelsFilePath, metadataProvider,
-                            bypassOriginalFile);
-                    return;
-                }
-            }
-            buffer = dataService.getPixelBuffer(
-            		pixelsInstance, metadataProvider, bypassOriginalFile);
+            buffer = dataService.getPixelBuffer(pixelsInstance);
         }
     }
 

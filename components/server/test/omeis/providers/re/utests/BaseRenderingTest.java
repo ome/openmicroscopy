@@ -7,7 +7,6 @@ import java.util.Random;
 import org.testng.annotations.BeforeClass;
 
 import ome.api.IPixels;
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.util.PixelData;
 import ome.logic.RenderingSettingsImpl;
@@ -18,7 +17,6 @@ import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
 import ome.model.stats.StatsInfo;
-import ome.services.OmeroOriginalFileMetadataProvider;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.quantum.QuantumFactory;
 
@@ -68,11 +66,8 @@ public class BaseRenderingTest extends TestCase
 		settingsService.setPixelsData(pixelsService);
 		settings = settingsService.createNewRenderingDef(pixels);
 		settingsService.resetDefaultsNoSave(settings, pixels);
-		
-    	OriginalFileMetadataProvider metadataProvider =
-    		new OmeroOriginalFileMetadataProvider(null);
-		pixelBuffer = 
-			pixelsService.getPixelBuffer(pixels, metadataProvider, false);
+
+		pixelBuffer = pixelsService.getPixelBuffer(pixels);
 		List<RenderingModel> renderingModels =
 			pixelsMetadataService.getAllEnumerations(RenderingModel.class);
 		List<Family> families =

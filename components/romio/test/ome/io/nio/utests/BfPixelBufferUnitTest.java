@@ -7,13 +7,14 @@
 package ome.io.nio.utests;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
+import ome.io.nio.RomioPixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 
@@ -34,8 +35,6 @@ public class BfPixelBufferUnitTest {
 
     private PixelBuffer pixelBuffer;
 
-    private OriginalFileMetadataProvider provider;
-
     private PixelsService service;
 
     // Sizes don't really matter here
@@ -52,7 +51,6 @@ public class BfPixelBufferUnitTest {
     @BeforeClass
     private void setup() {
         root = PathUtil.getInstance().getTemporaryDataFilePath();
-        provider = new TestingOriginalFileMetadataProvider();
         pixels = new Pixels();
 
         String pixelType = "uint16";
@@ -73,27 +71,10 @@ public class BfPixelBufferUnitTest {
     }
 
     @Test
-    public void testBfPixelBufferCreation() {
-        pixels.setMethodology(PixelsService.METADATA_ONLY); // FIXME - use constant from elsewhere?
+    public void testRomioPixelBufferCreation() {
         service = new PixelsService(root);
-        pixelBuffer = service.getPixelBuffer(pixels, provider, true);
-        assertEquals(pixelBuffer.getClass().getName(),"ome.io.bioformats.BfPixelBuffer");
-    }
-
-    @Test
-    public void testRomioPixelBufferCreationFromNullMethodology() {
-        pixels.setMethodology(null);
-        service = new PixelsService(root);
-        pixelBuffer = service.getPixelBuffer(pixels, provider, true);
-        assertEquals(pixelBuffer.getClass().getName(),"ome.io.nio.RomioPixelBuffer");
-    }
-
-    @Test
-    public void testRomioPixelBufferCreationFromOtherString() {
-        pixels.setMethodology("SOME_OTHER_TEXT");
-        service = new PixelsService(root);
-        pixelBuffer = service.getPixelBuffer(pixels, provider, true);
-        assertEquals(pixelBuffer.getClass().getName(),"ome.io.nio.RomioPixelBuffer");
+        pixelBuffer = service.getPixelBuffer(pixels);
+        assertTrue(pixelBuffer instanceof RomioPixelBuffer);
     }
 
 }
