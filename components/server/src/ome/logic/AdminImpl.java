@@ -1097,7 +1097,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         _changePassword(user, newPassword);
     }
 
-    @RolesAllowed("user")
+    @RolesAllowed({"user", "HasPassword"})
     public void changeUserPassword(final String user, final String newPassword) {
         adminOrPiOfUser(userProxy(user));
         _changePassword(user, newPassword);

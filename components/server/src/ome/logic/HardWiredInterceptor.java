@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
@@ -43,7 +44,7 @@ public abstract class HardWiredInterceptor implements MethodInterceptor {
     private final static String PR = "ome.hard-wired.principal";
     
     /** Unique string for the current password-state */
-    private final static String HP = "ome.hard-wired.hasPassword";
+    private final static String RS = "ome.hard-wired.reusedSession";
 
     public static void configure(List<HardWiredInterceptor> hwi, OmeroContext ctx) {
         for (HardWiredInterceptor interceptor : hwi) {
@@ -97,12 +98,12 @@ public abstract class HardWiredInterceptor implements MethodInterceptor {
      * {@link java.util.Map} for lookup in subclasses
      */
     public static void initializeUserAttributes(MethodInvocation mi,
-            ServiceFactory sf, Principal pr, boolean hasPassword) {
+            ServiceFactory sf, Principal pr, AtomicBoolean reusedSession) {
         ReflectiveMethodInvocation rmi = (ReflectiveMethodInvocation) mi;
         Map<String, Object> attrs = rmi.getUserAttributes();
         attrs.put(SF, sf);
         attrs.put(PR, pr);
-        attrs.put(HP, hasPassword);
+        attrs.put(RS, reusedSession);
     }
 
     protected ServiceFactory getServiceFactory(MethodInvocation mi) {
@@ -117,8 +118,8 @@ public abstract class HardWiredInterceptor implements MethodInterceptor {
 
     protected boolean hasPassword(MethodInvocation mi) {
         ReflectiveMethodInvocation rmi = (ReflectiveMethodInvocation) mi;
-        Boolean hp = (Boolean) rmi.getUserAttribute(HP);
-        return hp == null ? false : hp.booleanValue();
+        AtomicBoolean reusedSession = (AtomicBoolean) rmi.getUserAttribute(RS);
+        return reusedSession == null ? true : !reusedSession.get();
     }
 
 }

@@ -166,6 +166,35 @@ class TestAdmin(lib.ITest):
         root_admin.removeGroups(exp, [grp])
         root_admin.addGroups(exp, [grp])
 
+    def testSetSecurityPassword(self):
+        """
+        Several methods require the user to have authenticated with a password.
+        In 4.3, a method was added to the ServiceFactoryPrx to allow late
+        password-based authentication.
+
+        See #3202
+        See @RolesAllow("HasPassword")
+        """
+        experimenter = self.new_user() # To have password changed
+
+        password = self.root.getProperty("omero.rootpass")
+        new_client = self.root.createClient(True) # Secure, but not password-auth'd
+
+        admin = new_client.sf.getAdminService()
+        new_password = omero.rtypes.rstring("FOO")
+
+        # Initially, the test should fail.
+        try:
+            admin.changeUserPassword(experimenter.omeName.val, new_password)
+            self.fail("Should not pass!")
+        except omero.SecurityViolation, sv:
+            pass # Good!
+
+        # Now set the password
+        new_client.sf.setSecurityPassword(password)
+
+        # And then it should succeed
+        admin.changeUserPassword(experimenter.omeName.val, new_password)
 
 if __name__ == '__main__':
     unittest.main()

@@ -130,6 +130,13 @@ module omero {
              **/
             omero::model::IObject setSecurityContext(omero::model::IObject obj) throws ServerError;
 
+            /**
+             * Re-validates the password for the current session. This prevents
+             *
+             * See methods that mention "HasPassword".
+             **/
+            void setSecurityPassword(string password) throws ServerError;
+
 	    // Central OMERO.blitz stateless services.
 
 	    IAdmin*          getAdminService() throws ServerError;

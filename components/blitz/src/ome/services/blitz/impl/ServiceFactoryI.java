@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -34,6 +35,7 @@ import ome.system.Principal;
 import ome.system.ServiceFactory;
 import omero.ApiUsageException;
 import omero.InternalException;
+import omero.SecurityViolation;
 import omero.ServerError;
 import omero.ShutdownInProgress;
 import omero.api.ClientCallbackPrx;
@@ -125,12 +127,9 @@ import omero.constants.TIMELINESERVICE;
 import omero.constants.TYPESSERVICE;
 import omero.constants.UPDATESERVICE;
 import omero.constants.topics.HEARTBEAT;
-import omero.grid.InteractiveProcessorI;
 import omero.grid.SharedResourcesPrx;
 import omero.grid.SharedResourcesPrxHelper;
-import omero.model.ExperimenterGroup;
 import omero.model.IObject;
-import omero.model.Share;
 import omero.util.IceMapper;
 
 import org.aopalliance.aop.Advice;
@@ -170,7 +169,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // These fields are special for this instance of SF alone. It represents
     // a single clients use of a session.
 
-    final boolean reusedSession;
+    final AtomicBoolean reusedSession; // See #3202, modifiable as of 4.3
 
     boolean doClose = true;
 
@@ -228,7 +227,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             SessionManager manager, Executor executor, Principal p,
             List<HardWiredInterceptor> interceptors, TopicManager topicManager,
             Registry registry) throws ApiUsageException {
-        this.reusedSession = reusedSession;
+        this.reusedSession = new AtomicBoolean(reusedSession);
         this.adapter = current.adapter;
         this.control = control;
         this.clientId = clientId(current);
@@ -238,7 +237,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         this.principal = p;
         this.cptors = interceptors;
         this.initializer = new AopContextInitializer(new ServiceFactory(
-                this.context), this.principal, !reusedSession);
+                this.context), this.principal, this.reusedSession);
         this.topicManager = topicManager;
         this.registry = registry;
 
@@ -322,6 +321,21 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             throw handleException(e);
         }
 
+    }
+
+    public void setSecurityPassword(final String password, Current __current)
+            throws ServerError {
+
+        final EventContext ec = getEventContext();
+        final String name = ec.getCurrentUserName();
+        final boolean ok = sessionManager.executePasswordCheck(name, password);
+        if (!ok) {
+            final String msg = "Bad password for " + name;
+            log.info("setSecurityPassword: " + msg);
+            throw new SecurityViolation(null, null, "Bad password for " + name);
+        } else {
+            this.reusedSession.set(false);
+        }
     }
 
     protected omero.ServerError handleException(Throwable t) {

@@ -7,6 +7,8 @@
 
 package ome.services.blitz.fire;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import ome.logic.HardWiredInterceptor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -25,18 +27,19 @@ public final class AopContextInitializer extends HardWiredInterceptor {
 
     /**
      * Whether or not the current session was created via password-based (or
-     * similar) login, or whether a session id was used to login.
+     * similar) login, or whether a session id was used to login (i.e. it's
+     * "reused")
      */
-    final boolean hasPassword;
+    final AtomicBoolean reusedSession;
 
-    public AopContextInitializer(ServiceFactory sf, Principal p, boolean hasPassword) {
+    public AopContextInitializer(ServiceFactory sf, Principal p, AtomicBoolean reusedSession) {
         this.sf = sf;
         this.pr = p;
-        this.hasPassword = hasPassword;
+        this.reusedSession = reusedSession;
     }
     
     public Object invoke(MethodInvocation mi) throws Throwable {
-        HardWiredInterceptor.initializeUserAttributes(mi, sf, pr, hasPassword);
+        HardWiredInterceptor.initializeUserAttributes(mi, sf, pr, reusedSession);
         return mi.proceed();
     }
 
