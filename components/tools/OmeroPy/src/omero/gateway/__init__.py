@@ -1140,7 +1140,7 @@ class _BlitzGateway (object):
         """
         
         super(_BlitzGateway, self).__init__()
-        self.client = client_obj
+        self.c = client_obj
         if not type(extra_config) in (type(()), type([])):
             extra_config=[extra_config]
         self.extra_config = extra_config
@@ -1153,7 +1153,22 @@ class _BlitzGateway (object):
         self.secure = secure
         self.useragent = useragent
 
-        self._resetOmeroClient()
+        self._sessionUuid = None
+        self._session_cb = None
+        self._session = None
+        self._lastGroupId = None
+        self._anonymous = anonymous
+
+        self._connected = False
+        self._user = None
+        self._userid = None
+        self._proxies = NoProxies()
+        if self.c is None:
+            self._resetOmeroClient()
+        else:
+            # if we already have client initialised, we can go ahead and create our services.
+            self._connected = True
+            self._createProxies()
         if not username:
             username = self.c.ic.getProperties().getProperty('omero.gateway.anon_user')
             passwd = self.c.ic.getProperties().getProperty('omero.gateway.anon_pass')
@@ -1162,19 +1177,9 @@ class _BlitzGateway (object):
             self.group = 'system' #self.c.ic.getProperties().getProperty('omero.gateway.admin_group')
         else:
             self.group = group and group or None
-        self._sessionUuid = None
-        self._session_cb = None
-        self._session = None
-        self._lastGroupId = None
-        self._anonymous = anonymous
 
         # The properties we are setting through the interface
         self.setIdentity(username, passwd, not clone)
-
-        self._connected = False
-        self._user = None
-        self._userid = None
-        self._proxies = NoProxies()
 
     def isAnonymous (self):
         """ 
