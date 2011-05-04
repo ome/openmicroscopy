@@ -100,7 +100,7 @@ import org.springframework.util.Assert;
  * @see Permissions
  * @since 3.0-M3
  */
-@Transactional
+@Transactional(readOnly = true)
 @RevisionDate("$Date:2007-08-20 10:36:07 +0100 (Mon, 20 Aug 2007) $")
 @RevisionNumber("$Revision:1754 $")
 public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
@@ -313,7 +313,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 + "left outer join fetch m.parent g", null);
     }
 
-    @Transactional(readOnly = true)
     @RolesAllowed("user")
     public List<Map<String, Object>> lookupLdapAuthExperimenters() {
         return ldapUtil.lookupLdapAuthExperimenters();
@@ -390,11 +389,13 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     // =========================================================================
 
     @RolesAllowed("system")
+    @Transactional(readOnly = false)
     public void synchronizeLoginCache() {
         context.publishEvent(new UserGroupUpdateEvent(this));
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void updateSelf(@NotNull
     Experimenter e) {
         EventContext ec = getSecuritySystem().getEventContext();
@@ -427,6 +428,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public long uploadMyUserPhoto(String filename, String mimetype, byte[] data) {
 
         Long uid = getEventContext().getCurrentUserId();
@@ -475,6 +477,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void updateExperimenter(@NotNull final
     Experimenter experimenter) {
         adminOrPiOfUser(experimenter);
@@ -484,6 +487,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void updateExperimenterWithPassword(@NotNull final
     Experimenter experimenter, final String password) {
         adminOrPiOfUser(experimenter);
@@ -510,6 +514,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void updateGroup(@NotNull final
     ExperimenterGroup group) {
         adminOrPiOfGroup(group);
@@ -529,6 +534,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public long createUser(final Experimenter newUser, String defaultGroup) {
         // logged via createExperimenter
 
@@ -540,6 +546,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("system")
+    @Transactional(readOnly = false)
     public long createSystemUser(Experimenter newSystemUser) {
         // logged & secured via createExperimenter
         return createExperimenter(newSystemUser,
@@ -548,6 +555,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     @SuppressWarnings("unchecked")
     public long createExperimenter(final Experimenter experimenter,
             ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups) {
@@ -564,7 +572,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
-    @SuppressWarnings("unchecked")
+    @Transactional(readOnly = false)
     public long createExperimenterWithPassword(final Experimenter experimenter,
             final String password, final ExperimenterGroup defaultGroup,
             final ExperimenterGroup... otherGroups) {
@@ -581,6 +589,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("system")
+    @Transactional(readOnly = false)
     public long createGroup(ExperimenterGroup group) {
         long gid = roleProvider.createGroup(group);
         getBeanHelper().getLogger().info("Created group: " + group.getName());
@@ -588,6 +597,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("system")
+    @Transactional(readOnly = false)
     public void addGroups(final Experimenter user,
             final ExperimenterGroup... groups) {
         
@@ -607,6 +617,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void removeGroups(final Experimenter user, final ExperimenterGroup... groups) {
         if (user == null) {
             return;
@@ -624,6 +635,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void setDefaultGroup(Experimenter user, ExperimenterGroup group) {
         if (user == null) {
             return;
@@ -657,18 +669,21 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void setGroupOwner(final ExperimenterGroup group, final Experimenter owner) {
         adminOrPiOfGroup(group);
         toggleGroupOwner(group, owner, Boolean.TRUE);
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void unsetGroupOwner(final ExperimenterGroup group, final Experimenter owner) {
         adminOrPiOfGroup(group);
         toggleGroupOwner(group, owner, Boolean.FALSE);
     }
     
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void addGroupOwners(final ExperimenterGroup group, final Experimenter... owner) {
         adminOrPiOfGroup(group);
         for (Experimenter o : owner) {
@@ -677,6 +692,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void removeGroupOwners(final ExperimenterGroup group, final Experimenter... owner) {
         adminOrPiOfGroup(group);
         for (Experimenter o : owner) {
@@ -752,6 +768,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void deleteExperimenter(Experimenter user) {
 
         adminOrPiOfUser(user);
@@ -774,6 +791,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void deleteGroup(ExperimenterGroup group) {
 
         adminOrPiOfGroup(group);
@@ -792,6 +810,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     // =========================================================================
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void changeOwner(IObject iObject, String omeName) {
         // should take an Owner
         IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
@@ -801,6 +820,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void changeGroup(IObject iObject, String groupName) {
         final LocalUpdate update = iUpdate;
         // should take a group
@@ -878,6 +898,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      *      href="http://trac.openmicroscopy.org.uk/omero/ticket/1434">ticket:1434</a>
      */
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void changePermissions(final IObject iObject, final Permissions perms) {
 
         // ticket:1434
@@ -914,13 +935,14 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
+    @Transactional(readOnly = false)
     public void moveToCommonSpace(IObject... iObjects) {
         // ticket:1794
         for (IObject object : iObjects) {
             if (object != null) {
                 Long id = object.getId();
                 Class<IObject> c = (Class<IObject>) Utils.trueClass(object.getClass());
-                IObject o = (IObject) iQuery.get(c, id);
+                IObject o = iQuery.get(c, id);
                 ExperimenterGroup g = o.getDetails().getGroup();
                 if (!g.getId().equals(getSecurityRoles().getUserGroupId())) {
                     adminOrPiOfGroup(g);
@@ -1015,6 +1037,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     // =========================================================================
 
     @PermitAll
+    @Transactional(readOnly = false)
     public void reportForgottenPassword(final String name, final String email)
             throws AuthenticationException {
 
@@ -1077,18 +1100,21 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     // =========================================================================
 
     @PermitAll
+    @Transactional(readOnly = false)
     public void changeExpiredCredentials(String name, String oldCred,
             String newCred) throws AuthenticationException {
         throw new UnsupportedOperationException();
     }
 
     @RolesAllowed({"user", "HasPassword"})
+    @Transactional(readOnly = false)
     public void changePassword(String newPassword) {
         String user = getSecuritySystem().getEventContext().getCurrentUserName();
         _changePassword(user, newPassword);
     }
 
     @RolesAllowed({"user"})
+    @Transactional(readOnly = false)
     public void changePasswordWithOldPassword(String oldPassword, String newPassword) {
         String user = getSecuritySystem().getEventContext().getCurrentUserName();
         if (!checkPassword(user, oldPassword, false)) {
@@ -1098,6 +1124,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed({"user", "HasPassword"})
+    @Transactional(readOnly = false)
     public void changeUserPassword(final String user, final String newPassword) {
         adminOrPiOfUser(userProxy(user));
         _changePassword(user, newPassword);
@@ -1137,7 +1164,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @PermitAll
-    @Transactional(readOnly = true)
     public EventContext getEventContext() {
         return new SimpleEventContext(getSecuritySystem().getEventContext(true));
     }
