@@ -145,7 +145,7 @@ public class DataObjectUpdater
     public void load()
     {
         if (index == COPY_AND_PASTE)
-            handle = dmView.addExistingObjects(objectsToUpdate, this);
+            handle = dmView.addExistingObjects(objectsToUpdate, null, this);
         else if ((index == CUT_AND_PASTE) || (index == CUT)) {
         	boolean admin = (viewer.getSelectedBrowser().getBrowserType() == 
         		Browser.ADMIN_EXPLORER);

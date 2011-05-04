@@ -1232,7 +1232,41 @@ class TreeViewerComponent
 			return;
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		model.setState(READY);
-		SelectionWizard d = new SelectionWizard(view, objects, 
+		Browser b = model.getSelectedBrowser();
+		Set selected = null;
+		List available = new ArrayList();
+		if (b != null) {
+			TreeImageDisplay[] values = b.getSelectedDisplays();
+			if (values != null && values.length == 1) {
+				Object value = values[0].getUserObject();
+				if (value instanceof GroupData) {
+					GroupData group = (GroupData) value;
+					Set l = group.getExperimenters();
+					if (l != null) {
+						selected = new HashSet();
+						Iterator i = l.iterator();
+						DataObject o;
+						List<Long> ids = new ArrayList<Long>();
+						ExperimenterData exp = TreeViewerAgent.getUserDetails();
+						long userID = exp.getId();
+						while (i.hasNext()) {
+							o = (DataObject) i.next();
+							if (o.getId() != userID) {
+								ids.add(o.getId());
+								selected.add(o);
+							}
+						}
+						i = objects.iterator();
+						while (i.hasNext()) {
+							o = (DataObject) i.next();
+							if (!ids.contains(o.getId()) && o.getId() != userID)
+								available.add(o);
+						}
+					}
+				}
+			} else available.addAll(objects);
+		}
+		SelectionWizard d = new SelectionWizard(view, available, selected,
 				objects.get(0).getClass(), 
 				TreeViewerAgent.getUserDetails().getId());
 		IconManager icons = IconManager.getInstance();
@@ -2956,6 +2990,25 @@ class TreeViewerComponent
 		return model.isLeaderOfSelectedGroup();
 	}
 
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#isLeaderOfGroup(GroupData)
+	 */
+	public boolean isLeaderOfGroup(GroupData group)
+	{
+		if (model.getState() == DISCARDED || group == null) return false;
+		Set groups = TreeViewerAgent.getGroupsLeaderOf();
+		if (groups.size() == 0) return false;
+		Iterator i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getId() == group.getId())
+				return true;
+		}
+		return false;
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#administrate(AdminObject)

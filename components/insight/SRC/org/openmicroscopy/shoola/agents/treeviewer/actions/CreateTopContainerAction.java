@@ -180,14 +180,15 @@ public class CreateTopContainerAction
 				break;
 			case GROUP:
 				name = NAME_GROUP;
-				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.ADMIN));
+				putValue(Action.SMALL_ICON, icons.getIcon(
+						IconManager.OWNER_GROUP));
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_GROUP));
 				break;
 			case EXPERIMENTER:
 				name = NAME_EXPERIMENTER;
 				putValue(Action.SMALL_ICON, 
-						icons.getIcon(IconManager.OWNER_GROUP));
+						icons.getIcon(IconManager.OWNER));
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(
 		                		DESCRIPTION_EXPERIMENTER));

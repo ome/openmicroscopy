@@ -901,12 +901,20 @@ public interface TreeViewer
 
 	/**
 	 * Returns <code>true</code> if the currently logged in user is 
-	 * a leader of the selected group, <code>false</code>.
+	 * a leader of the selected group, <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
 	public boolean isLeaderOfSelectedGroup();
 
+	/**
+	 * Returns <code>true</code> if the currently logged in user is 
+	 * a leader of the specified group, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isLeaderOfGroup(GroupData group);
+	
 	/** 
 	 * Manages the passed object.
 	 * 

@@ -117,8 +117,9 @@ public class AddAction
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
         } else if (ho instanceof GroupData) {
-            setEnabled(TreeViewerAgent.isAdministrator());
-            //setEnabled(false);
+            //setEnabled(TreeViewerAgent.isAdministrator() 
+            	//	|| model.isLeaderOfGroup((GroupData) ho));
+        	setEnabled(TreeViewerAgent.isAdministrator());
             putValue(Action.NAME, NAME_USER);
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_USER));
