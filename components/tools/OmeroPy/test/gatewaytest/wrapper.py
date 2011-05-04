@@ -69,7 +69,7 @@ class WrapperTest (lib.GTest):
         d = self.getTestDataset()
         # first call to count_cached should calculate and store
         self.assertEqual(d.countChildren_cached(), 4)
-        pm = d.listParents(single=True).simpleMarshal()
+        pm = d.getParent().simpleMarshal()
         m = d.simpleMarshal()
         self.assertEqual(m['name'], d.getName())
         self.assertEqual(m['description'], d.getDescription())
@@ -90,8 +90,8 @@ class WrapperTest (lib.GTest):
         self.assert_('parents' not in m)
         self.assertEqual(m['child_count'], d.countChildren_cached())
         # Do an extra check on listParents
-        pm_multi = d.listParents(single=False)
-        self.assertEqual([d.listParents(single=True)], pm_multi)
+        pm_multi = d.getParent()
+        self.assertEqual(d.listParents()[0], pm_multi)
 
     def testExperimenterWrapper (self):
         self.loginAsAdmin()
