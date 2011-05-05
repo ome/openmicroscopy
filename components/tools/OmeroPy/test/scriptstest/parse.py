@@ -22,6 +22,8 @@ from omero.util.temp_files import create_path
 
 SCRIPTS = path(".") / "scripts" / "omero"
 
+excludedScripts = {"omero_flim.py":1}
+
 class TestParse(unittest.TestCase):
 
     def testParse(self):
@@ -128,8 +130,10 @@ class TestParse(unittest.TestCase):
         self.assertEquals("belong", groupings["A"]["2"], str(groupings))
         self.assertEquals("together", groupings["A"]["3"], str(groupings))
 
-    def XtestParseAllOfficialScripts(self):
+    def testParseAllOfficialScripts(self):
         for script in SCRIPTS.walk("*.py"):
+            if excludedScripts.has_key(script):
+                continue;
             try:
                 params = parse_file(str(script))
             except exceptions.Exception, e:
