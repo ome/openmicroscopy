@@ -27,8 +27,8 @@ class WrapperTest (lib.GTest):
         pixels = image.getPrimaryPixels()
         instrument = image.getInstrument()
         self.assertTrue(isinstance(instrument, omero.gateway.BlitzObjectWrapper))
-        self.assertFalse(hasattr(image.getArchived(), 'val', "Shouldn't return rtype"))
-        self.assertFalse(hasattr(image.getAcquisitionDate(), 'val', "Shouldn't return rtype"))
+        self.assertFalse(hasattr(image.getArchived(), 'val'), "Shouldn't return rtype")
+        self.assertFalse(hasattr(image.getAcquisitionDate, 'val'), "Shouldn't return rtype")
         self.assertTrue(isinstance(pixels, omero.gateway.BlitzObjectWrapper), "Should return a BlitzObjectWrapper")
 
 
