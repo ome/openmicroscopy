@@ -491,19 +491,18 @@ def splitViewFigure(session, commandArgs):
             
     # process the list of images. If imageIds is not set, script can't run. 
     log("Image details:")
-    if "Image_IDs" in commandArgs:
-        for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
-            iId = long(imageId.getValue())
-            image = containerService.getImages("Image", [iId], None)[0]
-            if image == None:
-                print "Image not found for ID:", iId
-                continue
-            imageIds.append(iId)
-            if idCount == 0:
-                omeroImage = image        # remember the first image to attach figure to
-            pixelIds.append(image.getPrimaryPixels().getId().getValue())
-            imageNames[iId] = image.getName().getValue()
-    
+    for idCount, imageId in enumerate(commandArgs["IDs"]):
+        iId = long(imageId.getValue())
+        image = containerService.getImages("Image", [iId], None)[0]
+        if image == None:
+            print "Image not found for ID:", iId
+            continue
+        imageIds.append(iId)
+        if idCount == 0:
+            omeroImage = image        # remember the first image to attach figure to
+        pixelIds.append(image.getPrimaryPixels().getId().getValue())
+        imageNames[iId] = image.getName().getValue()
+
     if len(imageIds) == 0:
         print "No image IDs specified."
         
@@ -676,6 +675,7 @@ def runAsScript():
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
        
+    dataTypes = [rstring('Image')]
     labels = [rstring('Image Name'), rstring('Datasets'), rstring('Tags')]
     algorithums = [rstring('Maximum Intensity'),rstring('Mean Intensity')]
     formats = [rstring('JPEG'),rstring('PNG')]
@@ -685,11 +685,19 @@ def runAsScript():
     oColours = wrap(OVERLAY_COLOURS.keys())
      
     client = scripts.client('Split_View_Figure.py', """Create a figure of split-view images.
-See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure""", 
-    scripts.List("Image_IDs", grouping="1", optional=False, description="List of image IDs. Resulting figure will be attached to first image.").ofType(rlong(0)),
-    scripts.String("Algorithm", grouping="2", description="Algorithum for projection.", values=algorithums),
-    scripts.Int("Z_Start", grouping="2.1", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
-    scripts.Int("Z_End", grouping="2.2", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
+See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure
+NB: OMERO.insight client provides a nicer UI for this script under 'Publishing Options'""",
+
+    # provide 'Data_Type' and 'IDs' parameters so that Insight auto-populates with currently selected images.
+    scripts.String("Data_Type", optional=False, grouping="01",
+        description="The data you want to work with.", values=dataTypes, default="Image"),
+
+    scripts.List("IDs", optional=False, grouping="02",
+        description="List of Image IDs").ofType(rlong(0)),
+
+    scripts.String("Algorithm", grouping="3", description="Algorithum for projection.", values=algorithums),
+    scripts.Int("Z_Start", grouping="3.1", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
+    scripts.Int("Z_End", grouping="3.2", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
     scripts.Map("Channel_Names", grouping="4", description="Map of index: channel name for all channels"),
     scripts.List("Split_Indexes", grouping="5", description="List of the channels in the split view").ofType(rint(0)),
     scripts.Bool("Split_Panels_Grey", grouping="6", description="If true, all split panels are greyscale"),

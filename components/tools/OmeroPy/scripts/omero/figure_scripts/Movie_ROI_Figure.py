@@ -700,7 +700,7 @@ def runAsScript():
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
     
-    dataTypes = [rstring('Dataset'),rstring('Image')]
+    dataTypes = [rstring('Image')]
     labels = [rstring('Image Name'), rstring('Datasets'), rstring('Tags')]
     algorithums = [rstring('Maximum Intensity'),rstring('Mean Intensity')]
     roiLabel = """Specify an ROI to pick by specifying it's shape label. 'FigureROI' by default,
@@ -714,49 +714,49 @@ def runAsScript():
     client = scripts.client('Movie_ROI_Figure.py', """Create a figure of movie frames from ROI region of image.
 See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure""",
 
-    scripts.String("Data_Type", optional=False, grouping="1.1",
+    scripts.String("Data_Type", optional=False, grouping="01",
         description="The data you want to work with.", values=dataTypes, default="Image"),
 
-    scripts.List("IDs", optional=False, grouping="1.2",
-        description="List of Dataset IDs or Image IDs").ofType(rlong(0)),
+    scripts.List("IDs", optional=False, grouping="02",
+        description="List of Image IDs").ofType(rlong(0)),
     
-    scripts.List("Merged_Colours", grouping="2",
+    scripts.List("Merged_Colours", grouping="03",
         description="A list of colours to apply to merged channels.", values=cOptions),
          
-    scripts.List("Merged_Channels", grouping="3",
+    scripts.List("Merged_Channels", grouping="03.1",
         description="A list of channel indexes to display").ofType(rint(0)), 
         
-    scripts.Float("Roi_Zoom", grouping="4", default=1,
+    scripts.Float("Roi_Zoom", grouping="04", default=1,
         description="How much to zoom the ROI. E.g. x 2. If 0 then ROI panel will zoom to same size as main image"),
     
-    scripts.Int("Max_Columns", grouping="4.1", default=10,
+    scripts.Int("Max_Columns", grouping="04.1", default=10,
         description="The maximum number of columns in the figure, for ROI-movie frames.", min=1),
     
-    scripts.Bool("Resize_Images", grouping="5", default=True,
+    scripts.Bool("Resize_Images", grouping="05", default=True,
         description="Images are shown full-size by default, but can be resized below"),
         
-    scripts.Int("Width", grouping="5.1",
+    scripts.Int("Width", grouping="05.1",
         description="Max width of each image panel in pixels", min=1), 
           
-    scripts.Int("Height", grouping="5.2",
+    scripts.Int("Height", grouping="05.2",
         description="The max height of each image panel in pixels", min=1),
              
-    scripts.String("Image_Labels", grouping="6",
+    scripts.String("Image_Labels", grouping="06",
         description="Label images with the Image Name or Datasets or Tags", values=labels), 
     
-    scripts.Bool("Show_ROI_Duration", grouping="6.1",
+    scripts.Bool("Show_ROI_Duration", grouping="06.1",
         description="If true, times shown as duration from first timepoint of the ROI, otherwise use movie timestamp."),
         
-    scripts.Int("Scalebar", grouping="7",
+    scripts.Int("Scalebar", grouping="07",
         description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
         
-    scripts.String("Scalebar_Colour", grouping="7.1",
+    scripts.String("Scalebar_Colour", grouping="07.1",
         description="The colour of the scalebar and ROI outline.",default='White',values=oColours),
     
-    scripts.String("Roi_Selection_Label", grouping="8",
+    scripts.String("Roi_Selection_Label", grouping="08",
         description=roiLabel),
         
-    scripts.String("Algorithm", grouping="9",
+    scripts.String("Algorithm", grouping="09",
         description="Algorithum for projection, if ROI spans several Z sections.", values=algorithums),
 
     scripts.String("Figure_Name", grouping="10",

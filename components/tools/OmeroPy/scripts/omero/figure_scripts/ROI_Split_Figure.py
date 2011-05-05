@@ -579,18 +579,17 @@ def roiFigure(session, commandArgs):
             
     # process the list of images. If imageIds is not set, script can't run. 
     log("Image details:")
-    if "Image_IDs" in commandArgs:
-        for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
-            iId = long(imageId.getValue())
-            image = containerService.getImages("Image", [iId], None)[0]
-            if image == None:
-                print "Image not found for ID:", iId
-                continue
-            imageIds.append(iId)
-            if idCount == 0:
-                omeroImage = image        # remember the first image to attach figure to
-            pixelIds.append(image.getPrimaryPixels().getId().getValue())
-            imageNames[iId] = image.getName().getValue()
+    for idCount, imageId in enumerate(commandArgs["IDs"]):
+        iId = long(imageId.getValue())
+        image = containerService.getImages("Image", [iId], None)[0]
+        if image == None:
+            print "Image not found for ID:", iId
+            continue
+        imageIds.append(iId)
+        if idCount == 0:
+            omeroImage = image        # remember the first image to attach figure to
+        pixelIds.append(image.getPrimaryPixels().getId().getValue())
+        imageNames[iId] = image.getName().getValue()
     
     if len(imageIds) == 0:
         print "No image IDs specified."    
@@ -768,6 +767,7 @@ def runAsScript():
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
      
+    dataTypes = [rstring('Image')]
     labels = [rstring('Image Name'), rstring('Datasets'), rstring('Tags')]
     algorithums = [rstring('Maximum Intensity'),rstring('Mean Intensity')]
     roiLabel = """Specify an ROI to pick by specifying it's shape label. 'FigureROI' by default,
@@ -779,24 +779,32 @@ def runAsScript():
     oColours = wrap(OVERLAY_COLOURS.keys())
     
     client = scripts.client('ROI_Split_Figure.py', """Create a figure of an ROI region as separate zoomed split-channel panels.
-See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""", 
-    scripts.List("Image_IDs", optional=False, description="List of image IDs. Resulting figure will be attached to first image.").ofType(rlong(0)),
-    scripts.Map("Channel_Names", description="Map of index: channel name for All channels"),
-    scripts.Bool("Merged_Names", description="If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
-    scripts.List("Split_Indexes", description="List of the channels in the split view panels"),
-    scripts.Bool("Split_Panels_Grey", description="If true, all split panels are greyscale"),
-    scripts.Map("Merged_Colours", description="Map of index:int colours for each merged channel. Otherwise use existing colour settings"),
-    scripts.Int("Width",description="Max width of each image panel", min=1),   
-    scripts.Int("Height",description="The max height of each image panel", min=1),
-    scripts.String("Image_Labels",description="Label images with the Image's Name or it's Datasets or Tags", values=labels),               
-    scripts.String("Algorithm", description="Algorithum for projection.", values=algorithums),
-    scripts.Int("Stepping",description="The Z-plane increment for projection. Default is 1", min=1),
-    scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    scripts.String("Format",description="Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
-    scripts.String("Figure_Name", description="File name of the figure to save."),
-    scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=oColours),
-    scripts.Float("ROI_Zoom", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit", min=0),
-    scripts.String("ROI_Label", description=roiLabel),
+See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure
+NB: OMERO.insight client provides a nicer UI for this script under 'Publishing Options'""",
+
+    # provide 'Data_Type' and 'IDs' parameters so that Insight auto-populates with currently selected images.
+    scripts.String("Data_Type", optional=False, grouping="01",
+        description="The data you want to work with.", values=dataTypes, default="Image"),
+
+    scripts.List("IDs", optional=False, grouping="02",
+        description="List of Dataset IDs or Image IDs").ofType(rlong(0)),
+
+    scripts.Map("Channel_Names", grouping="03", description="Map of index: channel name for All channels"),
+    scripts.Bool("Merged_Names", grouping="04", description="If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
+    scripts.List("Split_Indexes", grouping="05", description="List of the channels in the split view panels"),
+    scripts.Bool("Split_Panels_Grey", grouping="06", description="If true, all split panels are greyscale"),
+    scripts.Map("Merged_Colours", grouping="07", description="Map of index:int colours for each merged channel. Otherwise use existing colour settings"),
+    scripts.Int("Width", grouping="08", description="Max width of each image panel", min=1),   
+    scripts.Int("Height", grouping="09", description="The max height of each image panel", min=1),
+    scripts.String("Image_Labels", grouping="10", description="Label images with the Image's Name or it's Datasets or Tags", values=labels),               
+    scripts.String("Algorithm", grouping="11", description="Algorithum for projection.", values=algorithums),
+    scripts.Int("Stepping", grouping="12", description="The Z-plane increment for projection. Default is 1", min=1),
+    scripts.Int("Scalebar", grouping="13", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    scripts.String("Format", grouping="14", description="Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
+    scripts.String("Figure_Name", grouping="15", description="File name of the figure to save."),
+    scripts.String("Overlay_Colour", grouping="16", description="The colour of the scalebar.",default='White',values=oColours),
+    scripts.Float("ROI_Zoom", grouping="17", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit", min=0),
+    scripts.String("ROI_Label", grouping="18", description=roiLabel),
     
     version = "4.2.0",
     authors = ["William Moore", "OME Team"],

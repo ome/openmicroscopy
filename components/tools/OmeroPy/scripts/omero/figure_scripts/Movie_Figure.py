@@ -390,18 +390,17 @@ def movieFigure(session, commandArgs):
             
     # process the list of images. If imageIds is not set, script can't run. 
     log("Image details:")
-    if "Image_IDs" in commandArgs:
-        for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
-            iId = long(imageId.getValue())
-            image = containerService.getImages("Image", [iId], None)[0]
-            if image == None:
-                print "Image not found for ID:", iId
-                continue
-            imageIds.append(iId)
-            if idCount == 0:
-                omeroImage = image        # remember the first image to attach figure to
-            pixelIds.append(image.getPrimaryPixels().getId().getValue())
-            imageNames[iId] = image.getName().getValue()
+    for idCount, imageId in enumerate(commandArgs["IDs"]):
+        iId = long(imageId.getValue())
+        image = containerService.getImages("Image", [iId], None)[0]
+        if image == None:
+            print "Image not found for ID:", iId
+            continue
+        imageIds.append(iId)
+        if idCount == 0:
+            omeroImage = image        # remember the first image to attach figure to
+        pixelIds.append(image.getPrimaryPixels().getId().getValue())
+        imageNames[iId] = image.getName().getValue()
         
     if len(imageIds) == 0:
         print "No image IDs specified."
@@ -433,11 +432,15 @@ def movieFigure(session, commandArgs):
     sizeY = pixels.getSizeY().getValue()
     sizeZ = pixels.getSizeZ().getValue()
     sizeC = pixels.getSizeC().getValue()
+    sizeT = pixels.getSizeT().getValue()
 
     tIndexes = []
     if "T_Indexes" in commandArgs:
         for t in commandArgs["T_Indexes"]:
             tIndexes.append(t.getValue())
+        print "T_Indexes", tIndexes
+    if len(tIndexes) == 0:      # if no t-indexes given, use all t-indices
+        tIndexes = range(sizeT)
             
     zStart = -1
     zEnd = -1
@@ -521,7 +524,8 @@ def runAsScript():
     The main entry point of the script. Gets the parameters from the scripting service, makes the figure and 
     returns the output to the client. 
     """
-        
+
+    dataTypes = [rstring('Image')]
     labels = [rstring('Image Name'), rstring('Datasets'), rstring('Tags')]
     algorithums = [rstring('Maximum Intensity'),rstring('Mean Intensity')]
     tunits =  [rstring("SECS"), rstring("MINS"), rstring("HOURS"), rstring("MINS SECS"), rstring("HOURS MINS")]
@@ -531,12 +535,19 @@ def runAsScript():
     cOptions = wrap(ckeys)
     oColours = wrap(OVERLAY_COLOURS.keys())
     
-    client = scripts.client('Movie_Figure.py', 'Export a figure of a movie. See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport', 
-    scripts.List("Image_IDs", grouping="01", 
-        description="List of image IDs. Resulting figure will be attached to first image.", optional=False).ofType(rlong(0)),
-    scripts.List("T_Indexes", grouping="02", 
+    client = scripts.client('Movie_Figure.py', """Export a figure of a movie. See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport
+NB: OMERO.insight client provides a nicer UI for this script under 'Publishing Options'""",
+
+    # provide 'Data_Type' and 'IDs' parameters so that Insight auto-populates with currently selected images.
+    scripts.String("Data_Type", optional=False, grouping="01",
+        description="The data you want to work with.", values=dataTypes, default="Image"),
+
+    scripts.List("IDs", optional=False, grouping="02",
+        description="List of Image IDs").ofType(rlong(0)),
+
+    scripts.List("T_Indexes", grouping="03", 
         description="The time frames to display in the figure for each image").ofType(rint(0)),
-    scripts.String("Image_Labels", grouping="03", 
+    scripts.String("Image_Labels", grouping="04", 
         description="Label images with Image name (default) or datasets or tags", values=labels),
     scripts.Int("Width", grouping="06", 
         description="The max width of each image panel. Default is first image width", min=1),
