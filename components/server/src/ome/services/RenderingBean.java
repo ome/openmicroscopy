@@ -29,7 +29,6 @@ import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
 import ome.io.nio.InMemoryPlanarPixelBuffer;
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
@@ -149,9 +148,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
     
     /** Reference to the compression service. */
     private final LocalCompress compressionSrv;
-    
-    /** Reference to file provider. */
-    private final OriginalFileMetadataProvider metadataProvider;
 
     /** Notification that the bean has just returned from passivation. */
     private transient boolean wasPassivated = false;
@@ -163,13 +159,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
      *            an <code>ICompress</code>.
      */
     public RenderingBean(PixelsService dataService, LocalCompress compress,
-            OriginalFileMetadataProvider provider, Executor ex, 
-            SecuritySystem secSys) {
+            Executor ex, SecuritySystem secSys) {
         this.ex = ex;
         this.secSys = secSys;
         this.pixDataSrv = dataService;
         this.compressionSrv = compress;
-        this.metadataProvider = provider;
     }
 
     // ~ Lifecycle methods
@@ -378,8 +372,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
              * TODO we could also allow for setting of the buffer! perhaps
              * better caching, etc.
              */
-            PixelBuffer buffer = pixDataSrv.getPixelBuffer(
-            		pixelsObj, metadataProvider, false);
+            PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
             closeRenderer();
             List<Family> families = getAllEnumerations(Family.class);
             List<RenderingModel> renderingModels = getAllEnumerations(RenderingModel.class);

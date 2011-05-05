@@ -11,13 +11,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.util.PixelData;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
-import ome.services.OmeroOriginalFileMetadataProvider;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -107,9 +105,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
     public void testInitialPlane() throws IOException,
             DimensionsOutOfBoundsException {
         PixelsService service = new PixelsService(ROOT);
-        OriginalFileMetadataProvider metadataProvider =
-        	new TestingOriginalFileMetadataProvider();
-        PixelBuffer pixbuf = service.getPixelBuffer(pixels, metadataProvider, true);
+        PixelBuffer pixbuf = service.getPixelBuffer(pixels);
         PixelData plane = pixbuf.getPlane(0, 0, 0);
 
         byte[] messageDigest = Helper.calculateMessageDigest(plane.getData());
@@ -122,9 +118,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
     public void testLastPlane() throws IOException,
             DimensionsOutOfBoundsException {
         PixelsService service = new PixelsService(ROOT);
-        OriginalFileMetadataProvider metadataProvider =
-        	new TestingOriginalFileMetadataProvider();
-        PixelBuffer pixbuf = service.getPixelBuffer(pixels, metadataProvider, true);
+        PixelBuffer pixbuf = service.getPixelBuffer(pixels);
         PixelData plane = pixbuf.getPlane(pixels.getSizeZ() - 1, pixels
                 .getSizeC() - 1, pixels.getSizeT() - 1);
         int digestOffset = getDigestOffset(pixels.getSizeZ() - 1, pixels
@@ -140,9 +134,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
     public void testAllPlanes() throws IOException,
             DimensionsOutOfBoundsException {
         PixelsService service = new PixelsService(ROOT);
-        OriginalFileMetadataProvider metadataProvider =
-        	new TestingOriginalFileMetadataProvider();
-        PixelBuffer pixbuf = service.getPixelBuffer(pixels, metadataProvider, true);
+        PixelBuffer pixbuf = service.getPixelBuffer(pixels);
 
         String newMessageDigest;
         String oldMessageDigest;

@@ -16,7 +16,6 @@ import java.util.List;
 
 import ome.conditions.MissingPyramidException;
 import ome.io.messages.MissingPyramidMessage;
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
@@ -46,14 +45,11 @@ public class GetPixelBufferUnitTest {
 
     private PixelBuffer pixelBuffer;
 
-    private OriginalFileMetadataProvider provider;
-
     private MockPixelsService service;
 
     @BeforeMethod
     private void setup() {
         root = PathUtil.getInstance().getTemporaryDataFilePath();
-        provider = new TestingOriginalFileMetadataProvider();
         pixels = new Pixels();
 
         pixels.setId(1L);
@@ -79,7 +75,7 @@ public class GetPixelBufferUnitTest {
     public void testWhenPyramidRequiredOnlyCreatePyramidCalled() {
         service.allowCreatePyramid = true;
         service.isRequirePyramid = true;
-        pixelBuffer = service.getPixelBuffer(pixels, provider, true);
+        pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
@@ -92,7 +88,7 @@ public class GetPixelBufferUnitTest {
         service.allowCreateRomio = true;
         service.isRequirePyramid = false;
         service.allowModification = true;
-        pixelBuffer = service.getPixelBuffer(pixels, provider, true);
+        pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
@@ -106,7 +102,7 @@ public class GetPixelBufferUnitTest {
         service.isRequirePyramid = true;
         service.retry = false;
         String path = touchRomio();
-        pixelBuffer = service.getPixelBuffer(pixels, provider, true);
+        pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(1, service.events.size());
     }
 
@@ -118,7 +114,7 @@ public class GetPixelBufferUnitTest {
         service.retry = null; // no messages!
         touchRomio();
         touchPyramid();
-        pixelBuffer = service.getPixelBuffer(pixels, provider, true);
+        pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
@@ -131,7 +127,7 @@ public class GetPixelBufferUnitTest {
         service.isRequirePyramid = false;
         String path = service.getPixelsPath(pixels.getId());
         touchPyramid();
-        pixelBuffer = service.getPixelBuffer(pixels, provider, true);
+        pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
@@ -144,15 +140,14 @@ public class GetPixelBufferUnitTest {
         service.allowCreateBf = true;
         service.isRequirePyramid = false;
         File bf = new File(root, "bf.tiff");
-        pixelBuffer = service.getPixelBuffer(pixels, bf.getAbsolutePath(),
-                provider, true);
+        pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
     @Test
     public void testHandleOriginalFileReturnsSomething() {
         service.allowHandle = true;
-        pixelBuffer = service.getPixelBuffer(pixels, null, provider, false);
+        pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
@@ -165,7 +160,7 @@ public class GetPixelBufferUnitTest {
         service.allowHandle = true;
         service.allowCreatePyramid = true;
         service.pb = null;
-        pixelBuffer = service.getPixelBuffer(pixels, null, provider, false);
+        pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
@@ -180,7 +175,7 @@ public class GetPixelBufferUnitTest {
         service.isRequirePyramid = false;
         service.allowModification = true;
         service.pb = null;
-        pixelBuffer = service.getPixelBuffer(pixels, null, provider, false);
+        pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
@@ -194,7 +189,7 @@ public class GetPixelBufferUnitTest {
         service.allowCreateRomio = true;
         service.isRequirePyramid = false;
         touchRomio();
-        pixelBuffer = service.getPixelBuffer(pixels, null, provider, true);
+        pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
@@ -314,15 +309,6 @@ public class GetPixelBufferUnitTest {
                 fail("createRomio should not be called");
             }
             assertEquals(this.allowModification, allowModification);
-            return pb;
-        }
-
-        @Override
-        protected PixelBuffer handleOriginalFile(Pixels pixels,
-                OriginalFileMetadataProvider provider) {
-            if (!allowHandle) {
-                fail("handleOriginalFile should not be called");
-            }
             return pb;
         }
 

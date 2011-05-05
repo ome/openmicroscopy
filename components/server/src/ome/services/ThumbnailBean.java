@@ -33,7 +33,6 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
@@ -307,10 +306,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
         pixels = iPixels.retrievePixDescription(pixels.getId());
         settings = iPixels.loadRndSettings(settings.getId());
-        OriginalFileMetadataProvider metadataProvider =
-            new OmeroOriginalFileMetadataProvider(iQuery);
-        PixelBuffer buffer = 
-            pixelDataService.getPixelBuffer(pixels, metadataProvider, false);
+        PixelBuffer buffer = pixelDataService.getPixelBuffer(pixels);
         List<Family> families = getFamilies();
         List<RenderingModel> renderingModels = getRenderingModels();
         QuantumFactory quantumFactory = new QuantumFactory(families);

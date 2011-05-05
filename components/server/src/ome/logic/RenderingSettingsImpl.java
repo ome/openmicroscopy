@@ -31,7 +31,6 @@ import ome.api.IRenderingSettings;
 import ome.api.ServiceInterface;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
@@ -54,7 +53,6 @@ import ome.model.screen.Screen;
 import ome.model.screen.Plate;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
-import ome.services.OmeroOriginalFileMetadataProvider;
 import omeis.providers.re.ColorsFactory;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.data.PlaneDef;
@@ -446,10 +444,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         	PixelBuffer buffer = null;
         	if (computeStats)
         	{
-        		OriginalFileMetadataProvider metadataProvider =
-        			new OmeroOriginalFileMetadataProvider(iQuery);
         		buffer = 
-        			pixelsData.getPixelBuffer(pixels, metadataProvider, false);
+        			pixelsData.getPixelBuffer(pixels);
         	}
             resetDefaults(settings, pixels, quantumFactory,
                     renderingModels, buffer, computeStats);

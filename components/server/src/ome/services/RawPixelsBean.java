@@ -31,8 +31,8 @@ import ome.conditions.ResourceError;
 import ome.conditions.RootException;
 import ome.conditions.ValidationException;
 import ome.io.bioformats.BfPixelBuffer;
+import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
@@ -63,9 +63,6 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         RawPixelsStore {
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(RawPixelsBean.class);
-
-    /** Default maximum buffer size for planar data transfer. (1MB) */
-    public static final int MAXIMUM_BUFFER_SIZE = 1048576;
 
     private static final long serialVersionUID = -6640632220587930165L;
 
@@ -293,28 +290,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
                 throw new ValidationException("Cannot read pixels id=" + id);
             }
 
-            File pixelsFile = new File(dataService.getFilesPath(pixelsId));
-            OriginalFileMetadataProvider metadataProvider =
-                new OmeroOriginalFileMetadataProvider(iQuery);
-            if (!pixelsFile.exists() && !bypassOriginalFile)
-            {
-                List<String> namePathRepo = sql.getPixelsNamePathRepo(pixelsId);
-                if (namePathRepo.get(2) == null)  // Default repo
-                {
-                    File f = new File(omeroDataDir);
-                    f = new File(f, namePathRepo.get(1));
-                    f = new File(f, namePathRepo.get(0));
-                    String pixelsFilePath = f.getAbsolutePath();
-                    log.info("Metadata only file, resulting path: " +
-                            pixelsFilePath);
-                    buffer = dataService.getPixelBuffer(
-                            pixelsInstance, pixelsFilePath, metadataProvider,
-                            bypassOriginalFile);
-                    return;
-                }
-            }
-            buffer = dataService.getPixelBuffer(
-            		pixelsInstance, metadataProvider, bypassOriginalFile);
+            buffer = dataService.getPixelBuffer(pixelsInstance);
         }
     }
 
@@ -726,22 +702,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public int[] getTileSize()
     {
-        if (buffer instanceof BfPixelBuffer)
-        {
-            Dimension tileSize = buffer.getTileSize();
-            return new int[] { (int) tileSize.getWidth(),
-                               (int) tileSize.getHeight() };
-        }
-        if (hasPixelsPyramid())
-        {
-            // FIXME: This should be configuration or service driven
-            // FIXME: Also implemented in RenderingBean.getTileSize()
-            return new int[] { 256, 256 };
-        }
-        return new int[] { pixelsInstance.getSizeX(),
-                Math.min(pixelsInstance.getSizeY(),
-                         (MAXIMUM_BUFFER_SIZE / getByteWidth())
-                          / pixelsInstance.getSizeX()) };
+        Dimension tileSize = buffer.getTileSize();
+        return new int[] { (int) tileSize.getWidth(),
+                           (int) tileSize.getHeight() };
     }
 
     /* (non-Javadoc)

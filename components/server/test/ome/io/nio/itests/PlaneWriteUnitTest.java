@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.util.PixelData;
 import ome.io.nio.PixelsService;
@@ -66,9 +65,7 @@ public class PlaneWriteUnitTest extends AbstractManagedContextTest {
         byte[] testPlane = getTestPlane();
         pixbuf.setPlane(testPlane, 0, 0, 0);
 
-        OriginalFileMetadataProvider metadataProvider =
-        	new TestingOriginalFileMetadataProvider();
-        pixbuf = service.getPixelBuffer(pixels, metadataProvider, true);
+        pixbuf = service.getPixelBuffer(pixels);
         PixelData plane = pixbuf.getPlane(0, 0, 0);
         assertNotNull(plane);
         byte[] newMD = Helper.calculateMessageDigest(plane.getData());
@@ -86,9 +83,7 @@ public class PlaneWriteUnitTest extends AbstractManagedContextTest {
         byte[] testPlane = getTestPlane();
         pixbuf.setPlane(testPlane, z, c, t);
 
-        OriginalFileMetadataProvider metadataProvider =
-        	new TestingOriginalFileMetadataProvider();
-        pixbuf = service.getPixelBuffer(pixels, metadataProvider, true);
+        pixbuf = service.getPixelBuffer(pixels);
         PixelData plane = pixbuf.getPlane(z, c, t);
         assertNotNull(plane);
         byte[] newMD = Helper.calculateMessageDigest(plane.getData());

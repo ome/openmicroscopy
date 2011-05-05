@@ -1,6 +1,5 @@
 package omeis.providers.re.utests;
 
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
@@ -20,9 +19,7 @@ public class TestPixelsService extends PixelsService
 	}
 	
 	@Override
-	public PixelBuffer getPixelBuffer(Pixels pixels,
-			                          OriginalFileMetadataProvider provider,
-			                          boolean bypassOriginalFile)
+	public PixelBuffer getPixelBuffer(Pixels pixels)
 	{
 		return new TestPixelBuffer(pixels.getPixelsType(), dummyPlane);
 	}

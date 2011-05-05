@@ -19,7 +19,14 @@
 
 <beans>	
 
-  <bean name="/OMERO/Pixels" class="ome.io.nio.PixelsService" 
-    parent="filesystem"/>
-  
+  <bean id="omeroFilePathResolver" class="ome.services.OmeroFilePathResolver">
+    <constructor-arg value="${omero.data.dir}"/>
+    <constructor-arg ref="simpleSqlAction"/>
+  </bean>
+
+  <bean name="/OMERO/Pixels" class="ome.io.nio.PixelsService"
+        parent="filesystem">
+    <constructor-arg ref="omeroFilePathResolver"/>
+  </bean>
+
 </beans>

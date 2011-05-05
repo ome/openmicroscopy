@@ -12,7 +12,6 @@ import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.model.meta.EventLog;
 import ome.parameters.Parameters;
-import ome.services.OmeroOriginalFileMetadataProvider;
 import ome.services.eventlogs.EventLogLoader;
 import ome.services.util.Executor.SimpleWork;
 import ome.system.ServiceFactory;
@@ -102,9 +101,7 @@ public class PixelDataHandler extends SimpleWork {
                             new Parameters().addId(id));
                     
                     try {
-                        pixelsService.makePyramid(pixels, null,
-                                new OmeroOriginalFileMetadataProvider(iQuery),
-                                true);
+                        pixelsService.makePyramid(pixels);
                         log.info("Handled pixels " + id);
                     } catch (Exception t) {
                         log.error("Failed to handle pixels " + id, t);

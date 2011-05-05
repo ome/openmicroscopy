@@ -39,8 +39,7 @@ public class PixelData {
     }
 
     public double get(long pix, int x, int y, int z, int c, int t) {
-        PixelBuffer buf = data.getPixelBuffer(meta.retrievePixDescription(pix),
-                null, true);
+        PixelBuffer buf = data.getPixelBuffer(meta.retrievePixDescription(pix));
         try {
             ome.util.PixelData pd = buf.getRow(y, z, c, t);
             return pd.getPixelValue(x);
