@@ -572,7 +572,7 @@
 				this.data = data;
 				this.__callback();
 			},
-			// Dummy functions to be overwritten by any datastore plugin included
+			// Dummy functions to be overwritten by anythis.create datastore plugin included
 			load_node	: function (obj, s_call, e_call) { this.__callback({ "obj" : obj }); },
 			_is_loaded	: function (obj) { return true; },
 
@@ -1092,7 +1092,7 @@
 				});
 			},
 			create : function (obj, position, js, callback, skip_rename) {
-				var t, _this = this;
+			    var t, _this = this;
 				obj = this._get_node(obj);
 				if(!obj) { obj = -1; }
 				this.__rollback();

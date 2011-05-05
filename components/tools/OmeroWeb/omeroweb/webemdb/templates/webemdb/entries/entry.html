@@ -10,8 +10,8 @@
 
 {% block jscript %}
 <script type="text/javascript" src="{% url webemdb 'javascript/entry.js' %}"></script>
-<script type="text/javascript" src="{% url webstatic 'javascript/ui/ui.core.js' %}"></script>
-<script type="text/javascript" src="{% url webstatic 'javascript/ui/ui.slider.js' %}"></script>
+<script type="text/javascript" src="{% url webstatic 'javascript/ui/jquery-ui-1.8.12.custom.min.js' %}"></script>
+
 <script type="text/javascript">
 function openPopup(url) {
     owindow = window.open(url, 'anew', config='height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');

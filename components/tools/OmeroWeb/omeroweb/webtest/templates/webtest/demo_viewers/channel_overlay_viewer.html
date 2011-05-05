@@ -9,7 +9,7 @@ body {
 }
 </style>
 
-<script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
+<script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
 <script type="text/javascript" src="/webtest/statictest/js/imgareaselect/jquery.imgareaselect.js"></script>
 <link rel="stylesheet" type="text/css" href="/webtest/statictest/css/imgareaselect-default.css" /> 
 <script type="text/javascript">
@@ -187,7 +187,6 @@ $(document).ready(function() {
             query += "z:" + (zOffsets[i]-minZ) + "_x:" + xOffsets[i] + "_y:" + yOffsets[i];
         }
         query += "&imageIds="+imageId
-        console.log(query);
         
         // bit of a hack - should really POST properly.
         var url = "/webtest/add_annotations/" + "?" + query;

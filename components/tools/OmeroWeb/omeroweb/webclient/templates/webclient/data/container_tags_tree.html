@@ -2,33 +2,22 @@
 {% load markup %}
 {% load custom_tags %}
     
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
 
-{% if manager.t_size %}
-<ul class="simpleTree">
-    <li class="root" id='0'><img class="icon" src="{% url webstatic "images/tree/root_user16.png" %}" alt="root"/><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
+<ul>
+    <li id="experimenter-0" rel="experimenter"><a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</a>
+        {% if manager.t_size %}
         <ul>
             {% for t in manager.tags %}
             {% if t.ns %}
-            
-            <li id="tset-{{ t.id }}"><span {% if not t.isOwned %}{% if eContext.isLeader %}id="editonly"{% else %}id="readonly"{% endif %}{% else %}id="editonly"{% endif %}>{{ t.textValue|truncateafter:"35" }}</span>{% if not t.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ t.getOwner.getNameWithInitial }}"/>{% endif %}
-                <ul class="ajax">
-                    <li id='{{ t.id }}'>{url:{% url load_data_by_tag "tag" t.id %}?view=tree}</li>
-                </ul>
-            </li>
-            
+            <li id='tagset-{{ t.id }}' rel="tagset" class="jstree-closed"><a href="#">{{ t.textValue|truncatebefor:"35" }}</a></li>
             {% else %}
-            <li id="tag-{{ t.id }}"><span {% if not t.isOwned %}{% if eContext.isLeader %}id="editonly"{% else %}id="readonly"{% endif %}{% else %}id="editonly"{% endif %}>{{ t.textValue|truncateafter:"35" }}</span>{% if not t.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ t.getOwner.getNameWithInitial }}"/>{% endif %}
-                <ul class="ajax">
-                    <li id='{{ t.id }}'>{url:{% url load_data_by_tag "tag" t.id %}?view=tree}</li>
-                </ul>
-            </li>
+            <li id='tag-{{ t.id }}' rel="tag" class="jstree-closed"><a href="#">{{ t.textValue|truncatebefor:"35" }}</a></li>
             {% endif %}
-            {% endfor %}
+            {% endfor %}            
         </ul>
+        {% endif %}
     </li>
 </ul>
-{% else %}
-    {% trans "No data." %}
-{% endif %}
-
-

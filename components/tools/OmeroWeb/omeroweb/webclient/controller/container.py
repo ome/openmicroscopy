@@ -529,21 +529,21 @@ class BaseContainer(BaseController):
             l_ds.setParent(self.project._obj)
             l_ds.setChild(ds)
             ds.addProjectDatasetLink(l_ds)
-        self.conn.saveObject(ds)
+        return self.conn.saveAndReturnId(ds)
         
     def createProject(self, name, description):
         pr = omero.model.ProjectI()
         pr.name = rstring(str(name))
         if description != "" :
             pr.description = rstring(str(description))
-        self.conn.saveObject(pr)
+        return self.conn.saveAndReturnId(pr)
     
     def createScreen(self, name, description):
         sc = omero.model.ScreenI()
         sc.name = rstring(str(name))
         if description != "" :
             sc.description = rstring(str(description))
-        self.conn.saveObject(sc)
+        return self.conn.saveAndReturnId(sc)
     
     # Comment annotation
     def createCommentAnnotation(self, otype, content):
@@ -905,7 +905,7 @@ class BaseContainer(BaseController):
                         self.conn.deleteObjectDirect(up_pdl._obj)
                 else:
                     new_pr = self.conn.getObject("Project", destination[1])
-                    if len(parent) > 1:
+                    if parent[0] not in ('experimenter', 'orphaned'):
                         up_pdl.setParent(new_pr._obj)
                         self.conn.saveObject(up_pdl._obj)
                     else:

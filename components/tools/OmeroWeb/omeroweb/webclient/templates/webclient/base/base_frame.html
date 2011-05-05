@@ -8,7 +8,7 @@
 
 <head>
     <link rel="stylesheet" href="{% url webstatic "css/layout.css" %}" type="text/css" />
-    <link rel="stylesheet" href="{% url webstatic "css/ui-1.7.2.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/ui-1.8.12.css" %}" type="text/css" media="screen"/>
         
     {% block link %}{% endblock %}
 
@@ -17,6 +17,7 @@
     <title>{% trans "Webclient" %} {% block title %}{% endblock %}</title>
 
     <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/jquery-ui-1.8.12.custom.min.js" %}"></script>
     {% block jscript %}{% endblock %}
 
     {% block script %}{% endblock %}

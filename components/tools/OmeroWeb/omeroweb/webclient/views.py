@@ -490,14 +490,13 @@ def load_template(request, menu, **kwargs):
     if url is None:
         url = reverse(viewname="load_template", args=[menu])
     
-    error = request.REQUEST.get('error')
-    
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    if url is None:
-        url = reverse(viewname="load_template", args=[menu])
+    init = {'initially_open':[], 'initially_select': None}
+    select = None 
+    for k,v in request.REQUEST.items():
+        for i in v.split(","):
+            init['initially_open'].append(k+"-"+i)
+            select = k+"-"+i
+    init['initially_select'] = select
     
     try:
         manager = BaseContainer(conn)
@@ -531,7 +530,7 @@ def load_template(request, menu, **kwargs):
             
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups'], 'url':url})
     
-    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users}
+    context = {'nav':request.session['nav'], 'url':url, 'init':init, 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -755,7 +754,14 @@ def load_searching(request, form=None, **kwargs):
 @isUserConnected
 def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
     request.session.modified = True
-        
+    
+    if request.REQUEST.get("o_type") is not None and len(request.REQUEST.get("o_type")) > 0:
+        o_type = request.REQUEST.get("o_type")
+        try:
+            o_id = long(request.REQUEST.get("o_id"))
+        except:
+            pass
+            
     # check menu
     menu = request.REQUEST.get("menu")
     if menu is not None:
@@ -1280,8 +1286,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 logger.debug("Create new in %s: %s" % (o_type, str(form.cleaned_data)))
                 name = form.cleaned_data['name']
                 description = form.cleaned_data['description']                
-                manager.createDataset(name, description)
-                rdict = {'bad':'false' }
+                oid = manager.createDataset(name, description)
+                rdict = {'bad':'false', 'id': oid}
                 json = simplejson.dumps(rdict, ensure_ascii=False)
                 return HttpResponse( json, mimetype='application/javascript')
             else:
@@ -1297,8 +1303,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 logger.debug("Create new: %s" % (str(form.cleaned_data)))
                 name = form.cleaned_data['name']                
                 description = form.cleaned_data['description']
-                getattr(manager, "create"+request.REQUEST.get('folder_type').capitalize())(name, description)                
-                rdict = {'bad':'false' }
+                oid = getattr(manager, "create"+request.REQUEST.get('folder_type').capitalize())(name, description)                
+                rdict = {'bad':'false', 'id': oid}
                 json = simplejson.dumps(rdict, ensure_ascii=False)
                 return HttpResponse( json, mimetype='application/javascript')
             else:
@@ -1502,7 +1508,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         destination = request.REQUEST['destination'].split('-')
         try:
             if parent[1] == destination[1]:
-                return HttpResponse("Error: Cannot move to the same place.")
+                return HttpResponseServerError("Error: Cannot move to the same place.")
         except :
             pass
         rv = manager.move(parent,destination)
@@ -1510,12 +1516,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             rdict = {'bad':'true','errs': rv }
             json = simplejson.dumps(rdict, ensure_ascii=False)
             return HttpResponse( json, mimetype='application/javascript')
-            
         else:
             rdict = {'bad':'false' }
             json = simplejson.dumps(rdict, ensure_ascii=False)
             return HttpResponse( json, mimetype='application/javascript')
-        return HttpResponse(rv)
     elif action == 'remove':
         parent = request.REQUEST['parent'].split('-')
         #source = request.REQUEST['source'].split('-')
@@ -1523,15 +1527,18 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             manager.remove(parent)
         except Exception, x:
             logger.error(traceback.format_exc())
-            rv = "Error: %s" % x
-            return HttpResponse(rv)
+            rdict = {'bad':'true','errs': x }
+            json = simplejson.dumps(rdict, ensure_ascii=False)
+            return HttpResponse( json, mimetype='application/javascript')
         
         if o_type == "dataset" or o_type == "image" or o_type == "plate":
             images = o_type=='image' and [o_id] or None
             datasets = o_type == 'dataset' and [o_id] or None
             plates = o_type == 'plate' and [o_id] or None        
             request.session['clipboard'] = {'images': images, 'datasets': datasets, 'plates': plates}
-        return HttpResponseRedirect(url)
+        rdict = {'bad':'false' }
+        json = simplejson.dumps(rdict, ensure_ascii=False)
+        return HttpResponse( json, mimetype='application/javascript')
     elif action == 'removemany':
         images = request.REQUEST.getlist('image')
         try:
@@ -1630,9 +1637,12 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             request.session.modified = True            
         except Exception, x:
             logger.error(traceback.format_exc())
-            rv = "Error: %s" % x
-            return HttpResponse(rv)      
-        return HttpResponse()
+            rdict = {'bad':'true','errs': x }
+            json = simplejson.dumps(rdict, ensure_ascii=False)
+            return HttpResponse( json, mimetype='application/javascript')     
+        rdict = {'bad':'false' }
+        json = simplejson.dumps(rdict, ensure_ascii=False)
+        return HttpResponse( json, mimetype='application/javascript')
     elif action == 'deletemany':
         ids = request.REQUEST.getlist('image')
         anns = toBoolean(request.REQUEST.get('anns'))

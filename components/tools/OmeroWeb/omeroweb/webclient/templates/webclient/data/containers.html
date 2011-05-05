@@ -64,7 +64,7 @@
             				"valid_children" : [ "experimenter" ],
             				"types" : {
             					"experimenter" : {
-            						"valid_children" : [ "project", "dataset", "image" ],
+            						"valid_children" : [ "project", "dataset", "image", "screen", "plate" ],
             						"icon" : {
             							"image" : '{% url webstatic "images/tree/personal16.png" %}'
             						},
@@ -107,6 +107,28 @@
             						"delete_node" : true,
             						"remove" : true
             					},
+            					"screen" : {
+            						"valid_children" : [ "plate" ],
+            						"icon" : {
+            							"image" : '{% url webstatic "images/tree/folder_screen16.png" %}'
+            						},
+            						"create_node" : true,
+                                    "start_drag" : false,
+            						"move_node" : true,
+            						"delete_node" : true,
+            						"remove" : true
+            					},
+            					"plate" : {
+            						"valid_children" : "none",
+            						"icon" : {
+            							"image" : '{% url webstatic "images/tree/folder_plate16.png" %}'
+            						},
+            						"create_node" : false,
+            						"start_drag" : true,
+            						"move_node" : true,
+            						"delete_node" : true,
+            						"remove" : true
+            					},
             					"orphaned" : {
             						"valid_children" : [ "image" ],
             						"icon" : {
@@ -121,48 +143,149 @@
             				}
             			},
             			// For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
-
             			// the UI plugin - it handles selecting/deselecting/hovering nodes
             			"ui" : {
-            				// this makes the node with ID node_4 selected onload
-            				"initially_select" : [ "experimenter-0" ]
+            				"initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ]
             			},
             			// the core plugin - not many options here
             			"core" : { 
             				// just open those two nodes up
             				// as this is an AJAX enabled tree, both will be downloaded from the server
-            				"initially_open" : [ "experimenter-0" ] 
+            			    "initially_open" : [ {% for p in init.initially_open %}"{{ p }}",{% endfor %} "experimenter-0" ]
             			},
             			"contextmenu" : {
-                            "items": {
-                                "create" : {
-                                    "label" : "Create new",
-                                    "icon" : '{% url webstatic "images/window_new16.png" %}',
-                                    "submenu": {
-                                        "Project":{
-                                            "label" : "Project",
-                                                "action": function (obj) { 
-                                                    console.log(obj)
+            			    "select_node":true,
+            			    "items" : function(obj){
+            			        var config = {};
+            			        
+            			        config["rename"] = {
+                                    "label": "Rename",
+                                    "icon"      : '{% url webstatic "images/color_line16.png" %}',                                    
+                                    "action": function(obj){ this.rename(obj); }
+                                };
+                                
+                                config["delete"] = {
+                                    "label": "Delete",
+                                    "icon"      : '{% url webstatic "images/cancel16.png" %}',
+                                    "action": function(obj){ if (confirm('Delete selected object?')) {this.remove(obj);} }
+                                };
+                                
+                                config['ccp'] = {
+                                    'label': 'Edit',
+                                    'action': false,
+                                    'submenu' : {
+                                        'cut' :{
+                                            'label': 'Cut',
+                                            "icon"      : '{% url webstatic "images/cut16.png" %}',
+                                            'action': function(obj) {
+                                                this.cut(obj);
+                                            }
+                                        },
+                                        'copy': {
+                                            'label': 'Copy',
+                                            "icon"      : '{% url webstatic "images/eclipse_copy_edit16.png" %}',
+                                                'action': function(obj) {
+                                                    this.copy(obj);
                                                 }
                                         },
-                                        "Dataset":{
-                                            "label" : "Dataset",
-                                                "action": function (obj) { 
-                                                    console.log(obj)
-                                                }
-                                        },
-                                        "Screen":{
-                                            "label" : "Screen",
-                                                "action": function (obj) { 
-                                                    console.log(obj)
+                                        'paste': {
+                                            'label': 'Paste',
+                                            "icon"      : '{% url webstatic "images/eclipse_paste_edit16.png" %}',
+                                                'action': function(obj) {
+                                                    this.paste(obj);
                                                 }
                                         }
                                     }
+                                };
+                                
+                                config["create"] = {
+                                    "label"     : "Create new",
+                                    "icon"      : '{% url webstatic "images/window_new16.png" %}',
+                                    "submenu"   : {
+                                        "project"   : {
+                                            "label"     : "Project",
+                                            "icon"      : '{% url webstatic "images/folder16.png" %}',
+                                            "action"    : function (obj) { this.create(obj, null, {"attr": {"rel": "project"}}); }
+                                        },
+                                        "dataset"   : {
+                                            "label"     : "Dataset",
+                                            "icon"      : '{% url webstatic "images/folder_image16.png" %}',
+                                            "action"    : function (obj) { this.create(obj, null, {"attr":{"rel": "dataset"}}); }
+                                      	},
+                                      	"screen"    : {
+                                            "label"     : "Screen",
+                                            "icon"      : '{% url webstatic "images/folder_screen16.png" %}',
+                                            "action"    : function (obj) { this.create(obj, null, {"attr":{"rel": "screen"}}); }
+                                      	}
+                                    }
+                                };                                
+                                
+            			        if(obj.attr('id').indexOf("orphaned")>=0) {
+                                    config["rename"]["_disabled"] = true;
+                                    config["delete"]["_disabled"] = true;
+                                    config["ccp"]["_disabled"] = true;
+                                    config["create"]["_disabled"] = true;
+                                } else if(obj.attr('id').indexOf("experimenter")>=0) {
+                                    config["rename"]["_disabled"] = true;
+                                    config["delete"]["_disabled"] = true;
+                                    config["ccp"]["_disabled"] = true;
+                                } else if(obj.attr('id').indexOf("project")>=0) {
+                                    config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["copy"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
+                                } else if(obj.attr('id').indexOf("dataset")>=0) {
+                                    config["create"]["_disabled"] = true;
+                                } else if(obj.attr('id').indexOf("image")>=0) {
+                                    config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                    config["create"]["_disabled"] = true;
+                                } else if(obj.attr('id').indexOf("plate")>=0) {
+                                    config["create"]["_disabled"] = true;
                                 }
+                                    
+                                return config;
                             }
                         }
             			
             	})
+            	.bind("select_node.jstree", function (e, data) {
+            	    if (data.rslt.obj.attr("rel")=="orphaned" && $("div#content_details").attr('rel')!=data.rslt.obj.attr("rel")) {
+            	        $("#right_panel").show();
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                        $("div#metadata_details").html('<p>{% trans "This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container." %}</p>');
+                        $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                        $("div#content_details").load('/webclient/load_data/'+data.rslt.obj.attr("rel")+'/?view=icon');
+                        $("div#content_details").attr('rel', data.rslt.obj.attr("rel"));
+                    } else if(data.rslt.obj.attr("rel")!="experimenter") {
+            	        $("#right_panel").show();
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/'+data.rslt.obj.attr("rel")+'/'+data.rslt.obj.attr("id").split("-")[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
+                        $('iframe#metadata_details').load();
+                
+                        if($.inArray(data.rslt.obj.attr("rel"), ["dataset", "plate"]) == 0 && $("div#content_details").attr('rel')!=data.rslt.obj.attr("id")) {
+                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                            $("div#content_details").load('/webclient/load_data/'+data.rslt.obj.attr("rel")+'/'+data.rslt.obj.attr("id").split("-")[1]+'/?view=icon');
+                            $("div#content_details").attr('rel', data.rslt.obj.attr("id"));
+                        } else if(data.rslt.obj.attr("rel")=="image") {
+                            if (data.rslt.obj.parent().parent().attr("rel")=="orphaned" && $("div#content_details").attr('rel')!=data.rslt.obj.parent().parent().attr("rel")) {
+                                $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                                $("div#content_details").load('/webclient/load_data/'+data.rslt.obj.parent().parent().attr("rel")+'/?view=icon');
+                                $("div#content_details").attr('rel', data.rslt.obj.parent().parent().attr("rel"));
+                            } else if (data.rslt.obj.parent().parent().attr("rel")!="orphaned" && data.rslt.obj.parent().parent().attr("id")!=$("div#content_details").attr('rel')){
+                                $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                                $("div#content_details").load('/webclient/load_data/'+data.rslt.obj.parent().parent().attr("rel")+'/'+data.rslt.obj.parent().parent().attr("id").split("-")[1]+'/?view=icon');
+                                $("div#content_details").attr('rel', data.rslt.obj.parent().parent().attr("rel"));
+                            }                            
+                        } else if ($("div#content_details").attr('rel')!=data.rslt.obj.attr("id") && $("div#content_details").attr('rel')!=data.rslt.obj.parent().parent().attr("id")) {
+                            $("div#content_details").removeAttr('rel').children().remove();
+                        }
+                    } else {
+                        $("#right_panel").show();
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                        $("div#metadata_details").html('<p>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</p>');
+                        
+                    }
+        		})
             	.bind("create.jstree", function (e, data) {
             	    if(data.rslt.parent.attr("rel") == "project") {
                         url = '{% url manage_action_containers "addnewcontainer" %}project/'+data.rslt.parent.attr("id").split("-")[1]+'/';
@@ -229,8 +352,63 @@
                             }
                         });
                     }); 
-        		});            		           
-        });       
+        		})
+        		.bind("cut.jstree", function (e, data) {
+                    data.rslt.o.each(function (i) {
+                        url = '{% url manage_action_containers "remove" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
+                        $.ajax({
+            		        async : false,
+                            url: url,
+                            data : { 
+          					    "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1], 
+          						"destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
+          					},
+                            dataType: "json",
+                            type: "POST",
+                            success: function(r){
+                                if(eval(r.bad)) {
+          							$.jstree.rollback(data.rlbk);
+          						}
+          						else {
+          							$(data.rslt.oc).attr("id", $(this).attr("rel")+"-"+r.id);
+          							if(data.rslt.cy && $(data.rslt.oc).children("UL").length) {
+          								data.inst.refresh(data.inst._get_parent(data.rslt.oc));
+          							}
+          						}
+          						$("#analyze").click();
+                            }
+                        });
+                    });
+        		}).bind("remove.jstree", function (e, data) {
+                    data.rslt.obj.each(function (i) {
+                        ajax_data = new Object();
+                        if (($(this).attr("rel") == 'project' || $(this).attr("rel") == 'dataset' || $(this).attr("rel") == 'screen')) {
+                            if (confirm('Also delete content?')) {
+                                ajax_data.child = 'on';
+                            }
+                        }  
+                        if (confirm('Also delete annotations?')) {
+                            ajax_data.anns = 'on';
+                        }
+                        url = '{% url manage_action_containers "delete" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
+                        $.ajax({
+            		        async : false,
+                            url: url,
+                            data : ajax_data,
+                            dataType: "json",
+                            type: "POST",
+                            success: function(r){
+                                if(eval(r.bad)) {
+          							$.jstree.rollback(data.rlbk);
+          						}
+          						else {
+          							data.inst.refresh();
+          						}
+                            }
+                        });
+                    }); 
+        		});
+        	});
         
     </script>
     <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
@@ -247,7 +425,6 @@
 {% endblock %}
 
 {% block left %}
-
     <div class="toolbar">
         <div id="buttons" class="align_left">
             <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "usertags" %}'">
