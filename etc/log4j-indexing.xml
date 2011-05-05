@@ -82,6 +82,7 @@ omero.blitz.xargs.
   <category name="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor"> <priority value="TRACE"/> </category>
   <!-- Quieting blitz startup -->
   <category name="net.sf.ehcache"> <priority value="ERROR"/> </category>
+  <category name="ucar"> <priority value="WARN"/> </category><!-- NetCDF -->
 
   <!-- BUILD ////////////////////////////////////////////////////////////////// -->
   <category name="org.hibernate.tool.hbm2x.POJOExporter"> <priority value="ERROR"/> </category>

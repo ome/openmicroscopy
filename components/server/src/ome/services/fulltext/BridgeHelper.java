@@ -27,6 +27,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
+import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
 import org.springframework.context.ApplicationEventPublisher;
@@ -58,7 +59,22 @@ public abstract class BridgeHelper implements FieldBridge,
      */
     public final static String COMBINED = "combined_fields";
 
-    private final Log log = LogFactory.getLog(getClass());
+    /**
+     * Simpler wrapper to handle superclass proxy objects (e.g. Annotation)
+     * which do * not behave properly with instanceof checks.
+     *
+     * @see ticket:5076
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T getProxiedObject(T proxy) {
+        if (proxy instanceof HibernateProxy) {
+            return (T) ((HibernateProxy) proxy).getHibernateLazyInitializer()
+                    .getImplementation();
+        }
+        return proxy;
+    }
+
+    protected final Log log = LogFactory.getLog(getClass());
 
     protected ApplicationEventPublisher publisher;
 
