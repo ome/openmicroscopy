@@ -917,13 +917,17 @@ class BlitzObjectWrapper (object):
         attr name starting with '#' #immersion.
         In cases where the attribute E.g. 'getLightSource' should return a wrapped object, this is handled
         by the parent encoding the wrapper in the attribute name. E.g 'lightSource|LightSourceWrapper'
-        In both cases this returns a method that will return the object. 
-        
+        In both cases this returns a method that will return the object.
+        In addition, lookup of methods that return an rtype are wrapped to the method instead returns a primitive type.
+        E.g. image.getArchived() will return a boolean instead of rbool.
+
         @param attr:    The name of the attribute to get
         @type attr:     String
         @return:        The named attribute.
         @rtype:         method, value (string, long etc)
         """
+
+        # handle lookup of 'get' methods, using '_attrs' dict to define how we wrap returned objects. 
         if attr != 'get' and attr.startswith('get') and hasattr(self, '_attrs'):
             tattr = attr[3].lower() + attr[4:]      # 'getName' -> 'name'
             attrs = filter(lambda x: tattr in x, self._attrs)   # find attr with 'name'
@@ -939,6 +943,19 @@ class BlitzObjectWrapper (object):
                     def wrap ():                                # E.g. method returns a LightSourceWrapper(omero.model.lightSource)
                         return getattr(omero.gateway, a[len(tattr)+1:])(self._conn, getattr(self, tattr))
                     return wrap
+
+        # handle lookup of 'get' methods when we don't have '_attrs' on the object, E.g. image.getAcquisitionDate
+        if attr != 'get' and attr.startswith('get'):
+            attrName = attr[3].lower() + attr[4:]   # E.g. getAcquisitionDate -> acquisitionDate
+            if hasattr(self._obj, attrName):
+                def wrap():
+                    rv = getattr(self._obj, attrName)
+                    if hasattr(rv, 'val'):
+                        return isinstance(rv.val, StringType) and rv.val.decode('utf8') or rv.val
+                    return rv
+                return wrap
+
+        # handle direct access of attributes. E.g. image.acquisitionDate
         if not hasattr(self._obj, attr) and hasattr(self._obj, '_'+attr):
             attr = '_' + attr
         if hasattr(self._obj, attr):
