@@ -25,9 +25,11 @@ package org.openmicroscopy.shoola.agents.fsimporter.util;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -126,9 +128,14 @@ public class FileImportComponent
 	public static final int NO_CONTAINER = 3;
 	
 	/** 
-	 * Bound property indicating that the error to submit is selected or not. 
+	 * Bound property indicating that the error to submit is selected or not.
 	 */
 	public static final String SUBMIT_ERROR_PROPERTY = "submitError";
+	
+	/** 
+	 * Bound property indicating to display the error.
+	 */
+	public static final String DISPLAY_ERROR_PROPERTY = "displayError";
 	
 	/** Bound property indicating to browse the node. */
 	public static final String BROWSE_PROPERTY = "browse";
@@ -197,6 +204,9 @@ public class FileImportComponent
 	/** The check box displayed if the import failed. */
 	private JCheckBox		errorBox;
 	
+	/** The button indicating that an error occurred. */
+	private JButton		errorButton;
+	
 	/** Indicates the status of the on-going import. */
 	private StatusLabel		statusLabel;
 	
@@ -250,6 +260,19 @@ public class FileImportComponent
 	
 	/** The value indicating the number of imports in the folder. */
 	private int importCount;
+	
+	/** The error to show if any.*/
+	private Throwable exception;
+	
+	/** Displays the error box at the specified location.
+	 * 
+	 * @param p The location where to show the box.
+	 */
+	private void showError(Point p)
+	{
+		if (exception == null) return;
+		firePropertyChange(DISPLAY_ERROR_PROPERTY, null, exception);
+	}
 	
 	/** Sets the text indicating the number of import. */
 	private void setNumberOfImport()
@@ -404,6 +427,21 @@ public class FileImportComponent
 				"team.");
 		errorBox.setVisible(false);
 		errorBox.setSelected(true);
+		errorButton = new JButton("Failed");
+		errorButton.setForeground(ERROR_COLOR);
+		errorButton.addMouseListener(new MouseAdapter() {
+			
+			/** 
+			 * Displays the error dialog at the specified location.
+			 * @see MouseAdapter#mouseReleased(MouseEvent) 
+			 */
+			public void mouseReleased(MouseEvent e) {
+				showError(e.getPoint());
+			}
+			
+		});
+		errorButton.setVisible(false);
+		
 		statusLabel = new StatusLabel();
 		statusLabel.addPropertyChangeListener(this);
 		deleteButton = new JButton(icons.getIcon(IconManager.DELETE));
@@ -421,6 +459,7 @@ public class FileImportComponent
 		add(cancelButton);
 		add(resultLabel);
 		add(statusLabel);
+		add(errorButton);
 		add(errorBox);
 		add(deleteButton);
 		add(Box.createHorizontalStrut(15));
@@ -657,11 +696,18 @@ public class FileImportComponent
 				error = e;
 			}
 			if (error != null) {
+				exception = error;
 				fileNameLabel.setForeground(ERROR_COLOR);
+				resultLabel.setVisible(false);
+				/*
 				resultLabel.setForeground(ERROR_COLOR);
 				setStatusText(NOT_VIEW_TEXT);
 				resultLabel.setToolTipText(
 						UIUtilities.formatExceptionForToolTip(error));
+						*/
+				errorButton.setToolTipText(
+						UIUtilities.formatExceptionForToolTip(error));
+				errorButton.setVisible(true);
 				errorBox.setVisible(true);
 				errorBox.addChangeListener(this);
 				deleteButton.setVisible(true);
@@ -698,11 +744,19 @@ public class FileImportComponent
 				containerLabel.setVisible(showContainerLabel);
 			} else {
 				fileNameLabel.setForeground(ERROR_COLOR);
+				/*
 				resultLabel.setForeground(ERROR_COLOR);
 				setStatusText(NOT_VIEW_TEXT);
 				resultLabel.setToolTipText(
 						UIUtilities.formatExceptionForToolTip(
 								thumbnail.getError()));
+								*/
+				resultLabel.setVisible(false);
+				errorButton.setToolTipText(
+						UIUtilities.formatExceptionForToolTip(
+								thumbnail.getError()));
+				exception = thumbnail.getError();
+				errorButton.setVisible(true);
 				errorBox.setVisible(true);
 				errorBox.addChangeListener(this);
 				deleteButton.setVisible(true);
@@ -765,11 +819,19 @@ public class FileImportComponent
 					setStatusText((String) image);
 				} else if (image instanceof ImportException) {
 					fileNameLabel.setForeground(ERROR_COLOR);
+					resultLabel.setVisible(false);
+					/*
 					resultLabel.setForeground(ERROR_COLOR);
 					ImportException ie = (ImportException) image;
 					setStatusText(ie.getMessage());
 					resultLabel.setToolTipText(
 							UIUtilities.formatExceptionForToolTip(ie));
+							*/
+					ImportException ie = (ImportException) image;
+					errorButton.setToolTipText(
+							UIUtilities.formatExceptionForToolTip(ie));
+					exception = ie;
+					errorButton.setVisible(true);
 					errorBox.setVisible(true);
 					errorBox.addChangeListener(this);
 				}

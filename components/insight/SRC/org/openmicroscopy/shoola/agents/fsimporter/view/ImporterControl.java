@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
+import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -52,12 +53,15 @@ import org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.RetryImportAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.SubmitFilesAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
+import org.openmicroscopy.shoola.agents.fsimporter.util.ErrorDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ExperimenterData;
 
 /** 
@@ -291,6 +295,10 @@ class ImporterControl
 			model.removeImportElement(index);
 		} else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
 			getAction(SEND_BUTTON).setEnabled(model.hasFailuresToSend());
+		} else if (FileImportComponent.DISPLAY_ERROR_PROPERTY.equals(name)) {
+			ErrorDialog d = new ErrorDialog(view, 
+					(Throwable) evt.getNewValue());
+			UIUtilities.centerAndShow(d);
 		} else if (ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)) {
 			Integer value = (Integer) evt.getNewValue();
 			int v = Importer.PROJECT_TYPE;

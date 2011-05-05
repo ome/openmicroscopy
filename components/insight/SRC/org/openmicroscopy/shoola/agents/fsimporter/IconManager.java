@@ -115,12 +115,15 @@ public class IconManager
     /** The <code>Switch location</code> icon. */
     public static final int 	SWITCH_LOCATION = 19;
     
+    /** The <code>Delete 48x48</code> icon. */
+    public static final int 	DELETE_48 = 20;
+    
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int	MAX_ID = 19;
+    private static final int	MAX_ID = 20;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -146,6 +149,7 @@ public class IconManager
         relPaths[APPLY_CANCEL] = "nuvola_apply_cancel16.png";
         relPaths[REFRESH] = "nuvola_reload16.png";
         relPaths[SWITCH_LOCATION] = "eclipse_hierarchy_co16.png";
+        relPaths[DELETE_48] = "nuvola_cancel48.png";
     }
     
     /** The sole instance. */

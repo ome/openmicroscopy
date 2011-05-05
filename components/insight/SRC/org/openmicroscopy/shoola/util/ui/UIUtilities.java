@@ -77,6 +77,8 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.TabSet;
+import javax.swing.text.TabStop;
 
 
 //Third-party libraries
@@ -2207,5 +2209,62 @@ public class UIUtilities
     		return "";
     	return value;
     }
+    
+	/** Builds the UI component displaying the exception.*/
+	public static JTextPane buildExceptionArea()
+	{
+		StyleContext context = new StyleContext();
+        StyledDocument document = new DefaultStyledDocument(context);
+
+        JTextPane textPane = new JTextPane(document);
+        textPane.setOpaque(false);
+        textPane.setEditable(false);
+
+        // Create one of each type of tab stop
+        List<TabStop> list = new ArrayList<TabStop>();
+        
+        // Create a left-aligned tab stop at 100 pixels from the left margin
+        float pos = 15;
+        int align = TabStop.ALIGN_LEFT;
+        int leader = TabStop.LEAD_NONE;
+        TabStop tstop = new TabStop(pos, align, leader);
+        list.add(tstop);
+        
+        // Create a right-aligned tab stop at 200 pixels from the left margin
+        pos = 15;
+        align = TabStop.ALIGN_RIGHT;
+        leader = TabStop.LEAD_NONE;
+        tstop = new TabStop(pos, align, leader);
+        list.add(tstop);
+        
+        // Create a center-aligned tab stop at 300 pixels from the left margin
+        pos = 15;
+        align = TabStop.ALIGN_CENTER;
+        leader = TabStop.LEAD_NONE;
+        tstop = new TabStop(pos, align, leader);
+        list.add(tstop);
+        
+        // Create a decimal-aligned tab stop at 400 pixels from the left margin
+        pos = 15;
+        align = TabStop.ALIGN_DECIMAL;
+        leader = TabStop.LEAD_NONE;
+        tstop = new TabStop(pos, align, leader);
+        list.add(tstop);
+        
+        // Create a tab set from the tab stops
+        TabSet tabs = new TabSet(list.toArray(new TabStop[0]));
+        
+        // Add the tab set to the logical style;
+        // the logical style is inherited by all paragraphs
+        Style style = textPane.getLogicalStyle();
+        StyleConstants.setTabSet(style, tabs);
+        textPane.setLogicalStyle(style);
+        Style debugStyle = document.addStyle("StyleName", null);
+        StyleConstants.setForeground(debugStyle, Color.BLACK);
+        StyleConstants.setFontFamily(debugStyle, "SansSerif");
+        StyleConstants.setFontSize(debugStyle, 12);
+        StyleConstants.setBold(debugStyle, false);
+        return textPane;
+	}
 
 }
