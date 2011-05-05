@@ -2284,7 +2284,7 @@ class _BlitzGateway (object):
         """
         Retrieve Objects by type E.g. "Image". Not Ordered. 
         Returns generator of appropriate L{BlitzObjectWrapper} type. E.g. L{ImageWrapper}.
-        If ids == None, all available objects will be returned. i.e. listObjects()
+        If ids is None, all available objects will be returned. i.e. listObjects()
         
         @param obj_type:    Object type. E.g. "Project" see above
         @type obj_type:     String
@@ -2295,15 +2295,15 @@ class _BlitzGateway (object):
 
         if type(obj_type) is type(''):
             wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
-            if wrapper == None:
+            if wrapper is None:
                 raise KeyError("obj_type of %s not supported by getOjbects(). E.g. use 'Image' etc" % obj_type)
         else:
             raise AttributeError("getObjects uses a string to define obj_type, E.g. 'Image'")
 
         q = self.getQueryService()
-        if params == None:
+        if params is None:
             params = omero.sys.Parameters()
-        if params.map == None:
+        if params.map is None:
             params.map = {}
 
         # get the base query from the instantiated object itself. E.g "select obj Project as obj"
@@ -2338,7 +2338,7 @@ class _BlitzGateway (object):
         """
         Retrieve Annotation Links by parent_type E.g. "Image". Not Ordered. 
         Returns generator of L{AnnotationLinkWrapper}
-        If parent_ids == None, all available objects will be returned. i.e. listObjects()
+        If parent_ids is None, all available objects will be returned. i.e. listObjects()
 
         @param obj_type:    Object type. E.g. "Project" see above
         @type obj_type:     String
@@ -2357,9 +2357,9 @@ class _BlitzGateway (object):
                 "join fetch annLink.parent as parent" % wrapper().OMERO_CLASS
 
         q = self.getQueryService()
-        if params == None:
+        if params is None:
             params = omero.sys.Parameters()
-        if params.map == None:
+        if params.map is None:
             params.map = {}
 
         clauses = []
@@ -3021,7 +3021,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         @return:    Wrapped AnnotationWrapper object or None if obj.__class__ not registered
         @rtype:     L{AnnotationWrapper} subclass
         """
-        if obj == None:
+        if obj is None:
             return AnnotationWrapper()
         if obj.__class__ in klass.registry:
             kwargs = dict()
@@ -3215,7 +3215,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
         rawFileStore = conn.createRawFileStore()
 
         # create original file, set name, path, mimetype
-        if origFilePathAndName == None:
+        if origFilePathAndName is None:
             origFilePathAndName = localPath
         originalFile = omero.model.OriginalFileI()
         path, name = os.path.split(origFilePathAndName)
