@@ -32,7 +32,6 @@
 	<classpathentry kind="lib" path="LIB/ols-client-1.15.jar"/>
 	<classpathentry kind="lib" path="LIB/ome-xml.jar"/>
 	<classpathentry kind="lib" path="LIB/omero_client.jar"/>
-	<classpathentry kind="lib" path="LIB/OmeroImporter.jar"/>
 	<classpathentry kind="lib" path="LIB/poi-loci.jar"/>
 	<classpathentry kind="lib" path="LIB/saaj-1.2.jar"/>
 	<classpathentry kind="lib" path="LIB/swingx-0.9.4.jar"/>
