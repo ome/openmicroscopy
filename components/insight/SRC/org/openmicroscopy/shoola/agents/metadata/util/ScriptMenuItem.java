@@ -78,6 +78,7 @@ public class ScriptMenuItem
 	
 	static {
 		SCRIPTS_UI_AVAILABLE = new ArrayList<String>();
+		/*
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.ROI_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.THUMBNAIL_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.MOVIE_SCRIPT);
@@ -85,6 +86,7 @@ public class ScriptMenuItem
 		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(AnalysisParam.FLIM_SCRIPT);
+		*/
 	}
 	
 	/** The script to handle. */
