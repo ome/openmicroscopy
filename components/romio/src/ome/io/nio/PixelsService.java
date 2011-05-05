@@ -24,6 +24,7 @@ import ome.io.bioformats.BfPixelBuffer;
 import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.messages.MissingPyramidMessage;
 import ome.model.core.Pixels;
+import ome.model.stats.StatsInfo;
 import ome.util.PixelData;
 
 import org.apache.commons.logging.Log;
@@ -138,25 +139,27 @@ public class PixelsService extends AbstractFileSystemService
      * @param pixels Pixels set to retrieve a pixel buffer for.
      * @since OMERO-Beta4.3
      */
-    public void makePyramid(Pixels pixels)
+    public StatsInfo[] makePyramid(Pixels pixels)
     {
         final String pixelsFilePath = getPixelsPath(pixels.getId());
         final File pixelsFile = new File(pixelsFilePath);
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
         final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
         final String originalFilePath = getOriginalFilePath(pixels);
-
+        StatsInfo[] statsInfo = new StatsInfo[1]; //FIXME
+        statsInfo[0] = new StatsInfo();
+        
         if (!pixelsFile.exists() && originalFilePath == null)
         {
             log.error("FAIL -- Original pixels file does not exist: "
                     + pixelsFile.getAbsolutePath());
-            return; // EARLY EXIT!
+            return null; // EARLY EXIT!
         }
 
         if (pixelsPyramidFile.exists())
         {
             log.debug("Pyramid already exists: " + pixelsPyramidFilePath);
-            return; // EARLY EXIT!
+            return null; // EARLY EXIT!
         }
 
         final PixelBuffer pixelsPyramid = createPyramidPixelBuffer(
@@ -182,6 +185,8 @@ public class PixelsService extends AbstractFileSystemService
                 }
             }
         }
+
+        return statsInfo;
     }
 
     private void performWrite(Pixels pixels, final File pixelsPyramidFile,
@@ -250,8 +255,6 @@ public class PixelsService extends AbstractFileSystemService
                 }
             }
         }
-
-
     }
 
    /**
