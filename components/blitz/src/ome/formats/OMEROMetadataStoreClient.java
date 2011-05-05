@@ -311,7 +311,7 @@ public class OMEROMetadataStoreClient
 
     /** Companion file namespace */
     private static final String NS_COMPANION =
-	"openmicroscopy.org/omero/import/companionFile";
+	omero.constants.namespaces.NSCOMPANIONFILE.value;
 
     /** Original metadata text file key */
     private static final String ORIGINAL_METADATA_KEY =
@@ -1520,9 +1520,9 @@ public class OMEROMetadataStoreClient
 				        metadataFile, indexes, format);
 				log.debug("originalFile created");
 				originalFile.setPath(toRType(String.format("%s%s/",
-				        omero.constants.namespaces.NSORIGINALMETADATA.value,
+				        omero.constants.namespaces.ORIGINALMETADATAPREFIX.value,
 				        uuid)));
-				originalFile.setName(toRType("original_metadata.txt"));
+				originalFile.setName(toRType(omero.constants.namespaces.ORIGINALMETADATA.value));
 				log.debug("originalFile path created");
                     indexes = new LinkedHashMap<Index, Integer>();
                     indexes.put(Index.IMAGE_INDEX, series);

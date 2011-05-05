@@ -121,6 +121,7 @@ module omero {
 
         /** Constants used for file annotations. **/
         module file {
+            const string ORIGINALMETADATAPREFIX = "/openmicroscopy.org/omero/image_files/";
             const string ORIGINALMETADATA = "original_metadata.txt";
         };
     };
@@ -157,7 +158,6 @@ module omero {
     module namespaces {
         const string NSMEASUREMENT = "openmicroscopy.org/omero/measurement";
         const string NSCOMPANIONFILE = "openmicroscopy.org/omero/import/companionFile";
-        const string NSORIGINALMETADATA = "/openmicroscopy.org/omero/image_files/";
         const string NSEXPERIMENTERPHOTO = "openmicroscopy.org/omero/experimenter/photo";
         const string NSBULKANNOTATIONS = "openmicroscopy.org/omero/bulk_annotations";
         //
