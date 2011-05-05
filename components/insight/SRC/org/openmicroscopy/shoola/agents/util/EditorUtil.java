@@ -47,7 +47,6 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import omero.RDouble;
 import omero.model.PlaneInfo;
-
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.util.filter.file.CppFilter;
@@ -59,6 +58,8 @@ import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMEComboBoxUI;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.DataObject;
@@ -215,6 +216,15 @@ public class EditorUtil
     
     /** Identifies the <code>Acquisition date</code> field. */
     public static final String  ACQUISITION_DATE = "Acquisition date";
+    
+    /** Identifies the <code>Imported date</code> field. */
+    public static final String  IMPORTED_DATE = "Imported Date";
+    
+    /** Identifies the <code>XY Dimension</code> field. */
+    public static final String  XY_DIMENSION = "Dimensions (XY)";
+    
+    /** Identifies the <code>Z-sections/Timepoints</code> field. */
+    public static final String  Z_T_FIELDS = "z-sections/timepoints";
     
     /** Identifies the <code>Emission</code> field. */
     public static final String  EMISSION = "Emission";
@@ -514,6 +524,57 @@ public class EditorUtil
 	/** The filter to determine if a file is an editor file or not. */
 	private static final EditorFileFilter editorFilter = new EditorFileFilter();
 	
+	/**
+     * Returns the pixels size as a string.
+     * 
+     * @param details The map to convert.
+     * @return See above.
+     */
+    private static String formatPixelsSize(Map details)
+    {
+    	String x = (String) details.get(PIXEL_SIZE_X);
+    	String y = (String) details.get(PIXEL_SIZE_Y);
+    	String z = (String) details.get(PIXEL_SIZE_Z);
+    	Double dx = null, dy = null, dz = null;
+    	boolean number = true;
+    	NumberFormat nf = NumberFormat.getInstance();
+    	try {
+			dx = Double.parseDouble(x);
+		} catch (Exception e) {
+			number = false;
+		}
+		try {
+			dy = Double.parseDouble(y);
+		} catch (Exception e) {
+			number = false;
+		}
+		try {
+			dz = Double.parseDouble(z);
+		} catch (Exception e) {
+			number = false;
+		}
+		
+    	String label = "<b>Pixels Size (";
+    	String value = "";
+    	if (dx != null && dx.doubleValue() > 0) {
+    		value += nf.format(dx);
+    		label += "X";
+    	}
+    	if (dy != null && dy.doubleValue() > 0) {
+    		if (value.length() == 0) value += nf.format(dy);
+    		else value +="x"+nf.format(dy);
+    		label += "Y";
+    	}
+    	if (dz != null && dz.doubleValue() > 0) {
+    		if (value.length() == 0) value += nf.format(dz);
+    		else value +="x"+nf.format(dz);
+    		label += "Z";
+    	}
+    	label += ")";
+    	if (value.length() == 0) return null;
+    	return label+": </b>"+value;
+    }
+    
 	/**
      * Rounds the value.
      * 
@@ -2010,4 +2071,63 @@ public class EditorUtil
     	return exp.getFirstName()+" "+exp.getLastName();
     }
     
+	/**
+	 * Returns the date.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	public static String formatDate(DataObject object)
+	{
+		String date = "";
+		Timestamp time = null;
+		if (object == null) return date;
+		if (object instanceof AnnotationData)
+			time = ((AnnotationData) object).getLastModified();
+		else if (object instanceof ImageData) 
+			time = getAcquisitionTime((ImageData) object);
+		else time = object.getCreated();
+		if (time != null) date = UIUtilities.formatShortDateTime(time);
+		return date;
+	}
+	
+    /**
+     * Formats the tooltip for an image.
+     * 
+     * @param image The image to handle.
+     * @return See above.
+     */
+    public static List<String> formatImageTooltip(ImageData image)
+    {
+    	if (image == null) return null;
+    	PixelsData data = null;
+    	try {
+			data = image.getDefaultPixels();
+		} catch (Exception e) {}
+		if (data == null) return null;
+		Map details = transformPixelsData(data);
+		List<String> l = new ArrayList<String>();
+		String v = "<b>"+ACQUISITION_DATE+": </b>"+formatDate(image);
+		l.add(v);
+		try {
+			v = "<b>"+IMPORTED_DATE+": </b>"+
+			UIUtilities.formatShortDateTime(image.getInserted());
+			l.add(v);
+		} catch (Exception e) {}
+		v = "<b>"+XY_DIMENSION+": </b>";;
+		v += (String) details.get(SIZE_X);
+    	v += " x ";
+    	v += (String) details.get(SIZE_Y);
+    	l.add(v);
+    	v = "<b>"+PIXEL_TYPE+": </b>"+details.get(PIXEL_TYPE);
+    	l.add(v);
+    	v = formatPixelsSize(details);
+    	if (v != null) l.add(v);
+    	v = "<b>"+Z_T_FIELDS+": </b>";
+    	v += (String) details.get(SECTIONS);
+    	v += " x ";
+    	v += (String) details.get(TIMEPOINTS);
+    	l.add(v);
+    	return l;
+    }
 }

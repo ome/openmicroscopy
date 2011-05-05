@@ -838,23 +838,14 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns the first name and the last name of the owner.
+	 * Returns the date.
 	 * 
 	 * @param object The object to handle.
 	 * @return See above.
 	 */
 	String formatDate(DataObject object)
-	{
-		String date = "";
-		Timestamp time = null;
-		if (object == null) return date;
-		if (object instanceof AnnotationData)
-			time = ((AnnotationData) object).getLastModified();
-		else if (object instanceof ImageData) 
-			time = EditorUtil.getAcquisitionTime((ImageData) object);
-		else time = object.getCreated();
-		if (time != null) date = UIUtilities.formatShortDateTime(time);
-		return date;
+	{ 
+		return EditorUtil.formatDate(object);
 	}
 	
 	/**

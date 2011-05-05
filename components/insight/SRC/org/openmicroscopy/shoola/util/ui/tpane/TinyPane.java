@@ -696,4 +696,5 @@ public class TinyPane
     	super.setToolTipText(text);
     	uiDelegate.getTitleBar().setToolTipText(text);
     }
+
 }

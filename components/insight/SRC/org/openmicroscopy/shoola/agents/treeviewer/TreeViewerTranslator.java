@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Java imports
 import java.io.File;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,6 +63,7 @@ import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellData;
+import pojos.WellSampleData;
 
 /** 
  * This class contains a collection of utility static methods that transform
@@ -93,25 +95,23 @@ public class TreeViewerTranslator
         String toolTip = "";
         String title = null;
         Object uo = node.getUserObject();
+        List<String> l = null;
+        String s = "";
         if (uo instanceof ImageData) {
-        	ImageData img = (ImageData) uo;
-            Timestamp time = EditorUtil.getAcquisitionTime(img);
-            if (time == null) title = EditorUtil.DATE_NOT_AVAILABLE;
-            else title = UIUtilities.formatTime(time); 
-            StringBuffer buf = new StringBuffer();
-    		buf.append("<html><body>");
-    		buf.append(UIUtilities.formatString(img.getName(), -1));
-    		buf.append("<br>");
-    		buf.append(title);
-            toolTip = UIUtilities.formatToolTipText(buf.toString());
-            
-            node.setToolTip(toolTip); 
-        } else if (uo instanceof WellData) {
-        	toolTip = UIUtilities.formatToolTipText(
-        		((WellData) node.getUserObject()).getExternalDescription());
-        	node.setToolTip(toolTip);
-        } else if (uo instanceof File) {
-        	
+        	l = EditorUtil.formatImageTooltip((ImageData) uo);
+        	s = UIUtilities.formatString(((ImageData) uo).getName(), -1);
+        } else if (uo instanceof WellSampleData) {
+    		ImageData img = ((WellSampleData) uo).getImage();
+    		s = ((WellData) node.getUserObject()).getExternalDescription();
+    		if (img != null)
+    			EditorUtil.formatImageTooltip(img);
+    	}
+        if (l == null || l.size() == 0) node.setToolTip(s);
+        else {
+        	List<String> ll = new ArrayList<String>();
+        	ll.add(s);
+        	ll.addAll(l);
+        	node.setToolTip(UIUtilities.formatToolTipText(ll));
         }
     }
     

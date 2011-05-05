@@ -28,8 +28,11 @@ import java.awt.Dimension;
 import java.awt.event.MouseListener;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
@@ -127,15 +130,25 @@ public class ImageNode
         super(title, "", hierarchyObject);
         //Probably cleaner to use a visitor but for performance reason better
         //that way.
-        StringBuffer buf = new StringBuffer();
-		buf.append("<html><body>");
-		buf.append(UIUtilities.formatString(title, -1));
-		buf.append("<br>");
-		buf.append(getFormattedAcquisitionTime());
-		
+        String s = UIUtilities.formatString(title, -1);
         setTitle(getPartialName(title+LEFT+getFormattedAcquisitionTime()+
         						RIGHT));
-        setToolTipText(buf.toString());
+        
+        List<String> l = null;
+        if (hierarchyObject instanceof ImageData) {
+        	l = EditorUtil.formatImageTooltip((ImageData) hierarchyObject);
+        } else if (hierarchyObject instanceof WellSampleData) {
+    		ImageData img = ((WellSampleData) hierarchyObject).getImage();
+    		if (img != null)
+    			EditorUtil.formatImageTooltip(img);
+    	}
+        if (l == null || l.size() == 0) setToolTipText(s);
+        else {
+        	List<String> ll = new ArrayList<String>();
+        	ll.add(s);
+        	ll.addAll(l);
+        	 setToolTipText(UIUtilities.formatToolTipText(ll));
+        }
         setNodeDecoration();
         //if (t == null) throw new NullPointerException("No thumbnail.");
         thumbnail = t;

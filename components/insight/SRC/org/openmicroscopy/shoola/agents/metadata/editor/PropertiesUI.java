@@ -587,7 +587,7 @@ class PropertiesUI
     	JLabel l = new JLabel();
     	Font font = l.getFont();
     	int size = font.getSize()-2;
-    	JLabel label = UIUtilities.setTextFont("Acquisition Date", 
+    	JLabel label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE, 
     			Font.BOLD, size);
     	JLabel value = UIUtilities.createComponent(null);
     	String v = model.formatDate(image);
@@ -598,7 +598,7 @@ class PropertiesUI
     	c.gridy++; 	
     	c.gridx = 0;
     	try { //just to be on the save side
-    		label = UIUtilities.setTextFont("Imported Date", 
+    		label = UIUtilities.setTextFont(EditorUtil.IMPORTED_DATE, 
         			Font.BOLD, size);
         	value = UIUtilities.createComponent(null);
         	v =  UIUtilities.formatShortDateTime(image.getInserted());
@@ -610,7 +610,8 @@ class PropertiesUI
 		} catch (Exception e) {
 			
 		}
-    	label = UIUtilities.setTextFont("Dimensions (XY)", Font.BOLD, size);
+    	label = UIUtilities.setTextFont(EditorUtil.XY_DIMENSION, Font.BOLD, 
+    			size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SIZE_X);
     	v += " x ";
@@ -621,7 +622,7 @@ class PropertiesUI
     	c.gridx = c.gridx+2;
     	content.add(value, c);
     	c.gridy++;
-    	label = UIUtilities.setTextFont("Pixels Type", Font.BOLD, size);
+    	label = UIUtilities.setTextFont(EditorUtil.PIXEL_TYPE, Font.BOLD, size);
     	value = UIUtilities.createComponent(null);
     	value.setText((String) details.get(EditorUtil.PIXEL_TYPE));
     	c.gridx = 0;
@@ -641,7 +642,7 @@ class PropertiesUI
         	content.add(value, c);
     	}
     	c.gridy++;
-    	label = UIUtilities.setTextFont("z-sections/timepoints", Font.BOLD, 
+    	label = UIUtilities.setTextFont(EditorUtil.Z_T_FIELDS, Font.BOLD, 
     			size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SECTIONS);
