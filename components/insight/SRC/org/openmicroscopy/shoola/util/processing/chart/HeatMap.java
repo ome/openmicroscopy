@@ -24,7 +24,11 @@ package org.openmicroscopy.shoola.util.processing.chart;
 //Java imports
 
 //Third-party libraries
+import java.awt.Color;
+
 import processing.core.PApplet;
+import processing.core.PImage;
+import processing.core.PVector;
 
 //Application-internal dependencies
 
@@ -44,6 +48,9 @@ import processing.core.PApplet;
 public class HeatMap
 {
 	
+	/** The image of the heatmap. */
+	PImage image;
+	
 	/** The parent applet. */
 	private PApplet parent;
 	
@@ -53,14 +60,18 @@ public class HeatMap
 	/** The histogram chart. */
 	private HistogramChart histogramChart;
 	
+	/** The  cut of value bin for values displayed in heatmap. */
+	private int valueIsBlack;
+	
 	/**
 	 * Create an instance of the Heatmap.
 	 * 
 	 * @param parent The parent applet.
 	 * @param data The original Image Data.
 	 * @param chart The chart to use.
+	 * @param valueIsBlack values less than or equal to this value are black
 	 */
-	public HeatMap(PApplet parent, ImageData data, HistogramChart chart)
+	public HeatMap(PApplet parent, ImageData data, HistogramChart chart, int valueIsBlack)
 	{
 		if (parent == null)
 			throw new IllegalArgumentException("No PApplet specified.");
@@ -71,6 +82,32 @@ public class HeatMap
 		this.parent = parent;
 		this.imageData = data;
 		this.histogramChart = chart;
+		this.valueIsBlack = valueIsBlack;
+		calculateHeatMap();
+	}
+	
+	/**
+	 * Calculate the heatmap, and store it as an image.
+	 */
+	private void calculateHeatMap()
+	{
+		image = new PImage(imageData.getWidth(), imageData.getHeight());
+		double value;
+		int bin;
+		for (int x = 0; x < imageData.getWidth() ; x++)
+			for (int y = 0 ; y < imageData.getHeight() ; y++) 
+			{
+				value = imageData.getValue(x,y);
+				bin = histogramChart.findBin(value);
+				if(bin>valueIsBlack)
+				{
+					System.err.println("value : " + value);
+					System.err.println("colour : "+ new Color(histogramChart.findColour(value)));
+					image.set(x, y, histogramChart.findColour(value));
+				}
+				else
+					image.set(x, y, 0);
+			}
 	}
 	
 	/** 
@@ -78,18 +115,43 @@ public class HeatMap
 	 */
 	public void draw()
 	{
-		parent.pushStyle();
-		parent.noStroke();
-		double value;
-		int binning;
-		for (int x = 0; x < imageData.getWidth() ; x++)
-			for (int y = 0 ; y < imageData.getHeight() ; y++) {
-				value = imageData.getValue(x,y);
-				parent.fill(histogramChart.findColour(value));
-				binning = imageData.getBinning();
-				parent.rect(x*binning, y*binning, binning, binning);
-			}
-		parent.popStyle();
+		parent.pushMatrix();
+		//parent.scale((float)imageData.getBinning());
+		parent.image(image,0,0);
+		parent.popMatrix();
 	}
 
+	/**
+	 * Get the pixel Position of the heatmap.
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public PVector getPixelPosition(int x, int y)
+	{
+		System.err.println(imageData.getWidth());
+		System.err.println();
+		return new PVector((
+				((float)x/(imageData.getWidth()*imageData.getBinning()))
+				*imageData.getWidth()),((float)y/(imageData.getHeight()*imageData.getBinning())*imageData.getHeight()));
+	}
+	
+	/**
+	 * Get the width of the heatmap.
+	 * @return See above.
+	 */
+	public int getWidth()
+	{
+		return imageData.getWidth()*imageData.getBinning();
+	}	
+	
+	/**
+	 * Get the height of the heatmap.
+	 * @return See above.
+	 */
+	public int getHeight()
+	{
+		return imageData.getHeight()*imageData.getBinning();
+	}
+	
 }

@@ -22,7 +22,9 @@
 package org.openmicroscopy.shoola.util.processing.chart;
 
 //Java imports
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -45,6 +47,17 @@ import java.util.List;
  */
 public class Histogram
 {
+	/** The key for the minimum value in the map. */
+	public final static String MIN = "MIN";
+	
+	/** The key for the maximum value in the map. */
+	public final static String MAX = "MAX";
+
+	/** The key for the mean value in the map. */
+	public final static String MEAN = "MEAN";
+	
+	/** The key for the freq value in the map. */
+	public final static String FREQ = "FREQ";
 	
 	/** The original data. */
 	private List<Double> originalData;
@@ -193,4 +206,21 @@ public class Histogram
 		
 	}
 	
+	/**
+	 * Get the stats of the bin.
+	 * @param bin See above.
+	 * @return A map of the stats calculated.
+	 */
+	public Map<String, Double> getBinStats(int bin)
+	{
+		if(bin<0 || bin>bins)
+			return null;
+		Map<String, Double> binStats = new HashMap<String, Double>();
+		binStats.put(MEAN, findValue(bin));
+		binStats.put(MIN, lower+bin*binWidth);
+		binStats.put(MAX, lower+bin*binWidth+binWidth);
+		binStats.put(FREQ, (double)freq[bin]);
+		
+		return binStats;
+	}
 }

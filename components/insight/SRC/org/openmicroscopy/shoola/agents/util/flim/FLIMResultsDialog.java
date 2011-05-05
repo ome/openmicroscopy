@@ -24,14 +24,18 @@ package org.openmicroscopy.shoola.agents.util.flim;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -46,7 +50,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Map.Entry;
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -56,15 +59,14 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.filechooser.FileFilter;
 
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.jdesktop.swingx.JXTaskPane;
@@ -76,16 +78,17 @@ import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+import org.openmicroscopy.shoola.util.processing.chart.Histogram;
 import org.openmicroscopy.shoola.util.processing.chart.ImageData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.colour.GradientUtil;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 
 import pojos.FileAnnotationData;
+import processing.core.PVector;
 
 /** 
  * Displays the results stored in the passed file.
@@ -186,9 +189,12 @@ public class FLIMResultsDialog
 	
 	/** Component displaying the image. */
 	private ImageCanvas canvas;
-	
+
 	/** Component hosting the settings. */
 	private JPanel settings;
+	
+	/** Component hosting the values of the selected data. */
+	private JPanel cursorResults;
 	
 	/** Component hosting the settings. */
 	private JComponent mainPane;
@@ -202,15 +208,30 @@ public class FLIMResultsDialog
 	/** Component displaying the graphics. */
 	private JComponent graphicsPane;
 	
+	/** The graph of the photons for the individual pixels selected. */
+	private XYChartCanvas photonChart;
+	
 	/** Used to sort the results. */
 	private ViewerSorter sorter;
 	
 	/** The label displaying the mean. */
 	private JLabel meanLabel;
-	
+
 	/** The label displaying the median. */
 	private JLabel medianLabel;
 	
+	/** The label displaying the mean of the bin. */
+	private JTextField meanBinLabel;
+	
+	/** The label displaying the minimum of the bin.. */
+	private JTextField minBinLabel;
+
+	/** The label displaying the maximum of the bin.. */
+	private JTextField maxBinLabel;
+
+	/** The label displaying the frequency of the bin.. */
+	private JTextField frequencyBinLabel;
+
 	/** Slider used to enter the minimum and maximum values. */
 	private TextualTwoKnobsSlider slider;
 	
@@ -305,6 +326,7 @@ public class FLIMResultsDialog
 	 */
 	private void createTable(Map<Double, Double> values)
 	{
+		
 		//reformat table.
 		Map<Double, Double> newValues = new HashMap<Double, Double>();
 		Iterator v = values.entrySet().iterator();
@@ -389,7 +411,13 @@ public class FLIMResultsDialog
 		
 		ImageData data = new ImageData(values, columns, rows, 1);
 		chartObject = new HistogramCanvas((List<Double>) sorter.sort(values), 
-				data, BINS);
+				data, BINS, true, 0);
+		chartObject.addPropertyChangeListener(this);
+		/*chartObject.addMouseListener(new MouseAdapter(){
+			public void mousePressed(MouseEvent me) { 
+	            canvasClicked(me.getX(), me.getY());
+	          } 
+		});*/
 	}
 	
 	/** 
@@ -401,24 +429,29 @@ public class FLIMResultsDialog
 	{
 		if (mainPane != null)
 			getContentPane().remove(mainPane);
-		//if (chartObject == null) return new JPanel();
-		//if (data == null) return new JPanel();
 		JPanel p = new JPanel();
 		Dimension dd = chartObject.getPreferredSize();
 		int h = dd.height;
-		double[][] size = {{TableLayout.PREFERRED, TableLayout.PREFERRED}, 
-				{TableLayout.PREFERRED, TableLayout.FILL, 200}};
-		p.setLayout(new TableLayout(size));
-		p.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		//p.add(canvas, "0, 0, LEFT, TOP");
 		JPanel row = new JPanel();
 		row.setLayout(new FlowLayout(FlowLayout.LEFT));
-		row.add(UIUtilities.buildComponentPanel(settings));
-		row.add(graphicsPane);
-		row.add(intervalsPane);
+		row.add((settings));
+		row.add(cursorResults);
 		p.add(row);
-		p.add(new JScrollPane(chartObject));
+		chartObject.setPreferredSize(new Dimension(1000,300));
+		chartObject.setMaximumSize(new Dimension(1000,300));
+		chartObject.setMaximumSize(new Dimension(1000,300));
+		photonChart.setPreferredSize(new Dimension(1000,250));
+		photonChart.setMaximumSize(new Dimension(1000,250));
+		photonChart.setMaximumSize(new Dimension(1000,250));
+		p.add(chartObject);
+		p.add(Box.createVerticalStrut(5));
+		p.add(photonChart);
+		intervalsPane.setPreferredSize(new Dimension(1000,80));
+		intervalsPane.setMaximumSize(new Dimension(1000,80));
+		intervalsPane.setMaximumSize(new Dimension(1000,80));
+		p.add(Box.createVerticalStrut(5));
+		p.add(intervalsPane);
 		return p;
 	}
 	
@@ -444,6 +477,14 @@ public class FLIMResultsDialog
 	{
 		meanLabel = new JLabel();
 		medianLabel = new JLabel();
+		meanBinLabel = new JTextField();
+		maxBinLabel = new JTextField();
+		minBinLabel = new JTextField();
+		frequencyBinLabel = new JTextField();
+		meanBinLabel.setEditable(false);
+		maxBinLabel.setEditable(false);
+		minBinLabel.setEditable(false);
+		frequencyBinLabel.setEditable(false);
 		canvas = new ImageCanvas();
 		Entry entry;
 		Iterator i = results.entrySet().iterator();
@@ -520,6 +561,12 @@ public class FLIMResultsDialog
 		tableValues.getTableHeader().setReorderingAllowed(false);
 		graphicsPane = new JScrollPane(tableValues);
 		saveButton.setEnabled(chartObject != null);
+
+		photonChart = new XYChartCanvas();
+		List<PVector> data = new ArrayList<PVector>();
+		for(int h = 0 ; h < 100 ; h++)
+			data.add(new PVector(h,0));
+		photonChart.setData(data);
 	}
 	
 	/** Closes the dialog. */
@@ -668,21 +715,35 @@ public class FLIMResultsDialog
 		row.add(l);
 		row.add(resultsBox);
 		content.add(UIUtilities.buildComponentPanel(row));
-		row = new JPanel();
-		l = new JLabel();
-		l.setText("Mean:");
-		row.add(l);
-		row.add(meanLabel);
-		content.add(UIUtilities.buildComponentPanel(row));
-		//row.add(Box.createHorizontalStrut(5));
-		row = new JPanel();
-		row.setLayout(new FlowLayout());
-		l = new JLabel();
-		l.setText("Median:");
-		row.add(l);
-		row.add(medianLabel);
-		content.add(UIUtilities.buildComponentPanel(row));
+		return content;
+	}
+	
+	/**
+	 * Build the component displaying the cursor results.
+	 * @return See above.
+	 */
+	private JPanel buildCursorResultsComponent()
+	{
+		JPanel content = new JPanel();
+		double size[][] = {{40,80,40,80},{26,26}};
+		content.setLayout(new TableLayout(size));
 		
+		JLabel l = new JLabel();
+		l.setText("Mean");
+		content.add(l,"0,0");
+		content.add(meanBinLabel,"1,0");
+		l = new JLabel();
+		l.setText("Freq");
+		content.add(l,"2,0");
+		content.add(frequencyBinLabel,"3,0");
+		l = new JLabel();
+		l.setText("Min");
+		content.add(l,"0,1");
+		content.add(minBinLabel,"1,1");
+		l = new JLabel();
+		l.setText("Max");
+		content.add(l,"2,1");
+		content.add(maxBinLabel,"3,1");
 		return content;
 	}
 	
@@ -713,6 +774,7 @@ public class FLIMResultsDialog
 			text += " for "+imageName;
 		TitlePanel tp = new TitlePanel("Results", text, icon);
 		settings = buildSettingsComponent();
+		cursorResults = buildCursorResultsComponent();
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout());
 		container.add(tp, BorderLayout.NORTH);
@@ -748,7 +810,7 @@ public class FLIMResultsDialog
 		}
 		initComponents();
 		buildGUI(icon);
-		setSize(600, 700);
+		setSize(1000, 800);
 	}
 	
 	/**
@@ -827,7 +889,33 @@ public class FLIMResultsDialog
 			saveAs(f);
 		} else if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
 			plot();
+		}else if (HistogramCanvas.CHARTSELECTED_PROPERTY.equals(name)){
+			
+			displayMapResult((Integer)evt.getNewValue());
 		}
 	}
 	
+	/**
+	 * Plot the pixel graph for the position x,y
+	 * @param x See above.
+	 * @param y See above.
+	 */
+	private void plotPixel(int x, int y)
+	{
+		System.err.println(x+" "+y);
+	}
+	
+	/**
+	 * Display the stats on the point clicked in the chart.
+	 * @param bin The bin picked.
+	 */
+	private void displayMapResult(int bin)
+	{
+		
+		Map<String, Double> binStats = chartObject.getBinStats(bin);
+		meanBinLabel.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));
+		maxBinLabel.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MAX)));
+		minBinLabel.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MIN)));
+		frequencyBinLabel.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.FREQ)));
+	}
 }

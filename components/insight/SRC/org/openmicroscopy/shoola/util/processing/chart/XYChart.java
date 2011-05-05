@@ -1,4 +1,5 @@
 package org.openmicroscopy.shoola.util.processing.chart;
+import java.awt.Rectangle;
 import java.util.List;
 
 import org.gicentre.utils.colour.ColourTable;
@@ -281,9 +282,13 @@ public class XYChart extends AbstractChart
                 
         // Check to see if we have special case where x and y axes have the same origin, so only display it once.
         boolean showSingleOriginValue = false;
-        if ((getShowAxis(0) && getShowAxis(1)) && (axisFormatter[0].format(tics[0][0]).equals(axisFormatter[1].format(tics[1][0]))))
+        if(tics.length!=0)
         {
-            showSingleOriginValue = true;
+        	if(tics[0].length>1 && tics[1].length>1)
+        		if ((getShowAxis(0) && getShowAxis(1)) && (axisFormatter[0].format(tics[0][0]).equals(axisFormatter[1].format(tics[1][0]))))
+        		{
+        		showSingleOriginValue = true;
+        		}
         }
         int firstTic = showSingleOriginValue?1:0;
              
@@ -415,7 +420,7 @@ public class XYChart extends AbstractChart
                     {
                         axisPosition = (float)(top +vRange*(getMax(0)-yAxisPosition.doubleValue())/(getMax(0)-getMin(0))); 
                     }
-                }
+                }                             
                 parent.line(left,axisPosition,right,axisPosition);
             }
             else
@@ -881,5 +886,14 @@ public class XYChart extends AbstractChart
         
         showXAxis(showXAxis);
         showYAxis(showYAxis);
+    }
+    
+    /**
+     * Return the bounds of the drawing area of the Chart.
+     * @return See above.
+     */
+    public Rectangle getBounds()
+    {
+    	return new Rectangle((int)left, (int)top, (int)(right-left),(int)(bottom-top));
     }
 }

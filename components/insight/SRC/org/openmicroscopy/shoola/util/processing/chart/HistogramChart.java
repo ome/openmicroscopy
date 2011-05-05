@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.util.processing.chart;
 //Java imports
 import java.awt.Color;
 import java.util.List;
+import java.util.Map;
+
 
 //Third-party libraries
 import processing.core.PApplet;
@@ -57,20 +59,14 @@ public class HistogramChart
 	/** The number of bins in the histogram. */
 	private int bins;
 	
-	/** The starting location for the chart. */
-	private float xOrigin, yOrigin;
-	
-	/** The width and height of the chart. */
-	private float width, height;
-	
 	/** Flag indicating if the background should be draw as RGB. */
 	private boolean rgb;
 	
-	/** The values of the data where the r, g, b gradients change.*/
-	private double red, blue;
+	/** The bin  data where the r, g, b gradients change.*/
+	private int red, blue;
 	
 	/** Flag indicating to draw gradients in background. */
-	private boolean drawRGB;
+	private boolean drawBackground;
 	
 	/** The colors for red, green, blue areas. */
 	private int redColour, greenColour, blueColour;
@@ -82,7 +78,13 @@ public class HistogramChart
 	
 	/** Gradient step. */
 	private double gradientStep;
+	
+	/** The point in the data set that has been picked. */
+	private PVector pointPicked;
 
+	/** Display the graph from this value, values equal to this or less will be black in the heatmap. */
+	private int displayFrom;
+	
 	/**
 	 * Returns the bins values for the X axis of the plot.
 	 * 
@@ -102,20 +104,37 @@ public class HistogramChart
 	 * @param parent Reference to the <code>PApplet</code>.
 	 * @param orderedData The data to display.
 	 * @param bins The number of bins.s
+	 * @param displayFrom Only display values in the chart from this value.
+	 * @param fillType The type of fill on the background.
 	 */
-	public HistogramChart(PApplet parent, List<Double> orderedData, int bins)
+	public HistogramChart(PApplet parent, List<Double> orderedData, int bins, int displayFrom, FillType fillType)
 	{
 		super(parent);
 		if (bins <= 0) bins = 1;
 		this.bins = bins;
 		setHistogramData(orderedData);
 		this.rgb = true;
-		this.drawRGB = false;
+		this.drawBackground = false;
 		setPrimaryColours();
-		fillType = FillType.NONE;
+		this.fillType = fillType;
+		this.displayFrom = displayFrom;
 		gradientStep = 1;
+		pointPicked =null;
 	}
 
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param parent Reference to the <code>PApplet</code>.
+	 * @param orderedData The data to display.
+	 * @param bins The number of bins.
+	 * @param fillType The type of fill on the background.
+	 */
+	public  HistogramChart(PApplet parent, List<Double> orderedData, int bins, FillType fillType)
+	{
+		this(parent, orderedData, bins, -1, fillType);
+	}
+	
 	/** Sets the colour map to have primary Colours. */
 	public void setPrimaryColours()
 	{
@@ -138,18 +157,27 @@ public class HistogramChart
 	 */
 	public void draw(float xOrigin, float yOrigin, float width, float height)
 	{
-		this.xOrigin = xOrigin;
-		this.yOrigin = yOrigin;
-		this.width = width;
-		this.height = height;
 		parent.pushMatrix();
-		super.draw(xOrigin, yOrigin, width, height);
-		if (drawRGB)
+		if (drawBackground)
 		{
-			this.paintRGB();
+			this.paintBackground();
+			super.draw(xOrigin, yOrigin, width, height);
+			
+		}
+		else
+		{
 			super.draw(xOrigin, yOrigin, width, height);
 		}
 		parent.popMatrix();
+		if(pointPicked!=null)
+		{
+			parent.pushStyle();
+			parent.stroke(Color.white.getRGB());
+			parent.fill(Color.gray.getRGB());
+			parent.triangle(pointPicked.x-4,pointPicked.y-2,pointPicked.x,pointPicked.y+3,pointPicked.x+4,pointPicked.y-2);
+			parent.popStyle();
+			
+		}
 	}
 
 	/**
@@ -183,9 +211,9 @@ public class HistogramChart
 	 * 
 	 * @param drawRGB See above.
 	 */
-	public void setDrawRGB(boolean drawRGB)
+	public void drawBackground(boolean draw)
 	{
-		this.drawRGB = drawRGB;
+		this.drawBackground = draw;
 	}
 	
 	/**
@@ -194,10 +222,10 @@ public class HistogramChart
 	 * 
 	 * @param rgb Pass <code>true</code> to draw in RGB order, 
 	 * 			  <code>false</code> otherwise.
-	 * @param red The red component of the color.
-	 * @param blue The blue component of the color.
+	 * @param red The bin where the red component ends.
+	 * @param blue The bin where the blue component ends.
 	 */
-	public void setRGB(boolean rgb, double red, double blue)
+	public void setRGB(boolean rgb, int red, int blue)
 	{
 		this.rgb = rgb;
 		this.red = red;
@@ -223,8 +251,9 @@ public class HistogramChart
 	 * @param value See above.
 	 * @return See above.
 	 */
-	public int findColour(double value)
+	public int findColour(double val)
 	{
+		int value = findBin(val);
 		switch(fillType) {
 			case NONE:
 			
@@ -241,33 +270,38 @@ public class HistogramChart
 			}
 			case GRADIENT:
 			default:
+				System.err.println("binToColour()");
 				return binToColour(histogram.findBin(value));
 		}
 	}
 
 	/** Paints the RGB gradient on the background. */
-	public void paintRGB()
+	public void paintBackground()
 	{
 		float offset = 1;
-		int redBin = histogram.findBin(red);
+		
+		int redBin = (int)red;
 		PVector pRed = this.getDataToScreen(new PVector(redBin, 0));
-		int blueBin = histogram.findBin(blue);
+		int blueBin = (int)blue;
 		PVector pBlue = this.getDataToScreen(new PVector(blueBin, 0));
 		parent.pushStyle();
 		parent.noStroke();
+		
+		if(fillType == FillType.NONE && (pRed==null || pBlue == null))
+			return;
 		if (rgb)
 		{
 			switch(fillType)
 			{
 				case NONE:
 					parent.fill(redColour);
-					parent.rect(xOrigin, yOrigin, pRed.x, height, offset, 
+					parent.rect(left, top, pRed.x, bottom-top+1, offset, 
 							offset);	
 					parent.fill(greenColour);
-					parent.rect(pRed.x, yOrigin, pBlue.x-pRed.x, height,
+					parent.rect(pRed.x, top, pBlue.x-pRed.x, bottom-top+1,
 							offset, offset);	
 					parent.fill(blueColour);
-					parent.rect(pBlue.x, yOrigin, width-pBlue.x, height,
+					parent.rect(pBlue.x, top, right-pBlue.x, bottom-top+1,
 							offset, offset);
 					break;
 				case GRADIENT:
@@ -287,13 +321,13 @@ public class HistogramChart
 			{
 				case NONE:
 					parent.fill(blueColour);
-					parent.rect(xOrigin, yOrigin, pRed.x, height, offset, 
+					parent.rect(left, top, pRed.x, bottom-top+1, offset, 
 							offset);	
 					parent.fill(greenColour);
-					parent.rect(pRed.x, yOrigin, pBlue.x-pRed.x, height,
+					parent.rect(pRed.x, top, pBlue.x-pRed.x, bottom-top+1,
 							offset, offset);	
 					parent.fill(redColour);
-					parent.rect(pBlue.x, yOrigin, width-pBlue.x, height, 
+					parent.rect(pBlue.x, top, right-pBlue.x, bottom-top+1, 
 							offset, offset);	
 				case GRADIENT:
 				case JET:
@@ -350,19 +384,13 @@ public class HistogramChart
 	 */
 	private int binToColour(int bin)
 	{
-		switch(fillType)
-		{
-			case GRADIENT:
-				double midPoint = bins/2;
-				if (bin < midPoint)
-					return mixColour(redColour, greenColour,
-							1.0-(double) bin/midPoint, (double) bin/midPoint); 
-				return mixColour(greenColour, blueColour, 
-						1.0-((bin-midPoint)/midPoint),
-						((bin-midPoint)/midPoint)); 
-			default:
-				return getJetColour((double) bin/bins);
-			}
+		double midPoint = bins/2;
+		if (bin < midPoint)
+			return mixColour(redColour, greenColour,
+					1.0-(double) bin/midPoint, (double) bin/midPoint); 
+		return mixColour(greenColour, blueColour, 
+				1.0-((bin-midPoint)/midPoint),
+				((bin-midPoint)/midPoint)); 
 	}
 
 	/**
@@ -400,12 +428,23 @@ public class HistogramChart
 		return histogram.findValue((int)point.x);
 	}
 	
+	public float getYValue(float xValue)
+	{
+		int index = 0;
+		for(int i = 0 ; i < super.data[0].length ; i++)
+		{
+			if(super.data[0][i]==xValue)
+				index = i;
+		}
+		return super.data[1][index];
+	}
+	
 	/**
 	 * Sets the filling type for the graph.
 	 * 
 	 * @param fill See above.
 	 */
-	public void setGradientFill(FillType fill) { fillType = fill; }
+	public void setFill(FillType fill) { fillType = fill; }
 	
 	/**
 	 * Returns the vector corresponding to the screen point.
@@ -453,6 +492,35 @@ public class HistogramChart
 			y = y*(getMax(1)-getMin(1)) + getMin(1);
 		}
 		return new PVector(x,y);
+	}
+	
+	/**
+	 * Return the statistics of the bin.
+	 * @param bin See above.
+	 * @return A map containing the stat and the value.
+	 */
+	public Map<String, Double> getBinStats(int bin)
+	{
+		return histogram.getBinStats(bin);
+	}
+	
+	public int pick(PVector point)
+	{
+		PVector screenPt = getScreenToData(point);
+		float y = getYValue(screenPt.x);
+		pointPicked = getDataToScreen(new PVector(screenPt.x, y));
+		parent.redraw();
+		return (int)screenPt.x;
+	}
+	
+	/**
+	 * Find the bin for the value.
+	 * @param value See above.
+	 * @return The bin no.
+	 */
+	public int findBin(double value)
+	{
+		return histogram.findBin(value);
 	}
 	
 }
