@@ -26,6 +26,7 @@ def _additional_tests():
     suite.addTest(load("gatewaytest.connection"))
     suite.addTest(load("gatewaytest.wrapper"))
     suite.addTest(load("gatewaytest.get_objects"))
+    suite.addTest(load("gatewaytest.pixels"))
     suite.addTest(load("gatewaytest.z_db_cleanup"))
     return suite
 

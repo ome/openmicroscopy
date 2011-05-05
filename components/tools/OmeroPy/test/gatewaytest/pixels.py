@@ -25,9 +25,9 @@ class PixelsTest (lib.GTest):
         pixels = image.getPrimaryPixels()
         self.assertEqual(pixels.OMERO_CLASS, 'Pixels')
         self.assertEqual(pixels._obj.__class__, omero.model.PixelsI)
-        sizeZ = image.z_count()
-        sizeC = image.c_count()
-        sizeT = image.t_count()
+        sizeZ = image.getSizeZ()
+        sizeC = image.getSizeC()
+        sizeT = image.getSizeT()
         planeInfo = list(pixels.copyPlaneInfo())
         self.assertEqual(len(planeInfo), sizeZ*sizeC*sizeT)
 
@@ -52,9 +52,9 @@ class PixelsTest (lib.GTest):
         image = self.TESTIMG
         pixels = image.getPrimaryPixels()
 
-        sizeZ = image.z_count()
-        sizeC = image.c_count()
-        sizeT = image.t_count()
+        sizeZ = image.getSizeZ()
+        sizeC = image.getSizeC()
+        sizeT = image.getSizeT()
 
         zctList = []
         for z in range(sizeZ):
