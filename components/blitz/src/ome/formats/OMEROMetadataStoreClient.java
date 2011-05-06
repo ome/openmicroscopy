@@ -339,6 +339,15 @@ public class OMEROMetadataStoreClient
 		return keepAlive;
 	}
 
+    private void resetPixelsId(Long pixId) throws ServerError
+    {
+        if (pixId != null && !pixId.equals(currentPixId))
+        {
+            rawPixelStore.setPixelsId(pixId, true);
+            currentPixId = pixId;
+        }
+    }
+
     /**
      * Initialize all services needed
      *
@@ -2352,11 +2361,7 @@ public class OMEROMetadataStoreClient
     public int[] getTileSize(Long pixId)
         throws ServerError
     {
-        if (currentPixId != pixId)
-        {
-            rawPixelStore.setPixelsId(pixId, true);
-            currentPixId = pixId;
-        }
+        resetPixelsId(pixId);
         return rawPixelStore.getTileSize();
     }
 
@@ -2379,11 +2384,7 @@ public class OMEROMetadataStoreClient
                         int x, int y, int w, int h)
         throws ServerError
     {
-        if (currentPixId != pixId)
-        {
-            rawPixelStore.setPixelsId(pixId, true);
-            currentPixId = pixId;
-        }
+        resetPixelsId(pixId);
         rawPixelStore.setTile(arrayBuf, z, c, t, x, y, w, h);
     }
 
@@ -2400,11 +2401,7 @@ public class OMEROMetadataStoreClient
     public void setPlane(Long pixId, byte[] arrayBuf, int z, int c, int t)
         throws ServerError
     {
-        if (currentPixId != pixId)
-        {
-            rawPixelStore.setPixelsId(pixId, true);
-            currentPixId = pixId;
-        }
+        resetPixelsId(pixId);
         rawPixelStore.setPlane(arrayBuf, z, c, t);
     }
 
