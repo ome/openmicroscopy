@@ -35,6 +35,7 @@ import omero.api.AMD_RenderingEngine_getPixelsTypeLowerBound;
 import omero.api.AMD_RenderingEngine_getPixelsTypeUpperBound;
 import omero.api.AMD_RenderingEngine_getQuantumDef;
 import omero.api.AMD_RenderingEngine_getRGBA;
+import omero.api.AMD_RenderingEngine_getRenderingDefId;
 import omero.api.AMD_RenderingEngine_isActive;
 import omero.api.AMD_RenderingEngine_isPixelsTypeSigned;
 import omero.api.AMD_RenderingEngine_load;
@@ -444,6 +445,11 @@ public class RenderingEngineI extends AbstractPyramidServant implements
             AMD_RenderingEngine_updateCodomainMap __cb,
             CodomainMapContext mapCtx, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, mapCtx);
+    }
+
+    public void getRenderingDefId_async(AMD_RenderingEngine_getRenderingDefId __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
     }
 
 

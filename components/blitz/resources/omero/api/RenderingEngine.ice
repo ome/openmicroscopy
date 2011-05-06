@@ -30,6 +30,7 @@ module omero {
                 Ice::IntSeq renderProjectedAsPackedInt(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
                 Ice::ByteSeq renderCompressed(omero::romio::PlaneDef def) throws ServerError;
                 Ice::ByteSeq renderProjectedCompressed(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
+                long getRenderingDefId() throws ServerError;
                 void lookupPixels(long pixelsId) throws ServerError;
                 bool lookupRenderingDef(long pixelsId) throws ServerError;
                 void loadRenderingDef(long renderingDefId) throws ServerError;

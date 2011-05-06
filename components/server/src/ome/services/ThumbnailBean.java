@@ -228,6 +228,14 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
     }
 
+    @RolesAllowed("user")
+    public long getRenderingDefId() {
+        if (settings == null || settings.getId() == null) {
+            throw new ApiUsageException("No rendering def");
+        }
+        return settings.getId();
+    }
+
     /*
      * (non-Javadoc)
      * 

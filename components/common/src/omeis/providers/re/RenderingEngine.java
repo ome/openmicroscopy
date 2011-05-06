@@ -196,6 +196,12 @@ public interface RenderingEngine extends StatefulServiceInterface {
     public void lookupPixels(long pixelsId);
 
     /**
+     * Returns the id of the {@link RederingDef} loaded by either
+     * {@link #lookupRenderingDef(long)} or {@link #loadRenderingDef(long)}.
+     */
+    public long getRenderingDefId();
+
+    /**
      * Loads the rendering settings associated to the specified pixels set.
      * 
      * @param pixelsId

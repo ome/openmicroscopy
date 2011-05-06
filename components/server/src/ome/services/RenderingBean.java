@@ -166,6 +166,14 @@ public class RenderingBean implements RenderingEngine, Serializable {
         this.compressionSrv = compress;
     }
 
+    @RolesAllowed("user")
+    public long getRenderingDefId() {
+        if (rendDefObj == null || rendDefObj.getId() == null) {
+            throw new ApiUsageException("No rendering def");
+        }
+        return rendDefObj.getId();
+    }
+
     // ~ Lifecycle methods
     // =========================================================================
 

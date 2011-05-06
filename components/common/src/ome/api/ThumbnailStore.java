@@ -64,6 +64,11 @@ public interface ThumbnailStore extends StatefulServiceInterface {
     public void setRenderingDefId(long renderingDefId);
 
     /**
+     * Return the id of the {@link RenderingDef} loaded in this instance.
+     */
+    public long getRenderingDefId();
+
+    /**
      * Retrieves a thumbnail for a pixels set using a given set of rendering
      * settings (RenderingDef). If the thumbnail exists in the on-disk cache 
      * it will be returned directly, otherwise it will be created as in {@link

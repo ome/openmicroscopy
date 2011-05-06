@@ -33,6 +33,7 @@ import omero.api.AMD_RenderingEngine_getPixelsTypeLowerBound;
 import omero.api.AMD_RenderingEngine_getPixelsTypeUpperBound;
 import omero.api.AMD_RenderingEngine_getQuantumDef;
 import omero.api.AMD_RenderingEngine_getRGBA;
+import omero.api.AMD_RenderingEngine_getRenderingDefId;
 import omero.api.AMD_RenderingEngine_isActive;
 import omero.api.AMD_RenderingEngine_isPixelsTypeSigned;
 import omero.api.AMD_RenderingEngine_load;
@@ -463,5 +464,11 @@ public class BfRenderingEngineI extends _RenderingEngineDisp {
             AMD_PyramidService_getResolutionLevel __cb, Current __current)
             throws ServerError
     {
+    }
+
+    public void getRenderingDefId_async(AMD_RenderingEngine_getRenderingDefId __cb,
+            Current __current) throws ServerError {
+        // TODO Auto-generated method stub
+
     }
 }
