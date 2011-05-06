@@ -137,7 +137,9 @@ class BrowserUI
     	int h = (int) (vy*region.height);
     	Rectangle r = new Rectangle(x, y, w, h);
     	model.checkTilesToLoad(r);
-    	scrollTo(r, false);
+    	//scrollTo(r, false);		
+    	getViewport().setViewPosition(new Point(r.x, r.y));
+    	setBirdEyeViewLocation();
     }
     
     /** Sets the location of the region.*/
@@ -501,9 +503,9 @@ class BrowserUI
 			if (h < 0) h = -h;
 			y = bounds.y-h/2;
         }
-		//vBar.setValue(y);
-		//hBar.setValue(x);
-		getViewport().setViewPosition(new Point(bounds.x, bounds.y));
+		vBar.setValue(y);
+		hBar.setValue(x);
+		//getViewport().setViewPosition(new Point(bounds.x, bounds.y));
 		setBirdEyeViewLocation();
 	}
 	
