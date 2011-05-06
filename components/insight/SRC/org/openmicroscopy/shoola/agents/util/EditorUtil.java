@@ -219,10 +219,10 @@ public class EditorUtil
     public static final String  NAME = "Name";
     
     /** Identifies the <code>Acquisition date</code> field. */
-    public static final String  ACQUISITION_DATE = "Acquisition date";
+    public static final String  ACQUISITION_DATE = "Acquired";
     
     /** Identifies the <code>Imported date</code> field. */
-    public static final String  IMPORTED_DATE = "Imported Date";
+    public static final String  IMPORTED_DATE = "Imported";
     
     /** Identifies the <code>XY Dimension</code> field. */
     public static final String  XY_DIMENSION = "Dimensions (XY)";
