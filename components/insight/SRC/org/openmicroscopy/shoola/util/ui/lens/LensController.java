@@ -288,7 +288,7 @@ class LensController
 	{
 		lensModel.setZoomFactor(zoomFactor);
 		setZoomUISize();
-		zoomWindow.repaint();
+		//zoomWindow.repaint();
 		//zoomWindow.setZoomImage(lensModel.getZoomedImage());
 	}
 	

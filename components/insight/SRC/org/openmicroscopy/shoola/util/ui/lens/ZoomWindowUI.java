@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -130,6 +131,9 @@ class ZoomWindowUI
 		layeredPane.setSize(d);
 		canvas.setSize(d);
 		canvas.setPreferredSize(d);
+		getViewport().setViewPosition(new Point(-1, -1));
+		canvas.repaint();
+		setBounds(getBounds());
 	}
 
 	/** Updates the background color of the view port. */
