@@ -3128,6 +3128,8 @@ class TreeViewerComponent
 		GroupData group = exp.getDefaultGroup();
 		long oldGroup = model.getUserGroupID();
 		if (success) {
+			model.setRndSettings(null);
+			model.setNodesToCopy(null, -1);
 			model.setGroupId(group.getId());
 			view.removeAllFromWorkingPane();
 			model.setDataViewer(null);
