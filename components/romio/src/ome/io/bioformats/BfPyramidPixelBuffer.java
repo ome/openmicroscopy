@@ -34,6 +34,7 @@ import ome.util.Utils;
 import ome.xml.model.enums.DimensionOrder;
 import ome.xml.model.primitives.PositiveInteger;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -57,8 +58,13 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     protected TiffReader reader;
 
-    /** Path to the file which will be passed to FormatHandler.setId */
-    private final String filePath;
+    /**
+     * File's who absolute path will be passed to
+     * {@link TiffReader#setId(String)} for reading.
+     *
+     * @see {@link #writePath}
+     */
+    private final File readerFile;
 
     /** The OMERO pixels set we're backing. */
     private final Pixels pixels;
@@ -75,12 +81,32 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /** Last timepoint offset  we used during a tile write operation. */
     private int lastT = -1;
 
-    // LOCKING
+    // LOCKING. See ticket #5083
 
+    /**
+     * File whose absolute path will be given to the {@link TiffWriter}.
+     *
+     * This prevents that a partially written file can be accessed, if some
+     * other process does not attempt to acquire the lock. On close, if this is
+     * non-null, then a move from this location to the {@link #filePath} (the
+     * reader path) will be attempted.
+     */
+    private File writerFile;
+
+    /**
+     * Lock file used both for the {@link TiffReader} and {@link TiffWriter}
+     * process.
+     */
     private File lockFile;
 
+    /**
+     * {@link RandomAccessFile} opened for the {@link #lockFile} path.
+     */
     private RandomAccessFile lockRaf;
 
+    /**
+     * If not null, {@link FileLock} instance acquired from the {@link #lockRaf}
+     */
     private FileLock fileLock;
 
     /**
@@ -97,34 +123,44 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     public BfPyramidPixelBuffer(Pixels pixels, String filePath, boolean write)
         throws IOException, FormatException
     {
-        this.filePath = filePath;
+        this.readerFile = new File(filePath);
         this.pixels = pixels;
 
         if (!write)
         {
-            initializeReader(filePath);
+            if (!readerFile.exists() && !readerFile.canRead()) {
+                throw new IOException("Cannot access " + filePath);
+            }
+            initializeReader();
         }
 
         else
         {
-           initializeWriter(filePath, TiffCompression.JPEG_2000.getCodecName(),
-                   false);
+            final File readerDir = readerFile.getParentFile();
+            writerFile = File.createTempFile("." + readerFile.getName(), ".tmp", readerDir);
+            writerFile.deleteOnExit();
+            initializeWriter(writerFile.getAbsolutePath(),
+                    TiffCompression.JPEG_2000.getCodecName(), false);
         }
     }
 
-    private synchronized void initializeReader(String filePath) throws IOException, FormatException
+    private synchronized void initializeReader() throws IOException, FormatException
     {
         if (isLockedByOthers())
         {
             throw new LockTimeout(String.format("%s is locked by others",
-                    filePath), 15*1000, 0);
+                    readerFile.getAbsolutePath()), 15*1000, 0);
         }
         reader = new TiffReader();
-        delegate = new BfPixelBuffer(filePath, reader);
+        delegate = new BfPixelBuffer(readerFile.getAbsolutePath(), reader);
     }
 
     /**
-     * Initializes the writer.
+     * Initializes the writer. Since the reader location is not present until
+     * this instance is closed, other {@link ByPyramidPixelBuffer} instances
+     * may try to also call this method in which case {@link #acquireLock()}
+     * will throw a {@link LockTimeout}.
+     *
      * @param output The file where to write the compressed data.
      * @param compression The compression to use.
      * @param bigTiff Pass <code>true</code> to set the <code>bigTiff</code>
@@ -135,9 +171,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
                                         boolean bigTiff)
         throws FormatException
     {
+        acquireLock();
         try
         {
-            acquireLock();
             loci.common.services.ServiceFactory lociServiceFactory =
                 new loci.common.services.ServiceFactory();
             OMEXMLService service = lociServiceFactory.getInstance(OMEXMLService.class);
@@ -177,8 +213,12 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             lockFile = lockFile();
             lockRaf = new RandomAccessFile(lockFile, "rw");
             fileLock = lockRaf.getChannel().lock(); // THROWS!
+        } catch (OverlappingFileLockException overlap) {
+            throw new LockTimeout("Already locked! " +
+                    lockFile.getAbsolutePath(), 15*1000, 0);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new LockTimeout("IOException while locking " +
+                    lockFile.getAbsolutePath(), 15*1000, 0);
         }
     }
 
@@ -209,9 +249,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     }
 
     private File lockFile() {
-        File file = new File(filePath);
-        File parent = file.getParentFile();
-        String name = "." + file.getName() + ".pyr_lock";
+        File parent = readerFile.getParentFile();
+        String name = "." + readerFile.getName() + ".pyr_lock";
         File lock = new File(parent, name);
         return lock;
     }
@@ -235,14 +274,31 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
     }
 
+    private void closeWriter() throws IOException
+    {
+        try {
+            if (writer != null) {
+                writer.close();
+                writer = null;
+            }
+        } finally {
+            if (writerFile != null) {
+                try {
+                    FileUtils.moveFile(writerFile, readerFile);
+                } finally {
+                    writerFile = null;
+                }
+            }
+        }
+    }
     private BfPixelBuffer delegate()
     {
         if (writer != null)
         {
             try {
-                writer.close();
+                closeWriter();
                 try {
-                    initializeReader(filePath);
+                    initializeReader();
                 } catch (FormatException e) {
                     throw new RuntimeException(e);
                 }
@@ -424,13 +480,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
 
         try
         {
-            if (writer != null)
-            {
-                writer.close();
-                writer = null;
-            }
+            closeWriter();
         }
-
         finally
         {
             releaseLock();
