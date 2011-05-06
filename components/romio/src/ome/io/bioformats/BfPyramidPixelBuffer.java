@@ -25,6 +25,7 @@ import loci.formats.services.OMEXMLService;
 import loci.formats.tiff.IFD;
 import loci.formats.tiff.IFDList;
 import loci.formats.tiff.TiffCompression;
+import ome.conditions.ApiUsageException;
 import ome.conditions.LockTimeout;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
@@ -291,6 +292,17 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             }
         }
     }
+
+    /**
+     * Wether or not this instance is in writing-mode. Any of the calls to reader
+     * methods called while this method returns true will close the writer,
+     * saving it to disk and preventing any further write methods.
+     */
+    public boolean isWrite()
+    {
+        return writer != null;
+    }
+
     private BfPixelBuffer delegate()
     {
         if (writer != null)
@@ -984,6 +996,10 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized int getResolutionLevel()
     {
+        if (isWrite())
+        {
+            throw new ApiUsageException("In write mode!");
+        }
         return delegate().getResolutionLevel();
     }
 
@@ -992,6 +1008,10 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized int getResolutionLevels()
     {
+        if (isWrite())
+        {
+            throw new ApiUsageException("In write mode!");
+        }
         return delegate().getResolutionLevels();
     }
 
@@ -1000,6 +1020,12 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized Dimension getTileSize()
     {
+        if (isWrite())
+        {
+            // FIXME: This should be configuration or service driven
+            // FIXME: Also implemented in RenderingBean.getTileSize()
+            return new Dimension(256, 256);
+        }
         return delegate().getTileSize();
     }
 
@@ -1008,6 +1034,10 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized void setResolutionLevel(int resolutionLevel)
     {
+        if (isWrite())
+        {
+            throw new ApiUsageException("In write mode!");
+        }
         delegate().setResolutionLevel(resolutionLevel);
     }
 }
