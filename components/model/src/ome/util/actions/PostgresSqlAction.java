@@ -283,31 +283,6 @@ public class PostgresSqlAction extends SqlAction.Impl {
                 new IdRowMapper(), roiId);
     }
 
-    public String dnForUser(Long id) {
-        String expire;
-        try {
-            expire = _jdbc().queryForObject(
-                    _lookup("dn_for_user"), String.class, id); //$NON-NLS-1$
-        } catch (EmptyResultDataAccessException e) {
-            expire = null; // This means there's not one.
-        }
-        return expire;
-    }
-
-    public List<Map<String, Object>> dnExperimenterMaps() {
-        return _jdbc().queryForList(_lookup("dn_exp_maps")); //$NON-NLS-1$
-    }
-
-    public void setUserDn(Long experimenterID, String dn) {
-        int results = _jdbc().update(_lookup("set_user_dn"), //$NON-NLS-1$
-                dn, experimenterID);
-        if (results < 1) {
-            results = _jdbc().update(_lookup("insert_password"), //$NON-NLS-1$
-                    experimenterID, null, dn);
-        }
-
-    }
-
     public boolean setUserPassword(Long experimenterID, String password) {
         int results = _jdbc().update(_lookup("update_password"), //$NON-NLS-1$
                 password, experimenterID);

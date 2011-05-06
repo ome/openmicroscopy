@@ -9,6 +9,7 @@ package ome.util;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -397,6 +398,54 @@ public interface SqlAction {
         public void delCurrentEventLog(String key) {
             _jdbc().update(
                 _lookup("log_loader_delete"), key); //$NON-NLS-1$
+
+        }
+
+        //
+        // DISTINGUISHED NAME (DN)
+        // These methods guarantee that an empty or whitespace only string
+        // will be treated as a null DN. See #4833. For maximum protection,
+        // we are performing checks here in code as well as in the SQL.
+        //
+
+        public String dnForUser(Long id) {
+            String dn;
+            try {
+                dn = _jdbc().queryForObject(
+                        _lookup("dn_for_user"), String.class, id); //$NON-NLS-1$
+            } catch (EmptyResultDataAccessException e) {
+                dn = null; // This means there's not one.
+            }
+
+            if (dn == null || dn.trim().length() == 0) {
+                return null;
+            }
+            return dn;
+        }
+
+        public List<Map<String, Object>> dnExperimenterMaps() {
+            List<Map<String, Object>> maps = _jdbc().queryForList(_lookup("dn_exp_maps")); //$NON-NLS-1$
+            List<Map<String, Object>> copy = new ArrayList<Map<String, Object>>();
+            for (Map<String, Object> map : maps) {
+                if (map.keySet().iterator().next().trim().length() > 0) {
+                    copy.add(map);
+                }
+            }
+            return copy;
+        }
+
+        public void setUserDn(Long experimenterID, String dn) {
+
+            if (dn != null && dn.trim().length() == 0) {
+                dn = null; // #4833
+            }
+
+            int results = _jdbc().update(_lookup("set_user_dn"), //$NON-NLS-1$
+                    dn, experimenterID);
+            if (results < 1) {
+                results = _jdbc().update(_lookup("insert_password"), //$NON-NLS-1$
+                        experimenterID, null, dn);
+            }
 
         }
     }
