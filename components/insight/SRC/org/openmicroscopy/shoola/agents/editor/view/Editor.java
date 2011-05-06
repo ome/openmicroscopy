@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.editor.view;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 
+import javax.swing.JFrame;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -227,7 +229,19 @@ public interface Editor
 	 */
 	public boolean save(Object object, int index);
 	
+	/**
+	 * Saves the file either asynchronously or not.
+	 * 
+	 * @param asynch Passed <code>true</code> to save asynchronously, 
+	 * 				<code>false</code> otherwise.
+	 */
 	public void save(boolean asynch);
 	
+	/**
+	 * Returns the view.
+	 * 
+	 * @return See above.
+	 */
+    public JFrame getUI();
     
 }

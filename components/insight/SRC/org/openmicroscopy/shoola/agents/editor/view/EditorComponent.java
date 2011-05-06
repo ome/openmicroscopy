@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -580,6 +581,12 @@ class EditorComponent
 	{
 		return model.isUserOwner();
 	}
+	
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#getUI()
+	 */
+	public JFrame getUI() { return view; }
 	
 	/** 
 	 * Overridden to return the name of the instance to save. 

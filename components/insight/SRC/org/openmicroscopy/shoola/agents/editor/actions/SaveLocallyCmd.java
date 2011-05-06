@@ -34,8 +34,6 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
-
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
@@ -143,7 +141,7 @@ public class SaveLocallyCmd
 			if (file.exists()) {
 				String title = "File Exists";
 				String message = "File Exists. Overwrite Existing File?";
-				JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
+				JFrame f = model.getUI();
 				MessageBox msg = new MessageBox(f, title, message);
 				int option = msg.centerMsgBox();
 				if (option != MessageBox.YES_OPTION) return;

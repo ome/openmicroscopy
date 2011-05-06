@@ -28,7 +28,6 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.InputDialog;
@@ -69,7 +68,7 @@ class SaveServerCmd
 	 */
 	public void execute()
 	{
-		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
+		JFrame f = model.getUI();
 		InputDialog dialog = new InputDialog(f, 
 				"Save to server: Enter file name", "");
 		String text = model.getEditorTitle();
