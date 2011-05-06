@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.DataObject;
 import pojos.ImageData;
 import pojos.WellSampleData;
 
@@ -135,13 +136,10 @@ public class ImageNode
         						RIGHT));
         
         List<String> l = null;
-        if (hierarchyObject instanceof ImageData) {
-        	l = EditorUtil.formatImageTooltip((ImageData) hierarchyObject);
-        } else if (hierarchyObject instanceof WellSampleData) {
-    		ImageData img = ((WellSampleData) hierarchyObject).getImage();
-    		if (img != null)
-    			EditorUtil.formatImageTooltip(img);
-    	}
+        if (hierarchyObject instanceof ImageData || 
+        		hierarchyObject instanceof WellSampleData) {
+        	l = EditorUtil.formatObjectTooltip((DataObject) hierarchyObject);
+        } 
         if (l == null || l.size() == 0) setToolTipText(s);
         else {
         	List<String> ll = new ArrayList<String>();

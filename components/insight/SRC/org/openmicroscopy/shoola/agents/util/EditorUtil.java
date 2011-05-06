@@ -80,6 +80,7 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.WellData;
+import pojos.WellSampleData;
 
 /** 
  * Collection of helper methods to format data objects.
@@ -208,6 +209,9 @@ public class EditorUtil
     /** Identifies the <code>Timepoints</code> field. */
     public static final String 	TIMEPOINTS = "Number of timepoints";
 
+    /** Identifies the <code>Timepoints</code> field. */
+    public static final String 	CHANNELS = "Channels";
+    
     /** Identifies the <code>PixelType</code> field. */
     public static final String 	PIXEL_TYPE = "Pixel Type";
 
@@ -380,6 +384,15 @@ public class EditorUtil
 	/** Identifies the unset fields. */
 	public static final String	NOT_SET = "NotSet";
 	
+    /** The text for the external identifier. */
+    public static final String	EXTERNAL_IDENTIFIER = "External Identifier";
+    
+    /** The text for the external description.*/
+    public static final String	EXTERNAL_DESCRIPTION = "External Description";
+    
+    /** The text for the external description.*/
+    public static final String	STATUS = "Status";
+    
 	/** The map identifying the pixels value and its description. */
 	public static final Map<String, String> PIXELS_TYPE_DESCRIPTION;
 	
@@ -570,9 +583,9 @@ public class EditorUtil
     		else value +="x"+nf.format(dz);
     		label += "Z";
     	}
-    	label += ")";
+    	label += ") ";
     	if (value.length() == 0) return null;
-    	return label+": </b>"+value;
+    	return label+MICRONS+": </b>"+value;
     }
     
 	/**
@@ -637,12 +650,14 @@ public class EditorUtil
             details.put(PIXEL_SIZE_X, "");
             details.put(PIXEL_SIZE_Y, "");
             details.put(PIXEL_SIZE_Z, "");
-            details.put(PIXEL_TYPE, "");  
+            details.put(PIXEL_TYPE, "");
+            details.put(CHANNELS, "");
         } else {
             details.put(SIZE_X, ""+data.getSizeX());
             details.put(SIZE_Y, ""+data.getSizeY());
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
+            details.put(CHANNELS, ""+data.getSizeC());
             try {
                 details.put(PIXEL_SIZE_X, ""+data.getPixelSizeX());
                 details.put(PIXEL_SIZE_Y, ""+data.getPixelSizeY());
@@ -2094,26 +2109,92 @@ public class EditorUtil
     /**
      * Formats the tooltip for an image.
      * 
-     * @param image The image to handle.
+     * @param object The object to handle.
      * @return See above.
      */
-    public static List<String> formatImageTooltip(ImageData image)
+    public static List<String> formatObjectTooltip(DataObject object)
     {
-    	if (image == null) return null;
-    	PixelsData data = null;
-    	try {
-			data = image.getDefaultPixels();
-		} catch (Exception e) {}
-		if (data == null) return null;
-		Map details = transformPixelsData(data);
+    	if (object == null) return null;
+    	if (!(object instanceof ImageData || object instanceof WellSampleData
+    		|| object instanceof PlateData || object instanceof WellData))
+    		return null;
+    	
 		List<String> l = new ArrayList<String>();
-		String v = "<b>"+ACQUISITION_DATE+": </b>"+formatDate(image);
+		String v;
+		ImageData img = null;
+    	if (object instanceof ImageData) img = (ImageData) object;
+    	else if (object instanceof WellSampleData) {
+    		WellSampleData wsd = (WellSampleData) object;
+    		img = ((WellSampleData) object).getImage();
+    	} else if (object instanceof PlateData) {
+    		PlateData plate = (PlateData) object;
+    		v = plate.getPlateType();
+    		if (v != null && v.trim().length() > 0) {
+    			v = "<b>"+TYPE+": </b>"+v;
+    			l.add(v);
+    		}
+    		v = plate.getExternalIdentifier();
+    		if (v != null && v.trim().length() > 0) {
+    			v = "<b>"+EXTERNAL_IDENTIFIER+": </b>"+v;
+    			l.add(v);
+    		}
+    		v = plate.getStatus();
+    		if (v != null && v.trim().length() > 0) {
+    			v = "<b>"+STATUS+": </b>"+v;
+    			l.add(v);
+    		}
+    	} else if (object instanceof WellData) {
+    		WellData well = (WellData) object;
+    		/*
+    		PlateData plate = well.getPlate();
+    		if (plate != null) {
+    			v = plate.getPlateType();
+        		if (v != null && v.trim().length() > 0) {
+        			v = "<b>"+TYPE+": </b>"+v;
+        			l.add(v);
+        		}
+        		v = plate.getExternalIdentifier();
+        		if (v != null && v.trim().length() > 0) {
+        			v = "<b>"+EXTERNAL_IDENTIFIER+": </b>"+v;
+        			l.add(v);
+        		}
+        		v = plate.getStatus();
+        		if (v != null && v.trim().length() > 0) {
+        			v = "<b>"+STATUS+": </b>"+v;
+        			l.add(v);
+        		}
+    		}
+    		*/
+    		v = well.getWellType();
+    		if (v != null && v.trim().length() > 0) {
+    			v = "<b>"+TYPE+": </b>"+v;
+    			l.add(v);
+    		}
+    		v = well.getExternalDescription();
+    		if (v != null && v.trim().length() > 0) {
+    			v = "<b>"+EXTERNAL_IDENTIFIER+": </b>"+v;
+    			l.add(v);
+    		}
+    		v = well.getStatus();
+    		if (v != null && v.trim().length() > 0) {
+    			v = "<b>"+STATUS+": </b>"+v;
+    			l.add(v);
+    		}
+    	}
+    	if (img == null) return l;
+		v = "<b>"+ACQUISITION_DATE+": </b>"+formatDate(img);
 		l.add(v);
 		try {
 			v = "<b>"+IMPORTED_DATE+": </b>"+
-			UIUtilities.formatShortDateTime(image.getInserted());
+			UIUtilities.formatShortDateTime(img.getInserted());
 			l.add(v);
 		} catch (Exception e) {}
+		PixelsData data = null;
+    	try {
+			data = img.getDefaultPixels();
+		} catch (Exception e) {}
+		if (data == null) return l;
+		Map details = transformPixelsData(data);
 		v = "<b>"+XY_DIMENSION+": </b>";;
 		v += (String) details.get(SIZE_X);
     	v += " x ";
@@ -2123,10 +2204,12 @@ public class EditorUtil
     	l.add(v);
     	v = formatPixelsSize(details);
     	if (v != null) l.add(v);
-    	v = "<b>"+Z_T_FIELDS+": </b>";
+    	v = "<b>ZxTxC: </b>";
     	v += (String) details.get(SECTIONS);
     	v += " x ";
     	v += (String) details.get(TIMEPOINTS);
+    	v += " x ";
+    	v += (String) details.get(CHANNELS);
     	l.add(v);
     	return l;
     }

@@ -98,14 +98,9 @@ public class TreeViewerTranslator
         List<String> l = null;
         String s = "";
         if (uo instanceof ImageData) {
-        	l = EditorUtil.formatImageTooltip((ImageData) uo);
+        	l = EditorUtil.formatObjectTooltip((ImageData) uo);
         	s = UIUtilities.formatString(((ImageData) uo).getName(), -1);
-        } else if (uo instanceof WellSampleData) {
-    		ImageData img = ((WellSampleData) uo).getImage();
-    		s = ((WellData) node.getUserObject()).getExternalDescription();
-    		if (img != null)
-    			EditorUtil.formatImageTooltip(img);
-    	}
+        }
         if (l == null || l.size() == 0) node.setToolTip(s);
         else {
         	List<String> ll = new ArrayList<String>();

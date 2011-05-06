@@ -111,18 +111,9 @@ class PropertiesUI
     
 	/** The title associated to this component. */
 	static final String			TITLE = "Properties";
-
-	/** The default text indicating the type of plate displayed. */
-	private static final String	DEFAULT_TYPE ="Type: ";
 	
 	/** The default description. */
     private static final String	DEFAULT_DESCRIPTION_TEXT = "Description";
-    
-    /** The text for the external identifier. */
-    private static final String	EXTERNAL_IDENTIFIER = "External Identifier:";
-    
-    /** The text for the external description.*/
-    private static final String	EXTERNAL_DESCRIPTION = "External Description:";
     
     /** The text for the id. */
     private static final String ID_TEXT = "ID: ";
@@ -333,14 +324,15 @@ class PropertiesUI
     	String v = plate.getPlateType();
     	JLabel value;
     	if (v != null && v.trim().length() > 0) {
-    		l = UIUtilities.setTextFont(DEFAULT_TYPE, Font.BOLD, size);
+    		l = UIUtilities.setTextFont(EditorUtil.TYPE, Font.BOLD, size);
         	value = UIUtilities.createComponent(null);
         	value.setFont(font.deriveFont(font.getStyle(), size));
         	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
         	value.setText(v);
         	components.put(l, value);
     	}
-    	l = UIUtilities.setTextFont(EXTERNAL_IDENTIFIER, Font.BOLD, size);
+    	l = UIUtilities.setTextFont(EditorUtil.EXTERNAL_IDENTIFIER,
+    			Font.BOLD, size);
     	value = UIUtilities.createComponent(null);
     	value.setFont(font.deriveFont(font.getStyle(), size));
     	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
@@ -348,7 +340,7 @@ class PropertiesUI
     	if (v == null || v.length() == 0) v = NO_SET_TEXT;
     	value.setText(v);
     	components.put(l, value);
-    	l = UIUtilities.setTextFont("Status:", Font.BOLD, size);
+    	l = UIUtilities.setTextFont(EditorUtil.STATUS, Font.BOLD, size);
     	value = UIUtilities.createComponent(null);
     	value.setFont(font.deriveFont(font.getStyle(), size));
     	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
@@ -381,14 +373,15 @@ class PropertiesUI
     	String v = well.getWellType();
     	JLabel value;
     	if (v != null && v.trim().length() > 0) {
-    		l = UIUtilities.setTextFont(DEFAULT_TYPE, Font.BOLD, size);
+    		l = UIUtilities.setTextFont(EditorUtil.TYPE, Font.BOLD, size);
         	value = UIUtilities.createComponent(null);
         	value.setFont(font.deriveFont(font.getStyle(), size));
         	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
         	value.setText(v);
         	components.put(l, value);
     	}
-    	l = UIUtilities.setTextFont(EXTERNAL_DESCRIPTION, Font.BOLD, size);
+    	l = UIUtilities.setTextFont(EditorUtil.EXTERNAL_DESCRIPTION, 
+    			Font.BOLD, size);
     	value = UIUtilities.createComponent(null);
     	value.setFont(font.deriveFont(font.getStyle(), size));
     	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
@@ -396,7 +389,7 @@ class PropertiesUI
     	if (v == null || v.length() == 0) v = NO_SET_TEXT;
     	value.setText(v);
     	components.put(l, value);
-    	l = UIUtilities.setTextFont("Status:", Font.BOLD, size);
+    	l = UIUtilities.setTextFont(EditorUtil.STATUS, Font.BOLD, size);
     	value = UIUtilities.createComponent(null);
     	value.setFont(font.deriveFont(font.getStyle(), size));
     	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
@@ -655,7 +648,8 @@ class PropertiesUI
     	content.add(value, c);
     	c.gridy++;
     	if (!model.isNumerousChannel() && model.getRefObjectID() > 0) {
-    		label = UIUtilities.setTextFont("Channels", Font.BOLD, size);
+    		label = UIUtilities.setTextFont(EditorUtil.CHANNELS,
+    				Font.BOLD, size);
     		c.gridx = 0;
         	content.add(label, c);
         	c.gridx = c.gridx+2;
