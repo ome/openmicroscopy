@@ -85,6 +85,9 @@ public class LensComponent
 	/** Default width of a lens */
 	public final static int		LENS_DEFAULT_WIDTH	= 50;
 
+	/** Default the zoom factor.*/
+	public final static float	DEFAULT_ZOOM	= 2.0f;
+
 	/** The collection of supported formats.*/
 	private static final List<FileFilter> FILTERS;
 	
@@ -207,12 +210,13 @@ public class LensComponent
 		
 		lensModel.setWidth(lensWidth);
 		lensModel.setHeight(lensHeight);
-		lensModel.setImageZoomFactor(ZoomAction.ZOOMx1+1);
+		lensModel.setImageZoomFactor(ZoomAction.ZOOMx2+1);
 		lens.addController(lensController);
 		lens.setLensColour(lensModel.getLensPreferredColour());
 		menu = new LensMenu(this);
 		lens.setPopupMenu(menu.getPopupMenu());
 		zoomWindow.setJMenuBar(menu.getMenubar());
+		setZoomFactor(DEFAULT_ZOOM);
 	}
 	
 	/**

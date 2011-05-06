@@ -47,6 +47,9 @@ import java.awt.Cursor;
 class LensController 
 {
 	
+	/** The default zoom value.*/
+	static final float DEFAULT_ZOOM = 2.0f;
+	
 	/** Reference to the Lens Model.  */
 	private	LensModel	lensModel;
 	
@@ -224,8 +227,6 @@ class LensController
 		lensModel = model;
 		this.lens = lens;
 		this.zoomWindow = zoomWindow;
-		lensModel.setZoomFactor(2.0f);
-		setZoomUISize();
 		lensDrag = false;
 		borderDrag = false;
 	} 
