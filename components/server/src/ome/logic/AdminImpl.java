@@ -480,10 +480,25 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @Transactional(readOnly = false)
     public void updateExperimenter(@NotNull final
     Experimenter experimenter) {
-        adminOrPiOfUser(experimenter);
-        String name = experimenter.getOmeName();
-        copyAndSaveExperimenter(experimenter);
-        getBeanHelper().getLogger().info("Updated user info for " + name);
+
+        try {
+            adminOrPiOfUser(experimenter);
+            String name = experimenter.getOmeName();
+            copyAndSaveExperimenter(experimenter);
+            getBeanHelper().getLogger().info("Updated user info for " + name);
+        } catch (SecurityViolation sv) {
+            final Long currentID = getEventContext().getCurrentUserId();
+            final Long experimenterID = experimenter.getId();
+
+            // If we're not an admin, allow for the possibility
+            // of delegating to updateSelf.
+            if (currentID.equals(experimenterID)) {
+                updateSelf(experimenter);
+            } else {
+                // But throw if that's not the case.
+                throw sv;
+            }
+        }
     }
 
     @RolesAllowed("user")
@@ -596,7 +611,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         return gid;
     }
 
-    @RolesAllowed("system")
+    @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void addGroups(final Experimenter user,
             final ExperimenterGroup... groups) {
@@ -610,7 +625,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             assertManaged(group);
         }
 
+        adminOrPiOfGroups(null, groups);
         roleProvider.addGroups(user, groups);
+
         getBeanHelper().getLogger().info(
                 String.format("Added user %s to groups %s", userProxy(
                         user.getId()).getOmeName(), Arrays.asList(groups)));
@@ -627,7 +644,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
 
         adminOrPiOfGroups(null, groups);
-
         roleProvider.removeGroups(user, groups);
 
         getBeanHelper().getLogger().info(

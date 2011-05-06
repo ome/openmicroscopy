@@ -13,6 +13,7 @@ import java.util.Set;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
+import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
@@ -161,10 +162,9 @@ public class SimpleRoleProvider implements RoleProvider {
 
     public void removeGroups(Experimenter user, ExperimenterGroup... groups) {
 
-        Session session = sf.getSession();
+        final Session session = sf.getSession();
 
-        Experimenter foundUser = (Experimenter) session.load(
-                Experimenter.class, user.getId());
+        Experimenter foundUser = userById(user.getId(), session);
 
         List<Long> toRemove = new ArrayList<Long>();
         List<String> removed = new ArrayList<String>();
@@ -182,7 +182,15 @@ public class SimpleRoleProvider implements RoleProvider {
                 ExperimenterGroup p = groupById(pId, session);
                 Experimenter c = userById(cId, session);
                 p.unlinkExperimenter(c);
-                sec.doAction(new SecureMerge(session), p);
+                sec.doAction(new SecureAction(){
+                    public <T extends IObject> T updateObject(T... objs) {
+                        for (T t : objs) {
+                            session.delete(t);
+                        }
+                        session.flush();
+                        return null;
+                    }}, map);
+                // sec.doAction(new SecureMerge(session, true), p);
                 removed.add(p.getName());
             }
         }
