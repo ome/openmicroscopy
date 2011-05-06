@@ -1520,9 +1520,9 @@ public class OMEROMetadataStoreClient
 				        metadataFile, indexes, format);
 				log.debug("originalFile created");
 				originalFile.setPath(toRType(String.format("%s%s/",
-				        omero.constants.namespaces.ORIGINALMETADATAPREFIX.value,
+				        omero.constants.annotation.file.ORIGINALMETADATAPREFIX.value,
 				        uuid)));
-				originalFile.setName(toRType(omero.constants.namespaces.ORIGINALMETADATA.value));
+				originalFile.setName(toRType(omero.constants.annotation.file.ORIGINALMETADATA.value));
 				log.debug("originalFile path created");
                     indexes = new LinkedHashMap<Index, Integer>();
                     indexes.put(Index.IMAGE_INDEX, series);

@@ -121,7 +121,7 @@ def uploadBdbAsDataset(infile, dataset):
     
     # identify the original metadata file with these values
     namespace = omero.constants.namespaces.NSCOMPANIONFILE 
-    origFilePath = omero.constants.namespaces.ORIGINALMETADATAPREFIX  #"/openmicroscopy.org/omero/image_files/"
+    origFilePath = omero.constants.annotation.file.ORIGINALMETADATAPREFIX  #"/openmicroscopy.org/omero/image_files/"
     fileName = omero.constants.annotation.file.ORIGINALMETADATA
     
     # loop through all the images.
