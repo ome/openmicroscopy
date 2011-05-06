@@ -515,11 +515,14 @@ public class IconManager
     /** The <code>Ontology</code> icon. */
     public static final int	ONTOLOGY = 149;
     
+    /** The <code>Ontology</code> icon. */
+    public static final int	ERROR_32 = 150;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 149;
+    private static int      MAX_ID = 150;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -672,12 +675,12 @@ public class IconManager
         relPaths[READ_GROUP] = "nuvola_ledorange_readOnly16.png";
         relPaths[READ_LINK_GROUP] = "nuvola_ledorange16.png";//"nuvola_ledorange_readLink16.png";
         relPaths[PUBLIC_GROUP] = "nuvola_ledgreen16.png";
-        
         relPaths[PRIVATE_GROUP_DD_12] = "nuvola_permission_private_dd12.png";
         relPaths[READ_GROUP_DD_12] = "nuvola_permission_readOnly_dd12.png";
         relPaths[READ_LINK_GROUP_DD_12] = "nuvola_permission_read_dd12.png";
         relPaths[PUBLIC_GROUP_DD_12] = "nuvola_permission_public_dd12.png";
         relPaths[ONTOLOGY] = "nuvola_ledorange_readOnly16.png";
+        relPaths[ERROR_32] = "nuvola_no32.png";
     }
 	
 	/**

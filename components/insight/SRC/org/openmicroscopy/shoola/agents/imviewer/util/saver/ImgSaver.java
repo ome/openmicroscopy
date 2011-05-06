@@ -174,6 +174,34 @@ public class ImgSaver
     private int				savingType;
     
     /**
+     * Creates a single image.
+     * 
+     * @param image		The image to create.
+     * @param constrain	The constrain indicating to add the scale bar.
+     * @param name		The name of the image.
+     */
+    private void writeSingleImage(BufferedImage image, boolean constrain, 
+    							String name)
+    {
+    	int width = image.getWidth();
+        int h = image.getHeight();
+        String v = getUnitBarValue(); 
+        int s = (int) model.getUnitBarSize();
+        
+        BufferedImage newImage = new BufferedImage(width, h, 
+                					BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = (Graphics2D) newImage.getGraphics();
+        ImagePaintingFactory.setGraphicRenderingSettings(g2);
+        //Paint the original image.
+        g2.drawImage(image, null, 0, 0); 
+        
+        if (constrain)
+            ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, v);
+        writeImage(newImage, name);
+        //writeImage(image, name);
+    }
+    
+    /**
      * Displays the preview dialog with images depending on the 
      * saving type.
      * 
@@ -436,36 +464,7 @@ public class ImgSaver
     	setVisible(false);
         dispose();
     }
-    
-    /**
-     * Creates a single image.
-     * 
-     * @param image		The image to create.
-     * @param constrain	The constrain indicating to add the scale bar.
-     * @param name		The name of the image.
-     */
-    private void writeSingleImage(BufferedImage image, boolean constrain, 
-    							String name)
-    {
-    	
-    	int width = image.getWidth();
-        int h = image.getHeight();
-        String v = getUnitBarValue(); 
-        int s = (int) model.getUnitBarSize();
-        
-        BufferedImage newImage = new BufferedImage(width, h, 
-                					BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2 = (Graphics2D) newImage.getGraphics();
-        ImagePaintingFactory.setGraphicRenderingSettings(g2);
-        //Paint the original image.
-        g2.drawImage(image, null, 0, 0); 
-        
-        if (constrain)
-            ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, v);
-        writeImage(newImage, name);
-        //writeImage(image, name);
-    }
-    
+
     /** 
      * Saves the displayed images. 
      * 
@@ -475,13 +474,6 @@ public class ImgSaver
     void saveImage(boolean init)
     {
     	if (ImViewerAgent.hasOpenGLSupport()) {
-    		
-    		
-    		
-    		
-    		
-    		
-    		
     		saveAsTexture();
     		return;
     	}

@@ -130,6 +130,9 @@ class LensModel
 	/** Flag indicating if we support openGL or not. */
 	private boolean			openGLSupport;
 	
+	/** The name of the image.*/
+	private String			imageName;
+	
 	/** Flushes the data buffer. */
 	private void flushDataBuffer()
 	{
@@ -602,5 +605,19 @@ class LensModel
 		if (color == null) background = DEFAULT_BACKGROUND;
 		background = color; 
 	}
+	
+	/**
+	 * Sets the name of the image.
+	 * 
+	 * @param imageName The name of the image.
+	 */
+	void setImageName(String imageName) { this.imageName = imageName;}
+	
+	/**
+	 * Returns the name of the image.
+	 * 
+	 * @return See above.
+	 */
+    String getImageName() { return imageName; }
     
 }

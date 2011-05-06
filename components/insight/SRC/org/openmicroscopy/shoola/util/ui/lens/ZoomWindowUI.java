@@ -57,7 +57,6 @@ class ZoomWindowUI
 	implements MouseMotionListener
 {
 
-
     /** Flag indicating if the experimenter uses the scrollbars. */
     private boolean				adjusting;
     

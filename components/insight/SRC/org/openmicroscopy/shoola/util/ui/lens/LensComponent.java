@@ -29,15 +29,36 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
+import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
+import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
+import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
+import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.image.io.Encoder;
+import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
+import org.openmicroscopy.shoola.util.image.io.WriterImage;
+import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.util.ui.NotificationDialog;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 
 /** 
@@ -61,14 +82,19 @@ public class LensComponent
 	/** Bound property indicating that the location of the lens has changed. */
 	public static final String	LENS_LOCATION_PROPERTY = "lensLocation";
 	
-	/** Bound property indicating to close the zoom Window. */
-	final static String			ZOOM_WINDOW_CLOSED_PROPERTY = "zoomWindowClosed";
-  
 	/** Default width of a lens */
 	public final static int		LENS_DEFAULT_WIDTH	= 50;
 
-	/** Default magnification of lens. */
-	final static float			DEFAULT_ZOOM = 2.0f;
+	/** The collection of supported formats.*/
+	private static final List<FileFilter> FILTERS;
+	
+	static {
+		FILTERS = new ArrayList<FileFilter>();
+		FILTERS.add(new BMPFilter());
+		FILTERS.add(new JPEGFilter());
+		FILTERS.add(new PNGFilter());
+		FILTERS.add(new TIFFFilter());
+	}
 	
 	/** Reference to the lens object which will render onto the image canvas */
 	private LensUI			lens;
@@ -201,6 +227,82 @@ public class LensComponent
 	public LensComponent(JFrame parent, boolean openGLSupport)
 	{ 
 		this(parent, openGLSupport, LENS_DEFAULT_WIDTH, LENS_DEFAULT_WIDTH);
+	}
+	
+	/** Saves the image as <code>JPEG</code>, <code>PNG</code> etc.*/
+	void saveAs()
+	{
+		FileChooser d = new FileChooser((JFrame) zoomWindow.getParent(), 
+				FileChooser.SAVE, SaveAction.NAME, SaveAction.DESCRIPTION, 
+				FILTERS, false, true);
+		d.setSelectedFile(UIUtilities.removeFileExtension(
+				lensModel.getImageName()));
+		d.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (! (evt.getSource() instanceof FileChooser)) return;
+				FileChooser fileChooser = (FileChooser) evt.getSource();
+				
+				String name = evt.getPropertyName();
+				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+					File[] files = (File[]) evt.getNewValue();
+					File file = files[0];
+					
+					FileFilter filter = fileChooser.getSelectedFilter();
+					String format = "";
+					if (filter instanceof CustomizedFileFilter) {
+						format = ((CustomizedFileFilter) filter).getExtension();
+					}
+					
+					// check if file is allowed. If not, add extension. 
+					if (!filter.accept(file)) {
+						String filePath = file.getAbsolutePath();
+						filePath = filePath + "." + format;
+						file = new File(filePath);
+					}
+						
+					// if file exists, get user to confirm. Otherwise exit! 
+					JFrame frame = (JFrame) zoomWindow.getParent();
+					if (file.exists()) {
+						String title = "File Exists";
+						String message = "An image with the same name" +
+								"already exists. Do you want to overwrite it?";
+						MessageBox msg = new MessageBox(frame, title, message);
+						int option = msg.centerMsgBox();
+						if (option != MessageBox.YES_OPTION) return;
+					}
+					NotificationDialog dialog;
+					//Now save the image
+					BufferedImage image = getZoomedImage();
+					IconManager icons = IconManager.getInstance();
+					try {
+			            if (TIFFFilter.TIF.equals(format)) {
+			                Encoder encoder = new TIFFEncoder(
+			                		Factory.createImage(image), 
+			                        new DataOutputStream(
+			                        		new FileOutputStream(file)));
+			                WriterImage.saveImage(encoder);
+			            } else WriterImage.saveImage(file, image, format);
+			        } catch (Exception e) {
+			        	dialog = new NotificationDialog(
+                                frame, SaveAction.NAME,
+                                "An error occurred while saving the image.", 
+                                icons.getIcon(IconManager.ERROR_32));
+						dialog.pack();  
+						UIUtilities.centerAndShow(dialog);
+						return;
+			        }
+			        dialog = new NotificationDialog(
+                            frame, SaveAction.NAME,
+                            "The image has been successfully saved in\n"+
+                            file.getParent(), 
+                            icons.getIcon(IconManager.INFO_32));
+					dialog.pack();  
+					UIUtilities.centerAndShow(dialog);
+				}
+			}
+		});
+		UIUtilities.centerAndShow(d);
 	}
 	
 	/**
@@ -445,6 +547,16 @@ public class LensComponent
 	{ 
 		lensModel.setBackgroundColor(color);
 		zoomWindow.updateBackgroundColor();
+	}
+	
+	/**
+	 * Sets the name of the image.
+	 * 
+	 * @param imageName The name of the image.
+	 */
+	public void setImageName(String imageName)
+	{
+		lensModel.setImageName(imageName);
 	}
 	
 }
