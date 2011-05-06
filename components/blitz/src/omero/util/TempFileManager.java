@@ -480,6 +480,18 @@ public class TempFileManager {
             } else if (args.contains("dir")) {
                 System.out.println(manager.getTempDir().getAbsolutePath());
                 System.exit(0);
+            } else if (args.contains("test")) {
+                File test = new File("/tmp/test");
+                if (test.exists()) {
+                    test.delete();
+                    System.out.println("Deleted test");
+                }
+                File f = create_path();
+                System.out.println(f.getAbsolutePath());
+                f.deleteOnExit();
+                FileUtils.writeStringToFile(f, "test");
+                FileUtils.moveFile(f, test);
+                System.exit(0);
             } else if (args.contains("lock")) {
                 System.out.println("Locking "
                         + manager.getTempDir().getAbsolutePath());

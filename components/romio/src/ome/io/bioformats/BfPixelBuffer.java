@@ -60,6 +60,9 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         BfPixelsWrapper wrapper = reader.get();
         if (wrapper == null) {
             try {
+                // Note: the call to bfReader.setid inside the BfPixelsWrapper
+                // ctor should be a no-op since the filePath is the same for
+                // both calls.
                 if (reader.compareAndSet(null, new BfPixelsWrapper(filePath, bfReader))) {
                     wrapper = reader.get();
                 }

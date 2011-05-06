@@ -7,12 +7,15 @@
 package ome.io.bioformats;
 
 import java.awt.Dimension;
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.util.List;
 
-import loci.common.services.ServiceException;
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
 import loci.formats.in.TiffReader;
@@ -22,14 +25,17 @@ import loci.formats.services.OMEXMLService;
 import loci.formats.tiff.IFD;
 import loci.formats.tiff.IFDList;
 import loci.formats.tiff.TiffCompression;
+import ome.conditions.ApiUsageException;
+import ome.conditions.LockTimeout;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
 import ome.util.PixelData;
+import ome.util.Utils;
 import ome.xml.model.enums.DimensionOrder;
-import ome.xml.model.enums.EnumerationException;
 import ome.xml.model.primitives.PositiveInteger;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -43,7 +49,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
 
     private final static Log log = LogFactory.getLog(BfPyramidPixelBuffer.class);
 
-    private final BfPixelBuffer delegate;
+    private BfPixelBuffer delegate;
 
     /** Bio-Formats implementation used to write to the backing TIFF. */
     protected TiffWriter writer;
@@ -53,8 +59,13 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     protected TiffReader reader;
 
-    /** Service to create the metadata store. */
-    private OMEXMLService service;
+    /**
+     * File's who absolute path will be passed to
+     * {@link TiffReader#setId(String)} for reading.
+     *
+     * @see {@link #writePath}
+     */
+    private final File readerFile;
 
     /** The OMERO pixels set we're backing. */
     private final Pixels pixels;
@@ -71,34 +82,86 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /** Last timepoint offset  we used during a tile write operation. */
     private int lastT = -1;
 
+    // LOCKING. See ticket #5083
+
+    /**
+     * File whose absolute path will be given to the {@link TiffWriter}.
+     *
+     * This prevents that a partially written file can be accessed, if some
+     * other process does not attempt to acquire the lock. On close, if this is
+     * non-null, then a move from this location to the {@link #filePath} (the
+     * reader path) will be attempted.
+     */
+    private File writerFile;
+
+    /**
+     * Lock file used both for the {@link TiffReader} and {@link TiffWriter}
+     * process.
+     */
+    private File lockFile;
+
+    /**
+     * {@link RandomAccessFile} opened for the {@link #lockFile} path.
+     */
+    private RandomAccessFile lockRaf;
+
+    /**
+     * If not null, {@link FileLock} instance acquired from the {@link #lockRaf}
+     */
+    private FileLock fileLock;
+
     /**
      * We may want a constructor that takes the id of an imported file
      * or that takes a File object?
      * There should ultimately be some sort of check here that the
      * file is in a/the repository.
+     *
+     * Upon construction, the pixel buffer is available for reading or writing.
+     * However, on the first read, writing will be subsequently disabled.
+     *
+     * @see ticket:5083
      */
-    public BfPyramidPixelBuffer(Pixels pixels, String filePath)
+    public BfPyramidPixelBuffer(Pixels pixels, String filePath, boolean write)
         throws IOException, FormatException
     {
-        reader = new TiffReader();
-        delegate = new BfPixelBuffer(filePath, reader);
+        this.readerFile = new File(filePath);
         this.pixels = pixels;
-        try
+
+        if (!write)
         {
-            loci.common.services.ServiceFactory lociServiceFactory =
-                    new loci.common.services.ServiceFactory();
-            service = lociServiceFactory.getInstance(OMEXMLService.class);
-            initializeWriter(filePath, TiffCompression.JPEG_2000.getCodecName(),
-                             false);
+            if (!readerFile.exists() && !readerFile.canRead()) {
+                throw new IOException("Cannot access " + filePath);
+            }
+            initializeReader();
         }
-        catch (Exception e)
+
+        else
         {
-            throw new FormatException("Error instantiating service.", e);
+            final File readerDir = readerFile.getParentFile();
+            writerFile = File.createTempFile("." + readerFile.getName(), ".tmp", readerDir);
+            writerFile.deleteOnExit();
+            initializeWriter(writerFile.getAbsolutePath(),
+                    TiffCompression.JPEG_2000.getCodecName(), false);
         }
     }
 
+    private synchronized void initializeReader() throws IOException, FormatException
+    {
+        if (isLockedByOthers())
+        {
+            throw new LockTimeout(String.format("%s is locked by others",
+                    readerFile.getAbsolutePath()), 15*1000, 0);
+        }
+        reader = new TiffReader();
+        delegate = new BfPixelBuffer(readerFile.getAbsolutePath(), reader);
+    }
+
     /**
-     * Initializes the writer.
+     * Initializes the writer. Since the reader location is not present until
+     * this instance is closed, other {@link ByPyramidPixelBuffer} instances
+     * may try to also call this method in which case {@link #acquireLock()}
+     * will throw a {@link LockTimeout}.
+     *
      * @param output The file where to write the compressed data.
      * @param compression The compression to use.
      * @param bigTiff Pass <code>true</code> to set the <code>bigTiff</code>
@@ -107,30 +170,155 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     private synchronized void initializeWriter(String output, String compression,
                                         boolean bigTiff)
-        throws ServiceException, IOException, FormatException, EnumerationException
+        throws FormatException
     {
-        IMetadata metadata = service.createOMEXMLMetadata();
-        metadata.setImageID("Image:0", 0);
-        metadata.setPixelsID("Pixels:0", 0);
-        metadata.setPixelsBinDataBigEndian(true, 0, 0);
-        metadata.setPixelsDimensionOrder(DimensionOrder.XYZCT, 0);
-        metadata.setPixelsType(ome.xml.model.enums.PixelType.fromString(
-                pixels.getPixelsType().getValue()), 0);
-        metadata.setPixelsSizeX(new PositiveInteger(pixels.getSizeX()), 0);
-        metadata.setPixelsSizeY(new PositiveInteger(pixels.getSizeY()), 0);
-        metadata.setPixelsSizeZ(new PositiveInteger(1), 0);
-        metadata.setPixelsSizeC(new PositiveInteger(1), 0);
-        metadata.setPixelsSizeT(new PositiveInteger(
-                pixels.getSizeZ() * pixels.getSizeC() * pixels.getSizeT()), 0);
-        metadata.setChannelID("Channel:0", 0, 0);
-        metadata.setChannelSamplesPerPixel(new PositiveInteger(1), 0, 0);
-        writer = new TiffWriter();
-        writer.setMetadataRetrieve(metadata);
-        writer.setCompression(compression);
-        writer.setWriteSequentially(true);
-        writer.setInterleaved(true);
-        writer.setBigTiff(bigTiff);
-        writer.setId(output);
+        acquireLock();
+        try
+        {
+            loci.common.services.ServiceFactory lociServiceFactory =
+                new loci.common.services.ServiceFactory();
+            OMEXMLService service = lociServiceFactory.getInstance(OMEXMLService.class);
+            IMetadata metadata = service.createOMEXMLMetadata();
+            metadata.setImageID("Image:0", 0);
+            metadata.setPixelsID("Pixels:0", 0);
+            metadata.setPixelsBinDataBigEndian(true, 0, 0);
+            metadata.setPixelsDimensionOrder(DimensionOrder.XYZCT, 0);
+            metadata.setPixelsType(ome.xml.model.enums.PixelType.fromString(
+                    pixels.getPixelsType().getValue()), 0);
+            metadata.setPixelsSizeX(new PositiveInteger(pixels.getSizeX()), 0);
+            metadata.setPixelsSizeY(new PositiveInteger(pixels.getSizeY()), 0);
+            metadata.setPixelsSizeZ(new PositiveInteger(1), 0);
+            metadata.setPixelsSizeC(new PositiveInteger(1), 0);
+            metadata.setPixelsSizeT(new PositiveInteger(
+                    pixels.getSizeZ() * pixels.getSizeC() * pixels.getSizeT()), 0);
+            metadata.setChannelID("Channel:0", 0, 0);
+            metadata.setChannelSamplesPerPixel(new PositiveInteger(1), 0, 0);
+            writer = new TiffWriter();
+            writer.setMetadataRetrieve(metadata);
+            writer.setCompression(compression);
+            writer.setWriteSequentially(true);
+            writer.setInterleaved(true);
+            writer.setBigTiff(bigTiff);
+            writer.setId(output);
+        }
+        catch (Exception e)
+        {
+            throw new FormatException("Error instantiating service.", e);
+        }
+
+    }
+
+    private void acquireLock()
+    {
+        try {
+            lockFile = lockFile();
+            lockRaf = new RandomAccessFile(lockFile, "rw");
+            fileLock = lockRaf.getChannel().lock(); // THROWS!
+        } catch (OverlappingFileLockException overlap) {
+            throw new LockTimeout("Already locked! " +
+                    lockFile.getAbsolutePath(), 15*1000, 0);
+        } catch (IOException e) {
+            throw new LockTimeout("IOException while locking " +
+                    lockFile.getAbsolutePath(), 15*1000, 0);
+        }
+    }
+
+    private boolean isLockedByOthers()
+    {
+
+        if (fileLock != null) {
+            return false; // We control the lock.
+        }
+
+        // Since we don't control the lock here, we will try to
+        // obtain it an release it immediately.
+
+        try {
+            lockFile = lockFile();
+            lockRaf = new RandomAccessFile(lockFile, "rw");
+            try {
+                fileLock = lockRaf.getChannel().tryLock();
+            } catch (OverlappingFileLockException ofle) {
+                return true; // Another object in this JVM controls the lock.
+            }
+            return fileLock == null;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            releaseLock();
+        }
+    }
+
+    private File lockFile() {
+        File parent = readerFile.getParentFile();
+        String name = "." + readerFile.getName() + ".pyr_lock";
+        File lock = new File(parent, name);
+        return lock;
+    }
+
+    private void releaseLock()
+    {
+        try {
+            if (fileLock != null) {
+                fileLock.release();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            fileLock = null;
+            Utils.closeQuietly(lockRaf);
+            lockRaf = null;
+            if (lockFile != null) {
+                lockFile.delete();
+                lockFile = null;
+            }
+        }
+    }
+
+    private void closeWriter() throws IOException
+    {
+        try {
+            if (writer != null) {
+                writer.close();
+                writer = null;
+            }
+        } finally {
+            if (writerFile != null) {
+                try {
+                    FileUtils.moveFile(writerFile, readerFile);
+                } finally {
+                    writerFile = null;
+                }
+            }
+        }
+    }
+
+    /**
+     * Wether or not this instance is in writing-mode. Any of the calls to reader
+     * methods called while this method returns true will close the writer,
+     * saving it to disk and preventing any further write methods.
+     */
+    public boolean isWrite()
+    {
+        return writer != null;
+    }
+
+    private BfPixelBuffer delegate()
+    {
+        if (writer != null)
+        {
+            try {
+                closeWriter();
+                try {
+                    initializeReader();
+                } catch (FormatException e) {
+                    throw new RuntimeException(e);
+                }
+            } catch (IOException e1) {
+                throw new RuntimeException(e1);
+            }
+        }
+        return delegate;
     }
 
     /* (non-Javadoc)
@@ -219,7 +407,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         throws IOException
     {
         // Ensure the reader has been initialized
-        delegate.reader();
+        delegate().reader();
         IFDList ifds = reader.getIFDs();
         if (ifds.size() == 0)
         {
@@ -269,7 +457,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized byte[] calculateMessageDigest() throws IOException
     {
-        return delegate.calculateMessageDigest();
+        return delegate().calculateMessageDigest();
     }
 
     /* (non-Javadoc)
@@ -281,7 +469,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        delegate.checkBounds(x, y, z, c, t);
+        delegate().checkBounds(x, y, z, c, t);
     }
 
     /* (non-Javadoc)
@@ -289,14 +477,28 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized void close() throws IOException
     {
+        Utils.closeQuietly(delegate);
+        delegate = null;
+
+        if (reader != null) {
+            try {
+                reader.close();
+            } catch (Exception e) {
+                log.warn("Failed to close reader", e);
+            } finally {
+                reader = null;
+            }
+        }
+
         try
         {
-            delegate.close();
+            closeWriter();
         }
         finally
         {
-            writer.close();
+            releaseLock();
         }
+
     }
 
     /* (non-Javadoc)
@@ -304,7 +506,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized int getByteWidth()
     {
-        return delegate.getByteWidth();
+        return delegate().getByteWidth();
     }
 
     /* (non-Javadoc)
@@ -317,7 +519,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate.getCol(x, z, c, t);
+        return delegate().getCol(x, z, c, t);
     }
 
     /* (non-Javadoc)
@@ -330,7 +532,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate.getColDirect(x, z, c, t, buffer);
+        return delegate().getColDirect(x, z, c, t, buffer);
     }
 
     /* (non-Javadoc)
@@ -338,7 +540,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized Integer getColSize()
     {
-        return delegate.getColSize();
+        return delegate().getColSize();
     }
 
     /* (non-Javadoc)
@@ -366,7 +568,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized long getId()
     {
-        return delegate.getId();
+        return delegate().getId();
     }
 
     /* (non-Javadoc)
@@ -374,7 +576,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized String getPath()
     {
-        return delegate.getPath();
+        return delegate().getPath();
     }
 
     /* (non-Javadoc)
@@ -386,7 +588,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate.getPlane(z, c, t);
+        return delegate().getPlane(z, c, t);
     }
 
     /* (non-Javadoc)
@@ -399,7 +601,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate.getPlaneDirect(z, c, t, buffer);
+        return delegate().getPlaneDirect(z, c, t, buffer);
     }
 
     /* (non-Javadoc)
@@ -411,7 +613,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate.getPlaneOffset(z, c, t);
+        return delegate().getPlaneOffset(z, c, t);
     }
 
     /* (non-Javadoc)
@@ -425,7 +627,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate.getPlaneRegion(x, y, width, height, z, c, t, stride);
+        return delegate().getPlaneRegion(x, y, width, height, z, c, t, stride);
     }
 
     /* (non-Javadoc)
@@ -446,7 +648,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized Integer getPlaneSize()
     {
-        return delegate.getPlaneSize();
+        return delegate().getPlaneSize();
     }
 
     /* (non-Javadoc)
@@ -476,7 +678,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate.getRow(y, z, c, t);
+        return delegate().getRow(y, z, c, t);
     }
 
     /* (non-Javadoc)
@@ -489,7 +691,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate.getRowDirect(y, z, c, t, buffer);
+        return delegate().getRowDirect(y, z, c, t, buffer);
     }
 
     /* (non-Javadoc)
@@ -502,7 +704,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate.getRowOffset(y, z, c, t);
+        return delegate().getRowOffset(y, z, c, t);
     }
 
     /* (non-Javadoc)
@@ -510,7 +712,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized Integer getRowSize()
     {
-        return delegate.getRowSize();
+        return delegate().getRowSize();
     }
 
     /* (non-Javadoc)
@@ -538,7 +740,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized int getSizeX()
     {
-        if (delegate.reader.get() == null)
+        if (delegate == null || delegate.reader.get() == null)
         {
             // The downstream reader has not been initialized, we don't need to
             // delegate and can't even if we wanted to because no data has
@@ -553,7 +755,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized int getSizeY()
     {
-        if (delegate.reader.get() == null)
+        if (delegate == null || delegate.reader.get() == null)
         {
             // The downstream reader has not been initialized, we don't need to
             // delegate and can't even if we wanted to because no data has
@@ -605,7 +807,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized Integer getStackSize()
     {
-        return delegate.getStackSize();
+        return delegate().getStackSize();
     }
 
     /* (non-Javadoc)
@@ -618,7 +820,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate.getTile(z, c, t, x, y, w, h);
+        return delegate().getTile(z, c, t, x, y, w, h);
     }
 
     /* (non-Javadoc)
@@ -632,7 +834,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate.getTileDirect(z, c, t, x, y, w, h, buffer);
+        return delegate().getTileDirect(z, c, t, x, y, w, h, buffer);
     }
 
     /* (non-Javadoc)
@@ -667,7 +869,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized Integer getTimepointSize()
     {
-        return delegate.getTimepointSize();
+        return delegate().getTimepointSize();
     }
 
     /* (non-Javadoc)
@@ -675,7 +877,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized Integer getTotalSize()
     {
-        return delegate.getTotalSize();
+        return delegate().getTotalSize();
     }
 
     /* (non-Javadoc)
@@ -683,7 +885,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized boolean isFloat()
     {
-        return delegate.isFloat();
+        return delegate().isFloat();
     }
 
     /* (non-Javadoc)
@@ -691,7 +893,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized boolean isSigned()
     {
-        return delegate.isSigned();
+        return delegate().isSigned();
     }
 
     /* (non-Javadoc)
@@ -794,7 +996,11 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized int getResolutionLevel()
     {
-        return delegate.getResolutionLevel();
+        if (isWrite())
+        {
+            throw new ApiUsageException("In write mode!");
+        }
+        return delegate().getResolutionLevel();
     }
 
     /* (non-Javadoc)
@@ -802,7 +1008,11 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized int getResolutionLevels()
     {
-        return delegate.getResolutionLevels();
+        if (isWrite())
+        {
+            throw new ApiUsageException("In write mode!");
+        }
+        return delegate().getResolutionLevels();
     }
 
     /* (non-Javadoc)
@@ -810,7 +1020,13 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized Dimension getTileSize()
     {
-        return delegate.getTileSize();
+        if (isWrite())
+        {
+            // FIXME: This should be configuration or service driven
+            // FIXME: Also implemented in RenderingBean.getTileSize()
+            return new Dimension(256, 256);
+        }
+        return delegate().getTileSize();
     }
 
     /* (non-Javadoc)
@@ -818,6 +1034,10 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized void setResolutionLevel(int resolutionLevel)
     {
-        delegate.setResolutionLevel(resolutionLevel);
+        if (isWrite())
+        {
+            throw new ApiUsageException("In write mode!");
+        }
+        delegate().setResolutionLevel(resolutionLevel);
     }
 }
