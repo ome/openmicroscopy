@@ -409,18 +409,18 @@ class TreeViewerControl
 		if (state == TreeViewer.READY || state == TreeViewer.NEW) {
 			model.clearFoundResults();
 			if (!container.hasTaskPaneExpanded())
-				model.setSelectedBrowser(null);
+				model.setSelectedBrowser(null, true);
 			else {
 				if (pane instanceof TaskPaneBrowser) {
 					TaskPaneBrowser p = (TaskPaneBrowser) pane;
 					if (p.getBrowser() != null)
-						model.setSelectedBrowser(p.getBrowser());
+						model.setSelectedBrowser(p.getBrowser(), true);
 					else {
-						model.setSelectedBrowser(null);
+						model.setSelectedBrowser(null, true);
 						model.showSearch();
 					}
 				} else {
-					model.setSelectedBrowser(null);
+					model.setSelectedBrowser(null, true);
 				}
 			}
 		} else pane.setCollapsed(true);
@@ -696,7 +696,7 @@ class TreeViewerControl
 					model.clearFoundResults();
 					Component c = pane.getSelectedComponent();
 					if (c == null) {
-						model.setSelectedBrowser(null);
+						model.setSelectedBrowser(null, true);
 						return;
 					}
 					Map browsers = model.getBrowsers();
@@ -706,12 +706,12 @@ class TreeViewerControl
 					while (i.hasNext()) {
 						browser = (Browser) i.next();
 						if (c.equals(browser.getUI())) {
-							model.setSelectedBrowser(browser);
+							model.setSelectedBrowser(browser, true);
 							selected = true;
 							break;
 						}
 					}
-					if (!selected) model.setSelectedBrowser(null);
+					if (!selected) model.setSelectedBrowser(null, true);
 				}
 			};
 		}

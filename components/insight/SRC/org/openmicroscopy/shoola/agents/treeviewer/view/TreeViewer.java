@@ -279,9 +279,11 @@ public interface TreeViewer
 	 * Sets the currently selected {@link Browser} or <code>null</code>
 	 * if no {@link Browser} is selected.
 	 * 
-	 * @param browser The currently selected {@link Browser}.
+	 * @param browser 	The selected {@link Browser}.
+	 * @param activate 	Passed <code>true</code> to activate the browser,
+	 * 					<code>false</code> otherwise.
 	 */
-	void setSelectedBrowser(Browser browser);
+	void setSelectedBrowser(Browser browser, boolean activate);
 
 	/**
 	 * Queries the current state.

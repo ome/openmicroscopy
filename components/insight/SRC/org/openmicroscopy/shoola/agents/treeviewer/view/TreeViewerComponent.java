@@ -581,9 +581,9 @@ class TreeViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setSelectedBrowser(Browser)
+	 * @see TreeViewer#setSelectedBrowser(Browser, boolean)
 	 */
-	public void setSelectedBrowser(Browser browser)
+	public void setSelectedBrowser(Browser browser, boolean activate)
 	{
 		switch (model.getState()) {
 			case DISCARDED:
@@ -599,8 +599,11 @@ class TreeViewerComponent
 			
 		Browser oldBrowser = model.getSelectedBrowser();
 		if (oldBrowser == null || !oldBrowser.equals(browser)) {
+			if (!activate) {
+				view.selectPane(browser.getBrowserType());
+			}
 			model.setSelectedBrowser(browser);
-			if (browser != null) {
+			if (browser != null && activate) {
 				browser.activate();
 				if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
 					ExperimenterData exp = model.getUserDetails();
@@ -3288,6 +3291,7 @@ class TreeViewerComponent
 			if (ho instanceof DatasetData || ho instanceof ProjectData) {
 				browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
 				if (browser != null) {
+					setSelectedBrowser(browser, false);
 					finder = new NodesFinder((DataObject) ho);
 					browser.accept(finder);
 					nodes = finder.getNodes();
@@ -3305,7 +3309,8 @@ class TreeViewerComponent
 			} else if (ho instanceof ScreenData) {
 				browser = model.getBrowser(Browser.SCREENS_EXPLORER);
 				DataBrowserFactory.discardAll();
-			    view.removeAllFromWorkingPane();
+				setSelectedBrowser(browser, false);
+			    //view.removeAllFromWorkingPane();
 			    browser.refreshTree(refNode, (DataObject) ho);
 			}
 			
@@ -3317,7 +3322,8 @@ class TreeViewerComponent
 			}
 			if (browser != null) {
 				DataBrowserFactory.discardAll();
-			    view.removeAllFromWorkingPane();
+			    //view.removeAllFromWorkingPane();
+			    setSelectedBrowser(browser, false);
 			    browser.refreshTree(refNode, (DataObject) data);
 			}
 		}

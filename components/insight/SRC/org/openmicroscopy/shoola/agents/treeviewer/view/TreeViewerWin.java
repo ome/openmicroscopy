@@ -564,14 +564,17 @@ class TreeViewerWin
     		List<JXTaskPane> list = container.getTaskPanes();
     		TaskPaneBrowser p;
     		Browser b;
+    		container.removePropertyChangeListener(controller);
     		for (JXTaskPane pane: list)  {
     			if (pane instanceof TaskPaneBrowser) {
     				p = (TaskPaneBrowser) pane;
     				b = p.getBrowser();
-    				if (b != null && b.getBrowserType() == browserType)
-    					p.setCollapsed(false);	
+    				if (b != null && b.getBrowserType() == browserType) {
+    					p.setCollapsed(false);
+    				}
     			}
     		}
+    		container.addPropertyChangeListener(controller);
     	} else {
     		
     	}
