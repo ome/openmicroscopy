@@ -55,14 +55,12 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
-import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineHeaderSelectionRenderer;
 import org.openmicroscopy.shoola.util.ui.TooltipTableHeader;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.StringCellRenderer;
-
 import pojos.DatasetData;
 
 /**
@@ -409,6 +407,7 @@ class FileSelectionTable
 		v.removeAll(indexes);
 		dtm.setDataVector(v, selectedColumns);
 		table.clearSelection();
+		formatTableModel();
 		table.repaint();
 		table.addKeyListener(keyListener);
 		int n = table.getRowCount();
@@ -545,6 +544,7 @@ class FileSelectionTable
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		dtm.getDataVector().clear();
 		table.clearSelection();
+		formatTableModel();
 		table.repaint();
 		firePropertyChange(REMOVE_PROPERTY, -1, 0);
 		enabledControl(false);
