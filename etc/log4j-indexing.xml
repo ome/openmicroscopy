@@ -82,6 +82,7 @@ omero.blitz.xargs.
   <category name="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor"> <priority value="TRACE"/> </category>
   <!-- Quieting blitz startup -->
   <category name="net.sf.ehcache"> <priority value="ERROR"/> </category>
+  <category name="loci"> <priority value="INFO"/> </category><!-- Bio-Formats -->
   <category name="ucar"> <priority value="WARN"/> </category><!-- NetCDF -->
 
   <!-- BUILD ////////////////////////////////////////////////////////////////// -->
