@@ -754,4 +754,6 @@ UPDATE dbpatch set message = 'Database updated.', finished = now()
           previousVersion = 'OMERO4.2' and
           previousPatch   = 0;
 
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO4.3DEV__0'||CHR(10)||CHR(10)||CHR(10) as Status;
+
 COMMIT;
