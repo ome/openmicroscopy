@@ -51,6 +51,8 @@ public class PyramidPixelBufferUnitTest extends AbstractPyramidPixelBufferUnitTe
         short tileCount = writeTiles(hashDigests);
         assertEquals(tileCount, 768);
         pixelBuffer.close();
+        // close now nulls the reader to free file descriptors
+        pixelBuffer = service.getPixelBuffer(pixels);
     }
 
     @Test(dependsOnMethods={"testPyramidWriteTiles"}, enabled=false)
