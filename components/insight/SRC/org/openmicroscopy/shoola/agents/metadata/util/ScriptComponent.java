@@ -76,6 +76,9 @@ class ScriptComponent
 	/** Indicates the tabulation value. */
 	private static final int TAB = 15;
 	
+	/** The default text for the component.*/
+	private static final String DEFAULT_TEXT = "";
+	
 	/** The component to host. */
 	private JComponent component;
 	
@@ -196,6 +199,12 @@ class ScriptComponent
 		}
 	}
 	
+	/** Creates a new instance.*/
+	ScriptComponent()
+	{
+		this(new JLabel(), DEFAULT_TEXT);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -281,6 +290,7 @@ class ScriptComponent
 	void buildUI()
 	{
 		int width = TAB*getTabulationLevel();
+		if (DEFAULT_TEXT.equals(name)) width = 0;
 		if (children == null || children.size() == 0) {
 			double[][] size = {{width, TableLayout.PREFERRED, 5,
 				TableLayout.FILL}, {TableLayout.PREFERRED}};
@@ -371,6 +381,13 @@ class ScriptComponent
 		this.parentIndex = parentIndex;
 	}
 
+	/**
+	 * Returns the parent grouping values.
+	 * 
+	 * @return See above.
+	 */
+	String getParentIndex() { return parentIndex; }
+	
 	/**
 	 * Returns the grouping.
 	 * 

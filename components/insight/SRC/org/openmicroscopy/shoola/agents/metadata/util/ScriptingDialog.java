@@ -473,7 +473,6 @@ public class ScriptingDialog
 					else 
 						comp = new ComplexParamPane((JComboBox) comp);
 				}
-				
 			}
 			if (comp != null) {
 				if (comp instanceof JTextField) {
@@ -513,7 +512,6 @@ public class ScriptingDialog
 				if (grouping.length() > 0) {
 					c.setGrouping(grouping);
 					c.setNameLabel(grouping);
-					
 				} else {
 					c.setNameLabel(name);
 				}
@@ -528,10 +526,22 @@ public class ScriptingDialog
 			key = k.next();
 			grouping = key.getGrouping();
 			l = childrenMap.get(grouping);
+			childrenMap.remove(grouping);
 			if (l != null)
 				key.setChildren(l);
 		}
-		
+		if (childrenMap != null && childrenMap.size() > 0) {
+			Iterator<String> j = childrenMap.keySet().iterator();
+			ScriptComponent sc;
+			while (j.hasNext()) {
+				parent = j.next();
+				sc = new ScriptComponent();
+				sc.setGrouping(parent);
+				sc.setNameLabel(parent);
+				sc.setChildren(childrenMap.get(parent));
+				results.add(sc);
+			}
+		}
 		List<ScriptComponent> sortedKeys = sorter.sort(results);
 		k = sortedKeys.iterator();
 		
