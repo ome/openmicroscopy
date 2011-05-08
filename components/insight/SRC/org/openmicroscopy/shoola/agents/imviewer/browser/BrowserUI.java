@@ -364,6 +364,7 @@ class BrowserUI
     /** Displays the zoomed image. */
     void zoomImage()
     {
+    	adjusting = false;
     	if (canvas instanceof BrowserCanvas) {
     		TextureData img = model.getRenderedImageAsTexture();
         	if (img == null) return;
@@ -556,6 +557,9 @@ class BrowserUI
 		return birdEyeView.getLocationIndex();
 	}
 	
+	/** Sets the adjusting value to <code>false</code>.*/
+	void resetAdjusting() { adjusting = false; }
+	
 	/**
 	 * Sets the location of the bird eye to be sure that it is always visible.
 	 * @see AdjustmentListener#adjustmentValueChanged(AdjustmentEvent)
@@ -567,7 +571,7 @@ class BrowserUI
         	setBirdEyeViewLocation();
         	return;
         }
-        adjusting = false;
+        //adjusting = false;
         setSelectionRegion();
         model.checkTilesToLoad(getViewport().getViewRect());
 	}

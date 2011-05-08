@@ -409,6 +409,15 @@ class BrowserComponent
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#onComponentResized()
+     */
+	public void onComponentResized()
+	{
+		view.resetAdjusting();
+	}
+	
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setBackgroundColor(Color)
      */
 	public void setBackgroundColor(Color color)

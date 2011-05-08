@@ -400,5 +400,8 @@ public interface Browser
 	 * @return See above.
 	 */
 	Rectangle getVisibleRectangle();
+
+	/** Invokes when the viewer is resized.*/
+	void onComponentResized();
 	
 }

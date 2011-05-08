@@ -1830,6 +1830,12 @@ class ImViewerUI
 		c.setBounds(c.getBounds());
 	}
 
+	/** Invokes when the component is resized.*/
+	void onComponentResized()
+	{
+		model.getBrowser().onComponentResized();
+	}
+	
 	/**
 	 * Sets the <code>enable</code> flag of the slider used to select
 	 * the current z-section and timepoint.

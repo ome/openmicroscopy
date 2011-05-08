@@ -956,6 +956,7 @@ class ImViewerControl
 			if (model.isZoomFitToWindow()) 
 				model.setZoomFactor(-1, ZoomAction.ZOOM_FIT_TO_WINDOW); 
 		}
+		view.onComponentResized();
 		view.maximizeWindow();
 		setPreferences();
 	}
