@@ -20,7 +20,7 @@
             		if (l == 1) {
 
             		    $("#right_panel").show();
-                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
             		    $('td.ui-selected', this).each(function(){  
             		        var h = $(window).height()-169;
                             $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/metadata_details/well/'+this.id+'/?index={{index}}" id="metadata_details" name="metadata_details"></iframe>'); 
@@ -44,7 +44,7 @@
     <script> 
         function changeIndex(index) {
             if(index>=0) {
-                $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
+                $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
                 var url = ('{{ url }}').split("?");                
                 $("div#content_details").load(url[0]+'?view={{ nav.view }}&index='+index);
                 return false;

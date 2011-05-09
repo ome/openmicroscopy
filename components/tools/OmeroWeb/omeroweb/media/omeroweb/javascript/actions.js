@@ -11,7 +11,7 @@ var calculateCartTotal = function(total)
 function loadMetadata(src) {
     var h = $(window).height()-200;
     $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/tree/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
     $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details"></iframe>');
     $('iframe#metadata_details').load();
 }
@@ -273,7 +273,7 @@ function deleteItem(productType, productId) {
                         
                         if ((productType == 'image') && productId > 0) {
                             $("div#metadata_details").empty();
-                            /*$("div#content_details").html('<p>Reloading data... please wait <img src ="/appmedia/omeroweb/images/tree/spinner.gif" /></p>');
+                            /*$("div#content_details").html('<p>Reloading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif" /></p>');
                             if ($("div#content_details").attr('rel') && $("div#content_details").attr('rel') !== undefined) {
                                 var obj = $("div#content_details").attr('rel').split("-");
                                 $("div#content_details").load('/webclient/load_data/dataset/'+obj[1]+'/?view=icon');
@@ -415,13 +415,13 @@ function cleanClipboard (productType, productId) {
 function changeView(view) { 
     var rel = $("div#content_details").attr('rel').split("-");
     if(rel.indexOf('orphaned')>=0) {
-        $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
+        $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
         $("div#content_details").load('/webclient/load_data/orphaned/?view='+view);
     } else if(rel.indexOf('tag')>=0) {
-        $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
+        $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
         $("div#content_details").load('/webclient/load_tags/tag/'+rel[1]+'/?view='+view);
     } else {
-        $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
+        $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
         $("div#content_details").load('/webclient/load_data/dataset/'+rel[1]+'/?view='+view);
     }
     return false;
@@ -438,7 +438,7 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
     if (image_id == null) {
         alert("No image selected.")
     } else {
-        $($('#id_'+metadata_type).parent()).append('<img src="/appmedia/omeroweb/images/tree/spinner.gif"/>');
+        $($('#id_'+metadata_type).parent()).append('<img src="/appmedia/omeroweb/images/spinner.gif"/>');
         $.ajax({
             type: "POST",
             url: "/webclient/metadata/image/"+image_id+"/", //this.href,
@@ -464,7 +464,7 @@ function editItem(type, item_id) {
 
 function doPagination(view, page) {
     var rel = $("div#content_details").attr('rel').split("-");
-    $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
+    $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
     $("div#content_details").load('/webclient/load_data/dataset/'+rel[1]+'/?view='+view+'&page='+page);
     return false;
 }

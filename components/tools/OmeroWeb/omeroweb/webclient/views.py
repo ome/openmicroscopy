@@ -1448,7 +1448,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         if hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
             template = "webclient/ajax_form/container_form_ajax.html"
-            form = ContainerNameForm(initial={'name': obj.name})
+            form = ContainerNameForm(initial={'name': (o_type != "tag" and obj.name or obj.textValue)})
             context = {'nav':request.session['nav'], 'manager':manager, 'eContext':manager.eContext, 'form':form}
         else:
             return HttpResponseServerError("Object does not exist")
@@ -1502,6 +1502,17 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponse( json, mimetype='application/javascript')
         else:
             return HttpResponseServerError("Object does not exist")
+    elif action == 'paste':
+        destination = request.REQUEST['destination'].split('-')
+        rv = manager.paste(destination)
+        if rv:
+            rdict = {'bad':'true','errs': rv }
+            json = simplejson.dumps(rdict, ensure_ascii=False)
+            return HttpResponse( json, mimetype='application/javascript')
+        else:
+            rdict = {'bad':'false' }
+            json = simplejson.dumps(rdict, ensure_ascii=False)
+            return HttpResponse( json, mimetype='application/javascript')
     elif action == 'move':
         parent = request.REQUEST['parent'].split('-')
         #source = request.REQUEST['source'].split('-')
@@ -2009,70 +2020,72 @@ def update_basket(request, **kwargs):
 ##################################################################
 # Clipboard
 
-@isUserConnected
-def update_clipboard(request, **kwargs):
-    action = None
-    rv = None
-    if request.method == 'POST':
-        action = request.REQUEST.get('action')
-        if action is None:
-            rv = "Error: Action not available."
-        else:
-            if action == 'copy':
-                images = request.REQUEST.getlist('image')
-                datasets = request.REQUEST.getlist('dataset')
-                plates = request.REQUEST.getlist('plate')
-                request.session['clipboard'] = {'images': images, 'datasets': datasets, 'plates': plates}
-                rv = "Data were copied to clipboard."
-            elif action == 'paste':
-                destinationType = request.REQUEST.get('destinationType')
-                destinationId = request.REQUEST.get('destinationId')
-                if destinationType is not None and destinationId is not None:
-                    destination = [str(request.REQUEST.get('destinationType')), long(request.REQUEST.get('destinationId'))]
-                    conn = None
-                    try:
-                        conn = kwargs["conn"]
-                    except:
-                        logger.error(traceback.format_exc())
-                    manager = BaseContainer(conn)
-                    if request.session['clipboard']['images'] is not None and len(request.session['clipboard']['images']) > 0 :
-                        try:
-                            manager.copyImagesToDataset(request.session['clipboard']['images'], destination)
-                        except Exception, x:
-                            logger.error(traceback.format_exc())
-                            return HttpResponse("Error: %s" % (x.__class__.__name__))
-                    elif request.session['clipboard']['datasets'] is not None and len(request.session['clipboard']['datasets']) > 0:
-                        try:
-                            manager.copyDatasetsToProject(request.session['clipboard']['datasets'], destination)
-                        except Exception, x:
-                            logger.error(traceback.format_exc())
-                            return HttpResponse("Error: %s" % (x.__class__.__name__))
-                    elif request.session['clipboard']['plates'] is not None and len(request.session['clipboard']['plates']) > 0:
-                        try:
-                            manager.copyPlatesToScreen(request.session['clipboard']['plates'], destination)
-                        except Exception, x:
-                            logger.error(traceback.format_exc())
-                            return HttpResponse("Error: %s" % (x.__class__.__name__)) 
-                    else:
-                        rv = "Error: Clipboard is empty. You need to copy before paste."
-
-                    if rv is None:
-                        request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
-                        rv = "Copied successful"
-                else:
-                    rv = "Error: Destination was not specified."    
-            elif action == 'clean':
-                try:
-                    del request.session['clipboard']
-                except KeyError:
-                    logger.error(traceback.format_exc())
-                request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
-                rv = "Cleapboard is empty"
-            else:
-                rv = "Error: Action not supported."
-    else:
-        rv = "Error: Action not available."
-    return HttpResponse(rv)
+#@isUserConnected
+#def update_clipboard(request, **kwargs):
+#    if request.method == 'POST':
+#        rv = None
+#        action = request.REQUEST.get('action')
+#        if action is None:
+#            return HttpResponseServerError("Error: Action not available.")
+#        if action == 'copy':
+#            images = request.REQUEST.getlist('image')
+#            datasets = request.REQUEST.getlist('dataset')
+#            plates = request.REQUEST.getlist('plate')
+#            request.session['clipboard'] = {'images': images, 'datasets': datasets, 'plates': plates}
+#            rv = "Data were copied to clipboard."
+#        elif action == 'paste':
+#            destinationType = request.REQUEST.get('destinationType')
+#            destinationId = request.REQUEST.get('destinationId')
+#            if destinationType is not None and destinationId is not None:
+#                destination = [str(request.REQUEST.get('destinationType')), long(request.REQUEST.get('destinationId'))]
+#                conn = None
+#                try:
+#                    conn = kwargs["conn"]
+#                except:
+#                    logger.error(traceback.format_exc())
+#                manager = BaseContainer(conn)
+#                if request.session['clipboard']['images'] is not None and len(request.session['clipboard']['images']) > 0 :
+#                    try:
+#                        manager.copyImagesToDataset(request.session['clipboard']['images'], destination)
+#                    except Exception, x:
+#                        logger.error(traceback.format_exc())
+#                        return HttpResponseServerError("Error: %s" % (x.__class__.__name__))
+#                elif request.session['clipboard']['datasets'] is not None and len(request.session['clipboard']['datasets']) > 0:
+#                    try:
+#                        manager.copyDatasetsToProject(request.session['clipboard']['datasets'], destination)
+#                    except Exception, x:
+#                        logger.error(traceback.format_exc())
+#                        return HttpResponseServerError("Error: %s" % (x.__class__.__name__))
+#                elif request.session['clipboard']['plates'] is not None and len(request.session['clipboard']['plates']) > 0:
+#                    try:
+#                        manager.copyPlatesToScreen(request.session['clipboard']['plates'], destination)
+#                    except Exception, x:
+#                        logger.error(traceback.format_exc())
+#                        return HttpResponseServerError("Error: %s" % (x.__class__.__name__))
+#                else:
+#                    rv = "Error: Clipboard is empty. You need to copy before paste."
+#                if rv is None:
+#                    request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
+#                    #rv = "Copied successful"
+#            else:
+#                rv = "Error: Destination was not specified."    
+#        elif action == 'clean':
+#            try:
+#                del request.session['clipboard']
+#            except KeyError:
+#                logger.error(traceback.format_exc())
+#            request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
+#            rv = "Cleapboard is empty"
+#        else:
+#            rv = "Error: Action not supported."
+#            
+#        if rv:
+#            rdict = {'bad':'false','errs': rv}
+#        else:
+#            rdict = {'bad':'false' }
+#        json = simplejson.dumps(rdict, ensure_ascii=False)
+#        return HttpResponse( json, mimetype='application/javascript')
+#    return HttpResponseServerError("Error: Action not available.")
 
 #@isUserConnected
 #def importer(request, **kwargs):

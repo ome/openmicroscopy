@@ -1135,7 +1135,6 @@
 				}
 				this.__call_old(true, obj, ref, position, is_copy, true, skip_check);
 			},
-
 			cut : function (obj) {
 				obj = this._get_node(obj);
 				this.data.crrm.cp_nodes = false;

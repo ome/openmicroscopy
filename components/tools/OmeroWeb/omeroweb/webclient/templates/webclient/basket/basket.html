@@ -25,7 +25,7 @@
             var h = $(window).height()-200;
             $("div#content_details").css('height', h+31);
             $("#right_panel").show();
-            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
             
             
             $("table#dataTable tbody").selectable({
@@ -39,7 +39,7 @@
             		    $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% url webstatic "images/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare();"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
             		    
             		    $("#right_panel").show();
-                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
             		    $('tr.ui-selected', this).each(function(){  
             		        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/image/'+this.id+'/" id="metadata_details" name="metadata_details"></iframe>');
                             $('iframe#metadata_details').load();
@@ -48,7 +48,7 @@
             		    $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% url webstatic "images/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare();"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
 
             		    $("#right_panel").show();
-            		    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+            		    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
             		    $("div#metadata_details").html('<p>'+ l +' elements selected.</p>');
             		}
             	},

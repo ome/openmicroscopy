@@ -46,7 +46,7 @@
             					"data" : function (n) {
                                     return { 
                                         "view" : "tree", 
-            							"o_type" : n.attr ? n.attr("rel") : "",
+            							"o_type" : n.attr ? n.attr("rel").replace("-locked", "") : "",
             							"o_id" : n.attr ? n.attr("id").split("-")[1] : 0
             						};
                                 }
@@ -63,9 +63,9 @@
             				"valid_children" : [ "experimenter" ],
             				"types" : {
             					"experimenter" : {
-            						"valid_children" : [ "tagset", "tag" ],
+            						"valid_children" : [ "tagset", "tagset-locked", "tag", "tag-locked" ],
             						"icon" : {
-            							"image" : '{% url webstatic "images/tree/personal16.png" %}'
+            							"image" : '{% url webstatic "images/personal16.png" %}'
             						},
             						"create_node" : true,
             						"start_drag" : false,
@@ -73,10 +73,65 @@
             						"delete_node" : false,
             						"remove" : false
             					},
-            					"project" : {
-            						"valid_children" : [ "dataset" ],
+            					"tagset" : {
+            						"valid_children" : [ "tag", "tag-locked" ],
             						"icon" : {
-            							"image" : '{% url webstatic "images/tree/folder16.png" %}'
+            							"image" : '{% url webstatic "images/knotesred16.png" %}'
+            						},
+            						"create_node" : true,
+                                    "start_drag" : false,
+            						"move_node" : true,
+            						"delete_node" : true,
+            						"remove" : true
+            					},
+            					"tagset-locked" : {
+            						"valid_children" : [ "tag", "tag-locked" ],
+            						"icon" : {
+            							"image" : '{% url webstatic "images/knotesred_locked16.png" %}'
+            						},
+            						"create_node" : false,
+                                    "start_drag" : false,
+            						"move_node" : false,
+            						"delete_node" : false,
+            						"remove" : false
+            					},            					
+            					"tag" : {
+            						"valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
+            						"icon" : {
+            							"image" : '{% url webstatic "images/knotes16.png" %}'
+            						},
+            						"create_node" : true,
+            						"start_drag" : true,
+            						"move_node" : true,
+            						"delete_node" : true,
+            						"remove" : true
+            					},
+            					"tag-locked" : {
+            						"valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
+            						"icon" : {
+            							"image" : '{% url webstatic "images/knotes_locked16.png" %}'
+            						},
+            						"create_node" : false,
+            						"start_drag" : false,
+            						"move_node" : false,
+            						"delete_node" : false,
+            						"remove" : false
+            					},
+            					"project" : {
+            						"valid_children" : [ "dataset", "dataset-locked" ],
+            						"icon" : {
+            							"image" : '{% url webstatic "images/folder16.png" %}'
+            						},
+            						"create_node" : false,
+                                    "start_drag" : false,
+            						"move_node" : false,
+            						"delete_node" : false,
+            						"remove" : false
+            					},
+            					"project-locked" : {
+            						"valid_children" : [ "dataset", "dataset-locked" ],
+            						"icon" : {
+            							"image" : '{% url webstatic "images/folder_locked16.png" %}'
             						},
             						"create_node" : false,
                                     "start_drag" : false,
@@ -85,9 +140,20 @@
             						"remove" : false
             					},
             					"dataset" : {
-            						"valid_children" : [ "image" ],
+            						"valid_children" : [ "image", "image-locked" ],
             						"icon" : {
-            							"image" : '{% url webstatic "images/tree/folder_image16.png" %}'
+            							"image" : '{% url webstatic "images/folder_image16.png" %}'
+            						},
+            						"create_node" : false,
+            						"start_drag" : false,
+            						"move_node" : false,
+            						"delete_node" : false,
+            						"remove" : false
+            					},
+            					"dataset-locked" : {
+            						"valid_children" : [ "image", "image-locked" ],
+            						"icon" : {
+            							"image" : '{% url webstatic "images/folder_image_locked16.png" %}'
             						},
             						"create_node" : false,
             						"start_drag" : false,
@@ -98,7 +164,18 @@
             					"image" : {
             						"valid_children" : "none",
             						"icon" : {
-            							"image" : '{% url webstatic "images/tree/image16.png" %}'
+            							"image" : '{% url webstatic "images/image16.png" %}'
+            						},
+            						"create_node" : false,
+            						"start_drag" : false,
+            						"move_node" : false,
+            						"delete_node" : false,
+            						"remove" : false
+            					},
+            					"image-locked" : {
+            						"valid_children" : "none",
+            						"icon" : {
+            							"image" : '{% url webstatic "images/image_locked16.png" %}'
             						},
             						"create_node" : false,
             						"start_drag" : false,
@@ -107,9 +184,20 @@
             						"remove" : false
             					},
             					"screen" : {
-            						"valid_children" : [ "plate" ],
+            						"valid_children" : [ "plate", "plate-locked" ],
             						"icon" : {
-            							"image" : '{% url webstatic "images/tree/folder_screen16.png" %}'
+            							"image" : '{% url webstatic "images/folder_screen16.png" %}'
+            						},
+            						"create_node" : false,
+                                    "start_drag" : false,
+            						"move_node" : false,
+            						"delete_node" : false,
+            						"remove" : false
+            					},
+            					"screen-locked" : {
+            						"valid_children" : [ "plate", "plate-locked" ],
+            						"icon" : {
+            							"image" : '{% url webstatic "images/folder_screen_locked16.png" %}'
             						},
             						"create_node" : false,
                                     "start_drag" : false,
@@ -120,7 +208,7 @@
             					"plate" : {
             						"valid_children" : "none",
             						"icon" : {
-            							"image" : '{% url webstatic "images/tree/folder_plate16.png" %}'
+            							"image" : '{% url webstatic "images/folder_plate16.png" %}'
             						},
             						"create_node" : false,
             						"start_drag" : false,
@@ -128,28 +216,17 @@
             						"delete_node" : false,
             						"remove" : false
             					},
-            					"tagset" : {
-            						"valid_children" : [ "tag" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/tree/knotesred16.png" %}'
-            						},
-            						"create_node" : true,
-                                    "start_drag" : false,
-            						"move_node" : true,
-            						"delete_node" : true,
-            						"remove" : true
-            					},            					
-            					"tag" : {
+            					"plate-locked" : {
             						"valid_children" : "none",
             						"icon" : {
-            							"image" : '{% url webstatic "images/tree/knotes16.png" %}'
+            							"image" : '{% url webstatic "images/folder_plate_locked16.png" %}'
             						},
-            						"create_node" : true,
-            						"start_drag" : true,
-            						"move_node" : true,
-            						"delete_node" : true,
-            						"remove" : true
-            					}         					
+            						"create_node" : false,
+            						"start_drag" : false,
+            						"move_node" : false,
+            						"delete_node" : false,
+            						"remove" : false
+            					}
             				}
             			},
             			// For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
@@ -175,29 +252,30 @@
             	})
             	.bind("select_node.jstree", function (e, data) {
             	    if(data.rslt.obj.attr("rel")!="experimenter") {
+            	        var r = data.rslt.obj.attr("rel").replace("-locked", "");            	        
             	        $("#right_panel").show();
-                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/'+data.rslt.obj.attr("rel")+'/'+data.rslt.obj.attr("id").split("-")[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/'+r+'/'+data.rslt.obj.attr("id").split("-")[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
                         $('iframe#metadata_details').load();
                 
-                        if($.inArray(data.rslt.obj.attr("rel"), ["dataset", "plate"]) == 0 && $("div#content_details").attr('rel')!=data.rslt.obj.attr("id")) {
-                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                            $("div#content_details").load('/webclient/load_data/'+data.rslt.obj.attr("rel")+'/'+data.rslt.obj.attr("id").split("-")[1]+'/?view=icon');
+                        if($.inArray(r, ["dataset", "plate"]) == 0 && data.rslt.obj.attr("id")!=$("div#content_details").attr('rel')) {
+                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                            $("div#content_details").load('/webclient/load_data/'+r+'/'+data.rslt.obj.attr("id").split("-")[1]+'/?view=icon');
                             $("div#content_details").attr('rel', data.rslt.obj.attr("id"));
-                        } else if(data.rslt.obj.attr("rel")=="image") {
-                            if (data.rslt.obj.parent().parent().attr("rel")!="orphaned" && data.rslt.obj.parent().parent().attr("id")!=$("div#content_details").attr('rel')){
-                                $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                                $("div#content_details").load('/webclient/load_data/'+data.rslt.obj.parent().parent().attr("rel")+'/'+data.rslt.obj.parent().parent().attr("id").split("-")[1]+'/?view=icon');
+                        } else if(r=="image") {
+                            var pr = data.rslt.obj.parent().parent().attr("rel");
+                            if (pr!="orphaned" && data.rslt.obj.parent().parent().attr("id")!=$("div#content_details").attr('rel')){
+                                $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                                $("div#content_details").load('/webclient/load_data/'+pr+'/'+data.rslt.obj.parent().parent().attr("id").split("-")[1]+'/?view=icon');
                                 $("div#content_details").attr('rel', data.rslt.obj.parent().parent().attr("id"));
                             }                            
-                        } else if ($("div#content_details").attr('rel')!=data.rslt.obj.attr("id") && $("div#content_details").attr('rel')!=data.rslt.obj.parent().parent().attr("id")) {
+                        } else if (data.rslt.obj.attr("id")!=$("div#content_details").attr('rel') && data.rslt.obj.parent().parent().attr("id")!=$("div#content_details").attr('rel')) {
                             $("div#content_details").removeAttr('rel').children().remove();
                         }
                     } else {
                         $("#right_panel").show();
-                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                        $("div#metadata_details").html('<p>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</p>');
-                        
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                        $("div#metadata_details").html('<p>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</p>');  
                     }
         		});
             	

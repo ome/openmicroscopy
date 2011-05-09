@@ -822,7 +822,10 @@ class BaseContainer(BaseController):
     
     def updateName(self, o_type, o_id, name):
         obj = getattr(self, o_type)._obj
-        obj.name = rstring(str(name))
+        if o_type != 'tag':
+            obj.name = rstring(str(name))
+        else:
+            obj.textValue = rstring(str(name))
         self.conn.saveObject(obj)
     
     def updateImage(self, name, description):
@@ -915,15 +918,10 @@ class BaseContainer(BaseController):
                         self.conn.saveObject(up_pdl)
             elif destination[0] == 'experimenter':
                 up_pdl = None
-                pdls = list(self.dataset.getParentLinks())
-                
-                if len(pdls) == 1:
-                    # gets old parent to delete
-                    if pdls[0].parent.id.val == long(parent[1]):
-                        up_pdl = pdls[0]
+                for p in self.dataset.getParentLinks():
+                    if p.parent.id.val == long(parent[1]):
+                        up_pdl = p
                         self.conn.deleteObjectDirect(up_pdl._obj)
-                else:
-                    return 'This dataset is linked in multiple places. Please unlink the dataset first.'
             elif destination[0] == 'orphaned':
                 return 'Cannot move dataset to orphaned images.'
             else:
@@ -1060,6 +1058,77 @@ class BaseContainer(BaseController):
     ##########################################################
     # Copy
     
+    def paste(self, destination):
+        if self.project is not None:
+            return 'Cannot paste project.'
+        elif self.dataset is not None:
+            if destination[0] == 'dataset':
+                return 'Cannot paste dataset to dataset'
+            elif destination[0] == 'project':
+                pdls = self.dataset.getParentLinks()
+                already_there = None
+                
+                for pdl in pdls:
+                    if pdl.parent.id.val == long(destination[1]):
+                        already_there = True
+                if already_there:
+                    return 'Dataset is already there.'
+                else:
+                    new_pr = self.conn.getObject("Project", destination[1])
+                    up_pdl = omero.model.ProjectDatasetLinkI()
+                    up_pdl.setChild(self.dataset._obj)
+                    up_pdl.setParent(new_pr._obj)
+                    self.conn.saveObject(up_pdl)
+            else:
+                return 'Destination not supported.'
+        elif self.image is not None:
+            if destination[0] == 'dataset':
+                dsls = self.image.getParentLinks() #gets every links for child
+                already_there = None
+                
+                #checks links
+                for dsl in dsls:
+                    #if is already linked to destination
+                    if dsl.parent.id.val == long(destination[1]):
+                        already_there = True
+                if already_there:
+                    return 'Image is already there.'
+                else:
+                    # update link to new destination
+                    new_ds = self.conn.getObject("Dataset", destination[1])                    
+                    up_dsl = omero.model.DatasetImageLinkI()
+                    up_dsl.setChild(self.image._obj)
+                    up_dsl.setParent(new_ds._obj)
+                    self.conn.saveObject(up_dsl)
+            elif destination[0] == 'project':
+                return 'Cannot copy image to project.'
+            else:
+                return 'Destination not supported.'
+        elif self.screen is not None:
+            return 'Cannot paste screen.'
+        elif self.plate is not None:
+            if destination[0] == 'plate':
+                return 'Cannot move plate to plate'
+            elif destination[0] == 'screen':
+                spls = self.plate.getParentLinks()
+                already_there = None
+                
+                for spl in spls:
+                    if spl.parent.id.val == long(destination[1]):
+                        already_there = True
+                if already_there:
+                    return 'Plate is already there.'
+                else:
+                    new_sc = self.conn.getObject("Screen", destination[1])
+                    up_spl = omero.model.ScreenPlateLinkI()
+                    up_spl.setChild(self.plate._obj)
+                    up_spl.setParent(new_sc._obj)
+                    self.conn.saveObject(up_spl)
+            else:
+                return 'Destination not supported.'
+        else:
+            return 'No data was choosen.'
+    
     def copyImageToDataset(self, source, destination=None):
         if destination is None:
             dsls = self.conn.getDatasetImageLinks(source[1]) #gets every links for child
@@ -1072,39 +1141,32 @@ class BaseContainer(BaseController):
             new_dsl.setChild(im._obj)
             new_dsl.setParent(ds._obj)
             self.conn.saveObject(new_dsl)
-            return True
     
     def copyImagesToDataset(self, images, dataset):
-           if dataset is None:
-               pass
-           else:
-               ims = self.conn.getObjects("Image", images)
-               ds = self.conn.getObject("Dataset", dataset[1])
-               link_array = list()
-               for im in ims:
-                   new_dsl = omero.model.DatasetImageLinkI()
-                   new_dsl.setChild(im._obj)
-                   new_dsl.setParent(ds._obj)
-                   link_array.append(new_dsl)
-               self.conn.saveArray(link_array)
-               return True
+        if dataset is not None and dataset[0] is not "dataset":
+            ims = self.conn.getObjects("Image", images)
+            ds = self.conn.getObject("Dataset", dataset[1])
+            link_array = list()
+            for im in ims:
+                new_dsl = omero.model.DatasetImageLinkI()
+                new_dsl.setChild(im._obj)
+                new_dsl.setParent(ds._obj)
+                link_array.append(new_dsl)
+            self.conn.saveArray(link_array)
+        raise AttributeError("Destination not supported")
     
     def copyDatasetToProject(self, source, destination=None):
-        if destination is None:
-            pass
-        else:
+        if destination is not None and destination[0] is not "project":
             ds = self.conn.getObject("Dataset", source[1])
             pr = self.conn.getObject("Project", destination[1])
             new_pdl = omero.model.ProjectDatasetLinkI()
             new_pdl.setChild(ds._obj)
             new_pdl.setParent(pr._obj)
             self.conn.saveObject(new_pdl)
-            return True
+        raise AttributeError("Destination not supported")
    
     def copyDatasetsToProject(self, datasets, project):
-        if project is None:
-            pass
-        else:
+        if project is not None and project[0] is not "project":
             dss = self.conn.getObjects("Dataset", datasets)
             pr = self.conn.getObject("Project", project[1])
             link_array = list()
@@ -1114,24 +1176,20 @@ class BaseContainer(BaseController):
                 new_pdl.setParent(pr._obj)
                 link_array.append(new_pdl)
             self.conn.saveArray(link_array)
-            return True
+        raise AttributeError("Destination not supported")
     
     def copyPlateToScreen(self, source, destination=None):
-        if destination is None:
-            pass
-        else:
+        if destination is not None and destination[0] is not "screen":
             pl = self.conn.getObject("Plate", source[1])
             sc = self.conn.getObject("Screen", destination[1])
             new_spl = omero.model.ScreenPlateLinkI()
             new_spl.setChild(pl._obj)
             new_spl.setParent(sc._obj)
             self.conn.saveObject(new_spl)
-            return True
+        raise AttributeError("Destination not supported")
     
     def copyPlatesToScreen(self, plates, screen):
-        if screen is None:
-            pass
-        else:
+        if screen is not None and screen[0] is not "screen":
             pls = self.conn.getObjects("Plate", plates)
             sc = self.conn.getObject("Screen", screen[1])
             link_array = list()
@@ -1141,7 +1199,7 @@ class BaseContainer(BaseController):
                 new_spl.setParent(sc._obj)
                 link_array.append(new_spl)
             self.conn.saveArray(link_array)
-            return True
+        raise AttributeError("Destination not supported")
 
 
     ##########################################################

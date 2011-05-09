@@ -73,7 +73,7 @@
             		        url = this.value+"=on";
             		    }
             		});
-                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
                     $("div#content_details").load('{% url load_searching "form" %}?'+url);
                     return false;
                 });
@@ -94,7 +94,7 @@
                         }
                     }
                     var data = $("#batch_searching_form").serialize();
-                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
                     $("div#content_details").load('{% url load_searching %}', data);
                     return false;
                 });

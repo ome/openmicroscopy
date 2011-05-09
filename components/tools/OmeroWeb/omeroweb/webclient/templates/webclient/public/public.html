@@ -32,7 +32,7 @@
                 $("div#metadata_details iframe").attr('height', h+31);
                 $("div#content_details").css('height', h+31);
                 
-                $("div#tree_details").html('<p>Loading imported images... please wait <img src="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                $("div#tree_details").html('<p>Loading imported images... please wait <img src="{% url webstatic "images/spinner.gif" %}"/></p>');
                 $("div#tree_details").load("{% url load_public %}?view=tree", function() {
                     simpleTreeCollection = $('.simpleTree').simpleTree({
                         autoclose: false,
@@ -42,19 +42,19 @@
                             if (obj[0] == 'lock') {
                                 $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');                             
                                 $("#right_panel").show();
-                                $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                                $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
                                 $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/share/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
                                 $('iframe#metadata_details').load();
                                 $("div#content_details").removeAttr('rel').children().remove(); 
                             } else if (obj[0] == 'sh') {
                                 $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');                             
                                 $("#right_panel").show();
-                                $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                                $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
                                 $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/share/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
                                 $('iframe#metadata_details').load();
 
                                 if ($("div#content_details").attr('rel') != obj.join("-")) {
-                                    $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                                    $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
                                     $("div#content_details").load('/webclient/load_public/'+obj[1]+'/?view=icon');
                                     $("div#content_details").attr('rel', obj.join("-"));
                                 }
@@ -62,7 +62,7 @@
                                 $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');
                                                                 
                                 $("#right_panel").show();
-                                $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+                                $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
                                 $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/discussion/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
                                 $('iframe#metadata_details').load(); 
                                 $("div#content_details").removeAttr('rel').children().remove(); 
@@ -75,13 +75,13 @@
                                 }                                
                                 
                                 if ($("div#content_details").attr('rel') != par.join("-")) {
-                                    $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                                    $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
                                     $("div#content_details").load('/webclient/load_public/'+par[1]+'/?view=icon');
                                     $("div#content_details").attr('rel', par.join("-"));
                                 }
                                                             
                                 $("#right_panel").show();
-                                $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+                                $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
                                 $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/image/'+obj[1]+'/'+par[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
                                 $('iframe#metadata_details').load();  
                             }                              

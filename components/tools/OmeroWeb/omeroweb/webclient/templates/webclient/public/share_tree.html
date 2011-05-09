@@ -4,7 +4,7 @@
 
 {% if share.shSize %}
 <ul class="simpleTree">
-    <li class="root" id='0'><img class="icon" src="{% url webstatic "images/tree/root.gif" %}" alt="root"/><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
+    <li class="root" id='0'><img class="icon" src="{% url webstatic "images/root.gif" %}" alt="root"/><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
         <ul>
             {% for s in share.shares %}
             {% if s.isEmpty %}

@@ -116,7 +116,7 @@
                         <form class="quicksearch" id="quicksearch_global" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_global" value="search"> <span class="loading_global"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
                         <table id="global_metadata" class="metadata_details"><tbody>
                             {% for gm in manager.global_metadata %}
-                            <tr><td><label>{{ gm.0 }}</label></td><td>{{ gm.1 }}</td></tr>
+                            <tr><td><label>{{ gm.0|warphtml:"50" }}</label></td><td>{{ gm.1|warphtml:"50" }}</td></tr>
                             {% endfor %}
                         <tr><th colspan="2"><br/></th></tr>
                         </tbody></table>
@@ -130,7 +130,7 @@
                         <form class="quicksearch" id="quicksearch_series" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_series" value="search"> <span class="loading_series"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
                         <table id="series_metadata" class="metadata_details"><tbody>
                             {% for sm in manager.series_metadata %}
-                            <tr><td><label>{{ sm.0 }}</label></td><td>{{ sm.1 }}</td></tr>
+                            <tr><td><label>{{ sm.0|warphtml:"50" }}</label></td><td>{{ sm.1|warphtml:"50" }}</td></tr>
                             {% endfor %}
                             <tr><th colspan="2"><br/></th></tr>
                         </tbody></table>

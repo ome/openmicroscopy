@@ -29,7 +29,7 @@
                 $("div#content_details").css('height', h+31);
                 $("div#metadata_details").css('height', h+31);
                 
-                $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
                 $("div#history_calendar").load('{% url load_calendar %}');
         })
     </script>

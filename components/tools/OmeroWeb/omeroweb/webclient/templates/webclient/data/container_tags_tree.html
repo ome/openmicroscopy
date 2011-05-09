@@ -12,9 +12,9 @@
         <ul>
             {% for t in manager.tags %}
             {% if t.ns %}
-            <li id='tagset-{{ t.id }}' rel="tagset" class="jstree-closed"><a href="#">{{ t.textValue|truncatebefor:"35" }}</a></li>
+            <li id='tagset-{{ t.id }}' rel="tagset{% if not t.isOwned %}-locked{% endif %}" class="jstree-closed"><a href="#">{{ t.textValue|truncatebefor:"35" }}</a></li>
             {% else %}
-            <li id='tag-{{ t.id }}' rel="tag" class="jstree-closed"><a href="#">{{ t.textValue|truncatebefor:"35" }}</a></li>
+            <li id='tag-{{ t.id }}' rel="tag{% if not t.isOwned %}-locked{% endif %}" class="jstree-closed"><a href="#">{{ t.textValue|truncatebefor:"35" }}</a></li>
             {% endif %}
             {% endfor %}            
         </ul>

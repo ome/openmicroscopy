@@ -3,9 +3,8 @@
 
 {% if manager.containers.images %}
 {% for d in manager.containers.images %}
-    <li id='image-{{ d.id }}' rel="image"><a href="#">{{ d.name|truncatebefor:"30" }}</a>
+    <li id='image-{{ d.id }}' rel="image{% if not d.isOwned %}-locked{% endif %}"><a href="#">{{ d.name|truncatebefor:"30" }}</a>
         {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %} 
-        {% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}"/>{% endif %}
     </li>
 {% endfor %}
 {% endif %}

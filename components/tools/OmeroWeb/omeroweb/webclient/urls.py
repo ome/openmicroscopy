@@ -104,7 +104,7 @@ urlpatterns = patterns('django.views.generic.simple',
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_col_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)/(?:(?P<w>[^/]+)/)?$', views.render_col_plot, name="web_render_col_plot"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', views.render_split_channel, name="web_render_split_channel"),
     
-    url( r'^clipboard/$', views.update_clipboard, name="update_clipboard"),
+    #url( r'^clipboard/$', views.update_clipboard, name="update_clipboard"),
         
     #url( r'^import/$', views.importer, name="importer"),
     
