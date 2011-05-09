@@ -106,7 +106,7 @@ To quit, enter 'q' or just enter.
                     self.ctx.out("%s = %s" % (key, value))
             continue
 
-    def display(self, rv):
+    def display(self, rv, cols = None):
         import omero_model_Details_ice
         import omero_model_IObject_ice
         import omero.rtypes
@@ -136,7 +136,10 @@ To quit, enter 'q' or just enter.
             # Handling for true projections
             else:
                 indices = range(1, len(object_list) + 1)
-                tb.cols(["Col%s" % x for x in indices])
+                if cols is not None:
+                    tb.cols(cols)
+                else:
+                    tb.cols(["Col%s" % x for x in indices])
                 values = tuple([self.unwrap(x) for x in object_list])
                 tb.row(idx, *values)
         self.ctx.out(str(tb.build()))

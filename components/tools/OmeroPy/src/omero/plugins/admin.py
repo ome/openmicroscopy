@@ -164,6 +164,8 @@ Examples:
         ports.add_argument("--revert", action="store_true", help = "Used to rollback from the given settings to the defaults")
         ports.add_argument("--skipcheck", action="store_true", help = "Skips the check if the server is already running")
 
+        sessionlist = Action("sessionlist", """List currently running sessions""").parser
+
         cleanse = Action("cleanse", """Remove binary data files from OMERO.
 
 Deleting an object from OMERO currently does not remove the binary data. Use this
@@ -953,6 +955,37 @@ OMERO Diagnostics %s
             query_service=client.sf.getQueryService(), \
             config_service=client.sf.getConfigService())
 
+    def sessionlist(self, args):
+        client = self.ctx.conn(args)
+        service = client.sf.getQueryService()
+        params = omero.sys.ParametersI()
+        query = "select s from Session s join fetch s.node n join fetch s.owner o where s.closed is null and n.id != 0"
+        results = service.findAllByQuery(query, params)
+        mapped = list()
+        for s in results:
+            rv = list()
+            mapped.append(rv)
+            if not s.isLoaded():
+                rv.append("")
+                rv.append("id=%s" % s.id.val)
+                rv.append("")
+                rv.append("")
+                rv.append("")
+                rv.append("insufficient privileges")
+            else:
+                rv.append(s.node.id)
+                rv.append(s.uuid)
+                rv.append(s.started)
+                rv.append(s.owner.omeName)
+                if s.userAgent is None:
+                    rv.append("")
+                else:
+                    rv.append(s.userAgent)
+                if client.getSessionId() == s.uuid.val:
+                    rv.append("current session")
+                else:
+                    rv.append("")
+        self.ctx.controls["hql"].display(mapped, ("node", "session", "started", "owner", "agent", "notes"))
 try:
     register("admin", AdminControl, HELP)
 except NameError:

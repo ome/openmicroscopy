@@ -133,6 +133,7 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
 
     import omero_Constants_ice
     implicit_ctx = communicator.getImplicitContext()
+    implicit_ctx.put(omero.constants.AGENT, "Python service")
     if client_uuid is not None:
         implicit_ctx.put(omero.constants.CLIENTUUID, client_uuid)
     else:
