@@ -4533,12 +4533,23 @@ class _ChannelWrapper (BlitzObjectWrapper):
         """
         Returns the emission wave or None.
 
-        @return:    The logical channel string representation
+        @return:    Emission wavelength or None
         @rtype:     int
         """
 
         lc = self.getLogicalChannel()
         return lc.emissionWave
+
+    def getExcitationWave (self):
+        """
+        Returns the excitation wave or None.
+
+        @return:    Excitation wavelength or None
+        @rtype:     int
+        """
+
+        lc = self.getLogicalChannel()
+        return lc.excitationWave
 
     def getColor (self):
         """
