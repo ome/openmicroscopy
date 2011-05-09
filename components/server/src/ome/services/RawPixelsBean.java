@@ -274,7 +274,16 @@ public class RawPixelsBean extends AbstractStatefulBean implements
                 throw new ValidationException("Cannot read pixels id=" + id);
             }
 
-            buffer = dataService.getPixelBuffer(pixelsInstance);
+            try {
+                buffer = dataService.getPixelBuffer(pixelsInstance);
+            } catch (RuntimeException re) {
+                // Rolling back to let the next setPixelsId try again
+                // since this is most likely our MissingPyramidException.
+                // If it's anything more serious, then the instance
+                // should most likely be closed.
+                id = null;
+                throw re;
+            }
         }
     }
 
