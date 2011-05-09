@@ -504,7 +504,17 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public synchronized void close() throws IOException
     {
-        Utils.closeQuietly(delegate);
+        try
+        {
+            if (delegate != null)
+            {
+                delegate.close();
+            }
+        }
+        catch (IOException e)
+        {
+            log.error("Failure to close delegate.", e);
+        }
         delegate = null;
 
         if (reader != null) {

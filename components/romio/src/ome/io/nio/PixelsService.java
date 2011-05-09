@@ -160,7 +160,17 @@ public class PixelsService extends AbstractFileSystemService
 
         finally
         {
-            ome.util.Utils.closeQuietly(pixelsPyramid);
+            if (pixelsPyramid != null)
+            {
+                try
+                {
+                    pixelsPyramid.close();
+                }
+                catch (IOException e)
+                {
+                    log.error("Error closing pixel pyramid.", e);
+                }
+            }
         }
     }
 
@@ -218,7 +228,17 @@ public class PixelsService extends AbstractFileSystemService
 
         finally
         {
-            ome.util.Utils.closeQuietly(source);
+            if (source != null)
+            {
+                try
+                {
+                    source.close();
+                }
+                catch (IOException e)
+                {
+                    log.error("Error closing pixel pyramid.", e);
+                }
+            }
         }
 
 
@@ -348,9 +368,19 @@ public class PixelsService extends AbstractFileSystemService
 					}
 				}
 			}
-		} finally {
-			ome.util.Utils.closeQuietly(stream);
-		}
+        } finally {
+            if (stream != null)
+            {
+                try
+                {
+                    stream.close();
+                }
+                catch (IOException e)
+                {
+                    log.error("Error closing stream.", e);
+                }
+            }
+        }
 	}
 
 
