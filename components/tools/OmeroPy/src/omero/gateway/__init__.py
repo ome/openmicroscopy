@@ -4321,8 +4321,16 @@ class _PixelsWrapper (BlitzObjectWrapper):
         return BlitzObjectWrapper(self._conn, self._obj.getPixelsType())
 
     def copyPlaneInfo (self, theC=None, theT=None, theZ=None):
-        """ Loads plane info and returns sequence of omero.model.PlaneInfo objects wrapped in BlitzObjectWrappers """
-        
+        """ 
+        Loads plane infos and returns sequence of omero.model.PlaneInfo objects wrapped in BlitzObjectWrappers 
+        ordered by planeInfo.deltaT.
+        Set of plane infos can be filtered by C, T or Z
+
+        @param theC:    Filter plane infos by Channel index
+        @param theT:    Filter plane infos by Time index
+        @param theZ:    Filter plane infos by Z index
+        """
+
         params = omero.sys.Parameters()
         params.map = {}
         params.map["pid"] = rlong(self._obj.id)
@@ -4342,12 +4350,33 @@ class _PixelsWrapper (BlitzObjectWrapper):
         for pi in result:
             yield BlitzObjectWrapper(self._conn, pi)
 
-
     def getPlanes (self, zctList):
         """
         Returns generator of numpy 2D planes from this set of pixels for a list of Z, C, T indexes.
 
         @param zctList:     A list of indexes: [(z,c,t), ]
+        """
+        
+        zctTileList = []
+        for zct in zctList:
+            z,c,t = zct
+            zctTileList.append((z,c,t, None))
+        return self.getTiles(zctTileList)
+
+    def getPlane (self, theZ=0, theC=0, theT=0):
+        """
+        Gets the specified plane as a 2D numpy array by calling L{getPlanes}
+        If a range of planes are required, L{getPlanes} is approximately 30% faster.
+        """
+        planeList = list( self.getPlanes([(theZ, theC, theT)]) )
+        return planeList[0]
+
+    def getTiles (self, zctTileList):
+        """
+        Returns generator of numpy 2D planes from this set of pixels for a list of (Z, C, T, tile)
+        where tile is (x, y, width, height) or None if you want the whole plane.
+
+        @param zctrList:     A list of indexes: [(z,c,t, region), ]
         """
 
         import numpy
@@ -4366,27 +4395,35 @@ class _PixelsWrapper (BlitzObjectWrapper):
         sizeX = self.sizeX
         sizeY = self.sizeY
         pixelType = self.getPixelsType().value
-        convertType ='>%d%s' % ((sizeX*sizeY), pixelTypes[pixelType][0])  #+str(sizeX*sizeY)+pythonTypes[pixelType]
         numpyType = pixelTypes[pixelType][1]
         try:
-            for zct in zctList:
-                z,c,t = zct
-                rawPlane = rawPixelsStore.getPlane(z, c, t)
+            for zctTile in zctTileList:
+                z,c,t,tile = zctTile
+                if tile is None:
+                    rawPlane = rawPixelsStore.getPlane(z, c, t)
+                    planeY = sizeY
+                    planeX = sizeX
+                else:
+                    x, y, width, height = tile
+                    rawPlane = rawPixelsStore.getTile(z, c, t, x, y, width, height)
+                    planeY = height
+                    planeX = width
+                convertType ='>%d%s' % ((planeY*planeX), pixelTypes[pixelType][0])  #+str(sizeX*sizeY)+pythonTypes[pixelType]
                 convertedPlane = unpack(convertType, rawPlane)
                 remappedPlane = numpy.array(convertedPlane, numpyType)
-                remappedPlane.resize(sizeY, sizeX)
+                remappedPlane.resize(planeY, planeX)
                 yield remappedPlane
         except:
             pass
         rawPixelsStore.close()
 
-    def getPlane (self, theZ=0, theC=0, theT=0):
+    def getTile (self, theZ=0, theC=0, theT=0, tile=None):
         """
         Gets the specified plane as a 2D numpy array by calling L{getPlanes}
-        If a range of planes are required, L{getPlanes} is approximately 30% faster.
+        If a range of tile are required, L{getTiles} is approximately 30% faster.
         """
-        planeList = list( self.getPlanes([(theZ, theC, theT)]) )
-        return planeList[0]
+        tileList = list( self.getTiles([(theZ, theC, theT, tile)]) )
+        return tileList[0]
 
 PixelsWrapper = _PixelsWrapper
 
