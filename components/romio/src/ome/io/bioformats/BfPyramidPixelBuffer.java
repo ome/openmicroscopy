@@ -33,6 +33,7 @@ import ome.model.core.Pixels;
 import ome.util.PixelData;
 import ome.util.Utils;
 import ome.xml.model.enums.DimensionOrder;
+import ome.xml.model.enums.EnumerationException;
 import ome.xml.model.primitives.PositiveInteger;
 
 import org.apache.commons.io.FileUtils;
@@ -52,12 +53,12 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     private BfPixelBuffer delegate;
 
     /** Bio-Formats implementation used to write to the backing TIFF. */
-    protected TiffWriter writer;
+    protected OmeroPixelsPyramidWriter writer;
 
     /**
      * Bio-Formats implementation the delegate uses to read the backing TIFF.
      */
-    protected TiffReader reader;
+    protected OmeroPixelsPyramidReader reader;
 
     /**
      * File's who absolute path will be passed to
@@ -152,7 +153,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             throw new LockTimeout(String.format("%s is locked by others",
                     readerFile.getAbsolutePath()), 15*1000, 0);
         }
-        reader = new TiffReader();
+        reader = new OmeroPixelsPyramidReader();
         delegate = new BfPixelBuffer(readerFile.getAbsolutePath(), reader);
     }
 
@@ -179,21 +180,14 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
                 new loci.common.services.ServiceFactory();
             OMEXMLService service = lociServiceFactory.getInstance(OMEXMLService.class);
             IMetadata metadata = service.createOMEXMLMetadata();
-            metadata.setImageID("Image:0", 0);
-            metadata.setPixelsID("Pixels:0", 0);
-            metadata.setPixelsBinDataBigEndian(true, 0, 0);
-            metadata.setPixelsDimensionOrder(DimensionOrder.XYZCT, 0);
-            metadata.setPixelsType(ome.xml.model.enums.PixelType.fromString(
-                    pixels.getPixelsType().getValue()), 0);
-            metadata.setPixelsSizeX(new PositiveInteger(pixels.getSizeX()), 0);
-            metadata.setPixelsSizeY(new PositiveInteger(pixels.getSizeY()), 0);
-            metadata.setPixelsSizeZ(new PositiveInteger(1), 0);
-            metadata.setPixelsSizeC(new PositiveInteger(1), 0);
-            metadata.setPixelsSizeT(new PositiveInteger(
-                    pixels.getSizeZ() * pixels.getSizeC() * pixels.getSizeT()), 0);
-            metadata.setChannelID("Channel:0", 0, 0);
-            metadata.setChannelSamplesPerPixel(new PositiveInteger(1), 0, 0);
-            writer = new TiffWriter();
+            int sizeX = pixels.getSizeX();
+            int sizeY = pixels.getSizeY();
+            addSeries(metadata, pixels, 0, sizeX, sizeY);
+            int factor = (int) Math.pow(2, 5);
+            addSeries(metadata, pixels, 1, sizeX / factor, sizeY / factor);
+            factor = (int) Math.pow(2, 4);
+            addSeries(metadata, pixels, 2, sizeX / factor, sizeY / factor);
+            writer = new OmeroPixelsPyramidWriter();
             writer.setMetadataRetrieve(metadata);
             writer.setCompression(compression);
             writer.setWriteSequentially(true);
@@ -205,7 +199,38 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         {
             throw new FormatException("Error instantiating service.", e);
         }
+    }
 
+    /**
+     * Creates a new series for the destination metadata store.
+     * @param metadata Metadata store and retrieve implementation.
+     * @param pixels Source pixels set.
+     * @param series Destination series.
+     * @param sizeX Destination X width. Not necessarily
+     * <code>Pixels.SizeX</code>.
+     * @param sizeY Destination Y height. Not necessarily
+     * <code>Pixels.SizeY</code>.
+     * @throws EnumerationException
+     */
+    private void addSeries(IMetadata metadata, Pixels pixels,
+                           int series, int sizeX, int sizeY)
+        throws EnumerationException
+    {
+        metadata.setImageID("Image:" + series, series);
+        metadata.setPixelsID("Pixels: " + series, series);
+        metadata.setPixelsBinDataBigEndian(true, series, 0);
+        metadata.setPixelsDimensionOrder(DimensionOrder.XYZCT, series);
+        metadata.setPixelsType(ome.xml.model.enums.PixelType.fromString(
+                pixels.getPixelsType().getValue()), series);
+        metadata.setPixelsSizeX(new PositiveInteger(sizeX), series);
+        metadata.setPixelsSizeY(new PositiveInteger(sizeY), series);
+        metadata.setPixelsSizeZ(new PositiveInteger(1), series);
+        metadata.setPixelsSizeC(new PositiveInteger(1), series);
+        metadata.setPixelsSizeT(new PositiveInteger(
+                pixels.getSizeZ() * pixels.getSizeC() * pixels.getSizeT()),
+                series);
+        metadata.setChannelID("Channel:" + series, series, 0);
+        metadata.setChannelSamplesPerPixel(new PositiveInteger(1), series, 0);
     }
 
     private void acquireLock()
@@ -357,6 +382,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         if (lastT != t || lastC != c || lastZ != z)
         {
             lastIFD = new IFD();
+            lastIFD.put(IFD.IMAGE_DESCRIPTION,
+                        OmeroPixelsPyramidWriter.IMAGE_DESCRIPTION);
             lastIFD.put(IFD.TILE_WIDTH, w);
             lastIFD.put(IFD.TILE_LENGTH, h);
             if (log.isDebugEnabled())
