@@ -198,7 +198,7 @@ class ITest(unittest.TestCase):
 
         # code below here is very similar to combineImages.py
         # create an image in OMERO and populate the planes with numpy 2D arrays
-        channelList = range(sizeC)
+        channelList = range(1, sizeC+1)
         iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, "testImage", "description")
         imageId = iId.getValue()
         image = containerService.getImages("Image", [imageId], None)[0]

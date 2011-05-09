@@ -26,7 +26,7 @@ class TestPixelsService(lib.ITest):
         sizeY = 1
         sizeZ = 1
         sizeT = 1
-        channelList = range(3)
+        channelList = range(1, 4)
         iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, "testCreateImage", description=None)
 
 if __name__ == '__main__':
