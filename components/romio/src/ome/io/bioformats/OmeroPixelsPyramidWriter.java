@@ -107,7 +107,7 @@ public class OmeroPixelsPyramidWriter extends TiffWriter {
             IFD ifd = new IFD();
             // Ensure that we're compressing all rows of the image in a single
             // JPEG 2000 block.
-            ifd.put(IFD.ROWS_PER_STRIP, source.getSizeY());
+            ifd.put(IFD.ROWS_PER_STRIP, new long[] { source.getSizeY() });
             // Set the TIFF image description so that we are able to
             // differentiate ourselves from basic TIFFs.
             ifd.put(IFD.IMAGE_DESCRIPTION, IMAGE_DESCRIPTION);
