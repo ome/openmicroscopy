@@ -49,6 +49,43 @@ class PixelsTest (lib.GTest):
         self.assertEqual(pixelsType.value, 'int16')
         self.assertEqual(pixelsType.bitSize, 16)
 
+    def testGetTile(self):
+        image = self.TESTIMG
+        pixels = image.getPrimaryPixels()
+
+        sizeZ = image.getSizeZ()
+        sizeC = image.getSizeC()
+        sizeT = image.getSizeT()
+        sizeX = image.getSizeX()
+        sizeY = image.getSizeY()
+
+        zctTileList = []
+        tile = (50,100,10,20)
+        for z in range(2):
+            for c in range(1):
+                for t in range(1):
+                    zctTileList.append((z,c,t, tile))
+
+        lastTile = None
+        tiles = pixels.getTiles(zctTileList)  # get a tile from every plane
+        for tile in tiles:
+            lastTiles = tile
+
+        lastT = None
+        for zctTile in zctTileList:
+            z,c,t, Tile = zctTile
+            tile = pixels.getTile(z,c,t, Tile)
+        self.assertEqual(lastTile, lastT)
+
+        # try stacking tiles together - check it's the same as getting the same region as 1 tile
+        z, c, t = 0, 0, 0
+        tile1 = pixels.getTile(z,c,t, (0, 0, 5, 3))
+        tile2 = pixels.getTile(z,c,t, (5, 0, 5, 3))
+        tile3 = pixels.getTile(z,c,t, (0, 0, 10, 3))  # should be same as tile1 and tile2 combined
+        from numpy import hstack
+        stacked = hstack((tile1, tile2))
+        self.assertEqual(str(tile3), str(stacked))  # bit of a hacked way to compare arrays, but seems to work
+
     def testGetPlane(self):
         image = self.TESTIMG
         pixels = image.getPrimaryPixels()
