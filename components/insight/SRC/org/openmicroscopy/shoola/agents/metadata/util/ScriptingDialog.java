@@ -528,7 +528,7 @@ public class ScriptingDialog
 			l = childrenMap.get(grouping);
 			childrenMap.remove(grouping);
 			if (l != null)
-				key.setChildren(l);
+				key.setChildren(sorter.sort(l));
 		}
 		if (childrenMap != null && childrenMap.size() > 0) {
 			Iterator<String> j = childrenMap.keySet().iterator();
@@ -538,7 +538,7 @@ public class ScriptingDialog
 				sc = new ScriptComponent();
 				sc.setGrouping(parent);
 				sc.setNameLabel(parent);
-				sc.setChildren(childrenMap.get(parent));
+				sc.setChildren(sorter.sort(childrenMap.get(parent)));
 				results.add(sc);
 			}
 		}
