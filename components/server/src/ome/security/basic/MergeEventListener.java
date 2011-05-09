@@ -15,6 +15,7 @@ import ome.annotations.RevisionNumber;
 import ome.conditions.SecurityViolation;
 import ome.model.IEnum;
 import ome.model.IObject;
+import ome.model.meta.Event;
 import ome.tools.hibernate.HibernateUtils;
 import ome.util.Utils;
 
@@ -165,18 +166,22 @@ public class MergeEventListener extends IdTransferringMergeEventListener {
     @Override
     @SuppressWarnings("unchecked")
     protected void entityIsDetached(MergeEvent event, Map copyCache) {
-        IObject orig = (IObject) event.getOriginal();
+        final IObject orig = (IObject) event.getOriginal();
+        final EventSource source = event.getSession();
         if (HibernateUtils.isUnloaded(orig)) {
-            final EventSource source = event.getSession();
             log("Reloading unloaded entity:", event.getEntityName(), ":", orig
                     .getId());
             Class<?> k = Utils.trueClass(orig.getClass());
             Object obj = source.load(k, orig.getId());
             event.setResult(obj);
             copyCache.put(event.getEntity(), obj);
-            fillReplacement(event);
-            return; // EARLY EXIT!
             // TODO this was maybe a bug. check if findDirty is superfluous.
+        }
+
+        else if (orig instanceof Event) {
+            final Object obj = source.load(Event.class, orig.getId());
+            event.setResult(obj);
+            copyCache.put(event.getEntity(), obj);
         }
 
         else {
