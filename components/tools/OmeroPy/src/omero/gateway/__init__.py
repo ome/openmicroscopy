@@ -4376,8 +4376,9 @@ class _PixelsWrapper (BlitzObjectWrapper):
                 remappedPlane = numpy.array(convertedPlane, numpyType)
                 remappedPlane.resize(sizeY, sizeX)
                 yield remappedPlane
-        finally:
-            rawPixelsStore.close()
+        except:
+            pass
+        rawPixelsStore.close()
 
     def getPlane (self, theZ=0, theC=0, theT=0):
         """
