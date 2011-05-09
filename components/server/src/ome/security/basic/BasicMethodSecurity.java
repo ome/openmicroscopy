@@ -128,7 +128,8 @@ public class BasicMethodSecurity implements MethodSecurity {
 
         if (block) {
             throw new SecurityViolation(
-                    "Bad authentication credentials for this action");
+                    "Bad authentication credentials for this action.\n" +
+                    "See setSecurityPassword for more information");
 
         }
 
