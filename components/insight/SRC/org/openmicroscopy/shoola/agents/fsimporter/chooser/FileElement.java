@@ -143,10 +143,9 @@ class FileElement
 	double getFileLength()
 	{
 		if (length > 0) return length;
-		if (file.isFile()) length = file.length()/1000;
+		if (file.isFile()) length = file.length();
 		else { 
 			determineLength(file, ImporterAgent.getScanningDepth(), 0);
-			length = length/1000;
 		}
 		return length;
 	}

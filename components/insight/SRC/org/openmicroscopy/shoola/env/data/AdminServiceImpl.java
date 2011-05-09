@@ -206,12 +206,13 @@ class AdminServiceImpl
 	public DiskQuota getQuota(Class type, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		long v = 1000;
 		long used = gateway.getUsedSpace(type, id);
 		long available = gateway.getFreeSpace(type, id);
 		int t = DiskQuota.USER;
 		if (GroupData.class.equals(type))
 			t = DiskQuota.GROUP;
-		return new DiskQuota(t, id, used, available);
+		return new DiskQuota(t, id, used*v, available*v);
 	}
 	
 	/**

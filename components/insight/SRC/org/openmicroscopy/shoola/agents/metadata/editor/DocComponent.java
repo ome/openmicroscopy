@@ -372,7 +372,7 @@ class DocComponent
 			buf.append("</b>");
 			//size not kb
 			long size = ((FileAnnotationData) annotation).getFileSize();
-			buf.append(UIUtilities.formatFileSize(size/1000));
+			buf.append(UIUtilities.formatFileSize(size));
 			buf.append("<br>");
 			checkAnnotators(buf, annotation);
 		} else if (data instanceof TagAnnotationData) {

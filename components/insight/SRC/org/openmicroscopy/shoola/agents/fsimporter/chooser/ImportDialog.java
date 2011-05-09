@@ -656,7 +656,7 @@ public class ImportDialog
 		});
     	canvas = new QuotaCanvas();
 		sizeImportLabel = new JLabel();
-		sizeImportLabel.setText(UIUtilities.formatFileSize(0));
+		//sizeImportLabel.setText(UIUtilities.formatFileSize(0));
 		diskSpacePane = new JPanel();
 		diskSpacePane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		//diskSpacePane.setBackground(UIUtilities.BACKGROUND);
@@ -1448,7 +1448,7 @@ public class ImportDialog
     	if (count > 0) object.setPixelsSize(size);	
     	firePropertyChange(IMPORT_PROPERTY, null, object);
     	table.removeAllFiles();
-    	sizeImportLabel.setText(UIUtilities.formatFileSize(0));
+    	//sizeImportLabel.setText(UIUtilities.formatFileSize(0));
     	//setVisible(false);
     	//dispose();
     }

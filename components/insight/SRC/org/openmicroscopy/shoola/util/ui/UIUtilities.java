@@ -43,7 +43,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -82,6 +81,7 @@ import javax.swing.text.TabStop;
 
 
 //Third-party libraries
+import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
 
@@ -105,6 +105,9 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 public class UIUtilities
 {
 
+	/** The maximum number read at once. */
+	public static final int	BYTES = 1024;
+	
 	/** The value used to compare double and float. */
 	public final static double EPSILON = 0.00001;
 	
@@ -1617,20 +1620,23 @@ public class UIUtilities
 	 * @param v The value to convert.
 	 * @return See above.
 	 */
-	public static String formatFileSize(double v)
+	public static String formatFileSize(long v)
 	{
 		if (v < 0) return "";
 
 		//if (v < 1000) 
 		//	return NumberFormat.getInstance().format(v)+" b";
+		/*
 		double value = v;///1000;
-		if (value <= 1000) 
+		if (value <= BYTES) 
 			return NumberFormat.getInstance().format(value)+" Kb";
-		value = value/1000;
-		if (value <= 1000)
+		value = value/BYTES;
+		if (value <= BYTES)
 			return NumberFormat.getInstance().format(value)+" Mb";
-		value = value/1000;
+		value = value/BYTES;
 		return NumberFormat.getInstance().format(value)+" Gb";
+		*/
+		return FileUtils.byteCountToDisplaySize(v);
 	}
 	
 	/**
