@@ -5946,18 +5946,19 @@ class OMEROGateway
 				ids.add(omero.rtypes.rlong(i.next()));
 				
 			Map<String, RType>  map = new HashMap<String, RType>();
+			RString dataType;
+			dataType = omero.rtypes.rstring("Image");
+			map.put("Data_Type", dataType);
 			if (scriptIndex == FigureParam.THUMBNAILS) {
 				DataObject d = (DataObject) param.getAnchor();
 				long parentID = -1;
 				if (d instanceof DatasetData ||
 						d instanceof ProjectData) parentID = d.getId();
-				if (ImageData.class.equals(type)) {
-					map.put("Data_Type", omero.rtypes.rstring("Image"));
-					map.put("IDs", omero.rtypes.rlist(ids));	
-				} else if (DatasetData.class.equals(type)) {
-					map.put("Data_Type", omero.rtypes.rstring("Dataset"));
-					map.put("IDs", omero.rtypes.rlist(ids));
-				}
+				if (DatasetData.class.equals(type)) {
+					dataType = omero.rtypes.rstring("Dataset");
+				} 
+				map.put("Data_Type", dataType);
+				map.put("IDs", omero.rtypes.rlist(ids));
 				List<Long> tags = param.getTags();
 				if (tags != null && tags.size() > 0) {
 					ids = new ArrayList<RType>(tags.size());
@@ -6017,7 +6018,7 @@ class OMEROGateway
 			}
 			map.put("Merged_Names", omero.rtypes.rbool(
 					param.getMergedLabel()));
-			map.put("Image_IDs", omero.rtypes.rlist(ids));
+			map.put("IDs", omero.rtypes.rlist(ids));
 			if (param.getStartZ() >= 0)
 				map.put("Z_Start", omero.rtypes.rint(param.getStartZ()));
 			if (param.getEndZ() >= 0)
