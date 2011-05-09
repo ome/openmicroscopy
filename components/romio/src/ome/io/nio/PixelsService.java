@@ -17,6 +17,7 @@ import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
+import loci.formats.MinMaxCalculator;
 import ome.conditions.LockTimeout;
 import ome.conditions.MissingPyramidException;
 import ome.conditions.ResourceError;
@@ -146,8 +147,6 @@ public class PixelsService extends AbstractFileSystemService
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
         final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
         final String originalFilePath = getOriginalFilePath(pixels);
-        StatsInfo[] statsInfo = new StatsInfo[1]; //FIXME
-        statsInfo[0] = new StatsInfo();
         
         if (!pixelsFile.exists() && originalFilePath == null)
         {
@@ -167,8 +166,8 @@ public class PixelsService extends AbstractFileSystemService
 
         try
         {
-                performWrite(pixels, pixelsPyramidFile, pixelsPyramid,
-                        pixelsFile, pixelsFilePath, originalFilePath);
+            performWrite(pixels, pixelsPyramidFile, pixelsPyramid,
+                    pixelsFile, pixelsFilePath, originalFilePath);
         }
 
         finally
@@ -184,6 +183,53 @@ public class PixelsService extends AbstractFileSystemService
                     log.error("Error closing pixel pyramid.", e);
                 }
             }
+        }
+        
+        StatsInfo[] statsInfo = getMinMax(originalFilePath);
+        return statsInfo;
+    }
+
+    /**
+     * Return a StatsInfo array with min/max values set.
+     * @param filePath Pathname for original pixels file.
+     * @since OMERO-Beta4.3
+     */
+    private StatsInfo[] getMinMax(String filePath)
+    {
+        StatsInfo[] statsInfo = null;
+        try {
+            MinMaxCalculator minMaxReader;
+            IFormatReader reader = new ImageReader();
+            reader = new ChannelFiller(reader);
+            reader = new ChannelSeparator(reader);
+            reader = minMaxReader = new MinMaxCalculator(reader);            
+            reader.setId(filePath);
+
+            int sizeC = reader.getSizeC();
+            int sizeZ = reader.getSizeZ();
+            for(int c=0;c<sizeC;c++) 
+            {
+                for(int z=0;z<sizeZ;z++)
+                {
+                    int plane = reader.getIndex(z, c, 0); //FIXME: what about t?
+                    byte[] buf = minMaxReader.openBytes(plane);
+                }
+            }
+
+            //FIXME: do something else is minMaxReader.isMinMaxPopulated()) is false?
+            statsInfo = new StatsInfo[sizeC];
+            for(int c=0;c<sizeC;c++) 
+            {
+                statsInfo[c] = new StatsInfo();
+                statsInfo[c].setGlobalMax(minMaxReader.getChannelGlobalMaximum(c));
+                statsInfo[c].setGlobalMin(minMaxReader.getChannelGlobalMinimum(c));
+            }
+            reader.close();
+            minMaxReader.close();
+        } 
+        catch (Exception e)
+        {
+            log.error("Failed to get min/max values", e);
         }
 
         return statsInfo;

@@ -8,6 +8,7 @@
 package ome.services.pixeldata;
 
 import ome.api.IQuery;
+import ome.api.IUpdate;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.model.meta.EventLog;
@@ -96,15 +97,27 @@ public class PixelDataHandler extends SimpleWork {
                 Long id = eventLog.getEntityId();
                 if (id != null) {
                     final IQuery iQuery = sf.getQueryService();
+                    final IUpdate iUpdate = sf.getUpdateService();
                     final Pixels pixels = iQuery.findByQuery(
                             "select p from Pixels as p " +
                             "join fetch p.pixelsType where p.id = :id",
                             new Parameters().addId(id));
-                    
-                    try {
+
+                    try 
+                    {
                         StatsInfo[] statsInfo = pixelsService.makePyramid(pixels);
-                        log.info("Handled pixels " + id);
-                        log.info("Min/Max " + statsInfo.toString());
+                        if(statsInfo == null) {
+                            log.error("Failed to get min/max values for pixels " + id);
+                        }
+                        else
+                        {
+                            for(int c=0;c<statsInfo.length;c++) {
+                                pixels.getChannel(c).setStatsInfo(statsInfo[c]);
+                                log.info("Chan " + c + ":  Max " + statsInfo[c].getGlobalMax() 
+                                        + "  Min " + statsInfo[c].getGlobalMin());   
+                                }
+                            iUpdate.saveAndReturnObject(pixels); 
+                        }
                     } catch (Exception t) {
                         log.error("Failed to handle pixels " + id, t);
                     }

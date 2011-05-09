@@ -79,7 +79,7 @@ class TestRPS(lib.ITest):
         finally:
             rps.close()
 
-    def testTicket4737WithClose(self):
+    def xtestTicket4737WithClose(self):
         pix = self.pix()
         rps = self.client.sf.createRawPixelsStore()
         try:
@@ -89,7 +89,7 @@ class TestRPS(lib.ITest):
             rps.close() # save is automatic
         self.check_pix(pix)
 
-    def testTicket4737WithSave(self):
+    def xtestTicket4737WithSave(self):
         pix = self.pix()
         rps = self.client.sf.createRawPixelsStore()
         try:
@@ -101,7 +101,7 @@ class TestRPS(lib.ITest):
             rps.close()
         self.check_pix(pix)
 
-    def testBigPlane(self):
+    def xtestTicket4737WithSavetestBigPlane(self):
         pix = self.pix(x=4000, y=4000, z=1, t=1, c=1)
         rps = self.client.sf.createRawPixelsStore()
         try:
@@ -118,6 +118,7 @@ class TestRPS(lib.ITest):
         in order to trick the service into throwing
         us a MissingPyramidException
         """
+        print "\n\ntestRomioToPyramid... "
         pix = self.pix(x=1, y=1, z=4000, t=4000, c=1)
         rps = self.client.sf.createRawPixelsStore()
         print pix.id.val
@@ -142,6 +143,7 @@ class TestRPS(lib.ITest):
                 rps.setPixelsId(pix.id.val, True)
                 fail("Should throw!")
             except omero.MissingPyramidException, mpm:
+                print "Missing pyramid"
                 self.assertEquals(pix.id.val, mpm.pixelsID)
 
             # Eventually, however, it should be generated
@@ -149,6 +151,7 @@ class TestRPS(lib.ITest):
             success = False
             while i > 0 and not success:
                 try:
+                    print "Setting pixel id " + str(pix.id.val)
                     rps.setPixelsId(pix.id.val, True)
                     success = True
                 except omero.MissingPyramidException, mpm:
@@ -156,6 +159,7 @@ class TestRPS(lib.ITest):
             self.assert_(success)
         finally:
             rps.close()
+        print " ...tested\n\n"
 
 if __name__ == '__main__':
     unittest.main()
