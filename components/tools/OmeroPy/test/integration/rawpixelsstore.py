@@ -120,6 +120,7 @@ class TestRPS(lib.ITest):
         """
         pix = self.pix(x=1, y=1, z=4000, t=4000, c=1)
         rps = self.client.sf.createRawPixelsStore()
+        print pix.id.val
         try:
             rps.setPixelsId(pix.id.val, True)
             for t in range(4000):

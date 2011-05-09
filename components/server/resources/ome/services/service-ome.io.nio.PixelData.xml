@@ -45,7 +45,7 @@
   <bean id="pixelDataThreadRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="pixelDataThread" />
     <property name="targetMethod" value="run" />
-    <property name="concurrent" value="true" />
+    <property name="concurrent" value="false" />
   </bean>
 
   <!--
