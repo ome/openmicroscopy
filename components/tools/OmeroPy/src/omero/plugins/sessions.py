@@ -92,7 +92,9 @@ class SessionsControl(BaseControl):
         group = parser.add(sub, self.group, "Set the group of the current session by id or name")
         group.add_argument("target", help="Id or name of the group to switch this session to")
         list = parser.add(sub, self.list, "List all locally stored sessions")
-        list.add_argument("--purge", action="store_true", help="Remove inactive sessions")
+        purge = list.add_mutually_exclusive_group()
+        purge.add_argument("--purge", action="store_true", default = True, help="Remove inactive sessions")
+        purge.add_argument("--no-purge", dest="purge", action="store_false", help="Do not remove inactive sessions")
         keepalive = parser.add(sub, self.keepalive, "Keeps the current session alive")
         keepalive.add_argument("-f", "--frequency", type=int, default=60, help="Time in seconds between keep alive calls", metavar="SECS")
         clear = parser.add(sub, self.clear, "Close and remove locally stored sessions")
@@ -189,15 +191,24 @@ class SessionsControl(BaseControl):
 
                 if not create and not server_differs and not name_differs:
                     try:
-                        conflicts = store.conflicts(previous[0], previous[1], previous[2], props, True)
-                        if conflicts:
-                            self.ctx.dbg("Not attaching because of conflicts: %s" % conflicts)
-                        else:
-                            rv = store.attach(*previous)
-                            return self.handle(rv, "Using")
+                        if previous[2] is not None: # Missing session uuid file. Deleted? See #4199
+                            conflicts = store.conflicts(previous[0], previous[1], previous[2], props, True)
+                            if conflicts:
+                                self.ctx.dbg("Not attaching because of conflicts: %s" % conflicts)
+                            else:
+                                rv = store.attach(*previous)
+                                return self.handle(rv, "Using")
                     except exceptions.Exception, e:
                         self.ctx.dbg("Exception on attach: %s" % traceback.format_exc(e))
-                        self.ctx.dbg("Exception on attach: %s" % e)
+                        self.ctx.out("Removing session on exception: %s" % e)
+                        try:
+                            store.remove(*previous)
+                        except OSError, ose:
+                            self.ctx.dbg("Session file missing: %s" % ose)
+                        except:
+                            self.ctx.dbg("Exception on remove: %s" % traceback.format_exc(e))
+                            # Could tell user to manually clear here and then self.ctx.die()
+                            self.ctx.err("Failed to remove session: %s" % e)
 
                     self.ctx.out("Previously logged in to %s:%s as %s" % (previous[0], previous_port, previous[1]))
 
@@ -379,6 +390,7 @@ class SessionsControl(BaseControl):
                     except exceptions.Exception, e:
                         self.ctx.dbg("Exception on attach: %s" % e)
                         msg = "Unknown exception"
+
                     if rv is None and args.purge:
                         self.ctx.dbg("Purging %s / %s / %s" % (server, name, uuid))
                         store.remove(server, name, uuid)

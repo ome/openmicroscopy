@@ -112,8 +112,22 @@ class SessionsStore(object):
     def remove(self, host, name, uuid):
         """
         Removes the given session file from the store
+        and removes the sess_file() if it is equal to
+        the session we just removed.
         """
-        (self.dir / host / name / uuid).remove()
+        if uuid is None:
+            self.logger.debug("No uuid provided")
+            return
+        d = self.dir / host / name
+        f = self.dir / host / name / uuid
+        if d.exists():
+            if f.exists():
+                f.remove()
+                self.logger.debug("Removed %s" % f)
+            s = self.sess_file(host, name)
+            if s and s.exists() and s.text().strip() == uuid:
+                s.remove()
+                self.logger.debug("Removed %s" % s)
 
     def exists(self, host, name, uuid):
         """
