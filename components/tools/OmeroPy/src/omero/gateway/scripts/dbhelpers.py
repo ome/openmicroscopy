@@ -151,9 +151,9 @@ class UserEntry (object):
         a.changeUserPassword(u.getOmeName().val, omero.gateway.omero_type(self.passwd))
         return True
 
-    def changePassword (self, client, rootpassword, password):
+    def changePassword (self, client, password):
         a = client.getAdminService()
-        client.c.sf.setSecurityPassword(rootpassword) # See #3202
+        client.c.sf.setSecurityPassword(ROOT.passwd) # See #3202
         a.changeUserPassword(self.name, omero.gateway.omero_type(password))
 
     @staticmethod
@@ -382,8 +382,7 @@ def bootstrap ():
     client = loginAsRoot()
     for k, u in USERS.items():
         if not u.create(client):
-            rootpassword = client._ic_props[omero.constants.PASSWORD]
-            u.changePassword(client, rootpassword, u.passwd)
+            u.changePassword(client, u.passwd)
     for k, p in PROJECTS.items():
         p = p.create()
         p._conn.seppuku()
