@@ -5,6 +5,7 @@
 
 """
 
+import exceptions
 import unittest
 import omero
 import time
@@ -88,6 +89,110 @@ class PixelsTest (lib.GTest):
         plane = pixels.getPlane()   # default is (0,0,0)
         firstPlane = pixels.getPlane(0,0,0)
         self.assertEqual(plane[0][0], firstPlane[0][0])
+
+    def testGetPlanesExceptionOnGetPlane(self):
+        """
+        Tests exception handling in the gateway.getPlanes generator.
+
+        See #5156
+        """
+        image = self.TESTIMG
+        pixels = image.getPrimaryPixels()
+
+        # Replace service creation with a mock
+        pixels._prepareRawPixelsStore = lambda: MockRawPixelsStore(pixels)
+
+        # Now, when we call, the first yield should succeed, the second should fail
+        found = 0
+        try:
+            for x in pixels.getPlanes(((0,0,0), (1,1,1))):
+                found += 1
+            self.fail("Should throw")
+        except AssertionError:
+            raise
+        except exceptions.Exception, e:
+            self.assert_(not e.close)
+            self.assertEquals(1, found)
+
+    def testGetPlanesExceptionOnClose(self):
+        """
+        Tests exception handling in the gateway.getPlanes generator.
+
+        See #5156
+        """
+        image = self.TESTIMG
+        pixels = image.getPrimaryPixels()
+
+        # Replace service creation with a mock
+        pixels._prepareRawPixelsStore = lambda: MockRawPixelsStore(pixels, good_calls = 2, close_fails = True)
+
+        # Now, when we call, the first yield should succeed, the second should fail
+        found = 0
+        try:
+            for x in pixels.getPlanes(((0,0,0), (1,1,1))):
+                found += 1
+            self.fail("Should have failed on close")
+        except AssertionError:
+            raise
+        except exceptions.Exception, e:
+            self.assert_(e.close)
+            self.assertEquals(2, found)
+
+    def testGetPlanesExceptionOnBoth(self):
+        """
+        Tests exception handling in the gateway.getPlanes generator.
+
+        In this test, both the getPlane and the close throw an exception.
+        The exception from the getPlane method should be thrown, and the close
+        logged (not tested here)
+
+        See #5156
+        """
+        image = self.TESTIMG
+        pixels = image.getPrimaryPixels()
+
+        # Replace service creation with a mock
+        pixels._prepareRawPixelsStore = lambda: MockRawPixelsStore(pixels, good_calls = 1, close_fails = True)
+
+        # Now, when we call, the first yield should succeed, the second should fail
+        found = 0
+        try:
+            for x in pixels.getPlanes(((0,0,0), (1,1,1))):
+                found += 1
+            self.fail("Should have failed on getPlane and close")
+        except AssertionError:
+            raise
+        except exceptions.Exception, e:
+            self.assert_(not e.close)
+            self.assertEquals(1, found)
+
+
+class MockRawPixelsStore(object):
+
+    """
+    Mock which throws exceptions at given times.
+    """
+
+    def __init__(self, pixels, good_calls = 1, close_fails = False):
+        self.pixels = pixels
+        self.good_calls = good_calls
+        self.close_fails = close_fails
+
+    def getPlane(self, *args):
+        if self.good_calls == 0:
+            raise exceptions.Exception("MOCK EXCEPTION")
+            e.close = False
+            raise e
+        else:
+            self.good_calls -= 1
+            return "0"*(2*self.pixels.getSizeX()*self.pixels.getSizeY())
+
+    def close(self, *args):
+        if self.close_fails:
+            e = exceptions.Exception("MOCK CLOSE EXCEPTION")
+            e.close = True
+            raise e
+
 
 if __name__ == '__main__':
     unittest.main()
