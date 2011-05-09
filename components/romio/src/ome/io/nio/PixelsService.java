@@ -132,7 +132,9 @@ public class PixelsService extends AbstractFileSystemService
 	}
 
     /**
-     * Creates a pixels pyramid for a given set of pixels.
+     * Creates a pixels pyramid for a given set of pixels. If the pyramid file
+     * already exists, then a DEBUG message is logged and this method returns.
+     *
      * @param pixels Pixels set to retrieve a pixel buffer for.
      * @since OMERO-Beta4.3
      */
@@ -148,10 +150,18 @@ public class PixelsService extends AbstractFileSystemService
         {
             log.error("FAIL -- Original pixels file does not exist: "
                     + pixelsFile.getAbsolutePath());
-            return;
+            return; // EARLY EXIT!
         }
+
+        if (pixelsPyramidFile.exists())
+        {
+            log.debug("Pyramid already exists: " + pixelsPyramidFilePath);
+            return; // EARLY EXIT!
+        }
+
         final PixelBuffer pixelsPyramid = createPyramidPixelBuffer(
                 pixels, pixelsPyramidFilePath, true);
+
         try
         {
                 performWrite(pixels, pixelsPyramidFile, pixelsPyramid,
@@ -160,7 +170,17 @@ public class PixelsService extends AbstractFileSystemService
 
         finally
         {
-            ome.util.Utils.closeQuietly(pixelsPyramid);
+            if (pixelsPyramid != null)
+            {
+                try
+                {
+                    pixelsPyramid.close();
+                }
+                catch (IOException e)
+                {
+                    log.error("Error closing pixel pyramid.", e);
+                }
+            }
         }
     }
 
@@ -218,7 +238,17 @@ public class PixelsService extends AbstractFileSystemService
 
         finally
         {
-            ome.util.Utils.closeQuietly(source);
+            if (source != null)
+            {
+                try
+                {
+                    source.close();
+                }
+                catch (IOException e)
+                {
+                    log.error("Error closing pixel pyramid.", e);
+                }
+            }
         }
 
 
@@ -348,9 +378,19 @@ public class PixelsService extends AbstractFileSystemService
 					}
 				}
 			}
-		} finally {
-			ome.util.Utils.closeQuietly(stream);
-		}
+        } finally {
+            if (stream != null)
+            {
+                try
+                {
+                    stream.close();
+                }
+                catch (IOException e)
+                {
+                    log.error("Error closing stream.", e);
+                }
+            }
+        }
 	}
 
 
