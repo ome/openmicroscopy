@@ -34,11 +34,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
@@ -46,11 +45,11 @@ import org.jdesktop.swingx.JXTreeTable;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.dataBrowser.util.ImageTableIconRenderer;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.ImageTableRenderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
-import org.openmicroscopy.shoola.util.ui.treetable.renderers.IconCellRenderer;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.NumberCellRenderer;
 import pojos.DataObject;
 
@@ -75,34 +74,40 @@ class ImageTable
 	static final int  					NAME_COL = 0;
 	
 	/** Identified the column displaying the added date. */
-	static final int  					DATE_COL = 1;
+	//static final int  					DATE_COL = 1;
 	
-	/** Identified the column displaying if the file has been annotated. */
-	static final int  					ANNOTATED_COL = 2;
-
+	/** Identified the column displaying the added date. */
+	static final int  					THUMBNAIL_COL = 1;
+	
 	/** The text of the {@link #NAME_COL}. */
-	static final String					NAME =  "Name";
+	static final String					NAME = "Name";
+	
+	/** The text of the {@link #SIZE_COL}. */
+	static final String					SIZE = "Size";
+	
+	/** The text of the {@link #THUMBNAIL_COL}. */
+	static final String					VIEW = "";
 	
 	/** The text of the {@link #LOGIN_NAME_COL}. */
-	static final String					LOGIN_NAME =  "User Name";
+	static final String					LOGIN_NAME = "User Name";
 	
 	/** The text of the {@link #DATE_COL}. */
-	static final String					DATE =  "Acquisition Date";
+	static final String					DATE = "Acquired";
 	
 	/** The text of the {@link #ANNOTATED_COL}. */
-	static final String					ANNOTATED =  "Annotated";
+	static final String					ANNOTATED = "Annotated";
 	
 	/** The text of the {@link #INSTITUTION_COL}. */
-	static final String					INSTITUTION =  "Institution";
+	static final String					INSTITUTION = "Institution";
 	
 	/** The columns of the table. */
-	private static Vector<String>		COLUMNS;
+	static Vector<String>		COLUMNS;
 	
 	/** Map indicating how to render each column. */
 	private static Map<Integer, Class> RENDERERS;
 	
 	/** The columns of the table. */
-	private static Vector<String>		COLUMNS_GROUPS;
+	static Vector<String>		COLUMNS_GROUPS;
 	
 	/** Map indicating how to render each column. */
 	private static Map<Integer, Class> RENDERERS_GROUPS;
@@ -110,20 +115,19 @@ class ImageTable
 	static {
 		COLUMNS = new Vector<String>(2);
 		COLUMNS.add(NAME);
-		COLUMNS.add(DATE);
+		//COLUMNS.add(DATE);
+		COLUMNS.add(VIEW);
 		
 		RENDERERS = new HashMap<Integer, Class>();
 		RENDERERS.put(NAME_COL, ImageTableNode.class);
-		RENDERERS.put(DATE_COL, String.class);
+		//RENDERERS.put(DATE_COL, String.class);
+		RENDERERS.put(THUMBNAIL_COL, ImageTableNode.class);
 		
 		COLUMNS_GROUPS = new Vector<String>(3);
 		COLUMNS_GROUPS.add(LOGIN_NAME);
 		COLUMNS_GROUPS.add(NAME);
 		COLUMNS_GROUPS.add(INSTITUTION);
 		RENDERERS_GROUPS = new HashMap<Integer, Class>();
-		//RENDERERS_GROUPS.put(DATE_COL, String.class);
-		//RENDERERS_GROUPS.put(NAME_COL, String.class);
-		//RENDERERS_GROUPS.put(ANNOTATED_COL, String.class);
 	}
 	
 	/** The root node of the table. */
@@ -140,6 +144,9 @@ class ImageTable
 	
 	/** Reference to the model. */
 	private DataBrowserModel 		model;
+	
+	/** The default height of row.*/
+	private int						rowHeight;
 	
 	/**
 	 * Builds the node.
@@ -186,19 +193,29 @@ class ImageTable
         view.selectNodes(nodes);
 	}
 	
-	/** Initializes the component. */
-	private void initialize()
+	/** Formats the table.*/
+	private void formatTable()
 	{
-		setBackground(UIUtilities.BACKGROUND_COLOR);
-		nodes  = new ArrayList<ImageTableNode>();
 		OMETreeTableModel om;
 		if (model.getType() == DataBrowserModel.GROUP)
 			om = new OMETreeTableModel(tableRoot, COLUMNS_GROUPS, 
 					RENDERERS_GROUPS);
 		else 
 			om = new OMETreeTableModel(tableRoot, COLUMNS, RENDERERS);
-		
+		setRowHeight(ImageTableNode.HEIGHT);
 		setTableModel(om);
+		TableColumnModel tcm = getColumnModel();
+		TableColumn tc = tcm.getColumn(THUMBNAIL_COL);
+		tc.setCellRenderer(new ImageTableIconRenderer()); 
+		setDefaultRenderer(String.class, new NumberCellRenderer());
+	}
+	
+	/** Initializes the component. */
+	private void initialize()
+	{
+		setBackground(UIUtilities.BACKGROUND_COLOR);
+		nodes  = new ArrayList<ImageTableNode>();
+		formatTable();
 		setTreeCellRenderer(new ImageTableRenderer());
 		setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
 		setDefaultRenderer(String.class, new NumberCellRenderer());
@@ -208,7 +225,6 @@ class ImageTable
 		setRowSelectionAllowed(true);
 		setHorizontalScrollEnabled(true);
 		setColumnControlVisible(true);
-		
 		selectionListener = new TreeSelectionListener() {
 	        
             public void valueChanged(TreeSelectionEvent e)
@@ -315,14 +331,7 @@ class ImageTable
 		tableRoot = new ImageTableNode(root);
 		Component[] comp = root.getInternalDesktop().getComponents();
 		buildTreeNode(tableRoot, view.getSorter().sort(comp));
-		OMETreeTableModel om;
-		if (model.getType() == DataBrowserModel.GROUP)
-			om = new OMETreeTableModel(tableRoot, COLUMNS_GROUPS, 
-					RENDERERS_GROUPS);
-		else 
-			om = new OMETreeTableModel(tableRoot, COLUMNS, RENDERERS);
-		setTableModel(om);
-		setDefaultRenderer(String.class, new NumberCellRenderer());
+		formatTable();
 		invalidate();
 		repaint();
 	}
@@ -347,7 +356,7 @@ class ImageTable
 		}
 		nodes.clear();
 		repaint();
-        addTreeSelectionListener(selectionListener);
+		addTreeSelectionListener(selectionListener);
 	}
 
 	/**
@@ -380,9 +389,9 @@ class ImageTable
 		}
 		nodes.clear();
 		repaint();
-        addTreeSelectionListener(selectionListener);
+		addTreeSelectionListener(selectionListener);
 	}
-	
+
 	/**
 	 * Overridden to pop up a menu when the user right-clicks on a selected 
 	 * item.
