@@ -779,8 +779,8 @@ def runAsScript():
     oColours = wrap(OVERLAY_COLOURS.keys())
     
     client = scripts.client('ROI_Split_Figure.py', """Create a figure of an ROI region as separate zoomed split-channel panels.
-See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure
-NB: OMERO.insight client provides a nicer UI for this script under 'Publishing Options'""",
+NB: OMERO.insight client provides a nicer UI for this script under 'Publishing Options'
+See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/exporting-figures""",
 
     # provide 'Data_Type' and 'IDs' parameters so that Insight auto-populates with currently selected images.
     scripts.String("Data_Type", optional=False, grouping="01",
@@ -806,7 +806,7 @@ NB: OMERO.insight client provides a nicer UI for this script under 'Publishing O
     scripts.Float("ROI_Zoom", grouping="17", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit", min=0),
     scripts.String("ROI_Label", grouping="18", description=roiLabel),
     
-    version = "4.2.0",
+    version = "4.3.0",
     authors = ["William Moore", "OME Team"],
     institutions = ["University of Dundee"],
     contact = "ome-users@lists.openmicroscopy.org.uk",

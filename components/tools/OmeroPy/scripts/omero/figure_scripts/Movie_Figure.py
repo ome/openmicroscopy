@@ -535,8 +535,9 @@ def runAsScript():
     cOptions = wrap(ckeys)
     oColours = wrap(OVERLAY_COLOURS.keys())
     
-    client = scripts.client('Movie_Figure.py', """Export a figure of a movie. See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport
-NB: OMERO.insight client provides a nicer UI for this script under 'Publishing Options'""",
+    client = scripts.client('Movie_Figure.py', """Export a figure of a movie, showing a row of frames for each chosen image. 
+NB: OMERO.insight client provides a nicer UI for this script under 'Publishing Options'
+See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/exporting-figures""",
 
     # provide 'Data_Type' and 'IDs' parameters so that Insight auto-populates with currently selected images.
     scripts.String("Data_Type", optional=False, grouping="01",
@@ -574,7 +575,7 @@ NB: OMERO.insight client provides a nicer UI for this script under 'Publishing O
     scripts.String("Time_Units", grouping="13",
         description="The units to use for time display", values=tunits),
     
-    version = "4.2.0",
+    version = "4.3.0",
     authors = ["William Moore", "OME Team"],
     institutions = ["University of Dundee"],
     contact = "ome-users@lists.openmicroscopy.org.uk",
