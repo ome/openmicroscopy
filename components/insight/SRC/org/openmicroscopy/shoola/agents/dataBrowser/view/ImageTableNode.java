@@ -25,21 +25,17 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.Color;
-import java.sql.Timestamp;
-
 import javax.swing.Icon;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
-import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -59,12 +55,15 @@ import pojos.ImageData;
 public class ImageTableNode 
 	extends OMETreeNode
 {
-	
-	/** Helper reference to the icon manager. */
-	private IconManager icons;
+
+	/** The default height for the column.*/
+	static final int HEIGHT = 50;
 	
 	/** The icon associated to the image. */
 	private Icon icon;
+	
+	/** The text displayed in the tool tip.*/
+	private String toolTip;
 	
 	/**
 	 * Creates a new instance.
@@ -77,8 +76,18 @@ public class ImageTableNode
 		if (refNode == null)
 			throw new IllegalArgumentException("No node specified.");
 		setAllowsChildren(!(refNode instanceof ImageNode));
-		icons = IconManager.getInstance();
+		Object o = getHierarchyObject();
+		if (o instanceof ImageData) 
+			toolTip = UIUtilities.formatToolTipText(
+					EditorUtil.formatObjectTooltip((ImageData) o));
 	}
+	
+	/**
+	 * Returns the text displayed in the tool tip.
+	 * 
+	 * @return See above.
+	 */
+	public String getToolTip() { return toolTip; }
 	
 	/**
 	 * Returns the hierarchy object related to this node.
@@ -113,7 +122,7 @@ public class ImageTableNode
 			ImageNode n = (ImageNode) o;
 			Thumbnail thumb = n.getThumbnail();
 			if (thumb != null) {
-				icon = thumb.getIcon();
+				icon = thumb.getIcon(0.5);
 				return icon;
 			}
 			return null;
@@ -136,6 +145,7 @@ public class ImageTableNode
 					return exp.getUserName();
 				}
 				return node.toString();
+				/*
 			case ImageTable.DATE_COL:
 				if (ho instanceof ImageData) {
 					Timestamp time = 
@@ -146,8 +156,11 @@ public class ImageTableNode
 				} else if (ho instanceof ExperimenterData) {
 					return node.toString();
 				}
-					
-				return "--";
+				return "";
+				*/
+			case ImageTable.THUMBNAIL_COL:
+				return this;
+				/*
 			case ImageTable.ANNOTATED_COL:
 				if (ho instanceof ExperimenterData) {
 					ExperimenterData exp = (ExperimenterData) ho;
@@ -158,7 +171,7 @@ public class ImageTableNode
 						return icons.getIcon(IconManager.ANNOTATION);
 				} 
 				return icons.getIcon(IconManager.TRANSPARENT);
-				
+				*/
 		}
 		return null;
 	}

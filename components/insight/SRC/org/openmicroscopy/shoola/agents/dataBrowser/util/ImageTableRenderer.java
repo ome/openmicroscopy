@@ -57,9 +57,6 @@ public class ImageTableRenderer
 	extends DefaultTreeCellRenderer
 {
 
-	/** Reference to the <code>Image</code> icon. */
-	private static final Icon IMAGE_ICON;
-	
 	/** Reference to the <code>Dataset</code> icon. */
 	private static final Icon DATASET_ICON;
 	
@@ -68,7 +65,6 @@ public class ImageTableRenderer
 	
 	static { 
 		IconManager icons = IconManager.getInstance();
-		IMAGE_ICON = icons.getIcon(IconManager.IMAGE);
 		DATASET_ICON = icons.getIcon(IconManager.DATASET);
 		PROJECT_ICON = icons.getIcon(IconManager.PROJECT);
 	}
@@ -76,7 +72,7 @@ public class ImageTableRenderer
 	/** Creates a new instance. */
 	public ImageTableRenderer()
 	{
-		setOpaque(true);
+		setOpaque(false);
 	}
 	
 	/**
@@ -89,23 +85,13 @@ public class ImageTableRenderer
 			Object value, boolean selected, boolean expanded, 
 			boolean leaf, int row, boolean hasFocus)
 	{
-		if (selected) {
-			/*
-			if (value instanceof ImageTableNode) {
-				setBackground(((ImageTableNode) value).getHighLight());
-			} else 
-			*/
-			setBackground(getBackgroundSelectionColor());
-		} else setBackground(getBackgroundNonSelectionColor());
-		
 		if (!(value instanceof ImageTableNode)) return this;
 		ImageTableNode node = (ImageTableNode) value;
 		Object v = node.getHierarchyObject();
 		if (v instanceof ImageData) {
-			Icon icon = node.getThumbnailIcon();
-			if (icon == null) icon = IMAGE_ICON;
-			setIcon(icon);
+			setIcon(null);
 			setText(((ImageDisplay) node.getUserObject()).toString());
+			setToolTipText(node.getToolTip());
 		} else if (v instanceof DatasetData) {
 			setIcon(DATASET_ICON);
 			setText(node.getUserObject().toString());

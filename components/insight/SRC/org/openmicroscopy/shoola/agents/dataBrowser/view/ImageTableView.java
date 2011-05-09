@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
-
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Point;

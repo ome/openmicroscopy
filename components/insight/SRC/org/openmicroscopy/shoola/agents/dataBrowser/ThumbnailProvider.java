@@ -291,7 +291,7 @@ public class ThumbnailProvider
     {
         if (iconThumb != null) return iconThumb;
         if (fullScaleThumb == null) return null;
-        BufferedImage img = Factory.magnifyImage(0.16, fullScaleThumb);
+        BufferedImage img = Factory.magnifyImage(ICON_ZOOM, fullScaleThumb);
         BufferedImage newImg = new BufferedImage(img.getWidth()+2*BORDER, 
                 img.getHeight()+2*BORDER, img.getType());
         Graphics g = newImg.getGraphics();
@@ -301,6 +301,25 @@ public class ThumbnailProvider
         g2D.drawImage(img, null, BORDER, BORDER);
         iconThumb = new ImageIcon(newImg);
         return iconThumb;
+    }
+    
+    /**
+     * Implemented as specified by the {@link Thumbnail} I/F.
+     * @see Thumbnail#getIcon()
+     */
+    public Icon getIcon(double magnification)
+    {
+    	if (magnification <= 0) magnification = ICON_ZOOM;
+    	if (fullScaleThumb == null) return null;
+        BufferedImage img = Factory.magnifyImage(magnification, fullScaleThumb);
+        BufferedImage newImg = new BufferedImage(img.getWidth()+2*BORDER, 
+                img.getHeight()+2*BORDER, img.getType());
+        Graphics g = newImg.getGraphics();
+        Graphics2D g2D = (Graphics2D) g;
+        g2D.setColor(BORDER_COLOR);
+        g2D.fillRect(0, 0, newImg.getWidth(), newImg.getHeight());
+        g2D.drawImage(img, null, BORDER, BORDER);
+        return new ImageIcon(newImg);
     }
 
 	/**

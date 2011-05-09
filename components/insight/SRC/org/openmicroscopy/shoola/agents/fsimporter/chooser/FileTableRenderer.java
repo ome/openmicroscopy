@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 //Java imports
 import java.awt.Component;
 import javax.swing.Icon;
-import javax.swing.JCheckBox;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -35,7 +34,6 @@ import javax.swing.table.DefaultTableModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
-import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 
 /** 
  * Display the name and the icon.
@@ -118,4 +116,5 @@ public class FileTableRenderer
 		}
 		return this;
 	}
+	
 }
