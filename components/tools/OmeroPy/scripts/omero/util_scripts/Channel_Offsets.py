@@ -41,7 +41,7 @@ from omero.rtypes import *
 import omero.util.script_utils as script_utils
 
 import os
-import numpy
+from numpy import zeros, hstack, vstack
 
 import time
 
@@ -68,6 +68,8 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets):
             for t in range(sizeT):
                 zOffset = offset['z']
                 zctList.append( (z+zOffset, offset['index'], t) ) 
+
+    print "zctList", zctList
 
     # for convenience, make a map of channel:offsets
     offsetMap = {}
@@ -102,6 +104,7 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets):
     def offsetPlaneGen():
         planeGen = oldImage.getPrimaryPixels().getPlanes(zctList)
         for i, plane in enumerate(planeGen):
+            print "generating plane offset for zct:", zctList[i]
             z,c,t = zctList[i]
             offsets = offsetMap[c]
             yield offsetPlane(plane, offsets['x'], offsets['y'])
@@ -109,7 +112,7 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets):
     desc = str(channel_offsets)
     serviceFactory = conn.c.sf  # make sure that script_utils creates a NEW rawPixelsStore
     i = script_utils.imageFromNumpySeq(serviceFactory, offsetPlaneGen(), "testOffsetImage", 
-        sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, description=desc)
+        sizeZ=sizeZ, sizeC=len(channel_offsets), sizeT=sizeT, description=desc)
 
 def processImages(conn, scriptParams):
     """ Process the script params to make a list of channel_offsets, then iterate through
@@ -169,7 +172,7 @@ applying an x, y and z shift to each channel independently. """,
     scripts.Int("Channel2_Z_shift", grouping="4.3", default=0,
         description="Offset channel by a number of Z-sections"),
 
-    scripts.Bool("Channel_3", grouping="5", default=True,
+    scripts.Bool("Channel_3", grouping="5", default=False,
         description="Choose to include this channel in the output image"),
 
     scripts.Int("Channel3_X_shift", grouping="5.1", default=0,
@@ -181,7 +184,7 @@ applying an x, y and z shift to each channel independently. """,
     scripts.Int("Channel3_Z_shift", grouping="5.3", default=0,
         description="Offset channel by a number of Z-sections"),
 
-    scripts.Bool("Channel_4", grouping="6", default=True,
+    scripts.Bool("Channel_4", grouping="6", default=False,
         description="Choose to include this channel in the output image"),
 
     scripts.Int("Channel4_X_shift", grouping="6.1", default=0,
@@ -209,7 +212,7 @@ applying an x, y and z shift to each channel independently. """,
         scriptParams = {}
         for key in client.getInputKeys():
             if client.getInput(key):
-                scriptParams[key] = unwrap( client.getInput(key) )
+                scriptParams[key] = omero.rtypes.unwrap( client.getInput(key) )
 
         print scriptParams
         
