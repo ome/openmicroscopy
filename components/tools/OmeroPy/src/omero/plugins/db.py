@@ -132,17 +132,43 @@ class DatabaseControl(BaseControl):
             self.ctx.out("Saving to " + location)
 
         try:
-            cfg = {"TIME":time.ctime(time.time()),
-                   "DIR":sql_directory,
-                   "SCRIPT":script}
             dbprofile = self._db_profile()
             header = sql_directory / ("%s-header.sql" % dbprofile)
             footer = sql_directory / ("%s-footer.sql" % dbprofile)
-            self._copy(header, output, str, cfg)
-            self._copy(sql_directory/"schema.sql", output, str)
-            self._copy(sql_directory/"views.sql", output, str)
-            self._copy(footer, output,
-                self._make_replace(password_hash, db_vers, db_patch), cfg)
+            if header.exists():
+                # 73 multiple DB support. OMERO 4.3+
+                cfg = {"TIME":time.ctime(time.time()),
+                    "DIR":sql_directory,
+                    "SCRIPT":script}
+                self._copy(header, output, str, cfg)
+                self._copy(sql_directory/"schema.sql", output, str)
+                self._copy(sql_directory/"views.sql", output, str)
+                self._copy(footer, output,
+                    self._make_replace(password_hash, db_vers, db_patch), cfg)
+            else:
+                # OMERO 4.2.x and before
+                output.write("""
+--
+-- GENERATED %s from %s
+--
+-- This file was created by the bin/omero db script command
+-- and contains an MD5 version of your OMERO root users's password.
+-- You should think about deleting it as soon as possible.
+--
+-- To create your database:
+--
+--     createdb omero
+--     createlang plpgsql omero
+--     psql omero < %s
+--
+
+BEGIN;
+                """ % ( time.ctime(time.time()), sql_directory, script ) )
+                self._copy(sql_directory/"schema.sql", output, str)
+                self._copy(sql_directory/"data.sql", output, self._make_replace(password_hash, db_vers, db_patch))
+                self._copy(sql_directory/"views.sql", output, str)
+                output.write("COMMIT;\n")
+
         finally:
             output.flush()
             output.close()
