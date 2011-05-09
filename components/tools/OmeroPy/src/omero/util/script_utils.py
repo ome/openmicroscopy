@@ -1016,7 +1016,7 @@ def imageFromNumpySeq (session, zctPlanes, imageName, sizeZ=1, sizeC=1, sizeT=1,
         pType = firstPlane.dtype.name
         pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
         sizeY, sizeX = firstPlane.shape
-        channelList = range(sizeC)
+        channelList = range(1, sizeC+1)
         iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
         imageId = iId.getValue()
         return containerService.getImages("Image", [imageId], None)[0]
