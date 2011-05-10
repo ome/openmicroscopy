@@ -803,6 +803,10 @@ public class OMEROMetadataStoreClient
      */
     private Timestamp timestampFromXmlString(String value)
     {
+        if (value == null)
+        {
+            return null;
+        }
         try
         {
             SimpleDateFormat sdf =
