@@ -28,6 +28,7 @@ or a redirect, or the 404 and 500 error, or an XML document, or an image...
 or anything.'''
 
 import sys
+import re
 import os
 import calendar
 import cStringIO
@@ -491,13 +492,13 @@ def load_template(request, menu, **kwargs):
         url = reverse(viewname="load_template", args=[menu])
     
     init = {'initially_open':[], 'initially_select': None}
-    select = None 
     for k,v in request.REQUEST.items():
         for i in v.split(","):
-            init['initially_open'].append(k+"-"+i)
-            select = k+"-"+i
-    init['initially_select'] = select
-    
+            if ":selected" in str(i) and init['initially_select'] is None:
+                init['initially_select'] = k+"-"+i.replace(":selected", "")
+            else:
+                init['initially_open'].append(k+"-"+i)
+                
     try:
         manager = BaseContainer(conn)
     except AttributeError, x:
