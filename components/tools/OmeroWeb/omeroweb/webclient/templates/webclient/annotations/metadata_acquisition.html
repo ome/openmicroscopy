@@ -254,6 +254,7 @@
                     {% endfor %}
                     {% endif %}
                 </table>
+                {% if ch.form_detector_settings or ch.form_dichroic or ch.form_light_source %}
                 <table class="metadata_details">
                     {% if ch.form_detector_settings %}
                     <tr><th><br/>{% trans "Detector" %}:</th><th colspan="2"></th></tr>
@@ -280,6 +281,7 @@
                     {% endfor %}
                     {% endif %}
                 </table>
+                {% endif %}
             </div>
             {% endfor %}
 
