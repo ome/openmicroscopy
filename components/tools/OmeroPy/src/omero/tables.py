@@ -276,7 +276,7 @@ class HdfStorage(object):
         self.logger.info("Size: %s - Attaching %s to %s" % (sz, table, self.__hdf_path))
         if table in self.__tables:
             self.logger.warn("Already added")
-            raise omero.ApiUsageException(None, Non, "Already added")
+            raise omero.ApiUsageException(None, None, "Already added")
         self.__tables.append(table)
         return sz + 1
 
@@ -767,8 +767,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         start = time.time()
         while not self.repo_cfg.exists() and wait < (time.time() - start):
             self.logger.info("%s doesn't exist; waiting 5 seconds..." % self.repo_cfg)
-            time.sleep(5)
-            count -= 1
+            self.stop_event.wait(5)
         if not self.repo_cfg.exists():
             msg = "No repository found: %s" % self.repo_cfg
             self.logger.error(msg)

@@ -637,7 +637,7 @@ OMERO Diagnostics %s
                     where = whichall(cmd[0])
                     sz = len(where)
                     if sz == 0:
-                        where = unknown
+                        where = "unknown"
                     else:
                         where = where[0]
                         if sz > 1:

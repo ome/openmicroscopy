@@ -189,7 +189,8 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
             stop_event.wait(interval)
 
     log.warn("Reason: %s", str(excpt))
-    raise excpt
+    if excpt:
+        raise excpt
 
 def create_admin_session(communicator):
     """

@@ -129,9 +129,9 @@ class PrefsControl(BaseControl):
             if grid_dir.exists():
                 cfg_xml = grid_dir / "config.xml"
             else:
-                self.ctx.err("%s not found; using %s" % (grid_dir, usr_xml))
                 userdir = path(get_user_dir())
                 usr_xml = userdir / "omero"/ "config.xml"
+                self.ctx.err("%s not found; using %s" % (grid_dir, usr_xml))
                 cfg_xml = usr_xml
         try:
             return ConfigXml(str(cfg_xml))

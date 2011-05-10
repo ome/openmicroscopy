@@ -466,7 +466,7 @@ class SessionsControl(BaseControl):
             self._client.setAgent("OMERO.cli")
             self._client.createSession()
             return self._client
-        except Exc, exc:
+        except exceptions.Exception, exc:
             self._client = None
             raise
 

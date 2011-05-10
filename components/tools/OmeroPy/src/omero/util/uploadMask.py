@@ -36,6 +36,7 @@
 from OmeroPopo import MaskData
 from OmeroPopo import ROIData
 from OmeroPopo import ImageData
+from OmeroPopo import ROICoordinate
 import math
 
 class uploadMask():
@@ -60,7 +61,7 @@ class uploadMask():
         for mask in maskMap:
             roiClass = None;
             if(self.roiMap.has_key(mask.getColour())):
-                roiClass = roiMap[mask.getColour()];
+                roiClass = self.roiMap[mask.getColour()];
             else:
                 roiClass = ROIClass();
                 self.roiMap[mask.getColour()] = roiClass;
@@ -139,6 +140,7 @@ class MaskClass():
     # @return See above.
     #
     def asBytes(self): 
+        import array
         bytesArray = array.array('B');
         for cnt in range(int(math.ceil(self.width*self.height))):
             bytesArray.append(0);
@@ -231,7 +233,7 @@ class ROIClass():
             maskList = self.maskMap[coord];
         else:
             maskList = [];
-            maskMap.put(coord, maskList);
+            self.maskMap.put(coord, maskList);
         maskList.append(mask);
     
     ##
@@ -244,7 +246,7 @@ class ROIClass():
         roi.setId(image.getId());
         
         for coord in self.maskMap:
-            maskList = maskMap[coord];
+            maskList = self.maskMap[coord];
             for mask in maskList:
                 toSaveMask = mask.asMaskData(coord.getZSection(), coord.getTimePoint());        
                 roi.addShapeData(toSaveMask);
@@ -292,5 +294,5 @@ class Point():
     # Set the y value of the point
     # @param y See Above.
     #
-    def setY(self, x):
+    def setY(self, y):
         self.y = y;

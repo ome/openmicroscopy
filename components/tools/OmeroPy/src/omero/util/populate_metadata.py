@@ -38,7 +38,7 @@ from Queue import Queue
 
 import omero.clients
 from omero.rtypes import rdouble, rstring, rint
-from omero.model import DatasetAnnotationLink, DatasetI, FileAnnotationI, \
+from omero.model import DatasetAnnotationLinkI, DatasetI, FileAnnotationI, \
                         OriginalFileI, PlateI, PlateAnnotationLinkI, ScreenI, \
                         ScreenAnnotationLinkI
 from omero.grid import ImageColumn, LongColumn, StringColumn, WellColumn
@@ -167,13 +167,14 @@ class ValueResolver(object):
         self.target_object = target_object
         self.target_class = self.target_object.__class__
         if PlateI is self.target_class:
-            return self.load_plate()
-        if DatasetI is self.target_class:
-            return self.load_dataset()
-        if ScreenI is self.target_class:
-            return self.load_screen()
-        raise MetadataError('Unsupported target object class: %s' \
-                            % target_class)
+            self.load_plate()
+        elif DatasetI is self.target_class:
+            self.load_dataset()
+        elif ScreenI is self.target_class:
+            self.load_screen()
+        else:
+            raise MetadataError('Unsupported target object class: %s' \
+                            % self.target_class)
     def load_screen(self):
         query_service = self.client.getSession().getQueryService()
         parameters = omero.sys.ParametersI()
@@ -294,7 +295,7 @@ class ParsingContext(object):
         if DatasetI is self.target_class:
             return DatasetAnnotationLinkI()
         raise MetadataError('Unsupported target object class: %s' \
-                            % target_class)
+                            % self.target_class)
 
     def get_column_widths(self):
         widths = list()

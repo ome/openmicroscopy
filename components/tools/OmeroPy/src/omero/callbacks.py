@@ -76,7 +76,7 @@ class ProcessCallbackI(omero.grid.ProcessCallback):
         self.event.set()
 
     def processKilled(self, success, current = None):
-        self.result = ProcssCallbackI.KILLED
+        self.result = ProcessCallbackI.KILLED
         self.event.set()
 
     def close(self):

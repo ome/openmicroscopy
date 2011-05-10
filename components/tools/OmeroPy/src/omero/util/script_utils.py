@@ -450,6 +450,7 @@ def uploadDirAsImages(sf, queryService, updateService, pixelsService, path, data
     """
 
     import re
+    from numpy import zeros
 
     regex_token = re.compile(r'(?P<Token>.+)\.')
     regex_time = re.compile(r'T(?P<T>\d+)')
@@ -948,7 +949,7 @@ def getPlaneInfo(iQuery, pixelsId, asOrderedList = True):
     @return list of planeInfoTimes or map["z:t:c:]
     """
     query = "from PlaneInfo as Info where pixels.id='"+str(pixelsId)+"' orderby info.deltaT"
-    infoList = queryService.findAllByQuery(query,None)
+    infoList = iQuery.findAllByQuery(query,None)
 
     if(asOrderedList):
         map = {}
@@ -1146,7 +1147,7 @@ def getROIFromImage(iROIService, imageId, namespace=None):
     @param namespace The namespace of the ROI.
     @return See above.
     """    
-    roiOpts = ROIOptions(); 
+    roiOpts = omero.api.RoiOptions()
     if(namespace!=None):
         roiOpts.namespace = namespace;
     return iROIService.findByImage(imageId, roiOpts);

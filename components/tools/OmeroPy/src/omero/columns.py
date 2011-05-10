@@ -176,15 +176,6 @@ class RoiColumnI(AbstractColumn, omero.grid.RoiColumn):
     def descriptor(self, pos):
         return tables.Int64Col(pos=pos)
 
-class ImageColumnI(AbstractColumn, omero.grid.ImageColumn):
-
-    def __init__(self, name = "Unknown", *args):
-        omero.grid.ImageColumn.__init__(self, name, *args)
-        AbstractColumn.__init__(self)
-
-    def descriptor(self, pos):
-        return tables.Int64Col(pos=pos)
-
 class BoolColumnI(AbstractColumn, omero.grid.BoolColumn):
 
     def __init__(self, name = "Unknown", *args):

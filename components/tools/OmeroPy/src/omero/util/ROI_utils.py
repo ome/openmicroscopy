@@ -46,6 +46,7 @@ from omero.model import TextI
 from omero.model import PolylineI
 from omero.model import PolygonI
 from omero.model import PathI
+from omero.model import MaskI
 from omero.rtypes import rdouble 
 from omero.rtypes import rstring 
 from omero.rtypes import rint 
@@ -75,14 +76,14 @@ class ShapeSettingsData:
         self.WHITE = 16777215
         self.BLACK = 0
         self.GREY = 11184810
-        self.strokeColour = rint(GREY)
+        self.strokeColour = rint(self.GREY)
         self.strokeWidth = rint(1)
         self.strokeDashArray = rstring('')
         self.strokeDashOffset = rint(0)
         self.strokeLineCap = rstring('')
         self.strokeLineJoin = rstring('')
         self.strokeMiterLimit = rint(0)
-        self.fillColour = rint(GREY)
+        self.fillColour = rint(self.GREY)
         self.fillRule = rstring('')
 
     ##
@@ -113,7 +114,7 @@ class ShapeSettingsData:
     # Set the Fill Settings for the ShapeSettings.
     # @param colour The fill colour of the shape.
     def setFillSettings(self, colour):
-        self.fillColour = rsting(colour);
+        self.fillColour = rstring(colour);
     
     ##
     # Get the stroke settings as the tuple (strokeColour, strokeWidth).
@@ -258,9 +259,9 @@ class ShapeData:
         if(self.roi != None):
             return self.roi;
         self.roi = self.createBaseType();
-        self.setROICoord(roi);
-        self.setROIGeometry(roi);
-        self.setROIShapeSettings(roi);
+        self.setROICoord(self.roi);
+        self.setROIGeometry(self.roi);
+        self.setROIShapeSettings(self.roi);
         return self.roi;
     
     ##

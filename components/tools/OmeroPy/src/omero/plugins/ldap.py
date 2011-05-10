@@ -94,7 +94,7 @@ class LdapControl(BaseControl):
                     try:
                         exp = iadmin.getExperimenter(id)
                     except:
-                        self.ctx.err("Bad experimenter: %s" % k)
+                        self.ctx.err("Bad experimenter: %s" % id)
 
                     tb.row(count, *(id, exp.omeName.val, dn))
                     count += 1

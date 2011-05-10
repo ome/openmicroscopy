@@ -206,7 +206,7 @@ class FileServerI(monitors.FileServer):
             raise omero.OmeroFSError(reason='File ID  ' + str(fileId) + ' not on this FSServer')       
 
         try:
-            return _getFileStats(pathString)
+            return self._getFileStats(pathString)
         except Exception, e:
             self.log.error('Failed to get  ' + str(fileId) + ' stats : ' + str(e))
             raise omero.OmeroFSError(reason='Failed to get  ' + str(fileId) + ' stats : '  + str(e))       

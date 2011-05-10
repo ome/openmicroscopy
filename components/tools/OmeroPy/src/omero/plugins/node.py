@@ -11,7 +11,7 @@
 
 """
 
-from omero.cli import BaseControl, CLI
+from omero.cli import BaseControl, CLI, NonZeroReturnCode
 from omero.util import tail_lines
 from omero_ext.strings import shlex
 from omero.plugins.admin import AdminControl
