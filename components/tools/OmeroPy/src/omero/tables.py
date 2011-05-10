@@ -234,10 +234,11 @@ class HdfStorage(object):
     #
 
     @locked
-    def initialize(self, cols, metadata = {}):
+    def initialize(self, cols, metadata = None):
         """
 
         """
+        if metadata is None: metadata = {}
 
         if self.__initialized:
             raise omero.ValidationException(None, None, "Already initialized.")

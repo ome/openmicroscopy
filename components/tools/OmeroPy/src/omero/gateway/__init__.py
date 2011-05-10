@@ -140,7 +140,7 @@ class BlitzObjectWrapper (object):
     CHILD_WRAPPER_CLASS = None
     PARENT_WRAPPER_CLASS = None
     
-    def __init__ (self, conn=None, obj=None, cache={}, **kwargs):
+    def __init__ (self, conn=None, obj=None, cache=None, **kwargs):
         """
         Initialises the wrapper object, setting the various class variables etc
         
@@ -153,6 +153,8 @@ class BlitzObjectWrapper (object):
         self.__bstrap__()
         self._obj = obj
         self._cache = cache
+        if self._cache is None:
+            self._cache = {}
         self._conn = conn
         self._creationDate = None
         if conn is None:
@@ -1126,7 +1128,7 @@ class _BlitzGateway (object):
     """
 #    def __init__ (self, username, passwd, server, port, client_obj=None, group=None, clone=False):
     
-    def __init__ (self, username=None, passwd=None, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=[], secure=False, anonymous=True, useragent=None):
+    def __init__ (self, username=None, passwd=None, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=None, secure=False, anonymous=True, useragent=None):
         """
         Create the connection wrapper. Does not attempt to connect at this stage
         Initialises the omero.client
@@ -1155,7 +1157,8 @@ class _BlitzGateway (object):
         @param useragent:   Log which python clients use this connection. E.g. 'OMERO.webadmin'
         @type useragent:    String
         """
-        
+
+        if extra_config is None: extra_config = []
         super(_BlitzGateway, self).__init__()
         self.c = client_obj
         if not type(extra_config) in (type(()), type([])):
@@ -5570,7 +5573,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return rv
 
     @assert_re
-    def createMovie (self, outpath, zstart, zend, tstart, tend, opts={}):
+    def createMovie (self, outpath, zstart, zend, tstart, tend, opts=None):
         """
         Creates a movie file from this image.
         TODO:   makemovie import is commented out in 4.2+
@@ -5592,7 +5595,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:    Tuple of (file-ext, format)
         @rtype:     (String, String)
         """
-        
+        if opts is None: opts = {}
         slides = opts.get('slides', None)
         minsize = opts.get('minsize', None)
         w, h = self.getSizeX(), self.getSizeY()

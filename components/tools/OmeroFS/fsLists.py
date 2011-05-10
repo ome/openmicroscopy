@@ -26,7 +26,7 @@ class Greylist(object):
 
     """
 
-    def __init__(self, initialList=[]):
+    def __init__(self, initialList=None):
         """
             Create an initial initial list.
             
@@ -35,6 +35,7 @@ class Greylist(object):
                     An initial list of items.
                     
         """
+        if initialList is None: initialList = []
         self.theSet = set(initialList)
 
     def __repr__(self):
@@ -118,7 +119,7 @@ class Whitelist(Greylist):
 
     """
     
-    def __init__(self, initialList=[]):
+    def __init__(self, initialList=None):
         """
             Create an initial whitelist.
             
@@ -127,6 +128,7 @@ class Whitelist(Greylist):
                     An initial list of extensions.      
 
         """
+        if initialList is None: initialList = []
         Greylist.__init__(self, initialList)
                  
 class Blacklist(Greylist):
@@ -138,7 +140,7 @@ class Blacklist(Greylist):
 
     """
     
-    def __init__(self, initialList=[]):
+    def __init__(self, initialList=None):
         """
             Create an initial blacklist.
             
@@ -147,5 +149,6 @@ class Blacklist(Greylist):
                     An initial list of subdirectories.
                     
         """
+        if initialList is None: initialList = []
         Greylist.__init__(self, initialList) 
 

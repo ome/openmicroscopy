@@ -594,10 +594,10 @@ import types
 #	 **********
 
 class mpfit:
-	def __init__(self, fcn, xall=None, functkw={}, parinfo=None,
+	def __init__(self, fcn, xall=None, functkw=None, parinfo=None,
 				 ftol=1.e-10, xtol=1.e-10, gtol=1.e-10,
 				 damp=0., maxiter=200, factor=100., nprint=1,
-				 iterfunct='default', iterkw={}, nocovar=0,
+				 iterfunct='default', iterkw=None, nocovar=0,
 				 fastnorm=0, rescale=0, autoderivative=1, quiet=0,
 				 diag=None, epsfcn=None, debug=0):
 		"""
@@ -844,6 +844,13 @@ class mpfit:
 		   pcerror = mpfit.perror * sqrt(mpfit.fnorm / dof)
 
 		"""
+
+                # See #4749
+                if functkw is None:
+                    functkw = {}
+                if iterkw is None:
+                    iterkw = {}
+
 		self.niter = 0
 		self.params = None
 		self.covar = None

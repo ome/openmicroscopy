@@ -226,10 +226,14 @@ class Context:
 
     """
 
-    def __init__(self, controls = {}, params = {}, prog = sys.argv[0]):
-        self.event = get_event(name="CLI")
-        self.params = {}
+    def __init__(self, controls = None, params = None, prog = sys.argv[0]):
         self.controls = controls
+        if self.controls is None:
+            self.controls = {}
+        self.params = params
+        if self.params is None:
+            self.params = {}
+        self.event = get_event(name="CLI")
         self.dir = OMERODIR
         self.isdebug = DEBUG # This usage will go away and default will be False
         self.topics = {"debug":"""
@@ -977,10 +981,13 @@ class CLI(cmd.Cmd, Context):
                 self.dbg("Bad property:"+str(parts))
         return data
 
-    def initData(self, properties={}):
+    def initData(self, properties=None):
         """
         Uses "omero prefs" to create an Ice.InitializationData().
         """
+
+        if properties is None: properties = {}
+
         from omero.plugins.prefs import getprefs
         try:
             output = getprefs(["get"], str(OMERODIR / "lib"))

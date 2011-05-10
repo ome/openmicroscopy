@@ -448,11 +448,13 @@ class SessionsControl(BaseControl):
         if srv and usr and uuid:
             self.ctx.out(str(store.dir / srv / usr / uuid))
 
-    def conn(self, properties={}, profile=None, args=None):
+    def conn(self, properties=None, profile=None, args=None):
         """
         Either creates or returns the exiting omero.client instance.
         Uses the comm() method with the same signature.
         """
+
+        if properties is None: properties = {}
 
         if self._client:
             return self._client

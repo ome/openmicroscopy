@@ -570,7 +570,7 @@ class PolygonData(ShapeData, ROIDrawingI):
     # Constructor for PolygonData object.
     # @param roicoord The ROICoordinate of the object (default: 0,0)
     # @param pointList The list of points that make up the polygon, as pairs [x1, y1, x2, y2 ..].   
-    def __init__(self, roicoord = ROICoordinate(), pointsList = [0,0]):
+    def __init__(self, roicoord = ROICoordinate(), pointsList = (0,0)):
         ShapeData.__init__(self);
         self.points = rstring(self.listToString(pointsList));
         self.setCoord(roicoord);
@@ -638,7 +638,7 @@ class PolylineData(ShapeData, ROIDrawingI):
     # Constructor for PolylineData object.
     # @param roicoord The ROICoordinate of the object (default: 0,0)
     # @param pointList The list of points that make up the polygon, as pairs [x1, y1, x2, y2 ..].   
-    def __init__(self, roicoord = ROICoordinate(), pointsList = [0,0]):
+    def __init__(self, roicoord = ROICoordinate(), pointsList = (0,0)):
         ShapeData.__init__(self);
         self.points = rstring(self.listToString(pointsList));
         self.setCoord(roicoord);

@@ -629,8 +629,10 @@ class UseSessionHolder(object):
 class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
     def __init__(self, ctx, needs_session = True,
-                 use_session = None, accepts_list = [], cfg = None,
+                 use_session = None, accepts_list = None, cfg = None,
                  omero_home = path.getcwd()):
+
+        if accepts_list is None: accepts_list = []
 
         self.omero_home = omero_home
 
@@ -824,11 +826,13 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
 
     @perf
-    def process(self, client, session, job, current, params, properties = {}, iskill = True):
+    def process(self, client, session, job, current, params, properties = None, iskill = True):
         """
         session: session uuid, used primarily if client is None
         client: an omero.client object which should be attached to a session
         """
+
+        if properties is None: properties = {}
 
         if not session or not job or not job.id:
             raise omero.ApiUsageException("No null arguments")

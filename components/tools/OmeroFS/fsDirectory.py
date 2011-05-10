@@ -248,7 +248,7 @@ class Directory(object):
         
         return fileList
 
-    def getChangedFilesFromTree(self, bigTree, littleTree, compare=['SIZE']):
+    def getChangedFilesFromTree(self, bigTree, littleTree, compare=('SIZE')):
         """
             Return a list of files that appear in both trees but differ in size.
         
@@ -337,7 +337,7 @@ class Directory(object):
             
 
             
-    def getChangedFiles(self, pathString, compare=['SIZE']):
+    def getChangedFiles(self, pathString, compare=('SIZE')):
         """
             Return lists of new, deleted and changed files in a subtree.
             
