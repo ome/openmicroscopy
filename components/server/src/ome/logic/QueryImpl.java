@@ -39,6 +39,7 @@ import org.hibernate.criterion.Example;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.metadata.ClassMetadata;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.annotation.Propagation;
@@ -232,10 +233,18 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
-                Criteria c = session.createCriteria(example.getClass());
-                c.add(Example.create(example));
-                return c.uniqueResult();
-
+                try {
+                    Criteria c = session.createCriteria(example.getClass());
+                    c.add(Example.create(example));
+                    return c.uniqueResult();
+                } catch (IncorrectResultSizeDataAccessException irsdae) {
+                    throwNonUnique("findByExample");
+                } catch (NonUniqueResultException nure) {
+                    throwNonUnique("findByExample");
+                }
+                // Never reached!
+                return null;
+                
             }
         });
     }
@@ -275,9 +284,17 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
-                Criteria c = session.createCriteria(klass);
-                c.add(Restrictions.eq(fieldName, value));
-                return c.uniqueResult();
+                try {
+                    Criteria c = session.createCriteria(klass);
+                    c.add(Restrictions.eq(fieldName, value));
+                    return c.uniqueResult();
+                } catch (IncorrectResultSizeDataAccessException irsdae) {
+                    throwNonUnique("findByString");
+                } catch (NonUniqueResultException nure) {
+                    throwNonUnique("findByString");
+                }
+                // Never reached
+                return null;
 
             }
         });
@@ -344,20 +361,26 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                             + cce.getMessage()
                             + "\n"
                             + "Queries must return IObjects when using findByQuery. \n"
-                            + "Please try findAllByQuery for queries which return Lists.");
+                            + "Please try findAllByQuery for queries which return Lists. ");
+        } catch (IncorrectResultSizeDataAccessException irsdae) {
+            throwNonUnique(queryName);
         } catch (NonUniqueResultException nure) {
-            throw new ApiUsageException(
-                    "Query named:\n\t"
-                            + queryName
-                            + "\n"
-                            + "has returned more than one Object\n"
-                            + "findByQuery must return a single value.\n"
-                            + "Please try findAllByQuery for queries which return Lists.");
+            throwNonUnique(queryName);
         }
         return result;
-
     }
 
+    private void throwNonUnique(String queryName) {
+        throw new ApiUsageException(
+                "Query named:\n\n\t"
+                        + queryName
+                        + "\n\n"
+                        + "has returned more than one Object\n"
+                        + "findBy methods must return a single value.\n"
+                        + "Please try findAllBy methods for queries which return Lists.");
+
+    }
+    
     /**
      * @see ome.api.IQuery#findAllByQuery(java.lang.String,
      *      ome.parameters.Parameters)
