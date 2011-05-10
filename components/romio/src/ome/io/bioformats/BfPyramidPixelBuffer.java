@@ -330,7 +330,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
 
     private BfPixelBuffer delegate()
     {
-        if (writer != null)
+        if (isWrite())
         {
             try {
                 closeWriter();
@@ -343,6 +343,17 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
                 throw new RuntimeException(e1);
             }
         }
+        else if (delegate == null)
+        {
+            try {
+                initializeReader();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (FormatException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        log.warn("Delegate is: " + delegate);
         return delegate;
     }
 
