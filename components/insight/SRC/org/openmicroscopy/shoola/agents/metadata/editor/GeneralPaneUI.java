@@ -49,12 +49,14 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.TextualAnnotationData;
 import pojos.WellSampleData;
 
 /** 
@@ -536,14 +538,18 @@ class GeneralPaneUI
 	}
 	
 	/**
-	 * Removes a tag from the view.
+	 * Removes the annotation from the view.
 	 * 
-	 * @param tag The tag to remove.
+	 * @param annotation The annotation to remove.
 	 */
-	void removeTag(TagAnnotationData tag)
+	void removeObject(DataObject annotation)
 	{
-		if (tag == null) return;
-		annotationUI.removeTag(tag);
+		if (annotation == null) return;
+		if (annotation instanceof TagAnnotationData)
+			annotationUI.removeTag((TagAnnotationData) annotation);
+		else if (annotation instanceof TextualAnnotationData)
+			textualAnnotationsUI.removeTextualAnnotation(
+					(TextualAnnotationData) annotation);
 	}
 	
 	/**

@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -126,6 +125,15 @@ class TextualAnnotationsUI
 	/** The constraints used to lay out the components. */
 	private GridBagConstraints constraints;
 	
+	/** Flag indicating that the {@link #expand} value has been set.*/
+	private boolean set;
+
+	/** The collection of annotation to display.*/
+	private List annotationToDisplay;
+	
+	/** The collection of annotations to remove.*/
+	private List annotationToRemove;
+	
 	/**
 	 * Builds and lays out the component hosting all previous annotations.
 	 * 
@@ -136,7 +144,7 @@ class TextualAnnotationsUI
 		JPanel p = new JPanel();
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		List list = model.getTextualAnnotationsByDate();
+		List list = annotationToDisplay;
 		if (list != null) {
 			Iterator i = list.iterator();
 			TextualAnnotationData data;
@@ -145,6 +153,7 @@ class TextualAnnotationsUI
 			while (i.hasNext()) {
 				data = (TextualAnnotationData) i.next();
 				comp = new TextualAnnotationComponent(model, data);
+				comp.addPropertyChangeListener(controller);
 				if (index%2 == 0) 
 					comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_EVEN);
 				else comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_ODD);
@@ -166,13 +175,14 @@ class TextualAnnotationsUI
 		JPanel p = new JPanel();
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		List list = model.getTextualAnnotationsByDate();
+		List list = annotationToDisplay;
 		if (list == null || list.size() == 0) return p;
 		
 		//at least one.
 		TextualAnnotationData data = (TextualAnnotationData) list.get(0);
 		TextualAnnotationComponent 
 			comp = new TextualAnnotationComponent(model, data);
+		comp.addPropertyChangeListener(controller);
 		comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_EVEN);
 		p.add(comp);
 		
@@ -189,27 +199,16 @@ class TextualAnnotationsUI
 		}
 		data = (TextualAnnotationData) list.get(n-1);
 		comp = new TextualAnnotationComponent(model, data);
+		comp.addPropertyChangeListener(controller);
 		comp.setAreaColor(c);
 		p.add(comp);
 		return p;
-	}
-	
-	/**
-	 * Returns <code>true</code> if the data object has been 
-	 * previously annotated, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	private boolean hasPreviousTextualAnnotations()
-	{
-		List l = model.getTextualAnnotationsByDate();
-		if (l == null || l.size() == 0) return false;
-		return true;
 	}
 
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		set = false;
 		JButton moreButton = new JButton("more");
 		moreButton.setBorder(null);
 		UIUtilities.unifiedButtonLookAndFeel(moreButton);
@@ -301,7 +300,7 @@ class TextualAnnotationsUI
 	/** Hides the previous comments. */
 	private void hidePreviousComments()
 	{
-		List l = model.getTextualAnnotationsByDate();
+		List l = annotationToDisplay;
 		if (partial) {
 			if (l != null && l.size() > 2) {
 				remove(hideComponent);
@@ -326,7 +325,7 @@ class TextualAnnotationsUI
 	/** Lays out the node. */
 	private void layoutPreviousComments()
 	{
-		List l = model.getTextualAnnotationsByDate();
+		List l = annotationToDisplay;
 		int n = 3;
 		if (!partial) n = 1;
 		if (l != null && l.size() >= n) {
@@ -338,6 +337,45 @@ class TextualAnnotationsUI
 		previousComments.getViewport().add(displayAllPreviousComments());
 		revalidate();
 		repaint();
+	}
+	
+	/**
+	 * Displays the annotations.
+	 * 
+	 * @param list The annotations to display.
+	 */
+	private void displayAnnotations(List list)
+	{
+		annotationToDisplay = list;
+		boolean hasPrevious = true;
+		if (list == null || list.size() == 0) hasPrevious = false;
+		if (!hasPrevious) {
+			originalText = DEFAULT_TEXT_COMMENT;
+			setAreaText(DEFAULT_TEXT_COMMENT, true);
+		}
+		
+		commentArea.setEnabled(model.isWritable());
+		if (hasPrevious) {
+			TextualAnnotationData data = (TextualAnnotationData) list.get(0);
+			String text = data.getText();
+			if (!set) expanded = text.length() < MAX_LENGTH_TEXT;
+			//layout.setRow(3, TableLayout.PREFERRED);
+			constraints.gridy = 3;
+			add(previousComments, constraints);
+			if (expanded) {
+				partial = true;
+				previousComments.getViewport().add(
+						displayPartialPreviousComments());
+				if (list.size() > 2) {
+					constraints.gridy = 2;
+					add(moreComponent, constraints);
+				}
+			} else {
+				partial = false;
+				constraints.gridy = 2;
+				add(moreComponent, constraints);
+			}
+		}
 	}
 	
 	/**
@@ -358,6 +396,39 @@ class TextualAnnotationsUI
 	}
 	
 	/**
+	 * Removes the textual annotation from the view.
+	 * 
+	 * @param annotation The annotation to remove.
+	 */
+	void removeTextualAnnotation(TextualAnnotationData annotation)
+	{
+		if (annotationToRemove == null) annotationToRemove = new ArrayList();
+		annotationToRemove.clear();
+		annotationToRemove.add(annotation);
+		previousComments.getViewport().removeAll();
+		List l = model.getTextualAnnotationsByDate();
+		List toKeep = new ArrayList();
+		if (l != null) {
+			Iterator i = l.iterator();
+			Object o;
+			TextualAnnotationData data;
+			while (i.hasNext()) {
+				o = i.next();
+				if (o instanceof TextualAnnotationData) {
+					data = (TextualAnnotationData) o;
+					if (data.getId() != annotation.getId())
+						toKeep.add(data);
+				}
+			}
+		}
+		displayAnnotations(toKeep);
+		revalidate();
+		repaint();
+		firePropertyChange(EditorControl.SAVE_PROPERTY, 
+				Boolean.valueOf(false), Boolean.valueOf(true));
+	}
+	
+	/**
 	 * Overridden to lay out the annotations.
 	 * @see AnnotationUI#buildUI()
 	 */
@@ -367,35 +438,7 @@ class TextualAnnotationsUI
 			buildGUI();
 			init = true;
 		//}
-		
-		if (!hasPreviousTextualAnnotations()) {
-			originalText = DEFAULT_TEXT_COMMENT;
-			setAreaText(DEFAULT_TEXT_COMMENT, true);
-		}
-		
-		commentArea.setEnabled(model.isWritable());
-		if (hasPreviousTextualAnnotations()) {
-			List list = model.getTextualAnnotationsByDate();
-			TextualAnnotationData data = (TextualAnnotationData) list.get(0);
-			String text = data.getText();
-			expanded = text.length() < MAX_LENGTH_TEXT;
-			//layout.setRow(3, TableLayout.PREFERRED);
-			constraints.gridy = 3;
-			add(previousComments, constraints);
-			if (expanded) {
-				partial = true;
-				previousComments.getViewport().add(
-						displayPartialPreviousComments());
-				if (list.size() > 2) {
-					constraints.gridy = 2;
-					add(moreComponent, constraints);
-				}
-			} else {
-				partial = false;
-				constraints.gridy = 2;
-				add(moreComponent, constraints);
-			}
-		}
+		displayAnnotations(model.getTextualAnnotationsByDate());
 		revalidate();
 		repaint();
 	}
@@ -413,6 +456,7 @@ class TextualAnnotationsUI
 	protected List<AnnotationData> getAnnotationToRemove()
 	{
 		List<AnnotationData> l = new ArrayList<AnnotationData>();
+		/*
 		if (originalText != null && originalText.length() > 0) {
 			String text = commentArea.getText();
 			if (text != null) {
@@ -422,7 +466,9 @@ class TextualAnnotationsUI
 					if (data != null) l.add(data);
 				}
 			}
-		}
+		}*/
+		if (annotationToRemove != null)
+			l.addAll(annotationToRemove);
 		return l;
 	}
 
@@ -465,6 +511,7 @@ class TextualAnnotationsUI
 	 */
 	protected void clearDisplay() 
 	{ 
+		annotationToDisplay = null;
 		if (previousComments != null)
 			previousComments.getViewport().removeAll();
 		originalText = DEFAULT_TEXT_COMMENT;
@@ -498,10 +545,12 @@ class TextualAnnotationsUI
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case MORE:
+				set = true;
 				expanded = true;
 				layoutPreviousComments();
 				break;
 			case HIDE:
+				set = true;
 				expanded = false;
 				hidePreviousComments();
 		}

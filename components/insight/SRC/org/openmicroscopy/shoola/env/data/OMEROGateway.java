@@ -2056,7 +2056,8 @@ class OMEROGateway
 			return REF_PLATE_ACQUISITION;
 		else if (TagAnnotationData.class.getName().equals(data) || 
 				TermAnnotationData.class.getName().equals(data) ||
-				FileAnnotationData.class.getName().equals(data)) 
+				FileAnnotationData.class.getName().equals(data) ||
+				TextualAnnotationData.class.getName().equals(data)) 
 			return REF_ANNOTATION;
 		throw new IllegalArgumentException("Cannot delete the speficied type.");
 	}

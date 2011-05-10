@@ -66,6 +66,7 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.TextualAnnotationData;
 import pojos.WellSampleData;
 
 /** 
@@ -531,18 +532,21 @@ class EditorUI
 		generalPane.attachFiles(files);
 		saveData(true);
 	}
-
+	
 	/**
-	 * Removes a tag from the view.
+	 * Removes the object.
 	 * 
-	 * @param tag The tag to remove.
+	 * @param data The data to remove.
 	 */
-	void removeTag(TagAnnotationData tag)
+	void removeObject(DataObject data)
 	{
-		if (tag == null) return;
-		generalPane.removeTag(tag);
-		if (tag.getId() >= 0)
-			saveData(true);
+		if (data == null) return;
+		if (data instanceof TagAnnotationData || 
+			data instanceof TextualAnnotationData) {
+			generalPane.removeObject(data);
+			if (data.getId() >= 0)
+				saveData(true);
+		}
 	}
 	
 	/** Removes the tags. */

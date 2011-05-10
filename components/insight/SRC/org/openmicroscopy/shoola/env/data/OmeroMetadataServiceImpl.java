@@ -998,10 +998,17 @@ class OmeroMetadataServiceImpl
 			}
 			if (toRemove != null) {
 				i = toRemove.iterator();
+				List<IObject> toDelete = new ArrayList<IObject>();
 				while (i.hasNext()) {
 					ann = (AnnotationData) i.next();
-					if (ann != null) removeAnnotation(ann, object);
+					if (ann != null) {
+						removeAnnotation(ann, object);
+						if (ann instanceof TextualAnnotationData)
+							toDelete.add(ann.asIObject());
+					}
 				}
+				if (toDelete.size() > 0)
+					gateway.deleteObjects(toDelete);
 			}
 		}
 		return data;
