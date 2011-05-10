@@ -577,7 +577,7 @@ class BaseControl:
         to return all properties.
         """
         import Ice
-        if getattr(self, "_props", None):
+        if getattr(self, "_props", None) is None:
             self._props = Ice.createProperties()
             for cfg in self._cfglist():
                 try:
