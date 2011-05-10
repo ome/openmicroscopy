@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.EllipseData;
 import pojos.ImageData;
+import pojos.LineData;
 import pojos.MaskData;
 import pojos.PointData;
 import pojos.PolygonData;
@@ -371,17 +372,33 @@ class OutputServerStrategy
 	 * @return See above.
 	 * @throws ParsingException If an error occurred while parsing.
 	 */
-	private PolylineData createLineFigure(ROIShape shape) 
+	private ShapeData createLineFigure(ROIShape shape) 
 				throws ParsingException
 	{
-		MeasureLineFigure fig = (MeasureLineFigure)shape.getFigure();
+		MeasureLineFigure fig = (MeasureLineFigure) shape.getFigure();
+		BezierPath bezier = fig.getBezierPath();
 		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
+		int n = bezier.size();
+		if (n == 2) { //it is a line.
+			BezierPath.Node start = bezier.get(0);
+			BezierPath.Node end = bezier.get(1);
+			LineData line = new LineData(start.x[0], start.y[0], 
+					end.x[0], end.y[0]);
+			line.setVisible(fig.isVisible());
+			if (t != null) line.setTransform(toTransform(t));
+			String text = fig.getText();
+			if (text != null && text.trim().length() > 0 && 
+					!text.equals(ROIFigure.DEFAULT_TEXT))
+				line.setText(fig.getText());
+			return line;
+		}
+		
 		List<Point2D.Double> points = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points1 = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points2 = new LinkedList<Point2D.Double>();
 		List<Integer> maskList =  new LinkedList<Integer>();
 		
-		BezierPath bezier = fig.getBezierPath();
+		
 		for (BezierPath.Node node : bezier)
 		{
 			points.add(new Point2D.Double(node.x[0], node.y[0]));

@@ -169,7 +169,7 @@ public class LineData
 		Line shape = (Line) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setX1(rtypes.rdouble(x2));
+		shape.setX2(rtypes.rdouble(x2));
 	}
 	
 	/**
