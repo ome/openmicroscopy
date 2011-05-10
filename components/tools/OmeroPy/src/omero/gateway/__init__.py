@@ -4396,6 +4396,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
         sizeY = self.sizeY
         pixelType = self.getPixelsType().value
         numpyType = pixelTypes[pixelType][1]
+        exc = None
         try:
             for zctTile in zctTileList:
                 z,c,t,tile = zctTile
@@ -4413,9 +4414,17 @@ class _PixelsWrapper (BlitzObjectWrapper):
                 remappedPlane = numpy.array(convertedPlane, numpyType)
                 remappedPlane.resize(planeY, planeX)
                 yield remappedPlane
-        except:
-            pass
-        rawPixelsStore.close()
+        except exceptions.Exception, e:
+            logger.error(e)
+            exc = e
+        try:
+            rawPixelsStore.close()
+        except exceptions.Exception, e:
+            logger.error(e)
+            if exc is None:
+                 exc = e
+        if exc is not None:
+           raise exc
 
     def getTile (self, theZ=0, theC=0, theT=0, tile=None):
         """
