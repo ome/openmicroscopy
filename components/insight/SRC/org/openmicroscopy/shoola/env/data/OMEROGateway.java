@@ -151,6 +151,7 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Instrument;
+import omero.model.Line;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.Namespace;
@@ -164,6 +165,7 @@ import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
 import omero.model.PlateI;
+import omero.model.Polyline;
 import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.RenderingDef;
@@ -6471,6 +6473,16 @@ class OMEROGateway
 						s = (Shape) entry.getValue();
 						if (s != null)
 							updateService.deleteObject(s);
+					} else {
+						s = (Shape) entry.getValue();
+						if (s instanceof Line || s instanceof Polyline) {
+							shape = clientCoordMap.get(coord);
+							if ((s instanceof Line && 
+									shape.asIObject() instanceof Polyline) ||
+								(s instanceof Polyline && 
+									shape.asIObject() instanceof Line))
+								updateService.deleteObject(s);
+						}
 					}
 				}
 				

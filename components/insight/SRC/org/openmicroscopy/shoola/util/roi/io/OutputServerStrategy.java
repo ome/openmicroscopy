@@ -397,8 +397,6 @@ class OutputServerStrategy
 		List<Point2D.Double> points1 = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points2 = new LinkedList<Point2D.Double>();
 		List<Integer> maskList =  new LinkedList<Integer>();
-		
-		
 		for (BezierPath.Node node : bezier)
 		{
 			points.add(new Point2D.Double(node.x[0], node.y[0]));
