@@ -145,14 +145,21 @@ $.fn.roi_display = function(options) {
                                     var txt = paper.text(textx, texty, shape['textValue']);
                                 }
                                 var txtAttr = {'fill': '#ffffff'};
-                                if (shape['fontFamily']) {  // Courier, Helvetical, 
+                                if (shape['fontFamily']) {  // model: serif, sans-serif, cursive, fantasy, monospace. #5072
+                                    // raphael supports all these exactly - so we can pass directly.
                                     txtAttr['font-family'] = shape['fontFamily'];
                                 }
                                 if (shape['fontSize']) {
                                     txtAttr['font-size'] = shape['fontSize'];
                                 }
-                                if (shape['fontStyle']) { // only 'Bold' is recognised 
-                                    txtAttr['font-weight'] = shape['fontStyle'];
+                                if (shape['fontStyle']) { // model: normal, italic, bold, bolditalic
+                                    var fs = shape['fontStyle'];
+                                    if ((fs == 'bold') || (fs == 'bolditalic')) {
+                                        txtAttr['font-weight'] = 'bold';
+                                    }
+                                    if ((fs == 'italic') || (fs == 'bolditalic')) {
+                                        txtAttr['font-style'] = 'italic';
+                                    }
                                 }
                                 txt.attr(txtAttr);
                             }
