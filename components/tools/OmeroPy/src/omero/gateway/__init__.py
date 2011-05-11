@@ -2390,6 +2390,162 @@ class _BlitzGateway (object):
             yield AnnotationLinkWrapper(self, r)
 
 
+    def createImageFromNumpySeq (self, zctPlanes, imageName, sizeZ=1, sizeC=1, sizeT=1, description=None, dataset=None):
+        """
+        Creates a new multi-dimensional image from the sequence of 2D numpy arrays in zctPlanes.
+        zctPlanes should be a generator of numpy 2D arrays of shape (sizeY, sizeX) ordered
+        to iterate through T first, then C then Z.
+        Example usage:
+
+
+        @param session          An OMERO service factory or equivalent with getQueryService() etc.
+        @param zctPlanes        A generator of numpy 2D arrays, corresponding to Z-planes of new image.
+        @param imageName        Name of new image
+        @param description      Description for the new image
+        @param dataset          If specified, put the image in this dataset. omero.model.Dataset object
+
+        @return The new OMERO image: omero.model.ImageI
+        """
+        queryService = self.getQueryService()
+        pixelsService = self.getPixelsService()
+        rawPixelsStore = self.c.sf.createRawPixelsStore()    # Make sure we don't get an existing rpStore
+        #renderingEngine = self.createRenderingEngine()
+        containerService = self.getContainerService()
+        updateService = self.getUpdateService()
+
+        def createImage(firstPlane):
+            """ Create our new Image once we have the first plane in hand """
+            pType = firstPlane.dtype.name
+            pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+            sizeY, sizeX = firstPlane.shape
+            channelList = range(1, sizeC+1)
+            iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
+            imageId = iId.getValue()
+            return containerService.getImages("Image", [imageId], None)[0]
+
+        def uploadPlane(plane, z, c, t):
+            byteSwappedPlane = plane.byteswap();
+            convertedPlane = byteSwappedPlane.tostring();
+            rawPixelsStore.setPlane(convertedPlane, z, c, t)
+
+        image = None
+        channelsMinMax = []
+        exc = None
+        try:
+            for theZ in range(sizeZ):
+                for theC in range(sizeC):
+                    for theT in range(sizeT):
+                        plane = zctPlanes.next()
+                        if image == None:   # use the first plane to create image.
+                            image = createImage(plane)
+                            pixelsId = image.getPrimaryPixels().getId().getValue()
+                            rawPixelsStore.setPixelsId(pixelsId, True)
+                        uploadPlane(plane, theZ, theC, theT)
+                        # init or update min and max for this channel
+                        minValue = plane.min()
+                        maxValue = plane.max()
+                        if len(channelsMinMax) < (theC +1):     # first plane of each channel
+                            channelsMinMax.append( [minValue, maxValue] )
+                        else:
+                            channelsMinMax[theC][0] = min(channelsMinMax[theC][0], minValue)
+                            channelsMinMax[theC][1] = max(channelsMinMax[theC][1], maxValue)
+        except Exception, e:
+            logger.error("Failed to setPlane() on rawPixelsStore while creating Image", exc_info=True)
+            exc = e
+        try:
+            rawPixelsStore.close()
+        except Exception, e:
+            logger.error("Failed to close rawPixelsStore", exc_info=True)
+            if exc is None:
+                 exc = e
+        if exc is not None:
+           raise exc
+
+        try:    # simply completing the generator - to avoid a GeneratorExit error.
+            zctPlanes.next()
+        except StopIteration:
+            pass
+
+        for theC, mm in enumerate(channelsMinMax):
+            pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(mm[0]), float(mm[1]))
+            #resetRenderingSettings(renderingEngine, pixelsId, theC, mm[0], mm[1])
+
+        # put the image in dataset, if specified.
+        if dataset:
+            link = omero.model.DatasetImageLinkI()
+            link.parent = omero.model.DatasetI(dataset.getId(), False)
+            link.child = omero.model.ImageI(image.id.val, False)
+            updateService.saveObject(link)
+
+        return ImageWrapper(self, image)
+
+
+    def createFileAnnfromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None, desc=None):
+        """
+        Class method to create a L{FileAnnotationWrapper} from a local file.
+        File is uploaded to create an omero.model.OriginalFileI referenced from this File Annotation.
+        Returns a new L{FileAnnotationWrapper}
+
+        @param conn:                    Blitz connection
+        @param localPath:               Location to find the local file to upload
+        @param origFilePathAndName:     Provides the 'path' and 'name' of the OriginalFile. If None, use localPath
+        @param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
+        @return:                        New L{FileAnnotationWrapper}
+        """
+        updateService = self.getUpdateService()
+        rawFileStore = self.createRawFileStore()
+
+        # create original file, set name, path, mimetype
+        if origFilePathAndName is None:
+            origFilePathAndName = localPath
+        originalFile = omero.model.OriginalFileI()
+        path, name = os.path.split(origFilePathAndName)
+        originalFile.setName(rstring(name))
+        originalFile.setPath(rstring(path))
+        if mimetype:
+            originalFile.mimetype = rstring(mimetype)
+        fileSize = os.path.getsize(localPath)
+        originalFile.setSize(rlong(fileSize))
+        # set sha1
+        try:
+            import hashlib
+            hash_sha1 = hashlib.sha1
+        except:
+            import sha
+            hash_sha1 = sha.new
+        fileHandle = open(localPath)
+        h = hash_sha1()
+        h.update(fileHandle.read())
+        shaHast = h.hexdigest()
+        fileHandle.close()
+        originalFile.setSha1(rstring(shaHast))
+        originalFile = updateService.saveAndReturnObject(originalFile)
+
+        # upload file
+        rawFileStore.setFileId(originalFile.getId().getValue())
+        fileHandle = open(localPath, 'rb')
+        buf = 10000
+        for pos in range(0,long(fileSize),buf):
+            block = None
+            if fileSize-pos < buf:
+                blockSize = fileSize-pos
+            else:
+                blockSize = buf
+            fileHandle.seek(pos)
+            block = fileHandle.read(blockSize)
+            rawFileStore.write(block, pos, blockSize)
+        fileHandle.close()
+
+        # create FileAnnotation, set ns & description and return wrapped obj
+        fa = omero.model.FileAnnotationI()
+        fa.setFile(originalFile)
+        if desc:
+            fa.setDescription(rstring(desc))
+        if ns:
+            fa.setNs(rstring(ns))
+        fa = updateService.saveAndReturnObject(fa)
+        return FileAnnotationWrapper(self, fa)
+
     def getObjectsByAnnotations(self, obj_type, annids):
         """
         Retrieve objects linked to the given annotation IDs
@@ -3200,73 +3356,6 @@ class FileAnnotationWrapper (AnnotationWrapper):
                     data = store.read(pos, buf)
                 yield data
         store.close()
-    
-    @classmethod
-    def fromLocalFile (klass, conn, localPath, origFilePathAndName=None, mimetype=None, ns=None, desc=None):
-        """
-        Class method to create a L{FileAnnotationWrapper} from a local file. 
-        File is uploaded to create an omero.model.OriginalFileI referenced from this File Annotation.
-        Returns a new L{FileAnnotationWrapper}
-
-        @param conn:                    Blitz connection
-        @param localPath:               Location to find the local file to upload
-        @param origFilePathAndName:     Provides the 'path' and 'name' of the OriginalFile. If None, use localPath
-        @param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
-        @return:                        New L{FileAnnotationWrapper}
-        """
-        updateService = conn.getUpdateService()
-        rawFileStore = conn.createRawFileStore()
-
-        # create original file, set name, path, mimetype
-        if origFilePathAndName is None:
-            origFilePathAndName = localPath
-        originalFile = omero.model.OriginalFileI()
-        path, name = os.path.split(origFilePathAndName)
-        originalFile.setName(rstring(name))
-        originalFile.setPath(rstring(path))
-        if mimetype:
-            originalFile.mimetype = rstring(mimetype)
-        fileSize = os.path.getsize(localPath)
-        originalFile.setSize(rlong(fileSize))
-        # set sha1
-        try:
-            import hashlib
-            hash_sha1 = hashlib.sha1
-        except:
-            import sha
-            hash_sha1 = sha.new
-        fileHandle = open(localPath)
-        h = hash_sha1()
-        h.update(fileHandle.read())
-        shaHast = h.hexdigest()
-        fileHandle.close()
-        originalFile.setSha1(rstring(shaHast))
-        originalFile = updateService.saveAndReturnObject(originalFile)
-
-        # upload file
-        rawFileStore.setFileId(originalFile.getId().getValue())
-        fileHandle = open(localPath, 'rb')
-        buf = 10000
-        for pos in range(0,long(fileSize),buf):
-            block = None
-            if fileSize-pos < buf:
-                blockSize = fileSize-pos
-            else:
-                blockSize = buf
-            fileHandle.seek(pos)
-            block = fileHandle.read(blockSize)
-            rawFileStore.write(block, pos, blockSize)
-        fileHandle.close()
-
-        # create FileAnnotation, set ns & description and return wrapped obj
-        fa = omero.model.FileAnnotationI()
-        fa.setFile(originalFile)
-        if desc:
-            fa.setDescription(rstring(desc))
-        if ns:
-            fa.setNs(rstring(ns))
-        fa = updateService.saveAndReturnObject(fa)
-        return klass(conn, fa)
 
 
 #    def shortTag(self):
