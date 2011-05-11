@@ -35,9 +35,10 @@ the regions within the ROIs, and saves them back to the server.
 
 import omero
 import omero.scripts as scripts
-import omero_api_IRoi_ice
+#import omero_api_IRoi_ice
+from omero.gateway import BlitzGateway
 from omero.rtypes import *
-import omero.util.script_utils as scriptUtil
+import omero.util.script_utils as script_utils
 
 import os
 import numpy
@@ -52,48 +53,158 @@ def printDuration(output=True):
     if output:
         print "Script timer = %s secs" % (time.time() - startTime)
 
-def getRectangles(session, imageId):
-    """ Returns a list of (x, y, width, height) of each rectange ROI in the image """
+def getRectangles(conn, imageId):
+    """ Returns a list of (x, y, width, height, zStart, zStop, tStart, tStop) of each rectange ROI in the image """
     
-    rectangles = []
-    shapes = []        # string set. 
+    rois = []
     
-    roiService = session.getRoiService()
+    roiService = conn.getRoiService()
     result = roiService.findByImage(imageId, None)
     
-    rectCount = 0
     for roi in result.rois:
+        zStart = None
+        zEnd = 0
+        tStart = None
+        tEnd = 0
+        x = None
         for shape in roi.copyShapes():
             if type(shape) == omero.model.RectI:
-                x = shape.getX().getValue()
-                y = shape.getY().getValue()
-                width = shape.getWidth().getValue()
-                height = shape.getHeight().getValue()
-                rectangles.append((int(x), int(y), int(width), int(height)))
-                continue
-    return rectangles
+                # check t range and z range for every rectangle
+                t = shape.getTheT().getValue()
+                z = shape.getTheZ().getValue()
+                if tStart is None:  tStart = t
+                if zStart is None:  zStart = z
+                tStart = min(t, tStart)
+                tEnd = max(t, tEnd)
+                zStart = min(z, zStart)
+                zEnd = max(z, zEnd)
+                if x is None:   # get x, y, width, height for first rect only
+                    x = int(shape.getX().getValue())
+                    y = int(shape.getY().getValue())
+                    width = int(shape.getWidth().getValue())
+                    height = int(shape.getHeight().getValue())
+        # if we have found any rectangles at all...
+        if zStart is not None:
+            rois.append((x, y, width, height, zStart, zEnd, tStart, tEnd))
 
+    return rois
 
-def getImagePlane(queryService, rawPixelStore, imageId):
-    """    Gets the first plane from the specified image and returns it as a numpy array. """
+def processImage(conn, imageId, parameterMap, dataset=None):
+    """
+    Process an image.
+    If imageStack is True, we make a Z-stack using one tile from each ROI (c=0)
+    Otherwise, we create a 5D image representing the ROI "cropping" the original image
+    Image is put in a dataset if specified.
+    """
 
-    # get pixels with pixelsType
-    query_string = "select p from Pixels p join fetch p.image i join fetch p.pixelsType pt where i.id='%d'" % imageId
-    pixels = queryService.findByQuery(query_string, None)
-    theX = pixels.getSizeX().getValue()
-    theY = pixels.getSizeY().getValue()
+    imageStack = parameterMap['Make_Image_Stack']
+    containerName = parameterMap['Container_Name']
 
-    # get the plane
-    theZ, theC, theT = (0,0,0)
-    pixelsId = pixels.getId().getValue()
-    bypassOriginalFile = True
-    rawPixelStore.setPixelsId(pixelsId, bypassOriginalFile)
-    plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, theZ, theC, theT)
-    
-    return plane2D
-    
+    image = conn.getObject("Image", imageId)
+    if image is None:
+        return
 
-def makeImagesFromRois(session, parameterMap):
+    parentDataset = image.getParent()
+    parentProject = parentDataset.getParent()
+
+    imageName = image.getName()
+    updateService = conn.getUpdateService()
+
+    pixels = image.getPrimaryPixels()
+    # note pixel sizes (if available) to set for the new images
+    physicalSizeX = pixels.getPhysicalSizeX()
+    physicalSizeY = pixels.getPhysicalSizeY()
+
+    rois = getRectangles(conn, imageId)     # x, y, w, h, zStart, zEnd, tStart, tEnd
+    print "rois"
+    print rois
+
+    # if making a single stack image...
+    if imageStack:
+        print "\nMaking Image stack from ROIs of Image:", imageId
+        print "physicalSize X, Y:  %s, %s" % (physicalSizeX, physicalSizeY)
+        plane2Dlist = []
+        # use width and height from first roi to make sure that all are the same.
+        x,y,width,height, z1, z2, t1, t2 = rois[0]
+
+        def tileGen():
+            # list a tile from each ROI and create a generator of 2D planes
+            zctTileList = []
+            c = 0   # assume single channel image - Electron Microscopy use case
+            for r in rois:
+                x,y,w,h, z1,z2,t1,t2 = r
+                tile = (x, y, width, height)
+                zctTileList.append((z1, c, t1, tile))
+            for t in pixels.getTiles(zctTileList):
+                yield t
+
+        newImageName = "%s_%s" % (os.path.basename(imageName), containerName)
+
+        description = "Image from ROIS on parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
+        print description
+        #image = scriptUtil.createNewImage(session, plane2Dlist, newImageName, description, dataset)
+        serviceFactory = conn.c.sf  # make sure that script_utils creates a NEW rawPixelsStore
+        image = script_utils.imageFromNumpySeq(serviceFactory, tileGen(), newImageName,
+            sizeZ=len(rois), sizeC=1, sizeT=1, description=description, dataset=dataset)
+
+        return image
+
+    # ...otherwise, we're going to make a new 5D image per ROI
+    else:
+        iIds = []
+        for r in rois:
+            x,y,w,h, z1,z2,t1,t2 = r
+            print "  ROI x: %s y: %s w: %s h: %s z1: %s z2: %s t1: %s t2: %s" % (x, y, w, h,z1,z2,t1,t2)
+
+            # need a tile generator to get all the planes within the ROI
+            sizeZ = z2-z1 + 1
+            sizeT = t2-t1 + 1
+            sizeC = image.getSizeC()
+            zctTileList = []
+            tile = (x, y, w, h)
+            print "zctTileList..."
+            for z in range(z1, z2+1):
+                for c in range(sizeC):
+                    for t in range(t1, t2+1):
+                        zctTileList.append((z, c, t, tile))
+            def tileGen():
+                for i, t in enumerate(pixels.getTiles(zctTileList)):
+                    yield t
+
+            print "sizeZ, sizeC, sizeT", sizeZ, sizeC, sizeT
+            description = "Created from image:\n  Name: %s\n  Image ID: %d \n x: %d y: %d" % (imageName, imageId, x, y)
+            serviceFactory = conn.c.sf  # make sure that script_utils creates a NEW rawPixelsStore
+            newI = script_utils.imageFromNumpySeq(serviceFactory, tileGen(), imageName,
+                sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, description=description)
+            #pixels = image.getPrimaryPixels()
+            #pixels.setPhysicalSizeX(rdouble(physicalSizeX))
+            #pixels.setPhysicalSizeY(rdouble(physicalSizeY))
+            #updateService.saveObject(pixels)
+            iIds.append(newI.getId())
+
+        if len(iIds) > 0:
+            # create a new dataset for new images
+            datasetName = containerName
+            print "\nMaking Dataset '%s' of Images from ROIs of Image: %s" % (datasetName, imageId)
+            print "physicalSize X, Y:  %s, %s" % (physicalSizeX, physicalSizeY)
+            dataset = omero.model.DatasetI()
+            dataset.name = rstring(datasetName)
+            desc = "Images in this Dataset are from ROIs of parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
+            dataset.description = rstring(desc)
+            dataset = updateService.saveAndReturnObject(dataset)
+            for iid in iIds:
+                link = omero.model.DatasetImageLinkI()
+                link.parent = omero.model.DatasetI(dataset.id.val, False)
+                link.child = omero.model.ImageI(iid, False)
+                updateService.saveObject(link)
+            if parentProject:        # and put it in the current project
+                link = omero.model.ProjectDatasetLinkI()
+                link.parent = omero.model.ProjectI(parentProject.getId(), False)
+                link.child = omero.model.DatasetI(dataset.id.val, False)
+                updateService.saveAndReturnObject(link)
+            return dataset
+
+def makeImagesFromRois(conn, parameterMap):
     """
     Processes the list of Image_IDs, either making a new image-stack or a new dataset from each image,
     with new image planes coming from the regions in Rectangular ROIs on the parent images. 
@@ -102,148 +213,29 @@ def makeImagesFromRois(session, parameterMap):
     imageIds = []
     dataType = parameterMap["Data_Type"]
     ids = parameterMap["IDs"]
+    imageStack = parameterMap['Make_Image_Stack']
     
-    containerService = session.getContainerService()
-    
-    # images to export
-    images = containerService.getImages(dataType, ids, None)
-    for image in images:
-        imageIds.append(image.getId().getValue())
-    
-    if len(imageIds) == 0:
-        return "No image-IDs in list."
-        
-    print "Processing Image IDs: ", imageIds
-    
-    queryService = session.getQueryService()
-    rawPixelStore = session.createRawPixelsStore()
-    updateService = session.getUpdateService()
-    
-    # get the project and dataset from the first image, to use as containers for new Images / Datasets
-    imageId = imageIds[0]
-    query_string = "select i from Image i join fetch i.datasetLinks idl join fetch idl.parent d join fetch d.projectLinks pl join fetch pl.parent where i.id in (%s)" % imageId
-    image = queryService.findByQuery(query_string, None)
-    project = None
-    dataset = None
-    if image:
-        print "Ancestors of first Image (used for new Images/Datsets):"
-        for link in image.iterateDatasetLinks():
-            dataset = link.parent
-            # dataset = queryService.get("Dataset", ds.id.val)
-            print "  Dataset: ", dataset.name.val
-            for dpLink in dataset.iterateProjectLinks():
-                project = dpLink.parent
-                print "  Project: ", project.name.val
-                break # only use 1st Project
-            break    # only use 1st
-    else:
-        print "No Project and Dataset found for Image ID: %s" % imageId
-    
-    containerName = 'From_ROIs'
-    if "Container_Name" in parameterMap:
-        containerName = parameterMap["Container_Name"]
-    
-    newDataset = None    # only created if not putting images in stack
-    imageStack = ("Make_Image_Stack" in parameterMap) and (parameterMap["Make_Image_Stack"])
     newIds = []
-    for imageId in imageIds:
-    
-        iList = containerService.getImages("Image", [imageId], None)
-        if len(iList) == 0:
-            print "Image ID: %s not found." % imageId
-            continue
-        image = iList[0]
-        imageName = image.getName().getValue()
-    
-        pixels = image.getPrimaryPixels()
-        # note pixel sizes (if available) to set for the new images
-        physicalSizeX = pixels.getPhysicalSizeX() and pixels.getPhysicalSizeX().getValue() or None
-        physicalSizeY = pixels.getPhysicalSizeY() and pixels.getPhysicalSizeY().getValue() or None
-        
-        # get plane of image
-        plane2D = getImagePlane(queryService, rawPixelStore, imageId)
-    
-        # get ROI Rectangles, as (x, y, width, height)
-        rects = getRectangles(session, imageId)
-        
-        # if making a single stack image...
-        if imageStack:
-            print "\nMaking Image stack from ROIs of Image:", imageId
-            print "physicalSize X, Y:  %s, %s" % (physicalSizeX, physicalSizeY)
-            plane2Dlist = []
-            # use width and height from first rectangle to make sure that all are the same. 
-            x,y,width,height = rects[0]    
-            for r in rects:
-                x,y,w,h = r
-                x2 = x+width
-                y2 = y+height
-                plane2Dlist.append(plane2D[y:y2, x:x2])
+    if dataType == 'Image':
+        for iId in ids:
+            new = processImage(conn, iId, parameterMap, dataset=None)
+            if new is not None:
+                newIds.append(new.getId())
             
-            newImageName = "%s_%s" % (os.path.basename(imageName), containerName)
-        
-            description = "Image from ROIS on parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
-            print description
-            image = scriptUtil.createNewImage(session, plane2Dlist, newImageName, description, dataset)
-        
-            pixels = image.getPrimaryPixels()
-            if physicalSizeX:
-                pixels.setPhysicalSizeX(rdouble(physicalSizeX))
-            if physicalSizeY:
-                pixels.setPhysicalSizeY(rdouble(physicalSizeY))
-            updateService.saveObject(pixels)
-            
-            newIds.append(image.getId().getValue())
-    
-        # ..else, make an image for each ROI (all in one dataset?)
-        else:
-            iIds = []
-            for r in rects:
-                x,y,w,h = r
-                print "  ROI x: %s y: %s w: %s h: %s" % (x, y, w, h)
-                x2 = x+w
-                y2 = y+h
-                array = plane2D[y:y2, x:x2]     # slice the ROI rectangle data out of the whole image-plane 2D array
-            
-                description = "Created from image:\n  Name: %s\n  Image ID: %d \n x: %d y: %d" % (imageName, imageId, x, y)
-                image = scriptUtil.createNewImage(session, [array], "from_roi", description)
-            
-                pixels = image.getPrimaryPixels()
-                pixels.setPhysicalSizeX(rdouble(physicalSizeX))
-                pixels.setPhysicalSizeY(rdouble(physicalSizeY))
-                updateService.saveObject(pixels)
-                
-                iIds.append(image.getId().getValue())
-                
-            if len(iIds) > 0:
-                # create a new dataset for new images
-                datasetName = containerName    # e.g. myImage.mrc_particles
-                print "\nMaking Dataset '%s' of Images from ROIs of Image: %s" % (datasetName, imageId)
-                print "physicalSize X, Y:  %s, %s" % (physicalSizeX, physicalSizeY)
-                dataset = omero.model.DatasetI()
-                dataset.name = rstring(datasetName)
-                desc = "Images in this Dataset are from ROIs of parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
-                dataset.description = rstring(desc)
-                dataset = updateService.saveAndReturnObject(dataset)
-                if project:        # and put it in the current project
-                    link = omero.model.ProjectDatasetLinkI()
-                    link.parent = omero.model.ProjectI(project.id.val, False)
-                    link.child = omero.model.DatasetI(dataset.id.val, False)
-                    updateService.saveAndReturnObject(link)
-                    
-                for iid in iIds:
-                    link = omero.model.DatasetImageLinkI()
-                    link.parent = omero.model.DatasetI(dataset.id.val, False)
-                    link.child = omero.model.ImageI(iid, False)
-                    session.getUpdateService().saveObject(link)
-                newIds.append(dataset.getId().getValue())
-                newDataset = dataset
+    else:
+        for dsId in ids:
+            ds = conn.getObject("Dataset", dsId)
+            for i in ds.listChildren():
+                new = processImage(conn, i.getId(), parameterMap, dataset=None)
+                if new is not None:
+                    newIds.append(new.getId())
 
     plural = (len(newIds) == 1) and "." or "s."
     if imageStack:
         message = "Created %s new Image%s Refresh Dataset to view" % (len(newIds), plural)
     else:
         message = "Created %s new Dataset%s Refresh Project to view" % (len(newIds), plural)
-    return (message, newDataset)
+    return message
 
 def runAsScript():
     """
@@ -263,10 +255,10 @@ assumes that all the ROIs on each Image are the same size.""",
     scripts.List("IDs", optional=False, grouping="2",
         description="List of Dataset IDs or Image IDs to process.").ofType(rlong(0)),
         
-    scripts.String("Container_Name", grouping="3",
+    scripts.String("Container_Name", optional=False, grouping="3",
         description="New Dataset name or Image name (if 'Make_Image_Stack')", default="From_ROIs"),
         
-    scripts.Bool("Make_Image_Stack", grouping="4",
+    scripts.Bool("Make_Image_Stack", grouping="4", default=False,
         description="If true, make a single Image (stack) from all the ROIs of each parent Image"),
         
     version = "4.2.0",
@@ -274,9 +266,8 @@ assumes that all the ROIs on each Image are the same size.""",
     institutions = ["University of Dundee"],
     contact = "ome-users@lists.openmicroscopy.org.uk",
     )
-    
+
     try:
-        session = client.getSession();
 
         # process the list of args above.
         parameterMap = {}
@@ -286,15 +277,16 @@ assumes that all the ROIs on each Image are the same size.""",
 
         print parameterMap
 
-        message, newDataset = makeImagesFromRois(session, parameterMap)
+        # create a wrapper so we can use the Blitz Gateway.
+        conn = BlitzGateway(client_obj=client)
+
+        message = makeImagesFromRois(conn, parameterMap)
 
         if message:
             client.setOutput("Message", rstring(message))
         else:
             client.setOutput("Message", rstring("Script Failed. See 'error' or 'info'"))
-            
-        if newDataset:
-            client.setOutput("Dataset", robject(newDataset))
+
     finally:
         client.closeSession()
         printDuration()
