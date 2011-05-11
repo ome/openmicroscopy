@@ -78,6 +78,9 @@ class ImageTableView
 	/** Reference to the model. */
 	private DataBrowserModel 	model;
 	
+	/** The magnification factor of thumbnail.*/
+	private double magnification;
+	
 	/** 
 	 * Initializes the components composing the display. 
 	 * 
@@ -175,5 +178,22 @@ class ImageTableView
 	{
 		table.markUnmodifiedNodes(type, ids);
 	}
+	
+	/**
+	 * Sets the magnification factor.
+	 * 
+	 * @param magnification The value to set.
+	 */
+	void setMagnification(double magnification)
+	{
+		this.magnification = magnification;
+	}
+	
+	/**
+	 * Returns the magnification factor.
+	 * 
+	 * @return See above.
+	 */
+	double getMagnification() { return magnification; }
 	
 }

@@ -80,6 +80,7 @@ import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
+import omero.ConcurrencyException;
 import omero.InternalException;
 import omero.RLong;
 import omero.RString;

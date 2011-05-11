@@ -202,7 +202,13 @@ class ImageTable
 					RENDERERS_GROUPS);
 		else 
 			om = new OMETreeTableModel(tableRoot, COLUMNS, RENDERERS);
-		setRowHeight(ImageTableNode.HEIGHT);
+		double f = view.getMagnification();
+		if (f <= ImageTableNode.MIN_FACTOR)
+			setRowHeight(ImageTableNode.MIN_HEIGHT);
+		else if (f > ImageTableNode.MEDIUM_FACTOR)
+			setRowHeight(ImageTableNode.MAX_HEIGHT);
+		else 
+			setRowHeight(ImageTableNode.MEDIUM_HEIGHT);
 		setTableModel(om);
 		TableColumnModel tcm = getColumnModel();
 		TableColumn tc = tcm.getColumn(THUMBNAIL_COL);

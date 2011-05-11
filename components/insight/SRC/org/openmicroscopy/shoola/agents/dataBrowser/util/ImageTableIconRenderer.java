@@ -51,9 +51,7 @@ public class ImageTableIconRenderer
 {
 	
 	
-	/**
-	 * Creates a new instance. Sets the opacity of the label to
-	 * <code>true</code>.
+	/** Creates a new instance. 
 	 */
 	public ImageTableIconRenderer()
 	{

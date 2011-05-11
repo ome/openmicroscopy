@@ -450,13 +450,25 @@ class DataBrowserUI
 	 */
 	void setMagnificationFactor(double factor)
 	{
+		MagnificationVisitor visitor;
+		Browser browser;
 		switch (selectedView) {
 			case THUMB_VIEW:
-				MagnificationVisitor visitor = new MagnificationVisitor(factor);
-				Browser browser = model.getBrowser();
+				visitor = new MagnificationVisitor(factor);
+				browser = model.getBrowser();
 				browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
 				browser.accept(browser.getSelectedLayout(), 
 								ImageDisplayVisitor.IMAGE_SET_ONLY);
+				break;
+			case COLUMNS_VIEW:
+				visitor = new MagnificationVisitor(factor);
+				browser = model.getBrowser();
+				browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
+				ImageTableView v = model.getTableView();
+				if (v != null) {
+					v.setMagnification(factor);
+					v.refreshTable();
+				}
 				break;
 			case FIELDS_VIEW:
 				if (fieldsView != null)

@@ -57,7 +57,20 @@ public class ImageTableNode
 {
 
 	/** The default height for the column.*/
-	static final int HEIGHT = 50;
+	static final int MIN_HEIGHT = Thumbnail.THUMB_MAX_HEIGHT/2+2;
+	
+	/** The medium height for the column.*/
+	static final int MEDIUM_HEIGHT = Thumbnail.THUMB_MAX_HEIGHT+2;
+	
+	/** The maximum height for the column.*/
+	static final int MAX_HEIGHT = (int) (Thumbnail.MAX_SCALING_FACTOR
+			*Thumbnail.THUMB_MAX_HEIGHT)+2;
+	
+	/** The default magnification factor.*/
+	static final double MIN_FACTOR = 0.5;
+	
+	/** The default magnification factor.*/
+	static final double MEDIUM_FACTOR = 1.0;
 	
 	/** The icon associated to the image. */
 	private Icon icon;
@@ -122,7 +135,7 @@ public class ImageTableNode
 			ImageNode n = (ImageNode) o;
 			Thumbnail thumb = n.getThumbnail();
 			if (thumb != null) {
-				icon = thumb.getIcon(0.5);
+				icon = thumb.getIcon(thumb.getScalingFactor());
 				return icon;
 			}
 			return null;

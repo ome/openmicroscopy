@@ -28,6 +28,8 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 
+import org.openmicroscopy.shoola.util.image.geom.Factory;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -47,6 +49,12 @@ import javax.swing.Icon;
  */
 public interface Thumbnail
 {
+
+    /** The maximum width of the thumbnail. */
+    public static final int		THUMB_MAX_WIDTH = Factory.THUMB_DEFAULT_WIDTH; 
+    
+    /** The maximum height of the thumbnail. */
+    public static final int     THUMB_MAX_HEIGHT = Factory.THUMB_DEFAULT_HEIGHT;
     
     /** The maximum magnification factor. */
     public static final double  MAX_SCALING_FACTOR = 2.5;//1;

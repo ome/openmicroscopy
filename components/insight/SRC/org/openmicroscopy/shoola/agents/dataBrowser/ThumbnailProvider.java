@@ -65,13 +65,7 @@ import pojos.PixelsData;
 public class ThumbnailProvider     
 	implements Thumbnail
 {
-    
-    /** The maximum width of the thumbnail. */
-    public static final int		THUMB_MAX_WIDTH = Factory.THUMB_DEFAULT_WIDTH; 
-    
-    /** The maximum height of the thumbnail. */
-    public static final int     THUMB_MAX_HEIGHT = Factory.THUMB_DEFAULT_HEIGHT;
-    
+
     /** 
      * The magnification factor used when the thumbnail of max size 
      * is magnified. 
