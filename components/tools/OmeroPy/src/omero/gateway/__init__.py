@@ -2396,7 +2396,21 @@ class _BlitzGateway (object):
         zctPlanes should be a generator of numpy 2D arrays of shape (sizeY, sizeX) ordered
         to iterate through T first, then C then Z.
         Example usage:
-
+        original = conn.getObject("Image", 1)
+        sizeZ = original.getSizeZ()
+        sizeC = original.getSizeC()
+        sizeT = original.getSizeT()
+        zctList = []
+        for z in range(sizeZ):
+            for c in range(sizeC):
+                for t in range(sizeT):
+                    zctList.append( (z,c,t) )
+        def planeGen():
+            planes = original.getPrimaryPixels().getPlanes(zctList)
+            for p in planes:
+                # perform some manipulation on each plane
+                yield p
+        createImageFromNumpySeq (planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT
 
         @param session          An OMERO service factory or equivalent with getQueryService() etc.
         @param zctPlanes        A generator of numpy 2D arrays, corresponding to Z-planes of new image.
