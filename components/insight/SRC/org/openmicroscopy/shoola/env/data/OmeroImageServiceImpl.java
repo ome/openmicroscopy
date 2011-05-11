@@ -354,7 +354,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#loadRenderingControl(long)
 	 */
 	public RenderingControl loadRenderingControl(long pixelsID)
-		throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 		RenderingControl proxy = 
 			PixelsServicesFactory.getRenderingControl(context, 
@@ -622,7 +622,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#getPlane(long, int, int, int)
 	 */
 	public byte[] getPlane(long pixelsID, int z, int t, int c)
-		throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 		if (pixelsID < 0) 
 			throw new IllegalArgumentException("Pixels' ID not valid.");
@@ -794,7 +794,7 @@ class OmeroImageServiceImpl
 	 */
 	public Boolean createRenderingSettings(long pixelsID, RndProxyDef rndToCopy,
 			List<Integer> indexes) 
-		throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 		if (rndToCopy == null) {
 			RenderingDef def = gateway.createRenderingDef(pixelsID);

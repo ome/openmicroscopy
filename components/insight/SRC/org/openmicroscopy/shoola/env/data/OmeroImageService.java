@@ -48,8 +48,6 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import org.openmicroscopy.shoola.env.rnd.data.Tile;
-
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -123,9 +121,11 @@ public interface OmeroImageService
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws FSAccessException       If an error occurred while trying to 
+	 *                                  retrieve data using OMERO.fs.
 	 */
 	public RenderingControl loadRenderingControl(long pixelsID)
-		throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException, FSAccessException;
 
 	/**
 	 * Renders the specified 2D-plane. 
@@ -231,9 +231,11 @@ public interface OmeroImageService
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws FSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data using OMERO.fs.
 	 */
 	public byte[] getPlane(long pixelsID, int z, int t, int c)
-		throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException, FSAccessException;
 
 	/**
 	 * Applies the rendering settings associated to the passed pixels set 
@@ -426,12 +428,14 @@ public interface OmeroImageService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws FSAccessException       If an error occurred while trying to 
+	 *                                  retrieve data using OMERO.fs.
 	 */
 	public Boolean createRenderingSettings(long pixelsID, RndProxyDef rndToCopy,
 			List<Integer> indexes)
-		throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException, FSAccessException;
 
 	/**
 	 * Loads the plane info objects related to the passed pixels set.
@@ -458,7 +462,7 @@ public interface OmeroImageService
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
 	 * @return See above.
-	 * @throws ImportException If an error occurred while importing.                            
+	 * @throws ImportException If an error occurred while importing.
 	 */
 	public Object importFile(ImportableObject object, ImportableFile importable,
 			long userID, long groupID)
@@ -701,7 +705,7 @@ public interface OmeroImageService
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
-	 *@throws FSAccessException        If an error occurred while trying to 
+	 * @throws FSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data using OMERO.fs.
 	 */
 	public Map<DataObject, BufferedImage> getFSThumbnailSet(

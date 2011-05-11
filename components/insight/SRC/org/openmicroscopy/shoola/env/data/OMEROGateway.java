@@ -67,7 +67,6 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import ome.conditions.ResourceError;
@@ -80,8 +79,8 @@ import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
-import omero.ConcurrencyException;
 import omero.InternalException;
+import omero.MissingPyramidException;
 import omero.RLong;
 import omero.RString;
 import omero.RType;
@@ -851,13 +850,13 @@ class OMEROGateway
 		Throwable cause = t.getCause();
 		if (cause instanceof SecurityViolation) {
 			String s = "For security reasons, cannot access data. \n"; 
-			throw new DSAccessException(s+message, t);
+			throw new DSAccessException(s+message, cause);
 		} else if (cause instanceof SessionException) {
 			String s = "Session is not valid. \n"; 
-			throw new DSOutOfServiceException(s+message, t);
+			throw new DSOutOfServiceException(s+message, cause);
 		} else if (cause instanceof AuthenticationException) {
 			String s = "Cannot initialize the session. \n"; 
-			throw new DSOutOfServiceException(s+message, t);
+			throw new DSOutOfServiceException(s+message, cause);
 		} else if (cause instanceof ResourceError) {
 			String s = "Fatal error. Please contact the administrator. \n"; 
 			throw new DSOutOfServiceException(s+message, t);
@@ -873,6 +872,38 @@ class OMEROGateway
 			return;
 		}
 		throw new DSAccessException("Cannot access data. \n"+message, t);
+	}
+	
+	/**
+	 * Helper method to handle exceptions thrown by the connection library.
+	 * Methods in this class are required to fill in a meaningful context
+	 * message.
+	 * This method is not supposed to be used in this class' constructor or in
+	 * the login/logout methods.
+	 *  
+	 * @param t     	The exception.
+	 * @param message	The context message.
+	 * @throws FSAccessException    A server-side error.
+	 */
+	private void handleFSException(Throwable t, String message) 
+		throws FSAccessException
+	{
+		Throwable cause = t.getCause();
+		if (cause instanceof MissingPyramidException) {
+			MissingPyramidException mpe = (MissingPyramidException) cause;
+			String s = "\n Image not ready. Please try again later, " +
+					"perhaps in "+mpe.backOff/1000+"secs";
+			FSAccessException fsa = new FSAccessException(message+s, cause);
+			fsa.setIndex(FSAccessException.PYRAMID);
+			throw fsa;
+		} else if (t instanceof MissingPyramidException) {
+			MissingPyramidException mpe = (MissingPyramidException) t;
+			String s = "\n Image not ready. Please try again later, " +
+			"perhaps in "+mpe.backOff/1000+"secs";
+			FSAccessException fsa = new FSAccessException(message+s, t);
+			fsa.setIndex(FSAccessException.PYRAMID);
+			throw fsa;
+		}
 	}
 	
 	/**
@@ -3087,10 +3118,12 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * retrieve data from OMERO service.
+	 * @throws FSAccessException If an error occurred when trying to build a 
+	 * pyramid or access file not available.
 	 */
 	synchronized RenderingEnginePrx createRenderingEngine(long pixelsID)
-		throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 		isSessionAlive();
 		try {
@@ -3101,7 +3134,9 @@ class OMEROGateway
 			service.load();
 			return service;
 		} catch (Throwable t) {
-			handleException(t, "Cannot start the Rendering Engine.");
+			String s = "Cannot start the Rendering Engine.";
+			handleFSException(t, s);
+			handleException(t, s);
 		}
 		return null;
 	}
@@ -4003,7 +4038,7 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	synchronized byte[] getPlane(long pixelsID, int z, int t, int c)
-		throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 		isSessionAlive();
 		RawPixelsStorePrx service = getPixelsStore();
@@ -4011,8 +4046,10 @@ class OMEROGateway
 			service.setPixelsId(pixelsID, false);
 			return service.getPlane(z, c, t);
 		} catch (Throwable e) {
-			handleException(e, "Cannot retrieve the plane " +
-					"(z="+z+", t="+t+", c="+c+") for pixelsID: "+pixelsID);
+			String s = "Cannot retrieve the plane " +
+			"(z="+z+", t="+t+", c="+c+") for pixelsID: "+pixelsID;
+			handleFSException(e, s);
+			handleException(e, s);
 		}
 		return null;
 	}

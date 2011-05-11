@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
+import omero.MissingPyramidException;
+
 //Java imports
 
 //Third-party libraries
@@ -46,6 +48,12 @@ public class FSAccessException
 	extends Exception
 {
 
+	/** Indicates that the pyramid is not ready.*/
+	public static final int PYRAMID = 1;
+	
+	/** One of the constants defined by this class.*/
+	private int index;
+	
 	/**
 	 * Constructs a new exception with the specified detail message.
 	 * 
@@ -54,6 +62,7 @@ public class FSAccessException
 	public FSAccessException(String message)
 	{
 		super(message);
+		index = 0;
 	}
 	
 	/**
@@ -67,4 +76,18 @@ public class FSAccessException
 		super(message, cause);
 	}
 	
+	/**
+	 * Sets the index, one of the constants defined by this class.
+	 * 
+	 * @param index The value to set.
+	 */
+	public void setIndex(int index) { this.index = index; }
+	
+	/**
+	 * Returns the index, one of the constants defined by this class.
+	 * 
+	 * @return See above.
+	 */
+	public int getIndex() { return index; }
+
 }
