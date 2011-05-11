@@ -25,7 +25,9 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -34,6 +36,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
+import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.TableColumn;
@@ -45,13 +49,17 @@ import org.jdesktop.swingx.JXTreeTable;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.ImageTableIconRenderer;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.ImageTableRenderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
+import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.NumberCellRenderer;
 import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * Tree table displaying the hierarchy.
@@ -148,6 +156,34 @@ class ImageTable
 	/** The default height of row.*/
 	private int						rowHeight;
 	
+	/** Flag indicating if the mouse has entered the table.*/
+	private boolean entered;
+	
+	/**
+	 * Displays the node if roll over flag is <code>one</code> when the mouse 
+	 * enters the table or is over the table.
+	 * 
+	 * @param p The location of the mouse.
+	 */
+	private void handleRollOver(Point p)
+	{
+		int column = columnAtPoint(p);
+		if (column != THUMBNAIL_COL) {
+			view.rollOverNode(null);
+			return;
+		}
+		OMETreeNode n = getNodeAtRow(rowAtPoint(p));
+		if (n instanceof ImageTableNode) {
+			ImageTableNode node = (ImageTableNode) n;
+			Object ho = node.getHierarchyObject();
+			if (ho instanceof ImageData) {
+				ImageNode image = (ImageNode) node.getUserObject();
+				SwingUtilities.convertPointToScreen(p, this);
+				view.rollOverNode(new RollOverNode(image, p));
+			}
+		}
+	}
+	
 	/**
 	 * Builds the node.
 	 * 
@@ -239,6 +275,14 @@ class ImageTable
             }
         };
         addTreeSelectionListener(selectionListener);
+        addMouseMotionListener(new MouseMotionListener() {
+			
+			public void mouseMoved(MouseEvent e) {
+				handleRollOver(e.getPoint());
+			}
+			
+			public void mouseDragged(MouseEvent e) {}
+		});
 	}
 	
 	/**
@@ -422,6 +466,24 @@ class ImageTable
 		} else {
 			if (e.isPopupTrigger()) view.showMenu(e.getPoint());
 		}
+	}
+	
+	/**
+	 * Overridden to display a larger thumbnail when mousing over.
+	 * @see OMETreeTable#onMouseEnter(MouseEvent)
+	 */
+	protected void onMouseEnter(MouseEvent e)
+	{
+		handleRollOver(e.getPoint());
+	}
+	
+	/**
+	 * Overridden to hide the thumbnail.
+	 * @see OMETreeTable#onMouseExited(MouseEvent)
+	 */
+	protected void onMouseExited(MouseEvent e)
+	{
+		view.rollOverNode(null);
 	}
 
 }

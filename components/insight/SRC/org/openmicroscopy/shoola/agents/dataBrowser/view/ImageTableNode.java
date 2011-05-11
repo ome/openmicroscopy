@@ -94,7 +94,7 @@ public class ImageTableNode
 			toolTip = UIUtilities.formatToolTipText(
 					EditorUtil.formatObjectTooltip((ImageData) o));
 	}
-	
+
 	/**
 	 * Returns the text displayed in the tool tip.
 	 * 

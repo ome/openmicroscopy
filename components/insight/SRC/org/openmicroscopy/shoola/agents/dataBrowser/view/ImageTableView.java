@@ -36,6 +36,7 @@ import javax.swing.JScrollPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -71,6 +72,12 @@ class ImageTableView
 	 * it is an image.
 	 */
 	static final String TABLE_SELECTION_VIEW_PROPERTY = "tableSelectionView";
+	
+	/** 
+	 * Bound property indicating to roll over the node.
+	 */
+	static final String TABLE_SELECTION_ROLL_OVER_PROPERTY =
+		"tableSelectionRollOver";
 	
 	/** Reference to the table displaying the nodes. */
 	private ImageTable 			table;
@@ -163,10 +170,21 @@ class ImageTableView
 	 */
 	void viewSelectedNode()
 	{
-		firePropertyChange(TABLE_SELECTION_VIEW_PROPERTY, Boolean.FALSE, 
-				Boolean.TRUE);
+		firePropertyChange(TABLE_SELECTION_VIEW_PROPERTY,
+				Boolean.valueOf(false), Boolean.valueOf(true));
 	}
 
+	/**
+	 * Fires a property indicating to show or hide the the node.
+	 * 
+	 * @param node The node to handle.
+	 */
+	void rollOverNode(RollOverNode node)
+	{
+		firePropertyChange(TABLE_SELECTION_ROLL_OVER_PROPERTY,
+				Boolean.valueOf(false), node);
+	}
+	
 	/**
 	 * Marks the nodes on which a given operation could not be performed
 	 * e.g. paste rendering settings.
