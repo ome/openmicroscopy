@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.processing.chart;
 //Java imports
 
 //Third-party libraries
-import java.awt.Color;
 
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -114,7 +113,6 @@ public class HeatMap
 	public void draw()
 	{
 		parent.pushMatrix();
-		//parent.scale((float)imageData.getBinning());
 		parent.image(image,0,0);
 		parent.popMatrix();
 	}
@@ -127,8 +125,6 @@ public class HeatMap
 	 */
 	public PVector getPixelPosition(int x, int y)
 	{
-		System.err.println(imageData.getWidth());
-		System.err.println();
 		return new PVector((
 				((float)x/(imageData.getWidth()*imageData.getBinning()))
 				*imageData.getWidth()),((float)y/(imageData.getHeight()*imageData.getBinning())*imageData.getHeight()));

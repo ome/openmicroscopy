@@ -66,25 +66,18 @@ extends PApplet
 	
 	/** The object holding the data. */
 	private ImageData data;
-	
-	/** The ordered data to display. */
-	private List<Double> orderedData;
-		
+			
 	/** Flag indicating that open or close heatMap.*/
 	private boolean displayHeatMap = true;
 	
-	/** The value by which to translate the heatMap along the X-axis.*/
-	private int translateX = 15;
-	
-	/** The value by which to translate the heatMap along the X-axis.*/
-	private int translateY = 15;
-	
 	/** The width of the border between the graph and the window border.*/
-	private int borderWidth = 10;
+	private int borderWidth = 15;
 	
 	/** The background colour of the windows. */
 	final static Color windowsBackground = new Color(230,230,230);
 
+	final static int heatMapOffsetY = 10;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -115,7 +108,6 @@ extends PApplet
 		if (orderedData == null)
 			throw new IllegalArgumentException("No data to display.");
 		if (bins <= 0) bins = 1;
-		this.orderedData = orderedData;
 		this.data = data;
 		chart = new HistogramChart(this, orderedData, bins, valueIsBlack,FillType.NONE);
 		chart.setPrimaryColours();
@@ -146,8 +138,8 @@ extends PApplet
 	{
 		int mapX, mapY;
 		
-		mapX = x-translateX;
-		mapY = y-translateY;
+		mapX = x;
+		mapY = y;
 		if(mapX>0&&mapX<width)
 			if(mapY>0&&mapY<height)
 			{
@@ -168,8 +160,8 @@ extends PApplet
 		if(!displayHeatMap)
 			return false;
 		
-		mapX = x-translateX;
-		mapY = y-translateY;
+		mapX = x;
+		mapY = y;
 		if(mapX>0&&mapX<map.getWidth())
 			if(mapY>0&&mapY<map.getHeight())
 				return true;
@@ -188,8 +180,8 @@ extends PApplet
 		Rectangle chartBounds = chart.getBounds();
 		if(displayHeatMap)
 		{
-			mapX = x-translateX-data.getWidth();
-			mapY = y-translateY;
+			mapX = x-data.getWidth();
+			mapY = y;
 			
 			if(mapX>0&&mapX<chartBounds.getWidth())
 				if(mapY>0&&mapY<chartBounds.getHeight())
@@ -214,8 +206,8 @@ extends PApplet
 		int mapX, mapY;
 		if(displayHeatMap)
 		{
-			mapX = x-translateX-data.getWidth();
-			mapY = y-translateY;
+			mapX = x-data.getWidth();
+			mapY = y;
 		}
 		else
 		{
@@ -233,7 +225,7 @@ extends PApplet
 	 */
 	public void setup()
 	{
-		Dimension d = new Dimension(1000, 300);
+		Dimension d = new Dimension(800, 300);
 		setSize(d);
 		smooth();
 		textFont(createFont("Helvetica", 10));
@@ -266,15 +258,19 @@ extends PApplet
 		if (displayHeatMap && map != null) {
 			Color c = new Color(102, 102, 102);
 			pushMatrix();
-			translate(translateX, translateY);
-			map.draw();
-			translate(data.getWidth()+translateX, 0);
+				translate(borderWidth, 0);
+				pushMatrix();
+					translate(0, heatMapOffsetY);
+					map.draw();
+				popMatrix();
+			translate(data.getWidth()+borderWidth, 0);
 			chart.draw(1, 1, width-2-data.getWidth()-borderWidth, height-2);
 			popMatrix();
 		}
 		else if(map!= null)
 		{
 			pushMatrix();
+			translate(borderWidth,0);
 			chart.draw(1, 1, width-2-borderWidth, height-2);
 			popMatrix();
 		}
@@ -311,8 +307,8 @@ extends PApplet
 			int chartX, chartY;
 			if(displayHeatMap)
 			{
-				chartX = x-translateX-data.getWidth();
-				chartY = y-translateY;
+				chartX = x-data.getWidth();
+				chartY = y;
 			}
 			else
 			{

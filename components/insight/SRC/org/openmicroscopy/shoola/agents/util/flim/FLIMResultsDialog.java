@@ -200,24 +200,61 @@ public class FLIMResultsDialog
 	
 	/** Used to sort the results. */
 	private ViewerSorter sorter;
-	
+
 	/** The label displaying the mean. */
 	private JLabel meanLabel;
 
 	/** The label displaying the median. */
 	private JLabel medianLabel;
-	
-	/** The label displaying the mean of the bin. */
-	private JTextField meanBinLabel;
-	
-	/** The label displaying the minimum of the bin.. */
-	private JTextField minBinLabel;
 
-	/** The label displaying the maximum of the bin.. */
-	private JTextField maxBinLabel;
+	/** The label displaying the mean. */
+	private JLabel minBinLabel;
 
-	/** The label displaying the frequency of the bin.. */
-	private JTextField frequencyBinLabel;
+	/** The label displaying the mean. */
+	private JLabel maxBinLabel;
+
+	/** The label displaying the median. */
+	private JLabel meanBinLabel;
+	
+	/** The label displaying the mean. */
+	private JLabel binLabel;
+
+	/** The label displaying the median. */
+	private JLabel stddevBinLabel;
+
+	/** The label displaying the mean. */
+	private JLabel frequencyBinLabel;
+
+	/** The label displaying the median. */
+	private JLabel percentBinLabel;
+	
+	/** The label displaying the median. */
+	private JTextField meanBinTextField;
+	
+	/** The label displaying the mean. */
+	private JTextField meanTextField;
+
+	/** The label displaying the median. */
+	private JTextField medianTextField;
+
+	/** The label displaying the mean. */
+	private JTextField minBinTextField;
+
+	/** The label displaying the median. */
+	private JTextField maxBinTextField;
+
+	/** The label displaying the mean. */
+	private JTextField binTextField;
+
+	/** The label displaying the median. */
+	private JTextField stddevBinTextField;
+
+	/** The label displaying the mean. */
+	private JTextField frequencyBinTextField;
+
+	/** The label displaying the median. */
+	private JTextField percentBinTextField;
+	
 
 	/** Slider used to enter the minimum and maximum values. */
 	private TextualTwoKnobsSlider slider;
@@ -390,8 +427,8 @@ public class FLIMResultsDialog
 		double median = 0;
 		if (n > 2) median = (Double) list.get(n/2+1);
 		else if (n == 1 || n == 2) median = (Double) list.get(0);
-		meanLabel.setText(""+UIUtilities.roundTwoDecimals(totalValue/index));
-		medianLabel.setText(""+UIUtilities.roundTwoDecimals(median));
+		meanTextField.setText(""+UIUtilities.roundTwoDecimals(totalValue/index));
+		medianTextField.setText(""+UIUtilities.roundTwoDecimals(median));
 		
 		ImageData data = new ImageData(values, columns, rows, 1);
 		chartObject = new HistogramCanvas((List<Double>) sorter.sort(values), 
@@ -473,16 +510,36 @@ public class FLIMResultsDialog
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		meanLabel = new JLabel();
-		medianLabel = new JLabel();
-		meanBinLabel = new JTextField();
-		maxBinLabel = new JTextField();
-		minBinLabel = new JTextField();
-		frequencyBinLabel = new JTextField();
-		meanBinLabel.setEditable(false);
-		maxBinLabel.setEditable(false);
-		minBinLabel.setEditable(false);
-		frequencyBinLabel.setEditable(false);
+		meanLabel = new JLabel("Mean");
+		medianLabel = new JLabel("Median");
+		meanBinLabel = new JLabel("Bin Mean");
+		maxBinLabel = new JLabel("Bin Max");
+		minBinLabel = new JLabel("Bin Min");
+		binLabel = new JLabel("Bin");
+		percentBinLabel = new JLabel("Percent");
+		frequencyBinLabel = new JLabel("Frequency");
+		stddevBinLabel = new JLabel("StdDev");
+		
+		meanTextField = new JTextField("");
+		medianTextField = new JTextField("");
+		meanBinTextField = new JTextField("");
+		maxBinTextField = new JTextField("");
+		minBinTextField = new JTextField("");
+		binTextField = new JTextField("");
+		percentBinTextField = new JTextField("");
+		frequencyBinTextField = new JTextField("");
+		stddevBinTextField = new JTextField("");
+	
+		meanTextField.setEditable(false);
+		medianTextField.setEditable(false);
+		meanBinTextField.setEditable(false);
+		maxBinTextField.setEditable(false);
+		minBinTextField.setEditable(false);
+		binTextField.setEditable(false);
+		percentBinTextField.setEditable(false);
+		frequencyBinTextField.setEditable(false);
+		stddevBinTextField.setEditable(false);
+		
 		colourMapSlider = new TextualTwoKnobsSlider();
 		colourMapSlider.layoutComponents(
         		TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
@@ -715,25 +772,25 @@ public class FLIMResultsDialog
 	private JPanel buildCursorResultsComponent()
 	{
 		JPanel content = new JPanel();
-		double size[][] = {{40,80,40,80},{26,26}};
+		double size[][] = {{60,80,60,80,60,80,60,80},{26,26}};
 		content.setLayout(new TableLayout(size));
 		
-		JLabel l = new JLabel();
-		l.setText("Mean");
-		content.add(l,"0,0");
-		content.add(meanBinLabel,"1,0");
-		l = new JLabel();
-		l.setText("Freq");
-		content.add(l,"2,0");
-		content.add(frequencyBinLabel,"3,0");
-		l = new JLabel();
-		l.setText("Min");
-		content.add(l,"0,1");
-		content.add(minBinLabel,"1,1");
-		l = new JLabel();
-		l.setText("Max");
-		content.add(l,"2,1");
-		content.add(maxBinLabel,"3,1");
+		content.add(meanLabel,"0,0");
+		content.add(meanTextField,"1,0");		
+		content.add(minBinLabel,"2,0");
+		content.add(minBinTextField,"3,0");
+		content.add(meanBinLabel,"4,0");
+		content.add(meanBinTextField,"5,0");
+		content.add(frequencyBinLabel,"6,0");
+		content.add(frequencyBinTextField,"7,0");
+		content.add(medianLabel,"0,1");
+		content.add(medianTextField,"1,1");
+		content.add(maxBinLabel,"2,1");
+		content.add(maxBinTextField,"3,1");
+		content.add(stddevBinLabel,"4,1");
+		content.add(stddevBinTextField,"5,1");
+		content.add(percentBinLabel,"6,1");
+		content.add(percentBinTextField,"7,1");
 		return content;
 	}
 	
@@ -800,7 +857,7 @@ public class FLIMResultsDialog
 		}
 		initComponents();
 		buildGUI(icon);
-		setSize(1000, 800);
+		setSize(1100, 800);
 	}
 	
 	/**
@@ -939,9 +996,14 @@ public class FLIMResultsDialog
 	{
 		
 		Map<String, Double> binStats = chartObject.getBinStats(bin);
-		meanBinLabel.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));
-		maxBinLabel.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MAX)));
-		minBinLabel.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MIN)));
-		frequencyBinLabel.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.FREQ)));
+		if(binStats==null)
+			return;
+		meanBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));
+		maxBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MAX)));
+		binTextField.setText(UIUtilities.formatToDecimal(bin));
+		minBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MIN)));
+		percentBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.PERCENT)));
+		stddevBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.STDDEV)));
+		frequencyBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.FREQ)));
 	}
 }

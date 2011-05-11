@@ -234,11 +234,13 @@ public class Histogram
 		if(bin<0 || bin>bins)
 			return null;
 		Map<String, Double> binStats = new HashMap<String, Double>();
-		binStats.put(MEAN, findValue(bin));
+		double mean = getMean(bin);
+		binStats.put(MEAN, mean);
 		binStats.put(MIN, lower+bin*binWidth);
 		binStats.put(MAX, lower+bin*binWidth+binWidth);
 		binStats.put(FREQ, (double)freq[bin]);
-		
+		binStats.put(PERCENT, (double)freq[bin]/(double)originalData.size());
+		binStats.put(STDDEV, getStdDev(mean, bin));
 		return binStats;
 	}
 	
@@ -281,6 +283,41 @@ public class Histogram
 		stdCalculated = true;
 	}	
 
+	private double getMean(int bin)
+	{
+		double l = lower+bin*binWidth;
+		double u = lower+bin*binWidth+binWidth;
+		mean = 0;
+		for(int i = 0 ; i < originalData.size() ; i++)
+		{
+			if(originalData.get(i)>=l && originalData.get(i)<u)
+			{
+				mean = mean + originalData.get(i);
+			}
+		}
+		if(originalData.size()==0)
+			return 0;
+		return mean/(double)originalData.size();
+	}
+	
+	private double getStdDev(double mean, int bin)
+	{
+		double l = lower+bin*binWidth;
+		double u = lower+bin*binWidth+binWidth;
+		double stddev = 0;
+		for(int i = 0 ; i < originalData.size() ; i++)
+		{
+			if(originalData.get(i)>=l && originalData.get(i)<u)
+			{
+				stddev = stddev + Math.pow(originalData.get(i)-mean,2); 
+			}
+		}
+		if(originalData.size()==0)
+			return 0;
+		return Math.sqrt(stddev)/(double)originalData.size();
+		
+	}
+	
 	/**
 	 * Get the stats for the values in the bins [start,end]
 	 * @param start See above.

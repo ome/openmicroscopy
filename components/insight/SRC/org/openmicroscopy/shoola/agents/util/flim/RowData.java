@@ -52,7 +52,7 @@ public class RowData
 	List<String> names;
 	
 	/**
-	 * Instatiate the row.
+	 * Instantiate the row.
 	 */
 	RowData()
 	{
