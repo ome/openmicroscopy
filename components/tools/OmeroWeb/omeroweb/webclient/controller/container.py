@@ -304,29 +304,6 @@ class BaseContainer(BaseController):
         self.names = {'row_names':row_names, 'column_names':column_names}
         self.c_size = len(wl_list) #self.conn.getCollectionCount("Plate", "wellLinks", [long(plid)])[long(plid)]
     
-    def loadHierarchies(self):
-        if self.image is not None:
-            obj_list = self.conn.findContainerHierarchies(self.image.id)
-            pr_list = list()
-            ds_list = list()
-            for o in obj_list:
-                if isinstance(o._obj, ProjectI):
-                    pr_list.append(o)
-                if isinstance(o._obj, DatasetI):
-                    ds_list.append(o)
-                    
-            self.hierarchy={'projects': self.sortByAttr(pr_list, 'name'), 'datasets': self.sortByAttr(ds_list, 'name')}
-        #1015    
-        #elif self.dataset is not None:
-        #    obj_list = self.conn.findContainerHierarchies(self.dataset.id)
-        #    pr_list = list()
-        #    for o in obj_list:
-        #        if isinstance(o._obj, ProjectI):
-        #            pr_list.append(o)
-        #    self.hierarchy={'projects': self.sortByAttr(pr_list, 'name')}
-        else:
-            self.hierarchy = None
-        
     def listContainerHierarchy(self, eid=None):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)

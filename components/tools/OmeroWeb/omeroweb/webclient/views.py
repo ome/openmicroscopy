@@ -945,6 +945,51 @@ def load_metadata_preview(request, imageId, **kwargs):
     return render_to_response("webclient/annotations/metadata_preview.html", {"imageId": imageId})
 
 @isUserConnected
+def load_metadata_hierarchy(request, c_type, c_id, **kwargs):
+    conn = None
+    try:
+        conn = kwargs["conn"]        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    conn_share = None
+    try:
+        conn_share = kwargs["conn_share"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+
+    try:
+        index = int(request.REQUEST['index'])
+    except:
+        index = 0
+
+    try:
+        if conn_share is not None:
+            template = "webclient/annotations/annotations_share.html"                
+            manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
+        else:
+            template = "webclient/annotations/metadata_hierarchy.html"
+            manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+    except AttributeError, x:
+        logger.error(traceback.format_exc())
+        return handlerInternalError(x)
+
+    context = {'manager':manager}
+
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
+
+@isUserConnected
 def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):  
     conn = None
     try:

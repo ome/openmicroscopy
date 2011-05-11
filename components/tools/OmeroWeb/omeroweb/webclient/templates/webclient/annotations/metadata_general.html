@@ -10,10 +10,7 @@
     <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/autocomplete.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/panojs.css" media="all" />
-
-    <link rel="stylesheet" href="/appmedia/webgateway/css/jquery-plugin-gs_slider.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="/appmedia/webgateway/css/weblitz-viewport.css" type="text/css" media="screen"/>
+    
 {% endblock %}
 
 {% block jscript %}
@@ -33,8 +30,6 @@
 
 {% block script %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
-    
     <script type="text/javascript">
         $(document).ready(function() 
             {
@@ -75,6 +70,7 @@
 
                 var acquisition_load = false;
                 var preview_load = false;
+                var hierarchy_load = false;
                 
                 $('#annotation_tabs').tabs();
                 
@@ -97,6 +93,15 @@
                             preview_loaded();
                         });
                         preview_load = true;
+                    }
+                });
+                
+                $('#hierarchy').click(function() {
+                    var $tab = $("#hierarchy_tab");
+                    var href = $("#hierarchy-link").attr('href');
+                    if (!hierarchy_load) {
+                        $tab.load(href);
+                        hierarchy_load = true;
                     }
                 });
                 
@@ -146,8 +151,7 @@
                     newWindow.document.write(xml);
                     newWindow.document.close();
                     return false;
-                });
-                
+                });                
 
             });
 
@@ -199,6 +203,7 @@
                 {% if manager.image or manager.well %}
                     <li><a id='acquisition' href="#metadata_tab">{% trans "Acquisition" %}</a></li>                
                     <li><a id='preview' href="#preview_tab">{% trans "Preview" %}</a></li>
+                    <li><a id='hierarchy' href="#hierarchy_tab">{% trans "Contained in" %}</a></li>
                 {% endif %}
             {% endif %}
         </ul>
@@ -227,6 +232,11 @@
             <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.image.id %}" style='display:none' >Acquisition</a>
             <img src="{% url webstatic "images/spinner.gif" %}" />
         </div>
+        <div id="hierarchy_tab">
+            <!-- content is loaded by ajax when this tab is first displayed -->
+            <a id="hierarchy-link" href="{% url load_metadata_hierarchy 'image' manager.image.id %}" style='display:none' >Contained in</a>
+            <img src="{% url webstatic "images/spinner.gif" %}" />
+        </div>
         {% endif %}
         {% if manager.well %}
         <div id="metadata_tab">
@@ -234,8 +244,14 @@
             <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.well.selectedWellSample.image.id %}" style='display:none' >Acquisition</a>
             <img src="{% url webstatic "images/spinner.gif" %}" />
         </div>
+        <div id="hierarchy_tab">
+            <!-- content is loaded by ajax when this tab is first displayed -->
+            <a id="hierarchy-link" href="{% url load_metadata_hierarchy 'image' manager.well.selectedWellSample.image.id %}" style='display:none' >Contained in</a>
+            <img src="{% url webstatic "images/spinner.gif" %}" />
+        </div>
         {% endif %}
-
+                
+        
         {% if not manager.tag %}
         <!-- ANNOTATIONS "General" -->
         <div id="annotation_tab">

@@ -1,10 +1,9 @@
-{% extends "webclient/base/base_frame.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 
 {% block link %}
-<link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
 
     <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/panojs.css" media="all" />
 
@@ -14,8 +13,6 @@
 
 {% block jscript %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
-    
     <script type="text/javascript" src="/appmedia/webgateway/js/weblitz-viewport.js"></script>
     <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-viewportImage.js"></script>
     <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-gs_slider.js"></script>
@@ -37,8 +34,6 @@
 
 {% block script %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
-    
     <script type="text/javascript">
         var preview_loaded = function() {
             var viewport = $.WeblitzViewport($("#viewport"), "/webclient" );

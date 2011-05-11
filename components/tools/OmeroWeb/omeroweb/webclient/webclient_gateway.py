@@ -552,70 +552,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         kwargs = {'index': index}
         return WellWrapper(self, res, **kwargs)
     
-    
-    # HIERARCHY RETRIVAL
-    #def listContainerHierarchy(self, root, eid=None, gid=None):
-    #    """ Retrieves hierarchy trees rooted by a given node - Project, 
-    #        for the given user id linked to the objects in the tree,
-    #        filter them by parameters."""
-    #        
-    #    q = self.getContainerService()
-    #    if eid is not None: 
-    #        p = ParametersI().orphan().exp(long(eid))
-    #    elif gid is not None: 
-    #        p = ParametersI().orphan().grp(self.getEventContext().groupId)
-    #    else: 
-    #        p = ParametersI().orphan().exp(self.getEventContext().userId)
-    #    for e in q.loadContainerHierarchy(root, None,  p):
-    #        if isinstance(e, ProjectI):
-    #            yield ProjectWrapper(self, e)
-    #        elif isinstance(e, DatasetI):
-    #            yield DatasetWrapper(self, e)
-    #        elif isinstance(e, ScreenI):
-    #            yield ScreenWrapper(self, e)
-    #        elif isinstance(e, PlateI):
-    #            yield PlateWrapper(self, e)
-
-    def findContainerHierarchies(self, nid):
-        """ 
-        Retrieves hierarchy trees in various hierarchies that contain the specified Images.
-        This method will look for all the containers containing the specified
-        Images and then for all containers containing those containers and on up
-        the container hierarchy.
-        
-        @param nid      Contains the ids of the Objects that sit at the bottom of the
-                        trees. Not null.
-        @type nid       L{Long}
-        @return:        Generator yielding Objects with all root nodes that were found.
-        @rtype:         L{BlitzObjectWrapper} generator
-        """
-        """TODO: #1015
-        It does not support SPW"""
-            
-        q = self.getContainerService()
-        for e in q.findContainerHierarchies("Project", [long(nid)], None):
-            if isinstance(e, ProjectI):
-                yield ProjectWrapper(self, e)
-            elif isinstance(e, DatasetI):
-                yield DatasetWrapper(self, e)
-            elif isinstance(e, ScreenI):
-                yield ScreenWrapper(self, e)
-            elif isinstance(e, PlateI):
-                yield PlateWrapper(self, e)
-    
     # DATA RETRIVAL BY TAGs
-            
-    #def getDatasetsWithImages(self, oids):
-    #    query_serv = self.getQueryService()
-    #    p = omero.sys.Parameters()
-    #    p.map = {} 
-    #    p.map["ids"] = rlist([rlong(a) for a in oids])
-    #    sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group " \
-    #            "left outer join fetch ds.imageLinks dil left outer join fetch dil.child im " \
-    #            "where ds.id in (:ids) order by ds.name"
-    #    for e in query_serv.findAllByQuery(sql, p):
-    #        yield DatasetWrapper(self, e)
-    
     def findTag (self, name, desc=None):
         """ 
         Retrieves Tag by given Name and description
