@@ -152,12 +152,12 @@ $.fn.roi_display = function(options) {
                                 if (shape['fontSize']) {
                                     txtAttr['font-size'] = shape['fontSize'];
                                 }
-                                if (shape['fontStyle']) { // model: normal, italic, bold, bolditalic
+                                if (shape['fontStyle']) { // model: Normal, Italic, Bold, Bolditalic
                                     var fs = shape['fontStyle'];
-                                    if ((fs == 'bold') || (fs == 'bolditalic')) {
+                                    if ((fs == 'Bold') || (fs == 'BoldItalic')) {
                                         txtAttr['font-weight'] = 'bold';
                                     }
-                                    if ((fs == 'italic') || (fs == 'bolditalic')) {
+                                    if ((fs == 'Italic') || (fs == 'BoldItalic')) {
                                         txtAttr['font-style'] = 'italic';
                                     }
                                 }
