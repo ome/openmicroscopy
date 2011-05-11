@@ -36,7 +36,9 @@ from omero.clients import ObjectFactory
 import fsDropBoxMonitorClient
 
 class DropBox(Ice.Application):
-    imageId = []
+    # Used by test client
+    imageIds = []
+    importCount = 0
     event = threading.Event()
 
     def run(self, args):
@@ -198,13 +200,13 @@ class DropBox(Ice.Application):
             # If this is TestDropBox then try to copy and import a file.
             if isTestClient:
                 timeout = int(props.getPropertyWithDefault("omero.fstest.timeout","120"))
-                srcFile = props.getPropertyWithDefault("omero.fstest.srcFile","")
+                srcFiles = list(props.getPropertyWithDefault("omero.fstest.srcFile","").split(';'))
                 targetDir = monitorParameters[testUser]['watchDir']
-                if not srcFile or not targetDir:
+                if not srcFiles or not targetDir:
                     log.error("Bad configuration")
                 else:
-                    log.info("Copying test file %s to %s" % (srcFile, targetDir))
-                    retVal = self.injectTestFile(srcFile, targetDir, timeout)
+                    log.info("Copying test file(s) %s to %s" % (srcFiles, targetDir))
+                    retVal = self.injectTestFile(srcFiles, targetDir, timeout)
             else:
                 self.communicator().waitForShutdown()
         except:
@@ -242,28 +244,33 @@ class DropBox(Ice.Application):
         log.info("Setting event on sig %s" % sig)
         self.event.set();
 
-    def injectTestFile(self, srcFile, dstDir, timeout):
+    def injectTestFile(self, srcFiles, dstDir, timeout):
         """
            Copy test file and wait for import to complete.
 
         """
 
         try:
-            ext = pathModule.path(srcFile).ext
-            dstFile = os.path.join(dstDir, str(uuid.uuid1())+ext)
+            destFiles = []
+            for src in srcFiles:
+                ext = pathModule.path(src).ext
+                dstFile = os.path.join(dstDir, str(uuid.uuid1())+ext)
+                destFiles.append((src, dstFile))
         except:
             log.exception("Error source files:")
             return -1
 
         try:
-            shutil.copy(srcFile, dstFile)
+            for filePair in destFiles:
+                shutil.copy(filePair[0],filePair[1])
         except:
             log.exception("Error copying file:")
             return -1
-
+            
+        self.importCount =  len(srcFiles)
         self.event.wait(timeout)
 
-        if not hasattr(self, "imageId"):
+        if len(self.imageIds) == 0:
             log.error("notifyTestFile never called")
 
         try:
@@ -277,7 +284,7 @@ class DropBox(Ice.Application):
         p = omero.sys.Parameters()
 
         retVal = 0
-        for i in self.imageId:
+        for i in self.imageIds:
             query = "select i from Image i where i.id = " + "'" + i + "'"
             out = sf.getQueryService().findAllByQuery(query, p)
 
@@ -302,8 +309,10 @@ class DropBox(Ice.Application):
 
         """
         log.info("%s import attempted. image id=%s", fileId, imageId)
-        self.imageId = imageId
-        self.event.set()
+        self.imageIds += imageId
+        self.importCount -= 1
+        if self.importCount == 0:
+            self.event.set()
 
     def getHostAndPort(self, props):
         """
