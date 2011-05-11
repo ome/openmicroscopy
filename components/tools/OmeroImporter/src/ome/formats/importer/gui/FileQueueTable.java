@@ -372,6 +372,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
     public void setProgressDone(int row)
     {
         getTable().setValueAt("done", row, 2);
+        getTable().fireTableRowsUpdated(row, row);
         doneFiles = true;
     }
 
