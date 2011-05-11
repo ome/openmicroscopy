@@ -198,7 +198,6 @@ public class LayoutUtils
     {
         //First find out the max dim among children.
         Dimension maxDim = maxChildDim(node);
-        
         //Then figure out the number of columns, which is the same as the
         //number of rows.
         int n = node.getChildrenDisplay().size();        
