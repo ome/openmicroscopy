@@ -217,7 +217,7 @@ class MockRawPixelsStore(object):
 
     def getPlane(self, *args):
         if self.good_calls == 0:
-            raise exceptions.Exception("MOCK EXCEPTION")
+            e = exceptions.Exception("MOCK EXCEPTION")
             e.close = False
             raise e
         else:

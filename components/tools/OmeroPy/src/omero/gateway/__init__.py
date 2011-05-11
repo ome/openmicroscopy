@@ -4418,12 +4418,12 @@ class _PixelsWrapper (BlitzObjectWrapper):
                 remappedPlane.resize(planeY, planeX)
                 yield remappedPlane
         except Exception, e:
-            logger.error(e)
+            logger.error("Failed to getPlane() or getTile() from rawPixelsStore", exc_info=True)
             exc = e
         try:
             rawPixelsStore.close()
         except Exception, e:
-            logger.error(e)
+            logger.error("Failed to close rawPixelsStore", exc_info=True)
             if exc is None:
                  exc = e
         if exc is not None:
