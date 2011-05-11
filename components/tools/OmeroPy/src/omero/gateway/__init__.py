@@ -4417,12 +4417,12 @@ class _PixelsWrapper (BlitzObjectWrapper):
                 remappedPlane = numpy.array(convertedPlane, numpyType)
                 remappedPlane.resize(planeY, planeX)
                 yield remappedPlane
-        except exceptions.Exception, e:
+        except Exception, e:
             logger.error(e)
             exc = e
         try:
             rawPixelsStore.close()
-        except exceptions.Exception, e:
+        except Exception, e:
             logger.error(e)
             if exc is None:
                  exc = e
