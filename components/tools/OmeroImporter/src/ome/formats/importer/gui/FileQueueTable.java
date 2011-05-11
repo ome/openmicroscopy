@@ -354,6 +354,17 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
     }
 
     /**
+     * Set progress for the file at row to 'pixels stored'
+     * 
+     * @param row in file queue to set status on
+     */
+    public void setProgressPixelsStored(int row)
+    {
+        getTable().setValueAt("pixels stored", row, 2);
+        doneFiles = true;
+    }
+    
+    /**
      * Set progress for the file at row to 'done'
      * 
      * @param row in file queue to set status on
@@ -371,7 +382,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      */
     public void setProgressSaveToDb(int row)
     {
-        getTable().setValueAt("updating db", row, 2);       
+        getTable().setValueAt("saving to db", row, 2);       
     }
     
     /**
@@ -512,6 +523,10 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
             {   
                 setImportProgress(ev.seriesCount, ev.series, ev.step);
             }
+        }
+        else if (event instanceof ImportEvent.DATA_STORED) {
+            ImportEvent.DATA_STORED ev = (ImportEvent.DATA_STORED) event;
+            setProgressPixelsStored(ev.index);
         }
         else if (event instanceof ImportEvent.IMPORT_DONE) {
             ImportEvent.IMPORT_DONE ev = (ImportEvent.IMPORT_DONE) event;

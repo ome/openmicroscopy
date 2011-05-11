@@ -767,6 +767,12 @@ WindowStateListener, WindowFocusListener
             getStatusBar().setStatusIcon("gfx/import_icon_16.png", "Analyzing the metadata for file \"" + ev.shortName);            
         }
 
+        else if (event instanceof ImportEvent.BEGIN_SAVE_TO_DB) {
+            ImportEvent.BEGIN_SAVE_TO_DB ev = (ImportEvent.BEGIN_SAVE_TO_DB) event;
+            appendToOutput("> [" + ev.index + "] Saving metadata for " + "image \"" + ev.filename + "\"... ");
+            getStatusBar().setStatusIcon("gfx/import_icon_16.png", "Saving metadata for file \"" + ev.filename);
+        }
+        
         else if (event instanceof ImportEvent.DATASET_STORED)
         {
             ImportEvent.DATASET_STORED ev = (ImportEvent.DATASET_STORED) event;
@@ -779,7 +785,7 @@ WindowStateListener, WindowFocusListener
             appendToOutputLn("> [" + ev.series + "] Importing pixel data for " + "image \"" + ev.filename + "\"... ");
             getStatusBar().setProgress(true, 0, "Importing file " + num + " of " + tot);
             getStatusBar().setProgressValue(pro);
-            getStatusBar().setStatusIcon("gfx/import_icon_16.png", "Importing the plane data for file \"" + ev.filename);
+            getStatusBar().setStatusIcon("gfx/import_icon_16.png", "Importing the pixel data for file \"" + ev.filename);
             appendToOutput("> Importing plane: ");
         }
 
