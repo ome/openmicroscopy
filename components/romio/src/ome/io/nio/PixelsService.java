@@ -18,6 +18,7 @@ import loci.formats.ChannelSeparator;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
+import loci.formats.meta.IMinMaxStore;
 import ome.conditions.LockTimeout;
 import ome.conditions.MissingPyramidException;
 import ome.conditions.ResourceError;
@@ -166,8 +167,14 @@ public class PixelsService extends AbstractFileSystemService
 
         try
         {
-            performWrite(pixels, pixelsPyramidFile, pixelsPyramid,
+            PixelsPyramidMinMaxStore minMaxStore = performWrite(
+                    pixels, pixelsPyramidFile, pixelsPyramid,
                     pixelsFile, pixelsFilePath, originalFilePath);
+            if (minMaxStore != null)
+            {
+                return minMaxStore.createStatsInfo();
+            }
+            return null;
         }
 
         finally
@@ -184,65 +191,19 @@ public class PixelsService extends AbstractFileSystemService
                 }
             }
         }
-        
-        StatsInfo[] statsInfo = getMinMax(originalFilePath);
-        return statsInfo;
     }
 
-    /**
-     * Return a StatsInfo array with min/max values set.
-     * @param filePath Pathname for original pixels file.
-     * @since OMERO-Beta4.3
-     */
-    private StatsInfo[] getMinMax(String filePath)
-    {
-        StatsInfo[] statsInfo = null;
-        try {
-            MinMaxCalculator minMaxReader;
-            IFormatReader reader = new ImageReader();
-            reader = new ChannelFiller(reader);
-            reader = new ChannelSeparator(reader);
-            reader = minMaxReader = new MinMaxCalculator(reader);            
-            reader.setId(filePath);
-
-            int sizeC = reader.getSizeC();
-            int sizeZ = reader.getSizeZ();
-            for(int c=0;c<sizeC;c++) 
-            {
-                for(int z=0;z<sizeZ;z++)
-                {
-                    int plane = reader.getIndex(z, c, 0); //FIXME: what about t?
-                    byte[] buf = minMaxReader.openBytes(plane);
-                }
-            }
-
-            //FIXME: do something else is minMaxReader.isMinMaxPopulated()) is false?
-            statsInfo = new StatsInfo[sizeC];
-            for(int c=0;c<sizeC;c++) 
-            {
-                statsInfo[c] = new StatsInfo();
-                statsInfo[c].setGlobalMax(minMaxReader.getChannelGlobalMaximum(c));
-                statsInfo[c].setGlobalMin(minMaxReader.getChannelGlobalMinimum(c));
-            }
-            reader.close();
-            minMaxReader.close();
-        } 
-        catch (Exception e)
-        {
-            log.error("Failed to get min/max values", e);
-        }
-
-        return statsInfo;
-    }
-
-    private void performWrite(Pixels pixels, final File pixelsPyramidFile,
+    private PixelsPyramidMinMaxStore performWrite(
+            Pixels pixels,final File pixelsPyramidFile,
             final PixelBuffer pixelsPyramid, final File pixelsFile,
             final String pixelsFilePath, final String originalFilePath) {
 
         final PixelBuffer source;
         final Dimension tileSize;
+        final PixelsPyramidMinMaxStore minMaxStore;
         if (pixelsFile.exists())
         {
+            minMaxStore = null;
             source = createRomioPixelBuffer(pixelsFilePath, pixels, true);
             // FIXME: This should be configuration or service driven
             // FIXME: Also implemented in RenderingBean.getTileSize()
@@ -250,7 +211,8 @@ public class PixelsService extends AbstractFileSystemService
         }
         else
         {
-            source = createBfPixelBuffer(originalFilePath);
+            minMaxStore = new PixelsPyramidMinMaxStore(pixels.getSizeC());
+            source = createMinMaxBfPixelBuffer(originalFilePath, minMaxStore);
             tileSize = source.getTileSize();
         }
 
@@ -301,6 +263,7 @@ public class PixelsService extends AbstractFileSystemService
                 }
             }
         }
+        return minMaxStore;
     }
 
    /**
@@ -469,6 +432,33 @@ public class PixelsService extends AbstractFileSystemService
     }
 
     /**
+     * Helper method to properly log any exceptions raised by Bio-Formats and
+     * add a min/max calculator wrapper to the reader stack.
+     * @param filePath Non-null.
+     * @param store Min/max store to use with the min/max calculator.
+     * @param reader passed to {@link BfPixelBuffer}
+     * @return
+     */
+    protected PixelBuffer createMinMaxBfPixelBuffer(final String filePath,
+                                                    IMinMaxStore store) {
+        try
+        {
+            IFormatReader reader = new ImageReader();
+            reader = new ChannelFiller(reader);
+            reader = new ChannelSeparator(reader);
+            MinMaxCalculator calculator = new MinMaxCalculator(reader);
+            calculator.setMinMaxStore(store);
+            return new BfPixelBuffer(filePath, calculator);
+        }
+        catch (Exception e)
+        {
+            String msg = "Error instantiating pixel buffer: " + filePath;
+            log.error(msg, e);
+            throw new ResourceError(msg);
+        }
+    }
+
+    /**
      * Helper method to properly log any exceptions raised by Bio-Formats.
      * @param filePath Non-null.
      * @param reader passed to {@link BfPixelBuffer}
@@ -558,4 +548,39 @@ public class PixelsService extends AbstractFileSystemService
 			}
 		}
 	}
+
+    class PixelsPyramidMinMaxStore implements IMinMaxStore
+    {
+        final double[][] channelGlobalMinMax;
+
+        final int sizeC;
+
+        public PixelsPyramidMinMaxStore(int sizeC)
+        {
+            this.sizeC = sizeC;
+            channelGlobalMinMax = new double[sizeC][2];
+        }
+
+        /* (non-Javadoc)
+         * @see loci.formats.meta.IMinMaxStore#setChannelGlobalMinMax(int, double, double, int)
+         */
+        public void setChannelGlobalMinMax(int channel, double minimum,
+                                           double maximum, int series)
+        {
+            channelGlobalMinMax[channel][0] = minimum;
+            channelGlobalMinMax[channel][1] = maximum;
+        }
+
+        public StatsInfo[] createStatsInfo()
+        {
+            StatsInfo[] statsInfo = new StatsInfo[sizeC];
+            for (int c = 0; c < sizeC; c++)
+            {
+                statsInfo[c] = new StatsInfo();
+                statsInfo[c].setGlobalMin(channelGlobalMinMax[c][0]);
+                statsInfo[c].setGlobalMax(channelGlobalMinMax[c][1]);
+            }
+            return statsInfo;
+        }
+    }
 }
