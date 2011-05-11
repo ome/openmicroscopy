@@ -301,7 +301,7 @@ def makeThumbnailFigure(conn, scriptParams):
         figure.save(output)
         mimetype = "image/jpeg"
 
-    fa = omero.gateway.FileAnnotationWrapper.fromLocalFile(conn, output, origFilePathAndName=None, mimetype=mimetype, ns=None, desc=figLegend)
+    fa = conn.createFileAnnfromLocalFile(output, origFilePathAndName=None, mimetype=mimetype, ns=None, desc=figLegend)
     parent.linkAnnotation(fa)
     
     return fa._obj

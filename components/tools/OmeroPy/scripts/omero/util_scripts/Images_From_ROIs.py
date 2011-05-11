@@ -142,9 +142,7 @@ def processImage(conn, imageId, parameterMap, dataset=None):
 
         description = "Image from ROIS on parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
         print description
-        #image = scriptUtil.createNewImage(session, plane2Dlist, newImageName, description, dataset)
-        serviceFactory = conn.c.sf  # make sure that script_utils creates a NEW rawPixelsStore
-        image = script_utils.imageFromNumpySeq(serviceFactory, tileGen(), newImageName,
+        image = conn.createImageFromNumpySeq(tileGen(), newImageName,
             sizeZ=len(rois), sizeC=1, sizeT=1, description=description, dataset=dataset)
 
         return image
@@ -174,7 +172,7 @@ def processImage(conn, imageId, parameterMap, dataset=None):
             print "sizeZ, sizeC, sizeT", sizeZ, sizeC, sizeT
             description = "Created from image:\n  Name: %s\n  Image ID: %d \n x: %d y: %d" % (imageName, imageId, x, y)
             serviceFactory = conn.c.sf  # make sure that script_utils creates a NEW rawPixelsStore
-            newI = script_utils.imageFromNumpySeq(serviceFactory, tileGen(), imageName,
+            newI = conn.createImageFromNumpySeq(tileGen(), imageName,
                 sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, description=description)
             #pixels = image.getPrimaryPixels()
             #pixels.setPhysicalSizeX(rdouble(physicalSizeX))

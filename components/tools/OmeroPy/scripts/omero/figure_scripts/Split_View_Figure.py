@@ -608,7 +608,7 @@ def splitViewFigure(conn, scriptParams):
 
     # Upload the figure 'output' to the server, creating a file annotation and attaching it to the omeroImage, adding the 
     # figLegend as the fileAnnotation description.
-    fa = omero.gateway.FileAnnotationWrapper.fromLocalFile(conn, output, origFilePathAndName=None, mimetype=format, ns=None, desc=figLegend)
+    fa = conn.createFileAnnfromLocalFile(output, origFilePathAndName=None, mimetype=format, ns=None, desc=figLegend)
     omeroImage.linkAnnotation(fa)
 
     return fa._obj  # return the omero.model.FileAnnotationI

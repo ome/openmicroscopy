@@ -293,7 +293,7 @@ def batchImageExport(conn, scriptParams):
     image = images[0]
     if os.path.exists(zip_file_name):
         log("Attaching zip to image... %s %s" % (image.getName(), image.getId()) )
-        fileAnn = omero.gateway.FileAnnotationWrapper.fromLocalFile(conn, zip_file_name, mimetype='zip', desc=description)
+        fileAnn = conn.createFileAnnfromLocalFile(zip_file_name, mimetype='zip', desc=description)
         image.linkAnnotation(fileAnn)
         return fileAnn
 

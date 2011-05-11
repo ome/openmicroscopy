@@ -46,7 +46,7 @@ from numpy import zeros, hstack, vstack
 import time
 
 
-def newImageWithChannelOffsets(conn, imageId, channel_offsets):
+def newImageWithChannelOffsets(conn, imageId, channel_offsets, newDatasetName=None):
     """
     Process a single image here: creating a new image and passing planes from
     original image to new image - applying offsets to each channel as we go.
@@ -56,6 +56,13 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets):
     """
     
     oldImage = conn.getObject("Image", imageId)
+
+    dataset = oldImage.getParent()
+    if newDatasetName is not None:
+        dataset = omero.gateway.DatasetWrapper()
+        dataset.setName(rstring(newDatasetName))
+        dataset.save()
+
     # these dimensions don't change
     sizeZ = oldImage.getSizeZ()
     sizeC = oldImage.getSizeC()
@@ -111,8 +118,8 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets):
     
     desc = str(channel_offsets)
     serviceFactory = conn.c.sf  # make sure that script_utils creates a NEW rawPixelsStore
-    i = script_utils.imageFromNumpySeq(serviceFactory, offsetPlaneGen(), "testOffsetImage", 
-        sizeZ=sizeZ, sizeC=len(channel_offsets), sizeT=sizeT, description=desc)
+    i = conn.createImageFromNumpySeq(offsetPlaneGen(), "testOffsetImage",
+        sizeZ=sizeZ, sizeC=len(channel_offsets), sizeT=sizeT, description=desc, dataset=dataset)
 
 def processImages(conn, scriptParams):
     """ Process the script params to make a list of channel_offsets, then iterate through
@@ -130,9 +137,13 @@ def processImages(conn, scriptParams):
     
     print channel_offsets
     
+    newDatasetName = None
+    if "New_Dataset_Name" in scriptParams:
+        newDatasetName = scriptParams["New_Dataset_Name"]
+
     # need to handle Datasets eventually - Just do images for now
     for iId in scriptParams['IDs']:
-        newImageWithChannelOffsets(conn, iId, channel_offsets)
+        newImageWithChannelOffsets(conn, iId, channel_offsets, newDatasetName)
         
     
 def runAsScript():
