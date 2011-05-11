@@ -333,6 +333,13 @@ public class ImportConfig {
     }
 
     /**
+     * @return ini getForceFileArchiveOn
+     */
+    public boolean getForceFileArchiveOn() {
+        return ini.getForceFileArchiveOn();
+    }    
+    
+    /**
      * @return ini version note
      */
     public String getVersionNumber() {

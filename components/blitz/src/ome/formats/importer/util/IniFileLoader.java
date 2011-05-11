@@ -167,6 +167,14 @@ public class IniFileLoader {
     }
 
     /**
+     * @return application title
+     */
+    public boolean getForceFileArchiveOn()
+    {
+    	return staticPrefs.node("UI").getBoolean("forceFileArchiveOn", false);
+    }
+    
+    /**
      * Set debug level for application
      *
      * @param level

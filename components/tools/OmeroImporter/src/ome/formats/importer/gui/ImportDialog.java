@@ -274,13 +274,19 @@ public class ImportDialog extends JDialog implements ActionListener
         archiveImage.addActionListener(this);
         
         archiveImage.setSelected(config.archiveImage.get());
+        
+        // Override config.archiveImage.get() if 
+        // import.config is set for forceFileArchiveOn
+        if (config.getForceFileArchiveOn() == true)
+        	archiveImage.setSelected(true);
+        
         if (ARCHIVE_ENABLED)
         {
         	archiveImage.setVisible(true);
         } else {
         	archiveImage.setVisible(false);                
         }
-        
+                
         // Buttons at the bottom of the form
 
         cancelBtn = GuiCommonElements.addButton(importPanel, "Cancel", 'L', "Cancel", "1, 5, f, c", debug);
