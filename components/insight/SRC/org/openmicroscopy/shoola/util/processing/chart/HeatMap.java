@@ -101,8 +101,6 @@ public class HeatMap
 				bin = histogramChart.findBin(value);
 				if(bin>valueIsBlack)
 				{
-					System.err.println("value : " + value);
-					System.err.println("colour : "+ new Color(histogramChart.findColour(value)));
 					image.set(x, y, histogramChart.findColour(value));
 				}
 				else
@@ -152,6 +150,11 @@ public class HeatMap
 	public int getHeight()
 	{
 		return imageData.getHeight()*imageData.getBinning();
+	}
+	
+	public void recalculate()
+	{
+		calculateHeatMap();
 	}
 	
 }

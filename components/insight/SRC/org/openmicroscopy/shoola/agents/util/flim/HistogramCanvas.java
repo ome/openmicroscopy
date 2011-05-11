@@ -38,7 +38,6 @@ import org.openmicroscopy.shoola.util.processing.chart.FillType;
 import org.openmicroscopy.shoola.util.processing.chart.HeatMap;
 import org.openmicroscopy.shoola.util.processing.chart.HistogramChart;
 import org.openmicroscopy.shoola.util.processing.chart.ImageData;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
  * Component displaying the histogram.
@@ -70,13 +69,7 @@ extends PApplet
 	
 	/** The ordered data to display. */
 	private List<Double> orderedData;
-	
-	/** The number of bins.*/
-	private int bins;
-
-	/** The button used to open or close the heatMap.*/
-	private Rectangle button;
-	
+		
 	/** Flag indicating that open or close heatMap.*/
 	private boolean displayHeatMap = true;
 	
@@ -122,15 +115,14 @@ extends PApplet
 		if (orderedData == null)
 			throw new IllegalArgumentException("No data to display.");
 		if (bins <= 0) bins = 1;
-		this.bins = bins;
 		this.orderedData = orderedData;
 		this.data = data;
-		button = new Rectangle(2, 2, 12, 12);
 		chart = new HistogramChart(this, orderedData, bins, valueIsBlack,FillType.NONE);
+		chart.setPrimaryColours();
 		chart.setRGB(true, 40, 80);
 		map = new HeatMap(this, data, chart, valueIsBlack); 
 		this.displayHeatMap = showHeatMap;
-		chart.setPastelColours();
+
 		init();
 	}
 	/**
@@ -276,19 +268,11 @@ extends PApplet
 			pushMatrix();
 			translate(translateX, translateY);
 			map.draw();
-			popMatrix();
-		}
-		if(displayHeatMap)
-		{
-			pushMatrix();
 			translate(data.getWidth()+translateX, 0);
 			chart.draw(1, 1, width-2-data.getWidth()-borderWidth, height-2);
 			popMatrix();
-
-			button = new Rectangle(data.getWidth()+translateX,height-2,20,20);
-			drawButton();
 		}
-		else
+		else if(map!= null)
 		{
 			pushMatrix();
 			chart.draw(1, 1, width-2-borderWidth, height-2);
@@ -336,6 +320,8 @@ extends PApplet
 				chartY = y;
 			}
 			int binPicked = chart.pick(new PVector(chartX,chartY));
+			if(binPicked==-1)
+				return;
 			firePropertyChange(CHARTSELECTED_PROPERTY, null, binPicked);
 		}
 		if(heatMapClicked(x, y))
@@ -343,5 +329,45 @@ extends PApplet
 			
 		}
 		
+	}
+	
+	/**
+	 * Get the bin containing the mean. 
+	 * @return See above.
+	 */
+	public int getMean()
+	{
+		return chart.findBin(chart.getMean());
+	}
+
+	/**
+	 * Get the bins that are one stddev.
+	 * @return See above.
+	 */
+	public int getStd()
+	{
+		return chart.findBin(chart.getStd());
+	}
+	
+	/**
+	 * Set the RGB values of the colourmap.
+	 * @param red The red limit.
+	 * @param blue The blue lower limit.
+	 */
+	public void setRGB(int red, int blue)
+	{
+		chart.setRGB(true, red, blue);
+		map.recalculate();
+	}
+	
+	/**
+	 * Get the stats for the values in the bins [start,end]
+	 * @param start See above.
+	 * @param end See above.
+	 * @return See above.
+	 */
+	public Map<String, Double> getRangeStats(int start, int end)
+	{
+		return chart.getRangeStats(start,end);
 	}
 }

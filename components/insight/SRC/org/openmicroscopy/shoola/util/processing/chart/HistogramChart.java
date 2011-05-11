@@ -504,9 +504,16 @@ public class HistogramChart
 		return histogram.getBinStats(bin);
 	}
 	
+	/**
+	 * Pick the bin on the chart.
+	 * @param point The screen point.
+	 * @return The bin.
+	 */
 	public int pick(PVector point)
 	{
 		PVector screenPt = getScreenToData(point);
+		if(screenPt==null)
+			return -1;
 		float y = getYValue(screenPt.x);
 		pointPicked = getDataToScreen(new PVector(screenPt.x, y));
 		parent.redraw();
@@ -522,5 +529,34 @@ public class HistogramChart
 	{
 		return histogram.findBin(value);
 	}
+	
+	/**
+	 * Get the bin containing the mean. 
+	 * @return See above.
+	 */
+	public double getMean()
+	{
+		return histogram.getMean();
+	}
+
+	/**
+	 * Get the bins that are one stddev.
+	 * @return See above.
+	 */public double getStd()
+	{
+		return histogram.getStd();
+	}
+	 
+	/**
+	 * Get the stats for the values in the bins [start,end]
+	 * @param start See above.
+	 * @param end See above.
+	 * @return See above.
+	 */	
+	public Map<String, Double> getRangeStats(int start, int end)
+	{
+		return histogram.getRangeStats(start, end);
+	}
+
 	
 }

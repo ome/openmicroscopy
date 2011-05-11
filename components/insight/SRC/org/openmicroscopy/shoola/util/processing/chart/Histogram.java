@@ -59,6 +59,14 @@ public class Histogram
 	/** The key for the freq value in the map. */
 	public final static String FREQ = "FREQ";
 	
+	/** The key for the percent value in the map. */
+	public final static String PERCENT = "PERCENT";
+	
+	/** The key for the stddev value in the map. */
+	public final static String STDDEV = "STDDEV";
+	
+
+	
 	/** The original data. */
 	private List<Double> originalData;
 	
@@ -80,12 +88,16 @@ public class Histogram
 	/** The bounds of the reshaped histogram.*/
 	private double lower, upper;
 	
+	private double mean, std;
+	private boolean stdCalculated;
+	
 	/** Calculates the histogram.*/
 	private void calculateHistogram()
 	{
 		this.freq = new float[(int) bins];
 		calculateRange();
 		populateBins();
+		stdCalculated = false;
 	}
 	
 	/** Calculate the range of the values in the originalData.*/
@@ -119,11 +131,17 @@ public class Histogram
 	private void populateBins()
 	{
 		int index;
+		mean = 0;
+		std = 0;
 		for (double dataPt : originalData)
 		{
 			index = calculateIndex(dataPt);
 			freq[index] = freq[index]+1;
+			mean = mean + dataPt;
+			
 		}
+		if(originalData.size()!=0)
+			mean = mean / (double)originalData.size();
 	}
 
 	/**
@@ -222,5 +240,82 @@ public class Histogram
 		binStats.put(FREQ, (double)freq[bin]);
 		
 		return binStats;
+	}
+	
+	/**
+	 * Get the mean. 
+	 * @return See above.
+	 */
+	public double getMean()
+	{
+		return mean;
+	}
+	
+	/**
+	 * Return the standard deviation of the data, calculate it if it has not been set.
+	 * @return See above.
+	 */
+	public double getStd()
+	{
+		if(stdCalculated)
+			return std;
+		else
+		{
+			calculateStd();
+			return std;
+		}
+	}
+	
+	/**
+	 * Calculate the standard deviation of the data.
+	 */
+	private void calculateStd()
+	{
+		std = 0;
+		for(double dataPt : originalData)
+		{
+			std = std + Math.pow(dataPt-mean,2);
+		}
+		if(originalData.size()!=0)
+			std = Math.sqrt(std/(double)originalData.size());
+		stdCalculated = true;
+	}	
+
+	/**
+	 * Get the stats for the values in the bins [start,end]
+	 * @param start See above.
+	 * @param end See above.
+	 * @return See above.
+	 */
+	public Map<String, Double> getRangeStats(int lower, int upper)
+	{
+		Map<String, Double> rangeStats = new HashMap<String, Double>();
+		double count = 0;
+		double mean = 0;
+		double stddev = 0;
+		double min = lower*binWidth+range.getMin();
+		double max = (upper+1)*binWidth;
+		double percent = 0;
+		
+		for(int i = 0 ; i < originalData.size() ; i++)
+			if(originalData.get(i)>=min && originalData.get(i)<max)
+			{
+				count = count + 1;
+				mean=mean+originalData.get(i);
+			}
+		mean = mean /(float)count;
+		for(int i = 0 ; i < originalData.size() ; i++)
+			if(originalData.get(i)>=min && originalData.get(i)<max)
+				stddev = Math.pow(originalData.get(i)-mean,2);
+		
+		stddev = stddev/(float)count;
+		percent = (double)(count)/(double)originalData.size();
+		rangeStats.put(FREQ,count);
+		rangeStats.put(MEAN,mean);
+		rangeStats.put(MIN,min);
+		rangeStats.put(MAX,max);
+		rangeStats.put(STDDEV,stddev);
+		rangeStats.put(PERCENT,percent);
+		return rangeStats;
 	}
 }

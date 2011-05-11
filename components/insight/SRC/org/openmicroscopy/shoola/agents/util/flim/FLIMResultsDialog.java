@@ -58,7 +58,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileFilter;
 
@@ -163,15 +162,12 @@ public class FLIMResultsDialog
 	/** The table displaying the values plotted. */
 	private Double[][] data;
 	
+	/** The stats table.  */
+	private StatsTable statsTable;
+	
 	/** The component hosting the various JXTaskPane. */
 	private JXTaskPaneContainer paneContainer;
-	
-	/** The table displaying the intervals. */
-	private TableIntervals tableIntervals;
-
-	/** The table displaying the plotted values. */
-	private JTable tableValues;
-	
+		
 	/** The results to display. */
 	private Map<FileAnnotationData, File> results;
 	
@@ -199,12 +195,6 @@ public class FLIMResultsDialog
 	/** The name of the image. */
 	private String	imageName;
 	
-	/** Component displaying the intervals. */
-	private JComponent intervalsPane;
-	
-	/** Component displaying the graphics. */
-	private JComponent graphicsPane;
-	
 	/** The graph of the photons for the individual pixels selected. */
 	private XYChartCanvas photonChart;
 	
@@ -231,6 +221,9 @@ public class FLIMResultsDialog
 
 	/** Slider used to enter the minimum and maximum values. */
 	private TextualTwoKnobsSlider slider;
+	
+	/** Slider used to enter the red and blue components of the colourmap. */
+	private TextualTwoKnobsSlider colourMapSlider;
 	
 	/**
 	 * Saves the data to the specified file.
@@ -272,12 +265,6 @@ public class FLIMResultsDialog
 			writer.openFile();
 			writer.createSheet("FLIM Results for ");
 			int row = 0;
-			if (tableIntervals != null) {
-				row = tableIntervals.getModel().getRowCount()+1;
-				writer.writeTableToSheet(0, 0, tableIntervals.getModel());
-			}
-			if (tableValues != null)
-				writer.writeTableToSheet(row+3, 0, tableValues.getModel());
 			BufferedImage image;
 			int w, h;
 			Point p = null;
@@ -410,6 +397,9 @@ public class FLIMResultsDialog
 		chartObject = new HistogramCanvas((List<Double>) sorter.sort(values), 
 				data, BINS, true, 0);
 		chartObject.addPropertyChangeListener(this);
+		colourMapSlider.setValues(BINS, 0, BINS, 0, BINS/4,BINS/2+BINS/4);
+		chartObject.setRGB(BINS/4, BINS/2+BINS/4);
+		colourMapSlider.addPropertyChangeListener(this);
 		/*chartObject.addMouseListener(new MouseAdapter(){
 			public void mousePressed(MouseEvent me) { 
 	            canvasClicked(me.getX(), me.getY());
@@ -438,17 +428,28 @@ public class FLIMResultsDialog
 		chartObject.setPreferredSize(new Dimension(1000,300));
 		chartObject.setMaximumSize(new Dimension(1000,300));
 		chartObject.setMaximumSize(new Dimension(1000,300));
-		photonChart.setPreferredSize(new Dimension(1000,250));
-		photonChart.setMaximumSize(new Dimension(1000,250));
-		photonChart.setMaximumSize(new Dimension(1000,250));
 		p.add(chartObject);
+		JPanel sliderPanel = new JPanel();
+		sliderPanel.setLayout(new FlowLayout());
+		sliderPanel.add(colourMapSlider);
+		sliderPanel.setPreferredSize(new Dimension(1000,40));
+		sliderPanel.setMaximumSize(new Dimension(1000,40));
+		sliderPanel.setMinimumSize(new Dimension(1000,40));
+		JPanel chartStatsPanel = new JPanel();
+		//chartStatsPanel.setLayout(new BoxLayout(chartStatsPanel, BoxLayout.X_AXIS));
+		  double size[][] =
+          {{0.5, 0.5},
+           {TableLayout.FILL, TableLayout.FILL}};
+		chartStatsPanel.setLayout(new TableLayout(size));
+		
+		chartStatsPanel.add(photonChart,"0,0,0,1");
+		chartStatsPanel.add(new JScrollPane(statsTable),"1,0,1,1");
+		chartStatsPanel.setPreferredSize(new Dimension(1000,250));
+		chartStatsPanel.setMaximumSize(new Dimension(1000,250));
+		chartStatsPanel.setMaximumSize(new Dimension(1000,250));
+		p.add(sliderPanel);
 		p.add(Box.createVerticalStrut(5));
-		p.add(photonChart);
-		intervalsPane.setPreferredSize(new Dimension(1000,80));
-		intervalsPane.setMaximumSize(new Dimension(1000,80));
-		intervalsPane.setMaximumSize(new Dimension(1000,80));
-		p.add(Box.createVerticalStrut(5));
-		p.add(intervalsPane);
+		p.add(chartStatsPanel);
 		return p;
 	}
 	
@@ -482,6 +483,14 @@ public class FLIMResultsDialog
 		maxBinLabel.setEditable(false);
 		minBinLabel.setEditable(false);
 		frequencyBinLabel.setEditable(false);
+		colourMapSlider = new TextualTwoKnobsSlider();
+		colourMapSlider.layoutComponents(
+        		TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
+		colourMapSlider.setSize(new Dimension(1000,30));
+		colourMapSlider.setPreferredSize(new Dimension(1000,30));
+		colourMapSlider.setMaximumSize(new Dimension(1000,30));
+		colourMapSlider.setMinimumSize(new Dimension(1000,30));
+		statsTable = new StatsTable();
 		canvas = new ImageCanvas();
 		Entry entry;
 		Iterator i = results.entrySet().iterator();
@@ -526,15 +535,12 @@ public class FLIMResultsDialog
 		resultsBox.setSelectedIndex(selectedIndex);
 		resultsBox.setActionCommand(""+SELECTION);
 		resultsBox.addActionListener(this);
-		tableIntervals = new TableIntervals(this, NAME_Y_AXIS);
 		paneContainer = new JXTaskPaneContainer();
 		VerticalLayout layout = (VerticalLayout) paneContainer.getLayout();
 		layout.setGap(0);
 		
 		JXTaskPane p = UIUtilities.createTaskPane("Intervals Data", null);
 		//p.add(new JScrollPane(tableIntervals));
-		intervalsPane = new JScrollPane(tableIntervals);
-		intervalsPane.setPreferredSize(new Dimension(300, 100));
 		paneContainer.add(p);
 		paneContainer.add(UIUtilities.createTaskPane("Graph Data", null));
 		
@@ -553,10 +559,6 @@ public class FLIMResultsDialog
 		} else {
 			createChart();//(extractValues(), BINS);
 		}
-		tableIntervals.populateTable();
-		tableValues = new JTable(data, COLUMNS);
-		tableValues.getTableHeader().setReorderingAllowed(false);
-		graphicsPane = new JScrollPane(tableValues);
 		saveButton.setEnabled(chartObject != null);
 
 		photonChart = new XYChartCanvas();
@@ -594,15 +596,6 @@ public class FLIMResultsDialog
 	{
 		if (parseValues == null || parseValues.size() == 0) return;
 		createChart();
-		tableIntervals.populateTable();
-		
-		//JXTaskPane pane = (JXTaskPane) paneContainer.getComponent(1);
-		//pane.removeAll();
-		tableValues = new JTable(data, COLUMNS);
-		tableValues.getTableHeader().setReorderingAllowed(false);
-		tableValues.setPreferredScrollableViewportSize(new Dimension(300, 150));
-		//pane.add(new JScrollPane(tableValues));
-		graphicsPane = new JScrollPane(tableValues);
 		mainPane = layoutBody();
 		getContentPane().add(mainPane, BorderLayout.CENTER);
 		getContentPane().validate();
@@ -627,7 +620,6 @@ public class FLIMResultsDialog
 		}
 		if (f == null) return;
 		parseValues = parseFile(f);
-		tableIntervals.clearTable();
 		initSlider();
 		plot();
 	}
@@ -669,6 +661,7 @@ public class FLIMResultsDialog
 					if (v < start) start = v;
 					if (v > end) end = v;
 					v = UIUtilities.roundTwoDecimals(v*FACTOR);
+				
 					row.add(v);
 				}
 				list.add(row);
@@ -885,11 +878,47 @@ public class FLIMResultsDialog
 			File f = files[0];
 			saveAs(f);
 		} else if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
-			plot();
+			newRangeSelected((int)colourMapSlider.getStartValue(), (int)colourMapSlider.getEndValue());
 		}else if (HistogramCanvas.CHARTSELECTED_PROPERTY.equals(name)){
 			
 			displayMapResult((Integer)evt.getNewValue());
 		}
+	}
+	
+	private void newRangeSelected(int start, int end)
+	{
+		chartObject.setRGB(start, end);
+		
+		Map<String, Double> redStats = chartObject.getRangeStats(0,start);
+		Map<String, Double> greenStats = chartObject.getRangeStats(start, end);
+		Map<String, Double> blueStats = chartObject.getRangeStats(end, BINS);
+		RowData rowData = new RowData();
+		rowData.addElement("Red");
+		rowData.addElement(redStats.get(Histogram.MIN));
+		rowData.addElement(redStats.get(Histogram.MAX));
+		rowData.addElement(redStats.get(Histogram.MEAN));
+		rowData.addElement(redStats.get(Histogram.STDDEV));
+		rowData.addElement(redStats.get(Histogram.FREQ));
+		rowData.addElement(redStats.get(Histogram.PERCENT));
+		statsTable.insertData(rowData);
+		rowData = new RowData();
+		rowData.addElement("Green");
+		rowData.addElement(greenStats.get(Histogram.MIN));
+		rowData.addElement(greenStats.get(Histogram.MAX));
+		rowData.addElement(greenStats.get(Histogram.MEAN));
+		rowData.addElement(greenStats.get(Histogram.STDDEV));
+		rowData.addElement(greenStats.get(Histogram.FREQ));
+		rowData.addElement(greenStats.get(Histogram.PERCENT));
+		statsTable.insertData(rowData);
+		rowData = new RowData();
+		rowData.addElement("Blue");
+		rowData.addElement(blueStats.get(Histogram.MIN));
+		rowData.addElement(blueStats.get(Histogram.MAX));
+		rowData.addElement(blueStats.get(Histogram.MEAN));
+		rowData.addElement(blueStats.get(Histogram.STDDEV));
+		rowData.addElement(blueStats.get(Histogram.FREQ));
+		rowData.addElement(blueStats.get(Histogram.PERCENT));
+		statsTable.insertData(rowData);
 	}
 	
 	/**
