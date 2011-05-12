@@ -404,7 +404,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         	{
         		try
         		{
-        			viewer.getHistoryTable().db.initialize(store);
+        			viewer.getHistoryTable().db.initialize(store, config.getStaticDisableHistory() | config.getUserDisableHistory());
         			viewer.getHistoryTable().db.initializeDataSource();
         	        if (viewer.getHistoryTable().db.historyEnabled == false)
         	        	viewer.tPane.setEnabledAt(viewer.historyTabIndex,false);

@@ -118,21 +118,27 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      * @param store - OMEROmetadataStore
      * @throws ServerError - returned server error if unable to contact server
      */
+	@Deprecated
     public void initialize(OMEROMetadataStoreClient store) throws ServerError {
+    	initialize(store, false);
+    }
+    
+    public void initialize(OMEROMetadataStoreClient store, boolean disable) throws ServerError {
     	this.store = store;
         this.sf = store.getServiceFactory();
         this.iQuery = sf.getQueryService();
-        if (sf.sharedResources().areTablesEnabled() == true) 
-        {        	
-        	this.historyEnabled = true;
-        	log.warn("History tables service Enabled.");
-        } else
-        {
+        if (disable) {
         	this.historyEnabled = false;
         	log.warn("History tables service Disabled.");
-        }
-        
+        } else if (sf.sharedResources().areTablesEnabled() == true) {        	
+        	this.historyEnabled = true;
+        	log.warn("History tables service Enabled.");
+        } else {
+        	this.historyEnabled = false;
+        	log.warn("History tables service Disabled.");
+        }    	
     }
+    
     
 	/* (non-Javadoc)
 	 * @see ome.formats.importer.gui.IHistoryTableDataSource#initializeDataSource()
@@ -916,7 +922,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         HistoryTableStore hts = new HistoryTableStore();
         try
         {
-            hts.initialize(store);
+            hts.initialize(store, false);
             
         	if (CLEAN)
         	{

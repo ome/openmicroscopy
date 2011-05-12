@@ -338,6 +338,27 @@ public class ImportConfig {
     public boolean getForceFileArchiveOn() {
         return ini.getForceFileArchiveOn();
     }    
+
+    /**
+     * @return ini getStaticDisableHistory
+     */
+    public boolean getStaticDisableHistory() {
+        return ini.getStaticDisableHistory();
+    }   
+    
+    /**
+     * @return ini getUserDisableHistory
+     */
+    public boolean getUserDisableHistory() {
+        return ini.getUserDisableHistory();
+    }      
+    
+    /**
+     * @param b - true if Quaqua should be used
+      */
+    public void setUserDisableHistory(boolean b) {
+        ini.setUserDisableHistory(b);
+    }
     
     /**
      * @return ini version note
@@ -654,6 +675,7 @@ public class ImportConfig {
         numOfDirectories.load();
         savedDirectory.load();
         companionFile.load();
+
 
         sendLogFile.load();
         sendFiles.load();

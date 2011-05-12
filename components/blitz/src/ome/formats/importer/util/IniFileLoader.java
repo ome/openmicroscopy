@@ -173,6 +173,33 @@ public class IniFileLoader {
     {
     	return staticPrefs.node("UI").getBoolean("forceFileArchiveOn", false);
     }
+
+    /**
+     * @return application title
+     */
+    public boolean getStaticDisableHistory()
+    {
+    	return staticPrefs.node("UI").getBoolean("disableImportHistory", false);
+    }
+    
+    /**
+     * Set debug level for application
+     *
+     * @param level
+     */
+    public void setUserDisableHistory(boolean b)
+    {
+        userPrefs.node("UI").putBoolean("disableHistory", b);
+        this.flushPreferences();
+    }    
+    
+    /**
+     * @return if debug console should be shown
+     */
+    public Boolean getUserDisableHistory()
+    {
+    	return userPrefs.node("UI").getBoolean("disableHistory", false);
+    }
     
     /**
      * Set debug level for application
