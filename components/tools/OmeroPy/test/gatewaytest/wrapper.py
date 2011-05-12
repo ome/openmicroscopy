@@ -21,16 +21,31 @@ class WrapperTest (lib.GTest):
         self.TESTIMG = self.getTestImage()
 
     def testAllObjectsWrapped (self):
-        
-        # Blitz object wrapper should ensure that all values returned are also wrapped (or are primative values)
+        """ Blitz object wrapper should ensure that all values returned are also wrapped (or are primative values) """
+
         image = self.TESTIMG
         pixels = image.getPrimaryPixels()
         instrument = image.getInstrument()
         self.assertTrue(isinstance(instrument, omero.gateway.BlitzObjectWrapper))
         self.assertFalse(hasattr(image.getArchived(), 'val'), "Shouldn't return rtype")
         self.assertFalse(hasattr(image.getAcquisitionDate(), 'val'), "Shouldn't return rtype")
+        self.assertFalse(hasattr(image.sizeOfPixels(), 'val'), "Non 'get' methods shouldn't return rtype either")
         self.assertTrue(isinstance(image.getInstrument(), omero.gateway.InstrumentWrapper), "Should return InstrumentWrapper")
         self.assertTrue(isinstance(pixels, omero.gateway.BlitzObjectWrapper), "Should return a BlitzObjectWrapper")
+
+        # 'get' methods should wrap model objects in BlitzObjectWrapper - allowing lazy loading
+        self.assertTrue(isinstance(image.getFormat(), omero.gateway.BlitzObjectWrapper), "Should return a BlitzObjectWrapper")
+        format = image.getFormat()
+        self.assertEqual(format.value, "Deltavision", "BlitzObjectWrapper should lazy-load the value")
+        self.assertFalse(hasattr(format.value, 'val'), "Shouldn't return rtype")
+        self.assertFalse(hasattr(format.getValue(), 'val'), "Shouldn't return rtype")
+        # direct access of the same model object shouldn't wrap
+        self.assertTrue(isinstance(image.format, omero.model.FormatI), "Shouldn't wrap directly-accessed objects")
+        self.assertTrue(hasattr(image.format.id, 'val'), "Model object access")
+        # 'get' methods where there isn't a similarly-named attribute also shouldn't wrap
+        self.assertTrue(isinstance(image.getPixels(0), omero.model.PixelsI), "Shouldn't wrap: No 'pixels' attribute")
+        # Don't accidentally wrap data structures
+        self.assertTrue(isinstance(image.copyPixels(), list), "Shouldn't wrap lists")
 
 
     def testProjectWrapper (self):
