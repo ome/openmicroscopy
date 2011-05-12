@@ -198,9 +198,10 @@ class SessionsControl(BaseControl):
                             else:
                                 rv = store.attach(*previous)
                                 return self.handle(rv, "Using")
+                        self.ctx.out("Previously logged in to %s:%s as %s" % (previous[0], previous_port, previous[1]))
                     except exceptions.Exception, e:
+                        self.ctx.out("Previous session expired for %s on %s:%s" % (previous[1], previous[0], previous_port))
                         self.ctx.dbg("Exception on attach: %s" % traceback.format_exc(e))
-                        self.ctx.out("Removing session on exception: %s" % e)
                         try:
                             store.remove(*previous)
                         except OSError, ose:
@@ -210,7 +211,6 @@ class SessionsControl(BaseControl):
                             # Could tell user to manually clear here and then self.ctx.die()
                             self.ctx.err("Failed to remove session: %s" % e)
 
-                    self.ctx.out("Previously logged in to %s:%s as %s" % (previous[0], previous_port, previous[1]))
 
         #
         # If we've reached here, then the user either does not have
