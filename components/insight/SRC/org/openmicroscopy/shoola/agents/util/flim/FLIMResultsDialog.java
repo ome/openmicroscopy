@@ -207,16 +207,16 @@ public class FLIMResultsDialog
 	/** The label displaying the median. */
 	private JLabel medianLabel;
 
-	/** The label displaying the mean. */
+	/** The label displaying the min of the bin. */
 	private JLabel minBinLabel;
 
-	/** The label displaying the mean. */
+	/** The label displaying the max of the bin. */
 	private JLabel maxBinLabel;
 
-	/** The label displaying the median. */
+	/** The label displaying the bin mean. */
 	private JLabel meanBinLabel;
 	
-	/** The label displaying the mean. */
+	/** The label displaying the bin name. */
 	private JLabel binLabel;
 
 	/** The label displaying the median. */
