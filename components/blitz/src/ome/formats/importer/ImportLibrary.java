@@ -778,6 +778,7 @@ public class ImportLibrary implements IObservable
                 }
             }
         }
+        store.closePixelsStore();
         return md;
     }
 

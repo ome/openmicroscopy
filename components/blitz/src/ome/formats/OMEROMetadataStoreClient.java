@@ -2356,6 +2356,15 @@ public class OMEROMetadataStoreClient
     }
 
     /**
+     * Closes the active raw pixels store. Finalizing any open server side
+     * resources.
+     */
+    public void closePixelsStore()
+    {
+        closeQuietly(rawPixelStore);
+    }
+
+    /**
      * Retrieves the suggested tile size for a pixels set.
      * @param pixId Pixels set to write to.
      * @return Width and height of the tile as an array.
