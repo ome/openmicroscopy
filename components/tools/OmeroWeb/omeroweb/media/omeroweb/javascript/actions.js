@@ -427,14 +427,6 @@ function changeView(view) {
     return false;
 };
 
-function openPopup(url) {
-    // use url for window name to give a new window for each new url
-    owindow = window.open(url, url, config='height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
-    if(!owindow.closed) owindow.focus();
-    return false;
-}
-
-
 function saveMetadata (image_id, metadata_type, metadata_value) {
     if (image_id == null) {
         alert("No image selected.")
@@ -455,12 +447,6 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
             }
         });
     }
-}
-
-function editItem(type, item_id) {
-    src = '/webclient/action/edit/'+type+'/'+item_id+'/';
-    loadMetadata(src);
-    return false;
 }
 
 function doPagination(view, page) {
