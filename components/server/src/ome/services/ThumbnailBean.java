@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -631,7 +632,8 @@ public class ThumbnailBean extends AbstractLevel2Service
     protected void errorIfNullRenderingDef()
     {
         errorIfNullPixels();
-        if (settings == null && sec.isGraphCritical())
+        if (settings == null &&
+            ctx.isExtendedGraphCritical(Collections.singleton(pixelsId)))
         {
             long ownerId = pixels.getDetails().getOwner().getId();
             throw new ResourceError(String.format(
@@ -1092,7 +1094,8 @@ public class ThumbnailBean extends AbstractLevel2Service
     @Transactional(readOnly = false)
     public void resetDefaults()
     {
-        if (settings == null && sec.isGraphCritical())
+        if (settings == null
+            && ctx.isExtendedGraphCritical(Collections.singleton(pixelsId)))
         {
             throw new ApiUsageException(
                     "Unable to reset rendering settings in a read-only group " +

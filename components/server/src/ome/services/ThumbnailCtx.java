@@ -616,7 +616,7 @@ public class ThumbnailCtx
      * @return <code>true</code> if we're graph critical, and
      * <code>false</code> otherwise.
      */
-    private boolean isExtendedGraphCritical(Set<Long> pixelsIds)
+    public boolean isExtendedGraphCritical(Set<Long> pixelsIds)
     {
         EventContext ec = securitySystem.getEventContext();
         Permissions currentGroupPermissions = ec.getCurrentGroupPermissions();
