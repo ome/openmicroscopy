@@ -322,7 +322,6 @@ public class PixelsService extends AbstractFileSystemService
             if (requirePyramid) {
                 log.info("Creating Pyramid BfPixelBuffer: " +
                         pixelsPyramidFilePath);
-                createSubpath(pixelsPyramidFilePath);
                 return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath, true);
             } else {
                 if (originalFilePath != null) {
@@ -491,6 +490,10 @@ public class PixelsService extends AbstractFileSystemService
 
         try
         {
+            if (write) {
+                // #5159. Creating the path if we need to write.
+                createSubpath(filePath);
+            }
             return new BfPyramidPixelBuffer(pixels, filePath, write);
         }
         catch (Exception e)
