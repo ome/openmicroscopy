@@ -136,6 +136,13 @@ class FileElement
 	}
 	
 	/**
+	 * Returns the type associated to that element.
+	 * 
+	 * @return See above.
+	 */
+	int getType() { return type; }
+	
+	/**
 	 * Returns the length of the file
 	 * 
 	 * @return See above.

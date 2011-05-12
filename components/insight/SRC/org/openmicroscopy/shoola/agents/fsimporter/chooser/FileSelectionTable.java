@@ -55,6 +55,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineHeaderSelectionRenderer;
@@ -587,7 +588,9 @@ class FileSelectionTable
 				if (b) {
 					if (f.isDirectory()) {
 						value = f.getName();
-						v = fad; 
+						v = fad;
+						if (model.getType() == Importer.SCREEN_TYPE)
+							v = false;
 					} else {
 						if (model.isParentFolderAsDataset()) {
 							value = f.getParentFile().getName();
@@ -742,13 +745,13 @@ class FileSelectionTable
 				case CONTAINER_INDEX:
 				case SIZE_INDEX:
 					return false;
-				case FOLDER_AS_CONTAINER_INDEX:
+				case FOLDER_AS_CONTAINER_INDEX:	
 					if (getColumnCount() == 
 						COLUMNS_NO_FOLDER_AS_CONTAINER.size())
 						return archivedTunable;
 					FileElement f = (FileElement) getValueAt(row, FILE_INDEX);
-					if (f.isToggleContainer() && !f.isDirectory())
-						return true;
+					if (f.getType() == Importer.SCREEN_TYPE)
+						return false;
 					return f.isDirectory();
 				case ARCHIVED_INDEX: return archivedTunable;
 			}
