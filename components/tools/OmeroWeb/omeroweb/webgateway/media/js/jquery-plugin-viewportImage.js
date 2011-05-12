@@ -441,6 +441,7 @@ $.fn.viewportImage = function(options) {
             jQuery('#wblitz-zoom').parent().hide();
             jQuery('#wblitz-lp-enable').parent().hide();
             jQuery('#wblitz-invaxis').attr('disable', true);
+            jQuery('#roi_controls').hide();
         } else {            
             viewerBean.tileUrlProvider = myProvider;
             viewerBean.update_url();
