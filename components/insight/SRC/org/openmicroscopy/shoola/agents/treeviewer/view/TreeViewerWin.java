@@ -224,7 +224,7 @@ class TreeViewerWin
             }
             AdvancedFinder finder = model.getAdvancedFinder();
     		finder.addPropertyChangeListener(controller);
-    		container.add(new TaskPaneBrowser(finder));
+    		container.add(new TaskPaneBrowser(new JScrollPane(finder)));
     		JScrollPane s = new JScrollPane(container);
     		s.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
             browsersDisplay = s;

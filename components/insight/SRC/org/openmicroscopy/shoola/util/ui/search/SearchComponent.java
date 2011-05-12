@@ -38,6 +38,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
@@ -252,18 +253,28 @@ public class SearchComponent
 	 */
 	private void buildGUI(boolean showControl)
 	{
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBackground(UIUtilities.BACKGROUND_COLOR);
-		add(uiDelegate);
-		if (showControl) 
-			add(buildToolBar());
-		add(buildStatusBar());
+		double[][] size = {{TableLayout.PREFERRED}, 
+				{TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED, 
+			TableLayout.PREFERRED, TableLayout.PREFERRED}};
+		setLayout(new TableLayout(size));
+		int i = 0;
+		String key = "0, ";
+		add(uiDelegate, key+i);
+		i++;
+		if (showControl) {
+			add(buildToolBar(), key+i);
+		}
+		i++;
+		add(buildStatusBar(), key+i);
 		resultPane = new JPanel();
 		resultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		JPanel sep = new SeparatorPane();
 		sep.setBackground(UIUtilities.BACKGROUND_COLOR);
-		add(sep);
-		add(resultPane);
+		i++;
+		add(sep, key+i);
+		i++;
+		add(resultPane, key+i);
 	}
 	
 	/** Closes and disposes of the window. */
