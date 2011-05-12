@@ -624,6 +624,7 @@ class MetadataViewerModel
 	void setSelectionMode(boolean singleMode)
 	{
 		this.singleMode = singleMode;
+		if (singleMode) relatedNodes = null;
 	}
 	
 	/** 
@@ -637,11 +638,11 @@ class MetadataViewerModel
 	/**
 	 * Sets the nodes related to the object of reference.
 	 * 
-	 * @param relateNodes The value to set.
+	 * @param relatedNodes The value to set.
 	 */
-	void setRelatedNodes(List relateNodes)
+	void setRelatedNodes(List relatedNodes)
 	{ 
-		this.relatedNodes = relateNodes;
+		this.relatedNodes = relatedNodes;
 	}
 	
 	/**

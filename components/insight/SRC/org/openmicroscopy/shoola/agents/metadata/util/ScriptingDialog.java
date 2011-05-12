@@ -744,6 +744,7 @@ public class ScriptingDialog
 			List<DataObject> refObjects)
 	{
 		super(parent);
+		setModal(true);
 		if (script == null)
 			throw new IllegalArgumentException("No script specified");
 		this.script = script;
