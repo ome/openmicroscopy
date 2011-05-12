@@ -17,6 +17,9 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.conditions.InternalException;
+import ome.model.core.Channel;
+import ome.model.internal.Details;
+import ome.model.stats.StatsInfo;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -202,6 +205,8 @@ public interface SqlAction {
     void setPixelsNamePathRepo(long pixId, String name, String path,
             String repoId);
 
+    long setStatsInfo(Channel ch, StatsInfo si);
+
     // TODO this should probably return an iterator.
     List<Long> getDeletedIds(String entityType);
 
@@ -370,6 +375,23 @@ public interface SqlAction {
             } catch (EmptyResultDataAccessException erdae) {
                 return null;
             }
+        }
+
+        //
+        // PIXELS
+        //
+
+        public long setStatsInfo(Channel ch, StatsInfo si) {
+            final Details d = ch.getDetails();
+            final long id = nextValue("seq_statsinfo", 1);
+            _jdbc().update(_lookup("stats_info_creation"), //$NON-NLS-1$
+                    id, Utils.internalForm(d.getPermissions()),
+                    si.getGlobalMax(), si.getGlobalMin(),
+                    d.getCreationEvent().getId(), d.getGroup().getId(),
+                    d.getOwner().getId(), d.getUpdateEvent().getId());
+            _jdbc().update(_lookup("stats_info_set_on_channel"), //$NON-NLS-1$
+                    id, ch.getId());
+            return id;
         }
 
         //
