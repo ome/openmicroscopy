@@ -159,7 +159,7 @@ class AnnotationsTest (lib.GTest):
         fileSize = os.path.getsize(tempFileName)
         ns = self.TESTANN_NS
         image = self.TESTIMG
-        fileAnn = omero.gateway.FileAnnotationWrapper.fromLocalFile(self.gateway, tempFileName, mimetype='text/plain', ns=ns)
+        fileAnn = self.gateway.createFileAnnfromLocalFile(tempFileName, mimetype='text/plain', ns=ns)
         image.linkAnnotation(fileAnn)
         os.remove(tempFileName)
 
