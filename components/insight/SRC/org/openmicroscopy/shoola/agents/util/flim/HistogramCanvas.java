@@ -331,9 +331,18 @@ extends PApplet
 	 * Get the bin containing the mean. 
 	 * @return See above.
 	 */
-	public int getMean()
+	public double getMean()
 	{
-		return chart.findBin(chart.getMean());
+		return chart.getMean();
+	}
+
+	/**
+	 * Get the bin containing the mean. 
+	 * @return See above.
+	 */
+	public double getMedian()
+	{
+		return chart.getMedian();
 	}
 
 	/**

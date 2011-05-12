@@ -408,6 +408,7 @@ public class FLIMResultsDialog
 			j = l.iterator();
 			while (j.hasNext()) {
 				value = 0;
+				index = index+1;
 				v = j.next();
 				//if (v > min && v < max) {
 					values.add(v);
@@ -998,6 +999,8 @@ public class FLIMResultsDialog
 		Map<String, Double> binStats = chartObject.getBinStats(bin);
 		if(binStats==null)
 			return;
+		meanTextField.setText(UIUtilities.formatToDecimal(chartObject.getMean()));
+		medianTextField.setText(UIUtilities.formatToDecimal(chartObject.getMedian()));
 		meanBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));
 		maxBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MAX)));
 		binTextField.setText(UIUtilities.formatToDecimal(bin));

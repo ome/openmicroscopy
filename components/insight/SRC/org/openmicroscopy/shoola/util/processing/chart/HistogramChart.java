@@ -531,7 +531,7 @@ public class HistogramChart
 	}
 	
 	/**
-	 * Get the bin containing the mean. 
+	 * Get the mean. 
 	 * @return See above.
 	 */
 	public double getMean()
@@ -539,6 +539,15 @@ public class HistogramChart
 		return histogram.getMean();
 	}
 
+	/**
+	 * Get the median. 
+	 * @return See above.
+	 */
+	public double getMedian()
+	{
+		return histogram.getMedian();
+	}
+	
 	/**
 	 * Get the bins that are one stddev.
 	 * @return See above.
