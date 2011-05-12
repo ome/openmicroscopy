@@ -17,6 +17,7 @@ import java.util.List;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.HtmlMessenger;
@@ -200,7 +201,12 @@ public class TestEngine
                 // Do import 
 				start = new Date();
 				interceptor.setSourceFile(file); 
-				importLibrary.importImage(file, 0, 0, 1, fileList[j], null, false, true, null, target);
+				ImportContainer ic = 
+				new ImportContainer(file, -1L, target, 
+						false, null, null, null, null);
+				ic.setUseMetadataFile(true);
+				ic.setCustomImageName(fileList[j]);
+				importLibrary.importImage(ic, 0, 0, 1);
 				iniFile.flush();
 			}
 			catch (Throwable e)

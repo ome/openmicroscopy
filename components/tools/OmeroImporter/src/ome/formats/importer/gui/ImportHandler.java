@@ -213,12 +213,15 @@ public class ImportHandler implements IObservable
 
 
                 try {
+                	library.importImage(container, j, numOfDone, numOfPendings);
+                	/*
                     library.importImage(importContainer[j].getFile(), j, numOfDone,
                             numOfPendings, importContainer[j]
                                     .getCustomImageName(), null, // Description
                             container.getArchive(), config.companionFile.get(), // Metadata file creation
                             // (TODO: Enable in container and UI)
                             container.getUserPixels(), container.getTarget());
+                            */
                     this.library.clear();
                     
                     updateHistoryWithDoneImport(importKey, j);

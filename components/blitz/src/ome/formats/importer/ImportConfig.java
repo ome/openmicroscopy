@@ -194,7 +194,7 @@ public class ImportConfig {
         }
 
         log.info(String.format("Bioformats version: %s revision: %s date: %s",
-             FormatTools.VERSION, FormatTools.SVN_REVISION, FormatTools.DATE));
+             FormatTools.VERSION, FormatTools.VCS_REVISION, FormatTools.DATE));
 
         hostname     = new StrValue("hostname", this, "omero.host");
         username     = new StrValue("username", this, "omero.name");

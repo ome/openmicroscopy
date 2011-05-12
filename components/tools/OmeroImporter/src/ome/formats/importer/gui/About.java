@@ -72,7 +72,7 @@ public abstract class About
             
             msg = "Version: " + omeroVersion;
             msg = msg + "\n Bio-Formats " + FormatTools.VERSION + 
-            " (SVN " + FormatTools.SVN_REVISION + ", " + FormatTools.DATE + ")";
+            " (SVN " + FormatTools.VCS_REVISION + ", " + FormatTools.DATE + ")";
             JOptionPane.showMessageDialog(parent, msg, title,
                     JOptionPane.INFORMATION_MESSAGE); 
             parent.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);

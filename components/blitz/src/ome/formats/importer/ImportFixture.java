@@ -119,14 +119,21 @@ public class ImportFixture
      */
     public void doImport() throws Throwable
     {
+    	ImportContainer ic;
         for (File file : fads.keySet())
         {
+        	ic = new ImportContainer(file, -1L, fads.get(file), 
+					false, null, null, null, null);
+        	ic.setCustomImageName(file.getAbsolutePath());
+        	library.importImage(ic, 0, 0, 1);
+        /*	
 		library.importImage(file, 0, 0, 1, file.getAbsolutePath(),
 				        null,
 				        false,  // To archive?
 				        false,  // Create a metadata file?
 				        null,
 				        fads.get(file));
+				        */
         }
     }
 

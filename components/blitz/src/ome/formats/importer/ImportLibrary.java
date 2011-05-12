@@ -28,8 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static omero.rtypes.rstring;
-
 import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
@@ -45,7 +43,6 @@ import ome.formats.model.InstanceProvider;
 import ome.util.PixelData;
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
-import omero.metadatastore.IObjectContainer;
 import omero.model.Annotation;
 import omero.model.Dataset;
 import omero.model.FileAnnotation;
@@ -350,108 +347,6 @@ public class ImportLibrary implements IObservable
             setMetadataOnly(true);
             container.setArchive(true);
         }
-    }
-
-    /**
-     * Perform an image import.  <em>Note: this method both notifes
-     * {@link #observers} of error states AND throws the exception to cancel
-     * processing.</em>
-     * {@link #importCandidates(ImportConfig, ImportCandidates)}
-     * uses {@link ImportConfig#contOnError} to act on these exceptions.
-     *
-     * @deprecated As of OMERO Beta 4.2.1, replaced by
-     * {@link #importImage(ImportContainer, int, int, int)}.
-     * @param file Target file to import.
-     * @param index Index of the import in a set. <code>0</code> is safe if
-     * this is a singular import.
-     * @param numDone Number of imports completed in a set. <code>0</code> is
-     * safe if this is a singular import.
-     * @param total Total number of imports in a set. <code>1</code> is safe
-     * if this is a singular import.
-     * @param userSpecifiedImageName Name to use for all images that are
-     * imported from the target file <code>file</code>.
-     * @param userSpecifiedImageDescription Description to use for all images
-     * that are imported from target file <code>file</code>
-     * @param archive Whether or not to archive target file <code>file</code>
-     * and all sub files.
-     * @param useMetadataFile Whether or not to dump all metadata to a flat
-     * file annotation on the server.
-     * @param userSpecifiedTarget the IObject instances which will be used by
-     * the {@link #importMetadata(String, String, boolean, boolean, Double[])}
-     * method.
-     * @return List of Pixels that have been imported.
-     * @throws FormatException If there is a Bio-Formats image file format
-     * error during import.
-     * @throws IOException If there is an I/O error.
-     * @throws ServerError If there is an error communicating with the OMERO
-     * server we're importing into.
-     */
-    @Deprecated
-    public List<Pixels> importImage(File file, int index, int numDone,
-            int total, String userSpecifiedImageName,
-            String userSpecifiedImageDescription,
-            boolean archive, boolean useMetadataFile,
-            Double[] userPixels, IObject userSpecifiedTarget)
-        throws FormatException, IOException, Throwable
-    {
-        return importImage(file, index, numDone, total, userSpecifiedImageName,
-                userSpecifiedImageDescription, archive, useMetadataFile,
-                userPixels, userSpecifiedTarget, new ArrayList<Annotation>());
-    }
-
-    /**
-     * Perform an image import.  <em>Note: this method both notifes
-     * {@link #observers} of error states AND throws the exception to cancel
-     * processing.</em>
-     * {@link #importCandidates(ImportConfig, ImportCandidates)}
-     * uses {@link ImportConfig#contOnError} to act on these exceptions.
-     *
-     * @deprecated As of OMERO Beta 4.2.1, replaced by
-     * {@link #importImage(ImportContainer, int, int, int)}.
-     * @param file Target file to import.
-     * @param index Index of the import in a set. <code>0</code> is safe if
-     * this is a singular import.
-     * @param numDone Number of imports completed in a set. <code>0</code> is
-     * safe if this is a singular import.
-     * @param total Total number of imports in a set. <code>1</code> is safe
-     * if this is a singular import.
-     * @param userSpecifiedImageName Name to use for all images that are
-     * imported from the target file <code>file</code>.
-     * @param userSpecifiedImageDescription Description to use for all images
-     * that are imported from target file <code>file</code>
-     * @param archive Whether or not to archive target file <code>file</code>
-     * and all sub files.
-     * @param useMetadataFile Whether or not to dump all metadata to a flat
-     * file annotation on the server.
-     * @param userSpecifiedTarget the IObject instances which will be used by
-     * the {@link #importMetadata(String, String, boolean, boolean, Double[])}
-     * method.
-     * @param userSpecifiedAnnotations The annotations to link to each image
-     * in the import.
-     * @return List of Pixels that have been imported.
-     * @throws FormatException If there is a Bio-Formats image file format
-     * error during import.
-     * @throws IOException If there is an I/O error.
-     * @throws ServerError If there is an error communicating with the OMERO
-     * server we're importing into.
-     */
-    @Deprecated
-    public List<Pixels> importImage(File file, int index, int numDone,
-            int total, String userSpecifiedImageName,
-            String userSpecifiedImageDescription,
-            boolean archive, boolean useMetadataFile,
-            Double[] userPixels, IObject userSpecifiedTarget,
-            List<Annotation> userSpecifiedAnnotations)
-            throws FormatException, IOException, Throwable
-    {
-        ImportContainer container = new ImportContainer(
-                file, null, userSpecifiedTarget, archive, userPixels,
-                null, null, null);
-        container.setCustomImageName(userSpecifiedImageName);
-        container.setCustomImageDescription(userSpecifiedImageDescription);
-        container.setCustomAnnotationList(userSpecifiedAnnotations);
-        container.setUseMetadataFile(useMetadataFile);
-        return importImage(container, index, numDone, total);
     }
 
     /**

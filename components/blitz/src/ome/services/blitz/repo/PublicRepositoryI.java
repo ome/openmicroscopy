@@ -430,7 +430,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
         List<Pixels> pix = new ArrayList<Pixels>();
         try {
-             pix = library.importImage(file, 0, 0, 1, null, null, false, false, null, null);
+        	ImportContainer ic = new ImportContainer(file, -1L, null, 
+					false, null, null, null, null);
+             pix = library.importImage(ic, 0, 0, 1);
              return pix;
         } catch (Throwable t) {
              log.error("Faled to importImage: ", t);
