@@ -954,15 +954,18 @@ class BlitzObjectWrapper (object):
                     rv = getattr(self._obj, attrName)
                     if hasattr(rv, 'val'):
                         return isinstance(rv.val, StringType) and rv.val.decode('utf8') or rv.val
+                    elif isinstance(rv, omero.model.IObject):
+                        return BlitzObjectWrapper(self._conn, rv)
                     return rv
                 return wrap
 
         # handle direct access of attributes. E.g. image.acquisitionDate
+        # also handles access to other methods E.g. image.unloadPixels()
         if not hasattr(self._obj, attr) and hasattr(self._obj, '_'+attr):
             attr = '_' + attr
         if hasattr(self._obj, attr):
             rv = getattr(self._obj, attr)
-            if hasattr(rv, 'val'):
+            if hasattr(rv, 'val'):   # unwrap rtypes
                 return isinstance(rv.val, StringType) and rv.val.decode('utf8') or rv.val
             return rv
         raise AttributeError("'%s' object has no attribute '%s'" % (self._obj.__class__.__name__, attr))
