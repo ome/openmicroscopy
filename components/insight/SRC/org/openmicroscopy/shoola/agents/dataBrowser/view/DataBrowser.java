@@ -688,4 +688,7 @@ public interface DataBrowser
 	 */
 	void setTabularData(List<TableResult> data);
 	
+	/** Lays out the nodes.*/
+	void layoutDisplay();
+	
 }

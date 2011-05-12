@@ -78,7 +78,7 @@ class ImagesModel
 		long userID = DataBrowserAgent.getUserDetails().getId();
 		Set visTrees = DataBrowserTranslator.transformImages(images, userID, 0);
         browser = BrowserFactory.createBrowser(visTrees);
-        layoutBrowser();
+        //layoutBrowser();
 	}
 	
 	/**

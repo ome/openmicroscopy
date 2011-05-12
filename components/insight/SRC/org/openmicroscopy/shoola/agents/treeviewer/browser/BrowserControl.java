@@ -218,7 +218,6 @@ class BrowserControl
         	model.countExperimenterImages(display);
         	return;
         } 
-        
         if (display.isChildrenLoaded()) {
         	if (view.isFirstChildMessage(display)) {
         		List l = display.getChildrenDisplay();

@@ -84,7 +84,7 @@ class TagSetsModel
 		Set visTrees = DataBrowserTranslator.transformHierarchy(tagSets, 
 							userID, 0);
         browser = BrowserFactory.createBrowser(visTrees);
-        layoutBrowser();
+        //layoutBrowser();
         Iterator<TagAnnotationData> i = tagSets.iterator();
         TagAnnotationData tag;
         Set<DataObject> objects;

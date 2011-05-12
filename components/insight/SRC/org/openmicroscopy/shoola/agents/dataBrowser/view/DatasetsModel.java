@@ -78,7 +78,7 @@ class DatasetsModel
 		Set visTrees = DataBrowserTranslator.transformHierarchy(datasets, 
 							userID, 0);
         browser = BrowserFactory.createBrowser(visTrees);
-        layoutBrowser();
+        //layoutBrowser();
         Iterator<DatasetData> i = datasets.iterator();
 		DatasetData data;
 		List<Long> ids = new ArrayList<Long>();

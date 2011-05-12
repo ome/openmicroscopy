@@ -717,7 +717,7 @@ class DataBrowserToolBar
 			row = Integer.parseInt(itemsPerRow.getText());
 		} catch(NumberFormatException nfe) {}
 		
-		if (row < 0) row = LayoutUtils.DEFAULT_PER_ROW;
+		if (row < 0) row = 0;//LayoutUtils.DEFAULT_PER_ROW;
 		return row;
 	}
 	

@@ -76,7 +76,6 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -196,6 +195,7 @@ class DataBrowserComponent
 			if (model.getType() == DataBrowserModel.WELLS) {
 				model.fireTabularDataLoading(null);
 			}
+			view.setSelectedView(DataBrowserUI.THUMB_VIEW);
 		} else view.setSelectedView(DataBrowserUI.COLUMNS_VIEW);
 		if (model.getBrowser() != null) {
 			Browser browser = model.getBrowser();
@@ -1452,6 +1452,16 @@ class DataBrowserComponent
 	{
 		if (data == null) return;
 		model.setTabularData(data);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#layoutDisplay()
+	 */
+	public void layoutDisplay()
+	{
+		if (model instanceof WellsModel) return;
+		model.layoutBrowser(model.getLayoutIndex());
 	}
 	
 	/** 

@@ -86,9 +86,8 @@ class FSFolderModel
 			}
 		}
 		Set visTrees = DataBrowserTranslator.transformFSFolder(toTransform);
-		//numberOfImages = visTrees.size();
         browser = BrowserFactory.createBrowser(visTrees);
-        layoutBrowser();
+        //layoutBrowser();
 	}
 	
 	/**

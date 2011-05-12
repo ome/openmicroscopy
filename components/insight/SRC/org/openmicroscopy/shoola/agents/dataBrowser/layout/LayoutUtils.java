@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.layout;
 
-
-
-
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
@@ -63,6 +60,9 @@ public class LayoutUtils
 
 	/** The default number of items per row. */
 	public static final int	DEFAULT_PER_ROW = 10;
+	
+	/** The minimum value for dimension.*/
+	private static final int MIN = 1;
 	
 	/**
 	 * Scales the thumbnail of the specified new node.
@@ -214,14 +214,26 @@ public class LayoutUtils
         for (int i = 0; i < comps.length; i++) 
 			if (comps[i] instanceof ImageDisplay)
 				l.add(comps[i]);
-		
-        l = sorter.sort(l);
-        if (itemsPerRow >= 1) n = itemsPerRow; 
-        else {
-        	n = l.size();
-        	if (n > DEFAULT_PER_ROW)
-        		n = (int) Math.floor(Math.sqrt(n))+1;  //See note.
+		Dimension dd = node.getSize();
+		if (dd.width == 0 || dd.height == 0 && node.getParentDisplay() != null)
+			dd = node.getParentDisplay().getSize();
+		l = sorter.sort(l);
+        if (dd.width >= MIN && dd.height >= MIN) {
+            n = dd.width/maxDim.width;
+        	if (n == 0) {
+        		n = DEFAULT_PER_ROW;
+        	}
+        	if (itemsPerRow >= 1) n = itemsPerRow;
+        } else {
+        	if (itemsPerRow >= 1) {
+        		n = itemsPerRow; 
+        	} else {
+            	n = l.size();
+            	if (n > DEFAULT_PER_ROW)
+            		n = (int) Math.floor(Math.sqrt(n))+1;  //See note.
+            }
         }
+        
        
         
         //Finally do layout.
@@ -244,10 +256,12 @@ public class LayoutUtils
         		i++;
 			}
         } finally {
-            Rectangle bounds = node.getContentsBounds();
-            d = bounds.getSize();
-            node.getInternalDesktop().setSize(d);
-            node.getInternalDesktop().setPreferredSize(d);
+        	//if (dd.width == 0 || dd.height == 0 || reset) {
+        	Rectangle bounds = node.getContentsBounds();
+        	d = bounds.getSize();
+        	node.getInternalDesktop().setSize(d);
+        	node.getInternalDesktop().setPreferredSize(d);
+        	//}
         }
     }
     
@@ -260,9 +274,9 @@ public class LayoutUtils
      * @param oldNodes	The previously layed out nodes.
      */
     static void redoLayout(ImageSet node, ImageSet oldNode, Collection newNodes, 
-							Set oldNodes)
+							Collection oldNodes)
     {
-    	int n = newNodes.size();        
+    	int n = newNodes.size();
     	if (n == 0) {   //Node with no children.
     		node.getInternalDesktop().setPreferredSize(
     				node.getTitleBar().getMinimumSize());

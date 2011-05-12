@@ -234,8 +234,7 @@ abstract class DataBrowserModel
     	if (browser == null) return;
 		//Do initial layout and set the icons.
     	if (browser.getSelectedLayout() == null) {
-    		Layout layout = LayoutFactory.createLayout(type, sorter, 
-    				LayoutUtils.DEFAULT_PER_ROW);
+    		Layout layout = LayoutFactory.createLayout(type, sorter, 0);
             browser.setSelectedLayout(layout);
     	}
         //browser.accept(browser.getSelectedLayout(), 
@@ -774,6 +773,20 @@ abstract class DataBrowserModel
 		if (this instanceof WellsModel) {
 			((WellsModel) this).setTabularData(data);
 		}
+	}
+	
+	/**
+	 * Returns the selected layout.
+	 * 
+	 * @return See above.
+	 */
+	int getLayoutIndex()
+	{
+		Browser b = getBrowser();
+		if (b == null) return LayoutFactory.SQUARY_LAYOUT;
+		Layout layout = b.getSelectedLayout();
+		if (layout == null) return LayoutFactory.SQUARY_LAYOUT;
+		return layout.getIndex();
 	}
 	
     /**

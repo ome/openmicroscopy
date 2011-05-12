@@ -1790,8 +1790,9 @@ class TreeViewerComponent
 			
 		if (db == null) return;
 		db.addPropertyChangeListener(controller);
-		db.activate();
+		//db.activate();
 		view.displayBrowser(db);
+		db.activate();
 		model.setDataViewer(db);
 	}
 	
@@ -1924,9 +1925,9 @@ class TreeViewerComponent
 		}
 		if (db != null) {
 			db.addPropertyChangeListener(controller);
-			db.activate();
 			view.removeAllFromWorkingPane();
 			view.displayBrowser(db);
+			db.activate();
 		}
 		model.setDataViewer(db);
 	}
@@ -2097,12 +2098,11 @@ class TreeViewerComponent
 		if (db != null && view.getDisplayMode() == SEARCH_MODE) {
 			db.setExperimenter(TreeViewerAgent.getUserDetails());
 			db.addPropertyChangeListener(controller);
-			db.activate();
 			view.removeAllFromWorkingPane();
 			view.displayBrowser(db);
+			db.activate();
 			model.setDataViewer(db);
 		}
-		
 	}
 
 	/**
@@ -2204,9 +2204,9 @@ class TreeViewerComponent
 				parentObject, leaves, parent);
 		db.setExperimenter(exp);
 		db.addPropertyChangeListener(controller);
-		db.activate();
 		view.removeAllFromWorkingPane();
 		view.displayBrowser(db);
+		db.activate();
 		model.setDataViewer(db);
 		model.setState(READY);
 		fireStateChange();
@@ -2257,9 +2257,9 @@ class TreeViewerComponent
 		}
 		if (db != null) {
 			db.addPropertyChangeListener(controller);
-			db.activate();
 			view.removeAllFromWorkingPane();
 			view.displayBrowser(db);
+			db.activate();
 			model.setDataViewer(db);
 			getSelectedBrowser().addComponent(db.getGridUI());
 		}

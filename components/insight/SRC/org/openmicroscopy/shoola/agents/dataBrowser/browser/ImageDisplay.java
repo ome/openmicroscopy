@@ -359,6 +359,7 @@ public abstract class ImageDisplay
                 if (this instanceof ImageSet) doAccept(visitor);
                 break;
             case ImageDisplayVisitor.ALL_NODES:
+            	//doAccept(visitor);
                 while (i.hasNext()) {
                     child = (ImageDisplay) i.next();
                     child.accept(visitor, algoType);

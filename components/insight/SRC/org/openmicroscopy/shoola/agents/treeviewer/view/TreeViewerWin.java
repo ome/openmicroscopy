@@ -164,6 +164,9 @@ class TreeViewerWin
     /** The pane displaying the viewer. */
     private JSplitPane			viewerPane;
     
+    /** The listener to the split panes.*/
+    private PropertyChangeListener listener;
+    
     /**
      * Checks if the specified {@link Browser} is already visible.
      * 
@@ -435,8 +438,34 @@ class TreeViewerWin
         viewerPane.setContinuousLayout(true);
         viewerPane.setBackground(UIUtilities.BACKGROUND_COLOR);
         //viewerPane.setResizeWeight(1.0);
+        listener = new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (JSplitPane.DIVIDER_LOCATION_PROPERTY.equals(name)) {
+					if (evt.getSource() == rightPane && metadataVisible)
+						dividerRightLocation = rightPane.getDividerLocation();
+					handleDividerMoved();
+				}
+			}
+		};
     }
 
+    /** Handles the change of location of the divider of the split panes.*/
+    private void handleDividerMoved()
+    {
+		DataBrowser db = model.getDataViewer();
+		if (db != null) {
+			JViewport viewPort = workingPane.getViewport();
+			JComponent component = db.getBrowser().getUI();
+			component.setPreferredSize(viewPort.getExtentSize());
+			component.setSize(viewPort.getExtentSize());
+			component.validate();
+			component.repaint();
+			db.layoutDisplay();
+		}
+    }
+    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
@@ -450,17 +479,7 @@ class TreeViewerWin
     	rightPane.setLeftComponent(workingPane);
     	rightPane.setRightComponent(null);
     	rightPane.setResizeWeight(WEIGHT);
-    	rightPane.addPropertyChangeListener(new PropertyChangeListener() {
-			
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (JSplitPane.DIVIDER_LOCATION_PROPERTY.equals(
-						evt.getPropertyName())) {
-					if (metadataVisible)
-						dividerRightLocation = rightPane.getDividerLocation();
-				}
-				
-			}
-		});
+    	
     	splitPane = new JSplitPane();
         //splitPane.setResizeWeight(1);
         splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
@@ -469,7 +488,7 @@ class TreeViewerWin
         splitPane.setLeftComponent(browsersDisplay);
         //splitPane.setRightComponent(workingPane);
         splitPane.setRightComponent(rightPane);
-        splitPane.setResizeWeight(0.1);
+        splitPane.setResizeWeight(0);
         Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
         c.add(toolBar, BorderLayout.NORTH);
@@ -684,13 +703,18 @@ class TreeViewerWin
     void addComponent(JComponent component)
     {
     	if (component == null) return;
+    	rightPane.removePropertyChangeListener(listener);
+    	splitPane.removePropertyChangeListener(listener);
         JViewport viewPort = workingPane.getViewport();
         component.setPreferredSize(viewPort.getExtentSize());
         viewPort.removeAll();
         viewPort.add(component);
-        viewPort.validate();
+        viewPort.validate(); 
+        rightPane.addPropertyChangeListener(listener);
+        splitPane.addPropertyChangeListener(listener);
     }
 
+    
 	/**
 	 * Displays the passed viewer in the working area.
 	 * 
@@ -1023,7 +1047,7 @@ class TreeViewerWin
     public void setOnScreen()
     {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setSize(8*(screenSize.width/10), 8*(screenSize.height/10));
+        setSize(9*(screenSize.width/10), 8*(screenSize.height/10));
         UIUtilities.incrementRelativeToAndShow(invokerBounds, this);
         invokerBounds = null;
     }

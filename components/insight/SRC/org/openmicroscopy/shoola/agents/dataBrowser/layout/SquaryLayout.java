@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.layout;
 //Java imports
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -56,7 +55,7 @@ import pojos.ImageData;
  * </small>
  * @since OME3.0
  */
-class SquaryLayout     
+class SquaryLayout
 	implements Layout
 {
 
@@ -78,21 +77,11 @@ class SquaryLayout
      */
     private ViewerSorter    sorter;
     
-    /** Maximum width used to displayed the thumbnail. */
-    private static int      browserWidth;
-    
     /** Collection of nodes previously layed out. */
     private Set				oldNodes;
     
     /** The number of items per row. */
     private int				itemsPerRow;
-    
-    /** Maximum width of the BrowserView.*/
-    private void setBrowserSize()
-    {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        browserWidth = 7*(screenSize.width/10);
-    }
     
     /**
      * Visits an {@link ImageSet} node that contains {@link ImageSet} nodes. 
@@ -107,7 +96,6 @@ class SquaryLayout
             LayoutUtils.noChildLayout(node);
             return;
         }
-
         Object[] children = sorter.sortAsArray(node.getChildrenDisplay());
         //Finally do layout.
         //ImageDisplay[] children = 
@@ -116,9 +104,11 @@ class SquaryLayout
         int maxY = 0;
         int x = 0, y = 0;
         ImageDisplay child;
+        Dimension dd = node.getPreferredSize();
         for (int i = 0; i < children.length; i++) {
         	child = (ImageDisplay) children[i];
         	d = child.getPreferredSize();
+        	d = new Dimension(dd.width, d.height);//child.getPreferredSize();
             child.setBounds(x, y, d.width, d.height);
             child.setCollapsed(false);
             /*
@@ -235,17 +225,9 @@ class SquaryLayout
      */
     SquaryLayout(ViewerSorter sorter, int itemsPerRow)
     {
-        setBrowserSize();
         this.sorter = sorter;
         this.itemsPerRow = itemsPerRow;
     }
-
-    /**
-     * Returns the width of the browser.
-     * 
-     * @return See above.
-     */
-    static int getBrowserWidth() { return browserWidth; }
     
     /**
      * Lays out the current container display.
@@ -260,7 +242,7 @@ class SquaryLayout
                 LayoutUtils.noChildLayout(node);
                 return;
             }
-        	if (node.containsImages()) 
+            if (node.containsImages()) 
         		LayoutUtils.doSquareGridLayout(node, sorter, itemsPerRow);
         	else visitContainerNode(node);
         } else {

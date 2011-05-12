@@ -1732,6 +1732,7 @@ class BrowserComponent
 				g.getExperimenters());
 		view.setLeavesViews(nodes, node);
 		model.setState(READY);
+		model.getParentModel().setLeaves(node, g.getExperimenters());
 		model.getParentModel().setStatus(false, "", true);
 		fireStateChange();
 	}

@@ -121,7 +121,7 @@ class BrowserModel
 	{
 	    if (node instanceof ImageNode) return;
 	    JComponent desktop = node.getInternalDesktop();
-	    Set children = node.getChildrenDisplay();
+	    Collection children = node.getChildrenDisplay();
 	    if (children == null) return;
 	    //desktop.removeAll();
 	    Iterator i = children.iterator();
@@ -209,7 +209,7 @@ class BrowserModel
 	    selectedDisplays = new ArrayList<ImageDisplay>();
 	    originalNodes = new HashSet<ImageDisplay>();
 	    titleBarVisible = true;
-	    Set nodes = rootDisplay.getChildrenDisplay();
+	    Collection nodes = rootDisplay.getChildrenDisplay();
 	    Iterator i = nodes.iterator();
 	    while (i.hasNext()) 
 			originalNodes.add((ImageDisplay) i.next());
@@ -309,7 +309,7 @@ class BrowserModel
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getRootNodes()
 	 */
-	public Set getRootNodes() { return rootDisplay.getChildrenDisplay(); }
+	public Collection getRootNodes() { return rootDisplay.getChildrenDisplay(); }
 	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
@@ -518,7 +518,7 @@ class BrowserModel
 	public void resetChildDisplay()
 	{
 	    rootDisplay.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-	    Set rootChildren = rootDisplay.getChildrenDisplay();
+	    Collection rootChildren = rootDisplay.getChildrenDisplay();
 	    JComponent desktop = rootDisplay.getInternalDesktop();
 	    desktop.removeAll();
 	    Iterator i;
