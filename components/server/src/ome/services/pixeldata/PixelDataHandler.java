@@ -127,7 +127,10 @@ public class PixelDataHandler extends SimpleWork {
         {
             StatsInfo[] statsInfo = pixelsService.makePyramid(pixels);
             if(statsInfo == null) {
-                log.error("Failed to get min/max values for pixels " + id);
+                // Either exists or failed to be created, but that's
+                // the PixelsService's business. It should throw an exception
+                // if it wants us to more concretely handle any issues.
+                log.debug("No min/max values for pixels " + id);
                 return false;
             }
 
