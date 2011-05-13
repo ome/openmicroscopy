@@ -55,10 +55,13 @@ public class DeleteActivity
 {
 
 	/** The description of the activity. */
-	private static final String		DESCRIPTION_START = "Deleting";
+	private static final String		DESCRIPTION_START = "Deleting ";
 	
 	/** The description of the activity when finished. */
-	private static final String		DESCRIPTION_END = "Objects deleted";
+	private static final String		DEFAULT_TYPE = "Object";
+	
+	/** The description of the activity when finished. */
+	private static final String		DELETED = " deleted";
 	
 	/** The description of the activity when error occurred. */
 	private static final String		DESCRIPTION_ERROR = "Unable to delete";
@@ -68,6 +71,23 @@ public class DeleteActivity
 	
 	/** The parameters hosting information about the figure to make. */
     private DeleteActivityParam	parameters;
+    
+    /** 
+     * Returns the text displayed for the delete.
+     * 
+     * @return See above.
+     */
+    private String getDeleteType()
+    {
+    	List<DeletableObject> objects = parameters.getObjects();
+		DeletableObject o = objects.get(0);
+		String s = "";
+		if (objects.size() > 1) s = "s";
+		String value = o.getType();
+		if (value == null || value.trim().length() == 0)
+			return DEFAULT_TYPE+s;
+		return value+s;
+    }
     
     /**
      * Creates a message indicating the objects to delete.
@@ -110,7 +130,7 @@ public class DeleteActivity
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
-		initialize(DESCRIPTION_START, parameters.getIcon());
+		initialize(DESCRIPTION_START+getDeleteType(), parameters.getIcon());
 		messageLabel.setText(createMessage());
 	}
 	
@@ -149,8 +169,9 @@ public class DeleteActivity
 		if (l.size() > 0) {
 			type.setText(DESCRIPTION_ERROR);
 			notifyActivityError();
+		} else {
+			type.setText(getDeleteType()+DELETED);
 		}
-		else type.setText(DESCRIPTION_END);
 		//post an event to remove nodes
 	}
 	

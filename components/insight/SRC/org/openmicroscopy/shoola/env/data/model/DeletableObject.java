@@ -30,6 +30,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import pojos.DatasetData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
@@ -154,6 +155,37 @@ public class DeletableObject
 	 */
 	public int getNumberOfErrors() { return numberOfErrors; }
 	
+	/** 
+	 * Returns the type of object to delete.
+	 * 
+	 * @return See above.
+	 */
+	public String getType()
+	{
+		if (objectToDelete instanceof ProjectData) {
+			return "Project";
+		} else if (objectToDelete instanceof DatasetData) {
+			return "Dataset";
+		} else if (objectToDelete instanceof ImageData) {
+			return "Image";
+		} else if (objectToDelete instanceof ScreenData) {
+			return "Screen";
+		} else if (objectToDelete instanceof ROIData) {
+			return "Roi";
+		} else if (objectToDelete instanceof TagAnnotationData) {
+			return "Tag";
+		} else if (objectToDelete instanceof TermAnnotationData) {
+			return "Ontology Term";
+		} else if (objectToDelete instanceof PlateData) {
+			return "Plate";
+		} else if (objectToDelete instanceof PlateAcquisitionData) {
+			return "PlateAcquisition";
+		} else if (objectToDelete instanceof FileAnnotationData) {
+			return "File";
+		}
+		return "";
+	}
+	
 	/**
 	 * Returns the type of object to delete as a string.
 	 * 
@@ -180,6 +212,8 @@ public class DeletableObject
 			return ((PlateData) objectToDelete).getName();
 		} else if (objectToDelete instanceof PlateAcquisitionData) {
 			return ((PlateAcquisitionData) objectToDelete).getLabel();
+		} else if (objectToDelete instanceof FileAnnotationData) {
+			return ((FileAnnotationData) objectToDelete).getFileName();
 		}
 		return "";
 	}
