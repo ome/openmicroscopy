@@ -290,6 +290,7 @@ public class XMLMockObjects
 		detector.setModel(COMPONENT_MODEL);
 		detector.setManufacturer(COMPONENT_MANUFACTURER);
 		detector.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+		detector.setLotNumber(COMPONENT_LOT_NUMBER);
 		detector.setAmplificationGain(0.0);
     	detector.setGain(1.0);
 		return detector;
@@ -308,6 +309,7 @@ public class XMLMockObjects
 		set.setModel(COMPONENT_MODEL);
 		set.setManufacturer(COMPONENT_MANUFACTURER);
 		set.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+		set.setLotNumber(COMPONENT_LOT_NUMBER);
 		return set;
 	}
 	
@@ -322,6 +324,7 @@ public class XMLMockObjects
 		microscope.setManufacturer(COMPONENT_MANUFACTURER);
 		microscope.setModel(COMPONENT_MODEL);
 		microscope.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+		microscope.setLotNumber(COMPONENT_LOT_NUMBER);
 		microscope.setType(MICROSCOPE_TYPE);
 		return microscope;
 	}
@@ -339,6 +342,7 @@ public class XMLMockObjects
 		dichroic.setModel(COMPONENT_MODEL);
 		dichroic.setManufacturer(COMPONENT_MANUFACTURER);
 		dichroic.setLotNumber(COMPONENT_LOT_NUMBER);
+		dichroic.setSerialNumber(COMPONENT_SERIAL_NUMBER);
 		return dichroic;
 	}
 	
@@ -355,6 +359,7 @@ public class XMLMockObjects
 		objective.setModel(COMPONENT_MODEL);
 		objective.setManufacturer(COMPONENT_MANUFACTURER);
 		objective.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+		objective.setLotNumber(COMPONENT_LOT_NUMBER);
 		objective.setCalibratedMagnification(1.0);
 		objective.setCorrection(CORRECTION);
 		objective.setImmersion(IMMERSION);
@@ -380,6 +385,7 @@ public class XMLMockObjects
 		filter.setModel(COMPONENT_MODEL);
 		filter.setManufacturer(COMPONENT_MANUFACTURER);
 		filter.setLotNumber(COMPONENT_LOT_NUMBER);
+		filter.setSerialNumber(COMPONENT_SERIAL_NUMBER);
 		filter.setType(FILTER_TYPE);
 
 		TransmittanceRange transmittance = new TransmittanceRange();
@@ -406,6 +412,7 @@ public class XMLMockObjects
 			laser.setModel(COMPONENT_MODEL);
 			laser.setManufacturer(COMPONENT_MANUFACTURER);
 			laser.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+			laser.setLotNumber(COMPONENT_LOT_NUMBER);
 			laser.setPower(LIGHTSOURCE_POWER);
 			laser.setType(LASER_TYPE);
 			return laser;
@@ -414,6 +421,7 @@ public class XMLMockObjects
 			arc.setID("LightSource:"+index);
 			arc.setManufacturer(COMPONENT_MANUFACTURER);
 			arc.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+			arc.setLotNumber(COMPONENT_LOT_NUMBER);
 			arc.setModel(COMPONENT_MODEL);
 			arc.setPower(LIGHTSOURCE_POWER);
 			arc.setType(ARC_TYPE);
@@ -423,6 +431,7 @@ public class XMLMockObjects
 			filament.setID("LightSource:"+index);
 			filament.setManufacturer(COMPONENT_MANUFACTURER);
 			filament.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+			filament.setLotNumber(COMPONENT_LOT_NUMBER);
 			filament.setModel(COMPONENT_MODEL);
 			filament.setPower(LIGHTSOURCE_POWER);
 			filament.setType(FILAMENT_TYPE);
@@ -432,6 +441,7 @@ public class XMLMockObjects
 			light.setID("LightSource:"+index);
 			light.setManufacturer(COMPONENT_MANUFACTURER);
 			light.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+			light.setLotNumber(COMPONENT_LOT_NUMBER);
 			light.setModel(COMPONENT_MODEL);
 			light.setPower(LIGHTSOURCE_POWER);
 			return light;
