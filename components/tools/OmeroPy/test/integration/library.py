@@ -407,6 +407,19 @@ class ITest(unittest.TestCase):
                                 args = ([5]*bytes_per_tile, z, c, t, x, y, w, h)
                                 rps.setTile(*args)
 
+    def open_jpeg_buffer(self, buf):
+        try:
+            from PIL import Image, ImageDraw # see ticket:2597
+        except ImportError:
+            try:
+                import Image, ImageDraw # see ticket:2597
+            except ImportError:
+                print "PIL not installed"
+        from cStringIO import StringIO
+        tfile = StringIO(buf)
+        jpeg = Image.open(tfile) # Raises if invalid
+        return jpeg
+
     def tearDown(self):
         failure = False
         self.__clients.__del__()
