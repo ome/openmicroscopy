@@ -171,7 +171,12 @@ public class IniFileLoader {
      */
     public boolean getForceFileArchiveOn()
     {
-    	return staticPrefs.node("UI").getBoolean("forceFileArchiveOn", false);
+        boolean toReturn = false;
+        if (staticPrefs != null) {
+            Preferences ui = staticPrefs.node("UI");
+            toReturn = ui.getBoolean("forceFileArchiveOn", false);
+        }
+        return toReturn;
     }
 
     /**
@@ -179,9 +184,14 @@ public class IniFileLoader {
      */
     public boolean getStaticDisableHistory()
     {
-    	return staticPrefs.node("UI").getBoolean("disableImportHistory", false);
+        boolean toReturn = false;
+        if (staticPrefs != null) {
+            Preferences ui = staticPrefs.node("UI");
+            toReturn = ui.getBoolean("disableImportHistory", false);
+        }
+        return toReturn;
     }
-    
+
     /**
      * Set debug level for application
      *
