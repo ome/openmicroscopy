@@ -650,7 +650,8 @@ public class ModelMockFactory
     	Laser laser = new LaserI();
     	laser.setManufacturer(omero.rtypes.rstring("manufacturer"));
     	laser.setModel(omero.rtypes.rstring("model"));
-    	laser.setFrequencyMultiplication(omero.rtypes.rint(1));
+    	laser.setLotNumber(omero.rtypes.rstring("lot number"));
+    	laser.setSerialNumber(omero.rtypes.rstring("serial number"));
     	// type
     	List<IObject> types = pixelsService.getAllEnumerations(
     			LaserType.class.getName());
@@ -664,9 +665,11 @@ public class ModelMockFactory
     	types = pixelsService.getAllEnumerations(Pulse.class.getName());
     	laser.setPulse((Pulse) types.get(0));
     	
-    	laser.setFrequencyMultiplication(omero.rtypes.rint(0));
+    	laser.setFrequencyMultiplication(omero.rtypes.rint(1));
     	laser.setPockelCell(omero.rtypes.rbool(false));
-    	laser.setPower(omero.rtypes.rdouble(0));
+    	laser.setTuneable(omero.rtypes.rbool(true));
+    	laser.setWavelength(omero.rtypes.rint(500));
+    	laser.setPower(omero.rtypes.rdouble(1));
     	laser.setRepetitionRate(omero.rtypes.rdouble(1));
     	return laser;
     }
