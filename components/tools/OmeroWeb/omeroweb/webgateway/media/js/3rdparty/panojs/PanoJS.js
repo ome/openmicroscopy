@@ -196,7 +196,7 @@ PanoJS.prototype.init = function() {
     if (this.zoomLevel < 0 || this.zoomLevel > this.maxZoomLevel) {
             var new_level = 0;
             // here MAX defines partial fit and MIN would use full fit
-            while (this.tileSize * Math.pow(2, new_level) <= Math.max(this.width, this.height) && 
+            while ((Math.max(this.xTileSize, this.yTileSize)) * Math.pow(2, new_level) <= Math.max(this.width, this.height) && 
                    new_level<=this.maxZoomLevel) {
                 this.zoomLevel = new_level;
                 new_level += 1;   
@@ -661,11 +661,13 @@ PanoJS.prototype.zoom = function(direction) {
     this.resetCache();       
         
     if (this.zoomLevel+direction > this.maxZoomLevel) {
-      //dima
-      var scale_dif = (this.zoomLevel+direction - this.maxZoomLevel) * 2;
-        this.xTileSize = this.realTileSize*scale_dif;      
+        //dima
+        var scale_dif = (this.zoomLevel+direction - this.maxZoomLevel) * 2;
+        this.xTileSize = this.realTileSize*scale_dif;
+        this.yTileSize = this.realTileSize*scale_dif;
     } else {
         this.xTileSize = this.realTileSize;
+        this.yTileSize = this.realTileSize;
     }
         
     var coords = { 'x' : Math.floor(this.width / 2), 'y' : Math.floor(this.height / 2) };
