@@ -2359,9 +2359,17 @@ public class OMEROMetadataStoreClient
      * Closes the active raw pixels store. Finalizing any open server side
      * resources.
      */
-    public void closePixelsStore()
+    public void finalizePixelStore()
     {
         closeQuietly(rawPixelStore);
+        try
+        {
+            rawPixelStore = serviceFactory.createRawPixelsStore();
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

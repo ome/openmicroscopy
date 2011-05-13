@@ -456,34 +456,41 @@ public class ImportLibrary implements IObservable
             // If we're metadata only, we don't want to perform any pixel I/O.
             if (!isMetadataOnly)
             {
-                store.preparePixelsStore(pixelsIds);
-                int seriesCount = reader.getSeriesCount();
-                for (int series = 0; series < seriesCount; series++)
+                try
                 {
-                    // Calculate the dimensions for import this single file.
-                    ImportSize size = new ImportSize(fileName,
-                            pixList.get(series), reader.getDimensionOrder());
-
-                    Pixels pixels = pixList.get(series);
-                    long pixId = pixels.getId().getValue();
-
-                    notifyObservers(new ImportEvent.DATASET_STORED(
-                            index, fileName, userSpecifiedTarget, pixId,
-                            series, size, numDone, total));
-
-                    MessageDigest md = importData(
-                            pixId, fileName, series, size);
-                    if (md != null)
+                    store.preparePixelsStore(pixelsIds);
+                    int seriesCount = reader.getSeriesCount();
+                    for (int series = 0; series < seriesCount; series++)
                     {
-                        String s = OMEROMetadataStoreClient.byteArrayToHexString(
-                                md.digest());
-                        pixels.setSha1(store.toRType(s));
-                        saveSha1 = true;
-                    }
+                        // Calculate the dimensions for import this single file.
+                        ImportSize size = new ImportSize(fileName,
+                                pixList.get(series), reader.getDimensionOrder());
 
-                    notifyObservers(new ImportEvent.DATA_STORED(
-                            index, fileName, userSpecifiedTarget, pixId,
-                            series, size));
+                        Pixels pixels = pixList.get(series);
+                        long pixId = pixels.getId().getValue();
+
+                        notifyObservers(new ImportEvent.DATASET_STORED(
+                                index, fileName, userSpecifiedTarget, pixId,
+                                series, size, numDone, total));
+
+                        MessageDigest md = importData(
+                                pixId, fileName, series, size);
+                        if (md != null)
+                        {
+                            String s = OMEROMetadataStoreClient.byteArrayToHexString(
+                                    md.digest());
+                            pixels.setSha1(store.toRType(s));
+                            saveSha1 = true;
+                        }
+
+                        notifyObservers(new ImportEvent.DATA_STORED(
+                                index, fileName, userSpecifiedTarget, pixId,
+                                series, size));
+                    }
+                }
+                finally
+                {
+                    store.finalizePixelStore();
                 }
             }
 
@@ -673,7 +680,6 @@ public class ImportLibrary implements IObservable
                 }
             }
         }
-        store.closePixelsStore();
         return md;
     }
 
