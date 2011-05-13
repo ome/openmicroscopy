@@ -29,6 +29,7 @@ import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IRenderingSettings;
 import ome.api.ServiceInterface;
+import ome.conditions.MissingPyramidException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
@@ -444,8 +445,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         	PixelBuffer buffer = null;
         	if (computeStats)
         	{
-        		buffer = 
-        			pixelsData.getPixelBuffer(pixels);
+	        buffer = pixelsData.getPixelBuffer(pixels);
         	}
 
             try
@@ -573,8 +573,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			settings = createNewRenderingDef(p);
     		}
     		try {
-    			 toSave.add(resetDefaults(settings, p, false, computeStats,
-    					 		families, renderingModels));
+			 RenderingDef newSettings =
+			     resetDefaults(settings, p, false, computeStats,
+							families, renderingModels);
+			 if (newSettings != null) {
+			     toSave.add(newSettings);
+			 }
     			 imageIds.add(p.getImage().getId());
 			} catch (Exception e) {
 				//Exception has already been written to log file.
