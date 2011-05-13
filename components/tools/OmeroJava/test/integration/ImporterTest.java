@@ -39,9 +39,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
-import ome.formats.OMEROMetadataStoreClient;
 import ome.xml.model.OME;
-import omero.ServerError;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
@@ -149,6 +147,8 @@ public class ImporterTest
 				xml.getModel());
 		assertEquals(objective.getSerialNumber().getValue(), 
 				xml.getSerialNumber());
+		assertEquals(objective.getLotNumber().getValue(), 
+				xml.getLotNumber());
 		assertEquals(objective.getCalibratedMagnification().getValue(), 
 				xml.getCalibratedMagnification().doubleValue());
 		assertTrue(objective.getCorrection().getValue().getValue().equals( 
@@ -180,6 +180,8 @@ public class ImporterTest
 				xml.getModel());
 		assertEquals(detector.getSerialNumber().getValue(), 
 				xml.getSerialNumber());
+		assertEquals(detector.getLotNumber().getValue(), 
+				xml.getLotNumber());
 		assertEquals(detector.getAmplificationGain().getValue(), 
 				xml.getAmplificationGain().doubleValue());
 		assertEquals(detector.getGain().getValue(), 
@@ -200,6 +202,8 @@ public class ImporterTest
 				xml.getModel());
 		assertEquals(arc.getSerialNumber().getValue(), 
 				xml.getSerialNumber());
+		assertEquals(arc.getLotNumber().getValue(), 
+				xml.getLotNumber());
 		assertEquals(arc.getPower().getValue(), xml.getPower());
 		assertTrue(arc.getType().getValue().getValue().equals(
 				XMLMockObjects.ARC_TYPE.getValue()));
@@ -215,10 +219,10 @@ public class ImporterTest
 	{
 		assertEquals(laser.getManufacturer().getValue(), 
 				xml.getManufacturer());
-		assertEquals(laser.getModel().getValue(), 
-				xml.getModel());
+		assertEquals(laser.getModel().getValue(), xml.getModel());
 		assertEquals(laser.getSerialNumber().getValue(), 
 				xml.getSerialNumber());
+		assertEquals(laser.getLotNumber().getValue(), xml.getLotNumber());
 		assertEquals(laser.getPower().getValue(), xml.getPower());
 		assertTrue(laser.getType().getValue().getValue().equals(
 				XMLMockObjects.LASER_TYPE.getValue()));
@@ -238,6 +242,8 @@ public class ImporterTest
 				xml.getModel());
 		assertEquals(filament.getSerialNumber().getValue(), 
 				xml.getSerialNumber());
+		assertEquals(filament.getLotNumber().getValue(), 
+				xml.getLotNumber());
 		assertEquals(filament.getPower().getValue(), xml.getPower());
 		assertTrue(filament.getType().getValue().getValue().equals(
 				XMLMockObjects.FILAMENT_TYPE.getValue()));
@@ -258,6 +264,8 @@ public class ImporterTest
 				xml.getModel());
 		assertEquals(filter.getLotNumber().getValue(), 
 				xml.getLotNumber());
+		assertEquals(filter.getSerialNumber().getValue(), 
+				xml.getSerialNumber());
 		assertTrue(filter.getType().getValue().getValue().equals( 
 				xml.getType().getValue()));
 		TransmittanceRange tr = filter.getTransmittanceRange();
@@ -287,6 +295,8 @@ public class ImporterTest
 				xml.getModel());
 		assertEquals(dichroic.getLotNumber().getValue(), 
 				xml.getLotNumber());
+		assertEquals(dichroic.getSerialNumber().getValue(), 
+				xml.getSerialNumber());
 	}
 	
 	/**
@@ -302,6 +312,10 @@ public class ImporterTest
 				xml.getManufacturer());
 		assertEquals(diode.getModel().getValue(), 
 				xml.getModel());
+		assertEquals(diode.getSerialNumber().getValue(), 
+				xml.getSerialNumber());
+		assertEquals(diode.getLotNumber().getValue(), 
+				xml.getLotNumber());
 		assertEquals(diode.getPower().getValue(), xml.getPower());
 	}
 	
@@ -405,6 +419,8 @@ public class ImporterTest
 				xml.getModel());
 		assertEquals(microscope.getSerialNumber().getValue(), 
 				xml.getSerialNumber());
+		assertEquals(microscope.getLotNumber().getValue(), 
+				xml.getLotNumber());
 		assertEquals(microscope.getType().getValue().getValue(), 
 				xml.getType().getValue());
 	}

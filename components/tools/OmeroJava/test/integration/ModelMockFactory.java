@@ -335,7 +335,8 @@ public class ModelMockFactory
     	detector.setGain(omero.rtypes.rdouble(1));
     	detector.setManufacturer(omero.rtypes.rstring("manufacturer"));
     	detector.setModel(omero.rtypes.rstring("model"));
-    	detector.setSerialNumber(omero.rtypes.rstring("number"));
+    	detector.setSerialNumber(omero.rtypes.rstring("serial number"));
+    	detector.setLotNumber(omero.rtypes.rstring("lot number"));
     	detector.setOffsetValue(omero.rtypes.rdouble(0));
     	detector.setType((DetectorType) types.get(0));
     	return detector;
@@ -383,6 +384,7 @@ public class ModelMockFactory
     			FilterType.class.getName());
     	Filter filter = new FilterI();
     	filter.setLotNumber(omero.rtypes.rstring("lot number"));
+    	filter.setSerialNumber(omero.rtypes.rstring("serial number"));
     	filter.setManufacturer(omero.rtypes.rstring("manufacturer"));
     	filter.setModel(omero.rtypes.rstring("model"));
     	filter.setType((FilterType) types.get(0));
@@ -407,6 +409,7 @@ public class ModelMockFactory
     	set.setLotNumber(omero.rtypes.rstring("lot number"));
     	set.setManufacturer(omero.rtypes.rstring("manufacturer"));
     	set.setModel(omero.rtypes.rstring("model"));
+    	set.setSerialNumber(omero.rtypes.rstring("serial number"));
     	return set;
     }
     
@@ -424,6 +427,7 @@ public class ModelMockFactory
     	dichroic.setManufacturer(omero.rtypes.rstring("manufacturer"));
     	dichroic.setModel(omero.rtypes.rstring("model"));
     	dichroic.setLotNumber(omero.rtypes.rstring("lot number"));
+    	dichroic.setSerialNumber(omero.rtypes.rstring("serial number"));
     	return dichroic;
     }
     
@@ -440,7 +444,8 @@ public class ModelMockFactory
     	Objective objective = new ObjectiveI();
     	objective.setManufacturer(omero.rtypes.rstring("manufacturer"));
     	objective.setModel(omero.rtypes.rstring("model"));
-    	objective.setSerialNumber(omero.rtypes.rstring("0123456"));
+    	objective.setSerialNumber(omero.rtypes.rstring("serial number"));
+    	objective.setLotNumber(omero.rtypes.rstring("lot number"));
     	objective.setCalibratedMagnification(omero.rtypes.rdouble(1));
     	//correction
     	//already tested see PixelsService enumeration.
@@ -594,6 +599,7 @@ public class ModelMockFactory
     	filament.setModel(omero.rtypes.rstring("model"));
     	filament.setPower(omero.rtypes.rdouble(1));
     	filament.setSerialNumber(omero.rtypes.rstring("serial number"));
+    	filament.setLotNumber(omero.rtypes.rstring("lot number"));
     	filament.setType((FilamentType) types.get(0));
     	return filament;
     }
@@ -615,6 +621,7 @@ public class ModelMockFactory
     	arc.setModel(omero.rtypes.rstring("model"));
     	arc.setPower(omero.rtypes.rdouble(1));
     	arc.setSerialNumber(omero.rtypes.rstring("serial number"));
+    	arc.setLotNumber(omero.rtypes.rstring("lot number"));
     	arc.setType((ArcType) types.get(0));
     	return arc;
     }
@@ -634,6 +641,7 @@ public class ModelMockFactory
     	light.setModel(omero.rtypes.rstring("model"));
     	light.setPower(omero.rtypes.rdouble(1));
     	light.setSerialNumber(omero.rtypes.rstring("serial number"));
+    	light.setLotNumber(omero.rtypes.rstring("lot number"));
     	return light;
     }
     
@@ -689,7 +697,8 @@ public class ModelMockFactory
     	MicroscopeI microscope = new MicroscopeI();
     	microscope.setManufacturer(omero.rtypes.rstring("manufacturer"));
     	microscope.setModel(omero.rtypes.rstring("model"));
-    	microscope.setSerialNumber(omero.rtypes.rstring("number"));
+    	microscope.setSerialNumber(omero.rtypes.rstring("serial number"));
+    	microscope.setLotNumber(omero.rtypes.rstring("lot number"));
     	microscope.setType((MicroscopeType) types.get(0));
     	instrument.setMicroscope(microscope);
     	return instrument;

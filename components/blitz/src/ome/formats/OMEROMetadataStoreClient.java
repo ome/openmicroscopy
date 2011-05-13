@@ -2857,7 +2857,8 @@ public class OMEROMetadataStoreClient
     public void setArcLotNumber(String lotNumber, int instrumentIndex,
             int lightSourceIndex)
     {
-        // TODO property is ignored
+    	Arc o = getArc(instrumentIndex, lightSourceIndex);
+        o.setLotNumber(toRType(lotNumber));
     }
 
     /* (non-Javadoc)
@@ -3309,7 +3310,8 @@ public class OMEROMetadataStoreClient
     public void setDetectorLotNumber(String lotNumber, int instrumentIndex,
             int detectorIndex)
     {
-        //TODO missing from omero model
+    	Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setLotNumber(toRType(lotNumber));
     }
 
     /* (non-Javadoc)
@@ -3528,7 +3530,8 @@ public class OMEROMetadataStoreClient
     public void setDichroicSerialNumber(String serialNumber,
             int instrumentIndex, int dichroicIndex)
     {
-        //TODO: Not in OMERO model
+    	Dichroic o = getDichroic(instrumentIndex, dichroicIndex);
+        o.setSerialNumber(toRType(serialNumber));
     }
 
     ////////Double Annotation/////////
@@ -3922,7 +3925,8 @@ public class OMEROMetadataStoreClient
     public void setFilamentLotNumber(String lotNumber, int instrumentIndex,
             int lightSourceIndex)
     {
-        // TODO not in OMERO model
+    	Filament o = getFilament(instrumentIndex, lightSourceIndex);
+        o.setLotNumber(toRType(lotNumber));
     }
 
     /* (non-Javadoc)
@@ -4109,7 +4113,8 @@ public class OMEROMetadataStoreClient
     public void setFilterSerialNumber(String serialNumber, int instrumentIndex,
             int filterIndex)
     {
-        //TODO not in OMERO model
+    	Filter o = getFilter(instrumentIndex, filterIndex);
+        o.setSerialNumber(toRType(serialNumber));
     }
 
     /* (non-Javadoc)
@@ -4228,9 +4233,8 @@ public class OMEROMetadataStoreClient
     public void setFilterSetSerialNumber(String serialNumber,
             int instrumentIndex, int filterSetIndex)
     {
-        //FilterSet o = getFilterSet(instrumentIndex, filterSetIndex);
-        //o.setSerialNumber(toRType(serialNumber));
-        // TODO not in OMERO model
+    	 FilterSet o = getFilterSet(instrumentIndex, filterSetIndex);
+         o.setSerialNumber(toRType(serialNumber));
     }
 
     ////////Group/////////
@@ -4590,7 +4594,8 @@ public class OMEROMetadataStoreClient
     public void setLaserLotNumber(String lotNumber, int instrumentIndex,
             int lightSourceIndex)
     {
-        // TODO not in OMERO model
+    	Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setLotNumber(toRType(lotNumber));
     }
 
     /* (non-Javadoc)
@@ -4736,9 +4741,9 @@ public class OMEROMetadataStoreClient
     public void setLightEmittingDiodeLotNumber(String lotNumber,
             int instrumentIndex, int lightSourceIndex)
     {
-        //LightEmittingDiode o = getLightEmittingDiode(instrumentIndex, lightSourceIndex);
-        //o.setLotNumber(toRType(lotNumber));
-        // TODO not in OMERO model
+        LightEmittingDiode o = getLightEmittingDiode(instrumentIndex, 
+        		lightSourceIndex);
+        o.setLotNumber(toRType(lotNumber));
     }
 
     /* (non-Javadoc)
@@ -5405,9 +5410,8 @@ public class OMEROMetadataStoreClient
      */
     public void setMicroscopeLotNumber(String lotNumber, int instrumentIndex)
     {
-        //Microscope o = getMicroscope(instrumentIndex);
-        //o.getLotNumber(toRType(lotNumber));
-        // TODO not in OMERO model
+        Microscope o = getMicroscope(instrumentIndex);
+        o.setLotNumber(toRType(lotNumber));
     }
 
     /* (non-Javadoc)
@@ -5707,9 +5711,8 @@ public class OMEROMetadataStoreClient
     public void setObjectiveLotNumber(String lotNumber, int instrumentIndex,
             int objectiveIndex)
     {
-        // TODO : not in OMERO model
-        //Objective o = getObjective(instrumentIndex, objectiveIndex);
-        //o.setLotNumber(toRType(lotNumber));
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setLotNumber(toRType(lotNumber));
     }
 
     /* (non-Javadoc)
