@@ -811,19 +811,22 @@ public class XMLMockObjects
 	/**
 	 * Creates a default plate
 	 * 
+	 * @param numberOfPlates The total number of plates.
 	 * @param index The index of the plate.
 	 * @param numberOfPlateAcquisition  The number of plate acquisition to add.
 	 * @return See above.
 	 */
-	protected Plate createPlate(int index, int numberOfPlateAcquisition)
+	protected Plate createPlate(int numberOfPlates, int index, 
+			int numberOfPlateAcquisition)
 	{
-		return createPlate(index, ROWS, COLUMNS, FIELDS, 
+		return createPlate(numberOfPlates, index, ROWS, COLUMNS, FIELDS, 
 				numberOfPlateAcquisition);
 	}
 	
 	/**
 	 * Creates a populated plate with images.
 	 * 
+	 * @param numberOfPlates The total number of plates.
 	 * @param index The index of the plate.
 	 * @param rows  The number of rows.
 	 * @param columns The number of columns.
@@ -831,7 +834,8 @@ public class XMLMockObjects
 	 * @param numberOfPlateAcquisition  The number of plate acquisition to add.
 	 * @return See above.
 	 */
-	protected Plate createPlate(int index, int rows, int columns, int fields, 
+	protected Plate createPlate(int numberOfPlates, 
+			int index, int rows, int columns, int fields, 
 			int numberOfPlateAcquisition)
 	{
 	    // ticket:3102
@@ -854,12 +858,14 @@ public class XMLMockObjects
 		plate.setStatus("Plate status");
 		PlateAcquisition pa = null;
 		List<PlateAcquisition> pas = new ArrayList<PlateAcquisition>();
+		int v;
 		if (numberOfPlateAcquisition > 0) {
 			for (int i = 0; i < numberOfPlateAcquisition; i++) {
 				pa = new PlateAcquisition();
-				pa.setID("PlateAcquisition:"+i);
-				pa.setName("PlateAcquisition Name "+i);
-				pa.setDescription("PlateAcquisition Description "+i);
+				v = i+index*numberOfPlates;
+				pa.setID("PlateAcquisition:"+v);
+				pa.setName("PlateAcquisition Name "+v);
+				pa.setDescription("PlateAcquisition Description "+v);
 				pa.setEndTime(TIME);
 				pa.setStartTime(TIME);
 				plate.addPlateAcquisition(pa);
@@ -870,7 +876,7 @@ public class XMLMockObjects
 		Well well;
 		WellSample sample;
 		Image image;
-		int i = 0;
+		int i = index*rows*columns*fields*numberOfPlateAcquisition;
 		Iterator<PlateAcquisition> k;
 		int kk = 0;
 		for (int row = 0; row < rows; row++) {
@@ -906,12 +912,13 @@ public class XMLMockObjects
 					while (k.hasNext()) {
 						pa = k.next();
 						for (int field = 0; field < fields; field++) {
+							v = kk+index*numberOfPlates;
 							sample = new WellSample();
 							sample.setPositionX(0.0);
 							sample.setPositionY(1.0);
 							sample.setTimepoint(TIME);
 							sample.setID(String.format("WellSample:%d_%d_%d_%d_%d", 
-									index, row, column, field, kk));
+									index, row, column, field, v));
 							sample.setIndex(new NonNegativeInteger(i));
 							//create an image. and register it
 							//image = createImage(i, true);
@@ -1388,7 +1395,7 @@ public class XMLMockObjects
 	public OME createPopulatedPlate(int n)
 	{
 		populateInstrument();
-		ome.addPlate(createPlate(0, 1, 1, 1, n));
+		ome.addPlate(createPlate(1, 0, 1, 1, 1, n));
 		return ome;
 	}
 	
@@ -1407,7 +1414,7 @@ public class XMLMockObjects
 	{
 		if (fields < 1) fields = 1;
 		populateInstrument();
-		ome.addPlate(createPlate(0, 1, 1, fields, n));
+		ome.addPlate(createPlate(1, 0, 1, 1, fields, n));
 		return ome;
 	}
 
@@ -1427,11 +1434,11 @@ public class XMLMockObjects
         Screen screen = createScreen(0);
         Plate plate;
         for (int p = 0; p < plates; p++) {
-            plate = createPlate(p, rows, cols, fields, acqs);
+            plate = createPlate(plates, p, rows, cols, fields, acqs);
             screen.linkPlate(plate);
             ome.addPlate(plate);
-            ome.addScreen(screen);
         }
+        ome.addScreen(screen);
         return ome;
     }
 
@@ -1454,7 +1461,7 @@ public class XMLMockObjects
 	public OME createBasicPlateWithReagent()
 	{
 		populateInstrument();
-        Plate plate = createPlate(0, 1, 1, 1, 0);
+        Plate plate = createPlate(1, 0, 1, 1, 1, 0);
 		Reagent r = createReagent(0);
 		plate.getWell(0).linkReagent(r);
         Screen screen = createScreen(0);
@@ -1477,7 +1484,7 @@ public class XMLMockObjects
 	public OME createFullPopulatedPlate(int n)
 	{
 		populateInstrument();
-		ome.addPlate(createPlate(0, n));
+		ome.addPlate(createPlate(1, 0, n));
 		return ome;
 	}
 	

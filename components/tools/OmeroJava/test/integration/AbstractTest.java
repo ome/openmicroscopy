@@ -556,6 +556,7 @@ public class AbstractTest
         long id = p.getImage().getId().getValue();
         String sql = "select ws from WellSample as ws ";
         sql += "join fetch ws.well as w ";
+        sql += "left outer join fetch ws.plateAcquisition as pa ";
         sql += "join fetch w.plate as p ";
         sql += "left outer join fetch p.screenLinks sl ";
         sql += "left outer join fetch sl.parent s ";

@@ -30,8 +30,13 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 import org.testng.annotations.AfterClass;
@@ -1113,9 +1118,16 @@ public class ImporterTest
 		File f = File.createTempFile("testImportScreenWithOnePlate", 
 				"."+OME_FORMAT);
 		files.add(f);
+		f = new File("/OMERO/testImportScreenWithOnePlate.ome");
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
-		OME ome = xml.createPopulatedScreen(1, 2, 2, 2, 2);
+		int rows = 2;
+		int columns = 2;
+		int fields = 2;
+		int acquisition = 3;
+		int plates = 1;
+		OME ome = xml.createPopulatedScreen(plates, rows, columns, fields,
+				acquisition);
 		writer.writeFile(f, ome, true);
 		List<Pixels> pixels = null;
 		try {
@@ -1123,8 +1135,8 @@ public class ImporterTest
 		} catch (Throwable e) {
 			throw new Exception("cannot import the plate", e);
 		}
-        Pixels p = pixels.get(0);
-        WellSample ws = getWellSample(p);
+        Pixels pp = pixels.get(0);
+        WellSample ws = getWellSample(pp);
 		validateWellSample(ws, ome.getPlate(0).getWell(0).getWellSample(0));
 		Well well = ws.getWell();
 		assertNotNull(well);
@@ -1134,6 +1146,64 @@ public class ImporterTest
 		validatePlate(plate, ome.getPlate(0));
 		validateScreen(plate.copyScreenLinks().get(0).getParent(), 
 				ome.getScreen(0));
+		PlateAcquisition pa;
+		Map<Long, Set<Long>> ppaMap = new HashMap<Long, Set<Long>>();
+		Map<Long, Set<Long>> pawsMap = new HashMap<Long, Set<Long>>();
+		Set<Long> wsIds;
+		Set<Long> paIds;
+		for (Pixels p : pixels) {
+			ws = getWellSample(p);
+			assertNotNull(ws);
+			well = ws.getWell();
+			assertNotNull(well);
+			plate = ws.getWell().getPlate();
+			pa = ws.getPlateAcquisition();
+			wsIds = pawsMap.get(pa.getId().getValue());
+			if (wsIds == null) {
+				wsIds = new HashSet<Long>();
+				pawsMap.put(pa.getId().getValue(), wsIds);
+			}
+			wsIds.add(ws.getId().getValue());
+			paIds = ppaMap.get(plate.getId().getValue());
+			if (paIds == null) {
+				paIds = new HashSet<Long>();
+				ppaMap.put(plate.getId().getValue(), paIds);
+			}
+			paIds.add(pa.getId().getValue());
+			assertNotNull(plate);
+			validateScreen(plate.copyScreenLinks().get(0).getParent(), 
+					ome.getScreen(0));
+		}
+		assertEquals(plates, ppaMap.size());
+		assertEquals(plates*acquisition, pawsMap.size());
+		Entry entry;
+		Iterator i = ppaMap.entrySet().iterator();
+		Long id, idw;
+		Set<Long> l;
+		Set<Long> wsList;
+		Iterator<Long> j, k;
+		List<Long> plateIds = new ArrayList<Long>();
+		List<Long> wsListIds = new ArrayList<Long>();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			l = (Set<Long>) entry.getValue();
+			assertEquals(acquisition, l.size());
+			j = l.iterator();
+			while (j.hasNext()) {
+				id = j.next();
+				assertFalse(plateIds.contains(id));
+				plateIds.add(id);
+				wsList = pawsMap.get(id);
+				assertEquals(rows*columns*fields, wsList.size());
+				k = wsList.iterator();
+				while (k.hasNext()) {
+					idw = k.next();
+					assertFalse(wsListIds.contains(idw));
+					wsListIds.add(idw);
+				}
+			}
+		}
+		assertEquals(rows*columns*fields*plates*acquisition, wsListIds.size());
 	}
 	
 	/**
@@ -1141,16 +1211,26 @@ public class ImporterTest
      * two fully populated plates.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled=false)
+	@Test(enabled=true)
 	public void testImportScreenWithTwoPlates()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportScreenWithTwoPlates", 
 				"."+OME_FORMAT);
 		files.add(f);
+		f = new File("/OMERO/testImportScreenWithTwoPlates.ome");
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
-		OME ome = xml.createPopulatedScreen(2, 2, 2, 2, 2);
+		int rows = 2;
+		int columns = 2;
+		int fields = 2;
+		int acquisition = 2;
+		int plates = 2;
+		OME ome = xml.createPopulatedScreen(plates, rows, columns, fields,
+				acquisition);
+		//We should have 2 plates
+		//each plate will have 2 plate acquisitions
+		//2x2x2 fields
 		writer.writeFile(f, ome, true);
 		List<Pixels> pixels = null;
 		try {
@@ -1161,17 +1241,64 @@ public class ImporterTest
 		WellSample ws;
 		Well well;
 		Plate plate;
-		ome.getScreen(0);
+		PlateAcquisition pa;
+		Map<Long, Set<Long>> ppaMap = new HashMap<Long, Set<Long>>();
+		Map<Long, Set<Long>> pawsMap = new HashMap<Long, Set<Long>>();
+		Set<Long> wsIds;
+		Set<Long> paIds;
 		for (Pixels p : pixels) {
 			ws = getWellSample(p);
 			assertNotNull(ws);
 			well = ws.getWell();
 			assertNotNull(well);
 			plate = ws.getWell().getPlate();
+			pa = ws.getPlateAcquisition();
+			wsIds = pawsMap.get(pa.getId().getValue());
+			if (wsIds == null) {
+				wsIds = new HashSet<Long>();
+				pawsMap.put(pa.getId().getValue(), wsIds);
+			}
+			wsIds.add(ws.getId().getValue());
+			paIds = ppaMap.get(plate.getId().getValue());
+			if (paIds == null) {
+				paIds = new HashSet<Long>();
+				ppaMap.put(plate.getId().getValue(), paIds);
+			}
+			paIds.add(pa.getId().getValue());
 			assertNotNull(plate);
 			validateScreen(plate.copyScreenLinks().get(0).getParent(), 
 					ome.getScreen(0));
 		}
+		assertEquals(plates, ppaMap.size());
+		assertEquals(plates*acquisition, pawsMap.size());
+		Entry entry;
+		Iterator i = ppaMap.entrySet().iterator();
+		Long id, idw;
+		Set<Long> l;
+		Set<Long> wsList;
+		Iterator<Long> j, k;
+		List<Long> plateIds = new ArrayList<Long>();
+		List<Long> wsListIds = new ArrayList<Long>();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			l = (Set<Long>) entry.getValue();
+			assertEquals(acquisition, l.size());
+			j = l.iterator();
+			while (j.hasNext()) {
+				id = j.next();
+				assertFalse(plateIds.contains(id));
+				plateIds.add(id);
+				wsList = pawsMap.get(id);
+				assertEquals(rows*columns*fields, wsList.size());
+				k = wsList.iterator();
+				while (k.hasNext()) {
+					idw = k.next();
+					assertFalse(wsListIds.contains(idw));
+					wsListIds.add(idw);
+				}
+			}
+		}
+		assertEquals(rows*columns*fields*plates*acquisition, wsListIds.size());
 	}
 	
 	/**
