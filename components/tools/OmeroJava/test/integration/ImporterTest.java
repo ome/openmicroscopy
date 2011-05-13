@@ -817,7 +817,7 @@ public class ImporterTest
      * Tests the import of an OME-XML file with an image with acquisition data.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled = false)
+	@Test(enabled = true)
 	public void testImportImageWithAcquisitionData()
 		throws Exception
 	{
@@ -1316,7 +1316,7 @@ public class ImporterTest
 		validateReagent(wr.getChild(), ome.getScreen(0).getReagent(0));
 		id = wr.getChild().getId().getValue();
 		sql = "select s from Screen as s ";
-		sql += "join fetch s.reagent as r ";
+		sql += "join fetch s.reagents as r ";
 		sql += "where r.id = :id";
 		param = new ParametersI();
 		param.addId(id);
