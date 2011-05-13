@@ -503,8 +503,8 @@ public class ModelMockFactory
     {
     	ImagingEnvironment env = new ImagingEnvironmentI();
     	env.setAirPressure(omero.rtypes.rdouble(1));
-    	env.setCo2percent(omero.rtypes.rdouble(10));
-    	env.setHumidity(omero.rtypes.rdouble(1));
+    	env.setCo2percent(omero.rtypes.rdouble(0.5));
+    	env.setHumidity(omero.rtypes.rdouble(0.5));
     	env.setTemperature(omero.rtypes.rdouble(1));
     	return env;
     }
