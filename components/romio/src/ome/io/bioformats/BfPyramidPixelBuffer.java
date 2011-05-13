@@ -256,7 +256,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
                 Math.round((double) remainingWidth / factor));
             int newImageLength = (int) ((evenTilesPerColumn * newTileLength) +
                 Math.round((double) remainingLength / factor));
-            log.info(String.format("Adding additional series %d %dx%d",
+            log.info(String.format("Adding series %d %dx%d",
                     series, newImageWidth, newImageLength));
             createSeries(series, newImageWidth, newImageLength);
             series++;
