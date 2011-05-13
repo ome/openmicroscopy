@@ -270,8 +270,10 @@ class DropBox(Ice.Application):
         self.importCount =  len(srcFiles)
         self.event.wait(timeout)
 
-        if len(self.imageIds) == 0:
-            log.error("notifyTestFile never called")
+        if not self.event.isSet():
+            log.error("notifyTestFile not called enough times (%s/%s)", len(srcFiles)-self.importCount, len(srcFiles))
+        else:
+            log.info("All imports completed.")
 
         try:
             sf = omero.util.internal_service_factory(
