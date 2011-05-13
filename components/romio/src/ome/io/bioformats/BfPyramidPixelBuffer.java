@@ -83,6 +83,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /** Last timepoint offset  we used during a tile write operation. */
     private int lastT = -1;
 
+    /** Metadata implementation used when writing. */
+    private IMetadata metadata;
+
     // LOCKING. See ticket #5083
 
     /**
@@ -141,8 +144,6 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             final File readerDir = readerFile.getParentFile();
             writerFile = File.createTempFile("." + readerFile.getName(), ".tmp", readerDir);
             writerFile.deleteOnExit();
-            initializeWriter(writerFile.getAbsolutePath(),
-                    TiffCompression.JPEG_2000.getCodecName(), false);
         }
     }
 
@@ -169,8 +170,10 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      * flag, <code>false</code> otherwise.
      * @throws Exception Thrown if an error occurred.
      */
-    private synchronized void initializeWriter(String output, String compression,
-                                        boolean bigTiff)
+    private synchronized void initializeWriter(String output,
+                                               String compression,
+                                               boolean bigTiff,
+                                               int tileWidth, int tileLength)
         throws FormatException
     {
         acquireLock();
@@ -178,15 +181,10 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         {
             loci.common.services.ServiceFactory lociServiceFactory =
                 new loci.common.services.ServiceFactory();
-            OMEXMLService service = lociServiceFactory.getInstance(OMEXMLService.class);
-            IMetadata metadata = service.createOMEXMLMetadata();
-            int sizeX = pixels.getSizeX();
-            int sizeY = pixels.getSizeY();
-            addSeries(metadata, pixels, 0, sizeX, sizeY);
-            int factor = (int) Math.pow(2, 5);
-            addSeries(metadata, pixels, 1, sizeX / factor, sizeY / factor);
-            factor = (int) Math.pow(2, 4);
-            addSeries(metadata, pixels, 2, sizeX / factor, sizeY / factor);
+            OMEXMLService service =
+                lociServiceFactory.getInstance(OMEXMLService.class);
+            metadata = service.createOMEXMLMetadata();
+            addSeries(tileWidth, tileLength);
             writer = new OmeroPixelsPyramidWriter();
             writer.setMetadataRetrieve(metadata);
             writer.setCompression(compression);
@@ -212,8 +210,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      * <code>Pixels.SizeY</code>.
      * @throws EnumerationException
      */
-    private void addSeries(IMetadata metadata, Pixels pixels,
-                           int series, int sizeX, int sizeY)
+    private void createSeries(int series, int sizeX, int sizeY)
         throws EnumerationException
     {
         metadata.setImageID("Image:" + series, series);
@@ -231,6 +228,39 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
                 series);
         metadata.setChannelID("Channel:" + series, series, 0);
         metadata.setChannelSamplesPerPixel(new PositiveInteger(1), series, 0);
+    }
+
+    /**
+     * During tile writing, adds additional all series.
+     * @param tileWidth Tile width of full resolution tiles.
+     * @param tileLength Tile length of full resolution tiles.
+     * @throws EnumerationException
+     */
+    private void addSeries(int tileWidth, int tileLength)
+        throws EnumerationException
+    {
+        int series = 0;
+        for (int level : new int[] { 0, 5, 4 })
+        {
+            long imageWidth = pixels.getSizeX();
+            long imageLength = pixels.getSizeY();
+            long factor = (long) Math.pow(2, level);
+            long newTileWidth = Math.round((double) tileWidth / factor);
+            long newTileLength = Math.round((double) tileLength / factor);
+            long evenTilesPerRow = imageWidth / tileWidth;
+            long evenTilesPerColumn = imageLength / tileLength;
+            long remainingWidth = imageWidth - (evenTilesPerRow * tileWidth);
+            long remainingLength =
+              imageLength - (evenTilesPerColumn * tileLength);
+            int newImageWidth = (int) ((evenTilesPerRow * newTileWidth) +
+                Math.round((double) remainingWidth / factor));
+            int newImageLength = (int) ((evenTilesPerColumn * newTileLength) +
+                Math.round((double) remainingLength / factor));
+            log.info(String.format("Adding additional series %d %dx%d",
+                    series, newImageWidth, newImageLength));
+            createSeries(series, newImageWidth, newImageLength);
+            series++;
+        }
     }
 
     private void acquireLock()
@@ -370,8 +400,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             int planeNumber = FormatTools.getIndex(
                     "XYZCT", getSizeZ(), getSizeC(), getSizeT(), planeCount,
                     z, c, t);
-            writer.saveBytes(planeNumber, buffer, getIFD(z, c, t, w, h),
-                             x, y, w, h);
+            IFD ifd = getIFD(z, c, t, w, h);
+            writer.saveBytes(planeNumber, buffer, ifd, x, y, w, h);
         }
         catch (FormatException e)
         {
@@ -390,6 +420,18 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     private synchronized IFD getIFD(int z, int c, int t, int w, int h)
     {
+        if (lastT == -1 && lastC == -1 && lastZ == -1)
+        {
+            try
+            {
+                initializeWriter(writerFile.getAbsolutePath(),
+                        TiffCompression.JPEG_2000.getCodecName(), false, w, h);
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
         if (lastT != t || lastC != c || lastZ != z)
         {
             lastIFD = new IFD();
