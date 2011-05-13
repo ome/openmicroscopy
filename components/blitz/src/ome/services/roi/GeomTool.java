@@ -19,6 +19,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.conditions.ApiUsageException;
+import ome.io.nio.PixelBuffer;
 import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.services.messages.ShapeChangeMessage;
@@ -311,31 +312,37 @@ public class GeomTool {
             final int endZ = (theZ == null) ? (maxZ - 1) : theZ.intValue();
             final int endT = (theT == null) ? (maxT - 1) : theT.intValue();
 
-            SmartShape.PointCallback cb = new SmartShape.PointCallback() {
+            final PixelBuffer buf = data.getBuffer(pixId);
+            try {
+                SmartShape.PointCallback cb = new SmartShape.PointCallback() {
 
-                public void handle(int x, int y) {
+                    public void handle(int x, int y) {
 
-                    for (int w = 0; w < ch; w++) {
+                        for (int w = 0; w < ch; w++) {
 
-                        for (int z = startZ; z <= endZ; z++) {
-                            for (int t = startT; t <= endT; t++) {
+                            for (int z = startZ; z <= endZ; z++) {
+                                for (int t = startT; t <= endT; t++) {
 
-                                // WHAT TO DO ABOUT THE CHANNELS IN AGGREGATION?
-                                stats.pointsCount[w]++;
-                                double value = data.get(pixId, x, y, z, w, t);
-                                stats.min[w] = Math.min(value, stats.min[w]);
-                                stats.max[w] = Math.max(value, stats.max[w]);
-                                stats.sum[w] += value;
-                                sumOfSquares[w] += value * value;
+                                    // WHAT TO DO ABOUT THE CHANNELS IN AGGREGATION?
+                                    stats.pointsCount[w]++;
+                                    double value = data.get(buf, x, y, z, w, t);
+                                    stats.min[w] = Math.min(value, stats.min[w]);
+                                    stats.max[w] = Math.max(value, stats.max[w]);
+                                    stats.sum[w] += value;
+                                    sumOfSquares[w] += value * value;
 
+                                }
                             }
+
                         }
-
                     }
-                }
-            };
+                };
 
-            smartShape.areaPoints(cb);
+                smartShape.areaPoints(cb);
+            } finally {
+                buf.close();
+            }
+
             for (int w = 0; w < ch; w++) {
 
                 stats.mean[w] = stats.sum[w] / stats.pointsCount[w];
