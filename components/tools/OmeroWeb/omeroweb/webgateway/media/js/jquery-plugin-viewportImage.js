@@ -410,10 +410,10 @@ $.fn.viewportImage = function(options) {
       }
     });
 
-    this.setUpTiles = function (imagewidth, imageheight, xtilesize,ytilesize, init_zoom, max_zoom, href) {
+    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, max_zoom, href) {
         $('<div id="weblitz-viewport-tiles" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
         jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});
-        var myPyramid = new BisqueISPyramid( imagewidth, imageheight, xtilesize);
+        var myPyramid = new BisqueISPyramid( imagewidth, imageheight, xtilesize, ytilesize);
         var myProvider = new PanoJS.TileUrlProvider('','','');
         myProvider.assembleUrl = function(xIndex, yIndex, zoom) {
             return href+'&'+myPyramid.tile_filename( zoom, xIndex, yIndex )
@@ -423,9 +423,9 @@ $.fn.viewportImage = function(options) {
         if (viewerBean == null) {
 
             viewerBean = new PanoJS('weblitz-viewport-tiles', {
-                infoControl    : false,
                 tileUrlProvider : myProvider,
-                tileSize        : myPyramid.tilesize,
+                xTileSize       : myPyramid.xtilesize,
+                yTileSize       : myPyramid.ytilesize,
                 maxZoom         : myPyramid.getMaxLevel(),
                 imageWidth      : myPyramid.width,
                 imageHeight     : myPyramid.height,

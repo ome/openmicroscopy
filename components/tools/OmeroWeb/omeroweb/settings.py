@@ -322,7 +322,7 @@ DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "ima
 try:
     PAGE
 except:
-    PAGE = 24
+    PAGE = 200
 
 SERVER_LIST = ServerObjects(SERVER_LIST)
 

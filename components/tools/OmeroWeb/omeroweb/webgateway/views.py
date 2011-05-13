@@ -605,17 +605,16 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
         try:
             img._prepareRenderingEngine()
             tiles = img._re.hasPixelsPyramid()
-            width, height = img._re.getTileSize()
+            w, h = img._re.getTileSize()
             init_zoom = img._re.getResolutionLevel()
             max_zoom = img._re.getResolutionLevels()-1
             
             zxyt = tile.split(",")
             
-            tilesize = int(zxyt[3])
+            #w = int(zxyt[3])
+            #h = int(zxyt[4])
             level = max_zoom-int(zxyt[0])
 
-            w = tilesize
-            h = tilesize
             x = int(zxyt[1])*w
             y = int(zxyt[2])*h
         except:
