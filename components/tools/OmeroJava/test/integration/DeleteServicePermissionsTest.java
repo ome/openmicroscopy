@@ -179,11 +179,37 @@ public class DeleteServicePermissionsTest
      * i.e. RW----
      * @throws Exception Thrown if an error occurred.     
      */
-    @Test(enabled = false)
-    public void testDeleteObjectByGroupOwner()
+    @Test(enabled = true)
+    public void testDeleteObjectByGroupOwnerRWRW()
     	throws Exception
     {
         EventContext ownerEc = newUserAndGroup("rw----");
+
+    	//owner creates the image
+		Image img = (Image) iUpdate.saveAndReturnObject(
+				mmFactory.createImage());
+		
+    	//group owner deletes it
+		disconnect();
+		newUserInGroup(ownerEc);
+		makeGroupOwner();
+
+		delete(iDelete, client, new DeleteCommand(
+    			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+
+		assertDoesNotExist(img);
+    }
+    
+    /**
+     * Test to try to delete an object by the owner of a private group
+     * i.e. RW----
+     * @throws Exception Thrown if an error occurred.     
+     */
+    @Test(enabled = true)
+    public void testDeleteObjectByGroupOwnerRW()
+    	throws Exception
+    {
+        EventContext ownerEc = newUserAndGroup("rwrw--");
 
     	//owner creates the image
 		Image img = (Image) iUpdate.saveAndReturnObject(
