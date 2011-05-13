@@ -447,11 +447,17 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         		buffer = 
         			pixelsData.getPixelBuffer(pixels);
         	}
-            resetDefaults(settings, pixels, quantumFactory,
-                    renderingModels, buffer, computeStats);
-            if (buffer != null)
+
+            try
             {
-            	buffer.close();
+                resetDefaults(settings, pixels, quantumFactory,
+                        renderingModels, buffer, computeStats);
+            }
+            finally
+            {
+                if (buffer != null) {
+                    buffer.close();
+                }
             }
             
             // Increment the version of the rendering settings so that we 

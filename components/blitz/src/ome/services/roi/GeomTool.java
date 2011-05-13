@@ -11,6 +11,7 @@ import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
 import static omero.rtypes.rlong;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -340,7 +341,11 @@ public class GeomTool {
 
                 smartShape.areaPoints(cb);
             } finally {
-                buf.close();
+                try {
+                    buf.close();
+                } catch (IOException e) {
+                    log.error("Error closing " + buf, e);
+                }
             }
 
             for (int w = 0; w < ch; w++) {

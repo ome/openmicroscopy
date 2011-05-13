@@ -315,10 +315,11 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
         pixels = iPixels.retrievePixDescription(pixels.getId());
         settings = iPixels.loadRndSettings(settings.getId());
-        PixelBuffer buffer = pixelDataService.getPixelBuffer(pixels);
         List<Family> families = getFamilies();
         List<RenderingModel> renderingModels = getRenderingModels();
         QuantumFactory quantumFactory = new QuantumFactory(families);
+        // Loading last to try to ensure that the buffer will get closed.
+        PixelBuffer buffer = pixelDataService.getPixelBuffer(pixels);
         renderer = new Renderer(quantumFactory, renderingModels, pixels,
                 settings, buffer);
         dirty = false;
