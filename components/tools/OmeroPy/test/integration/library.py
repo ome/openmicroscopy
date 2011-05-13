@@ -22,7 +22,7 @@ import subprocess
 import omero
 
 from omero.util.temp_files import create_path
-from omero.rtypes import rstring, rtime
+from omero.rtypes import rstring, rtime, rint
 from path import path
 
 
@@ -320,6 +320,92 @@ class ITest(unittest.TestCase):
             self.fail("Unknown type: %s=%s" % (type(user), user))
 
         return user, name
+
+    #
+    # Data methods
+    #
+
+    def missing_pyramid(self):
+        """
+        Creates and returns a pixels whose shape changes from
+        1,1,4000,4000,1 to 4000,4000,1,1,1 making it a pyramid
+        candidate but without the pyramid which is created on
+        initial import in 4.3+. This simulates a big image that
+        was imported in 4.2.
+        """
+        pix = self.pix(x=1, y=1, z=4000, t=4000, c=1)
+        rps = self.client.sf.createRawPixelsStore()
+        try:
+            rps.setPixelsId(pix.id.val, True)
+            for t in range(4000):
+                rps.setTimepoint([5]*4000, t) # Assuming int8
+            pix = rps.save()
+        finally:
+            rps.close()
+
+        pix.sizeX = rint(4000)
+        pix.sizeY = rint(4000)
+        pix.sizeZ = rint(1)
+        pix.sizeT = rint(1)
+        return self.update.saveAndReturnObject(pix)
+
+    def pix(self, x=10, y=10, z=10, c=3, t=50):
+        """
+        Creates an int8 pixel of the given size in the database.
+        No data is written.
+        """
+        image = self.new_image()
+        pixels = omero.model.PixelsI()
+        pixels.sizeX = rint(x)
+        pixels.sizeY = rint(y)
+        pixels.sizeZ = rint(z)
+        pixels.sizeC = rint(c)
+        pixels.sizeT = rint(t)
+        pixels.sha1 = rstring("")
+        pixels.pixelsType = omero.model.PixelsTypeI()
+        pixels.pixelsType.value = rstring("int8")
+        pixels.dimensionOrder = omero.model.DimensionOrderI()
+        pixels.dimensionOrder.value = rstring("XYZCT")
+        image.addPixels(pixels)
+        image = self.update.saveAndReturnObject(image)
+        pixels = image.getPrimaryPixels()
+        return pixels
+
+    def write(self, pix, rps):
+        """
+        Writes byte arrays consisting of [5] to as
+        either planes or tiles depending on the pixel
+        size.
+        """
+        if not rps.hasPixelsPyramid():
+            # By plane
+            bytes_per_plane = pix.sizeX.val * pix.sizeY.val # Assuming int8
+            for z in range(pix.sizeZ.val):
+                for c in range(pix.sizeC.val):
+                    for t in range(pix.sizeT.val):
+                        rps.setPlane([5]*bytes_per_plane, z, c, t)
+        else:
+            # By tile
+            w, h = rps.getTileSize()
+            bytes_per_tile = w * h # Assuming int8
+            for z in range(pix.sizeZ.val):
+                for c in range(pix.sizeC.val):
+                    for t in range(pix.sizeT.val):
+                        for x in range(0, pix.sizeX.val, w):
+                            for y in range(0, pix.sizeY.val, h):
+
+                                changed = False
+                                if x+w > pix.sizeX.val:
+                                    w = pix.sizeX.val - x
+                                    changed = True
+                                if y+h > pix.sizeY.val:
+                                    h = pix.sizeY.val - y
+                                    changed = True
+                                if changed:
+                                    bytes_per_tile = w * h # Again assuming int8
+
+                                args = ([5]*bytes_per_tile, z, c, t, x, y, w, h)
+                                rps.setTile(*args)
 
     def tearDown(self):
         failure = False
