@@ -212,7 +212,7 @@ class BlitzObjectWrapper (object):
         @rtype:     class
         """
         if self.CHILD_WRAPPER_CLASS is None:
-            raise NotImplementedError
+            raise NotImplementedError('%s has no child wrapper defined' % self.__class__)
         if type(self.CHILD_WRAPPER_CLASS) is type(''):
             # resolve class
             if hasattr(omero.gateway, self.CHILD_WRAPPER_CLASS):
