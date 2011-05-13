@@ -8,6 +8,7 @@
 package omeis.providers.re;
 
 // Java imports
+import java.awt.Dimension;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -958,5 +959,15 @@ public class Renderer {
     public int getResolutionLevels()
     {
         return buffer.getResolutionLevels();
+    }
+
+    /**
+     * Retrieves the tile size for the pixel store.
+     * @return The dimension of the tile or <code>null</code> if the pixel
+     * buffer is not tiled.
+     **/
+    public Dimension getTileSize()
+    {
+        return buffer.getTileSize();
     }
 }

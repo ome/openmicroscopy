@@ -7,6 +7,7 @@
 
 package ome.services;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -1375,13 +1376,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
     @RolesAllowed("user")
     public int[] getTileSize()
     {
-        if (hasPixelsPyramid())
-        {
-            // FIXME: This should be configuration or service driven
-            // FIXME: Also implemented in RawPixelsBean.getTileSize()
-            return new int[] { 256, 256 };
+        rwl.writeLock().lock();
+
+        try {
+            errorIfInvalidState();
+            Dimension tileSize = renderer.getTileSize();
+            return new int[] { (int) tileSize.getWidth(),
+                               (int) tileSize.getHeight() };
+        } finally {
+            rwl.writeLock().unlock();
         }
-        return new int[] { pixelsObj.getSizeX(), pixelsObj.getSizeY() };
     }
 
     /* (non-Javadoc)
