@@ -19,7 +19,6 @@ import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.ServiceInterface;
 import ome.conditions.ValidationException;
-import ome.io.nio.PixelsService;
 import ome.model.IObject;
 import ome.model.core.Channel;
 import ome.model.core.Image;
@@ -411,7 +410,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 			info.setGlobalMin(0.0);
 			info.setGlobalMax(1.0);
 			channel.setStatsInfo(info);
-			lc.setEmissionWave(wavelength);
+			lc.setEmissionWave(wavelength+1); //need positive integer
 			channels.add(channel);
 		}
 		return channels;
