@@ -1663,6 +1663,11 @@ omero.gateway.BlitzGateway = OmeroWebGateway
 
 class OmeroWebObjectWrapper (object):
     
+    def countParents (self):
+        l = self.listParents()
+        if l is not None:
+            return len(l)
+        
     def listChildrenWithLinks (self):
         """
         Lists available child objects.
