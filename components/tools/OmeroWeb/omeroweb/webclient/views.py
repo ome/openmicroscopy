@@ -82,7 +82,7 @@ from controller.impexp import BaseImpexp
 from controller.search import BaseSearch
 from controller.share import BaseShare
 
-from omeroweb.webadmin.forms import MyAccountForm, UploadPhotoForm, LoginForm, ChangeMyPassword
+from omeroweb.webadmin.forms import MyAccountForm, UploadPhotoForm, LoginForm, ChangePassword
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
 from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
 from omeroweb.webadmin.views import _checkVersion, _isServerOn, toBoolean
@@ -2238,14 +2238,14 @@ def change_password(request, **kwargs):
     
     error = None
     if request.method != 'POST':
-        password_form = ChangeMyPassword()
+        password_form = ChangePassword()
     else:
-        password_form = ChangeMyPassword(data=request.POST.copy())
+        password_form = ChangePassword(data=request.POST.copy())
                     
         if password_form.is_valid():
             password = request.REQUEST.get('password').encode('utf-8')
             old_password = request.REQUEST.get('old_password').encode('utf-8')
-            error = conn.changeMyPassword(old_password, password) 
+            error = conn.changeMyPassword(password, old_password) 
             if error is None:
                 request.session['password'] = password
                 return HttpJavascriptResponse("Password was changed successfully")                

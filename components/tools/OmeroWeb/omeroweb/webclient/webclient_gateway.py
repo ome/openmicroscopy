@@ -859,7 +859,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##############################################
     ##   Sets methods                           ##
     
-    def changeUserPassword(self, omeName, password):
+    def changeUserPassword(self, omeName, password, my_password):
         """
         Change the password for the a given user.
         
@@ -867,18 +867,25 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @type omeName       String
         @param password     Must pass validation in the security sub-system.
         @type password      String
+        @param my_password  Must pass validation in the security sub-system.
+        @type my_password   String
         """
         admin_serv = self.getAdminService()
-        admin_serv.changeUserPassword(omeName, rstring(str(password)))
+        try:
+            self.c.sf.setSecurityPassword(my_password)
+            admin_serv.changeUserPassword(omeName, rstring(str(password)))
+        except omero.SecurityViolation, x:
+            return x.message
+        return None
         
-    def changeMyPassword(self, old_password, password):
+    def changeMyPassword(self, password, old_password):
         """
         Change the password for the current user by passing the old password.
         
-        @param old_password     Old password
-        @type old_password      String
         @param password         Must pass validation in the security sub-system.
         @type password          String
+        @param old_password     Old password
+        @type old_password      String
         @return                 None or error message if password could not be changed
         @rtype                  String
         """

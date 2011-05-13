@@ -201,10 +201,11 @@ class UploadPhotoForm(forms.Form):
             raise forms.ValidationError('Photo size file cannot be greater them 200KB.')
         return self.cleaned_data.get('photo') 
 
-class ChangeUserPassword(forms.Form):
+class ChangePassword(forms.Form):
     
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
     confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
+    old_password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
     
     def clean_confirmation(self):
         if self.cleaned_data.get('password') or self.cleaned_data.get('confirmation'):
@@ -213,16 +214,7 @@ class ChangeUserPassword(forms.Form):
             if self.cleaned_data.get('password') != self.cleaned_data.get('confirmation'):
                 raise forms.ValidationError('Passwords do not match')
             else:
-                return self.cleaned_data.get('password')
-
-
-class ChangeMyPassword(ChangeUserPassword):
-    
-    def __init__(self, *args, **kwargs):
-        super(ChangeMyPassword, self).__init__(*args, **kwargs)
-        self.fields.keyOrder = ['old_password', 'password', 'confirmation']
-        
-    old_password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
+                return self.cleaned_data.get('password')    
     
 class EnumerationEntry(forms.Form):
     

@@ -9,8 +9,7 @@ from request_factory import fakeRequest
 from webgateway import views as webgateway_views
 from webadmin import views as webadmin_views
 from webadmin.forms import LoginForm, GroupForm, ExperimenterForm, \
-                ContainedExperimentersForm, \
-                ChangeMyPassword, ChangeUserPassword
+                ContainedExperimentersForm, ChangePassword
                    
 from webadmin.controller.experimenter import BaseExperimenter
 from webadmin.controller.group import BaseGroup
@@ -706,24 +705,23 @@ class WebAdminTest(WebTest):
 # helpers
 
 def _changePassword(request, conn, eid=None):
-    if conn.isAdmin():
-        password_form = ChangeUserPassword(data=request.POST.copy())
-    else:
-        password_form = ChangeMyPassword(data=request.POST.copy())
-
+    password_form = ChangePassword(data=request.POST.copy())
     if password_form.is_valid():
+        old_password = password_form.cleaned_data['old_password']
         password = password_form.cleaned_data['password']
         if conn.isAdmin():
             exp = conn.getExperimenter(eid)
-            conn.changeUserPassword(exp.omeName, password)
-        else:
-            old_password = password_form.cleaned_data['old_password']
-            error = conn.changeMyPassword(old_password, password) 
+            error = conn.changeUserPassword(exp.omeName, password, old_password)
             if error is not None:
-                errors = form.errors.as_text()
+                errors = password_form.errors.as_text()
+                self.fail(errors)
+        else:
+            error = conn.changeMyPassword(password, old_password) 
+            if error is not None:
+                errors = password_form.errors.as_text()
                 self.fail(errors)
     else:
-        errors = form.errors.as_text()
+        errors = password_form.errors.as_text()
         self.fail(errors)
         
 def _createGroup(request, conn):

@@ -57,8 +57,7 @@ from django.core.cache import cache
 from webclient.webclient_gateway import OmeroWebGateway
 
 from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
-                   GroupForm, GroupOwnerForm, MyAccountForm, \
-                   ChangeMyPassword, ChangeUserPassword, \
+                   GroupForm, GroupOwnerForm, MyAccountForm, ChangePassword, \
                    ContainedExperimentersForm, UploadPhotoForm, \
                    EnumerationEntry, EnumerationEntries
 
@@ -558,26 +557,20 @@ def manage_password(request, eid, **kwargs):
     
     error = None
     if request.method != 'POST':
-        if conn.isAdmin():
-            password_form = ChangeUserPassword()
-        else:
-            password_form = ChangeMyPassword()
+        password_form = ChangePassword()
     else:
-        if conn.isAdmin():
-            password_form = ChangeUserPassword(data=request.POST.copy())
-        else:
-            password_form = ChangeMyPassword(data=request.POST.copy())
-                    
+        password_form = ChangePassword(data=request.POST.copy())            
         if password_form.is_valid():
+            old_password = password_form.cleaned_data['old_password']
             password = password_form.cleaned_data['password']
             if conn.isAdmin():
                 exp = conn.getExperimenter(eid)
-                conn.changeUserPassword(exp.omeName, password)
-                request.session['password'] = password
-                return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", eid]))
+                error = conn.changeUserPassword(exp.omeName, password, old_password)
+                if error is None:
+                    request.session['password'] = password
+                    return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", eid]))
             else:
-                old_password = password_form.cleaned_data['old_password']
-                error = conn.changeMyPassword(old_password, password) 
+                error = conn.changeMyPassword(password, old_password) 
                 if error is None:
                     request.session['password'] = password
                     return HttpResponseRedirect(reverse("wamyaccount"))
