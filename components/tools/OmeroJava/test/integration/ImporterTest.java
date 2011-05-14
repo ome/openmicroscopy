@@ -1118,7 +1118,6 @@ public class ImporterTest
 		File f = File.createTempFile("testImportScreenWithOnePlate", 
 				"."+OME_FORMAT);
 		files.add(f);
-		f = new File("/OMERO/testImportScreenWithOnePlate.ome");
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		int rows = 2;
@@ -1218,7 +1217,6 @@ public class ImporterTest
 		File f = File.createTempFile("testImportScreenWithTwoPlates", 
 				"."+OME_FORMAT);
 		files.add(f);
-		f = new File("/OMERO/testImportScreenWithTwoPlates.ome");
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		int rows = 2;
