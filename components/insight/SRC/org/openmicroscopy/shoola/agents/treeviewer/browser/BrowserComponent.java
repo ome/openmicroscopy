@@ -237,6 +237,28 @@ class BrowserComponent
 		model.fireContainerCountLoading(items, nodes);
 	}
 	
+	/** 
+	 * Counts the nodes linked to the specified annotation.
+	 *
+	 * @param node The node of reference.
+	 */
+	private void countItemsInAnnotation(TreeImageSet node)
+	{
+		if (node == null) return;
+		Object ho = node.getUserObject();
+		List<Class> types = new ArrayList<Class>();
+		if (ho instanceof TagAnnotationData) {
+			types.add(DatasetData.class);
+		}
+		if (types.size() == 0) return;
+		ContainerFinder finder = new ContainerFinder(types);
+		accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+		Set<DataObject> items = finder.getContainers();
+		Set<TreeImageSet> nodes = finder.getContainerNodes();
+		if (items.size() == 0 && nodes.size() == 0) return;
+		model.fireContainerCountLoading(items, nodes);
+	}
+	
 	/**
 	 * Sets the selected node.
 	 * 
@@ -446,7 +468,8 @@ class BrowserComponent
         model.setState(READY);
         if (parent != null && 
         		parent.getUserObject() instanceof TagAnnotationData)
-        	countItems(TagAnnotationData.class);
+        	//countItems(TagAnnotationData.class);
+        	countItemsInAnnotation(parent);
         if (model.getBrowserType() == TAGS_EXPLORER && 
         		parent instanceof TreeFileSet)
         	countItems(TagAnnotationData.class);

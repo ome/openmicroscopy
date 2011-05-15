@@ -27,7 +27,9 @@ package org.openmicroscopy.shoola.agents.util.browser;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -62,7 +64,7 @@ public class ContainerFinder
     private Set<DataObject>   containers;
     
     /** The type of node to track.*/
-    private Class             rootType;
+    private List<Class>             rootType;
     
     /** 
      * Creates a new instance. 
@@ -70,6 +72,19 @@ public class ContainerFinder
      * @param rootType The type of nodes to track.
      */
     public ContainerFinder(Class rootType)
+    {
+    	this.rootType = new ArrayList<Class>();
+    	this.rootType.add(rootType);
+        containerNodes = new HashSet<TreeImageSet>();
+        containers = new HashSet<DataObject>();
+    }
+    
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param rootType The type of nodes to track.
+     */
+    public ContainerFinder(List<Class> rootType)
     {
     	this.rootType = rootType;
         containerNodes = new HashSet<TreeImageSet>();
@@ -104,7 +119,7 @@ public class ContainerFinder
     public void visit(TreeImageSet node)
     {
         Object userObject = node.getUserObject();
-        if (userObject != null && userObject.getClass().equals(rootType)) {
+        if (userObject != null && rootType.contains(userObject.getClass())) {
         	if (userObject instanceof DatasetData || 
         			userObject instanceof GroupData || 
         			userObject instanceof ExperimenterData) {
