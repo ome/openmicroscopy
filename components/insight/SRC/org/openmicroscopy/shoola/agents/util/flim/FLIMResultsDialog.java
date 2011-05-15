@@ -59,8 +59,11 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 
@@ -103,7 +106,7 @@ import processing.core.PVector;
  */
 public class FLIMResultsDialog 
 	extends JDialog
-	implements ActionListener, PropertyChangeListener, ItemListener
+	implements ActionListener, PropertyChangeListener, ItemListener, ChangeListener
 {
 
 	/** Bound property indicating that the chart as been saved. */
@@ -267,6 +270,11 @@ public class FLIMResultsDialog
 	/** Button to toggle between RGB->BGR values. */
 	private JToggleButton RGBButton; 
 	
+	/** The slider to determine the thresholding on the data.*/
+	private JSlider thresholdSlider;
+	
+	/** The sorted data.*/
+	private List<Double> sortedData;
 	/**
 	 * Saves the data to the specified file.
 	 * 
@@ -437,10 +445,11 @@ public class FLIMResultsDialog
 		medianTextField.setText(""+UIUtilities.roundTwoDecimals(median));
 		
 		ImageData data = new ImageData(values, columns, rows, 1);
-		List<Double> sortedData = (List<Double>) sorter.sort(values);
+		sortedData = (List<Double>) sorter.sort(values);
 		chartObject = new HistogramCanvas(sortedData, 
 				data, BINS, true, getBestGuess(sortedData));
 		chartObject.addPropertyChangeListener(this);
+		thresholdSlider.setValue(1);
 		colourMapSlider.setValues(BINS, 0, BINS, 0, BINS/4,BINS/2+BINS/4);
 		chartObject.setRGB(true, BINS/4, BINS/2+BINS/4);
 		colourMapSlider.addPropertyChangeListener(this);
@@ -478,7 +487,7 @@ public class FLIMResultsDialog
           {{0.5, 0.4, 0.1},
            {TableLayout.FILL, TableLayout.FILL,TableLayout.PREFERRED}};
 		sliderPanel.setLayout(new TableLayout(sliderPanelTableSize));
-		sliderPanel.add(new JPanel(),"0,0,0,1");
+		sliderPanel.add(thresholdSlider,"0,0,0,1");
 		sliderPanel.add(colourMapSlider,"1,0,1,1" );
 		sliderPanel.add(RGBButton,"2,0,2,1");
 		sliderPanel.setPreferredSize(new Dimension(1000,30));
@@ -564,7 +573,8 @@ public class FLIMResultsDialog
 		RGBButton = new JToggleButton("RGB");
 		RGBButton.setSelected(true);
 		RGBButton.addItemListener(this);
-		
+		thresholdSlider = new JSlider(JSlider.HORIZONTAL,1,100,1);
+		thresholdSlider.addChangeListener(this);
 		Entry entry;
 		Iterator i = results.entrySet().iterator();
 		FileAnnotationData fa;
@@ -960,6 +970,11 @@ public class FLIMResultsDialog
 		}
 	}
 	
+	/**
+	 * Update the table, now that a new range has been selected. 
+	 * @param start See above.
+	 * @param end See above.
+	 */
 	private void newRangeSelected(int start, int end)
 	{
 		chartObject.setRGB(RGBButton.isSelected(), start, end);
@@ -1035,6 +1050,9 @@ public class FLIMResultsDialog
 		frequencyBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.FREQ)));
 	}
 
+	/**
+	 * Overridden from {@see ItemListener#itemStateChanged(ItemEvent)
+	 */
 	public void itemStateChanged(ItemEvent e) 
 	{
 		if(e.getItem()==RGBButton)
@@ -1069,5 +1087,35 @@ public class FLIMResultsDialog
 		else
 			thresholdValue= sortedData.get(0);
 		return thresholdValue;
+	}
+
+	/**
+	 * Calculate the value that the slider would be in the data, if it was selecting the bin.
+	 * @param bin See above.
+	 * @return See above.
+	 */
+	private double calculateValue(int bin)
+	{
+		double min = sortedData.get(0);
+		double max = sortedData.get(sortedData.size()-1);
+		double range = max-min;
+		double binWidth = range/(double)BINS;
+		return min+bin*binWidth;
+	}
+	
+	/**
+	 * Overridden from {@link ChangeListener#stateChanged(ChangeEvent)}
+	 */
+	public void stateChanged(ChangeEvent e) 
+	{
+		if (e.getSource() instanceof JSlider) 
+		{
+		      JSlider thresholdSlider = (JSlider) e.getSource();
+		      if (!thresholdSlider.getValueIsAdjusting()) 
+		      {
+		    	  double value = calculateValue(thresholdSlider.getValue());
+		    	  chartObject.setThreshold(value);
+		      }
+		}
 	}
 }

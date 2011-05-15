@@ -86,6 +86,16 @@ public class HeatMap
 	}
 	
 	/**
+	 * Calculate the new heatmap for the threshold.
+	 * @param threshold See above.
+	 */
+	public void setThreshold(double threshold)
+	{
+		thresholdValue = threshold;
+		calculateHeatMap();
+	}
+	
+	/**
 	 * Calculate the heatmap, and store it as an image.
 	 */
 	private void calculateHeatMap()

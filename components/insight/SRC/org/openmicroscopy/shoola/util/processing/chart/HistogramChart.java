@@ -83,10 +83,10 @@ public class HistogramChart
 	/** The point in the data set that has been picked. */
 	private PVector pointPicked;
 
-	/** Display the graph from this value, values equal to this or less will be black in the heatmap. */
-	private double thesholdValue;
-
+	/** The originalData. */
 	private List<Double> originalData;
+	
+	/** The ordered thresholded data.*/
 	private List<Double> orderedData;
 	
 	/**
@@ -111,29 +111,44 @@ public class HistogramChart
 	 * @param thresholdValue Only display values in the chart from this value.
 	 * @param fillType The type of fill on the background.
 	 */
-	public HistogramChart(PApplet parent, List<Double> originalData, int bins, double thresholdValue, FillType fillType)
+	public HistogramChart(PApplet parent, List<Double> originalData, int bins, double threshold, FillType fillType)
 	{
 		super(parent);
 		if (bins <= 0) bins = 1;
 		this.bins = bins;
-		orderedData = threshold(originalData, thresholdValue);
-		setHistogramData(orderedData);
-		this.originalData = originalData;
+			this.originalData = originalData;
 		this.rgb = true;
 		this.drawBackground = false;
 		setPrimaryColours();
 		this.fillType = fillType;
-		this.thesholdValue = thresholdValue;
 		gradientStep = 1;
 		pointPicked =null;
+		setDataFromThreshold(threshold);
 	}
 	
-	private List<Double> threshold(List<Double> sortedData, double thresholdValue)
+	/**
+	 * Create a new dataset from the original data set, with a new threshold.
+	 * @param threshold See above.
+	 */
+	public void setDataFromThreshold(double threshold)
+	{
+		orderedData = threshold(originalData, threshold);
+		if(orderedData.size()!=0)
+			setHistogramData(orderedData);
+	}
+	
+	/**
+	 * Create a new dataset from the sortedData list and threshold value.
+	 * @param sortedData See above.
+	 * @param threshold See above.
+	 * @return See above.
+	 */
+	private List<Double> threshold(List<Double> sortedData, double threshold)
 	{
 		List<Double> thresholdData = new ArrayList<Double>();
 		for(int i = 0 ; i < sortedData.size() ; i++)
 		{
-			if(sortedData.get(i)>thresholdValue)
+			if(sortedData.get(i)>threshold)
 			{
 				thresholdData.add(sortedData.get(i));
 			}

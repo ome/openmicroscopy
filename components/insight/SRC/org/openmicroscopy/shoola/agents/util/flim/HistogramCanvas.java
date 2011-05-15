@@ -39,6 +39,8 @@ import org.openmicroscopy.shoola.util.processing.chart.HeatMap;
 import org.openmicroscopy.shoola.util.processing.chart.HistogramChart;
 import org.openmicroscopy.shoola.util.processing.chart.ImageData;
 
+import controlP5.ControlP5;
+
 /**
  * Component displaying the histogram.
  *
@@ -76,7 +78,11 @@ extends PApplet
 	/** The background colour of the windows. */
 	final static Color windowsBackground = new Color(230,230,230);
 
+	/** The offset of the heatmap from the Y-Axis.*/
 	final static int heatMapOffsetY = 10;
+	
+	/** The list of datapoints. */
+	List<Double> originalData;
 	
 	/**
 	 * Creates a new instance.
@@ -100,26 +106,40 @@ extends PApplet
 	 * 						<code>false</code> otherwise.
 	 * @param thresholdValue Values equal to or less in the heatmap are black.
 	 */
-	HistogramCanvas(List<Double> orderedData, ImageData data, int bins, 
-			boolean showHeatMap, double thresholdValue)
+	HistogramCanvas(List<Double> originalData, ImageData data, int bins, 
+			boolean showHeatMap, double threshold)
 	{
 		if (data == null)
 			throw new IllegalArgumentException("No data to display.");
-		if (orderedData == null)
+		if (originalData == null)
 			throw new IllegalArgumentException("No data to display.");
 		if (bins <= 0) bins = 1;
 		this.data = data;
-		chart = new HistogramChart(this, orderedData, bins, thresholdValue,FillType.NONE);
+		chart = new HistogramChart(this, originalData, bins, threshold,FillType.NONE);
 		chart.setPastelColours();
-		chart.setRGB(true, 40, 80);
-		double heatMapThreshold=thresholdValue;
-		if(orderedData.get(0).equals(orderedData.get(orderedData.size()-1)))
-			heatMapThreshold = orderedData.get(0);
+		chart.setRGB(true, bins/4, bins/2+bins/4);
+		double heatMapThreshold=threshold;
+		this.originalData = originalData;
+		if(originalData.get(0).equals(originalData.get(originalData.size()-1)))
+			heatMapThreshold = originalData.get(0);
 		map = new HeatMap(this, data, chart, heatMapThreshold); 
 		this.displayHeatMap = showHeatMap;
-
 		init();
 	}
+	
+	/**
+	 * Set the new threshold of the data.
+	 * @param value The threshold.
+	 */
+	public void setThreshold(double threshold)
+	{
+		chart.setDataFromThreshold(threshold);
+		double heatMapThreshold=threshold;
+		if(originalData.get(0).equals(originalData.get(originalData.size()-1)))
+			heatMapThreshold = originalData.get(0);
+		map.setThreshold(heatMapThreshold);
+	}
+	
 	/**
 	 * Returns the colour of the bin containing the value.
 	 * 
@@ -279,11 +299,10 @@ extends PApplet
 		}
 	}
 	
-	private void drawButton()
-	{
-		
-	}
-
+	
+	/**
+	 * The mouse has been released, pick the point.
+	 */
 	public void mouseReleased()
 	{
 		pick(mouseX, mouseY);
