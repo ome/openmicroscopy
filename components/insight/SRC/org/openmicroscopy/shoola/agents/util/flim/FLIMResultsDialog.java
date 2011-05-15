@@ -33,6 +33,8 @@ import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -57,8 +59,8 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.filechooser.FileFilter;
 
 
@@ -101,7 +103,7 @@ import processing.core.PVector;
  */
 public class FLIMResultsDialog 
 	extends JDialog
-	implements ActionListener, PropertyChangeListener
+	implements ActionListener, PropertyChangeListener, ItemListener
 {
 
 	/** Bound property indicating that the chart as been saved. */
@@ -261,6 +263,9 @@ public class FLIMResultsDialog
 	
 	/** Slider used to enter the red and blue components of the colourmap. */
 	private TextualTwoKnobsSlider colourMapSlider;
+	
+	/** Button to toggle between RGB->BGR values. */
+	private JToggleButton RGBButton; 
 	
 	/**
 	 * Saves the data to the specified file.
@@ -432,11 +437,12 @@ public class FLIMResultsDialog
 		medianTextField.setText(""+UIUtilities.roundTwoDecimals(median));
 		
 		ImageData data = new ImageData(values, columns, rows, 1);
-		chartObject = new HistogramCanvas((List<Double>) sorter.sort(values), 
-				data, BINS, true, 0);
+		List<Double> sortedData = (List<Double>) sorter.sort(values);
+		chartObject = new HistogramCanvas(sortedData, 
+				data, BINS, true, getBestGuess(sortedData));
 		chartObject.addPropertyChangeListener(this);
 		colourMapSlider.setValues(BINS, 0, BINS, 0, BINS/4,BINS/2+BINS/4);
-		chartObject.setRGB(BINS/4, BINS/2+BINS/4);
+		chartObject.setRGB(true, BINS/4, BINS/2+BINS/4);
 		colourMapSlider.addPropertyChangeListener(this);
 		/*chartObject.addMouseListener(new MouseAdapter(){
 			public void mousePressed(MouseEvent me) { 
@@ -468,11 +474,16 @@ public class FLIMResultsDialog
 		chartObject.setMaximumSize(new Dimension(1000,300));
 		p.add(chartObject);
 		JPanel sliderPanel = new JPanel();
-		sliderPanel.setLayout(new FlowLayout());
-		sliderPanel.add(colourMapSlider);
-		sliderPanel.setPreferredSize(new Dimension(1000,40));
-		sliderPanel.setMaximumSize(new Dimension(1000,40));
-		sliderPanel.setMinimumSize(new Dimension(1000,40));
+		  double sliderPanelTableSize[][] =
+          {{0.5, 0.4, 0.1},
+           {TableLayout.FILL, TableLayout.FILL,TableLayout.PREFERRED}};
+		sliderPanel.setLayout(new TableLayout(sliderPanelTableSize));
+		sliderPanel.add(new JPanel(),"0,0,0,1");
+		sliderPanel.add(colourMapSlider,"1,0,1,1" );
+		sliderPanel.add(RGBButton,"2,0,2,1");
+		sliderPanel.setPreferredSize(new Dimension(1000,30));
+		sliderPanel.setMaximumSize(new Dimension(1000,30));
+		sliderPanel.setMinimumSize(new Dimension(1000,30));
 		JPanel chartStatsPanel = new JPanel();
 		//chartStatsPanel.setLayout(new BoxLayout(chartStatsPanel, BoxLayout.X_AXIS));
 		  double size[][] =
@@ -481,7 +492,7 @@ public class FLIMResultsDialog
 		chartStatsPanel.setLayout(new TableLayout(size));
 		
 		chartStatsPanel.add(photonChart,"0,0,0,1");
-		chartStatsPanel.add(new JScrollPane(statsTable),"1,0,1,1");
+		chartStatsPanel.add(statsTable,"1,0,1,1");
 		chartStatsPanel.setPreferredSize(new Dimension(1000,250));
 		chartStatsPanel.setMaximumSize(new Dimension(1000,250));
 		chartStatsPanel.setMaximumSize(new Dimension(1000,250));
@@ -518,7 +529,7 @@ public class FLIMResultsDialog
 		minBinLabel = new JLabel("Bin Min");
 		binLabel = new JLabel("Bin");
 		percentBinLabel = new JLabel("Percent");
-		frequencyBinLabel = new JLabel("Frequency");
+		frequencyBinLabel = new JLabel("Freq");
 		stddevBinLabel = new JLabel("StdDev");
 		
 		meanTextField = new JTextField("");
@@ -550,6 +561,10 @@ public class FLIMResultsDialog
 		colourMapSlider.setMinimumSize(new Dimension(1000,30));
 		statsTable = new StatsTable();
 		canvas = new ImageCanvas();
+		RGBButton = new JToggleButton("RGB");
+		RGBButton.setSelected(true);
+		RGBButton.addItemListener(this);
+		
 		Entry entry;
 		Iterator i = results.entrySet().iterator();
 		FileAnnotationData fa;
@@ -940,18 +955,24 @@ public class FLIMResultsDialog
 		}else if (HistogramCanvas.CHARTSELECTED_PROPERTY.equals(name)){
 			
 			displayMapResult((Integer)evt.getNewValue());
+		}else if(name.equals(JToggleButton.MODEL_CHANGED_PROPERTY)){
+			chartObject.setRGB(RGBButton.isSelected(), (int)colourMapSlider.getStartValue(), (int)colourMapSlider.getEndValue());		
 		}
 	}
 	
 	private void newRangeSelected(int start, int end)
 	{
-		chartObject.setRGB(start, end);
+		chartObject.setRGB(RGBButton.isSelected(), start, end);
 		
 		Map<String, Double> redStats = chartObject.getRangeStats(0,start);
 		Map<String, Double> greenStats = chartObject.getRangeStats(start, end);
 		Map<String, Double> blueStats = chartObject.getRangeStats(end, BINS);
 		RowData rowData = new RowData();
 		rowData.addElement("Red");
+		
+		rowData.addElement(0);
+		rowData.addElement(start-1);
+		rowData.addElement(redStats.get(Histogram.MIN));
 		rowData.addElement(redStats.get(Histogram.MIN));
 		rowData.addElement(redStats.get(Histogram.MAX));
 		rowData.addElement(redStats.get(Histogram.MEAN));
@@ -961,6 +982,8 @@ public class FLIMResultsDialog
 		statsTable.insertData(rowData);
 		rowData = new RowData();
 		rowData.addElement("Green");
+		rowData.addElement(start);
+		rowData.addElement(end-1);
 		rowData.addElement(greenStats.get(Histogram.MIN));
 		rowData.addElement(greenStats.get(Histogram.MAX));
 		rowData.addElement(greenStats.get(Histogram.MEAN));
@@ -970,6 +993,8 @@ public class FLIMResultsDialog
 		statsTable.insertData(rowData);
 		rowData = new RowData();
 		rowData.addElement("Blue");
+		rowData.addElement(end);
+		rowData.addElement(BINS);
 		rowData.addElement(blueStats.get(Histogram.MIN));
 		rowData.addElement(blueStats.get(Histogram.MAX));
 		rowData.addElement(blueStats.get(Histogram.MEAN));
@@ -1008,5 +1033,41 @@ public class FLIMResultsDialog
 		percentBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.PERCENT)));
 		stddevBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.STDDEV)));
 		frequencyBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.FREQ)));
+	}
+
+	public void itemStateChanged(ItemEvent e) 
+	{
+		if(e.getItem()==RGBButton)
+		{ 
+			if(e.getStateChange() == ItemEvent.SELECTED)
+		    {
+				RGBButton.setText("RGB");
+				chartObject.setRGB(RGBButton.isSelected(), (int)colourMapSlider.getStartValue(), (int)colourMapSlider.getEndValue());	
+		    }
+            else
+            {
+            	RGBButton.setText("BGR");
+            	chartObject.setRGB(RGBButton.isSelected(), (int)colourMapSlider.getStartValue(), (int)colourMapSlider.getEndValue());	
+            } 
+		}
+	}
+	
+	/**
+	 * Get the best guess for thresholding of the data.
+	 * @param sortedData The sorted data to threshold.
+	 * @return See above.
+	 */
+	private double getBestGuess(List<Double> sortedData)
+	{
+		double thresholdValue;
+		if(sortedData.size()==0)
+			thresholdValue= 0;
+		else if(sortedData.get(0).equals(sortedData.get(sortedData.size()-1)))
+			thresholdValue= sortedData.get(0)-1;
+		else if(sortedData.get(sortedData.size()-1)==null)
+			thresholdValue= sortedData.get(0)-1;
+		else
+			thresholdValue= sortedData.get(0);
+		return thresholdValue;
 	}
 }

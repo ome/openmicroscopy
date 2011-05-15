@@ -23,6 +23,7 @@ package org.openmicroscopy.shoola.util.processing.chart;
 
 //Java imports
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -83,7 +84,10 @@ public class HistogramChart
 	private PVector pointPicked;
 
 	/** Display the graph from this value, values equal to this or less will be black in the heatmap. */
-	private int displayFrom;
+	private double thesholdValue;
+
+	private List<Double> originalData;
+	private List<Double> orderedData;
 	
 	/**
 	 * Returns the bins values for the X axis of the plot.
@@ -104,22 +108,37 @@ public class HistogramChart
 	 * @param parent Reference to the <code>PApplet</code>.
 	 * @param orderedData The data to display.
 	 * @param bins The number of bins.s
-	 * @param displayFrom Only display values in the chart from this value.
+	 * @param thresholdValue Only display values in the chart from this value.
 	 * @param fillType The type of fill on the background.
 	 */
-	public HistogramChart(PApplet parent, List<Double> orderedData, int bins, int displayFrom, FillType fillType)
+	public HistogramChart(PApplet parent, List<Double> originalData, int bins, double thresholdValue, FillType fillType)
 	{
 		super(parent);
 		if (bins <= 0) bins = 1;
 		this.bins = bins;
+		orderedData = threshold(originalData, thresholdValue);
 		setHistogramData(orderedData);
+		this.originalData = originalData;
 		this.rgb = true;
 		this.drawBackground = false;
 		setPrimaryColours();
 		this.fillType = fillType;
-		this.displayFrom = displayFrom;
+		this.thesholdValue = thresholdValue;
 		gradientStep = 1;
 		pointPicked =null;
+	}
+	
+	private List<Double> threshold(List<Double> sortedData, double thresholdValue)
+	{
+		List<Double> thresholdData = new ArrayList<Double>();
+		for(int i = 0 ; i < sortedData.size() ; i++)
+		{
+			if(sortedData.get(i)>thresholdValue)
+			{
+				thresholdData.add(sortedData.get(i));
+			}
+		}
+		return thresholdData;
 	}
 
 	/**
@@ -270,7 +289,6 @@ public class HistogramChart
 			}
 			case GRADIENT:
 			default:
-				System.err.println("binToColour()");
 				return binToColour(histogram.findBin(value));
 		}
 	}
@@ -293,6 +311,7 @@ public class HistogramChart
 		{
 			switch(fillType)
 			{
+				
 				case NONE:
 					parent.fill(redColour);
 					parent.rect(left, top, pRed.x, bottom-top+1, offset, 
@@ -329,6 +348,7 @@ public class HistogramChart
 					parent.fill(redColour);
 					parent.rect(pBlue.x, top, right-pBlue.x, bottom-top+1, 
 							offset, offset);	
+					break;
 				case GRADIENT:
 				case JET:
 					for(double x = left ; x < right ; x += gradientStep)

@@ -98,10 +98,10 @@ extends PApplet
 	 * @param bins The number of bins.
 	 * @param showHeatMap 	Pass <code>true</code> to show the heatMap,
 	 * 						<code>false</code> otherwise.
-	 * @param valueIsBlack Values equal to or less in the heatmap are black.
+	 * @param thresholdValue Values equal to or less in the heatmap are black.
 	 */
 	HistogramCanvas(List<Double> orderedData, ImageData data, int bins, 
-			boolean showHeatMap, int valueIsBlack)
+			boolean showHeatMap, double thresholdValue)
 	{
 		if (data == null)
 			throw new IllegalArgumentException("No data to display.");
@@ -109,10 +109,13 @@ extends PApplet
 			throw new IllegalArgumentException("No data to display.");
 		if (bins <= 0) bins = 1;
 		this.data = data;
-		chart = new HistogramChart(this, orderedData, bins, valueIsBlack,FillType.NONE);
-		chart.setPrimaryColours();
+		chart = new HistogramChart(this, orderedData, bins, thresholdValue,FillType.NONE);
+		chart.setPastelColours();
 		chart.setRGB(true, 40, 80);
-		map = new HeatMap(this, data, chart, valueIsBlack); 
+		double heatMapThreshold=thresholdValue;
+		if(orderedData.get(0).equals(orderedData.get(orderedData.size()-1)))
+			heatMapThreshold = orderedData.get(0);
+		map = new HeatMap(this, data, chart, heatMapThreshold); 
 		this.displayHeatMap = showHeatMap;
 
 		init();
@@ -356,13 +359,15 @@ extends PApplet
 	
 	/**
 	 * Set the RGB values of the colourmap.
+	 * @param isRGB is the colour map RGB.
 	 * @param red The red limit.
 	 * @param blue The blue lower limit.
 	 */
-	public void setRGB(int red, int blue)
+	public void setRGB(boolean isRGB, int red, int blue)
 	{
-		chart.setRGB(true, red, blue);
+		chart.setRGB(isRGB, red, blue);
 		map.recalculate();
+		this.redraw();
 	}
 	
 	/**
@@ -375,4 +380,5 @@ extends PApplet
 	{
 		return chart.getRangeStats(start,end);
 	}
+	
 }

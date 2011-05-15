@@ -60,7 +60,7 @@ public class HeatMap
 	private HistogramChart histogramChart;
 	
 	/** The  cut of value bin for values displayed in heatmap. */
-	private int valueIsBlack;
+	private double thresholdValue;
 	
 	/**
 	 * Create an instance of the Heatmap.
@@ -68,9 +68,9 @@ public class HeatMap
 	 * @param parent The parent applet.
 	 * @param data The original Image Data.
 	 * @param chart The chart to use.
-	 * @param valueIsBlack values less than or equal to this value are black
+	 * @param thresholdValue values less than or equal to this value are black
 	 */
-	public HeatMap(PApplet parent, ImageData data, HistogramChart chart, int valueIsBlack)
+	public HeatMap(PApplet parent, ImageData data, HistogramChart chart, double thresholdValue)
 	{
 		if (parent == null)
 			throw new IllegalArgumentException("No PApplet specified.");
@@ -81,7 +81,7 @@ public class HeatMap
 		this.parent = parent;
 		this.imageData = data;
 		this.histogramChart = chart;
-		this.valueIsBlack = valueIsBlack;
+		this.thresholdValue = thresholdValue;
 		calculateHeatMap();
 	}
 	
@@ -92,13 +92,11 @@ public class HeatMap
 	{
 		image = new PImage(imageData.getWidth(), imageData.getHeight());
 		double value;
-		int bin;
 		for (int x = 0; x < imageData.getWidth() ; x++)
 			for (int y = 0 ; y < imageData.getHeight() ; y++) 
 			{
 				value = imageData.getValue(x,y);
-				bin = histogramChart.findBin(value);
-				if(bin>valueIsBlack)
+				if(value>thresholdValue)
 				{
 					image.set(x, y, histogramChart.findColour(value));
 				}

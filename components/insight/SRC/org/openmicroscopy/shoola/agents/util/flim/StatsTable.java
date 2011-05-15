@@ -23,10 +23,20 @@
 package org.openmicroscopy.shoola.agents.util.flim;
 
 //Java imports
-import java.awt.BorderLayout;
+import info.clearthought.layout.TableLayout;
 
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+
+import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
+
+import org.jdesktop.swingx.JXTable;
 
 //Third-party libraries
 
@@ -46,7 +56,7 @@ import javax.swing.JTable;
  * @since 3.0-Beta4
  */
 public class StatsTable
-	extends JPanel
+	extends JPanel implements ItemListener, ActionListener
 {
 	/** The number of rows in the table by default. */
 	private final static int NUMROWS = 3;
@@ -55,10 +65,13 @@ public class StatsTable
 	private final static int NUMCOLS = 3;
 	
 	/** The table the StatsTable aggregates. */
-	JTable statsTable;
+	private JXTable statsTable;
 	
 	/** The table model. */
-	StatsTableModel tableModel;
+	private StatsTableModel tableModel;
+
+	/** Button to clear the statsTable.*/
+	private JButton clearTableButton;
 	
 	/**
 	 * Instantiate the table.
@@ -75,7 +88,12 @@ public class StatsTable
 	private void initComponents()
 	{
 		tableModel = new StatsTableModel(NUMROWS);
-		statsTable = new JTable(tableModel);
+		statsTable = new JXTable(tableModel);
+		clearTableButton = new JButton("clear");
+		clearTableButton.setActionCommand("clear");
+		clearTableButton.addActionListener(this);
+		statsTable.getTableHeader().setReorderingAllowed(false);
+		statsTable.getTableHeader().setVisible(true);
 	}
 
 	/**
@@ -83,8 +101,10 @@ public class StatsTable
 	 */
 	private void buildUI()
 	{
-		this.setLayout(new BorderLayout());
-		this.add(statsTable, BorderLayout.CENTER);
+		double size[][] = {{0.8,0.2},{0.1, 0.1, 0.1, TableLayout.FILL}};
+		this.setLayout(new TableLayout(size));
+		this.add(new JScrollPane(statsTable), "0,0,0,3");
+		this.add(clearTableButton,"1,1,1,1");
 	}
 	
 	/**
@@ -95,5 +115,17 @@ public class StatsTable
 	{
 		tableModel.insertData(data);
 	}
-	
+
+	public void actionPerformed(ActionEvent e) {
+		if(e.getActionCommand().equals("clear"))
+		{
+			tableModel.clear();
+		}
+	}
+
+	public void itemStateChanged(ItemEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

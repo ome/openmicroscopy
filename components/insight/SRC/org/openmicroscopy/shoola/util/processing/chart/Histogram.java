@@ -372,7 +372,7 @@ public class Histogram
 			if(originalData.get(i)>=min && originalData.get(i)<max)
 				stddev = Math.pow(originalData.get(i)-mean,2);
 		
-		stddev = stddev/(float)count;
+		stddev = Math.sqrt(stddev/(float)count);
 		percent = (double)(count)/(double)originalData.size();
 		rangeStats.put(FREQ,count);
 		rangeStats.put(MEAN,mean);
@@ -383,6 +383,9 @@ public class Histogram
 		return rangeStats;
 	}
 	
+	/**
+	 * Calculate the stats for all bins in the histogram, and cache them.s
+	 */
 	private void calculateStats()
 	{
 		statsCache = new HashMap<Integer, Map<String, Double>>();

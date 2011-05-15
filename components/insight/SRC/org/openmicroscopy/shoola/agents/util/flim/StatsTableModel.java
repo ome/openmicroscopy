@@ -49,16 +49,19 @@ import javax.swing.table.TableModel;
 public class StatsTableModel 
 	extends DefaultTableModel
 {
-	static List<String> defaultColumns;
+	/** The default columns in the table. */
+	static List<String> DEFAULTCOLUMNS;
 	static{
-		defaultColumns = new ArrayList<String>();
-		defaultColumns.add("Colour");
-		defaultColumns.add("Min");
-		defaultColumns.add("Max");
-		defaultColumns.add("Mean");
-		defaultColumns.add("Stddev");
-		defaultColumns.add("Freq");
-		defaultColumns.add("Percent");
+		DEFAULTCOLUMNS = new ArrayList<String>();
+		DEFAULTCOLUMNS.add("Colour");
+		DEFAULTCOLUMNS.add("Bin Start");
+		DEFAULTCOLUMNS.add("Bin End");
+		DEFAULTCOLUMNS.add("Min");
+		DEFAULTCOLUMNS.add("Max");
+		DEFAULTCOLUMNS.add("Mean");
+		DEFAULTCOLUMNS.add("Stddev");
+		DEFAULTCOLUMNS.add("Freq");
+		DEFAULTCOLUMNS.add("Percent");
 	}
 	
 	List<String> columns; 
@@ -102,7 +105,7 @@ public class StatsTableModel
 	private void buildColumns()
 	{
 		columns = new ArrayList<String>();
-		for(String column : defaultColumns)
+		for(String column : DEFAULTCOLUMNS)
 			columns.add(column);
 	}
 	
@@ -118,5 +121,13 @@ public class StatsTableModel
 		addRow(row);
 	}
 	
+	/**
+	 * Clear the table.
+	 */
+	public void clear()
+	{
+		while(getRowCount()!=0)
+			removeRow(0);
+	}
 	
 }
