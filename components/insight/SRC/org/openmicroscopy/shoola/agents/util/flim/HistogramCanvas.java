@@ -203,11 +203,11 @@ extends PApplet
 		Rectangle chartBounds = chart.getBounds();
 		if(displayHeatMap)
 		{
-			mapX = x-data.getWidth();
+			mapX = x-data.getWidth()-borderWidth*2;
 			mapY = y;
 			
-			if(mapX>0&&mapX<chartBounds.getWidth())
-				if(mapY>0&&mapY<chartBounds.getHeight())
+			if(mapX>0&&mapX<width-2-data.getWidth()-borderWidth)
+				if(mapY>0&&mapY< height-2)
 					return true;
 			return false;
 		}
@@ -329,7 +329,7 @@ extends PApplet
 			int chartX, chartY;
 			if(displayHeatMap)
 			{
-				chartX = x-data.getWidth();
+				chartX = x-data.getWidth()-borderWidth*2;
 				chartY = y;
 			}
 			else

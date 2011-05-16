@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.util.flim;
 import info.clearthought.layout.TableLayout;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -70,6 +71,8 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.FileAnnotation;
+
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
@@ -87,6 +90,8 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 import pojos.FileAnnotationData;
 import processing.core.PVector;
@@ -275,6 +280,12 @@ public class FLIMResultsDialog
 	
 	/** The sorted data.*/
 	private List<Double> sortedData;
+	
+	/** The value of the left knob of the slider.*/
+	private double sliderLeftValue;
+	
+	/** The value of the right knob of the slider.*/
+	private double sliderRightValue;
 	/**
 	 * Saves the data to the specified file.
 	 * 
@@ -451,13 +462,11 @@ public class FLIMResultsDialog
 		chartObject.addPropertyChangeListener(this);
 		thresholdSlider.setValue(1);
 		colourMapSlider.setValues(BINS, 0, BINS, 0, BINS/4,BINS/2+BINS/4);
+		sliderLeftValue = BINS/4;
+		sliderRightValue = BINS/4+BINS/2;
+		
 		chartObject.setRGB(true, BINS/4, BINS/2+BINS/4);
 		colourMapSlider.addPropertyChangeListener(this);
-		/*chartObject.addMouseListener(new MouseAdapter(){
-			public void mousePressed(MouseEvent me) { 
-	            canvasClicked(me.getX(), me.getY());
-	          } 
-		});*/
 	}
 	
 	/** 
@@ -483,18 +492,19 @@ public class FLIMResultsDialog
 		chartObject.setMaximumSize(new Dimension(1000,300));
 		p.add(chartObject);
 		JPanel sliderPanel = new JPanel();
-		  double sliderPanelTableSize[][] =
-          {{0.5, 0.4, 0.1},
-           {TableLayout.FILL, TableLayout.FILL,TableLayout.PREFERRED}};
-		sliderPanel.setLayout(new TableLayout(sliderPanelTableSize));
-		sliderPanel.add(thresholdSlider,"0,0,0,1");
-		sliderPanel.add(colourMapSlider,"1,0,1,1" );
-		sliderPanel.add(RGBButton,"2,0,2,1");
+
 		sliderPanel.setPreferredSize(new Dimension(1000,30));
 		sliderPanel.setMaximumSize(new Dimension(1000,30));
 		sliderPanel.setMinimumSize(new Dimension(1000,30));
+		  double sliderPanelTableSize[][] =
+          {{0.275,0.05,0.55,0.1},
+           {TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED,TableLayout.PREFERRED}};
+		sliderPanel.setLayout(new TableLayout(sliderPanelTableSize));
+	
+		sliderPanel.add(thresholdSlider,"0,0,0,1");
+		sliderPanel.add(colourMapSlider,"2,0,2,1" );
+		sliderPanel.add(RGBButton,"3,0,3,1");
 		JPanel chartStatsPanel = new JPanel();
-		//chartStatsPanel.setLayout(new BoxLayout(chartStatsPanel, BoxLayout.X_AXIS));
 		  double size[][] =
           {{0.5, 0.5},
            {TableLayout.FILL, TableLayout.FILL}};
@@ -564,10 +574,6 @@ public class FLIMResultsDialog
 		colourMapSlider = new TextualTwoKnobsSlider();
 		colourMapSlider.layoutComponents(
         		TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
-		colourMapSlider.setSize(new Dimension(1000,30));
-		colourMapSlider.setPreferredSize(new Dimension(1000,30));
-		colourMapSlider.setMaximumSize(new Dimension(1000,30));
-		colourMapSlider.setMinimumSize(new Dimension(1000,30));
 		statsTable = new StatsTable();
 		canvas = new ImageCanvas();
 		RGBButton = new JToggleButton("RGB");
@@ -575,47 +581,34 @@ public class FLIMResultsDialog
 		RGBButton.addItemListener(this);
 		thresholdSlider = new JSlider(JSlider.HORIZONTAL,1,100,1);
 		thresholdSlider.addChangeListener(this);
-		Entry entry;
-		Iterator i = results.entrySet().iterator();
-		FileAnnotationData fa;
 		
-		int index = 0;
+		
+		
+		Iterator<FileAnnotationData> iterator = results.keySet().iterator();
+		List<String> names = new ArrayList<String>();
 		File file = null;
-		int selectedIndex = 0;
-		Map<FileAnnotationData, File> 
-		filtered = new HashMap<FileAnnotationData, File>();
-		
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			fa = (FileAnnotationData) entry.getKey();
-			if (!excludeName(fa.getFileName())) {
-				filtered.put(fa, (File) entry.getValue());
+		String selectedFileName=null;
+		while(iterator.hasNext())
+		{
+			FileAnnotationData annotation = iterator.next();
+			if(!excludeName(annotation.getFileName()))
+			{
+				names.add(annotation.getFileName());
+				if(results.get(annotation)!=null && file==null)
+				{
+					selectedFileName = annotation.getFileName();
+					file = results.get(annotation);
+				}
 			}
-			/*
-			names[index] = fa.getFileName();
-			if (file == null) {
-				file = (File) entry.getValue();
-				selectedIndex = index;
-			}
-			index++;
-			*/
-		}
-		String[] names = new String[filtered.size()];
-		i = filtered.entrySet().iterator();
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			fa = (FileAnnotationData) entry.getKey();
-			names[index] = fa.getFileName();
-			if (file == null) {
-				file = (File) entry.getValue();
-				selectedIndex = index;
-			}
-			index++;
 		}
 		
-		
-		resultsBox = new JComboBox(names);
-		resultsBox.setSelectedIndex(selectedIndex);
+		if(file==null)
+			return;
+		List sortedNames = (List<String>) sorter.sort(names);
+
+		int selectedFileIndex = sortedNames.indexOf(selectedFileName);
+		resultsBox = new JComboBox(sortedNames.toArray());
+		resultsBox.setSelectedIndex(selectedFileIndex);
 		resultsBox.setActionCommand(""+SELECTION);
 		resultsBox.addActionListener(this);
 		paneContainer = new JXTaskPaneContainer();
@@ -689,7 +682,8 @@ public class FLIMResultsDialog
 	private void selectFile()
 	{
 		int index = resultsBox.getSelectedIndex();
-		int n = 0;
+		String nameSelected = (String)resultsBox.getSelectedItem();
+		/*int n = 0;
 		Entry entry;
 		File f = null;
 		Iterator i = results.entrySet().iterator();
@@ -701,8 +695,21 @@ public class FLIMResultsDialog
 			}
 			n++;
 		}
-		if (f == null) return;
-		parseValues = parseFile(f);
+		*/
+		
+		Iterator<FileAnnotationData> iterator = results.keySet().iterator();
+		FileAnnotationData found = null;
+		while(iterator.hasNext())
+		{
+			FileAnnotationData fileAnnotation = iterator.next();
+			if(fileAnnotation.getFileName().equals(nameSelected))
+				{
+				found = fileAnnotation;
+				break;
+				}
+		}
+		if (found == null) return;
+		parseValues = parseFile(results.get(found));
 		initSlider();
 		plot();
 	}
@@ -751,7 +758,7 @@ public class FLIMResultsDialog
 			}
 			reader.close();
 			return list;
-		} catch (Exception e) {}
+		} catch (Exception e) {e.printStackTrace();}
 		return null;
 	}
 	
@@ -763,10 +770,7 @@ public class FLIMResultsDialog
 	 */
 	private List<List<Double>> parseFile(File file)
 	{
-		//CustomizedFileFilter filter = new CSVFilter();
-		//if (filter.accept(file))
-			return parseCSV(file);
-		//return null;
+		return parseCSV(file);
 	}
 	
 	/**
@@ -955,13 +959,21 @@ public class FLIMResultsDialog
 	 */
 	public void propertyChange(PropertyChangeEvent evt)
 	{
+		
 		String name = evt.getPropertyName();
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			File[] files = (File[]) evt.getNewValue();
 			File f = files[0];
 			saveAs(f);
 		} else if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
-			newRangeSelected((int)colourMapSlider.getStartValue(), (int)colourMapSlider.getEndValue());
+			if(sliderLeftValue==colourMapSlider.getStartValue() &&sliderRightValue==colourMapSlider.getEndValue())
+				return;
+			else
+			{
+				sliderLeftValue=colourMapSlider.getStartValue();
+				sliderRightValue=colourMapSlider.getEndValue();
+				newRangeSelected((int)colourMapSlider.getStartValue(), (int)colourMapSlider.getEndValue());
+			}
 		}else if (HistogramCanvas.CHARTSELECTED_PROPERTY.equals(name)){
 			
 			displayMapResult((Integer)evt.getNewValue());
