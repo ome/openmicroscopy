@@ -924,7 +924,7 @@ class BaseContainer(BaseController):
                 else:
                     # update link to new destination
                     new_ds = self.conn.getObject("Dataset", destination[1])
-                    if len(parent) > 1:
+                    if parent[0] not in ('experimenter', 'orphaned'):
                         up_dsl.setParent(new_ds._obj)
                         self.conn.saveObject(up_dsl._obj)
                     else:
@@ -967,7 +967,7 @@ class BaseContainer(BaseController):
                         self.conn.deleteObjectDirect(up_spl._obj)
                 else:
                     new_sc = self.conn.getObject("Screen", destination[1])
-                    if len(parent) > 1:
+                    if parent[0] not in ('experimenter', 'orphaned'):
                         up_spl.setParent(new_sc._obj)
                         self.conn.saveObject(up_spl._obj)
                     else:
