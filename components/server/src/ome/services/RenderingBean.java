@@ -381,7 +381,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
              * TODO we could also allow for setting of the buffer! perhaps
              * better caching, etc.
              */
-            PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
+            PixelBuffer buffer = getPixelBuffer();
             closeRenderer();
             List<Family> families = getAllEnumerations(Family.class);
             List<RenderingModel> renderingModels = getAllEnumerations(RenderingModel.class);
@@ -1812,4 +1812,12 @@ public class RenderingBean implements RenderingEngine, Serializable {
             }});
     }
 
+    private PixelBuffer getPixelBuffer() {
+        return (PixelBuffer) ex.execute(null, new Executor.SimpleWork(this, "getPixelBuffer") {
+            @Transactional(readOnly = false) // ticket:5232
+            public Object doWork(Session session, ServiceFactory sf) {
+                return pixDataSrv.getPixelBuffer(pixelsObj);
+            }
+        });
+    }
 }
