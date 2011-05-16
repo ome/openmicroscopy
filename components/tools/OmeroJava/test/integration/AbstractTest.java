@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -354,7 +355,9 @@ public class AbstractTest
         e.setOmeName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("integeration"));
         e.setLastName(omero.rtypes.rstring("tester"));
-        rootAdmin.createUser(e, group.getName().getValue());
+        long id = rootAdmin.createUser(e, group.getName().getValue());
+        e = rootAdmin.getExperimenter(id);
+        rootAdmin.addGroups(e, Arrays.asList(group));
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
         return init(client);
@@ -400,6 +403,9 @@ public class AbstractTest
         IAdminPrx rootAdmin = root.getSession().getAdminService();
         rootAdmin.setGroupOwner(new ExperimenterGroupI(ec.groupId, false),
                 new ExperimenterI(ec.userId, false));
+
+        disconnect();
+        init(ec); // Create new session with the added privileges
     }
 
     /**
@@ -429,6 +435,14 @@ public class AbstractTest
         iDelete = null;
         mmFactory = null;
         importer = null;
+    }
+
+    /**
+     */
+    protected EventContext init(EventContext ec) throws Exception {
+        omero.client c = newOmeroClient();
+        c.createSession(ec.userName, "");
+        return init(c);
     }
 
     /**
