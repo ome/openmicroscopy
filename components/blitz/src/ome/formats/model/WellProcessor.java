@@ -84,12 +84,6 @@ public class WellProcessor implements ModelProcessor
                 plate.setRows(rint(well.getRow().getValue() + 1));
             }
         }
-        // Validate PlateAcquisitions
-        containers = store.getIObjectContainers(PlateAcquisition.class);
-        for (IObjectContainer container : containers)
-        {
-            validatePlateAcquisition(container);
-        }
     }
 
     /**
@@ -131,25 +125,5 @@ public class WellProcessor implements ModelProcessor
             plate.setColumns(rint(1));
         }
         return plate;
-    }
-
-    /**
-     * Validates that a PlateAcquisition has a name.
-     * @param container IObjectContainer with the PlateAcquisition source
-     * object to validate.
-     */
-    private void validatePlateAcquisition(IObjectContainer container)
-    {
-        PlateAcquisition o = (PlateAcquisition) container.sourceObject;
-        if (o.getName() == null)
-        {
-            Integer plateIndex =
-                container.indexes.get(Index.PLATE_INDEX.getValue());
-            Integer plateAcquisitionIndex =
-                container.indexes.get(Index.PLATE_ACQUISITION_INDEX.getValue());
-            o.setName(rstring(new LSID(
-                    PlateAcquisition.class, plateIndex,
-                    plateAcquisitionIndex).toString()));
-        }
     }
 }
