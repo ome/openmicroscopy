@@ -381,11 +381,12 @@ public class RenderingBean implements RenderingEngine, Serializable {
              * TODO we could also allow for setting of the buffer! perhaps
              * better caching, etc.
              */
-            PixelBuffer buffer = getPixelBuffer();
             closeRenderer();
             List<Family> families = getAllEnumerations(Family.class);
             List<RenderingModel> renderingModels = getAllEnumerations(RenderingModel.class);
             QuantumFactory quantumFactory = new QuantumFactory(families);
+            // Loading last to try to ensure that the buffer will get closed.
+            PixelBuffer buffer = getPixelBuffer();
             renderer = new Renderer(quantumFactory, renderingModels, pixelsObj,
                     rendDefObj, buffer);
         } finally {
