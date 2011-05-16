@@ -171,7 +171,12 @@ public class IniFileLoader {
      */
     public boolean getStaticDisableUpgradeCheck()
     {
-    	return staticPrefs.node("General").getBoolean("disableUpgradeCheck", false);
+        boolean toReturn = false;
+        if (staticPrefs != null) {
+            Preferences general = staticPrefs.node("General");
+            toReturn = general.getBoolean("disableUpgradeCheck", false);
+        }
+        return toReturn;
     }
     
     /**
