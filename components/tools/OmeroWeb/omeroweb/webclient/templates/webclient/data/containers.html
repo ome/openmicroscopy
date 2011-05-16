@@ -20,15 +20,61 @@
     <script type="text/javascript">
         $(function() 
             {
-
+                $("input#annotationButton").hide();
+                $("input#basketButton").hide();
+                
                 var h = $(window).height()-200;
                 $("div#tree_details").css('height', h);
                 $("div#metadata_details").css('height', h+31);
                 $("div#metadata_details iframe").attr('height', h+31);
                 $("div#content_details").css('height', h+31);
                 
-                $("#dataTree")
-            		.jstree({ 
+                var loadOtherPanels = function(data) {
+                    if (data.rslt.obj.attr("rel")=="orphaned" && data.rslt.obj.attr("rel").replace("-locked", "")!=$("div#content_details").attr("rel")) {
+            	        $("#right_panel").show();
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                        $("div#metadata_details").html('<p>{% trans "This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container." %}</p>');
+                        $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                        $("div#content_details").load('/webclient/load_data/'+data.rslt.obj.attr("rel")+'/?view=icon');
+                        $("div#content_details").attr('rel', data.rslt.obj.attr("rel"));
+                    } else if(data.rslt.obj.attr("rel").replace("-locked", "")!="experimenter") {
+                        var r = data.rslt.obj.attr("rel").replace("-locked", "");
+            	        $("#right_panel").show();
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/'+r+'/'+data.rslt.obj.attr("id").split("-")[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
+                        $('iframe#metadata_details').load();
+
+                        if($.inArray(r, ["dataset", "plate"]) == 0 && data.rslt.obj.attr("id")!=$("div#content_details").attr('rel')) {
+                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                            $("div#content_details").load('/webclient/load_data/'+r+'/'+data.rslt.obj.attr("id").split("-")[1]+'/?view=icon');
+                            $("div#content_details").attr('rel', data.rslt.obj.attr("id"));
+                        } else if(r=="image") {
+                            var pr = data.rslt.obj.parent().parent().attr("rel")
+                            if (pr=="orphaned" && pr!=$("div#content_details").attr('rel')) {
+                                $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                                $("div#content_details").load('/webclient/load_data/'+pr+'/?view=icon');
+                                $("div#content_details").attr('rel', pr);
+                            } else if (pr!="orphaned" && data.rslt.obj.parent().parent().attr("id")!=$("div#content_details").attr('rel')){
+                                $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                                $("div#content_details").load('/webclient/load_data/'+pr+'/'+data.rslt.obj.parent().parent().attr("id").split("-")[1]+'/?view=icon');
+                                $("div#content_details").attr('rel', data.rslt.obj.parent().parent().attr("id"));
+                            }                            
+                        } else if (data.rslt.obj.attr("id")!=$("div#content_details").attr('rel') && data.rslt.obj.parent().parent().attr("id")!=$("div#content_details").attr('rel')) {
+                            $("div#content_details").removeAttr('rel').children().remove();
+                        }
+                    } else {
+                        $("#right_panel").show();
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                        $("div#metadata_details").html('<p>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</p>');                        
+                    }
+                }
+                
+                var multi_key = function() {
+				    if (navigator.appVersion.indexOf("Mac")!=-1) return "meta";
+				    else return "ctrl";
+				}
+				
+                var jstree = $("#dataTree").jstree({ 
             			// the list of plugins to include
             			"plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
             			// Plugin configuration
@@ -198,7 +244,9 @@
             			// For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
             			// the UI plugin - it handles selecting/deselecting/hovering nodes
             			"ui" : {
-            				"initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ]
+            				"initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ],
+            				"select_multiple_modifier": multi_key(),
+            				"selected_parent_close": "select_parent"
             			},
             			// the core plugin - not many options here
             			"core" : { 
@@ -321,44 +369,44 @@
                         }
             			
             	})
+            	.bind("deselect_node.jstree", function (e, data) {
+            	    if (data.inst.get_selected().length < 2) {
+            	        data.rslt.obj = data.inst.get_selected()
+                        $("input#annotationButton").hide();
+                        $("input#basketButton").hide();    
+                        loadOtherPanels(data);
+                    }
+        	    })
             	.bind("select_node.jstree", function (e, data) {
-            	    if (data.rslt.obj.attr("rel")=="orphaned" && data.rslt.obj.attr("rel").replace("-locked", "")!=$("div#content_details").attr("rel")) {
-            	        $("#right_panel").show();
-                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                        $("div#metadata_details").html('<p>{% trans "This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container." %}</p>');
-                        $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-                        $("div#content_details").load('/webclient/load_data/'+data.rslt.obj.attr("rel")+'/?view=icon');
-                        $("div#content_details").attr('rel', data.rslt.obj.attr("rel"));
-                    } else if(data.rslt.obj.attr("rel").replace("-locked", "")!="experimenter") {
-                        var r = data.rslt.obj.attr("rel").replace("-locked", "");
-            	        $("#right_panel").show();
-                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/'+r+'/'+data.rslt.obj.attr("id").split("-")[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
-                        $('iframe#metadata_details').load();
-                
-                        if($.inArray(r, ["dataset", "plate"]) == 0 && data.rslt.obj.attr("id")!=$("div#content_details").attr('rel')) {
-                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-                            $("div#content_details").load('/webclient/load_data/'+r+'/'+data.rslt.obj.attr("id").split("-")[1]+'/?view=icon');
-                            $("div#content_details").attr('rel', data.rslt.obj.attr("id"));
-                        } else if(r=="image") {
-                            var pr = data.rslt.obj.parent().parent().attr("rel")
-                            if (pr=="orphaned" && pr!=$("div#content_details").attr('rel')) {
-                                $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-                                $("div#content_details").load('/webclient/load_data/'+pr+'/?view=icon');
-                                $("div#content_details").attr('rel', pr);
-                            } else if (pr!="orphaned" && data.rslt.obj.parent().parent().attr("id")!=$("div#content_details").attr('rel')){
-                                $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-                                $("div#content_details").load('/webclient/load_data/'+pr+'/'+data.rslt.obj.parent().parent().attr("id").split("-")[1]+'/?view=icon');
-                                $("div#content_details").attr('rel', data.rslt.obj.parent().parent().attr("id"));
-                            }                            
-                        } else if (data.rslt.obj.attr("id")!=$("div#content_details").attr('rel') && data.rslt.obj.parent().parent().attr("id")!=$("div#content_details").attr('rel')) {
-                            $("div#content_details").removeAttr('rel').children().remove();
+            	    if (data.inst.get_selected().length > 1) {
+                        if (data.inst.get_selected().length >= 2) {
+                            $("#right_panel").show();
+                            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                            $("div#metadata_details").html('<p>{% trans "You selected more the one element, please chose one of the actions from the tree toolbar or context menu." %}</p>');
+                            $("input#annotationButton").show();
+                            $("input#basketButton").show();
                         }
                     } else {
-                        $("#right_panel").show();
-                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                        $("div#metadata_details").html('<p>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</p>');                        
+                        loadOtherPanels(data);
                     }
+                    
+                    var toSelect = new Array();
+                    data.inst.get_selected().each(function(i) {
+                        toSelect[i]=this.id.split("-")[1];
+                    });
+                    
+                    $(".ui-selectee", $("ul.ui-selectable")).each(function(){
+                        var selectee = $(this);
+                        if ($.inArray(selectee.attr('id'), toSelect) != -1) {
+                            if(!selectee.hasClass('ui-selected')) {
+                                selectee.addClass('ui-selected');
+                                $('input', selectee).attr('checked', true);
+                            }
+                        } else {
+                            selectee.removeClass('ui-selected');                        
+                            $('input', selectee).attr('checked', false);
+                        }
+                    });
         		})
             	.bind("create.jstree", function (e, data) {
             	    if(data.rslt.parent.attr("rel") == "project") {
@@ -465,6 +513,7 @@
                         });
                     }); 
         		})
+        		
         	});
         
     </script>
@@ -485,6 +534,7 @@
     <div class="toolbar">
         <div id="buttons" class="align_left">
             <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "usertags" %}'">
+            <input id="annotationButton" class="button" type="image" src="{% url webstatic "images/knote16.png" %}" alt="Annotate many" title="Annotate many" onclick="manyToAnnotation();"> <input id="basketButton" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();">
         </div>
     </div>
 
