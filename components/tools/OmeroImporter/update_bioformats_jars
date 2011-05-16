@@ -42,21 +42,24 @@ def usage(error):
     """Prints usage so that we don't have to. :)"""
     cmd = sys.argv[0]
     print """%s
-Usage: %s [--git]
+Usage: %s [--git, --simple]
 Retrieves and updates Bio-Formats JARs from Hudson
 
 Options:
   --git      Performs Git commands to update the working copy
+  --simple   Does not perform any special version number manipulation of
+             the JAR files.
 
 Examples:
-  %s --subversion
+  %s --git
+  %s --simple
 
 Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
     sys.exit(2)
 
-def download():
+def download(simple=False):
     # JARs to ignore from download
-    ignore = ["loci_tools.jar"]
+    ignore = ["loci_tools.jar", "ome_tools.jar", "ome-io.jar"]
     url = urllib.urlopen("http://hudson.openmicroscopy.org.uk/job/BIOFORMATS-trunk/lastBuild/api/xml")
     hudson_xml = url.read()
     hudson_xml = hudson_xml.replace('origin/', 'origin_')
@@ -72,7 +75,8 @@ def download():
         filename = artifact.find("fileName").text
         if filename in ignore:
             continue
-        filename = "%s-%s.jar" % (filename[:-4], revision[:7])
+        if not simple:
+            filename = "%s-%s.jar" % (filename[:-4], revision[:7])
         jar_url = base_url + artifact.findtext("relativePath")
         print "Downloading %s from URL %s" % (filename, jar_url)
         urllib.urlretrieve(jar_url, filename)
@@ -104,11 +108,17 @@ def update(revision, new_jars):
     
 if __name__ == "__main__":
     try:
-        options, args = getopt(sys.argv[1:], "", ['git'])
+        options, args = getopt(sys.argv[1:], "", ['git', 'simple'])
     except GetoptError, (msg, opt):
         usage(msg)
 
-    revision, new_jars = download()
+    do_update = False
+    simple = False
     for option, argument in options:
         if option == '--git':
-            update(revision, new_jars)
+            do_update = True
+        if option == '--simple':
+            simple = True
+    revision, new_jars = download(simple)
+    if do_update:
+        update(revision, new_jars)
