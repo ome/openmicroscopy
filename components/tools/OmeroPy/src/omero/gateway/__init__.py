@@ -2887,14 +2887,14 @@ def safeCallWrap (self, attr, f): #pragma: no cover
                 logger.debug("Ice.Exception (2) on safe call %s(%s,%s)" % (attr, str(args), str(kwargs)))
                 logger.debug(traceback.format_exc())
                 try:
-                    if self._conn.c.sf.getSessionService().getReferenceCount(self._conn._sessionUuid) > 0:
-                        # Recreate connection
-                        self._connect()
-                        logger.debug('last try for %s' % attr)
-                        # Last try, don't catch exception
-                        func = getattr(self._obj, attr)
-                        return func(*args, **kwargs)
-                    raise Ice.ConnectionLostException()
+#                    if self._conn.c.sf.getSessionService().getReferenceCount(self._conn._sessionUuid) > 0:
+                    # Recreate connection
+                    self._connect()
+                    logger.debug('last try for %s' % attr)
+                    # Last try, don't catch exception
+                    func = getattr(self._obj, attr)
+                    return func(*args, **kwargs)
+#                    raise Ice.ConnectionLostException()
                 except Ice.ObjectNotExistException:
                     raise Ice.ConnectionLostException()
                 except:
