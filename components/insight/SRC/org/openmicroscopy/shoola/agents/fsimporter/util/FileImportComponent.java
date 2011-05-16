@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.util;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -153,7 +152,8 @@ public class FileImportComponent
 	private static final String BROWSE_TEXT = "Browse";
 	
 	/** Text to indicate to view the image. */
-	private static final String NOT_VIEW_TEXT = "Image not viewable";
+	private static final String PYRAMID_TEXT = 
+		"Building pyramid, please wait before viewing.";
 	
 	/** Tool tip text to indicate to browse the container. */
 	private static final String BROWSE_CONTAINER_TOOLTIP = "Click to browse.";
@@ -699,12 +699,6 @@ public class FileImportComponent
 				exception = error;
 				fileNameLabel.setForeground(ERROR_COLOR);
 				resultLabel.setVisible(false);
-				/*
-				resultLabel.setForeground(ERROR_COLOR);
-				setStatusText(NOT_VIEW_TEXT);
-				resultLabel.setToolTipText(
-						UIUtilities.formatExceptionForToolTip(error));
-						*/
 				errorButton.setToolTipText(
 						UIUtilities.formatExceptionForToolTip(error));
 				errorButton.setVisible(true);
@@ -742,15 +736,17 @@ public class FileImportComponent
 				showContainerLabel = true;
 				browseButton.setVisible(showContainerLabel);
 				containerLabel.setVisible(showContainerLabel);
+			} else if (thumbnail.hasPyramid()) {
+				resultLabel.setText(PYRAMID_TEXT);
+				resultLabel.setEnabled(false);
+				resultLabel.setVisible(true);
+				resultLabel.addMouseListener(adapter);
+				showContainerLabel = true;
+				browseButton.setVisible(showContainerLabel);
+				containerLabel.setVisible(showContainerLabel);
 			} else {
 				fileNameLabel.setForeground(ERROR_COLOR);
-				/*
-				resultLabel.setForeground(ERROR_COLOR);
-				setStatusText(NOT_VIEW_TEXT);
-				resultLabel.setToolTipText(
-						UIUtilities.formatExceptionForToolTip(
-								thumbnail.getError()));
-								*/
+
 				resultLabel.setVisible(false);
 				errorButton.setToolTipText(
 						UIUtilities.formatExceptionForToolTip(
@@ -820,13 +816,6 @@ public class FileImportComponent
 				} else if (image instanceof ImportException) {
 					fileNameLabel.setForeground(ERROR_COLOR);
 					resultLabel.setVisible(false);
-					/*
-					resultLabel.setForeground(ERROR_COLOR);
-					ImportException ie = (ImportException) image;
-					setStatusText(ie.getMessage());
-					resultLabel.setToolTipText(
-							UIUtilities.formatExceptionForToolTip(ie));
-							*/
 					ImportException ie = (ImportException) image;
 					errorButton.setToolTipText(
 							UIUtilities.formatExceptionForToolTip(ie));

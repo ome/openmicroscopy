@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
@@ -1666,17 +1667,10 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
-			if (pixelsStore != null) {
-				services.remove(pixelsStore);
-				try {
-					pixelsStore.close();
-				} catch (Exception e) {}
-			}
 			if (entryUnencrypted != null)
 				pixelsStore = entryUnencrypted.createRawPixelsStore();
 			else 
 				pixelsStore = entryEncrypted.createRawPixelsStore();
-			services.add(pixelsStore);
 			return pixelsStore;
 		} catch (Throwable e) {
 			handleException(e, "Cannot access RawPixelsStore service.");
@@ -4044,7 +4038,9 @@ class OMEROGateway
 		RawPixelsStorePrx service = getPixelsStore();
 		try {
 			service.setPixelsId(pixelsID, false);
-			return service.getPlane(z, c, t);
+			byte[] plane = service.getPlane(z, c, t);
+			service.close();
+			return plane;
 		} catch (Throwable e) {
 			String s = "Cannot retrieve the plane " +
 			"(z="+z+", t="+t+", c="+c+") for pixelsID: "+pixelsID;
@@ -6145,6 +6141,9 @@ class OMEROGateway
 				p = pixels.get(0);
 				image = p.getImage();
 				id = image.getId().getValue();
+				if (isLargeImage(p)) {
+					return new ThumbnailData(getImage(id, params), true);
+				}
 				if (ImportableObject.isHCSFile(file))
 					return getImportedPlate(id);
 				
@@ -7551,7 +7550,6 @@ class OMEROGateway
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
-	 *
 	 */
 	long uploadExperimenterPhoto(File file, String format, long experimenterID)
 		throws DSOutOfServiceException, DSAccessException
@@ -7601,6 +7599,34 @@ class OMEROGateway
 					e);
 		}
 		return cb;
+	}
+
+	/**
+	 * Returns <code>true</code> if it is a big image, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param pixels The pixels set to handle.
+	 * @return See above
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	boolean isLargeImage(Pixels pixels)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		/*
+		try {
+			RawPixelsStorePrx store = getPixelsStore();
+			store.setPixelsId(pixels.getId().getValue(), true);
+			boolean b = store.hasPixelsPyramid();
+			store.close();
+			return b;
+		} catch (Exception e) {
+			handleException(e, "Cannot start the Raw pixels store.");
+		}
+		*/
+		return false;
 	}
 	
 }
