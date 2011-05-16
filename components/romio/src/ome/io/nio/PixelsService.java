@@ -29,6 +29,7 @@ import ome.model.core.Pixels;
 import ome.model.stats.StatsInfo;
 import ome.util.PixelData;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.FatalBeanException;
@@ -148,14 +149,9 @@ public class PixelsService extends AbstractFileSystemService
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
         final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
         final String originalFilePath = getOriginalFilePath(pixels);
-        
-        if (!pixelsFile.exists() && originalFilePath == null)
-        {
-            log.error("FAIL -- Original pixels file does not exist: "
-                    + pixelsFile.getAbsolutePath());
-            return null; // EARLY EXIT!
-        }
 
+        // This was called perhaps while a pyramid was
+        // being generated, and is no longer needed.
         if (pixelsPyramidFile.exists())
         {
             log.debug("Pyramid already exists: " + pixelsPyramidFilePath);
@@ -167,6 +163,19 @@ public class PixelsService extends AbstractFileSystemService
 
         try
         {
+
+            // If we don't have any data to properly generate the pyramid
+            // we close the instance which will save an empty (and therefore
+            // corrupt) pyramid. This is intentional since further calls will
+            // get an exception rather than being told to try indefinitely.
+            // (see ticket:5189)
+            if (!pixelsFile.exists() && originalFilePath == null)
+            {
+                log.error("FAIL -- Original pixels file does not exist: "
+                        + pixelsFile.getAbsolutePath());
+                return null; // EARLY EXIT! closed in finally block!
+            }
+
             PixelsPyramidMinMaxStore minMaxStore = performWrite(
                     pixels, pixelsPyramidFile, pixelsPyramid,
                     pixelsFile, pixelsFilePath, originalFilePath);
@@ -201,10 +210,11 @@ public class PixelsService extends AbstractFileSystemService
         final PixelBuffer source;
         final Dimension tileSize;
         final PixelsPyramidMinMaxStore minMaxStore;
+
         if (pixelsFile.exists())
         {
             minMaxStore = null;
-            source = createRomioPixelBuffer(pixelsFilePath, pixels, true);
+            source = createRomioPixelBuffer(pixelsFilePath, pixels, false);
             // FIXME: This should be configuration or service driven
             // FIXME: Also implemented in RenderingBean.getTileSize()
             tileSize = new Dimension(256, 256);
@@ -234,10 +244,11 @@ public class PixelsService extends AbstractFileSystemService
                     try
                     {
                         pixelsPyramidFile.delete();
+                        FileUtils.touch(pixelsPyramidFile); // ticket:5189
                     }
                     catch (Exception e2)
                     {
-                        log.warn("Error deleting empty or incomplete pixel " +
+                        log.warn("Error clearing empty or incomplete pixel " +
                                  "buffer.", e2);
                     }
                     return;

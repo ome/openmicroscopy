@@ -21,6 +21,7 @@ import loci.formats.IFormatReader;
 import loci.formats.in.TiffReader;
 import loci.formats.tiff.IFD;
 import loci.formats.tiff.IFDList;
+import ome.conditions.ResourceError;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelBufferException;
@@ -66,6 +67,9 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
                 if (reader.compareAndSet(null, new BfPixelsWrapper(filePath, bfReader))) {
                     wrapper = reader.get();
                 }
+            } catch (FormatException fe) {
+                log.debug("FormatException: " + filePath, fe);
+                throw new ResourceError("FormatException: " + filePath + "\n" + fe.getMessage());
             } catch (Exception e) {
                 log.error("Failed to instantiate BfPixelsWrapper with " + filePath);
                 throw new RuntimeException(e);

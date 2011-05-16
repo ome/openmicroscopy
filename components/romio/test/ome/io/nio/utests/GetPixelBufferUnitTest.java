@@ -6,15 +6,16 @@
  */
 package ome.io.nio.utests;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import loci.formats.FormatException;
+
 import ome.conditions.MissingPyramidException;
+import ome.conditions.ResourceError;
+import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.messages.MissingPyramidMessage;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
@@ -23,6 +24,8 @@ import ome.model.enums.PixelsType;
 
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
+import org.jmock.core.stub.DefaultResultStub;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.testng.annotations.AfterMethod;
@@ -37,7 +40,7 @@ import org.testng.annotations.Test;
  *
  * @since 4.3
  */
-public class GetPixelBufferUnitTest {
+public class GetPixelBufferUnitTest extends MockObjectTestCase {
 
     private String root;
 
@@ -73,7 +76,7 @@ public class GetPixelBufferUnitTest {
 
     @Test
     public void testWhenPyramidRequiredOnlyCreatePyramidCalled() {
-        service.allowCreatePyramid = true;
+        service.stubPyramid(true);
         service.isRequirePyramid = true;
         pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
@@ -85,9 +88,8 @@ public class GetPixelBufferUnitTest {
      */
     @Test
     public void testWhenPyramidNotRequiredCreateRomioCalled() {
-        service.allowCreateRomio = true;
+        service.stubRomio(true);
         service.isRequirePyramid = false;
-        service.allowModification = true;
         pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
@@ -98,7 +100,7 @@ public class GetPixelBufferUnitTest {
      */
     @Test(expectedExceptions = MissingPyramidException.class)
     public void testPyramidMessagePublishedIfPixelsExist() throws Exception {
-        service.allowCreatePyramid = true;
+        service.stubPyramid(false);
         service.isRequirePyramid = true;
         service.retry = false;
         String path = touchRomio();
@@ -109,7 +111,7 @@ public class GetPixelBufferUnitTest {
     @Test
     public void testPyramidMessageNotPublishedIfPyramidExists()
             throws Exception {
-        service.allowCreatePyramid = true;
+        service.stubPyramid(false);
         service.isRequirePyramid = true;
         service.retry = null; // no messages!
         touchRomio();
@@ -123,7 +125,7 @@ public class GetPixelBufferUnitTest {
      */
     @Test
     public void testReusePyramid() throws Exception {
-        service.allowCreatePyramid = true;
+        service.stubPyramid(false);
         service.isRequirePyramid = false;
         String path = service.getPixelsPath(pixels.getId());
         touchPyramid();
@@ -137,7 +139,7 @@ public class GetPixelBufferUnitTest {
      */
     @Test
     public void testDontUseRomio() {
-        service.allowCreateBf = true;
+        service.stubBf();
         service.isRequirePyramid = false;
         service.path = new File(root, "bf.tiff").getAbsolutePath();
         pixelBuffer = service.getPixelBuffer(pixels);
@@ -146,7 +148,7 @@ public class GetPixelBufferUnitTest {
 
     @Test
     public void testHandleOriginalFileReturnsSomething() {
-        service.allowCreateBf = true;
+        service.stubBf();
         service.isRequirePyramid = false;
         service.path = "/tmp/foo";
         pixelBuffer = service.getPixelBuffer(pixels);
@@ -159,9 +161,7 @@ public class GetPixelBufferUnitTest {
      */
     @Test
     public void testHandleOriginalFileReturnsNullForPyramid() {
-        service.allowHandle = true;
-        service.allowCreatePyramid = true;
-        service.pb = null;
+        service.realPyramid(null);
         pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
@@ -172,11 +172,8 @@ public class GetPixelBufferUnitTest {
      */
     @Test
     public void testHandleOriginalFileReturnsNullForRomio() {
-        service.allowHandle = true;
-        service.allowCreateRomio = true;
+        service.stubRomio(true);
         service.isRequirePyramid = false;
-        service.allowModification = true;
-        service.pb = null;
         pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
@@ -188,12 +185,93 @@ public class GetPixelBufferUnitTest {
      */
     @Test
     public void testPixelsFileExistsNoPyramid() throws Exception {
-        service.allowCreateRomio = true;
+        service.stubRomio(false);
         service.isRequirePyramid = false;
         touchRomio();
         pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
+
+    //
+    // #4731 makePyramid
+    //
+
+    @Test
+    public void testMakePyramidNoRomioNoArchived() throws Exception {
+        service.stubPyramid(true); // 5189. allow creation for close to touch.
+        assertEquals(null, service.makePyramid(pixels));
+    }
+
+    @Test
+    public void testMakePyramidRomio() throws Exception {
+        touchRomio();
+        service.stubPyramid(true);
+        service.stubRomio(false);
+        service.makePyramid(pixels);
+    }
+
+    //
+    // #5189 Fatal error issues to prevent loops
+    //
+
+    /**
+     * Here a pyramid cannot be created because no romio file exists. After
+     * the invocation, the pyramid file should exist but be empty.
+     */
+    @Test
+    public void testFatalErrorInGeneratingPyramidNoRomio() throws Exception {
+        service.stubPyramid(true);
+        service.stubRomio(false);
+        assertEquals(null, sizePyramid());
+        File pyramid = filePyramid();
+        if (!pyramid.getParentFile().exists()) {
+            pyramid.getParentFile().mkdirs();
+        }
+        service.pyramid.buffer = new BfPyramidPixelBuffer(pixels, pyramid.getAbsolutePath(), true);
+        service.makePyramid(pixels);
+        assertEquals(0, sizePyramid().longValue());
+
+        assertCorruptPyramid(pyramid);
+    }
+
+    /**
+     * Here we try the creation with a corrupt romio file.
+     */
+    @Test
+    public void testFatalErrorInGeneratingPyramidWithRomio() throws Exception {
+        touchRomio();
+        service.stubPyramid(true);
+        Mock m = service.mockRomio(false);
+        m.expects(once()).method("close");
+        m.expects(atLeastOnce()).method("getSizeX").will(returnValue(pixels.getSizeX()));
+        m.expects(atLeastOnce()).method("getSizeY").will(returnValue(pixels.getSizeY()));
+        m.expects(atLeastOnce()).method("getSizeZ").will(returnValue(pixels.getSizeZ()));
+        m.expects(atLeastOnce()).method("getSizeC").will(returnValue(pixels.getSizeC()));
+        m.expects(atLeastOnce()).method("getSizeT").will(returnValue(pixels.getSizeT()));
+        m.expects(once()).method("getTile").will(throwException(new IOException("MOCK")));
+
+        assertEquals(null, sizePyramid());
+        File pyramid = filePyramid();
+        service.pyramid.buffer = new BfPyramidPixelBuffer(pixels, pyramid.getAbsolutePath(), true);
+        service.makePyramid(pixels);
+        assertEquals(0, sizePyramid().longValue());
+
+        assertCorruptPyramid(pyramid);
+    }
+
+    private void assertCorruptPyramid(File pyramid) throws IOException,
+            FormatException {
+        try {
+            BfPyramidPixelBuffer pb = new BfPyramidPixelBuffer(pixels, pyramid.getAbsolutePath(), false);
+            assertEquals(false, pb.isWrite());
+            pb.getTileSize();
+            fail("Should have thrown a resource error");
+        } catch (ResourceError re) {
+            // ok
+        }
+    }
+
+
 
     //
     // Helpers
@@ -204,16 +282,71 @@ public class GetPixelBufferUnitTest {
         return pyramidPath;
     }
 
-    private void touchPyramid() throws IOException {
+    private File filePyramid() {
         String path = service.getPixelsPath(pixels.getId());
         String pyramidPath = makePyramidPath(path);
-        FileUtils.touch(new File(pyramidPath));
+        File pyramidFile = new File(pyramidPath);
+        return pyramidFile;
     }
 
-    private String touchRomio() throws IOException {
+    /** Returns null if the file does not exist */
+    private Long sizePyramid() throws Exception {
+        File pyramidFile = filePyramid();
+        if (pyramidFile.exists()) {
+            return pyramidFile.length();
+        } else {
+            return null;
+        }
+    }
+
+    private void touchPyramid() throws IOException {
+        File pyramidFile = filePyramid();
+        FileUtils.touch(pyramidFile);
+    }
+
+    private File fileRomio() throws Exception {
         String path = service.getPixelsPath(pixels.getId());
-        FileUtils.touch(new File(path));
-        return path;
+        return new File(path);
+
+    }
+
+    private String touchRomio() throws Exception {
+        File romioFile = fileRomio();
+        FileUtils.touch(romioFile);
+        return romioFile.getAbsolutePath();
+    }
+
+    /**
+     * Container for the return value of MockPixelsService.
+     */
+    static class Buffer {
+
+        Mock mock;
+
+        /**
+         * Returned value from all the create methods. Typically ignored.
+         * Setting it to null, however, will influence the outcome of calls to
+         * {@link #handleOriginalFile(Pixels, OriginalFileMetadataProvider)}.
+         */
+        PixelBuffer buffer;
+
+        /**
+         * If null, then modification is not checked. Otherwise, must match
+         * the value passed in.
+         */
+        Boolean modification;
+
+        Buffer() {
+            this(true);
+        }
+
+        Buffer(boolean stub) {
+            mock = new Mock(PixelBuffer.class);
+            buffer = (PixelBuffer) mock.proxy();
+            if (stub) {
+                mock.setDefaultStub(new DefaultResultStub());
+            }
+        }
     }
 
     static class MockPixelsService extends PixelsService {
@@ -221,31 +354,14 @@ public class GetPixelBufferUnitTest {
         /** Whether or not this image is "big" */
         boolean isRequirePyramid = true;
 
-        /** Whether or not to allow {@link #createPyramidPixelBuffer(String)} */
-        boolean allowCreatePyramid = false;
+        /** If null, then createPyramid is not allowed */
+        Buffer pyramid;
 
-        /** Whether or not to allow {@link #createBfPixelBuffer(String)} */
-        boolean allowCreateBf = false;
+        /** If null, then createRomio is not allowed */
+        Buffer romio;
 
-        /**
-         * Whether or not to allow
-         * {@link #createRomioPixelBuffer(String, Pixels, boolean)}
-         */
-        boolean allowCreateRomio = false;
-
-        /**
-         * Whether a call to
-         * {@link #createRomioPixelBuffer(String, Pixels, boolean)} should have
-         * the last parameter set to true or not.
-         */
-        boolean allowModification = false;
-
-        /**
-         * Whether or not
-         * {@link #handleOriginalFile(Pixels, OriginalFileMetadataProvider) can
-         * be called.
-         */
-        boolean allowHandle = false;
+        /** If null, then createBf is not allowed */
+        Buffer bf;
 
         /**
          * If null, then no call should be made to
@@ -259,15 +375,6 @@ public class GetPixelBufferUnitTest {
          * Path to be returned by invocations of {@link #getOriginalFilePath(Pixels)}
          */
         String path = null;
-
-        Mock pbMock = new Mock(PixelBuffer.class);
-
-        /**
-         * Returned value from all the create methods. Typically ignored.
-         * Setting it to null, however, will influence the outcome of calls to
-         * {@link #handleOriginalFile(Pixels, OriginalFileMetadataProvider)}.
-         */
-        PixelBuffer pb = (PixelBuffer) pbMock.proxy();
 
         /**
          * Storage of all events which are raised.
@@ -295,34 +402,63 @@ public class GetPixelBufferUnitTest {
 
         @Override
         protected PixelBuffer createPyramidPixelBuffer(Pixels pixels, String filePath, boolean write) {
-            if (!allowCreatePyramid) {
-                fail("createPyramid should not be called");
-            }
-            return pb;
+            return get("createPyramid", pyramid, write);
         }
 
         @Override
         protected PixelBuffer createBfPixelBuffer(String filePath) {
-            if (!allowCreateBf) {
-                fail("createBf should not be called");
-            }
-            return pb;
+            return get("createBf", bf, null);
         }
 
         @Override
         protected PixelBuffer createRomioPixelBuffer(String pixelsFilePath,
                 Pixels pixels, boolean allowModification) {
-            if (!allowCreateRomio) {
-                fail("createRomio should not be called");
-            }
-            assertEquals(this.allowModification, allowModification);
-            return pb;
+            return get("createRomio", romio, allowModification);
         }
 
         @Override
         protected String getOriginalFilePath(Pixels pixels) {
             return path;
         }
+
+        //
+        // Test only methods
+        //
+
+        protected PixelBuffer get(String method, Buffer buffer, Boolean modification) {
+            if (buffer == null) {
+                fail(method + " should not be called");
+            }
+            if (buffer.modification != null) {
+                assertEquals(buffer.modification, modification);
+            }
+            return buffer.buffer;
+        }
+
+        protected void realPyramid(PixelBuffer pb) {
+            pyramid = new Buffer();
+            pyramid.buffer = pb;
+        }
+
+        protected void stubPyramid(boolean write) {
+            pyramid = new Buffer();
+            pyramid.modification = write;
+        }
+
+        protected void stubRomio(boolean write) {
+            romio = new Buffer();
+            romio.modification = write;
+        }
+
+        protected Mock mockRomio(boolean write) {
+            romio = new Buffer(false);
+            return romio.mock;
+        }
+
+        protected void stubBf() {
+            bf = new Buffer();
+        }
+
     }
 
 }
