@@ -701,12 +701,12 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     /* (non-Javadoc)
-     * @see ome.api.RawPixelsStore#hasPixelsPyramid()
+     * @see ome.api.RawPixelsStore#requiresPixelsPyramid()
      */
     @RolesAllowed("user")
-    public boolean hasPixelsPyramid()
+    public boolean requiresPixelsPyramid()
     {
-        return dataService.isRequirePyramid(pixelsInstance);
+        return dataService.requiresPixelsPyramid(pixelsInstance);
     }
 
     /* (non-Javadoc)

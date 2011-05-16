@@ -286,7 +286,7 @@ public class PixelsService extends AbstractFileSystemService
      */
     public PixelBuffer getPixelBuffer(Pixels pixels)
     {
-        final boolean requirePyramid = isRequirePyramid(pixels);
+        final boolean requirePyramid = requiresPixelsPyramid(pixels);
         final String pixelsFilePath = getPixelsPath(pixels.getId());
         final File pixelsFile = new File(pixelsFilePath);
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
@@ -358,7 +358,7 @@ public class PixelsService extends AbstractFileSystemService
      * @param pixels
      * @return
      */
-    public boolean isRequirePyramid(Pixels pixels) {
+    public boolean requiresPixelsPyramid(Pixels pixels) {
         final int sizeX = pixels.getSizeX();
         final int sizeY = pixels.getSizeY();
         final boolean requirePyramid = (sizeX * sizeY) > (1024*1024); // FIXME

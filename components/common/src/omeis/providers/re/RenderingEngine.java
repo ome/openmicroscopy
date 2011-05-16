@@ -567,7 +567,7 @@ public interface RenderingEngine extends StatefulServiceInterface {
      */
 	public double getPixelsTypeUpperBound(int w);
 
-    public boolean hasPixelsPyramid();
+    public boolean requiresPixelsPyramid();
 
     public int getResolutionLevels();
 

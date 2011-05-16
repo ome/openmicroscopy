@@ -396,7 +396,7 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
             });
         }
 
-        public boolean isRequirePyramid(Pixels pixels) {
+        public boolean requiresPixelsPyramid(Pixels pixels) {
             return isRequirePyramid;
         }
 

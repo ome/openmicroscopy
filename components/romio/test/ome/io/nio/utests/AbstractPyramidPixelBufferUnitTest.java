@@ -72,7 +72,7 @@ public abstract class AbstractPyramidPixelBufferUnitTest {
         pixels.setPixelsType(type);
 
         service = new PixelsService(root) {
-            public boolean isRequirePyramid(Pixels pixels) {
+            public boolean requiresPixelsPyramid(Pixels pixels) {
               return true;
             }
         };

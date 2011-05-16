@@ -1390,16 +1390,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
     }
 
     /* (non-Javadoc)
-     * @see omeis.providers.re.RenderingEngine#hasPixelsPyramid()
+     * @see omeis.providers.re.RenderingEngine#requiresPixelsPyramid()
      */
     @RolesAllowed("user")
-    public boolean hasPixelsPyramid()
+    public boolean requiresPixelsPyramid()
     {
         rwl.writeLock().lock();
 
         try {
             errorIfInvalidState();
-            return pixDataSrv.isRequirePyramid(pixelsObj);
+            return pixDataSrv.requiresPixelsPyramid(pixelsObj);
         } finally {
             rwl.writeLock().unlock();
         }
