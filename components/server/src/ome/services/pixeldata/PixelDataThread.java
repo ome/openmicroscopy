@@ -116,8 +116,6 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
         final EventContext ec = cd.getCurrentEventContext();
         if (null == ec.getCurrentUserId()) {
             throw new InternalException("No user! Must be wrapped by call to Executor?");
-        } else if (null == ec.getCurrentEventId()) {
-            throw new InternalException("No event! Read-only transaction?");
         }
 
         Future<EventLog> future = this.executor.submit(new Callable<EventLog>(){
