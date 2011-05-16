@@ -169,6 +169,14 @@ public class IniFileLoader {
     /**
      * @return application title
      */
+    public boolean getStaticDisableUpgradeCheck()
+    {
+    	return staticPrefs.node("General").getBoolean("disableUpgradeCheck", false);
+    }
+    
+    /**
+     * @return application title
+     */
     public boolean getForceFileArchiveOn()
     {
         boolean toReturn = false;
@@ -208,7 +216,7 @@ public class IniFileLoader {
      */
     public Boolean getUserDisableHistory()
     {
-    	return userPrefs.node("UI").getBoolean("disableHistory", false);
+    	return userPrefs.node("UI").getBoolean("disableHistory", true);
     }
     
     /**

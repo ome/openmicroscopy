@@ -404,10 +404,12 @@ WindowStateListener, WindowFocusListener
         		
             	JTabbedPane pane = (JTabbedPane) e.getSource();
         		
+            	boolean userDisabled = config.getUserDisableHistory() | config.getStaticDisableHistory();
+            	
         		if (pane.indexAtLocation(e.getX(), e.getY()) == historyTabIndex 
         				&& getHistoryTable().db.historyEnabled == false)
 				{
-					if (HistoryDB.alertOnce == false)
+					if (HistoryDB.alertOnce == false && !userDisabled)
 					{
 						JOptionPane.showMessageDialog(null,
 								"For some reason we are not able to connect to the remote\n" +

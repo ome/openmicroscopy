@@ -333,6 +333,13 @@ public class ImportConfig {
     }
 
     /**
+     * @return ini application title
+     */
+    public boolean getStaticDisableUpgradeCheck() {
+        return ini.getStaticDisableUpgradeCheck();
+    }
+    
+    /**
      * @return ini getForceFileArchiveOn
      */
     public boolean getForceFileArchiveOn() {

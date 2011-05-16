@@ -50,6 +50,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -77,6 +78,7 @@ import ome.formats.model.ReferenceProcessor;
 import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
+import ome.system.UpgradeCheck;
 import ome.util.LSID;
 import ome.xml.model.enums.IlluminationType;
 import ome.xml.model.enums.NamingConvention;
@@ -348,6 +350,17 @@ public class OMEROMetadataStoreClient
         }
     }
 
+    /**
+     * Check online to see if this is the current version
+     */
+    public boolean isUpgradeRequired(String versionNumber, String client) {
+        ResourceBundle bundle = ResourceBundle.getBundle("omero");
+        String url = bundle.getString("omero.upgrades.url");
+        UpgradeCheck check = new UpgradeCheck(url, versionNumber, client);
+        check.run();
+        return check.isUpgradeNeeded();
+    }
+    
     /**
      * Initialize all services needed
      *
