@@ -355,7 +355,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public boolean isWrite()
     {
-        return writer != null;
+        return writerFile != null;
     }
 
     private BfPixelBuffer delegate()
