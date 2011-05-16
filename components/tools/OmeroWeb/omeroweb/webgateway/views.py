@@ -604,7 +604,7 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
     if tile:
         try:
             img._prepareRenderingEngine()
-            tiles = img._re.hasPixelsPyramid()
+            tiles = img._re.requiresPixelsPyramid()
             w, h = img._re.getTileSize()
             init_zoom = img._re.getResolutionLevel()
             max_zoom = img._re.getResolutionLevels()-1
@@ -1040,7 +1040,7 @@ def imageMarshal (image, key=None):
     image._prepareRenderingEngine()
     
     #big images
-    tiles = image._re.hasPixelsPyramid()
+    tiles = image._re.requiresPixelsPyramid()
     width, height = image._re.getTileSize()
     init_zoom = image._re.getResolutionLevel()
     max_zoom = image._re.getResolutionLevels()-1
