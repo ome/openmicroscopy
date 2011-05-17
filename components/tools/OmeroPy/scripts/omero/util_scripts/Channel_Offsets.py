@@ -56,10 +56,13 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, newDatasetName=No
     """
     
     oldImage = conn.getObject("Image", imageId)
+    if oldImage is None:
+        print "Image not found for ID:", imageId
+        return
 
     dataset = oldImage.getParent()
     if newDatasetName is not None:
-        dataset = omero.gateway.DatasetWrapper()
+        dataset = omero.gateway.DatasetWrapper(obj=omero.model.DatasetI())
         dataset.setName(rstring(newDatasetName))
         dataset.save()
 
@@ -72,16 +75,19 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, newDatasetName=No
     zctList = []
     for z in range(sizeZ):
         for offset in channel_offsets:
-            for t in range(sizeT):
-                zOffset = offset['z']
-                zctList.append( (z+zOffset, offset['index'], t) ) 
+            if offset['index'] < sizeC:
+                for t in range(sizeT):
+                    zOffset = offset['z']
+                    zctList.append( (z+zOffset, offset['index'], t) ) 
 
     print "zctList", zctList
 
     # for convenience, make a map of channel:offsets
     offsetMap = {}
     for c in channel_offsets:
-        offsetMap[c['index']] = {'x':c['x'], 'y': c['y'], 'z':c['z']}
+        cIndex = c['index']
+        if cIndex < sizeC:
+            offsetMap[cIndex] = {'x':c['x'], 'y': c['y'], 'z':c['z']}
 
     def offsetPlane(plane, x, y):
         """ Takes a numpy 2D array and returns the same plane offset by x and y, adding rows and columns of 0 values"""
@@ -116,10 +122,12 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, newDatasetName=No
             offsets = offsetMap[c]
             yield offsetPlane(plane, offsets['x'], offsets['y'])
     
+    newImageName = "%s_offsets" % oldImage.getName()
     desc = str(channel_offsets)
     serviceFactory = conn.c.sf  # make sure that script_utils creates a NEW rawPixelsStore
-    i = conn.createImageFromNumpySeq(offsetPlaneGen(), "testOffsetImage",
-        sizeZ=sizeZ, sizeC=len(channel_offsets), sizeT=sizeT, description=desc, dataset=dataset)
+    i = conn.createImageFromNumpySeq(offsetPlaneGen(), newImageName,
+        sizeZ=sizeZ, sizeC=len(offsetMap.items()), sizeT=sizeT, description=desc, dataset=dataset)
+    return i
 
 def processImages(conn, scriptParams):
     """ Process the script params to make a list of channel_offsets, then iterate through
@@ -142,13 +150,16 @@ def processImages(conn, scriptParams):
         newDatasetName = scriptParams["New_Dataset_Name"]
 
     # need to handle Datasets eventually - Just do images for now
+    newImgIds = []
     for iId in scriptParams['IDs']:
-        newImageWithChannelOffsets(conn, iId, channel_offsets, newDatasetName)
-        
+        newImg = newImageWithChannelOffsets(conn, iId, channel_offsets, newDatasetName)
+        if newImg is not None:
+            newImgIds.append(newImg.getId())
+    return newImgIds
     
 def runAsScript():
 
-    dataTypes = [rstring('Dataset'),rstring('Image')]
+    dataTypes = [rstring('Image')]
 
     client = scripts.client('Channel_Offsets.py', """Create new Images from existing images,
 applying an x, y and z shift to each channel independently. """,
@@ -230,9 +241,16 @@ applying an x, y and z shift to each channel independently. """,
         # wrap client to use the Blitz Gateway
         conn = BlitzGateway(client_obj=client)
         
-        processImages(conn, scriptParams)
-
-        client.setOutput("Message", rstring("We're done!"))
+        newImgIds = processImages(conn, scriptParams)
+        if len(newImgIds) == 1:
+            newImg = conn.getObject("Image", newImgIds[0])
+            message = "New Image created: %s" % newImg.getName()
+            client.setOutput("Image", robject(newImg._obj))
+        elif len(newImgIds) > 1:
+            message = "%s new Images created: %s" % len(newImgIds)
+        else:
+            message = "No images created. See 'Info' or 'Error' for more details"
+        client.setOutput("Message", rstring(message))
     finally:
         client.closeSession()
 
