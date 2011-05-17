@@ -20,7 +20,5 @@
      <dependency org="gui" name="swingx" rev="${versions.swingx}"/>
      <dependency org="gui" name="TableLayout" rev="${versions.tablelayout}"/>
     <dependency org="gui"  name="omero-clients-util" rev="${versions.clients-util}"/>
-    <!-- Loci -->
-    <dependency org="OME" name="ome_tools" rev="${versions.bio-formats}"/>
   </dependencies>
 </ivy-module>
