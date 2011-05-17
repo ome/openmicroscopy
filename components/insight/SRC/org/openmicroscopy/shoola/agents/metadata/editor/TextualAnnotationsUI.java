@@ -511,6 +511,7 @@ class TextualAnnotationsUI
 	 */
 	protected void clearDisplay() 
 	{ 
+		if (annotationToRemove != null) annotationToRemove.clear();
 		annotationToDisplay = null;
 		if (previousComments != null)
 			previousComments.getViewport().removeAll();

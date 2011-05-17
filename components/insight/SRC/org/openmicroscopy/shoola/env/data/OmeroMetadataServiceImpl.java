@@ -126,19 +126,15 @@ class OmeroMetadataServiceImpl
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	private DataObject removeAnnotation(AnnotationData annotation, 
+	private void removeAnnotation(AnnotationData annotation, 
 										DataObject object) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		if (annotation == null)
-			throw new IllegalArgumentException("No annotation to remove.");
-		if (object == null)
-			throw new IllegalArgumentException("No object to handle.");
+		if (annotation == null || object == null) return;
 		ExperimenterData exp = getUserDetails();
-		if (exp == null) return null;
+		if (exp == null) return;
 		IObject ho = gateway.findIObject(annotation.asIObject());
-		if (ho == null)
-			throw new IllegalArgumentException("No object to handle.");
+		if (ho == null) return;
 		IObject link = gateway.findAnnotationLink(object.getClass(), 
 				       object.getId(), ho.getId().getValue(), exp.getId());
 		if (ho != null && link != null) {
@@ -153,7 +149,6 @@ class OmeroMetadataServiceImpl
 				gateway.deleteObject(ho);//oly work if the annotation is not shared
 				*/
 		}
-		return PojoMapper.asDataObject(gateway.findIObject(object.asIObject()));
 	}
 
 	
@@ -996,6 +991,7 @@ class OmeroMetadataServiceImpl
 					if (ann != null) linkAnnotation(object, ann);
 				}
 			}
+			System.err.println(toRemove+" "+object);
 			if (toRemove != null) {
 				i = toRemove.iterator();
 				List<IObject> toDelete = new ArrayList<IObject>();
