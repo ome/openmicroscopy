@@ -190,7 +190,7 @@
             <list>
                 <value>/Roi;FORCE;/Image</value>
                 <value>/Image/Pixels/PixelsOriginalFileMap;REAP</value>
-                <value>/OriginalFile;;/Image/Pixels/PixelsOriginalFileMap</value>
+                <value>/OriginalFile;SOFT;/Image/Pixels/PixelsOriginalFileMap</value><!-- #5273 -->
                 <value>/Image/Pixels/PlaneInfo/PlaneInfoAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Image/Pixels/PlaneInfo/PlaneInfoAnnotationLink</value>
                 <value>/Image/Pixels/PlaneInfo</value>
