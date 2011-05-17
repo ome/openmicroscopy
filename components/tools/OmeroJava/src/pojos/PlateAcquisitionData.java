@@ -190,8 +190,14 @@ public class PlateAcquisitionData
 			label = name;
 			return label;
 		}
-		String start = DateFormat.getDateTimeInstance(DateFormat.SHORT, 
-    			DateFormat.SHORT).format(getStartTime());
+		Timestamp time = getStartTime();
+		String start = "";
+		String end = "";
+		if (time != null) {
+			start = DateFormat.getDateTimeInstance(DateFormat.SHORT, 
+	    			DateFormat.SHORT).format(time);
+		}
+		 
     	String[] values = start.split(" ");
     	String date = "";
     	String dateEnd = "";
@@ -199,8 +205,12 @@ public class PlateAcquisitionData
     		date = values[0];
     		start = start.substring(date.length()+1);
     	} 
-    	String end = DateFormat.getDateTimeInstance(DateFormat.SHORT, 
-    			DateFormat.SHORT).format(getEndTime());
+    	time = getEndTime();
+    	if (time != null) {
+    		end = DateFormat.getDateTimeInstance(DateFormat.SHORT, 
+        			DateFormat.SHORT).format(time);
+    	}
+    	
     	values = end.split(" ");
     	if (values.length > 1) {
     		if (!date.equals(values[0]))
@@ -208,13 +218,17 @@ public class PlateAcquisitionData
     		end = end.substring(values[0].length()+1);
     	}
     	String value = "";
+    	if (start.length() == 0 && end.length() == 0)
+    		return "Run "+getId();
+    	if (date.length() == 0 && end.length() != 0)
+    		return dateEnd+" "+end;
     	if (dateEnd.length() == 0) {
     		value = date+" "+start+" - "+end;
     	} else {
     		value = date+" "+start+" - "+dateEnd+" "+end;
     	}
     	if (value.length() > 0) label = value;
-    	else label = ""+getId();
+    	else label = "Run "+getId();
 		return label;
 	}
 
