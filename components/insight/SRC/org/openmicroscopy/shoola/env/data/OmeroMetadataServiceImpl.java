@@ -114,6 +114,31 @@ class OmeroMetadataServiceImpl
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway            gateway;
 	
+	
+	/**
+	 * Returns <code>true</code> if the annotation is shared, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param annotation The annotation to handle.
+	 * @param object The object to handle.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	private boolean isAnnotationShared(AnnotationData annotation, 
+										DataObject object)
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(annotation.getId());
+		List l = gateway.findAnnotationLinks(object.getClass().getName(), 
+				-1, ids);
+		if (l == null) return false;
+		return l.size() > 0;
+	}
+	
 	/**
 	 * Removes the specified annotation from the object.
 	 * Returns the updated object.
@@ -369,7 +394,6 @@ class OmeroMetadataServiceImpl
 				} 
 				if (iobject != null)
 					toCreate.add(iobject);
-
 			} else {
 				if (ann instanceof TagAnnotationData) {
 					//update description
@@ -389,15 +413,6 @@ class OmeroMetadataServiceImpl
 			List<IObject> r = gateway.createObjects(l);
 			annotations.addAll(PojoMapper.asDataObjects(r));
 		}
-		/*
-		if (links.size() > 0) {
-			i = links.iterator();
-			List<IObject> l = new ArrayList<IObject>(toCreate.size());
-			while (i.hasNext()) 
-				l.add((IObject) i.next());
-			gateway.createObjects(l);
-		}
-		*/
 		return annotations;
     }
 
@@ -991,7 +1006,6 @@ class OmeroMetadataServiceImpl
 					if (ann != null) linkAnnotation(object, ann);
 				}
 			}
-			System.err.println(toRemove+" "+object);
 			if (toRemove != null) {
 				i = toRemove.iterator();
 				List<IObject> toDelete = new ArrayList<IObject>();
@@ -999,8 +1013,11 @@ class OmeroMetadataServiceImpl
 					ann = (AnnotationData) i.next();
 					if (ann != null) {
 						removeAnnotation(ann, object);
-						if (ann instanceof TextualAnnotationData)
-							toDelete.add(ann.asIObject());
+						if (ann instanceof TextualAnnotationData) {
+							boolean b = isAnnotationShared(ann, object);
+							if (!isAnnotationShared(ann, object))
+								toDelete.add(ann.asIObject());
+						}
 					}
 				}
 				if (toDelete.size() > 0)
