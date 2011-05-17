@@ -1567,7 +1567,6 @@ class _BlitzGateway (object):
                     raise
                 except:
                     logger.info("BlitzGateway.connect().createSession(): " + traceback.format_exc())
-                    logger.debug(str(self._ic_props))
                     #time.sleep(10)
                     self._createSession()
 
