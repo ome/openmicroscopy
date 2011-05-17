@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -219,7 +218,8 @@ public class LayoutUtils
 			dd = node.getParentDisplay().getSize();
 		l = sorter.sort(l);
         if (dd.width >= MIN && dd.height >= MIN) {
-            n = dd.width/maxDim.width;
+            if (maxDim.width != 0) 
+            	n = dd.width/maxDim.width;
         	if (n == 0) {
         		n = DEFAULT_PER_ROW;
         	}
