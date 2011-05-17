@@ -55,6 +55,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.util.ScriptMenuItem;
 import org.openmicroscopy.shoola.agents.metadata.util.ScriptSubMenu;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -460,7 +461,8 @@ class ToolBar
     			if (so.isOfficialScript()) menu.add(subMenu);
     			else others.add(subMenu);
     		}
-    		subMenu.addScript(so).addActionListener(controller);
+    		if (!ScriptMenuItem.isScriptWithUI(so.getScriptLabel()))
+    			subMenu.addScript(so).addActionListener(controller);
     	}
     	if (others.size() > 0) {
     		menu.add(new JSeparator());
