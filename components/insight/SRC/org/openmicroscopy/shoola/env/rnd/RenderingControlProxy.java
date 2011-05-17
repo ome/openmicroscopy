@@ -140,6 +140,9 @@ class RenderingControlProxy
     /** The size of a tile. */
     private Dimension tileSize;
     
+    /** Flag indicating that the image is a big image or not.*/
+    private Boolean bigImage;
+    
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
      * {@link #BLUE_INDEX}, Green to {@link #GREEN_INDEX} and
@@ -1934,4 +1937,19 @@ class RenderingControlProxy
 		return tileSize;
 	}
 
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#isBigImage()
+	 */
+	public boolean isBigImage()
+	{
+		if (bigImage != null) return bigImage.booleanValue();
+		try {
+			bigImage = servant.requiresPixelsPyramid();
+			return bigImage.booleanValue();
+		} catch (Exception e) {
+			//handleException(e, ERROR+" retrieving if requires pyramid.");
+		}
+		return false;
+	}
 }

@@ -7615,17 +7615,15 @@ class OMEROGateway
 	boolean isLargeImage(Pixels pixels)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		/*
 		try {
 			RawPixelsStorePrx store = getPixelsStore();
 			store.setPixelsId(pixels.getId().getValue(), true);
-			boolean b = store.hasPixelsPyramid();
+			boolean b = store.requiresPixelsPyramid();
 			store.close();
 			return b;
 		} catch (Exception e) {
 			handleException(e, "Cannot start the Raw pixels store.");
 		}
-		*/
 		return false;
 	}
 	

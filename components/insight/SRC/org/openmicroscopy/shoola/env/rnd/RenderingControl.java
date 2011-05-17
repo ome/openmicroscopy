@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.env.rnd;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
@@ -810,6 +809,9 @@ public interface RenderingControl
 	 * large images.
 	 * 
 	 * @param level The value to set.
+	 * @throws RenderingServiceException 	If an error occurred while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	public void setSelectedResolutionLevel(int level)
 		throws RenderingServiceException, DSOutOfServiceException;
@@ -818,8 +820,21 @@ public interface RenderingControl
 	 * Returns the dimension of a tile.
 	 * 
 	 * @return See above.
+	 * @throws RenderingServiceException 	If an error occurred while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	public Dimension getTileSize()
 		throws RenderingServiceException, DSOutOfServiceException;
+	
+	/**
+	 * Returns <code>true</code> if it is a big image, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return
+	 * @throws RenderingServiceException
+	 * @throws DSOutOfServiceException
+	 */
+	public boolean isBigImage();
 	
 }

@@ -679,4 +679,12 @@ public interface Renderer
 	 */
 	void setSelectedResolutionLevel(int level);
 	
+	/**
+	 * Returns <code>true</code> if it is a large image, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isBigImage();
+	
 }

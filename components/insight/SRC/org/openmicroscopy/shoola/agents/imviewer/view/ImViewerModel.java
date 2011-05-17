@@ -1103,11 +1103,9 @@ class ImViewerModel
 	 */
 	boolean isBigImage()
 	{
-		return getResolutionLevels() > 1;
-		/*
-		return (getMaxX() > RenderingControl.MAX_SIZE_THREE ||
-				getMaxY() > RenderingControl.MAX_SIZE_THREE);
-		*/
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return false;
+		return rnd.isBigImage();
 	}
 	
 	/**
