@@ -607,9 +607,10 @@ class ImViewerComponent
 					model.fireRenderingControlLoading(model.getPixelsID());
 				else model.fireImageLoading();
 				*/
-				if (!model.isImageLoaded())
+				if (!model.isImageLoaded()) {
 					model.fireImageLoading();
-				fireStateChange();
+					fireStateChange();
+				}
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
@@ -2955,6 +2956,7 @@ class ImViewerComponent
 		switch (model.getState()) {
 			case NEW:
 			case DISCARDED:
+			case LOADING_IMAGE_DATA:
 				return false;
 		}
 		return model.isBigImage();

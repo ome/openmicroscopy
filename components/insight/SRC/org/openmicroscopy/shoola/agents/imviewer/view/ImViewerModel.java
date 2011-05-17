@@ -449,6 +449,7 @@ class ImViewerModel
 	private void initialize(Rectangle bounds, boolean separateWindow)
 	{
 		this.separateWindow = separateWindow;
+		tiles = new HashMap<Integer, Tile>();
 		originalRatio = 1;
 		asynchronousCall = null;
 		overlayTableID = -1;
@@ -516,7 +517,6 @@ class ImViewerModel
 	{
 		this.image = image;
 		initialize(bounds, separateWindow);
-		tiles = new HashMap<Integer, Tile>();
 		numberOfRows = 1;
 		numberOfColumns = 1;
 		initializeMetadataViewer();
@@ -897,8 +897,8 @@ class ImViewerModel
 				index++;
 			}
 		}
-
-		initializeTiles();
+		if (isBigImage())
+			initializeTiles();
 		//
 		double f = initZoomFactor();
 		if (f > 0)
@@ -2003,9 +2003,9 @@ class ImViewerModel
     /** Loads the image before doing anything else. */
 	void fireImageLoading()
 	{
+		state = ImViewer.LOADING_IMAGE_DATA;
 		ImageDataLoader loader = new ImageDataLoader(component, getImageID());
 		loader.load();
-		state = ImViewer.LOADING_IMAGE_DATA;
 	}
 	
 	/** 
