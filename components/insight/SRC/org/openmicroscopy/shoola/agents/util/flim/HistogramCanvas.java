@@ -116,8 +116,8 @@ extends PApplet
 		if (bins <= 0) bins = 1;
 		this.data = data;
 		chart = new HistogramChart(this, originalData, bins, threshold,FillType.NONE);
-		chart.setPastelColours();
-		chart.setRGB(true, bins/4, bins/2+bins/4);
+		chart.setPrimaryColours();
+		chart.setRGB(false, bins/4, bins/2+bins/4);
 		double heatMapThreshold=threshold;
 		this.originalData = originalData;
 		if(originalData.get(0).equals(originalData.get(originalData.size()-1)))
