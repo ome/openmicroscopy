@@ -2431,8 +2431,18 @@ class _BlitzGateway (object):
 
         def createImage(firstPlane):
             """ Create our new Image once we have the first plane in hand """
-            pType = firstPlane.dtype.name
+            # need to map numpy pixel types to omero - don't handle: bool_, character, int_, int64, object_
+            pTypes = {'int8':'int8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'float_':'float', 'float8':'float', 
+                        'float16':'float', 'float32':'float', 'float64':'double', 'complex_':'complex', 'complex64':'complex'}
+            dType = firstPlane.dtype.name
+            print dType
+            if dType not in pTypes: # try to look up any not named above
+                pType = dType
+            else:
+                pType = pTypes[dType]
             pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+            if pixelsType is None:
+                raise Exception("Cannot create an image in omero from numpy array with dtype: %s" % dType)
             sizeY, sizeX = firstPlane.shape
             channelList = range(1, sizeC+1)
             iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
