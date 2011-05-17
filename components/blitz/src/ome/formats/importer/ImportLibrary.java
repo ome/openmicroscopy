@@ -35,6 +35,7 @@ import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
+import loci.formats.UnsupportedCompressionException;
 import loci.formats.in.MIASReader;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
@@ -613,6 +614,11 @@ public class ImportLibrary implements IObservable
             notifyObservers(new ErrorHandler.FILE_EXCEPTION(
                     fileName, io, usedFiles, format));
             throw io;
+        } catch (UnsupportedCompressionException uce) {
+            // Handling as UNKNOWN_FORMAT for 4.3.0
+            notifyObservers(new ErrorHandler.UNKNOWN_FORMAT(
+                    fileName, uce, this));
+            throw uce;
         } catch (UnknownFormatException ufe) {
             notifyObservers(new ErrorHandler.UNKNOWN_FORMAT(
                     fileName, ufe, this));
