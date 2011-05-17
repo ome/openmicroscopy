@@ -204,7 +204,10 @@ for key in sorted(CUSTOM_SETTINGS_MAPPINGS):
     global_name, default_value, mapping, using_default = values
     source = using_default and "default" or key
     global_value = globals().get(global_name, "(unset)")
-    logger.debug("%s = %r (source:%s)", global_name, global_value, source)
+    if global_name.lower().find("password") < 0:
+        logger.debug("%s = %r (source:%s)", global_name, global_value, source)
+    else:
+        logger.debug("%s = '***' (source:%s)", global_name, source)
 
 
 ###
