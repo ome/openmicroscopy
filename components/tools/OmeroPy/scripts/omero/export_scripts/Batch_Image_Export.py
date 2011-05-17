@@ -107,7 +107,7 @@ def savePlane(image, format, cName, zRange, t=0, channel=None, greyscale=False, 
     if imgWidth:
         w, h = plane.size
         newH = (float(imgWidth) / w ) * h
-        plane = plane.resize((imgWidth, newH))
+        plane = plane.resize((imgWidth, int(newH)))
         
     if format == "PNG":
         imgName = makeImageName(originalName, cName, zRange, t, "png", folder_name)
@@ -179,8 +179,8 @@ def savePlanesForImage(conn, image, sizeC, splitCs, mergedCs, channelNames=None,
     
     cName = 'merged'
     for c in channels:
-        if c != None:
-            if channelNames != None and c < len(channelNames):
+        if c is not None:
+            if c < len(channelNames):
                 cName = channelNames[c]
             else:
                 cName = "c%02d" % c
@@ -257,11 +257,15 @@ def batchImageExport(conn, scriptParams):
     # images to export
     images = []
     objects = conn.getObjects(dataType, ids)    # images or datasets
+    parentToAttachZip = None
     if dataType == 'Dataset':
         for ds in objects:
+            if parentToAttachZip is None:
+                parentToAttachZip = ds
             images.extend( list(ds.listChildren()) )
     else:
         images = list(objects)
+        parentToAttachZip = images[0]
     log("Processing %s images" % len(images))
     
     # somewhere to put images
@@ -290,12 +294,12 @@ def batchImageExport(conn, scriptParams):
     compress(zip_file_name, folder_name)
 
     description = "\n".join(logStrings)
-    image = images[0]
     if os.path.exists(zip_file_name):
-        log("Attaching zip to image... %s %s" % (image.getName(), image.getId()) )
         fileAnn = conn.createFileAnnfromLocalFile(zip_file_name, mimetype='zip', desc=description)
-        image.linkAnnotation(fileAnn)
-        return fileAnn
+        if parentToAttachZip is not None:
+            log("Attaching zip to... %s %s %s" % (scriptParams['Data_Type'], parentToAttachZip.getName(), parentToAttachZip.getId()) )
+            parentToAttachZip.linkAnnotation(fileAnn)
+        return fileAnn, parentToAttachZip
 
 def runScript():
     """
@@ -385,12 +389,15 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
             scriptParams[key] = unwrap(client.getInput(key))
     log(scriptParams)
     # call the main script - returns a file annotation wrapper
-    fileAnnWrapper = batchImageExport(conn, scriptParams)
+    result = batchImageExport(conn, scriptParams)
     # return this fileAnnotation to the client. 
-    if fileAnnWrapper:
-        fileAnnotation = fileAnnWrapper._obj
-        client.setOutput("Message", rstring("Batch Export zip created and attached"))
-        client.setOutput("File_Annotation", robject(fileAnnotation))
+    if result is not None:
+        fileAnnWrapper, parentToAttachZip = result
+        message = "Batch Export zip created"
+        if parentToAttachZip is not None:
+            message += " and attached to %s %s"  % (scriptParams['Data_Type'], parentToAttachZip.getName())
+        client.setOutput("Message", rstring(message))
+        client.setOutput("File_Annotation", robject(fileAnnWrapper._obj))
     
 
 if __name__ == "__main__":
