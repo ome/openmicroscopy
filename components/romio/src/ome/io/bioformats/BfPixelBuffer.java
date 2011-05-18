@@ -81,6 +81,28 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         return wrapper;
     }
 
+    /**
+     * Sets the current series in the underlying Bio-Formats reader.
+     * @param series The series to set.
+     */
+    public void setSeries(int series)
+    {
+        // Ensure the reader has been initialized
+        reader();
+        bfReader.setSeries(series);
+    }
+
+    /**
+     * Retrieves the current series of the underlying Bio-Formats reader.
+     * @return The series.
+     */
+    public int getSeries()
+    {
+        // Ensure the reader has been initialized
+        reader();
+        return bfReader.getSeries();
+    }
+
     public byte[] calculateMessageDigest() throws IOException {
         return reader().getMessageDigest();
     }
