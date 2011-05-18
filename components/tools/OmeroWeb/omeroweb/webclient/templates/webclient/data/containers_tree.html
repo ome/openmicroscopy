@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
+{% load conditional_tags %}
 
 <ul>
     <li id="experimenter-0" rel="experimenter"><a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</a>
