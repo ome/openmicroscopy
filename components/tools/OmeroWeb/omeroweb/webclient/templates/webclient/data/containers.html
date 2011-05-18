@@ -29,53 +29,83 @@
                 $("div#metadata_details iframe").attr('height', h+31);
                 $("div#content_details").css('height', h+31);
                 
-                var loadOtherPanels = function(data) {
-                    if (typeof data.rslt.obj.attr('id')!=="undefined" && data.rslt.obj.attr('id') !== false) {
-                        if (data.rslt.obj.attr("rel")=="orphaned" && data.rslt.obj.attr("rel").replace("-locked", "")!=$("div#content_details").attr("rel")) {
-                	        $("#right_panel").show();
-                            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                            $("div#metadata_details").html('<p>{% trans "This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container." %}</p>');
-                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-                            $("div#content_details").load('/webclient/load_data/'+data.rslt.obj.attr("rel")+'/?view=icon');
-                            $("div#content_details").attr('rel', data.rslt.obj.attr("rel"));
-                        } else if(data.rslt.obj.attr("rel").replace("-locked", "")!="experimenter") {
-                            var r = data.rslt.obj.attr("rel").replace("-locked", "");
-                	        $("#right_panel").show();
-                            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                            $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/'+r+'/'+data.rslt.obj.attr("id").split("-")[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
-                            $('iframe#metadata_details').load();
-
-                            if($.inArray(r, ["dataset", "plate"]) == 0 && data.rslt.obj.attr("id")!=$("div#content_details").attr('rel')) {
-                                $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-                                $("div#content_details").load('/webclient/load_data/'+r+'/'+data.rslt.obj.attr("id").split("-")[1]+'/?view=icon');
-                                $("div#content_details").attr('rel', data.rslt.obj.attr("id"));
-                            } else if(r=="image") {
-                                var pr = data.rslt.obj.parent().parent().attr("rel")
-                                if (pr=="orphaned" && pr!=$("div#content_details").attr('rel')) {
-                                    $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-                                    $("div#content_details").load('/webclient/load_data/'+pr+'/?view=icon');
-                                    $("div#content_details").attr('rel', pr);
-                                } else if (pr!="orphaned" && data.rslt.obj.parent().parent().attr("id")!=$("div#content_details").attr('rel')){
-                                    $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-                                    $("div#content_details").load('/webclient/load_data/'+pr+'/'+data.rslt.obj.parent().parent().attr("id").split("-")[1]+'/?view=icon');
-                                    $("div#content_details").attr('rel', data.rslt.obj.parent().parent().attr("id"));
-                                }                            
-                            } else if (data.rslt.obj.attr("id")!=$("div#content_details").attr('rel') && data.rslt.obj.parent().parent().attr("id")!=$("div#content_details").attr('rel')) {
-                                $("div#content_details").removeAttr('rel').children().remove();
-                            }
-                        } else {
-                            $("#right_panel").show();
-                            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                            $("div#metadata_details").html('<p>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</p>');                        
-                        }
-                    }
-                }
-                
                 var multi_key = function() {
 				    if (navigator.appVersion.indexOf("Mac")!=-1) return "meta";
 				    else return "ctrl";
 				}
 				
+				var loadOtherPanels = function(data) {
+				    var cm_var = new Object();
+				    cm_var['content_details'] = {'url': null, 'rel': null };
+				    cm_var['metadata_details']= {'iframe': null, 'html': null};
+                    if (typeof data.rslt.obj.attr('id')!=="undefined" && data.rslt.obj.attr('id') !== false) {
+                        if (data.rslt.obj.attr("rel")=="orphaned" && data.rslt.obj.attr("rel").replace("-locked", "")!=$("div#content_details").attr("rel")) {
+                	        cm_var['metadata_details']['html'] = '<p>{% trans "This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container." %}</p>';
+                            cm_var['content_details']['rel'] = data.rslt.obj.attr("rel");
+                            cm_var['content_details']['url'] = '/webclient/load_data/'+data.rslt.obj.attr("rel")+'/?view=icon';                            
+                        } else if(data.rslt.obj.attr("rel").replace("-locked", "")!="experimenter") {
+                            var r = data.rslt.obj.attr("rel").replace("-locked", "");
+                	        cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+r+'/'+data.rslt.obj.attr("id").split("-")[1]+'/';
+                            if($.inArray(r, ["dataset", "plate"]) == 0 && data.rslt.obj.attr("id")!=$("div#content_details").attr('rel')) {
+                                cm_var['content_details']['rel'] = data.rslt.obj.attr("id");
+                                cm_var['content_details']['url'] = '/webclient/load_data/'+r+'/'+data.rslt.obj.attr("id").split("-")[1]+'/?view=icon';                                
+                            } else if(r=="image") {
+                                var pr = data.rslt.obj.parent().parent().attr("rel")
+                                if (pr=="orphaned" && pr!=$("div#content_details").attr('rel')) {
+                                    cm_var['content_details']['rel'] = pr;
+                                    cm_var['content_details']['url'] = '/webclient/load_data/'+pr+'/?view=icon';                                    
+                                } else if (pr!="orphaned" && data.rslt.obj.parent().parent().attr("id")!=$("div#content_details").attr('rel')){
+                                    cm_var['content_details']['rel'] = data.rslt.obj.parent().parent().attr("id");
+                                    cm_var['content_details']['url'] = '/webclient/load_data/'+pr+'/'+data.rslt.obj.parent().parent().attr("id").split("-")[1]+'/?view=icon';
+                                }                            
+                            } else if (data.rslt.obj.attr("id")!=$("div#content_details").attr('rel') && data.rslt.obj.parent().parent().attr("id")!=$("div#content_details").attr('rel')) {
+                                cm_var['content_details']['rel'] = null;
+                            }
+                        } else {
+                            cm_var['metadata_details']['html'] = '<p>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</p>';                        
+                        }
+                    }
+                    
+                    if (cm_var.metadata_details.iframe!==null || cm_var.metadata_details.html!==null) {
+                        $("#right_panel").show();
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                        if (cm_var.metadata_details.iframe!==null) {
+                            $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+cm_var.metadata_details.iframe+'" id="metadata_details" name="metadata_details"></iframe>');
+                            $('iframe#metadata_details').load();
+                        } 
+                        if (cm_var.metadata_details.html!==null) {
+                            $("div#metadata_details").html(cm_var.metadata_details.html);
+                        }
+                    }                        
+                    if (cm_var.content_details.url!==null) {
+                        $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                        $("div#content_details").attr('rel', cm_var.content_details.rel);
+                        $("div#content_details").load(cm_var.content_details.url, function() {
+                            syncPanels(data.inst.get_selected());
+                        });                            
+                    } 
+                }
+                
+                var syncPanels = function(get_selected) {
+                    var toSelect = new Array();
+                    get_selected.each(function(i) {
+                        toSelect[i]=this.id.split("-")[1];
+                    });
+                    
+                    $(".ui-selectee", $("ul.ui-selectable")).each(function(){
+                        var selectee = $(this);
+                        if ($.inArray(selectee.attr('id'), toSelect) != -1) {
+                            if(!selectee.hasClass('ui-selected')) {
+                                selectee.addClass('ui-selected');
+                                $('input', selectee).attr('checked', true);
+                            }
+                        } else {
+                            selectee.removeClass('ui-selected');                        
+                            $('input', selectee).attr('checked', false);
+                        }
+                    });
+                }
+                
                 var jstree = $("#dataTree").jstree({ 
             			// the list of plugins to include
             			"plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
@@ -390,27 +420,10 @@
                             $("input#annotationButton").show();
                             $("input#basketButton").show();
                         }
-                    } else { 
+                    } else {
                         loadOtherPanels(data);
-                    }
-                    
-                    var toSelect = new Array();
-                    data.inst.get_selected().each(function(i) {
-                        toSelect[i]=this.id.split("-")[1];
-                    });
-                    
-                    $(".ui-selectee", $("ul.ui-selectable")).each(function(){
-                        var selectee = $(this);
-                        if ($.inArray(selectee.attr('id'), toSelect) != -1) {
-                            if(!selectee.hasClass('ui-selected')) {
-                                selectee.addClass('ui-selected');
-                                $('input', selectee).attr('checked', true);
-                            }
-                        } else {
-                            selectee.removeClass('ui-selected');                        
-                            $('input', selectee).attr('checked', false);
-                        }
-                    });
+                    }                    
+                    syncPanels(data.inst.get_selected());
         		})
             	.bind("create.jstree", function (e, data) {
             	    if(data.rslt.parent.attr("rel") == "project") {
