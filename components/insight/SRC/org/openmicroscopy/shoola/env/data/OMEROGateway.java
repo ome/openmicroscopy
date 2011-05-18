@@ -6120,7 +6120,6 @@ class OMEROGateway
 			ImportLibrary library = new ImportLibrary(getImportStore(), 
 					new OMEROWrapper(new ImportConfig()));
 			library.addObserver(status);
-
 			ImportContainer ic = new ImportContainer(file, -1L, container, 
 					archived, object.getPixelsSize(), null, null, null);
 			ic.setUseMetadataFile(true);

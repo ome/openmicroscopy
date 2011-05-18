@@ -113,6 +113,9 @@ public class StatusLabel
 	/** Flag indicating that the import has been cancelled. */
 	private boolean  markedAsCancel;
 	
+	/** Flag indicating that the import can or not be cancelled.*/
+	private boolean cancellable;
+	
 	/** Creates a new instance. */
 	public StatusLabel()
 	{
@@ -124,6 +127,7 @@ public class StatusLabel
 		errorText = FAILURE_TEXT;
 		setText("pending");
 		markedAsCancel = false;
+		cancellable = true;
 	}
 	
 	/** Marks the import has cancelled. */
@@ -230,18 +234,28 @@ public class StatusLabel
 	}
 	
 	/**
+	 * Returns <code>true</code> if the import can be cancelled,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isCancellable() { return cancellable; }
+	
+	/**
 	 * Displays the status of an on-going import.
 	 * @see IObserver#update(IObservable, ImportEvent)
 	 */
 	public void update(IObservable observable, ImportEvent event)
 	{
 		if (event == null) return;
+		cancellable = false;
 		if (event instanceof ImportEvent.LOADING_IMAGE) {
 			startTime = System.currentTimeMillis();
 			setText(PREPPING_TEXT);
-			firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
+			cancellable = true;
 		} else if (event instanceof ImportEvent.LOADED_IMAGE) {
 			setText("analyzing");
+			cancellable = true;
 		} else if (event instanceof ImportEvent.IMPORT_DONE) {
 			if (numberOfFiles == 1) setText("one file");
 			else if (numberOfFiles == 0) setText("");
@@ -250,6 +264,7 @@ public class StatusLabel
 		} else if (event instanceof ImportEvent.IMPORT_ARCHIVING) {
 			setText("archiving");
 		} else if (event instanceof ImportEvent.DATASET_STORED) {
+			firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
 			ImportEvent.DATASET_STORED ev = (ImportEvent.DATASET_STORED) event;
 			maxPlanes = ev.size.imageCount;
 		} else if (event instanceof ImportEvent.IMPORT_STEP) {
@@ -267,7 +282,7 @@ public class StatusLabel
 						text = value+"/"+maxPlanes;
 					setText(text);
 				}
-            }
+			}
 		} else if (event instanceof ImportCandidates.SCANNING) {
 			ImportCandidates.SCANNING ev = (ImportCandidates.SCANNING) event;
 			numberOfFiles = ev.totalFiles;

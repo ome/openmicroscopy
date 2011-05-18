@@ -222,5 +222,8 @@ public interface Importer
 	 * 				or {@link #SCREEN_TYPE}.
 	 */
 	public void refreshContainers(int type);
+
+	/** Cancels all the ongoing imports.*/
+	public void cancelAllImports();
 	
 }

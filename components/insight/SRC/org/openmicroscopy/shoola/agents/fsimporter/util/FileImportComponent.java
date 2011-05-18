@@ -131,10 +131,11 @@ public class FileImportComponent
 	 */
 	public static final String SUBMIT_ERROR_PROPERTY = "submitError";
 	
-	/** 
-	 * Bound property indicating to display the error.
-	 */
+	/** Bound property indicating to display the error.*/
 	public static final String DISPLAY_ERROR_PROPERTY = "displayError";
+	
+	/** Bound property indicating to cancel the import.*/
+	public static final String CANCEL_IMPORT_PROPERTY = "cancelImport";
 	
 	/** Bound property indicating to browse the node. */
 	public static final String BROWSE_PROPERTY = "browse";
@@ -292,11 +293,14 @@ public class FileImportComponent
 		bus.post(new BrowseContainer(d, null));
 	}
 	
-	/** Indicates that the file will not be imported. */
-	private void cancel()
+	/** Indicates that the file will not be imported. 
+	 * 
+	 * @param fire	Pass <code>true</code> to fire a property,
+	 * 				<code>false</code> otherwise.
+	 */
+	private void cancel(boolean fire)
 	{
-		if (busyLabel.isBusy() || 
-				StatusLabel.PREPPING_TEXT.equals(statusLabel.getText())) 
+		if (busyLabel.isBusy() && !statusLabel.isCancellable()) 
 			return;
 		statusLabel.setText("cancelled");
 		statusLabel.markedAsCancel();
@@ -304,6 +308,8 @@ public class FileImportComponent
 		cancelButton.setVisible(false);
 		busyLabel.setBusy(false);
 		busyLabel.setVisible(false);
+		if (fire)
+			firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
 	}
 	
 	/** Deletes the image that was imported but cannot be viewed. */
@@ -996,7 +1002,7 @@ public class FileImportComponent
 	/** Indicates the import has been cancelled. */
 	public void cancelLoading()
 	{
-		cancel();
+		cancel(false);
 		if (components == null) return;
 		Iterator<FileImportComponent> i = components.values().iterator();
 		while (i.hasNext()) {
@@ -1130,11 +1136,10 @@ public class FileImportComponent
 				deleteImage(); 
 				break;
 			case CANCEL_ID:
-				cancel(); 
+				cancel(true); 
 				break;
 			case BROWSE_ID:
 				browse();
-				break;
 		}
 	}
 	

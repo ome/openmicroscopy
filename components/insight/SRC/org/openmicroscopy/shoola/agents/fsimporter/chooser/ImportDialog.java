@@ -126,6 +126,9 @@ public class ImportDialog
 	/** Bound property indicating that the cancel button is pressed. */
 	public static final String	CANCEL_SELECTION_PROPERTY = "cancelSelection";
 	
+	/** Bound property indicating that the cancel button is pressed. */
+	public static final String	CANCEL_ALL_IMPORT_PROPERTY = "cancelAllImport";
+	
 	/** Bound property indicating to import the selected files. */
 	public static final String	IMPORT_PROPERTY = "import";
 
@@ -171,6 +174,9 @@ public class ImportDialog
 	/** Action id indicating to select the Project/Dataset or Screen.*/
 	private static final int	LOCATION = 9;
 	
+	/** Action id indicating to select the Project/Dataset or Screen.*/
+	private static final int	CANCEL_ALL_IMPORT = 10;
+	
 	/** The title of the dialog. */
 	private static final String TITLE = "Select Data to Import";
 	
@@ -210,6 +216,9 @@ public class ImportDialog
 	
 	/** Button to close the dialog. */
 	private JButton				cancelButton;
+	
+	/** Button to cancel all imports. */
+	private JButton				cancelImportButton;
 	
 	/** Button to import the files. */
 	private JButton				importButton;
@@ -858,6 +867,17 @@ public class ImportDialog
 		cancelButton.setToolTipText("Close the dialog and do not import.");
 		cancelButton.setActionCommand(""+CANCEL);
 		cancelButton.addActionListener(this);
+		
+		cancelButton = new JButton("Close");
+		cancelButton.setToolTipText("Close the dialog and do not import.");
+		cancelButton.setActionCommand(""+CANCEL);
+		cancelButton.addActionListener(this);
+		
+		cancelImportButton = new JButton("Cancel All");
+		cancelImportButton.setToolTipText("Cancel all ongoing imports.");
+		cancelImportButton.setActionCommand(""+CANCEL_ALL_IMPORT);
+		cancelImportButton.addActionListener(this);
+		
 		importButton = new JButton("Import");
 		importButton.setToolTipText("Import the selected files or" +
 				" directories.");
@@ -943,6 +963,8 @@ public class ImportDialog
 		bar.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		//bar.add(resetButton);
 		//bar.add(Box.createHorizontalStrut(20));
+		bar.add(cancelImportButton);
+		bar.add(Box.createHorizontalStrut(5));
 		bar.add(cancelButton);
 		bar.add(Box.createHorizontalStrut(5));
 		bar.add(importButton);
@@ -1375,21 +1397,7 @@ public class ImportDialog
 						JRootPane.FILE_CHOOSER_DIALOG);
 		}
 	}
-	
-    /** Closes the window and disposes. */
-    private void cancelSelection()
-    {
-    	firePropertyChange(CANCEL_SELECTION_PROPERTY, Boolean.valueOf(false), 
-    			Boolean.valueOf(true));
-    	/*
-    	firePropertyChange(CANCEL_SELECTION_PROPERTY, Boolean.valueOf(false), 
-    			Boolean.valueOf(true));
-    	option = CANCEL;
-    	setVisible(false);
-    	dispose();
-    	*/
-    }
-    
+
 	/**
 	 * Helper method returning <code>true</code> if the connection is fast,
 	 * <code>false</code> otherwise.
@@ -1762,7 +1770,8 @@ public class ImportDialog
 				importFiles();
 				break;
 			case CANCEL:
-				cancelSelection();
+				firePropertyChange(CANCEL_SELECTION_PROPERTY,
+						Boolean.valueOf(false), Boolean.valueOf(true));
 				break;
 			case REFRESH:
 				chooser.rescanCurrentDirectory();
@@ -1801,6 +1810,10 @@ public class ImportDialog
 				break;
 			case LOCATION:
 				handleLocationSwitch(evt.getSource());
+				break;
+			case CANCEL_ALL_IMPORT:
+				firePropertyChange(CANCEL_ALL_IMPORT_PROPERTY,
+						Boolean.valueOf(false), Boolean.valueOf(true));
 		}
 	}
 	

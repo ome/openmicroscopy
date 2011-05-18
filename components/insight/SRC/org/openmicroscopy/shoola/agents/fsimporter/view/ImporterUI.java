@@ -102,7 +102,6 @@ class ImporterUI
 	/** The controls bar. */
 	private JComponent controlsBar;
 
-	
 	/**
 	 * Builds and lays out the controls.
 	 * 
@@ -113,8 +112,8 @@ class ImporterUI
 		JPanel p = new JPanel();
 		p.add(new JButton(controller.getAction(ImporterControl.CANCEL_BUTTON)));
 		p.add(Box.createHorizontalStrut(5));
-		p.add(new JButton(controller.getAction(ImporterControl.CLOSE_BUTTON)));
-		p.add(Box.createHorizontalStrut(5));
+		//p.add(new JButton(controller.getAction(ImporterControl.CLOSE_BUTTON)));
+		//p.add(Box.createHorizontalStrut(5));
 		//p.add(new JButton(controller.getAction(ImporterControl.RETRY_BUTTON)));
 		//p.add(Box.createHorizontalStrut(5));
 		p.add(new JButton(controller.getAction(ImporterControl.SEND_BUTTON)));
