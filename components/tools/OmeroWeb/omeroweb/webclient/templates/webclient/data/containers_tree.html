@@ -35,7 +35,7 @@
             {% endfor %}
             
             {% for d in manager.containers.plates %}
-                <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}" {% if d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
+                <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}"><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
             {% endfor %}
             
             <li id='orphaned-0' rel="orphaned" class="jstree-closed"><a href="#">Orphaned images</a></li>
