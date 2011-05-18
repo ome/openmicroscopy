@@ -70,6 +70,9 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, newDatasetName=No
     sizeZ = oldImage.getSizeZ()
     sizeC = oldImage.getSizeC()
     sizeT = oldImage.getSizeT()
+    sizeX = oldImage.getSizeX()
+    sizeY = oldImage.getSizeY()
+    dataType = None
     
     # setup the (z,c,t) list of planes we need
     zctList = []
@@ -78,7 +81,7 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, newDatasetName=No
             if offset['index'] < sizeC:
                 for t in range(sizeT):
                     zOffset = offset['z']
-                    zctList.append( (z+zOffset, offset['index'], t) ) 
+                    zctList.append( (z-zOffset, offset['index'], t) )
 
     print "zctList", zctList
 
@@ -91,33 +94,44 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, newDatasetName=No
 
     def offsetPlane(plane, x, y):
         """ Takes a numpy 2D array and returns the same plane offset by x and y, adding rows and columns of 0 values"""
-        sizeY, sizeX = plane.shape
+        height, width = plane.shape
         dataType = plane.dtype
         if abs(x) > 0:  # shift x by cropping, creating a new array of columns and stacking horizontally
-            newCols = zeros((sizeY,abs(x)), dataType)
+            newCols = zeros((height,abs(x)), dataType)
             x1 = max(0, 0-x)
-            x2 = min(sizeX, sizeX-x)
-            crop = plane[0:sizeY, x1:x2]
+            x2 = min(width, width-x)
+            crop = plane[0:height, x1:x2]
             if x > 0:
                 plane = hstack((newCols, crop))
             else:
                 plane = hstack((crop, newCols))
         # shift y by cropping, creating a new array of rows and stacking vertically
         if abs(y) > 0:
-            newRows = zeros((abs(y),sizeX), dataType)
+            newRows = zeros((abs(y),width), dataType)
             y1 = max(0, 0-y)
-            y2 = min(sizeY, sizeY-y)
-            crop = plane[y1:y2, 0:sizeX]
+            y2 = min(height, height-y)
+            crop = plane[y1:y2, 0:width]
             if y > 0:
                 plane = vstack((newRows, crop))
             else:
                 plane = vstack((crop, newRows))
         return plane
-        
+
     def offsetPlaneGen():
-        planeGen = oldImage.getPrimaryPixels().getPlanes(zctList)
-        for i, plane in enumerate(planeGen):
+        pixels = oldImage.getPrimaryPixels()
+        dt = None
+        # get the planes one at a time - exceptions on getPlane() don't affect subsequent calls (new RawPixelsStore)
+        for i in range(len(zctList)):
             print "generating plane offset for zct:", zctList[i]
+            try:
+                plane = pixels.getPlane(*zctList[i])
+                dt = plane.dtype
+            except:
+                # E.g. the Z-index is out of range - Simply supply an array of zeros.
+                if dt is None:
+                    # if we are on our first plane, we don't know datatype yet...
+                    dt = pixels.getPlane(0,0,0).dtype  # hack! TODO: add method to pixels to supply dtype
+                plane = zeros((sizeY, sizeX), dt)
             z,c,t = zctList[i]
             offsets = offsetMap[c]
             yield offsetPlane(plane, offsets['x'], offsets['y'])
