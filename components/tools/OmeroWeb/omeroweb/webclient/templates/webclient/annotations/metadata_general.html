@@ -95,15 +95,6 @@
                     }
                 });
                 
-                $('#hierarchy').click(function() {
-                    var $tab = $("#hierarchy_tab");
-                    var href = $("#hierarchy-link").attr('href');
-                    if (!hierarchy_load) {
-                        $tab.load(href);
-                        hierarchy_load = true;
-                    }
-                });
-                
                 $("{% for t in manager.tag_annotations %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
                     track: true, 
                     delay: 0, 
@@ -152,6 +143,7 @@
                     return false;
                 });
                 
+                {% if manager.image %}
                 // handle loading of image hierarchy by ajax
                 $("#hierarchy-link").click(function(e){
                     var hierarchy_url = $(this).attr('href');
@@ -160,6 +152,7 @@
                     e.preventDefault();
                     return false;
                 })
+                {% endif %}
 
             });
 
@@ -706,6 +699,7 @@
             </table>            
             <div class="clear"></div>          
 
+            {% if manager.image %}
             <!-- HIERARCHY - Contained In -->
             <h1>Contained in Datasets</h1>
             <div id="hierarchy-pane">
@@ -713,6 +707,7 @@
                 <a id="hierarchy-link" href="{% url load_metadata_hierarchy 'image' manager.image.id %}">Load hierarchy...</a>
                 <img id="hierarchy-spinner" style="display:none" src="{% url webstatic 'images/spinner.gif' %}" />
             </div>
+            {% endif %}
         </div>
         </div>
         {% endif %}
