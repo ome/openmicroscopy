@@ -1233,7 +1233,6 @@ public class EditorUtil
 			notSet.add(LOT_NUMBER);
 		details.put(LOT_NUMBER, s);
 		int i = data.getNominalMagnification();
-		System.err.println("NM:"+i);
 		if (i < 0) {
 			i = 0;
 			notSet.add(NOMINAL_MAGNIFICATION);
