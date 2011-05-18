@@ -7,7 +7,7 @@
 	 xmlns:STD = "http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd"
 	 xmlns:Bin = "http://www.openmicroscopy.org/XMLschemas/BinaryFile/RC1/BinaryFile.xsd"
 	 xmlns:CA = "http://www.openmicroscopy.org/XMLschemas/CA/RC1/CA.xsd"
-	 version = "FC"
+	 version = "FC+TIFF"
 	 elementFormDefault = "qualified">
 	<xs:import namespace = "http://www.openmicroscopy.org/XMLschemas/AnalysisModule/RC1/AnalysisModule.xsd" schemaLocation = "http://www.openmicroscopy.org/XMLschemas/AnalysisModule/RC1/AnalysisModule.xsd"/>
 	<xs:import namespace = "http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd" schemaLocation = "http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd"/>
