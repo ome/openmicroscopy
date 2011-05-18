@@ -33,16 +33,6 @@ register = template.Library()
 logger = logging.getLogger('conditional_tags')
 
 class BaseCalc(object):
-    """
-    src: http://djangosnippets.org/snippets/1350/
-    A smarter {% if %} tag for django templates.
-
-    While retaining current Django functionality, it also handles equality,
-    greater than and less than operators. Some common case examples::
-
-        {% if articles|length >= 5 %}...{% endif %}
-        {% if "ifnotequal tag" != "beautiful" %}...{% endif %}
-    """
     
     def __init__(self, var1, var2=None, negate=False):
         self.var1 = var1
@@ -162,13 +152,6 @@ class IfParser(object):
         return TestVar(value)
 
     def get_bool_var(self):
-        """
-        Returns either a variable by itself or a non-boolean operation (such as
-        ``x == 0`` or ``x < 0``).
-
-        This is needed to keep correct precedence for boolean operations (i.e.
-        ``x or x == 0`` should be ``x or (x == 0)``, not ``(x or x) == 0``).
-        """
         var = self.get_var()
         if not self.at_end():
             op_token = self.get_token(lookahead=True)[0]
@@ -245,21 +228,6 @@ class SmartIfNode(template.Node):
 
 @register.tag('if')
 def smart_if(parser, token):
-    """
-    A smarter {% if %} tag for django templates.
-
-    While retaining current Django functionality, it also handles equality,
-    greater than and less than operators. Some common case examples::
-
-        {% if articles|length >= 5 %}...{% endif %}
-        {% if "ifnotequal tag" != "beautiful" %}...{% endif %}
-
-    Arguments and operators _must_ have a space between them, so
-    ``{% if 1>2 %}`` is not a valid smart if tag.
-
-    All supported operators are: ``or``, ``and``, ``in``, ``=`` (or ``==``),
-    ``!=``, ``>``, ``>=``, ``<`` and ``<=``.
-    """
     bits = token.split_contents()[1:]
     var = TemplateIfParser(parser, bits).parse()
     nodelist_true = parser.parse(('else', 'endif'))
