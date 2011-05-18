@@ -833,9 +833,7 @@ public class ImportDialog
 				if (filter instanceof ComboFileFilter) {
 					combinedFilter = filter;
 				} else {
-					if (hcsFilters.size() <= 
-						ImportableObject.HCS_FILES_EXTENSION.size() && 
-						ImportableObject.isHCSFormat(filter.toString())) {
+					if (ImportableObject.isHCSFormat(filter.toString())) {
 						hcsFilters.add(filter);
 					} else {
 						generalFilters.add(filter);

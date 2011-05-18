@@ -24,24 +24,33 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import javax.swing.event.ChangeListener;
+import loci.formats.FormatReader;
+import loci.formats.in.BDReader;
+import loci.formats.in.CellWorxReader;
+import loci.formats.in.CellomicsReader;
+import loci.formats.in.FlexReader;
+import loci.formats.in.InCell3000Reader;
+import loci.formats.in.InCellReader;
+import loci.formats.in.MIASReader;
+import loci.formats.in.MetamorphTiffReader;
+import loci.formats.in.ScanrReader;
+import loci.formats.in.ScreenReader;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
@@ -70,18 +79,71 @@ public class ImportableObject
 	/** 
 	 * The collection of HCS files extensions to check before importing. 
 	 */
-	public static final List<String> HCS_FILES_EXTENSION;
+	public static final Set<String> HCS_FILES_EXTENSION;
 
+	/** 
+	 * The collection of HCS format. 
+	 */
+	public static final List<String> HCS_DOMAIN;
+	
 	static {
 		DEFAULT_DATASET_NAME = UIUtilities.formatDate(null, 
 				UIUtilities.D_M_Y_FORMAT);
-		HCS_FILES_EXTENSION = new ArrayList<String>();
+		HCS_FILES_EXTENSION = new HashSet<String>();
 		HCS_FILES_EXTENSION.add("flex");
 		HCS_FILES_EXTENSION.add("xdce");
 		HCS_FILES_EXTENSION.add("mea");
 		HCS_FILES_EXTENSION.add("res");
 		HCS_FILES_EXTENSION.add("htd");
 		HCS_FILES_EXTENSION.add("pnl");
+		HCS_DOMAIN = new ArrayList<String>();
+		FormatReader reader = new BDReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new CellomicsReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new CellWorxReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new FlexReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new InCell3000Reader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new InCellReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new MetamorphTiffReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new MIASReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new ScanrReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new ScreenReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+	}
+	
+	/**
+	 * Adds the specified suffixes to the list.
+	 * 
+	 * @param suffixes The values to handle.
+	 */
+	private static void populateExtensions(String[] suffixes)
+	{
+		if (suffixes != null) {
+			String s;
+			for (int i = 0; i < suffixes.length; i++) {
+				s = suffixes[i];
+				if (s != null && s.trim().length() > 0)
+					HCS_FILES_EXTENSION.add(s);
+			}
+		}
 	}
 	
 	/** The collection of files to import. */
@@ -383,7 +445,7 @@ public class ImportableObject
 	 */
 	public static boolean isHCSFormat(String format)
 	{
-		Iterator<String> i = HCS_FILES_EXTENSION.iterator();
+		Iterator<String> i = HCS_DOMAIN.iterator();
 		while (i.hasNext()) {
 			if (format.contains(i.next()))
 				return true;
