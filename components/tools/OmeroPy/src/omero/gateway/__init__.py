@@ -2880,6 +2880,8 @@ def safeCallWrap (self, attr, f): #pragma: no cover
             raise
         except omero.InternalException:
             raise
+        except omero.MissingPyramidException:
+            raise
         except Ice.Exception, x:
             # Failed
             logger.debug( "Ice.Exception (1) on safe call %s(%s,%s)" % (attr, str(args), str(kwargs)))
@@ -2920,6 +2922,9 @@ def safeCallWrap (self, attr, f): #pragma: no cover
             raise
         except omero.ApiUsageException:
             logger.debug("ApiUsageException, bailing out")
+            raise
+        except omero.MissingPyramidException:
+            logger.debug("MissingPyramidException, bailing out")
             raise
         except Ice.UnknownException:
             logger.debug("UnknownException, bailing out")
