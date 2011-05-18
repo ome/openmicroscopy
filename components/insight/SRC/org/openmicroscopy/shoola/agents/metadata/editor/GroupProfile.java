@@ -323,6 +323,7 @@ class GroupProfile
 	protected boolean hasDataToSave()
 	{ 
 		GroupData data = (GroupData) model.getRefObject();
+		if (namePane == null) return false;
 		String v = namePane.getText();
 		v = v.trim();
 		if (!data.getName().equals(v)) return true; 
