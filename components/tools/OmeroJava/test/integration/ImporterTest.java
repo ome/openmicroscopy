@@ -962,8 +962,8 @@ public class ImporterTest
     	Channel channel;
     	List<Channel> channels = p.copyChannels();
     	Iterator<Channel> i = channels.iterator();
-    	assertTrue(xmlChannel.getColor().intValue() == 
-    		XMLMockObjects.DEFAULT_COLOR.getRGB());
+    	//assertTrue(xmlChannel.getColor().intValue() == 
+    	//	XMLMockObjects.DEFAULT_COLOR.getRGB());
     	Color c;
     	while (i.hasNext()) {
 			channel = i.next();
