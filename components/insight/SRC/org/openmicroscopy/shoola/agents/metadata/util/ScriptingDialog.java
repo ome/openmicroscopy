@@ -312,6 +312,7 @@ public class ScriptingDialog
 			param = inputs.get(entry.getKey());
 			param.setValueToPass(c.getValue());
 		}
+		firePropertyChange(RUN_SELECTED_SCRIPT_PROPERTY, null, script);
 		close();
 	}
 	
