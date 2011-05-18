@@ -104,10 +104,10 @@ BOOL_OPERATORS = ('or', 'and')
 
 
 class IfParser(object):
-    error_class = ValueError
 
     def __init__(self, tokens):
         self.tokens = tokens
+        self.error_class = ValueError
 
     def _get_tokens(self):
         return self._tokens
