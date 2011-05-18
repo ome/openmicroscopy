@@ -489,7 +489,6 @@
                     }); 
         		})
         		.bind("remove.jstree", function (e, data) {
-        		    console.log('remove')
                     data.rslt.obj.each(function (i) {
                         ajax_data = new Object();
                         if (($(this).attr("rel") == 'project' || $(this).attr("rel") == 'dataset' || $(this).attr("rel") == 'screen')) {
