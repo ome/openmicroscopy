@@ -1561,6 +1561,8 @@ def get_rois_json(request, imageId, server_id=None):
         shapes = []
         for s in r.copyShapes():
             shape = {}
+            if s is None:   # seems possible in some situations
+                continue
             shape['id'] = s.getId().getValue()
             shape['theT'] = s.getTheT().getValue()
             shape['theZ'] = s.getTheZ().getValue()
@@ -1629,8 +1631,8 @@ def get_rois_json(request, imageId, server_id=None):
             if s.getStrokeWidth() and s.getStrokeWidth().getValue():
                 shape['strokeWidth'] = s.getStrokeWidth().getValue()
             shapes.append(shape)
-            # sort shapes by Z, then T. 
-            shapes.sort(key=lambda x: "%03d%03d"% (x['theZ'],x['theT']) );
+        # sort shapes by Z, then T. 
+        shapes.sort(key=lambda x: "%03d%03d"% (x['theZ'],x['theT']) );
         roi['shapes'] = shapes
         rois.append(roi)
         
