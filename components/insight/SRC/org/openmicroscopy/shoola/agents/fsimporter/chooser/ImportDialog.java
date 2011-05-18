@@ -654,6 +654,7 @@ public class ImportDialog
 	private void initComponents(FileFilter[] filters)
 	{
     	folderAsDatasetBox = new JCheckBox();
+    	folderAsDatasetBox.setBackground(UIUtilities.BACKGROUND_COLOR);
     	folderAsDatasetBox.setText("New Dataset from folder's name");
     	folderAsDatasetBox.addChangeListener(new ChangeListener() {
 			
