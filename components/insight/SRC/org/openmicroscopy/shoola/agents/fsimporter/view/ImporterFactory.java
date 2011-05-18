@@ -75,6 +75,20 @@ public class ImporterFactory
 		return singleton.getImporter(model);
 	}
 	
+	/**
+	 * Notifies the model that the user's group has successfully be modified
+	 * if the passed value is <code>true</code>, unsuccessfully 
+	 * if <code>false</code>.
+	 * 
+	 * @param success 	Pass <code>true</code> if successful, <code>false</code>
+	 * 					otherwise.
+	 */
+	public static void onGroupSwitched(boolean success)
+	{
+		if (!success)  return;
+		singleton.clear();
+	}
+	
 	/** 
 	 * Returns the <code>window</code> menu. 
 	 * 
@@ -136,6 +150,14 @@ public class ImporterFactory
 		comp.initialize();
 		importer = comp;
 		return importer;
+	}
+	
+	/** Clears the tracked component. */
+	private void clear()
+	{
+		importer.removeChangeListener(this);
+		importer.discard();
+		importer = null;
 	}
 	
 	/**

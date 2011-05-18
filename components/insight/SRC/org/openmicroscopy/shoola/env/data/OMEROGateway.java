@@ -1923,6 +1923,7 @@ class OMEROGateway
 		scriptService = null;
 		timeService = null;
 		sharedResources = null;
+		importStore = null;
 	}
 	
 	/**
@@ -3689,6 +3690,10 @@ class OMEROGateway
 			closeService(pixelsStore);
 		if (fileStore != null)
 			closeService(fileStore);
+		if (importStore != null) {
+			importStore.logout();
+			importStore = null;
+		}
 		Collection<StatefulServiceInterfacePrx> l = reServices.values();
 		if (l != null && rendering) {
 			Iterator<StatefulServiceInterfacePrx> i = l.iterator();
