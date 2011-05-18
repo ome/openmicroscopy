@@ -157,6 +157,9 @@ public class ScriptingDialog
 	/** The components to display. */
 	private Map<String, ScriptComponent> components;
 	
+	/** The components to display. */
+	private Map<String, ScriptComponent> componentsAll;
+	
 	/** Used to sort collections. */
 	private ViewerSorter sorter;
 	
@@ -296,18 +299,19 @@ public class ScriptingDialog
 	/** Collects the data and fires a property.*/
 	private void runScript()
 	{
-		Entry entry;
+		Entry entry, e;
 		ScriptComponent c;
-		Iterator i = components.entrySet().iterator();
+		Iterator i = componentsAll.entrySet().iterator();
+		Iterator k;
 		Map<String, ParamData> inputs = script.getInputs();
 		ParamData param;
+		Map<String, Object> values;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			c = (ScriptComponent) entry.getValue();
 			param = inputs.get(entry.getKey());
 			param.setValueToPass(c.getValue());
 		}
-		firePropertyChange(RUN_SELECTED_SCRIPT_PROPERTY, null, script);
 		close();
 	}
 	
@@ -360,7 +364,8 @@ public class ScriptingDialog
 				}
 			}
 		});
-		components = new LinkedHashMap<String, ScriptComponent>(); 
+		components = new LinkedHashMap<String, ScriptComponent>();
+		componentsAll = new LinkedHashMap<String, ScriptComponent>();
 		Map<String, ParamData> types = script.getInputs();
 		if (types == null) return;
 		List <ScriptComponent> results = new ArrayList<ScriptComponent>();
@@ -518,6 +523,7 @@ public class ScriptingDialog
 				if (c.hasChildren() || parent.length() == 0) {
 					results.add(c);
 				} 
+				componentsAll.put(c.getParameterName(), c);
 			}
 		}
 		ScriptComponent key;
