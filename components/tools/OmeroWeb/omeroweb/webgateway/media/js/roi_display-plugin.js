@@ -32,7 +32,6 @@ $.fn.roi_display = function(options) {
         // for keeping track of objects - E.g. de-select all. 
         var shape_objects = new Array();
         var shape_default = {'fill-opacity':0.5, opacity:0.7}
-        var shape_selected = {'fill-opacity':0.25, opacity:1}
         
         // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
         var paper = new ScaleRaphael('roi_canvas', orig_width, orig_height);
@@ -133,6 +132,9 @@ $.fn.roi_display = function(options) {
                         // Add text - NB: text is not 'attached' to shape in any way. 
                         if (newShape != null) {
                             newShape.attr(shape_default);   // sets fill, stroke etc. 
+                            if (shape['type'] == 'PolyLine') {
+                                newShape.attr({'fill-opacity': 0});
+                            }
                             if ((shape['textValue'] != null) && (shape['textValue'].length > 0)) {
                                 // Show text 
                                 if (shape['type'] == 'Label') {
