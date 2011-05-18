@@ -39,6 +39,7 @@
     <!-- Loci -->
     <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/>
     <dependency org="OME" name="loci-common" rev="${versions.bio-formats}"/>
+    <dependency org="OME" name="metakit" rev="${versions.bio-formats}"/>
     <dependency org="loci" name="poi-loci" rev="${versions.bio-formats}"/>
     <dependency org="loci" name="ome-xml" rev="${versions.bio-formats}"/>
     <dependency org="loci" name="mdbtools-java" rev="${versions.bio-formats}"/>
