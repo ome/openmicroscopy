@@ -286,12 +286,13 @@ public class PixelsService extends AbstractFileSystemService
      */
     public PixelBuffer getPixelBuffer(Pixels pixels)
     {
-        final boolean requirePyramid = requiresPixelsPyramid(pixels);
+        final String originalFilePath = getOriginalFilePath(pixels);
+        final boolean requirePyramid =
+            originalFilePath == null? requiresPixelsPyramid(pixels) : true;
         final String pixelsFilePath = getPixelsPath(pixels.getId());
         final File pixelsFile = new File(pixelsFilePath);
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
         final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
-        final String originalFilePath = getOriginalFilePath(pixels);
 
         //
         // 1. If the pixels file exists, then we know that this isn't
