@@ -6657,18 +6657,18 @@ class _FilamentWrapper (_LightSourceWrapper):
     """
 
     def __bstrap__ (self):
-        super(self.__class__, self).__bstrap__()
+        super(_FilamentWrapper, self).__bstrap__()
         self.OMERO_CLASS = 'Filament'
 
 FilamentWrapper = _FilamentWrapper
 _LightSourceClasses[omero.model.FilamentI] = 'FilamentWrapper'
 
-class _ArcWrapper (FilamentWrapper):
+class _ArcWrapper (_FilamentWrapper):
     """
     omero_model_ArcI class wrapper extends FilamentWrapper.
     """
     def __bstrap__ (self):
-        super(self.__class__, self).__bstrap__()
+        super(_ArcWrapper, self).__bstrap__()
         self.OMERO_CLASS = 'Arc'
 
 ArcWrapper = _ArcWrapper
@@ -6679,7 +6679,7 @@ class _LaserWrapper (_LightSourceWrapper):
     omero_model_LaserI class wrapper extends LightSourceWrapper.
     """
     def __bstrap__ (self):
-        super(self.__class__, self).__bstrap__()
+        super(_LaserWrapper, self).__bstrap__()
         self.OMERO_CLASS = 'Laser'
         self._attrs += (
             '#laserMedium',
@@ -6714,7 +6714,7 @@ class _LightEmittingDiodeWrapper (_LightSourceWrapper):
     omero_model_LightEmittingDiodeI class wrapper extends LightSourceWrapper.
     """
     def __bstrap__ (self):
-        super(self.__class__, self).__bstrap__()
+        super(_LightEmittingDiodeWrapper, self).__bstrap__()
         self.OMERO_CLASS = 'LightEmittingDiode'
 
 LightEmittingDiodeWrapper = _LightEmittingDiodeWrapper
