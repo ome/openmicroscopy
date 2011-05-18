@@ -1050,7 +1050,7 @@ public class EditorUtil
     	if (f < 0) {
     		f = 0;
         	notSet.add(PIN_HOLE_SIZE);
-    	} else f = UIUtilities.roundTwoDecimals(f);
+    	};
         details.put(PIN_HOLE_SIZE, f);
         s = data.getFluor();
 		if (s == null || s.trim().length() == 0) 
@@ -1233,11 +1233,13 @@ public class EditorUtil
 			notSet.add(LOT_NUMBER);
 		details.put(LOT_NUMBER, s);
 		int i = data.getNominalMagnification();
+		System.err.println("NM:"+i);
 		if (i < 0) {
 			i = 0;
 			notSet.add(NOMINAL_MAGNIFICATION);
 		}
 		details.put(NOMINAL_MAGNIFICATION, i);
+		System.err.println("NM:"+details.get(NOMINAL_MAGNIFICATION));
 		double f = data.getCalibratedMagnification();
  		if (f < 0) {
  			f = 0;
@@ -1773,31 +1775,31 @@ public class EditorUtil
 		Double f = data.getGain();
 		double v = 0;
 		if (f == null) notSet.add(GAIN);
-		else v = UIUtilities.roundTwoDecimals(f);
+		else v = f.doubleValue();
 		details.put(GAIN, v);
     	f = data.getVoltage();
     	if (f == null) {
     		v = 0;
     		notSet.add(VOLTAGE);
-    	} else v = UIUtilities.roundTwoDecimals(f);
+    	} else v = f.doubleValue();
 		details.put(VOLTAGE, v);
 		f = data.getOffset();
 		if (f == null) {
 			v = 0;
 			notSet.add(OFFSET);
-		} else v = UIUtilities.roundTwoDecimals(f);
+		} else v = f.doubleValue();
 		details.put(OFFSET, v);
         f = data.getZoom();
         if (f == null) {
         	v = 0;
         	notSet.add(ZOOM);
-        } else v = UIUtilities.roundTwoDecimals(f);
+        } else v = f.doubleValue();
         details.put(ZOOM, v);
         f = data.getAmplificationGain();
         if (f == null) {
         	v = 0;
         	notSet.add(AMPLIFICATION);
-        } else v = UIUtilities.roundTwoDecimals(f);
+        } else v = f.doubleValue();
         details.put(AMPLIFICATION, v);
         s = data.getType();
         if (s == null || s.trim().length() == 0) 
@@ -1837,7 +1839,7 @@ public class EditorUtil
         Double f = data.getDetectorSettingsGain();
         
     	if (f != null)  {
-    		details.put(GAIN, UIUtilities.roundTwoDecimals(f));
+    		details.put(GAIN, f);
     		notSet.remove(GAIN);
     	}
     	

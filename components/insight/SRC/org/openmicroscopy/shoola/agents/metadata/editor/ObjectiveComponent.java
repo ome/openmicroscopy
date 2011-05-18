@@ -192,14 +192,20 @@ class ObjectiveComponent
 					area = UIUtilities.createComponent(
 							NumericalTextField.class, null);
 					Number n = (Number) value;
-					if (value instanceof Double) 
+					String rounded = "";
+					if (value instanceof Double) {
+						rounded = ""+UIUtilities.roundTwoDecimals(
+								n.doubleValue());
 						((NumericalTextField) area).setNumberType(
 								Double.class);
-					else if (value instanceof Float) 
+					} else if (value instanceof Float) {
+						rounded = ""+UIUtilities.roundTwoDecimals(
+								n.doubleValue());
 						((NumericalTextField) area).setNumberType(
 								Float.class);
-					((NumericalTextField) area).setText(""+
-							UIUtilities.roundTwoDecimals(n.doubleValue()));
+					} else if (value instanceof Integer)
+						rounded = ""+n.intValue();
+					((NumericalTextField) area).setText(rounded);
 					((NumericalTextField) area).setToolTipText(""+value);
 					((NumericalTextField) area).setEditedColor(
 							UIUtilities.EDITED_COLOR);

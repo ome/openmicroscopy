@@ -175,6 +175,7 @@ class LightSourceComponent
 		Set entrySet = details.entrySet();
 		Entry entry;
 		boolean set;
+		String v;
 		Iterator i = entrySet.iterator();
         while (i.hasNext()) {
         	entry = (Entry) i.next();
@@ -295,11 +296,16 @@ class LightSourceComponent
             if (value instanceof Number) {
             	area = UIUtilities.createComponent(NumericalTextField.class, 
             			null);
-            	if (value instanceof Double) 
+            	if (value instanceof Double) {
+            		v = ""+UIUtilities.roundTwoDecimals(
+            				((Number) value).doubleValue());
             		((NumericalTextField) area).setNumberType(Double.class);
-            	else if (value instanceof Float) 
+            	} else if (value instanceof Float) {
+            		v = ""+UIUtilities.roundTwoDecimals(
+            				((Number) value).doubleValue());
             		((NumericalTextField) area).setNumberType(Float.class);
-            	((NumericalTextField) area).setText(""+value);
+            	} else v = ""+value;
+            	((NumericalTextField) area).setText(v);
             	((NumericalTextField) area).setEditedColor(
             			UIUtilities.EDITED_COLOR);
             } else if (EditorUtil.PUMP.equals(key)) {

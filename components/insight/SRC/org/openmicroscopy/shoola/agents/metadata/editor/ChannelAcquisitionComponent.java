@@ -293,15 +293,21 @@ class ChannelAcquisitionComponent
             	area = modeBox;//parent.replaceCombobox(modeBox);
             } else {
             	if (value instanceof Number) {
-            		area = UIUtilities.createComponent(
-             				 NumericalTextField.class, null);
-            		if (value instanceof Double) 
+            		area = UIUtilities.createComponent(NumericalTextField.class, 
+                			null);
+            		String v = "";
+                	if (value instanceof Double) {
+                		v = ""+UIUtilities.roundTwoDecimals(
+                				((Number) value).doubleValue());
                 		((NumericalTextField) area).setNumberType(Double.class);
-                	else if (value instanceof Float) 
-            			((NumericalTextField) area).setNumberType(Float.class);
-             		 ((NumericalTextField) area).setText(""+value);
-             		((NumericalTextField) area).setEditedColor(
-             				UIUtilities.EDITED_COLOR);
+                	} else if (value instanceof Float) {
+                		v = ""+UIUtilities.roundTwoDecimals(
+                				((Number) value).doubleValue());
+                		((NumericalTextField) area).setNumberType(Float.class);
+                	} else v = ""+value;
+                	((NumericalTextField) area).setText(v);
+                	((NumericalTextField) area).setEditedColor(
+                			UIUtilities.EDITED_COLOR);
             	} else {
             		area = UIUtilities.createComponent(OMETextArea.class, null);
                 	if (value == null || value.equals("")) {
