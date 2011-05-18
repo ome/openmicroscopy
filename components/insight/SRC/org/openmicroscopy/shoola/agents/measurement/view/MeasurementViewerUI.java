@@ -81,6 +81,7 @@ import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureMaskFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -223,6 +224,12 @@ class MeasurementViewerUI
     
     /** The map holding the work-flow objects. */
     private Map<String, String>			workflowsUIMap;
+    
+    /** 
+     * Flag indicating that the measurement was shown before adding 
+     * a new figure.
+     */
+    private Boolean measurementShown;
     
     /**
      * Scrolls to the passed figure.
@@ -986,8 +993,17 @@ class MeasurementViewerUI
     		if (!isDuplicate) {
 	    		MeasurementAttributes.SHOWTEXT.set(figure, 
 	    					roiInspector.isShowText());
-	        	MeasurementAttributes.SHOWMEASUREMENT.set(figure, 
-	        				roiInspector.isShowMeasurement());
+	    		if (figure instanceof MeasureLineFigure) {
+	    			measurementShown = roiInspector.isShowMeasurement();
+	    			MeasurementAttributes.SHOWMEASUREMENT.set(figure, 
+	        				true);
+	    		} else {
+	    			boolean b = roiInspector.isShowMeasurement();
+	    			if (measurementShown != null)
+	    				b = measurementShown.booleanValue();
+	    			MeasurementAttributes.SHOWMEASUREMENT.set(figure, b);
+	    			measurementShown = null;
+	    		}
     		}
     		getDrawingView().unsetDuplicate();
     	} catch (Exception e) {
