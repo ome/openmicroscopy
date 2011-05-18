@@ -197,12 +197,13 @@ def projects (request, eid=None, **kwargs):
         eid = conn.getEventContext().userId
         
     projs = conn.listProjects(eid=eid)
+    projs = list(projs)
     
     if request.REQUEST.get('sort', None) == 'recent':
-        projs = list(projs)
         projs.sort(key=lambda x: x.creationEventDate())
         projs.reverse()
-        
+    else:
+        projs.sort(key=lambda x: x.getName().lower())
     ods = conn.listOrphans("Dataset", eid=eid)
     orphanedDatasets = list(ods)
     
