@@ -354,14 +354,18 @@ public class FileImportComponent
 						ThumbnailData data = (ThumbnailData) image;
 						EventBus bus = 
 							ImporterAgent.getRegistry().getEventBus();
-						bus.post(new ViewImage(new ViewImageObject(
-								data.getImage()), null));
+						if (data.getImage() != null) {
+							bus.post(new ViewImage(new ViewImageObject(
+									data.getImage()), null));
+						}
 					} else if (image instanceof ImageData) {
 						ImageData data = (ImageData) image;
 						EventBus bus = 
 							ImporterAgent.getRegistry().getEventBus();
-						bus.post(new ViewImage(new ViewImageObject(
-								data), null));
+						if (data != null) {
+							bus.post(new ViewImage(new ViewImageObject(
+									data), null));
+						}
 					} else if (image instanceof PlateData) {
 						firePropertyChange(BROWSE_PROPERTY, null, image);
 					}
