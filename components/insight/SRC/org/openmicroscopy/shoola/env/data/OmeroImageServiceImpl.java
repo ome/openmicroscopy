@@ -54,6 +54,7 @@ import omero.model.Pixels;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.RenderingDef;
+import omero.model.TagAnnotation;
 import omero.romio.PlaneDef;
 import omero.sys.Parameters;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -971,12 +972,14 @@ class OmeroImageServiceImpl
 		List<Annotation> list = new ArrayList<Annotation>();
 		List<IObject> l;
 		if (tags != null && tags.size() > 0) {
+			List<TagAnnotationData> values = new ArrayList<TagAnnotationData>();
 			Iterator<TagAnnotationData> i = tags.iterator();
 			TagAnnotationData tag;
 			l = new ArrayList<IObject>();
 			while (i.hasNext()) {
 				tag = i.next();
 				if (tag.getId() > 0) {
+					values.add(tag);
 					list.add((Annotation) tag.asIObject());
 				} else l.add(tag.asIObject());
 			}
@@ -984,9 +987,13 @@ class OmeroImageServiceImpl
 			try {
 				l = gateway.saveAndReturnObject(l, new HashMap());
 				Iterator<IObject> j = l.iterator();
+				Annotation a;
 				while (j.hasNext()) {
-					list.add((Annotation) j.next());
+					a = (Annotation) j.next();
+					values.add(new TagAnnotationData((TagAnnotation) a));
+					list.add(a);
 				}
+				object.setTags(values);
 			} catch (Exception e) {}
 		}
 		IObject link;

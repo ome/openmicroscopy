@@ -1449,6 +1449,9 @@ public class ImportDialog
     	if (count > 0) object.setPixelsSize(size);	
     	firePropertyChange(IMPORT_PROPERTY, null, object);
     	table.removeAllFiles();
+    	tagsMap.clear();
+		tagsPane.removeAll();
+		tagsPane.repaint();
     	//sizeImportLabel.setText(UIUtilities.formatFileSize(0));
     	//setVisible(false);
     	//dispose();
