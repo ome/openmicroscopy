@@ -9,6 +9,7 @@ package ome.services;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,22 +54,30 @@ public class OmeroFilePathResolver implements FilePathResolver
     public String getOriginalFilePath(AbstractFileSystemService service,
             Pixels pixels)
     {
-            List<String> namePathRepo =
-                sql.getPixelsNamePathRepo(pixels.getId());
-            String name = namePathRepo.get(0);
-            String path = namePathRepo.get(1);
-            String repo = namePathRepo.get(2);
-            if (name != null && path != null && repo == null)
-            {
-                // A "null" repo signifies the default repository
-                File f = new File(omeroDataDir);
-                f = new File(f, namePathRepo.get(1));
-                f = new File(f, namePathRepo.get(0));
-                String originalFilePath = f.getAbsolutePath();
-                log.info("Metadata only file, resulting path: " +
-                        originalFilePath);
-                return originalFilePath;
-            }
-            return null;
+        List<String> namePathRepo =
+            sql.getPixelsNamePathRepo(pixels.getId());
+        String name = namePathRepo.get(0);
+        String path = namePathRepo.get(1);
+        String repo = namePathRepo.get(2);
+        if (name != null && path != null && repo == null)
+        {
+            // A "null" repo signifies the default repository
+            File f = new File(omeroDataDir);
+            f = new File(f, namePathRepo.get(1));
+            f = new File(f, namePathRepo.get(0));
+            String originalFilePath = f.getAbsolutePath();
+            log.info("Metadata only file, resulting path: " +
+                    originalFilePath);
+            return originalFilePath;
         }
+        return null;
     }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.FilePathResolver#getPixelsParams(ome.model.core.Pixels)
+     */
+    public Map<String, String> getPixelsParams(Pixels pixels)
+    {
+        return sql.getPixelsParams(pixels.getId());
+    }
+}

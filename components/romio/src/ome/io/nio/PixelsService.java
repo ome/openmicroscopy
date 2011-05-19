@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
@@ -222,7 +223,9 @@ public class PixelsService extends AbstractFileSystemService
         else
         {
             minMaxStore = new PixelsPyramidMinMaxStore(pixels.getSizeC());
-            source = createMinMaxBfPixelBuffer(originalFilePath, minMaxStore);
+            int series = getSeries(pixels);
+            source = createMinMaxBfPixelBuffer(
+                    originalFilePath, series, minMaxStore);
             tileSize = source.getTileSize();
         }
 
@@ -286,12 +289,13 @@ public class PixelsService extends AbstractFileSystemService
      */
     public PixelBuffer getPixelBuffer(Pixels pixels)
     {
-        final boolean requirePyramid = requiresPixelsPyramid(pixels);
+        final String originalFilePath = getOriginalFilePath(pixels);
+        final boolean requirePyramid =
+            originalFilePath == null? requiresPixelsPyramid(pixels) : true;
         final String pixelsFilePath = getPixelsPath(pixels.getId());
         final File pixelsFile = new File(pixelsFilePath);
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
         final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
-        final String originalFilePath = getOriginalFilePath(pixels);
 
         //
         // 1. If the pixels file exists, then we know that this isn't
@@ -336,8 +340,8 @@ public class PixelsService extends AbstractFileSystemService
                 return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath, true);
             } else {
                 if (originalFilePath != null) {
-                    log.info("Using BfPixelBuffer: " + pixelsFilePath);
-                    return createBfPixelBuffer(originalFilePath);
+                    int series = getSeries(pixels);
+                    return createBfPixelBuffer(originalFilePath, series);
                 }
                 log.info("Creating ROMIO Pixel buffer.");
                 createSubpath(pixelsFilePath);
@@ -378,6 +382,25 @@ public class PixelsService extends AbstractFileSystemService
             return null;
         }
         return resolver.getOriginalFilePath(this, pixels);
+    }
+
+    /**
+     * Retrieves the series for a given set of pixels.
+     * @param pixels Set of pixels to return the series for.
+     * @return The series as specified by the pixels parameters or
+     * <code>0</code> (the first series).
+     */
+    protected int getSeries(Pixels pixels)
+    {
+        try
+        {
+            Map<String, String> params = resolver.getPixelsParams(pixels);
+            return Integer.valueOf(params.get("image_no"));
+        }
+        catch (Exception e)  // NumberFormatException, NullPointerException
+        {
+            return 0;
+        }
     }
 
 	/**
@@ -446,11 +469,13 @@ public class PixelsService extends AbstractFileSystemService
      * add a min/max calculator wrapper to the reader stack.
      * @param filePath Non-null.
      * @param store Min/max store to use with the min/max calculator.
+     * @param series series to use
      * @param reader passed to {@link BfPixelBuffer}
      * @return
      */
     protected PixelBuffer createMinMaxBfPixelBuffer(final String filePath,
-                                                    IMinMaxStore store) {
+                                                    final int series,
+                                                    final IMinMaxStore store) {
         try
         {
             IFormatReader reader = new ImageReader();
@@ -458,7 +483,11 @@ public class PixelsService extends AbstractFileSystemService
             reader = new ChannelSeparator(reader);
             MinMaxCalculator calculator = new MinMaxCalculator(reader);
             calculator.setMinMaxStore(store);
-            return new BfPixelBuffer(filePath, calculator);
+            BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, calculator);
+            pixelBuffer.setSeries(series);
+            log.info(String.format("Creating BfPixelBuffer: %s Series: %d",
+                    filePath, series));
+            return pixelBuffer;
         }
         catch (Exception e)
         {
@@ -472,15 +501,21 @@ public class PixelsService extends AbstractFileSystemService
      * Helper method to properly log any exceptions raised by Bio-Formats.
      * @param filePath Non-null.
      * @param reader passed to {@link BfPixelBuffer}
+     * @param series series to use
      * @return
      */
-    protected PixelBuffer createBfPixelBuffer(final String filePath) {
+    protected PixelBuffer createBfPixelBuffer(final String filePath,
+                                              final int series) {
         try
         {
             IFormatReader reader = new ImageReader();
             reader = new ChannelFiller(reader);
             reader = new ChannelSeparator(reader);
-            return new BfPixelBuffer(filePath, reader);
+            BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, reader);
+            pixelBuffer.setSeries(series);
+            log.info(String.format("Creating BfPixelBuffer: %s Series: %d",
+                    filePath, series));
+            return pixelBuffer;
         }
         catch (Exception e)
         {
