@@ -4098,6 +4098,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
+			System.err.println(getRepositoryService().getUsageFraction());
 			if (id < 0)
 				return getRepositoryService().getUsedSpaceInKilobytes();
 			StringBuffer buffer = new StringBuffer();
@@ -4118,6 +4119,7 @@ class OMEROGateway
 			}
 			return count;
 		} catch (Throwable e) {
+			e.printStackTrace();
 			handleException(e, "Cannot retrieve the free space");
 		}
 		return -1;

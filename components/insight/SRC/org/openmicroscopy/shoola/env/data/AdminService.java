@@ -168,25 +168,6 @@ public interface AdminService
 	public String getLoggingName();
 
 	/**
-	 * Returns the free or available space (in Kilobytes) if the passed
-	 * parameter is <code>FREE</code>, returns the used space (in Kilobytes) 
-	 * if the passed parameter is <code>USED</code> on the file system
-	 * including nested sub-directories. Returns <code>-1</code> 
-	 * otherwise.
-	 * 
-	 * @param index One of the following constants: {@link #USED} or 
-	 * 				{@link #FREE}.
-	 * @param id The identifier of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public long getSpace(int index, long id)
-		throws DSOutOfServiceException, DSAccessException;
-	
-	/**
 	 * Loads the group specified by the passed identifier or all available
 	 * groups if <code>-1</code>.
 	 * 
