@@ -73,12 +73,16 @@ REM Try DropBox, Hudson will look for ERROR in the output log.
 REM Must happen from the -start since it runs in the main
 REM icegridnode process
 REM
-set FILE=very_small.d3d%%20with%%20spaces.dv
-del %FILE%
-wget http://hudson.openmicroscopy.org.uk/userContent/%FILE%
+set FILE1=very_small.d3d.dv
+set FILE2=very_small.d3d%%20with%%20spaces.dv
+del %FILE1%
+del %FILE2%
+wget http://hudson.openmicroscopy.org.uk/userContent/%FILE1%
+wget http://hudson.openmicroscopy.org.uk/userContent/%FILE2%
 if errorlevel 1 goto ERROR
-echo omero.fstest.srcFile=very_small.d3d with spaces.dv >> etc\testdropbox.config
+echo omero.fstest.srcFile=%FILE1%;%FILE2%;%FILE1% >> etc\testdropbox.config
 echo omero.fs.watchDir=TestDropBox >> etc\testdropbox.config
+echo omero.fstest.timeout=480 >> etc\testdropbox.config
 if errorlevel 1 goto ERROR
 
 mkdir TestDropBox

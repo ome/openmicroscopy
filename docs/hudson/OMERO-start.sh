@@ -79,9 +79,15 @@ python bin/omero import "$FILE"
 # Must happen from the -start since it runs in the main
 # icegridnode process
 #
-wget 'http://hudson.openmicroscopy.org.uk/userContent/very_small.d3d%20with%20spaces.dv'
-echo omero.fstest.srcFile=very_small.d3d with spaces.dv >> etc/testdropbox.config
+FILE1=very_small.d3d.dv
+FILE2="very_small.d3d with spaces.dv"
+rm -f $FILE1
+rm -f $FILE2
+wget "http://hudson.openmicroscopy.org.uk/userContent/$FILE1"
+wget "http://hudson.openmicroscopy.org.uk/userContent/$FILE2"
+echo omero.fstest.srcFile=$FILE1\;$FILE2\;$FILE1 >> etc/testdropbox.config
 echo omero.fs.watchDir=TestDropBox >> etc/testdropbox.config
+echo omero.fstest.timeout=480 >> etc/testdropbox.config
 
 mkdir -p TestDropBox
 
