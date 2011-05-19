@@ -248,7 +248,7 @@ applying an x, y and z shift to each channel independently. """,
         scriptParams = {}
         for key in client.getInputKeys():
             if client.getInput(key):
-                scriptParams[key] = omero.rtypes.unwrap( client.getInput(key) )
+                scriptParams[key] = client.getInput(key, unwrap=True)
 
         print scriptParams
         

@@ -386,7 +386,7 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
     # process the list of args above. 
     for key in client.getInputKeys():
         if client.getInput(key):
-            scriptParams[key] = unwrap(client.getInput(key))
+            scriptParams[key] = client.getInput(key, unwrap=True)
     log(scriptParams)
     # call the main script - returns a file annotation wrapper
     result = batchImageExport(conn, scriptParams)

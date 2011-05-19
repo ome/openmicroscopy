@@ -271,7 +271,7 @@ assumes that all the ROIs on each Image are the same size.""",
         parameterMap = {}
         for key in client.getInputKeys():
             if client.getInput(key):
-                parameterMap[key] = unwrap( client.getInput(key).getValue() )
+                parameterMap[key] = client.getInput(key, unwrap=True)
 
         print parameterMap
 
