@@ -1998,22 +1998,6 @@ def update_basket(request, **kwargs):
             prod = request.REQUEST.get('productId')
             ptype = request.REQUEST.get('productType')
             if action == 'add':
-                if ptype == 'image':
-                    for item in request.session['imageInBasket']:
-                        if item == long(prod):
-                            rv = "Error: This object is already in the basket"
-                            return HttpResponse(rv)
-                    request.session['imageInBasket'].add(long(prod))
-                #elif ptype == 'dataset':
-                #    for item in request.session['datasetInBasket']:
-                #        if item == prod:
-                #            rv = "Error: This object is already in the basket"
-                #            return HttpResponse(rv)
-                #    request.session['datasetInBasket'].append(prod)
-                else:
-                    rv = "Error: This action is not available"
-                    return HttpResponse(rv)
-            elif action == 'addmany':
                 images = request.REQUEST.getlist('image')
                 #datasets = request.REQUEST.getlist('datasets')
                 for i in images:

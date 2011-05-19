@@ -20,8 +20,8 @@
     <script type="text/javascript">
         $(function() 
             {
-                $("input#annotationButton").hide();
-                $("input#basketButton").hide();
+                $("input#annotationButton").hide().click(function() { multipleAnnotation();});
+                $("input#basketButton").hide().click(function() { addToBasket();});
                 
                 var h = $(window).height()-200;
                 $("div#tree_details").css('height', h);
@@ -34,6 +34,85 @@
 				    else return "ctrl";
 				}
 				
+                var calculateCartTotal = function(total){
+                    $('#cartTotal').html(total); 
+                };
+                
+                var addToBasket = function(selected) {
+                    var productListQuery = "action=add";                    
+                    if (selected != null) {
+                        productListQuery += "&"+selected.attr('id').replace("-","=");
+                    } else {
+                        var datatree = $.jstree._focused();
+                        if (datatree.data.ui.selected.length < 2) {
+                            alert ("Please select at least one element."); 
+                        }
+                        datatree.data.ui.selected.each(function() {
+                            productListQuery += "&"+$(this).attr('id').replace("-","=");
+                        });                        
+                    }                    
+                    $.ajax({
+                        type: "POST",
+                        url: "/webclient/basket/update/", //this.href,
+                        data: productListQuery,
+                        contentType:'html',
+                        success: function(responce){
+                            if(responce.match(/(Error: ([A-z]+))/gi)) {
+                                alert(responce)
+                            } else {
+                                calculateCartTotal(responce);
+                            }
+                        },
+                        error: function(responce) {
+                            alert("Internal server error. Cannot add to basket.")
+                        }
+                    });
+                }
+                            
+                var multipleAnnotation = function(){
+                    var datatree = $.jstree._focused();
+                    if (datatree.data.ui.selected.length < 1) {
+                        alert ("Please select at least one element."); 
+                    }
+                    var productListQuery = "/webclient/metadata_details/multiaction/annotatemany/?"; 
+                    datatree.data.ui.selected.each( function(){
+                        productListQuery += "&"+$(this).attr('id').replace("-","=");
+                    });                    
+                    loadMetadataPanel(productListQuery);
+                }
+                
+                var loadMetadataPanel = function(src, html) {
+                    var iframe = $("div#metadata_details").find('iframe');
+                    var description = $("div#metadata_description");
+                    
+                    $("#right_panel").show();
+                    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                    
+                    if (src!=null) {
+                        description.hide();
+                        iframe.show();
+                    } else {
+                        iframe.hide();
+                        description.show();
+                    }
+                    
+                    if (iframe.length > 0) {
+                        if (html!=null) {
+                            iframe.attr('src', "");
+                            iframe.hide();
+                            description.html(html);
+                        } else  {
+                            description.empty();
+                            iframe.attr('src', src);
+                            iframe.show();
+                        }
+                    } else {
+                        var h = $(window).height()-200;
+                        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details"></iframe>');
+                        $('iframe#metadata_details').load();
+                    }
+                }
+                
 				var loadOtherPanels = function(data) {
 				    var cm_var = new Object();
 				    cm_var['content_details'] = {'url': null, 'rel': null };
@@ -67,22 +146,23 @@
                     }
                     
                     if (cm_var.metadata_details.iframe!==null || cm_var.metadata_details.html!==null) {
-                        $("#right_panel").show();
-                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
                         if (cm_var.metadata_details.iframe!==null) {
-                            $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+cm_var.metadata_details.iframe+'" id="metadata_details" name="metadata_details"></iframe>');
-                            $('iframe#metadata_details').load();
+                            loadMetadataPanel(cm_var.metadata_details.iframe)
                         } 
                         if (cm_var.metadata_details.html!==null) {
-                            $("div#metadata_details").html(cm_var.metadata_details.html);
+                            loadMetadataPanel(null, cm_var.metadata_details.html);
                         }
                     }                        
                     if (cm_var.content_details.url!==null) {
-                        $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-                        $("div#content_details").attr('rel', cm_var.content_details.rel);
-                        $("div#content_details").load(cm_var.content_details.url, function() {
-                            syncPanels(data.inst.get_selected());
-                        });                            
+                        if (cm_var.content_details.rel!=null){
+                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                            $("div#content_details").attr('rel', cm_var.content_details.rel);
+                            $("div#content_details").load(cm_var.content_details.url, function() {
+                                syncPanels(data.inst.get_selected());
+                            });
+                        } else {
+                            $("div#content_details").clean();
+                        }                                                 
                     } 
                 }
                 
@@ -97,13 +177,26 @@
                         if ($.inArray(selectee.attr('id'), toSelect) != -1) {
                             if(!selectee.hasClass('ui-selected')) {
                                 selectee.addClass('ui-selected');
-                                $('input', selectee).attr('checked', true);
                             }
                         } else {
-                            selectee.removeClass('ui-selected');                        
-                            $('input', selectee).attr('checked', false);
+                            selectee.removeClass('ui-selected');
                         }
                     });
+                }
+                
+                var buttonsShowHide = function(selected) {                    
+                    if (selected.length > 1) {
+            	        $("input#annotationButton").show();
+                        $("input#basketButton").show();
+            	    } else {
+            	        if (selected.filter("#experimenter-0").length > 0) {
+                            $("input#annotationButton").hide();
+                            $("input#basketButton").hide();
+                        } else {
+                            $("input#annotationButton").hide();
+                            $("input#basketButton").hide();
+                        }
+            	    }
                 }
                 
                 var jstree = $("#dataTree").jstree({ 
@@ -290,58 +383,7 @@
             			    "select_node":true,
             			    "items" : function(obj){
             			        var config = {};
-            			        
-            			        config["rename"] = {
-                                    "label" : "Rename",
-                                    "icon"  : '{% url webstatic "images/color_line16.png" %}',                                    
-                                    "action": function(obj){ this.rename(obj); }
-                                };
-                                
-                                config["unlink"] = {
-                                    "label" : "Unlink",
-                                    "icon"  : '{% url webstatic "images/cancel16.png" %}',
-                                    "action": function(obj){ if (confirm("Unlink selected object?")) {
-                                        this.cut(obj);
-                                        this.paste($("li#experimenter-0"));
-                                    } }
-                                };
-                                
-                                config["delete"] = {
-                                    "label" : "Delete",
-                                    "icon"  : '{% url webstatic "images/cancel16.png" %}',
-                                    "action": function(obj){ if (confirm("Delete selected object?")) {
-                                        this.remove(obj);
-                                    } }
-                                };
-                                
-                                config["ccp"] = {
-                                    "label"     : "Edit",
-                                    "action"    : false,
-                                    "submenu"   : {
-                                        "cut"   :{
-                                            "label" : "Cut",
-                                            "icon"  : '{% url webstatic "images/cut16.png" %}',
-                                            "action": function(obj) {
-                                                this.cut(obj);
-                                            }
-                                        },
-                                        "copy"  : {
-                                            "label" : "Copy",
-                                            "icon"  : '{% url webstatic "images/eclipse_copy_edit16.png" %}',
-                                            "action": function(obj) {
-                                                this.copy(obj);
-                                            }
-                                        },
-                                        "paste": {
-                                            "label" : "Paste",
-                                            "icon"  : '{% url webstatic "images/eclipse_paste_edit16.png" %}',
-                                            "action": function(obj) {
-                                                this.paste(obj);
-                                            }
-                                        }
-                                    }
-                                };
-                                
+                                                                
                                 config["create"] = {
                                     "label" : "Create new",
                                     "icon"  : '{% url webstatic "images/window_new16.png" %}',
@@ -362,39 +404,100 @@
                                             "action": function (obj) { this.create(obj, null, {"attr":{"rel": "screen"}}); }
                                       	}
                                     }
-                                };                                
+                                };
+                                
+                                config["rename"] = {
+                                    "label" : "Rename",
+                                    "icon"  : '{% url webstatic "images/color_line16.png" %}',                                    
+                                    "action": function(obj){ this.rename(obj); }
+                                };
+                                
+                                config["ccp"] = {
+                                    "label"     : "Edit",
+                                    "action"    : false,
+                                    "submenu"   : {
+                                        "copy"  : {
+                                            "label" : "Copy",
+                                            "icon"  : '{% url webstatic "images/eclipse_copy_edit16.png" %}',
+                                            "action": function(obj) {
+                                                this.copy(obj);
+                                            }
+                                        },
+                                        "paste": {
+                                            "label" : "Paste",
+                                            "icon"  : '{% url webstatic "images/eclipse_paste_edit16.png" %}',
+                                            "action": function(obj) {
+                                                this.paste(obj);
+                                            }
+                                        },                                      
+                                        "cut"   :{
+                                            "label" : "Cut",
+                                            "icon"  : '{% url webstatic "images/cut16.png" %}',
+                                            "action": function(obj) {
+                                                this.cut(obj);
+                                            }
+                                        },
+                                        "unlink"    : {
+                                            "label" : "Unlink",
+                                            "icon"  : '{% url webstatic "images/cancel16.png" %}',
+                                            "action": function(obj){ if (confirm("Unlink selected object?")) {
+                                                this.cut(obj);
+                                                this.paste($("li#experimenter-0"));
+                                            } }
+                                        }
+                                    }
+                                };
+                                
+                                config["delete"] = {
+                                    "label" : "Delete",
+                                    "icon"  : '{% url webstatic "images/cancel16.png" %}',
+                                    "action": function(obj){ if (confirm("Delete selected object?")) {
+                                        this.remove(obj);
+                                    } }
+                                };
+                                
+                                config["basket"] = {
+                                    "label" : "Add to Basket",
+                                    "icon"  : '{% url webstatic "images/basket16.png" %}',                                    
+                                    "action": function(obj){
+                                        addToBasket(obj);
+                                    }
+                                };
                                 
                                 if(obj.attr("rel").indexOf("locked")>=0) {
                                     config["rename"]["_disabled"] = true;
                                     config["delete"]["_disabled"] = true;
                                     config["ccp"]["_disabled"] = true;
                                     config["create"]["_disabled"] = true;
-                                    config["unlink"]["_disabled"] = true;
+                                    config["basket"]["_disabled"] = true;
                                 } else {
                                     if(obj.attr("id").indexOf("orphaned")>=0) {
                                         config["rename"]["_disabled"] = true;
                                         config["delete"]["_disabled"] = true;
                                         config["ccp"]["_disabled"] = true;
                                         config["create"]["_disabled"] = true;
-                                        config["unlink"]["_disabled"] = true;
+                                        config["basket"]["_disabled"] = true;
                                     } else if(obj.attr("id").indexOf("experimenter")>=0) {
                                         config["rename"]["_disabled"] = true;
                                         config["delete"]["_disabled"] = true;
                                         config["ccp"]["_disabled"] = true;
-                                        config["unlink"]["_disabled"] = true;
+                                        config["basket"]["_disabled"] = true;
                                     } else if(obj.attr("id").indexOf("project")>=0) {
                                         config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                         config["ccp"]["submenu"]["copy"]["_disabled"] = true;
+                                        config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                         config["create"]["submenu"]["project"]["_disabled"] = true;
                                         config["create"]["submenu"]["screen"]["_disabled"] = true;
-                                        config["unlink"]["_disabled"] = true;
+                                        config["basket"]["_disabled"] = true;
                                     } else if(obj.attr("id").indexOf("dataset")>=0) {
                                         config["create"]["_disabled"] = true;
+                                        config["basket"]["_disabled"] = true;
                                     } else if(obj.attr("id").indexOf("image")>=0) {
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                         config["create"]["_disabled"] = true;
                                     } else if(obj.attr("id").indexOf("plate")>=0) {
                                         config["create"]["_disabled"] = true;
+                                        config["basket"]["_disabled"] = true;
                                     }
                                 }
                                     
@@ -404,21 +507,23 @@
             			
             	})
             	.bind("deselect_node.jstree", function (e, data) {
+            	    if (data.inst.get_selected().length==0) {
+            	        var p = data.inst._get_parent(data.rslt.obj);
+            	        data.inst.select_node(p);
+            	        loadMetadataPanel('/webclient/metadata_details/'+p.attr("id").split("-")[0]+'/'+p.attr("id").split("-")[1]+'/');
+            	    }
+            	    buttonsShowHide(data.inst.get_selected());
             	    if (data.inst.get_selected().length < 2) {
             	        data.rslt.obj = data.inst.get_selected()
-                        $("input#annotationButton").hide();
-                        $("input#basketButton").hide();
-                        loadOtherPanels(data);
+                        loadOtherPanels(data);                        
                     }
+                    syncPanels(data.inst.get_selected());
         	    })
             	.bind("select_node.jstree", function (e, data) {
+            	    buttonsShowHide(data.inst.get_selected());
             	    if (data.inst.get_selected().length > 1) {
-                        if (data.inst.get_selected().length >= 2) {
-                            $("#right_panel").show();
-                            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                            $("div#metadata_details").html('<p>{% trans "You selected more the one element, please chose one of the actions from the tree toolbar or context menu." %}</p>');
-                            $("input#annotationButton").show();
-                            $("input#basketButton").show();
+            	        if (data.inst.get_selected().length >= 2) {
+                            loadMetadataPanel(null,'<p>{% trans "You selected more the one element, please chose one of the actions from the tree toolbar or context menu." %}</p>');
                         }
                     } else {
                         loadOtherPanels(data);
@@ -496,7 +601,6 @@
           								data.inst.refresh(data.inst._get_parent(data.rslt.oc));
           							}
           						}
-          						$("#analyze").click();
                             }
                         });
                     }); 
@@ -530,11 +634,16 @@
                         });
                     }); 
         		})
+        		.delegate("a", "dblclick", function(e, data) {
+        		    if ($(this).parent().attr('rel')=='image') {
+        		        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+        		    }
+        		    $("#dataTree").jstree("open_node", this);
+        		})
         		
         	});
-        
+        	        
     </script>
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
     
 {% endblock %}
 
@@ -550,8 +659,8 @@
 {% block left %}
     <div class="toolbar">
         <div id="buttons" class="align_left">
-            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "usertags" %}'">
-            <input id="annotationButton" class="button" type="image" src="{% url webstatic "images/knote16.png" %}" alt="Annotate many" title="Annotate many" onclick="manyToAnnotation();"> <input id="basketButton" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();">
+            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "usertags" %}'"> 
+            <input id="annotationButton" class="button" type="image" src="{% url webstatic "images/knotes16.png" %}" alt="Annotate many" title="Annotate many"> <input id="basketButton" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket">
         </div>
     </div>
 
@@ -573,6 +682,7 @@
 {% block right %}
 
 <div id="metadata_details">
+    <div id="metadata_description"></div>
     <iframe width="370" name="metadata_details"></iframe>
 </div>
 

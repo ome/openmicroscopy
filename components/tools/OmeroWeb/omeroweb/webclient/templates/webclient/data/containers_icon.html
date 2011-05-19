@@ -4,6 +4,7 @@
 {% load wikitags %}
     
     <script type="text/javascript" src="{% url webstatic "javascript/ui/jquery.ui.selectable.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function(){
@@ -12,79 +13,113 @@
             
             // double-click handler on image - launches image viewer
             $("#dataIcons img").dblclick(function(event) {
-                var imgId = parseInt( $(this).attr('id') );
-                var url0 = "{% url web_image_viewer 0 %}";  // django-formatted url
-                var url = url0.replace('0', imgId);
-                openPopup(url);
+                openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id') )));
             });
 
             // single click handler on image (container). Selection then update toolbar & metadata pane
             $("#dataIcons li").click(function(event) {
                 handleClickSelection(event);
-                handleSelectionEnd();
-                datatree.deselect_all();
-                datatree._get_children('#'+$('#content_details').attr('rel')).each(function(){
-                    if($(this).attr('id')==("image-"+$(event.target).attr('id'))) {
-                        if(!datatree.is_selected(this)) datatree.select_node(this);
-                    } 
-                });
             });
 
             // handles selection for 'clicks' (not drags) including multi-select for shift and meta keys
-            var primaryIndex = -1;  // index of first selected image
             var handleClickSelection = function(event) {
-
+                
                 var $clickedImage = $(event.target);
-
+                //var thumbs = $("#dataIcons img");
+                //var selIndex = thumbs.index(event.target);
+                
+                var lastSelected = datatree.data.ui.last_selected
                 var thumbs = $("#dataIcons img");
+                
+                var primaryIndex = thumbs.index($('#'+lastSelected.attr('id').split('-')[1]).children().get(1));
                 var selIndex = thumbs.index(event.target);
 
                 if ( event.shiftKey ) {
                     // user tried to select a range, but we don't have a first selection yet...
+                    //if ( primaryIndex == -1 ) {
+                    //    primaryIndex = selIndex;
+                    //    $clickedImage.parent().addClass("ui-selected");
+                    //    return;
+                    //}
+                    // select range
+                    //var start = Math.min(primaryIndex,selIndex);
+                    //var end = Math.max(primaryIndex,selIndex);
+                    //thumbs.slice(start, end+1).parent().addClass("ui-selected");
+                    
+                    var branch = datatree._get_children('#'+$('#content_details').attr('rel'));
+                    
                     if ( primaryIndex == -1 ) {
                         primaryIndex = selIndex;
-                        $clickedImage.parent().addClass("ui-selected");
+                        var selectee = $(branch[selIndex]);
+                        if(!datatree.is_selected(selectee)) {
+                            $clickedImage.parent().addClass("ui-selected");
+                            datatree.select_node(selectee);
+                        }
                         return;
                     }
+                        
                     // select range
                     var start = Math.min(primaryIndex,selIndex);
                     var end = Math.max(primaryIndex,selIndex);
+                    
                     thumbs.slice(start, end+1).parent().addClass("ui-selected");
+                    for (var i = start; i< end+1; i++) {
+                        var selectee = $(branch[i]);
+                        if(!datatree.is_selected(selectee)) datatree.select_node(selectee);
+                    }
+                    
                 }
                 else if (event.metaKey) {
+                    // user wants to add a single image to selection
+                    //if ( primaryIndex == -1 ) {
+                    //    primaryIndex = selIndex;
+                    //}
+                    //$clickedImage.parent().addClass("ui-selected");
+                    
                     // user wants to add a single image to selection
                     if ( primaryIndex == -1 ) {
                         primaryIndex = selIndex;
                     }
-                    $clickedImage.parent().addClass("ui-selected");
+                    
+                    var branch = datatree._get_children('#'+$('#content_details').attr('rel'))
+                    var selectee = $(branch[selIndex]);
+                    
+                    if(!datatree.is_selected(selectee)) {
+                        $clickedImage.parent().addClass("ui-selected");
+                        datatree.select_node(selectee);
+                    } else {
+                        $clickedImage.parent().removeClass("ui-selected");
+                        datatree.deselect_node(selectee);
+                    }
                 }
                 else {
                     // regular click - remove selection
-                    thumbs.parent().removeClass("ui-selected");
-                    $("#dataIcons li input").each(function(){
-                        this.checked = false;
-                    });
+                    //thumbs.parent().removeClass("ui-selected");
+                    //$("#dataIcons li input").each(function(){
+                    //    this.checked = false;
+                    //});
                     // and select a single image
+                    //$clickedImage.parent().addClass("ui-selected");
+                    //primaryIndex = selIndex;
+                    datatree.deselect_all();
+                    thumbs.parent().removeClass("ui-selected");
+                    
+                    var branch = datatree._get_children('#'+$('#content_details').attr('rel'))
+                    var selectee = $(branch[selIndex]);
                     $clickedImage.parent().addClass("ui-selected");
+                    if(!datatree.is_selected(selectee)) datatree.select_node(selectee);
                     primaryIndex = selIndex;
+                    
                 }
-            }
-
-            var handleSelectionEnd = function() {
-                // check all the input check-boxes
-                $("li.ui-selected input").each(function(){
-                    this.checked = true;
-                });
             }
 
             // plugin to handle drag-select of images
             $("ul#dataIcons").selectable({
                 filter: 'li',
                 distance: 2,
-                stop: function(){
+                stop: function(){  
                     var toSelect = new Array();
-                    $(".ui-selected", this).each(function(i){
-                        handleSelectionEnd();
+                    $("li.ui-selected", this).each(function(i){
                         toSelect[i] = "image-"+$(this).attr('id');
                     });
                     
@@ -96,9 +131,6 @@
                     });
                 },
                 start: function(){
-                    $("li input", this).each(function(){
-                        this.checked = false;
-                    });
                 }
             });
             
@@ -118,7 +150,6 @@
         {% for c in manager.containers.images %}
         <li id="{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}><em>{{ c.name }}</em>
             <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
-            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
         </li>
         {% endfor %}
     </ul>

@@ -1,35 +1,3 @@
-function isCheckedById(name) { 
-    var checked = $("input[name='"+name+"']:checked").length; 
-    if (checked == 0) { return false; } else { return true; } 
-}
-
-var calculateCartTotal = function(total)
-{
-    $('#cartTotal').html(total); 
-};
-
-function loadMetadata(src) {
-    var h = $(window).height()-200;
-    $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-    $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details"></iframe>');
-    $('iframe#metadata_details').load();
-}
-
-function manyToAnnotation(){
-    if (!isCheckedById("image") && !isCheckedById("dataset") && !isCheckedById("project") && !isCheckedById("well") && !isCheckedById("plate") && !isCheckedById("screen")) {
-        alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
-    } else { 
-        var productListQuery = "/webclient/metadata_details/multiaction/annotatemany/?";
-        $("input[type='checkbox']:checked").each(function() {
-            if(this.checked) {
-                productListQuery += "&"+this.name+"="+this.id;
-            }
-        });
-        
-        loadMetadata(productListQuery);
-    }    
-}
 
 function manyAddToBasket() {     
     if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
@@ -39,28 +7,7 @@ function manyAddToBasket() {
     }
 };
 
-function toBasket (productType, productId) {
-    if (productId == null) {
-        alert("No object selected.")
-    } else {
-        $.ajax({
-            type: "POST",
-            url: "/webclient/basket/update/", //this.href,
-            data: "action=add&productId="+productId+"&productType="+productType,
-            contentType:'html',
-            success: function(responce){
-                if(responce.match(/(Error: ([A-z]+))/gi)) {
-                    alert(responce)
-                } else {
-                    calculateCartTotal(responce);
-                }
-            },
-            error: function(responce) {
-                alert("Internal server error. Cannot add to basket.")
-            }
-        });
-    }
-};
+
 
 function manyToBasket (productArray) { 
     if(productArray.length==1) {
@@ -482,4 +429,14 @@ function makeDiscussion() {
     src = '/webclient/basket/todiscuss/';
     loadMetadata(src);
     return false;
+}
+
+
+
+function loadMetadata(src) {
+    var h = $(window).height()-200;
+    $("#right_panel").show();
+    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+    $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details"></iframe>');
+    $('iframe#metadata_details').load();
 }
