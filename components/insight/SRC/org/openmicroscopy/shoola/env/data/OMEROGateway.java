@@ -7626,6 +7626,9 @@ class OMEROGateway
 			store.close();
 			return b;
 		} catch (Exception e) {
+			if (e instanceof MissingPyramidException) {
+				return true;
+			}
 			handleException(e, "Cannot start the Raw pixels store.");
 		}
 		return false;
