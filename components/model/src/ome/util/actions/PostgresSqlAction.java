@@ -208,11 +208,6 @@ public class PostgresSqlAction extends SqlAction.Impl {
                 }).get(0);
     }
 
-    public String configValue(String key) {
-        return _jdbc().queryForObject(_lookup("config_value"), //$NON-NLS-1$
-                String.class, key);
-    }
-
     public String dbUuid() {
         return _jdbc().query(_lookup("db_uuid"), //$NON-NLS-1$
                 new RowMapper<String>() {
