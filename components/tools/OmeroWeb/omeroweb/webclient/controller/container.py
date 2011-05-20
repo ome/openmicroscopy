@@ -25,6 +25,7 @@
 import omero
 from omero.rtypes import *
 from django.core.urlresolvers import reverse
+from django.utils.encoding import smart_str
 
 from webclient.controller import BaseController
 
@@ -617,8 +618,8 @@ class BaseContainer(BaseController):
         else:
             format = newFile.content_type
         oFile = omero.model.OriginalFileI()
-        oFile.setName(rstring(str(newFile.name)));
-        oFile.setPath(rstring(str(newFile.name)));
+        oFile.setName(rstring(smart_str(newFile.name)));
+        oFile.setPath(rstring(smart_str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
         oFile.setSha1(rstring("pending"));
         oFile.setMimetype(rstring(str(format)));
@@ -692,8 +693,8 @@ class BaseContainer(BaseController):
         else:
             format = newFile.content_type
         oFile = omero.model.OriginalFileI()
-        oFile.setName(rstring(str(newFile.name)));
-        oFile.setPath(rstring(str(newFile.name)));
+        oFile.setName(rstring(smart_str(newFile.name)));
+        oFile.setPath(rstring(smart_str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
         oFile.setSha1(rstring("pending"));
         oFile.setMimetype(rstring(str(format)));

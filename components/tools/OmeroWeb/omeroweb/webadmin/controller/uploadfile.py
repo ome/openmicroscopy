@@ -25,6 +25,8 @@
 from omero.rtypes import *
 from omero.model import ExperimenterAnnotationLinkI
 
+from django.utils.encoding import smart_str
+
 from webadmin.controller import BaseController
 
 class BaseUploadFile(BaseController):
@@ -39,4 +41,4 @@ class BaseUploadFile(BaseController):
         else:
             format = newFile.content_type
         
-        self.conn.uploadMyUserPhoto(newFile.name, format, newFile.read())
+        self.conn.uploadMyUserPhoto(smart_str(newFile.name), format, newFile.read())
