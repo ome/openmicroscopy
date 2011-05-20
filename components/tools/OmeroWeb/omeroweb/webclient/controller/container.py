@@ -366,7 +366,7 @@ class BaseContainer(BaseController):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
         else:
-            self.conn.getEventContext().userId
+            eid = self.conn.getEventContext().userId
         
         im_list = list(self.conn.listOrphans("Image", eid=eid))
         im_list_with_counters = list()

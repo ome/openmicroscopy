@@ -20,8 +20,8 @@
     <script type="text/javascript">
         $(function() 
             {
-                $("input#annotationButton").hide().click(function() { multipleAnnotation();});
-                $("input#basketButton").hide().click(function() { addToBasket();});
+                $("input#annotationButton").click(function() { multipleAnnotation();});
+                $("input#basketButton").click(function() { addToBasket();});
                 
                 var h = $(window).height()-200;
                 $("div#tree_details").css('height', h);
@@ -128,7 +128,7 @@
                     if (typeof data.rslt.obj.attr('id')!=="undefined" && data.rslt.obj.attr('id') !== false) {
                         if (data.rslt.obj.attr("rel")=="orphaned" && data.rslt.obj.attr("rel").replace("-locked", "")!=$("div#content_details").attr("rel")) {
                 	        cm_var['metadata_details']['html'] = '<p>{% trans "This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container." %}</p>';
-                            cm_var['content_details']['rel'] = data.rslt.obj.attr("rel");
+                            cm_var['content_details']['rel'] = data.rslt.obj.attr("id");
                             cm_var['content_details']['url'] = '/webclient/load_data/'+data.rslt.obj.attr("rel")+'/?view=icon';                            
                         } else if(data.rslt.obj.attr("rel").replace("-locked", "")!="experimenter") {
                             var r = data.rslt.obj.attr("rel").replace("-locked", "");
@@ -137,8 +137,8 @@
                                 cm_var['content_details']['rel'] = data.rslt.obj.attr("id");
                                 cm_var['content_details']['url'] = '/webclient/load_data/'+r+'/'+data.rslt.obj.attr("id").split("-")[1]+'/?view=icon';                                
                             } else if(r=="image") {
-                                var pr = data.rslt.obj.parent().parent().attr("rel")
-                                if (pr=="orphaned" && pr!=$("div#content_details").attr('rel')) {
+                                var pr = data.rslt.obj.parent().parent().attr("id")
+                                if (pr.indexOf("orphaned")>=0 && pr!=$("div#content_details").attr('rel')) {
                                     cm_var['content_details']['rel'] = pr;
                                     cm_var['content_details']['url'] = '/webclient/load_data/'+pr+'/?view=icon';                                    
                                 } else if (pr!="orphaned" && data.rslt.obj.parent().parent().attr("id")!=$("div#content_details").attr('rel')){
@@ -192,19 +192,36 @@
                     });
                 }
                 
-                var buttonsShowHide = function(selected) {                    
-                    if (selected.length > 1) {
-            	        $("input#annotationButton").show();
-                        $("input#basketButton").show();
-            	    } else {
-            	        if (selected.filter("#experimenter-0").length > 0) {
-                            $("input#annotationButton").hide();
-                            $("input#basketButton").hide();
-                        } else {
-                            $("input#annotationButton").hide();
-                            $("input#basketButton").hide();
+                var buttonsShowHide = function(selected) { 
+                    var toolbar_config = new Object();
+                    
+                    if(selected.attr("rel").indexOf("locked")>=0) {            	            
+                        toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false}
+                    } else {
+                        if(selected.attr("id").indexOf("orphaned")>=0) {
+                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false}
+                        } else if(selected.attr("id").indexOf("experimenter")>=0) {
+                            toolbar_config = {"addproject":true, 'adddataset':true, 'addscreen':true, 'rename':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false}
+                        } else if(selected.attr("id").indexOf("project")>=0) {
+                            toolbar_config = {"addproject":false, 'adddataset':true, 'addscreen':false, 'rename':true, 'copy':false, 'cut':false, 'paste':true, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false}
+                        } else if(selected.attr("id").indexOf("dataset")>=0) {
+                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':true, 'copy':true, 'cut':true, 'paste':true, 'unlink':true, 'delete':true, 'annotation':false, 'basket':false}
+                        } else if(selected.attr("id").indexOf("image")>=0) {
+                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':true, 'copy':true, 'cut':true, 'paste':false, 'unlink':true, 'delete':true, 'annotation':false, 'basket':true}
+                        } else if(selected.attr("id").indexOf("plate")>=0) {
+                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':true, 'copy':true, 'cut':true, 'paste':false, 'unlink':true, 'delete':true, 'annotation':false, 'basket':false}
                         }
-            	    }
+                    }
+                    
+                    if (selected.length > 1) toolbar_config['annotation'] = true;
+                    
+                    for (var sIndex in toolbar_config) { 
+                        if (toolbar_config[sIndex]){
+                            $('input#'+sIndex+'Button').removeClass('button-disabled');
+                        } else {
+                            $('input#'+sIndex+'Button').addClass('button-disabled');                            
+                        }
+                    }
                 }
                 
                 var jstree = $("#dataTree").jstree({ 
@@ -431,13 +448,6 @@
                                                 this.copy(obj);
                                             }
                                         },
-                                        "paste": {
-                                            "label" : "Paste",
-                                            "icon"  : '{% url webstatic "images/eclipse_paste_edit16.png" %}',
-                                            "action": function(obj) {
-                                                this.paste(obj);
-                                            }
-                                        },                                      
                                         "cut"   :{
                                             "label" : "Cut",
                                             "icon"  : '{% url webstatic "images/cut16.png" %}',
@@ -445,10 +455,17 @@
                                                 this.cut(obj);
                                             }
                                         },
+                                        "paste": {
+                                            "label" : "Paste",
+                                            "icon"  : '{% url webstatic "images/eclipse_paste_edit16.png" %}',
+                                            "action": function(obj) {
+                                                this.paste(obj);
+                                            }
+                                        },                                      
                                         "unlink"    : {
-                                            "label" : "Unlink",
+                                            "label" : "Remove",
                                             "icon"  : '{% url webstatic "images/cancel16.png" %}',
-                                            "action": function(obj){ if (confirm("Unlink selected object?")) {
+                                            "action": function(obj){ if (confirm("Remove the "+obj.attr('rel')+" from its current context.")) {
                                                 this.cut(obj);
                                                 if (obj.attr('rel') == 'image') this.paste($("li#orphaned-0"))
                                                 else this.paste($("li#experimenter-0"));
@@ -460,7 +477,7 @@
                                 config["delete"] = {
                                     "label" : "Delete",
                                     "icon"  : '{% url webstatic "images/cancel16.png" %}',
-                                    "action": function(obj){ if (confirm("Delete selected object?")) {
+                                    "action": function(obj){ if (confirm("Delete permanently selected object? You will NOT be able to access this object any more.")) {
                                         this.remove(obj);
                                     } }
                                 };
@@ -506,6 +523,7 @@
                                         config["create"]["_disabled"] = true;
                                     } else if(obj.attr("id").indexOf("plate")>=0) {
                                         config["create"]["_disabled"] = true;
+                                        config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                         config["basket"]["_disabled"] = true;
                                     }
                                 }
@@ -516,12 +534,14 @@
             			
             	})
             	.bind("deselect_node.jstree", function (e, data) {
+            	    buttonsShowHide(data.inst.get_selected());
             	    if (data.inst.get_selected().length==0) {
             	        var p = data.inst._get_parent(data.rslt.obj);
-            	        data.inst.select_node(p);
-            	        loadMetadataPanel('/webclient/metadata_details/'+p.attr("id").split("-")[0]+'/'+p.attr("id").split("-")[1]+'/');
+            	        if (p!=-1) {
+            	            data.inst.select_node(p);
+                	        loadMetadataPanel('/webclient/metadata_details/'+p.attr("id").split("-")[0]+'/'+p.attr("id").split("-")[1]+'/');
+            	        }            	        
             	    }
-            	    buttonsShowHide(data.inst.get_selected());
             	    if (data.inst.get_selected().length < 2) {
             	        data.rslt.obj = data.inst.get_selected()
                         loadOtherPanels(data);                        
@@ -529,7 +549,7 @@
                     syncPanels(data.inst.get_selected());
         	    })
             	.bind("select_node.jstree", function (e, data) {
-            	    buttonsShowHide(data.inst.get_selected());
+                    buttonsShowHide(data.inst.get_selected());
             	    if (data.inst.get_selected().length > 1) {
             	        if (data.inst.get_selected().length >= 2) {
                             loadMetadataPanel(null,'<p>{% trans "You selected more the one element, please chose one of the actions from the tree toolbar or context menu." %}</p>');
@@ -580,23 +600,25 @@
                     });
         		})
         		.bind("move_node.jstree", function (e, data) {
-        		    data.rslt.o.each(function (i) {
-        		        if (typeof data.args[3]=="undefined") {
-        		            url = '{% url manage_action_containers "remove" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
-        		            d = { 
-          					    "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1]
-          					};
-        		        } else if (data.args[3]) {
+    		        data.rslt.o.each(function (i) {
+        		        if (data.inst.data.crrm.cp_nodes) {
                             url = '{% url manage_action_containers "paste" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
                             d = { 
           					    "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
           					}
-                        } else {
-                            url = '{% url manage_action_containers "move" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/';
-                            d = { 
-          					    "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1], 
-          						"destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
-          					};                      
+                        } else  {
+                            if (data.rslt.cr.attr('rel')!="orphaned") {
+            		            url = '{% url manage_action_containers "move" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/';
+                                d = { 
+          					        "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1], 
+          						    "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
+          					    };
+            		        } else {
+        		                url = '{% url manage_action_containers "remove" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
+            		            d = { 
+              					    "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1]
+              					};
+          					}
                         }
                         $.ajax({
             		        async : false,
@@ -610,12 +632,11 @@
           							alert(r.errs);
           						}
           						else {
-          						    console.log(data.rslt)
-          							$(data.rslt.oc).attr("id", data.rslt.o.attr('id'));
+          						    $(data.rslt.oc).attr("id", data.rslt.o.attr('id'));
           							if(data.rslt.cy && $(data.rslt.oc).children("UL").length) {
           								data.inst.refresh(data.inst._get_parent(data.rslt.oc));
           							}
-          							data.inst.refresh(data.inst._get_node(data.rslt.cr));
+          							//data.inst.refresh(data.inst._get_node(data.rslt.cr));
           							refreshCenterPanel();
           						}
                             }
@@ -662,6 +683,26 @@
         	        
     </script>
     
+    <script type="text/javascript">
+    $(function () { 
+    	$("#buttons input").click(function () {
+    		switch(this.id) {
+    			case "addprojectButton":
+    			    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'project' } });
+    				break;
+    			case "adddatasetButton":
+    			    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'dataset' } });
+    				break;
+    			case "addscreenButton":
+    			    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'screen' } });
+    				break;
+    			default:
+    				$("#dataTree").jstree(this.id.replace("Button", ""));
+    				break;
+    		}
+    	});
+    });
+    </script>
 {% endblock %}
 
 <!-- Add a user-chooser to the toolbar -->
@@ -676,8 +717,20 @@
 {% block left %}
     <div class="toolbar">
         <div id="buttons" class="align_left">
-            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "usertags" %}'"> 
-            <input id="annotationButton" class="button" type="image" src="{% url webstatic "images/knotes16.png" %}" alt="Annotate many" title="Annotate many"> <input id="basketButton" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket">
+            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "usertags" %}'"> | 
+            
+            <input id="addprojectButton" class="button button-disabled" type="image" src="{% url webstatic "images/folder16.png" %}" alt="Create new project" title="Create new Project" /> 
+            <input id="adddatasetButton" class="button button-disabled" type="image" src="{% url webstatic "images/folder_image16.png" %}" alt="Create new dataset" title="Create new Dataset" /> 
+            <input id="addscreenButton" class="button button-disabled" type="image" src="{% url webstatic "images/folder_screen16.png" %}" alt="Create new screen" title="Create new Screen" /> |
+             
+            <input id="renameButton" class="button button-disabled" type="image" src="{% url webstatic "images/color_line16.png" %}" alt="Rename" title="Rename" />            
+            <input id="copyButton" class="button button-disabled" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" /> 
+            <input id="cutButton" class="button button-disabled" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Cut" title="Cut" /> 
+            <input id="pasteButton" class="button button-disabled" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste" title="Paste" /> 
+            <input id="unlinkButton" class="button button-disabled" type="image" src="{% url webstatic "images/cancel16.png" %}" alt="Remove" title="Remove" /> 
+            <input id="deleteButton" class="button button-disabled" type="image" src="{% url webstatic "images/cancel16.png" %}" alt="Delete" title="Delete" /> 
+            <input id="annotationButton" class="button button-disabled" type="image" src="{% url webstatic "images/knotes16.png" %}" alt="Annotate many" title="Annotate many">
+            <input id="basketButton" class="button button-disabled" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket">
         </div>
     </div>
 
