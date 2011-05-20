@@ -246,16 +246,23 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             long imageLength = pixels.getSizeY();
             long factor = (long) Math.pow(2, level);
             long newTileWidth = Math.round((double) tileWidth / factor);
+            newTileWidth = newTileWidth < 1? 1 : newTileWidth;
             long newTileLength = Math.round((double) tileLength / factor);
+            newTileLength = newTileLength < 1? 1: newTileLength;
             long evenTilesPerRow = imageWidth / tileWidth;
             long evenTilesPerColumn = imageLength / tileLength;
-            long remainingWidth = imageWidth - (evenTilesPerRow * tileWidth);
-            long remainingLength =
-              imageLength - (evenTilesPerColumn * tileLength);
+            long remainingWidth = Math.round(
+                    ((double) (imageWidth - (evenTilesPerRow * tileWidth))) /
+                    factor);
+            remainingWidth = remainingWidth < 1? 1 : remainingWidth;
+            long remainingLength = Math.round(
+              ((double) imageLength - (evenTilesPerColumn * tileLength)) /
+              factor);
+            remainingLength = remainingLength < 1? 1 : remainingLength;
             int newImageWidth = (int) ((evenTilesPerRow * newTileWidth) +
-                Math.round((double) remainingWidth / factor));
+                remainingWidth);
             int newImageLength = (int) ((evenTilesPerColumn * newTileLength) +
-                Math.round((double) remainingLength / factor));
+                remainingLength);
             log.info(String.format("Adding series %d %dx%d",
                     series, newImageWidth, newImageLength));
             createSeries(series, newImageWidth, newImageLength);
