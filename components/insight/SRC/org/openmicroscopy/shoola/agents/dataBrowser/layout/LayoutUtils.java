@@ -118,7 +118,6 @@ public class LayoutUtils
         for (int i = 0; i < comps.length; i++) {
 			c = comps[i];
 			if (c instanceof ImageDisplay) {
-				System.err.println(maxDim+" "+c.getPreferredSize());
 				maxDim = max(maxDim, c.getPreferredSize());
 			}
 		}
@@ -214,7 +213,6 @@ public class LayoutUtils
         for (int i = 0; i < comps.length; i++) 
 			if (comps[i] instanceof ImageDisplay)
 				l.add(comps[i]);
-        System.err.println(maxDim);
 		Dimension dd = node.getSize();
 		if (dd.width == 0 || dd.height == 0 && node.getParentDisplay() != null)
 			dd = node.getParentDisplay().getSize();
