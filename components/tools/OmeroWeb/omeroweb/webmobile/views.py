@@ -463,7 +463,8 @@ def add_comment(request, obj_type, obj_id, **kwargs):
         
     updateService = conn.getUpdateService()
     ann = omero.model.CommentAnnotationI()
-    ann.setTextValue(rstring(str( comment.strip() ) ))
+    comment = unicode(comment).encode("utf-8").strip()
+    ann.setTextValue(rstring(comment))
     ann = updateService.saveAndReturnObject(ann)
     l.setParent(parent)
     l.setChild(ann)
