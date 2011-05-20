@@ -46,7 +46,7 @@ from numpy import zeros, hstack, vstack
 import time
 
 
-def newImageWithChannelOffsets(conn, imageId, channel_offsets, newDatasetName=None):
+def newImageWithChannelOffsets(conn, imageId, channel_offsets, dataset=None):
     """
     Process a single image here: creating a new image and passing planes from
     original image to new image - applying offsets to each channel as we go.
@@ -60,11 +60,8 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, newDatasetName=No
         print "Image not found for ID:", imageId
         return
 
-    dataset = oldImage.getParent()
-    if newDatasetName is not None:
-        dataset = omero.gateway.DatasetWrapper(obj=omero.model.DatasetI())
-        dataset.setName(rstring(newDatasetName))
-        dataset.save()
+    if dataset is None:
+        dataset = oldImage.getParent()
 
     # these dimensions don't change
     sizeZ = oldImage.getSizeZ()
@@ -158,18 +155,33 @@ def processImages(conn, scriptParams):
             channel_offsets.append({'index':index, 'x':x, 'y':y, 'z':z})
     
     print channel_offsets
-    
-    newDatasetName = None
+
+    if len(scriptParams['IDs']) == 0:
+        print "No IDs supplied"
+        return
+
+    dataset = None
     if "New_Dataset_Name" in scriptParams:
+        # create new Dataset...
         newDatasetName = scriptParams["New_Dataset_Name"]
+        dataset = omero.gateway.DatasetWrapper(conn, obj=omero.model.DatasetI())
+        dataset.setName(rstring(newDatasetName))
+        dataset.save()
+        # add to parent Project
+        firstImage = conn.getObject("Image", scriptParams['IDs'][0])
+        project = firstImage.getParent().getParent()
+        link = omero.model.ProjectDatasetLinkI()
+        link.parent = omero.model.ProjectI(project.getId(), False)
+        link.child = omero.model.DatasetI(dataset.getId(), False)
+        conn.getUpdateService().saveAndReturnObject(link)
 
     # need to handle Datasets eventually - Just do images for now
     newImgIds = []
     for iId in scriptParams['IDs']:
-        newImg = newImageWithChannelOffsets(conn, iId, channel_offsets, newDatasetName)
+        newImg = newImageWithChannelOffsets(conn, iId, channel_offsets, dataset)
         if newImg is not None:
             newImgIds.append(newImg.getId())
-    return newImgIds
+    return newImgIds, dataset
     
 def runAsScript():
 
@@ -255,15 +267,22 @@ applying an x, y and z shift to each channel independently. """,
         # wrap client to use the Blitz Gateway
         conn = BlitzGateway(client_obj=client)
         
-        newImgIds = processImages(conn, scriptParams)
-        if len(newImgIds) == 1:
-            newImg = conn.getObject("Image", newImgIds[0])
-            message = "New Image created: %s" % newImg.getName()
-            client.setOutput("Image", robject(newImg._obj))
-        elif len(newImgIds) > 1:
-            message = "%s new Images created: %s" % len(newImgIds)
+        result = processImages(conn, scriptParams)
+        if result is None:
+            message = "Script failed. See 'Info' or 'Error' for more details"
         else:
-            message = "No images created. See 'Info' or 'Error' for more details"
+            newImgIds, dataset = result
+            if len(newImgIds) == 1:
+                newImg = conn.getObject("Image", newImgIds[0])
+                message = "New Image created: %s" % newImg.getName()
+                client.setOutput("Image", robject(newImg._obj))
+            elif len(newImgIds) > 1:
+                message = "%s new Images created" % len(newImgIds)
+            else:
+                message = "No images created. See 'Info' or 'Error' for more details"
+            if dataset is not None:
+                client.setOutput("New Dataset", robject(dataset._obj))
+
         client.setOutput("Message", rstring(message))
     finally:
         client.closeSession()
