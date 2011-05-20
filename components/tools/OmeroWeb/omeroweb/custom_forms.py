@@ -10,6 +10,5 @@ class NonASCIIForm(forms.Form):
         super(NonASCIIForm, self).full_clean()
         
         for name, field in self.cleaned_data.items():
-            print name, type(field), field
             if isinstance(field, basestring):
                 self.cleaned_data[name] = str(smart_str(field))
