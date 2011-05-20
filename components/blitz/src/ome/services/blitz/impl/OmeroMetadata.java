@@ -58,6 +58,7 @@ import ome.xml.model.enums.IlluminationType;
 import ome.xml.model.enums.PixelType;
 import ome.xml.model.primitives.NonNegativeInteger;
 import ome.xml.model.primitives.PositiveInteger;
+import ome.xml.model.primitives.PositiveFloat;
 import omero.RBool;
 import omero.RDouble;
 import omero.RInt;
@@ -412,6 +413,20 @@ public class OmeroMetadata extends DummyMetadata {
         }
     }
 
+    private PositiveFloat toPositiveFloat(RDouble v)
+    {
+        try
+        {
+            Double asDouble = fromRType(v);
+            return asDouble != null? new PositiveFloat(asDouble) : null;
+        }
+        catch (IllegalArgumentException e)
+        {
+            log.warn("Using new PositiveFloat(1.0)!", e);
+            return new PositiveFloat(1.0);
+        }
+    }
+
     @Override
     public String getImageAcquiredDate(int imageIndex)
     {
@@ -498,26 +513,26 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Double getPixelsPhysicalSizeX(int imageIndex)
+    public PositiveFloat getPixelsPhysicalSizeX(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? fromRType(
+        return o != null? toPositiveFloat(
                 o.getPrimaryPixels().getPhysicalSizeX()) : null;
     }
 
     @Override
-    public Double getPixelsPhysicalSizeY(int imageIndex)
+    public PositiveFloat getPixelsPhysicalSizeY(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? fromRType(
+        return o != null? toPositiveFloat(
                 o.getPrimaryPixels().getPhysicalSizeY()) : null;
     }
 
     @Override
-    public Double getPixelsPhysicalSizeZ(int imageIndex)
+    public PositiveFloat getPixelsPhysicalSizeZ(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? fromRType(
+        return o != null? toPositiveFloat(
                 o.getPrimaryPixels().getPhysicalSizeZ()) : null;
     }
 
