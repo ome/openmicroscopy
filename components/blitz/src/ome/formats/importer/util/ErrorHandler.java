@@ -113,6 +113,38 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     }
 
     /**
+     * Similar to {@link UKNOWN_FORMAT} UNREADABLE_FILE specifies that the
+     * file which is being accessed is unreadable (does not exist or canRead
+     * is false), so if the user is specifically saying that the file should
+     * be imported, there may be some underlying issue.
+     *
+     * @author Brian W. Loranger
+     * @author Josh Moore
+     */
+    public static class UNREADABLE_FILE extends EXCEPTION_EVENT {
+        public final String filename;
+        public final Object source;
+
+        /**
+         * @param filename
+         * @param exception
+         * @param source
+         */
+        public UNREADABLE_FILE(String filename, Exception exception, Object source) {
+            super(exception);
+            this.filename = filename;
+            this.source = source;
+        }
+        /* (non-Javadoc)
+         * @see ome.formats.importer.ImportEvent#toLog()
+         */
+        @Override
+        public String toLog() {
+            return super.toLog() + ": "+filename;
+        }
+    }
+
+    /**
      * {@link FILE_EXCEPTION}s are thrown any time in the context of a particular
      * file and otherwise unspecified exception takes place. An example of an
      * exception which receives separate handling is {@link UKNOWN_FORMAT} which

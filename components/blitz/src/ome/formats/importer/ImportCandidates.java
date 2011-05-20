@@ -389,10 +389,17 @@ public class ImportCandidates extends DirectoryWalker
     {
 
         if (file == null) {
+            // Can't do anything about it.
             return null;
         }
 
-        String path = file.getAbsolutePath();
+        final String path = file.getAbsolutePath();
+        if (!file.exists() || !file.canRead()) {
+            safeUpdate(new ErrorHandler.UNREADABLE_FILE(path,
+                new java.io.FileNotFoundException(path), this));
+            return null;
+        }
+
         String format = null;
         String[] usedFiles = new String[] { path };
         long start = System.currentTimeMillis();
