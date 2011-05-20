@@ -230,8 +230,14 @@ def getSplitView(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames, colou
                     re.setRGBA(index,255,255,255,255)    # if not colourChannels - channels are white
                 info = (index, re.getChannelWindowStart(index), re.getChannelWindowEnd(index))
                 log("  Render channel: %s  start: %d  end: %d" % info)
-            projection = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
-            renderedImages.append(projection)
+            if proStart != proEnd:
+                renderedImg = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
+            else:
+                planeDef = omero.romio.PlaneDef()
+                planeDef.z = proStart
+                planeDef.t = timepoint
+                renderedImg = re.renderCompressed(planeDef)
+            renderedImages.append(renderedImg)
             if index < sizeC:
                 re.setActive(index, False)                # turn the channel off again!
     
@@ -248,8 +254,13 @@ def getSplitView(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames, colou
         # get the combined image, using the existing rendering settings 
         channelsString = ", ".join([channelNames[i] for i in mergedIndexes])
         log("  Rendering merged channels: %s" % channelsString)
-        overlay = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
-        
+        if proStart != proEnd:
+            overlay = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
+        else:
+            planeDef = omero.romio.PlaneDef()
+            planeDef.z = proStart
+            planeDef.t = timepoint
+            overlay = re.renderCompressed(planeDef)
         if channelMismatch:
             log(" WARNING channel mismatch: The current image has fewer channels than the primary image.")
         
@@ -418,25 +429,28 @@ def makeSplitViewFigure(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames
         w = font.getsize(channelNames[index]) [0]
         inset = int((width - w) / 2)
         # text is coloured if channel is grey AND in the merged image
-        rgb = (0,0,0)
+        rgba = (0,0,0,255)
         if index in mergedIndexes:
             if not colourChannels:
-                rgb = tuple(mergedColours[index])
-                if rgb == (255,255,255):    # if white (unreadable), needs to be black! 
-                    rgb = (0,0,0)
-        draw.text((px+inset, py), channelNames[index], font=font, fill=rgb)
+                rgba = tuple(mergedColours[index])
+                if rgba == (255,255,255,255):    # if white (unreadable), needs to be black!
+                    rgba = (0,0,0,0)
+        draw.text((px+inset, py), channelNames[index], font=font, fill=rgba)
         px = px + width + spacer
     
     # add text for combined image
     if (mergedNames):
         mergedIndexes.reverse()
+        print "Adding merged channel names..."
         for index in mergedIndexes:
-            print index, channelNames[index]
-            rgb = tuple(mergedColours[index])
+            rgba = tuple(mergedColours[index])
+            print index, channelNames[index], rgba
+            if rgba == (255,255,255, 255):    # if white (unreadable), needs to be black!
+                rgba = (0,0,0,0)
             name = channelNames[index]
             combTextWidth = font.getsize(name)[0]
             inset = int((width - combTextWidth) / 2)
-            draw.text((px + inset, py), name, font=font, fill=rgb)
+            draw.text((px + inset, py), name, font=font, fill=rgba)
             py = py - textHeight  
     else:
         combTextWidth = font.getsize("Merged")[0]
@@ -584,12 +598,12 @@ def splitViewFigure(conn, scriptParams):
         
     mergedNames = scriptParams["Merged_Names"]
     
-    print splitIndexes, "splitIndexes" 
-    print channelNames, "channelNames"
-    print colourChannels, "colourChannels"
-    print mergedIndexes, "mergedIndexes" 
-    print mergedColours, "mergedColours" 
-    print mergedNames, "mergedNames" 
+    print "splitIndexes", splitIndexes
+    print "channelNames", channelNames
+    print "colourChannels", colourChannels
+    print "mergedIndexes", mergedIndexes
+    print "mergedColours", mergedColours
+    print "mergedNames", mergedNames
     fig = makeSplitViewFigure(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, 
                         mergedIndexes, mergedColours, mergedNames, width, height, imageLabels, algorithm, stepping, scalebar, overlayColour)
 
