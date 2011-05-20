@@ -221,7 +221,13 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
     # get the combined image, using the existing rendering settings 
     channelsString = ", ".join([str(i) for i in mergedIndexes])
     log("  Rendering merged channels: %s" % channelsString)
-    merged = re.renderProjectedCompressed(algorithm, tIndex, stepping, proStart, proEnd)
+    if proStart != proEnd:
+        merged = re.renderProjectedCompressed(algorithm, tIndex, stepping, proStart, proEnd)
+    else:
+        planeDef = omero.romio.PlaneDef()
+        planeDef.z = proStart
+        planeDef.t = tIndex
+        merged = re.renderCompressed(planeDef)
     fullMergedImage = Image.open(StringIO.StringIO(merged))
     roiMergedImage = fullMergedImage.crop(box)
     roiMergedImage.load()    # make sure this is not just a lazy copy of the full image
