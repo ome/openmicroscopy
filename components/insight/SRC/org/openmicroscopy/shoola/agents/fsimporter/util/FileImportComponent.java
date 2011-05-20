@@ -726,7 +726,8 @@ public class FileImportComponent
 				fileNameLabel.addMouseListener(adapter);
 				resultLabel.addMouseListener(adapter);
 				addMouseListener(adapter);
-				showContainerLabel = true;
+				showContainerLabel = 
+					(dataset != null || containerFromFolder != null);
 				browseButton.setVisible(showContainerLabel);
 				containerLabel.setVisible(showContainerLabel);
 			}
@@ -743,7 +744,8 @@ public class FileImportComponent
 				resultLabel.setEnabled(false);
 				resultLabel.setVisible(true);
 				resultLabel.addMouseListener(adapter);
-				showContainerLabel = true;
+				showContainerLabel = 
+					(dataset != null || containerFromFolder != null);
 				browseButton.setVisible(showContainerLabel);
 				containerLabel.setVisible(showContainerLabel);
 			} else if (thumbnail.hasPyramid()) {
@@ -751,12 +753,11 @@ public class FileImportComponent
 				resultLabel.setEnabled(false);
 				resultLabel.setVisible(true);
 				resultLabel.addMouseListener(adapter);
-				showContainerLabel = true;
+				showContainerLabel = false;
 				browseButton.setVisible(showContainerLabel);
 				containerLabel.setVisible(showContainerLabel);
 			} else {
 				fileNameLabel.setForeground(ERROR_COLOR);
-
 				resultLabel.setVisible(false);
 				errorButton.setToolTipText(
 						UIUtilities.formatExceptionForToolTip(
@@ -1113,6 +1114,15 @@ public class FileImportComponent
 					evt.getNewValue());
 		} else if (StatusLabel.CONTAINER_FROM_FOLDER_PROPERTY.equals(name)) {
 			containerFromFolder = (DataObject) evt.getNewValue();
+			if (containerFromFolder instanceof DatasetData) {
+				containerLabel.setText(TEXT_IMPORTED);
+				browseButton.setText(
+						((DatasetData) containerFromFolder).getName());
+			} else if (containerFromFolder instanceof ScreenData) {
+				containerLabel.setText(TEXT_IMPORTED);
+				browseButton.setText(
+						((ScreenData) containerFromFolder).getName());
+			}
 		}
 	}
 

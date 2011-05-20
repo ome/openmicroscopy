@@ -1025,7 +1025,7 @@ class OmeroImageServiceImpl
 				if (folder != null && folder instanceof DatasetData) {
 					try {
 						ioContainer = determineContainer((DatasetData) folder, 
-								container, object); 
+								container, object);
 						status.setContainerFromFolder(PojoMapper.asDataObject(
 								ioContainer));
 					} catch (Exception e) {}
