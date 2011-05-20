@@ -201,7 +201,7 @@ def getROImovieView    (re, queryService, pixels, timeShapeMap, mergedIndexes, m
     for t, timepoint in enumerate(timeIndexes):
         roiX, roiY, proStart, proEnd = timeShapeMap[timepoint]
         box = (roiX, roiY, int(roiX+roiWidth), int(roiY+roiHeight))
-        log("  Time-index: %d Time-label: %s  Projecting z range: %d - %d (max Z is %d)" % (timepoint+1, timeLabels[t], proStart+1, proEnd+1, sizeZ))
+        log("  Time-index: %d Time-label: %s  Projecting z range: %d - %d (max Z is %d) of region x: %s y: %s" % (timepoint+1, timeLabels[t], proStart+1, proEnd+1, sizeZ, roiX, roiY))
         
         merged = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
         fullMergedImage = Image.open(StringIO.StringIO(merged))
@@ -596,20 +596,19 @@ def roiFigure(session, commandArgs):
             
     log("Image dimensions for all panels (pixels): width: %d  height: %d" % (width, height))
         
-                        
+    # the channels in the combined image,
     if "Merged_Channels" in commandArgs:
-        mergedIndexes = []    # the channels in the combined image, 
-        for i in commandArgs["Merged_Channels"]:
-            mergedIndexes.append(int(i.getValue())) # value may be a string - no type checking
+        mergedIndexes = [c-1 for c in commandArgs["Merged_Channels"]]  # convert to 0-based
     else:
         mergedIndexes = range(sizeC) # show all
     mergedIndexes.reverse()
         
     mergedColours = {}    # if no colours added, use existing rendering settings.
-    if "Merged_Colours" in commandArgs:
-        for i, c in enumerate(commandArgs["Merged_Colours"]):
-            if c in COLOURS: 
-                mergedColours[i] = COLOURS[c]
+    # Actually, nicer to always use existing rendering settings.
+    #if "Merged_Colours" in commandArgs:
+    #    for i, c in enumerate(commandArgs["Merged_Colours"]):
+    #        if c in COLOURS:
+    #            mergedColours[i] = COLOURS[c]
     
     algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
     if "Algorithm" in commandArgs:
@@ -720,11 +719,11 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/e
     scripts.List("IDs", optional=False, grouping="02",
         description="List of Image IDs").ofType(rlong(0)),
     
-    scripts.List("Merged_Colours", grouping="03",
-        description="A list of colours to apply to merged channels.", values=cOptions),
+    #scripts.List("Merged_Colours", grouping="03",
+    #    description="A list of colours to apply to merged channels.", values=cOptions),
          
-    scripts.List("Merged_Channels", grouping="03.1",
-        description="A list of channel indexes to display").ofType(rint(0)), 
+    scripts.List("Merged_Channels", grouping="03",
+        description="A list of channel indexes to display. E.g. 1, 2, 3").ofType(rint(0)),
         
     scripts.Float("Roi_Zoom", grouping="04", default=1,
         description="How much to zoom the ROI. E.g. x 2. If 0 then ROI panel will zoom to same size as main image"),
