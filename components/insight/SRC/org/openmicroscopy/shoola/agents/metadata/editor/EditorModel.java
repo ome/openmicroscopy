@@ -1609,7 +1609,15 @@ class EditorModel
 			if (data instanceof WellSampleData) {
 				data = ((WellSampleData) ref).getImage();
 			}
-			parent.saveData(toAdd, toRemove, toDelete, metadata, data, asynch);
+			List<AnnotationData> list = null;
+			if (toDelete != null && toDelete.size() > 0) {
+				list = new ArrayList<AnnotationData>();
+				Iterator<AnnotationData> i = toDelete.iterator();
+				while (i.hasNext())
+					list.add(i.next());
+				toDelete.clear();
+			}
+			parent.saveData(toAdd, toRemove, list, metadata, data, asynch);
 		}
 	}
 	

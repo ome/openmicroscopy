@@ -3844,7 +3844,7 @@ class OMEROGateway
 				if (stream != null) stream.close();
 				closeService(store);
 			} catch (Exception ex) {}
-			
+			closeService(store);
 			throw new DSAccessException("Cannot upload the file with path " +
 					file.getAbsolutePath(), e);
 		}

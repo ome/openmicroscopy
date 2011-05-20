@@ -163,16 +163,10 @@ class OmeroMetadataServiceImpl
 		IObject link = gateway.findAnnotationLink(object.getClass(), 
 				       object.getId(), ho.getId().getValue(), exp.getId());
 		if (ho != null && link != null) {
-			gateway.deleteObject(link);
-			//Check that the annotation is not shared.
-			/*
-			List<Long> ids = new ArrayList<Long>();
-			ids.add(ho.getId().getValue());
-			List l = gateway.findAnnotationLinks(object.getClass().getName(), 
-					-1, ids);
-			if (l == null || l.size() == 0)
-				gateway.deleteObject(ho);//oly work if the annotation is not shared
-				*/
+			try {
+				gateway.deleteObject(link);
+			} catch (Exception e) {
+			}
 		}
 	}
 
