@@ -50,6 +50,7 @@ import loci.formats.in.ScreenReader;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -86,16 +87,14 @@ public class ImportableObject
 	 */
 	public static final List<String> HCS_DOMAIN;
 	
+	/** The filter used to exclude extensions.*/
+	public static final TIFFFilter	FILTER;
+	
 	static {
+		FILTER = new TIFFFilter();
 		DEFAULT_DATASET_NAME = UIUtilities.formatDate(null, 
 				UIUtilities.D_M_Y_FORMAT);
 		HCS_FILES_EXTENSION = new HashSet<String>();
-		HCS_FILES_EXTENSION.add("flex");
-		HCS_FILES_EXTENSION.add("xdce");
-		HCS_FILES_EXTENSION.add("mea");
-		HCS_FILES_EXTENSION.add("res");
-		HCS_FILES_EXTENSION.add("htd");
-		HCS_FILES_EXTENSION.add("pnl");
 		HCS_DOMAIN = new ArrayList<String>();
 		FormatReader reader = new BDReader();
 		populateExtensions(reader.getSuffixes());
@@ -430,6 +429,7 @@ public class ImportableObject
 	public static boolean isHCSFile(File f)
 	{
 		if (f == null) return false;
+		if (FILTER.accept(f)) return false;
 		String name = f.getName();
 		if (!name.contains(".")) return false; 
 		String ext = name.substring(name.lastIndexOf('.')+1, name.length());

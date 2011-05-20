@@ -6134,6 +6134,7 @@ class OMEROGateway
 				ic.setCustomImageName(UIUtilities.getDisplayedFileName(
 						file.getAbsolutePath(), depth));
 			}
+			
 			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 			Iterator<Pixels> j;
 			Pixels p;
