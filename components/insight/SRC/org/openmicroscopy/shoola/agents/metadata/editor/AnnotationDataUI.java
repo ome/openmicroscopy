@@ -575,8 +575,6 @@ class AnnotationDataUI
 	private void layoutAttachments(Collection list)
 	{
 		docPane.removeAll();
-		//TableLayout layout = (TableLayout) content.getLayout();
-		//layout.setRow(docIndex, TableLayout.PREFERRED);
 		filesDocList.clear();
 		DocComponent doc;
 		int h = 0;
@@ -889,7 +887,7 @@ class AnnotationDataUI
 						} else {
 							if (fa.getFileName().equals(files[j].getName())) {
 								toReplace.add(fa);
-							}
+							} else toAdd.add(files[j]);
 						}
 					}
 					
