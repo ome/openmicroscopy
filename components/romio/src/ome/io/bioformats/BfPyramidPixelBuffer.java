@@ -251,14 +251,16 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             newTileLength = newTileLength < 1? 1: newTileLength;
             long evenTilesPerRow = imageWidth / tileWidth;
             long evenTilesPerColumn = imageLength / tileLength;
-            long remainingWidth = Math.round(
+            double remainingWidth =
                     ((double) (imageWidth - (evenTilesPerRow * tileWidth))) /
-                    factor);
-            remainingWidth = remainingWidth < 1? 1 : remainingWidth;
-            long remainingLength = Math.round(
+                    factor;
+            remainingWidth = remainingWidth < 1? Math.ceil(remainingWidth) :
+                Math.round(remainingWidth);
+            double remainingLength =
               ((double) imageLength - (evenTilesPerColumn * tileLength)) /
-              factor);
-            remainingLength = remainingLength < 1? 1 : remainingLength;
+              factor;
+            remainingLength = remainingLength < 1? Math.ceil(remainingLength) :
+                Math.round(remainingLength);
             int newImageWidth = (int) ((evenTilesPerRow * newTileWidth) +
                 remainingWidth);
             int newImageLength = (int) ((evenTilesPerColumn * newTileLength) +
