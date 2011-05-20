@@ -406,7 +406,7 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
         }
 
         @Override
-        protected PixelBuffer createBfPixelBuffer(String filePath) {
+        protected PixelBuffer createBfPixelBuffer(String filePath, int series) {
             return get("createBf", bf, null);
         }
 
