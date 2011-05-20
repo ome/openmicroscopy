@@ -83,6 +83,13 @@ public class StatusLabel
 	public static final String CONTAINER_FROM_FOLDER_PROPERTY = 
 		"containerFromFolder";
 	
+	/** Bound property indicating that the status has changed.*/
+	public static final String CANCELLABLE_IMPORT_PROPERTY = 
+		"cancellableImport";
+	
+	/** Bound property indicating that the status has changed.*/
+	public static final String CANCELLED_IMPORT_PROPERTY = "cancelledImport";
+	
 	/** Default text when a failure occurred. */
 	private static final String		FAILURE_TEXT = "failed";
 	
@@ -230,6 +237,7 @@ public class StatusLabel
 		Object[] results = new Object[2];
 		results[0] = file;
 		results[1] = result;
+		cancellable = false;
 		firePropertyChange(FILE_IMPORTED_PROPERTY, null, results);
 	}
 	
@@ -248,14 +256,12 @@ public class StatusLabel
 	public void update(IObservable observable, ImportEvent event)
 	{
 		if (event == null) return;
-		cancellable = false;
 		if (event instanceof ImportEvent.LOADING_IMAGE) {
 			startTime = System.currentTimeMillis();
 			setText(PREPPING_TEXT);
-			cancellable = true;
+			firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
 		} else if (event instanceof ImportEvent.LOADED_IMAGE) {
 			setText("analyzing");
-			cancellable = true;
 		} else if (event instanceof ImportEvent.IMPORT_DONE) {
 			if (numberOfFiles == 1) setText("one file");
 			else if (numberOfFiles == 0) setText("");
@@ -264,7 +270,6 @@ public class StatusLabel
 		} else if (event instanceof ImportEvent.IMPORT_ARCHIVING) {
 			setText("archiving");
 		} else if (event instanceof ImportEvent.DATASET_STORED) {
-			firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
 			ImportEvent.DATASET_STORED ev = (ImportEvent.DATASET_STORED) event;
 			maxPlanes = ev.size.imageCount;
 		} else if (event instanceof ImportEvent.IMPORT_STEP) {
@@ -294,8 +299,12 @@ public class StatusLabel
 			usedFiles = e.usedFiles;
 		} else if (event instanceof ErrorHandler.UNKNOWN_FORMAT) {
 			errorText = "unknown format";
+			cancellable = false;
+			firePropertyChange(CANCELLABLE_IMPORT_PROPERTY, null, this);
 		} else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
 			errorText = "missing required library";
+			cancellable = false;
+			firePropertyChange(CANCELLABLE_IMPORT_PROPERTY, null, this);
 		} else if (event instanceof ImportEvent.IMPORT_THUMBNAILING) {
 			setText("Creating thumbnail");
 		} 

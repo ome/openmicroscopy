@@ -695,6 +695,7 @@ public class FileImportComponent
 		this.image = image;	
 		busyLabel.setBusy(status);
 		busyLabel.setVisible(false);
+		cancelButton.setVisible(false);
 		importCount++;
 		if (parent != null) parent.increaseNumberOfImport();
 		if (image instanceof ImageData) {
@@ -813,6 +814,7 @@ public class FileImportComponent
 			//control = resultLabel;
 		} else if (image instanceof Boolean) {
 			if (!statusLabel.isMarkedAsCancel()) {
+				cancelButton.setVisible(false);
 				if (file.isDirectory()) setStatusText("Folder imported");
 				else setStatusText("File not valid");
 			}
@@ -834,6 +836,7 @@ public class FileImportComponent
 					errorButton.setVisible(true);
 					errorBox.setVisible(true);
 					errorBox.addChangeListener(this);
+					cancelButton.setVisible(false);
 				}
 			}
 		}
@@ -1099,8 +1102,10 @@ public class FileImportComponent
 			if (sl == statusLabel && busyLabel != null) {
 				busyLabel.setBusy(true);
 				busyLabel.setVisible(true);
-				cancelButton.setVisible(false);
 			}
+		} else if (StatusLabel.CANCELLABLE_IMPORT_PROPERTY.equals(name)) {
+			StatusLabel sl = (StatusLabel) evt.getNewValue();
+			cancelButton.setVisible(sl.isCancellable());
 		} else if (StatusLabel.FILE_IMPORTED_PROPERTY.equals(name)) {
 			Object[] results = (Object[]) evt.getNewValue();
 			File f = (File) results[0];
