@@ -284,8 +284,8 @@ def batchImageExport(conn, scriptParams):
         sizeT = img.getSizeT()
         zRange = getZrange(sizeZ, scriptParams)
         tRange = getTrange(sizeT, scriptParams)
-        log("zRange %s" % zRange)
-        log("tRange %s" % tRange)
+        log("zRange %s" % str(zRange))
+        log("tRange %s" % str(tRange))
         savePlanesForImage(conn, img, sizeC, splitCs, mergedCs, channelNames,
             zRange, tRange, greyscale, imgWidth, projectZ=False, format="PNG", folder_name=folder_name)
 
