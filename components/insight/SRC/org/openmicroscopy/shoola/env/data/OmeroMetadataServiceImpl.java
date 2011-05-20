@@ -1014,7 +1014,6 @@ class OmeroMetadataServiceImpl
 					if (ann != null) {
 						removeAnnotation(ann, object);
 						if (ann instanceof TextualAnnotationData) {
-							boolean b = isAnnotationShared(ann, object);
 							if (!isAnnotationShared(ann, object))
 								toDelete.add(ann.asIObject());
 						}
