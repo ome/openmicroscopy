@@ -3255,6 +3255,7 @@ class TreeViewerComponent
 			if (browser != null) {
 				node = browser.getLoggedExperimenterNode();
 				if (node != null) {
+					node.setExpanded(true);
 					node.setToRefresh(refreshTree);
 					browser.getUI().repaint();
 				}

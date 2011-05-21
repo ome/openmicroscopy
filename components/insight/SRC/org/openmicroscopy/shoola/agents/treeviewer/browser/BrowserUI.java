@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 //Java import
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
