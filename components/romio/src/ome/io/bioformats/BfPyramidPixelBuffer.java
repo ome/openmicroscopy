@@ -392,7 +392,6 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
                 throw new RuntimeException(e);
             }
         }
-        log.warn("Delegate is: " + delegate);
         return delegate;
     }
 
