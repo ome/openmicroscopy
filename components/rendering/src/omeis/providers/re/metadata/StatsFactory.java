@@ -12,14 +12,23 @@ package omeis.providers.re.metadata;
 // Third-party libraries
 
 // Application-internal dependencies
+import java.awt.Dimension;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
+import ome.io.nio.TileLoopIteration;
+import ome.io.nio.Utils;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.stats.StatsInfo;
+import omeis.providers.re.Renderer;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.PlaneFactory;
+import omeis.providers.re.data.RegionDef;
 import omeis.providers.re.quantum.QuantumStrategy;
 
 /**
@@ -38,6 +47,9 @@ import omeis.providers.re.quantum.QuantumStrategy;
  * @since OME2.2
  */
 public class StatsFactory {
+
+    /** The logger for this particular class */
+    private static Log log = LogFactory.getLog(StatsFactory.class);
 
 	/** The minimum range. */
 	private static final int RANGE_RGB = 255;
@@ -85,7 +97,9 @@ public class StatsFactory {
         double sizeBin = (gMax - gMin) / NB_BIN;
         double epsilon = sizeBin / EPSILON;
         int[] totals = new int[NB_BIN];
-        locationStats = new double[NB_BIN];
+        if (locationStats == null) {
+            locationStats = new double[NB_BIN];
+        }
         /*
          * Segment[] segments = new Segment[NB_BIN]; for (int i = 0; i < NB_BIN;
          * i++) { segments[i] = new Segment( gMin + i * sizeBin, 0, gMin + (i +
@@ -222,12 +236,11 @@ public class StatsFactory {
      * @param index The channel index.
      * @throws PixMetadataException
      */
-    public void computeLocationStats(Pixels metadata, PixelBuffer pixelsData,
-            PlaneDef pd, int index) {
-        int sizeX = metadata.getSizeX().intValue();
-        int sizeY = metadata.getSizeY().intValue();
+    public void computeLocationStats(final Pixels metadata,
+            final PixelBuffer pixelsData, final PlaneDef pd, final int index) {
+        log.debug("Computing location stats for Pixels:" + metadata.getId());
         Channel channel = metadata.getChannel(index);
-        StatsInfo stats = channel.getStatsInfo();
+        final StatsInfo stats = channel.getStatsInfo();
         if (stats == null)
         {
         	throw new ResourceError("Pixels set is missing statistics for " +
@@ -236,16 +249,32 @@ public class StatsFactory {
         }
         double gMin = stats.getGlobalMin().doubleValue();
         double gMax = stats.getGlobalMax().doubleValue();
-        Plane2D plane2D = PlaneFactory.createPlane(pd, index, metadata,
-                pixelsData);
-        
+        Dimension tileSize = pixelsData.getTileSize();
         if (gMax-gMin <= RANGE_RGB) {
-        	inputEnd = gMax;
-        	inputStart = gMin;
-        } else {
-        	computeBins(plane2D, stats, sizeY, sizeX);
+            inputEnd = gMax;
+            inputStart = gMin;
+            return;
         }
-
+        Utils.forEachTile(new TileLoopIteration() {
+            public void run(int z, int c, int t, int x, int y, int tileWidth,
+                    int tileHeight, int tileCount)
+            {
+                if (z == 1 || c == 1 || t == 1)
+                {
+                    // We're not going through the entire pixel buffer
+                    return;
+                }
+                RegionDef regionDef = new RegionDef();
+                regionDef.setX(x);
+                regionDef.setY(y);
+                regionDef.setWidth(tileWidth);
+                regionDef.setHeight(tileHeight);
+                pd.setRegion(regionDef);
+                Plane2D plane2D = PlaneFactory.createPlane(pd, index, metadata,
+                        pixelsData);
+                computeBins(plane2D, stats, tileHeight, tileWidth);
+            }
+        }, pixelsData, (int) tileSize.getWidth(), (int) tileSize.getHeight());
     }
 
     /**
