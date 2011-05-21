@@ -580,9 +580,15 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			     toSave.add(newSettings);
 			 }
     			 imageIds.add(p.getImage().getId());
-			} catch (Exception e) {
+			} catch (ResourceError e) {
 				//Exception has already been written to log file.
-			}
+            } catch (MissingPyramidException e) {
+                log.warn("Missing pyramid, not resetting settings for Image:"
+                         + p.getImage().getId());
+            } catch (Exception e) {
+                log.warn("Exception while resetting settings for Image:"
+                         + p.getImage().getId(), e);
+            }
     	}
         StopWatch s2 = new CommonsLogStopWatch(
 			"omero.resetDefaultsInSet.saveAndReturn");
