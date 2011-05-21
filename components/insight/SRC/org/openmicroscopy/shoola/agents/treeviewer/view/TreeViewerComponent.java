@@ -224,6 +224,32 @@ class TreeViewerComponent
 					view.removeAllFromWorkingPane();
 					view.displayBrowser(db);
 				}
+			} else {
+				if (DataBrowserFactory.hasBeenDiscarded(display)) {
+					if (display.isChildrenLoaded() 
+							&& display.containsImages()) {
+						List l = display.getChildrenDisplay();
+        				if (l != null) {
+        					Set s = new HashSet();
+        					Iterator i = l.iterator();
+        					TreeImageDisplay child;
+    						//copy the node.
+        					while (i.hasNext()) {
+        						child = (TreeImageDisplay) i.next();
+        						s.add(child.getUserObject());
+        					}
+    						setLeaves((TreeImageSet) display, s);
+    						db = DataBrowserFactory.getDataBrowser(display);
+    						list = browser.getSelectedDataObjects();
+    						if (list != null && list.size() == 1) {
+    							app = TreeViewerFactory.getApplications(
+    							model.getObjectMimeType(list.get(0)));
+    						}
+    						db.setSelectedNodes(list, app);
+        						
+        				}
+					}
+				}
 			}
 			return;
 		}
