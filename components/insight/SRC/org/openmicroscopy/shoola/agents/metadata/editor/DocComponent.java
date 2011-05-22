@@ -788,14 +788,26 @@ class DocComponent
 			label.setToolTipText(formatTootTip(tag));
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
 		} else if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-			File[] files = (File[]) evt.getNewValue();
-			File folder = files[0];
-			if (folder == null)
-				folder = UIUtilities.getDefaultFolder();
-			UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
 			if (data == null) return;
 			FileAnnotationData fa = (FileAnnotationData) data;
 			OriginalFile f = (OriginalFile) fa.getContent();
+			File folder;
+			Object o = evt.getNewValue();
+			if (o instanceof String) {
+				String path = (String) o;
+				if (!path.endsWith(File.separator)) {
+					path += File.separator;
+				}
+				path += fa.getFileName();
+				folder = new File(path);
+			} else {
+				File[] files = (File[]) o;
+				folder = files[0];
+			}
+			if (folder == null)
+				folder = UIUtilities.getDefaultFolder();
+			UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+			
 			IconManager icons = IconManager.getInstance();
 			
 			DownloadActivityParam activity = new DownloadActivityParam(f,

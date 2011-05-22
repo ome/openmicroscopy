@@ -360,7 +360,7 @@ public class UserNotifierImpl
 			DownloadActivityParam p = (DownloadActivityParam) activity;
 			register = (p.getApplicationData() == null);
 			if (register) {
-				if (!canWriteInFolder(p.getFolder()))
+				if (!canWriteInFolder(p.getFolder().getParentFile()))
 					return;
 			}
 			comp = new DownloadActivity(this, manager.getRegistry(), p);
