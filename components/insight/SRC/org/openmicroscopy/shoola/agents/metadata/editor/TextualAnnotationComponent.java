@@ -46,8 +46,8 @@ import javax.swing.JPopupMenu;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import pojos.TextualAnnotationData;
 
 /** 
@@ -75,7 +75,7 @@ class TextualAnnotationComponent
 	private static final int DELETE = 1;
 	
 	/** Area displaying the textual annotation. */
-	private MultilineLabel 			area;
+	private OMEWikiComponent 		area;
 	
 	/** The annotation to handle. */
 	private TextualAnnotationData	data;
@@ -107,9 +107,10 @@ class TextualAnnotationComponent
 	/** Initializes the UI components. */
 	private void initialize()
 	{
-		area = new MultilineLabel();
-        area.setEditable(false);
+		area = new OMEWikiComponent(false);
+        area.setEnabled(false);
         area.setOpaque(true);
+		area.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
         area.setText(data.getText());
 		IconManager icons = IconManager.getInstance();
 		if (model.isUserOwner(data)) {
@@ -212,7 +213,7 @@ class TextualAnnotationComponent
 	 */
 	void setAreaColor(Color color)
 	{
-		area.setOriginalBackground(color);
+		//area.setOriginalBackground(color);
 		setBackground(color);
 		Component[] components = getComponents();
 		for (int i = 0; i < components.length; i++) {
@@ -221,6 +222,8 @@ class TextualAnnotationComponent
 		controlsBar.setBackground(color);
 		if (menuButton != null)
 			menuButton.setBackground(color);
+		//Color.white
+		area.setBackground(color);//UIUtilities.BACKGROUND_COLOR);
 	}
 
 	/** 

@@ -212,7 +212,6 @@ public class OMEWikiComponent
 	{
 		defaultText = "";
 		pane = new OMEEditPane(this, formatters);
-		pane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		installDefaultAction();
 		if (toolbar) {
 			toolBar = new JToolBar();
@@ -223,6 +222,7 @@ public class OMEWikiComponent
 			while (b.hasNext()) 
 				toolBar.add(b.next());
 		}
+		setBackground(UIUtilities.BACKGROUND);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -240,7 +240,6 @@ public class OMEWikiComponent
 			p.add(Box.createVerticalStrut(2));
 			add(p, BorderLayout.NORTH);
 		}
-		pane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		add(pane, BorderLayout.CENTER);
 	}
 	
