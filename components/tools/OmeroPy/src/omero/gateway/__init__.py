@@ -408,7 +408,7 @@ class BlitzObjectWrapper (object):
         @rtype:     Boolean
         @return:    see above
         """
-        return self.isOwned() or (not self.isPrivate() and not self.isReadOnly()):
+        return self.isOwned() or (not self.isPrivate() and not self.isReadOnly())
     
     def isPublic(self):
         """
