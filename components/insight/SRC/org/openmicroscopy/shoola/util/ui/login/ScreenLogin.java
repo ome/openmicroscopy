@@ -531,7 +531,7 @@ public class ScreenLogin
 		UIUtilities.opacityCheck(login);
 		cancel = new JButton("Quit");
 		cancel.setMnemonic('Q');
-		cancel.setToolTipText("Quit the Application.");
+		cancel.setToolTipText("Cancel Login.");
 		setButtonDefault(cancel);
 		UIUtilities.opacityCheck(cancel);
 		configButton = new JButton();

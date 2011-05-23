@@ -355,7 +355,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             view.setBounds((screenSize.width-d.width)/2,
                     (screenSize.height-totalHeight)/2, 
                     dlogin.width, dlogin.height);
-            view.setQuitButtonText("Canel");
+            view.setQuitButtonText("Cancel");
         }
         view.addPropertyChangeListener((PropertyChangeListener) viewer);
         view.addWindowStateListener((WindowStateListener) viewer);
