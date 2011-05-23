@@ -145,7 +145,6 @@ public class EnumTemplate
 		ArrayList<String> optionList = new ArrayList<String>();
 		
 		String[] ops = options.split(",");
-		String optionString = "";
 		String item;
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0; i < ops.length; i++) {
@@ -157,7 +156,7 @@ public class EnumTemplate
 				buffer.append(item);
 			}
 		}
-		
+		String optionString = buffer.toString();
 		return optionString;
 	}
 	/**
