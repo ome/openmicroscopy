@@ -276,6 +276,15 @@ public class ManageObjectAction
 		}
     }
     
+    /** Handles the property change.*/
+    private void handlePropertyChange()
+    {
+    	Browser browser = model.getBrowser();
+    	if (browser != null) {
+    		onDisplayChange(browser.getLastSelectedDisplay());
+    	}
+    }
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -289,7 +298,17 @@ public class ManageObjectAction
 		icons = IconManager.getInstance();
 		checkIndex(index);
 		this.index = index;
-		model.addPropertyChangeListener(this);
+		model.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+		    	if (DataBrowser.COPY_RND_SETTINGS_PROPERTY.equals(name) ||
+		    		DataBrowser.ITEMS_TO_COPY_PROPERTY.equals(name) || 
+		        	DataBrowser.SELECTION_UPDATED_PROPERTY.equals(name)) {
+		    		handlePropertyChange();
+		    	}
+			}
+		});
 	}
 	
 	/**
@@ -323,12 +342,12 @@ public class ManageObjectAction
     	String name = evt.getPropertyName();
     	if (DataBrowser.COPY_RND_SETTINGS_PROPERTY.equals(name) ||
     		DataBrowser.ITEMS_TO_COPY_PROPERTY.equals(name) || 
-    		Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY.equals(
-        			name) || 
-        	DataBrowser.SELECTION_UPDATED_PROPERTY.equals(name)) {
+        	DataBrowser.SELECTION_UPDATED_PROPERTY.equals(name) ||
+        	Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY.equals(name)) {
     		Browser browser = model.getBrowser();
-        	if (browser != null)
+        	if (browser != null) {
         		onDisplayChange(browser.getLastSelectedDisplay());
+        	}
     	}
     }
     
