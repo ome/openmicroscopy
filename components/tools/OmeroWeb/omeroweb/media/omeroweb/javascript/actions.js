@@ -9,16 +9,13 @@ var calculateCartTotal = function(total){
 
 var addToBasket = function(selected) {
     var productListQuery = "action=add";                    
-    if (selected != null) {
-        productListQuery += "&"+selected.attr('id').replace("-","=");
-    } else {
-        var datatree = $.jstree._focused();
-        if (datatree.data.ui.selected.length < 2) {
-            alert ("Please select at least one element."); 
-        }
-        datatree.data.ui.selected.each(function() {
+    if (selected != null && selected.length > 0) {
+        selected.each(function() {
             productListQuery += "&"+$(this).attr('id').replace("-","=");
         });                        
+    } else {
+        alert ("Please select at least one element."); 
+        return
     }                    
     $.ajax({
         type: "POST",

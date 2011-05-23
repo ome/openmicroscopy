@@ -21,8 +21,7 @@
     <script type="text/javascript">
         $(function() 
             {
-                $("input#basketButton").click(function() { addToBasket();});
-                
+
                 var h = $(window).height()-200;
                 $("div#tree_details").css('height', h);
                 $("div#metadata_details").css('height', h+31);
@@ -404,8 +403,8 @@
                                 config["basket"] = {
                                     "label" : "Add to Basket",
                                     "icon"  : '{% url webstatic "images/basket16.png" %}',                                    
-                                    "action": function(obj){
-                                        addToBasket(obj);
+                                    "action": function(){
+                                        addToBasket(this.get_selected());
                                     }
                                 };
                                 
@@ -468,7 +467,9 @@
                     syncPanels(data.inst.get_selected());
         	    })
             	.bind("select_node.jstree", function (e, data) {
-                    buttonsShowHide(data.inst.get_selected());
+            	    data.inst.open_node(data.inst.get_selected());
+            	    
+            	    buttonsShowHide(data.inst.get_selected());
             	    if (data.inst.get_selected().length > 1) {
             	        if (data.inst.get_selected().length >= 2) {
 		            loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% url webstatic "images/knotes16.png" %}"/> Batch Annotate</a></p>');
@@ -619,8 +620,11 @@
     			case "addscreenButton":
     			    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'screen' } });
     				break;
+    			case "basketButton":
+    			    addToBasket($.jstree._focused().get_selected());
+    				break;
     			default:
-    				$("#dataTree").jstree(this.id.replace("Button", ""));
+    			    $("#dataTree").jstree(this.id.replace("Button", ""));
     				break;
     		}
     	});
