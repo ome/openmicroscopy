@@ -838,8 +838,6 @@ class PropertiesUI
         	add(Box.createVerticalStrut(5));
         	add(layoutScreenContent((ScreenData) refObject));
         }
-        pane.getVerticalScrollBar().setValue(
-    			pane.getVerticalScrollBar().getMinimum());
         if (data == null) return;
         add(Box.createVerticalStrut(5));
     	add(buildContentPanel(EditorUtil.transformPixelsData(data), img));
