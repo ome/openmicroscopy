@@ -88,6 +88,7 @@ class QuotaCanvas
 	 */
 	private void formatToolTip(long size)
 	{
+		if (quota == null) return;
 		long free = quota.getAvailableSpace();
 		//long used = quota.getUsedSpace();
 		List<String> tips = new ArrayList<String>();
