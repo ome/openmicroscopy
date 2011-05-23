@@ -21,7 +21,6 @@
     <script type="text/javascript">
         $(function() 
             {
-                $("input#annotationButton").click(function() { multipleAnnotation();});
                 $("input#basketButton").click(function() { addToBasket();});
                 
                 var h = $(window).height()-200;
@@ -472,7 +471,11 @@
                     buttonsShowHide(data.inst.get_selected());
             	    if (data.inst.get_selected().length > 1) {
             	        if (data.inst.get_selected().length >= 2) {
-                            loadMetadataPanel(null,'<p>{% trans "You selected more the one element, please chose one of the actions from the tree toolbar or context menu." %}</p>');
+		            loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% url webstatic "images/knotes16.png" %}"/> Batch Annotate</a></p>');
+                            $("#batchAnnotate").click(function() {
+                                multipleAnnotation();
+                                return false;
+                            });
                         }
                     } else {
                         loadOtherPanels(data);
@@ -647,9 +650,8 @@
             <input id="copyButton" class="button button-disabled" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" /> 
             <input id="cutButton" class="button button-disabled" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Cut" title="Cut" /> 
             <input id="pasteButton" class="button button-disabled" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste" title="Paste" /> 
-            <input id="unlinkButton" class="button button-disabled" type="image" src="{% url webstatic "images/cancel16.png" %}" alt="Remove" title="Remove" /> 
+            <input id="unlinkButton" class="button button-disabled" type="image" src="{% url webstatic "images/minus_15.png" %}" alt="Remove" title="Remove" />
             <input id="deleteButton" class="button button-disabled" type="image" src="{% url webstatic "images/cancel16.png" %}" alt="Delete" title="Delete" /> 
-            <input id="annotationButton" class="button button-disabled" type="image" src="{% url webstatic "images/knotes16.png" %}" alt="Annotate many" title="Annotate many">
             <input id="basketButton" class="button button-disabled" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket">
         </div>
     </div>
