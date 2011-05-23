@@ -624,7 +624,15 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
         if ((renderer == null && wasPassivated) || dirty)
         {
-            load();
+            try
+            {
+                load();
+            }
+            catch (MissingPyramidException e)
+            {
+                missingPyramid = true;
+                log.info("MissingPyramid on load()");
+            }
         }
         else if (renderer == null)
         {
