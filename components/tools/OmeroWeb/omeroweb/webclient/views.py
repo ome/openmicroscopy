@@ -1760,6 +1760,10 @@ def download_annotation(request, action, iid, **kwargs):
 def load_public(request, share_id=None, **kwargs):
     request.session.modified = True
     
+    # SUBTREE TODO:
+    if share_id is None:
+        share_id = request.REQUEST.get("o_id") is not None and long(request.REQUEST.get("o_id")) or None
+    
     # check menu
     menu = request.REQUEST.get("menu")
     if menu is not None:

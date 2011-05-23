@@ -10,9 +10,7 @@
     <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/autocomplete.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
-
-    <link rel="stylesheet" href="/appmedia/webgateway/css/jquery-plugin-gs_slider.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="/appmedia/webgateway/css/weblitz-viewport.css" type="text/css" media="screen"/>
+    
 {% endblock %}
 
 {% block jscript %}
@@ -20,349 +18,301 @@
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.autocomplete.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.editinplace.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.form.js" %}"></script>
   
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
     
-    {% if manager.image or manager.well %}
-    <script type="text/javascript" src="/appmedia/webgateway/js/weblitz-viewport.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-viewportImage.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-gs_slider.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/gs_utils.js"></script>
-    {% endif %}
-    
 {% endblock %}
 
 {% block script %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
-    
-    <script type="text/javascript">
+    <script type="text/javascript">        
         $(document).ready(function() 
             {
-                $('input#id_search').quicksearch('table#original_metadata tbody tr', {
-                	'delay': 300,
-                    'loader': 'span.loading'
-                });
-                
-                $("#annotation_tabs").tabs();               
-                {% if manager.image %}
-                    {% if manager.getShareId %}
-                    var viewport = $.WeblitzViewport($("#viewport"), "/webclient/{{ manager.getShareId }}" );
-                    viewport.load({{ manager.image.id }});
-                    {% else %}
-                    var viewport = $.WeblitzViewport($("#viewport"), "/webgateway" );
-                    viewport.load({{ manager.image.id }});
-                    {% endif %}
-                {% endif %}
-                {% if manager.well %}
-                    var viewport = $.WeblitzViewport($("#viewport"), "/webgateway" );
-                    viewport.load({{ manager.well.selectedWellSample.image.id }});
-                {% endif %}                
-                
-                {% if manager.tgannSize %}
-                $("{% for t in manager.tag_annotations %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
-                    track: true, 
-                    delay: 0, 
-                    showURL: false, 
-                    opacity: 1, 
-                    fixPNG: true, 
-                    showBody: " - ", 
-                    top: -15, 
-                    left: 5 
-                });              
-                {% endif %}
-                
-                $('.can-collapse').click(function () {
-                  $(this).toggleClass('closed').next().slideToggle();
-                });
 
-                $('.can-collapse.defclose').each(function () {
-                  $(this).removeClass('defclose').toggleClass('closed').next().hide();
+                var acquisition_load = false;
+                var preview_load = false;
+                
+                $('#annotation_tabs').tabs();
+                
+                $('#acquisition').click(function() {
+                    var $tab = $("#metadata_tab");
+                    var href = $("#acquisition-link").attr('href');
+                    if (!acquisition_load) {
+                        $tab.load(href, function() {
+                            acquisition_loaded();
+                        });
+                        acquisition_load = true;
+                    }
                 });
-
+                
+                $('#preview').click(function() {
+                    var $tab = $("#preview_tab");
+                    var href = $("#preview-link").attr('href');
+                    if (!preview_load) {
+                        $tab.load(href, function() {
+                            preview_loaded();
+                        });
+                        preview_load = true;
+                    }
+                });                
+                
+                $(".tooltip").parent().children("span").hide(); // hide tool tip source
+                $(".tooltip").tooltip({
+                    bodyHandler: function() {
+                            return $(this).parent().children("span").html();
+                        },
+                    track: true,
+                    delay: 0,
+                    showURL: false,
+                    fixPNG: true,
+                    showBody: " - ",
+                    top: 10,
+                    left: -100
+                });
+                
             });
 
+
+            function deleteItem(productType, productId) {
+                if ((productType == 'file' || productType == 'tag' || productType == 'comment') && productId > 0){
+                    if (confirm('Delete '+productType+'?')) {
+                        var productListQuery="";
+                        $.ajax({
+                            type: "POST",
+                            url: "/webclient/action/delete/"+productType+"/"+productId+"/", //this.href,
+                            data: productListQuery,
+                            contentType:'html',
+                            success: function(responce){
+                                if(responce.match(/(Error: ([A-z]+))/gi)) {
+                                    alert(responce)
+                                } else {  
+                                    window.location = "{{ url }}";
+                                }
+                            },
+                            error: function(responce) {
+                                alert("Internal server error. Cannot delete object.");
+                            }
+                        });
+
+                    }
+                } 
+            }
+            
     </script>
     
 {% endblock %}
 
 {% block content %}
+
+{% comment %}
+    <!-- Example toolbar of links to webtest pages. Remove comments to activate -->
+    {% include "webtest/webtest-toolbar-include.html" %}
+{% endcomment %}
+
+
 <div id="annotation_form" >
     <div id="annotation_tabs" class="ui-tabs">
         <ul>
-            {% if manager.image or manager.well %}<li><a href="#preview_tab">{% trans "Preview" %}</a></li>{% endif %}
-            <li><a href="#metadata_tab">{% trans "Metadata" %}</a></li>
-            {% if manager.share %}<li><a href="#annotation_tab">{% trans "Annotation" %}</a></li>{% endif %}
+            <li><a href="#annotation_tab">{% trans "General" %}</a></li>
+            {% if manager.image %}
+                <li><a id='acquisition' href="#metadata_tab">{% trans "Acquisition" %}</a></li>                
+                <li><a id='preview' href="#preview_tab">{% trans "Preview" %}</a></li>
+            {% endif %}
         </ul>
         <div class="clear"></div>        
         
         {% if manager.image %}
-        <!-- VIEWER -->
+        <!-- VIEWER "Preview"-->
         <div id="preview_tab">
-            <h1>{{ manager.image.name|warphtml:"30"|linebreaks }}</h1>
-            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% if manager.getShareId %}{% url web_image_viewer manager.getShareId manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
-            <div class="miniview" id="viewport"></div>
+            <a id="preview-link" href="{% url load_metadata_preview manager.image.id %}" style='display:none'>Preview</a>
+            <img src="{% url webstatic "images/spinner.gif" %}" />
         </div>
-        {% endif %}
-        {% if manager.well %}
-        <!-- VIEWER -->
-        <div id="preview_tab">
-            <h1>{{ manager.well.selectedWellSample.image.name|warphtml:"30"|linebreaks }}</h1>
-            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.selectedWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
-            <div class="miniview" id="viewport"></div>
-        </div>
-        {% endif %}
+        {% endif %}    
         
-        <!-- METADATA -->
+        <!-- METADATA "Acquisition" TAB  - only show for images -->
+        {% if manager.image %}
         <div id="metadata_tab">
-            {% if manager.image %}
-            <table>
-                <tr><td><a href="#" onclick="return openPopup('{% if manager.getShareId %}{% url web_image_viewer manager.getShareId manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')"><img id="{{ manager.image.id }}" src="{% url render_thumbnail_resize 64 manager.image.id manager.getShareId %}" alt="View" title="Open full viewer" class="thumbnail"/></a></td>
-                    <td><label>{{ manager.image.name|warphtml:"30"|linebreaks }}</label>(id: {{ manager.image.id }})</td></tr>
-                <tr><td colspan="2">Created on: {{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td></tr>                
-                <tr><td colspan="2">         
-                    {% if not manager.image.isOwned %} <img src="{% url webstatic "images/personal16.png" %}" alt="owner by" title="Owner"/>{{ manager.image.getOwner.getFullName }}{% endif %}
-                    </td></tr>
-                <tr><td colspan="2"><label>{{ manager.image.description|default_if_none:""|linebreaks }}</label></td></tr>
-            </table>
-            {% endif %}
-            
-            {% if manager.well %}
-            <table>
-                <tr><td><a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.selectedWellSample.image.id %}')" alt="View" title="Open full viewer"><img id="{{ manager.well.selectedWellSample.image.id }}" src="{% url render_thumbnail_resize 64 manager.well.selectedWellSample.image.id %}" alt="image" title="image" class="thumbnail"/></a></td>
-                    <td><label>{{ manager.well.selectedWellSample.image.name|warphtml:"30"|linebreaks }}</label>(id: {{ manager.well.selectedWellSample.image.id }})</td></tr>
-                <tr><td colspan="2">Created on:{{ manager.well.selectedWellSample.image.getDate|date:"Y-m-d H:i:s" }}</td></tr>
-                <tr><td colspan="2">{% if manager.well.selectedWellSample.image.countAnnotations %}<img src="{% url webstatic "images/knotes12.png" %}" alt="annotations" title="Annotations"/> [{{ manager.well.selectedWellSample.image.countAnnotations }}]{% endif %}</td></tr>
-                <tr><td colspan="2"><label>{{ manager.well.selectedWellSample.image.description|default_if_none:""|linebreaks }}</label></td></tr>
-            </table>
-            {% else %}
-                {% if manager.plate %}
-                <table>
-                    <tr><td><img src="{% url webstatic "images/folder_plate64.png" %}" alt="plate" title="plate"/></td>
-                        <td><label>{{ manager.plate.name|warphtml:"30"|linebreaks }}</label>(id: {{ manager.plate.id }})</td></tr>
-                    <tr><td colspan="2">Created on: {{ manager.plate.getDate|date:"Y-m-d H:i:s" }}</td></tr>
-                    <tr><td colspan="2">
-                        {% if not manager.plate.isOwned %} <img src="{% url webstatic "images/personal16.png" %}" alt="owner by" title="Owner"/>{{ manager.project.getOwner.getFullName }}{% endif %}
-                        </td></tr>
-                    <tr><td colspan="2"><label>{{ manager.plate.description|default_if_none:""|linebreaks }}</label></td></tr>
-                </table>
-                {% endif %}
-            {% endif %}
-            
-            {% if manager.share %}
-
-            <table>
-                <tr><td rowspan="3">{% if manager.share.isEmpty %}<img src="{% url webstatic "images/wp_protocol64.png" %}" alt="discussion" title="discussion"/>{% else %}<img src="{% url webstatic "images/folder_html64.png" %}" alt="share" title="share"/>{% endif %}</td>
-                    <td><p><label>{{ manager.share.getShareType|lower }} {{ manager.share.id }}</label></p>
-                        {% if manager.share.isOwned %}<a href="{% url manage_action_containers "edit" "share" manager.share.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} (id: {{ manager.share.id }})</td></tr>
-                <tr><td>Includes {{ manager.share.itemCount }} image(s)</td></tr>
-                <tr><td>Status: <strong>{% if manager.share.active %}{% trans "ACTIVE" %}{% else %}{% trans "NOT ACTIVE" %}{% endif %}{% if manager.share.isExpired %}; EXPIRED{% endif %}</strong></td></tr>                
-                <tr><td colspan="2">Created on: {{ manager.share.getStartDate|date:"Y-m-d H:i:s" }}</td></tr>
-                <tr><td colspan="2">Expire on: {{ manager.share.getExpireDate|date:"Y-m-d H:i:s" }}</td></tr>
-                <tr><td colspan="2">Owner: {{ manager.share.getOwner.getFullName }}</td></tr>              
-                <tr><td colspan="2">Member(s): 
-                    <ol>
-                        {% for m in manager.allInShare %}
-                        <li>{{ m.getFullName }}</li>
-                        {% endfor %}
-                    </ol>
-                </td></tr>
-            </table>
-            {% endif %}
-            
-            {% if manager.well or manager.image%}
-            <h1>Acquisition metadata:</h1>
-            
-            <table class="metadata_details">
-                {% if manager.image %}
-                <tr><td><label>{% trans "Dimensions" %} (XYZT): </label></td><td>{{ manager.image.getSizeX }} x {{ manager.image.getSizeY }} x {{ manager.image.getSizeZ }} x {{ manager.image.getSizeT }}</td></tr>
-                <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m]: </label></td><td>{{ manager.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
-                <tr><th colspan="2"><br/></th></tr>
-                {% endif %}
-                {% if manager.well %}
-                <tr><td><label>{% trans "Dimensions" %} (XYZT): </label></td><td>{{ manager.well.selectedWellSample.image.getSizeX }} x {{ manager.well.selectedWellSample.image.getSizeY }} x {{ manager.well.selectedWellSample.image.getSizeZ }} x {{ manager.well.selectedWellSample.image.getSizeT }}</td></tr>
-                <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m]: </label></td><td>{{ manager.well.selectedWellSample.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.well.selectedWellSample.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.well.selectedWellSample.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
-                <tr><th colspan="2"><br/></th></tr>
-                {% endif %}
-            </table>
-
-            {% if manager.global_metadata %}
-                <h1 class="can-collapse defclose">{% trans "Global metadata" %}: <input type="button" value="Download" onClick="document.location.href='{% url download_annotation "download" manager.original_metadata.id %}';"/></h1>                
-                <div>
-                    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
-                    <table id="original_metadata" class="metadata_details"><tbody>
-                        {% for gm in manager.global_metadata %}
-                        <tr><td><label>{{ gm.0 }}</label></td><td>{{ gm.1 }}</td></tr>
-                        {% endfor %}
-                    <tr><th colspan="3"><br/></th></tr>
-                    </tbody></table>
-                </div>
-            {% endif %}
-            {% if manager.series_metadata %}
-                <h1 class="can-collapse defclose">{% trans "Series metadata" %}: <input type="button" value="Download" onClick="document.location.href='{% url download_annotation "download" manager.original_metadata.id %}';"/></h1>
-                
-                <div>
-                    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
-                    <table id="original_metadata" class="metadata_details"><tbody>
-                        {% for sm in manager.series_metadata %}
-                        <tr><td><label>{{ sm.0 }}</label></td><td>{{ sm.1 }}</td></tr>
-                        {% endfor %}
-                        <tr><th colspan="3"><br/></th></tr>
-                    </tbody></table>
-                </div>
-            {% endif %}
-                        
-            {% if form_objective or form_environment or form_stageLabel %}
-            <h1 class="can-collapse defclose">{% trans "Image" %}:</h1>
-            <div><table class="metadata_details">
-                {% if form_objective %}
-                <tr><th><br/>{% trans "Objective" %}:</th><th colspan="2"></th></tr>
-                    {% for field in form_objective %}
-                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                    </tr>
-                    {% endfor %}
-                {% endif %}
-                {% if form_environment %}
-                <tr><th><br/>{% trans "Environment" %}:</th><th colspan="2"></th></tr>
-                    {% for field in form_environment %}
-                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                    </tr>
-                    {% endfor %}
-                {% endif %}
-                {% if form_stageLabel %}
-                <tr><th><br/>{% trans "Stage label" %}:</th><th colspan="2"></th></tr>
-                    {% for field in form_stageLabel %}
-                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                    </tr>
-                    {% endfor %}
-                {% endif %}
-                <tr><th colspan="3"><br/></th></tr>
-            </table></div>
-            {% endif %}
-            {% if form_objective or form_filters or form_detectors %}
-            <h1 class="can-collapse defclose">{% trans "Microscope" %}:</h1>
-            <div><table class="metadata_details">
-                {% if form_microscope %}
-                    {% for field in form_microscope %}
-                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                    </tr>
-                    {% endfor %}
-                {% endif %}
-                {% if form_objective %}
-                <tr><th><br/>{% trans "Objective" %}:</th><th colspan="2"></th></tr>
-                    {% for field in form_objective %}
-                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                    </tr>
-                    {% endfor %}
-                {% endif %}
-                {% for form in form_filters %}
-                    <tr><th><br/>{% trans "Filter" %}:</th><th colspan="2"></th></tr>
-                    {% for field in form %}
-                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                    </tr>
-                    {% endfor %}
-                {% endfor %}
-                {% for form in form_detectors %}
-                    <tr><th><br/>{% trans "Detector" %}:</th><th colspan="2"></th></tr>
-                    {% for field in form %}
-                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                    </tr>
-                    {% endfor %}
-                {% endfor %}
-                {% for form in form_lasers %}
-                    <tr><th><br/>{% trans "Laser" %}:</th><th colspan="2"></th></tr>
-                    {% for field in form %}
-                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                    </tr>
-                    {% endfor %}
-                {% endfor %}
-                <tr><th colspan="3"><br/></th></tr>
-            </table></div>
-            {% endif %}
-            
-            {% for ch in form_channels %}
-            <h1 class="can-collapse defclose">{% trans "Channel" %} : <span style="padding:0 3px; color:#000; border:1px solid #bbb; background-color: #{{ ch.color }};">{{ ch.name }}</span></h1>
-            <div><table class="metadata_details">
-                {% for field in ch.form %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                </tr>
-                {% endfor %}
-                {% if ch.form_emission_filter %}
-                <tr><th><br/>{% trans "Filter" %}:</th><th colspan="2"></th></tr>
-                {% for field in ch.form_emission_filter %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                </tr>
-                {% endfor %}
-                {% endif %}
-                {% if ch.form_detector_settings %}
-                <tr><th><br/>{% trans "Detector" %}:</th><th colspan="2"></th></tr>
-                {% for field in ch.form_detector_settings %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                </tr>
-                {% endfor %}
-                {% endif %}                
-                {% if ch.form_dichroic %}
-                <tr><th><br/>{% trans "Dichroic" %}:</th><th colspan="2"></th></tr>
-                {% for field in ch.form_dichroic %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                </tr>
-                {% endfor %}
-                {% endif %}
-                {% if ch.form_light_source %}
-                <tr><th><br/>{% trans "Laser" %}:</th><th colspan="2"></th></tr>
-                {% for field in ch.form_light_source %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                </tr>
-                {% endfor %}
-                {% endif %}
-                <tr><th colspan="3"><br/></th></tr>
-            </table></div>
-            {% endfor %}
-                        
-            <br/><p>*{% trans "N/A - this value is not available." %}</p>
-            {% endif %}
-            <div class="clear"></div>
-        </div>        
-        
-        <!-- ANNOTATIONS -->
-        {% if manager.share %}
-        <div id="annotation_tab">
-            <h1>{% trans "Comments" %}: {% if manager.share.isExpired %}This {% if manager.share.isEmpty %}discussion{% else %}share{% endif %} has expired and you no longer can make any comments.{% else %}<a href="{% url manage_action_containers "newsharecomment" "share" manager.share.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new comment."/></a>{% endif %}</h1>            
-            <div class="lncomments">
-                <div class="ann_comment_wrapper">
-                    <div class="avatar"><img src="{% url load_photo manager.share.getOwner.id %}" alt="{{ manager.share.getOwner.getFullName }}" title="{{ manager.share.getOwner.getFullName }}" width="20" height="20" /></div>
-                    <div><span class="ann_comment_header">{{ manager.share.getOwner.getFullName }} {% trans "at" %} {{ manager.share.getStartDate|date:"Y-m-d H:i:s" }}</span>{% if tann.canDelete %} <input class="button" type="image" src="{% url webstatic "images/cancel12.png" %}" alt="Delete" title="Delete" onclick="deleteItem('comment', '{{ tann.id }}');" />{% endif %}<br/>
-                        {{ manager.share.message|sharewikify|safe|linebreaks  }}
-                    </div>
-                </div>
-                {% for cm in manager.comments %}
-                <div class="ann_comment_wrapper">
-                    <div class="avatar"><img src="{% url load_photo cm.getOwner.id %}" alt="{{ cm.getOwner.getNameWithInitial }}" title="{{ cm.getOwner.getFullName }}" width="20" height="20" /></div>
-                    <div><span class="ann_comment_header">{{ cm.getOwner.getFullName }} {% trans "at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }}</span>{% if tann.canDelete %} <input class="button" type="image" src="{% url webstatic "images/cancel12.png" %}" alt="Delete" title="Delete" onclick="deleteItem('comment', '{{ tann.id }}');" />{% endif %}<br/>
-                        {{ cm.textValue|sharewikify|safe|linebreaks }}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>            
-            <div class="clear"></div>            
+            <!-- content is loaded by ajax when this tab is first displayed -->
+            <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.image.id %}" style='display:none' >Acquisition</a>
+            <img src="{% url webstatic "images/spinner.gif" %}" />
         </div>
         {% endif %}
+        
+        
+        {% if not manager.tag %}
+        <!-- ANNOTATIONS "General" -->
+        <div id="annotation_tab">
+            {% if manager.image %}            
+            {% if manager.image.isOwned %}<div id="imagename-{{ manager.image.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="imagename-{{ manager.image.id }}-name">{{ manager.image.name|warphtml:"30" }}</span></h1></div>{% else %}<h1>{{ manager.image.name|warphtml:"30" }}</h1>{% endif %}
+            
+            <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>    
+            <!-- open-image link -->
+            <div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
+                    
+            <div class="description">
+                {% if manager.image.isOwned %}<div id="imagedescription-{{ manager.image.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='image_desc'>{{ manager.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
+            </div>
+            <table>                    
+                {% if not manager.image.isOwned %}
+                <tr>
+                    <th>Owner:</th>
+                    <td id='owner_fullname'>{{ manager.image.getOwner.getFullName }}</td>                    
+                </tr>
+                {% endif %}
+                <tr>
+                    <th>Acquisition Date:</th>
+                    <td id='acqu_date'>{{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
+                </tr>
+                <tr>
+                    <th>Imported Date:</th>
+                    <td id='import_date'>{{ manager.image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
+                </tr>
+                <tr>
+                    <th>Dimensions (XY):</th>
+                    <td id='dims_xy'>{{ manager.image.getSizeX }} x {{ manager.image.getSizeY }}</td>
+                </tr>
+                <tr>
+                    <th>Pixels Type:</th>
+                    <td id='pixels_type'>{{ manager.image.getPixelsType }}</td>
+                </tr>
+                <tr>
+                    <th>Pixels Size (XYZ) (&#181m):</th>
+                    <td id='pixels_size'>
+                        <div class='tooltip'>{{ manager.image.getPixelSizeX|floatformat:4 }} x {{ manager.image.getPixelSizeY|floatformat:4 }} 
+                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ|floatformat:4 }} {% endif %}
+                        </div>
+                        <span style='display:none'>{{ manager.image.getPixelSizeX }} x {{ manager.image.getPixelSizeY }}
+                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ }} {% endif %}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Z-sections/Timepoints:</th>
+                    <td id='dims_zt'>{{ manager.image.getSizeZ }} x {{ manager.image.getSizeT }}</td>
+                </tr>
+                <tr>
+                    <th>Channels:</th>
+                    <td id='channel_names'>
+                    {% if manager.image.getChannels %}{% for c in manager.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
+                    </td>
+                </tr>
+            </table>
+            {% endif %}
+    
+            {% if manager.share %}
+                <h1>{{ manager.share.getShareType }} {{ manager.share.id }}</h1>
+                
+                <div class="description">
+                    {{ manager.share.message|default_if_none:""|sharewikify|safe|linebreaks }}
+                </div>
+                
+                <table>
+                    <tr>
+                        <th>Owner:</th>
+                        <td id='owner_fullname'>{{ manager.share.getOwner.getFullName }}</td>                    
+                    </tr>
+                    <tr>
+                        <th>Status:</th>
+                        <td id='status'>{% if manager.share.active %}{% trans "ACTIVE" %}{% else %}{% trans "NOT ACTIVE" %}{% endif %}{% if manager.share.isExpired %}; EXPIRED{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <th>Creation Date:</th>
+                        <td id='creation_date'>{{ manager.screen.getStartDate|date:"Y-m-d H:i:s" }}</td>
+                    </tr> 
+                    <tr>
+                        <th>Expiry Date:</th>
+                        <td id='creation_date'>{{ manager.screen.getExpireDate|date:"Y-m-d H:i:s" }}</td>
+                    </tr>                   
+                    <tr>
+                        <th>Share Count:</th>
+                        <td id='child_count'>{{ manager.share.itemCount }} {% plural manager.share.itemCount 'image' 'images' %}</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Members:</th>
+                    </tr>
+                    <tr>
+                        <td id='members' colspan="2">
+                            <ol>
+                                {% for m in manager.allInShare %}
+                                <li>{{ m.getFullName }}</li>
+                                {% endfor %}
+                            </ol>
+                        </td>
+                    </tr>
+                </table>
+            {% endif %}
+        
+            <!-- ANNOTATIONS -->
+            {% if manager.share %}
+            <h1>{% trans "Annotations" %}</h1>
+            
+            <table>
+                <!-- SHARE COMMENT -->
+                <tr>
+                    <th colspan="3">                
+                        {% trans "Comment:" %}
+                        
+                        {% if manager.share.isExpired %}
+                            This {{ manager.share.getShareType|lower }} has expired and you no longer can make any comments.
+                        {% else %}
+                            <form action="{% url manage_action_containers "save" "sharecomment" manager.share.id %}?url={{url}}" method="post">
+                            <table>
+                                {% for field in form_comment %}
+                                    <tr>
+                                        <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
+                                    </tr>
+                                {% endfor %}
+                                    <tr><td colspan="2"><input type="submit" value="{% trans 'Add Comment' %}" /></td></tr>
+                            </table>
+                            </form>                            
+                            <script type="text/javascript">
+                                var googie_spell = new GoogieSpell("static_core/googiespell/", "{% url spellchecker %}"+"?lang=");
+                                googie_spell.decorateTextarea("id_comment", null, "600px");
+                            </script>
+                        {% endif %}
+                    </th>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <div class="lncomments">
+                        {% if manager.comments %}
+                            {% for cm in manager.comments %}
+                            <div class="ann_comment_wrapper">
+                                <div class="avatar"><img src="{% url load_photo cm.getOwner.id %}" alt="{{ cm.getOwner.getFullName }}" title="{{ cm.getOwner.getFullName }}" width="20" height="20" /></div>
+                                <div>
+                                    <span class="ann_comment_header">{{ cm.getOwner.getFullName }} {% trans "at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+                                    {% if cm.canDelete %}
+                                        <input class="button" type="image" src="{% url webstatic "images/cancel12.png" %}" alt="Delete" title="Delete" onclick="deleteItem('comment', '{{ cm.id }}');" />
+                                    {% endif %}
+                                    <div class='commentText'>
+                                    {{ cm.textValue|sharewikify|safe|linebreaks }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            {% trans "No comments." %}                        
+                        {% endif %}
+                        </div>
+                    </td>
+                </tr>            
+            </table>
+            {% endif %}         
+            <div class="clear"></div>          
+
+        </div>
+        </div>
+        {% endif %}
+        
     </div>
+    
     
 </div>
 {% endblock %}
