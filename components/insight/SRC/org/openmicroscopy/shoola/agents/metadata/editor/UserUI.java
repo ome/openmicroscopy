@@ -105,7 +105,7 @@ class UserUI
 			vl.setGap(0);
 		}
 		container.add(pane);
-		container.add(diskTask);
+		//container.add(diskTask);
 		setLayout(new BorderLayout());
 		add(container, BorderLayout.NORTH);
 	}

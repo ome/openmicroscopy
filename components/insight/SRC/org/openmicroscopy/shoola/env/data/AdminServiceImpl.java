@@ -186,7 +186,7 @@ class AdminServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		long v = 1000;
-		long used = gateway.getUsedSpace(type, id);
+		long used = 0;//gateway.getUsedSpace(type, id);
 		long available = gateway.getFreeSpace(type, id);
 		int t = DiskQuota.USER;
 		if (GroupData.class.equals(type))

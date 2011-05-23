@@ -673,7 +673,7 @@ public class ImportDialog
 		diskSpacePane = new JPanel();
 		diskSpacePane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		//diskSpacePane.setBackground(UIUtilities.BACKGROUND);
-		diskSpacePane.add(UIUtilities.setTextFont("Space Usage"));
+		diskSpacePane.add(UIUtilities.setTextFont("Free Space "));
 		diskSpacePane.add(canvas);
 		
 		showThumbnails = new JCheckBox("Show Thumbnails when imported");
