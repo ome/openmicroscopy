@@ -32,6 +32,9 @@ public class PyramidWriteLockUnitTest extends AbstractPyramidPixelBufferUnitTest
 
     @AfterMethod
     public void tearDown() throws Exception {
+        if (pixelBuffer != null) {
+            pixelBuffer.close();
+        }
         deleteRoot();
     }
 

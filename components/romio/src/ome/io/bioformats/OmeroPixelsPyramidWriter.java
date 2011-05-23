@@ -78,13 +78,18 @@ public class OmeroPixelsPyramidWriter extends TiffWriter {
     protected void postProcess() throws IOException, FormatException
     {
         TiffReader reader = new TiffReader();
-        reader.setId(currentId);
-        // First we want to re-compress resolution level 0 (the source series,
-        // with resolution levels exposed, are in reverse order).
-        recompressSeries(reader, 1);
-        // Second we want to re-compress resolution level 1 (the source series,
-        // with resolution levels exposed, are in reverse order).
-        recompressSeries(reader, 2);
+        try
+        {
+            reader.setId(currentId);
+            // First we want to re-compress resolution level 0 (the source series,
+            // with resolution levels exposed, are in reverse order).
+            recompressSeries(reader, 1);
+            // Second we want to re-compress resolution level 1 (the source series,
+            // with resolution levels exposed, are in reverse order).
+            recompressSeries(reader, 2);
+        } finally {
+            reader.close();
+        }
     }
 
     /**

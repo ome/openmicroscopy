@@ -38,6 +38,9 @@ public class PyramidPixelBufferUnitTest extends AbstractPyramidPixelBufferUnitTe
 
     @AfterClass
     public void tearDown() throws IOException {
+        if (pixelBuffer != null) {
+            pixelBuffer.close();
+        }
         deleteRoot();
     }
 

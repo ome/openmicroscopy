@@ -228,10 +228,14 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
             pyramid.getParentFile().mkdirs();
         }
         service.pyramid.buffer = new BfPyramidPixelBuffer(pixels, pyramid.getAbsolutePath(), true);
-        service.makePyramid(pixels);
-        assertEquals(0, sizePyramid().longValue());
+        try {
+            service.makePyramid(pixels);
+            assertEquals(0, sizePyramid().longValue());
 
-        assertCorruptPyramid(pyramid);
+            assertCorruptPyramid(pyramid);
+        } finally {
+            service.pyramid.buffer.close();
+        }
     }
 
     /**
@@ -253,21 +257,29 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
         assertEquals(null, sizePyramid());
         File pyramid = filePyramid();
         service.pyramid.buffer = new BfPyramidPixelBuffer(pixels, pyramid.getAbsolutePath(), true);
-        service.makePyramid(pixels);
-        assertEquals(0, sizePyramid().longValue());
+        try {
+            service.makePyramid(pixels);
+            assertEquals(0, sizePyramid().longValue());
 
-        assertCorruptPyramid(pyramid);
+            assertCorruptPyramid(pyramid);
+        } finally {
+            service.pyramid.buffer.close();
+        }
     }
 
     private void assertCorruptPyramid(File pyramid) throws IOException,
             FormatException {
+
+        BfPyramidPixelBuffer pb = null;
         try {
-            BfPyramidPixelBuffer pb = new BfPyramidPixelBuffer(pixels, pyramid.getAbsolutePath(), false);
+            pb = new BfPyramidPixelBuffer(pixels, pyramid.getAbsolutePath(), false);
             assertEquals(false, pb.isWrite());
             pb.getTileSize();
             fail("Should have thrown a resource error");
         } catch (ResourceError re) {
             // ok
+        } finally {
+            pb.close();
         }
     }
 
