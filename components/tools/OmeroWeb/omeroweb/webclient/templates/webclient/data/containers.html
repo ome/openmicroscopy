@@ -467,7 +467,9 @@
                     syncPanels(data.inst.get_selected());
         	    })
             	.bind("select_node.jstree", function (e, data) {
-            	    data.inst.open_node(data.inst.get_selected());
+            	    if(!data.inst.is_open()) {
+            	        data.inst.open_node(data.inst.get_selected());
+            	    }
             	    
             	    buttonsShowHide(data.inst.get_selected());
             	    if (data.inst.get_selected().length > 1) {
