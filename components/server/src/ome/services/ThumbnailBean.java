@@ -32,6 +32,7 @@ import ome.api.ThumbnailStore;
 import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.conditions.MissingPyramidException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
@@ -50,7 +51,6 @@ import ome.system.SimpleEventContext;
 import ome.util.ImageUtil;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.data.RegionDef;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 
@@ -127,6 +127,9 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /** ID of the pixels instance that the service is currently working on. */
     private Long pixelsId;
+
+    /** Missing pyramid marker; set to true when no data is available the pixel */
+    private boolean missingPyramid;
 
     /** The rendering settings that the service is currently working with. */
     private RenderingDef settings;
@@ -315,10 +318,11 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
         pixels = iPixels.retrievePixDescription(pixels.getId());
         settings = iPixels.loadRndSettings(settings.getId());
-        PixelBuffer buffer = pixelDataService.getPixelBuffer(pixels);
         List<Family> families = getFamilies();
         List<RenderingModel> renderingModels = getRenderingModels();
         QuantumFactory quantumFactory = new QuantumFactory(families);
+        // Loading last to try to ensure that the buffer will get closed.
+        PixelBuffer buffer = pixelDataService.getPixelBuffer(pixels);
         renderer = new Renderer(quantumFactory, renderingModels, pixels,
                 settings, buffer);
         dirty = false;
@@ -497,6 +501,17 @@ public class ThumbnailBean extends AbstractLevel2Service
         // Ensure that we have a valid state for rendering
         errorIfInvalidState();
 
+        if (missingPyramid)
+        {
+            int x = thumbnailMetadata.getSizeX();
+            int y = thumbnailMetadata.getSizeY();
+            int[] buf = new int[x*y];
+            for (int i = 0; i < buf.length; i++ ){
+                buf[i] = 123;
+            }
+            return ImageUtil.createBufferedImage(buf, x, y);
+        }
+
         // Retrieve our rendered data
         if (theZ == null)
             theZ = settings.getDefaultZ();
@@ -603,9 +618,21 @@ public class ThumbnailBean extends AbstractLevel2Service
     protected void errorIfInvalidState()
     {
         errorIfNullPixelsAndRenderingDef();
+        if (missingPyramid)
+        {
+            return; // No-op #5191
+        }
         if ((renderer == null && wasPassivated) || dirty)
         {
-            load();
+            try
+            {
+                load();
+            }
+            catch (MissingPyramidException e)
+            {
+                missingPyramid = true;
+                log.info("MissingPyramid on load()");
+            }
         }
         else if (renderer == null)
         {
@@ -632,7 +659,11 @@ public class ThumbnailBean extends AbstractLevel2Service
     protected void errorIfNullRenderingDef()
     {
         errorIfNullPixels();
-        if (settings == null &&
+        if (missingPyramid)
+        {
+            // pass. Do nothing.
+        }
+        else if (settings == null &&
             ctx.isExtendedGraphCritical(Collections.singleton(pixelsId)))
         {
             long ownerId = pixels.getDetails().getOwner().getId();
@@ -659,6 +690,11 @@ public class ThumbnailBean extends AbstractLevel2Service
     @Transactional(readOnly = false)
     public void createThumbnail(Integer sizeX, Integer sizeY)
     {
+        if (missingPyramid)
+        {
+            return;
+        }
+
         try
         {
             // Set defaults and sanity check thumbnail sizes
@@ -911,6 +947,14 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     private byte[] retrieveThumbnail()
     {
+        if (missingPyramid)
+        {
+            return retrieveThumbnailDirect(
+                    thumbnailMetadata.getSizeX(),
+                    thumbnailMetadata.getSizeY(),
+                    0, 0);
+        }
+
         try
         {
             boolean cached = ctx.isThumbnailCached(pixels.getId());
@@ -1079,6 +1123,11 @@ public class ThumbnailBean extends AbstractLevel2Service
     public boolean thumbnailExists(Integer sizeX, Integer sizeY) {
         // Set defaults and sanity check thumbnail sizes
         errorIfNullPixelsAndRenderingDef();
+        if (missingPyramid)
+        {
+            return false;
+        }
+
         Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
 
         Set<Long> pixelsIds = new HashSet<Long>();
@@ -1129,7 +1178,15 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
 
         RenderingDef def = settingsService.createNewRenderingDef(pixels);
-        settingsService.resetDefaults(def, pixels);
+        try
+        {
+            settingsService.resetDefaults(def, pixels);
+        }
+        catch (MissingPyramidException mpe)
+        {
+            missingPyramid = true;
+            log.info("MissingPyramid on settingsSerice.resetDefaults");
+        }
     }
 
     public boolean isDiskSpaceChecking() {

@@ -193,9 +193,15 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spa
             if time >= sizeT:
                 log(" WARNING: This image does not have Time frame: %d. (max is %d)" % (time+1, sizeT))     
             else: 
-                projection = re.renderProjectedCompressed(algorithm, time, stepping, proStart, proEnd)
+                if proStart != proEnd:
+                    renderedImg = re.renderProjectedCompressed(algorithm, time, stepping, proStart, proEnd)
+                else:
+                    planeDef = omero.romio.PlaneDef()
+                    planeDef.z = proStart
+                    planeDef.t = time
+                    renderedImg = re.renderCompressed(planeDef)
                 # create images and resize, add to list
-                image = Image.open(StringIO.StringIO(projection))
+                image = Image.open(StringIO.StringIO(renderedImg))
                 resizedImage = imgUtil.resizeImage(image, width, height)
                 renderedImages.append(resizedImage)
 

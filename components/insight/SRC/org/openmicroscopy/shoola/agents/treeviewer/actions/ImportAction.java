@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -150,6 +151,11 @@ public class ImportAction
         if (ho instanceof ProjectData || ho instanceof ScreenData || 
         		ho instanceof DatasetData)
         	setEnabled(model.isUserOwner(ho));
+        else if (ho instanceof ExperimenterData && 
+    			browser.getBrowserType() != Browser.ADMIN_EXPLORER) {
+    		ExperimenterData exp = TreeViewerAgent.getUserDetails();
+    		setEnabled(exp.getId() == ((ExperimenterData) ho).getId());
+        }
     }
     
     /**

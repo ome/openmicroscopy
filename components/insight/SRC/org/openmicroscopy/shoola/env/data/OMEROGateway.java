@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
@@ -339,13 +340,13 @@ class OMEROGateway
 		
 		//script w/ a UI.
 		SCRIPTS_UI_AVAILABLE = new ArrayList<String>();
-		/*
+		
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.ROI_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.THUMBNAIL_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.MOVIE_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.SPLIT_VIEW_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
-		*/
+		
 		SCRIPTS_NOT_AVAILABLE_TO_USER = new ArrayList<String>();
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
 				ScriptObject.REGION_PATH+"Populate_ROI.py");
@@ -1666,17 +1667,10 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
-			if (pixelsStore != null) {
-				services.remove(pixelsStore);
-				try {
-					pixelsStore.close();
-				} catch (Exception e) {}
-			}
 			if (entryUnencrypted != null)
 				pixelsStore = entryUnencrypted.createRawPixelsStore();
 			else 
 				pixelsStore = entryEncrypted.createRawPixelsStore();
-			services.add(pixelsStore);
 			return pixelsStore;
 		} catch (Throwable e) {
 			handleException(e, "Cannot access RawPixelsStore service.");
@@ -1929,6 +1923,7 @@ class OMEROGateway
 		scriptService = null;
 		timeService = null;
 		sharedResources = null;
+		importStore = null;
 	}
 	
 	/**
@@ -3695,6 +3690,10 @@ class OMEROGateway
 			closeService(pixelsStore);
 		if (fileStore != null)
 			closeService(fileStore);
+		if (importStore != null) {
+			importStore.logout();
+			importStore = null;
+		}
 		Collection<StatefulServiceInterfacePrx> l = reServices.values();
 		if (l != null && rendering) {
 			Iterator<StatefulServiceInterfacePrx> i = l.iterator();
@@ -3845,7 +3844,7 @@ class OMEROGateway
 				if (stream != null) stream.close();
 				closeService(store);
 			} catch (Exception ex) {}
-			
+			closeService(store);
 			throw new DSAccessException("Cannot upload the file with path " +
 					file.getAbsolutePath(), e);
 		}
@@ -4044,7 +4043,9 @@ class OMEROGateway
 		RawPixelsStorePrx service = getPixelsStore();
 		try {
 			service.setPixelsId(pixelsID, false);
-			return service.getPlane(z, c, t);
+			byte[] plane = service.getPlane(z, c, t);
+			service.close();
+			return plane;
 		} catch (Throwable e) {
 			String s = "Cannot retrieve the plane " +
 			"(z="+z+", t="+t+", c="+c+") for pixelsID: "+pixelsID;
@@ -4117,6 +4118,7 @@ class OMEROGateway
 			}
 			return count;
 		} catch (Throwable e) {
+			e.printStackTrace();
 			handleException(e, "Cannot retrieve the free space");
 		}
 		return -1;
@@ -6124,7 +6126,6 @@ class OMEROGateway
 			ImportLibrary library = new ImportLibrary(getImportStore(), 
 					new OMEROWrapper(new ImportConfig()));
 			library.addObserver(status);
-
 			ImportContainer ic = new ImportContainer(file, -1L, container, 
 					archived, object.getPixelsSize(), null, null, null);
 			ic.setUseMetadataFile(true);
@@ -6133,6 +6134,7 @@ class OMEROGateway
 				ic.setCustomImageName(UIUtilities.getDisplayedFileName(
 						file.getAbsolutePath(), depth));
 			}
+			
 			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 			Iterator<Pixels> j;
 			Pixels p;
@@ -6145,6 +6147,9 @@ class OMEROGateway
 				p = pixels.get(0);
 				image = p.getImage();
 				id = image.getId().getValue();
+				if (isLargeImage(p)) {
+					return new ThumbnailData(getImage(id, params), true);
+				}
 				if (ImportableObject.isHCSFile(file))
 					return getImportedPlate(id);
 				
@@ -7551,7 +7556,6 @@ class OMEROGateway
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
-	 *
 	 */
 	long uploadExperimenterPhoto(File file, String format, long experimenterID)
 		throws DSOutOfServiceException, DSAccessException
@@ -7601,6 +7605,35 @@ class OMEROGateway
 					e);
 		}
 		return cb;
+	}
+
+	/**
+	 * Returns <code>true</code> if it is a big image, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param pixels The pixels set to handle.
+	 * @return See above
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	boolean isLargeImage(Pixels pixels)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			RawPixelsStorePrx store = getPixelsStore();
+			store.setPixelsId(pixels.getId().getValue(), true);
+			boolean b = store.requiresPixelsPyramid();
+			store.close();
+			return b;
+		} catch (Exception e) {
+			if (e instanceof MissingPyramidException) {
+				return true;
+			}
+			handleException(e, "Cannot start the Raw pixels store.");
+		}
+		return false;
 	}
 	
 }

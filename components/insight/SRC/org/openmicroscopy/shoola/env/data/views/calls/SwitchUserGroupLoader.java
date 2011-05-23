@@ -67,6 +67,7 @@ public class SwitchUserGroupLoader
 			context.getAdminService().changeExperimenterGroup(experimenter, 
 					groupID);
 		} catch (Exception e) {
+			e.printStackTrace();
 			context.getLogger().error(this, 
         			"Cannot switch user's group: "+e.getMessage());
 		}

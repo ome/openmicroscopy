@@ -50,6 +50,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -77,6 +78,7 @@ import ome.formats.model.ReferenceProcessor;
 import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
+import ome.system.UpgradeCheck;
 import ome.util.LSID;
 import ome.xml.model.enums.IlluminationType;
 import ome.xml.model.enums.NamingConvention;
@@ -85,6 +87,7 @@ import ome.xml.model.primitives.NonNegativeInteger;
 import ome.xml.model.primitives.NonNegativeLong;
 import ome.xml.model.primitives.PercentFraction;
 import ome.xml.model.primitives.PositiveInteger;
+import ome.xml.model.primitives.PositiveFloat;
 import omero.RBool;
 import omero.RDouble;
 import omero.RInt;
@@ -348,6 +351,17 @@ public class OMEROMetadataStoreClient
         }
     }
 
+    /**
+     * Check online to see if this is the current version
+     */
+    public boolean isUpgradeRequired(String versionNumber, String client) {
+        ResourceBundle bundle = ResourceBundle.getBundle("omero");
+        String url = bundle.getString("omero.upgrades.url");
+        UpgradeCheck check = new UpgradeCheck(url, versionNumber, client);
+        check.run();
+        return check.isUpgradeNeeded();
+    }
+    
     /**
      * Initialize all services needed
      *
@@ -702,6 +716,18 @@ public class OMEROMetadataStoreClient
     public RLong toRType(NonNegativeLong value)
     {
         return value == null? null : rlong(value.getValue());
+    }
+
+    /**
+     * Transforms a Java type into the corresponding OMERO RType.
+     *
+     * @param value Java concrete type value.
+     * @return RType or <code>null</code> if <code>value</code> is
+     * <code>null</code>.
+     */
+    public RDouble toRType(PositiveFloat value)
+    {
+        return value == null? null : rdouble(value.getValue());
     }
 
     /**
@@ -2958,6 +2984,16 @@ public class OMEROMetadataStoreClient
     {
         BooleanAnnotation o = getBooleanAnnotation(booleanAnnotationIndex);
         o.setBoolValue(toRType(value));
+    }
+
+    public void setBinaryOnlyUUID(String uuid)
+    {
+        // XXX: Not handled by OMERO.
+    }
+
+    public void setBinaryOnlyMetadataFile(String metadataFile)
+    {
+        // XXX: Not handled by OMERO.
     }
 
     //////// Channel /////////
@@ -5312,6 +5348,12 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(MicrobeamManipulation.class, id, o);
     }
 
+    public void setMicrobeamManipulationDescription(String description, int experimentIndex, int microbeamManipulationIndex)
+    {
+        MicrobeamManipulation o = getMicrobeamManipulation(experimentIndex, microbeamManipulationIndex);
+        o.setDescription(toRType(description));
+    }
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationExperimenterRef(java.lang.String, int, int)
      */
@@ -5979,27 +6021,27 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeX(java.lang.Double, int)
+     * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeX(ome.xml.model.primitives.PositiveFloat, int)
      */
-    public void setPixelsPhysicalSizeX(Double physicalSizeX, int imageIndex)
+    public void setPixelsPhysicalSizeX(PositiveFloat physicalSizeX, int imageIndex)
     {
         Pixels o = getPixels(imageIndex);
         o.setPhysicalSizeX(toRType(physicalSizeX));
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeY(java.lang.Double, int)
+     * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeY(ome.xml.model.primitives.PositiveFloat, int)
      */
-    public void setPixelsPhysicalSizeY(Double physicalSizeY, int imageIndex)
+    public void setPixelsPhysicalSizeY(PositiveFloat physicalSizeY, int imageIndex)
     {
         Pixels o = getPixels(imageIndex);
         o.setPhysicalSizeY(toRType(physicalSizeY));
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeZ(java.lang.Double, int)
+     * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeZ(ome.xml.model.primitives.PositiveFloat, int)
      */
-    public void setPixelsPhysicalSizeZ(Double physicalSizeZ, int imageIndex)
+    public void setPixelsPhysicalSizeZ(PositiveFloat physicalSizeZ, int imageIndex)
     {
         Pixels o = getPixels(imageIndex);
         o.setPhysicalSizeZ(toRType(physicalSizeZ));

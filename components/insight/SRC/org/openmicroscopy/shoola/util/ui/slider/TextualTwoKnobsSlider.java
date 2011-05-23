@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.util.ui.slider;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -553,10 +555,14 @@ public class TextualTwoKnobsSlider
 				add(slider);
 				break;
 			case LAYOUT_SLIDER_FIELDS_X_AXIS:
-				setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-				add(startField);
-				add(slider);
-				add(endField);
+				//setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+				double tableSize[][] =
+		          {{0.1,0.8,0.1},
+		           {TableLayout.PREFERRED, TableLayout.PREFERRED,TableLayout.PREFERRED}};
+				setLayout(new TableLayout(tableSize));
+				add(startField,"0,0,0,1");
+				add(slider,"1,0,1,1");
+				add(endField,"2,0,2,1");
 				break;
 			case LAYOUT_SLIDER_FIELDS_LABELS_X_AXIS:
 				setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));

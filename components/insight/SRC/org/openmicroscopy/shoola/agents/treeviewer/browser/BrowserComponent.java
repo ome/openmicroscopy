@@ -1231,7 +1231,7 @@ class BrowserComponent
     	}
 
 	    TreeImageDisplay root = view.getTreeRoot();
-	    root.setToRefresh(false);
+	    //root.setToRefresh(false);
 	    TreeImageSet expNode;
 	    RefreshExperimenterDef def;
 	    RefreshVisitor v = new RefreshVisitor(this);

@@ -381,11 +381,12 @@ public class RenderingBean implements RenderingEngine, Serializable {
              * TODO we could also allow for setting of the buffer! perhaps
              * better caching, etc.
              */
-            PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
             closeRenderer();
             List<Family> families = getAllEnumerations(Family.class);
             List<RenderingModel> renderingModels = getAllEnumerations(RenderingModel.class);
             QuantumFactory quantumFactory = new QuantumFactory(families);
+            // Loading last to try to ensure that the buffer will get closed.
+            PixelBuffer buffer = getPixelBuffer();
             renderer = new Renderer(quantumFactory, renderingModels, pixelsObj,
                     rendDefObj, buffer);
         } finally {
@@ -1389,16 +1390,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
     }
 
     /* (non-Javadoc)
-     * @see omeis.providers.re.RenderingEngine#hasPixelsPyramid()
+     * @see omeis.providers.re.RenderingEngine#requiresPixelsPyramid()
      */
     @RolesAllowed("user")
-    public boolean hasPixelsPyramid()
+    public boolean requiresPixelsPyramid()
     {
         rwl.writeLock().lock();
 
         try {
             errorIfInvalidState();
-            return pixDataSrv.isRequirePyramid(pixelsObj);
+            return pixDataSrv.requiresPixelsPyramid(pixelsObj);
         } finally {
             rwl.writeLock().unlock();
         }
@@ -1812,4 +1813,12 @@ public class RenderingBean implements RenderingEngine, Serializable {
             }});
     }
 
+    private PixelBuffer getPixelBuffer() {
+        return (PixelBuffer) ex.execute(null, new Executor.SimpleWork(this, "getPixelBuffer") {
+            @Transactional(readOnly = false) // ticket:5232
+            public Object doWork(Session session, ServiceFactory sf) {
+                return pixDataSrv.getPixelBuffer(pixelsObj);
+            }
+        });
+    }
 }

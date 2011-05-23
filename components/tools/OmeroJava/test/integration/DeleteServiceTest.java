@@ -4281,4 +4281,36 @@ public class DeleteServiceTest
 		}
     }
  
+    /**
+     * Simulates an SVS import in which many Pixels are attached to a
+     * single, archived OriginalFile.
+     */
+    @Test(groups = "ticket:5237")
+    public void testDeletePixelsAndFiles()
+        throws Exception
+    {
+        Image img1 = mmFactory.createImage();
+        Image img2 = mmFactory.createImage();
+        OriginalFile file = mmFactory.createOriginalFile();
+        img1.getPrimaryPixels().linkOriginalFile(file);
+        img2.getPrimaryPixels().linkOriginalFile(file);
+
+        file = (OriginalFile) iUpdate.saveAndReturnObject(file);
+        img1 = file.linkedPixelsList().get(0).getImage();
+        img2 = file.linkedPixelsList().get(1).getImage();
+
+        assertExists(img1);
+        assertExists(img2);
+        assertExists(file);
+        delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
+        assertDoesNotExist(img1);
+        assertExists(img2);
+        assertExists(file);
+        delete(new DeleteCommand(REF_IMAGE, img2.getId().getValue(), null));
+        assertDoesNotExist(img1);
+        assertDoesNotExist(img2);
+        assertDoesNotExist(file);
+
+
+    }
  }

@@ -95,15 +95,6 @@
                     }
                 });
                 
-                $('#hierarchy').click(function() {
-                    var $tab = $("#hierarchy_tab");
-                    var href = $("#hierarchy-link").attr('href');
-                    if (!hierarchy_load) {
-                        $tab.load(href);
-                        hierarchy_load = true;
-                    }
-                });
-                
                 $("{% for t in manager.tag_annotations %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
                     track: true, 
                     delay: 0, 
@@ -150,7 +141,18 @@
                     newWindow.document.write(xml);
                     newWindow.document.close();
                     return false;
-                });                
+                });
+                
+                {% if manager.image %}
+                // handle loading of image hierarchy by ajax
+                $("#hierarchy-link").click(function(e){
+                    var hierarchy_url = $(this).attr('href');
+                    $("#hierarchy-spinner").show();  // waiting...
+                    $("#hierarchy-pane").load(hierarchy_url);
+                    e.preventDefault();
+                    return false;
+                })
+                {% endif %}
 
             });
 
@@ -202,7 +204,6 @@
                 {% if manager.image or manager.well %}
                     <li><a id='acquisition' href="#metadata_tab">{% trans "Acquisition" %}</a></li>                
                     <li><a id='preview' href="#preview_tab">{% trans "Preview" %}</a></li>
-                    <li><a id='hierarchy' href="#hierarchy_tab">{% trans "Contained in" %}</a></li>
                 {% endif %}
             {% endif %}
         </ul>
@@ -229,11 +230,6 @@
         <div id="metadata_tab">
             <!-- content is loaded by ajax when this tab is first displayed -->
             <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.image.id %}" style='display:none' >Acquisition</a>
-            <img src="{% url webstatic "images/spinner.gif" %}" />
-        </div>
-        <div id="hierarchy_tab">
-            <!-- content is loaded by ajax when this tab is first displayed -->
-            <a id="hierarchy-link" href="{% url load_metadata_hierarchy 'image' manager.image.id %}" style='display:none' >Contained in</a>
             <img src="{% url webstatic "images/spinner.gif" %}" />
         </div>
         {% endif %}
@@ -472,7 +468,7 @@
         
         
             <!-- ANNOTATIONS -->
-            <h1>{% trans "Annotations" %}:</h1>
+            <h1>{% trans "Annotations" %}</h1>
             <table>
             <!-- RATING -->
             <tr>
@@ -702,6 +698,16 @@
             </tr>            
             </table>            
             <div class="clear"></div>          
+
+            {% if manager.image %}
+            <!-- HIERARCHY - Contained In -->
+            <h1>Contained in Datasets</h1>
+            <div id="hierarchy-pane">
+                <!-- content is loaded by ajax when this tab is first displayed -->
+                <a id="hierarchy-link" href="{% url load_metadata_hierarchy 'image' manager.image.id %}">Load hierarchy...</a>
+                <img id="hierarchy-spinner" style="display:none" src="{% url webstatic 'images/spinner.gif' %}" />
+            </div>
+            {% endif %}
         </div>
         </div>
         {% endif %}

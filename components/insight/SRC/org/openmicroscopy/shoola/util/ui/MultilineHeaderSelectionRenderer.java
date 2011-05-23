@@ -115,6 +115,7 @@ public class MultilineHeaderSelectionRenderer
 		setOpaque(true);
 	    setForeground(UIManager.getColor("TableHeader.foreground"));
 	    JLabel l = new JLabel();
+	    l.setOpaque(true);
 	    setBackground(l.getBackground());
 	    setBorder(UIManager.getBorder("TableHeader.cellBorder"));
 	    list = new JList();

@@ -394,9 +394,19 @@ public interface SqlAction {
             return id;
         }
 
+
         //
         // CONFIGURATION
         //
+
+        public String configValue(String key) {
+            try {
+                return _jdbc().queryForObject(_lookup("config_value"), //$NON-NLS-1$
+                        String.class, key);
+            } catch (EmptyResultDataAccessException erdae) {
+                return null;
+            }
+        }
 
         public long selectCurrentEventLog(String key) {
             String value = _jdbc().queryForObject(

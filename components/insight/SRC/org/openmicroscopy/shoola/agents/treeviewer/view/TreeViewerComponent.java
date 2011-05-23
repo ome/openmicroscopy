@@ -224,6 +224,32 @@ class TreeViewerComponent
 					view.removeAllFromWorkingPane();
 					view.displayBrowser(db);
 				}
+			} else {
+				if (DataBrowserFactory.hasBeenDiscarded(display)) {
+					if (display.isChildrenLoaded() 
+							&& display.containsImages()) {
+						List l = display.getChildrenDisplay();
+        				if (l != null) {
+        					Set s = new HashSet();
+        					Iterator i = l.iterator();
+        					TreeImageDisplay child;
+    						//copy the node.
+        					while (i.hasNext()) {
+        						child = (TreeImageDisplay) i.next();
+        						s.add(child.getUserObject());
+        					}
+    						setLeaves((TreeImageSet) display, s);
+    						db = DataBrowserFactory.getDataBrowser(display);
+    						list = browser.getSelectedDataObjects();
+    						if (list != null && list.size() == 1) {
+    							app = TreeViewerFactory.getApplications(
+    							model.getObjectMimeType(list.get(0)));
+    						}
+    						db.setSelectedNodes(list, app);
+        						
+        				}
+					}
+				}
 			}
 			return;
 		}
@@ -668,8 +694,9 @@ class TreeViewerComponent
 			Object uo = null;
 			Set<DataObject> nodes = null;
     		if (object instanceof ExperimenterData) {
-    			TreeImageDisplay node = 
-    				getSelectedBrowser().getLastSelectedDisplay();
+    			Browser browser = getSelectedBrowser();
+    			TreeImageDisplay node = null;
+    			if (browser != null) node = browser.getLastSelectedDisplay();
         		if (node != null) uo = node.getUserObject();
         		ContainerFinder finder = new ContainerFinder(GroupData.class);
         		getSelectedBrowser().accept(finder, 
@@ -2199,7 +2226,9 @@ class TreeViewerComponent
 		parentObject = parent.getUserObject();
 		TreeImageDisplay display = parent.getParentDisplay();
 		if (display != null) grandParentObject =  display.getUserObject();
-		exp = getSelectedBrowser().getNodeOwner(parent);
+		Browser browser = model.getSelectedBrowser();
+		if (browser != null) 
+			exp = browser.getNodeOwner(parent);
 		DataBrowser db = DataBrowserFactory.getDataBrowser(grandParentObject,
 				parentObject, leaves, parent);
 		db.setExperimenter(exp);
@@ -3252,6 +3281,7 @@ class TreeViewerComponent
 			if (browser != null) {
 				node = browser.getLoggedExperimenterNode();
 				if (node != null) {
+					node.setExpanded(true);
 					node.setToRefresh(refreshTree);
 					browser.getUI().repaint();
 				}

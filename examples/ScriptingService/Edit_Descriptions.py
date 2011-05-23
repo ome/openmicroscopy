@@ -35,7 +35,7 @@ It defines a name, description and parameter list for the script.
 """
 
 import omero
-#import omero.clients
+from omero.gateway import BlitzGateway
 from omero.rtypes import *
 import omero.scripts as scripts
 
@@ -48,32 +48,30 @@ def printDuration():
         startTime = time.time()
     print "script time = %s secs" % (time.time() - startTime)
     
-def editDescriptions(session, parameterMap):
+def editDescriptions(conn, parameterMap):
     """
     Does the main work of the script, setting Description for each Image in a Dataset
     
-    @param session          The OMERO session
+    @param conn             Blitz Gateway connection wrapper
     @param parameterMap     A map of the input parameters
     """
-    # create the services we need - NB: Be careful to only create services as necessary
-    gateway = session.createGateway()
+    # we know parameterMap will have "Dataset_ID" since this parameter is not optional
+    datasetId = parameterMap["Dataset_ID"]
     
-    datasetId = parameterMap["Dataset_ID"]      # since Dataset_ID is not optional
-    
-    # for optional parameters - need to define a default
+    # for optional parameters - need to test if present
     newDescription = "No description specified"  
     if "New_Description" in parameterMap:
         newDescription = parameterMap["New_Description"]
-        
-    dataset = gateway.getDataset(datasetId, True)   # True = get Images too
-    print "Dataset:", dataset.getName().getValue()
 
-    for image in dataset.linkedImageList():
-        image.setDescription(rstring(newDescription))
-        gateway.saveObject(image)
+    dataset = conn.getObject('Dataset', datasetId)
+    print "Dataset:", dataset.getName()
+
+    for image in dataset.listChildren():
+        image.setDescription(newDescription)
+        image.save()
         
     # use this in Output_Message
-    return dataset.getName().getValue()
+    return dataset.getName()
 
 
 if __name__ == "__main__":
@@ -93,10 +91,13 @@ if __name__ == "__main__":
         parameterMap = {}
         for key in client.getInputKeys():
             if client.getInput(key):
-                parameterMap[key] = client.getInput(key).getValue() # convert from rtype to value (String, Integer etc)
-    
+                parameterMap[key] = client.getInput(key, unwrap=True) # unwrap rtypes to String, Integer etc
+
+        # wrap client to use the Blitz Gateway
+        conn = BlitzGateway(client_obj=client)
+
         # do the editing and handle the result
-        datasetName = editDescriptions(session, parameterMap)
+        datasetName = editDescriptions(conn, parameterMap)
         if datasetName:
             ouputMessage = "Script Ran OK on Dataset: %s" % datasetName
         else:

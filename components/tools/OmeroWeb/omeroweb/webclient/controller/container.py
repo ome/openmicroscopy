@@ -25,6 +25,7 @@
 import omero
 from omero.rtypes import *
 from django.core.urlresolvers import reverse
+from django.utils.encoding import smart_str
 
 from webclient.controller import BaseController
 
@@ -366,7 +367,7 @@ class BaseContainer(BaseController):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
         else:
-            self.conn.getEventContext().userId
+            eid = self.conn.getEventContext().userId
         
         im_list = list(self.conn.listOrphans("Image", eid=eid))
         im_list_with_counters = list()
@@ -617,8 +618,8 @@ class BaseContainer(BaseController):
         else:
             format = newFile.content_type
         oFile = omero.model.OriginalFileI()
-        oFile.setName(rstring(str(newFile.name)));
-        oFile.setPath(rstring(str(newFile.name)));
+        oFile.setName(rstring(smart_str(newFile.name)));
+        oFile.setPath(rstring(smart_str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
         oFile.setSha1(rstring("pending"));
         oFile.setMimetype(rstring(str(format)));
@@ -692,8 +693,8 @@ class BaseContainer(BaseController):
         else:
             format = newFile.content_type
         oFile = omero.model.OriginalFileI()
-        oFile.setName(rstring(str(newFile.name)));
-        oFile.setPath(rstring(str(newFile.name)));
+        oFile.setName(rstring(smart_str(newFile.name)));
+        oFile.setPath(rstring(smart_str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
         oFile.setSha1(rstring("pending"));
         oFile.setMimetype(rstring(str(format)));
@@ -924,7 +925,7 @@ class BaseContainer(BaseController):
                 else:
                     # update link to new destination
                     new_ds = self.conn.getObject("Dataset", destination[1])
-                    if len(parent) > 1:
+                    if parent[0] not in ('experimenter', 'orphaned'):
                         up_dsl.setParent(new_ds._obj)
                         self.conn.saveObject(up_dsl._obj)
                     else:
@@ -967,7 +968,7 @@ class BaseContainer(BaseController):
                         self.conn.deleteObjectDirect(up_spl._obj)
                 else:
                     new_sc = self.conn.getObject("Screen", destination[1])
-                    if len(parent) > 1:
+                    if parent[0] not in ('experimenter', 'orphaned'):
                         up_spl.setParent(new_sc._obj)
                         self.conn.saveObject(up_spl._obj)
                     else:

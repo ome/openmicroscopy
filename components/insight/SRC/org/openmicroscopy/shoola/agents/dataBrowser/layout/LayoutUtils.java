@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -43,7 +42,7 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import pojos.DataObject;
 
 /** 
- * Helper class providint methods to lay out the nodes.
+ * Helper class providing methods to lay out the nodes.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -200,7 +199,7 @@ public class LayoutUtils
         Dimension maxDim = maxChildDim(node);
         //Then figure out the number of columns, which is the same as the
         //number of rows.
-        int n = node.getChildrenDisplay().size();        
+        int n = node.getChildrenDisplay().size();
         if (n == 0) {   //Node with no children.
             node.getInternalDesktop().setPreferredSize(
                     node.getTitleBar().getMinimumSize());
@@ -219,7 +218,8 @@ public class LayoutUtils
 			dd = node.getParentDisplay().getSize();
 		l = sorter.sort(l);
         if (dd.width >= MIN && dd.height >= MIN) {
-            n = dd.width/maxDim.width;
+            if (maxDim.width != 0) 
+            	n = dd.width/maxDim.width;
         	if (n == 0) {
         		n = DEFAULT_PER_ROW;
         	}
@@ -383,9 +383,16 @@ public class LayoutUtils
      */
     public static Dimension max(Dimension a, Dimension b)
     {
+    	int w = a.width;
+    	int h = a.height;
+    	if (b.width > w) w = b.width;
+    	if (b.height > h) h = b.height;
+    	return new Dimension (w, h);
+    	/*
         int areaA = a.width*a.height, areaB = b.width*b.height;
         if (areaA < areaB) return b;
         return a;
+        */
     }
     
     //NOTE: Let A be the function that calculates the area of a Dimension,

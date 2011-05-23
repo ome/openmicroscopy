@@ -1,16 +1,15 @@
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
-{% load wikitags %}
 
 {% if share.imgSize %}
-    {% for d in share.imageInShare %}
-        {% if d.loaded %}
-        <li id='img-{{ d.id }}' title="{{ d.name }}"><span id="{% if share.share.isOwned %}owner-{% endif %}readonly">{{ d.name|truncatebefor:"35" }}</span> {% if not d.isOwned %}<img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</li>
-        {% else %}
-        <li>Object deleted.</li>
-        {% endif %}
-    {% endfor %}
+{% for d in share.imageInShare %}
+    {% if d.loaded %}
+    <li id='image-{{ d.id }}' rel="image{% if not d.isOwned %}-locked{% endif %}"><a href="#">{{ d.name|truncatebefor:"30" }}</a>
+        {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %} 
+    </li>
+    {% else %}
+    <li>Object deleted.</li>
+    {% endif %}
+{% endfor %}
 {% endif %}
-
-

@@ -26,6 +26,7 @@ import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
+import loci.formats.UnsupportedCompressionException;
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
 import ome.formats.ImageNameMetadataStore;
@@ -388,10 +389,17 @@ public class ImportCandidates extends DirectoryWalker
     {
 
         if (file == null) {
+            // Can't do anything about it.
             return null;
         }
 
-        String path = file.getAbsolutePath();
+        final String path = file.getAbsolutePath();
+        if (!file.exists() || !file.canRead()) {
+            safeUpdate(new ErrorHandler.UNREADABLE_FILE(path,
+                new java.io.FileNotFoundException(path), this));
+            return null;
+        }
+
         String format = null;
         String[] usedFiles = new String[] { path };
         long start = System.currentTimeMillis();
@@ -429,6 +437,11 @@ public class ImportCandidates extends DirectoryWalker
                 reader.close();
             }
 
+        } catch (UnsupportedCompressionException uce)
+        {
+            unknown++;
+            // Handling as UNKNOWN_FORMAT for 4.3.0
+            safeUpdate(new ErrorHandler.UNKNOWN_FORMAT(path, uce, this));
         } catch (UnknownFormatException ufe)
         {
             unknown++;

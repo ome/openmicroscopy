@@ -32,7 +32,6 @@ from django.forms import ModelChoiceField, ModelMultipleChoiceField, ValidationE
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode
 
-
 ##################################################################
 # Fields
 

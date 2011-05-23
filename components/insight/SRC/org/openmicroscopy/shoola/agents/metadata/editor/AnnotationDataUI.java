@@ -441,6 +441,7 @@ class AnnotationDataUI
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+		removeAll();
 		JLabel l = new JLabel();
 		Font f = l.getFont();
 		int size = f.getSize()-1;
@@ -575,8 +576,6 @@ class AnnotationDataUI
 	private void layoutAttachments(Collection list)
 	{
 		docPane.removeAll();
-		//TableLayout layout = (TableLayout) content.getLayout();
-		//layout.setRow(docIndex, TableLayout.PREFERRED);
 		filesDocList.clear();
 		DocComponent doc;
 		int h = 0;
@@ -889,7 +888,7 @@ class AnnotationDataUI
 						} else {
 							if (fa.getFileName().equals(files[j].getName())) {
 								toReplace.add(fa);
-							}
+							} else toAdd.add(files[j]);
 						}
 					}
 					
@@ -1206,7 +1205,7 @@ class AnnotationDataUI
 			while (j.hasNext()) {
 				tag = (TagAnnotationData) j.next();
 				id = tag.getId();
-				if (!idsToKeep.contains(id) && !model.isAnnotationToDelete(tag))
+				if (!idsToKeep.contains(id))// && model.isAnnotationToDelete(tag))
 					l.add(tag);
 			}
 		}
@@ -1229,7 +1228,7 @@ class AnnotationDataUI
 			while (j.hasNext()) {
 				fa = (FileAnnotationData) j.next();
 				id = fa.getId();
-				if (!idsToKeep.contains(id)  && !model.isAnnotationToDelete(fa))
+				if (!idsToKeep.contains(id))//  && model.isAnnotationToDelete(fa))
 					l.add(fa);
 			}
 		}

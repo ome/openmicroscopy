@@ -378,7 +378,7 @@ class GeneralPaneUI
 		if (!init) {
 			buildGUI();
 			init = true;
-		}		
+		}	
 		clearData();
 		textualAnnotationsUI.clearDisplay();
 		propertiesUI.clearDisplay();

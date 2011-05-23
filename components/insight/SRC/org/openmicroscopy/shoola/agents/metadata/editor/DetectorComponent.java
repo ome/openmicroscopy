@@ -166,6 +166,7 @@ class DetectorComponent
 		Entry entry;
 		Iterator i = entrySet.iterator();
 		boolean set;
+		String v = "";
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			key = (String) entry.getKey();
@@ -198,14 +199,19 @@ class DetectorComponent
 				area = detectorBox;//parent.replaceCombobox(detectorBox);
 			} else if (value instanceof Number) {
 				area = UIUtilities.createComponent(NumericalTextField.class, 
-						null);
-				if (value instanceof Double) 
-					((NumericalTextField) area).setNumberType(Double.class);
-				else if (value instanceof Float) 
-					((NumericalTextField) area).setNumberType(Float.class);
-				((NumericalTextField) area).setText(""+value);
-				((NumericalTextField) area).setEditedColor(
-						UIUtilities.EDITED_COLOR);
+            			null);
+            	if (value instanceof Double) {
+            		v = ""+UIUtilities.roundTwoDecimals(
+            				((Number) value).doubleValue());
+            		((NumericalTextField) area).setNumberType(Double.class);
+            	} else if (value instanceof Float) {
+            		v = ""+UIUtilities.roundTwoDecimals(
+            				((Number) value).doubleValue());
+            		((NumericalTextField) area).setNumberType(Float.class);
+            	} else v = ""+value;
+            	((NumericalTextField) area).setText(v);
+            	((NumericalTextField) area).setEditedColor(
+            			UIUtilities.EDITED_COLOR);
 			} else {
 				area = UIUtilities.createComponent(OMETextArea.class, null);
 				if (value == null || value.equals("")) 

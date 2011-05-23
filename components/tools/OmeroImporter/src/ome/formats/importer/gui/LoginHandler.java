@@ -206,7 +206,8 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                             viewer.setVisible(true);
                         }
                         
-                        isUpgradeRequired();
+                        if (config.getStaticDisableUpgradeCheck() == false)
+                        	store.isUpgradeRequired(config.getVersionNumber(), "importer");
                         viewer.getStatusBar().setProgress(false, 0, "");
                         viewer.appendToOutput("> Login Successful.\n");
                         viewer.getFileQueueHandler().enableImports(true);
@@ -288,17 +289,6 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             }
         }.start();
     }
-
-    /**
-     * Check online to see if this is the current version
-     */
-    public boolean isUpgradeRequired() {
-        ResourceBundle bundle = ResourceBundle.getBundle("omero");
-        String url = bundle.getString("omero.upgrades.url");
-        UpgradeCheck check = new UpgradeCheck(url, config.getVersionNumber(), "importer");
-        check.run();
-        return check.isUpgradeNeeded();
-    }
     
     /**
      *  refresh login
@@ -365,7 +355,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             view.setBounds((screenSize.width-d.width)/2,
                     (screenSize.height-totalHeight)/2, 
                     dlogin.width, dlogin.height);
-            view.setQuitButtonText("Canel");
+            view.setQuitButtonText("Cancel");
         }
         view.addPropertyChangeListener((PropertyChangeListener) viewer);
         view.addWindowStateListener((WindowStateListener) viewer);
@@ -404,7 +394,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         	{
         		try
         		{
-        			viewer.getHistoryTable().db.initialize(store, config.getStaticDisableHistory() | config.getUserDisableHistory());
+        			viewer.getHistoryTable().db.initialize(store, (config.getStaticDisableHistory() | config.getUserDisableHistory()));
         			viewer.getHistoryTable().db.initializeDataSource();
         	        if (viewer.getHistoryTable().db.historyEnabled == false)
         	        	viewer.tPane.setEnabledAt(viewer.historyTabIndex,false);

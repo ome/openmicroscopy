@@ -13,7 +13,7 @@ import omero.ServerError;
 import omero.api.AMD_PyramidService_getResolutionLevel;
 import omero.api.AMD_PyramidService_getResolutionLevels;
 import omero.api.AMD_PyramidService_getTileSize;
-import omero.api.AMD_PyramidService_hasPixelsPyramid;
+import omero.api.AMD_PyramidService_requiresPixelsPyramid;
 import omero.api.AMD_PyramidService_setResolutionLevel;
 import omero.api.AMD_RenderingEngine_addCodomainMap;
 import omero.api.AMD_RenderingEngine_getAvailableFamilies;
@@ -441,9 +441,9 @@ public class BfRenderingEngineI extends _RenderingEngineDisp {
     }
 
     /* (non-Javadoc)
-     * @see omero.api._PyramidServiceOperations#hasPixelsPyramid_async(omero.api.AMD_PyramidService_hasPixelsPyramid, Ice.Current)
+     * @see omero.api._PyramidServiceOperations#requiresPixelsPyramid_async(omero.api.AMD_PyramidService_requiresPixelsPyramid, Ice.Current)
      */
-    public void hasPixelsPyramid_async(AMD_PyramidService_hasPixelsPyramid __cb,
+    public void requiresPixelsPyramid_async(AMD_PyramidService_requiresPixelsPyramid __cb,
             Current __current) throws ServerError
     {
     }

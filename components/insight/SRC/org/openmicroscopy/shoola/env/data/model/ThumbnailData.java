@@ -53,7 +53,7 @@ public class ThumbnailData
     implements DataObject
 {
 
-	 /** The id of the image to which the thumbnail belong. */
+	/** The id of the image to which the thumbnail belong. */
     private long            userID;
     
     /** The id of the image to which the thumbnail belong. */
@@ -67,6 +67,9 @@ public class ThumbnailData
     
     /** Used to store the image. */
     private ImageData		image;
+    
+    /** Flag indicating that the image has a pyramid.*/
+    private Boolean			hasPyramid;
     
     /** The object of reference. */
     private pojos.DataObject refObject;
@@ -94,12 +97,11 @@ public class ThumbnailData
         if (imageID <= 0) 
             throw new IllegalArgumentException("Non-positive image id: "+
                                                imageID+".");
-        if (thumbnail == null)
-            throw new NullPointerException("No thumbnail.");
         this.imageID = imageID;
         this.thumbnail = thumbnail;
         this.userID = userID;
         this.validImage = validImage;
+        hasPyramid = null;
     }
     
     /**
@@ -122,12 +124,12 @@ public class ThumbnailData
      * 
      * @param refOjbect The object of reference. Mustn't be <code>null</code>.
      * @param thumbnail The thumbnail pixels. Mustn't be <code>null</code>.
+     * @param validImage Passed <code>true</code> if it is a valid image, 
+     * <code>false</code> otherwise.
      */
     public ThumbnailData(pojos.DataObject refOjbect, BufferedImage thumbnail,
     		boolean validImage)
     {
-    	  if (thumbnail == null)
-              throw new NullPointerException("No thumbnail.");
     	  if (refOjbect == null)
     		  throw new IllegalArgumentException("No object.");
     	  if (!(refOjbect instanceof ImageData))
@@ -135,6 +137,20 @@ public class ThumbnailData
     	  this.refObject = refOjbect;
     	  this.validImage = validImage;
     	  this.thumbnail = thumbnail;
+    	  hasPyramid = null;
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param refOjbect The object of reference. Mustn't be <code>null</code>.
+     * @param hasPyramid Passed <code>true</code> if the image has a pyramid, 
+     * <code>false</code> otherwise.
+     */
+    public ThumbnailData(pojos.DataObject refOjbect, boolean hasPyramid)
+    {
+        this(refOjbect, null, false);
+        this.hasPyramid = hasPyramid;
     }
     
     /**
@@ -177,16 +193,23 @@ public class ThumbnailData
      */
     public DataObject makeNew()
     {
-        BufferedImage pixClone = new BufferedImage(
-                                        thumbnail.getWidth(),
-                                        thumbnail.getHeight(), 
-                                        thumbnail.getType());
-        Graphics2D g2D = pixClone.createGraphics();
-        g2D.drawImage(thumbnail, null, 0, 0); 
+        BufferedImage pixClone = null;
+        if (thumbnail != null) {
+        	pixClone = new BufferedImage( thumbnail.getWidth(),
+                    thumbnail.getHeight(), 
+                    thumbnail.getType());
+        	 Graphics2D g2D = pixClone.createGraphics();
+             g2D.drawImage(thumbnail, null, 0, 0);
+        }
         ThumbnailData data;
-        if (refObject != null)
-        	data = new ThumbnailData(this.refObject, pixClone, this.validImage);
-        else data = new ThumbnailData(imageID, pixClone, this.validImage);
+        if (refObject != null) {
+        	if (this.hasPyramid != null) {
+        		data = new ThumbnailData(this.refObject, this.hasPyramid);
+        	} else {
+        		data = new ThumbnailData(this.refObject, pixClone,
+        				this.validImage);
+        	}
+        } else data = new ThumbnailData(imageID, pixClone, this.validImage);
         data.setImage(this.image);
         return data;
     }
@@ -234,4 +257,16 @@ public class ThumbnailData
      */
     public pojos.DataObject getRefObject() { return refObject; }
     
+    /**
+     * Returns <code>true</code> if the image has a pyramid, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean hasPyramid()
+    { 
+    	if (hasPyramid != null) return hasPyramid.booleanValue();
+    	return false;
+    }
+
 }

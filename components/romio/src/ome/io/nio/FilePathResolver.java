@@ -7,10 +7,12 @@
 
 package ome.io.nio;
 
+import java.util.Map;
+
 import ome.model.core.Pixels;
 
 /**
- * Resolver for file paths.
+ * Resolver for file paths and related metadata.
  * 
  * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
@@ -18,6 +20,20 @@ import ome.model.core.Pixels;
  */
 public interface FilePathResolver
 {
+    /**
+     * Retrieves the original file path for a given set of pixels.
+     * @param service File system service which contains methods to resolve
+     * the root and directory structure of the path.
+     * @param pixels Pixels set to retrieve an original file path for.
+     * @return Absolute path to the original file for the set of pixels.
+     */
     String getOriginalFilePath(AbstractFileSystemService service,
                                Pixels pixels);
+
+    /**
+     * Retrieves the pixels set's stored parameters.
+     * @param pixels Pixels set to retrieve parameters for.
+     * @return Map of key vs. value with the parameters for this pixels set.
+     */
+    Map<String, String> getPixelsParams(Pixels pixels);
 }

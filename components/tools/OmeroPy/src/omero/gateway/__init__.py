@@ -1567,7 +1567,6 @@ class _BlitzGateway (object):
                     raise
                 except:
                     logger.info("BlitzGateway.connect().createSession(): " + traceback.format_exc())
-                    logger.debug(str(self._ic_props))
                     #time.sleep(10)
                     self._createSession()
 
@@ -2432,8 +2431,18 @@ class _BlitzGateway (object):
 
         def createImage(firstPlane):
             """ Create our new Image once we have the first plane in hand """
-            pType = firstPlane.dtype.name
+            # need to map numpy pixel types to omero - don't handle: bool_, character, int_, int64, object_
+            pTypes = {'int8':'int8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'float_':'float', 'float8':'float', 
+                        'float16':'float', 'float32':'float', 'float64':'double', 'complex_':'complex', 'complex64':'complex'}
+            dType = firstPlane.dtype.name
+            print dType
+            if dType not in pTypes: # try to look up any not named above
+                pType = dType
+            else:
+                pType = pTypes[dType]
             pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+            if pixelsType is None:
+                raise Exception("Cannot create an image in omero from numpy array with dtype: %s" % dType)
             sizeY, sizeX = firstPlane.shape
             channelList = range(1, sizeC+1)
             iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
@@ -2871,6 +2880,8 @@ def safeCallWrap (self, attr, f): #pragma: no cover
             raise
         except omero.InternalException:
             raise
+        except omero.MissingPyramidException:
+            raise
         except Ice.Exception, x:
             # Failed
             logger.debug( "Ice.Exception (1) on safe call %s(%s,%s)" % (attr, str(args), str(kwargs)))
@@ -2911,6 +2922,9 @@ def safeCallWrap (self, attr, f): #pragma: no cover
             raise
         except omero.ApiUsageException:
             logger.debug("ApiUsageException, bailing out")
+            raise
+        except omero.MissingPyramidException:
+            logger.debug("MissingPyramidException, bailing out")
             raise
         except Ice.UnknownException:
             logger.debug("UnknownException, bailing out")
@@ -6648,18 +6662,18 @@ class _FilamentWrapper (_LightSourceWrapper):
     """
 
     def __bstrap__ (self):
-        super(self.__class__, self).__bstrap__()
+        super(_FilamentWrapper, self).__bstrap__()
         self.OMERO_CLASS = 'Filament'
 
 FilamentWrapper = _FilamentWrapper
 _LightSourceClasses[omero.model.FilamentI] = 'FilamentWrapper'
 
-class _ArcWrapper (FilamentWrapper):
+class _ArcWrapper (_FilamentWrapper):
     """
     omero_model_ArcI class wrapper extends FilamentWrapper.
     """
     def __bstrap__ (self):
-        super(self.__class__, self).__bstrap__()
+        super(_ArcWrapper, self).__bstrap__()
         self.OMERO_CLASS = 'Arc'
 
 ArcWrapper = _ArcWrapper
@@ -6670,7 +6684,7 @@ class _LaserWrapper (_LightSourceWrapper):
     omero_model_LaserI class wrapper extends LightSourceWrapper.
     """
     def __bstrap__ (self):
-        super(self.__class__, self).__bstrap__()
+        super(_LaserWrapper, self).__bstrap__()
         self.OMERO_CLASS = 'Laser'
         self._attrs += (
             '#laserMedium',
@@ -6705,7 +6719,7 @@ class _LightEmittingDiodeWrapper (_LightSourceWrapper):
     omero_model_LightEmittingDiodeI class wrapper extends LightSourceWrapper.
     """
     def __bstrap__ (self):
-        super(self.__class__, self).__bstrap__()
+        super(_LightEmittingDiodeWrapper, self).__bstrap__()
         self.OMERO_CLASS = 'LightEmittingDiode'
 
 LightEmittingDiodeWrapper = _LightEmittingDiodeWrapper

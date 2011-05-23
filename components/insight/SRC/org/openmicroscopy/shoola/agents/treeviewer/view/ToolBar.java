@@ -20,11 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.view;
-
-
-
 
 //Java imports
 import java.awt.Color;

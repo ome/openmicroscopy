@@ -275,7 +275,7 @@ class XmlReport(object):
 			self.errorList.append(ParseMessage(None, None, None, "XML", None, "Processing the XML data has generated an unspecified error in the XML sub-system. This is usually a result of an incorrect top level block. Please check the OME block is well-formed and that the schemaLocation is specified correctly. This may also be caused by a missing namespace prefix or incorrect xmlns attribute."))
 
 	def checkOldSchemas(self, inDocument):
-		for thePossibleSchema in [["ome-2010-06-V1.xsd","June 2010 V1"],["ome-2010-04-V1.xsd","April 2010 V1"],["ome-2009-09-V1.xsd","September 2009 V1"],["ome-2008-09-V1.xsd","September 2008 V1"],["ome-2008-02-V2.xsd","February 2008 V2"],["ome-2008-02-V1.xsd","February 2008 V1"],["ome-2007-06-V2.xsd","September 2007 V2"],["ome-2007-06-V1.xsd","June 2007 V1"],["ome-fc-tiff.xsd","2003 - Tiff Variant"], ["ome-fc.xsd","2003 - Standard version"]]:
+		for thePossibleSchema in [["ome-2011-06-V1.xsd","June 2011 V1"],["ome-2010-06-V1.xsd","June 2010 V1"],["ome-2010-04-V1.xsd","April 2010 V1"],["ome-2009-09-V1.xsd","September 2009 V1"],["ome-2008-09-V1.xsd","September 2008 V1"],["ome-2008-02-V2.xsd","February 2008 V2"],["ome-2008-02-V1.xsd","February 2008 V1"],["ome-2007-06-V2.xsd","September 2007 V2"],["ome-2007-06-V1.xsd","June 2007 V1"],["ome-fc-tiff.xsd","2003 - Tiff Variant"], ["ome-fc.xsd","2003 - Standard version"]]:
 			# skip current one
 			if not thePossibleSchema[0] == self.theSchemaFile:
 				# load each old schema
@@ -327,6 +327,10 @@ class XmlReport(object):
 							if self.theNamespace == "http://www.openmicroscopy.org/Schemas/OME/2010-04":
 								# use September 2009 schema
 								self.theSchemaFile = "ome-2010-04-V1.xsd"
+							else:
+								if self.theNamespace == "http://www.openmicroscopy.org/Schemas/OME/2010-04":
+									# use June 2010 schema
+									self.theSchemaFile = "ome-2010-06-V1.xsd"
 		
 		# loading the OME schema to validate against
 		try:

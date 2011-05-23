@@ -46,7 +46,7 @@ from numpy import zeros, hstack, vstack
 import time
 
 
-def newImageWithChannelOffsets(conn, imageId, channel_offsets, newDatasetName=None):
+def newImageWithChannelOffsets(conn, imageId, channel_offsets, dataset=None):
     """
     Process a single image here: creating a new image and passing planes from
     original image to new image - applying offsets to each channel as we go.
@@ -56,70 +56,89 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, newDatasetName=No
     """
     
     oldImage = conn.getObject("Image", imageId)
+    if oldImage is None:
+        print "Image not found for ID:", imageId
+        return
 
-    dataset = oldImage.getParent()
-    if newDatasetName is not None:
-        dataset = omero.gateway.DatasetWrapper()
-        dataset.setName(rstring(newDatasetName))
-        dataset.save()
+    if dataset is None:
+        dataset = oldImage.getParent()
 
     # these dimensions don't change
     sizeZ = oldImage.getSizeZ()
     sizeC = oldImage.getSizeC()
     sizeT = oldImage.getSizeT()
+    sizeX = oldImage.getSizeX()
+    sizeY = oldImage.getSizeY()
+    dataType = None
     
     # setup the (z,c,t) list of planes we need
     zctList = []
     for z in range(sizeZ):
         for offset in channel_offsets:
-            for t in range(sizeT):
-                zOffset = offset['z']
-                zctList.append( (z+zOffset, offset['index'], t) ) 
+            if offset['index'] < sizeC:
+                for t in range(sizeT):
+                    zOffset = offset['z']
+                    zctList.append( (z-zOffset, offset['index'], t) )
 
     print "zctList", zctList
 
     # for convenience, make a map of channel:offsets
     offsetMap = {}
     for c in channel_offsets:
-        offsetMap[c['index']] = {'x':c['x'], 'y': c['y'], 'z':c['z']}
+        cIndex = c['index']
+        if cIndex < sizeC:
+            offsetMap[cIndex] = {'x':c['x'], 'y': c['y'], 'z':c['z']}
 
     def offsetPlane(plane, x, y):
         """ Takes a numpy 2D array and returns the same plane offset by x and y, adding rows and columns of 0 values"""
-        sizeY, sizeX = plane.shape
+        height, width = plane.shape
         dataType = plane.dtype
         if abs(x) > 0:  # shift x by cropping, creating a new array of columns and stacking horizontally
-            newCols = zeros((sizeY,abs(x)), dataType)
+            newCols = zeros((height,abs(x)), dataType)
             x1 = max(0, 0-x)
-            x2 = min(sizeX, sizeX-x)
-            crop = plane[0:sizeY, x1:x2]
+            x2 = min(width, width-x)
+            crop = plane[0:height, x1:x2]
             if x > 0:
                 plane = hstack((newCols, crop))
             else:
                 plane = hstack((crop, newCols))
         # shift y by cropping, creating a new array of rows and stacking vertically
         if abs(y) > 0:
-            newRows = zeros((abs(y),sizeX), dataType)
+            newRows = zeros((abs(y),width), dataType)
             y1 = max(0, 0-y)
-            y2 = min(sizeY, sizeY-y)
-            crop = plane[y1:y2, 0:sizeX]
+            y2 = min(height, height-y)
+            crop = plane[y1:y2, 0:width]
             if y > 0:
                 plane = vstack((newRows, crop))
             else:
                 plane = vstack((crop, newRows))
         return plane
-        
+
     def offsetPlaneGen():
-        planeGen = oldImage.getPrimaryPixels().getPlanes(zctList)
-        for i, plane in enumerate(planeGen):
+        pixels = oldImage.getPrimaryPixels()
+        dt = None
+        # get the planes one at a time - exceptions on getPlane() don't affect subsequent calls (new RawPixelsStore)
+        for i in range(len(zctList)):
             print "generating plane offset for zct:", zctList[i]
+            try:
+                plane = pixels.getPlane(*zctList[i])
+                dt = plane.dtype
+            except:
+                # E.g. the Z-index is out of range - Simply supply an array of zeros.
+                if dt is None:
+                    # if we are on our first plane, we don't know datatype yet...
+                    dt = pixels.getPlane(0,0,0).dtype  # hack! TODO: add method to pixels to supply dtype
+                plane = zeros((sizeY, sizeX), dt)
             z,c,t = zctList[i]
             offsets = offsetMap[c]
             yield offsetPlane(plane, offsets['x'], offsets['y'])
     
+    newImageName = "%s_offsets" % oldImage.getName()
     desc = str(channel_offsets)
     serviceFactory = conn.c.sf  # make sure that script_utils creates a NEW rawPixelsStore
-    i = conn.createImageFromNumpySeq(offsetPlaneGen(), "testOffsetImage",
-        sizeZ=sizeZ, sizeC=len(channel_offsets), sizeT=sizeT, description=desc, dataset=dataset)
+    i = conn.createImageFromNumpySeq(offsetPlaneGen(), newImageName,
+        sizeZ=sizeZ, sizeC=len(offsetMap.items()), sizeT=sizeT, description=desc, dataset=dataset)
+    return i
 
 def processImages(conn, scriptParams):
     """ Process the script params to make a list of channel_offsets, then iterate through
@@ -136,19 +155,37 @@ def processImages(conn, scriptParams):
             channel_offsets.append({'index':index, 'x':x, 'y':y, 'z':z})
     
     print channel_offsets
-    
-    newDatasetName = None
+
+    if len(scriptParams['IDs']) == 0:
+        print "No IDs supplied"
+        return
+
+    dataset = None
     if "New_Dataset_Name" in scriptParams:
+        # create new Dataset...
         newDatasetName = scriptParams["New_Dataset_Name"]
+        dataset = omero.gateway.DatasetWrapper(conn, obj=omero.model.DatasetI())
+        dataset.setName(rstring(newDatasetName))
+        dataset.save()
+        # add to parent Project
+        firstImage = conn.getObject("Image", scriptParams['IDs'][0])
+        project = firstImage.getParent().getParent()
+        link = omero.model.ProjectDatasetLinkI()
+        link.parent = omero.model.ProjectI(project.getId(), False)
+        link.child = omero.model.DatasetI(dataset.getId(), False)
+        conn.getUpdateService().saveAndReturnObject(link)
 
     # need to handle Datasets eventually - Just do images for now
+    newImgIds = []
     for iId in scriptParams['IDs']:
-        newImageWithChannelOffsets(conn, iId, channel_offsets, newDatasetName)
-        
+        newImg = newImageWithChannelOffsets(conn, iId, channel_offsets, dataset)
+        if newImg is not None:
+            newImgIds.append(newImg.getId())
+    return newImgIds, dataset
     
 def runAsScript():
 
-    dataTypes = [rstring('Dataset'),rstring('Image')]
+    dataTypes = [rstring('Image')]
 
     client = scripts.client('Channel_Offsets.py', """Create new Images from existing images,
 applying an x, y and z shift to each channel independently. """,
@@ -223,16 +260,30 @@ applying an x, y and z shift to each channel independently. """,
         scriptParams = {}
         for key in client.getInputKeys():
             if client.getInput(key):
-                scriptParams[key] = omero.rtypes.unwrap( client.getInput(key) )
+                scriptParams[key] = client.getInput(key, unwrap=True)
 
         print scriptParams
         
         # wrap client to use the Blitz Gateway
         conn = BlitzGateway(client_obj=client)
         
-        processImages(conn, scriptParams)
+        result = processImages(conn, scriptParams)
+        if result is None:
+            message = "Script failed. See 'Info' or 'Error' for more details"
+        else:
+            newImgIds, dataset = result
+            if len(newImgIds) == 1:
+                newImg = conn.getObject("Image", newImgIds[0])
+                message = "New Image created: %s" % newImg.getName()
+                client.setOutput("Image", robject(newImg._obj))
+            elif len(newImgIds) > 1:
+                message = "%s new Images created" % len(newImgIds)
+            else:
+                message = "No images created. See 'Info' or 'Error' for more details"
+            if dataset is not None:
+                client.setOutput("New Dataset", robject(dataset._obj))
 
-        client.setOutput("Message", rstring("We're done!"))
+        client.setOutput("Message", rstring(message))
     finally:
         client.closeSession()
 

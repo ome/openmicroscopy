@@ -169,6 +169,19 @@ public class IniFileLoader {
     /**
      * @return application title
      */
+    public boolean getStaticDisableUpgradeCheck()
+    {
+        boolean toReturn = false;
+        if (staticPrefs != null) {
+            Preferences general = staticPrefs.node("General");
+            toReturn = general.getBoolean("disableUpgradeCheck", false);
+        }
+        return toReturn;
+    }
+    
+    /**
+     * @return application title
+     */
     public boolean getForceFileArchiveOn()
     {
         boolean toReturn = false;
@@ -208,7 +221,7 @@ public class IniFileLoader {
      */
     public Boolean getUserDisableHistory()
     {
-    	return userPrefs.node("UI").getBoolean("disableHistory", false);
+    	return userPrefs.node("UI").getBoolean("disableHistory", true);
     }
     
     /**

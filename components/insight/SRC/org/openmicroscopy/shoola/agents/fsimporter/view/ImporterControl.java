@@ -279,15 +279,14 @@ class ImporterControl
 			model.loadExistingTags();
 		} else if (ImportDialog.CANCEL_SELECTION_PROPERTY.equals(name)) {
 			model.close();
+		} else if (ImportDialog.CANCEL_ALL_IMPORT_PROPERTY.equals(name)) {
+			model.cancelAllImports();
 		} else if (MessengerDialog.SEND_PROPERTY.equals(name)) {
 			//mark the files.
 			if (markedFailed == null) return;
 			Iterator<FileImportComponent> i = markedFailed.iterator();
-			FileImportComponent fc;
-			while (i.hasNext()) {
-				fc = i.next();
-				fc.markAsSent();
-			}
+			while (i.hasNext())
+				i.next().markAsSent();
 			getAction(SEND_BUTTON).setEnabled(model.hasFailuresToSend());
 			markedFailed = null;
 		} else if (ClosableTabbedPane.CLOSE_TAB_PROPERTY.equals(name)) {
@@ -299,6 +298,8 @@ class ImporterControl
 			ErrorDialog d = new ErrorDialog(view, 
 					(Throwable) evt.getNewValue());
 			UIUtilities.centerAndShow(d);
+		} else if (FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
+			
 		} else if (ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)) {
 			Integer value = (Integer) evt.getNewValue();
 			int v = Importer.PROJECT_TYPE;

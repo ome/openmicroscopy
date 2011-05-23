@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
@@ -29,6 +30,7 @@ import ome.model.core.Pixels;
 import ome.model.stats.StatsInfo;
 import ome.util.PixelData;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.FatalBeanException;
@@ -148,14 +150,9 @@ public class PixelsService extends AbstractFileSystemService
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
         final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
         final String originalFilePath = getOriginalFilePath(pixels);
-        
-        if (!pixelsFile.exists() && originalFilePath == null)
-        {
-            log.error("FAIL -- Original pixels file does not exist: "
-                    + pixelsFile.getAbsolutePath());
-            return null; // EARLY EXIT!
-        }
 
+        // This was called perhaps while a pyramid was
+        // being generated, and is no longer needed.
         if (pixelsPyramidFile.exists())
         {
             log.debug("Pyramid already exists: " + pixelsPyramidFilePath);
@@ -167,6 +164,19 @@ public class PixelsService extends AbstractFileSystemService
 
         try
         {
+
+            // If we don't have any data to properly generate the pyramid
+            // we close the instance which will save an empty (and therefore
+            // corrupt) pyramid. This is intentional since further calls will
+            // get an exception rather than being told to try indefinitely.
+            // (see ticket:5189)
+            if (!pixelsFile.exists() && originalFilePath == null)
+            {
+                log.error("FAIL -- Original pixels file does not exist: "
+                        + pixelsFile.getAbsolutePath());
+                return null; // EARLY EXIT! closed in finally block!
+            }
+
             PixelsPyramidMinMaxStore minMaxStore = performWrite(
                     pixels, pixelsPyramidFile, pixelsPyramid,
                     pixelsFile, pixelsFilePath, originalFilePath);
@@ -201,10 +211,11 @@ public class PixelsService extends AbstractFileSystemService
         final PixelBuffer source;
         final Dimension tileSize;
         final PixelsPyramidMinMaxStore minMaxStore;
+
         if (pixelsFile.exists())
         {
             minMaxStore = null;
-            source = createRomioPixelBuffer(pixelsFilePath, pixels, true);
+            source = createRomioPixelBuffer(pixelsFilePath, pixels, false);
             // FIXME: This should be configuration or service driven
             // FIXME: Also implemented in RenderingBean.getTileSize()
             tileSize = new Dimension(256, 256);
@@ -212,7 +223,9 @@ public class PixelsService extends AbstractFileSystemService
         else
         {
             minMaxStore = new PixelsPyramidMinMaxStore(pixels.getSizeC());
-            source = createMinMaxBfPixelBuffer(originalFilePath, minMaxStore);
+            int series = getSeries(pixels);
+            source = createMinMaxBfPixelBuffer(
+                    originalFilePath, series, minMaxStore);
             tileSize = source.getTileSize();
         }
 
@@ -234,10 +247,11 @@ public class PixelsService extends AbstractFileSystemService
                     try
                     {
                         pixelsPyramidFile.delete();
+                        FileUtils.touch(pixelsPyramidFile); // ticket:5189
                     }
                     catch (Exception e2)
                     {
-                        log.warn("Error deleting empty or incomplete pixel " +
+                        log.warn("Error clearing empty or incomplete pixel " +
                                  "buffer.", e2);
                     }
                     return;
@@ -275,12 +289,13 @@ public class PixelsService extends AbstractFileSystemService
      */
     public PixelBuffer getPixelBuffer(Pixels pixels)
     {
-        final boolean requirePyramid = isRequirePyramid(pixels);
+        final String originalFilePath = getOriginalFilePath(pixels);
+        final boolean requirePyramid =
+            originalFilePath == null? requiresPixelsPyramid(pixels) : true;
         final String pixelsFilePath = getPixelsPath(pixels.getId());
         final File pixelsFile = new File(pixelsFilePath);
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
         final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
-        final String originalFilePath = getOriginalFilePath(pixels);
 
         //
         // 1. If the pixels file exists, then we know that this isn't
@@ -325,8 +340,8 @@ public class PixelsService extends AbstractFileSystemService
                 return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath, true);
             } else {
                 if (originalFilePath != null) {
-                    log.info("Using BfPixelBuffer: " + pixelsFilePath);
-                    return createBfPixelBuffer(originalFilePath);
+                    int series = getSeries(pixels);
+                    return createBfPixelBuffer(originalFilePath, series);
                 }
                 log.info("Creating ROMIO Pixel buffer.");
                 createSubpath(pixelsFilePath);
@@ -347,7 +362,7 @@ public class PixelsService extends AbstractFileSystemService
      * @param pixels
      * @return
      */
-    public boolean isRequirePyramid(Pixels pixels) {
+    public boolean requiresPixelsPyramid(Pixels pixels) {
         final int sizeX = pixels.getSizeX();
         final int sizeY = pixels.getSizeY();
         final boolean requirePyramid = (sizeX * sizeY) > (1024*1024); // FIXME
@@ -367,6 +382,25 @@ public class PixelsService extends AbstractFileSystemService
             return null;
         }
         return resolver.getOriginalFilePath(this, pixels);
+    }
+
+    /**
+     * Retrieves the series for a given set of pixels.
+     * @param pixels Set of pixels to return the series for.
+     * @return The series as specified by the pixels parameters or
+     * <code>0</code> (the first series).
+     */
+    protected int getSeries(Pixels pixels)
+    {
+        try
+        {
+            Map<String, String> params = resolver.getPixelsParams(pixels);
+            return Integer.valueOf(params.get("image_no"));
+        }
+        catch (Exception e)  // NumberFormatException, NullPointerException
+        {
+            return 0;
+        }
     }
 
 	/**
@@ -435,11 +469,13 @@ public class PixelsService extends AbstractFileSystemService
      * add a min/max calculator wrapper to the reader stack.
      * @param filePath Non-null.
      * @param store Min/max store to use with the min/max calculator.
+     * @param series series to use
      * @param reader passed to {@link BfPixelBuffer}
      * @return
      */
     protected PixelBuffer createMinMaxBfPixelBuffer(final String filePath,
-                                                    IMinMaxStore store) {
+                                                    final int series,
+                                                    final IMinMaxStore store) {
         try
         {
             IFormatReader reader = new ImageReader();
@@ -447,7 +483,11 @@ public class PixelsService extends AbstractFileSystemService
             reader = new ChannelSeparator(reader);
             MinMaxCalculator calculator = new MinMaxCalculator(reader);
             calculator.setMinMaxStore(store);
-            return new BfPixelBuffer(filePath, calculator);
+            BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, calculator);
+            pixelBuffer.setSeries(series);
+            log.info(String.format("Creating BfPixelBuffer: %s Series: %d",
+                    filePath, series));
+            return pixelBuffer;
         }
         catch (Exception e)
         {
@@ -461,15 +501,21 @@ public class PixelsService extends AbstractFileSystemService
      * Helper method to properly log any exceptions raised by Bio-Formats.
      * @param filePath Non-null.
      * @param reader passed to {@link BfPixelBuffer}
+     * @param series series to use
      * @return
      */
-    protected PixelBuffer createBfPixelBuffer(final String filePath) {
+    protected PixelBuffer createBfPixelBuffer(final String filePath,
+                                              final int series) {
         try
         {
             IFormatReader reader = new ImageReader();
             reader = new ChannelFiller(reader);
             reader = new ChannelSeparator(reader);
-            return new BfPixelBuffer(filePath, reader);
+            BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, reader);
+            pixelBuffer.setSeries(series);
+            log.info(String.format("Creating BfPixelBuffer: %s Series: %d",
+                    filePath, series));
+            return pixelBuffer;
         }
         catch (Exception e)
         {

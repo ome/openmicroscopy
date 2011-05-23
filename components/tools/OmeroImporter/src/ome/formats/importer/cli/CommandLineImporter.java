@@ -86,6 +86,8 @@ public class CommandLineImporter {
                 usage(); // EXITS TODO this should check for a "quiet" flag
             }
             store = config.createStore();
+            if (config.getStaticDisableUpgradeCheck() == false)
+            	store.isUpgradeRequired(config.getVersionNumber(), "importer-cli");
             reader.setMetadataOptions(
                     new DefaultMetadataOptions(MetadataLevel.ALL));
             library = new ImportLibrary(store, reader);

@@ -32,6 +32,7 @@ from django.forms.widgets import Textarea
 from django.forms.widgets import HiddenInput
 from django.core.urlresolvers import reverse
 
+from omeroweb.custom_forms import NonASCIIForm
 from custom_forms import UrlField, MetadataModelChoiceField, \
                         AnnotationModelMultipleChoiceField, \
                         ObjectModelMultipleChoiceField
@@ -59,7 +60,7 @@ help_expire = '<span id="expire" title="Expire date - <small>This date defines w
 #################################################################
 # Non-model Form
 
-class ShareForm(forms.Form):
+class ShareForm(NonASCIIForm):
     
     def __init__(self, *args, **kwargs):
         super(ShareForm, self).__init__(*args, **kwargs)
@@ -104,32 +105,32 @@ class BasketShareForm(ShareForm):
             self.fields['image'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['images'], widget=forms.SelectMultiple(attrs={'size':10}))
 
 
-class ShareCommentForm(forms.Form):
+class ShareCommentForm(NonASCIIForm):
 
     comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 8, 'cols': 39}), help_text=help_wiki_c)
     
-class ContainerForm(forms.Form):
+class ContainerForm(NonASCIIForm):
     
     name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':45}))
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}), required=False, help_text=help_wiki)
 
-class ContainerNameForm(forms.Form):
+class ContainerNameForm(NonASCIIForm):
     
     name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':45}))
     
-class ContainerDescriptionForm(forms.Form):
+class ContainerDescriptionForm(NonASCIIForm):
     
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 39}), required=False)
 
-class CommentAnnotationForm(forms.Form):
+class CommentAnnotationForm(NonASCIIForm):
     
     content = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}))
 
-class TagFilterForm(forms.Form):
+class TagFilterForm(NonASCIIForm):
     
     tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)
 
-class TagAnnotationForm(forms.Form):
+class TagAnnotationForm(NonASCIIForm):
     
     tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}))
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 31}), required=False, label="Desc")
@@ -148,14 +149,14 @@ class FileListForm(forms.Form):
         self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}))
         self.fields.keyOrder = ['files']
 
-class UploadFileForm(forms.Form):
+class UploadFileForm(NonASCIIForm):
     annotation_file  = forms.FileField(required=False)
     
     def clean_annotation_file(self):
         if self.cleaned_data['annotation_file'] is None:
             raise forms.ValidationError('This field is required.')
 
-class MultiAnnotationForm(forms.Form):
+class MultiAnnotationForm(NonASCIIForm):
     
     def __init__(self, *args, **kwargs):
         super(MultiAnnotationForm, self).__init__(*args, **kwargs)

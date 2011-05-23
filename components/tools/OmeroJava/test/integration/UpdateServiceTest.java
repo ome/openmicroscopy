@@ -1603,4 +1603,95 @@ public class UpdateServiceTest
     	param.addId(r.getId().getValue());
     	assertNotNull(iQuery.findByQuery(sql, param));
     }
+    
+    /**
+     * Tests to create a file annotation and link it to several images using
+     * the saveAndReturnArray.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = { "ticket:5370" })
+    public void testAttachFileAnnotationToSeveralImages()
+    	throws Exception 
+    {
+    	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+    			mmFactory.createOriginalFile());
+		assertNotNull(of);
+		FileAnnotation fa = new FileAnnotationI();
+		fa.setFile(of);
+		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+		assertNotNull(data);
+		//Image
+        Image i1 = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        Image i2 = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        List<IObject> links = new ArrayList<IObject>();
+        ImageAnnotationLink l = new ImageAnnotationLinkI();
+        l.setParent((Image) i1.proxy());
+        l.setChild((Annotation) data.proxy());
+        links.add(l);
+        l = new ImageAnnotationLinkI();
+        l.setParent((Image) i2.proxy());
+        l.setChild((Annotation) data.proxy());
+        links.add(l);
+        links = iUpdate.saveAndReturnArray(links);
+        assertNotNull(links);
+        assertEquals(links.size(), 2);
+        Iterator<IObject> i = links.iterator();
+        long id;
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(i1.getId().getValue());
+        ids.add(i2.getId().getValue());
+        int n = 0;
+        while (i.hasNext()) {
+			l = (ImageAnnotationLink) i.next();
+			assertEquals(l.getChild().getId().getValue(),
+					data.getId().getValue());
+			id = l.getParent().getId().getValue();
+			if (ids.contains(id)) n++;
+		}
+        assertEquals(ids.size(), n);
+    }
+
+    /**
+     * Tests to create a file annotation and link it to several images using
+     * the saveAndReturnArray.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = { "ticket:5370" })
+    public void testAttachFileAnnotationToSeveralImagesII()
+    	throws Exception 
+    {
+    	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+    			mmFactory.createOriginalFile());
+		assertNotNull(of);
+		FileAnnotation fa = new FileAnnotationI();
+		fa.setFile(of);
+		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+		assertNotNull(data);
+		//Image
+        Image i1 = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        Image i2 = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        ImageAnnotationLink l = new ImageAnnotationLinkI();
+        l.setParent((Image) i1.proxy());
+        l.setChild((Annotation) data.proxy());
+        
+        l =  (ImageAnnotationLink) iUpdate.saveAndReturnObject(l);
+        assertEquals(l.getChild().getId().getValue(),
+				data.getId().getValue());
+        assertEquals(l.getParent().getId().getValue(),
+				i1.getId().getValue());
+        l = new ImageAnnotationLinkI();
+        l.setParent((Image) i2.proxy());
+        l.setChild((Annotation) data.proxy());
+        l =  (ImageAnnotationLink) iUpdate.saveAndReturnObject(l);
+        
+        assertEquals(l.getChild().getId().getValue(),
+				data.getId().getValue());
+        assertEquals(l.getParent().getId().getValue(),
+				i2.getId().getValue());
+    }
+    
 }

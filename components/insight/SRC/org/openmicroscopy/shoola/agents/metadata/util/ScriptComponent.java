@@ -29,7 +29,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -320,6 +319,17 @@ class ScriptComponent
 		}
 	}
 	
+	Object getParentValue()
+	{
+		if (parent != null) {
+			Object v = parent.getValue();
+			if (v instanceof Boolean) {
+				boolean b = ((Boolean) v).booleanValue();
+				if (!b) return null;
+			}
+		}
+		return null;
+	}
 	/** 
 	 * Returns the value associated to a script.
 	 * 

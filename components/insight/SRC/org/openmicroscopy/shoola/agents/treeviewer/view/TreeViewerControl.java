@@ -895,7 +895,8 @@ class TreeViewerControl
 									TreeViewer.CREATE_OBJECT);
 			}
 		} else if (DataBrowser.ADDED_TO_DATA_OBJECT_PROPERTY.equals(name)) {
-			 model.getSelectedBrowser().refreshLoggedExperimenterData();
+			Browser browser =  model.getSelectedBrowser();
+			if (browser != null) browser.refreshLoggedExperimenterData();
 		} else if (DataBrowser.COPY_RND_SETTINGS_PROPERTY.equals(name)) {
 			Object data = pce.getNewValue();
 			if (data != null) model.copyRndSettings((ImageData) data);

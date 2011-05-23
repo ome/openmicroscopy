@@ -21,9 +21,10 @@ from path import path
 class TestBfPixelsStore(lib.ITest):
     
     def setUpTestFile(self, name):
+        sess = self.root.sf
         filename = self.OmeroPy / ".." / ".." / ".." / "components" / "common" / "test" / name
-        dataDir = "OMERO" # should try to get this from config first
-        self.tmp_dir = path("/") / dataDir / self.uuid()
+        dataDir = path(sess.getConfigService().getConfigValue("omero.data.dir"));
+        self.tmp_dir = dataDir / self.uuid()
         self.repo_filename = self.tmp_dir / name
         # Copy file into repository subdirectory
         path.mkdir(self.tmp_dir)
@@ -40,9 +41,9 @@ class TestBfPixelsStore(lib.ITest):
         self.sizeC = pixels.getSizeC().getValue()
         self.sizeT = pixels.getSizeT().getValue()
         # Get repository and the bf pixels store on the copied file
-        repoMap = self.root.sf.sharedResources().repositories()
+        repoMap = sess.sharedResources().repositories()
         for r in range(len(repoMap.descriptions)):
-            if repoMap.descriptions[r].name.val == dataDir:
+            if repoMap.descriptions[r].name.val == dataDir.parent.name:
                 repoIndex = r
 
         repoPrx = repoMap.proxies[repoIndex]

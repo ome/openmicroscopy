@@ -1354,8 +1354,8 @@ class RendererModel
 	 */
 	boolean isBigImage()
 	{
-		return (getMaxX() > RenderingControl.MAX_SIZE/2 ||
-				getMaxY() > RenderingControl.MAX_SIZE/2);
+		if (rndControl == null) return false;
+		return rndControl.isBigImage();
 	}
 	
 	/**

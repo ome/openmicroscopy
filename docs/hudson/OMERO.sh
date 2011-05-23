@@ -26,4 +26,4 @@ echo OMERO_BUILD=$OMERO_BUILD > target/$OMERO_BRANCH.log
 echo OMERO_BRANCH=$OMERO_BRANCH >> target/$OMERO_BRANCH.log
 git_info > target/GIT_INFO
 env | sort >> target/GIT_INFO
-git_zip ../OMERO.source-$OMERO_BUILD.zip
+git_zip target/OMERO.source-$OMERO_BUILD.zip

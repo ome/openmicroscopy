@@ -114,6 +114,31 @@ class OmeroMetadataServiceImpl
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway            gateway;
 	
+	
+	/**
+	 * Returns <code>true</code> if the annotation is shared, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param annotation The annotation to handle.
+	 * @param object The object to handle.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	private boolean isAnnotationShared(AnnotationData annotation, 
+										DataObject object)
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(annotation.getId());
+		List l = gateway.findAnnotationLinks(object.getClass().getName(), 
+				-1, ids);
+		if (l == null) return false;
+		return l.size() > 0;
+	}
+	
 	/**
 	 * Removes the specified annotation from the object.
 	 * Returns the updated object.
@@ -126,34 +151,23 @@ class OmeroMetadataServiceImpl
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	private DataObject removeAnnotation(AnnotationData annotation, 
+	private void removeAnnotation(AnnotationData annotation, 
 										DataObject object) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		if (annotation == null)
-			throw new IllegalArgumentException("No annotation to remove.");
-		if (object == null)
-			throw new IllegalArgumentException("No object to handle.");
+		if (annotation == null || object == null) return;
 		ExperimenterData exp = getUserDetails();
-		if (exp == null) return null;
+		if (exp == null) return;
 		IObject ho = gateway.findIObject(annotation.asIObject());
-		if (ho == null)
-			throw new IllegalArgumentException("No object to handle.");
+		if (ho == null) return;
 		IObject link = gateway.findAnnotationLink(object.getClass(), 
 				       object.getId(), ho.getId().getValue(), exp.getId());
 		if (ho != null && link != null) {
-			gateway.deleteObject(link);
-			//Check that the annotation is not shared.
-			/*
-			List<Long> ids = new ArrayList<Long>();
-			ids.add(ho.getId().getValue());
-			List l = gateway.findAnnotationLinks(object.getClass().getName(), 
-					-1, ids);
-			if (l == null || l.size() == 0)
-				gateway.deleteObject(ho);//oly work if the annotation is not shared
-				*/
+			try {
+				gateway.deleteObject(link);
+			} catch (Exception e) {
+			}
 		}
-		return PojoMapper.asDataObject(gateway.findIObject(object.asIObject()));
 	}
 
 	
@@ -374,7 +388,6 @@ class OmeroMetadataServiceImpl
 				} 
 				if (iobject != null)
 					toCreate.add(iobject);
-
 			} else {
 				if (ann instanceof TagAnnotationData) {
 					//update description
@@ -394,15 +407,6 @@ class OmeroMetadataServiceImpl
 			List<IObject> r = gateway.createObjects(l);
 			annotations.addAll(PojoMapper.asDataObjects(r));
 		}
-		/*
-		if (links.size() > 0) {
-			i = links.iterator();
-			List<IObject> l = new ArrayList<IObject>(toCreate.size());
-			while (i.hasNext()) 
-				l.add((IObject) i.next());
-			gateway.createObjects(l);
-		}
-		*/
 		return annotations;
     }
 
@@ -1003,8 +1007,10 @@ class OmeroMetadataServiceImpl
 					ann = (AnnotationData) i.next();
 					if (ann != null) {
 						removeAnnotation(ann, object);
-						if (ann instanceof TextualAnnotationData)
-							toDelete.add(ann.asIObject());
+						if (ann instanceof TextualAnnotationData) {
+							if (!isAnnotationShared(ann, object))
+								toDelete.add(ann.asIObject());
+						}
 					}
 				}
 				if (toDelete.size() > 0)

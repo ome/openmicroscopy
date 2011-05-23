@@ -1036,7 +1036,9 @@ public class XMLMockObjects
 		Channel channel = new Channel();
 		channel.setID("Channel:"+index);
 		channel.setAcquisitionMode(AcquisitionMode.FLUORESCENCELIFETIME);
-		channel.setColor(DEFAULT_COLOR.getRGB());
+		int argb = DEFAULT_COLOR.getRGB();
+		int	rgba = (argb << 8) | (argb >>> (32-8));
+		channel.setColor(rgba);
 		channel.setName("Name");
 		channel.setIlluminationType(IlluminationType.OBLIQUE);
 		channel.setPinholeSize(0.5);

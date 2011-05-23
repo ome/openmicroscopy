@@ -105,6 +105,11 @@ class DataNodeElement
 	{
 		if (location == null) return null;
 		DataNode parent = location.getParent();
+		if (isHCSContainer()) {
+			DataObject object = location.getDataObject();
+			if (location.isDefaultNode()) return null;
+			return object;
+		}
 		if (parent == null || parent.isDefaultNode()) 
 			return null;//location.getDataObject();
 		return parent.getDataObject();

@@ -364,6 +364,13 @@ class OmeroDataServiceImpl
 				throw new IllegalArgumentException(
 						"items can only be datasets.");
 			}
+		} else if (parent instanceof GroupData) {
+			try {
+				children.toArray(new ExperimenterData[] {});
+			} catch (ArrayStoreException ase) {
+				throw new IllegalArgumentException(
+						"items can only be experimenters.");
+			}
 		} else if (parent instanceof DatasetData) {
 			try {
 				children.toArray(new ImageData[] {});

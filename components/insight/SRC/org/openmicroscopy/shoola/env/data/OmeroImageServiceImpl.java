@@ -54,6 +54,7 @@ import omero.model.Pixels;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.RenderingDef;
+import omero.model.TagAnnotation;
 import omero.romio.PlaneDef;
 import omero.sys.Parameters;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -106,9 +107,6 @@ class OmeroImageServiceImpl
  	implements OmeroImageService
 {
 
-	/** The maximum size before retrieving the plane asynchronously. */
-	private static final int		MAX_SIZE = 1024;
-	
 	/** 
 	 * The collection of arbitrary files extensions to check
 	 * before importing. If a file has one of the extensions, we need
@@ -132,23 +130,6 @@ class OmeroImageServiceImpl
 
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway            gateway;
-
-	/**
-	 * Returns <code>true</code> if the image is large,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param image The image to handle.
-	 * @return See above.
-	 */
-	private boolean isLargeImage(ImageData image)
-	{
-		if (image == null) return false;
-		PixelsData pixels = image.getDefaultPixels();
-		if (pixels == null) return false;
-		int size = pixels.getSizeX()*pixels.getSizeY();
-		return size > MAX_SIZE*MAX_SIZE;
-	}
-	
 	
 	/**
 	 * Imports the specified candidates.
@@ -259,16 +240,18 @@ class OmeroImageServiceImpl
 	private Object createImportedImage(long userID, ImageData image)
 	{
 		if (image != null) {
-			PixelsData pix = image.getDefaultPixels();
 			ThumbnailData data;
 			try {
+				PixelsData pix = image.getDefaultPixels();
 				BufferedImage img = createImage(
-						gateway.getThumbnailByLongestSide(pix.getId(), 96));
+						gateway.getThumbnailByLongestSide(pix.getId(),
+								Factory.THUMB_DEFAULT_WIDTH));
 				data = new ThumbnailData(image.getId(), img, userID, true);
 				data.setImage(image);
 				return data;
 			} catch (Exception e) {
-				data = new ThumbnailData(image.getId(), null, userID, false);
+				data = new ThumbnailData(image.getId(), 
+						createDefaultImage(image), userID, false);
 				data.setImage(image);
 				data.setError(e);
 				return data;
@@ -308,6 +291,25 @@ class OmeroImageServiceImpl
 		}
 	}
 	
+    /**
+     * Creates a default thumbnail for the passed image.
+     * 
+     * @param data The image to handle.
+     * @return See above.
+     */
+    private BufferedImage createDefaultImage(ImageData data) 
+    {
+    	PixelsData pxd = null;
+        try {
+        	pxd = data.getDefaultPixels();
+		} catch (Exception e) {} //something went wrong during import
+        if (pxd == null)
+        	return Factory.createDefaultImageThumbnail(-1);
+        Dimension d = Factory.computeThumbnailSize(Factory.THUMB_DEFAULT_WIDTH,
+        		Factory.THUMB_DEFAULT_HEIGHT, pxd.getSizeX(), pxd.getSizeY());
+        return Factory.createDefaultImageThumbnail(d.width, d.height);
+    }
+    
 	/**
 	 * Creates a <code>BufferedImage</code> from the passed array of bytes.
 	 * 
@@ -970,12 +972,14 @@ class OmeroImageServiceImpl
 		List<Annotation> list = new ArrayList<Annotation>();
 		List<IObject> l;
 		if (tags != null && tags.size() > 0) {
+			List<TagAnnotationData> values = new ArrayList<TagAnnotationData>();
 			Iterator<TagAnnotationData> i = tags.iterator();
 			TagAnnotationData tag;
 			l = new ArrayList<IObject>();
 			while (i.hasNext()) {
 				tag = i.next();
 				if (tag.getId() > 0) {
+					values.add(tag);
 					list.add((Annotation) tag.asIObject());
 				} else l.add(tag.asIObject());
 			}
@@ -983,9 +987,13 @@ class OmeroImageServiceImpl
 			try {
 				l = gateway.saveAndReturnObject(l, new HashMap());
 				Iterator<IObject> j = l.iterator();
+				Annotation a;
 				while (j.hasNext()) {
-					list.add((Annotation) j.next());
+					a = (Annotation) j.next();
+					values.add(new TagAnnotationData((TagAnnotation) a));
+					list.add(a);
 				}
+				object.setTags(values);
 			} catch (Exception e) {}
 		}
 		IObject link;
@@ -1017,7 +1025,7 @@ class OmeroImageServiceImpl
 				if (folder != null && folder instanceof DatasetData) {
 					try {
 						ioContainer = determineContainer((DatasetData) folder, 
-								container, object); 
+								container, object);
 						status.setContainerFromFolder(PojoMapper.asDataObject(
 								ioContainer));
 					} catch (Exception e) {}
@@ -1090,17 +1098,20 @@ class OmeroImageServiceImpl
 					image = (ImageData) result;
 					images.add(image);
 					annotatedImportedImage(list, images);
-					if (!thumbnail) return image;
-					return createImportedImage(userID, image);
+					if (thumbnail) 
+						return createImportedImage(userID, image);
+					return image;
 				} else if (result instanceof Set) {
 					ll = (Set<ImageData>) result;
 					annotatedImportedImage(list, ll);
 					kk = ll.iterator();
 					converted = new ArrayList<Object>(ll.size());
 					while (kk.hasNext()) {
-						if (!thumbnail) converted.add(kk.next());
-						else converted.add(createImportedImage(userID, 
-								kk.next()));		
+						image = kk.next();
+						if (thumbnail) 
+							converted.add(createImportedImage(userID, 
+								image));		
+						else converted.add(image);
 					}
 					return converted;
 				}

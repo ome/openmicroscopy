@@ -78,7 +78,6 @@ public class ScriptMenuItem
 	
 	static {
 		SCRIPTS_UI_AVAILABLE = new ArrayList<String>();
-		/*
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.ROI_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.THUMBNAIL_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.MOVIE_SCRIPT);
@@ -86,7 +85,6 @@ public class ScriptMenuItem
 		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(AnalysisParam.FLIM_SCRIPT);
-		*/
 	}
 	
 	/** The script to handle. */
@@ -94,6 +92,18 @@ public class ScriptMenuItem
 	
 	/** Flag indicating if the script has a built-in UI. */
 	private boolean		scriptWithUI;
+	
+	/**
+	 * Returns <code>true</code> if the script has a UI, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param path The path to check.
+	 * @return See above.
+	 */
+	public static boolean isScriptWithUI(String path)
+	{
+		return SCRIPTS_UI_AVAILABLE.contains(path);
+	}
 	
 	/**
 	 * Creates a new instance.

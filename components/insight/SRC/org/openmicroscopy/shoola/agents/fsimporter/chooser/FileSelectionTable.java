@@ -43,7 +43,6 @@ import javax.swing.JScrollPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -61,7 +60,6 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineHeaderSelectionRenderer;
 import org.openmicroscopy.shoola.util.ui.TooltipTableHeader;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.treetable.renderers.StringCellRenderer;
 import pojos.DatasetData;
 
 /**
@@ -259,10 +257,10 @@ class FileSelectionTable
 		TooltipTableHeader header = new TooltipTableHeader(tcm, tips);
 		table.setTableHeader(header);
 		
-		TableCellRenderer renderer = new StringCellRenderer();
 		//renderer = new MultiLineHeader();
-		for (int i = 0; i < table.getColumnCount(); i++) 
-			tcm.getColumn(i).setHeaderRenderer(renderer);
+		tcm.getColumn(SIZE_INDEX).setHeaderRenderer(
+				new MultilineHeaderSelectionRenderer());
+
 		tc = tcm.getColumn(FILE_INDEX);
 		tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
 		tc = tcm.getColumn(CONTAINER_INDEX);

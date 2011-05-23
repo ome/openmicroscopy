@@ -604,7 +604,7 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
     if tile:
         try:
             img._prepareRenderingEngine()
-            tiles = img._re.hasPixelsPyramid()
+            tiles = img._re.requiresPixelsPyramid()
             w, h = img._re.getTileSize()
             init_zoom = img._re.getResolutionLevel()
             max_zoom = img._re.getResolutionLevels()-1
@@ -1040,7 +1040,7 @@ def imageMarshal (image, key=None):
     image._prepareRenderingEngine()
     
     #big images
-    tiles = image._re.hasPixelsPyramid()
+    tiles = image._re.requiresPixelsPyramid()
     width, height = image._re.getTileSize()
     init_zoom = image._re.getResolutionLevel()
     max_zoom = image._re.getResolutionLevels()-1
@@ -1561,6 +1561,8 @@ def get_rois_json(request, imageId, server_id=None):
         shapes = []
         for s in r.copyShapes():
             shape = {}
+            if s is None:   # seems possible in some situations
+                continue
             shape['id'] = s.getId().getValue()
             shape['theT'] = s.getTheT().getValue()
             shape['theZ'] = s.getTheZ().getValue()
@@ -1629,8 +1631,8 @@ def get_rois_json(request, imageId, server_id=None):
             if s.getStrokeWidth() and s.getStrokeWidth().getValue():
                 shape['strokeWidth'] = s.getStrokeWidth().getValue()
             shapes.append(shape)
-            # sort shapes by Z, then T. 
-            shapes.sort(key=lambda x: "%03d%03d"% (x['theZ'],x['theT']) );
+        # sort shapes by Z, then T. 
+        shapes.sort(key=lambda x: "%03d%03d"% (x['theZ'],x['theT']) );
         roi['shapes'] = shapes
         rois.append(roi)
         

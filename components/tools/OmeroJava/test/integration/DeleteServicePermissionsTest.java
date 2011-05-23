@@ -183,7 +183,7 @@ public class DeleteServicePermissionsTest
     public void testDeleteObjectByGroupOwnerRWRW()
     	throws Exception
     {
-        EventContext ownerEc = newUserAndGroup("rw----");
+        EventContext ownerEc = newUserAndGroup("rwrw--");
 
     	//owner creates the image
 		Image img = (Image) iUpdate.saveAndReturnObject(
@@ -209,7 +209,7 @@ public class DeleteServicePermissionsTest
     public void testDeleteObjectByGroupOwnerRW()
     	throws Exception
     {
-        EventContext ownerEc = newUserAndGroup("rwrw--");
+        EventContext ownerEc = newUserAndGroup("rw----");
 
     	//owner creates the image
 		Image img = (Image) iUpdate.saveAndReturnObject(

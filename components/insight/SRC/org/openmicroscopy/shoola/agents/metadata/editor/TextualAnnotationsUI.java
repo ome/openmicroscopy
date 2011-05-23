@@ -246,7 +246,7 @@ class TextualAnnotationsUI
 		originalText = DEFAULT_TEXT_COMMENT;
 		commentArea.setDefaultText(originalText);
 		commentArea.setText(originalText);
-		commentArea.setBackground(UIUtilities.BACKGROUND_COLOR);
+		//commentArea.setBackground(UIUtilities.BACKGROUND_COLOR);
 		commentArea.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		commentArea.setComponentBorder(EDIT_BORDER);
 		
@@ -511,6 +511,7 @@ class TextualAnnotationsUI
 	 */
 	protected void clearDisplay() 
 	{ 
+		if (annotationToRemove != null) annotationToRemove.clear();
 		annotationToDisplay = null;
 		if (previousComments != null)
 			previousComments.getViewport().removeAll();

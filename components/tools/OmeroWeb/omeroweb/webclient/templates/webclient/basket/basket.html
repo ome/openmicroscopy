@@ -20,6 +20,47 @@
     <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
     
     <script type="text/javascript">
+        var calculateCartTotal = function(total){
+            $('#cartTotal').html(total); 
+        };
+    
+        var isCheckedById = function(name) { 
+            var checked = $("input[name='"+name+"']:checked").length; 
+            if (checked == 0) { return false; } else { return true; } 
+        };
+        
+       var manyRemoveFromBasket = function() {     
+            if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
+                alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
+            } else { 
+                var productArray = $("input[type='checkbox']:checked");
+                var productListQuery = "action=delmany";
+                productArray.each(function() {
+                    if(this.checked) {
+                        productListQuery += "&"+this.name+"="+this.id;
+                    }
+                });
+
+                $.ajax({
+                    type: "POST",
+                    url: "/webclient/basket/update/", //this.href,
+                    data: productListQuery,
+                    contentType:'html',
+                    cache:false,
+                    success: function(responce){
+                        if(responce.match(/(Error: ([A-z]+))/gi)) {
+                            alert(responce)
+                        } else {
+                            window.location = "/webclient/basket/";
+                        }
+                    },
+                    error: function(responce) {
+                        alert("Internal server error. Cannot remove from basket.")
+                    }
+                });
+            }
+        };
+        
         $(document).ready(function(){
 
             var h = $(window).height()-200;

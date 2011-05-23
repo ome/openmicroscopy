@@ -1121,4 +1121,12 @@ class RendererComponent
 		}
 	}
 	
+	/**
+	 * Returns <code>true</code> if it is a large image, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isBigImage() { return model.isBigImage(); }
+
 }

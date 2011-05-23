@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
+import ome.conditions.InternalException;
 import ome.io.messages.MissingPyramidMessage;
 import ome.model.containers.Project;
 import ome.model.core.Pixels;
@@ -105,14 +106,18 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
     public void onApplicationEvent(final MissingPyramidMessage mpm) {
 
         log.info("Received: " + mpm);
-        // For the moment, we're going to assume that
-        // a missing pyramid message will only be raised
-        // if an Event is active.
+        // #5232. If this is called without an active event, then throw
+        // an exception since a call to Executor should wrap whatever the
+        // invoker is doing.
         final CurrentDetails cd = executor.getContext().getBean(CurrentDetails.class);
         if (cd.size() <= 0) {
-            return;
+            throw new InternalException("Not logged in.");
         }
         final EventContext ec = cd.getCurrentEventContext();
+        if (null == ec.getCurrentUserId()) {
+            throw new InternalException("No user! Must be wrapped by call to Executor?");
+        }
+
         Future<EventLog> future = this.executor.submit(new Callable<EventLog>(){
             public EventLog call() throws Exception {
                 return makeEvent(ec, mpm);

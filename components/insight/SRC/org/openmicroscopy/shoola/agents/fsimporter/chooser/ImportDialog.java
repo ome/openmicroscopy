@@ -126,6 +126,9 @@ public class ImportDialog
 	/** Bound property indicating that the cancel button is pressed. */
 	public static final String	CANCEL_SELECTION_PROPERTY = "cancelSelection";
 	
+	/** Bound property indicating that the cancel button is pressed. */
+	public static final String	CANCEL_ALL_IMPORT_PROPERTY = "cancelAllImport";
+	
 	/** Bound property indicating to import the selected files. */
 	public static final String	IMPORT_PROPERTY = "import";
 
@@ -171,6 +174,9 @@ public class ImportDialog
 	/** Action id indicating to select the Project/Dataset or Screen.*/
 	private static final int	LOCATION = 9;
 	
+	/** Action id indicating to select the Project/Dataset or Screen.*/
+	private static final int	CANCEL_ALL_IMPORT = 10;
+	
 	/** The title of the dialog. */
 	private static final String TITLE = "Select Data to Import";
 	
@@ -186,6 +192,12 @@ public class ImportDialog
 	
 	/** String used to retrieve if the value of the archived flag. */
 	private static final String LOAD_THUMBNAIL = "/options/LoadThumbnail";
+	
+	/** Indicates the context of the import */
+	private static final String LOCATION_PROJECT = "Location: Project/Dataset";
+	
+	/** Indicates the context of the import */
+	private static final String LOCATION_SCREEN = "Location: Screen";
 	
 	static {
 		WARNING = new ArrayList<String>();
@@ -211,6 +223,9 @@ public class ImportDialog
 	/** Button to close the dialog. */
 	private JButton				cancelButton;
 	
+	/** Button to cancel all imports. */
+	private JButton				cancelImportButton;
+	
 	/** Button to import the files. */
 	private JButton				importButton;
 	
@@ -220,11 +235,14 @@ public class ImportDialog
 	/** Button to reload the containers where to import the files. */
 	private JToggleButton		reloadContainerButton;
 	
-	/** Button used to select the project as the location.*/
-	private JButton				projectLocationButton;
+	/** 
+	 * Button used to select the location either <code>Project</code> 
+	 * or <code>Screen</code>.
+	 */
+	private JButton				locationButton;
 	
 	/** Button used to select the screen as the location.*/
-	private JButton				screenLocationButton;
+	private JLabel				locationLabel;
 	
 	/** 
 	 * Resets the name of all files to either the full path
@@ -599,11 +617,21 @@ public class ImportDialog
 		//});
 	}
 	
-	/** Formats the {@link #projectLocationButton}.*/
-	private void formatSwitchButton()
+	/**
+	 * Formats the {@link #projectLocationButton}.
+	 * 
+	 * @param t The type to handle.
+	 */
+	private void formatSwitchButton(int t)
 	{
-		projectLocationButton.setSelected(getType() == Importer.PROJECT_TYPE);
-		screenLocationButton.setSelected(getType() == Importer.SCREEN_TYPE);
+		IconManager icons = IconManager.getInstance();
+		if (t == Importer.PROJECT_TYPE) {
+			locationButton.setIcon(icons.getIcon(IconManager.PROJECT));
+			locationLabel.setText(LOCATION_PROJECT);
+		} else {
+			locationButton.setIcon(icons.getIcon(IconManager.SCREEN));
+			locationLabel.setText(LOCATION_SCREEN);
+		}
 	}
 	
 	/**
@@ -612,28 +640,12 @@ public class ImportDialog
 	 * 
 	 * @param src The source component.
 	 */
-	private void handleLocationSwitch(Object src)
+	private void handleLocationSwitch()
 	{
 		int t = Importer.PROJECT_TYPE;
-		if (src == projectLocationButton) {
-			if (projectLocationButton.isSelected()) {
-				screenLocationButton.setSelected(true);
-				projectLocationButton.setSelected(false);
-				t = Importer.SCREEN_TYPE;
-			} else {
-				screenLocationButton.setSelected(false);
-				projectLocationButton.setSelected(true);
-			}
-		} else if (src == screenLocationButton) {
-			if (screenLocationButton.isSelected()) {
-				projectLocationButton.setSelected(true);
-				screenLocationButton.setSelected(false);
-			} else {
-				t = Importer.SCREEN_TYPE;
-				projectLocationButton.setSelected(false);
-				screenLocationButton.setSelected(true);
-			}
-		}
+		if (getType() == Importer.PROJECT_TYPE)
+			t = Importer.SCREEN_TYPE;
+		formatSwitchButton(t);
 		firePropertyChange(REFRESH_LOCATION_PROPERTY, getType(), t);
 	}
 	
@@ -645,6 +657,7 @@ public class ImportDialog
 	private void initComponents(FileFilter[] filters)
 	{
     	folderAsDatasetBox = new JCheckBox();
+    	folderAsDatasetBox.setBackground(UIUtilities.BACKGROUND_COLOR);
     	folderAsDatasetBox.setText("New Dataset from folder's name");
     	folderAsDatasetBox.addChangeListener(new ChangeListener() {
 			
@@ -660,7 +673,7 @@ public class ImportDialog
 		diskSpacePane = new JPanel();
 		diskSpacePane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		//diskSpacePane.setBackground(UIUtilities.BACKGROUND);
-		diskSpacePane.add(UIUtilities.setTextFont("Space Usage"));
+		diskSpacePane.add(UIUtilities.setTextFont("Free Space "));
 		diskSpacePane.add(canvas);
 		
 		showThumbnails = new JCheckBox("Show Thumbnails when imported");
@@ -713,25 +726,15 @@ public class ImportDialog
 		reloadContainerButton.addActionListener(this);
 		UIUtilities.unifiedButtonLookAndFeel(reloadContainerButton);
 		
-		projectLocationButton = new JButton(icons.getIcon(IconManager.PROJECT));
-		projectLocationButton.setBackground(UIUtilities.BACKGROUND);
-		projectLocationButton.setToolTipText("Select the Project/Dataset " +
-				"where to import the data.");
+		locationButton = new JButton();
+		locationButton.setBackground(UIUtilities.BACKGROUND);
+		locationButton.setToolTipText("Select the location of the data.");
+		locationButton.addActionListener(this);
+		locationButton.setActionCommand(""+LOCATION);
 		
-		screenLocationButton = new JButton(icons.getIcon(IconManager.SCREEN));
-		screenLocationButton.setBackground(UIUtilities.BACKGROUND);
-		screenLocationButton.setToolTipText("Select the Screen " +
-				"where to import the data.");
-		ButtonGroup group = new ButtonGroup();
-		//group.add(projectLocationButton);
-		//group.add(screenLocationButton);
-		//UIUtilities.unifiedButtonLookAndFeel(switchLocationButton);
-		formatSwitchButton();
-		projectLocationButton.addActionListener(this);
-		screenLocationButton.addActionListener(this);
-
-		screenLocationButton.setActionCommand(""+LOCATION);
-		projectLocationButton.setActionCommand(""+LOCATION);
+		locationLabel = new JLabel();
+		locationLabel.setFont(locationLabel.getFont().deriveFont(Font.BOLD));
+		formatSwitchButton(getType());
 		listener = new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
@@ -770,7 +773,7 @@ public class ImportDialog
 				"Instead use");
 		overrideName.setToolTipText(UIUtilities.formatToolTipText(WARNING));
 		overrideName.setSelected(true);
-		group = new ButtonGroup();
+		ButtonGroup group = new ButtonGroup();
 		fullName = new JRadioButton("Full Path+File's name");
 		group.add(fullName);
 		partialName = new JRadioButton();
@@ -824,9 +827,7 @@ public class ImportDialog
 				if (filter instanceof ComboFileFilter) {
 					combinedFilter = filter;
 				} else {
-					if (hcsFilters.size() <= 
-						ImportableObject.HCS_FILES_EXTENSION.size() && 
-						ImportableObject.isHCSFormat(filter.toString())) {
+					if (ImportableObject.isHCSFormat(filter.toString())) {
 						hcsFilters.add(filter);
 					} else {
 						generalFilters.add(filter);
@@ -858,6 +859,17 @@ public class ImportDialog
 		cancelButton.setToolTipText("Close the dialog and do not import.");
 		cancelButton.setActionCommand(""+CANCEL);
 		cancelButton.addActionListener(this);
+		
+		cancelButton = new JButton("Close");
+		cancelButton.setToolTipText("Close the dialog and do not import.");
+		cancelButton.setActionCommand(""+CANCEL);
+		cancelButton.addActionListener(this);
+		
+		cancelImportButton = new JButton("Cancel All");
+		cancelImportButton.setToolTipText("Cancel all ongoing imports.");
+		cancelImportButton.setActionCommand(""+CANCEL_ALL_IMPORT);
+		cancelImportButton.addActionListener(this);
+		
 		importButton = new JButton("Import");
 		importButton.setToolTipText("Import the selected files or" +
 				" directories.");
@@ -943,6 +955,8 @@ public class ImportDialog
 		bar.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		//bar.add(resetButton);
 		//bar.add(Box.createHorizontalStrut(20));
+		bar.add(cancelImportButton);
+		bar.add(Box.createHorizontalStrut(5));
 		bar.add(cancelButton);
 		bar.add(Box.createHorizontalStrut(5));
 		bar.add(importButton);
@@ -1259,10 +1273,11 @@ public class ImportDialog
 		JPanel bar = new JPanel();
 		//bar.setBackground(UIUtilities.BACKGROUND);
 		bar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		bar.add(projectLocationButton);
-		bar.add(screenLocationButton);
-		bar.add(Box.createHorizontalStrut(5));
 		bar.add(reloadContainerButton);
+		bar.add(Box.createHorizontalStrut(5));
+		bar.add(locationButton);
+		bar.add(Box.createHorizontalStrut(5));
+		bar.add(locationLabel);
 		return bar;
 	}
 	
@@ -1375,21 +1390,7 @@ public class ImportDialog
 						JRootPane.FILE_CHOOSER_DIALOG);
 		}
 	}
-	
-    /** Closes the window and disposes. */
-    private void cancelSelection()
-    {
-    	firePropertyChange(CANCEL_SELECTION_PROPERTY, Boolean.valueOf(false), 
-    			Boolean.valueOf(true));
-    	/*
-    	firePropertyChange(CANCEL_SELECTION_PROPERTY, Boolean.valueOf(false), 
-    			Boolean.valueOf(true));
-    	option = CANCEL;
-    	setVisible(false);
-    	dispose();
-    	*/
-    }
-    
+
 	/**
 	 * Helper method returning <code>true</code> if the connection is fast,
 	 * <code>false</code> otherwise.
@@ -1448,6 +1449,9 @@ public class ImportDialog
     	if (count > 0) object.setPixelsSize(size);	
     	firePropertyChange(IMPORT_PROPERTY, null, object);
     	table.removeAllFiles();
+    	tagsMap.clear();
+		tagsPane.removeAll();
+		tagsPane.repaint();
     	//sizeImportLabel.setText(UIUtilities.formatFileSize(0));
     	//setVisible(false);
     	//dispose();
@@ -1599,7 +1603,7 @@ public class ImportDialog
 		this.objects = objects;
 		int oldType = this.type;
 		this.type = type;
-		formatSwitchButton();
+		formatSwitchButton(type);
 		if (oldType != this.type) { 
 			//change filters.
 			//reset name
@@ -1762,7 +1766,8 @@ public class ImportDialog
 				importFiles();
 				break;
 			case CANCEL:
-				cancelSelection();
+				firePropertyChange(CANCEL_SELECTION_PROPERTY,
+						Boolean.valueOf(false), Boolean.valueOf(true));
 				break;
 			case REFRESH:
 				chooser.rescanCurrentDirectory();
@@ -1800,7 +1805,11 @@ public class ImportDialog
 						-1, getType());
 				break;
 			case LOCATION:
-				handleLocationSwitch(evt.getSource());
+				handleLocationSwitch();
+				break;
+			case CANCEL_ALL_IMPORT:
+				firePropertyChange(CANCEL_ALL_IMPORT_PROPERTY,
+						Boolean.valueOf(false), Boolean.valueOf(true));
 		}
 	}
 	

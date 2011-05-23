@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
+{% load conditional_tags %}
 
 <ul>
     <li id="experimenter-0" rel="experimenter"><a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</a>
@@ -34,7 +35,7 @@
             {% endfor %}
             
             {% for d in manager.containers.plates %}
-                <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}" {% if d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
+                <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}"><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
             {% endfor %}
             
             <li id='orphaned-0' rel="orphaned" class="jstree-closed"><a href="#">Orphaned images</a></li>

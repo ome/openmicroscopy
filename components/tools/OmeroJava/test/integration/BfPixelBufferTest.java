@@ -47,9 +47,8 @@ public class BfPixelBufferTest extends AbstractTest {
     
     private void setUpTestFile(String fileName) throws Throwable, NoSuchAlgorithmException {
         File srcFile = ResourceUtils.getFile("classpath:" + fileName); 
-
-        // This absolute reference needs to be fixed!
-        String dataDirName = "/OMERO";
+        String dataDirName = root.getSession().getConfigService()
+                .getConfigValue("omero.data.dir");
         String destPathName = UUID.randomUUID().toString();
         File dataDir = new File(dataDirName);
         destPath = new File(dataDir, destPathName);

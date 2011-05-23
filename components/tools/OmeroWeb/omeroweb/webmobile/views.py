@@ -197,12 +197,13 @@ def projects (request, eid=None, **kwargs):
         eid = conn.getEventContext().userId
         
     projs = conn.listProjects(eid=eid)
+    projs = list(projs)
     
     if request.REQUEST.get('sort', None) == 'recent':
-        projs = list(projs)
         projs.sort(key=lambda x: x.creationEventDate())
         projs.reverse()
-        
+    else:
+        projs.sort(key=lambda x: x.getName().lower())
     ods = conn.listOrphans("Dataset", eid=eid)
     orphanedDatasets = list(ods)
     
@@ -462,7 +463,8 @@ def add_comment(request, obj_type, obj_id, **kwargs):
         
     updateService = conn.getUpdateService()
     ann = omero.model.CommentAnnotationI()
-    ann.setTextValue(rstring(str( comment.strip() ) ))
+    comment = unicode(comment).encode("utf-8").strip()
+    ann.setTextValue(rstring(comment))
     ann = updateService.saveAndReturnObject(ann)
     l.setParent(parent)
     l.setChild(ann)

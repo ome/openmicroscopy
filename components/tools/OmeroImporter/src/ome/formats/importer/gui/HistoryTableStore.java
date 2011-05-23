@@ -394,6 +394,10 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     {
     	long highestUid = 0;
     	Data d = getBaseTableData();
+    	if (d == null) {
+        	log.error("Error retrieving base table data.");
+    		return highestUid;
+    	}
     	LongColumn uids = (LongColumn) d.columns[BASE_UID_COLUMN];
     	int length = uids.values.length;
     	if (length == 0)
@@ -460,7 +464,11 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         int returnedRows = ids.length;
         if (DEBUG) log.debug("updateBaseStatus returned rows: " + returnedRows);
         
-    	Data baseData = getBaseTableData();	
+    	Data baseData = getBaseTableData();
+    	if (baseData == null) {
+        	log.error("Error retrieving base table data.");
+    		return returnedRows;
+    	}
     	
         for (int h = 0; h < returnedRows; h++)
         {
@@ -484,6 +492,10 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	
         try {
             Data d = getBaseTableData();
+        	if (d == null) {
+            	log.error("Error retrieving base table data.");
+        		return rows;
+        	}
             int returnedRows = (int) getBaseTableNumberOfRows();
             
             LongColumn importTimes = (LongColumn) d.columns[BASE_DATETIME_COLUMN];
@@ -527,6 +539,10 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
             if (DEBUG) log.debug("getBaseTableDataByDate returned rows: " + returnedRows);
         	
         	Data d = getBaseTableData();
+        	if (d == null) {
+            	log.error("Error retrieving base table data.");
+        		return new DefaultListModel();
+        	}
         	
             LongColumn uids = (LongColumn) d.columns[BASE_UID_COLUMN];
         	LongColumn importTimes = (LongColumn) d.columns[BASE_DATETIME_COLUMN];
@@ -750,27 +766,36 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      */
     public Integer updateItemStatus(int baseUid, int index, String newStatus) throws ServerError
     {
-    	Long uid = Long.valueOf(baseUid);
-    	String searchString = "(BaseUid==" + uid.longValue() + ")";
-    	long[] ids = itemTable.getWhereList(searchString, null, 0, itemTable.getNumberOfRows(), 1);
-    	
-        int returnedRows = ids.length;
-        if (DEBUG) log.debug("updateItemStatus returned rows: " + returnedRows);
-        
-    	Data itemData = getItemTableData();	
-    	
-        for (int h = 0; h < returnedRows; h++)
-        {
-        	int i = (int) ids[h];
-        	if (h == index)
-        		((StringColumn) itemData.columns[ITEM_STATUS_COLUMN]).values[i] = newStatus;
-        }
-    	
-        
-        itemTable.update(itemData);
-		itemDataDirty = true;
-        
-    	return returnedRows;
+    	try {
+    		Long uid = Long.valueOf(baseUid);
+    		String searchString = "(BaseUid==" + uid.longValue() + ")";
+    		long[] ids = itemTable.getWhereList(searchString, null, 0, itemTable.getNumberOfRows(), 1);
+
+    		int returnedRows = ids.length;
+    		if (DEBUG) log.debug("updateItemStatus returned rows: " + returnedRows);
+
+    		Data itemData = getItemTableData();	
+
+    		for (int h = 0; h < returnedRows; h++)
+    		{
+    			int i = (int) ids[h];
+    			if (h == index)
+    				((StringColumn) itemData.columns[ITEM_STATUS_COLUMN]).values[i] = newStatus;
+    		}
+
+
+    		itemTable.update(itemData);
+    		itemDataDirty = true;
+
+    		return returnedRows;
+    	}
+    	catch (Exception e) {
+    		String s = String.format(
+    				"Error updating item status for index %i with status %s.",
+    				index, newStatus);
+    		log.error(s, e);
+    	}
+    	return 0; // return empty defaultlist
     }
 
     /**

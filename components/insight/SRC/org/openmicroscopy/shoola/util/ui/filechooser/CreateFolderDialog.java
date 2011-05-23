@@ -28,6 +28,9 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.Box;
@@ -100,7 +103,6 @@ public class CreateFolderDialog
 	{
 		String n = nameField.getText();
 		if (n == null || n.trim().length() == 0) {
-			cancel();
 			return;
 		}
 		firePropertyChange(CREATE_FOLDER_PROPERTY, null, n);
@@ -132,6 +134,17 @@ public class CreateFolderDialog
 			public void windowOpened(WindowEvent e) {
 				nameField.requestFocus();
 			} 
+		});
+		nameField.addKeyListener(new KeyAdapter() {
+			
+			/**
+			 * Creates a new folder.
+			 * @see KeyListener#keyPressed(KeyEvent)
+			 */
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) 
+					create();
+			}
 		});
 	}
 	

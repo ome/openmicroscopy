@@ -96,6 +96,8 @@ omero.blitz.xargs.
   <category name="org.hibernate.engine.loading.LoadContexts"> <priority value="ERROR"/> </category>
   <!-- This is bogus, and will be caught by our exception handlers anyway -->
   <category name="org.hibernate.util.JDBCExceptionReporter"> <priority value="FATAL"/> </category>
+  <!-- Printed on startup -->
+  <category name="org.hibernate.search.engine.DocumentBuilderContainedEntity"> <priority value="ERROR"/> </category>
   <!-- Other overly verbose messages -->
   <category name="org.hibernate.SQL"> <priority value="ERROR"/> </category>
   <category name="org.hibernate.cfg"> <priority value="ERROR"/> </category>

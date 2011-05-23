@@ -2273,4 +2273,26 @@ public class UIUtilities
         return textPane;
 	}
 
+	/**
+	 * Returns the converted value.
+	 * 
+	 * @param rgba The RGBA value to convert.
+	 * @return See above.
+	 */
+	public static int convertRgbaToArgb(int rgba)
+	{
+		return (rgba >>> 8) | (rgba << (32-8));
+	}
+	
+	/**
+	 * Returns the converted value.
+	 * 
+	 * @param argb The ARGB value to convert.
+	 * @return See above.
+	 */
+	public static int convertArgbToRgba(int argb)
+	{
+		return (argb << 8) | (argb >>> (32-8));
+	}
+	
 }

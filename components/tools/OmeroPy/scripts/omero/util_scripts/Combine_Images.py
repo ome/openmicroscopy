@@ -468,7 +468,7 @@ greater Z, C, T dimensions.
 See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/running-util-scripts""", 
     
     scripts.String("Data_Type", optional=False, grouping="1",
-        description="Use all the images in specified 'Datasets' or choose individual 'Images'.", values=dataTypes, default="Images"),
+        description="Use all the images in specified 'Datasets' or choose individual 'Images'.", values=dataTypes, default="Image"),
         
     scripts.List("IDs", optional=False, grouping="2",
         description="List of Dataset IDs or Image IDs to combine.").ofType(rlong(0)),
@@ -483,10 +483,10 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
         description="""Auto-pick images by channel in the image name"""),
 
     scripts.String("Z_Name_Pattern", grouping="3.2", default=DEFAULT_Z_REGEX, values=zRegs,
-        description="""Auto-pick images by channel in the image name"""),
+        description="""Auto-pick images by Z-index in the image name"""),
     
     scripts.String("Time_Name_Pattern", grouping="3.3", default=DEFAULT_T_REGEX, values=tRegs,
-        description="""Auto-pick images by channel in the image name"""),
+        description="""Auto-pick images by T-index in the image name"""),
     
     scripts.Bool("Manually_Define_Dimensions", grouping="4", default=False,
         description="""Choose new dimensions with respect to the order of the input images. See URL above."""),

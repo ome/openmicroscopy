@@ -2,30 +2,18 @@
 {% load markup %}
 {% load custom_tags %}
 
-{% if share.shSize %}
-<ul class="simpleTree">
-    <li class="root" id='0'><img class="icon" src="{% url webstatic "images/root.gif" %}" alt="root"/><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
+<ul>
+    <li id="experimenter-0" rel="experimenter"><a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</a>
+        {% if share.shSize %}
         <ul>
             {% for s in share.shares %}
             {% if s.isEmpty %}
-            <li id="{% if s.active %}di{% else %}lock{%endif %}-{{ s.id }}"><span id="readonly">discussion {{ s.id }} </span>
-                {% if s.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}
-                {% if not s.isOwned %}<img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</li>
+            <li id='discussion-{{ s.id }}' rel="discussion{% if not s.isOwned %}-locked{% endif %}" class="jstree-closed"><a href="#">{{ s.id }}</a></li>
             {% else %}
-            <li id="{% if s.active %}sh{% else %}lock{%endif %}-{{ s.id }}"><span id="readonly">share {{ s.id }} </span>
-                {% if s.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}
-                {% if not s.isOwned %}<img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
-                <ul class="ajax">
-                    <li id='{{ s.id }}'>{url:{% url load_public s.id %}?view=tree}</li>
-                </ul>
-            </li>
+            <li id='share-{{ s.id }}' rel="share{% if not s.isOwned %}-locked{% endif %}" class="jstree-closed"><a href="#">{{ s.id }}</a></li>
             {% endif %}
-            {% endfor %}
+            {% endfor %}            
         </ul>
+        {% endif %}
     </li>
 </ul>
-{% else %}
-    {% trans "No data." %}
-{% endif %}
-
-

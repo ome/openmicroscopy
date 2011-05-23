@@ -177,28 +177,7 @@ class AdminServiceImpl
 		context.lookup(LookupNames.USER_CREDENTIALS);
 		return uc.getUserName();
 	}
-	
-	/**
-	 * Implemented as specified by {@link AdminService}.
-	 * @see AdminService#getSpace(int, long)
-	 */
-	public long getSpace(int index, long id)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		try {
-			switch (index) {
-				case USED: return gateway.getUsedSpace(
-						ExperimenterData.class, id);
-				case FREE: return gateway.getFreeSpace(ExperimenterData.class,
-						id);
-			}
-		} catch (Exception e) {
-			return -1;
-		}
-		
-		return -1;
-	}
-	
+
 	/**
 	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#getQuota(Class, long)
@@ -207,7 +186,7 @@ class AdminServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		long v = 1000;
-		long used = gateway.getUsedSpace(type, id);
+		long used = 0;//gateway.getUsedSpace(type, id);
 		long available = gateway.getFreeSpace(type, id);
 		int t = DiskQuota.USER;
 		if (GroupData.class.equals(type))

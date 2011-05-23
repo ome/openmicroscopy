@@ -19,12 +19,12 @@ module omero {
         interface PyramidService extends StatefulServiceInterface {
 
                 /**
-                 * Whether or not this raw pixels store has a backing pixels
-                 * pyramid to provide sub-resolutions of the data.
-                 * @return <code>true</code> if the pixels store has a pixels
-                 * pyramid available and <code>false</code> otherwise.
+                 * Whether or not this raw pixels store requires a backing
+                 * pixels pyramid to provide sub-resolutions of the data.
+                 * @return <code>true</code> if the pixels store requires a
+                 * pixels pyramid and <code>false</code> otherwise.
                  **/
-                idempotent bool hasPixelsPyramid() throws ServerError;
+                idempotent bool requiresPixelsPyramid() throws ServerError;
 
                 /**
                  * Retrieves the number of resolution levels that the backing

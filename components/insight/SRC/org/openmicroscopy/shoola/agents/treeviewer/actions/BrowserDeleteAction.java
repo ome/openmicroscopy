@@ -152,7 +152,7 @@ public class BrowserDeleteAction
         	b = false;
         	selected = model.getSelectedDisplays();
     		for (int i = 0; i < selected.length; i++) {
-				b = model.isUserOwner(selected[i].getUserObject());
+				b = model.canDeleteObject(selected[i].getUserObject());
 				if (b) count++;
 			}
     		setEnabled(count == selected.length);

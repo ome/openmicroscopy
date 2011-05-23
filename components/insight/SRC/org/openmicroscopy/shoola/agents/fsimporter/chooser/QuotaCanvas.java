@@ -75,9 +75,6 @@ class QuotaCanvas
 	/** The color indicating the space taken by import.*/
 	private static final Color		COLOR_IMPORT = Color.GREEN;
 	
-	/** The percentage used.*/
-	private double percentage;
-	
 	/** The percentage of file to import.*/
 	private double percentageToImport;
 	
@@ -92,10 +89,10 @@ class QuotaCanvas
 	private void formatToolTip(long size)
 	{
 		long free = quota.getAvailableSpace();
-		long used = quota.getUsedSpace();
+		//long used = quota.getUsedSpace();
 		List<String> tips = new ArrayList<String>();
-		tips.add((double) UIUtilities.round(percentage*100, 3)+"% Used");
-		tips.add("Used Space: "+UIUtilities.formatFileSize(used));
+		//tips.add((double) UIUtilities.round(percentage*100, 3)+"% Used");
+		//tips.add("Used Space: "+UIUtilities.formatFileSize(used));
 		tips.add("Free Space: "+UIUtilities.formatFileSize(free));
 		setToolTipText(UIUtilities.formatToolTipText(tips));
 	}
@@ -103,7 +100,6 @@ class QuotaCanvas
 	/** Creates a new instance.*/
 	QuotaCanvas()
 	{
-		percentage = 0;
 		percentageToImport = 0;
 		setPreferredSize(DIMENSION);
 		setSize(DIMENSION);
@@ -120,12 +116,6 @@ class QuotaCanvas
 	{
 		this.quota = quota;
 		if (quota == null) return;
-		long free = quota.getAvailableSpace();
-		long used = quota.getUsedSpace();
-		if (free <= 0 || used < 0) return;
-		double percentage = (double) used/(free+used);
-		if (percentage < 0) percentage = 0;
-		this.percentage = percentage; 
 		formatToolTip(0);
 		repaint();
 	}
@@ -139,8 +129,7 @@ class QuotaCanvas
 	{
 		formatToolTip(size);
 		long free = quota.getAvailableSpace();
-		long used = quota.getUsedSpace();
-		percentageToImport = (double) size/(free+used);
+		if (free != 0) percentageToImport = (double) size/free;
 		repaint();
 	}
 	
@@ -159,20 +148,19 @@ class QuotaCanvas
     {
     	super.paintComponent(g);
     	Color c = USED_COLOR_DEFAULT;
-    	if (percentage >= THRESHOLD) c = USED_COLOR_WARNING;
     	Graphics2D g2D = (Graphics2D) g;
     	//setBackground(UIUtilities.BACKGROUND);
     	Dimension d = getPreferredSize();
     	g2D.setColor(UIUtilities.BACKGROUND);
     	g2D.fillRect(0, 0, d.width, d.height);
-    	int w =  (int) (d.width*percentage);
+    	int w = 0;
     	GradientPaint paint = new GradientPaint(0, 0, c, w, 0, c);
 		g2D.setPaint(paint);
     	g2D.fillRect(0, 0, w, d.height);
     	int x = w;
     	if (percentageToImport > 0) {
     		double value = percentageToImport;
-    		double v = percentage+percentageToImport;
+    		double v = percentageToImport;
     		if (v < THRESHOLD) c = COLOR_IMPORT;
     		else c = USED_COLOR_WARNING;
     		if (v > 1) value = 1;

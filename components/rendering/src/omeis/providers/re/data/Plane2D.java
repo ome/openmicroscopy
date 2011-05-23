@@ -17,7 +17,6 @@ import org.apache.commons.logging.LogFactory;
 import ome.util.PixelData;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
-import omeis.providers.re.Renderer;
 
 /**
  * Allows to extract pixels intensity values from a given plane within a pixels
@@ -56,7 +55,7 @@ import omeis.providers.re.Renderer;
 public class Plane2D {
 
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(Renderer.class);
+    private static Log log = LogFactory.getLog(Plane2D.class);
 
     /** Contains the plane data. */
     private PixelData data;
@@ -117,7 +116,7 @@ public class Plane2D {
         this.signed = PlaneFactory.isTypeSigned(type);
         this.slice = pDef.getSlice();
 
-        log.info("Created Plane2D with dimensions " + sizeX + "x" + sizeY + "x"
+        log.debug("Created Plane2D with dimensions " + sizeX + "x" + sizeY + "x"
                 + bytesPerPixel);
     }
 

@@ -286,6 +286,10 @@ input.button {
     background-color: transparent;
     vertical-align:middle;
 }
+input.button-disabled {
+    opacity:0.4;
+    cursor:default !important;
+}
 
 select {
     margin: 0;
