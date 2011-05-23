@@ -274,7 +274,9 @@ class ImporterUI
 		if (element == null) return;
 		int index = element.getIndex();
 		element.onImportEnded();
-		tabs.setIconAt(index, element.getImportIcon());
+		int count = tabs.getTabCount();
+		if (index < count)
+			tabs.setIconAt(index, element.getImportIcon());
 	}
 	
 	/**

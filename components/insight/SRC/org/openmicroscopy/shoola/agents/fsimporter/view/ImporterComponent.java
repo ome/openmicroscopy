@@ -81,6 +81,13 @@ class ImporterComponent
 	implements Importer
 {
 
+	/** Text displayed in dialog box when cancelling import.*/
+	private static final String CANCEL_TEXT = "Are you sure you want to " +
+			"cancel all imports that have not yet started?";
+	
+	/** Title displayed in dialog box when cancelling import.*/
+	private static final String CANCEL_TITLE = "Cancel Import";
+	
 	/** The Model sub-component. */
 	private ImporterModel 	model;
 	
@@ -93,6 +100,9 @@ class ImporterComponent
 	/** Reference to the chooser used to select the files to import. */
 	private ImportDialog	chooser;
 
+	/** Flag indicating that the window has been marked to be closed.*/
+	private boolean 		markToclose;
+	
 	/**
 	 * Imports the data for the specified import view.
 	 * 
@@ -121,6 +131,7 @@ class ImporterComponent
 		this.model = model;
 		controller = new ImporterControl(this);
 		view = new ImporterUI();
+		markToclose = false;
 	}
 
 	/** Links up the MVC triad. */
@@ -214,6 +225,11 @@ class ImporterComponent
 				model.importCompleted(element.getID());
 				view.onImportEnded(element);
 				boolean b = element.getData().hasNewObjects();
+				if (markToclose) {
+					view.setVisible(false);
+					fireStateChange();
+					return;
+				}
 				if (!b) {
 					element = view.getElementToStartImportFor();
 					if (element != null) 
@@ -322,12 +338,15 @@ class ImporterComponent
 			*/
 			ImporterUIElement element = view.getSelectedPane();
 			if (element != null && !element.isDone()) {
-				MessageBox box = new MessageBox(view, "Cancel Import",
-						"Are you sure you want to cancel all imports " +
-						"from queue?");
+				MessageBox box = new MessageBox(view, CANCEL_TITLE,
+						CANCEL_TEXT+"\n" +
+						"If Yes, the window will close when the on-going " +
+						"import is completed.");
 				if (box.centerMsgBox() == MessageBox.NO_OPTION)
 					return;
+				markToclose = true;
 				element.cancelLoading();
+				//if (element.isDone())
 				model.cancel(element.getID());
 			}
 			model.setState(READY);
@@ -364,7 +383,7 @@ class ImporterComponent
 	public void close()
 	{
 		cancelImport();
-		view.setVisible(false);
+		if (!markToclose) view.setVisible(false);
 	}
 
 	/** 
@@ -473,19 +492,19 @@ class ImporterComponent
 					toImport.add(element);
 			}
 			if (toImport.size() > 0) {
-				MessageBox box = new MessageBox(view, "Cancel Imports",
-						"Are you sure you want to cancel all imports?");
+				MessageBox box = new MessageBox(view, CANCEL_TITLE,
+						CANCEL_TEXT);
 				if (box.centerMsgBox() == MessageBox.NO_OPTION)
 					return;
 				i = toImport.iterator();
 				while (i.hasNext()) {
 					element = i.next();
 					element.cancelLoading();
+					//if (!element.hasStarted())
 					model.cancel(element.getID());
 				}
 			}
 		}
-		
 	}
 
 }

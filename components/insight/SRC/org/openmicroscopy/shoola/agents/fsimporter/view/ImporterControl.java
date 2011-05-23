@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
-import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;

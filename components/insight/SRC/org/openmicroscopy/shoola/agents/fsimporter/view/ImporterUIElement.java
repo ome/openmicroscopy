@@ -854,10 +854,18 @@ class ImporterUIElement
 	/** Indicates that the import has started. */
 	void startImport()
 	{ 
-		//setClosable(true);
+		setClosable(false);
 		busyLabel.setBusy(true);
 		repaint();
 	}
+	
+	/**
+	 * Returns <code>true</code> if the import has started, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasStarted() { return busyLabel.isBusy(); }
 	
 	/**
 	 * Returns the collection of files that could not be imported.
@@ -1005,7 +1013,11 @@ class ImporterUIElement
 	}
 	
 	/** Invokes when the import is finished. */
-	void onImportEnded() { busyLabel.setBusy(false); }
+	void onImportEnded()
+	{ 
+		busyLabel.setBusy(false);
+		setClosable(true);
+	}
 
 	/**
 	 * Resets the containers in the file to load.

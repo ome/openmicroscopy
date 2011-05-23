@@ -256,6 +256,7 @@ public class StatusLabel
 	public void update(IObservable observable, ImportEvent event)
 	{
 		if (event == null) return;
+		cancellable = false;
 		if (event instanceof ImportEvent.LOADING_IMAGE) {
 			startTime = System.currentTimeMillis();
 			setText(PREPPING_TEXT);

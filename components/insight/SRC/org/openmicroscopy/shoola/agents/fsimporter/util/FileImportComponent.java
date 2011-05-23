@@ -279,7 +279,9 @@ public class FileImportComponent
 	private void setNumberOfImport()
 	{
 		if (pane == null) return;
-		String text = file.getName()+": "+importCount+"/"+totalFiles+" files";
+		String end = " file";
+		if (totalFiles > 1) end +="s";
+		String text = file.getName()+": "+importCount+"/"+totalFiles+end;
 		pane.setTitle(text);
 	}
 	
@@ -1102,6 +1104,7 @@ public class FileImportComponent
 			if (sl == statusLabel && busyLabel != null) {
 				busyLabel.setBusy(true);
 				busyLabel.setVisible(true);
+				cancelButton.setEnabled(sl.isCancellable());
 			}
 		} else if (StatusLabel.CANCELLABLE_IMPORT_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
