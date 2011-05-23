@@ -331,8 +331,8 @@ public class ImportEvent {
         }
     }
 
-    public static class IMPORT_THUMBNAILING extends PROGRESS_EVENT {
-        public IMPORT_THUMBNAILING(int index, String filename, IObject target,
+    public static class IMPORT_PROCESSING extends PROGRESS_EVENT {
+        public IMPORT_PROCESSING(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size) {
             super(index, filename, target, pixId, series, size, null, null);
         }
