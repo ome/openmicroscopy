@@ -2424,10 +2424,14 @@ class TreeViewerComponent
 		} else if (node instanceof TreeImageTimeSet) {
 			model.browseTimeInterval((TreeImageTimeSet) node);
 		} else if (uo instanceof PlateData) {
-			List l = node.getChildrenDisplay();
-			if (l != null && l.size() > 0) return;
 			List<TreeImageDisplay> plates = new ArrayList<TreeImageDisplay>();
-			plates.add(node);
+			List l = node.getChildrenDisplay();
+			if (l == null || l.size() == 0) {
+				plates.add(node);
+			}
+			if (l.size() == 1) {
+				plates.add((TreeImageDisplay) l.get(0));
+			}
 			model.browsePlates(plates, withThumbnails);
 		} else if (uo instanceof PlateAcquisitionData) {
 			List<TreeImageDisplay> plates = new ArrayList<TreeImageDisplay>();
