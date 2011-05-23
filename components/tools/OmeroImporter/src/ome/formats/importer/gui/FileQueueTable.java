@@ -407,13 +407,14 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
     }
     
     /**
-     * Set progress for the file at row to 'thumbnailing'
+     * Set progress for the file at row to 'processing'. This covers
+     * resetting defaults, thumbnailing, and the "launch" method
      * 
      * @param row in file queue to set status on
      */
-    public void setProgressResettingDefaults(int row)
+    public void setProgressProcessing(int row)
     {
-        getTable().setValueAt("thumbnailing", row, 2);       
+        getTable().setValueAt("processing", row, 2);
     }
 
     /**
@@ -545,9 +546,9 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
             ImportEvent.IMPORT_OVERLAYS ev = (ImportEvent.IMPORT_OVERLAYS) event;
         	setProgressOverlays(ev.index);
         }
-        else if (event instanceof ImportEvent.IMPORT_THUMBNAILING) {
-            ImportEvent.IMPORT_THUMBNAILING ev = (ImportEvent.IMPORT_THUMBNAILING) event;
-        	setProgressResettingDefaults(ev.index);
+        else if (event instanceof ImportEvent.IMPORT_PROCESSING) {
+            ImportEvent.IMPORT_PROCESSING ev = (ImportEvent.IMPORT_PROCESSING) event;
+		setProgressProcessing(ev.index);
         }
         else if (event instanceof ImportEvent.IMPORT_QUEUE_STARTED)
         {

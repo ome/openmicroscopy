@@ -221,7 +221,7 @@ public class BrowseContainerAction
                 else if (ho instanceof PlateData) {
                 	List l = selectedDisplay.getChildrenDisplay();
                 	description = DESCRIPTION_PLATE;
-                	setEnabled((l == null || l.size() == 0));
+                	setEnabled((l == null || l.size() <= 1));
                 } else if (ho instanceof PlateAcquisitionData) {
                 	description = DESCRIPTION_PLATE;
                 	setEnabled(true);
