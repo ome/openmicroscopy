@@ -306,9 +306,9 @@ public class StatusLabel
 			errorText = "missing required library";
 			cancellable = false;
 			firePropertyChange(CANCELLABLE_IMPORT_PROPERTY, null, this);
-		} else if (event instanceof ImportEvent.IMPORT_THUMBNAILING) {
-			setText("Creating thumbnail");
+		} else if (event instanceof ImportEvent.IMPORT_PROCESSING) {
+			setText("processing");
 		} 
 	}
-	
+
 }
