@@ -31,9 +31,6 @@ import traceback
 import time
 import array
 
-import omero_version
-omero_version = omero_version.omero_version.split('-')[1].split('.')
-
 import logging
 logger = logging.getLogger('blitz_gateway')
 
@@ -50,10 +47,6 @@ from math import sqrt
 import omero_Constants_ice  
 import omero_ROMIO_ice
 from omero.rtypes import rstring, rint, rlong, rbool, rtime, rlist, rdouble
-
-if omero_version < ['4','2','0']:
-    import makemovie
-
 
 def omero_type(val):
     """
@@ -414,15 +407,8 @@ class BlitzObjectWrapper (object):
         
         @rtype:     Boolean
         @return:    see above
-        --> Beta4.1: if self.isOwned() and not self.isReadOnly():
-        -->            return True
-        -->          return False
         """
-        if self.isOwned() and (omero_version >= ['4','2','0'] or not self.isReadOnly()):
-            return True
-        elif omero_version >= ['4','2','0'] and not self.isPrivate() and not self.isReadOnly():
-            return True
-        return False
+        return self.isOwned() or (not self.isPrivate() and not self.isReadOnly()):
     
     def isPublic(self):
         """
@@ -767,20 +753,11 @@ class BlitzObjectWrapper (object):
         """
         if not ann.getId():
             # Not yet in db, save it
-            if omero_version < ['4','2','0']:
-                ann.details.setPermissions(omero.model.PermissionsI())
-                ann.details.permissions.setWorldRead(True)
-                ann.details.permissions.setGroupWrite(True)
             ann = ann.__class__(self._conn, self._conn.getUpdateService().saveAndReturnObject(ann._obj))
         #else:
         #    ann.save()
         lnktype = "%sAnnotationLinkI" % self.OMERO_CLASS
         lnk = getattr(omero.model, lnktype)()
-        if omero_version < ['4','2','0']:
-            lnk.details.setPermissions(omero.model.PermissionsI())
-            lnk.details.permissions.setWorldRead(True)
-            lnk.details.permissions.setGroupWrite(True)
-            lnk.details.permissions.setUserWrite(True)
         lnk.setParent(self._obj.__class__(self._obj.id, False))
         lnk.setChild(ann._obj.__class__(ann._obj.id, False))
         self._conn.getUpdateService().saveObject(lnk)
@@ -1432,10 +1409,7 @@ class _BlitzGateway (object):
         return hasattr(self.c, 'isSecure') and self.c.isSecure() or False
 
     def _getSessionId (self):
-        if omero_version >= ['4','2','0']:
-            return self.c.getSessionId()
-        else:
-            return self.c.sf.ice_getIdentity().name
+        return self.c.getSessionId()
 
     def _createSession (self):
         """
@@ -3633,10 +3607,7 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
 
 AnnotationWrapper._register(DoubleAnnotationWrapper)
 
-if omero_version >= ['4','2','0']:
-    from omero_model_TermAnnotationI import TermAnnotationI
-else:
-    TermAnnotationI = None
+from omero_model_TermAnnotationI import TermAnnotationI
 
 class TermAnnotationWrapper (AnnotationWrapper):
     """
@@ -4353,49 +4324,27 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
     omero_model_LogicalChannelI class wrapper extends BlitzObjectWrapper.
     Specifies a number of _attrs for the channel metadata.
     """
-    if omero_version >= ['4','2','0']:
-        _attrs = ('name',
-                  'pinHoleSize',
-                  '#illumination',
-                  'contrastMethod',
-                  'excitationWave',
-                  'emissionWave',
-                  'fluor',
-                  'ndFilter',
-                  'otf',
-                  'detectorSettings|DetectorSettingsWrapper',
-                  'lightSourceSettings|LightSettingsWrapper',
-                  'filterSet|FilterSetWrapper',
-                  'lightPath|LightPathWrapper',              
-                  'secondaryEmissionFilter|FilterWrapper',
-                  'secondaryExcitationFilter',
-                  'samplesPerPixel',
-                  '#photometricInterpretation',
-                  'mode',
-                  'pockelCellSetting',
-                  'shapes',
-                  'version')
-    else:
-        _attrs = ('name',
-                  'pinHoleSize',
-                  '#illumination',
-                  'contrastMethod',
-                  'excitationWave',
-                  'emissionWave',
-                  'fluor',
-                  'ndFilter',
-                  'otf',
-                  'detectorSettings|DetectorSettingsWrapper',
-                  'lightSourceSettings|LightSettingsWrapper',
-                  'filterSet|FilterSetWrapper',
-                  'secondaryEmissionFilter|FilterWrapper',
-                  'secondaryExcitationFilter',
-                  'samplesPerPixel',
-                  '#photometricInterpretation',
-                  'mode',
-                  'pockelCellSetting',
-                  'shapes',
-                  'version')
+    _attrs = ('name',
+              'pinHoleSize',
+              '#illumination',
+              'contrastMethod',
+              'excitationWave',
+              'emissionWave',
+              'fluor',
+              'ndFilter',
+              'otf',
+              'detectorSettings|DetectorSettingsWrapper',
+              'lightSourceSettings|LightSettingsWrapper',
+              'filterSet|FilterSetWrapper',
+              'lightPath|LightPathWrapper',              
+              'secondaryEmissionFilter|FilterWrapper',
+              'secondaryExcitationFilter',
+              'samplesPerPixel',
+              '#photometricInterpretation',
+              'mode',
+              'pockelCellSetting',
+              'shapes',
+              'version')
 
 LogicalChannelWrapper = _LogicalChannelWrapper    
 

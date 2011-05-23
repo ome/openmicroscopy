@@ -3,7 +3,6 @@ sys.path.append('.')
 
 import omero.gateway
 import omero.model
-import omero_version
 from omero.rtypes import *
 import os
 import subprocess
@@ -11,8 +10,6 @@ import re
 import time
 import urllib2
 from types import StringTypes
-
-omero_version = omero_version.omero_version.split('-')[1].split('.')
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 TESTIMG_URL = 'http://users.openmicroscopy.org.uk/~cneves-x/'
@@ -395,16 +392,10 @@ def bootstrap ():
         i._conn.seppuku()
     client.seppuku()
 
-NEWSTYLEPERMS = omero_version >= ['4','2','0']
 def cleanup ():
-    if not NEWSTYLEPERMS:
-        client = loginAsRoot()
     for k, p in PROJECTS.items():
         sys.stderr.write('*')
-        if NEWSTYLEPERMS:
-            p = p.get()
-        else:
-            p = p.get(client)
+        p = p.get()
         if p is not None:
             client = p._conn
             update = client.getUpdateService()
