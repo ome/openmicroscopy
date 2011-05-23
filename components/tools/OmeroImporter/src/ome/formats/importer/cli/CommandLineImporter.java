@@ -120,7 +120,11 @@ public class CommandLineImporter {
                 report();
             } else {
                 System.err.println("No imports found");
-                usage();
+                try {
+                    cleanup(); // #5426 Preventing close exceptions.
+                } finally {
+                    usage();
+                }
             }
         }
 

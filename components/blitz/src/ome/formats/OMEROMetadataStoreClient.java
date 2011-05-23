@@ -608,7 +608,7 @@ public class OMEROMetadataStoreClient
             PermissionDeniedException {
         log.info("Insecure connection requested, falling back");
         omero.client tmp = c.createClient(false);
-        c.closeSession();
+        logout();
         c = tmp;
         serviceFactory = c.getSession();
     }
@@ -852,8 +852,10 @@ public class OMEROMetadataStoreClient
         if (prx != null) {
             try {
                 prx.close();
+            } catch (Ice.CommunicatorDestroyedException cde) {
+                log.warn("Communicator already closed; cannot close " + prx);
             } catch (Exception e) {
-                log.warn("Exception closing " + prx);
+                log.warn("Exception closing " + prx, e);
                 log.debug(e);
             }
         }
