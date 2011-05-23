@@ -2287,8 +2287,9 @@ class TreeViewerComponent
 		if (db != null) {
 			db.addPropertyChangeListener(controller);
 			view.removeAllFromWorkingPane();
-			view.displayBrowser(db);
+			
 			db.activate();
+			view.displayBrowser(db);
 			model.setDataViewer(db);
 			getSelectedBrowser().addComponent(db.getGridUI());
 		}
