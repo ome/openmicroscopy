@@ -807,7 +807,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["omeName"] = rstring(str(ome_name))
+        p.map["omeName"] = rstring(smart_str(ome_name))
         sql = "select e from Experimenter as e where e.omeName = (:omeName)"
         exps = query_serv.findAllByQuery(sql, p)
         if len(exps) > 0:
@@ -821,7 +821,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["name"] = rstring(str(name))
+        p.map["name"] = rstring(smart_str(name))
         sql = "select g from ExperimenterGroup as g where g.name = (:name)"
         grs = query_serv.findAllByQuery(sql, p)
         if len(grs) > 0:
@@ -837,7 +837,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["email"] = rstring(str(email))
+        p.map["email"] = rstring(smart_str(email))
         sql = "select e from Experimenter as e where e.email = (:email)"
         exps = query_serv.findAllByQuery(sql, p)
         if len(exps) > 0:

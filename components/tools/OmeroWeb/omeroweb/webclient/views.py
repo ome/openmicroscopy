@@ -57,6 +57,7 @@ from django.views.defaults import page_not_found, server_error
 from django.views import debug
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import smart_str
 
 from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpLoginRedirect
 
@@ -216,8 +217,8 @@ def login(request):
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
-        request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
-        request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
+        request.session['username'] = smart_str(request.REQUEST.get('username'))
+        request.session['password'] = smart_str(request.REQUEST.get('password'))
         request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
         request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
         request.session['shares'] = dict()
@@ -717,20 +718,20 @@ def load_searching(request, form=None, **kwargs):
         template = "webclient/search/search_details.html"
 
         onlyTypes = list()
-        if request.REQUEST.get('projects') is not None and request.REQUEST.get('projects').encode('utf-8') == 'on':
+        if request.REQUEST.get('projects') is not None and request.REQUEST.get('projects') == 'on':
             onlyTypes.append('projects')
-        if request.REQUEST.get('datasets') is not None and request.REQUEST.get('datasets').encode('utf-8') == 'on':
+        if request.REQUEST.get('datasets') is not None and request.REQUEST.get('datasets') == 'on':
             onlyTypes.append('datasets')
-        if request.REQUEST.get('images') is not None and request.REQUEST.get('images').encode('utf-8') == 'on':
+        if request.REQUEST.get('images') is not None and request.REQUEST.get('images') == 'on':
             onlyTypes.append('images')
-        if request.REQUEST.get('plates') is not None and request.REQUEST.get('plates').encode('utf-8') == 'on':
+        if request.REQUEST.get('plates') is not None and request.REQUEST.get('plates') == 'on':
             onlyTypes.append('plates')
-        if request.REQUEST.get('screens') is not None and request.REQUEST.get('screens').encode('utf-8') == 'on':
+        if request.REQUEST.get('screens') is not None and request.REQUEST.get('screens') == 'on':
             onlyTypes.append('screens')
         
         date = request.REQUEST.get('dateperiodinput', None)
         if date is not None:
-            date = date.encode('utf-8')
+            date = smart_str(date)
         
         manager.search(query_search, onlyTypes, date)
     else:
@@ -1224,12 +1225,12 @@ def manage_annotation_multi(request, action=None, **kwargs):
             form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'wells':wells}, data=request.REQUEST.copy(), files=request.FILES)
             if form_multi.is_valid():
                 
-                content = request.REQUEST.get('content')
+                content = form_multi.cleaned_data['content']
                 if content is not None and content != "":
                     manager.createCommentAnnotations(content, oids)
                 
-                tag = request.REQUEST.get('tag')
-                description = request.REQUEST.get('description')
+                tag = form_multi.cleaned_data['tag']
+                description = form_multi.cleaned_data['description']
                 if tag is not None and tag != "":
                     manager.createTagAnnotations(tag, description, oids)
                 
@@ -1349,7 +1350,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 logger.debug("Create new: %s" % (str(form.cleaned_data)))
                 name = form.cleaned_data['name']                
                 description = form.cleaned_data['description']
-                oid = getattr(manager, "create"+request.REQUEST.get('folder_type').capitalize())(name, description)                
+                oid = getattr(manager, "create"+request.REQUEST.get('folder_type').capitalize())(name, description)
                 rdict = {'bad':'false', 'id': oid}
                 json = simplejson.dumps(rdict, ensure_ascii=False)
                 return HttpResponse( json, mimetype='application/javascript')
@@ -1376,32 +1377,12 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 template = "webclient/data/container_new.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
         else:
-            if request.REQUEST.get('folder_type') == "dataset":
+            if request.REQUEST.get('folder_type') in ("project", "screen", "dataset"):
                 form = ContainerForm(data=request.REQUEST.copy())
                 if form.is_valid():
                     name = form.cleaned_data['name']
                     description = form.cleaned_data['description']
-                    manager.createDataset(name, description)
-                    return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
-                else:
-                    template = "webclient/data/container_new.html"
-                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
-            elif request.REQUEST.get('folder_type') == "project":
-                form = ContainerForm(data=request.REQUEST.copy())
-                if form.is_valid():
-                    name = form.cleaned_data['name']
-                    description = form.cleaned_data['description']
-                    manager.createProject(name, description)
-                    return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
-                else:
-                    template = "webclient/data/container_new.html"
-                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
-            elif request.REQUEST.get('folder_type') == "screen":
-                form = ContainerForm(data=request.REQUEST.copy())
-                if form.is_valid():
-                    name = form.cleaned_data['name']
-                    description = form.cleaned_data['description']
-                    manager.createScreen(name, description)
+                    getattr(manager, "create"+request.REQUEST.get('folder_type').capitalize())(name, description)
                     return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
                 else:
                     template = "webclient/data/container_new.html"
@@ -1869,22 +1850,12 @@ def basket_action (request, action=None, **kwargs):
         experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
         form = BasketShareForm(initial={'experimenters':experimenters, 'images':basket.imageInBasket}, data=request.REQUEST.copy())
         if form.is_valid():
-            images = [long(i) for i in request.REQUEST.getlist('image')]
-            message = request.REQUEST['message'].encode('utf-8')
-            expiration = None
-            try:
-                if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
-                    expiration = str(request.REQUEST['expiration'].encode('utf-8'))
-            except:
-                pass
-            members = request.REQUEST.getlist('members')
+            images = form.cleaned_data['image']
+            message = form.cleaned_data['message']
+            expiration = form.cleaned_data['expiration']
+            members = form.cleaned_data['members']
             #guests = request.REQUEST['guests']
-            enable = False
-            try:
-                if request.REQUEST['enable']: enable = True
-            except:
-                pass
-            
+            enable = toBoolean(form.cleaned_data['enable'])
             try:
                 host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
             except:
@@ -1909,53 +1880,21 @@ def basket_action (request, action=None, **kwargs):
         experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
-            message = request.REQUEST['message'].encode('utf-8')
-            expiration = None
-            try:
-                if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
-                    expiration = str(request.REQUEST['expiration'].encode('utf-8'))
-            except:
-                pass
-            members = request.REQUEST.getlist('members')
+            message = form.cleaned_data['message']
+            expiration = form.cleaned_data['expiration']
+            members = form.cleaned_data['members']
             #guests = request.REQUEST['guests']
-            enable = False
-            try:
-                if request.REQUEST['enable']: enable = True
-            except:
-                pass
-            
+            enable = toBoolean(form.cleaned_data['enable'])
             try:
                 host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
             except:
                 host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
             share = BaseShare(conn)
-            share.createDiscussion(host, request.session['server'], message, members, enable, expiration)
+            share.createDiscussion(host, request.session.get('server'), message, members, enable, expiration)
             return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
         else:
             template = "webclient/basket/basket_discussion_action.html"
             context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
-    elif action == "toannotate":
-        # TODO
-        template = "webclient/basket/basket_share_action.html"
-        
-        basket = BaseBasket(conn)
-        basket.load_basket(request)
-        experimenters = conn.getExperimenters()
-        
-        form = ShareForm(initial={'experimenters': experimenters})
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups'], 'url':url})
-        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
-    elif action == "totag":
-        # TODO
-        template = "webclient/basket/basket_share_action.html"
-        
-        basket = BaseBasket(conn)
-        basket.load_basket(request)
-        experimenters = conn.getExperimenters()
-        
-        form = ShareForm(initial={'experimenters': experimenters})
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups'], 'url':url})
-        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     else:
         template = "webclient/basket/basket.html"
         
@@ -2051,105 +1990,6 @@ def update_basket(request, **kwargs):
     else:
         return handlerInternalError("Request method error in Basket.")
 
-##################################################################
-# Clipboard
-
-#@isUserConnected
-#def update_clipboard(request, **kwargs):
-#    if request.method == 'POST':
-#        rv = None
-#        action = request.REQUEST.get('action')
-#        if action is None:
-#            return HttpResponseServerError("Error: Action not available.")
-#        if action == 'copy':
-#            images = request.REQUEST.getlist('image')
-#            datasets = request.REQUEST.getlist('dataset')
-#            plates = request.REQUEST.getlist('plate')
-#            request.session['clipboard'] = {'images': images, 'datasets': datasets, 'plates': plates}
-#            rv = "Data were copied to clipboard."
-#        elif action == 'paste':
-#            destinationType = request.REQUEST.get('destinationType')
-#            destinationId = request.REQUEST.get('destinationId')
-#            if destinationType is not None and destinationId is not None:
-#                destination = [str(request.REQUEST.get('destinationType')), long(request.REQUEST.get('destinationId'))]
-#                conn = None
-#                try:
-#                    conn = kwargs["conn"]
-#                except:
-#                    logger.error(traceback.format_exc())
-#                manager = BaseContainer(conn)
-#                if request.session['clipboard']['images'] is not None and len(request.session['clipboard']['images']) > 0 :
-#                    try:
-#                        manager.copyImagesToDataset(request.session['clipboard']['images'], destination)
-#                    except Exception, x:
-#                        logger.error(traceback.format_exc())
-#                        return HttpResponseServerError("Error: %s" % (x.__class__.__name__))
-#                elif request.session['clipboard']['datasets'] is not None and len(request.session['clipboard']['datasets']) > 0:
-#                    try:
-#                        manager.copyDatasetsToProject(request.session['clipboard']['datasets'], destination)
-#                    except Exception, x:
-#                        logger.error(traceback.format_exc())
-#                        return HttpResponseServerError("Error: %s" % (x.__class__.__name__))
-#                elif request.session['clipboard']['plates'] is not None and len(request.session['clipboard']['plates']) > 0:
-#                    try:
-#                        manager.copyPlatesToScreen(request.session['clipboard']['plates'], destination)
-#                    except Exception, x:
-#                        logger.error(traceback.format_exc())
-#                        return HttpResponseServerError("Error: %s" % (x.__class__.__name__))
-#                else:
-#                    rv = "Error: Clipboard is empty. You need to copy before paste."
-#                if rv is None:
-#                    request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
-#                    #rv = "Copied successful"
-#            else:
-#                rv = "Error: Destination was not specified."    
-#        elif action == 'clean':
-#            try:
-#                del request.session['clipboard']
-#            except KeyError:
-#                logger.error(traceback.format_exc())
-#            request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
-#            rv = "Cleapboard is empty"
-#        else:
-#            rv = "Error: Action not supported."
-#            
-#        if rv:
-#            rdict = {'bad':'false','errs': rv}
-#        else:
-#            rdict = {'bad':'false' }
-#        json = simplejson.dumps(rdict, ensure_ascii=False)
-#        return HttpResponse( json, mimetype='application/javascript')
-#    return HttpResponseServerError("Error: Action not available.")
-
-#@isUserConnected
-#def importer(request, **kwargs):
-#    request.session.modified = True
-#    
-#
-#    conn = None
-#    try:
-#        conn = kwargs["conn"]
-#    except:
-#        logger.error(traceback.format_exc())
-#        return handlerInternalError("Connection is not available. Please contact your administrator.")
-#    
-#    url = None
-#    try:
-#        url = kwargs["url"]
-#    except:
-#        logger.error(traceback.format_exc())
-#        
-#    controller = BaseImpexp(conn)
-#    
-#    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups'], 'url':url})
-#    
-#    context = {'sid':request.session['server'], 'uuid':conn._sessionUuid, 'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
-#    t = template_loader.get_template(template)
-#    c = Context(request,context)
-#    logger.debug('TEMPLATE: '+template)
-#    return HttpResponse(t.render(c))
-
-
 @isUserConnected
 def manage_myaccount(request, action=None, **kwargs):
     template = "webclient/person/myaccount.html"
@@ -2187,12 +2027,12 @@ def manage_myaccount(request, action=None, **kwargs):
     if action == "save":
         form = MyAccountForm(data=request.POST.copy(), initial={'groups':controller.otherGroups})
         if form.is_valid():
-            firstName = request.REQUEST['first_name'].encode('utf-8')
-            middleName = request.REQUEST['middle_name'].encode('utf-8')
-            lastName = request.REQUEST['last_name'].encode('utf-8')
-            email = request.REQUEST['email'].encode('utf-8')
-            institution = request.REQUEST['institution'].encode('utf-8')
-            defaultGroup = request.REQUEST['default_group']
+            firstName = form.cleaned_data['first_name']
+            middleName = form.cleaned_data['middle_name']
+            lastName = form.cleaned_data['last_name']
+            email = form.cleaned_data['email']
+            institution = form.cleaned_data['institution']
+            defaultGroup = form.cleaned_data['default_group']
             controller.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution)
             return HttpResponseRedirect(reverse("myaccount"))
 
@@ -2231,8 +2071,8 @@ def change_password(request, **kwargs):
         password_form = ChangePassword(data=request.POST.copy())
                     
         if password_form.is_valid():
-            password = request.REQUEST.get('password').encode('utf-8')
-            old_password = request.REQUEST.get('old_password').encode('utf-8')
+            old_password = password_form.cleaned_data['old_password']
+            password = password_form.cleaned_data['password']
             error = conn.changeMyPassword(password, old_password) 
             if error is None:
                 request.session['password'] = password
@@ -2268,10 +2108,10 @@ def upload_myphoto(request, action=None, **kwargs):
                 controller.attach_photo(request.FILES['photo'])
                 return HttpResponseRedirect(reverse("upload_myphoto"))
     elif action == "crop": 
-        x1 = long(request.REQUEST['x1'].encode('utf-8'))
-        x2 = long(request.REQUEST['x2'].encode('utf-8'))
-        y1 = long(request.REQUEST['y1'].encode('utf-8'))
-        y2 = long(request.REQUEST['y2'].encode('utf-8'))
+        x1 = long(request.REQUEST.get('x1'))
+        x2 = long(request.REQUEST.get('x2'))
+        y1 = long(request.REQUEST.get('y1'))
+        y2 = long(request.REQUEST.get('y2'))
         box = (x1,y1,x2,y2)
         conn.cropExperimenterPhoto(box)
         return HttpResponseRedirect(reverse("upload_myphoto"))

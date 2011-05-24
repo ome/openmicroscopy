@@ -53,6 +53,7 @@ from django.utils.translation import ugettext as _
 from django.views.defaults import page_not_found, server_error
 from django.views import debug
 from django.core.cache import cache
+from django.utils.encoding import smart_str
 
 from webclient.webclient_gateway import OmeroWebGateway
 
@@ -266,7 +267,7 @@ def forgotten_password(request, **kwargs):
         
             if conn is not None:
                 try:
-                    conn.reportForgottenPassword(request.REQUEST.get('username').encode('utf-8'), request.REQUEST.get('email').encode('utf-8'))
+                    conn.reportForgottenPassword(smart_str(request.REQUEST.get('username')), smart_str(request.REQUEST.get('email')))
                     error = "Password was reseted. Check you mailbox."
                     form = None
                 except Exception, x:
@@ -309,8 +310,8 @@ def login(request):
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
-        request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
-        request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
+        request.session['username'] = smart_str(request.REQUEST.get('username'))
+        request.session['password'] = smart_str(request.REQUEST.get('password'))
         request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
         
     error = request.REQUEST.get('error')
@@ -656,7 +657,7 @@ def manage_group(request, action, gid=None, **kwargs):
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["edit", controller.group.id]))
         else:
-            name_check = conn.checkGroupName(request.REQUEST.get('name').encode('utf-8'), controller.group.name)
+            name_check = conn.checkGroupName(request.REQUEST.get('name'), controller.group.name)
             form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
             if form.is_valid():
                 logger.debug("Update group form:" + str(form.cleaned_data))
@@ -804,7 +805,7 @@ def ldap(request, **kwargs):
 #        if request.method == "POST":
 #            form = EnumerationEntry(data=request.POST.copy())
 #            if form.is_valid():
-#                new_entry = request.REQUEST.get('new_entry').encode('utf-8')
+#                new_entry = form.cleaned_data['new_entry]
 #                controller.saveEntry(new_entry)
 #                return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
 #        else:
@@ -857,7 +858,7 @@ def my_account(request, action=None, **kwargs):
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit"]))
         else:
-            email_check = conn.checkEmail(request.REQUEST.get('email').encode('utf-8'), myaccount.experimenter.email)
+            email_check = conn.checkEmail(request.REQUEST.get('email'), myaccount.experimenter.email)
             form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups}, email_check=email_check)
             if form.is_valid():
                 firstName = form.cleaned_data['first_name']
@@ -877,10 +878,10 @@ def my_account(request, action=None, **kwargs):
                 controller.attach_photo(request.FILES['photo'])
                 return HttpResponseRedirect(reverse("wamyaccount"))
     elif action == "crop": 
-        x1 = long(request.REQUEST.get('x1').encode('utf-8'))
-        x2 = long(request.REQUEST.get('x2').encode('utf-8'))
-        y1 = long(request.REQUEST.get('y1').encode('utf-8'))
-        y2 = long(request.REQUEST.get('y2').encode('utf-8'))
+        x1 = long(request.REQUEST.get('x1'))
+        x2 = long(request.REQUEST.get('x2'))
+        y1 = long(request.REQUEST.get('y1'))
+        y2 = long(request.REQUEST.get('y2'))
         box = (x1,y1,x2,y2)
         conn.cropExperimenterPhoto(box)
         return HttpResponseRedirect(reverse("wamyaccount"))
