@@ -399,7 +399,7 @@ public class ImportDialog
 			else defaultNode = n;
 		}
 		n = new DataNode(project);
-		n.addNode(new DataNode(DataNode.createDefaultDataset()));
+		n.addNode(new DataNode(DataNode.createDefaultDataset(), n));
 		nodes.add(n);
 		List l = sorter.sort(nodes);
 		if (defaultNode != null) l.add(defaultNode);
@@ -1582,8 +1582,21 @@ public class ImportDialog
 				return (DataNode) parentsBox.getSelectedItem();
 			return null;
 		}
-		if (datasetsBox.getItemCount() > 0)
+		if (datasetsBox.getItemCount() > 0) {
 			return (DataNode) datasetsBox.getSelectedItem();
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns where to import the file when selected.
+	 * 
+	 * @return See above.
+	 */
+	DataNode getParentImportLocation()
+	{
+		if (parentsBox.getItemCount() > 0) 
+			return (DataNode) parentsBox.getSelectedItem();
 		return null;
 	}
 	

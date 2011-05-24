@@ -1104,7 +1104,7 @@ public class FileImportComponent
 			if (sl == statusLabel && busyLabel != null) {
 				busyLabel.setBusy(true);
 				busyLabel.setVisible(true);
-				cancelButton.setEnabled(sl.isCancellable());
+				cancelButton.setVisible(sl.isCancellable());
 			}
 		} else if (StatusLabel.CANCELLABLE_IMPORT_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();

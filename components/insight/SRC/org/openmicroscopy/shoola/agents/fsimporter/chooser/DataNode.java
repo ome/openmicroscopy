@@ -139,6 +139,13 @@ class DataNode
 		this.parent = parent;
 	}
 	
+	/**
+	 * Sets the parent of the node.
+	 * 
+	 * @param parent The value to set.
+	 */
+	void setParent(DataNode parent) { this.parent = parent; }
+	
 	/** 
 	 * Creates a new instance. 
 	 * 
@@ -219,7 +226,8 @@ class DataNode
 						children.add(n);
 					}
 				} else {
-					children.add(new DataNode(DataNode.createDefaultDataset()));
+					children.add(new DataNode(DataNode.createDefaultDataset(), 
+							parent));
 				}
 			}
 		}

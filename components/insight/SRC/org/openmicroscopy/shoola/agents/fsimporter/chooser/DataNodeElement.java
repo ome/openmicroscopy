@@ -81,7 +81,8 @@ class DataNodeElement
 			if (location == null) name = NO_LOCATION;
 			else {
 				DataNode parent = location.getParent();
-				if (parent != null && !parent.isDefaultNode())
+				if (parent != null && !parent.isDefaultNode() 
+						&& !location.isDefaultNode())
 					name = parent.toString()+"/";
 				name += location.toString();
 			}

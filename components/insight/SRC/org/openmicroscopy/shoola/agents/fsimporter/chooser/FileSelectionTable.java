@@ -573,6 +573,8 @@ class FileSelectionTable
 		int n = dtm.getColumnCount();
 		boolean b = n == COLUMNS.size();
 		DataNode node = model.getImportLocation();
+		if (node.isDefaultNode() && model.getType() != Importer.SCREEN_TYPE)
+			node.setParent(model.getParentImportLocation());
 		String value = null;
 		boolean fad = fadBox.isSelected();
 		boolean v = false;
@@ -583,6 +585,7 @@ class FileSelectionTable
 				value = null;
 				element = new FileElement(f, model.getType());
 				element.setName(f.getName());
+				value = null;
 				if (b) {
 					if (f.isDirectory()) {
 						value = f.getName();
