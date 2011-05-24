@@ -1552,12 +1552,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         rv = manager.move(parent,destination)
         if rv:
             rdict = {'bad':'true','errs': rv }
-            json = simplejson.dumps(rdict, ensure_ascii=False)
-            return HttpResponse( json, mimetype='application/javascript')
         else:
             rdict = {'bad':'false' }
-            json = simplejson.dumps(rdict, ensure_ascii=False)
-            return HttpResponse( json, mimetype='application/javascript')
+        json = simplejson.dumps(rdict, ensure_ascii=False)
+        return HttpResponse( json, mimetype='application/javascript')
     elif action == 'remove':
         parent = request.REQUEST['parent'].split('-')
         #source = request.REQUEST['source'].split('-')
