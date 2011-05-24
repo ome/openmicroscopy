@@ -420,7 +420,7 @@ def runAsScript():
     scripts.Int("Z_End", description="Projection range (if not specified or, use defaultZ only - no projection)", min=0, grouping="3.2"),
     scripts.Int("T_Start", description="The first time-point", min=0, default=0, grouping="4.1"),
     scripts.Int("T_End", description="The last time-point", min=0, grouping="4.2"),
-    scripts.List("Channels", description="The selected channels").ofType(rint(0), grouping="5"),
+    scripts.List("Channels", description="The selected channels", grouping="5").ofType(rint(0)),
     scripts.Bool("Show_Time", description="If true, display the time.", default=True, grouping="6"),
     scripts.Bool("Show_Plane_Info", description="If true, display the information about the plane e.g. Exposure Time.", default=True, grouping="7"),
     scripts.Int("FPS", description="Frames Per Second.", default=2, grouping="8"),
