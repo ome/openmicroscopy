@@ -353,6 +353,12 @@ public class ImportDialog
 	/** The owner related to the component. */
 	private JFrame						owner;
 	
+	/** The map holding the new nodes to create if in th P/D view.*/
+	private Map<DataNode, List<DataNode>>		newNodesPD;
+	
+	/** The new nodes to create in the screen view.*/
+	private List<DataNode>				newNodesS;
+	
 	/** 
 	 * Creates the dataset.
 	 * 
@@ -361,6 +367,8 @@ public class ImportDialog
 	private void createDataset(DatasetData dataset)
 	{
 		if (dataset == null || dataset.getName().trim().length() == 0) return;
+		if (newNodesPD == null) 
+			newNodesPD = new HashMap<DataNode, List<DataNode>>();
 		List<DataNode> nodes = new ArrayList<DataNode>();
 		DataNode n;
 		for (int i = 0; i < datasetsBox.getItemCount(); i++) {
@@ -371,8 +379,13 @@ public class ImportDialog
 		DataNode node = (DataNode) parentsBox.getSelectedItem();
 		n = new DataNode(dataset, node);
 		nodes.add(n);
+		List<DataNode> l = newNodesPD.get(node);
+		if (l == null) l = new ArrayList<DataNode>();
+		l.add(n);
+		node.addNewNode(n);
+		newNodesPD.put(node, l);
 		datasetsBox.removeAllItems();
-		List l = sorter.sort(nodes);
+		l = sorter.sort(nodes);
 		Iterator i = l.iterator();
 		while (i.hasNext()) {
 			datasetsBox.addItem((DataNode) i.next());
@@ -389,6 +402,8 @@ public class ImportDialog
 	private void createProject(ProjectData project)
 	{
 		if (project == null || project.getName().trim().length() == 0) return;
+		if (newNodesPD == null) 
+			newNodesPD = new HashMap<DataNode, List<DataNode>>();
 		List<DataNode> nodes = new ArrayList<DataNode>();
 		DataNode n;
 		DataNode defaultNode = null;
@@ -401,6 +416,7 @@ public class ImportDialog
 		n = new DataNode(project);
 		n.addNode(new DataNode(DataNode.createDefaultDataset(), n));
 		nodes.add(n);
+		newNodesPD.put(n, new ArrayList<DataNode>());
 		List l = sorter.sort(nodes);
 		if (defaultNode != null) l.add(defaultNode);
 		parentsBox.removeActionListener(parentsBoxListener);
@@ -432,6 +448,8 @@ public class ImportDialog
 			else defaultNode = n;
 		}
 		n = new DataNode(screen);
+		if (newNodesS == null) newNodesS = new ArrayList<DataNode>();
+		newNodesS.add(n);
 		nodes.add(n);
 		List l = sorter.sort(nodes);
 		if (defaultNode != null) l.add(defaultNode);
@@ -1138,6 +1156,54 @@ public class ImportDialog
 		return row;
 	}
 	
+	/**
+	 * Returns the collection of new datasets.
+	 * 
+	 * @return See above.
+	 */
+	private List<DataNode> getOrphanedNewDatasetNode()
+	{
+		if (newNodesPD == null) return null;
+		Iterator<DataNode> i = newNodesPD.keySet().iterator();
+		DataNode n;
+		while (i.hasNext()) {
+			n = i.next();
+			if (n.isDefaultNode()) 
+				return newNodesPD.get(n);
+		}
+		return null;
+	}
+	
+	/**
+	 * Retrieves the new nodes to add the project.
+	 * 
+	 * @param data The data object to handle.
+	 * @param node The node hosting the data object.
+	 */
+	private void getNewDataset(DataObject data, DataNode node)
+	{
+		if (newNodesPD == null || data instanceof ScreenData) return;
+		Iterator<DataNode> i = newNodesPD.keySet().iterator();
+		DataNode n;
+		DataObject ho;
+		List<DataNode> l;
+		Iterator<DataNode> k;
+		while (i.hasNext()) {
+			n = i.next();
+			ho = n.getDataObject();
+			if (ho.getClass().equals(data.getClass()) 
+					&& data.getId() == ho.getId()) {
+				l = newNodesPD.get(n);
+				if (l != null) {
+					k = l.iterator();
+					while (k.hasNext()) {
+						node.addNewNode(k.next());
+					}
+				}
+			}
+		}
+	}
+	
 	/** Initializes the selection boxes. */
 	private void initializeLocationBoxes()
 	{
@@ -1157,6 +1223,7 @@ public class ImportDialog
 				ho = node.getUserObject();
 				if (ho instanceof ProjectData || ho instanceof ScreenData) {
 					n = new DataNode((DataObject) ho);
+					getNewDataset((DataObject) ho, n);
 					n.setRefNode(node);
 					topList.add(n); 
 				} else if (ho instanceof DatasetData) {
@@ -1166,6 +1233,32 @@ public class ImportDialog
 				}
 			}
 		}
+		//check if new top nodes
+		DataObject data;
+		Iterator<DataNode> j;
+		if (type == Importer.PROJECT_TYPE) {
+			if (newNodesPD != null) {
+				j = newNodesPD.keySet().iterator();
+				while (j.hasNext()) {
+					n = j.next();
+					data = n.getDataObject();
+					if (data.getId() <= 0) {
+						topList.add(n);
+					}
+				}
+			}
+		} else if (type == Importer.SCREEN_TYPE) {
+			if (newNodesS != null) {
+				j = newNodesS.iterator();
+				while (j.hasNext()) {
+					n = j.next();
+					data = n.getDataObject();
+					if (data.getId() <= 0)
+						topList.add(n);
+				}
+			}
+		}
+		
 		List sortedList = new ArrayList();
 		if (topList.size() > 0) {
 			sortedList = sorter.sort(topList);
@@ -1173,11 +1266,17 @@ public class ImportDialog
 		int size;
 		if (type == Importer.PROJECT_TYPE) {
 			//sort the node
+			List<DataNode> l = getOrphanedNewDatasetNode();
 			if (datasetsList.size() > 0) { //orphaned datasets.
+				datasetsList.add(new DataNode(DataNode.createDefaultDataset()));
+				if (l != null)
+					datasetsList.addAll(l);
 				n = new DataNode(datasetsList);
 			} else {
 				List<DataNode> list = new ArrayList<DataNode>();
-				list.add(new DataNode(DataNode.createDefaultDataset()));
+				if (l == null || l.size() == 0)
+					list.add(new DataNode(DataNode.createDefaultDataset()));
+				else list.addAll(l);
 				n = new DataNode(list);
 			}
 			sortedList.add(n);
@@ -1244,6 +1343,8 @@ public class ImportDialog
 		if (type == Importer.SCREEN_TYPE) return;
 		DataNode n = (DataNode) parentsBox.getSelectedItem();
 		List<DataNode> list = n.getDatasetNodes();
+		List<DataNode> nl = n.getNewNodes();
+		if (nl != null) list.addAll(nl);
 		List l = sorter.sort(list);
 		datasetsBox.removeAllItems();
 		datasetsBox.setModel(new DefaultComboBoxModel(l.toArray()));
@@ -1446,7 +1547,9 @@ public class ImportDialog
 			} else size[index] = 1;
 			index++;
 		}
-    	if (count > 0) object.setPixelsSize(size);	
+    	if (count > 0) object.setPixelsSize(size);
+    	if (newNodesPD != null) newNodesPD.clear();
+    	if (newNodesS != null) newNodesS.clear();
     	firePropertyChange(IMPORT_PROPERTY, null, object);
     	table.removeAllFiles();
     	tagsMap.clear();

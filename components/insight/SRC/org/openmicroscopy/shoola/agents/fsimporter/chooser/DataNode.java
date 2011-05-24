@@ -77,6 +77,9 @@ class DataNode
 	/** The parent node. */
 	private DataNode parent;
 	
+	/** The collection of nodes to add.*/
+	private List<DataNode> newNodes;
+	
 	/**
 	 * Creates a dataset with default name.
 	 * 
@@ -203,6 +206,39 @@ class DataNode
 	}
 	
 	/**
+	 * Returns the collection of new nodes.
+	 * 
+	 * @return See above.
+	 */
+	List<DataNode> getNewNodes() { return newNodes; }
+	
+	/**
+	 * Adds the specified node.
+	 * 
+	 * @param node The node to add.
+	 */
+	void addNewNode(DataNode node)
+	{
+		if (newNodes == null) newNodes = new ArrayList<DataNode>();
+		if (node != null) {
+			if (!isDefaultNode() && children != null) {
+				Iterator<DataNode> i = children.iterator();
+				DataNode child;
+				DataNode toRemove = null;
+				while (i.hasNext()) {
+					child = i.next();
+					if (child.isDefaultNode()) {
+						toRemove = child;
+						break;
+					}
+				}
+				if (toRemove != null) children.remove(toRemove);
+			}
+			newNodes.add(node);
+		}
+	}
+	
+	/**
 	 * Returns the list of nodes hosted.
 	 * 
 	 * @return See above.
@@ -225,9 +261,13 @@ class DataNode
 						n.parent = this;
 						children.add(n);
 					}
+					if (this.isDefaultNode())
+						children.add(new DataNode(
+								DataNode.createDefaultDataset(), 
+								this));
 				} else {
 					children.add(new DataNode(DataNode.createDefaultDataset(), 
-							parent));
+							this));
 				}
 			}
 		}
