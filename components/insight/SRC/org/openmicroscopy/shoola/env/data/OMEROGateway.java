@@ -6329,12 +6329,14 @@ class OMEROGateway
 					id = i.next();
 					tablePrx = getSharedResources().openTable(
 							new OriginalFileI(id, false));
-					rows = new long[(int) tablePrx.getNumberOfRows()];
-					for (int j = 0; j < rows.length; j++)
-						rows[j] = j;
-					result = createTableResult(tablePrx, rows);
-					if (result != null)
-						results.add(result);
+					if (tablePrx != null) {
+						rows = new long[(int) tablePrx.getNumberOfRows()];
+						for (int j = 0; j < rows.length; j++)
+							rows[j] = j;
+						result = createTableResult(tablePrx, rows);
+						if (result != null)
+							results.add(result);
+					}
 				}
 			}
 		} catch (Exception e) {
