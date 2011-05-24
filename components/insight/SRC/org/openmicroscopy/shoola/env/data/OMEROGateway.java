@@ -3691,7 +3691,7 @@ class OMEROGateway
 		if (fileStore != null)
 			closeService(fileStore);
 		if (importStore != null) {
-			importStore.logout();
+			importStore.closeServices();
 			importStore = null;
 		}
 		Collection<StatefulServiceInterfacePrx> l = reServices.values();
@@ -6115,11 +6115,13 @@ class OMEROGateway
 	 * @param name		The name to give to the imported image.
 	 * @param archived  Pass <code>true</code> if the image has to be archived,
 	 * 					<code>false</code> otherwise.
+     * @param Pass <code>true</code> to close the import,
+     * 		<code>false</code> otherwise.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
 	Object importImage(ImportableObject object, IObject container, 
-			File file, StatusLabel status, boolean archived)
+			File file, StatusLabel status, boolean archived, boolean close)
 		throws ImportException
 	{
 		OMEROMetadataStoreClient omsc = null;
@@ -6181,8 +6183,9 @@ class OMEROGateway
 		} catch (Throwable e) {
 			throw new ImportException(getImportFailureMessage(e), e);
 		} finally {
-			if (omsc != null) {
+			if (omsc != null && close) {
 				omsc.closeServices();
+				importStore = null;
 			}
 		}
 		return null;

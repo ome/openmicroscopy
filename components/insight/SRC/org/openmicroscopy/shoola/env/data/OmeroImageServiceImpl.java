@@ -145,7 +145,7 @@ class OmeroImageServiceImpl
 	 */
 	private void importCandidates(List<String> candidates, StatusLabel status, 
 			ImportableObject object, boolean archived, IObject ioContainer, 
-			List<Annotation> list, long userID)
+			List<Annotation> list, long userID, boolean close)
 	{
 		Iterator<String> i = candidates.iterator();
 		boolean thumbnail = object.isLoadThumbnail();
@@ -164,13 +164,20 @@ class OmeroImageServiceImpl
 		Set<ImageData> ll;
 		Iterator<ImageData> kk;
 		List<Object> converted;
+		boolean toClose = false;
+		int n = files.size()-1;
+		int index = 0;
 		while (jj.hasNext()) {
 			entry = (Entry) jj.next();
 			file = (File) entry.getKey();
 			label = (StatusLabel) entry.getValue();
+			if (close) {
+				toClose = index == n;
+				index++;
+			}
 			try {
 				result = gateway.importImage(object, ioContainer, file, label, 
-						archived);
+						archived, toClose);
 				if (result instanceof ImageData) {
 					image = (ImageData) result;
 					images.add(image);
@@ -957,10 +964,10 @@ class OmeroImageServiceImpl
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#importFile(ImportableObject, ImportableFile, 
-	 * long, long)
+	 * long, long, boolean)
 	 */
 	public Object importFile(ImportableObject object, ImportableFile importable, 
-			long userID, long groupID) 
+			long userID, long groupID, boolean close) 
 		throws ImportException
 	{
 		if (importable == null || importable.getFile() == null)
@@ -1064,7 +1071,7 @@ class OmeroImageServiceImpl
 					File f = new File(candidates.get(0));
 					status.resetFile(f);
 					result = gateway.importImage(object, ioContainer, f,
-							status, importable.isArchived());
+							status, importable.isArchived(), close);
 					if (result instanceof ImageData) {
 						image = (ImageData) result;
 						images.add(image);
@@ -1089,11 +1096,12 @@ class OmeroImageServiceImpl
 					return result;
 				} else {
 					importCandidates(candidates, status, object, 
-							importable.isArchived(), ioContainer, list, userID);
+							importable.isArchived(), ioContainer, list, userID,
+							close);
 				}
 			} else {
 				result = gateway.importImage(object, ioContainer, file, status, 
-						importable.isArchived());
+						importable.isArchived(), close);
 				if (result instanceof ImageData) {
 					image = (ImageData) result;
 					images.add(image);
@@ -1172,7 +1180,7 @@ class OmeroImageServiceImpl
 		candidates = gateway.getImportCandidates(object, file, status);
 		if (candidates.size() == 0) return Boolean.valueOf(false);
 		importCandidates(candidates, status, object, 
-				importable.isArchived(), ioContainer, list, userID);
+				importable.isArchived(), ioContainer, list, userID, close);
 		return Boolean.valueOf(true);
 	}
 	

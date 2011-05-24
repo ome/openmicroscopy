@@ -35,7 +35,6 @@ import java.util.Map;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -75,14 +74,16 @@ public class ImagesImporter
      * Imports the file.
      * 
      * @param ImportableFile The file to import.
+     * @param Pass <code>true</code> to close the import,
+     * 		<code>false</code> otherwise.
      */
-    private void importFile(ImportableFile importable)
+    private void importFile(ImportableFile importable, boolean close)
     {
     	partialResult = new HashMap<File, Object>();
     	OmeroImageService os = context.getImageService();
     	try {
     		partialResult.put(importable.getFile(), 
-    				os.importFile(object, importable, userID, groupID));
+    				os.importFile(object, importable, userID, groupID, close));
 		} catch (Exception e) {
 			partialResult.put(importable.getFile(), e);
 		}
@@ -98,11 +99,15 @@ public class ImagesImporter
     	ImportableFile io;
     	List<ImportableFile> files = object.getFiles();
 		Iterator<ImportableFile> i = files.iterator();
+		int index = 0;
+		int n = files.size()-1;
 		while (i.hasNext()) {
 			io = (ImportableFile) i.next();
 			final ImportableFile f = io;
+			final boolean b = index == n;
+			index++;
 			add(new BatchCall("Importing file") {
-        		public void doCall() { importFile(f); }
+        		public void doCall() { importFile(f, b); }
         	}); 
 		}
     }

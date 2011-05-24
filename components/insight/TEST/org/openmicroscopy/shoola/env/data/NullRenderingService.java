@@ -270,10 +270,10 @@ public class NullRenderingService
 	/**
      * No-op implementation
      * @see OmeroImageService#importImage(ImportableObject, ImportableFile, 
-     * long, long)
+     * long, long, boolean)
      */
 	public Object importFile(ImportableObject object, ImportableFile file, 
-			long userID, long groupID) 
+			long userID, long groupID, boolean close) 
 		throws ImportException
 	{
 		return null;
