@@ -5232,15 +5232,22 @@ class _ImageWrapper (BlitzObjectWrapper):
             if z is not None and t is not None:
                 pos = z,t
             else:
-                re = self._prepareRE()
-                if re:
-                    if z is None:
-                        z = re.getDefaultZ()
-                    if t is None:
-                        t = re.getDefaultT()
-                    pos = z,t
-                else:
-                    pos = None
+                pos = None
+                # The following was commented out in the context of
+                # omero:#5191. Preparing the rendering engine has the
+                # potential to cause the raising of MissingPyramidException's
+                # which prevent OMERO.web from executing the thumbnail methods
+                # below and consequently showing "in-progress" thumbnails.
+                # Tue 24 May 2011 10:42:47 BST -- cxallan
+                #re = self._prepareRE()
+                #if re:
+                #    if z is None:
+                #        z = re.getDefaultZ()
+                #    if t is None:
+                #        t = re.getDefaultT()
+                #    pos = z,t
+                #else:
+                #    pos = None
             if self.getProjection() != 'normal':
                 return self._getProjectedThumbnail(size, pos)
             if len(size) == 1:
