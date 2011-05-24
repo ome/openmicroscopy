@@ -61,6 +61,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.springframework.core.io.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -142,6 +143,9 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /** The thumbnail metadata context. */
     private ThumbnailCtx ctx;
+
+    /** The in-progress image resource we'll use for missing pyramids. */
+    private Resource inProgressImageResource;
 
     /** The default X-width for a thumbnail. */
     public static final int DEFAULT_X_WIDTH = 48;
@@ -347,6 +351,17 @@ public class ThumbnailBean extends AbstractLevel2Service
     }
 
     /**
+     * In-progress image resource Bean injector.
+     * @param inProgressImageResource The in-progress image resource we'll be
+     * using for missing pyramids.
+     */
+    public void setInProgressImageResource(Resource inProgressImageResource) {
+        getBeanHelper().throwIfAlreadySet(
+                this.inProgressImageResource, inProgressImageResource);
+        this.inProgressImageResource = inProgressImageResource;
+    }
+
+    /**
      * Pixels service Bean injector.
      * 
      * @param iPixels
@@ -463,29 +478,34 @@ public class ThumbnailBean extends AbstractLevel2Service
         int x = thumb.getSizeX();
         int y = thumb.getSizeY();
         StopWatch s1 = new CommonsLogStopWatch("omero.transcodeSVG");
-        InputStream svg = ThumbnailBean.class.getResourceAsStream(
-                "image-loading.xml");
-        SVGRasterizer rasterizer = new SVGRasterizer(svg);
-        // Batik will automatically maintain the aspect ratio of the resulting
-        // image if we only specify the width or height.
-        if (x > y)
-        {
-            rasterizer.setImageWidth(x);
-        }
-        else
-        {
-            rasterizer.setImageHeight(y);
-        }
         try
         {
+            SVGRasterizer rasterizer = new SVGRasterizer(
+                    inProgressImageResource.getInputStream());
+            // Batik will automatically maintain the aspect ratio of the
+            // resulting image if we only specify the width or height.
+            if (x > y)
+            {
+                rasterizer.setImageWidth(x);
+            }
+            else
+            {
+                rasterizer.setImageHeight(y);
+            }
             rasterizer.setQuality(compressionService.getCompressionLevel());
             rasterizer.createJPEG(outputStream);
             s1.stop();
         }
-        catch (TranscoderException e)
+        catch (IOException e1)
+        {
+            String s = "Error loading in-progress image from Spring resource.";
+            log.error(s, e1);
+            throw new ResourceError(s);
+        }
+        catch (TranscoderException e2)
         {
             String s = "Error transcoding in progress SVG.";
-            log.error(s, e);
+            log.error(s, e2);
             throw new ResourceError(s);
         }
     }
