@@ -70,10 +70,13 @@ jQuery._WeblitzPlateview = function (container, options) {
               if (data.grid[i][j] == null) {
 		  tr.append('<td><div class="placeholder"></div></td>');
 	      } else {
-		  var td = $('<td><div class="waiting"></div><img class="loading" src="'+ data.grid[i][j].thumb_url+'"></td>');
+		  var td = $('<td id="'+thisid+'-well-'+data.grid[i][j].wellId+'"><div class="waiting"></div><img class="loading" src="'+ data.grid[i][j].thumb_url+'"></td>');
 		  $('img', td)
 		      .click(tclick(data.grid[i][j]))
-		      .load(function() { $(this).removeClass('loading').siblings().remove(); })
+		      .load(function() { 
+                                $(this).removeClass('loading').siblings().remove();
+                          _this.self.trigger('thumbLoad', [$(this).parent(), $(this)]);
+                           })
 		      .data('wellpos', data.rowlabels[i] + data.collabels[j]);
 		  tr.append(td);
 		  _this.self.trigger('thumbNew', [data.grid[i][j], $('img', td)]);
