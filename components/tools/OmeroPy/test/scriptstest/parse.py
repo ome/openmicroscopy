@@ -22,7 +22,7 @@ from omero.util.temp_files import create_path
 
 SCRIPTS = path(".") / "scripts" / "omero"
 
-excludedScripts = {"omero_flim.py":1}
+excludedScripts = {"./scripts/omero/analysis_scripts/flim-omero.py":1}
 
 class TestParse(unittest.TestCase):
 
