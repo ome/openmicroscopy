@@ -1003,9 +1003,19 @@ class BaseContainer(BaseController):
                 if al is not None and al.details.owner.id.val == self.conn.getUser().id:
                     self.conn.deleteObjectDirect(al._obj)
         elif self.comment:
+            # remove the comment from specified parent
             for al in self.comment.getParentLinks(str(parent[0]), [long(parent[1])]):
                 if al is not None and al.details.owner.id.val == self.conn.getUser().id:
                     self.conn.deleteObjectDirect(al._obj)
+            # if comment is orphan, delete it directly
+            orphan = True
+            for parentType in ["Project", "Dataset", "Image", "Screen", "Plate"]:
+                annLinks = list(self.conn.getAnnotationLinks(parentType, ann_ids=[self.comment.id]))
+                if len(annLinks) > 0:
+                    orphan = False
+                    break
+            if orphan:
+                self.conn.deleteObjectDirect(self.comment._obj)
         
         elif self.dataset is not None:
             if parent[0] == 'project':

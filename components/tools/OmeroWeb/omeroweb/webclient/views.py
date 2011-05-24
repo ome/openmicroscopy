@@ -1563,9 +1563,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         #source = request.REQUEST['source'].split('-')
         try:
             manager.remove(parent)
+            raise AttributeError("failed to remove")
         except Exception, x:
             logger.error(traceback.format_exc())
-            rdict = {'bad':'true','errs': x }
+            rdict = {'bad':'true','errs': str(x) }
             json = simplejson.dumps(rdict, ensure_ascii=False)
             return HttpResponse( json, mimetype='application/javascript')
         
