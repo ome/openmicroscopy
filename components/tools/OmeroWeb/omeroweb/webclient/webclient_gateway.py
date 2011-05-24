@@ -1548,8 +1548,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @rtype:             Map
         """
         
-        if not otype.lower() in ('project', 'dataset', 'image'):
-            raise AttributeError('It only retrieves: Project, Dataset or Image')
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
