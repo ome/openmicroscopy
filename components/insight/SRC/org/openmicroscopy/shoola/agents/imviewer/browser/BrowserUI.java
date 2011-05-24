@@ -572,7 +572,8 @@ class BrowserUI
         	return;
         }
         //adjusting = false;
-        setSelectionRegion();
+        //setSelectionRegion();
+        setBirdEyeViewLocation();
         model.checkTilesToLoad(getViewport().getViewRect());
 	}
 	
