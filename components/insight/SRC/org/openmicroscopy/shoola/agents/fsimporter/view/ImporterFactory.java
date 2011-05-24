@@ -155,6 +155,7 @@ public class ImporterFactory
 	/** Clears the tracked component. */
 	private void clear()
 	{
+		if (importer == null) return;
 		importer.removeChangeListener(this);
 		importer.discard();
 		importer = null;
