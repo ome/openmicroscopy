@@ -258,7 +258,7 @@ class BrowserComponent
 		if (items.size() == 0 && nodes.size() == 0) return;
 		model.fireContainerCountLoading(items, nodes);
 	}
-	
+
 	/**
 	 * Sets the selected node.
 	 * 
@@ -492,7 +492,7 @@ class BrowserComponent
     {
         setSelectedDisplay(display, true);
     }
-    
+
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#showPopupMenu(int)
@@ -538,7 +538,7 @@ class BrowserComponent
     {
         return model.getLastSelectedDisplay();
     }
-
+	
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#close()

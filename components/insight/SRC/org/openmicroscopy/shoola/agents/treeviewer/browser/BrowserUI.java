@@ -323,6 +323,15 @@ class BrowserUI
                 				(UIUtilities.isMacOS() && 
                 						SwingUtilities.isLeftMouseButton(me)
                 						&& me.isControlDown())) { //(me.isPopupTrigger()) {
+                	TreePath path = treeDisplay.getPathForLocation(p.x, p.y);
+                	treeDisplay.removeTreeSelectionListener(selectionListener);
+            		if (path != null) 
+            			treeDisplay.setSelectionPath(path);
+            		treeDisplay.addTreeSelectionListener(selectionListener);
+                	if (path != null)
+                		controller.onRightClick((TreeImageDisplay) 
+                				path.getLastPathComponent());
+                	
                 	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) 
                 		controller.showPopupMenu(TreeViewer.ADMIN_MENU);
                 	else 

@@ -184,6 +184,17 @@ class BrowserControl
     }
 
     /**
+     * Invokes the right-click is selected.
+     */
+    void onRightClick(TreeImageDisplay node)
+    {
+    	TreeImageDisplay d  = model.getLastSelectedDisplay();
+    	if (node != d) {
+    		model.setSelectedDisplay(node);
+    	}
+    }
+    
+    /**
      * Reacts to tree expansion events.
      * 
      * @param display   The selected node.
