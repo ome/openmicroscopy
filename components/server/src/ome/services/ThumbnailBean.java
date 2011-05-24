@@ -12,6 +12,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,6 +56,7 @@ import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 
+import org.apache.batik.transcoder.TranscoderException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.perf4j.StopWatch;
@@ -439,8 +442,52 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
 
         FileOutputStream stream = ioService.getThumbnailOutputStream(thumb);
-        compressionService.compressToStream(image, stream);
-        stream.close();
+        try {
+            if (missingPyramid) {
+                compressInProgressImageToStream(thumb, stream);
+            } else {
+                compressionService.compressToStream(image, stream);
+            }
+        } finally {
+            stream.close();
+        }
+    }
+
+    /**
+     * Compresses the <i>in progress</i> image to a stream.
+     * @param thumb The thumbnail metadata.
+     * @param outputStream Stream to compress the data to.
+     */
+    private void compressInProgressImageToStream(
+            Thumbnail thumb, OutputStream outputStream) {
+        int x = thumb.getSizeX();
+        int y = thumb.getSizeY();
+        StopWatch s1 = new CommonsLogStopWatch("omero.transcodeSVG");
+        InputStream svg = ThumbnailBean.class.getResourceAsStream(
+                "image-loading.xml");
+        SVGRasterizer rasterizer = new SVGRasterizer(svg);
+        // Batik will automatically maintain the aspect ratio of the resulting
+        // image if we only specify the width or height.
+        if (x > y)
+        {
+            rasterizer.setImageWidth(x);
+        }
+        else
+        {
+            rasterizer.setImageHeight(y);
+        }
+        try
+        {
+            rasterizer.setQuality(compressionService.getCompressionLevel());
+            rasterizer.createJPEG(outputStream);
+            s1.stop();
+        }
+        catch (TranscoderException e)
+        {
+            String s = "Error transcoding in progress SVG.";
+            log.error(s, e);
+            throw new ResourceError(s);
+        }
     }
 
     /**
@@ -503,13 +550,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
         if (missingPyramid)
         {
-            int x = thumbnailMetadata.getSizeX();
-            int y = thumbnailMetadata.getSizeY();
-            int[] buf = new int[x*y];
-            for (int i = 0; i < buf.length; i++ ){
-                buf[i] = 123;
-            }
-            return ImageUtil.createBufferedImage(buf, x, y);
+            return null;
         }
 
         // Retrieve our rendered data
@@ -1045,7 +1086,11 @@ public class ThumbnailBean extends AbstractLevel2Service
         BufferedImage image = createScaledImage(theZ, theT);
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try {
-            compressionService.compressToStream(image, byteStream);
+            if (missingPyramid) {
+                compressInProgressImageToStream(thumbnailMetadata, byteStream);
+            } else {
+                compressionService.compressToStream(image, byteStream);
+            }
             byte[] thumbnail = byteStream.toByteArray();
             return thumbnail;
         } catch (IOException e) {
