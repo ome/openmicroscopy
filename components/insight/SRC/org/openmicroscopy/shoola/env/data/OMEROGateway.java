@@ -6122,8 +6122,10 @@ class OMEROGateway
 			File file, StatusLabel status, boolean archived)
 		throws ImportException
 	{
+		OMEROMetadataStoreClient omsc = null;
 		try {
-			ImportLibrary library = new ImportLibrary(getImportStore(), 
+			omsc = getImportStore();
+			ImportLibrary library = new ImportLibrary(omsc,
 					new OMEROWrapper(new ImportConfig()));
 			library.addObserver(status);
 			ImportContainer ic = new ImportContainer(file, -1L, container, 
@@ -6178,6 +6180,10 @@ class OMEROGateway
 			}
 		} catch (Throwable e) {
 			throw new ImportException(getImportFailureMessage(e), e);
+		} finally {
+			if (omsc != null) {
+				omsc.closeServices();
+			}
 		}
 		return null;
 	}
