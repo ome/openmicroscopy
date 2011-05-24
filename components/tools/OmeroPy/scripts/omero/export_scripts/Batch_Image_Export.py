@@ -289,13 +289,19 @@ def batchImageExport(conn, scriptParams):
         savePlanesForImage(conn, img, sizeC, splitCs, mergedCs, channelNames,
             zRange, tRange, greyscale, imgWidth, projectZ=False, format="PNG", folder_name=folder_name)
 
-    # zip up image folder
+    # zip up image folder, including log as text file.
+    logFile = open(os.path.join(exp_dir, 'Batch_Image_Export.log'), 'w')
+    try:
+        for s in logStrings:
+            logFile.write(s)
+            logFile.write("\n")
+    finally:
+        logFile.close()
     zip_file_name = "%s.zip" % folder_name
     compress(zip_file_name, folder_name)
 
-    description = "\n".join(logStrings)
     if os.path.exists(zip_file_name):
-        fileAnn = conn.createFileAnnfromLocalFile(zip_file_name, mimetype='zip', desc=description)
+        fileAnn = conn.createFileAnnfromLocalFile(zip_file_name, mimetype='zip', desc=None)
         if parentToAttachZip is not None:
             log("Attaching zip to... %s %s %s" % (scriptParams['Data_Type'], parentToAttachZip.getName(), parentToAttachZip.getId()) )
             parentToAttachZip.linkAnnotation(fileAnn)
