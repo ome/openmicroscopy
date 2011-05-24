@@ -361,13 +361,23 @@ public class OMEROMetadataStoreClient
         check.run();
         return check.isUpgradeNeeded();
     }
-    
+
     /**
      * Initialize all services needed
      *
+     * @param manageLifecylce
+     *
+     *            Whether or not to call the {@link Thread#start()} method on
+     *            the {@link #keepAlive} instance. This will be set to false
+     *            when an {@link omero.client} or a {@link ServiceFactoryPrx}
+     *            instance is provided to {@link #initialize(client)} since the
+     *            assumption is that the consumer will take care of the keep
+     *            alive. In that case, {@link #closeServices()} should be called
+     *            when importing is finished.
+     *
      * @throws ServerError
      */
-    private void initializeServices()
+    private void initializeServices(boolean manageLifecycle)
         throws ServerError
     {
         // Blitz services
@@ -400,12 +410,15 @@ public class OMEROMetadataStoreClient
         //checkImmersions();
 
         // Start our keep alive executor
-        if (executor == null)
+        if (manageLifecycle)
         {
-            executor = new ScheduledThreadPoolExecutor(1);
-            executor.scheduleWithFixedDelay(keepAlive, 60, 60, TimeUnit.SECONDS);
+            if (executor == null)
+            {
+                executor = new ScheduledThreadPoolExecutor(1);
+                executor.scheduleWithFixedDelay(keepAlive, 60, 60, TimeUnit.SECONDS);
+            }
         }
-        keepAlive.setClient(this);
+        keepAlive.setClient(this); // This is used elsewhere.
     }
 
     /**
@@ -427,7 +440,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Initializes the MetadataStore with an already logged in, ready to go
-     * service factory.
+     * service factory. When finished with this instance, close stateful
+     * services via {@link #closeServices()}.
      * @param serviceFactory The factory. Mustn't be <code>null</code>.
      */
     public void initialize(ServiceFactoryPrx serviceFactory)
@@ -436,12 +450,14 @@ public class OMEROMetadataStoreClient
         if (serviceFactory == null)
             throw new IllegalArgumentException("No factory.");
         this.serviceFactory = serviceFactory;
-        initializeServices();
+        initializeServices(false);
     }
 
     /**
      * Initializes the MetadataStore with an already logged in, ready to go
-     * service factory.
+     * service factory. When finished with this instance, close stateful
+     * services via {@link #closeServices()}.
+     *
      * @param c The client. Mustn't be <code>null</code>.
      */
     public void initialize(omero.client c)
@@ -450,13 +466,14 @@ public class OMEROMetadataStoreClient
         this.c = c;
         c.setAgent("OMERO.importer");
         serviceFactory = c.getSession();
-        initializeServices();
+        initializeServices(false);
     }
 
     /**
      * Initializes the MetadataStore taking string parameters to feed to the
      * OMERO Blitz client object. Using this method creates an unsecure
-     * session.
+     * session. When finished with this instance, close all resources via
+     * {@link #logout}
      *
      * @param username User's omename.
      * @param password User's password.
@@ -480,7 +497,8 @@ public class OMEROMetadataStoreClient
     /**
      * Initializes the MetadataStore taking string parameters to feed to the
      * OMERO Blitz client object. Using this method to create either secure
-     * or unsecure sessions.
+     * or unsecure sessions. When finished with this instance, close all resources via
+     * {@link #logout}
      *
      * @param username User's omename.
      * @param password User's password.
@@ -504,13 +522,15 @@ public class OMEROMetadataStoreClient
 	{
 	    unsecure();
 	}
-        initializeServices();
+        initializeServices(true);
 	}
 
     /**
      * Initializes the MetadataStore taking string parameters to feed to the
      * OMERO Blitz client object. Using this method to create either secure
      * or unsecure sessions and sets the user's group to supplied group.
+     * When finished with this instance, close all resources via
+     * {@link #logout}
      *
      * @param username User's omename.
      * @param password User's password.
@@ -539,12 +559,13 @@ public class OMEROMetadataStoreClient
 	iAdmin = serviceFactory.getAdminService();
 	iQuery = serviceFactory.getQueryService();
 	setCurrentGroup(group);
-        initializeServices();
+        initializeServices(true);
 	}
 
     /**
      * Initializes the MetadataStore by joining an existing session.
-     * Use this method only with unsecure sessions.
+     * Use this method only with unsecure sessions. When finished with this
+     * instance, close all resources via {@link #logout}
      *
      * @param server Server hostname.
      * @param port Server port.
@@ -559,7 +580,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Initializes the MetadataStore by joining an existing session.
-     * Use this method only with unsecure sessions.
+     * Use this method only with unsecure sessions. When finished with this
+     * instance, close all resources via {@link #logout}
      *
      * @param server Server hostname.
      * @param port Server port.
@@ -574,7 +596,7 @@ public class OMEROMetadataStoreClient
 	{
             unsecure();
 	}
-        initializeServices();
+        initializeServices(true);
     }
 
     /**
@@ -862,9 +884,15 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * Destroys the sessionFactory and closes the client.
+     * Closes all stateful services.
+     *
+     * This method should be preferred over {@link #logout()} when initialized
+     * via an {@link omero.client} or a {@link ServiceFactoryPrx} instance.
+     *
+     * @see #initialize(client)
+     * @see #initialize(ServiceFactoryPrx)
      */
-    public void logout()
+    public void closeServices()
     {
         closeQuietly(rawFileStore);
         rawFileStore = null;
@@ -878,6 +906,21 @@ public class OMEROMetadataStoreClient
         closeQuietly(delegate);
         delegate = null;
 
+    }
+
+    /**
+     * Destroys the sessionFactory and closes the client.
+     *
+     * This method should not be called when initialized via an
+     * {@link omero.client} or a {@link ServiceFactoryPrx} instance. * @see
+     * #initialize(client)
+     *
+     * @see #initialize(ServiceFactoryPrx)
+     * @see #closeServices()
+     */
+    public void logout()
+    {
+        closeServices();
         if (c != null)
         {
             log.debug("closing client session.");
