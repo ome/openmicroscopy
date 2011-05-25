@@ -143,10 +143,14 @@ class OmeroImageServiceImpl
 	 * @param list   The list of annotations.
 	 * @param userID The identifier of the user.
 	 */
-	private void importCandidates(List<String> candidates, StatusLabel status, 
+	private Boolean importCandidates(List<String> candidates, StatusLabel status, 
 			ImportableObject object, boolean archived, IObject ioContainer, 
 			List<Annotation> list, long userID, boolean close)
 	{
+		if (status.isMarkedAsCancel()) {
+			gateway.closeImport();
+			return Boolean.valueOf(false);
+		}
 		Iterator<String> i = candidates.iterator();
 		boolean thumbnail = object.isLoadThumbnail();
 		Map<File, StatusLabel> files = new HashMap<File, StatusLabel>();
@@ -175,34 +179,40 @@ class OmeroImageServiceImpl
 				toClose = index == n;
 				index++;
 			}
-			try {
-				result = gateway.importImage(object, ioContainer, file, label, 
-						archived, toClose);
-				if (result instanceof ImageData) {
-					image = (ImageData) result;
-					images.add(image);
-					if (thumbnail)
-						label.setFile(file, createImportedImage(userID, image));
-					else label.setFile(file, image);
-				} else if (result instanceof Set) {
-					ll = (Set<ImageData>) result;
-					annotatedImportedImage(list, ll);
-					images.addAll(ll);
-					kk = ll.iterator();
-					converted = new ArrayList<Object>(ll.size());
-					while (kk.hasNext()) {
-						image = kk.next();
+			if (!label.isMarkedAsCancel()) {
+				try {
+					result = gateway.importImage(object, ioContainer, file,
+							label, archived, toClose);
+					if (result instanceof ImageData) {
+						image = (ImageData) result;
+						images.add(image);
 						if (thumbnail)
-							converted.add(createImportedImage(userID, image));	
-						else converted.add(image);
-					}
-					label.setFile(file, converted);
-				} else label.setFile(file, result);
-			} catch (ImportException e) {
-				label.setFile(file, e);
+							label.setFile(file, 
+									createImportedImage(userID, image));
+						else label.setFile(file, image);
+					} else if (result instanceof Set) {
+						ll = (Set<ImageData>) result;
+						annotatedImportedImage(list, ll);
+						images.addAll(ll);
+						kk = ll.iterator();
+						converted = new ArrayList<Object>(ll.size());
+						while (kk.hasNext()) {
+							image = kk.next();
+							if (thumbnail)
+								converted.add(
+										createImportedImage(userID, image));
+							else converted.add(image);
+						}
+						label.setFile(file, converted);
+					} else label.setFile(file, result);
+				} catch (ImportException e) {
+					label.setFile(file, e);
+				}
 			}
 		}
 		annotatedImportedImage(list, images);
+		if (close) gateway.closeImport();
+		return null;
 	}
 	
 	/**
@@ -1122,9 +1132,12 @@ class OmeroImageServiceImpl
 					}
 					return result;
 				} else {
-					importCandidates(candidates, status, object, 
+					Boolean v = importCandidates(candidates, status, object, 
 							importable.isArchived(), ioContainer, list, userID,
 							close);
+					if (v != null) {
+						return v.booleanValue();
+					}
 				}
 			} else {
 				result = gateway.importImage(object, ioContainer, file, status, 

@@ -292,7 +292,7 @@ public class StatusLabel
 		} else if (event instanceof ImportCandidates.SCANNING) {
 			ImportCandidates.SCANNING ev = (ImportCandidates.SCANNING) event;
 			numberOfFiles = ev.totalFiles;
-			setText("scanning");
+			if (!markedAsCancel) setText("scanning");
 		} else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
 			endTime = System.currentTimeMillis();
 			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;

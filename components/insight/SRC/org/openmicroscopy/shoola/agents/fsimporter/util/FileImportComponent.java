@@ -303,7 +303,10 @@ public class FileImportComponent
 	{
 		if (busyLabel.isBusy() && !statusLabel.isCancellable()) 
 			return;
-		statusLabel.setText("cancelled");
+		String s = "cancelled";
+		if (file.isDirectory()) 
+			s += " waiting on scanning to finish";
+		statusLabel.setText(s);
 		statusLabel.markedAsCancel();
 		cancelButton.setEnabled(false);
 		cancelButton.setVisible(false);
@@ -818,7 +821,7 @@ public class FileImportComponent
 				cancelButton.setVisible(false);
 				if (file.isDirectory()) setStatusText("Folder imported");
 				else setStatusText("File not valid");
-			}
+			} else setStatusText("");
 		} else {
 			if (!status) {
 				statusLabel.setVisible(false);

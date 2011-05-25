@@ -85,6 +85,10 @@ class ImporterComponent
 	private static final String CANCEL_TEXT = "Are you sure you want to " +
 			"cancel all imports that have not yet started?";
 	
+	/** Text displayed in dialog box when cancelling import.*/
+	private static final String CANCEL_SELECTED_TEXT = 
+		"Are you sure you want to cancel the import that have not yet started?";
+	
 	/** Title displayed in dialog box when cancelling import.*/
 	private static final String CANCEL_TITLE = "Cancel Import";
 	
@@ -318,33 +322,12 @@ class ImporterComponent
 	public void cancelImport()
 	{
 		if (model.getState() != DISCARDED) {
-			//cancel all the on-going import.
-			/*
-			List<ImporterUIElement> list = view.getElementsWithDataToImport();
-			if (list.size() > 0) {
-				MessageBox box = new MessageBox(view, "Cancel Import",
-						"Are you sure you want to cancel all imports " +
-						"from queue?");
-				if (box.centerMsgBox() == MessageBox.NO_OPTION)
-					return;
-				Iterator<ImporterUIElement> i = list.iterator();
-				ImporterUIElement element;
-				while (i.hasNext()) {
-					element = i.next();
-					element.cancelLoading();
-					model.cancel(element.getID());
-				}
-			}
-			*/
 			ImporterUIElement element = view.getSelectedPane();
 			if (element != null && !element.isDone()) {
 				MessageBox box = new MessageBox(view, CANCEL_TITLE,
-						CANCEL_TEXT+"\n" +
-						"If Yes, the window will close when the on-going " +
-						"import is completed.");
+						CANCEL_SELECTED_TEXT);
 				if (box.centerMsgBox() == MessageBox.NO_OPTION)
 					return;
-				markToclose = true;
 				element.cancelLoading();
 				//if (element.isDone())
 				model.cancel(element.getID());
@@ -382,7 +365,36 @@ class ImporterComponent
 	 */
 	public void close()
 	{
-		cancelImport();
+		Collection<ImporterUIElement> list = view.getImportElements();
+		List<ImporterUIElement> 
+		toImport = new ArrayList<ImporterUIElement>();
+		if (list == null || list.size() == 0) {
+			 view.setVisible(false);
+			return;
+		}
+		Iterator<ImporterUIElement> i = list.iterator();
+		ImporterUIElement element;
+		while (i.hasNext()) {
+			element = i.next();
+			if (!element.isDone())
+				toImport.add(element);
+		}
+		if (toImport.size() > 0) {
+			MessageBox box = new MessageBox(view, CANCEL_TITLE,
+					CANCEL_TEXT+"\n" +
+					"If Yes, the window will close when the on-going " +
+					"import is completed.");
+			if (box.centerMsgBox() == MessageBox.NO_OPTION)
+				return;
+			markToclose = true;
+			i = toImport.iterator();
+			while (i.hasNext()) {
+				element = i.next();
+				element.cancelLoading();
+				//if (!element.hasStarted())
+				model.cancel(element.getID());
+			}
+		} else markToclose = false;
 		if (!markToclose) view.setVisible(false);
 	}
 
@@ -473,6 +485,15 @@ class ImporterComponent
 		}
 	}
 
+	/**
+	 * Cancels all-going imports, displays the di
+	 * @param closeOption
+	 */
+	private void cancellAll(boolean windowOption)
+	{
+		
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#cancelAllImports()
