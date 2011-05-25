@@ -59,7 +59,7 @@ from omero.gateway import TagAnnotationWrapper, ExperimenterWrapper, WellWrapper
 
 from omero.sys import ParametersI
 
-
+from django.utils.encoding import smart_str
 from django.utils.translation import ugettext as _
 from django.conf import settings
 from django.core.mail import send_mail
