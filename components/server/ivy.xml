@@ -24,7 +24,6 @@
     <dependency org="geronimo-spec" name="geronimo-spec-jta" rev="1.0.1B-rc4"/>
     <dependency org="btm" name="btm" rev="${versions.btm}"/>
     <!-- Public -->
-    <dependency org="batik" name="batik" rev="${versions.batik}"/>
     <dependency org="batik" name="batik-all" rev="${versions.batik}"/>
     <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}"/>
     <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}"/>
