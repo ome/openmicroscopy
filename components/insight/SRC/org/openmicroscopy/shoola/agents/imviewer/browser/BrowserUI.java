@@ -127,8 +127,9 @@ class BrowserUI
     {
     	if (region == null) return;
     	Dimension d = birdEyeView.getSize();
-    	int sizeX = model.getMaxX()/2;
-    	int sizeY = model.getMaxY()/2;
+    	Rectangle rl = canvas.getBounds();
+    	int sizeX = rl.width;//model.getMaxX()/2;
+    	int sizeY = rl.height;//model.getMaxY()/2;
     	double vx = sizeX/d.width;
     	double vy = sizeY/d.height;
     	int x = (int) (vx*region.x);
@@ -148,14 +149,16 @@ class BrowserUI
     	if (birdEyeView == null) return;
     	Dimension d = birdEyeView.getSize();
     	Rectangle r = getViewport().getViewRect();
-    	int sizeX = model.getMaxX();
-    	int sizeY = model.getMaxY();
+    	Rectangle rl = canvas.getBounds();
+    	int sizeX = rl.width;// model.getMaxX();
+    	int sizeY = rl.height;//model.getMaxY();
     	int rx = sizeX/d.width;
     	int ry = sizeY/d.height;
     	if (rx == 0) rx = 1;
     	if (ry == 0) ry = 1;
     	int x = (int) (r.x/rx);
     	int y = (int) (r.y/ry);
+    	
     	int w = (int) (r.width/rx);
     	int h = (int) (r.height/ry);
     	birdEyeView.setSelection(x, y, w, h);
@@ -412,6 +415,7 @@ class BrowserUI
     	}
         canvas.setPreferredSize(d);
         canvas.setSize(d);
+        if (model.isBigImage()) setSelectionRegion();
     }
     
     /** 
