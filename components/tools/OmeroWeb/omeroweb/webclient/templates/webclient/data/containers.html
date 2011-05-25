@@ -504,12 +504,12 @@
                       dataType: "json",
                       type: "POST",
                       success: function(r){
-                          var o = $.parseJSON(r);
-                          if(o.bad) {
+                          var response = $.parseJSON(r);
+                          if(eval(response.bad)) {
                               $.jstree.rollback(data.rlbk);
-      						  alert(o.errs);
+      						  alert(response.errs);
       				      } else {
-                              $(data.rslt.obj).attr("id", data.rslt.obj.attr("rel")+"-"+r.id);
+                              $(data.rslt.obj).attr("id", data.rslt.obj.attr("rel")+"-"+response.id);
       				      }
                       }
                     });
@@ -524,11 +524,10 @@
                         dataType: "json",
                         type: "POST",
                         success: function(r){
-                            var o = $.parseJSON(r);
-                            console.log(o, o.bad)
-                            if(o.bad) {
+                            var response = $.parseJSON(r);
+                            if(eval(response.bad)) {
                                 $.jstree.rollback(data.rlbk);
-                                alert(o.errs);
+                                alert(response.errs);
                             }
                         }
                     });
@@ -561,10 +560,10 @@
                             dataType: "json",
                             type: "POST",
                             success: function(r){
-                                var o = $.parseJSON(r);
-                                if(o.bad) {
+                                var response = $.parseJSON(r);
+                                if(eval(response.bad)) {
           							$.jstree.rollback(data.rlbk);
-          							alert(o.errs);
+          							alert(response.errs);
           						}
           						else {
           						    $(data.rslt.oc).attr("id", data.rslt.o.attr('id'));
@@ -597,8 +596,8 @@
                             dataType: "json",
                             type: "POST",
                             success: function(r){
-                                var o = $.parseJSON(r);
-                                if(o.bad) {
+                                var response = $.parseJSON(r);
+                                if(eval(response.bad)) {
           							$.jstree.rollback(data.rlbk);
           							alert(o.errs);
           						}

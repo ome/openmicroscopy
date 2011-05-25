@@ -1560,8 +1560,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         parent = request.REQUEST['parent'].split('-')
         #source = request.REQUEST['source'].split('-')
         try:
-            manager.remove(parent)
-            raise AttributeError("failed to remove")
+            manager.remove(parent)            
         except Exception, x:
             logger.error(traceback.format_exc())
             rdict = {'bad':'true','errs': str(x) }

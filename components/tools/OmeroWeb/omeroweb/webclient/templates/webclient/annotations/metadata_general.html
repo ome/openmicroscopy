@@ -172,11 +172,11 @@
                             contentType:'json',
                             success: function(r){
                                 var response = $.parseJSON(r);
-                                if(response.bad) {
+                                if(eval(response.bad)) {
                                     alert(response.errs);
                                 } else {
                                     // simply remove the item (parent class div)
-                                    $parent.hide();
+                                    $parent.remove();
                                 }
                             },
                             error: function(response) {
