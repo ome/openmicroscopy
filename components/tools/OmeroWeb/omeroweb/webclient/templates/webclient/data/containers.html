@@ -370,32 +370,39 @@
                                         "copy"  : {
                                             "label" : "Copy",
                                             "icon"  : '{% url webstatic "images/eclipse_copy_edit16.png" %}',
-                                            "action": function(obj) {
-                                                this.copy(obj);
+                                            "action": function() {
+                                                this.copy(this.get_selected());
                                             }
                                         },
                                         "cut"   :{
                                             "label" : "Cut",
                                             "icon"  : '{% url webstatic "images/cut16.png" %}',
-                                            "action": function(obj) {
-                                                this.cut(obj);
+                                            "action": function() {
+                                                this.cut(this.get_selected());
                                             }
                                         },
                                         "paste": {
                                             "label" : "Paste",
                                             "icon"  : '{% url webstatic "images/eclipse_paste_edit16.png" %}',
-                                            "action": function(obj) {
-                                                this.paste(obj);
+                                            "action": function() {
+                                                this.paste(this.get_selected());
                                             }
                                         },                                      
                                         "unlink"    : {
                                             "label" : "Remove",
-                                            "icon"  : '{% url webstatic "images/minus_15.png" %}',
-                                            "action": function(obj){ if (confirm("Remove the "+obj.attr('rel')+" from its current context.")) {
-                                                this.cut(obj);
-                                                if (obj.attr('rel') == 'image') this.paste($("li#orphaned-0"))
-                                                else this.paste($("li#experimenter-0"));
-                                            } }
+                                            "icon"  : '{% url webstatic "images/cancel16.png" %}',
+                                            "action": function(){ 
+                                                var tree = this;
+                                                var selected = tree.get_selected();
+                                                if (selected.length>0) {
+                                                    if (confirm("Remove the "+selected.length+" object(-s) from its current context.")) {
+                                                        selected.each(function() {
+                                                            tree.cut($(this));
+                                                            if ($(this).attr('rel') == 'image') tree.paste($("li#orphaned-0"))
+                                                            else tree.paste($("li#experimenter-0"));
+                                                        });                                                        
+                                                    }
+                                                } }
                                         }
                                     }
                                 };
@@ -403,8 +410,8 @@
                                 config["delete"] = {
                                     "label" : "Delete",
                                     "icon"  : '{% url webstatic "images/cancel16.png" %}',
-                                    "action": function(obj){ if (confirm("Delete permanently selected object? You will NOT be able to access this object any more.")) {
-                                        this.remove(obj);
+                                    "action": function(){ if (confirm("Delete permanently selected object(-s)? You will NOT be able to access this object any more.")) {
+                                        this.remove(this.get_selected());
                                     } }
                                 };
                                 
@@ -510,6 +517,10 @@
       				      } else {
                               $(data.rslt.obj).attr("id", data.rslt.obj.attr("rel")+"-"+r.id);
       				      }
+                      },
+                      error: function(response) {
+                          $.jstree.rollback(data.rlbk);
+                          alert("Internal server error. Cannot create object.");
                       }
                     });
         		})
@@ -527,6 +538,10 @@
                                 $.jstree.rollback(data.rlbk);
                                 alert(r.errs);
                             }
+                        },
+                        error: function(response) {
+                            $.jstree.rollback(data.rlbk);
+                            alert("Internal server error. Cannot rename object.");
                         }
                     });
         		})
@@ -570,19 +585,23 @@
           							//data.inst.refresh(data.inst._get_node(data.rslt.cr));
           							refreshCenterPanel();
           						}
+                            },
+                            error: function(response) {
+                                $.jstree.rollback(data.rlbk);
+                                alert("Internal server error. "+response);
                             }
                         });
                     }); 
         		})
         		.bind("remove.jstree", function (e, data) {
-                    data.rslt.obj.each(function (i) {
+        		    data.rslt.obj.each(function (i) {
                         ajax_data = new Object();
                         if (($(this).attr("rel") == 'project' || $(this).attr("rel") == 'dataset' || $(this).attr("rel") == 'screen')) {
-                            if (confirm('Also delete content?')) {
+                            if (confirm('Also delete content of '+$(this).attr("id")+'?')) {
                                 ajax_data.child = 'on';
                             }
-                        }  
-                        if (confirm('Also delete annotations?')) {
+                        } 
+                        if (confirm('Also delete annotations linked to '+$(this).attr("id")+'?')) { 
                             ajax_data.anns = 'on';
                         }
                         url = '{% url manage_action_containers "delete" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
@@ -600,9 +619,30 @@
           						//else {
           						//	data.inst.refresh();
           						//}
+          						var i = setInterval(function (){
+                                    $.getJSON("/webclient/progress/", function(data) {
+                                        if (data.inprogress== 0) {
+                                            clearInterval(i);
+                                            $("#progress").hide();
+                                            if(data.failure>0) {
+                                                $("#jobstatus").html(data.failure + ' job(s) failed');
+                                            } else {
+                                                $("#jobstatus").html(data.jobs + ' job(s)');
+                                            }
+                                            return;
+                                        }
+
+                                        $("#progress").show();
+                                        $("#jobstatus").html(data.inprogress + ' job(s) in progress');
+                                    });
+                                }, 1000);
+                            },
+                            error: function(response) {
+                                $.jstree.rollback(data.rlbk);
+                                alert("Internal server error. Cannot remove object.");
                             }
                         });
-                    }); 
+                    });
         		})
         		.delegate("a", "dblclick", function(e, data) {
         		    if ($(this).parent().attr('rel')=='image') {
@@ -628,10 +668,37 @@
     			case "addscreenButton":
     			    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'screen' } });
     				break;
-    			case "basketButton":
-    			    addToBasket($.jstree._focused().get_selected());
+    			case "copyButton":
+    			    $("#dataTree").jstree('copy', $.jstree._focused().get_selected());
     				break;
-    			default:
+    			case "cutButton":
+    			    $("#dataTree").jstree('cut', $.jstree._focused().get_selected());
+    				break;
+    			case "pasteButton":
+    			    $("#dataTree").jstree('paste', $.jstree._focused().get_selected());
+    				break;
+    			case "unlinkButton":
+    			    var tree = $.jstree._focused();
+                    var selected = tree.get_selected();
+                    if (selected.length>0) {
+                        if (confirm("Remove the "+selected.length+" object(-s) from its current context.")) {
+                            selected.each(function() {
+                                tree.cut($(this));
+                                if ($(this).attr('rel') == 'image') tree.paste($("li#orphaned-0"))
+                                else tree.paste($("li#experimenter-0"));
+                            });                                                        
+                        }
+                    }
+                    break;
+    			case "deleteButton":
+    			    if (confirm("Delete permanently selected object(-s)? You will NOT be able to access this object any more.")) {
+                        $("#dataTree").jstree('remove', $.jstree._focused().get_selected());
+                    }    			    
+    				break;
+    			case "basketButton":
+        		    addToBasket($.jstree._focused().get_selected());
+        			break;
+                default:
     			    $("#dataTree").jstree(this.id.replace("Button", ""));
     				break;
     		}

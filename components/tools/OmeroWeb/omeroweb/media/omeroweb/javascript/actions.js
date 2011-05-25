@@ -82,10 +82,16 @@ var loadMetadataPanel = function(src, html) {
 var refreshCenterPanel = function() {
     var rel = $("div#content_details").attr("rel");
     if (typeof rel!=="undefined") {
-        $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-        $("div#content_details").attr('rel', rel);
-        $("div#content_details").load('/webclient/load_data/'+rel.replace('-', '/')+'/?view=icon');
-    }                    
+        if (rel.indexOf("orphaned")>=0) {
+            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+            $("div#content_details").attr('rel', rel);
+            $("div#content_details").load('/webclient/load_data/'+rel.split('-')[0]+'/?view=icon');
+        } else {
+            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+            $("div#content_details").attr('rel', rel);
+            $("div#content_details").load('/webclient/load_data/'+rel.replace('-', '/')+'/?view=icon');
+        }        
+    }
 };
 
 

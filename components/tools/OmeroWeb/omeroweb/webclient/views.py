@@ -1544,16 +1544,19 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         parent = request.REQUEST['parent'].split('-')
         #source = request.REQUEST['source'].split('-')
         destination = request.REQUEST['destination'].split('-')
+        rv = None
         try:
             if parent[1] == destination[1]:
-                return HttpResponseServerError("Error: Cannot move to the same place.")
-        except :
-            pass
-        rv = manager.move(parent,destination)
-        if rv:
-            rdict = {'bad':'true','errs': rv }
+                rv = "Error: Cannot move to the same place."
+        except Exception, x:
+            rdict = {'bad':'true','errs': str(x) }
         else:
-            rdict = {'bad':'false' }
+            if rv is None:
+                rv = manager.move(parent,destination)
+            if rv:
+                rdict = {'bad':'true','errs': rv }
+            else:
+                rdict = {'bad':'false' }
         json = simplejson.dumps(rdict, ensure_ascii=False)
         return HttpResponse( json, mimetype='application/javascript')
     elif action == 'remove':
@@ -1575,16 +1578,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         rdict = {'bad':'false' }
         json = simplejson.dumps(rdict, ensure_ascii=False)
         return HttpResponse( json, mimetype='application/javascript')
-    elif action == 'removemany':
-        images = request.REQUEST.getlist('image')
-        try:
-            manager.removemany(images)
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            rv = "Error: %s" % x
-            return HttpResponse(rv)
-        request.session['clipboard'] = source
-        return HttpResponse()
     elif action == 'removefromshare':
         image_id = request.REQUEST['source'].split('-')[1]
         try:
@@ -1673,7 +1666,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             request.session.modified = True            
         except Exception, x:
             logger.error(traceback.format_exc())
-            rdict = {'bad':'true','errs': x }
+            rdict = {'bad':'true','errs': str(x) }
             json = simplejson.dumps(rdict, ensure_ascii=False)
             return HttpResponse( json, mimetype='application/javascript')     
         rdict = {'bad':'false' }
