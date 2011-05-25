@@ -56,7 +56,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
 INSERT into dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             values ('OMERO4.3DEV',  0,              'OMERO4.2',          0);
+             values ('OMERO4.3',  0,              'OMERO4.2',          0);
 
 
 -- #2694 Remove pg_geom
@@ -749,11 +749,11 @@ CREATE TRIGGER experimenter_annotation_link_event_trigger
 --
 
 UPDATE dbpatch set message = 'Database updated.', finished = now()
- WHERE currentVersion  = 'OMERO4.3DEV'    and
+ WHERE currentVersion  = 'OMERO4.3'    and
           currentPatch    = 0          and
           previousVersion = 'OMERO4.2' and
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO4.3DEV__0'||CHR(10)||CHR(10)||CHR(10) as Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO4.3__0'||CHR(10)||CHR(10)||CHR(10) as Status;
 
 COMMIT;
