@@ -239,7 +239,7 @@ class ClosableTabbedPaneUI
 		int y = rect.y+2;
 		int w = 0, h = 0;
 		Image img = images.get(tabIndex);
-		if (!closable) img = closeOverImage;
+		if (!closable) img = closeImage;//closeOverImage;
 		if (img != null && closeVisible) {
 			w = img.getWidth(null);
 			h = img.getHeight(null);
