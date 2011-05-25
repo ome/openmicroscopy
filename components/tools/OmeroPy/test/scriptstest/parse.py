@@ -22,8 +22,6 @@ from omero.util.temp_files import create_path
 
 SCRIPTS = path(".") / "scripts" / "omero"
 
-excludedScripts = {"./scripts/omero/analysis_scripts/flim-omero.py":1}
-
 class TestParse(unittest.TestCase):
 
     def testParse(self):
@@ -132,8 +130,6 @@ class TestParse(unittest.TestCase):
 
     def testParseAllOfficialScripts(self):
         for script in SCRIPTS.walk("*.py"):
-            if excludedScripts.has_key(script):
-                continue;
             try:
                 params = parse_file(str(script))
             except exceptions.Exception, e:
