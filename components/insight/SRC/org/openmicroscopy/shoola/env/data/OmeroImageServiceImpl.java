@@ -973,7 +973,10 @@ class OmeroImageServiceImpl
 		if (importable == null || importable.getFile() == null)
 			throw new IllegalArgumentException("No images to import.");
 		StatusLabel status = importable.getStatus();
-		if (status.isMarkedAsCancel()) return Boolean.valueOf(false);
+		if (status.isMarkedAsCancel()) {
+			gateway.closeImport();
+			return Boolean.valueOf(false);
+		}
 		Object result = null;
 		Collection<TagAnnotationData> tags = object.getTags();
 		List<Annotation> list = new ArrayList<Annotation>();

@@ -6184,8 +6184,7 @@ class OMEROGateway
 			throw new ImportException(getImportFailureMessage(e), e);
 		} finally {
 			if (omsc != null && close) {
-				omsc.closeServices();
-				importStore = null;
+				closeImport();
 			}
 		}
 		return null;
@@ -7646,5 +7645,15 @@ class OMEROGateway
 		}
 		return false;
 	}
+	
+	/** Closes the services initialized by the importer.*/
+	void closeImport()
+	{
+		if (importStore != null) {
+			importStore.closeServices();
+			importStore = null;
+		}
+	}
+	
 	
 }
