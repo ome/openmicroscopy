@@ -218,9 +218,6 @@ class FileSelectionTable
 	/** Indicates to archive the files. */
 	private JCheckBox			archivedBox;
 	
-	/** Indicates to turn the folder as dataset. */
-	private JCheckBox			fadBox;
-	
 	/** The key listener added to the queue. */
 	private KeyAdapter			keyListener;
 	
@@ -353,17 +350,7 @@ class FileSelectionTable
 				}
 			});
     	}
-    	fadBox = new JCheckBox();
-    	//fadBox.setVisible(type != Importer.SCREEN_TYPE);
-    	fadBox.setBackground(UIUtilities.BACKGROUND);
-    	//fadBox.setHorizontalTextPosition(SwingConstants.LEFT); 
-    	fadBox.setSelected(true);
-    	fadBox.addChangeListener(new ChangeListener() {
-			
-			public void stateChanged(ChangeEvent e) {
-				markFolderAsDataset(fadBox.isSelected());
-			}
-		});
+    	
     	formatTableModel();
 	}
 	
@@ -554,8 +541,10 @@ class FileSelectionTable
 	 * Adds the collection of files to the queue.
 	 * 
 	 * @param files The files to add.
+	 * @param fad 	Pass <code>true</code> to indicate to mark the folder as
+	 * 				a dataset, <code>false</code> otherwise.
 	 */
-	void addFiles(List<File> files)
+	void addFiles(List<File> files, boolean fad)
 	{
 		if (files == null || files.size() == 0) return;
 		addButton.setEnabled(false);
@@ -576,7 +565,6 @@ class FileSelectionTable
 		if (node.isDefaultNode() && model.getType() != Importer.SCREEN_TYPE)
 			node.setParent(model.getParentImportLocation());
 		String value = null;
-		boolean fad = fadBox.isSelected();
 		boolean v = false;
 		boolean a = archivedBox.isSelected();
 		while (i.hasNext()) {

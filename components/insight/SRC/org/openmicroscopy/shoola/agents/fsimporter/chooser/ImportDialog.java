@@ -190,8 +190,11 @@ public class ImportDialog
 	/** The length of a column. */
 	private static final int		COLUMN_WIDTH = 200;
 	
-	/** String used to retrieve if the value of the archived flag. */
+	/** String used to retrieve if the value of the load thumbnail flag.*/
 	private static final String LOAD_THUMBNAIL = "/options/LoadThumbnail";
+	
+	/** String used to retrieve if the value of the folder as dataset flag.*/
+	private static final String FOLDER_AS_DATASET = "/options/FolderAsDataset";
 	
 	/** Indicates the context of the import */
 	private static final String LOCATION_PROJECT = "Location: Project/Dataset";
@@ -323,6 +326,9 @@ public class ImportDialog
 	
 	/** Indicates to show thumbnails in import tab. */
 	private JCheckBox					showThumbnails;
+
+	/** Indicates to turn the folder as dataset. */
+	private JCheckBox					fadBox;
 	
 	/** The listener linked to the parents box. */
 	private ActionListener				parentsBoxListener;
@@ -471,7 +477,7 @@ public class ImportDialog
 		List<File> l = new ArrayList<File>();
 		for (int i = 0; i < files.length; i++) 
 			checkFile(files[i], l);
-		table.addFiles(l);
+		table.addFiles(l, fadBox.isSelected());
 		importButton.setEnabled(table.hasFilesToImport());
 	}
 
@@ -674,7 +680,12 @@ public class ImportDialog
 	 */
 	private void initComponents(FileFilter[] filters)
 	{
+		List<String> tips = new ArrayList<String>();
+		tips.add("If selected, when adding images to queue, ");
+    	tips.add("the folder containing the images will be ");
+    	tips.add("marked to be turned into dataset.");
     	folderAsDatasetBox = new JCheckBox();
+    	folderAsDatasetBox.setToolTipText(UIUtilities.formatToolTipText(tips));
     	folderAsDatasetBox.setBackground(UIUtilities.BACKGROUND_COLOR);
     	folderAsDatasetBox.setText("New Dataset from folder's name");
     	folderAsDatasetBox.addChangeListener(new ChangeListener() {
@@ -685,6 +696,7 @@ public class ImportDialog
 				addButton.setEnabled(b);
 			}
 		});
+    	 
     	canvas = new QuotaCanvas();
 		sizeImportLabel = new JLabel();
 		//sizeImportLabel.setText(UIUtilities.formatFileSize(0));
@@ -704,6 +716,18 @@ public class ImportDialog
     			showThumbnails.setSelected(true);
     		}
     	}
+    	b = (Boolean) ImporterAgent.getRegistry().lookup(
+    			FOLDER_AS_DATASET);
+    	fadBox = new JCheckBox("Folder As Dataset");
+    	tips = new ArrayList<String>();
+    	tips.add("If selected, folders added to the import queue ");
+    	tips.add("will be marked to be turned into dataset.");
+    	fadBox.setToolTipText(UIUtilities.formatToolTipText(tips));
+    	//fadBox.setVisible(type != Importer.SCREEN_TYPE);
+    	fadBox.setBackground(UIUtilities.BACKGROUND);
+    	fadBox.setSelected(true);
+    	if (b != null) fadBox.setSelected(b.booleanValue());
+    	
     	if (!isFastConnection()) //slow connection
     		showThumbnails.setSelected(false);
 		reference = null;
@@ -1418,6 +1442,9 @@ public class ImportDialog
 			row = createRow();
 			row.add(UIUtilities.setTextFont(DATASET_TXT));
 			row.add(right);
+			locationPane.add(row);
+			row = createRow();
+			row.add(fadBox);
 			locationPane.add(row);
 		}
 	}

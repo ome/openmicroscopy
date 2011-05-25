@@ -32,6 +32,8 @@
 <entry name="/options/LoadThumbnail" type="boolean">true</entry>
 <!-- if a folder is selected, check how deep to go. The default value is 1. -->
 <entry name="/options/ScanningDepth" type="integer">1</entry>
-
+<!-- if set to true, when a folder is selected, it will be marked to be turned
+into a dataset -->
+<entry name="/options/FolderAsDataset" type="boolean">true</entry>
 </options>
 </agent>
