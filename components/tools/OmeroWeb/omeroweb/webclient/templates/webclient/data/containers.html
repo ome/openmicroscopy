@@ -390,7 +390,7 @@
                                         },                                      
                                         "unlink"    : {
                                             "label" : "Remove",
-                                            "icon"  : '{% url webstatic "images/cancel16.png" %}',
+                                            "icon"  : '{% url webstatic "images/minus_15.png" %}',
                                             "action": function(obj){ if (confirm("Remove the "+obj.attr('rel')+" from its current context.")) {
                                                 this.cut(obj);
                                                 if (obj.attr('rel') == 'image') this.paste($("li#orphaned-0"))
