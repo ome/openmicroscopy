@@ -48,12 +48,27 @@ else:
     OMERO_HOME = os.path.join(os.path.dirname(__file__), '..', '..', '..')
     OMERO_HOME = os.path.normpath(OMERO_HOME)
 
+LOGFILE = ('OMEROweb.log')
+LOGLEVEL = logging.INFO
+LOGDIR = os.path.join(OMERO_HOME, 'var', 'log').replace('\\','/')
+
+if not os.path.isdir(LOGDIR):
+    try:
+        os.makedirs(LOGDIR)
+    except Exception, x:
+        exctype, value = sys.exc_info()[:2]
+        raise exctype, value
+
+import logconfig
+logger = logconfig.get_logger(os.path.join(LOGDIR, LOGFILE), LOGLEVEL)
+
 # Load custom settings from etc/grid/config.xml
 # Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
 from omero.util.concurrency import get_event
 CONFIG_XML = os.path.join(OMERO_HOME, 'etc', 'grid', 'config.xml')
 count = 10
 event = get_event("websettings")
+
 while True:
     try:
         CONFIG_XML = omero.config.ConfigXml(CONFIG_XML)
@@ -66,6 +81,9 @@ while True:
             raise
         else:
             event.wait(1) # Wait a total of 10 seconds
+    except:
+        logger.error("Exception while loading configuration...", exc_info=True)
+        raise
 del event
 del count
 del get_event
@@ -139,7 +157,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.email_port": ["EMAIL_PORT", None, identity],
     "omero.web.email_subject_prefix": ["EMAIL_SUBJECT_PREFIX", "[OMERO.web] ", str],
     "omero.web.email_use_tls": ["EMAIL_USE_TLS", "false", parse_boolean],
-    "omero.web.logdir": ["LOGDIR", os.path.join(OMERO_HOME, 'var', 'log').replace('\\','/'), str],
+    "omero.web.logdir": ["LOGDIR", LOGDIR, str],
     "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean],
     "omero.web.server_email": ["SERVER_EMAIL", None, identity],
     "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],

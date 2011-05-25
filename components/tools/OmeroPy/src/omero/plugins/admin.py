@@ -330,7 +330,7 @@ Examples:
             self.ctx.out("Found default value: %s" % nodepath)
             self.ctx.out("Attempting to correct...")
             from omero.install.win_set_path import win_set_path
-            count = win_set_path()
+            count = win_set_path(dir = self.ctx.dir)
             if count:
                 return
         self.ctx.die(400, """
