@@ -246,11 +246,11 @@ class TreeViewerComponent
     							model.getObjectMimeType(list.get(0)));
     						}
     						db.setSelectedNodes(list, app);
-        						
         				}
 					}
 				}
 			}
+			if (db != null) db.setSelectedNodes(null, null);
 			return;
 		}
 		if (object instanceof ImageData) {
@@ -264,7 +264,8 @@ class TreeViewerComponent
 						view.displayBrowser(db);
 					}
 					List<DataObject> nodes = new ArrayList<DataObject>();
-            		nodes.add((DataObject) object);
+            		//nodes.add((DataObject) object);
+            		nodes = browser.getSelectedDataObjects();
             		db.setSelectedNodes(nodes, 
             				TreeViewerFactory.getApplications(
 							model.getObjectMimeType(object)));
@@ -798,64 +799,64 @@ class TreeViewerComponent
 	public void onSelectedDisplay()
 	{
 		switch (model.getState()) {
-			case DISCARDED:
-			case SAVE:  
-				throw new IllegalStateException("This method cannot be " +
-				"invoked in the DISCARDED, SAVE state.");
+		case DISCARDED:
+		case SAVE:  
+			throw new IllegalStateException("This method cannot be " +
+			"invoked in the DISCARDED, SAVE state.");
 		}
 		view.initializeDisplay();
 		Browser browser = model.getSelectedBrowser();
-        if (browser == null) return;
-        TreeImageDisplay display = browser.getLastSelectedDisplay();
-        MetadataViewer metadata = model.getMetadataViewer();
-        TreeImageDisplay[] selection = browser.getSelectedDisplays();
-       
-        boolean single = selection.length == 1;
-       //Need to review. that
-        if (display instanceof TreeImageTimeSet) {
-        	 single = false;
-        	 TreeImageTimeSet time = (TreeImageTimeSet) display;
-        	 view.removeAllFromWorkingPane();
-        	 if (!time.containsImages()) {
-        		 metadata.setRootObject(null, -1);
-        	 }
-        	 showDataBrowser(display.getUserObject(), display, true);
-        	 return;
-        } 
-        metadata.setSelectionMode(single);
-        if (display != null) { 
-        	  Object object = display.getUserObject();
-        	  if (!single) {
-        		  List l = new ArrayList();
-        		  Object child;
-        		  for (int i = 0; i < selection.length; i++) {
-        			  child = selection[i].getUserObject();
-        			  if (!child.equals(object)) 
-        				  l.add(child);
-        		  }
-        		  if (l.size() > 0)
-        		  	metadata.setRelatedNodes(l);
-        	  } else {
-        		  ExperimenterData exp = browser.getNodeOwner(display);
-        		  if (exp == null) exp = model.getUserDetails();
-        		  metadata.setRootObject(object, exp.getId());
-        		  TreeImageDisplay p = display.getParentDisplay();
-        		  if (p != null) {
-        			  TreeImageDisplay pp = p.getParentDisplay();
-        			  Object gpp = null;
-        			  if (pp != null) gpp = pp.getUserObject();
-        			  metadata.setParentRootObject(p.getUserObject(), gpp);
-        		  } 
-        	  }
-        	  if (!model.isFullScreen()) {
-        		  showDataBrowser(object, display, false);
-        		  browse(display, null, true);
-        	  } else showDataBrowser(object, display, true);
-        } else {
-        	DataBrowser db = model.getDataViewer();
-        	if (db != null) db.setSelectedNodes(new ArrayList(), null);
-        	metadata.setRootObject(null, -1);
-        }
+		if (browser == null) return;
+		TreeImageDisplay display = browser.getLastSelectedDisplay();
+		MetadataViewer metadata = model.getMetadataViewer();
+		TreeImageDisplay[] selection = browser.getSelectedDisplays();
+		
+		boolean single = selection.length == 1;
+		//Need to review. that
+		if (display instanceof TreeImageTimeSet) {
+			single = false;
+			TreeImageTimeSet time = (TreeImageTimeSet) display;
+			view.removeAllFromWorkingPane();
+			if (!time.containsImages()) {
+				metadata.setRootObject(null, -1);
+			}
+			showDataBrowser(display.getUserObject(), display, true);
+			return;
+		} 
+		metadata.setSelectionMode(single);
+		if (display != null) { 
+			Object object = display.getUserObject();
+			if (!single) {
+				List l = new ArrayList();
+				Object child;
+				for (int i = 0; i < selection.length; i++) {
+					child = selection[i].getUserObject();
+					if (!child.equals(object)) 
+						l.add(child);
+				}
+				if (l.size() > 0)
+					metadata.setRelatedNodes(l);
+			} else {
+				ExperimenterData exp = browser.getNodeOwner(display);
+				if (exp == null) exp = model.getUserDetails();
+				metadata.setRootObject(object, exp.getId());
+				TreeImageDisplay p = display.getParentDisplay();
+				if (p != null) {
+					TreeImageDisplay pp = p.getParentDisplay();
+					Object gpp = null;
+					if (pp != null) gpp = pp.getUserObject();
+					metadata.setParentRootObject(p.getUserObject(), gpp);
+				} 
+			}
+			if (!model.isFullScreen()) {
+				showDataBrowser(object, display, false);
+				browse(display, null, true);
+			} else showDataBrowser(object, display, true);
+		} else {
+			DataBrowser db = model.getDataViewer();
+			if (db != null) db.setSelectedNodes(new ArrayList(), null);
+			metadata.setRootObject(null, -1);
+		}
 	}
 
 	/**

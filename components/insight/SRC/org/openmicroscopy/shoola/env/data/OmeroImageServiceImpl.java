@@ -85,7 +85,6 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PixelsData;
-import pojos.ProjectData;
 import pojos.ROIData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;

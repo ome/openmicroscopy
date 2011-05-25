@@ -903,7 +903,10 @@ class BrowserComponent
     		boolean expandParent)
     {
         if (nodes.length == 0) return;
-        if (nodes.length == 1) {
+        TreeImageDisplay[] oldNodes = model.getSelectedDisplays();
+        boolean b = true;
+        if (oldNodes != null && oldNodes.length > 1) b = false;
+        if (nodes.length == 1 && b) {
         	setSelectedDisplay(nodes[0], true);
         	if (expandParent) {
         		TreeImageDisplay parent = nodes[0].getParentDisplay();
@@ -914,7 +917,7 @@ class BrowserComponent
         	}
         	return;
         }
-        TreeImageDisplay[] oldNodes = model.getSelectedDisplays();
+        //TreeImageDisplay[] oldNodes = model.getSelectedDisplays();
         boolean flush = false;
         if (oldNodes.length >= nodes.length) flush = true;
         int n = nodes.length;
