@@ -28,6 +28,8 @@ import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -118,8 +120,9 @@ class ThumbnailLabel
 	private void setThumbnail(ThumbnailData data)
 	{
 		if (data == null) return;
-		ImageIcon icon = new ImageIcon(Factory.magnifyImage(0.25, 
-				data.getThumbnail()));
+		BufferedImage img  = Factory.magnifyImage(0.25, data.getThumbnail());
+		ImageIcon icon = null;
+		if (img != null) icon = new ImageIcon(img);
 		this.data = data;
 		setToolTipText(IMAGE_LABEL_TOOLTIP);
 		setBorder(LABEL_BORDER);
