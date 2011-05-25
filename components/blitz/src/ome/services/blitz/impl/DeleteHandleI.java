@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import ome.conditions.InternalException;
 import ome.io.nio.AbstractFileSystemService;
+import ome.io.nio.PixelsService;
 import ome.services.delete.DeleteStepFactory;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
@@ -490,6 +491,27 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                             log.debug(fileType + " "
                                     + file.getAbsolutePath()
                                     + " does not exist.");
+                        }
+                        // Now try to remove a _pyramid file if it exists
+                        if (fileType.equals("Pixels")) {
+                            filePath += PixelsService.PYRAMID_SUFFIX;
+                            file = new File(filePath);
+                            if (file.exists()) {
+                                if (file.delete()) {
+                                    log.debug("DELETED: " + fileType + " "
+                                            + file.getAbsolutePath());
+                                } else {
+                                    failedMap.get(fileType).add(id);
+                                    filesFailed++;
+                                    bytesFailed += file.length();
+                                    log.debug("Failed to delete " + fileType
+                                            + " " + file.getAbsolutePath());
+                                }
+                            } else {
+                                log.debug(fileType + " "
+                                        + file.getAbsolutePath()
+                                        + " does not exist.");
+                            }
                         }
                     }
                 }
