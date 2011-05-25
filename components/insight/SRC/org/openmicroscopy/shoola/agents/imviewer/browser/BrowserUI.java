@@ -569,11 +569,13 @@ class BrowserUI
         if (e.getValueIsAdjusting()) {
         	adjusting = true;
         	setBirdEyeViewLocation();
+        	setSelectionRegion();
         	return;
         }
         //adjusting = false;
         //setSelectionRegion();
         setBirdEyeViewLocation();
+        setSelectionRegion();
         model.checkTilesToLoad(getViewport().getViewRect());
 	}
 	
