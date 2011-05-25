@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
@@ -80,7 +79,7 @@ class GLImageCanvas
 	private static final float DEFAULT_Y = 0.98f;
 	
 	/** The thickness of scale bar.*/
-	private static final float STROKE = 0.003f;
+	private static final float STROKE = 0.001f;
 	
 	/** The capabilities. */
 	private static GLCapabilities CAPS;
@@ -215,7 +214,7 @@ class GLImageCanvas
     			length = getFontMetrics(getFont()).stringWidth(text);
         	float t = (float) (length)/width;
         	float xText = x1+(s-t)/2+xt;
-            float yText = y1-0.01f;
+            float yText = y1-STROKE;
             gl.glRasterPos2f(xText, yText);
         	glut.glutBitmapString(FONT, text);
         }

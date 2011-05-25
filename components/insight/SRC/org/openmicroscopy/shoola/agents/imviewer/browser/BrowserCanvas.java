@@ -25,23 +25,19 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-
-//Third-party libraries
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.util.Map;
 
+//Third-party libraries
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
-
-import org.openmicroscopy.shoola.env.rnd.data.Region;
-import org.openmicroscopy.shoola.env.rnd.data.Tile;
-
 import com.sun.opengl.util.texture.TextureCoords;
 import com.sun.opengl.util.texture.TextureData;
 import com.sun.opengl.util.texture.TextureIO;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.data.Region;
+import org.openmicroscopy.shoola.env.rnd.data.Tile;
 
 /** 
  * UI component where the image is painted.
