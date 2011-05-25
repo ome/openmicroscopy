@@ -234,16 +234,18 @@ class BaseContainer(BaseController):
             self.experimenter = self.conn.getExperimenter(eid)  
         
         im_list = list(self.conn.listImagesInDataset(oid=did, eid=eid, page=page))
-        im_list_with_counters = list()
+        # Not displaying annotation icons (same as Insight). #5514.
+        #im_list_with_counters = list()
         
-        im_ids = [im.id for im in im_list]
-        if len(im_ids) > 0:
-            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
+        #im_ids = [im.id for im in im_list]
+        #if len(im_ids) > 0:
+        #    im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
             
-            for im in im_list:
-                im.annotation_counter = im_annotation_counter.get(im.id)
-                im_list_with_counters.append(im)
+        #    for im in im_list:
+        #        im.annotation_counter = im_annotation_counter.get(im.id)
+        #        im_list_with_counters.append(im)
         
+        im_list_with_counters = im_list
         im_list_with_counters.sort(key=lambda x: x.getName().lower())
         self.containers = {'images': im_list_with_counters}
         self.c_size = self.conn.getCollectionCount("Dataset", "imageLinks", [long(did)])[long(did)]
@@ -370,16 +372,18 @@ class BaseContainer(BaseController):
             eid = self.conn.getEventContext().userId
         
         im_list = list(self.conn.listOrphans("Image", eid=eid))
-        im_list_with_counters = list()
+        # Not displaying annotation icons (same as Insight). #5514.
+        #im_list_with_counters = list()
         
-        im_ids = [im.id for im in im_list]
-        if len(im_ids) > 0:
-            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
+        #im_ids = [im.id for im in im_list]
+        #if len(im_ids) > 0:
+            #im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
             
-            for im in im_list:
-                im.annotation_counter = im_annotation_counter.get(im.id)
-                im_list_with_counters.append(im)
+            #for im in im_list:
+                #im.annotation_counter = im_annotation_counter.get(im.id)
+                #im_list_with_counters.append(im)
         
+        im_list_with_counters = im_list
         im_list_with_counters.sort(key=lambda x: x.getName().lower())
         self.containers = {'orphaned': True, 'images': im_list_with_counters}
         self.c_size = len(im_list_with_counters)
