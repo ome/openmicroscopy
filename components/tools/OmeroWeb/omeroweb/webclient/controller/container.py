@@ -244,7 +244,7 @@ class BaseContainer(BaseController):
                 im.annotation_counter = im_annotation_counter.get(im.id)
                 im_list_with_counters.append(im)
         
-        im_list_with_counters = self.sortByAttr(im_list_with_counters, 'id')
+        im_list_with_counters.sort(key=lambda x: x.getName().lower())
         self.containers = {'images': im_list_with_counters}
         self.c_size = self.conn.getCollectionCount("Dataset", "imageLinks", [long(did)])[long(did)]
         
@@ -380,7 +380,7 @@ class BaseContainer(BaseController):
                 im.annotation_counter = im_annotation_counter.get(im.id)
                 im_list_with_counters.append(im)
         
-        im_list_with_counters = self.sortByAttr(im_list_with_counters, 'id')
+        im_list_with_counters.sort(key=lambda x: x.getName().lower())
         self.containers = {'orphaned': True, 'images': im_list_with_counters}
         self.c_size = len(im_list_with_counters)
         
