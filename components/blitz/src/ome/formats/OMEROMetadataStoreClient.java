@@ -875,7 +875,7 @@ public class OMEROMetadataStoreClient
             try {
                 prx.close();
             } catch (Ice.CommunicatorDestroyedException cde) {
-                log.warn("Communicator already closed; cannot close " + prx);
+                log.debug("Communicator already closed; cannot close " + prx);
             } catch (Exception e) {
                 log.warn("Exception closing " + prx, e);
                 log.debug(e);
