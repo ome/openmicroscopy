@@ -144,6 +144,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             final File readerDir = readerFile.getParentFile();
             writerFile = File.createTempFile("." + readerFile.getName(), ".tmp", readerDir);
             writerFile.deleteOnExit();
+            acquireLock();
         }
     }
 
@@ -176,7 +177,6 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
                                                int tileWidth, int tileLength)
         throws FormatException
     {
-        acquireLock();
         try
         {
             loci.common.services.ServiceFactory lociServiceFactory =
@@ -279,11 +279,30 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             lockRaf = new RandomAccessFile(lockFile, "rw");
             fileLock = lockRaf.getChannel().lock(); // THROWS!
         } catch (OverlappingFileLockException overlap) {
+            closeRaf();
             throw new LockTimeout("Already locked! " +
                     lockFile.getAbsolutePath(), 15*1000, 0);
         } catch (IOException e) {
+            closeRaf();
             throw new LockTimeout("IOException while locking " +
                     lockFile.getAbsolutePath(), 15*1000, 0);
+        }
+    }
+
+    private void closeRaf()
+    {
+        if (lockRaf != null)
+        {
+            try
+            {
+                lockRaf.close();
+            } catch (Exception e)
+            {
+                log.warn("Failed to close " + lockFile, e);
+            } finally
+            {
+                    lockRaf = null;
+            }
         }
     }
 
@@ -330,8 +349,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             throw new RuntimeException(e);
         } finally {
             fileLock = null;
-            Utils.closeQuietly(lockRaf);
-            lockRaf = null;
+            closeRaf();
             if (lockFile != null) {
                 lockFile.delete();
                 lockFile = null;

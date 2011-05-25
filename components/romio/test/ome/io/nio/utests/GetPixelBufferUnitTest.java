@@ -137,22 +137,25 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
      * By passing a null to getPixelBuffer for the string, one sets useRomio.
      * Here we pass an absolute path, asking to NOT use romio.
      */
-    @Test
+    @Test(expectedExceptions = MissingPyramidException.class)
     public void testDontUseRomio() {
         service.stubBf();
-        service.isRequirePyramid = false;
+        service.isRequirePyramid = false; // Ignored; Original implies pyramid
+        service.retry = false;
         service.path = new File(root, "bf.tiff").getAbsolutePath();
         pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
-    @Test
+    /** OriginalFile != null implies pyramid required currently. */
+    @Test(expectedExceptions = MissingPyramidException.class)
     public void testHandleOriginalFileReturnsSomething() {
         service.stubBf();
-        service.isRequirePyramid = false;
+        service.isRequirePyramid = false; // ignored.
+        service.retry = false;
         service.path = "/tmp/foo";
         pixelBuffer = service.getPixelBuffer(pixels);
-        assertEquals(0, service.events.size());
+        assertEquals(1, service.events.size());
     }
 
     /**
@@ -173,6 +176,7 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
     @Test
     public void testHandleOriginalFileReturnsNullForRomio() {
         service.stubRomio(true);
+        service.retry = false;
         service.isRequirePyramid = false;
         pixelBuffer = service.getPixelBuffer(pixels);
         assertEquals(0, service.events.size());

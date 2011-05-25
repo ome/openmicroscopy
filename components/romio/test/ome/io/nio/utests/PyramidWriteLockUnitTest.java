@@ -65,12 +65,17 @@ public class PyramidWriteLockUnitTest extends AbstractPyramidPixelBufferUnitTest
                 writeTiles(new ArrayList<String>(), run);
             };
         };
+        t.start();
 
+        BfPyramidPixelBuffer pixelBuffer2 = null;
         try {
-            PixelBuffer pixelBuffer2 = service.getPixelBuffer(pixels);
+            pixelBuffer2 = (BfPyramidPixelBuffer) service.getPixelBuffer(pixels);
         } finally {
             latch.countDown();
             t.join();
+            if (pixelBuffer2 != null) {
+               pixelBuffer2.close();
+            }
         }
 
     }
