@@ -54,6 +54,9 @@ public class FSAccessException
 	/** One of the constants defined by this class.*/
 	private int index;
 	
+	/** The time to wait before the pyramid is ready.*/
+	private Long backOffTime;
+	
 	/**
 	 * Constructs a new exception with the specified detail message.
 	 * 
@@ -89,5 +92,23 @@ public class FSAccessException
 	 * @return See above.
 	 */
 	public int getIndex() { return index; }
+	
+	/**
+	 * Sets the time to wait before the pyramid is ready.
+	 * 
+	 * @param backOfftime The value to set.
+	 */
+	public void setBackOffTime(Long backOfftime)
+	{ 
+		this.backOffTime = backOfftime;
+	}
+	
+	/**
+	 * Returns the time to wait before the pyramid is ready.
+	 * 
+	 * @return See above.
+	 */
+	public Long getBackOffTime() { return backOffTime; }
+	
 
 }

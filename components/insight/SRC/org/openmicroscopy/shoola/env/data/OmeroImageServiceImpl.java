@@ -268,6 +268,34 @@ class OmeroImageServiceImpl
 	}
 	
 	/**
+	 * Formats the result of an image import.
+	 * 
+	 * @param image The image to handle.
+	 * @param userID The user's id.
+	 * @param thumbnail Pass <code>true</code> if thumbnail has to be created,
+	 * 					<code>false</code> otherwise.
+	 * @return See above.
+	 */
+	private Object formatResult(ImageData image, long userID, boolean thumbnail)
+	{
+		Boolean backoff = null;
+		try {
+			backoff = gateway.isLargeImage(
+					image.getDefaultPixels().asPixels());
+		} catch (Exception e) {}
+		if (backoff != null && backoff.booleanValue())
+			return new ThumbnailData(image, backoff);
+		if (thumbnail) {
+			ThumbnailData thumb = (ThumbnailData) createImportedImage(userID, 
+					image);
+			thumb.setBackOffForPyramid(backoff);
+			return thumb;
+		} 
+		return image;
+	}
+	
+	
+	/**
 	 * Returns <code>true</code> if the binary data are available, 
 	 * <code>false</code> otherwise.
 	 * 
@@ -432,7 +460,6 @@ class OmeroImageServiceImpl
 				return createImage(values);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new RenderingServiceException("RenderImage", e);
 		}
 	}
@@ -1025,6 +1052,8 @@ class OmeroImageServiceImpl
 		DataObject createdData;
 		IObject project = null;
 		DataObject folder = null;
+		ThumbnailData thumb;
+		Long backoff;
 		if (file.isFile()) {
 			if (ImportableObject.isHCSFile(file))
 				dataset = null;
@@ -1079,20 +1108,15 @@ class OmeroImageServiceImpl
 						image = (ImageData) result;
 						images.add(image);
 						annotatedImportedImage(list, images);
-						if (thumbnail)
-							return createImportedImage(userID, image);
-						return image;
+						return formatResult(image, userID, thumbnail);
 					} else if (result instanceof Set) {
 						ll = (Set<ImageData>) result;
 						annotatedImportedImage(list, ll);
 						kk = ll.iterator();
 						converted = new ArrayList<Object>(ll.size());
 						while (kk.hasNext()) {
-							image = kk.next();
-							if (thumbnail)
-								converted.add(createImportedImage(userID, 
-										image));
-							else converted.add(image);	
+							converted.add(formatResult(kk.next(), userID,
+									thumbnail));	
 						}
 						return converted;
 					}
@@ -1109,20 +1133,15 @@ class OmeroImageServiceImpl
 					image = (ImageData) result;
 					images.add(image);
 					annotatedImportedImage(list, images);
-					if (thumbnail) 
-						return createImportedImage(userID, image);
-					return image;
+					return formatResult(image, userID, thumbnail);
 				} else if (result instanceof Set) {
 					ll = (Set<ImageData>) result;
 					annotatedImportedImage(list, ll);
 					kk = ll.iterator();
 					converted = new ArrayList<Object>(ll.size());
 					while (kk.hasNext()) {
-						image = kk.next();
-						if (thumbnail) 
-							converted.add(createImportedImage(userID, 
-								image));		
-						else converted.add(image);
+						converted.add(formatResult(kk.next(), userID,
+								thumbnail));
 					}
 					return converted;
 				}

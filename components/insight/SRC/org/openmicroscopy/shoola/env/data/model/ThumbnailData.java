@@ -68,8 +68,8 @@ public class ThumbnailData
     /** Used to store the image. */
     private ImageData		image;
     
-    /** Flag indicating that the image has a pyramid.*/
-    private Boolean			hasPyramid;
+    /** Flag indicating that the image required a pyramid to be build.*/
+    private Boolean			requirePyramid;
     
     /** The object of reference. */
     private pojos.DataObject refObject;
@@ -101,7 +101,7 @@ public class ThumbnailData
         this.thumbnail = thumbnail;
         this.userID = userID;
         this.validImage = validImage;
-        hasPyramid = null;
+        requirePyramid = null;
     }
     
     /**
@@ -137,20 +137,20 @@ public class ThumbnailData
     	  this.refObject = refOjbect;
     	  this.validImage = validImage;
     	  this.thumbnail = thumbnail;
-    	  hasPyramid = null;
+    	  requirePyramid = null;
     }
     
     /**
      * Creates a new instance.
      * 
      * @param refOjbect The object of reference. Mustn't be <code>null</code>.
-     * @param hasPyramid Passed <code>true</code> if the image has a pyramid, 
-     * <code>false</code> otherwise.
+     * @param requirePyramid Pass <code>true</code> if a pyramid is required,
+     * 						<code>false</code> otherwise.
      */
-    public ThumbnailData(pojos.DataObject refOjbect, boolean hasPyramid)
+    public ThumbnailData(pojos.DataObject refOjbect, Boolean requirePyramid)
     {
         this(refOjbect, null, false);
-        this.hasPyramid = hasPyramid;
+        this.requirePyramid = requirePyramid;
     }
     
     /**
@@ -162,6 +162,17 @@ public class ThumbnailData
     public ThumbnailData(pojos.DataObject refOjbect, BufferedImage thumbnail)
     {
     	  this(refOjbect, thumbnail, true);
+    }
+    
+    /**
+     * Sets the time the flag indicating if the image requires a pyramid to be
+     * built.
+     * 
+     * @param backOffForPyramid The value to set.
+     */
+    public void setBackOffForPyramid(Boolean requirePyramid)
+    {
+    	this.requirePyramid = requirePyramid;
     }
     
     /**
@@ -203,8 +214,8 @@ public class ThumbnailData
         }
         ThumbnailData data;
         if (refObject != null) {
-        	if (this.hasPyramid != null) {
-        		data = new ThumbnailData(this.refObject, this.hasPyramid);
+        	if (this.requirePyramid != null) {
+        		data = new ThumbnailData(this.refObject, this.requirePyramid);
         	} else {
         		data = new ThumbnailData(this.refObject, pixClone,
         				this.validImage);
@@ -258,15 +269,15 @@ public class ThumbnailData
     public pojos.DataObject getRefObject() { return refObject; }
     
     /**
-     * Returns <code>true</code> if the image has a pyramid, <code>false</code>
+     * Returns <code>true</code> if a pyramid is required, <code>false</code>
      * otherwise.
      * 
      * @return See above.
      */
-    public boolean hasPyramid()
+    public Boolean requirePyramid()
     { 
-    	if (hasPyramid != null) return hasPyramid.booleanValue();
-    	return false;
+    	if (requirePyramid != null) return requirePyramid.booleanValue();
+    	return null;
     }
 
 }

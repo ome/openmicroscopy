@@ -153,8 +153,7 @@ public class FileImportComponent
 	private static final String BROWSE_TEXT = "Browse";
 	
 	/** Text to indicate to view the image. */
-	private static final String PYRAMID_TEXT = 
-		"Building pyramid, please wait before viewing.";
+	private static final String PYRAMID_TEXT = "Building pyramid, please wait";
 	
 	/** Tool tip text to indicate to browse the container. */
 	private static final String BROWSE_CONTAINER_TOOLTIP = "Click to browse.";
@@ -751,7 +750,7 @@ public class FileImportComponent
 					(dataset != null || containerFromFolder != null);
 				browseButton.setVisible(showContainerLabel);
 				containerLabel.setVisible(showContainerLabel);
-			} else if (thumbnail.hasPyramid()) {
+			} else if (thumbnail.requirePyramid()) {
 				resultLabel.setText(PYRAMID_TEXT);
 				resultLabel.setEnabled(false);
 				resultLabel.setVisible(true);

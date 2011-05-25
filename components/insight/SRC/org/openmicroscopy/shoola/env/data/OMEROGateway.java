@@ -890,19 +890,21 @@ class OMEROGateway
 		throws FSAccessException
 	{
 		Throwable cause = t.getCause();
+		String s = "\n Image not ready. Please try again later, " +
+		"ready in approximately ";
 		if (cause instanceof MissingPyramidException) {
 			MissingPyramidException mpe = (MissingPyramidException) cause;
-			String s = "\n Image not ready. Please try again later, " +
-					"perhaps in "+mpe.backOff/1000+"secs";
+			s +=UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
 			FSAccessException fsa = new FSAccessException(message+s, cause);
 			fsa.setIndex(FSAccessException.PYRAMID);
+			fsa.setBackOffTime(mpe.backOff);
 			throw fsa;
 		} else if (t instanceof MissingPyramidException) {
 			MissingPyramidException mpe = (MissingPyramidException) t;
-			String s = "\n Image not ready. Please try again later, " +
-			"perhaps in "+mpe.backOff/1000+"secs";
+			s +=UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
 			FSAccessException fsa = new FSAccessException(message+s, t);
 			fsa.setIndex(FSAccessException.PYRAMID);
+			fsa.setBackOffTime(mpe.backOff);
 			throw fsa;
 		}
 	}
@@ -6151,9 +6153,9 @@ class OMEROGateway
 				p = pixels.get(0);
 				image = p.getImage();
 				id = image.getId().getValue();
-				if (isLargeImage(p)) {
-					return new ThumbnailData(getImage(id, params), true);
-				}
+				//if (isLargeImage(p)) {
+					//return new ThumbnailData(getImage(id, params), true);
+				//}
 				if (ImportableObject.isHCSFile(file))
 					return getImportedPlate(id);
 				
@@ -7618,8 +7620,8 @@ class OMEROGateway
 	}
 
 	/**
-	 * Returns <code>true</code> if it is a big image, <code>false</code>
-	 * otherwise.
+	 * Returns the back-off time if it requires a pyramid to be built, 
+	 * <code>null</code> otherwise.
 	 * 
 	 * @param pixels The pixels set to handle.
 	 * @return See above
@@ -7628,22 +7630,25 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	boolean isLargeImage(Pixels pixels)
+	Boolean isLargeImage(Pixels pixels)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			/*
 			RawPixelsStorePrx store = getPixelsStore();
 			store.setPixelsId(pixels.getId().getValue(), true);
 			boolean b = store.requiresPixelsPyramid();
 			store.close();
 			return b;
+			*/
+			//Do not use the store might cause issue.
+			int sizeX = pixels.getSizeX().getValue();
+			int sizeY = pixels.getSizeY().getValue();
+			return (sizeX * sizeY) > (MAX_BYTES*MAX_BYTES);
 		} catch (Exception e) {
-			if (e instanceof MissingPyramidException) {
-				return true;
-			}
 			handleException(e, "Cannot start the Raw pixels store.");
 		}
-		return false;
+		return null;
 	}
 	
 	/** Closes the services initialized by the importer.*/
@@ -7654,6 +7659,5 @@ class OMEROGateway
 			importStore = null;
 		}
 	}
-	
-	
+
 }

@@ -1411,6 +1411,17 @@ public class UIUtilities
     /**
      * Converts the time in seconds into hours, minutes and seconds.
      * 
+     * @param timeInMilliSeconds The time in milliseconds to convert.
+     * @return See above.
+     */
+    public static String calculateHMSFromMilliseconds(long timeInMilliSeconds)
+    {
+    	return calculateHMS((int) (timeInMilliSeconds/1000));
+    }
+    
+    /**
+     * Converts the time in seconds into hours, minutes and seconds.
+     * 
      * @param timeInSeconds The time in seconds to convert.
      * @return See above.
      */
