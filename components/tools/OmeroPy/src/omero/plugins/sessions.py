@@ -218,7 +218,7 @@ class SessionsControl(BaseControl):
         # If they've omitted some required value, we must ask for it.
         #
         if not server: server, name = self._get_server(store)
-        if not name: name = self._get_username()
+        if not name: name = self._get_username(previous[1])
 
         props["omero.host"] = server
         props["omero.user"] = name
@@ -489,8 +489,9 @@ class SessionsControl(BaseControl):
         else:
             return self._parse_conn(rv)
 
-    def _get_username(self):
-        defuser = getpass.getuser()
+    def _get_username(self, defuser):
+        if defuser is None:
+            defuser = getpass.getuser()
         rv = self.ctx.input("Username: [%s]" % defuser)
         if not rv:
             return defuser
