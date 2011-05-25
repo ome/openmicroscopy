@@ -181,7 +181,8 @@ class TestFigureExportScripts(lib.ITest):
         red = omero.rtypes.rlong(16711680)
         mrgdColoursMap = omero.rtypes.rmap({'0':blue, '1':blue, '3':red})
         argMap = {
-           "Image_IDs": omero.rtypes.rlist(imageIds),
+            "Data_Type": omero.rtypes.rstring("Image"),
+           "IDs": omero.rtypes.rlist(imageIds),
            "Z_Start": omero.rtypes.rint(0),
            "Z_End": omero.rtypes.rint(3),   
            "Channel_Names": cNamesMap,
@@ -202,7 +203,8 @@ class TestFigureExportScripts(lib.ITest):
         fileId1 = runScript(client, session, scriptId, argMap, "File_Annotation")
 
         # ...then with bare minimum args
-        args = {"Image_IDs": omero.rtypes.rlist(imageIds),
+        args = {"Data_Type": omero.rtypes.rstring("Image"),
+            "IDs": omero.rtypes.rlist(imageIds),
             "Merged_Colours": mrgdColoursMap,
             "Format": omero.rtypes.rstring("PNG"),
             "Figure_Name": omero.rtypes.rstring("splitViewTest")}
@@ -275,7 +277,8 @@ class TestFigureExportScripts(lib.ITest):
         red = omero.rtypes.rint(16711680)
         mrgdColoursMap = omero.rtypes.rmap({'0':blue, '1':blue, '3':red})
         argMap = {
-           "Image_IDs": omero.rtypes.rlist(imageIds),   
+            "Data_Type": omero.rtypes.rstring("Image"),
+           "IDs": omero.rtypes.rlist(imageIds),
            "Channel_Names": cNamesMap,
            "Split_Indexes": omero.rtypes.rlist([omero.rtypes.rlong(1),omero.rtypes.rlong(2)]),
            "Split_Panels_Grey": omero.rtypes.rbool(True),
@@ -296,7 +299,7 @@ class TestFigureExportScripts(lib.ITest):
         fileId1 = runScript(client, session, scriptId, argMap, "File_Annotation")
 
         # ...then with bare minimum args
-        args = {"Image_IDs": omero.rtypes.rlist(imageIds)}
+        args = {"Data_Type": omero.rtypes.rstring("Image"), "IDs": omero.rtypes.rlist(imageIds)}
         fileId2 = runScript(client, session, scriptId, args, "File_Annotation")
 
         # should have figures attached to project and first image. 
@@ -366,7 +369,8 @@ class TestFigureExportScripts(lib.ITest):
         tIndexes = [omero.rtypes.rint(0),omero.rtypes.rint(1),omero.rtypes.rint(5),omero.rtypes.rint(10),
             omero.rtypes.rint(15)]
         argMap = {
-           "Image_IDs": omero.rtypes.rlist(imageIds),   
+            "Data_Type": omero.rtypes.rstring("Image"),
+           "IDs": omero.rtypes.rlist(imageIds),
            "T_Indexes": omero.rtypes.rlist(tIndexes),
            "Z_Start": omero.rtypes.rint(1),
            "Z_End": omero.rtypes.rint(3),
@@ -384,7 +388,7 @@ class TestFigureExportScripts(lib.ITest):
         fileId1 = runScript(client, session, scriptId, argMap, "File_Annotation")
 
         # ...then with bare minimum args
-        args = {"Image_IDs": omero.rtypes.rlist(imageIds),
+        args = {"Data_Type": omero.rtypes.rstring("Image"), "IDs": omero.rtypes.rlist(imageIds),
             "T_Indexes": omero.rtypes.rlist(tIndexes),}
         fileId2 = runScript(client, session, scriptId, args, "File_Annotation")
 

@@ -330,7 +330,7 @@ See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/
         scripts.List("Tag_IDs", grouping="3",
             description="Group thumbnails by these tags."),
 
-        scripts.Bool("Show_Untagged_Images", grouping="3.1",
+        scripts.Bool("Show_Untagged_Images", grouping="3.1", default=False,
             description="If true (and you're sorting by tagIds) also show images without the specified tags"),
 
         scripts.Long("Parent_ID", grouping="4",
