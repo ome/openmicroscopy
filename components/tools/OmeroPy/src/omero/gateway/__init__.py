@@ -4287,6 +4287,16 @@ class _WellWrapper (BlitzObjectWrapper):
                 self._childcache = self.copyWellSamples()
         return self._childcache
 
+    def getParents (self, withlinks=False):
+        """
+        Because wells are direct children of plates, with no links in between,
+        a special getParents is needed
+        """
+        rv = self._conn.getObject('Plate', self.plate.id.val)
+        if withlinks:
+            return [(rv, None)]
+        return [rv]
+
     def getScreens (self):
         """ returns the screens that link to plates that link to this well """
         params = omero.sys.Parameters()
