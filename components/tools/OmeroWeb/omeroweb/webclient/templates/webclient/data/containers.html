@@ -503,13 +503,12 @@
       				  },
                       dataType: "json",
                       type: "POST",
-                      success: function(r){
-                          var response = $.parseJSON(r);
-                          if(eval(response.bad)) {
+                      success: function(r){                          
+                          if(eval(r.bad)) {
                               $.jstree.rollback(data.rlbk);
-      						  alert(response.errs);
+      						  alert(r.errs);
       				      } else {
-                              $(data.rslt.obj).attr("id", data.rslt.obj.attr("rel")+"-"+response.id);
+                              $(data.rslt.obj).attr("id", data.rslt.obj.attr("rel")+"-"+r.id);
       				      }
                       }
                     });
@@ -524,10 +523,9 @@
                         dataType: "json",
                         type: "POST",
                         success: function(r){
-                            var response = $.parseJSON(r);
-                            if(eval(response.bad)) {
+                            if(eval(r.bad)) {
                                 $.jstree.rollback(data.rlbk);
-                                alert(response.errs);
+                                alert(r.errs);
                             }
                         }
                     });
@@ -560,10 +558,9 @@
                             dataType: "json",
                             type: "POST",
                             success: function(r){
-                                var response = $.parseJSON(r);
-                                if(eval(response.bad)) {
+                                if(eval(r.bad)) {
           							$.jstree.rollback(data.rlbk);
-          							alert(response.errs);
+          							alert(r.errs);
           						}
           						else {
           						    $(data.rslt.oc).attr("id", data.rslt.o.attr('id'));
@@ -596,10 +593,9 @@
                             dataType: "json",
                             type: "POST",
                             success: function(r){
-                                var response = $.parseJSON(r);
-                                if(eval(response.bad)) {
+                                if(eval(r.bad)) {
           							$.jstree.rollback(data.rlbk);
-          							alert(o.errs);
+          							alert(r.errs);
           						}
           						//else {
           						//	data.inst.refresh();

@@ -162,18 +162,17 @@
                     var annId = parseInt(removeId);
                     // /webclient/action/remove/comment/461/?parent=image-257
                     var parentId = $.trim($("#parent-id").text());
-                    var url = "/webclient/action/remove/"+ dType +"/"+ annId +"/?parent=" + parentId;
+                    var url = "/webclient/action/remove/"+ dType +"/"+ annId +"/";
                     var $parent = $(event.target).parents("."+domClass);
                     if (confirm('Remove '+ dType + '?')) {
                         $.ajax({
                             type: "POST",
                             url: url,
-                            data: "",
+                            data: {'parent':parentId},
                             contentType:'json',
                             success: function(r){
-                                var response = $.parseJSON(r);
-                                if(eval(response.bad)) {
-                                    alert(response.errs);
+                                if(eval(r.bad)) {
+                                    alert(r.errs);
                                 } else {
                                     // simply remove the item (parent class div)
                                     $parent.remove();
