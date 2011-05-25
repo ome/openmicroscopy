@@ -403,7 +403,7 @@
                                 config["delete"] = {
                                     "label" : "Delete",
                                     "icon"  : '{% url webstatic "images/cancel16.png" %}',
-                                    "action": function(obj){ if (confirm("Permanently delete the selected object? You will NOT be able to access this object any more.")) {
+                                    "action": function(obj){ if (confirm("Delete permanently selected object? You will NOT be able to access this object any more.")) {
                                         this.remove(obj);
                                     } }
                                 };
@@ -631,11 +631,6 @@
     			case "basketButton":
     			    addToBasket($.jstree._focused().get_selected());
     				break;
-			case "deleteButton":
-			    if (confirm("Permanently delete the selected object? You will NOT be able to access this object any more.")){
-			        $("#dataTree").jstree("remove");
-			    }
-				break;
     			default:
     			    $("#dataTree").jstree(this.id.replace("Button", ""));
     				break;
