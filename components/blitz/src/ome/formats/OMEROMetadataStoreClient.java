@@ -2429,18 +2429,26 @@ public class OMEROMetadataStoreClient
     /**
      * Closes the active raw pixels store. Finalizing any open server side
      * resources.
+     *
+     * The call to close on the RawPixelsStorePrx may throw, in which case
+     * the current import should be considered failed, since the saving of
+     * the pixels server-side will have not completed successfully.
+     *
+     * @see ticket:5594
      */
-    public void finalizePixelStore()
+    public void finalizePixelStore() throws ServerError
     {
-        closeQuietly(rawPixelStore);
-        try
+        if (rawPixelStore != null)
         {
-            rawPixelStore = serviceFactory.createRawPixelsStore();
+            try
+            {
+                rawPixelStore.close();
+            } finally
+            {
+                rawPixelStore = null;
+            }
         }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        rawPixelStore = serviceFactory.createRawPixelsStore();
     }
 
     /**

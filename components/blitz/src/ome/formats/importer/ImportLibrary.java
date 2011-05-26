@@ -457,6 +457,7 @@ public class ImportLibrary implements IObservable
             // If we're metadata only, we don't want to perform any pixel I/O.
             if (!isMetadataOnly)
             {
+                boolean success = false;
                 try
                 {
                     store.preparePixelsStore(pixelsIds);
@@ -488,10 +489,29 @@ public class ImportLibrary implements IObservable
                                 index, fileName, userSpecifiedTarget, pixId,
                                 series, size));
                     }
+                    success = true;
                 }
                 finally
                 {
-                    store.finalizePixelStore();
+                    try
+                    {
+                        store.finalizePixelStore();
+                    } catch (Throwable t) {
+                        // ticket:5594
+                        if (success) {
+                            // We thought we were successful, so
+                            // this exception can propagate outward
+                            // cancelling the import.
+                            throw t;
+                        } else {
+                            // We were not successful which could
+                            // only happen if an exception was thrown,
+                            // therefore log this new exception, so
+                            // the first exception can propagate.
+                            log.error("Close exception hidden by previous exception", t);
+                        }
+
+                    }
                 }
             }
 
