@@ -8,6 +8,7 @@
 package ome.services.blitz.impl;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,6 +36,7 @@ import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteReport;
 import omero.api.delete._DeleteHandleDisp;
 
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -88,6 +90,8 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
     private static final List<String> fileTypeList = Collections.unmodifiableList(
             Arrays.asList( "OriginalFile", "Pixels", "Thumbnail"));
+    
+    private static final String PYR_LOCK_EXT = ".pyr_lock"; //FIXME: get this from creating class
 
     /**
      * The identity of this servant, used during logging and similar operations.
@@ -469,50 +473,47 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                     for (Long id : deletedIds) {
                         if (fileType.equals("OriginalFile")) {
                             filePath = afs.getFilesPath(id);
-                        } else if (fileType.equals("Pixels")) {
-                            filePath = afs.getPixelsPath(id);
-                        } else { // Thumbnail
+                            file = new File(filePath);
+                        } else if (fileType.equals("Thumbnail")) {
                             filePath = afs.getThumbnailPath(id);
-                        }
-
-                        file = new File(filePath);
-                        if (file.exists()) {
-                            if (file.delete()) {
-                                log.debug("DELETED: " + fileType + " "
-                                        + file.getAbsolutePath());
-                            } else {
+                            file = new File(filePath);
+                        } else { // Pixels
+                            filePath = afs.getPixelsPath(id);
+                            file = new File(filePath);
+                            // Try to remove a _pyramid file if it exists
+                            File pyrFile = new File(filePath + PixelsService.PYRAMID_SUFFIX);
+                            if(!deleteSingleFile(pyrFile)) {
                                 failedMap.get(fileType).add(id);
                                 filesFailed++;
-                                bytesFailed += file.length();
-                                log.debug("Failed to delete " + fileType
-                                        + " " + file.getAbsolutePath());
+                                bytesFailed += pyrFile.length();
                             }
-                        } else {
-                            log.debug(fileType + " "
-                                    + file.getAbsolutePath()
-                                    + " does not exist.");
-                        }
-                        // Now try to remove a _pyramid file if it exists
-                        if (fileType.equals("Pixels")) {
-                            filePath += PixelsService.PYRAMID_SUFFIX;
-                            file = new File(filePath);
-                            if (file.exists()) {
-                                if (file.delete()) {
-                                    log.debug("DELETED: " + fileType + " "
-                                            + file.getAbsolutePath());
-                                } else {
+                            File dir = file.getParentFile();
+                            // Now any lock file
+                            File lockFile = new File(dir, "." + id + PixelsService.PYRAMID_SUFFIX + PYR_LOCK_EXT);
+                            if(!deleteSingleFile(lockFile)) {
+                                failedMap.get(fileType).add(id);
+                                filesFailed++;
+                                bytesFailed += lockFile.length();
+                            }
+                            // Now any tmp files
+                            FileFilter tmpFileFilter = new WildcardFileFilter("."
+                                    + id + PixelsService.PYRAMID_SUFFIX + "*.tmp");
+                            File[] tmpFiles = dir.listFiles(tmpFileFilter);
+                            for (int i = 0; i < tmpFiles.length; i++) {
+                                if(!deleteSingleFile(tmpFiles[i])) {
                                     failedMap.get(fileType).add(id);
                                     filesFailed++;
-                                    bytesFailed += file.length();
-                                    log.debug("Failed to delete " + fileType
-                                            + " " + file.getAbsolutePath());
+                                    bytesFailed += tmpFiles[i].length();
                                 }
-                            } else {
-                                log.debug(fileType + " "
-                                        + file.getAbsolutePath()
-                                        + " does not exist.");
                             }
                         }
+                        // Finally delete main file for any type.
+                        
+                        if(!deleteSingleFile(file)) {
+                            failedMap.get(fileType).add(id);
+                            filesFailed++;
+                            bytesFailed += file.length();
+                        }                        
                     }
                 }
             }
@@ -539,6 +540,24 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 }
             }
         }
+    }
+    
+    /**
+     * Helper to delete and log
+     */
+    private boolean deleteSingleFile(File file)
+    {
+        if (file.exists()) {
+            if (file.delete()) {
+                log.debug("DELETED: " + file.getAbsolutePath());
+            } else {
+                log.debug("Failed to delete " + file.getAbsolutePath());
+                return false;
+            }
+        } else {
+            log.debug("File " + file.getAbsolutePath() + " does not exist.");
+        }
+        return true;
     }
 
     /**
