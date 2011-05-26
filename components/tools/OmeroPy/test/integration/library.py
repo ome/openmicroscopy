@@ -377,7 +377,7 @@ class ITest(unittest.TestCase):
         either planes or tiles depending on the pixel
         size.
         """
-        if not rps.hasPixelsPyramid():
+        if not rps.requiresPixelsPyramid():
             # By plane
             bytes_per_plane = pix.sizeX.val * pix.sizeY.val # Assuming int8
             for z in range(pix.sizeZ.val):
