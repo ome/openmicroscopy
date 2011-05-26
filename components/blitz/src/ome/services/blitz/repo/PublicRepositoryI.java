@@ -622,7 +622,24 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return file.exists();
     }
 
-
+    /**
+     * Create a file in the repository if one doesn't already exist.
+     *
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return The creation of the file (false means file already exists).
+     *
+     */
+    public boolean create(String path, Current __current) throws ServerError {
+        File file = checkPath(path);
+        try {
+            return file.createNewFile();
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     /**
      *

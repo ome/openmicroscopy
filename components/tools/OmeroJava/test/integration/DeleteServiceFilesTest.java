@@ -115,7 +115,7 @@ public class DeleteServiceFilesTest
      * @return See above.
      * @throws ServerError Thrown if an error occurred. 
      * @throws Exception Thrown if an error occurred. 
-     */
+     *
     private Image makeImageWithPixelsFile() throws ServerError, Exception {
         Image img = (Image) iUpdate.saveAndReturnObject(
                 mmFactory.createImage());
@@ -124,6 +124,16 @@ public class DeleteServiceFilesTest
         List<Long> ids = new ArrayList<Long>();
         ids.add(pix.getId().getValue());
         rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
+        return img;
+    }
+    */
+    private Image makeImageWithPixelsFile() throws ServerError, Exception {
+        Image img = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Pixels pix = img.getPrimaryPixels();
+        String path = getPath(REF_PIXELS, pix.getId().getValue());
+		RepositoryPrx legacy = getLegacyRepository();
+        legacy.create(path);
         return img;
     }
     
