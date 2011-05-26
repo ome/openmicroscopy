@@ -1217,6 +1217,6 @@ class BaseContainer(BaseController):
             handle = self.conn.deleteObjects("Annotation", [self.file.id], deleteAnns=anns)
         return handle
     
-    def deleteImages(self, ids, anns=False):
-        return self.conn.deleteObjects("Image", ids, deleteAnns=anns)
+    def deleteObjects(self, otype, ids, child=False, anns=False):
+        return self.conn.deleteObjects(otype, ids, deleteChildren=child, deleteAnns=anns)
         

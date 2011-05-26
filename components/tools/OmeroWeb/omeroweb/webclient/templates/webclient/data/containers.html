@@ -37,7 +37,6 @@
     				    var oid = data.rslt.obj.attr('id');
     				    var orel = data.rslt.obj.attr('rel').replace("-locked", "");
     				    var crel = $("div#content_details").attr('rel');
-
                         if (typeof oid!=="undefined" && oid!==false) {
                             if (oid.indexOf("orphaned")>=0) {
                                 if(oid!==crel) {
@@ -58,7 +57,7 @@
                                     cm_var['content_details']['url'] = '/webclient/load_data/'+orel+'/'+oid.split("-")[1]+'/?view=icon';
                                 } else if(orel=="image") {
                                     var pr = data.rslt.obj.parent().parent();
-                                    if (pr.attr('id')!==crel) {
+                                    if (pr.length>0 && pr.attr('id')!==crel) {
                                         if (pr.attr('rel').replace("-locked", "")!=="orphaned") {
                                             cm_var['content_details']['rel'] = pr.attr('id');
                                             cm_var['content_details']['url'] = '/webclient/load_data/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
@@ -137,7 +136,7 @@
                                 toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':true, 'copy':true, 'cut':true, 'paste':false, 'unlink':true, 'delete':true, 'annotation':false, 'basket':false}
                             }
                         }
-                    }                    
+                    }
                     
                     if (selected.length > 1) toolbar_config['annotation'] = true;
                     
@@ -322,7 +321,8 @@
             			"ui" : {
             				"initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ],
             				"select_multiple_modifier": multi_key(),
-            				"selected_parent_close": "select_parent"
+            				"selected_parent_close": "select_parent",
+            				"select_prev_on_delete": false
             			},
             			// the core plugin - not many options here
             			"core" : { 
@@ -360,7 +360,12 @@
                                 config["rename"] = {
                                     "label" : "Rename",
                                     "icon"  : '{% url webstatic "images/color_line16.png" %}',                                    
-                                    "action": function(obj){ this.rename(obj); }
+                                    "action": function(obj){
+                                        if (this.get_selected().length<2) {
+                                            this.rename(obj);
+                                        } else {
+                                            alert("Cannot rename more then one object in the same time")
+                                        } }
                                 };
                                 
                                 config["ccp"] = {
@@ -484,7 +489,7 @@
                         }
                     } else {
                         loadOtherPanels(data);
-                    }                    
+                    }
                     syncPanels(data.inst.get_selected());
         		})
         		.bind("deselect_node.jstree", function (e, data) {
@@ -504,13 +509,13 @@
                     
                     $.ajax({
                       url: url,
-                      data: { 
+                      data: {
       			          "name" : data.rslt.name,
       					  "folder_type" : data.rslt.obj.attr("rel")
       				  },
                       dataType: "json",
                       type: "POST",
-                      success: function(r){                          
+                      success: function(r){
                           if(eval(r.bad)) {
                               $.jstree.rollback(data.rlbk);
       						  alert(r.errs);
@@ -528,7 +533,7 @@
         		    url = '{% url manage_action_containers "savename" %}'+data.rslt.obj.attr("rel")+'/'+data.rslt.obj.attr("id").split("-")[1]+'/';
         		    $.ajax({
                         url: url,
-                        data: { 
+                        data: {
       			            "name" : data.rslt.new_name
                         },
                         dataType: "json",
@@ -546,22 +551,23 @@
                     });
         		})
         		.bind("move_node.jstree", function (e, data) {
+        		    var refresh = false;
     		        data.rslt.o.each(function (i) {
         		        if (data.inst.data.crrm.cp_nodes) {
                             url = '{% url manage_action_containers "paste" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
-                            d = { 
+                            d = {
           					    "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
           					}
                         } else  {
                             if (data.rslt.cr.attr('rel')!="orphaned") {
             		            url = '{% url manage_action_containers "move" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/';
-                                d = { 
+                                d = {
           					        "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1], 
           						    "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
           					    };
             		        } else {
         		                url = '{% url manage_action_containers "remove" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
-            		            d = { 
+            		            d = {
               					    "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1]
               					};
           					}
@@ -583,7 +589,8 @@
           								data.inst.refresh(data.inst._get_parent(data.rslt.oc));
           							}
           							//data.inst.refresh(data.inst._get_node(data.rslt.cr));
-          							refreshCenterPanel();
+          							//refreshCenterPanel();
+          							refresh = true;
           						}
                             },
                             error: function(response) {
@@ -591,35 +598,39 @@
                                 alert("Internal server error. "+response);
                             }
                         });
-                    }); 
+                    });
+                    if (refresh) refreshCenterPanel();
         		})
         		.bind("remove.jstree", function (e, data) {
+        		    var ajax_data = new Object();
+        		    var q = false;
         		    data.rslt.obj.each(function (i) {
-                        ajax_data = new Object();
-                        if (($(this).attr("rel") == 'project' || $(this).attr("rel") == 'dataset' || $(this).attr("rel") == 'screen')) {
-                            if (confirm('Also delete content of '+$(this).attr("id")+'?')) {
-                                ajax_data.child = 'on';
-                            }
-                        } 
-                        if (confirm('Also delete annotations linked to '+$(this).attr("id")+'?')) { 
-                            ajax_data.anns = 'on';
+        		        ajax_data[$(this).attr('rel')] = $(this).attr('id').split('-')[1];
+        		        if ($(this).attr('rel')!=='image') q = true;
+        		    });
+        		    
+        		    if (q){
+                        if (confirm('Also delete content of selected object(-s)?')) {
+                            ajax_data.child = 'on';
                         }
-                        url = '{% url manage_action_containers "delete" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
-                        $.ajax({
-            		        async : false,
-                            url: url,
-                            data : ajax_data,
-                            dataType: "json",
-                            type: "POST",
-                            success: function(r){
-                                if(eval(r.bad)) {
-          							$.jstree.rollback(data.rlbk);
-          							alert(r.errs);
-          						}
-          						//else {
-          						//	data.inst.refresh();
-          						//}
-          						var i = setInterval(function (){
+                    } 
+                
+                    if (confirm('Also delete linked annotations?')) {
+                        ajax_data.anns = 'on';
+                    }
+                    url = '{% url manage_action_containers "deletemany" %}'
+                    $.ajax({
+        		        async : false,
+                        url: url,
+                        data : ajax_data,
+                        dataType: "json",
+                        type: "POST",
+                        success: function(r){
+                            if(eval(r.bad)) {
+      							$.jstree.rollback(data.rlbk);
+      							alert(r.errs);
+      						} else {
+      						    var i = setInterval(function (){
                                     $.getJSON("/webclient/progress/", function(data) {
                                         if (data.inprogress== 0) {
                                             clearInterval(i);
@@ -636,12 +647,12 @@
                                         $("#jobstatus").html(data.inprogress + ' job(s) in progress');
                                     });
                                 }, 1000);
-                            },
-                            error: function(response) {
-                                $.jstree.rollback(data.rlbk);
-                                alert("Internal server error. Cannot remove object.");
-                            }
-                        });
+      						}
+                        },
+                        error: function(response) {
+                            $.jstree.rollback(data.rlbk);
+                            alert("Internal server error. Cannot remove object.");
+                        }
                     });
         		})
         		.delegate("a", "dblclick", function(e, data) {
@@ -656,7 +667,7 @@
     </script>
     
     <script type="text/javascript">
-    $(function () { 
+    $(function () {
     	$("#buttons input").click(function () {
     		switch(this.id) {
     			case "addprojectButton":
@@ -678,14 +689,14 @@
     			    $("#dataTree").jstree('paste', $.jstree._focused().get_selected());
     				break;
     			case "unlinkButton":
-    			    var tree = $.jstree._focused();
-                    var selected = tree.get_selected();
+    			    var jstree = $.jstree._focused();
+                    var selected = jstree.get_selected();
                     if (selected.length>0) {
                         if (confirm("Remove the "+selected.length+" object(-s) from its current context.")) {
                             selected.each(function() {
-                                tree.cut($(this));
-                                if ($(this).attr('rel') == 'image') tree.paste($("li#orphaned-0"))
-                                else tree.paste($("li#experimenter-0"));
+                                jstree.cut($(this));
+                                if ($(this).attr('rel') == 'image') jstree.paste($("li#orphaned-0"))
+                                else jstree.paste($("li#experimenter-0"));
                             });                                                        
                         }
                     }
@@ -698,8 +709,15 @@
     			case "basketButton":
         		    addToBasket($.jstree._focused().get_selected());
         			break;
+        		case "renameButton":
+        		    var jstree = $.jstree._focused();
+        		    if (jstree.get_selected().length<2) {
+                        jstree.rename(obj);
+                    } else {
+                        alert("Cannot rename more then one object in the same time")
+                    }
                 default:
-    			    $("#dataTree").jstree(this.id.replace("Button", ""));
+    			    alert(this.id.replace("Button", "")+" not supported");
     				break;
     		}
     	});

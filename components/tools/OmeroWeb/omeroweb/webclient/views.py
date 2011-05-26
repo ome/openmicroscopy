@@ -1674,26 +1674,30 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         except Exception, x:
             logger.error(traceback.format_exc())
             rdict = {'bad':'true','errs': str(x) }
-            json = simplejson.dumps(rdict, ensure_ascii=False)
-            return HttpResponse( json, mimetype='application/javascript')     
-        rdict = {'bad':'false' }
+        else:
+            rdict = {'bad':'false' }
         json = simplejson.dumps(rdict, ensure_ascii=False)
         return HttpResponse( json, mimetype='application/javascript')
     elif action == 'deletemany':
-        ids = request.REQUEST.getlist('image')
+        object_ids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate'), 'well':request.REQUEST.getlist('well')}
+        child = toBoolean(request.REQUEST.get('child'))
         anns = toBoolean(request.REQUEST.get('anns'))
         try:
-            handle = manager.deleteImages(ids, anns)
-            if len(ids) > 1:
-                request.session['callback'][str(handle)] = {'delmany':len(ids), 'did':ids, 'dtype':'image', 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
-            else:
-                request.session['callback'][str(handle)] = {'delmany':False, 'did':ids[0], 'dtype':'image', 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
+            for key,ids in object_ids.iteritems():
+                if ids is not None and len(ids) > 0:
+                    handle = manager.deleteObjects(key, ids, anns)
+                    if len(ids) > 1:
+                        request.session['callback'][str(handle)] = {'delmany':len(ids), 'did':ids, 'dtype':key, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
+                    else:
+                        request.session['callback'][str(handle)] = {'delmany':False, 'did':ids[0], 'dtype':key, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
             request.session.modified = True
         except Exception, x:
             logger.error(traceback.format_exc())
-            rv = "Error: %s" % x
-            return HttpResponse(rv)
-        return HttpResponse()
+            rdict = {'bad':'true','errs': str(x) }
+        else:
+            rdict = {'bad':'false' }
+        json = simplejson.dumps(rdict, ensure_ascii=False)
+        return HttpResponse( json, mimetype='application/javascript')
     
     t = template_loader.get_template(template)
     c = Context(request,context)
