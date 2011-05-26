@@ -42,6 +42,11 @@ from portalocker import LockException
 # TODO: In order to run utests we must set it
 DATABASE_ENGINE = 'sqlite3'
 
+# LOGS
+# NEVER DEPLOY a site into production with DEBUG turned on.
+# Debuging mode.
+# A boolean that turns on/off debug mode.
+# handler404 and handler500 works only when False
 if os.environ.has_key('OMERO_HOME'):
     OMERO_HOME =os.environ.get('OMERO_HOME') 
 else:
@@ -182,40 +187,17 @@ for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
     except LeaveUnset:
         pass
 
-
-# LOGS
-# NEVER DEPLOY a site into production with DEBUG turned on.
-
-# Debuging mode.
-# A boolean that turns on/off debug mode.
-# handler404 and handler500 works only when False
-
-
 TEMPLATE_DEBUG = DEBUG
 
 # Configure logging and set place to store logs.
 INTERNAL_IPS = ()
 LOGGING_LOG_SQL = False
 
-# LOG path
 # Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
 
 if DEBUG:
-    LOGFILE = ('OMEROweb-DEBUG.log')
     LOGLEVEL = logging.DEBUG
-else:
-    LOGFILE = ('OMEROweb.log')
-    LOGLEVEL = logging.INFO
-
-if not os.path.isdir(LOGDIR):
-    try:
-        os.makedirs(LOGDIR)
-    except Exception, x:
-        exctype, value = sys.exc_info()[:2]
-        raise exctype, value
-
-import logconfig
-logger = logconfig.get_logger(os.path.join(LOGDIR, LOGFILE), LOGLEVEL)
+    logger.setLevel(LOGLEVEL)
 
 for key in sorted(CUSTOM_SETTINGS_MAPPINGS):
     values = CUSTOM_SETTINGS_MAPPINGS[key]
