@@ -67,7 +67,7 @@ from forms import ShareForm, BasketShareForm, ShareCommentForm, \
                     CommentAnnotationForm, TagAnnotationForm, \
                     UploadFileForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
-                    MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
+                    MetadataEnvironmentForm, MetadataObjectiveForm, MetadataObjectiveSettingsForm, MetadataStageLabelForm, \
                     MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
                     TagListForm, FileListForm, TagFilterForm, \
                     MultiAnnotationForm, \
@@ -1037,12 +1037,18 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
     form_environment = None
     form_objective = None
     form_microscope = None
+    form_instrument_objectives = list()
     form_stageLabel = None
     form_filters = list()
     form_dichroics = list()
     form_detectors = list()
     form_channels = list()
     form_lasers = list()
+
+    # various enums we need for the forms (don't load unless needed)
+    mediums =  None
+    immersions = None
+    corrections = None
 
     if c_type == 'well' or c_type == 'image':
         if conn_share is None:
@@ -1093,10 +1099,13 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
             image = manager.image
 
         if image.getObjectiveSettings() is not None:
-            form_objective = MetadataObjectiveForm(initial={'objectiveSettings': image.getObjectiveSettings(),
-                                    'mediums': list(conn.getEnumerationEntries("MediumI")), 
-                                    'immersions': list(conn.getEnumerationEntries("ImmersionI")), 
-                                    'corrections': list(conn.getEnumerationEntries("CorrectionI")) })
+            # load the enums if needed and create our Objective Form
+            if mediums is None: mediums = list(conn.getEnumerationEntries("MediumI"))
+            if immersions is None: immersions = list(conn.getEnumerationEntries("ImmersionI"))
+            if corrections is None: corrections = list(conn.getEnumerationEntries("CorrectionI"))
+            form_objective = MetadataObjectiveSettingsForm(initial={'objectiveSettings': image.getObjectiveSettings(),
+                                    'objective': image.getObjectiveSettings().getObjective(),
+                                    'mediums': mediums, 'immersions': immersions, 'corrections': corrections })
         if image.getImagingEnvironment() is not None:
             form_environment = MetadataEnvironmentForm(initial={'image': image})
         if image.getStageLabel() is not None:
@@ -1107,6 +1116,16 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
             if instrument.getMicroscope() is not None:
                 form_microscope = MetadataMicroscopeForm(initial={'microscopeTypes':list(conn.getEnumerationEntries("MicroscopeTypeI")), 'microscope': instrument.getMicroscope()})
 
+            objectives = instrument.getObjectives()
+            for o in objectives:
+                print "views.py", o
+                # load the enums if needed and create our Objective Form
+                if mediums is None: mediums = list(conn.getEnumerationEntries("MediumI"))
+                if immersions is None: immersions = list(conn.getEnumerationEntries("ImmersionI"))
+                if corrections is None: corrections = list(conn.getEnumerationEntries("CorrectionI"))
+                obj_form = MetadataObjectiveForm(initial={'objective': o,
+                                        'mediums': mediums, 'immersions': immersions, 'corrections': corrections })
+                form_instrument_objectives.append(obj_form)
             filters = list(instrument.getFilters())
             if len(filters) > 0:
                 for f in filters:
@@ -1138,8 +1157,8 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
     else:
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 
         'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 
-        'form_microscope':form_microscope, 'form_filters':form_filters, 'form_dichroics':form_dichroics,
-        'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
+        'form_microscope':form_microscope, 'form_instrument_objectives': form_instrument_objectives, 'form_filters':form_filters,
+        'form_dichroics':form_dichroics, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
 
     t = template_loader.get_template(template)
     c = Context(request,context)

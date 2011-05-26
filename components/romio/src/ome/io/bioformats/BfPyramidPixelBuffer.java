@@ -223,11 +223,16 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         metadata.setPixelsSizeY(new PositiveInteger(sizeY), series);
         metadata.setPixelsSizeZ(new PositiveInteger(1), series);
         metadata.setPixelsSizeC(new PositiveInteger(1), series);
-        metadata.setPixelsSizeT(new PositiveInteger(
-                pixels.getSizeZ() * pixels.getSizeC() * pixels.getSizeT()),
-                series);
+        int totalPlanes =
+            pixels.getSizeZ() * pixels.getSizeC() * pixels.getSizeT();
+        metadata.setPixelsSizeT(new PositiveInteger(totalPlanes), series);
         metadata.setChannelID("Channel:" + series, series, 0);
         metadata.setChannelSamplesPerPixel(new PositiveInteger(1), series, 0);
+        if (log.isDebugEnabled())
+        {
+            log.debug(String.format("Added series %d %dx%dx%d",
+                    series, sizeX, sizeY, totalPlanes));
+        }
     }
 
     /**
@@ -265,8 +270,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
                 remainingWidth);
             int newImageLength = (int) ((evenTilesPerColumn * newTileLength) +
                 remainingLength);
-            log.info(String.format("Adding series %d %dx%d",
-                    series, newImageWidth, newImageLength));
+
             createSeries(series, newImageWidth, newImageLength);
             series++;
         }
@@ -427,6 +431,13 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
                     "XYZCT", getSizeZ(), getSizeC(), getSizeT(), planeCount,
                     z, c, t);
             IFD ifd = getIFD(z, c, t, w, h);
+            if (log.isDebugEnabled())
+            {
+                log.debug(String.format(
+                        "Writing tile planeNumber:%d bufferSize:%d ifd:%s " +
+                        "x:%d y:%d w:%d h:%d", planeNumber, buffer.length,
+                        ifd.toString(), x, y, w, h));
+            }
             writer.saveBytes(planeNumber, buffer, ifd, x, y, w, h);
         }
         catch (FormatException e)
