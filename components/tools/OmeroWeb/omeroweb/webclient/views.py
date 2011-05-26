@@ -1039,6 +1039,7 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
     form_microscope = None
     form_stageLabel = None
     form_filters = list()
+    form_dichroics = list()
     form_detectors = list()
     form_channels = list()
     form_lasers = list()
@@ -1048,37 +1049,38 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
             manager.originalMetadata()
         manager.channelMetadata()
         for theC, ch in enumerate(manager.channel_metadata):
-            if ch.getLogicalChannel() is not None:
+            logicalChannel = ch.getLogicalChannel()
+            if logicalChannel is not None:
                 channel = dict()
-                channel['form'] = MetadataChannelForm(initial={'logicalChannel': ch.getLogicalChannel(), 
+                channel['form'] = MetadataChannelForm(initial={'logicalChannel': logicalChannel,
                                         'illuminations': list(conn.getEnumerationEntries("IlluminationI")), 
                                         'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")), 
                                         'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
-                if ch.getLogicalChannel().getLightPath() is not None:
-                    # one changed to many per one channel
-                    channel['form_emission_filters'] = list()
-                    if ch.getLogicalChannel().getLightPath().copyEmissionFilters():
-                        for f in ch.getLogicalChannel().getLightPath().copyEmissionFilters():
-                            channel['form_filters'].append(MetadataFilterForm(initial={'filter': f,
-                                            'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
+                lightPath = logicalChannel.getLightPath()
+                if lightPath is not None:
+                    channel['form_dichroic'] = None
                     channel['form_excitation_filters'] = list()
-                    if ch.getLogicalChannel().getLightPath().copyExcitationFilters():
-                        for f in ch.getLogicalChannel().getLightPath().copyExcitationFilters():
-                            channel['form_excitation_filters'].append(MetadataFilterForm(initial={'filter': f,
-                                            'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
-                if ch.getLogicalChannel().getDetectorSettings()._obj is not None and ch.getLogicalChannel().getDetectorSettings().getDetector():
-                    channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':ch.getLogicalChannel().getDetectorSettings(),
-                        'detector': ch.getLogicalChannel().getDetectorSettings().getDetector(),
+                    channel['form_emission_filters'] = list()
+                    lightPathDichroic = lightPath.getDichroic()
+                    if lightPathDichroic is not None:
+                        channel['form_dichroic'] = MetadataDichroicForm(initial={'dichroic': lightPathDichroic})
+                    filterTypes = list(conn.getEnumerationEntries("FilterTypeI"))
+                    for f in lightPath.copyEmissionFilters():
+                        channel['form_emission_filters'].append(MetadataFilterForm(initial={'filter': f,'types':filterTypes}))
+                    for f in lightPath.copyExcitationFilters():
+                        channel['form_excitation_filters'].append(MetadataFilterForm(initial={'filter': f,'types':filterTypes}))
+                if logicalChannel.getDetectorSettings()._obj is not None and logicalChannel.getDetectorSettings().getDetector():
+                    channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':logicalChannel.getDetectorSettings(),
+                        'detector': logicalChannel.getDetectorSettings().getDetector(),
                         'types':list(conn.getEnumerationEntries("DetectorTypeI")),
                         'binnings':list(conn.getEnumerationEntries("Binning"))})
 
-                if ch.getLogicalChannel().getLightSourceSettings()._obj is not None and ch.getLogicalChannel().getLightSourceSettings().getLightSource() is not None:      
-                    channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': ch.getLogicalChannel().getLightSourceSettings().getLightSource(),
+                if logicalChannel.getLightSourceSettings()._obj is not None and logicalChannel.getLightSourceSettings().getLightSource() is not None:
+                    channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': logicalChannel.getLightSourceSettings().getLightSource(),
                                         'lstypes': list(conn.getEnumerationEntries("LaserType")), 
                                         'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                         'pulses': list(conn.getEnumerationEntries("PulseI"))})
-                if ch.getLogicalChannel().getFilterSet()._obj is not None and ch.getLogicalChannel().getFilterSet().getDichroic() is not None:
-                        channel['form_dichroic'] = MetadataDichroicForm(initial={'logicalchannel': ch.getLogicalChannel().getFilterSet().getDichroic()})
+                # TODO: We don't display filter sets here yet since they are not populated on Import by BioFormats.
                 channel['name'] = ch.getName()
                 channel['color'] = ch.getColor().getHtml()
                 planeInfo = manager.image and manager.image.getPrimaryPixels().copyPlaneInfo(theC=theC, theZ=0)
@@ -1111,6 +1113,11 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
                     form_filter = MetadataFilterForm(initial={'filter': f, 'types':list(conn.getEnumerationEntries("FilterTypeI"))})
                     form_filters.append(form_filter)
 
+            dichroics = list(instrument.getDichroics())
+            for d in dichroics:
+                form_dichroic = MetadataDichroicForm(initial={'dichroic': d})
+                form_dichroics.append(form_dichroic)
+
             detectors = list(instrument.getDetectors())
             if len(detectors) > 0:
                 for d in detectors:
@@ -1131,8 +1138,8 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
     else:
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 
         'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 
-        'form_microscope':form_microscope, 'form_filters':form_filters, 'form_detectors':form_detectors, 
-        'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
+        'form_microscope':form_microscope, 'form_filters':form_filters, 'form_dichroics':form_dichroics,
+        'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
 
     t = template_loader.get_template(template)
     c = Context(request,context)

@@ -408,10 +408,10 @@ class MetadataDichroicForm(forms.Form):
     
         # Manufacturer
         try:
-            if kwargs['initial']['logicalchannel'].getDichroic().manufacturer is not None:
-                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalchannel'].id)+', \'manufacturer\', this.value);'}), initial=kwargs['initial']['logicalchannel'].getDichroic().manufacturer, required=False)
+            if kwargs['initial']['dichroic'].manufacturer is not None:
+                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['dichroic'].id)+', \'manufacturer\', this.value);'}), initial=kwargs['initial']['dichroic'].manufacturer, required=False)
             else:
-                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalchannel'].id)+', \'manufacturer\', this.value);'}), required=False)
+                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['dichroic'].id)+', \'manufacturer\', this.value);'}), required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disable'
         except:
@@ -422,10 +422,10 @@ class MetadataDichroicForm(forms.Form):
 
         # Model
         try:
-            if kwargs['initial']['logicalchannel'].getDichroic().model is not None:
-                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalchannel'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['logicalchannel'].getDichroic().model, required=False)
+            if kwargs['initial']['dichroic'].model is not None:
+                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['dichroic'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['dichroic'].model, required=False)
             else:
-                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalchannel'].id)+', \'model\', this.value);'}), required=False)
+                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['dichroic'].id)+', \'model\', this.value);'}), required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disable'
         except:
@@ -436,10 +436,10 @@ class MetadataDichroicForm(forms.Form):
         
         # Serial number
         try:
-            if kwargs['initial']['logicalchannel'].getDichroic().serialNumber is not None:
-                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalchannel'].getDichroic().serialNumber)+', \'serialNumber\', this.value);'}), initial=kwargs['initial']['logicalchannel'].getDichroic().serialNumber, label="Serial number", required=False)
+            if kwargs['initial']['dichroic'].serialNumber is not None:
+                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['dichroic'].serialNumber)+', \'serialNumber\', this.value);'}), initial=kwargs['initial']['dichroic'].serialNumber, label="Serial number", required=False)
             else:
-                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalchannel'].getDichroic().serialNumber)+', \'serialNumber\', this.value);'}), label="Serial number", required=False)
+                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['dichroic'].serialNumber)+', \'serialNumber\', this.value);'}), label="Serial number", required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disable'
         except:
@@ -450,10 +450,10 @@ class MetadataDichroicForm(forms.Form):
             
         # Lot number
         try:
-            if kwargs['initial']['logicalchannel'].getDichroic().lotNumber is not None:
-                self.fields['lotNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalchannel'].getDichroic().lotNumber)+', \'lotNumber\', this.value);'}), initial=kwargs['initial']['logicalchannel'].getDichroic().lotNumber, label="Lot number", required=False)
+            if kwargs['initial']['dichroic'].lotNumber is not None:
+                self.fields['lotNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['dichroic'].lotNumber)+', \'lotNumber\', this.value);'}), initial=kwargs['initial']['dichroic'].lotNumber, label="Lot number", required=False)
             else:
-                self.fields['lotNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalchannel'].getDichroic().lotNumber)+', \'lotNumber\', this.value);'}), label="Lot number", required=False)
+                self.fields['lotNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['dichroic'].lotNumber)+', \'lotNumber\', this.value);'}), label="Lot number", required=False)
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disable'
         except:
@@ -753,7 +753,7 @@ class MetadataObjectiveForm(forms.Form):
             self.fields['iris'].widget.attrs['class'] = 'disabled'
         
         self.fields.keyOrder = ['model', 'manufacturer', 'serialNumber', 'lotNumber', 'nominalMagnification', 'calibratedMagnification', 'lensNA', 'immersion', 'correction', 'workingDistance', 'iris', 'correctionCollar',  'medium', 'refractiveIndex'] 
-    
+
 
 class MetadataFilterForm(forms.Form):
     
