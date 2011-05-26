@@ -570,10 +570,10 @@ class FileSelectionTable
 		while (i.hasNext()) {
 			f = i.next();
 			if (!inQueue.contains(f.getAbsolutePath())) {
-				value = null;
 				element = new FileElement(f, model.getType());
 				element.setName(f.getName());
 				value = null;
+				v = false;
 				if (b) {
 					if (f.isDirectory()) {
 						value = f.getName();
