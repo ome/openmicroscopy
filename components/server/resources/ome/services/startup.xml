@@ -60,6 +60,12 @@
   </bean>
   -->
 
+  <bean id="serverDirectoryCheck"
+     class="ome.services.util.ServerDirectoryCheck"
+     init-method="run" lazy-init="false">
+     <constructor-arg value="${omero.data.dir}"/>
+  </bean>
+
   <bean id="serverVersionCheck"
      class="ome.services.util.ServerVersionCheck"
      init-method="start" destroy-method="stop" lazy-init="false">

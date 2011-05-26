@@ -39,7 +39,8 @@
   </bean>
 
   <bean id="hibernateProperties"
-    class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    class="org.springframework.beans.factory.config.PropertiesFactoryBean"
+    depends-on="serverDirectoryCheck"> <!-- ticket:5526 -->
     <description>
     Scope: private
     </description>
