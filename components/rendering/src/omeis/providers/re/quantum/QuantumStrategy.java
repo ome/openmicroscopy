@@ -272,6 +272,7 @@ public abstract class QuantumStrategy {
             throw new NullPointerException("No pixel type");
         }
         this.type = pt;
+        initPixelsRange(false);
     }
 
     /**

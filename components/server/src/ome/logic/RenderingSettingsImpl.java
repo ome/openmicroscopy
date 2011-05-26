@@ -49,6 +49,7 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
+import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
 import ome.model.screen.Screen;
 import ome.model.screen.Plate;
@@ -59,6 +60,7 @@ import omeis.providers.re.Renderer;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.metadata.StatsFactory;
 import omeis.providers.re.quantum.QuantumFactory;
+import omeis.providers.re.quantum.QuantumStrategy;
 
 /**
  * Implementation of the {@link IRenderingSettings} I/F.
@@ -80,6 +82,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private static final long serialVersionUID = -4383698215540637039L;
     
+    /** The value used to compare double and float. */
+	public final static double EPSILON = 0.00001;
+	
     /** The logger for this class. */
     private transient static Log log = 
         LogFactory.getLog(RenderingSettingsImpl.class);
@@ -707,10 +712,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         boolean v;
         int count = 0;
         List<LogicalChannel> toUpdate = new ArrayList<LogicalChannel>();
-        
         for (Channel channel : pixels.<Channel>collectChannels(null)) {
             family = quantumFactory.getFamily(QuantumFactory.LINEAR);
-    
+            
             channelBinding = channelBindings.get(i);
             channelBinding.setFamily(family);
             channelBinding.setCoefficient(new Double(1));
@@ -772,12 +776,17 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			}
     		}
         }
+        QuantumDef qDef = def.getQuantization();
         // Set the input start and input end for each channel binding based upon
         // the computation of the pixels set's location statistics.
         if (computeStats)
-        	computeLocationStats(pixels, channelBindings, planeDef, buffer);
+        	computeLocationStats(pixels, channelBindings, planeDef, buffer,
+        			quantumFactory, qDef);
         else {
         	StatsInfo stats;
+        	double min, max;
+            QuantumStrategy qs;
+            PixelsType pt = pixels.getPixelsType();
             for (int w = 0; w < pixels.sizeOfChannels(); w++) {
                 // FIXME: This is where we need to have the ChannelBinding -->
                 // Channel linkage. Without it, we have to assume that the order in
@@ -789,8 +798,16 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             		throw new ResourceError("Pixels set is missing statistics" +
             				" for channel '"+ w +"'. This suggests an image " +
             		"import error, import in progress or failed image import.");
-            	channelBinding.setInputStart(stats.getGlobalMin().doubleValue());
-            	channelBinding.setInputEnd(stats.getGlobalMax().doubleValue());
+            	
+            	min = stats.getGlobalMin().doubleValue();
+            	max = stats.getGlobalMax().doubleValue();
+            	if (Math.abs(min-max) < EPSILON) { //to be on the save side
+            		qs = quantumFactory.getStrategy(qDef, pt);
+            		min = qs.getPixelsTypeMin();
+            		max = qs.getPixelsTypeMax();
+            	}
+            	channelBinding.setInputStart(min);
+            	channelBinding.setInputEnd(max);
             }
         }
         
@@ -804,7 +821,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      	    s1.stop();
         }
     }
-   
     /**
      * Computes the location statistics for a set of rendering settings.
      * 
@@ -812,24 +828,38 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @param cbs		The collection of settings corresponding to channel.
      * @param planeDef	The 2D-plane. Mustn't be <code>null</code>
      * @param buf		The buffer.
+     * @param quantumFactory A populated quantum factory.
+     * @param qDef		The object hosting information about how to map data.
      */
     private void computeLocationStats(Pixels pixels,
-            List<ChannelBinding> cbs, PlaneDef planeDef, PixelBuffer buf) {
+            List<ChannelBinding> cbs, PlaneDef planeDef, PixelBuffer buf,
+            QuantumFactory quantumFactory, QuantumDef qDef) {
         if (planeDef == null) {
             throw new NullPointerException("No plane definition.");
         }
         StatsFactory sf = new StatsFactory();
         ChannelBinding cb;
+        double min, max;
+        QuantumStrategy qs;
+        PixelsType pt = pixels.getPixelsType();
         for (int w = 0; w < pixels.sizeOfChannels(); w++) {
             // FIXME: This is where we need to have the ChannelBinding -->
             // Channel linkage. Without it, we have to assume that the order in
             // which the channel bindings was created matches up with the order
             // of the channels linked to the pixels set.
+        	
             cb = cbs.get(w);
             sf.computeLocationStats(pixels, buf, planeDef, w);
             cb.setNoiseReduction(sf.isNoiseReduction());
-            cb.setInputStart(new Double(sf.getInputStart()));
-            cb.setInputEnd(new Double(sf.getInputEnd()));
+            min = sf.getInputStart();
+            max = sf.getInputEnd();
+        	if (Math.abs(min-max) < EPSILON) {
+        		qs = quantumFactory.getStrategy(qDef, pt);
+        		min = qs.getPixelsTypeMin();
+        		max = qs.getPixelsTypeMax();
+        	}
+            cb.setInputStart(new Double(min));
+            cb.setInputEnd(new Double(max));
         }
     }
     
