@@ -2768,6 +2768,8 @@ class _BlitzGateway (object):
                 'Plate':[],
                 'Well':[],
                 'Annotation':[] }
+    
+        obj_type = obj_type.title()
         if obj_type not in childTypes:
             m = """%s is not an object type. Must be: Project, Dataset, Image, Screen, Plate, Well, Annotation""" % obj_type
             raise AttributeError(m)
@@ -2777,8 +2779,9 @@ class _BlitzGateway (object):
 
         #return self.simpleDelete(obj_type, obj_ids, op)
         dcs = list()
+        logger.debug('Deleting %s [%s]. Children: %s' % (obj_type,",".join(obj_ids), deleteChildren))
         for oid in obj_ids:
-            dcs.append(omero.api.delete.DeleteCommand("/%s" % obj_type.title(), long(oid), op))
+            dcs.append(omero.api.delete.DeleteCommand("/%s" % obj_type, long(oid), op))
         handle = self.getDeleteService().queueDelete(dcs)
         return handle
 
