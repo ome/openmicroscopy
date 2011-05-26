@@ -146,7 +146,7 @@
                     {% endfor %}
                 </table>
                 {% endif %}
-                {% if form_objective %}
+                {% for form_objective in form_instrument_objectives %}
                 <table class="metadata_details">
                 <tr><th><br/>{% trans "Objective" %}:</th><th colspan="2"></th></tr>
                     {% for field in form_objective %}
@@ -155,7 +155,7 @@
                     </tr>
                     {% endfor %}
                 </table>
-                {% endif %}
+                {% endfor %}
                 {% for form in form_filters %}
                 <table class="metadata_details">
                     <tr><th><br/>{% trans "Filter" %}:</th><th colspan="2"></th></tr>
