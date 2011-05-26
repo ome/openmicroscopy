@@ -4336,7 +4336,6 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
               'detectorSettings|DetectorSettingsWrapper',
               'lightSourceSettings|LightSettingsWrapper',
               'filterSet|FilterSetWrapper',
-              'lightPath|LightPathWrapper',              
               'secondaryEmissionFilter|FilterWrapper',
               'secondaryExcitationFilter',
               'samplesPerPixel',
@@ -4346,27 +4345,35 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
               'shapes',
               'version')
 
+    def __loadedHotSwap__ (self):
+        """ Loads the logical channel using the metadata service """
+        if self._obj is not None:
+            self._obj = self._conn.getMetadataService().loadChannelAcquisitionData([self._obj.id.val])[0]
+
+    def getLightPath(self):
+        """ Make sure we have the channel fully loaded, then return L{LightPathWrapper}"""
+        self.__loadedHotSwap__()
+        return LightPathWrapper(self._conn, self._obj.lightPath)
+
 LogicalChannelWrapper = _LogicalChannelWrapper    
 
 class _LightPathWrapper (BlitzObjectWrapper):
     """
     base Light Source class wrapper, extends BlitzObjectWrapper.
     """
-    _attrs = ('dichroic|DichroicWrapper')
+    _attrs = ('dichroic|DichroicWrapper',)
     
     def __bstrap__ (self):
         self.OMERO_CLASS = 'LightPath'
 
-    def copyEmissionFilters(self):
-        """ TODO: not implemented """
-        #raise NotImplementedError
-        pass
-        
     def copyExcitationFilters(self):
-        """ TODO: not implemented """
-        #raise NotImplementedError
-        pass
-        
+        """ Returns list of excitation L{FilterWrapper}s """
+        return [FilterWrapper(self._conn, link.child) for link in self.copyExcitationFilterLink()]
+
+    def copyEmissionFilters(self):
+        """ Returns list of emission L{FilterWrapper}s """
+        return [FilterWrapper(self._conn, link.child) for link in self.copyEmissionFilterLink()]
+
 LightPathWrapper = _LightPathWrapper
 
 class _PixelsWrapper (BlitzObjectWrapper):
@@ -4564,7 +4571,6 @@ class _ChannelWrapper (BlitzObjectWrapper):
         
         if self._obj.logicalChannel is not None:
             return LogicalChannelWrapper(self._conn, self._obj.logicalChannel)
-
 
     def getLabel (self):
         """
