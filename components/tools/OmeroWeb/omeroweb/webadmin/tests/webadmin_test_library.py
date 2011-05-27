@@ -44,16 +44,10 @@ class WebTest(unittest.TestCase):
         else:
             raise exceptions.Exception("'%s' is not on omero.web.server_list")
 
-class WebClientTest(unittest.TestCase):
+class WebAdminClientTest(WebTest):
         
     def setUp (self):
-        c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
-        try:
-            self.root_password = c.ic.getProperties().getProperty('omero.rootpass')
-            self.server_id = settings.SERVER_LIST.find(server_host=c.ic.getProperties().getProperty('omero.host')).id
-        finally:
-            c.__del__()
-        
+        super(WebAdminClientTest, self).setUp()
         self.client = Client()
 
     def tearDown(self):

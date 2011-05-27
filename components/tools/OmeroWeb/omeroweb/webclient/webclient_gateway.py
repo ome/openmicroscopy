@@ -871,12 +871,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @type my_password   String
         """
         admin_serv = self.getAdminService()
-        try:
-            self.c.sf.setSecurityPassword(my_password)
-            admin_serv.changeUserPassword(omeName, rstring(str(password)))
-        except omero.SecurityViolation, x:
-            return x.message
-        return None
+        self.c.sf.setSecurityPassword(my_password)
+        admin_serv.changeUserPassword(omeName, rstring(str(password)))
         
     def changeMyPassword(self, password, old_password):
         """
@@ -890,12 +886,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @rtype                  String
         """
         admin_serv = self.getAdminService() 
-        try:
-            admin_serv.changePasswordWithOldPassword(rstring(str(old_password)), rstring(str(password)))
-        except omero.SecurityViolation, x:
-            return x.message
-        return None
-
+        admin_serv.changePasswordWithOldPassword(rstring(str(old_password)), rstring(str(password)))
+        
     def createExperimenter(self, experimenter, defaultGroup, otherGroups, password):
         """
         Create and return a new user in the given groups with password.

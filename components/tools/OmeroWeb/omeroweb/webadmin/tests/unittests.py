@@ -13,12 +13,12 @@ from webadmin.forms import LoginForm, GroupForm, ExperimenterForm, \
                    
 from webadmin.controller.experimenter import BaseExperimenter
 from webadmin.controller.group import BaseGroup
-from webadmin_test_library import WebTest, WebClientTest
+from webadmin_test_library import WebTest, WebAdminClientTest
 
 from django.core.urlresolvers import reverse
 
 # Testing client, URLs
-class WebAdminUrlTest(WebClientTest):
+class WebAdminUrlTest(WebAdminClientTest):
     
     def test_login(self):
         params = {
@@ -86,8 +86,37 @@ class WebAdminUrlTest(WebClientTest):
         
 
     def test_urlsAsUser(self):
+        conn = self.rootconn
+        uuid = conn._sessionUuid
+        
+        # private group
+        params = {
+            "name":"webadmin_test_group_private %s" % uuid,
+            "description":"test group",
+            "owners": [0L],
+            "permissions":0
+        }
+        request = fakeRequest(method="post", params=params)
+        gid = _createGroup(request, conn)
+        
+        params = {
+            "omename":"webadmin_test_user %s" % uuid,
+            "first_name":uuid,
+            "middle_name": uuid,
+            "last_name":uuid,
+            "email":"user_%s@domain.com" % uuid,
+            "institution":"Laboratory",
+            "active":True,
+            "default_group":gid,
+            "other_groups":[gid],
+            "password":"123",
+            "confirmation":"123" 
+        }
+        request = fakeRequest(method="post", params=params)
+        eid = _createExperimenter(request, conn)
+        
         # TODO:Create experimenter 
-        self.client.login('web_user', 'abc')
+        self.client.login("webadmin_test_user %s" % uuid, '123')
         
         # response 200
         response = self.client.get(reverse(viewname="wamyaccount"))
@@ -684,7 +713,8 @@ class WebAdminTest(WebTest):
         #change password as root        
         params_passwd = {
             "password":"abc",
-            "confirmation":"abc" 
+            "confirmation":"abc",
+            "old_password":self.root_password
         }
         request = fakeRequest(method="post", params=params_passwd)        
         _changePassword(request, conn, eid)
@@ -711,18 +741,11 @@ def _changePassword(request, conn, eid=None):
         password = password_form.cleaned_data['password']
         if conn.isAdmin():
             exp = conn.getExperimenter(eid)
-            error = conn.changeUserPassword(exp.omeName, password, old_password)
-            if error is not None:
-                errors = password_form.errors.as_text()
-                self.fail(errors)
+            conn.changeUserPassword(exp.omeName, password, old_password)
         else:
-            error = conn.changeMyPassword(password, old_password) 
-            if error is not None:
-                errors = password_form.errors.as_text()
-                self.fail(errors)
+            conn.changeMyPassword(password, old_password)
     else:
-        errors = password_form.errors.as_text()
-        self.fail(errors)
+        raise Exception(password_form.errors.as_text())
         
 def _createGroup(request, conn):
     #create group
@@ -737,8 +760,7 @@ def _createGroup(request, conn):
         readonly = webadmin_views.toBoolean(form.cleaned_data['readonly'])
         return controller.createGroup(name, owners, permissions, readonly, description)
     else:
-        errors = form.errors.as_text()
-        self.fail(errors)
+        raise Exception(form.errors.as_text())
 
 def _updateGroup(request, conn, gid):
     # update group
@@ -753,8 +775,7 @@ def _updateGroup(request, conn, gid):
         readonly = webadmin_views.toBoolean(form.cleaned_data['readonly'])
         controller.updateGroup(name, owners, permissions, readonly, description)
     else:
-        errors = form.errors.as_text()
-        self.fail(errors)                
+        raise Exception(form.errors.as_text())            
 
 def _createExperimenter(request, conn):
     # create experimenter
@@ -788,8 +809,7 @@ def _createExperimenter(request, conn):
         password = form.cleaned_data['password']
         return controller.createExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
     else:
-        errors = form.errors.as_text()
-        self.fail(errors)
+        raise Exception(form.errors.as_text())
 
 def _updateExperimenter(request, conn, eid):
     # update experimenter
@@ -824,5 +844,4 @@ def _updateExperimenter(request, conn, eid):
         otherGroups = form.cleaned_data['other_groups']
         controller.updateExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution)
     else:
-        errors = form.errors.as_text()
-        self.fail(errors)
+        raise Exception(form.errors.as_text())

@@ -566,13 +566,19 @@ def manage_password(request, eid, **kwargs):
             password = password_form.cleaned_data['password']
             if conn.isAdmin():
                 exp = conn.getExperimenter(eid)
-                error = conn.changeUserPassword(exp.omeName, password, old_password)
-                if error is None:
+                try:
+                    conn.changeUserPassword(exp.omeName, password, old_password)
+                except Exception, x:
+                    error = x.message
+                else:
                     request.session['password'] = password
                     return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", eid]))
             else:
-                error = conn.changeMyPassword(password, old_password) 
-                if error is None:
+                try:
+                    conn.changeMyPassword(password, old_password) 
+                except Exception, x:
+                    error = x.message
+                else:
                     request.session['password'] = password
                     return HttpResponseRedirect(reverse("wamyaccount"))
                 

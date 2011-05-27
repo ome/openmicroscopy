@@ -2094,8 +2094,11 @@ def change_password(request, **kwargs):
         if password_form.is_valid():
             old_password = password_form.cleaned_data['old_password']
             password = password_form.cleaned_data['password']
-            error = conn.changeMyPassword(password, old_password) 
-            if error is None:
+            try:
+                conn.changeMyPassword(password, old_password) 
+            except Exception, x:
+                error = x.message
+            else:
                 request.session['password'] = password
                 return HttpJavascriptResponse("Password was changed successfully")                
                 
