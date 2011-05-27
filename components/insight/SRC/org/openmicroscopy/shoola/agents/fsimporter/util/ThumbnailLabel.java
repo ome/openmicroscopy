@@ -91,8 +91,9 @@ class ThumbnailLabel
 		EventBus bus = ImporterAgent.getRegistry().getEventBus();
 		if (data instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) data;
-			bus.post(new ViewImage(new ViewImageObject(
-					thumbnail.getImage()), null));
+			if (thumbnail.getImage() != null)
+				bus.post(new ViewImage(new ViewImageObject(
+						thumbnail.getImage()), null));
 		} else if (data instanceof ImageData) {
 			ImageData image = (ImageData) data;
 			bus.post(new ViewImage(new ViewImageObject(image), null));
