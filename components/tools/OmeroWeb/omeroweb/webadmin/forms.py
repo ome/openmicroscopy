@@ -55,7 +55,7 @@ class LoginForm(NonASCIIForm):
         
         self.fields.keyOrder = ['server', 'username', 'password', 'ssl']
             
-    username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22, 'autocomplete': 'off'}))
+    username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22, 'autocomplete': 'off'}))
     ssl = forms.BooleanField(required=False, label="SSL")  
 
