@@ -150,7 +150,7 @@
       <parameter name="config" default="default"/>
       <parameter name="jmxhost" default=""/>
       <parameter name="jmxport" default="3001"/>
-      <server id="Blitz-${index}" exe="java" activation="always" pwd="${OMERO_HOME}">
+      <server id="Blitz-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
         <target name="debug">
             <option>-Xdebug</option>
             <option>-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=y</option>
@@ -215,7 +215,7 @@
     <server-template id="IndexerTemplate">
       <parameter name="index"/>
       <parameter name="config" default="default"/>
-      <server id="Indexer-${index}" exe="java" activation="always" pwd="${OMERO_HOME}">
+      <server id="Indexer-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
         <option>-Xmx256M</option>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlog4j.configuration=${OMERO_ETC}log4j-indexing.xml</option>
@@ -239,7 +239,7 @@
       <parameter name="index"/>
       <parameter name="dir"/>
       <parameter name="config" default="default"/>
-      <server id="PixelData-${index}" exe="java" activation="always" pwd="${OMERO_HOME}">
+      <server id="PixelData-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
         <option>-Xmx256M</option>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlog4j.configuration=${OMERO_ETC}log4j-indexing.xml</option>
@@ -264,7 +264,7 @@
       <parameter name="index"/>
       <parameter name="dir"/>
       <parameter name="config" default="default"/>
-      <server id="Repository-${index}" exe="java" activation="always" pwd="${OMERO_HOME}">
+      <server id="Repository-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
         <option>-Xmx400M</option>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlog4j.configuration=${OMERO_ETC}log4j.xml</option>
@@ -293,7 +293,7 @@
 
     <!--<server-template id="WebTemplate"> 
       <parameter name="act" default="always"/>
-      <server id="Web" exe="python" activation="${act}" pwd="${OMEROPY_HOME}omeroweb"> 
+      <server id="Web" exe="${PYTHON}" activation="${act}" pwd="${OMEROPY_HOME}omeroweb"> 
         <option>manage.py</option> 
         <option>runserver</option> 
         <option>noreload</option> 
@@ -310,7 +310,7 @@
     <server-template id="ProcessorTemplate">
       <parameter name="index"/>
       <parameter name="dir"/>
-      <parameter name="exe" default="python"/>
+      <parameter name="exe" default="${PYTHON}"/>
       <server id="Processor-${index}" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}runProcessor.py</option>
         <env>${PYTHONPATH}</env>
@@ -332,7 +332,7 @@
     <server-template id="TablesTemplate">
       <parameter name="index"/>
       <parameter name="dir"/>
-      <parameter name="exe" default="python"/>
+      <parameter name="exe" default="${PYTHON}"/>
       <server id="Tables-${index}" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}runTables.py</option>
         <env>${PYTHONPATH}</env>
@@ -352,7 +352,7 @@
     </server-template>
 
     <server-template id="FileServerTemplate">
-      <parameter name="exe" default="python"/>
+      <parameter name="exe" default="${PYTHON}"/>
       <server id="FileServer" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}fsServerFS.py</option>
         <env>${PYTHONPATH}</env>
@@ -372,7 +372,7 @@
     </server-template>
 
     <server-template id="MonitorServerTemplate">
-      <parameter name="exe" default="python"/>
+      <parameter name="exe" default="${PYTHON}"/>
       <server id="MonitorServer" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}fsServerMS.py</option>
         <env>${PYTHONPATH}</env>
@@ -392,7 +392,7 @@
     </server-template>
 
     <server-template id="DropBoxTemplate">
-      <parameter name="exe" default="python"/>
+      <parameter name="exe" default="${PYTHON}"/>
       <server id="DropBox" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}fsDropBox.py</option>
         <env>${PYTHONPATH}</env>
@@ -412,7 +412,7 @@
     </server-template>
 
     <server-template id="TestDropBoxTemplate">
-      <parameter name="exe" default="python"/>
+      <parameter name="exe" default="${PYTHON}"/>
       <server id="TestDropBox" exe="${exe}" activation="manual" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}fsDropBox.py</option>
         <env>${PYTHONPATH}</env>
@@ -436,7 +436,7 @@
 
     <server-template id="ShellTemplate">
       <parameter name="id"/>
-      <parameter name="exe" default="python"/>
+      <parameter name="exe" default="${PYTHON}"/>
       <parameter name="act" default="always"/>
       <server id="${id}" exe="${exe}" activation="${act}">
         <option>lib/python/shellserver.py</option>
