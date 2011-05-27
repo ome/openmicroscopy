@@ -4356,7 +4356,8 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
     def getLightPath(self):
         """ Make sure we have the channel fully loaded, then return L{LightPathWrapper}"""
         self.__loadedHotSwap__()
-        return LightPathWrapper(self._conn, self._obj.lightPath)
+        if self._obj.lightPath is not None:
+            return LightPathWrapper(self._conn, self._obj.lightPath)
 
 LogicalChannelWrapper = _LogicalChannelWrapper    
 
