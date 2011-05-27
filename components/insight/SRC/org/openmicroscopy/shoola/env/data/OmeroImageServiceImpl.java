@@ -44,7 +44,6 @@ import loci.formats.ImageReader;
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
-import ome.model.screen.Screen;
 import omero.api.RenderingEnginePrx;
 import omero.model.Annotation;
 import omero.model.Channel;
@@ -55,6 +54,7 @@ import omero.model.Pixels;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.RenderingDef;
+import omero.model.Screen;
 import omero.model.ScreenI;
 import omero.model.TagAnnotation;
 import omero.romio.PlaneDef;
