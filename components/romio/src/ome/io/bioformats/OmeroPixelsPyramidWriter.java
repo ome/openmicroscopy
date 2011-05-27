@@ -56,8 +56,10 @@ public class OmeroPixelsPyramidWriter extends TiffWriter {
             String m = "Error during process processing!";
             log.error(m, e);
             throw new IOException(m);
+        } finally
+        {
+            super.close();
         }
-        super.close();
     }
 
     /* (non-Javadoc)
