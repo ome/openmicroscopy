@@ -331,7 +331,9 @@ class BrowserUI
                 		if (path != null) 
                 			treeDisplay.setSelectionPath(path);
                 		treeDisplay.addTreeSelectionListener(selectionListener);
-                    	if (path != null)
+                    	if (path != null && 
+                    			path.getLastPathComponent()
+                    			instanceof TreeImageDisplay)
                     		controller.onRightClick((TreeImageDisplay) 
                     				path.getLastPathComponent());
                 	}
