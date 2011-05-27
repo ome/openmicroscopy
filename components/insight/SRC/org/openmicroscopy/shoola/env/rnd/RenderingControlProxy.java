@@ -776,8 +776,6 @@ class RenderingControlProxy
                     cb = rndDef.getChannel(i);
                     cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
                     cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
-                    System.err.println(cb.getInputStart() == cb.getInputEnd());
-                    System.err.println(cb.getLowerBound()+" "+cb.getUpperBound());
                 }
             }
             tmpSolutionForNoiseReduction();
