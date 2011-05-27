@@ -67,4 +67,10 @@
     <constructor-arg ref="omeroSessionFactory"/>
   </bean>
 
+  <bean id="serverDirectoryCheck"
+     class="ome.services.util.ServerDirectoryCheck"
+     init-method="run" lazy-init="false">
+     <constructor-arg value="${omero.data.dir}"/>
+  </bean>
+
 </beans>
