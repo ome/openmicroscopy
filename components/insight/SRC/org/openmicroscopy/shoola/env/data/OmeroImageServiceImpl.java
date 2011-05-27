@@ -281,8 +281,8 @@ class OmeroImageServiceImpl
 			backoff = gateway.isLargeImage(
 					image.getDefaultPixels().asPixels());
 		} catch (Exception e) {}
-		if (backoff != null && backoff.booleanValue())
-			return new ThumbnailData(image, backoff);
+		//if (backoff != null && backoff.booleanValue())
+		//	return new ThumbnailData(image, backoff);
 		if (thumbnail) {
 			ThumbnailData thumb = (ThumbnailData) createImportedImage(userID, 
 					image);
