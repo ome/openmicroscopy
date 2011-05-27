@@ -579,7 +579,7 @@ class FileSelectionTable
 						value = f.getName();
 						v = fad;
 						if (model.getType() == Importer.SCREEN_TYPE) {
-							v = false;
+							//v = false;
 							value = null;
 						}
 					} else {

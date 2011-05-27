@@ -130,7 +130,7 @@ class OmeroImageServiceImpl
 	 * @param list   The list of annotations.
 	 * @param userID The identifier of the user.
 	 */
-	private Boolean importCandidates(List<String> candidates, StatusLabel status, 
+	private Boolean importCandidates(Map<File, StatusLabel> files, StatusLabel status, 
 			ImportableObject object, boolean archived, IObject ioContainer, 
 			List<Annotation> list, long userID, boolean close)
 	{
@@ -138,12 +138,7 @@ class OmeroImageServiceImpl
 			gateway.closeImport();
 			return Boolean.valueOf(false);
 		}
-		Iterator<String> i = candidates.iterator();
 		boolean thumbnail = object.isLoadThumbnail();
-		Map<File, StatusLabel> files = new HashMap<File, StatusLabel>();
-		while (i.hasNext()) 
-			files.put(new File(i.next()), new StatusLabel());
-		status.setFiles(files);
 		Entry entry;
 		Iterator jj = files.entrySet().iterator();
 		StatusLabel label = null;
@@ -1121,7 +1116,13 @@ class OmeroImageServiceImpl
 					}
 					return result;
 				} else {
-					Boolean v = importCandidates(candidates, status, object, 
+					Map<File, StatusLabel> files = 
+						new HashMap<File, StatusLabel>();
+					Iterator<String> i = candidates.iterator();
+					while (i.hasNext()) 
+						files.put(new File(i.next()), new StatusLabel());
+					status.setFiles(files);
+					Boolean v = importCandidates(files, status, object, 
 							importable.isArchived(), ioContainer, list, userID,
 							close);
 					if (v != null) {
@@ -1153,22 +1154,26 @@ class OmeroImageServiceImpl
 		//Checks folder import.
 		
 		candidates = gateway.getImportCandidates(object, file, status);
-		hcsFile = false;
+		
 		int size = candidates.size();
 		if (candidates.size() == 0) return Boolean.valueOf(false);
-		if (size == 1) {
-			File f = new File(candidates.get(0));
-			hcsFile = ImportableObject.isHCSFile(f);
-			if (hcsFile) {
-				dataset = null;
-				if (ioContainer != null && 
-					!(ioContainer.getClass().equals(Screen.class) ||
-					ioContainer.getClass().equals(ScreenI.class)))
-					ioContainer = null;
-			}
+		Map<File, StatusLabel> hcsFiles = new HashMap<File, StatusLabel>();
+		Map<File, StatusLabel> otherFiles = new HashMap<File, StatusLabel>();
+		Map<File, StatusLabel> files = new HashMap<File, StatusLabel>();
+		Iterator<String> i = candidates.iterator();
+		File f;
+		StatusLabel sl;
+		while (i.hasNext()) {
+			f = new File(i.next());
+			sl = new StatusLabel();
+			if (ImportableObject.isHCSFile(f))
+				hcsFiles.put(f, sl);
+			else otherFiles.put(f, sl);
+			files.put(f, sl);
 		}
+		status.setFiles(files);
 		//check candidates and see if we are dealing with HCS data
-		if (hcsFile) {
+		if (hcsFiles.size() > 0) {
 			if (container != null && container instanceof ScreenData) {
 				if (container.getId() <= 0) {
 					//project needs to be created to.
@@ -1190,76 +1195,82 @@ class OmeroImageServiceImpl
 					}
 				} else ioContainer = container.asIObject();
 			}
+			importCandidates(hcsFiles, status, object, 
+					importable.isArchived(), ioContainer, list, userID, close);
 		}
-		
-		folder = object.createFolderAsContainer(importable);
-		if (!hcsFile && folder != null) { //folder
-			//we have to import the image in this container.
-			try {
-				ioContainer = gateway.saveAndReturnObject(folder.asIObject(), 
-						parameters);
-				status.setContainerFromFolder(PojoMapper.asDataObject(
-						ioContainer));
-				if (folder instanceof DatasetData) {
-					if (container != null) {
-						try {
-							if (container.getId() <= 0) { 
-								//project needs to be created to.
-								createdData = object.hasObjectBeenCreated(
-										container);
-								if (createdData == null) {
-									project = gateway.saveAndReturnObject(
-											container.asIObject(), parameters);
-									object.addNewDataObject(
+		if (otherFiles.size() > 0) {
+			folder = object.createFolderAsContainer(importable);
+			if (folder != null) { //folder
+				//we have to import the image in this container.
+				try {
+					ioContainer = gateway.saveAndReturnObject(
+							folder.asIObject(), parameters);
+					status.setContainerFromFolder(PojoMapper.asDataObject(
+							ioContainer));
+					if (folder instanceof DatasetData) {
+						if (container != null) {
+							try {
+								if (container.getId() <= 0) { 
+									//project needs to be created to.
+									createdData = object.hasObjectBeenCreated(
+											container);
+									if (createdData == null) {
+										project = gateway.saveAndReturnObject(
+												container.asIObject(), 
+												parameters);
+										object.addNewDataObject(
 											PojoMapper.asDataObject(project));
+										link = (ProjectDatasetLink) 
+										ModelMapper.linkParentToChild(
+												(Dataset) ioContainer, 
+												(Project) project);
+										link = (ProjectDatasetLink) 
+										gateway.saveAndReturnObject(link, 
+												parameters);
+									} else {
+										link = (ProjectDatasetLink) 
+										ModelMapper.linkParentToChild(
+												(Dataset) ioContainer, 
+												(Project) 
+												createdData.asProject());
+										link = (ProjectDatasetLink) 
+										gateway.saveAndReturnObject(link, 
+												parameters);
+									}
+								} else { //project already exists.
 									link = (ProjectDatasetLink) 
 									ModelMapper.linkParentToChild(
 											(Dataset) ioContainer, 
-											(Project) project);
-									link = (ProjectDatasetLink) 
-									gateway.saveAndReturnObject(link, 
-											parameters);
-								} else {
-									link = (ProjectDatasetLink) 
-									ModelMapper.linkParentToChild(
-											(Dataset) ioContainer, 
-											(Project) createdData.asProject());
+											(Project) container.asProject());
 									link = (ProjectDatasetLink) 
 									gateway.saveAndReturnObject(link, 
 											parameters);
 								}
-							} else { //project already exists.
-								link = (ProjectDatasetLink) 
-								ModelMapper.linkParentToChild(
-										(Dataset) ioContainer, 
-										(Project) container.asProject());
-								link = (ProjectDatasetLink) 
-								gateway.saveAndReturnObject(link, 
-										parameters);
+							} catch (Exception e) {
+								context.getLogger().error(this, 
+										"Cannot create the container hosting " +
+										"the data.");
 							}
-						} catch (Exception e) {
-							context.getLogger().error(this, 
-									"Cannot create the container hosting " +
-									"the data.");
 						}
 					}
-				}
-			} catch (Exception e) {
-			}
-		} else { //folder 
-			if (dataset != null) { //dataset
-				try {
-					ioContainer = determineContainer(dataset, container, object);
 				} catch (Exception e) {
-					context.getLogger().error(this, 
-							"Cannot create the container hosting " +
-							"the data.");
+				}
+			} else { //folder 
+				if (dataset != null) { //dataset
+					try {
+						ioContainer = determineContainer(dataset, container,
+								object);
+					} catch (Exception e) {
+						context.getLogger().error(this, 
+								"Cannot create the container hosting " +
+								"the data.");
+					}
 				}
 			}
+			
+			importCandidates(otherFiles, status, object, 
+					importable.isArchived(), ioContainer, list, userID, close);
 		}
-		
-		importCandidates(candidates, status, object, 
-				importable.isArchived(), ioContainer, list, userID, close);
 		return Boolean.valueOf(true);
 	}
 	
