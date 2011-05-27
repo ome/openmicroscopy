@@ -917,7 +917,18 @@ public class ThumbnailBean extends AbstractLevel2Service
             {
                 if (!ctx.hasSettings(pixelsId))
                 {
-                    continue;
+                    try
+                    {
+                        pixelDataService.getPixelBuffer(
+                                ctx.getPixels(pixelsId));
+                        continue;  // No exception, not a missing pyramid
+                    }
+                    catch (MissingPyramidException e)
+                    {
+                        log.info("MissingPyramid on " +
+                                 "retrieveThumbnailSet.ctx.hasSettings");
+                        missingPyramid = true;
+                    }
                 }
                 pixels = ctx.getPixels(pixelsId);
                 pixelsId = pixels.getId();
