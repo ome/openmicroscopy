@@ -301,6 +301,14 @@ class DataNode
 	}
 	
 	/**
+	 * Returns <code>true</code> if the node is a default node for screen, 
+	 * <code>false</code> otherwise.
+	 *  
+	 * @return See above.
+	 */
+	boolean isDefaultScreen() { return DEFAULT_SCREEN.equals(toString()); }
+	
+	/**
 	 * Returns the parent node.
 	 * 
 	 * @return See above.

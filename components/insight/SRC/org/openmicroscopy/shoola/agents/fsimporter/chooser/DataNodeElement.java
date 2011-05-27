@@ -80,11 +80,16 @@ class DataNodeElement
 		if (value == null || value.trim().length() == 0) {
 			if (location == null) name = NO_LOCATION;
 			else {
-				DataNode parent = location.getParent();
-				if (parent != null && !parent.isDefaultNode() 
-						&& !location.isDefaultNode())
-					name = parent.toString()+"/";
-				name += location.toString();
+				if (location.getDataObject() instanceof ScreenData ||
+					location.isDefaultScreen()) {
+					name += location.toString();
+				} else {
+					DataNode parent = location.getParent();
+					if (parent != null && !parent.isDefaultNode() 
+							&& !location.isDefaultNode())
+						name = parent.toString()+"/";
+					name += location.toString();
+				}
 			}
 		} else {
 			if (location == null) name = value;

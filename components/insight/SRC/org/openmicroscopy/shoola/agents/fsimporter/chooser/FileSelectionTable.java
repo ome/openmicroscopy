@@ -578,8 +578,10 @@ class FileSelectionTable
 					if (f.isDirectory()) {
 						value = f.getName();
 						v = fad;
-						if (model.getType() == Importer.SCREEN_TYPE)
+						if (model.getType() == Importer.SCREEN_TYPE) {
 							v = false;
+							value = null;
+						}
 					} else {
 						if (model.isParentFolderAsDataset()) {
 							value = f.getParentFile().getName();

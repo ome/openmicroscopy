@@ -378,7 +378,7 @@ class ImporterUIElement
 						//TODO: review that code
 						List<Object> refNodes = object.getRefNodes();
 						Object node = null;
-						if (refNodes.size() > 0)
+						if (refNodes != null && refNodes.size() > 0)
 							node = refNodes.get(0);
 						browse(evt.getNewValue(), node);
 					}

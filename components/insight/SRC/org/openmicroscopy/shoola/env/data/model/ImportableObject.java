@@ -83,6 +83,13 @@ public class ImportableObject
 	public static final Set<String> HCS_FILES_EXTENSION;
 
 	/** 
+	 * The collection of arbitrary files extensions to check
+	 * before importing. If a file has one of the extensions, we need
+	 * to check the import candidates.
+	 */
+	private static final List<String> ARBITRARY_FILES_EXTENSION;
+	
+	/** 
 	 * The collection of HCS format. 
 	 */
 	public static final List<String> HCS_DOMAIN;
@@ -108,9 +115,9 @@ public class ImportableObject
 		reader = new FlexReader();
 		populateExtensions(reader.getSuffixes());
 		HCS_DOMAIN.add(reader.getFormat());
-		reader = new InCell3000Reader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
+		//reader = new InCell3000Reader();
+		//populateExtensions(reader.getSuffixes());
+		//HCS_DOMAIN.add(reader.getFormat());
 		reader = new InCellReader();
 		populateExtensions(reader.getSuffixes());
 		HCS_DOMAIN.add(reader.getFormat());
@@ -126,6 +133,15 @@ public class ImportableObject
 		reader = new ScreenReader();
 		populateExtensions(reader.getSuffixes());
 		HCS_DOMAIN.add(reader.getFormat());
+		
+		//
+		ARBITRARY_FILES_EXTENSION = new ArrayList<String>();
+		ARBITRARY_FILES_EXTENSION.add("text");
+		ARBITRARY_FILES_EXTENSION.add("xml");
+		ARBITRARY_FILES_EXTENSION.add("exp");
+		ARBITRARY_FILES_EXTENSION.add("log");
+		ARBITRARY_FILES_EXTENSION.add(TIFFFilter.TIFF);
+		ARBITRARY_FILES_EXTENSION.add(TIFFFilter.TIF);
 	}
 	
 	/**
@@ -143,6 +159,24 @@ public class ImportableObject
 					HCS_FILES_EXTENSION.add(s);
 			}
 		}
+	}
+	
+	
+	/**
+	 * Returns <code>true</code> if the extension of the specified file
+	 * is arbitrary and so requires to use the import candidates,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param f The file to handle.
+	 * @return See above.
+	 */
+	public static boolean isArbitraryFile(File f)
+	{
+		if (f == null) return false;
+		String name = f.getName();
+		if (!name.contains(".")) return false; 	
+		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
+		return ARBITRARY_FILES_EXTENSION.contains(ext);
 	}
 	
 	/** The collection of files to import. */

@@ -44,6 +44,7 @@ import loci.formats.ImageReader;
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
+import ome.model.screen.Screen;
 import omero.api.RenderingEnginePrx;
 import omero.model.Annotation;
 import omero.model.Channel;
@@ -54,6 +55,7 @@ import omero.model.Pixels;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.RenderingDef;
+import omero.model.ScreenI;
 import omero.model.TagAnnotation;
 import omero.romio.PlaneDef;
 import omero.sys.Parameters;
@@ -107,21 +109,6 @@ class OmeroImageServiceImpl
  	implements OmeroImageService
 {
 
-	/** 
-	 * The collection of arbitrary files extensions to check
-	 * before importing. If a file has one of the extensions, we need
-	 * to check the import candidates.
-	 */
-	private static final List<String> ARBITRARY_FILES_EXTENSION;
-	
-	static {
-		ARBITRARY_FILES_EXTENSION = new ArrayList<String>();
-		ARBITRARY_FILES_EXTENSION.add("text");
-		ARBITRARY_FILES_EXTENSION.add("xml");
-		ARBITRARY_FILES_EXTENSION.add("exp");
-		ARBITRARY_FILES_EXTENSION.add("log");
-	}
-	
 	/** The collection of supported file filters. */
 	private FileFilter[]		filters;
 	
@@ -174,6 +161,12 @@ class OmeroImageServiceImpl
 		while (jj.hasNext()) {
 			entry = (Entry) jj.next();
 			file = (File) entry.getKey();
+			if (ImportableObject.isHCSFile(file)) {
+				if (ioContainer != null && 
+					!(ioContainer.getClass().equals(Screen.class) ||
+					ioContainer.getClass().equals(ScreenI.class)))
+					ioContainer = null;
+			}
 			label = (StatusLabel) entry.getValue();
 			if (close) {
 				toClose = index == n;
@@ -872,23 +865,6 @@ class OmeroImageServiceImpl
 	}
 	
 	/**
-	 * Returns <code>true</code> if the extension of the specified file
-	 * is arbitrary and so requires to use the import candidates,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param f The file to handle.
-	 * @return See above.
-	 */
-	private boolean isArbitraryFile(File f)
-	{
-		if (f == null) return false;
-		String name = f.getName();
-		if (!name.contains(".")) return false; 	
-		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
-		return ARBITRARY_FILES_EXTENSION.contains(ext);
-	}
-	
-	/**
 	 * Recycles or creates the container.
 	 * 
 	 * @param dataset The dataset to create or recycle.
@@ -1018,6 +994,7 @@ class OmeroImageServiceImpl
 		Collection<TagAnnotationData> tags = object.getTags();
 		List<Annotation> list = new ArrayList<Annotation>();
 		List<IObject> l;
+		//Tags
 		if (tags != null && tags.size() > 0) {
 			List<TagAnnotationData> values = new ArrayList<TagAnnotationData>();
 			Iterator<TagAnnotationData> i = tags.iterator();
@@ -1062,13 +1039,16 @@ class OmeroImageServiceImpl
 		DataObject createdData;
 		IObject project = null;
 		DataObject folder = null;
-		ThumbnailData thumb;
-		Long backoff;
+		boolean hcsFile;
 		if (file.isFile()) {
-			if (ImportableObject.isHCSFile(file))
+			hcsFile = ImportableObject.isHCSFile(file);
+			//Create the container if required.
+			if (hcsFile) {
 				dataset = null;
-			//added for test.
-			if (importable.isFolderAsContainer()) {
+				if (!(container instanceof ScreenData))
+					container = null;
+			}
+			if (!hcsFile && importable.isFolderAsContainer()) {
 				//we have to import the image in this container.
 				folder = object.createFolderAsContainer(importable);
 				if (folder != null && folder instanceof DatasetData) {
@@ -1077,14 +1057,19 @@ class OmeroImageServiceImpl
 								container, object);
 						status.setContainerFromFolder(PojoMapper.asDataObject(
 								ioContainer));
-					} catch (Exception e) {}
+					} catch (Exception e) {
+						context.getLogger().error(this, "Cannot create " +
+								"the container hosting the images.");
+					}
 				} 
 			}
 			if (folder == null && dataset != null) { //dataset
 				try {
-					ioContainer = determineContainer(dataset, container, object);
+					ioContainer = determineContainer(dataset, container,
+							object);
 				} catch (Exception e) {
-					//register exception
+					context.getLogger().error(this, "Cannot create " +
+					"the container hosting the images.");
 				}
 			} else { //no dataset specified.
 				if (container instanceof ScreenData) {
@@ -1100,12 +1085,16 @@ class OmeroImageServiceImpl
 								object.addNewDataObject(
 										PojoMapper.asDataObject(
 												ioContainer));
-							} catch (Exception e) {}
+							} catch (Exception e) {
+								context.getLogger().error(this, 
+										"Cannot create the Screen hosting " +
+										"the data.");
+							}
 						}
 					} else ioContainer = container.asIObject();
 				}
 			}
-			if (isArbitraryFile(file)) {
+			if (ImportableObject.isArbitraryFile(file)) {
 				candidates = gateway.getImportCandidates(object, file, status);
 				int size = candidates.size();
 				if (size == 0) return Boolean.valueOf(false);
@@ -1139,7 +1128,7 @@ class OmeroImageServiceImpl
 						return v.booleanValue();
 					}
 				}
-			} else {
+			} else { //single file let's try to import it.
 				result = gateway.importImage(object, ioContainer, file, status, 
 						importable.isArchived(), close);
 				if (result instanceof ImageData) {
@@ -1160,9 +1149,51 @@ class OmeroImageServiceImpl
 				}
 				return result;
 			}
+		} //file import ends.
+		//Checks folder import.
+		
+		candidates = gateway.getImportCandidates(object, file, status);
+		hcsFile = false;
+		int size = candidates.size();
+		if (candidates.size() == 0) return Boolean.valueOf(false);
+		if (size == 1) {
+			File f = new File(candidates.get(0));
+			hcsFile = ImportableObject.isHCSFile(f);
+			if (hcsFile) {
+				dataset = null;
+				if (ioContainer != null && 
+					!(ioContainer.getClass().equals(Screen.class) ||
+					ioContainer.getClass().equals(ScreenI.class)))
+					ioContainer = null;
+			}
 		}
+		//check candidates and see if we are dealing with HCS data
+		if (hcsFile) {
+			if (container != null && container instanceof ScreenData) {
+				if (container.getId() <= 0) {
+					//project needs to be created to.
+					createdData = object.hasObjectBeenCreated(
+							container);
+					if (createdData == null) {
+						try {
+							ioContainer = gateway.saveAndReturnObject(
+									container.asIObject(), parameters);
+							//register
+							object.addNewDataObject(
+									PojoMapper.asDataObject(
+											ioContainer));
+						} catch (Exception e) {
+							context.getLogger().error(this, 
+									"Cannot create the Screen hosting " +
+									"the data.");
+						}
+					}
+				} else ioContainer = container.asIObject();
+			}
+		}
+		
 		folder = object.createFolderAsContainer(importable);
-		if (folder != null) { //folder
+		if (!hcsFile && folder != null) { //folder
 			//we have to import the image in this container.
 			try {
 				ioContainer = gateway.saveAndReturnObject(folder.asIObject(), 
@@ -1207,23 +1238,26 @@ class OmeroImageServiceImpl
 										parameters);
 							}
 						} catch (Exception e) {
-							// TODO: handle exception
+							context.getLogger().error(this, 
+									"Cannot create the container hosting " +
+									"the data.");
 						}
 					}
 				}
 			} catch (Exception e) {
 			}
-		} else { //import images not in the folder
+		} else { //folder 
 			if (dataset != null) { //dataset
 				try {
 					ioContainer = determineContainer(dataset, container, object);
 				} catch (Exception e) {
-					// TODO: handle exception
+					context.getLogger().error(this, 
+							"Cannot create the container hosting " +
+							"the data.");
 				}
 			}
 		}
-		candidates = gateway.getImportCandidates(object, file, status);
-		if (candidates.size() == 0) return Boolean.valueOf(false);
+		
 		importCandidates(candidates, status, object, 
 				importable.isArchived(), ioContainer, list, userID, close);
 		return Boolean.valueOf(true);

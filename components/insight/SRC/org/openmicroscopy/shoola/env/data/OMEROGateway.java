@@ -6156,9 +6156,11 @@ class OMEROGateway
 				//if (isLargeImage(p)) {
 					//return new ThumbnailData(getImage(id, params), true);
 				//}
-				if (ImportableObject.isHCSFile(file))
-					return getImportedPlate(id);
-				
+				if (ImportableObject.isHCSFile(file)) {
+					PlateData plate = getImportedPlate(id);
+					if (plate != null) return plate;
+					return getImage(id, params);
+				}
 				if (n == 1) {
 					return getImage(id, params);
 				} else if (n == 2) {
