@@ -16,6 +16,8 @@ import java.util.Map;
 
 import junit.framework.AssertionFailedError;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.io.bioformats.BfPyramidPixelBuffer;
+import ome.io.nio.PixelsService;
 import omero.ApiUsageException;
 import omero.ResourceError;
 import omero.ServerError;
@@ -80,6 +82,9 @@ public class DeleteServiceFilesTest
 	/** Reference to the <code>Thumbnail</code> class. */
 	private static final String REF_THUMBNAIL = "Thumbnail";
 
+    /** Enum representing type of pyramid file */
+    enum PyramidFileType { PYRAMID, PYRAMID_LOCK, PYRAMID_TMP };
+
 	/** Reference to the standard directory. */
 	private String dataDir; 
 
@@ -110,30 +115,54 @@ public class DeleteServiceFilesTest
     }
 
     /**
-     * Makes an image with pixels.
+     * Makes an image with pixels files.
      * 
      * @return See above.
      * @throws ServerError Thrown if an error occurred. 
      * @throws Exception Thrown if an error occurred. 
      *
-    private Image makeImageWithPixelsFile() throws ServerError, Exception {
-        Image img = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
-        Pixels pix = img.getPrimaryPixels();
-        IRenderingSettingsPrx rsPrx = factory.getRenderingSettingsService();
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(pix.getId().getValue());
-        rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
-        return img;
-    }
-    */
+     */
     private Image makeImageWithPixelsFile() throws ServerError, Exception {
         Image img = (Image) iUpdate.saveAndReturnObject(
                 mmFactory.createImage());
         Pixels pix = img.getPrimaryPixels();
         String path = getPath(REF_PIXELS, pix.getId().getValue());
-		RepositoryPrx legacy = getLegacyRepository();
+        RepositoryPrx legacy = getLegacyRepository();
         legacy.create(path);
+        return img;
+    }
+
+    /**
+     * Makes an image with pixels files.
+     *
+     * @return See above.
+     * @throws ServerError Thrown if an error occurred.
+     * @throws Exception Thrown if an error occurred.
+     *
+     */
+    private Image makeImageWithPixelsFile(boolean pixels, boolean pyramid, boolean lock, boolean tmp)
+            throws ServerError, Exception {
+        String path;
+        Image img = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Pixels pix = img.getPrimaryPixels();
+		RepositoryPrx legacy = getLegacyRepository();
+		if(pixels) {
+            path = getPath(REF_PIXELS, pix.getId().getValue());
+            legacy.create(path);
+        }
+		if(pyramid) {
+		    path = getOtherPixelsPath(pix.getId().getValue(), PyramidFileType.PYRAMID);
+            legacy.create(path);
+        }
+		if(lock) {
+		    path = getOtherPixelsPath(pix.getId().getValue(), PyramidFileType.PYRAMID_LOCK);
+            legacy.create(path);
+        }
+		if(tmp) {
+		    path = getOtherPixelsPath(pix.getId().getValue(), PyramidFileType.PYRAMID_TMP);
+            legacy.create(path);
+        }
         return img;
     }
     
@@ -280,6 +309,33 @@ public class DeleteServiceFilesTest
 	}
 
 	/**
+	 * Helper to resolve file names for pyramid-related files
+	 */
+	String getOtherPixelsPath(Long id, PyramidFileType kind)
+	throws Exception
+	{
+		String path = getPath(REF_PIXELS, id);
+		if (kind.equals(PyramidFileType.PYRAMID)) {
+			path += PixelsService.PYRAMID_SUFFIX;
+		} else if (kind.equals(PyramidFileType.PYRAMID_LOCK)) {
+		    File file = new File(path);
+			File dir = file.getParentFile();
+            File lockFile = new File(dir, "." + id + PixelsService.PYRAMID_SUFFIX
+                        + BfPyramidPixelBuffer.PYR_LOCK_EXT);
+            path = lockFile.getAbsolutePath();
+		} else if (kind.equals(PyramidFileType.PYRAMID_TMP)) {
+		    File file = new File(path);
+			File dir = file.getParentFile();
+            File tmpFile = new File(dir, "." + id + PixelsService.PYRAMID_SUFFIX
+                        + "1234567890.tmp");
+            path = tmpFile.getAbsolutePath();
+		} else {
+			throw new Exception("Unknown kind: " + kind);
+		}
+		return path;
+	}
+
+	/**
 	 * Gets a public repository on the OMERO data directory if one exists.
 	 * 
 	 * @return See above.
@@ -327,6 +383,21 @@ public class DeleteServiceFilesTest
 	}
 
 	/**
+	 * Makes sure that the OMERO file exists of the given type and id
+	 *
+	 * @param id The object id corresponding to the filename.
+	 * @param klass The class (table name) of the object.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+	void assertOtherPixelsFileExists(Long id, PyramidFileType kind)
+	throws Exception
+	{
+		String path = getOtherPixelsPath(id, kind);
+		RepositoryPrx legacy = getLegacyRepository();
+		assertTrue(path + " does not exist!", legacy.fileExists(path));
+	}
+
+	/**
 	 * Forcibly delete a file.
 	 *
 	 * @param id
@@ -358,6 +429,21 @@ public class DeleteServiceFilesTest
 	}  
 
 	/**
+	 * Makes sure that the OMERO file exists of the given type and id
+	 *
+	 * @param id The object id corresponding to the filename.
+	 * @param klass The class (table name) of the object.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+	void assertOtherPixelsFileDoesNotExist(Long id, PyramidFileType kind)
+	throws Exception
+	{
+		String path = getOtherPixelsPath(id, kind);
+		RepositoryPrx legacy = getLegacyRepository();
+		assertFalse(path, legacy.fileExists(path));
+	}
+
+	/**
 	 * Test to delete an image and make sure pixels file is deleted.
 	 * @throws Exception Thrown if an error occurred.
 	 */
@@ -375,6 +461,75 @@ public class DeleteServiceFilesTest
 				new DeleteCommand(DeleteServiceTest.REF_IMAGE, 
 						img.getId().getValue(), null));
 		assertFileDoesNotExist(pix.getId().getValue(), REF_PIXELS);
+		assertTrue(report.undeletedFiles.get(REF_PIXELS).length == 0);
+	}
+
+	/**
+	 * Test to delete an image and make sure pyramid file is deleted.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testDeleteImageWithPyramidOnDisk()
+	throws Exception
+	{
+	    Image img = makeImageWithPixelsFile(false,true,false,false);
+	    Pixels pix = img.getPrimaryPixels();
+
+		//Now check that the files have been created and then deleted.
+		assertOtherPixelsFileExists(pix.getId().getValue(), PyramidFileType.PYRAMID);
+
+		DeleteReport report = deleteWithReport(
+				new DeleteCommand(DeleteServiceTest.REF_IMAGE,
+						img.getId().getValue(), null));
+		assertOtherPixelsFileDoesNotExist(pix.getId().getValue(), PyramidFileType.PYRAMID);
+		assertTrue(report.undeletedFiles.get(REF_PIXELS).length == 0);
+	}
+
+	/**
+	 * Test to delete an image and make sure pixels and pyramid files are deleted.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testDeleteImageWithPixelsAndPyramidOnDisk()
+	throws Exception
+	{
+	    Image img = makeImageWithPixelsFile(true,true,false,false);
+	    Pixels pix = img.getPrimaryPixels();
+
+		//Now check that the files have been created and then deleted.
+		assertFileExists(pix.getId().getValue(), REF_PIXELS);
+		assertOtherPixelsFileExists(pix.getId().getValue(), PyramidFileType.PYRAMID);
+
+		DeleteReport report = deleteWithReport(
+				new DeleteCommand(DeleteServiceTest.REF_IMAGE,
+						img.getId().getValue(), null));
+		assertFileDoesNotExist(pix.getId().getValue(), REF_PIXELS);
+		assertOtherPixelsFileDoesNotExist(pix.getId().getValue(), PyramidFileType.PYRAMID);
+		assertTrue(report.undeletedFiles.get(REF_PIXELS).length == 0);
+	}
+
+	/**
+	 * Test to delete an image and make sure pixels and pyramid files are deleted.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testDeleteImageWithAllPyramidOnDisk()
+	throws Exception
+	{
+	    Image img = makeImageWithPixelsFile(false,true,true,true);
+	    Pixels pix = img.getPrimaryPixels();
+
+		//Now check that the files have been created and then deleted.
+		assertOtherPixelsFileExists(pix.getId().getValue(), PyramidFileType.PYRAMID);
+		assertOtherPixelsFileExists(pix.getId().getValue(), PyramidFileType.PYRAMID_LOCK);
+		assertOtherPixelsFileExists(pix.getId().getValue(), PyramidFileType.PYRAMID_TMP);
+
+		DeleteReport report = deleteWithReport(
+				new DeleteCommand(DeleteServiceTest.REF_IMAGE,
+						img.getId().getValue(), null));
+		assertOtherPixelsFileDoesNotExist(pix.getId().getValue(), PyramidFileType.PYRAMID);
+		assertOtherPixelsFileDoesNotExist(pix.getId().getValue(), PyramidFileType.PYRAMID_LOCK);
+		assertOtherPixelsFileDoesNotExist(pix.getId().getValue(), PyramidFileType.PYRAMID_TMP);
 		assertTrue(report.undeletedFiles.get(REF_PIXELS).length == 0);
 	}
 

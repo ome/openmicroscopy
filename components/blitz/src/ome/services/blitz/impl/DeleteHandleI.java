@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import ome.conditions.InternalException;
+import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.AbstractFileSystemService;
 import ome.io.nio.PixelsService;
 import ome.services.delete.DeleteStepFactory;
@@ -91,8 +92,6 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
     private static final List<String> fileTypeList = Collections.unmodifiableList(
             Arrays.asList( "OriginalFile", "Pixels", "Thumbnail"));
     
-    private static final String PYR_LOCK_EXT = ".pyr_lock"; //FIXME: get this from creating class
-
     /**
      * The identity of this servant, used during logging and similar operations.
      */
@@ -490,7 +489,8 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                             }
                             File dir = file.getParentFile();
                             // Now any lock file
-                            File lockFile = new File(dir, "." + id + PixelsService.PYRAMID_SUFFIX + PYR_LOCK_EXT);
+                            File lockFile = new File(dir, "." + id + PixelsService.PYRAMID_SUFFIX
+                                    + BfPyramidPixelBuffer.PYR_LOCK_EXT);
                             if(!deleteSingleFile(lockFile)) {
                                 failedMap.get(fileType).add(id);
                                 filesFailed++;

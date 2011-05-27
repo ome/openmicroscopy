@@ -114,6 +114,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     private FileLock fileLock;
 
+    public static final String PYR_LOCK_EXT = ".pyr_lock";
+
     /**
      * We may want a constructor that takes the id of an imported file
      * or that takes a File object?
@@ -347,7 +349,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
 
     private File lockFile() {
         File parent = readerFile.getParentFile();
-        String name = "." + readerFile.getName() + ".pyr_lock";
+        String name = "." + readerFile.getName() + PYR_LOCK_EXT;
         File lock = new File(parent, name);
         return lock;
     }

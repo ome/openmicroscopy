@@ -637,7 +637,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         try {
             return file.createNewFile();
         } catch (Exception e) {
-            return false;
+            throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
         }
     }
 
