@@ -148,6 +148,10 @@ table.contentWrapper {
     top: 0;
     left: 25px;
 }
+#dataTable img {
+    border: 1px solid white;
+    padding: 2px;
+}
 
 .collapsibletrayhandle-right {
     background:#F3F3F3 url(/appmedia/omeroweb/images/tray_right_shadow.png) repeat-y scroll left top;
