@@ -79,6 +79,7 @@ import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
+import omero.ConcurrencyException;
 import omero.InternalException;
 import omero.MissingPyramidException;
 import omero.RLong;
@@ -891,18 +892,20 @@ class OMEROGateway
 		Throwable cause = t.getCause();
 		String s = "\n Image not ready. Please try again later, " +
 		"ready in approximately ";
-		if (cause instanceof MissingPyramidException) {
-			MissingPyramidException mpe = (MissingPyramidException) cause;
+		if (cause instanceof ConcurrencyException) {
+			ConcurrencyException mpe = (ConcurrencyException) cause;
 			s +=UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
 			FSAccessException fsa = new FSAccessException(message+s, cause);
-			fsa.setIndex(FSAccessException.PYRAMID);
+			if (mpe instanceof MissingPyramidException)
+				fsa.setIndex(FSAccessException.PYRAMID);
 			fsa.setBackOffTime(mpe.backOff);
 			throw fsa;
-		} else if (t instanceof MissingPyramidException) {
-			MissingPyramidException mpe = (MissingPyramidException) t;
+		} else if (t instanceof ConcurrencyException) {
+			ConcurrencyException mpe = (ConcurrencyException) t;
 			s +=UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
 			FSAccessException fsa = new FSAccessException(message+s, t);
-			fsa.setIndex(FSAccessException.PYRAMID);
+			if (mpe instanceof MissingPyramidException)
+				fsa.setIndex(FSAccessException.PYRAMID);
 			fsa.setBackOffTime(mpe.backOff);
 			throw fsa;
 		}

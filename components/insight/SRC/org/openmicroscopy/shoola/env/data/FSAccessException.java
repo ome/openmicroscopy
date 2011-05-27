@@ -51,6 +51,9 @@ public class FSAccessException
 	/** Indicates that the pyramid is not ready.*/
 	public static final int PYRAMID = 1;
 	
+	/** Indicates that the pyramid is not ready file is locked.*/
+	public static final int LOCKED = 0;
+	
 	/** One of the constants defined by this class.*/
 	private int index;
 	
@@ -65,7 +68,7 @@ public class FSAccessException
 	public FSAccessException(String message)
 	{
 		super(message);
-		index = 0;
+		index = LOCKED;
 	}
 	
 	/**
