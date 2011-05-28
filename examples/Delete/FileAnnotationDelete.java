@@ -22,6 +22,7 @@ public class FileAnnotationDelete {
             PermissionDeniedException, ServerError, java.io.IOException {
 
         omero.client c = new omero.client();
+        String ice_config = c.getProperty("Ice.Config");
 
         try {
             ServiceFactoryPrx s = c.createSession();
@@ -29,7 +30,7 @@ public class FileAnnotationDelete {
             Dataset d = new DatasetI();
             d.setName(rstring("FileAnnotationDelete"));
             FileAnnotation fa = new FileAnnotationI();
-            OriginalFile file = c.upload(new java.io.File("FileAnnotationDelete.java"));
+            OriginalFile file = c.upload(new java.io.File(ice_config));
             fa.setFile(file);
             d.linkAnnotation(fa);
             d = (Dataset) s.getUpdateService().saveAndReturnObject(d);

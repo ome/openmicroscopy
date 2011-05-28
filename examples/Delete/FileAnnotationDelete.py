@@ -8,6 +8,7 @@ import omero
 import omero.callbacks
 
 c = omero.client()
+ice_config = c.getProperty("Ice.Config")
 
 from omero.rtypes import *
 from omero.model import *
@@ -17,7 +18,7 @@ try:
     d = DatasetI()
     d.setName(rstring("FileAnnotationDelete"))
     fa = FileAnnotationI()
-    file = c.upload("FileAnnotationDelete.java")
+    file = c.upload(ice_config)
     fa.setFile(file)
     d.linkAnnotation(fa)
     d = s.getUpdateService().saveAndReturnObject(d)
