@@ -4703,9 +4703,12 @@ def assert_re (func):
     
     def wrapped (self, *args, **kwargs):
         """ Tries to prepare rendering engine, then call function and return the result"""
-        
-        if not self._prepareRenderingEngine():
-            return None
+        try:
+            if not self._prepareRenderingEngine():
+                return None
+        # _prepareRenderingEngine() may throw, but we ignore it
+        except omero.MissingPyramidException, mpe:
+            pass
         return func(self, *args, **kwargs)
     return wrapped
 
@@ -4924,6 +4927,9 @@ class _ImageWrapper (BlitzObjectWrapper):
                     self._pd = omero.romio.PlaneDef(self.PLANEDEF)
                 self._re = self._prepareRE()
             return self._re is not None
+        # allow others to handle MissingPyramidException - display Message etc.
+        except omero.MissingPyramidException, mpe:
+            raise mpe
         except:
             return None
 
