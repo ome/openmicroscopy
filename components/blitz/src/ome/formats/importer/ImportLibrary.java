@@ -423,6 +423,8 @@ public class ImportLibrary implements IObservable
             {
                 log.info("Metadata only import? " + isMetadataOnly);
                 log.info("Archiving enabled? " + archive);
+                log.info("Container metadata only import? " +
+                         container.getMetadataOnly());
             }
             notifyObservers(new ImportEvent.LOADED_IMAGE(
                     shortName, index, numDone, total));
@@ -593,7 +595,7 @@ public class ImportLibrary implements IObservable
             store.writeFilesToFileStore(fileNameList, originalFileMap);
             // If we're in metadata only mode and archiving is on we need to
             // tell the server which Pixels set matches up to which series.
-            if (isMetadataOnly && archive)
+            if ((isMetadataOnly || container.getMetadataOnly()) && archive)
             {
                 int series = 0;
                 for (Long pixelsId : pixelsIds)
