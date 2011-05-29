@@ -421,6 +421,7 @@ public class ImportLibrary implements IObservable
             boolean useMetadataFile = container.getUseMetadataFile();
             if (log.isInfoEnabled())
             {
+                log.info("File format: " + format);
                 log.info("Metadata only import? " + isMetadataOnly);
                 log.info("Archiving enabled? " + archive);
                 log.info("Container metadata only import? " +
