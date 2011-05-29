@@ -352,7 +352,7 @@ public class ImportLibrary implements IObservable
             || format.equals("JPEG"))
         {
             log.info("Big image, enabling metadata only and archiving.");
-            setMetadataOnly(true);
+            container.setMetadataOnly(true);
             container.setArchive(true);
         }
     }
@@ -462,7 +462,7 @@ public class ImportLibrary implements IObservable
             }
             boolean saveSha1 = false;
             // If we're metadata only, we don't want to perform any pixel I/O.
-            if (!isMetadataOnly)
+            if (!isMetadataOnly && !container.getMetadataOnly())
             {
                 boolean success = false;
                 try
