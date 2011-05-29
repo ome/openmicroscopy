@@ -205,10 +205,20 @@ jQuery._WeblitzViewport = function (container, server, options) {
    *                     {id, width, height, z_count, t_count, c_count,
    *                      rdefs:{model,},
    *                      channels:[{emissionWave,color,active},]}
+   *  If a 'MissingPyramidException' is thrown, this key will be in the returned data
    */
   var _reset = function (data, textStatus) {
     hideLoading();
     clearTimeout(ajaxTimeout);
+    // If 'MissingPyramidException' we can't do anything else but notify user
+    if (data["MissingPyramidException"] != undefined) {
+        backOff = data["MissingPyramidException"]['backOff'];
+        minutes = parseInt(backOff)/(60 * 1000)
+        _this.self.trigger('MissingPyramidException', [minutes]);
+        //alert("MissingPyramidException: please try again in " + minutes + " minutes");
+        //self.close();
+        return;
+    }
     _this.loadedImg._load(data);
     _this.loadedImg_def = jQuery.extend(true, {}, _this.loadedImg);
     if (_this.loadedImg.current.query) {
@@ -944,7 +954,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
    * Some events are handled by us, some are proxied to the viewport plugin.
    */
   this.bind = function (event, callback) {
-    if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' || event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange') {
+    if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' || event == 'MissingPyramidException' ||
+        event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange') {
       _this.self.bind(event, callback);
     } else {
       _this.viewportimg.bind(event, callback);

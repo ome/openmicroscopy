@@ -1037,7 +1037,16 @@ def imageMarshal (image, key=None):
     pr = image.getProject()
     ds = image.getDataset()
     
-    image._prepareRenderingEngine()
+    try:
+        image._prepareRenderingEngine()
+    except omero.MissingPyramidException, mpe:
+        backOff = mpe.backOff
+        rv = {
+            'MissingPyramidException': {
+                'backOff': backOff
+            }
+        }
+        return rv
     
     #big images
     tiles = image._re.requiresPixelsPyramid()

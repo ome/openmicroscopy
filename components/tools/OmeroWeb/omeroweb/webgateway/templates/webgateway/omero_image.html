@@ -802,6 +802,18 @@
 
     </div>
 
+
+    <div id="missing_pyramid_postit" class="postit" style="background: #fcc; width:480px">
+        <h1>Missing Pyramid Exception</h1>
+        <div style="padding:10px">
+            <p>
+            A 'Pyramid' of zoom levels is currently being calculated for this image. <br />
+            Please try viewing again in <span id="mpe_minutes"></span> minutes.
+            </p>
+            <p><a href="#" onclick="self.close()">Close this Window</a></p>
+        </div>
+    </div>
+
     <!-- End floating boxes -->
     <div id="wblitz">
       <div id="wblitz-workarea">
@@ -948,6 +960,12 @@
     viewport.bind('linePlotChange', linePlotChange);
     /* Bind line plot position pick */
     viewport.bind('linePlotPos', linePlotPos);
+
+    /* Bind 'MissingPyramidException' to display message */
+    viewport.bind('MissingPyramidException', function(e, data) {
+        $('#mpe_minutes').text(data);
+        $('#missing_pyramid_postit').show();
+    });
 
     /* Prepare pop tools */
     $(".popover > h1")
