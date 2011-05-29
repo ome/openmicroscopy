@@ -342,7 +342,14 @@ public class ImportLibrary implements IObservable
     private void handleBigImageFormats(String format, ImportContainer container)
     {
         if (format.equals("Aperio SVS")
-            || format.equals("Trestle"))
+            || format.equals("Trestle")
+            || format.equals("Animated PNG")
+            || format.equals("JPEG-2000")
+            || format.equals("Hamamatsu VMS")
+            || format.equals("Hamamatsu NDPI")
+            || format.equals("CellSens VSI")
+            || format.equals("Tagged Image File Format")
+            || format.equals("JPEG"))
         {
             log.info("Big image, enabling metadata only and archiving.");
             setMetadataOnly(true);
