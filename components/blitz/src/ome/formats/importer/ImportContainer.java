@@ -135,7 +135,7 @@ public class ImportContainer
      */
     public void setMetadataOnly(boolean isMetadataOnly)
     {
-        isMetadataOnly = isMetadataOnly;
+        this.isMetadataOnly = isMetadataOnly;
     }
 
     /**
