@@ -31,6 +31,11 @@ body.zoom {
     color: #e3646f;
 }
 
+.disabled {
+    background: #dcdcdc;
+    color: #777777;
+}
+
 #headerWrapper {
     border-bottom: 1px solid #bbb;
 }

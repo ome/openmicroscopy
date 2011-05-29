@@ -120,7 +120,7 @@
                     
                     if(selected.length > 0) {
                         if(selected.attr("rel").indexOf("locked")>=0) {            	            
-                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false}
+                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}, 'annotation':false, 'basket':false}
                         } else {
                             if(selected.attr("id").indexOf("orphaned")>=0) {
                                 toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false}
@@ -190,7 +190,6 @@
             						"create_node" : true,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},
             					"project" : {
@@ -201,7 +200,6 @@
             						"create_node" : true,
                                     "start_drag" : false,
             						"move_node" : true,
-            						"delete_node" : true,
             						"remove" : true
             					},
             					"project-locked" : {
@@ -212,8 +210,7 @@
             						"create_node" : true,
                                     "start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
-            						"remove" : false
+            						"remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
             					},
             					"dataset" : {
             						"valid_children" : [ "image", "image-locked" ],
@@ -223,7 +220,6 @@
             						"create_node" : false,
             						"start_drag" : true,
             						"move_node" : true,
-            						"delete_node" : true,
             						"remove" : true
             					},
             					"dataset-locked" : {
@@ -234,8 +230,7 @@
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
-            						"remove" : false
+            						"remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
             					},
             					"image" : {
             						"valid_children" : "none",
@@ -245,7 +240,6 @@
             						"create_node" : false,
             						"start_drag" : true,
             						"move_node" : true,
-            						"delete_node" : true,
             						"remove" : true
             					},
             					"image-locked" : {
@@ -256,8 +250,7 @@
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
-            						"remove" : false
+            						"remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
             					},
             					"screen" : {
             						"valid_children" : [ "plate", "plate-locked" ],
@@ -267,7 +260,6 @@
             						"create_node" : true,
                                     "start_drag" : false,
             						"move_node" : true,
-            						"delete_node" : true,
             						"remove" : true
             					},
             					"screen-locked" : {
@@ -278,8 +270,7 @@
             						"create_node" : true,
                                     "start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
-            						"remove" : false
+            						"remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
             					},
             					"plate" : {
             						"valid_children" : "none",
@@ -300,18 +291,16 @@
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
-            						"remove" : false
+            						"remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
             					},
             					"orphaned" : {
-            						"valid_children" : [ "image" ],
+            						"valid_children" : [ "image", "image_locked" ],
             						"icon" : {
             							"image" : '{% url webstatic "images/folder_yellow16.png" %}'
             						},
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					}          					
             				}
@@ -430,7 +419,7 @@
                                 
                                 if(obj.attr("rel").indexOf("locked")>=0) {
                                     config["rename"]["_disabled"] = true;
-                                    config["delete"]["_disabled"] = true;
+                                    {% if not eContext.isLeader %}config["delete"]["_disabled"] = true;{% endif %}
                                     config["ccp"]["_disabled"] = true;
                                     config["create"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
@@ -477,7 +466,13 @@
                 	    data.open_node(data.get_selected());
                 	}
 				})
-            	.bind("select_node.jstree", function (e, data) {            	    
+            	.delegate("a", "dblclick", function(e, data) {
+        		    if ($(this).parent().attr('rel')=='image') {
+        		        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+        		    }
+        		    $("#dataTree").jstree("open_node", this);
+        		})
+        		.bind("select_node.jstree", function (e, data) {
             	    buttonsShowHide(data.inst.get_selected());
             	    if (data.inst.get_selected().length > 1) {
             	        if (data.inst.get_selected().length >= 2) {
@@ -602,11 +597,11 @@
                     if (refresh) refreshCenterPanel();
         		})
         		.bind("remove.jstree", function (e, data) {
-        		    var ajax_data = new Object();
+        		    var ajax_data = new Array();
         		    var q = false;
-        		    data.rslt.obj.each(function (i) {
-        		        ajax_data[$(this).attr('rel')] = $(this).attr('id').split('-')[1];
-        		        if ($(this).attr('rel')!=='image') q = true;
+        		    data.args[0].each(function (i) {
+        		        ajax_data[i] = $(this).attr('id').replace("-","=");
+        		        if (!q && $(this).attr('rel').indexOf('image')<0) q = true;
         		    });
         		    
         		    if (q){
@@ -622,7 +617,7 @@
                     $.ajax({
         		        async : false,
                         url: url,
-                        data : ajax_data,
+                        data : ajax_data.join("&"),
                         dataType: "json",
                         type: "POST",
                         success: function(r){
@@ -630,6 +625,7 @@
       							$.jstree.rollback(data.rlbk);
       							alert(r.errs);
       						} else {
+      						    refreshCenterPanel();
       						    var i = setInterval(function (){
                                     $.getJSON("/webclient/progress/", function(data) {
                                         if (data.inprogress== 0) {
@@ -646,7 +642,7 @@
                                         $("#progress").show();
                                         $("#jobstatus").html(data.inprogress + ' job(s) in progress');
                                     });
-                                }, 1000);
+                                }, 10000);
       						}
                         },
                         error: function(response) {
@@ -654,12 +650,6 @@
                             alert("Internal server error. Cannot remove object.");
                         }
                     });
-        		})
-        		.delegate("a", "dblclick", function(e, data) {
-        		    if ($(this).parent().attr('rel')=='image') {
-        		        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
-        		    }
-        		    $("#dataTree").jstree("open_node", this);
         		})
         		
         	});
@@ -716,6 +706,10 @@
                     } else {
                         alert("Cannot rename more then one object in the same time")
                     }
+                    break;
+                case "refreshButton":
+                    $("#dataTree").jstree("refresh");
+                    break;
                 default:
     			    alert(this.id.replace("Button", "")+" not supported");
     				break;
@@ -725,19 +719,10 @@
     </script>
 {% endblock %}
 
-<!-- Add a user-chooser to the toolbar -->
-{% block toolbar %}
-    {% if form_users %}
-    <div style="float:left; padding: 0px 10px">
-        {% for field in form_users %}{{ field }}{% endfor %}&nbsp;&nbsp;&nbsp;
-    </div>
-    {% endif %}
-{% endblock %}
-
 {% block left %}
     <div class="toolbar">
         <div id="buttons" class="align_left">
-            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "usertags" %}'"> | 
+            <input id="refreshButton" class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "usertags" %}'"> | 
             
             <input id="addprojectButton" class="button button-disabled" type="image" src="{% url webstatic "images/folder16.png" %}" alt="Create new project" title="Create new Project" /> 
             <input id="adddatasetButton" class="button button-disabled" type="image" src="{% url webstatic "images/folder_image16.png" %}" alt="Create new dataset" title="Create new Dataset" /> 

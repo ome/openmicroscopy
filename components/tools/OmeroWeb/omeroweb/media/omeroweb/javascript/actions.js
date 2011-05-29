@@ -8,19 +8,19 @@ var calculateCartTotal = function(total){
 };
 
 var addToBasket = function(selected) {
-    var productListQuery = "action=add";                    
+    var productListQuery = new Array("action=add");
     if (selected != null && selected.length > 0) {
-        selected.each(function() {
-            productListQuery += "&"+$(this).attr('id').replace("-","=");
-        });                        
+        selected.each(function(i) {
+            productListQuery[i+1]= $(this).attr('id').replace("-","=");
+        });
     } else {
         alert ("Please select at least one element."); 
         return
-    }                    
+    }
     $.ajax({
         type: "POST",
         url: "/webclient/basket/update/", //this.href,
-        data: productListQuery,
+        data: productListQuery.join("&"),
         contentType:'html',
         success: function(responce){
             if(responce.match(/(Error: ([A-z]+))/gi)) {
@@ -40,11 +40,12 @@ var multipleAnnotation = function(){
     if (datatree.data.ui.selected.length < 1) {
         alert ("Please select at least one element."); 
     }
-    var productListQuery = "/webclient/metadata_details/multiaction/annotatemany/?"; 
-    datatree.data.ui.selected.each( function(){
-        productListQuery += "&"+$(this).attr('id').replace("-","=");
-    });                    
-    loadMetadataPanel(productListQuery);
+    var productListQuery = new Array(); 
+    datatree.data.ui.selected.each( function(i){
+        productListQuery[i] = $(this).attr('id').replace("-","=");
+    });
+    var query = "/webclient/metadata_details/multiaction/annotatemany/?"+productListQuery.join("&")
+    loadMetadataPanel(query);
 };
 
 var loadMetadataPanel = function(src, html) {

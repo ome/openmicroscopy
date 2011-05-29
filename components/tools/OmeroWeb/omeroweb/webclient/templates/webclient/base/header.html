@@ -20,17 +20,11 @@
                 $("#progress").show();
                 $("#jobstatus").html(data.inprogress + ' job(s) in progress');
             });
-        }, 2000);
+        }, 10000);
 
-        // if we only have one experimenter (yourself) then disable select (and make it look disabled)
-        if ($('select#id_experimenter option').length == 1) {
-            $('#id_experimenter').attr('disabled', 'True').css('background', '#dcdcdc').css('color', '#777');
-
-        }
     });
 </script>
 {% endifnotequal %}
-
 
         {% ifnotequal nav.menu "basket" %}
         <div id="baskets"><a href="{% url basket_action %}">{% trans "BASKET:" %}</a> <span id="cartTotal">{{ nav.basket }}</span> {% plural nav.basket 'item' 'items' %}</div>
@@ -38,7 +32,11 @@
         {% ifnotequal nav.menu "status" %}
         <div id="queue"><a href="{% url status %}" class="align_left">STATUS:</a><div id="jobstatus">0 job(s)</div><img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none;"/></div>
         {% endifnotequal %}
-
         <div style="float:left">
             {% for field in form_active_group %} {% trans "group" %}: {{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
         </div>
+        {% if form_users %}
+        <div style="float:left; padding: 0px 10px">
+            {% for field in form_users %}{{ field }}{% endfor %}&nbsp;&nbsp;&nbsp;
+        </div>
+        {% endif %}

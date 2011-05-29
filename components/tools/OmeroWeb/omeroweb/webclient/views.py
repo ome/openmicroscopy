@@ -492,13 +492,16 @@ def load_template(request, menu, **kwargs):
     if url is None:
         url = reverse(viewname="load_template", args=[menu])
     
+    
+    #tree support
     init = {'initially_open':[], 'initially_select': None}
     for k,v in request.REQUEST.items():
-        for i in v.split(","):
-            if ":selected" in str(i) and init['initially_select'] is None:
-                init['initially_select'] = k+"-"+i.replace(":selected", "")
-            else:
-                init['initially_open'].append(k+"-"+i)
+        if k.lower() in ('project', 'dataset', 'image', 'screen', 'plate'):
+            for i in v.split(","):
+                if ":selected" in str(i) and init['initially_select'] is None:
+                    init['initially_select'] = k+"-"+i.replace(":selected", "")
+                else:
+                    init['initially_open'].append(k+"-"+i)
                 
     try:
         manager = BaseContainer(conn)
@@ -512,21 +515,21 @@ def load_template(request, menu, **kwargs):
     users = sortByAttr(list(conn.listColleagues()), "lastName")
     empty_label = "*%s (%s)" % (conn.getUser().getFullName(), conn.getUser().omeName)
     if len(users) > 0:
-        if request.REQUEST.get('experimenter') == "":
-            request.session.get('nav')['experimenter'] = None
-            form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
-        elif request.REQUEST.get('experimenter') is not None: 
+        if request.REQUEST.get('experimenter') is not None and len(request.REQUEST.get('experimenter'))>0: 
             form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu}, data=request.REQUEST.copy())
             if form_users.is_valid():
                 filter_user_id = request.REQUEST.get('experimenter', None)
                 request.session.get('nav')['experimenter'] = filter_user_id
                 form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
         else:
-            filter_user_id = request.session.get('nav')['experimenter']
+            if request.REQUEST.get('experimenter') == "":
+                request.session.get('nav')['experimenter'] = None
+            filter_user_id = request.session.get('nav')['experimenter'] is not None and request.session.get('nav')['experimenter'] or None
             if filter_user_id is not None:
                 form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
             else:
                 form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
+            
     else:
         form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
             

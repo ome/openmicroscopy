@@ -77,11 +77,9 @@ div.cloud {
     padding: 0 20px;
 }
 
-.disabled {
-    background-color: #f3f3f3;
-    color: #555;
-    border: 0 none;
+.disabled-metadata {
 }
+
 
 div.paging {
     font-size: 12px;
