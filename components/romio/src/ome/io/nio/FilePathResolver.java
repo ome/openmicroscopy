@@ -25,7 +25,8 @@ public interface FilePathResolver
      * @param service File system service which contains methods to resolve
      * the root and directory structure of the path.
      * @param pixels Pixels set to retrieve an original file path for.
-     * @return Absolute path to the original file for the set of pixels.
+     * @return Absolute path to the original file for the set of pixels or
+     * <code>null</code> if no original file is available.
      */
     String getOriginalFilePath(AbstractFileSystemService service,
                                Pixels pixels);
