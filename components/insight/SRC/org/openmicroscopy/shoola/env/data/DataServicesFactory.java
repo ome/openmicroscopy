@@ -413,7 +413,7 @@ public class DataServicesFactory
         	entry = (Entry) k.next();
         	msg.println((String) entry.getKey()+": "+(String) entry.getValue());
 		}
-        registry.getLogger().warn(this, msg);
+        registry.getLogger().info(this, msg);
         
         KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
         executor = new ScheduledThreadPoolExecutor(1);
