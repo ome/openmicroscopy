@@ -1170,6 +1170,7 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     @RolesAllowed("user")
     public byte[] getThumbnailByLongestSideDirect(Integer size) {
+        errorIfNullPixelsAndRenderingDef();
         // Ensure that we do not have "dirty" pixels or rendering settings 
         // left around in the Hibernate session cache.
         iQuery.clear();
@@ -1183,6 +1184,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     public byte[] getThumbnailForSectionByLongestSideDirect(int theZ, int theT,
             Integer size)
     {
+        errorIfNullPixelsAndRenderingDef();
         // Ensure that we do not have "dirty" pixels or rendering settings 
         // left around in the Hibernate session cache.
         iQuery.clear();
