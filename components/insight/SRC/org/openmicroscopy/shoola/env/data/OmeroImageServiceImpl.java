@@ -1155,7 +1155,6 @@ class OmeroImageServiceImpl
 		
 		candidates = gateway.getImportCandidates(object, file, status);
 		
-		int size = candidates.size();
 		if (candidates.size() == 0) return Boolean.valueOf(false);
 		Map<File, StatusLabel> hcsFiles = new HashMap<File, StatusLabel>();
 		Map<File, StatusLabel> otherFiles = new HashMap<File, StatusLabel>();

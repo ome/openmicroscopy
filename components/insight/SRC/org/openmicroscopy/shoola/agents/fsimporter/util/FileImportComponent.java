@@ -748,7 +748,8 @@ public class FileImportComponent
 			ThumbnailData thumbnail = (ThumbnailData) image;
 			if (thumbnail.isValidImage()) {
 				imageLabel.setData(thumbnail);
-				if (thumbnail.requirePyramid()) {
+				if (thumbnail.requirePyramid() != null 
+					&& thumbnail.requirePyramid().booleanValue()) {
 					imageLabel.setToolTipText(PYRAMID_TEXT);
 				}
 				statusLabel.setVisible(false);
