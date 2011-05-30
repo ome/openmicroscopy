@@ -458,18 +458,19 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
         String filePath;
 
         HashMap<String, ArrayList<Long>> failedMap = new HashMap<String, ArrayList<Long>>();
-        long bytesFailed = 0;
-        long filesFailed = 0;
-
+        long bytesFailed;
+        long filesFailed;
+        
         for (Report report : reports.values()) {
-
+            bytesFailed = 0;
+            filesFailed = 0;
             for (String fileType : fileTypeList) {
                 Set<Long> deletedIds = report.state.getProcessedIds(fileType);
+                failedMap.put(fileType, new ArrayList<Long>());
                 if (deletedIds != null && deletedIds.size() > 0) {
                     log.debug(String.format("Binary delete of %s for %s:%s: %s",
                             fileType, report.command.type, report.command.id,
                             deletedIds));
-                    failedMap.put(fileType, new ArrayList<Long>());
                     for (Long id : deletedIds) {
                         if (fileType.equals("OriginalFile")) {
                             filePath = afs.getFilesPath(id);
@@ -508,7 +509,6 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                             }
                         }
                         // Finally delete main file for any type.
-                        
                         if(!deleteSingleFile(file)) {
                             failedMap.get(fileType).add(id);
                             filesFailed++;
@@ -528,7 +528,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 report.undeletedFiles.put(key, array);
             }
             if (filesFailed > 0) {
-                String warning = " Warning: " + Long.toString(filesFailed) + "file(s) comprising "
+                String warning = "Warning: " + Long.toString(filesFailed) + " file(s) comprising "
                         + Long.toString(bytesFailed) + " bytes were not removed.";
                 report.warning += warning;
                 log.warn(warning);
