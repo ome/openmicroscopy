@@ -208,6 +208,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         
                         if (config.getStaticDisableUpgradeCheck() == false)
                         	store.isUpgradeRequired(config.getVersionNumber(), "importer");
+                        store.logVersionInfo(config.getVersionNumber());
                         viewer.getStatusBar().setProgress(false, 0, "");
                         viewer.appendToOutput("> Login Successful.\n");
                         viewer.getFileQueueHandler().enableImports(true);

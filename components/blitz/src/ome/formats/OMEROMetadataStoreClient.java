@@ -362,6 +362,21 @@ public class OMEROMetadataStoreClient
         return check.isUpgradeNeeded();
     }
 
+    public void logVersionInfo(String clientVersion) throws ServerError {
+    	if (serviceFactory != null)
+    		log.info("Server: " + serviceFactory.getConfigService().getVersion());
+    	else
+    		log.info("Unknown server version (no service factory)");
+    	if (clientVersion != null)
+    		log.info("Client: " + clientVersion);
+    	else
+    		log.info("Unknown client version (null sent)");
+        log.info("Java Version: " + System.getProperty("java.version"));
+        log.info("OS Name: " + System.getProperty("os.name"));
+        log.info("OS Arch: " + System.getProperty("os.arch"));
+        log.info("OS Version: " + System.getProperty("os.version"));
+    }
+    
     /**
      * Initialize all services needed
      *

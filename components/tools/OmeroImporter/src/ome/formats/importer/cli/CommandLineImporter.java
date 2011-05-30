@@ -88,6 +88,7 @@ public class CommandLineImporter {
             store = config.createStore();
             if (config.getStaticDisableUpgradeCheck() == false)
             	store.isUpgradeRequired(config.getVersionNumber(), "importer-cli");
+            store.logVersionInfo(config.getVersionNumber());
             reader.setMetadataOptions(
                     new DefaultMetadataOptions(MetadataLevel.ALL));
             library = new ImportLibrary(store, reader);
