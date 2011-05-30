@@ -326,10 +326,19 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             try {
                 fileLock = lockRaf.getChannel().tryLock();
             } catch (OverlappingFileLockException ofle) {
-                return true; // Another object in this JVM controls the lock.
+                // Another object in this JVM controls the lock.
             }
-            return fileLock == null;
+            if (fileLock == null) {
+                // If we don't control the fileLock, then we
+                // also don't have the right to delete the
+                // lockFile. #5655
+                lockFile = null;
+                return true;
+            } else {
+                return false;
+            }
         } catch (IOException e) {
+            lockFile = null;
             throw new RuntimeException(e);
         } finally {
             releaseLock();
