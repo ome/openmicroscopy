@@ -961,6 +961,7 @@ class OmeroMetadataServiceImpl
 			toExclude.add(FileAnnotationData.COMPANION_FILE_NS);
 			toExclude.add(FileAnnotationData.MEASUREMENT_NS);
 			toExclude.add(FileAnnotationData.FLIM_NS);
+			toExclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 		}
 		return gateway.loadSpecificAnnotation(annotationType, toInclude, 
 				toExclude, po);
