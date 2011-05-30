@@ -227,7 +227,9 @@ class ITest(unittest.TestCase):
 
         renderingEngine.close()
         rawPixelStore.close()
-        
+
+        # Reloading image to prevent error on old pixels updateEvent
+        image = containerService.getImages("Image", [imageId], None)[0]
         return image
 
     def index(self, *objs):

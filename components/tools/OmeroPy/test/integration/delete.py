@@ -9,6 +9,7 @@
 """
 
 import unittest
+import traceback
 import integration.library as lib
 import omero
 import omero.callbacks
@@ -259,7 +260,7 @@ class TestDelete(lib.ITest):
             
         images = list()
         for i in range(0,10):
-            img = self.createTestImage()
+            img = self.createTestImage(session = self.client.sf)
             iid = img.getId().getValue()
             
             oFile = omero.model.OriginalFileI()
@@ -284,7 +285,7 @@ class TestDelete(lib.ITest):
             l_ia = omero.model.ImageAnnotationLinkI()
             l_ia.setParent(img)
             l_ia.setChild(fa)
-            l_ia = update.saveAndReturnObject(l_ia);
+            l_ia = update.saveAndReturnObject(l_ia)
 
             images.append(iid)
             
@@ -372,10 +373,10 @@ class TestDelete(lib.ITest):
             if len(rv) > 0:
                 return "; ".join(rv)
             return None
-            
+
         failure = list();
         in_progress = 0
-        
+
         while(len(handlers)>0):
             for cbString in handlers:
                 try:
@@ -389,11 +390,10 @@ class TestDelete(lib.ITest):
                                 failure.append(r)
                             else:
                                 failure.append("No report!!!")
-                            failure+=1
                         else:
                             print "in progress", _formatReport(handle)
                             in_progress+=1
-                            
+
                     else:
                         err = handle.errors()
                         if err > 0:
@@ -402,13 +402,11 @@ class TestDelete(lib.ITest):
                                 failure.append(r)
                             else:
                                 failure.append("No report!!!")
-                            failure+=1
-                            
+
                         else:
                             r = _formatReport(handle)
                             if r is not None:
                                 failure.append(r)
-                                failure+=1
                             cb.close()
                         handlers.remove(cbString)
                 except Ice.ObjectNotExistException:
@@ -416,12 +414,11 @@ class TestDelete(lib.ITest):
                 except Exception, x:
                     if r is not None:
                         failure.append(traceback.format_exc())
-                        failure+=1
-        
+
         if len(failure) > 0:
-            self.fail(";".join(failure))    
+            self.fail(";".join(failure))
         self.assertEquals(None, query_o.find('Dataset', dataset.id.val))
-                
-        
+
+
 if __name__ == '__main__':
     unittest.main()
