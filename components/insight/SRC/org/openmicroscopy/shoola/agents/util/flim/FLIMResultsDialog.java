@@ -24,10 +24,7 @@ package org.openmicroscopy.shoola.agents.util.flim;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -69,14 +66,15 @@ import javax.swing.filechooser.FileFilter;
 
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
+import processing.core.PVector;
 
 //Application-internal dependencies
-import omero.model.FileAnnotation;
-
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.flim.resultstable.ResultsTable;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
@@ -92,7 +90,6 @@ import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 
 import pojos.FileAnnotationData;
-import processing.core.PVector;
 
 /** 
  * Displays the results stored in the passed file.
@@ -152,6 +149,22 @@ public class FLIMResultsDialog
 		NAMES_TO_EXCLUDE.add("(?i)gb.*");
 	}
 	
+	/** The default columns in the table. */
+	static List<String> DEFAULTCOLUMNS;
+	
+	static{
+		DEFAULTCOLUMNS = new ArrayList<String>();
+		DEFAULTCOLUMNS.add("Colour");
+		DEFAULTCOLUMNS.add("Bin Start");
+		DEFAULTCOLUMNS.add("Bin End");
+		DEFAULTCOLUMNS.add("Min");
+		DEFAULTCOLUMNS.add("Max");
+		DEFAULTCOLUMNS.add("Mean");
+		DEFAULTCOLUMNS.add("Stddev");
+		DEFAULTCOLUMNS.add("Freq");
+		DEFAULTCOLUMNS.add("Percent");
+	}
+	
 	/** Button to close the dialog. */
 	private JButton closeButton;
 	
@@ -171,7 +184,7 @@ public class FLIMResultsDialog
 	private Double[][] data;
 	
 	/** The stats table.  */
-	private StatsTable statsTable;
+	private ResultsTable statsTable;
 	
 	/** The component hosting the various JXTaskPane. */
 	private JXTaskPaneContainer paneContainer;
@@ -582,7 +595,8 @@ public class FLIMResultsDialog
 		colourMapSlider = new TextualTwoKnobsSlider();
 		colourMapSlider.layoutComponents(
         		TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
-		statsTable = new StatsTable();
+		statsTable = new ResultsTable(DEFAULTCOLUMNS);
+		statsTable.setRowHighlightMod(3);
 		canvas = new ImageCanvas();
 		RGBButton = new JToggleButton("RGB");
 		RGBButton.setSelected(true);
@@ -1019,41 +1033,41 @@ public class FLIMResultsDialog
 		Map<String, Double> redStats = chartObject.getRangeStats(0,start);
 		Map<String, Double> greenStats = chartObject.getRangeStats(start, end);
 		Map<String, Double> blueStats = chartObject.getRangeStats(end, BINS);
-		RowData rowData = new RowData();
+		Map<String, Object> rowData = new HashMap<String, Object>();
 		
-		rowData.addElement("Red");
-		rowData.addElement(0);
-		rowData.addElement(start-1);
-		rowData.addElement(UIUtilities.formatToDecimal(redStats.get(Histogram.MIN)));
-		rowData.addElement(UIUtilities.formatToDecimal(redStats.get(Histogram.MAX)));
-		rowData.addElement(UIUtilities.formatToDecimal(redStats.get(Histogram.MEAN)));
-		rowData.addElement(UIUtilities.formatToDecimal(redStats.get(Histogram.STDDEV)));
-		rowData.addElement(UIUtilities.formatToDecimal(redStats.get(Histogram.FREQ)));
-		rowData.addElement(UIUtilities.formatToDecimal(redStats.get(Histogram.PERCENT)));
+		rowData.put("Colour","Red");
+		rowData.put("Bin Start",0);
+		rowData.put("Bin End", start-1);
+		rowData.put("Min", UIUtilities.formatToDecimal(redStats.get(Histogram.MIN)));
+		rowData.put("Max", UIUtilities.formatToDecimal(redStats.get(Histogram.MAX)));
+		rowData.put("Mean", UIUtilities.formatToDecimal(redStats.get(Histogram.MEAN)));
+		rowData.put("Stddev", UIUtilities.formatToDecimal(redStats.get(Histogram.STDDEV)));
+		rowData.put("Freq", UIUtilities.formatToDecimal(redStats.get(Histogram.FREQ)));
+		rowData.put("Percent", UIUtilities.formatToDecimal(redStats.get(Histogram.PERCENT)));
 		statsTable.insertData(rowData);
-		rowData = new RowData();
+		rowData =  new HashMap<String, Object>();
 		
-		rowData.addElement("Green");
-		rowData.addElement(start);
-		rowData.addElement(end-1);
-		rowData.addElement(UIUtilities.formatToDecimal(greenStats.get(Histogram.MIN)));
-		rowData.addElement(UIUtilities.formatToDecimal(greenStats.get(Histogram.MAX)));
-		rowData.addElement(UIUtilities.formatToDecimal(greenStats.get(Histogram.MEAN)));
-		rowData.addElement(UIUtilities.formatToDecimal(greenStats.get(Histogram.STDDEV)));
-		rowData.addElement(UIUtilities.formatToDecimal(greenStats.get(Histogram.FREQ)));
-		rowData.addElement(UIUtilities.formatToDecimal(greenStats.get(Histogram.PERCENT)));
+		rowData.put("Colour","Green");
+		rowData.put("Bin Start",start);
+		rowData.put("Bin End", end-1);
+		rowData.put("Min", UIUtilities.formatToDecimal(greenStats.get(Histogram.MIN)));
+		rowData.put("Max", UIUtilities.formatToDecimal(greenStats.get(Histogram.MAX)));
+		rowData.put("Mean", UIUtilities.formatToDecimal(greenStats.get(Histogram.MEAN)));
+		rowData.put("Stddev", UIUtilities.formatToDecimal(greenStats.get(Histogram.STDDEV)));
+		rowData.put("Freq", UIUtilities.formatToDecimal(greenStats.get(Histogram.FREQ)));
+		rowData.put("Percent", UIUtilities.formatToDecimal(greenStats.get(Histogram.PERCENT)));
 		statsTable.insertData(rowData);
-		rowData = new RowData();
+		rowData =  new HashMap<String, Object>();
 		
-		rowData.addElement("Blue");
-		rowData.addElement(end);
-		rowData.addElement(BINS);
-		rowData.addElement(UIUtilities.formatToDecimal(blueStats.get(Histogram.MIN)));
-		rowData.addElement(UIUtilities.formatToDecimal(blueStats.get(Histogram.MAX)));
-		rowData.addElement(UIUtilities.formatToDecimal(blueStats.get(Histogram.MEAN)));
-		rowData.addElement(UIUtilities.formatToDecimal(blueStats.get(Histogram.STDDEV)));
-		rowData.addElement(UIUtilities.formatToDecimal(blueStats.get(Histogram.FREQ)));
-		rowData.addElement(UIUtilities.formatToDecimal(blueStats.get(Histogram.PERCENT)));
+		rowData.put("Colour","Blue");
+		rowData.put("Bin Start",end);
+		rowData.put("Bin End", BINS);
+		rowData.put("Min", UIUtilities.formatToDecimal(blueStats.get(Histogram.MIN)));
+		rowData.put("Max", UIUtilities.formatToDecimal(blueStats.get(Histogram.MAX)));
+		rowData.put("Mean", UIUtilities.formatToDecimal(blueStats.get(Histogram.MEAN)));
+		rowData.put("Stddev", UIUtilities.formatToDecimal(blueStats.get(Histogram.STDDEV)));
+		rowData.put("Freq", UIUtilities.formatToDecimal(blueStats.get(Histogram.FREQ)));
+		rowData.put("Percent", UIUtilities.formatToDecimal(blueStats.get(Histogram.PERCENT)));
 		statsTable.insertData(rowData);
 	}
 	

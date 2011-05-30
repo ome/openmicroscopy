@@ -80,7 +80,6 @@ class ResultsTableModel
 			index = index++;
 		}
 		this.values = new HashMap<Integer, ResultsObject>();
-		rowCount = 0;
 	}
 	
 	/** 
@@ -90,8 +89,7 @@ class ResultsTableModel
 	 */
 	void addRow(ResultsObject row)
 	{
-		values.put(rowCount, row);
-		rowCount = rowCount++;
+		values.put(values.size(), row);
 		fireTableStructureChanged();
 	}
 	
