@@ -700,8 +700,8 @@ public class GuiCommonElements
             message = "Do you really want to close the application?\n" +
             "Doing so will cancel any running imports.";
         }
-        String s1 = "Yes";
-        String s2 = "No";
+        String s1 = "No";
+        String s2 = "Yes";
         Object[] options = {s2, s1};
         int n = JOptionPane.showOptionDialog(parent,
                 message,
