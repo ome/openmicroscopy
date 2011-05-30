@@ -439,7 +439,12 @@ class ScriptControl(BaseControl):
                             self.ctx.out("    Subtype: %s" % coll[0].ice_staticId())
 
                     elif isinstance(v.prototype, omero.RMap):
-                        self.ctx.out("    Subtype: %s" % v.prototype.val.values[0].ice_staticId())
+                        try:
+                            proto_value = v.prototype.val.values[0].ice_staticId()
+                        except:
+                            proto_value = None
+
+                        self.ctx.out("    Subtype: %s" % proto_value)
                     self.ctx.out("    Min: %s" % (v.min and v.min.val or ""))
                     self.ctx.out("    Max: %s" % (v.max and v.max.val or ""))
                     values = omero.rtypes.unwrap(v.values)
