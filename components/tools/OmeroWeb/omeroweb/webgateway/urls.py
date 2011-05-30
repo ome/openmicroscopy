@@ -181,6 +181,13 @@ json method: returns details of specified Image. See L{views.imageData_json}. Re
     - key:  Optional key of selected attributes to return. E.g. meta, pixel_range, rdefs, split_channel, size etc
 """
 
+wellData_json = (r'^wellData/(?P<wid>[^/]+)/$', 'webgateway.views.wellData_json')
+"""
+json method: returns details of specified Well. See L{views.wellData_json}.
+    - webgateway/wellData/<wid>/ params are:
+    - wid:  Well ID
+"""
+
 webgateway_search_json = url(r'^search/$', 'webgateway.views.search_json', name="webgateway_search_json")
 """
 json method: returns search results. All parameters in request. See L{views.search_json}
@@ -260,6 +267,7 @@ urlpatterns = patterns('',
     webgateway_listwellimages_json,
     webgateway_plategrid_json,
     imageData_json,
+    wellData_json,
     webgateway_search_json,
     get_rois_json,
     # image viewer

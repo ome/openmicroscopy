@@ -1207,6 +1207,31 @@ def imageData_json (request, server_id=None, _conn=None, _internal=False, **kwar
     return rv
 
 @jsonp
+def wellData_json (request, server_id=None, _conn=None, _internal=False, **kwargs):
+    """
+    Get a dict with image information
+    TODO: cache
+    
+    @param request:     http request
+    @param server_id:
+    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param _internal:   TODO: ? 
+    @return:            Dict
+    """
+    
+    wid = kwargs['wid']
+    blitzcon = _conn
+    well = blitzcon.getObject("Well", wid)
+    if well is None:
+        return HttpResponseServerError('""', mimetype='application/javascript')
+    prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
+    def urlprefix(iid):
+        return reverse(prefix, args=(iid,))
+    xtra = {'thumbUrlPrefix': urlprefix}
+    rv = well.simpleMarshal(xtra=xtra)
+    return rv
+
+@jsonp
 def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs):
     """
     """
