@@ -299,7 +299,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     if r.get('username', None):
         logger.info('getBlitzConnection(host=%s, port=%s, ssl=%s, username=%s)' %
                     (str(host), str(port), str(secure), str(username)))
-        logger.debug('p=%s, k=%s' % (str(passwd), str(browsersession_connection_key)))
+        logger.debug('k=%s' % str(browsersession_connection_key))
         blitzcon = None
     else:
         logger.debug('trying stored connection with userAgent: %s  ckey: %s' % (useragent, ckey))
