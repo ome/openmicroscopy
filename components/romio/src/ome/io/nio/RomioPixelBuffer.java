@@ -166,6 +166,9 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             } finally {
                 channel = null;
             }
+        }
+
+        if (file != null) {
             try {
                 file.close();
             } catch (Exception e) {
