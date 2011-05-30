@@ -138,6 +138,16 @@ public class HistogramChart
 	}
 	
 	/**
+	 * Create a new dataset from the original data set, with a new threshold.
+	 * @param threshold See above.
+	 */
+	public void setDataFromThreshold(double lowerThreshold, double upperThreshold)
+	{
+		orderedData = threshold(originalData, lowerThreshold, upperThreshold);
+		if(orderedData.size()!=0)
+			setHistogramData(orderedData);
+	}
+	/**
 	 * Create a new dataset from the sortedData list and threshold value.
 	 * @param sortedData See above.
 	 * @param threshold See above.
@@ -155,6 +165,26 @@ public class HistogramChart
 		}
 		return thresholdData;
 	}
+	
+	/**
+	 * Create a new dataset from the sortedData list and threshold value.
+	 * @param sortedData See above.
+	 * @param threshold See above.
+	 * @return See above.
+	 */
+	private List<Double> threshold(List<Double> sortedData, double lowerThreshold, double upperThreshold)
+	{
+		List<Double> thresholdData = new ArrayList<Double>();
+		for(int i = 0 ; i < sortedData.size() ; i++)
+		{
+			if(sortedData.get(i)>lowerThreshold && sortedData.get(i)<upperThreshold)
+			{
+				thresholdData.add(sortedData.get(i));
+			}
+		}
+		return thresholdData;
+	}
+
 
 	/**
 	 * Creates a new instance.
@@ -206,14 +236,21 @@ public class HistogramChart
 		if(pointPicked!=null)
 		{
 			parent.pushStyle();
-			parent.stroke(Color.white.getRGB());
-			parent.fill(Color.gray.getRGB());
-			parent.triangle(pointPicked.x-4,pointPicked.y-2,pointPicked.x,pointPicked.y+3,pointPicked.x+4,pointPicked.y-2);
+			drawPickedPoint();
 			parent.popStyle();
-			
 		}
 	}
 
+	/**
+	 * Draw the picked point on the histogram.
+	 */
+	private void drawPickedPoint()
+	{
+		parent.fill(Color.white.getRGB());
+		parent.stroke(Color.black.getRGB());
+		parent.ellipse(pointPicked.x+1, pointPicked.y+1, 8, 8);
+	}
+	
 	/**
 	 * Sets the data of the histogram to the new orderedData.
 	 * 

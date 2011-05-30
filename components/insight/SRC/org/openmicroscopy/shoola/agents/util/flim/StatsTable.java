@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.util.flim;
 //Java imports
 import info.clearthought.layout.TableLayout;
 
-import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -34,11 +33,9 @@ import java.awt.event.ItemListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-
-import org.jdesktop.swingx.JXTable;
 
 //Third-party libraries
+import org.jdesktop.swingx.JXTable;
 
 //Application-internal dependencies
 
@@ -65,7 +62,7 @@ public class StatsTable
 	private final static int NUMCOLS = 3;
 	
 	/** The table the StatsTable aggregates. */
-	private JXTable statsTable;
+	private StatsTableView statsTable;
 	
 	/** The table model. */
 	private StatsTableModel tableModel;
@@ -88,12 +85,13 @@ public class StatsTable
 	private void initComponents()
 	{
 		tableModel = new StatsTableModel(NUMROWS);
-		statsTable = new JXTable(tableModel);
+		statsTable = new StatsTableView(tableModel);
 		clearTableButton = new JButton("clear");
 		clearTableButton.setActionCommand("clear");
 		clearTableButton.addActionListener(this);
 		statsTable.getTableHeader().setReorderingAllowed(false);
 		statsTable.getTableHeader().setVisible(true);
+		statsTable.setShowHorizontalLines(true);
 	}
 
 	/**

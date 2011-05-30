@@ -141,6 +141,22 @@ extends PApplet
 	}
 	
 	/**
+	 * Set the new threshold of the data.
+	 * @param value The threshold.
+	 */
+	public void setThreshold(double lowerThreshold, double upperThreshold)
+	{
+		if(upperThreshold<=lowerThreshold)
+			upperThreshold=-1;
+		chart.setDataFromThreshold(lowerThreshold, upperThreshold);
+		double heatMapLowerThreshold=lowerThreshold;
+		double heatMapUpperThreshold=upperThreshold;
+		if(originalData.get(0).equals(originalData.get(originalData.size()-1)))
+			heatMapLowerThreshold = originalData.get(0);
+		map.setThreshold(heatMapLowerThreshold, heatMapUpperThreshold);
+	}
+	
+	/**
 	 * Returns the colour of the bin containing the value.
 	 * 
 	 * @param value See above.

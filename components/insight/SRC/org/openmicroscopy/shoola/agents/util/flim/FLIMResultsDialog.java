@@ -262,7 +262,12 @@ public class FLIMResultsDialog
 
 	/** The label displaying the median. */
 	private JTextField percentBinTextField;
-	
+
+	/** The label displaying the maximum value of the slider. */
+	private JTextField thresholdSliderMaxValue;
+
+	/** The label displaying the minimum value of the slider. */
+	private JTextField thresholdSliderMinValue;
 
 	/** Slider used to enter the minimum and maximum values. */
 	private TextualTwoKnobsSlider slider;
@@ -274,7 +279,7 @@ public class FLIMResultsDialog
 	private JToggleButton RGBButton; 
 	
 	/** The slider to determine the thresholding on the data.*/
-	private JSlider thresholdSlider;
+	private TwoKnobsSlider thresholdSlider;
 	
 	/** The sorted data.*/
 	private List<Double> sortedData;
@@ -458,13 +463,16 @@ public class FLIMResultsDialog
 		chartObject = new HistogramCanvas(sortedData, 
 				data, BINS, true, getBestGuess(sortedData));
 		chartObject.addPropertyChangeListener(this);
-		thresholdSlider.setValue(1);
 		colourMapSlider.setValues(BINS, 0, BINS, 0, BINS/4,BINS/2+BINS/4);
+		thresholdSlider.setValues(BINS, 0, BINS, 0, 0,  BINS);
+		thresholdSlider.addPropertyChangeListener(this);
 		sliderLeftValue = BINS/4;
 		sliderRightValue = BINS/4+BINS/2;
 		
 		chartObject.setRGB(true, BINS/4, BINS/2+BINS/4);
 		colourMapSlider.addPropertyChangeListener(this);
+		thresholdSliderMinValue.setText(UIUtilities.formatToDecimal(calculateValue(0,true)));
+		thresholdSliderMaxValue.setText(UIUtilities.formatToDecimal(calculateValue(BINS,false)));
 	}
 	
 	/** 
@@ -495,13 +503,15 @@ public class FLIMResultsDialog
 		sliderPanel.setMaximumSize(new Dimension(1000,30));
 		sliderPanel.setMinimumSize(new Dimension(1000,30));
 		  double sliderPanelTableSize[][] =
-          {{0.275,0.05,0.55,0.1},
-           {TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED,TableLayout.PREFERRED}};
+          {{0.07,0.14, 0.07,0.05,0.55,0.1},
+           {TableLayout.PREFERRED,TableLayout.PREFERRED, TableLayout.PREFERRED,TableLayout.PREFERRED, TableLayout.PREFERRED,TableLayout.PREFERRED}};
 		sliderPanel.setLayout(new TableLayout(sliderPanelTableSize));
-	
-		sliderPanel.add(thresholdSlider,"0,0,0,1");
-		sliderPanel.add(colourMapSlider,"2,0,2,1" );
-		sliderPanel.add(RGBButton,"3,0,3,1");
+
+		sliderPanel.add(thresholdSliderMinValue,"0,0,0,0");
+		sliderPanel.add(thresholdSlider,"1,0,1,1");
+		sliderPanel.add(thresholdSliderMaxValue,"2,0,2,0");
+		sliderPanel.add(colourMapSlider,"4,0,4,1" );
+		sliderPanel.add(RGBButton,"5,0,5,0");
 		JPanel chartStatsPanel = new JPanel();
 		  double size[][] =
           {{0.3, 0.7},
@@ -577,8 +587,17 @@ public class FLIMResultsDialog
 		RGBButton = new JToggleButton("RGB");
 		RGBButton.setSelected(true);
 		RGBButton.addItemListener(this);
-		thresholdSlider = new JSlider(JSlider.HORIZONTAL,1,100,1);
-		thresholdSlider.addChangeListener(this);
+		thresholdSlider = new TwoKnobsSlider(0,BINS,0,BINS);
+		thresholdSlider.setPaintTicks(false);
+		thresholdSlider.setPaintMinorTicks(false);
+		thresholdSlider.setPaintLabels(false);
+		thresholdSlider.setPaintEndLabels(false);
+		thresholdSlider.setPaintCurrentValues(false);
+		thresholdSliderMinValue = new JTextField("");
+		thresholdSliderMinValue.setEditable(false);
+		thresholdSliderMaxValue = new JTextField("");
+		thresholdSliderMaxValue.setEditable(false);
+		
 		
 		
 		
@@ -963,7 +982,7 @@ public class FLIMResultsDialog
 			File[] files = (File[]) evt.getNewValue();
 			File f = files[0];
 			saveAs(f);
-		} else if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
+		} else if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name) && evt.getSource().equals(colourMapSlider)) {
 			if(sliderLeftValue==colourMapSlider.getStartValue() &&sliderRightValue==colourMapSlider.getEndValue())
 				return;
 			else
@@ -972,6 +991,14 @@ public class FLIMResultsDialog
 				sliderRightValue=colourMapSlider.getEndValue();
 				newRangeSelected((int)colourMapSlider.getStartValue(), (int)colourMapSlider.getEndValue());
 			}
+		}else if(TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name) && evt.getSource().equals(thresholdSlider))
+		{
+
+			double startValue = calculateValue(thresholdSlider.getStartValue(),true);
+			double endValue = calculateValue(thresholdSlider.getEndValue(),false);
+	    	chartObject.setThreshold(startValue, endValue);
+	    	thresholdSliderMinValue.setText(UIUtilities.formatToDecimal(startValue));
+	    	thresholdSliderMaxValue.setText(UIUtilities.formatToDecimal(endValue));
 		}else if (HistogramCanvas.CHARTSELECTED_PROPERTY.equals(name)){
 			
 			displayMapResult((Integer)evt.getNewValue());
@@ -1105,13 +1132,16 @@ public class FLIMResultsDialog
 	 * @param bin See above.
 	 * @return See above.
 	 */
-	private double calculateValue(int bin)
+	private double calculateValue(int bin, boolean lower)
 	{
 		double min = sortedData.get(0);
 		double max = sortedData.get(sortedData.size()-1);
 		double range = max-min;
 		double binWidth = range/(double)BINS;
-		return min+bin*binWidth;
+		if(lower)
+			return min+bin*binWidth;
+		else
+			return min+(bin+1)*binWidth;
 	}
 	
 	/**
@@ -1124,8 +1154,6 @@ public class FLIMResultsDialog
 		      JSlider thresholdSlider = (JSlider) e.getSource();
 		      if (!thresholdSlider.getValueIsAdjusting()) 
 		      {
-		    	  double value = calculateValue(thresholdSlider.getValue());
-		    	  chartObject.setThreshold(value);
 		      }
 		}
 	}

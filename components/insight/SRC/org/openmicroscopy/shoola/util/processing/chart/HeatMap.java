@@ -60,7 +60,10 @@ public class HeatMap
 	private HistogramChart histogramChart;
 	
 	/** The  cut of value bin for values displayed in heatmap. */
-	private double thresholdValue;
+	private double lowerThresholdValue;
+
+	/** The  cut of value bin for values displayed in heatmap. */
+	private double upperThresholdValue;
 	
 	/**
 	 * Create an instance of the Heatmap.
@@ -81,7 +84,8 @@ public class HeatMap
 		this.parent = parent;
 		this.imageData = data;
 		this.histogramChart = chart;
-		this.thresholdValue = thresholdValue;
+		this.lowerThresholdValue = thresholdValue;
+		this.upperThresholdValue = -1;
 		calculateHeatMap();
 	}
 	
@@ -91,9 +95,22 @@ public class HeatMap
 	 */
 	public void setThreshold(double threshold)
 	{
-		thresholdValue = threshold;
+		lowerThresholdValue = threshold;
+		upperThresholdValue = -1;
 		calculateHeatMap();
 	}
+	
+	/**
+	 * Calculate the new heatmap for the threshold.
+	 * @param threshold See above.
+	 */
+	public void setThreshold(double lowerThresholdValue, double upperThresholdValue)
+	{
+		this.lowerThresholdValue = lowerThresholdValue;
+		this.upperThresholdValue = upperThresholdValue;
+		calculateHeatMap();
+	}
+	
 	
 	/**
 	 * Calculate the heatmap, and store it as an image.
@@ -106,7 +123,7 @@ public class HeatMap
 			for (int y = 0 ; y < imageData.getHeight() ; y++) 
 			{
 				value = imageData.getValue(x,y);
-				if(value>thresholdValue)
+				if(value>lowerThresholdValue && (value < upperThresholdValue || upperThresholdValue==-1))
 				{
 					image.set(x, y, histogramChart.findColour(value));
 				}
