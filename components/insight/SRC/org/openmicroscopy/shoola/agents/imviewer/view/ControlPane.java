@@ -29,6 +29,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
@@ -266,6 +268,9 @@ class ControlPane
     
     /** Button to reset the zoom level to <code>1</code>.*/
     private JButton					resetZoom;
+    
+    /** The mouse listener for the slider.*/
+    private MouseAdapter			ratioListener;
     
     /**
      * Sets the selected plane.
@@ -606,6 +611,7 @@ class ControlPane
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
         
         if (model.isBigImage()) {
+        	ratioSlider.addPropertyChangeListener(this);
         	ratioSlider.setMaximum(model.getResolutionLevels()-1);
         	ratioSlider.setValue(model.getSelectedResolutionLevel());
         	resetZoom.addActionListener(
@@ -613,10 +619,9 @@ class ControlPane
         					model.getResolutionLevels()-1));
         	resetZoom.setToolTipText("Reset to full size.");
         	resetZoom.setText("");
-        }
-        
-        gridRatioSlider.addChangeListener(this);
+        } 
         ratioSlider.addChangeListener(this);
+        gridRatioSlider.addChangeListener(this);
         projectionRatioSlider.addChangeListener(this);
         
         playTMovie.setVisible(maxT != 0);
@@ -1814,7 +1819,8 @@ class ControlPane
         		controller.setGridMagnificationFactor(r);
         		return;
         	} else if (object == ratioSlider) {
-        		controller.setZoomFactor(ratioSlider.getValue());
+        		if (!ratioSlider.isDragging())
+        			controller.setZoomFactor(ratioSlider.getValue());
         	} else if (object == projectionRatioSlider) {
         		controller.setZoomFactor(projectionRatioSlider.getValue());
         	}
@@ -1868,6 +1874,9 @@ class ControlPane
 			controller.setProjectionRange(false);
 		else if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name))
 			controller.setProjectionRange(true);
+		else if (OneKnobSlider.ONE_KNOB_RELEASED_PROPERTY.equals(name)) {
+			controller.setZoomFactor(ratioSlider.getValue());
+		}
 	}
 
 }

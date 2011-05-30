@@ -571,6 +571,11 @@ public class OneKnobSliderUI
 		public void mouseReleased(MouseEvent event)
 		{
 			super.mouseReleased(event);
+			if (isDragging && slider instanceof OneKnobSlider) {
+				isDragging = false;
+				((OneKnobSlider) slider).onMouseReleased();
+			}
+			
 			/*
           if (showTipLabel && tipDialog != null)
 			{
@@ -595,7 +600,7 @@ public class OneKnobSliderUI
 			// Check to see that the slider is enabled before proceeeding.
 			if (!slider.isEnabled())
 				return;
-
+			isDragging = true;
 			// Get mouse x, y positions.
 			currentMouseX = event.getX();
 			currentMouseY = event.getY();
@@ -608,23 +613,23 @@ public class OneKnobSliderUI
 				if (minArrowRect.contains(currentMouseX, currentMouseY))
 				{
 					value = slider.getValue();
+					isDragging = false;
 					if (value > slider.getMinimum())
 					{
 						slider.setValue(value-1);
 						slider.repaint();
 					}
-					isDragging = false;
 					return;
 				}
 				if (maxArrowRect.contains(currentMouseX, currentMouseY))
 				{
 					value = slider.getValue();
+					isDragging = false;
 					if (value < slider.getMaximum())
 					{
 						slider.setValue(value+1);
 						slider.repaint();
 					}
-					isDragging = false;
 					return;
 				}
 			}
@@ -654,7 +659,7 @@ public class OneKnobSliderUI
 			// Check to see that the slider is enabled before proceeeding. 
 			if (!slider.isEnabled())
 				return;
-
+			isDragging = true;
 			// Get mouse x, y positions.
 			currentMouseX = event.getX();
 			currentMouseY = event.getY();
@@ -674,6 +679,7 @@ public class OneKnobSliderUI
 				if (minArrowRect.contains(currentMouseX, currentMouseY))
 				{
 					int value = slider.getValue();
+					isDragging = false;
 					if (value > slider.getMinimum())
 					{
 						//scrollTimer.stop();
@@ -683,12 +689,12 @@ public class OneKnobSliderUI
 						//scrollTimer.start();
 						slider.repaint();
 					}
-					isDragging = false;
-					return;     
+					return;
 				}
 				if (maxArrowRect.contains(currentMouseX, currentMouseY))
 				{
 					int value = slider.getValue();
+					isDragging = false;
 					if (value < slider.getMaximum())
 					{
 						//scrollTimer.stop();
@@ -698,7 +704,6 @@ public class OneKnobSliderUI
 						//scrollTimer.start();
 						slider.repaint();
 					}
-					isDragging = false;
 					return;
 				}
 			}
@@ -716,6 +721,7 @@ public class OneKnobSliderUI
 		public void mouseDragged(MouseEvent event) 
 		{
 			super.mouseDragged(event);
+			isDragging = true;
 			/*
 			if (showTipLabel && tipDialog != null && endLabel != null &&
 				slider.isVisible())

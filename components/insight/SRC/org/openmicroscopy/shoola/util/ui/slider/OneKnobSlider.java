@@ -55,6 +55,10 @@ public class OneKnobSlider
 	extends JSlider
 {
 	
+	/** Bound property indicating that the knob has been released.*/
+	public static final String ONE_KNOB_RELEASED_PROPERTY =
+		"oneKnobReleasedProperty";
+	
 	/** Slider UI for new L&F. */
 	private OneKnobSliderUI	sliderUI;	
 	
@@ -99,6 +103,13 @@ public class OneKnobSlider
 	public OneKnobSlider()
 	{
 		this(OneKnobSlider.HORIZONTAL, 0, 1, 0);
+	}
+	
+	/** Fires a property indicating that the knob has been released.*/
+	void onMouseReleased()
+	{
+		firePropertyChange(ONE_KNOB_RELEASED_PROPERTY, Boolean.valueOf(false),
+				Boolean.valueOf(true));
 	}
 	
 	/**
@@ -222,6 +233,14 @@ public class OneKnobSlider
 	 * @return See above.
 	 */
 	public boolean showEndLabel() { return showEndLabel; }
+	
+	/**
+	 * Returns <code>true</code> if the user is dragging the slider's knob,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isDragging() { return sliderUI.isDragging; }
 	
 	/**
 	 * Sets the space between the minor ticks. Passes <code>true</code>
