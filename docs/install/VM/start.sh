@@ -1,18 +1,15 @@
 #!/bin/bash
 
 export VMNAME=${VMNAME:-"$1"}
-export VMNAME=${VMNAME:-"OMERO42"}
+export VMNAME=${VMNAME:-"omerovm"}
 
-set -e
-set -u
-set -x
+set -e -u -x
 
 VBOX="VBoxManage --nologo"
 
 $VBOX list runningvms | grep "$VMNAME" || {
-    # Under what conditions should we restart
-    # echo "Stopping VM "
-    # $VBOX controlvm "$VMNAME" poweroff && sleep 10
     echo "Starting VM "
     $VBOX startvm "$VMNAME" --type headless
+    echo "Let the OS boot..."
+    sleep 30
 }
