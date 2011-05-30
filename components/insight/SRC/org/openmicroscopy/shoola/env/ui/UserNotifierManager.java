@@ -159,7 +159,6 @@ class UserNotifierManager
 			appName = (String) reg.lookup(LookupNames.APPLICATION_NAME_BUG);
 		else 
 			appName = (String) reg.lookup(LookupNames.APPLICATION_NAME_COMMENT);
-		String teamAddress = "";
 		CommunicatorDescriptor desc = new CommunicatorDescriptor
 						(HttpChannel.CONNECTION_PER_REQUEST, url, -1);
 		Object version = reg.lookup(LookupNames.VERSION);
@@ -192,8 +191,14 @@ class UserNotifierManager
 			if (source.getDialogType() == MessengerDialog.ERROR_TYPE)
 				s += ERROR_MSG;
 			else s += COMMENT_MSG;
-			s += MESSAGE_END;
-			JOptionPane.showMessageDialog(source, s+teamAddress+".");
+			String address = (String)
+				container.getRegistry().lookup(LookupNames.DEBUGGER_ADDRESS);
+			if (address != null && address.trim().length() > 0) {
+				s += MESSAGE_END;
+				s += address;
+				s += ".";
+			}
+			JOptionPane.showMessageDialog(source, s);
 		}
 		source.setVisible(false);
 		source.dispose();

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -48,8 +49,10 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.file.IOUtil;
@@ -247,7 +250,6 @@ public class DataServicesFactory
      */
     private boolean checkClientServerCompatibility(String server, String client)
     {
-    	/*
     	if (server.contains("-"))
     		server = server.split("-")[0];
     	if (client.contains("-"))
@@ -264,7 +266,6 @@ public class DataServicesFactory
     	int c2 = Integer.parseInt(valuesClient[1]);
     	if (s1 < c1) return false;
     	if (c2 < s2) return false;
-    	*/
     	return true;
     }
     
@@ -383,7 +384,7 @@ public class DataServicesFactory
                 				uc.getPassword(), uc.getHostName(),
                                  determineCompression(uc.getSpeedLevel()),
                                 uc.getGroup(), uc.isEncrypted());
-        
+        //Register into log file.
         Object v = container.getRegistry().lookup(LookupNames.VERSION);
     	String clientVersion = "";
     	if (v != null && v instanceof String)
@@ -400,6 +401,19 @@ public class DataServicesFactory
         	notifyIncompatibility(clientVersion, uc.getHostName());
         	return;
         }
+        
+        //Register into log file.
+        Map<String, String> info = ProxyUtil.collectOsInfoAndJavaVersion();
+        LogMessage msg = new LogMessage();
+        msg.println("Server version: "+version);
+        msg.println("Client version: "+clientVersion);
+        Entry entry;
+        Iterator k = info.entrySet().iterator();
+        while (k.hasNext()) {
+        	entry = (Entry) k.next();
+        	msg.println((String) entry.getKey()+": "+(String) entry.getValue());
+		}
+        registry.getLogger().warn(this, msg);
         
         KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
         executor = new ScheduledThreadPoolExecutor(1);

@@ -28,6 +28,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 import org.apache.commons.httpclient.HttpMethod;
@@ -68,30 +70,6 @@ class MessengerRequest
 	
 	/** Identifies the <code>client</code> invoking the service. */
 	private static final String INVOKER = "type";
-	
-	/** Identifies the version of java used. */
-	private static final String JAVA_VERSION = "java_version";
-	
-	/** Identifies the class path of java. */
-	private static final String JAVA_CLASS_PATH = "java_class_path";
-	
-	/** Identifies the class path of java. */
-	private static final String JAVA_CLASS_PATH_OTHER = "java_classpath";
-	
-	/** Identifies the name of the operating system. */
-	private static final String OS_NAME = "os_name";
-	
-	/** Identifies the architecture of the operating system. */
-	private static final String OS_ARCH = "os_arch";
-	
-	/** Identifies the version of the operating system. */
-	private static final String OS_VERSION = "os_version";
-	
-	/** Identifies the number associated to the application. */
-	private static final String APP_NAME = "app_name";
-
-	/** Identifies the <code>application version</code>. */
-	private static final String APP_VERSION = "app_version";
 	
 	/** Identifies the name of <code>main file</code>. */
 	private static final String MAIN_FILE_NAME = "selected_file";
@@ -180,20 +158,19 @@ class MessengerRequest
         if (error != null) request.addParameter(ERROR, error);
         if (extra != null) request.addParameter(EXTRA, extra);
         if (applicationNumber != null) 
-        	request.addParameter(APP_NAME, applicationNumber);
+        	request.addParameter(ProxyUtil.APP_NAME, applicationNumber);
         if (invoker != null) request.addParameter(INVOKER, invoker);
         if (applicationVersion != null)
-        	request.addParameter(APP_VERSION, applicationVersion);
-        request.addParameter(JAVA_VERSION, 
-        							System.getProperty("java.version"));
-        request.addParameter(JAVA_CLASS_PATH, 
-        							System.getProperty("java.class.path"));
-        request.addParameter(JAVA_CLASS_PATH_OTHER, 
-				System.getProperty("java.class.path"));
-        request.addParameter(OS_NAME, System.getProperty("os.name"));
-        request.addParameter(OS_ARCH, System.getProperty("os.arch"));
-        request.addParameter(OS_VERSION, System.getProperty("os.version"));
-       
+        	request.addParameter(ProxyUtil.APP_VERSION, applicationVersion);
+        Map<String, String> info = ProxyUtil.collectInfo();
+        Entry entry;
+        Iterator k = info.entrySet().iterator();
+        while (k.hasNext()) {
+        	entry = (Entry) k.next();
+        	request.addParameter((String) entry.getKey(),
+        			 (String) entry.getValue());
+		}
+
         List<NameValuePair> pairs = new ArrayList<NameValuePair>();
         if (mainFile != null) {
         	pairs.add(new NameValuePair(MAIN_FILE_NAME, mainFile.getName()));
