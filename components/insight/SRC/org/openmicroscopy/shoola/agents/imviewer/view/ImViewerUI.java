@@ -1198,7 +1198,7 @@ class ImViewerUI
 				}
 			}
 			f = Math.round(factor)/100.0;
-			model.setZoomFactor(f, false);
+			//model.setZoomFactor(f, false);
 			statusBar.setRigthStatus("x: "+f);
 		}
 	}

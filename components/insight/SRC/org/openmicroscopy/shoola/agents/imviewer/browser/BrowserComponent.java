@@ -216,7 +216,8 @@ class BrowserComponent
     	if (factor != ZoomAction.ZOOM_FIT_FACTOR) {
 	        if (factor > ZoomAction.MAX_ZOOM_FACTOR ||
 	            factor < ZoomAction.MIN_ZOOM_FACTOR)
-	            throw new IllegalArgumentException("The zoom factor is value " +
+	            throw new IllegalArgumentException(
+	            		"The zoom factor is a value " +
 	                    "between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
 	                    ZoomAction.MAX_ZOOM_FACTOR);
 	        model.setZoomFactor(factor);
