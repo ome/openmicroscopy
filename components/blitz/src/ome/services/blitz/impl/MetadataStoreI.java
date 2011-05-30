@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
@@ -348,7 +349,12 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     }
                 }
                 File file = new File(filesService.getFilesPath(source.getId()));
-                String path = file.getParent().replaceFirst(omeroDataDir, "");
+                // We need to perform a case insensitive replacement due to the
+                // posibilitity that we're running on a case insensitive
+                // filesystem like NTFS. (See #5654)
+                Pattern p = Pattern.compile(
+                        omeroDataDir, Pattern.CASE_INSENSITIVE);
+                String path = p.matcher(file.getParent()).replaceFirst("");
                 sql.setPixelsNamePathRepo(pixelsId, file.getName(),
                                           path, null);
                 return null;
