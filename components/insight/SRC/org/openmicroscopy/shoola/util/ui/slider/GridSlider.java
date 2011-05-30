@@ -24,10 +24,8 @@ package org.openmicroscopy.shoola.util.ui.slider;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -49,7 +47,7 @@ import org.openmicroscopy.shoola.util.ui.GridModel;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
 
 /** 
- * 
+ * Selects cells of the table with one row so it behaves a bit like a slider.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -209,7 +207,9 @@ public class GridSlider
 		//if (!isCellValid(row, column)) return;
 		if (selected) selectedCells.put(column, Boolean.valueOf(selected));
 		else selectedCells.remove(column);
-		setColumnSelectionInterval(column, column);
+		int count = getColumnCount();
+		if (column >= 0 && column < count)
+			setColumnSelectionInterval(column, column);
 		setRowSelectionInterval(0, 0);
 		repaint();
 	}
