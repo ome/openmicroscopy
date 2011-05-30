@@ -12,6 +12,7 @@ import unittest
 import integration.library as lib
 import omero
 import omero.callbacks
+import Ice
 
 class TestDelete(lib.ITest):
 
@@ -312,5 +313,115 @@ class TestDelete(lib.ITest):
             print _formatReport(handle)
             callback.close()
 
+    def test3639(self):
+        uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
+        group = self.client.sf.getAdminService().getGroup(self.client.sf.getAdminService().getEventContext().groupId)
+        query = self.client.sf.getQueryService()
+        update = self.client.sf.getUpdateService()
+        
+        images = list()
+        for i in range(0,5):
+            img = self.createTestImage(session=self.client.sf)
+            images.append(img.id.val)
+        
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oids"] = omero.rtypes.rlist([omero.rtypes.rlong(s) for s in images])
+            
+        # create dataset
+        dataset = omero.model.DatasetI()
+        dataset.name = omero.rtypes.rstring('DS-test-2936-%s' % (uuid))
+        dataset = update.saveAndReturnObject(dataset)
+        
+        # put image in dataset
+        for iid in images:
+            dlink = omero.model.DatasetImageLinkI()
+            dlink.parent = omero.model.DatasetI(dataset.id.val, False)
+            dlink.child = omero.model.ImageI(iid, False)
+            update.saveAndReturnObject(dlink)
+        
+        
+        #log in as group owner:
+        client_o, owner = self.new_client_and_user(group=group,admin=True)
+        delete_o = client_o.sf.getDeleteService()
+        query_o = client_o.sf.getQueryService()
+        
+        
+        handlers = list()        
+        op = dict()
+        op["/Image"] = "KEEP"
+        dc = omero.api.delete.DeleteCommand('/Dataset', long(dataset.id.val), op)
+        handlers.append(str(delete_o.queueDelete([dc])))
+        
+        imageToDelete = images[2]
+        images.remove(imageToDelete)
+        dc2 = omero.api.delete.DeleteCommand('/Image', long(imageToDelete), {})
+        handlers.append(str(delete_o.queueDelete([dc2])))
+        
+        def _formatReport(delete_handle):
+            """
+            Added as workaround to the changes made in #3006.
+            """
+            delete_reports = delete_handle.report()
+            rv = []
+            for report in delete_reports:
+                if report.error:
+                    rv.append(report.error)
+                elif report.warning:
+                    rv.append(report.warning)
+            if len(rv) > 0:
+                return "; ".join(rv)
+            return None
+            
+        failure = list();
+        in_progress = 0
+        
+        while(len(handlers)>0):
+            for cbString in handlers:
+                try:
+                    handle = omero.api.delete.DeleteHandlePrx.checkedCast(client_o.ic.stringToProxy(cbString))
+                    cb = omero.callbacks.DeleteCallbackI(client_o, handle)
+                    if cb.block(500) is None: # ms.
+                        err = handle.errors()
+                        if err > 0:
+                            r = _formatReport(handle)
+                            if r is not None:
+                                failure.append(r)
+                            else:
+                                failure.append("No report!!!")
+                            failure+=1
+                        else:
+                            print "in progress", _formatReport(handle)
+                            in_progress+=1
+                            
+                    else:
+                        err = handle.errors()
+                        if err > 0:
+                            r = _formatReport(handle)
+                            if r is not None:
+                                failure.append(r)
+                            else:
+                                failure.append("No report!!!")
+                            failure+=1
+                            
+                        else:
+                            r = _formatReport(handle)
+                            if r is not None:
+                                failure.append(r)
+                                failure+=1
+                            cb.close()
+                        handlers.remove(cbString)
+                except Ice.ObjectNotExistException:
+                    pass
+                except Exception, x:
+                    if r is not None:
+                        failure.append(traceback.format_exc())
+                        failure+=1
+        
+        if len(failure) > 0:
+            self.fail(";".join(failure))    
+        self.assertEquals(None, query_o.find('Dataset', dataset.id.val))
+                
+        
 if __name__ == '__main__':
     unittest.main()

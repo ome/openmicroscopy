@@ -163,7 +163,7 @@ class ITest(unittest.TestCase):
         return pix_ids
     
     
-    def createTestImage(self, sizeX = 16, sizeY = 16, sizeZ = 1, sizeC = 1, sizeT = 1):
+    def createTestImage(self, sizeX = 16, sizeY = 16, sizeZ = 1, sizeC = 1, sizeT = 1, session=None):
         """
         Creates a test image of the required dimensions, where each pixel value is set 
         to the value of x+y. 
@@ -173,7 +173,8 @@ class ITest(unittest.TestCase):
         from omero.util import script_utils
         import random
         
-        session = self.root.sf
+        if session is None:
+            session = self.root.sf
         renderingEngine = session.createRenderingEngine()
         queryService = session.getQueryService()
         pixelsService = session.getPixelsService()
