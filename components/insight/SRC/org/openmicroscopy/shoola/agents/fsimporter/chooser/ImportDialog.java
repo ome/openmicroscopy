@@ -1385,7 +1385,10 @@ public class ImportDialog
 					}
 				}
 			}
-		}
+		} 
+		//now check what is the selected node
+		n = (DataNode) datasetsBox.getSelectedItem();
+		folderAsDatasetBox.setSelected(n.isDefaultNode());
 	}
 	
 	/**
