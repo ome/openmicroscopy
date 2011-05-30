@@ -661,6 +661,7 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     private void resetMetadata()
     {
+        missingPyramid = false;
         pixels = null;
         pixelsId = null;
         settings = null;

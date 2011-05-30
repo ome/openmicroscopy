@@ -4831,81 +4831,66 @@ class _ImageWrapper (BlitzObjectWrapper):
             self.__loadedHotSwap__()
         return self._obj.sizeOfPixels() > 0
 
-    def _createRDef (self):
-        """
-        Loads rendering def, resetting defaults (via thumbnail-store) if no settings exist
-        
-        @return:    Tuple of (pixels-ID, renderingDef-ID) 
-        """
-        
-        pixels_id = self._obj.getPrimaryPixels().id.val
-        rdid = self._conn.getRenderingSettingsService().getRenderingSettings(pixels_id)
-        if rdid is None:
-            tb = self._conn.createThumbnailStore()
-            if not tb.setPixelsId(pixels_id):
-                tb.resetDefaults()
-            tb.close()
-            rdid = self._conn.getRenderingSettingsService().getRenderingSettings(pixels_id)
-        return pixels_id, rdid.id.val
 
-    def _getRDef (self, forcenew=False):
+    def _getRDef (self, pid):
         """
-        Return a rendering def ID if exists - or create rendering def. 
-        Also returns pixels ID for this image
+        Return a rendering def ID based on custom logic.
         
-        @param forcenew:    Force creation of new rendering defs
-        @type forcenew:     Boolean
-        @return:            tuple with (pixels_id, rdef_id) for this image.
+        @param pid:         Pixels ID
+        @type pid:          Long
+        @return:            Rendering definition ID or None if no custom
+                            logic has found a rendering definition.
         """
-        
-        if not self._loadPixels():
-            logger.debug('#NO PIXELS')
-            return None,None
-        pixels_id = self._obj.getPrimaryPixels().id.val
-        rdid = None
         rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
-        if rdefns and not forcenew:
-            ann = self.getAnnotation(rdefns)
-            if ann is not None:
-                rdid = ann.getValue()
+        if rdefns is None:
+            return
+        rdid = ann.getValue()
         if rdid is None:
-            pid, rdid = self._createRDef()
-            
-            if rdefns:
-                a = LongAnnotationWrapper(self)
-                a.setNs(rdefns)
-                a.setValue(rdid)
-                self.linkAnnotation(a, sameOwner=False)
-        logger.debug('_getRDef: %s, %s' % (str(pixels_id), str(rdid)))
+            return
+        logger.debug('_getRDef: %s, %s' % (str(pid), str(rdid)))
         logger.debug('now load render options: %s' % str(self._loadRenderOptions()))
         self.loadRenderOptions()
-        return pixels_id, rdid
+        return rdid
 
-    def _prepareRE (self, forcenew=False):
+    def _onResetDefaults(self, pid, rdid):
+        """
+        Called whenever a reset defaults is called by the preparation of
+        the rendering engine or the thumbnail bean.
+        
+        @param pid:         Pixels ID
+        @type pid:          Long
+        @param pid:         Current Rendering Def ID
+        @type pid:          Long
+        """
+        rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
+        if rdefns is None:
+            return
+        ann = self.getAnnotation(rdefns)
+        if ann is None:
+            a = LongAnnotationWrapper(self)
+            a.setNs(rdefns)
+            a.setValue(rdid)
+            self.linkAnnotation(a, sameOwner=False)
+
+    def _prepareRE (self):
         """
         Prepare the rendering engine with pixels ID and existing or new rendering def. 
         
-        @param forcenew:    Force creation of new rendering defs
-        @type forcenew:     Boolean
         @return:            The Rendering Engine service
         @rtype:             L{ProxyObjectWrapper}
         """
         
-        pid, rdid = self._getRDef(forcenew=forcenew)
-        logger.info('pid:%s rdid:%s' % (str(pid), str(rdid)))
-        if rdid is None: #pragma: nocover
-            return None
+        pid = self.getPrimaryPixels().id
         re = self._conn.createRenderingEngine()
         re.lookupPixels(pid)
-        re.lookupRenderingDef(rdid)
-        try:
+        rdid = self._getRDef(pid)
+        if rdid is None:
+            if not re.lookupRenderingDef(pid):
+                re.resetDefaults()
+                re.lookupRenderingDef(pid)
+                self._onResetDefaults(pid, re.getRenderingDefId())
+        else:
             re.loadRenderingDef(rdid)
-        except omero.ValidationException:
-            if not forcenew:
-                return self._prepareRE(forcenew=True)
-            else:
-                return None
-        #re.loadRenderingDef(rdid)
         re.load()
         return re
 
@@ -5101,55 +5086,29 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         return self._obj.getPrimaryPixels().getId().val
 
-    def _prepareTB (self, forcenew=False, _r=False):
+    def _prepareTB (self, _r=False):
         """
         Prepares Thumbnail Store for the image.
         
-        @param forcenew:    If True, force new rendering Def
-        @type forcenew:     Boolean
         @param _r:          If True, don't reset default rendering (return None if no rDef exists)
         @type _r:           Boolean
         @return:            Thumbnail Store or None
         @rtype:             L{ProxyObjectWrapper}
         """
         
-        pid, rdid = self._getRDef(forcenew=forcenew)
-        if pid is None:
-            return None
-        logger.debug('#%s, %s' % (str(pid),str(rdid)))
+        pid = self.getPrimaryPixels().id
         tb = self._conn.createThumbnailStore()
-        tb.setPixelsId(pid)
+        rdid = self._getRDef(pid)
+        has_rendering_settings = tb.setPixelsId(pid)
         if rdid is None:
-            if _r:
-                return None
-            tb.resetDefaults()
-            tb.close()
-            return self._prepareTB(_r=True, forcenew=forcenew)
-        try:
+            if not has_rendering_settings:
+                tb.resetDefaults()
+                tb.setPixelsId(pid)
+                self._onResetDefaults(pid, tb.getRenderingDefId())
+        else:
             tb.setRenderingDefId(rdid)
-        except omero.ValidationException:
-            if not forcenew:
-                tb.close()
-                return self._prepareTB(_r=_r,forcenew=True)
-            else:
-                return None
         return tb
 
-#    def _prepareTB (self):
-#        pixels_id = self.getPixelsId()
-#        if pixels_id is None:
-#            return None
-#        tb = self._conn.createThumbnailStore()
-#        try:
-#            rv = tb.setPixelsId(pixels_id)
-#        except omero.InternalException:
-#            rv = False
-#        if not rv: #pragma: no cover
-#            tb.resetDefaults()
-#            tb.close()
-#            tb.setPixelsId(pixels_id)
-#        return tb
-    
     def loadOriginalMetadata(self):
         """
         Gets original metadata from the file annotation. 
