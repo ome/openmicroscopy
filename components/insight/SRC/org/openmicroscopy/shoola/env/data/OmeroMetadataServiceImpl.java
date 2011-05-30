@@ -1781,6 +1781,7 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
 				exclude.add(FileAnnotationData.FLIM_NS);
+				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 		}
 		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
@@ -1820,6 +1821,7 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
 				exclude.add(FileAnnotationData.FLIM_NS);
+				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 		}
 		
 		return gateway.loadSpecificAnnotation(FileAnnotationData.class, 
