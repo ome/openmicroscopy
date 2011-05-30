@@ -748,6 +748,9 @@ public class FileImportComponent
 			ThumbnailData thumbnail = (ThumbnailData) image;
 			if (thumbnail.isValidImage()) {
 				imageLabel.setData(thumbnail);
+				if (thumbnail.requirePyramid()) {
+					imageLabel.setToolTipText(PYRAMID_TEXT);
+				}
 				statusLabel.setVisible(false);
 				fileNameLabel.addMouseListener(adapter);
 				addMouseListener(adapter);
@@ -759,15 +762,6 @@ public class FileImportComponent
 				resultLabel.addMouseListener(adapter);
 				showContainerLabel = 
 					(dataset != null || containerFromFolder != null);
-				browseButton.setVisible(showContainerLabel);
-				containerLabel.setVisible(showContainerLabel);
-			} else if (thumbnail.requirePyramid()) {
-				resultLabel.setText(PYRAMID_TEXT);
-				resultLabel.setEnabled(false);
-				resultLabel.setVisible(true);
-				statusLabel.setVisible(false);
-				resultLabel.addMouseListener(adapter);
-				showContainerLabel = false;
 				browseButton.setVisible(showContainerLabel);
 				containerLabel.setVisible(showContainerLabel);
 			} else {
