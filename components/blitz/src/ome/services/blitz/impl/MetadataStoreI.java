@@ -354,7 +354,15 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 // filesystem like NTFS. (See #5654)
                 Pattern p = Pattern.compile(
                         omeroDataDir, Pattern.CASE_INSENSITIVE);
-                String path = p.matcher(file.getParent()).replaceFirst("");
+                String parent = file.getParent();
+                if (log.isDebugEnabled())
+                {
+                    log.debug(String.format(
+                            "omero.data.dir: '%s' file.absolutePath: '%s' " +
+                            "parent: '%s'", omeroDataDir,
+                            file.getAbsolutePath(), parent));
+                }
+                String path = p.matcher(parent).replaceFirst("");
                 sql.setPixelsNamePathRepo(pixelsId, file.getName(),
                                           path, null);
                 return null;
