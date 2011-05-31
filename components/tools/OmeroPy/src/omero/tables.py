@@ -101,7 +101,10 @@ class HdfList(object):
             self.__locks[hdfpath] = lock
         except portalocker.LockException, le:
             lock.close()
-            raise omero.LockTimeout(None, None, "Cannot acquire exclusive lock on: %s" % self.__hdf_path, 0)
+            raise omero.LockTimeout(None, None, "Cannot acquire exclusive lock on: %s" % hdfpath, 0)
+        except:
+            lock.close()
+            raise
 
         hdffile = hdfstorage.openfile("a")
         fileno = hdffile.fileno()
