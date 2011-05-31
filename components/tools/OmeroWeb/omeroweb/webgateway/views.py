@@ -1037,7 +1037,10 @@ def imageMarshal (image, key=None):
     ds = image.getDataset()
     
     try:
-        image._prepareRenderingEngine()
+        reOK = image._prepareRenderingEngine()
+        if not reOK:
+            logger.debug("Failed to prepare Rendering Engine for imageMarshal")
+            return None
     except omero.MissingPyramidException, mpe:
         backOff = mpe.backOff
         rv = {
