@@ -185,16 +185,15 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @type gid:      Long
         
         @return:        Boolean
-        """        
+        """
         
         try:
             for k in self._proxies.keys():
                 self._proxies[k].close()
                 
             self.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
-            admin_serv = self.getAdminService()
-            admin_serv.setDefaultGroup(self.getUser()._obj, omero.model.ExperimenterGroupI(gid, False))
-            self._ctx = self._proxies['admin'].getEventContext()
+            self.getAdminService().setDefaultGroup(self.getUser()._obj, omero.model.ExperimenterGroupI(gid, False))
+            self._ctx = self.getAdminService().getEventContext()
             return True
         except omero.SecurityViolation:
             logger.error(traceback.format_exc())

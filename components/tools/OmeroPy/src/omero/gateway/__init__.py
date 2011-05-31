@@ -1596,8 +1596,8 @@ class _BlitzGateway (object):
         @return:    Event Context from admin service. 
         @rtype:     L{omero.sys.EventContext}
         """
-        
-        self._ctx = self._proxies['admin'].getEventContext()
+        if self._ctx is None:
+            self._ctx = self._proxies['admin'].getEventContext()
         return self._ctx
 
     def getUser (self):
@@ -2409,7 +2409,6 @@ class _BlitzGateway (object):
             pTypes = {'int8':'int8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'float_':'float', 'float8':'float', 
                         'float16':'float', 'float32':'float', 'float64':'double', 'complex_':'complex', 'complex64':'complex'}
             dType = firstPlane.dtype.name
-            print dType
             if dType not in pTypes: # try to look up any not named above
                 pType = dType
             else:
@@ -5241,7 +5240,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             rv = thumb(*args)
             return rv
         except Exception: #pragma: no cover
-            logger.error(traceback.print_exc())
+            logger.error(traceback.format_exc())
             return None
 
     @assert_pixels
@@ -5520,7 +5519,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         try:
             if level is not None:
                 self._re.setResolutionLevel(level)
-                print self._re.getResolutionLevel()
             if compression is not None:
                 try:
                     self._re.setCompressionLevel(float(compression))

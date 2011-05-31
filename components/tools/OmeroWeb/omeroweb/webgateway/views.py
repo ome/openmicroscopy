@@ -835,7 +835,6 @@ def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs)
             rsp['Content-Length'] = len(movie)
             return rsp
         else:
-            print fn, fpath, rpath
             fobj.close()
             #shutil.move(fn, fn + ext)
             return HttpResponseRedirect('/appmedia/tfiles/' + rpath)#os.path.join(rpath, img.getName() + ext))
@@ -1588,8 +1587,6 @@ def get_rois_json(request, imageId, server_id=None):
                 shape['width'] = s.getWidth().getValue()
                 shape['height'] = s.getHeight().getValue()
                 # TODO: support for mask
-                print s.getPixels()
-                print s.getBytes()
             elif type(s) == omero.model.EllipseI:
                 shape['type'] = 'Ellipse'
                 shape['cx'] = s.getCx().getValue()
@@ -1617,7 +1614,7 @@ def get_rois_json(request, imageId, server_id=None):
                 shape['x'] = s.getX().getValue()
                 shape['y'] = s.getY().getValue()
             else:
-                print "Shape type not supported:", type(s)
+                logger.debug("Shape type not supported: %s" % str(type(s)))
             try:
                 if s.getTextValue() and s.getTextValue().getValue():
                     shape['textValue'] = s.getTextValue().getValue()

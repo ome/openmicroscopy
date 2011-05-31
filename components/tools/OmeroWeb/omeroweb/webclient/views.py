@@ -1121,7 +1121,6 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
 
             objectives = instrument.getObjectives()
             for o in objectives:
-                print "views.py", o
                 # load the enums if needed and create our Objective Form
                 if mediums is None: mediums = list(conn.getEnumerationEntries("MediumI"))
                 if immersions is None: immersions = list(conn.getEnumerationEntries("ImmersionI"))

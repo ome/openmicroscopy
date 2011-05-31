@@ -555,7 +555,6 @@ class MetadataObjectiveForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(MetadataObjectiveForm, self).__init__(*args, **kwargs)
 
-        print "MetadataObjectiveForm", kwargs['initial']['objective'], kwargs['initial']['objective'].model
         # Model
         try:
             if kwargs['initial']['objective'].model is not None:
