@@ -1041,10 +1041,10 @@ def imageMarshal (image, key=None):
         if not reOK:
             logger.debug("Failed to prepare Rendering Engine for imageMarshal")
             return None
-    except omero.MissingPyramidException, mpe:
-        backOff = mpe.backOff
+    except omero.ConcurrencyException, ce:
+        backOff = ce.backOff
         rv = {
-            'MissingPyramidException': {
+            'ConcurrencyException': {
                 'backOff': backOff
             }
         }

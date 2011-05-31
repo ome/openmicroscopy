@@ -808,7 +808,7 @@
         <div style="padding:10px">
             <p>
             A 'Pyramid' of zoom levels is currently being calculated for this image. <br />
-            Please try viewing again in <span id="mpe_minutes"></span> minutes.
+            Please try viewing again <span id="mpe_backOff">later</span>.
             </p>
             <p><a href="#" onclick="self.close()">Close this Window</a></p>
         </div>
@@ -962,8 +962,21 @@
     viewport.bind('linePlotPos', linePlotPos);
 
     /* Bind 'MissingPyramidException' to display message */
-    viewport.bind('MissingPyramidException', function(e, data) {
-        $('#mpe_minutes').text(data);
+    viewport.bind('ConcurrencyException', function(e, backOff) {
+        if (backOff != undefined){
+            seconds = backOff/1000;
+            hrs = parseInt(seconds / 3600);
+            mins = parseInt((seconds % 3600)/60);
+            secs = parseInt(seconds % (3600 * 60));
+            if (hrs > 0) {
+                label = hrs + " hours " + mins + " minutes";
+            } else if (mins > 0) {
+                label = mins + " minutes";
+            } else {
+                label = secs + " seconds";
+            }
+            $('#mpe_backOff').text("in approx " + label);
+        }
         $('#missing_pyramid_postit').show();
     });
 

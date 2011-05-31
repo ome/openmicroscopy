@@ -211,10 +211,9 @@ jQuery._WeblitzViewport = function (container, server, options) {
     hideLoading();
     clearTimeout(ajaxTimeout);
     // If 'MissingPyramidException' we can't do anything else but notify user
-    if (data["MissingPyramidException"] != undefined) {
-        backOff = data["MissingPyramidException"]['backOff'];
-        minutes = parseInt(backOff)/(60 * 1000)
-        _this.self.trigger('MissingPyramidException', [minutes]);
+    if (data["ConcurrencyException"] != undefined) {
+        backOff = data["ConcurrencyException"]['backOff'];
+        _this.self.trigger('ConcurrencyException', [backOff]);
         //alert("MissingPyramidException: please try again in " + minutes + " minutes");
         //self.close();
         return;
@@ -954,7 +953,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
    * Some events are handled by us, some are proxied to the viewport plugin.
    */
   this.bind = function (event, callback) {
-    if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' || event == 'MissingPyramidException' ||
+    if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' || event == 'ConcurrencyException' ||
         event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange') {
       _this.self.bind(event, callback);
     } else {
