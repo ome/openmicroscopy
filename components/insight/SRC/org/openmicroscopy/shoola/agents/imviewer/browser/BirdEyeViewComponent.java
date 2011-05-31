@@ -91,10 +91,10 @@ class BirdEyeViewComponent
 	private int h = 20;   //to change
 	
 	/** The X-coordinate of the top-left corner. */
-	private float bx;
+	private int bx;
 	
 	/** The Y-coordinate of the top-left corner. */
-	private float by;
+	private int by;
 	
 	/** Flag indicating the mouse is over the image. */
 	private boolean bover;
@@ -106,13 +106,13 @@ class BirdEyeViewComponent
 	 * The difference of <code>bx</code>and the X-coordinate of the mouse 
 	 * clicked. 
 	 */
-	private float bdifx = 0.0f; 
+	private int bdifx = 0; 
 	
 	/** 
 	 * The difference of <code>by</code>and the Y-coordinate of the mouse 
 	 * clicked. 
 	 */
-	private float bdify = 0.0f; 
+	private int bdify = 0; 
 	
 	/** Flag indicating to display the full image or only the arrow. */
 	private boolean fullDisplay;
@@ -174,11 +174,13 @@ class BirdEyeViewComponent
 	 */
 	private boolean inImage()
 	{
+		/*
 		if (bx-strokeWeight < imageRectangle.x) {
 			bx = BORDER+2*strokeWeight;
 			return false;
 		}
 		if (by-strokeWeight < imageRectangle.y) {
+			System.err.println("in "+imageRectangle.y+" "+by);
 			by = BORDER+2*strokeWeight;
 			return false;
 		}
@@ -188,6 +190,23 @@ class BirdEyeViewComponent
 		}
 		if (by+h-strokeWeight > imageRectangle.height) {
 			by = imageRectangle.height-h-2*strokeWeight;
+			return false;
+		}
+		*/
+		if (bx < imageRectangle.x) {
+			bx = imageRectangle.x;
+			return false;
+		}
+		if (by < imageRectangle.y) {
+			by = imageRectangle.y;
+			return false;
+		}
+		if (bx+w > imageRectangle.width) {
+			bx = imageRectangle.width-w;
+			return false;
+		}
+		if (by+h > imageRectangle.height) {
+			by = imageRectangle.height-h;
 			return false;
 		}
 		return true;
@@ -226,7 +245,7 @@ class BirdEyeViewComponent
 	 */
 	Rectangle getSelectionRegion()
 	{
-		return new Rectangle((int) bx, (int) by, w, h);
+		return new Rectangle(bx, by, w, h);
 	}
 	
 	/**
@@ -302,8 +321,8 @@ class BirdEyeViewComponent
 		//setCanvasSize(0, 0);
 		color = SELECTION_COLOR; 
 		//noStroke();
-		bx = BORDER;
-		by = BORDER;
+		bx = 0;
+		by = 0;
 		fullDisplay = true;
 		addMouseListener(this);
 		addMouseMotionListener(this);
@@ -342,13 +361,15 @@ class BirdEyeViewComponent
 			return;
 		}
 		if (imageRectangle == null) {
-			imageRectangle = new Rectangle(BORDER, BORDER, pImage.getWidth(), 
+			//imageRectangle = new Rectangle(BORDER, BORDER, pImage.getWidth(), 
+			//		pImage.getHeight());
+			imageRectangle = new Rectangle(0, 0, pImage.getWidth(), 
 					pImage.getHeight());
 		}
 		setSize(canvasWidth, canvasHeight);
 		//stroke(255);
-		g2D.drawRect(0, 0, canvasWidth, canvasHeight);
-		g2D.drawImage(pImage, null, BORDER, BORDER);
+		//g2D.drawImage(pImage, null, BORDER, BORDER);
+		g2D.drawImage(pImage, null, 0, 0);
 		g2D.setColor(FILL_COLOR);
 		g2D.fillRect(cross.x, cross.y, cross.width, cross.height);
 		g2D.setColor(STROKE_COLOR);
@@ -374,7 +395,9 @@ class BirdEyeViewComponent
 		// Test if the cursor is over the box 
 		bover = (mouseX > bx-w && mouseX < bx+w && 
 				mouseY > by-h && mouseY < by+h);
-		g2D.fillRect((int) bx, (int) by, (int) w, (int) h);
+		g2D.fillRect(bx, by, w, h);
+		g2D.setColor(STROKE_COLOR);
+		g2D.drawRect(0, 0, canvasWidth, canvasHeight);
 		//noFill();
 	}
 
@@ -396,8 +419,8 @@ class BirdEyeViewComponent
 		}
 		fullDisplay = true;
 		locked = bover;
-		bdifx = mouseX-bx; 
-		bdify = mouseY-by; 
+		bdifx = mouseX-bx;
+		bdify = mouseY-by;
 	}
 
     /**
@@ -406,10 +429,10 @@ class BirdEyeViewComponent
      */
 	public void mouseReleased(MouseEvent e)
 	{
-		if (locked) {
+		if (fullDisplay) {
 			locked = false;
-			Rectangle r = new Rectangle((int) bx, (int) by, w, h);
-			firePropertyChange(DISPLAY_REGION_PROPERTY, null, r);
+			firePropertyChange(DISPLAY_REGION_PROPERTY, null, 
+					new Rectangle(bx, by, w, h));
 		} 
 	}
 

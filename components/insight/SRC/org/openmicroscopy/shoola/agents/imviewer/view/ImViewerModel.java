@@ -48,6 +48,8 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import omero.model.PlaneInfo;
 import omero.romio.PlaneDef;
+import omero.romio.RegionDef;
+
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.imviewer.BirdEyeLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
@@ -352,8 +354,6 @@ class ImViewerModel
 			y += d.height;
 			x = 0;
 		}
-		//tiledImageSizeX = w*numberOfColumns;
-		//tiledImageSizeY = h*numberOfRows;
 	}
 
     /**
@@ -2469,6 +2469,19 @@ class ImViewerModel
 	{
 		BirdEyeLoader loader = new BirdEyeLoader(component, getImage());
 		loader.load();
+		// use the lowest resolution
+		/*
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		PlaneDef pDef = new PlaneDef();
+		pDef.t = getDefaultT();
+		pDef.z = getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
+		pDef.region = new RegionDef(0, 0, 128, 128); //test
+		rnd.setSelectedResolutionLevel(0);
+		component.setBirdEyeView(rnd.renderPlane(pDef));
+		rnd.setSelectedResolutionLevel(getResolutionLevels()-1);
+		*/
 	}
 
 	/**

@@ -148,6 +148,7 @@ class BrowserUI
     {
     	if (birdEyeView == null) return;
     	Dimension d = birdEyeView.getSize();
+    	if (d.width == 0 || d.height == 0) return;
     	Rectangle r = getViewport().getViewRect();
     	Rectangle rl = canvas.getBounds();
     	int sizeX = rl.width;// model.getMaxX();
@@ -158,7 +159,6 @@ class BrowserUI
     	if (ry == 0) ry = 1;
     	int x = (int) (r.x/rx);
     	int y = (int) (r.y/ry);
-    	
     	int w = (int) (r.width/rx);
     	int h = (int) (r.height/ry);
     	birdEyeView.setSelection(x, y, w, h);
@@ -563,6 +563,16 @@ class BrowserUI
 	
 	/** Sets the adjusting value to <code>false</code>.*/
 	void resetAdjusting() { adjusting = false; }
+	
+	/**
+	 * Returns the rectangle used to load the tiles.
+	 * 
+	 * @return See above.
+	 */
+	Rectangle getVisibleRectangle()
+	{
+		return getViewport().getViewRect();
+	}
 	
 	/**
 	 * Sets the location of the bird eye to be sure that it is always visible.

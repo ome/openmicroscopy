@@ -121,4 +121,13 @@ public class Region
 	 */
 	public int getHeight() { return height; }
 	
+	/**
+	 * Overridden to return the dimension of the region and location.
+	 * @see {@link #toString()}
+	 */
+	public String toString()
+	{
+		return "x="+xLocation+" y="+yLocation+" w="+width+" h="+height; 
+	}
+	
 }

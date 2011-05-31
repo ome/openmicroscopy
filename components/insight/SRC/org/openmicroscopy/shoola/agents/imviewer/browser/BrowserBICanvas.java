@@ -81,7 +81,6 @@ class BrowserBICanvas
         	int index;
         	Object img;
             Region region;
-            
         	for (int i = 0; i < rows; i++) {
     			for (int j = 0; j < columns; j++) {
     				index = i*columns+j;

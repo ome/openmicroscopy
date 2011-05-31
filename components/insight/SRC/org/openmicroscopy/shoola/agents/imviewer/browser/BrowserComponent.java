@@ -700,7 +700,7 @@ class BrowserComponent
 	public 	Rectangle getVisibleRectangle()
 	{
 		if (view == null) return null;
-		return view.getViewport().getVisibleRect();
+		return view.getVisibleRectangle();
 	}
 	
 }

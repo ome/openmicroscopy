@@ -87,6 +87,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.SaveEventBox;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -2773,6 +2774,7 @@ class ImViewerComponent
 		}
 		
 		if (model.isBigImage()) { //bird eye loaded.
+			//use the lowest resolution.
 			model.fireBirdEyeViewRetrieval();
 		}
 		renderXYPlane();
@@ -3178,11 +3180,14 @@ class ImViewerComponent
 			region = model.getBrowser().getVisibleRectangle();
 		Map<Integer, Tile> tiles = getTiles();
     	if (tiles == null) return;
+    	//invalidate images.
     	Dimension d = model.getTileSize();
-    	int cs = region.x/d.width;
-    	int rs = region.y/d.height;
-    	int ih = region.width/d.width;
-    	int iv = region.height/d.height;
+    	int width = d.width;
+    	int height = d.height;
+    	int cs = region.x/width;
+    	int rs = region.y/height;
+    	int ih = region.width/width;
+    	int iv = region.height/height;
     	int columns = getColumns();
     	int index;
     	Tile t;
@@ -3198,7 +3203,7 @@ class ImViewerComponent
 			for (int j = cs; j <= w; j++) {
 				index = i*columns+j;
 				t = tiles.get(index);
-				if (t != null && !t.isImageLoaded()) {
+				if (t != null && !t.isImageLoaded() && !l.contains(t)) {
 					l.add(t);
 				}
 			}
