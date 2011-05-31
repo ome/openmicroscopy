@@ -26,15 +26,19 @@ The purpose of these scripts is to automate the process of building an OMERO vir
 4. [OPTIONAL] If you do not wish to use the supplied keypair then you can create a new SSH key pair using:
 	$ ssh-keygen -t rsa
 	and save it as omerokey. NB. If you have done this correctly then you should have a keypair called omerokey and omerokey.pub in your .ssh folder. Copy these to the folder containing your OMERO.VM scripts
+
+5. In the setup_omero.sh script alter the DL_ARCHIVE var to reflect the build of OMERO.server that you want to install. The current default is for QA builds from the hudson build process. To specify a different build you can adjust the following vars:
+		DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-trunk-qa-builds/lastSuccessfulBuild/artifact/"
+		DL_ARCHIVE="OMERO.server-4.3.0-DEV-bfe035dd.zip"
 	
-5. Run the VM build script:
+6. Run the VM build script:
 	$ sh omerovm.sh $VMNAME
 	e.g.	$ sh omerovm.sh omero-vm
 	to build a VM named omero-vm
 
-6. This should take roughly 8-15 minutes to complete depending upon your machine so go and grab a coffee
+7. This should take roughly 8-15 minutes to complete depending upon your machine so go and grab a coffee
 
-7. When you see the message "All Done!" you should be able to either:
+8. When you see the message "All Done!" you should be able to either:
 (a) Start an OMERO client such as OMERO.insight and connect to your VM
 (b) SSH into your VM using the IP address printed at the end of the build script
 (c) Use the utility script connect.sh to open a shell into your vm
