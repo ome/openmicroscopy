@@ -67,11 +67,13 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
             sb.append("left outer join fetch ds.plateAcquisitions sa ");
             sb.append("left outer join fetch "
                     + "this.annotationLinksCountPerOwner this_a_c ");
+            sb.append("left outer join fetch sa.annotationLinksCountPerOwner sa_a_c ");
         } else if (Plate.class.isAssignableFrom(klass)) {
         	sb.append("select this from Plate this ");
         	sb.append("left outer join fetch this.plateAcquisitions sa ");
             sb.append("left outer join fetch "
                     + "this.annotationLinksCountPerOwner this_a_c ");
+            sb.append("left outer join fetch sa.annotationLinksCountPerOwner sa_a_c ");
         } else {
             throw new ApiUsageException("Unknown container class: "
                     + klass.getName());

@@ -23,15 +23,14 @@
 package pojos;
 
 //Java imports
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import static omero.rtypes.rstring;
-
-import java.sql.Timestamp;
-import java.text.DateFormat;
-
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
 
@@ -245,6 +244,20 @@ public class PlateAcquisitionData
 		if (n == null) return -1;
 		return n.getValue();
 	}
+	
+    /**
+     * Returns the number of annotations linked to the object, key: id of the
+     * user, value: number of annotation. The map may be <code>null</code> if
+     * no annotation.
+     * 
+     * @return See above.
+     */
+    public Map<Long, Long> getAnnotationsCounts()
+    {
+    	PlateAcquisition acq = (PlateAcquisition) asIObject();
+    	if (acq == null) return null;
+        return acq.getAnnotationLinksCountPerOwner();
+    }
 	
 }
 

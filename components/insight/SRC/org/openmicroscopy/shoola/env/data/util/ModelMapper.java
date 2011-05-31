@@ -60,6 +60,9 @@ import omero.model.OriginalFile;
 import omero.model.OriginalFileAnnotationLink;
 import omero.model.OriginalFileAnnotationLinkI;
 import omero.model.Plate;
+import omero.model.PlateAcquisition;
+import omero.model.PlateAcquisitionAnnotationLink;
+import omero.model.PlateAcquisitionAnnotationLinkI;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
 import omero.model.PlateI;
@@ -82,7 +85,9 @@ import omero.model.TermAnnotationI;
 import omero.model.Well;
 import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
+import omero.model.WellSample;
 import omero.model.WellSampleAnnotationLink;
+import omero.model.WellSampleAnnotationLinkI;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
@@ -146,6 +151,10 @@ public class ModelMapper
     		return ((ScreenAnnotationLink) link).getChild();
     	if (link instanceof WellSampleAnnotationLink)
     		return ((WellSampleAnnotationLink) link).getChild();
+    	if (link instanceof WellAnnotationLink)
+    		return ((WellAnnotationLink) link).getChild();
+    	if (link instanceof PlateAcquisitionAnnotationLink)
+    		return ((PlateAcquisitionAnnotationLink) link).getChild();
     	if (link instanceof AnnotationAnnotationLink)
     		return ((AnnotationAnnotationLink) link).getChild();
     	return null;
@@ -487,9 +496,22 @@ public class ModelMapper
     		l.setParent(m);
     		l.setChild(annotation);
     		return l;
+    	} else if (annotatedObject instanceof PlateAcquisition) {
+    		PlateAcquisition m = (PlateAcquisition) annotatedObject;
+    		PlateAcquisitionAnnotationLink l = 
+    			new PlateAcquisitionAnnotationLinkI();
+    		l.setParent(m);
+    		l.setChild(annotation);
+    		return l;
     	} else if (annotatedObject instanceof Well) {
     		Well m = (Well) annotatedObject;
     		WellAnnotationLink l = new WellAnnotationLinkI();
+    		l.setParent(m);
+    		l.setChild(annotation);
+    		return l;
+    	} else if (annotatedObject instanceof WellSample) {
+    		WellSample m = (WellSample) annotatedObject;
+    		WellSampleAnnotationLink l = new WellSampleAnnotationLinkI();
     		l.setParent(m);
     		l.setChild(annotation);
     		return l;
@@ -525,6 +547,10 @@ public class ModelMapper
     		return ((ScreenAnnotationLink) annotation).getParent();
     	else if (annotation instanceof WellAnnotationLink)
     		return ((WellAnnotationLink) annotation).getParent();
+    	else if (annotation instanceof WellSampleAnnotationLink)
+    		return ((WellSampleAnnotationLink) annotation).getParent();
+    	else if (annotation instanceof PlateAcquisitionAnnotationLink)
+    		return ((PlateAcquisitionAnnotationLink) annotation).getParent();
     	return null;
     }
     
@@ -548,6 +574,8 @@ public class ModelMapper
     		return ((ScreenAnnotationLink) link).getChild();
     	else if (link instanceof WellAnnotationLink)
     		return ((WellAnnotationLink) link).getChild();
+    	else if (link instanceof WellSampleAnnotationLink)
+    		return ((WellSampleAnnotationLink) link).getChild();
     	return null;
     }
     

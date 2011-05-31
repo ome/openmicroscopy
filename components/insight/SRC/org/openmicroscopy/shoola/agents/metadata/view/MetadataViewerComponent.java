@@ -90,10 +90,12 @@ import pojos.FileAnnotationData;
 import pojos.FileData;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.WellData;
 import pojos.WellSampleData;
 
 /** 
@@ -491,7 +493,9 @@ class MetadataViewerComponent
 			refObject instanceof ScreenData ||
 			refObject instanceof PlateData || 
 			refObject instanceof DatasetData || 
-			refObject instanceof WellSampleData) {
+			refObject instanceof WellSampleData ||
+			refObject instanceof PlateAcquisitionData ||
+			refObject instanceof WellData) {
 			model.fireSaving(toAdd, toRemove, metadata, toSave, asynch);
 		} else if (refObject instanceof ImageData) {
 			ImageData img = (ImageData) refObject;
