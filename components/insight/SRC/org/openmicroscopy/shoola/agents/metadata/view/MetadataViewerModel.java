@@ -62,12 +62,14 @@ import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -525,7 +527,8 @@ class MetadataViewerModel
 			MetadataLoader loader = null;
 			switch (data.getIndex()) {
 				case AdminObject.UPDATE_GROUP:
-					loader = new GroupEditor(component, data.getGroup(), 
+					GroupData group = data.getGroup();
+					loader = new GroupEditor(component, group, 
 							data.getPermissions());
 					break;
 				case AdminObject.UPDATE_EXPERIMENTER:
@@ -543,8 +546,17 @@ class MetadataViewerModel
 			switch (data.getIndex()) {
 				case AdminObject.UPDATE_GROUP:
 					try {
-						svc.updateGroup(data.getGroup(), 
-								data.getPermissions());
+						GroupData group = data.getGroup();
+						GroupData g = svc.lookupGroup(group.getName());
+						if (g == null || group.getId() == g.getId())
+							svc.updateGroup(data.getGroup(), 
+									data.getPermissions());
+						else {
+							UserNotifier un = 
+								MetadataViewerAgent.getRegistry().getUserNotifier();
+							un.notifyInfo("Update Group", "A group with the " +
+									"same name already exists.");
+						}
 					} catch (Exception e) {
 						msg.print("Unable to update the group");
 						msg.print(e);

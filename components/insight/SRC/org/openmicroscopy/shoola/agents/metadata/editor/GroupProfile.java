@@ -51,7 +51,9 @@ import javax.swing.event.DocumentListener;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionsPane;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.ExperimenterData;
@@ -231,7 +233,22 @@ class GroupProfile
 		GroupData data = (GroupData) model.getRefObject();
 		String v = namePane.getText();
 		v = v.trim();
-		if (!data.getName().equals(v)) data.setName(v);
+		if (!data.getName().equals(v)) {
+			AdminService svc = 
+				MetadataViewerAgent.getRegistry().getAdminService();
+			try {
+				GroupData g = svc.lookupGroup(v);
+				if (g != null && data.getId() != g.getId()) {
+					UserNotifier un = 
+					MetadataViewerAgent.getRegistry().getUserNotifier();
+					un.notifyInfo("Update Group", "A group with the " +
+							"same name already exists.");
+					return null;
+				}
+			} catch (Exception e) {}
+
+			data.setName(v);
+		}
 		//check description
 		v = descriptionPane.getText();
 		v = v.trim();

@@ -49,11 +49,13 @@ import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -389,6 +391,12 @@ class EditorUI
 			return;
 		} else if  (model.getRefObject() instanceof GroupData) {
 			AdminObject o = groupUI.getAdminObject();
+			if (o == null) {
+				saved = false;
+				setCursor(Cursor.getDefaultCursor());
+				toolBar.setDataToSave(true);
+				return;
+			}
 			model.fireAdminSaving(o, async);
 			return;
 		}
