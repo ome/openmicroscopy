@@ -6896,6 +6896,7 @@ class OMEROGateway
 				entry = (Entry) i.next();
 				exp = (Experimenter) ModelMapper.createIObject(
 						(DataObject) entry.getKey());
+				System.err.println("middleName: "+exp.getMiddleName().getValue());
 				uc = (UserCredentials) entry.getValue();
 				value = lookupExperimenter(uc.getUserName());
 				if (value == null) {

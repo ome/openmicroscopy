@@ -333,7 +333,7 @@ public class ModelMapper
         	Experimenter exp = new ExperimenterI();
         	exp.setFirstName(omero.rtypes.rstring(data.getFirstName()));
         	exp.setLastName(omero.rtypes.rstring(data.getLastName()));
-        	//exp.setMiddleName(omero.rtypes.rstring(data.getMiddle()));
+        	exp.setMiddleName(omero.rtypes.rstring(data.getMiddleName()));
         	exp.setEmail(omero.rtypes.rstring(data.getEmail()));
         	exp.setInstitution(omero.rtypes.rstring(data.getInstitution()));
         	return exp;

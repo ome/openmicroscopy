@@ -115,7 +115,7 @@ class ExperimenterPane
     {
     	passwordField = new JPasswordField();
     	passwordField.getDocument().addDocumentListener(this);
-    	details = EditorUtil.convertExperimenter(null);
+    	//details = EditorUtil.convertExperimenter(null);
     	details = new LinkedHashMap<String, String>();
     	details.put(EditorUtil.DISPLAY_NAME, "");
     	details.put(EditorUtil.FIRST_NAME, "");
@@ -308,7 +308,9 @@ class ExperimenterPane
 		if (value.length() == 0) value = s;
 		data.setLastName(value);
 		field = items.get(EditorUtil.MIDDLE_NAME);
-		//data.setMiddleName(field.getText().trim());
+		value = field.getText();
+		if (value == null) value = "";
+		data.setMiddleName(value.trim());
 		field = items.get(EditorUtil.EMAIL);
 		data.setEmail(field.getText().trim());
 		field = items.get(EditorUtil.INSTITUTION);
