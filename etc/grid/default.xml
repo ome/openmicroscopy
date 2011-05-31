@@ -59,9 +59,11 @@
       <server-instance template="TestDropBoxTemplate"/>
     </node>
 
-    <node name="repo">
-      <server-instance template="RepositoryTemplate" index="1" dir="/tmp/"/>
-    </node>
+    <target name="repo">
+      <node name="repo">
+        <server-instance template="RepositoryTemplate" index="1" dir="/tmp/"/>
+      </node>
+    </target>
 
   </application>
 
