@@ -23,7 +23,7 @@
             {% endfor %}
             
             {% for c in manager.containers.screens %}
-            <li id='screen-{{ c.id }}' rel="screen"><a href="#">{{ c.name|truncatebefor:"35" }}</a>
+            <li id='screen-{{ c.id }}' rel="screen{% if not c.isOwned %}-locked{% endif %}"><a href="#">{{ c.name|truncatebefor:"35" }}</a>
                 {% if c.countChildren %}
                 <ul>
                     {% for d in c.listChildrenWithLinks %}

@@ -3,6 +3,95 @@ var multi_key = function() {
     else return "ctrl";
 };
 
+var loadOtherPanels = function(data) {
+    if(data.rslt.obj.length > 0) {
+        var cm_var = new Object();
+	    cm_var['content_details'] = {'url': null, 'rel': null, 'empty':false };
+	    cm_var['metadata_details']= {'iframe': null, 'html': null};
+
+	    var oid = data.rslt.obj.attr('id');
+	    var orel = data.rslt.obj.attr('rel').replace("-locked", "");
+	    var crel = $("div#content_details").attr('rel');
+        if (typeof oid!=="undefined" && oid!==false) {
+            if (oid.indexOf("orphaned")>=0) {
+                if(oid!==crel) {
+                    cm_var['metadata_details']['html'] = '<p>This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container.</p>';
+                    cm_var['content_details']['rel'] = oid;
+                    cm_var['content_details']['url'] = '/webclient/load_data/'+orel+'/?view=icon';
+                } else {
+                    cm_var['metadata_details']['html'] = '<p>This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container.</p>';
+                }
+            } else if(oid.indexOf("experimenter")<0) {
+                cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
+                if ($.inArray(orel, ["project", "screen"]) > 0) {
+                    cm_var['content_details']['url'] = null;
+                    cm_var['content_details']['rel'] = null;
+                    cm_var['content_details']['empty'] = true;
+                } else if($.inArray(orel, ["dataset", "plate"]) > 0 && oid!==crel) {
+                    cm_var['content_details']['rel'] = oid;
+                    cm_var['content_details']['url'] = '/webclient/load_data/'+orel+'/'+oid.split("-")[1]+'/?view=icon';
+                    
+                } else if(orel=="image") {
+                    var pr = data.rslt.obj.parent().parent();
+                    if (pr.length>0 && pr.attr('id')!==crel) {
+                        if (pr.attr('rel').replace("-locked", "")!=="orphaned") {
+                            cm_var['content_details']['rel'] = pr.attr('id');
+                            cm_var['content_details']['url'] = '/webclient/load_data/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
+                        } else {
+                            cm_var['content_details']['rel'] = pr.attr("id");
+                            cm_var['content_details']['url'] = '/webclient/load_data/'+pr.attr('rel').replace("-locked", "")+'/?view=icon';
+                        }
+                    }
+                } 
+            } else {
+                cm_var['metadata_details']['html'] = '<p>'+data.rslt.obj.children().eq(1).text()+'</p>';                        
+            }
+        }
+
+        if (cm_var.metadata_details.iframe!==null || cm_var.metadata_details.html!==null) {
+            if (cm_var.metadata_details.iframe!==null) {
+                loadMetadataPanel(cm_var.metadata_details.iframe)
+            } 
+            if (cm_var.metadata_details.html!==null) {
+                loadMetadataPanel(null, cm_var.metadata_details.html);
+            }
+        }
+        
+        if (cm_var.content_details.rel!==null && cm_var.content_details.url!==null){
+            $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
+            $("div#content_details").attr('rel', cm_var.content_details.rel);
+            $("div#content_details").load(cm_var.content_details.url, function() {
+                syncPanels(data.inst.get_selected());
+            });
+        } else if (cm_var.content_details.empty){
+            $("div#content_details").empty();
+            $("div#content_details").removeAttr('rel');
+        }
+    } else {
+        $("div#content_details").empty();
+        $("div#content_details").removeAttr('rel');
+        loadMetadataPanel(null,'<p></p>');
+    }
+};
+
+var syncPanels = function(get_selected) {
+    var toSelect = new Array();
+    get_selected.each(function(i) {
+        toSelect[i]=this.id.split("-")[1];
+    });
+    
+    $(".ui-selectee", $("ul.ui-selectable")).each(function(){
+        var selectee = $(this);
+        if ($.inArray(selectee.attr('id'), toSelect) != -1) {
+            if(!selectee.hasClass('ui-selected')) {
+                selectee.addClass('ui-selected');
+            }
+        } else {
+            selectee.removeClass('ui-selected');
+        }
+    });
+}
+
 var calculateCartTotal = function(total){
     $('#cartTotal').html(total); 
 };
@@ -35,13 +124,16 @@ var addToBasket = function(selected) {
     });
 };
 
-var multipleAnnotation = function(){
-    var datatree = $.jstree._focused();
-    if (datatree.data.ui.selected.length < 1) {
+var multipleAnnotation = function(selected){
+    if (selected==null) {
+        alert('No object selected')
+        return
+    }    
+    if (selected.length < 1) {
         alert ("Please select at least one element."); 
     }
     var productListQuery = new Array(); 
-    datatree.data.ui.selected.each( function(i){
+    selected.each( function(i){
         productListQuery[i] = $(this).attr('id').replace("-","=");
     });
     var query = "/webclient/metadata_details/multiaction/annotatemany/?"+productListQuery.join("&")
@@ -84,18 +176,16 @@ var refreshCenterPanel = function() {
     var rel = $("div#content_details").attr("rel");
     if (typeof rel!=="undefined") {
         if (rel.indexOf("orphaned")>=0) {
-            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+            $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
             $("div#content_details").attr('rel', rel);
             $("div#content_details").load('/webclient/load_data/'+rel.split('-')[0]+'/?view=icon');
         } else {
-            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+            $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
             $("div#content_details").attr('rel', rel);
             $("div#content_details").load('/webclient/load_data/'+rel.replace('-', '/')+'/?view=icon');
         }        
     }
 };
-
-
 
 function changeView(view) { 
     var rel = $("div#content_details").attr('rel').split("-");

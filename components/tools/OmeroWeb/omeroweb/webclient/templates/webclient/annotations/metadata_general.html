@@ -293,11 +293,6 @@
             <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.well.selectedWellSample.image.id %}" style='display:none' >Acquisition</a>
             <img src="{% url webstatic "images/spinner.gif" %}" />
         </div>
-        <div id="hierarchy_tab">
-            <!-- content is loaded by ajax when this tab is first displayed -->
-            <a id="hierarchy-link" href="{% url load_metadata_hierarchy 'image' manager.well.selectedWellSample.image.id %}" style='display:none' >Contained in</a>
-            <img src="{% url webstatic "images/spinner.gif" %}" />
-        </div>
         {% endif %}
                 
         
