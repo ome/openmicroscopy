@@ -878,11 +878,11 @@ class UserProfile
 	{
 		ExperimenterData original = (ExperimenterData) model.getRefObject();
     	//Required fields first
-    	JTextField f = items.get(EditorUtil.LAST_NAME);
-    	String v = f.getText();
+		
+    	String v = loginArea.getText();
     	if (v == null || v.trim().length() == 0) showRequiredField();
     	original.setLastName(v);
-    	f = items.get(EditorUtil.EMAIL);
+    	JTextField f = items.get(EditorUtil.EMAIL);
     	v = f.getText();
     	if (v == null || v.trim().length() == 0) v = "";//showRequiredField();
     	original.setEmail(v);
@@ -890,10 +890,10 @@ class UserProfile
     	v = f.getText();
     	if (v == null) v = "";
     	original.setInstitution(v.trim());
-    	f = items.get(EditorUtil.FIRST_NAME);
+    	f = items.get(EditorUtil.LAST_NAME);
     	v = f.getText();
     	if (v == null) v = "";
-    	original.setFirstName(v.trim());
+    	original.setLastName(v.trim());
     	
     	f = items.get(EditorUtil.FIRST_NAME);
     	v = f.getText();
