@@ -623,6 +623,20 @@ class TestIShare(lib.ITest):
         self.assertEquals(1, len(shares))
         self.assert_(shares[0].isLoaded())
 
+    def test5711(self):
+        """
+        Recent changes have caused shares to be disabled.
+        """
+        share = self.client.sf.getShareService()
+        update = self.client.sf.getUpdateService()
+        admin = self.client.sf.getAdminService()
+
+        self.share_id = share.createShare("", None, [], [], [], True)
+        self.client.sf.setSecurityContext(omero.model.ShareI(self.share_id, False))
+        ec = admin.getEventContext()
+        self.assertEquals(self.share_id, ec.shareId)
+
+
     # Helpers
 
     def assertAccess(self, client, sid, success = True):
