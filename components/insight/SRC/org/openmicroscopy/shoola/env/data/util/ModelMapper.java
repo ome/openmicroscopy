@@ -585,6 +585,7 @@ public class ModelMapper
     		n.setEmail(o.getEmail());
     		n.setFirstName(o.getFirstName());
     		n.setLastName(o.getLastName());
+    		n.setMiddleName(o.getMiddleName());
     		n.setInstitution(o.getInstitution());
     		//n.setDefaultGroup(o.getDefaultGroup());
     	} else if (oldObject instanceof Screen) {
