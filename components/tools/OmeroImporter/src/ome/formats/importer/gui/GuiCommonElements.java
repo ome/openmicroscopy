@@ -700,8 +700,8 @@ public class GuiCommonElements
             message = "Do you really want to close the application?\n" +
             "Doing so will cancel any running imports.";
         }
-        String s1 = "No";
-        String s2 = "Yes";
+        String s1 = "Yes";
+        String s2 = "No";
         Object[] options = {s2, s1};
         int n = JOptionPane.showOptionDialog(parent,
                 message,
@@ -710,12 +710,12 @@ public class GuiCommonElements
                 JOptionPane.QUESTION_MESSAGE,
                 null,
                 options,
-                s1);
+                s2);
         //b/c of switch of location
-        if (n == JOptionPane.YES_OPTION) {
-            return false;//true;
+        if (n == JOptionPane.NO_OPTION) {
+            return false;
         } else {
-            return true;//false;
+            return true;
         }
     }
     
