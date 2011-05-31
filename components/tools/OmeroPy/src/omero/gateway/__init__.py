@@ -4706,7 +4706,7 @@ def assert_re (func):
             if not self._prepareRenderingEngine():
                 return None
         # _prepareRenderingEngine() may throw, but we ignore it
-        except omero.MissingPyramidException, mpe:
+        except omero.ConcurrencyException, ce:
             pass
         return func(self, *args, **kwargs)
     return wrapped
@@ -4912,8 +4912,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                 self._re = self._prepareRE()
             return self._re is not None
         # allow others to handle MissingPyramidException - display Message etc.
-        except omero.MissingPyramidException, mpe:
-            raise mpe
+        except omero.ConcurrencyException, ce:
+            raise ce
         except:
             return None
 

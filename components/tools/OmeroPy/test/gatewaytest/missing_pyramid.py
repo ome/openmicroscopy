@@ -30,8 +30,8 @@ class PyramidTest (lib.GTest):
         try:
             image._prepareRE()
             self.assertTrue(False, "_prepareRE should have thrown an exception")
-        except omero.MissingPyramidException, mpe:
-            print "Handling MissingPyramidException with backoff: %s secs" % (mpe.backOff/1000)
+        except omero.ConcurrencyException, ce:
+            print "Handling MissingPyramidException with backoff: %s secs" % (ce.backOff/1000)
 
 
     def testPrepareRenderingEngine(self):
@@ -43,8 +43,8 @@ class PyramidTest (lib.GTest):
         try:
             image._prepareRenderingEngine()
             self.assertTrue(False, "_prepareRenderingEngine() should have thrown an exception")
-        except omero.MissingPyramidException, mpe:
-            print "Handling MissingPyramidException with backoff: %s secs" % (mpe.backOff/1000)
+        except omero.ConcurrencyException, ce:
+            print "Handling MissingPyramidException with backoff: %s secs" % (ce.backOff/1000)
 
 
     def XtestGetChannels(self):
@@ -70,9 +70,15 @@ class MockRenderingEngine(object):
     def loadRenderingDef(self, id):
         pass
     
+    def resetDefaults(self):
+        pass
+
+    def getRenderingDefId(self):
+        return 1
+
     def load(self):
-        e = omero.MissingPyramidException("MOCK MissingPyramidException")
-        e.backOff = 30 * 60 * 1000    # half an hour
+        e = omero.ConcurrencyException("MOCK MissingPyramidException")
+        e.backOff = (3 * 60 * 60 * 1000) + (20 * 60 * 1000) + (45 * 1000) # 3 hours
         raise e
     
 if __name__ == '__main__':
