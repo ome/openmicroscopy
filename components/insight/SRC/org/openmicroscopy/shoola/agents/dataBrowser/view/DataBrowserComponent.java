@@ -524,7 +524,8 @@ class DataBrowserComponent
 	 */
 	public void loadExistingTags()
 	{
-		if (model.getExistingTags() == null)
+		//Do not cache the tags
+		//if (model.getExistingTags() == null)
 			model.fireTagsLoading();
 		//else view.setFilterStatus(false);
 	}

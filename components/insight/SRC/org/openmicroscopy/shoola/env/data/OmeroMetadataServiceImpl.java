@@ -114,6 +114,26 @@ class OmeroMetadataServiceImpl
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway            gateway;
 	
+
+	/**
+	 * Returns <code>true</code> if the value contains the terms specified,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param terms The terms to check.
+	 * @param value The value to handle.
+	 * @return See above.
+	 */
+	private boolean containTerms(List<String> terms, String value)
+	{
+		if (terms == null || terms.size() == 0 || value == null) return false;
+		Iterator<String> i = terms.iterator();
+		while (i.hasNext()) {
+			if (value.contains(i.next()))
+				return true;
+		}
+		return false;
+	}
+	
 	
 	/**
 	 * Returns <code>true</code> if the annotation is shared, 
@@ -1224,7 +1244,7 @@ class OmeroMetadataServiceImpl
 		Class annotationType, List<String> terms, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		List<Long> results = new ArrayList<Long>();
+		Set<Long> results = new HashSet<Long>();
 		
 		List<Long> ids = null;
 		if (userID != -1) {
@@ -1273,7 +1293,7 @@ class OmeroMetadataServiceImpl
 					} else if (annotationType.equals(
 							 TextualAnnotationData.class)) {
 						if (data instanceof TextualAnnotationData) {
-							if (terms.contains(
+							if (containTerms(terms, 
 									((TextualAnnotationData) data).getText())) {
 								nodes = m.get(data.getId());
 								if (nodes == null) {
@@ -1297,8 +1317,9 @@ class OmeroMetadataServiceImpl
 			entry = (Entry) i.next();
 			id = (Long) entry.getKey();
 			nodes = (List) entry.getValue();
-			if (results.size() == 0) results.addAll(nodes);
-			else results = ListUtils.intersection(results, nodes);
+			//if (results.size() == 0) results.addAll(nodes);
+			//else results = ListUtils.intersection(results, nodes);
+			results.addAll(nodes);
 		}
 		return results;
 	}
