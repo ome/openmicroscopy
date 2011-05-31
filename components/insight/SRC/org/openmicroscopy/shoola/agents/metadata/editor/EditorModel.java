@@ -681,6 +681,27 @@ class EditorModel
 	}
 
 	/**
+	 * Returns <code>true</code> if the annotation  has been added by others,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The annotation to handle.
+	 * @return See above.
+	 */
+	boolean isAnnotatedByOther(DataObject data)
+	{
+		if (data == null) return false;
+		
+		List<ExperimenterData> annotators = getAnnotators(data);
+		if (annotators == null || annotators.size() == 0) return false;
+		if (annotators.size() == 1) {
+			ExperimenterData exp = annotators.get(0);
+			long id = MetadataViewerAgent.getUserDetails().getId();
+			return exp.getId() != id;
+		}
+		return true;
+	}
+	
+	/**
 	 * Returns the collection of experimenters who use the annotation.
 	 * 
 	 * @param annotation 	The annotation to handle.

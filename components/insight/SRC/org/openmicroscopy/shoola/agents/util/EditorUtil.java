@@ -884,6 +884,8 @@ public class EditorUtil
 			counts = ((PlateData) object).getAnnotationsCounts();	
 		else if (object instanceof WellData)
 			counts = ((WellData) object).getAnnotationsCounts();
+		else if (object instanceof PlateAcquisitionData)
+			counts = ((PlateAcquisitionData) object).getAnnotationsCounts();
 		if (counts == null || counts.size() == 0) return false;
 		return counts.keySet().contains(userID);
 	}
@@ -912,6 +914,8 @@ public class EditorUtil
 			counts = ((PlateData) object).getAnnotationsCounts();	
 		else if (object instanceof WellData)
 			counts = ((WellData) object).getAnnotationsCounts();
+		else if (object instanceof PlateAcquisitionData)
+			counts = ((PlateAcquisitionData) object).getAnnotationsCounts();
 		if (counts == null || counts.size() == 0) return false;
 		Set set = counts.keySet();
 		if (set.size() > 1) return true;
