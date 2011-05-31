@@ -42,6 +42,7 @@ public class SessionContextImpl implements SessionContext {
         this.session = session;
         if (previous != null) {
             this.count = previous.count();
+            this.shareId = previous.getCurrentShareId();
         } else {
             this.count = new SessionContext.Count(session.getUuid());
         }
