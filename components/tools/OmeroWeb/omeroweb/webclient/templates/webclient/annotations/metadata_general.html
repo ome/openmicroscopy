@@ -598,6 +598,7 @@
                     {% if manager.fileannSize %}
                     <div class="lnfiles">
                         {% for fileann in manager.file_annotations %}
+                        {% if fileann.getFileName %}
                         <div style="padding:4px 0px" class="file_ann_wrapper">
                             <a class='tooltip' href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';" 
                                 title="Linked by {{ fileann.link.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }}. {% trans "Owner:" %} {{ fileann.getDetails.getOwner.getNameWithInitial }}">
@@ -609,7 +610,7 @@
                                 <b>On:</b> {{ fileann.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
                                 <b>Description:</b> {{ fileann.description|default_if_none:""|truncatewords:10  }}
                             </span>
-                            ({{ fileann.getFileSize|default_if_none:0|filesizeformat }})
+                            {% if fileann.getFileSize %}({{ fileann.getFileSize|default_if_none:0|filesizeformat }}){% endif %}
                             {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}
                                 <img class='removeFile' id="{{ fileann.id }}-file" src="{% url webstatic "images/minus_11.png" %}" title="Unlink"/>
                             {% endif %}
@@ -623,7 +624,8 @@
                             {% ifequal fileann.getFileName|slice:"-3:" 'bit' %}
                                 <a href="#" onclick="return openPopup('{% url open_astex_viewer fileann.id %}')">Volume viewer</a>
                             {% endifequal %}
-                        </p>
+                        </div>
+                        {% endif %}
                         {% endfor %}
                     </div>
                     {% else %}
