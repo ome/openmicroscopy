@@ -1090,7 +1090,7 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
                                         'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                         'pulses': list(conn.getEnumerationEntries("PulseI"))})
                 # TODO: We don't display filter sets here yet since they are not populated on Import by BioFormats.
-                channel['name'] = ch.getName()
+                channel['label'] = ch.getLabel()
                 channel['color'] = ch.getColor().getHtml()
                 planeInfo = manager.image and manager.image.getPrimaryPixels().copyPlaneInfo(theC=theC, theZ=0)
                 channel['plane_info'] = list(planeInfo)
