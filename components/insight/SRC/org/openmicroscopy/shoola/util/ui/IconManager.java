@@ -667,7 +667,7 @@ public class IconManager
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[TAG_SET_OTHER_OWNER] = "nuvola_knotesRed_group16.png";
-        relPaths[GROUP] = "nuvola_personal16.png";
+        relPaths[GROUP] = "nuvola_kdmconfig16.png";//"nuvola_personal16.png";
         relPaths[ENCRYPTED_24] = "nuvola_encrypted_grey24.png";
         relPaths[DECRYPTED_24] = "nuvola_decrypted_grey24.png";
         relPaths[PERSONAL_96] ="nuvola_personal96.png";
