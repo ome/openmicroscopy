@@ -98,7 +98,8 @@ public class MetadataStoreI extends AbstractAmdServant implements
         this.popRoi = popRoi;
         this.sql = sql;
         this.filesService = filesService;
-        this.omeroDataDir = omeroDataDir;
+        this.omeroDataDir =
+            new File(omeroDataDir).getAbsolutePath() + File.separator;
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -353,7 +354,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 // posibilitity that we're running on a case insensitive
                 // filesystem like NTFS. (See #5654)
                 Pattern p = Pattern.compile(
-                        omeroDataDir, Pattern.CASE_INSENSITIVE);
+                        Pattern.quote(omeroDataDir), Pattern.CASE_INSENSITIVE);
                 String parent = file.getParent();
                 if (log.isDebugEnabled())
                 {
