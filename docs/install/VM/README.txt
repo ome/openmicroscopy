@@ -23,22 +23,27 @@ The purpose of these scripts is to automate the process of building an OMERO vir
 	Place the VDI in your VirtualBox harddisk directory. On Mac OS X this should be $HOME/Library/VirtualBox/HardDisks/ and on Linux $HOME/.VirtualBox/HardDisks/
 	The OMERO.VM script will look in these locations for the VDI to kick start the VM building process.
 
-4. [OPTIONAL] If you do not wish to use the supplied keypair then you can create a new SSH key pair using:
+4. If you have an entry in your known_hosts file [ .ssh/known_hosts ] for localhost port 2222 then you should remove that line from known_hosts so as to avoid conflict with the host key of your new VM. If the omerovm.sh script stalls several lines after booting the new VM then this is generally the cause.
+
+5. [OPTIONAL] If you do not wish to use the supplied keypair then you can create a new SSH key pair using:
 	$ ssh-keygen -t rsa
 	and save it as omerokey. NB. If you have done this correctly then you should have a keypair called omerokey and omerokey.pub in your .ssh folder. Copy these to the folder containing your OMERO.VM scripts
+	NB. You might get an unprotected private key file warning from SCP. If this happens then you should check the permissions of the omerokey files and ensure that they are chmod 600. If not then:
+			$ chmod 600 omerokey*
+		in the OMERO.VM directory.
 
-5. In the setup_omero.sh script alter the DL_ARCHIVE var to reflect the build of OMERO.server that you want to install. The current default is for QA builds from the hudson build process. To specify a different build you can adjust the following vars:
+6. In the setup_omero.sh script alter the DL_ARCHIVE var to reflect the build of OMERO.server that you want to install. The current default is for QA builds from the hudson build process. To specify a different build you can adjust the following vars:
 		DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-trunk-qa-builds/lastSuccessfulBuild/artifact/"
 		DL_ARCHIVE="OMERO.server-4.3.0-DEV-bfe035dd.zip"
 	
-6. Run the VM build script:
+7. Run the VM build script:
 	$ sh omerovm.sh $VMNAME
 	e.g.	$ sh omerovm.sh omero-vm
 	to build a VM named omero-vm
 
-7. This should take roughly 8-15 minutes to complete depending upon your machine so go and grab a coffee
+8. This should take roughly 8-15 minutes to complete depending upon your machine so go and grab a coffee
 
-8. When you see the message "All Done!" you should be able to either:
+9. When you see the message "All Done!" you should be able to either:
 (a) Start an OMERO client such as OMERO.insight and connect to your VM
 (b) SSH into your VM using the IP address printed at the end of the build script
 (c) Use the utility script connect.sh to open a shell into your vm
