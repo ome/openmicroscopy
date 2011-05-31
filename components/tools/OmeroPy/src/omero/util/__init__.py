@@ -713,6 +713,10 @@ def get_user_dir():
         homeprop = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
     except exceptions_to_handle:
         homeprop = os.path.expanduser("~")
+
+    if "~" == homeprop:
+        raise exceptions.Exception("Unexpanded '~' from expanduser: see ticket:5583") # ticket:5583
+
     return homeprop
 
 def edit_path(path_or_obj, start_text):

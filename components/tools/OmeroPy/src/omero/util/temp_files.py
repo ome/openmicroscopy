@@ -134,7 +134,7 @@ class TempFileManager(object):
         try:
             homeprop = get_user_dir()
         except:
-            pass # ticket:3194
+            pass # ticket:3194, ticket:5583
         tempprop = tempfile.gettempdir()
         targets = [omerotemp, homeprop, tempprop]
 
