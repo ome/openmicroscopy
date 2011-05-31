@@ -94,7 +94,7 @@ class ImageTable
 	static final String					SIZE = "Size";
 	
 	/** The text of the {@link #THUMBNAIL_COL}. */
-	static final String					VIEW = "";
+	static final String					VIEW = "Image";
 	
 	/** The text of the {@link #LOGIN_NAME_COL}. */
 	static final String					LOGIN_NAME = "User Name";
