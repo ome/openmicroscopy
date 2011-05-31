@@ -559,12 +559,13 @@ public class ThumbnailCtx
      */
     private Long getCurrentUserId()
     {
-        Long shareId = securitySystem.getEventContext().getCurrentShareId();
+        EventContext ec = securitySystem.getEventContext();
+        Long shareId = ec.getCurrentShareId();
         if (shareId != null) {
             Session s = queryService.get(Session.class, shareId);
             return s.getOwner().getId();
-        } 
-        return securitySystem.getEventContext().getCurrentUserId();
+        }
+        return ec.getCurrentUserId();
     }
 
     /**

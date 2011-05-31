@@ -800,7 +800,7 @@ class BaseClient(object):
         if not session:
             raise ClientError("No session active")
         a = session.getAdminService()
-        u = a.getEventContext().sessionUuid
+        u = self.getSessionId()
         s = session.getSessionService()
         m = getattr(s, method)
         rv = apply(m, (u,)+args)

@@ -1014,21 +1014,21 @@ public class client {
      * Retrieves an item from the "input" shared (session) memory.
      */
     public RType getInput(String key) throws ServerError {
-        return env().getInput(sess(), key);
+        return env().getInput(getSessionId(), key);
     }
 
     /**
      * Retrieves an item from the "output" shared (session) memory.
      */
     public RType getOutput(String key) throws ServerError {
-        return env().getOutput(sess(), key);
+        return env().getOutput(getSessionId(), key);
     }
 
     /**
      * Sets an item in the "input" shared (session) memory under the given name.
      */
     public void setInput(String key, RType value) throws ServerError {
-        env().setInput(sess(), key, value);
+        env().setInput(getSessionId(), key, value);
     }
 
     /**
@@ -1036,7 +1036,7 @@ public class client {
      * name.
      */
     public void setOutput(String key, RType value) throws ServerError {
-        env().setOutput(sess(), key, value);
+        env().setOutput(getSessionId(), key, value);
     }
 
     /**
@@ -1044,7 +1044,7 @@ public class client {
      * memory
      */
     public List<String> getInputKeys() throws ServerError {
-        return env().getInputKeys(sess());
+        return env().getInputKeys(getSessionId());
     }
 
     /**
@@ -1052,7 +1052,7 @@ public class client {
      * memory
      */
     public List<String> getOutputKeys() throws ServerError {
-        return env().getOutputKeys(sess());
+        return env().getOutputKeys(getSessionId());
     }
 
     // Helpers
@@ -1086,15 +1086,6 @@ public class client {
     protected ISessionPrx env() throws ServerError {
         ISessionPrx s = getSession().getSessionService();
         return s;
-    }
-
-    /**
-     * Helper method to access session id
-     */
-    protected String sess() throws ServerError {
-        IAdminPrx a = getSession().getAdminService();
-        String u = a.getEventContext().sessionUuid;
-        return u;
     }
 
     // Callback

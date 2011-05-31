@@ -321,7 +321,7 @@ class SessionsControl(BaseControl):
         if live:
             msg = msg + " Expires in %s min." % (float(live)/60/1000)
 
-        msg += (" Current group: %s" % sf.getAdminService().getEventContext().groupName)
+        msg += (" Current group: %s" % ec.groupName)
 
         self.ctx.err(msg)
 
@@ -350,7 +350,7 @@ class SessionsControl(BaseControl):
             group_name = args.target
             group_id = admin.lookupGroup(group_name).id.val
 
-        ec = admin.getEventContext()
+        ec = self.ctx._event_context # 5711
         old_id = ec.groupId
         old_name = ec.groupName
         if old_id == group_id:

@@ -640,28 +640,25 @@ namespace omero {
 
 
     omero::RTypePtr client::getInput(const string& key) {
-	return env()->getInput(sess(), key);
+	return env()->getInput(getSessionId(), key);
     }
     omero::RTypePtr client::getOutput(const string& key) {
-	return env()->getOutput(sess(), key);
+	return env()->getOutput(getSessionId(), key);
     }
     void client::setInput(const string& key, const omero::RTypePtr& value) {
-	env()->setInput(sess(), key, value);
+	env()->setInput(getSessionId(), key, value);
     }
     void client::setOutput(const string& key, const omero::RTypePtr& value) {
-	env()->setOutput(sess(), key, value);
+	env()->setOutput(getSessionId(), key, value);
     }
     vector<string> client::getInputKeys() {
-	return env()->getInputKeys(sess());
+	return env()->getInputKeys(getSessionId());
     }
     vector<string> client::getOutputKeys() {
-	return env()->getOutputKeys(sess());
+	return env()->getOutputKeys(getSessionId());
     }
     omero::api::ISessionPrx client::env() {
 	return __sf->getSessionService();
-    }
-    const std::string client::sess() {
-	return __sf->getAdminService()->getEventContext()->sessionUuid;
     }
 
     std::string client::parseAndSetInt(const Ice::InitializationData& data,

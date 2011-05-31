@@ -257,7 +257,7 @@ class ScriptControl(BaseControl):
 
         client = self.ctx.conn(args)
         admin = client.sf.getAdminService()
-        current_user = admin.getEventContext().userId
+        current_user = self.ctx._event_context.userId
         query = "select o from OriginalFile o where o.sha1 = '%s' and o.details.owner.id = %s" % (sha1, current_user)
         files = client.sf.getQueryService().findAllByQuery(query, None)
         if len(files) == 0:
@@ -388,8 +388,9 @@ class ScriptControl(BaseControl):
         client = self.ctx.conn(args)
         sf = client.sf
         svc = sf.getScriptService()
+        ec = self.ctx._event_context
         if args.who:
-            who = [self._parse_who(sf, w) for w in args.who]
+            who = [self._parse_who(w) for w in args.who]
             scripts = svc.getUserScripts(who)
             banner = "Scripts for %s" % ", ".join(args.who)
         else:
@@ -463,7 +464,7 @@ class ScriptControl(BaseControl):
         timeout = args.timeout
         client = self.ctx.conn(args)
         sf = client.sf
-        who = [self._parse_who(sf, w) for w in args.who]
+        who = [self._parse_who(w) for w in args.who]
         if not who:
             who = [] # Official scripts only
 
@@ -657,20 +658,20 @@ omero.pass=%(omero.sess)s
 
         return script_id, ofile
 
-    def _parse_who(self, sf, who):
+    def _parse_who(self, who):
         """
         Parses who items of the form: "user", "group", "user=1", "group=6"
         """
 
         import omero
         WHO_FACTORY  = {"user":omero.model.ExperimenterI, "group":omero.model.ExperimenterGroupI}
-        WHO_CURRENT = { "user":lambda sf: sf.getAdminService().getEventContext().userId,
-                        "group":lambda sf: sf.getAdminService().getEventContext().groupId}
+        WHO_CURRENT = { "user":lambda ec: ec.userId,
+                        "group":lambda ec: ec.groupId}
 
         for key, factory in WHO_FACTORY.items():
             if who.startswith(key):
                 if who == key:
-                    id = WHO_CURRENT[key](sf)
+                    id = WHO_CURRENT[key](self.ctx._event_context)
                     return factory(id, False)
                 else:
                     parts = who.split("=")

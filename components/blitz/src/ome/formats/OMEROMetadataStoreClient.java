@@ -201,6 +201,7 @@ import omero.model.TransmittanceRangeI;
 import omero.model.Well;
 import omero.model.WellSample;
 import omero.model.XmlAnnotation;
+import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.util.TempFileManager;
 
@@ -258,6 +259,7 @@ public class OMEROMetadataStoreClient
 
     private client c;
     private ServiceFactoryPrx serviceFactory;
+    private EventContext eventContext;
     private IUpdatePrx iUpdate;
     private IQueryPrx iQuery;
     private IAdminPrx iAdmin;
@@ -397,6 +399,7 @@ public class OMEROMetadataStoreClient
     {
         // Blitz services
         iAdmin = serviceFactory.getAdminService();
+        eventContext = iAdmin.getEventContext();
         iQuery = serviceFactory.getQueryService();
         iUpdate = serviceFactory.getUpdateService();
         rawFileStore = serviceFactory.createRawFileStore();
@@ -1901,11 +1904,11 @@ public class OMEROMetadataStoreClient
 	public void setCurrentGroup(long groupID)
 		throws ServerError
 	{
-		ExperimenterGroup currentDefaultGroup = iAdmin.getDefaultGroup(iAdmin.getEventContext().userId);
+		ExperimenterGroup currentDefaultGroup = iAdmin.getDefaultGroup(eventContext.userId);
 		if (currentDefaultGroup.getId().getValue() == groupID)
 			return; // Already set so return
 
-		Experimenter exp = iAdmin.getExperimenter(iAdmin.getEventContext().userId);
+		Experimenter exp = iAdmin.getExperimenter(eventContext.userId);
 		List<ExperimenterGroup> groups = getUserGroups();
 		Iterator<ExperimenterGroup> i = groups.iterator();
 		ExperimenterGroup group = null;
@@ -1939,7 +1942,7 @@ public class OMEROMetadataStoreClient
 		List<ExperimenterGroup> myGroups = new ArrayList<ExperimenterGroup>();
 			//Need method server side.
 			ParametersI p = new ParametersI();
-			p.addId(iAdmin.getEventContext().userId);
+			p.addId(eventContext.userId);
 			List<IObject> groups = iQuery.findAllByQuery(
                     "select distinct g from ExperimenterGroup as g "
                     + "join fetch g.groupExperimenterMap as map "
@@ -1982,7 +1985,7 @@ public class OMEROMetadataStoreClient
 			return null;
 
 		ExperimenterGroup currentDefaultGroup =
-			iAdmin.getDefaultGroup(iAdmin.getEventContext().userId);
+			iAdmin.getDefaultGroup(eventContext.userId);
 
 		Iterator<ExperimenterGroup> i = groups.iterator();
 		ExperimenterGroup group = null;
@@ -2019,7 +2022,7 @@ public class OMEROMetadataStoreClient
 	public String getDefaultGroupName() throws ServerError
 	{
 		ExperimenterGroup currentDefaultGroup =
-			iAdmin.getDefaultGroup(iAdmin.getEventContext().userId);
+			iAdmin.getDefaultGroup(eventContext.userId);
 
 		String dn = currentDefaultGroup.getName() == null ? ""
 				: currentDefaultGroup.getName().getValue();
@@ -2038,7 +2041,7 @@ public class OMEROMetadataStoreClient
 		int groupLevel = 0;
 
 		ExperimenterGroup currentDefaultGroup =
-			iAdmin.getDefaultGroup(iAdmin.getEventContext().userId);
+			iAdmin.getDefaultGroup(eventContext.userId);
 
 		Permissions perm = currentDefaultGroup.getDetails().getPermissions();
 
@@ -2243,14 +2246,7 @@ public class OMEROMetadataStoreClient
      */
     public long getExperimenterID()
     {
-        try
-        {
-            return iAdmin.getEventContext().userId;
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        return eventContext.userId;
     }
 
     /**

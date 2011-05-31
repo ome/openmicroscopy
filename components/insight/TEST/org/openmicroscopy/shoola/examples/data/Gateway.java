@@ -52,6 +52,7 @@ import omero.api.ThumbnailStorePrx;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -94,6 +95,11 @@ public class Gateway
 	 */
 	private ServiceFactoryPrx entryEncrypted;
 	
+	/**
+	 * Information about the current login.
+	 */
+	private EventContext eventContext;
+
 	/** Flag indicating if you are connected or not. */
 	private boolean connected;
 	
@@ -276,6 +282,7 @@ public class Gateway
 		try {
 			entryEncrypted = secureClient.createSession(
 					credentials.getUserName(), credentials.getPassword());
+			eventContext = getAdminService().getEventContext();
 			connected = true;
 			KeepClientAlive kca = new KeepClientAlive(this);
 			executor = new ScheduledThreadPoolExecutor(1);
@@ -322,8 +329,7 @@ public class Gateway
 		List<ImageData> images = new ArrayList<ImageData>();
 		try {
 			ParametersI po = new ParametersI();
-			po.exp(omero.rtypes.rlong(
-					getAdminService().getEventContext().userId));
+			po.exp(omero.rtypes.rlong(eventContext.userId));
 			IContainerPrx service = getContainerService();
 			List<Image> l = service.getUserImages(po);
 			//stop here if you want to deal with IObject.
@@ -352,8 +358,7 @@ public class Gateway
 	{
 		List<DatasetData> datasets = new ArrayList<DatasetData>();
 		ParametersI po = new ParametersI();
-		po.exp(omero.rtypes.rlong(
-				getAdminService().getEventContext().userId));
+		po.exp(omero.rtypes.rlong(eventContext.userId));
 		if (ids == null || ids.size() == 0)
 			po.noLeaves();
 		else po.leaves();
