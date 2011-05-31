@@ -48,7 +48,6 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import omero.model.PlaneInfo;
 import omero.romio.PlaneDef;
-import omero.romio.RegionDef;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.imviewer.BirdEyeLoader;
