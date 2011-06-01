@@ -32,6 +32,7 @@
     <div class="nav">
         <div id="navigation">
             <ul>
+            <li><a href="/webclient/">{% trans "Web Client" %}</a></li>
             <li><a href="{% url wadrivespace %}"{% if info.drivespace %} class="menu" {% endif %}>{% trans "Drive Space" %}</a></li>
             {% if eventContext.isAdmin %}
             <li><a href="{% url waexperimenters %}"{% if info.experimenters %} class="menu" {% endif %}>{% trans "Scientists" %}</a></li>
