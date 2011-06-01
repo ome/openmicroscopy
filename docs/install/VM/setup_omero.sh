@@ -4,14 +4,13 @@ set -e -u -x
 
 PGPASSWORD=${PGPASSWORD:-"omero"}
 
-DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-trunk-qa-builds/lastSuccessfulBuild/artifact/"
-DL_ARCHIVE="OMERO.server-4.3.0-DEV-bfe035dd.zip"
-DL_FOLDER=${DL_ARCHIVE%.zip}
-
-DB_VERSION="OMERO4.3"
-DB_REVISION="0"
-OMERO_PATH="/home/omero/OMERO.server"
-OMERO_BIN=$OMERO_PATH/bin
+DL_ARCHIVE=""
+if [ "x$DL_ARCHIVE" == "x" ]; then
+    DL_ARCHIVE=`sh hudson.sh`
+    DL_FOLDER=${DL_ARCHIVE%.zip}
+else
+    DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-trunk-qa-builds/lastSuccessfulBuild/artifact/"
+    DL_FOLDER=${DL_ARCHIVE%.zip}
 
 #	echo "Grabbing OMERO.server src"
 #	if test -e OMERO.server; then
@@ -31,9 +30,16 @@ OMERO_BIN=$OMERO_PATH/bin
 
 	echo "Grabbing QA Build of OMERO.server"
 	wget $DL_LOC$DL_ARCHIVE
-	unzip $DL_ARCHIVE
-	mv $DL_FOLDER OMERO.server
-    
+fi
+
+DB_VERSION="OMERO4.3"
+DB_REVISION="0"
+OMERO_PATH="/home/omero/OMERO.server"
+OMERO_BIN=$OMERO_PATH/bin
+
+unzip $DL_ARCHIVE
+mv $DL_FOLDER OMERO.server
+
 mkdir OMERO.data
 $OMERO_BIN/omero config set omero.data.dir /home/omero/OMERO.data
 

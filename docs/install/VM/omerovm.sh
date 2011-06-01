@@ -78,6 +78,9 @@ $VBOX list runningvms | grep "$VMNAME" || {
     sleep 20
 }
 
+echo "Setting omerokey permissions"
+chmod 600 ./omerokey
+
 SCP="scp -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -i ./omerokey -P $SSH_PF"
 SSH="ssh -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -i ./omerokey -p $SSH_PF -t"
 
@@ -91,7 +94,7 @@ SSH_K="spawn ssh -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocal
 
 	echo "Setup key"
 	expect -c "$SSH_K omero@localhost sh /home/omero/setup_keys.sh ; expect "?assword:*"; send \"omero\n\r\"; interact"
-   	
+
 } || echo "Local RSAAuthentication key was not found. Use: $ ssh-keygen -t rsa"
 
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export VMNAME=${VMNAME:-"$1"}
-export VMNAME=${VMNAME:-"omerovm"}
+export VMNAME=${VMNAME:-"omero-vm"}
 
 set -e
 set -u
