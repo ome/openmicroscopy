@@ -354,9 +354,9 @@ class MetadataChannelForm(forms.Form):
         # Illumination
         try:
             if kwargs['initial']['logicalChannel'].getIllumination() is not None:
-                self.fields['illumination'] = MetadataModelChoiceField(queryset=kwargs['initial']['illuminations'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'illumination\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['logicalChannel'].getIllumination(), required=False) 
+                self.fields['illumination'] = MetadataModelChoiceField(queryset=kwargs['initial']['illuminations'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'illumination\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['logicalChannel'].getIllumination(), required=False) 
             else:
-                self.fields['illumination'] = MetadataModelChoiceField(queryset=kwargs['initial']['illuminations'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'illumination\', this.options[this.selectedIndex].value);'}), required=False) 
+                self.fields['illumination'] = MetadataModelChoiceField(queryset=kwargs['initial']['illuminations'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'illumination\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['illumination'].widget.attrs['disabled'] = True
         except:
             logger.error(traceback.format_exc())
@@ -366,9 +366,9 @@ class MetadataChannelForm(forms.Form):
         # contrastMethods
         try:
             if kwargs['initial']['logicalChannel'].contrastMethod is not None:
-                self.fields['contrastMethod'] = MetadataModelChoiceField(queryset=kwargs['initial']['contrastMethods'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'contrastMethod\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['logicalChannel'].getContrastMethod(), label="Contrast method", required=False) 
+                self.fields['contrastMethod'] = MetadataModelChoiceField(queryset=kwargs['initial']['contrastMethods'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'contrastMethod\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['logicalChannel'].getContrastMethod(), label="Contrast method", required=False) 
             else:
-                self.fields['contrastMethod'] = MetadataModelChoiceField(queryset=kwargs['initial']['contrastMethods'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'contrastMethod\', this.options[this.selectedIndex].value);'}), label="Contrast method", required=False) 
+                self.fields['contrastMethod'] = MetadataModelChoiceField(queryset=kwargs['initial']['contrastMethods'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'contrastMethod\', this.options[this.selectedIndex].value);'}), label="Contrast method", required=False) 
             self.fields['contrastMethod'].widget.attrs['disabled'] = True 
             self.fields['contrastMethod'].widget.attrs['class'] = 'disabled-metadata'
         except:
@@ -380,9 +380,9 @@ class MetadataChannelForm(forms.Form):
         # Illumination
         try:
             if kwargs['initial']['logicalChannel'].mode is not None:
-                self.fields['mode'] = MetadataModelChoiceField(queryset=kwargs['initial']['modes'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'mode\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['logicalChannel'].getMode(), required=False) 
+                self.fields['mode'] = MetadataModelChoiceField(queryset=kwargs['initial']['modes'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'mode\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['logicalChannel'].getMode(), required=False) 
             else:
-                self.fields['mode'] = MetadataModelChoiceField(queryset=kwargs['initial']['modes'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'mode\', this.options[this.selectedIndex].value);'}), required=False) 
+                self.fields['mode'] = MetadataModelChoiceField(queryset=kwargs['initial']['modes'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'mode\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['mode'].widget.attrs['disabled'] = True 
             self.fields['mode'].widget.attrs['class'] = 'disabled-metadata'
         except:
@@ -536,9 +536,9 @@ class MetadataMicroscopeForm(forms.Form):
         # Type
         try:
             if kwargs['initial']['microscope'].getMicroscopeType() is not None:
-                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['microscopeTypes'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['microscope'].getMicroscopeType().value, required=False) 
+                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['microscopeTypes'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['microscope'].getMicroscopeType().value, required=False) 
             else:
-                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['microscopeTypes'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'type\', this.options[this.selectedIndex].value);'}), required=False) 
+                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['microscopeTypes'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'type\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['type'].widget.attrs['disabled'] = True 
             self.fields['type'].widget.attrs['class'] = 'disabled-metadata'
         except:
@@ -656,9 +656,9 @@ class MetadataObjectiveForm(forms.Form):
         # Immersion
         try:
             if kwargs['initial']['objective'].getImmersion() is not None:
-                self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objective'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['objective'].getImmersion().value, required=False)
+                self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objective'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['objective'].getImmersion().value, required=False)
             else:
-                self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objective'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), required=False)
+                self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objective'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), required=False)
             self.fields['immersion'].widget.attrs['disabled'] = True 
             self.fields['immersion'].widget.attrs['class'] = 'disabled-metadata'
         except:
@@ -670,9 +670,9 @@ class MetadataObjectiveForm(forms.Form):
         # Correction
         try:
             if kwargs['initial']['objective'].getCorrection() is not None:
-                self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objective'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['objective'].getCorrection().value, required=False)
+                self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objective'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['objective'].getCorrection().value, required=False)
             else:
-                self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objective'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), required=False)
+                self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objective'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), required=False)
             self.fields['correction'].widget.attrs['disabled'] = True 
             self.fields['correction'].widget.attrs['class'] = 'disabled-metadata'
         except:
@@ -742,9 +742,9 @@ class MetadataObjectiveSettingsForm(MetadataObjectiveForm):
         # Medium
         try:
             if kwargs['initial']['objectiveSettings'].getMedium() is not None:
-                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['objectiveSettings'].getMedium().value, required=False)
+                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['objectiveSettings'].getMedium().value, required=False)
             else:
-                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False)
+                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False)
             self.fields['medium'].widget.attrs['disabled'] = True
             self.fields['medium'].widget.attrs['class'] = 'disabled-metadata'
         except:
@@ -851,9 +851,9 @@ class MetadataFilterForm(forms.Form):
         # Type
         try:
             if kwargs['initial']['filter'].getFilterType() is not None:
-                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['filter'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['filter'].getFilterType().value, required=False) 
+                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['filter'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['filter'].getFilterType().value, required=False) 
             else:
-                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['filter'].id)+', \'type\', this.options[this.selectedIndex].value);'}), required=False) 
+                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['filter'].id)+', \'type\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['type'].widget.attrs['disabled'] = True 
             self.fields['type'].widget.attrs['class'] = 'disabled-metadata'
         except:
@@ -1001,9 +1001,9 @@ class MetadataDetectorForm(forms.Form):
         # Type
         try:
             if kwargs['initial']['detector'].getDetectorType() is not None:
-                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detector'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['detector'].getDetectorType().value, required=False) 
+                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detector'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['detector'].getDetectorType().value, required=False) 
             else:
-                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detector'].id)+', \'type\', this.options[this.selectedIndex].value);'}), required=False) 
+                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detector'].id)+', \'type\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['type'].widget.attrs['disabled'] = True 
             self.fields['type'].widget.attrs['class'] = 'disabled-metadata'
         except:
@@ -1105,9 +1105,9 @@ class MetadataDetectorForm(forms.Form):
         # Binning
         try:
             if kwargs['initial']['detectorSettings'] is not None:
-                self.fields['binning'] = MetadataModelChoiceField(queryset=kwargs['initial']['binnings'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['detectorSettings'].getBinning().value, required=False) 
+                self.fields['binning'] = MetadataModelChoiceField(queryset=kwargs['initial']['binnings'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['detectorSettings'].getBinning().value, required=False) 
             else:
-                self.fields['binning'] = MetadataModelChoiceField(queryset=kwargs['initial']['binnings'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'type\', this.options[this.selectedIndex].value);'}), required=False) 
+                self.fields['binning'] = MetadataModelChoiceField(queryset=kwargs['initial']['binnings'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'type\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['binning'].widget.attrs['disabled'] = True 
             self.fields['binning'].widget.attrs['class'] = 'disabled-metadata'
         except:
@@ -1206,9 +1206,9 @@ class MetadataLightSourceForm(forms.Form):
         # Type
         try:
             if kwargs['initial']['lightSource'].getLightSourceType() is not None:
-                self.fields['lstype'] = MetadataModelChoiceField(queryset=kwargs['initial']['lstypes'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'type\', this.options[this.selectedIndex].value);'}), label="Type", initial=kwargs['initial']['lightSource'].getLightSourceType().value, required=False) 
+                self.fields['lstype'] = MetadataModelChoiceField(queryset=kwargs['initial']['lstypes'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'type\', this.options[this.selectedIndex].value);'}), label="Type", initial=kwargs['initial']['lightSource'].getLightSourceType().value, required=False) 
             else:
-                self.fields['lstype'] = MetadataModelChoiceField(queryset=kwargs['initial']['lstypes'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'type\', this.options[this.selectedIndex].value);'}), label="Type", required=False) 
+                self.fields['lstype'] = MetadataModelChoiceField(queryset=kwargs['initial']['lstypes'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'type\', this.options[this.selectedIndex].value);'}), label="Type", required=False) 
             self.fields['lstype'].widget.attrs['disabled'] = True 
             self.fields['lstype'].widget.attrs['class'] = 'disabled-metadata'
         except:
@@ -1220,9 +1220,9 @@ class MetadataLightSourceForm(forms.Form):
         # Medium
         try:
             if kwargs['initial']['lightSource'].getLaserMedium() is not None:
-                self.fields['lmedium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].getLaserMedium().value, label="Medium", required=False) 
+                self.fields['lmedium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].getLaserMedium().value, label="Medium", required=False) 
             else:
-                self.fields['lmedium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), label="Medium", required=False) 
+                self.fields['lmedium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), label="Medium", required=False) 
             self.fields['lmedium'].widget.attrs['disabled'] = True 
             self.fields['lmedium'].widget.attrs['class'] = 'disabled-metadata'
         except:
@@ -1276,9 +1276,9 @@ class MetadataLightSourceForm(forms.Form):
         # Pulse
         try:
             if kwargs['initial']['lightSource'].pulse is not None:
-                self.fields['pulse'] = MetadataModelChoiceField(queryset=kwargs['initial']['pulses'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pulse\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].pulse, required=False) 
+                self.fields['pulse'] = MetadataModelChoiceField(queryset=kwargs['initial']['pulses'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pulse\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].pulse, required=False) 
             else:
-                self.fields['pulse'] = MetadataModelChoiceField(queryset=kwargs['initial']['pulses'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pulse\', this.options[this.selectedIndex].value);'}), required=False) 
+                self.fields['pulse'] = MetadataModelChoiceField(queryset=kwargs['initial']['pulses'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pulse\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['pulse'].widget.attrs['disabled'] = True 
             self.fields['pulse'].widget.attrs['class'] = 'disabled-metadata'
         except:
