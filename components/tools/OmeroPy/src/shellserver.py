@@ -42,7 +42,7 @@ class ShellServer(Ice.Application):
         return "%sAdapter" % self.name
 
     def start(self):
-        self.proc = call(["python","bin/omero", "server", self.name.lower()]) # Lowercasing should be done in cli.py
+        self.proc = call([sys.executable, "bin/omero", "server", self.name.lower()]) # Lowercasing should be done in cli.py
 
     def stop(self):
         if not hasattr(self, "proc"):

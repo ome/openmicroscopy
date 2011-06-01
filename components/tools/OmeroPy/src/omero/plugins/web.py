@@ -225,19 +225,19 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
             self.ctx.out('[enableapp] available apps:\n - ' + '\n - '.join(apps) + '\n')
         else:
             for app in args.appname:
-                args = ["python", location / app / "scripts" / "enable.py"]
+                args = [sys.executable, location / app / "scripts" / "enable.py"]
                 rv = self.ctx.call(args, cwd = location)
                 if rv != 0:
                     self.ctx.die(121, "Failed to enable '%s'.\n" % app)
                 else:
                     self.ctx.out("App '%s' was enabled\n" % app)
-            args = ["python", "manage.py", "syncdb", "--noinput"]
+            args = [sys.executable, "manage.py", "syncdb", "--noinput"]
             rv = self.ctx.call(args, cwd = location)
             self.syncmedia(None)
 
     def gateway(self, args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        args = ["python", "-i", location / "../omero/gateway/scripts/dbhelpers.py"]
+        args = [sys.executable, "-i", location / "../omero/gateway/scripts/dbhelpers.py"]
         self.set_environ()
         os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         rv = self.ctx.call(args, cwd = location)
@@ -265,7 +265,7 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
         if testpath is not None and len(testpath) > 1:
             cargs = [testpath]
         else:
-            cargs = ['python']
+            cargs = [sys.executable]
         
         cargs.extend([ "manage.py", "test"])
         if test:
@@ -292,7 +292,7 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
             appbase = "omeroweb"
             location = self.ctx.dir / "lib" / "python" / "omeroweb"
 
-        cargs = ["python", location / appname / "tests" / "seleniumtests.py", seleniumserver, hostname, browser]
+        cargs = [sys.executable, location / appname / "tests" / "seleniumtests.py", seleniumserver, hostname, browser]
         #cargs += args.arg[1:]
         self.set_environ(ice_config=ice_config)
         os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
@@ -379,7 +379,7 @@ using bin\omero web start on Windows with FastCGI.
                              'port': settings.APPLICATION_SERVER_PORT}).split()
             rv = self.ctx.popen(args=django, cwd=location) # popen
         else:
-            django = ["python","manage.py","runserver", link, "--noreload"]
+            django = [sys.executable,"manage.py","runserver", link, "--noreload"]
             rv = self.ctx.call(django, cwd = location)
         self.ctx.out("[OK]")
         return rv

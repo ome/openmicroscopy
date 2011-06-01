@@ -85,9 +85,9 @@ class ServerControl(BaseControl):
     #        cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
     #        django = (cmd % {'base': self.ctx.dir}).split()+list(args.arg)
     #    else:
-    #        django = ["python","manage.py","runserver","--noreload"]+list(args.arg)
+    #        django = [sys.executable, "manage.py","runserver","--noreload"]+list(args.arg)
     #    sys.stderr.write(str(django) + '\n')
-    #    os.execvpe("python", django, os.environ)
+    #    os.execvpe(sys.executable, django, os.environ)
     
 try:
     register("server", ServerControl, HELP)

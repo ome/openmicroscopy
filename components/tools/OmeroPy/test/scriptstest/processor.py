@@ -8,7 +8,7 @@
 
 """
 
-import unittest, os, logging, subprocess
+import unittest, os, sys, logging, subprocess
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -67,7 +67,7 @@ def with_process(func, Popen = MockPopen):
     """ Decorator for running a test with a Process """
     def handler(*args, **kwargs):
         self = args[0]
-        self.process = omero.processor.ProcessI(self.ctx, "python", self.props(), self.params(), Popen = Popen, callback_cast = pass_through)
+        self.process = omero.processor.ProcessI(self.ctx, sys.executable, self.props(), self.params(), Popen = Popen, callback_cast = pass_through)
         try:
             rv = func(*args, **kwargs)
         finally:
@@ -108,7 +108,7 @@ class TestProcess(unittest.TestCase):
         env.append("PATH", os.path.join(os.getcwd(), "lib"))
 
     def testEnvironemnt2(self):
-        process = omero.processor.ProcessI(self.ctx, "python", self.props(), self.params())
+        process = omero.processor.ProcessI(self.ctx, sys.executable, self.props(), self.params())
 
     #
     # MockPopen

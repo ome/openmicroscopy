@@ -2,6 +2,8 @@ from omeroweb.webgateway.tests.seleniumbase import SeleniumTestBase, Utils
 from omero.gateway.scripts import dbhelpers
 from random import random
 
+import sys
+
 
 class WebClientTestBase (SeleniumTestBase):
 
@@ -40,7 +42,7 @@ class WebClientTestBase (SeleniumTestBase):
 
         # Search up until we find "OmeroPy"
         dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
-        args = ["python"]
+        args = [sys.executable]
         args.append(str(path(".") / "bin" / "omero"))
         args.extend(["-s", server, "-k", key, "-p", port, "import", filename])
         popen = subprocess.Popen(args, cwd=str(dist_dir), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
