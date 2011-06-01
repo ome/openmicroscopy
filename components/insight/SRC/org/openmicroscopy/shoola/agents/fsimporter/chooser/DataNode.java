@@ -322,7 +322,7 @@ class DataNode
 	public String toString()
 	{ 
 		if (data instanceof DatasetData)
-			return ((DatasetData) data).getName();
+			return ((DatasetData) data).getName()+" ";
 		else if (data instanceof ProjectData) 
 			return ((ProjectData) data).getName();
 		else if (data instanceof ScreenData) 
