@@ -378,7 +378,16 @@ public class OMEROMetadataStoreClient
         log.info("OS Arch: " + System.getProperty("os.arch"));
         log.info("OS Version: " + System.getProperty("os.version"));
     }
-    
+
+    /**
+     * Delegates to {@link initializeService(boolean, Long)}
+     * passing null for "group"
+     */
+    private void initializeServices(boolean manageLifecycle)
+        throws ServerError
+    {
+        initializeServices(manageLifecycle, null);
+    }
     /**
      * Initialize all services needed
      *
@@ -392,15 +401,22 @@ public class OMEROMetadataStoreClient
      *            alive. In that case, {@link #closeServices()} should be called
      *            when importing is finished.
      *
+     *  @param group
+     *
+     *            Value to pass to {@link #setCurrentGroup(long)} if not null.
+     *
      * @throws ServerError
      */
-    private void initializeServices(boolean manageLifecycle)
+    private void initializeServices(boolean manageLifecycle, Long group)
         throws ServerError
     {
         // Blitz services
         iAdmin = serviceFactory.getAdminService();
-        eventContext = iAdmin.getEventContext();
         iQuery = serviceFactory.getQueryService();
+        eventContext = iAdmin.getEventContext();
+        if (group != null) {
+            setCurrentGroup(group);
+        }
         iUpdate = serviceFactory.getUpdateService();
         rawFileStore = serviceFactory.createRawFileStore();
         rawPixelStore = serviceFactory.createRawPixelsStore();
@@ -574,10 +590,7 @@ public class OMEROMetadataStoreClient
 	    unsecure();
 	}
 
-	iAdmin = serviceFactory.getAdminService();
-	iQuery = serviceFactory.getQueryService();
-	setCurrentGroup(group);
-        initializeServices(true);
+        initializeServices(true, group);
 	}
 
     /**
