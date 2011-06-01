@@ -42,6 +42,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
+
 import javax.swing.JMenu;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
@@ -479,16 +481,23 @@ class MeasurementViewerControl
 	{
 		Collection<Figure> figures = model.getSelectedFigures();
 		if (figures.size() != 1 && !view.inDataView()) return;
-		ROIFigure figure = (ROIFigure) figures.iterator().next();
+		Iterator<Figure> j = figures.iterator();
+		ROIFigure figure = null;
+		if (j.hasNext()) figure = (ROIFigure) j.next();
+		if (figure == null) return;
 		ROIShape shape = figure.getROIShape();
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
 		ROI roi = shape.getROI();
 		TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
-		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
+		Entry entry;
+		Iterator i = shapeMap.entrySet().iterator();
 		ROIShape currentShape;
-		while (shapeIterator.hasNext())
+		Coord3D c;
+		while (i.hasNext())
 		{
-			currentShape = shapeMap.get(shapeIterator.next());
+			entry = (Entry) i.next();
+			c = (Coord3D) entry.getKey();
+			currentShape = (ROIShape) entry.getValue();
 			if (!(currentShape.getFigure() instanceof MeasureTextFigure))
 				shapeList.add(currentShape);
 		}
