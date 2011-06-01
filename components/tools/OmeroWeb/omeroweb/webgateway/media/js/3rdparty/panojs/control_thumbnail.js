@@ -13,9 +13,9 @@
 
 PanoJS.CONTROL_THUMBNAIL_SHOW_MINIMIZE = true;
 PanoJS.CONTROL_THUMBNAIL_STYLE = "position: absolute; z-index: 60; opacity:0.5; filter:alpha(opacity=50); ";
-PanoJS.CONTROL_IMAGE_PLUS      = "/webtest/statictest/img/panojs/16px_plus.png";
-PanoJS.CONTROL_IMAGE_MINUS     = "/webtest/statictest/img/panojs/16px_minus.png";
-PanoJS.CONTROL_IMAGE_PROGRESS  = "/webtest/statictest/img/panojs/progress_128.gif";
+PanoJS.CONTROL_IMAGE_PLUS      = "/appmedia/webgateway/img/3rdparty/panojs/16px_plus.png";
+PanoJS.CONTROL_IMAGE_MINUS     = "/appmedia/webgateway/img/3rdparty/panojs/16px_minus.png";
+PanoJS.CONTROL_IMAGE_PROGRESS  = "/appmedia/webgateway/img/3rdparty/panojs/progress_128.gif";
 
 function trim(v, l, h) {
   if (v<l) return l;

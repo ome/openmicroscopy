@@ -433,7 +433,8 @@ $.fn.viewportImage = function(options) {
                 blankTile       : '/appmedia/webgateway/img/3rdparty/panojs/blank.gif',
                 loadingTile     : '/appmedia/webgateway/img/3rdparty/panojs/progress.gif'
             });
-            
+            PanoJS.MSG_BEYOND_MIN_ZOOM = null;
+            PanoJS.MSG_BEYOND_MAX_ZOOM = null;
             // cause conflict with channels, needs more investigation !!!
             //Ext.EventManager.addListener( window, 'resize', callback(viewerBean, viewerBean.resize) );
             viewerBean.init();
