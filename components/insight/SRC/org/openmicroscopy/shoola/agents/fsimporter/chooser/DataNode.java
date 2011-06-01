@@ -295,7 +295,7 @@ class DataNode
 	 */
 	boolean isDefaultNode()
 	{
-		String name = toString();
+		String name = toString().trim();
 		return (DEFAULT_PROJECT.equals(name) || DEFAULT_DATASET.equals(name) ||
 				DEFAULT_SCREEN.equals(name));
 	}
@@ -306,7 +306,10 @@ class DataNode
 	 *  
 	 * @return See above.
 	 */
-	boolean isDefaultScreen() { return DEFAULT_SCREEN.equals(toString()); }
+	boolean isDefaultScreen()
+	{ 
+		return DEFAULT_SCREEN.equals(toString().trim());
+	}
 	
 	/**
 	 * Returns the parent node.
@@ -321,12 +324,14 @@ class DataNode
 	 */
 	public String toString()
 	{ 
+		//space added at the end otherwise does not show on linux if
+		//name ends up with "v".
 		if (data instanceof DatasetData)
-			return ((DatasetData) data).getName()+" ";
+			return ((DatasetData) data).getName()+" "; 
 		else if (data instanceof ProjectData) 
-			return ((ProjectData) data).getName();
+			return ((ProjectData) data).getName()+" "; 
 		else if (data instanceof ScreenData) 
-			return ((ScreenData) data).getName();
+			return ((ScreenData) data).getName()+" "; 
 		return ""; 
 	}
 	

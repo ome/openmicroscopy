@@ -730,7 +730,7 @@ public class ImportDialog
     	//fadBox.setVisible(type != Importer.SCREEN_TYPE);
     	fadBox.setBackground(UIUtilities.BACKGROUND);
     	fadBox.setSelected(true);
-    	if (b != null) fadBox.setSelected(b.booleanValue());
+    	
     	fadBox.addChangeListener(new ChangeListener() {
 			
 			public void stateChanged(ChangeEvent e) {
@@ -742,6 +742,7 @@ public class ImportDialog
 				} 
 			}
 		});
+    	if (b != null) fadBox.setSelected(b.booleanValue());
     	if (!isFastConnection()) //slow connection
     		showThumbnails.setSelected(false);
 		reference = null;
