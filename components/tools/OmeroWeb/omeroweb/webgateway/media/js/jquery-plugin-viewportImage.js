@@ -440,6 +440,7 @@ $.fn.viewportImage = function(options) {
             // not supported elements
             jQuery('#wblitz-zoom').parent().hide();
             jQuery('#wblitz-lp-enable').parent().hide();
+            jQuery('.multiselect').hide();
             jQuery('#wblitz-invaxis').attr('disable', true);
             jQuery('#roi_controls').hide();
         } else {            
