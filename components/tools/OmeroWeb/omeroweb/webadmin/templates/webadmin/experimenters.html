@@ -16,7 +16,10 @@
 <script type="text/javascript">
     $(document).ready(function() 
         { 
-            $("#experimenterTable").tablesorter( {sortList: [[1,0]]} ); 
+            $("#experimenterTable").tablesorter( {
+                sortList: [[1,0]],
+                headers: {0: { sorter: 'digit' } }
+            } );
             $('input#id_search').quicksearch('table#experimenterTable tbody tr', {
             	'delay': 300,
                 'loader': 'span.loading'     
@@ -37,32 +40,35 @@
 
 <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
 
-<table id="experimenterTable" class="tablesorter"> 
+<table id="experimenterTable" class="tablesorter">
     <thead> 
-        <tr> 
-            <th class="action">{% trans "Actions" %}</th> 
+        <tr>
+            <th class="action">{% trans "ID" %}</th>
             <th class="link">{% trans "Name" %}</th> 
-            <th class="link">{% trans "Omename" %}</th> 
+            <th class="link">{% trans "Omename" %}</th>
             <th class="desc">{% trans "Institution" %}</th>
-            <th class="roles">{% trans "Roles" %}</th> 
+            <th class="roles">{% trans "Roles" %}</th>
         </tr> 
     </thead> 
     <tbody>
     {% for dict in controller.experimenters %}
         <tr>
-          <td class="action">
-            <!--<a href="{% url wamanageexperimenterid "delete" dict.experimenter.id %}" onClick="return confirm('Are you sure you want to delete this experimenter?');"><img src="{% url webstatic "images/del.png" %}" alt="delete" title="delete"></a> -->
-            <a href="{% url wamanageexperimenterid "edit" dict.experimenter.id %}"><img src="{% url webstatic "images/edit.png" %}" alt="edit" title="edit"></a> id:{{ dict.experimenter.id }}
-          </td>
-          <td class="link">{{ dict.experimenter.getFullName }}</td>
-          <td class="link">{{ dict.experimenter.omeName }}</td>
-          <td class="desc">{{ dict.experimenter.institution|default_if_none:"-"|truncatewords:"3" }}</td>
-          <td class="roles">
-              {% if dict.admin %}<img src="{% url webstatic "images/admin.png" %}" alt="admin" title="admin"> {% endif %}
-              {% if dict.guest %}<img src="{% url webstatic "images/guest.png" %}" alt="guest" title="guest"> {% endif %}
-              {% if dict.ldap %}<img src="{% url webstatic "images/ldap.png" %}" alt="ldap" title="ldap"> {% endif %}
-              {% if dict.active %}<img src="{% url webstatic "images/active.png" %}" alt="active" title="active">{% else %}<img src="{% url webstatic "images/notactive.png" %}" alt="inactive" title="inactive">{% endif %}
-          </td></tr>
+            <td class="action">
+                {{ dict.experimenter.id }}
+                <a href="{% url wamanageexperimenterid "edit" dict.experimenter.id %}">
+                    <img src="{% url webstatic "images/edit.png" %}" alt="edit" title="edit">
+                </a>
+            </td>
+            <td class="link">{{ dict.experimenter.getFullName }}</td>
+            <td class="link">{{ dict.experimenter.omeName }}</td>
+            <td class="desc">{{ dict.experimenter.institution|default_if_none:"-"|truncatewords:"3" }}</td>
+            <td class="roles">
+                  {% if dict.admin %}<img src="{% url webstatic "images/admin.png" %}" alt="admin" title="admin"> {% endif %}
+                  {% if dict.guest %}<img src="{% url webstatic "images/guest.png" %}" alt="guest" title="guest"> {% endif %}
+                  {% if dict.ldap %}<img src="{% url webstatic "images/ldap.png" %}" alt="ldap" title="ldap"> {% endif %}
+                  {% if dict.active %}<img src="{% url webstatic "images/active.png" %}" alt="active" title="active">{% else %}<img src="{% url webstatic "images/notactive.png" %}" alt="inactive" title="inactive">{% endif %}
+            </td>
+        </tr>
     {% endfor %}
   </tbody>
 </table>
