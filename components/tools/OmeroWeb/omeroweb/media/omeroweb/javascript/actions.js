@@ -23,11 +23,11 @@ var loadOtherPanels = function(data) {
                 }
             } else if(oid.indexOf("experimenter")<0) {
                 cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
-                if ($.inArray(orel, ["project", "screen"]) > 0) {
+                if ($.inArray(orel, ["project", "screen"]) > -1) {
                     cm_var['content_details']['url'] = null;
                     cm_var['content_details']['rel'] = null;
                     cm_var['content_details']['empty'] = true;
-                } else if($.inArray(orel, ["dataset", "plate"]) > 0 && oid!==crel) {
+                } else if($.inArray(orel, ["dataset", "plate"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
                     cm_var['content_details']['url'] = '/webclient/load_data/'+orel+'/'+oid.split("-")[1]+'/?view=icon';
                     

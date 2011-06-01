@@ -72,14 +72,24 @@
             				// All the options are the same as jQuery's except for `data` which CAN (not should) be a function
             				"ajax" : {
             					// the URL to fetch the data
-            					"url" : "{% url load_data %}",
+            					"url" : function(n) {
+            					    if (n.attr) {
+            					        var parent = this._get_parent(n);
+            					        if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["project", "screen"]) > -1) {
+                                            url = "{% url load_data %}"+$(parent).attr("rel").replace("-locked", "")+"/"+$(parent).attr("id").split("-")[1]+"/"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
+                					    } else {
+                					        url = "{% url load_data %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
+                					    }
+            					    } else { 
+            					        url = "{% url load_data %}";
+            					    }
+            					    return url;
+            					},
             					// this function is executed in the instance's scope (this refers to the tree instance)
             					// the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
             					"data" : function (n) {
                                     return { 
-                                        "view" : "tree", 
-            							"o_type" : n.attr ? n.attr("rel").replace("-locked", "") : "",
-            							"o_id" : n.attr ? n.attr("id").split("-")[1] : 0
+                                        "view" : "tree"
             						};
                                 }
             				}

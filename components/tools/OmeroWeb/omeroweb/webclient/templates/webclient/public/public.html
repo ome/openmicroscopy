@@ -29,8 +29,7 @@
                 $("div#metadata_details iframe").attr('height', h+31);
                 $("div#content_details").css('height', h+31);
                 
-                $("#dataTree")
-            		.jstree({ 
+                $("#dataTree").jstree({ 
             			// the list of plugins to include
             			"plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
             			// Plugin configuration
@@ -41,14 +40,14 @@
             				// All the options are the same as jQuery's except for `data` which CAN (not should) be a function
             				"ajax" : {
             					// the URL to fetch the data
-            					"url" : "{% url load_public %}",
+            					"url" : function(n) {
+            					    return n.attr ? ("{% url load_public %}"+n.attr("id").split("-")[1]+"/") : "{% url load_public %}";
+            					    },
             					// this function is executed in the instance's scope (this refers to the tree instance)
             					// the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
             					"data" : function (n) {
                                     return { 
-                                        "view" : "tree", 
-            							"o_type" : n.attr ? n.attr("rel").replace("-locked", "") : "",
-            							"o_id" : n.attr ? n.attr("id").split("-")[1] : 0
+                                        "view" : "tree"
             						};
                                 }
             				}

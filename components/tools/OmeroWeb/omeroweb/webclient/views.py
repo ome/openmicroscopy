@@ -86,7 +86,8 @@ from controller.share import BaseShare
 from omeroweb.webadmin.forms import MyAccountForm, UploadPhotoForm, LoginForm, ChangePassword
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
 from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
-from omeroweb.webadmin.views import _checkVersion, _isServerOn, toBoolean
+from omeroweb.webadmin.views import _checkVersion, _isServerOn
+from omeroweb.webclient.webclient_utils import toBoolean, string_to_dict, upgradeCheck
 
 from omeroweb.webgateway.views import getBlitzConnection
 from omeroweb.webgateway import views as webgateway_views
@@ -120,6 +121,7 @@ def getShareConnection (request, share_id):
 def isUserConnected (f):
     def wrapped (request, *args, **kwargs):
         #this check the connection exist, if not it will redirect to login page
+        server = string_to_dict(request.REQUEST.get('path')).get('server',request.REQUEST.get('server', None))
         url = request.REQUEST.get('url')
         if url is None or len(url) == 0:
             if request.META.get('QUERY_STRING'):
@@ -132,16 +134,18 @@ def isUserConnected (f):
             conn = getBlitzConnection(request, useragent="OMERO.web")
         except Exception, x:
             logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("weblogin")+(("?error=%s&url=%s") % (str(x),url)))
+        
         if conn is None:
             # TODO: Should be changed to use HttpRequest.is_ajax()
             # http://docs.djangoproject.com/en/dev/ref/request-response/
             # Thu  6 Jan 2011 09:57:27 GMT -- callan at blackcat dot ca
             if request.is_ajax():
                 return HttpResponseServerError(reverse("weblogin"))
-            return HttpLoginRedirect(reverse("weblogin")+(("?url=%s") % (url)))
+            if server is not None:
+                return HttpLoginRedirect(reverse("weblogin")+(("?url=%s&server=%s") % (url,server)))
+            return HttpLoginRedirect(reverse("weblogin")+(("?url=%s") % url))
             
-        conn_share = None       
+        conn_share = None     
         share_id = kwargs.get('share_id', None)
         if share_id is not None:
             sh = conn.getShare(share_id)
@@ -193,32 +197,13 @@ def login(request):
     request.session.modified = True    
     
     if request.REQUEST.get('server'):      
-        # upgrade check:
-        # -------------
-        # On each startup OMERO.web checks for possible server upgrades
-        # and logs the upgrade url at the WARNING level. If you would
-        # like to disable the checks, change the following to
-        #
-        #   if False:
-        #
-        # For more information, see
-        # http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck
-        #
-        try:
-            from omero.util.upgrade_check import UpgradeCheck
-            check = UpgradeCheck("web")
-            check.run()
-            if check.isUpgradeNeeded():
-                logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
-        except Exception, x:
-            logger.error("Upgrade check error: %s" % x)
         
         blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
-        request.session['username'] = smart_str(request.REQUEST.get('username'))
-        request.session['password'] = smart_str(request.REQUEST.get('password'))
+        request.session['username'] = smart_str(request.REQUEST.get('username',None))
+        request.session['password'] = smart_str(request.REQUEST.get('password',None))
         request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
         request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
         request.session['shares'] = dict()
@@ -235,6 +220,7 @@ def login(request):
         error = x.__class__.__name__
     
     if conn is not None:
+        upgradeCheck()
         request.session['version'] = conn.getServerVersion()
         if request.REQUEST.get('noredirect'):
             return HttpResponse('OK')
@@ -261,18 +247,11 @@ def login(request):
             blitz = settings.SERVER_LIST.get(pk=request.session.get('server')) 
             if blitz is not None:
                 initial = {'server': unicode(blitz.id)}
-                try:
-                    if request.session.get('username'):
-                        initial['username'] = unicode(request.session.get('username'))
-                        form = LoginForm(data=initial)
-                    else:                        
-                        form = LoginForm(initial=initial)
-                except:
-                    form = LoginForm(initial=initial)
+                form = LoginForm(initial=initial)
             else:
                 form = LoginForm()
-        context = {"version": omero_version, 'error':error, 'form':form}
         
+        context = {"version": omero_version, 'error':error, 'form':form, 'url': url}
         if url is not None and len(url) != 0:
             context['url'] = url
         
@@ -492,10 +471,9 @@ def load_template(request, menu, **kwargs):
     if url is None:
         url = reverse(viewname="load_template", args=[menu])
     
-    
     #tree support
     init = {'initially_open':[], 'initially_select': None}
-    for k,v in request.REQUEST.items():
+    for k,v in string_to_dict(request.REQUEST.get('path')).items():
         if k.lower() in ('project', 'dataset', 'image', 'screen', 'plate'):
             for i in v.split(","):
                 if ":selected" in str(i) and init['initially_select'] is None:
@@ -546,15 +524,6 @@ def load_template(request, menu, **kwargs):
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, **kwargs):
     request.session.modified = True
     
-    # SUBTREE TODO:
-    if request.REQUEST.get("o_type") is not None and len(request.REQUEST.get("o_type")) > 0:
-        o1_type = request.REQUEST.get("o_type")
-        try:
-            o1_id = long(request.REQUEST.get("o_id"))
-        except:
-            pass
-        
-
     # check menu
     menu = request.REQUEST.get("menu")
     if menu is not None:
@@ -604,10 +573,11 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         
     # prepare data
     kw = dict()
-    if o1_type is not None and o1_id is not None and o1_id > 0:
-        kw[str(o1_type)] = long(o1_id)
-    else:
-        kw[str(o1_type)] = bool(o1_id)
+    if o1_type is not None:
+        if o1_id is not None and o1_id > 0:
+            kw[str(o1_type)] = long(o1_id)
+        else:
+            kw[str(o1_type)] = bool(o1_id)
     
     if o2_type is not None and o2_id > 0:
         kw[str(o2_type)] = long(o2_id)
@@ -622,52 +592,45 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
 
     # prepare forms
     filter_user_id = request.session.get('nav')['experimenter']
+    form_well_index = None
         
-    # load data  
-    form_well_index = None    
-    
-    if o1_type is not None and o1_id > 0:
-        if o1_type == 'dataset':
-            manager.listImagesInDataset(o1_id, filter_user_id, page)
-        elif o1_type == 'project' and o2_type == 'dataset':
-            manager.listImagesInDataset(o2_id, filter_user_id, page)
-        elif o1_type == 'plate':
-            manager.listPlate(o1_id, index)
-            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
-        elif o1_type == 'screen' and o2_type == 'plate':
-            manager.listPlate(o2_id, index)
-            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
-    elif o1_type == 'orphaned':
-        manager.listOrphanedImages(filter_user_id)
-    else:
-        manager.listContainerHierarchy(filter_user_id)
-    
+    # load data & template
     template = None
-    if o1_type =='plate' or o2_type == 'plate':
-        template = "webclient/data/plate_details.html"
-    elif o1_type=='dataset' and o1_id > 0:
-        if view =='icon':
-            template = "webclient/data/containers_icon.html"
-        elif view =='table':
-            template = "webclient/data/containers_table.html"
-        else:
-            template = "webclient/data/container_subtree.html"      
-    elif o1_type=='orphaned':
+    if kw.has_key('orphaned'):
+        manager.listOrphanedImages(filter_user_id)
         if view =='icon':
             template = "webclient/data/containers_icon.html"
         elif view =='table':
             template = "webclient/data/containers_table.html"
         else:
             template = "webclient/data/container_subtree.html"
-    elif view =='tree':
-        template = "webclient/data/containers_tree.html"
-    elif view =='icon':
-        template = "webclient/data/containers_icon.html"
-    elif view =='table':
-        template = "webclient/data/containers_table.html"
+    elif len(kw.keys()) > 0 :
+        if kw.has_key('dataset'):
+            manager.listImagesInDataset(kw.get('dataset'), filter_user_id, page)
+            if view =='icon':
+                template = "webclient/data/containers_icon.html"
+            elif view =='table':
+                template = "webclient/data/containers_table.html"
+            else:
+                template = "webclient/data/container_subtree.html"
+        elif kw.has_key('plate'):
+            manager.listPlate(kw.get('plate'), index)
+            template = "webclient/data/plate_details.html"
+            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
+        elif kw.has_key('screen') and kw.has_key('plate'):
+            manager.listPlate(o2_id, index)
+            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
     else:
-        template = "webclient/data/containers.html"
-    
+        manager.listContainerHierarchy(filter_user_id)
+        if view =='tree':
+            template = "webclient/data/containers_tree.html"
+        elif view =='icon':
+            template = "webclient/data/containers_icon.html"
+        elif view =='table':
+            template = "webclient/data/containers_table.html"
+        else:
+            template = "webclient/data/containers.html"
+
     context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index, 'index':index}
     
     t = template_loader.get_template(template)

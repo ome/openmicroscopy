@@ -189,6 +189,10 @@ for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
 
 TEMPLATE_DEBUG = DEBUG
 
+if APPLICATION_HOST is not None and len(APPLICATION_HOST) > 0:
+    if APPLICATION_HOST.endswith("/"):
+        APPLICATION_HOST = APPLICATION_HOST[:-1]
+
 # Configure logging and set place to store logs.
 INTERNAL_IPS = ()
 LOGGING_LOG_SQL = False
@@ -301,6 +305,7 @@ INSTALLED_APPS = (
     #'omeroweb.webemdb',
     'omeroweb.webmobile',
     'omeroweb.webpublic',
+    'omeroweb.webredirect',
 )
 
 FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"

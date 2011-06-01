@@ -71,6 +71,7 @@ from controller.enums import BaseEnums
 
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webgateway.views import getBlitzConnection
+from omeroweb.webclient.webclient_utils import toBoolean, upgradeCheck
 
 logger = logging.getLogger('views-admin')
 
@@ -78,24 +79,7 @@ connectors = {}
 
 logger.info("INIT '%s'" % os.getpid())
 
-################################################################################
-def toBoolean(val):
-    """ 
-    Get the boolean value of the provided input.
-
-        If the value is a boolean return the value.
-        Otherwise check to see if the value is in 
-        ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
-        and returns True if value is not in the list
-    """
-
-    if val is True or val is False:
-        return val
-
-    falseItems = ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
-
-    return not str( val ).strip().lower() in falseItems
-    
+################################################################################    
 def getGuestConnection(host, port):
     conn = None
     guest = "guest"
@@ -286,26 +270,6 @@ def login(request):
     request.session.modified = True
     
     if request.method == 'POST' and request.REQUEST.get('server'):        
-        # upgrade check:
-        # -------------
-        # On each startup OMERO.web checks for possible server upgrades
-        # and logs the upgrade url at the WARNING level. If you would
-        # like to disable the checks, change the following to
-        #
-        #   if False:
-        #
-        # For more information, see
-        # http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck
-        #
-        try:
-            from omero.util.upgrade_check import UpgradeCheck
-            check = UpgradeCheck("web")
-            check.run()
-            if check.isUpgradeNeeded():
-                logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
-        except Exception, x:
-            logger.error("Upgrade check error: %s" % x)
-        
         blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
@@ -324,6 +288,7 @@ def login(request):
         error = str(x)
     
     if conn is not None:
+        upgradeCheck()
         request.session['version'] = conn.getServerVersion()
         return HttpResponseRedirect(reverse("waindex"))
     else:
