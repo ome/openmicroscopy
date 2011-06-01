@@ -272,11 +272,21 @@ class ImporterUI
 	void onImportEnded(ImporterUIElement element)
 	{
 		if (element == null) return;
-		int index = element.getIndex();
 		element.onImportEnded();
-		int count = tabs.getTabCount();
-		if (index < count)
-			tabs.setIconAt(index, element.getImportIcon());
+		if (tabs.getSelectedComponent() == element) {
+			tabs.setIconAt(tabs.getSelectedIndex(), element.getImportIcon());
+		} else {
+			Component[] components = tabs.getComponents();
+			int index = -1;
+			for (int i = 0; i < components.length; i++) {
+				if (components[i] == element) {
+					index = i;
+				}
+			}
+			if (index >= 0) 
+				tabs.setIconAt(index, element.getImportIcon());
+			
+		}
 	}
 	
 	/**
