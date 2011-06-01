@@ -29,6 +29,7 @@ def monitorPackage():
                   'LINUX_2_6_13+pyinotify' : 'fsPyinotifyMonitor', 
                   'WIN_XP'                 : 'fsWin-XP-Monitor', 
                   'WIN_2003Server'         : 'fsWin-XP-Monitor', 
+                  'WIN_Vista'              : 'fsWin-XP-Monitor', 
                 }
     
     # Initial state
@@ -49,7 +50,7 @@ def monitorPackage():
                 current = 'MACOS_10_5+'
             # Unsupported Mac OS version.
             else:
-                errorString = "Mac Os 10.5 or above required. You have: %s" % str(platform.mac_ver()[0])
+                errorString = "Mac Os 10.5 or above required. You have: %s" % platform.platform()
         except:
             # mac_ver() on python built with macports returns a version tuple
             # full of empty strings. That's caught here but the OS version is unknown.
@@ -66,7 +67,7 @@ def monitorPackage():
         # Unsupported Linux kernel version.    
         else:
             errorString = "Linux kernel 2.6.13 or above required. "
-            errorString += "You have: %s" % str(platform.platform().split('-')[1])
+            errorString += "You have: %s" % platform.platform()
 
     # Windows of some flavour.
     elif system == 'Windows':
@@ -75,8 +76,10 @@ def monitorPackage():
             current = 'WIN_XP'
         elif version[1] == '2003Server':
             current = 'WIN_2003Server'
+        elif version[1] == 'Vista':
+            current = 'WIN_Vista'
         else:
-            errorString = "Windows XP or 2003Server required. You have: %s" % str(version)
+            errorString = "Windows XP, Vista or 2003Server required. You have: %s" % platform.platform()
 
     # Unknown OS.
     else:
