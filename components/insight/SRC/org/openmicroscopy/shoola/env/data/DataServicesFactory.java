@@ -322,7 +322,8 @@ public class DataServicesFactory
 				break;
 			case OMEROGateway.SERVER_OUT_OF_SERVICE:
 				message = "The server is no longer " +
-				"running. \nPlease contact your system administrator.";
+				"running. \nPlease contact your system administrator." +
+				"\nThe application will exit.";
 				un.notifyInfo("Connection Refused", message);
 				exitApplication();
 				break;	

@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
+import Ice.ConnectionTimeoutException;
 import ome.conditions.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -862,7 +863,9 @@ class OMEROGateway
 			String s = "Fatal error. Please contact the administrator. \n"; 
 			throw new DSOutOfServiceException(s+message, t);
 		} else if (cause instanceof ConnectionRefusedException || 
-				t instanceof ConnectionRefusedException) {
+				t instanceof ConnectionRefusedException ||
+				cause instanceof ConnectionTimeoutException || 
+				t instanceof ConnectionTimeoutException) {
 			connected = false;
 			dsFactory.sessionExpiredExit(SERVER_OUT_OF_SERVICE);
 			return;
