@@ -377,10 +377,10 @@ class MetadataChannelForm(forms.Form):
             self.fields['contrastMethod'].widget.attrs['disabled'] = True 
             self.fields['contrastMethod'].widget.attrs['class'] = 'disabled-metadata'
         
-        # Illumination
+        # Mode
         try:
-            if kwargs['initial']['logicalChannel'].mode is not None:
-                self.fields['mode'] = MetadataModelChoiceField(queryset=kwargs['initial']['modes'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'mode\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['logicalChannel'].getMode(), required=False) 
+            if kwargs['initial']['logicalChannel'].getMode() is not None:
+                self.fields['mode'] = MetadataModelChoiceField(queryset=kwargs['initial']['modes'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'mode\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['logicalChannel'].getMode().value, required=False) 
             else:
                 self.fields['mode'] = MetadataModelChoiceField(queryset=kwargs['initial']['modes'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'mode\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['mode'].widget.attrs['disabled'] = True 
