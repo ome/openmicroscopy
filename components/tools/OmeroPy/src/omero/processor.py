@@ -6,7 +6,6 @@
 #
 
 import os
-import sys
 import time
 import signal
 import logging
@@ -27,6 +26,9 @@ from omero.util.temp_files import create_path, remove_path
 from omero.util.decorators import remoted, perf, locked
 from omero.rtypes import *
 from omero.util.decorators import remoted, perf, wraps
+
+sys = __import__("sys")
+
 
 def with_context(func, context):
     """ Decorator for invoking Ice methods with a context """
