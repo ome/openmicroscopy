@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export VMNAME=${VMNAME:-"$1"}
+export VMNAME=${VMNAME:-"omero-vm"}
 
 export MEMORY=${MEMORY:-"1024"}
 export SSH_PF=${SSH_PF:-"2222"}
