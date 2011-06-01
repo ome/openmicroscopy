@@ -23,7 +23,7 @@ class TestQuery(lib.ITest):
         groups = a.lookupGroups()
         for group in groups:
             rtypeseqseq = q.projection("""
-            select p.pixelsType.value, sum(p.sizeX * p.sizeY * p.sizeZ * p.sizeT * p.sizeC)
+            select p.pixelsType.value, sum(cast(p.sizeX as long) * p.sizeY * p.sizeZ * p.sizeT * p.sizeC)
             from Pixels p group by p.pixelsType.value
             """, None, {"omero.group":str(group.id.val)})
             rv = unwrap(rtypeseqseq)
