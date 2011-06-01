@@ -333,6 +333,9 @@ public class ImportDialog
 	/** The listener linked to the parents box. */
 	private ActionListener				parentsBoxListener;
 	
+	/** The listener linked to the dataset box. */
+	private ActionListener				datasetsBoxListener;
+	
 	/** The collection of <code>HCS</code> filters. */
 	private List<FileFilter> 			hcsFilters;
 	
@@ -475,8 +478,9 @@ public class ImportDialog
 		File[] files = chooser.getSelectedFiles();
 		if (files == null || files.length == 0) return;
 		List<File> l = new ArrayList<File>();
-		for (int i = 0; i < files.length; i++) 
+		for (int i = 0; i < files.length; i++) {
 			checkFile(files[i], l);
+		}
 		table.addFiles(l, fadBox.isSelected());
 		importButton.setEnabled(table.hasFilesToImport());
 	}
@@ -727,7 +731,17 @@ public class ImportDialog
     	fadBox.setBackground(UIUtilities.BACKGROUND);
     	fadBox.setSelected(true);
     	if (b != null) fadBox.setSelected(b.booleanValue());
-    	
+    	fadBox.addChangeListener(new ChangeListener() {
+			
+			public void stateChanged(ChangeEvent e) {
+				//
+				int n = handleFilesSelection(chooser.getSelectedFiles());
+				if (n == 0) {
+					datasetsBox.setEnabled(true);
+					folderAsDatasetBox.setEnabled(true);
+				} 
+			}
+		});
     	if (!isFastConnection()) //slow connection
     		showThumbnails.setSelected(false);
 		reference = null;
@@ -740,6 +754,14 @@ public class ImportDialog
 		};
 		parentsBox.addActionListener(parentsBoxListener);
 		datasetsBox = new JComboBox();
+		datasetsBoxListener = new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				DataNode node = (DataNode) datasetsBox.getSelectedItem();
+				folderAsDatasetBox.setSelected(node != null && 
+						node.isDefaultNode());
+			}
+		};
 		sorter = new ViewerSorter();
 		datasets = new ArrayList<DataNode>();
 		addProjectButton = new JButton("New...");
@@ -1370,7 +1392,9 @@ public class ImportDialog
 		List<DataNode> nl = n.getNewNodes();
 		if (nl != null) list.addAll(nl);
 		List l = sorter.sort(list);
+		datasetsBox.removeActionListener(datasetsBoxListener);
 		datasetsBox.removeAllItems();
+		
 		datasetsBox.setModel(new DefaultComboBoxModel(l.toArray()));
 		if (selectedContainer != null) {
 			Object o = selectedContainer.getUserObject();
@@ -1389,6 +1413,7 @@ public class ImportDialog
 		//now check what is the selected node
 		n = (DataNode) datasetsBox.getSelectedItem();
 		folderAsDatasetBox.setSelected(n.isDefaultNode());
+		datasetsBox.addActionListener(datasetsBoxListener);
 	}
 	
 	/**
@@ -1591,20 +1616,25 @@ public class ImportDialog
     }
 
 	/**
-	 * Checks if the file can be added to the passed list.
+	 * Checks if the file can be added to the passed list. Returns the 
+	 * <code>true</code> if the file is a directory, <code>false</code>
+	 * otherwise.
 	 * 
 	 * @param f The file to handle.
-	 * @param l The list to populate.
 	 */
-	private void checkFile(File f, List<File> l)
+	private boolean checkFile(File f, List<File> l)
 	{
-		if (f == null || f.isHidden()) return;
+		if (f == null || f.isHidden()) return false;
 		if (f.isFile()) {
 			if (isFileImportable(f)) l.add(f);
 		} else if (f.isDirectory()) {
 			File[] list = f.listFiles();
-			if (list != null && list.length > 0) l.add(f);
+			if (list != null && list.length > 0) {
+				l.add(f);
+				return true;
+			}
 		}
+		return false;
 	}
 	
 	/**
@@ -1856,6 +1886,53 @@ public class ImportDialog
 		canvas.setVisible(true);
 	}
 
+	/** 
+	 * Handles the selection of files. Returns the files that can be imported.
+	 * 
+	 * @param The selected files.
+	 * @return See above.
+	 */
+	private int handleFilesSelection(File[] files)
+	{
+		int count = 0;
+		if (files == null) return count;
+		File f;
+		int directory = 0;
+		for (int i = 0; i < files.length; i++) {
+			f = files[i];
+			if (!f.isHidden()) {
+				count++;
+				if (f.isDirectory()) {
+					directory++;
+				}
+			}
+		}
+		boolean b;
+		if (directory == count) {
+			if (fadBox.isSelected()) {
+				folderAsDatasetBox.setSelected(false);
+				folderAsDatasetBox.setEnabled(false);
+				datasetsBox.setEnabled(false);
+				addButton.setEnabled(false);
+			} else {
+				DataNode node = (DataNode) datasetsBox.getSelectedItem();
+				b = node != null && node.isDefaultNode();
+				folderAsDatasetBox.setEnabled(b);
+				folderAsDatasetBox.setSelected(b);
+				datasetsBox.setEnabled(!b);
+				addButton.setEnabled(!b);
+			}
+		} else {
+			DataNode node = (DataNode) datasetsBox.getSelectedItem();
+			b = node != null && node.isDefaultNode();
+			folderAsDatasetBox.setEnabled(b);
+			folderAsDatasetBox.setSelected(b);
+			datasetsBox.setEnabled(!b);
+			addButton.setEnabled(!b);
+		}
+		return count;
+	}
+	
 	/**
 	 * Reacts to property fired by the table.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -1868,8 +1945,8 @@ public class ImportDialog
 		} else if (FileSelectionTable.REMOVE_PROPERTY.equals(name)) {
 			importButton.setEnabled(table.hasFilesToImport());
 		} else if (JFileChooser.SELECTED_FILES_CHANGED_PROPERTY.equals(name)) {
-			File[] files = chooser.getSelectedFiles();
-			table.allowAddition(files != null && files.length > 0);
+			int n = handleFilesSelection(chooser.getSelectedFiles());
+			table.allowAddition(n > 0);
 		} else if (NumericalTextField.TEXT_UPDATED_PROPERTY.equals(name)) {
 			if (partialName.isSelected()) {
 		    	Integer number = (Integer) numberOfFolders.getValueAsNumber();
