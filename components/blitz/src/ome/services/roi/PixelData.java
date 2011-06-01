@@ -39,7 +39,7 @@ public class PixelData {
     }
 
     public PixelBuffer getBuffer(long pix) {
-        return data.getPixelBuffer(meta.retrievePixDescription(pix));
+        return data.getPixelBuffer(meta.retrievePixDescription(pix), false);
     }
 
     public double get(PixelBuffer buf, int x, int y, int z, int c, int t) {

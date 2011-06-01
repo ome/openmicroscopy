@@ -280,14 +280,34 @@ public class PixelsService extends AbstractFileSystemService
         return minMaxStore;
     }
 
+    /**
+     * Returns a pixel buffer for a given set of pixels. Either a proprietary
+     * ROMIO pixel buffer or a specific pixel buffer implementation.
+     * @param pixels Pixels set to retrieve a pixel buffer for.
+     * @return A pixel buffer instance. <b>NOTE:</b> The pixel buffer is
+     * initialized as <b>read-write</b>.
+     * @deprecated In the future callers should use the more descriptive
+     * {@link #getPixelBuffer(Pixels, boolean)}.
+     * @since OMERO-Beta4.3
+     * @see #getPixelBuffer(Pixels, boolean)
+     */
+    @Deprecated
+    public PixelBuffer getPixelBuffer(Pixels pixels)
+    {
+        return getPixelBuffer(pixels, true);
+    }
+
    /**
      * Returns a pixel buffer for a given set of pixels. Either a proprietary
      * ROMIO pixel buffer or a specific pixel buffer implementation.
      * @param pixels Pixels set to retrieve a pixel buffer for.
-     * @return See above.
+     * @param write Whether or not to open the pixel buffer as read-write.
+     * <code>true</code> opens as read-write, <code>false</code> opens as
+     * read-only.
+     * @return A pixel buffer instance.
      * @since OMERO-Beta4.3
      */
-    public PixelBuffer getPixelBuffer(Pixels pixels)
+    public PixelBuffer getPixelBuffer(Pixels pixels, boolean write)
     {
         final String originalFilePath = getOriginalFilePath(pixels);
         final boolean requirePyramid =
@@ -323,7 +343,7 @@ public class PixelsService extends AbstractFileSystemService
         if (pixelsPyramidFile.exists())
         {
             log.info("Using Pyramid BfPixelBuffer: " + pixelsPyramidFilePath);
-            return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath, false);
+            return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath, write);
         }
 
         //
@@ -335,17 +355,25 @@ public class PixelsService extends AbstractFileSystemService
         if (!pixelsFile.exists())
         {
             if (requirePyramid) {
+                if (!write) {
+                    throw new LockTimeout(
+                            "Pixels pyramid missing, being created or " +
+                            "import in progress.", 15*1000, 0);
+                }
                 log.info("Creating Pyramid BfPixelBuffer: " +
                         pixelsPyramidFilePath);
-                return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath, true);
+                return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath, write);
             } else {
+                if (!write) {
+                    throw new LockTimeout("Import in progress.", 15*1000, 0);
+                }
                 if (originalFilePath != null) {
                     int series = getSeries(pixels);
                     return createBfPixelBuffer(originalFilePath, series);
                 }
                 log.info("Creating ROMIO Pixel buffer.");
                 createSubpath(pixelsFilePath);
-                return createRomioPixelBuffer(pixelsFilePath, pixels, true);
+                return createRomioPixelBuffer(pixelsFilePath, pixels, write);
             }
         }
 

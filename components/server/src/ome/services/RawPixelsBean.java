@@ -275,7 +275,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             }
 
             try {
-                buffer = dataService.getPixelBuffer(pixelsInstance);
+                buffer = dataService.getPixelBuffer(pixelsInstance, true);
             } catch (RuntimeException re) {
                 // Rolling back to let the next setPixelsId try again
                 // since this is most likely our MissingPyramidException.
