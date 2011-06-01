@@ -35,6 +35,7 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -87,13 +88,15 @@ class PreviewToolBar
         bar.setFloatable(false);
         JButton b = new JButton(control.getAction(RendererControl.SAVE));
         UIUtilities.unifiedButtonLookAndFeel(b);
+        b.setText(ManageRndSettingsAction.NAME_SAVE);
         b.setBackground(UIUtilities.BACKGROUND_COLOR);
         bar.add(b);
+        /*
         b = new JButton(control.getAction(RendererControl.VIEW));
         UIUtilities.unifiedButtonLookAndFeel(b);
         b.setBackground(UIUtilities.BACKGROUND_COLOR);
         bar.add(b);
-        
+        */
         setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         add(bar);
         add(Box.createHorizontalStrut(5));

@@ -218,10 +218,7 @@ public class DomainPane
     
     /** The box hosting the channels. */
     private JComboBox					channelsBox;
-   
-    /** The preview tool bar. */
-    private PreviewToolBar				previewToolBar;
-    
+
     /**
      * Attaches listener to the passed slider and sets the default values.
      * 
@@ -275,7 +272,8 @@ public class DomainPane
         } else {
      
         }
-        if (previewToolBar != null) previewToolBar.setSelectedPlane();
+        graphicsPane.setSelectedPlane();
+        //if (previewToolBar != null) previewToolBar.setSelectedPlane();
     }
     
     /**
@@ -300,7 +298,8 @@ public class DomainPane
         } else {
             
         }
-        if (previewToolBar != null) previewToolBar.setSelectedPlane();
+        graphicsPane.setSelectedPlane();
+        //if (previewToolBar != null) previewToolBar.setSelectedPlane();
     }
     
     /** Initializes the components composing the display. */
@@ -403,7 +402,7 @@ public class DomainPane
         			}
         		}
         	});
-        	previewToolBar = new PreviewToolBar(controller, model);
+        	//previewToolBar = new PreviewToolBar(controller, model);
         }
         
         if (!model.isLifetimeImage())
@@ -419,8 +418,8 @@ public class DomainPane
         	channelButtonPanel = new JPanel();
         	channelButtonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
         }
-       
-        if (previewToolBar != null) previewToolBar.setSelectedPlane();
+        graphicsPane.setSelectedPlane();
+        //if (previewToolBar != null) previewToolBar.setSelectedPlane();
    
         if (model.getChannelData().size() > 1) {
         	channelsBox = new JComboBox();
@@ -551,16 +550,17 @@ public class DomainPane
     	if (model.isGeneralIndex()) {
     		p.add(buildViewerPane(), BorderLayout.WEST);
     		p.add(graphicsPane, BorderLayout.SOUTH);
-    		
+    		/*
     		JPanel bar = new JPanel();
     		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
     		bar.setLayout(new BoxLayout(bar, BoxLayout.Y_AXIS));
     		bar.add(previewToolBar);
     		bar.add(new JSeparator());
+    		*/
     		JPanel content = new JPanel();
     		content.setLayout(new BorderLayout());
     		content.setBackground(UIUtilities.BACKGROUND_COLOR);
-    		content.add(bar, BorderLayout.NORTH);
+    		//content.add(bar, BorderLayout.NORTH);
     		content.add(p, BorderLayout.CENTER);
     		return content;
     	} 
@@ -610,7 +610,8 @@ public class DomainPane
         slider.removeChangeListener(this);
         slider.setValue(v);
         slider.addChangeListener(this);
-        if (previewToolBar != null) previewToolBar.setSelectedPlane();
+        //if (previewToolBar != null) previewToolBar.setSelectedPlane();
+        graphicsPane.setSelectedPlane();
     }
     
     /**

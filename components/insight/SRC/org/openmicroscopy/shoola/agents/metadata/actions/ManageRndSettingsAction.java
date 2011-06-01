@@ -76,6 +76,12 @@ public class ManageRndSettingsAction
 	/** Indicates to save the rendering settings. */
 	public static final int SAVE = 6;
 	
+	/** The description of the action if {@link #SET_OWNER_SETTING}. */
+	public static final String NAME_OWNER = "Viewed by";
+
+	/** The description of the action if {@link #SAVE}. */
+	public static final String NAME_SAVE = "Apply";
+
 	/** The description of the action if {@link #APPLY_TO_ALL}. */
 	private static final String NAME_APPLY_TO_ALL = "Apply to All";
 	
@@ -91,9 +97,6 @@ public class ManageRndSettingsAction
 	/** The description of the action if {@link #RESET}. */
 	private static final String NAME_RESET = "Reset";
 	
-	/** The description of the action if {@link #SET_OWNER_SETTING}. */
-	public static final String NAME_OWNER = "Viewed by";
-
 	/** The description of the action if {@link #MIN_MAX}. */
 	private static final String DESCRIPTION_MIN_MAX = 
 		"Set the Pixels Intensity interval to min/max for all channels.";
