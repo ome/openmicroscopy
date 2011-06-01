@@ -51,6 +51,17 @@ Example Nginx usage:
     omero web stop
     nginx -s stop
 
+Example IIS usage:
+
+    # Install server
+    omero config set omero.web.debug true
+    omero web iis
+    iisreset
+
+    # Uninstall server
+    omero web iis --remove
+    iisreset
+
 """ % CONFIG_TABLE
 
 
@@ -62,6 +73,9 @@ class WebControl(BaseControl):
         parser.add(sub, self.start, "Primary start for the OMERO.web server")
         parser.add(sub, self.stop, "Stop the OMERO.web server")
         parser.add(sub, self.status, "Status for the OMERO.web server")
+
+        iis = parser.add(sub, self.iis, "IIS (un-)install of OMERO.web ")
+        iis.add_argument("--remove", action = "store_true", default = False)
 
         #
         # Advanced
@@ -436,6 +450,17 @@ using bin\omero web start on Windows with FastCGI.
     def set_environ(self, ice_config=None):
         os.environ['ICE_CONFIG'] = ice_config is None and str(self.ctx.dir / "etc" / "ice.config") or str(ice_config)
         os.environ['PATH'] = str(os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin')
+
+    def iis(self, args):
+
+        if not (self._isWindows() or self.ctx.isdebug):
+            self.ctx.die(2, "'iis' command is for Windows only")
+
+        web_iis = self.ctx.dir / "lib" / "python" / "omero_web_iis.py"
+        cmd = [sys.executable, str(web_iis)]
+        if args.remove:
+            cmd.append("remove")
+        rv = self.ctx.call(cmd)
 
 try:
     register("web", WebControl, HELP)
