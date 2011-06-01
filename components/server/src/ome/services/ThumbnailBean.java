@@ -329,7 +329,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         List<RenderingModel> renderingModels = getRenderingModels();
         QuantumFactory quantumFactory = new QuantumFactory(families);
         // Loading last to try to ensure that the buffer will get closed.
-        PixelBuffer buffer = pixelDataService.getPixelBuffer(pixels);
+        PixelBuffer buffer = pixelDataService.getPixelBuffer(pixels, false);
         renderer = new Renderer(quantumFactory, renderingModels, pixels,
                 settings, buffer);
         dirty = false;
@@ -921,7 +921,7 @@ public class ThumbnailBean extends AbstractLevel2Service
                     try
                     {
                         pixelDataService.getPixelBuffer(
-                                ctx.getPixels(pixelsId));
+                                ctx.getPixels(pixelsId), false);
                         continue;  // No exception, not a missing pyramid
                     }
                     catch (MissingPyramidException e)

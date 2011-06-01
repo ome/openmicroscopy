@@ -92,7 +92,8 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
     {
         ProjectionContext ctx = new ProjectionContext();
         ctx.pixels = iQuery.get(Pixels.class, pixelsId);
-        PixelBuffer pixelBuffer = pixelsService.getPixelBuffer(ctx.pixels);
+        PixelBuffer pixelBuffer = pixelsService.getPixelBuffer(
+                ctx.pixels, false);
         try
         {
 
@@ -206,9 +207,11 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         
         // Project each stack for each channel and each timepoint in the
         // entire image, copying into the pixel buffer the projected pixels.
-        PixelBuffer sourceBuffer = pixelsService.getPixelBuffer(ctx.pixels);
+        PixelBuffer sourceBuffer = pixelsService.getPixelBuffer(
+                ctx.pixels, false);
         try {
-            PixelBuffer destinationBuffer = pixelsService.getPixelBuffer(newPixels);
+            PixelBuffer destinationBuffer = pixelsService.getPixelBuffer(
+                    newPixels, true);
             try
             {
                 ctx.planeSizeInPixels = ctx.pixels.getSizeX() * ctx.pixels.getSizeY();

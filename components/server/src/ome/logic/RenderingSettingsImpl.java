@@ -450,7 +450,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         	PixelBuffer buffer = null;
         	if (computeStats)
         	{
-	        buffer = pixelsData.getPixelBuffer(pixels);
+	        buffer = pixelsData.getPixelBuffer(pixels, false);
         	}
 
             try
