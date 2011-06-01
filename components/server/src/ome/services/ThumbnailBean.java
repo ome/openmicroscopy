@@ -33,8 +33,8 @@ import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
 import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
+import ome.conditions.ConcurrencyException;
 import ome.conditions.InternalException;
-import ome.conditions.MissingPyramidException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
@@ -132,8 +132,8 @@ public class ThumbnailBean extends AbstractLevel2Service
     /** ID of the pixels instance that the service is currently working on. */
     private Long pixelsId;
 
-    /** Missing pyramid marker; set to true when no data is available the pixel */
-    private boolean missingPyramid;
+    /** In progress marker; set to true when no data is available the pixel */
+    private boolean inProgress;
 
     /** The rendering settings that the service is currently working with. */
     private RenderingDef settings;
@@ -144,7 +144,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /** The thumbnail metadata context. */
     private ThumbnailCtx ctx;
 
-    /** The in-progress image resource we'll use for missing pyramids. */
+    /** The in-progress image resource we'll use for in progress images. */
     private Resource inProgressImageResource;
 
     /** The default X-width for a thumbnail. */
@@ -353,7 +353,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /**
      * In-progress image resource Bean injector.
      * @param inProgressImageResource The in-progress image resource we'll be
-     * using for missing pyramids.
+     * using for in progress images.
      */
     public void setInProgressImageResource(Resource inProgressImageResource) {
         getBeanHelper().throwIfAlreadySet(
@@ -458,7 +458,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
         FileOutputStream stream = ioService.getThumbnailOutputStream(thumb);
         try {
-            if (missingPyramid) {
+            if (inProgress) {
                 compressInProgressImageToStream(thumb, stream);
             } else {
                 compressionService.compressToStream(image, stream);
@@ -568,7 +568,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         // Ensure that we have a valid state for rendering
         errorIfInvalidState();
 
-        if (missingPyramid)
+        if (inProgress)
         {
             return null;
         }
@@ -661,7 +661,7 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     private void resetMetadata()
     {
-        missingPyramid = false;
+        inProgress = false;
         pixels = null;
         pixelsId = null;
         settings = null;
@@ -680,7 +680,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     protected void errorIfInvalidState()
     {
         errorIfNullPixelsAndRenderingDef();
-        if (missingPyramid)
+        if (inProgress)
         {
             return; // No-op #5191
         }
@@ -690,10 +690,10 @@ public class ThumbnailBean extends AbstractLevel2Service
             {
                 load();
             }
-            catch (MissingPyramidException e)
+            catch (ConcurrencyException e)
             {
-                missingPyramid = true;
-                log.info("MissingPyramid on load()");
+                inProgress = true;
+                log.info("ConcurrencyException on load()");
             }
         }
         else if (renderer == null)
@@ -721,7 +721,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     protected void errorIfNullRenderingDef()
     {
         errorIfNullPixels();
-        if (missingPyramid)
+        if (inProgress)
         {
             // pass. Do nothing.
         }
@@ -752,7 +752,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     @Transactional(readOnly = false)
     public void createThumbnail(Integer sizeX, Integer sizeY)
     {
-        if (missingPyramid)
+        if (inProgress)
         {
             return;
         }
@@ -922,13 +922,13 @@ public class ThumbnailBean extends AbstractLevel2Service
                     {
                         pixelDataService.getPixelBuffer(
                                 ctx.getPixels(pixelsId), false);
-                        continue;  // No exception, not a missing pyramid
+                        continue;  // No exception, not an in progress image
                     }
-                    catch (MissingPyramidException e)
+                    catch (ConcurrencyException e)
                     {
-                        log.info("MissingPyramid on " +
+                        log.info("ConcurrencyException on " +
                                  "retrieveThumbnailSet.ctx.hasSettings");
-                        missingPyramid = true;
+                        inProgress = true;
                     }
                 }
                 pixels = ctx.getPixels(pixelsId);
@@ -1020,7 +1020,7 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     private byte[] retrieveThumbnail()
     {
-        if (missingPyramid)
+        if (inProgress)
         {
             return retrieveThumbnailDirect(
                     thumbnailMetadata.getSizeX(),
@@ -1118,7 +1118,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         BufferedImage image = createScaledImage(theZ, theT);
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try {
-            if (missingPyramid) {
+            if (inProgress) {
                 compressInProgressImageToStream(thumbnailMetadata, byteStream);
             } else {
                 compressionService.compressToStream(image, byteStream);
@@ -1202,7 +1202,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     public boolean thumbnailExists(Integer sizeX, Integer sizeY) {
         // Set defaults and sanity check thumbnail sizes
         errorIfNullPixelsAndRenderingDef();
-        if (missingPyramid)
+        if (inProgress)
         {
             return false;
         }
@@ -1261,10 +1261,10 @@ public class ThumbnailBean extends AbstractLevel2Service
         {
             settingsService.resetDefaults(def, pixels);
         }
-        catch (MissingPyramidException mpe)
+        catch (ConcurrencyException mpe)
         {
-            missingPyramid = true;
-            log.info("MissingPyramid on settingsSerice.resetDefaults");
+            inProgress = true;
+            log.info("ConcurrencyException on settingsSerice.resetDefaults");
         }
     }
 
