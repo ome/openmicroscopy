@@ -173,7 +173,7 @@ def savePlanesForImage(conn, image, sizeC, splitCs, mergedCs, channelNames=None,
         tIndexes = [image.getDefaultT()]
     else:
         if len(tRange) > 1:
-            tIndexes = range(tRange[0], tRange[1])
+            tIndexes = range(tRange[0], tRange[1]+1)
         else:
             tIndexes = [tRange[0]]
     
@@ -192,7 +192,7 @@ def savePlanesForImage(conn, image, sizeC, splitCs, mergedCs, channelNames=None,
                 savePlane(image, format, cName, zRange, t, c, greyscale, imgWidth, folder_name)
             else:
                 if len(zRange) > 1:
-                    for z in range(zRange[0], zRange[1]):
+                    for z in range(zRange[0], zRange[1]+1):
                         savePlane(image, format, cName, (z,), t, c, greyscale, imgWidth, folder_name)
                 else:
                     savePlane(image, format, cName, zRange, t, c, greyscale, imgWidth, folder_name)
@@ -233,8 +233,10 @@ def batchImageExport(conn, scriptParams):
                 zIndex = min(zIndex, sizeZ-1)
                 zRange = (zIndex,)
             elif "OR_specify_Z_start_AND..." in scriptParams and "...specify_Z_end" in scriptParams:
-                zStart = scriptParams["OR_specify_Z_start_AND..."]
-                zEnd = scriptParams["...specify_Z_end"]
+                start = scriptParams["OR_specify_Z_start_AND..."]
+                end = scriptParams["...specify_Z_end"]
+                zStart = min(start, end)  # in case user got zStart and zEnd mixed up
+                zEnd = max(start, end)
                 zRange = (min(sizeZ-1,zStart), min(sizeZ-1,zEnd) )
         return zRange
     
@@ -248,9 +250,11 @@ def batchImageExport(conn, scriptParams):
                 tIndex = scriptParams["OR_specify_T_index"]
                 tIndex = min(tIndex, sizeT-1)
                 tRange = (tIndex,)
-            elif "OR_specify_t_start_AND..." in scriptParams and "...specify_T_end" in scriptParams:
-                tStart = scriptParams["OR_specify_T_start_AND..."]
-                tEnd = scriptParams["...specify_T_end"]
+            elif "OR_specify_T_start_AND..." in scriptParams and "...specify_T_end" in scriptParams:
+                start = scriptParams["OR_specify_T_start_AND..."]
+                end = scriptParams["...specify_T_end"]
+                tStart = min(start, end)  # in case user got zStart and zEnd mixed up
+                tEnd = max(start, end)
                 tRange = (min(sizeT-1,tStart), min(sizeT-1,tEnd) )
         return tRange
 
