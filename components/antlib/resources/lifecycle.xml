@@ -120,10 +120,12 @@ omero.version=${omero.version}
 	        <attribute name="classpathref" default="omero.classpath"/>
 	        <element name="srcelements" implicit="yes"/>
 		<sequential>
+
+		<tempfile property="temp.file" deleteonexit="true" prefix="_omero_build_" suffix=".tmp"/>
+		<concat destfile="${temp.file}">-classpath ${toString:@{classpathref}}</concat>
 		<javac
 			fork="yes"
 			destdir="@{destdir}"
-			classpathref="@{classpathref}"
 			sourcepath=""
 			source="${javac.source}"
 			target="${javac.target}"
@@ -132,8 +134,10 @@ omero.version=${omero.version}
                         deprecation="on"
 			memoryMaximumSize="${javac.maxmem}"
 		>
+		        <compilerarg value="@${temp.file}"/>
 		        <srcelements/>
 		</javac>
+		<delete file="${temp.file}" quiet="true" failonerror="false"/>
 		</sequential>
 	</macrodef>
 
