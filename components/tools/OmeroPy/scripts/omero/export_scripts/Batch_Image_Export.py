@@ -133,6 +133,12 @@ def makeImageName(originalName, cName, zRange, t, extension, folder_name):
     imgName = "%s_%s_z%s_t%02d.%s" % (name, cName, z, t, extension)
     if folder_name != None:
         imgName = os.path.join(folder_name, imgName)
+    # check we don't overwrite existing file
+    i = 1
+    name = imgName[:-(len(extension)+1)]
+    while os.path.exists(imgName):
+        imgName = "%s_(%d).%s" % (name, i, extension)
+        i += 1
     return imgName
     
     
