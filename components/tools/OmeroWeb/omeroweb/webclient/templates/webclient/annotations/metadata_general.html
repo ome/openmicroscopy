@@ -332,8 +332,9 @@
                     <th>Pixels Type:</th>
                     <td id='pixels_type'>{{ manager.image.getPixelsType }}</td>
                 </tr>
+                {% if manager.image.getPixelSizeX or manager.image.getPixelSizeY or manager.image.getPixelSizeZ %}
                 <tr>
-                    <th>Pixels Size (XYZ) (&#181m):</th>
+                    <th>Pixels Size (XY{% if manager.image.getPixelSizeZ %}Z{% endif %}) (&#181m):</th>
                     <td id='pixels_size'>
                         <div class='tooltip'>{{ manager.image.getPixelSizeX|floatformat:4 }} x {{ manager.image.getPixelSizeY|floatformat:4 }} 
                             {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ|floatformat:4 }} {% endif %}
@@ -343,6 +344,7 @@
                         </span>
                     </td>
                 </tr>
+                {% endif %}
                 <tr>
                     <th>Z-sections/Timepoints:</th>
                     <td id='dims_zt'>{{ manager.image.getSizeZ }} x {{ manager.image.getSizeT }}</td>
