@@ -783,8 +783,10 @@ public class MetadataServiceTest
         	//method already tested in PixelsServiceTest
         	//make sure objects are loaded.
         	pixels = factory.getPixelsService().retrievePixDescription(pixId);
+        	String pump = null;
+        	if (values[k]) pump = ModelMockFactory.FILAMENT;
     		Instrument instrument = mmFactory.createInstrument(
-        			ModelMockFactory.LASER, values[k]);
+        			ModelMockFactory.LASER, pump);
         	
         	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
         	assertNotNull(instrument);

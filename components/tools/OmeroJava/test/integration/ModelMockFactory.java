@@ -715,7 +715,7 @@ public class ModelMockFactory
     public Instrument createInstrument(String light)
     	throws Exception
     {
-    	return createInstrument(light, false);
+    	return createInstrument(light, null);
     }
     
     /**
@@ -723,12 +723,12 @@ public class ModelMockFactory
      * <code>add*</code> methods has been tested i.e. addDectector, etc.
      * 
      * @param light The type of light source.
-     * @param withPump Pass <code>true</code> to add a pump to the laser,
-     * <code>false</code> otherwise.
+     * @param withPump Pass the type of light source of the pump or 
+     * <code>null</code>.
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    public Instrument createInstrument(String light, boolean withPump)
+    public Instrument createInstrument(String light, String pump)
     	throws Exception
     {
     	Instrument instrument = createInstrument();
@@ -744,10 +744,18 @@ public class ModelMockFactory
     	if (LASER.equals(light)) {
     		Laser laser = createLaser();
     		instrument.addLightSource(laser);
-    		if (withPump) {
-    			LightSource pump = createFilament();
-    			instrument.addLightSource(pump);
-    			laser.setPump(pump);
+    		if (pump != null) {
+    			LightSource ls = null;
+    			if (LASER.equals(pump)) 
+    				ls = createLaser();
+    			else if (FILAMENT.equals(pump))
+    				ls = createArc();
+    			else if (ARC.equals(pump))
+    				ls = createFilament();
+    			if (ls != null) {
+    				instrument.addLightSource(ls);
+        			laser.setPump(ls);
+    			}
     		}
     	}
     	else if (FILAMENT.equals(light))
