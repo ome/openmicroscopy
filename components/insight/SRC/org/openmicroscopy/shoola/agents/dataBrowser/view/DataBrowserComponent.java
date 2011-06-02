@@ -880,6 +880,7 @@ class DataBrowserComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalArgumentException("This method cannot be " +
 					"invoked in the DISCARDED state.");
+		/*
 		if (model.getType() == DataBrowserModel.SEARCH) {
 			firePropertyChange(SET__OWNER_RND_SETTINGS_PROPERTY, null, 
 					getBrowser().getSelectedDataObjects());
@@ -892,6 +893,9 @@ class DataBrowserComponent
 				firePropertyChange(SET__OWNER_RND_SETTINGS_PROPERTY, 
 						Boolean.valueOf(false), Boolean.valueOf(true));
 		}
+		*/
+		firePropertyChange(SET__OWNER_RND_SETTINGS_PROPERTY,
+				Boolean.valueOf(false), Boolean.valueOf(true));
 	}
 
 	/**

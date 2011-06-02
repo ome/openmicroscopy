@@ -1152,6 +1152,10 @@ class TreeViewerControl
 					}
 				}
 			}
+		} else if (DataBrowser.SET__OWNER_RND_SETTINGS_PROPERTY.equals(name)) {
+			PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model, 
+					PasteRndSettingsCmd.SET_OWNER);
+			cmd.execute();
 		}
 	}
 	
