@@ -102,9 +102,11 @@ public class MetadataImpl
      * light source.
      * 
      * @param src The light source to handle.
+     * @param instrument Pass <code>true</code> for clause on id,
+     * 					<code>false</code> for clause on instrument
      * @return See above.
      */
-    private StringBuilder createLightQuery(LightSource src)
+    private StringBuilder createLightQuery(LightSource src, boolean idClause)
     {
     	if (src == null) return null;
     	StringBuilder sb = new StringBuilder();
@@ -113,16 +115,23 @@ public class MetadataImpl
 			sb.append("left outer join fetch l.type ");
 			sb.append("left outer join fetch l.laserMedium ");
 			sb.append("left outer join fetch l.pulse as pulse ");
-	        sb.append("where l.instrument.id = :instrumentId");
+			sb.append("left outer join fetch l.pump as pump ");
+			if (idClause)
+				sb.append("where l.id = :id");
+			else sb.append("where l.instrument.id = :instrumentId");
 		} else if (src instanceof Filament) {
 			sb.append("select l from Filament as l ");
 			sb.append("left outer join fetch l.type ");
-	        sb.append("where l.instrument.id = :instrumentId");
+			if (idClause)
+				sb.append("where l.id = :id");
+			else sb.append("where l.instrument.id = :instrumentId");
 		} else if (src instanceof Arc) {
 			sb.append("select l from Arc as l ");
 			sb.append("left outer join fetch l.type ");
-	        sb.append("where l.instrument.id = :instrumentId");
-		}
+			if (idClause)
+				sb.append("where l.id = :id");
+			else sb.append("where l.instrument.id = :instrumentId");
+		} else sb = null;
     	return sb;
     }
     
@@ -394,7 +403,7 @@ public class MetadataImpl
     				name = ls.getClass().getName();
     				if (!names.contains(name)) {
         				names.add(name);
-        				builder = createLightQuery(ls);
+        				builder = createLightQuery(ls, false);
         				if (builder != null) {
         					list.addAll(
         						iQuery.findAllByQuery(builder.toString(), 
@@ -481,28 +490,35 @@ public class MetadataImpl
         Iterator<LogicalChannel> i = list.iterator();
         LogicalChannel channel;
         LightSettings light;
-        LightSource src;
-        IObject object;
-        Parameters params; 
+        LightSource src, pump;
+        Parameters params;
         Laser laser;
-        Instrument instrument;
         while (i.hasNext()) {
         	channel = i.next();
 			light = channel.getLightSourceSettings();
 			if (light != null) {
 				src = light.getLightSource();
-				if (src instanceof LightEmittingDiode) {
-					light.setLightSource(src);
-				} else {
-					sb = createLightQuery(src);
+				if (!(src instanceof LightEmittingDiode)) {
+					sb = createLightQuery(src, true);
 					if (sb != null) {
 						params = new Parameters(); 
-						params.addLong("instrumentId", 
-								src.getInstrument().getId());
 						params.addId(src.getId());
-						sb.append(" and l.id = :id");
-						object = iQuery.findByQuery(sb.toString(), params);
-						light.setLightSource((LightSource) object);
+						src = iQuery.findByQuery(sb.toString(), params);
+						if (src instanceof Laser) {
+							laser = (Laser) src;
+							pump = laser.getPump();
+							if (pump != null && 
+									!(pump instanceof LightEmittingDiode)) {
+								params = new Parameters(); 
+								params.addId(pump.getId());
+								sb = createLightQuery(pump, true);
+								if (sb != null)
+									laser.setPump((LightSource)
+											iQuery.findByQuery(sb.toString(), 
+													params));
+								light.setLightSource(laser);
+							}
+						} else light.setLightSource(src);
 					}
 				}
 			}
