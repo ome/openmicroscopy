@@ -1664,11 +1664,11 @@ class TreeViewerComponent
 	public void rndSettingsPasted(Map map)
 	{
 		if (map == null || map.size() != 2) return;
-		Collection failure = (Collection) map.get(Boolean.FALSE);
-		Collection success = (Collection) map.get(Boolean.TRUE);
+		Collection failure = (Collection) map.get(Boolean.valueOf(false));
+		Collection success = (Collection) map.get(Boolean.valueOf(true));
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 		bus.post(new RndSettingsCopied(success, -1));
-		
+		/*
 		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 		String name = model.getRefImageName();
 		int n = success.size();
@@ -1725,6 +1725,7 @@ class TreeViewerComponent
 			//if (db != null) 
 			//	db.markUnmodifiedNodes(ImageData.class, failure);
 		}
+		*/
 		MetadataViewer mv = model.getMetadataViewer();
 		if (mv != null) mv.onSettingsApplied();
 		model.setState(READY);
