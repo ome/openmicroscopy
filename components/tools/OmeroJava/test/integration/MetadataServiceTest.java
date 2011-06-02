@@ -763,122 +763,129 @@ public class MetadataServiceTest
     
     /**
      * Tests the retrieval of channel acquisition data.
+     * One using an instrument with one laser, the second time with a laser
+     * with a pump
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false)
     public void testLoadChannelAcquisitionData() 
     	throws Exception
     {
-    	Image img = mmFactory.createImage();
-    	img = (Image) iUpdate.saveAndReturnObject(img);
-    	Pixels pixels = img.getPrimaryPixels();
-    	long pixId = pixels.getId().getValue();
-    	//method already tested in PixelsServiceTest
-    	//make sure objects are loaded.
-    	pixels = factory.getPixelsService().retrievePixDescription(pixId);
     	//create an instrument.
-    	Instrument instrument = mmFactory.createInstrument(
-    			ModelMockFactory.LASER);
-    	//add second laser
-    	instrument.addLightSource(mmFactory.createLaser());
-    	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
-    	assertNotNull(instrument);
-    	//retrieve the detector.
-    	ParametersI param = new ParametersI();
-    	param.addLong("iid", instrument.getId().getValue());
-    	String sql = "select d from Detector as d where d.instrument.id = :iid";
-    	Detector detector = (Detector) iQuery.findByQuery(sql, param);
-    	sql = "select d from FilterSet as d where d.instrument.id = :iid";
-    	FilterSet filterSet = (FilterSet) iQuery.findByQuery(sql, param);
-    	sql = "select d from Laser as d where d.instrument.id = :iid";
-    	List<IObject> lasers =  iQuery.findAllByQuery(sql, param);
-    	assertTrue(lasers.size() == 2);
-    	Laser laser = (Laser) lasers.get(0);
-    	
-    	
-    	sql = "select d from Dichroic as d where d.instrument.id = :iid";
-    	Dichroic dichroic = (Dichroic) iQuery.findByQuery(sql, param);
-    	sql = "select d from Objective as d where d.instrument.id = :iid";
-    	Objective objective = (Objective) iQuery.findByQuery(sql, param);
-    	
-    	sql = "select d from OTF as d where d.instrument.id = :iid";
-    	OTF otf = (OTF) iQuery.findByQuery(sql, param);
-    	assertNotNull(otf);
-    	LogicalChannel lc;
-    	Channel channel;
-    	ContrastMethod cm;
-    	Illumination illumination;
-    	AcquisitionMode mode;
-    	List<IObject> types = factory.getPixelsService().getAllEnumerations(
-    			ContrastMethod.class.getName());
-    	cm = (ContrastMethod) types.get(0);
-    	
-    	types = factory.getPixelsService().getAllEnumerations(
-    			Illumination.class.getName());
-    	illumination = (Illumination) types.get(0);
-    	types = factory.getPixelsService().getAllEnumerations(
-    			AcquisitionMode.class.getName());
-    	mode = (AcquisitionMode) types.get(0);
-    	
-    	List<Long> ids = new ArrayList<Long>();
-    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
-			channel = pixels.getChannel(i);
-			lc = channel.getLogicalChannel();
-			lc.setContrastMethod(cm);
-			lc.setIllumination(illumination);
-			lc.setMode(mode);
-			lc.setOtf(otf);
-	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
-	    	lc.setFilterSet(filterSet);
-	    	lc.setLightSourceSettings(mmFactory.createLightSettings(laser));
-	    	lc.setLightPath(mmFactory.createLightPath(null, dichroic, null));
-	    	lc = (LogicalChannel) iUpdate.saveAndReturnObject(lc);
-	    	assertNotNull(lc);
-	    	ids.add(lc.getId().getValue());
-		}
-    	List<LogicalChannel> channels = iMetadata.loadChannelAcquisitionData(
-    			ids);
-    	assertTrue(channels.size() == pixels.getSizeC().getValue());
-    	LogicalChannel loaded;
-    	Iterator<LogicalChannel> j = channels.iterator();
-    	LightSourceData l;
-    	while (j.hasNext()) {
-    		loaded = j.next();
-    		assertNotNull(loaded);
-        	ChannelAcquisitionData data = new ChannelAcquisitionData(loaded);
-        	assertTrue(data.getDetector().getId() == 
-        		detector.getId().getValue());
-        	assertTrue(data.getFilterSet().getId() == 
-        		filterSet.getId().getValue());
-        	l = (LightSourceData) data.getLightSource();
-        	assertTrue(l.getId() == laser.getId().getValue());
-        	assertNotNull(l.getLaserMedium());
-        	assertNotNull(l.getType());
-        	assertNotNull(loaded.getDetectorSettings());
-        	assertNotNull(loaded.getLightSourceSettings());
-        	assertNotNull(loaded.getDetectorSettings().getBinning());
-        	assertNotNull(loaded.getDetectorSettings().getDetector());
-        	assertNotNull(loaded.getDetectorSettings().getDetector().getType());
-        	assertNotNull(loaded.getLightPath());
-        	assertNotNull(data.getLightPath().getDichroic().getId() 
-        			== dichroic.getId().getValue());
-        	assertNotNull(data.getContrastMethod());
-        	assertNotNull(data.getIllumination());
-        	assertNotNull(data.getMode());
-        	//OTF support
+    	Boolean[] values = new Boolean[2];
+    	values[0] = Boolean.valueOf(false);
+    	values[1] = Boolean.valueOf(true);
+    	for (int k = 0; k < values.length; k++) {
+    		Image img = mmFactory.createImage();
+        	img = (Image) iUpdate.saveAndReturnObject(img);
+        	Pixels pixels = img.getPrimaryPixels();
+        	long pixId = pixels.getId().getValue();
+        	//method already tested in PixelsServiceTest
+        	//make sure objects are loaded.
+        	pixels = factory.getPixelsService().retrievePixDescription(pixId);
+    		Instrument instrument = mmFactory.createInstrument(
+        			ModelMockFactory.LASER, values[k]);
         	
-        	assertTrue(data.getOTF().getId() == otf.getId().getValue());
-        	assertNotNull(loaded.getOtf());
-        	assertTrue(loaded.getOtf().getId().getValue() 
-        			== otf.getId().getValue());
-        	assertNotNull(loaded.getOtf().getFilterSet());
-        	assertNotNull(loaded.getOtf().getObjective());
-        	assertTrue(loaded.getOtf().getFilterSet().getId().getValue() ==
-        		filterSet.getId().getValue());
-        	assertTrue(loaded.getOtf().getObjective().getId().getValue() ==
-        		objective.getId().getValue());
-        	assertNotNull(loaded.getOtf().getPixelsType());
+        	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
+        	assertNotNull(instrument);
+        	//retrieve the detector.
+        	ParametersI param = new ParametersI();
+        	param.addLong("iid", instrument.getId().getValue());
+        	String sql = "select d from Detector as d where d.instrument.id = :iid";
+        	Detector detector = (Detector) iQuery.findByQuery(sql, param);
+        	sql = "select d from FilterSet as d where d.instrument.id = :iid";
+        	FilterSet filterSet = (FilterSet) iQuery.findByQuery(sql, param);
+        	sql = "select d from Laser as d where d.instrument.id = :iid";
+        	List<IObject> lasers =  iQuery.findAllByQuery(sql, param);
+        	Laser laser = (Laser) lasers.get(0);
+        	
+        	sql = "select d from Dichroic as d where d.instrument.id = :iid";
+        	Dichroic dichroic = (Dichroic) iQuery.findByQuery(sql, param);
+        	sql = "select d from Objective as d where d.instrument.id = :iid";
+        	Objective objective = (Objective) iQuery.findByQuery(sql, param);
+        	
+        	sql = "select d from OTF as d where d.instrument.id = :iid";
+        	OTF otf = (OTF) iQuery.findByQuery(sql, param);
+        	assertNotNull(otf);
+        	LogicalChannel lc;
+        	Channel channel;
+        	ContrastMethod cm;
+        	Illumination illumination;
+        	AcquisitionMode mode;
+        	List<IObject> types = factory.getPixelsService().getAllEnumerations(
+        			ContrastMethod.class.getName());
+        	cm = (ContrastMethod) types.get(0);
+        	
+        	types = factory.getPixelsService().getAllEnumerations(
+        			Illumination.class.getName());
+        	illumination = (Illumination) types.get(0);
+        	types = factory.getPixelsService().getAllEnumerations(
+        			AcquisitionMode.class.getName());
+        	mode = (AcquisitionMode) types.get(0);
+        	
+        	List<Long> ids = new ArrayList<Long>();
+        	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+    			channel = pixels.getChannel(i);
+    			lc = channel.getLogicalChannel();
+    			lc.setContrastMethod(cm);
+    			lc.setIllumination(illumination);
+    			lc.setMode(mode);
+    			lc.setOtf(otf);
+    	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
+    	    	lc.setFilterSet(filterSet);
+    	    	lc.setLightSourceSettings(mmFactory.createLightSettings(laser));
+    	    	lc.setLightPath(mmFactory.createLightPath(null, dichroic, null));
+    	    	lc = (LogicalChannel) iUpdate.saveAndReturnObject(lc);
+    	    	assertNotNull(lc);
+    	    	ids.add(lc.getId().getValue());
+    		}
+        	List<LogicalChannel> channels = iMetadata.loadChannelAcquisitionData(
+        			ids);
+        	assertTrue(channels.size() == pixels.getSizeC().getValue());
+        	LogicalChannel loaded;
+        	Iterator<LogicalChannel> j = channels.iterator();
+        	LightSourceData l;
+        	while (j.hasNext()) {
+        		loaded = j.next();
+        		assertNotNull(loaded);
+            	ChannelAcquisitionData data = new ChannelAcquisitionData(loaded);
+            	assertTrue(data.getDetector().getId() == 
+            		detector.getId().getValue());
+            	assertTrue(data.getFilterSet().getId() == 
+            		filterSet.getId().getValue());
+            	l = (LightSourceData) data.getLightSource();
+            	assertTrue(l.getId() == laser.getId().getValue());
+            	assertNotNull(l.getLaserMedium());
+            	assertNotNull(l.getType());
+            	if (values[k]) {
+            		assertNotNull(((Laser) l.asIObject()).getPump());
+            	}
+            	assertNotNull(loaded.getDetectorSettings());
+            	assertNotNull(loaded.getLightSourceSettings());
+            	assertNotNull(loaded.getDetectorSettings().getBinning());
+            	assertNotNull(loaded.getDetectorSettings().getDetector());
+            	assertNotNull(loaded.getDetectorSettings().getDetector().getType());
+            	assertNotNull(loaded.getLightPath());
+            	assertNotNull(data.getLightPath().getDichroic().getId() 
+            			== dichroic.getId().getValue());
+            	assertNotNull(data.getContrastMethod());
+            	assertNotNull(data.getIllumination());
+            	assertNotNull(data.getMode());
+            	//OTF support
+            	
+            	assertTrue(data.getOTF().getId() == otf.getId().getValue());
+            	assertNotNull(loaded.getOtf());
+            	assertTrue(loaded.getOtf().getId().getValue() 
+            			== otf.getId().getValue());
+            	assertNotNull(loaded.getOtf().getFilterSet());
+            	assertNotNull(loaded.getOtf().getObjective());
+            	assertTrue(loaded.getOtf().getFilterSet().getId().getValue() ==
+            		filterSet.getId().getValue());
+            	assertTrue(loaded.getOtf().getObjective().getId().getValue() ==
+            		objective.getId().getValue());
+            	assertNotNull(loaded.getOtf().getPixelsType());
+    		}
 		}
     }
-    
+
 }

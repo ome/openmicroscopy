@@ -715,6 +715,22 @@ public class ModelMockFactory
     public Instrument createInstrument(String light)
     	throws Exception
     {
+    	return createInstrument(light, false);
+    }
+    
+    /**
+     * Creates and returns an instrument. The creation using the 
+     * <code>add*</code> methods has been tested i.e. addDectector, etc.
+     * 
+     * @param light The type of light source.
+     * @param withPump Pass <code>true</code> to add a pump to the laser,
+     * <code>false</code> otherwise.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public Instrument createInstrument(String light, boolean withPump)
+    	throws Exception
+    {
     	Instrument instrument = createInstrument();
     	instrument.addDetector(createDetector());
     	instrument.addFilter(createFilter(500, 560));
@@ -725,8 +741,15 @@ public class ModelMockFactory
     	instrument.addObjective(objective);
     	instrument.addFilterSet(filterSet);
     	instrument.addOTF(createOTF(filterSet, objective));
-    	if (LASER.equals(light))
-    		instrument.addLightSource(createLaser());
+    	if (LASER.equals(light)) {
+    		Laser laser = createLaser();
+    		instrument.addLightSource(laser);
+    		if (withPump) {
+    			LightSource pump = createFilament();
+    			instrument.addLightSource(pump);
+    			laser.setPump(pump);
+    		}
+    	}
     	else if (FILAMENT.equals(light))
     		instrument.addLightSource(createFilament());
     	else if (ARC.equals(light))
@@ -735,7 +758,6 @@ public class ModelMockFactory
     		instrument.addLightSource(createLightEmittingDiode());
     	return instrument;
     }
-    
     /**
      * Creates a plane info object.
      * @return See above.
