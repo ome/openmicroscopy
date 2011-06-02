@@ -49,6 +49,7 @@ urlpatterns = patterns('',
     # edit name & description of 'project', 'dataset' or 'image', then redirect to object page
     url( r'^edit_object/(?P<obj_type>[a-z]+)/(?P<obj_id>[0-9]+)/$', views.edit_object, name='webmobile_edit_object' ),
     
-    url(r'^appmedia/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'webmobile/media'}, name="mobile_static"),
+    # tell django where to find media files for webmobile
+    url(r'^appmedia/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'media')}, name="mobile_static"),
 )
 

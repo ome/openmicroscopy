@@ -5,7 +5,8 @@ from omeroweb.webtest import views
 
 urlpatterns = patterns('django.views.generic.simple',
 
-    url( r'^statictest/(?P<path>.*)$', serve, {'document_root': 'media/webtest'}, name="statictest"),
+    # tell django where to find media files for webtest. From 'here' they are in /media/
+    url(r'^statictest/(?P<path>.*)$', serve, {'document_root': os.path.join(os.path.dirname(__file__), 'media')}, name="statictest"),
 
     url( r'^$', views.index, name='webtest_index' ),
     url( r'^login/$', views.login, name='webtest_login' ),
