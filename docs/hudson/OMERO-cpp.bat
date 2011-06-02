@@ -47,6 +47,7 @@ mkdir %OMERO_CPP%\lib\client
 copy dist\lib\client\omero_client.jar %OMERO_CPP%\lib\client\
 REM For Java compilation
 
+set PATH=%PATH%;%OMERO_CPP%\lib
 cd examples
 python ..\target\scons\scons.py builddir=%OMERO_CPP% run_cpp=1
 if errorlevel 1 exit /b 1
