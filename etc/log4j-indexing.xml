@@ -60,6 +60,7 @@ omero.blitz.xargs.
   <!-- Qiueting indexing -->
   <category name="ome.security.basic.EventHandler"> <priority value="WARN"/> </category>
   <category name="ome.services.util.ServiceHandler"> <priority value="WARN"/> </category>
+  <category name="ome.services.sessions.state"> <priority value="WARN"/> </category>
   <!-- Inherit from Spring/etc and so are a bit verbose -->
   <category name="ome.system.OmeroContext"> <priority value="WARN"/> </category>
   <category name="ome.system.PreferenceContext"> <priority value="WARN"/> </category>
