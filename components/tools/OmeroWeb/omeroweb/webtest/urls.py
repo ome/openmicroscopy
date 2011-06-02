@@ -3,6 +3,8 @@ from django.views.static import serve
 
 from omeroweb.webtest import views
 
+import os
+
 urlpatterns = patterns('django.views.generic.simple',
 
     # tell django where to find media files for webtest. From 'here' they are in /media/
