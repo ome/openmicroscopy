@@ -23,7 +23,10 @@
 package org.openmicroscopy.shoola.agents.util.flim.resultstable;
 
 //Java imports
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
@@ -56,6 +59,19 @@ public class ResultsObject
 		elements = new HashMap<String, Object>(); 
 	}
 	
+	/**
+	 * Create the results object from two lists, the first the keys, and the second the matching values.
+	 * @param keys See above.
+	 * @param values See above.
+	 */
+	public ResultsObject(List<String> keys, List<String> values)
+	{
+		if(keys.size()!=values.size() || keys.size()==0)
+			throw new IllegalArgumentException("Keys and Values must be same length and non-zero length.");
+		elements = new HashMap<String, Object>();
+		for(int i = 0 ; i < keys.size() ; i++)
+			elements.put(keys.get(i), values.get(i));
+	}
 	/**
 	 * Adds the passed element to the collection if not <code>null</code>.
 	 * 
@@ -100,5 +116,19 @@ public class ResultsObject
 	 */
 	public int getSize() { return elements.size(); }
 	
+	/**
+	 * Get all the keys in the results object.
+	 * @return
+	 */
+	public List<String> getKeys()
+	{
+		List<String> keyList = new ArrayList<String>();
+		Iterator<String> keyIterator = elements.keySet().iterator();
+		while(keyIterator.hasNext())
+		{
+			keyList.add(keyIterator.next());
+		}
+		return keyList;
+	}
 }
 

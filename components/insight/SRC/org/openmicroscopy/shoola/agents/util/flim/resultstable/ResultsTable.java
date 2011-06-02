@@ -26,8 +26,11 @@ package org.openmicroscopy.shoola.agents.util.flim.resultstable;
 //Java imports
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,15 +41,18 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.util.flim.resultstable.io.CSVReader;
-import org.openmicroscopy.shoola.util.file.ExcelWriter;
-import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
+import org.openmicroscopy.shoola.util.file.WriterText;
+import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Displays the results stored in the passed file.
@@ -86,6 +92,9 @@ public class ResultsTable
 
 	/** The model for the table. */
 	protected ResultsTableModel tableModel;
+	
+	/** The scroll pane containing the table. */
+	JScrollPane scrollPane;
 	
 	/**
 	 * Create the resultsTable to display the requested results from the user.
@@ -141,7 +150,8 @@ public class ResultsTable
 	protected void buildUI()
 	{
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		add(new JScrollPane(tableView));
+		scrollPane = new JScrollPane(tableView);
+		add(scrollPane);
 	}
 	
 	/** 
@@ -167,15 +177,101 @@ public class ResultsTable
 	}
 	
 	/**
+	 * Shows the results wizard and updates the fields based on the users 
+	 * selection.
+	 */
+	public void showResultsWizard()
+	{
+		ResultsWizard resultsWizard = new ResultsWizard(tableModel.getColumns(), 
+				tableModel.getAllColumns());
+		resultsWizard.pack();
+		UIUtilities.setLocationRelativeToAndShow(this, resultsWizard);
+		List<String> columnList = resultsWizard.getSelectedColumns();
+		if(columnList.size() > tableView.getColumnCount())
+			addColumns(columnList.size()-tableView.getColumnCount());
+		if(columnList.size() < tableView.getColumnCount())
+			removeColumns(tableView.getColumnCount()-columnList.size());
+		tableModel.setColumns(columnList);
+		tableView.setModel(tableModel);
+		resizeTableColumns();
+		tableView.invalidate();
+		tableModel.changed();
+		tableView.repaint();
+		repaint();
+	}
+	
+	private void addColumns(int n)
+	{
+		TableColumnModel cm = tableView.getColumnModel();
+		for(int i = 0 ; i < n ; i++)
+			cm.addColumn(new TableColumn());
+	}
+	
+	private void removeColumns(int n)
+	{
+		TableColumnModel cm = tableView.getColumnModel();
+		for(int i = 0 ; i < n ; i++)
+		{
+			TableColumn col = cm.getColumn(i);
+			cm.removeColumn(col);
+		}	
+	}
+	
+	/**
 	 * Load the results from a file.
 	 * @param fileName
 	 * @return
 	 */
-	public boolean loadResults(String fileName)
+	public boolean loadResults(File file)
 	{
-		File file = new File(fileName);
-		CSVReader reader = new CSVReader();
-		return false;
+		try 
+		{
+			readCSV(file);
+			return true;
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	/**
+	 * Read the CSVFile and put into the table.
+	 * @param file
+	 */
+	public void readCSV(File file)
+	{
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader(new FileReader(file));
+		
+			List<String> columnHeaders = readColumnHeaders(reader);
+		
+			String row;
+			while((row = reader.readLine())!=null)
+			{
+				tableModel.addRow(new ResultsObject(columnHeaders, UIUtilities.CSVToList(row)));
+			}
+			reader.close();
+			tableModel.setColumns(columnHeaders);
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Read the column headings of the CSV file.
+	 * @param reader See above.
+	 * @return See above.
+	 * @throws IOException
+	 */
+	private List<String> readColumnHeaders(BufferedReader reader) throws IOException
+	{
+		String columns = reader.readLine();
+		return UIUtilities.CSVToList(columns);
 	}
 	
 	/** 
@@ -184,24 +280,29 @@ public class ResultsTable
 	 * @throws IOException Thrown if the data cannot be written.
 	 * @return true if results saved, false if users cancels save.
 	 */
-	public boolean saveResults(String fileNameChoice)
-		throws IOException
+	public boolean saveResults(File file)
 	{
-		File file = new File(fileNameChoice);
-		if (!file.getAbsolutePath().endsWith(ExcelFilter.EXCEL))
+		if (!file.getAbsolutePath().endsWith(CSVFilter.CSV))
 		{
-			String newFileName = file.getAbsolutePath()+"."+ExcelFilter.EXCEL;
+			String newFileName = file.getAbsolutePath()+"."+CSVFilter.CSV;
 			file = new File(newFileName);
 		}
-		String filename = file.getAbsolutePath();
-		ExcelWriter writer = new ExcelWriter(filename);
-		writer.openFile();
-		writer.createSheet("Measurement Results");
-		writer.writeTableToSheet(0, 0, tableView.getModel());
-		writer.close();
-		return true;
+		try
+		{
+			WriterText.writeTableAsText(file, tableModel);
+			return true;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
+	/** 
+	 * Insert the data into table, this is a map of the column name and the value to be inserted.
+	 * @param data The data to be inserted.
+	 */
 	public void insertData(Map<String, Object> data)
 	{
 		ResultsObject row = new ResultsObject();
@@ -209,6 +310,7 @@ public class ResultsTable
 		while(keyIterator.hasNext())
 		{
 			String key = keyIterator.next();
+			tableModel.addColumn(key);
 			row.addElement(key, data.get(key));
 		}
 		tableModel.addRow(row);
@@ -217,7 +319,7 @@ public class ResultsTable
 	/**
 	 * Clear the table of all values.
 	 */
-	public void clearTable()
+	public void clear()
 	{
 		ResultsTableModel tableModel = (ResultsTableModel)tableView.getModel();
 		tableModel.clear();

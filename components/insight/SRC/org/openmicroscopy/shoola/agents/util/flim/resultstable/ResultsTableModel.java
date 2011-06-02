@@ -23,9 +23,14 @@
 package org.openmicroscopy.shoola.agents.util.flim.resultstable;
 
 //Java imports
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -50,16 +55,15 @@ class ResultsTableModel
 	extends AbstractTableModel
 {
 	
-	/** The collection of column's names. */
+	/** The collection of column's names being displayed. */
 	private List<String>				columnNames;
-
-	private Map<String, Integer> 			columnKey;
 	
 	/** Collection of <code>Object</code>s hosted by this model. */
 	private Map<Integer, ResultsObject>		values;
-	
-	private int rowCount;
 		
+	/** The set of all columns in the table. */
+	private Set<String> allColumns;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -72,14 +76,10 @@ class ResultsTableModel
 			throw new IllegalArgumentException("No column's names " +
 												"specified.");
 		this.columnNames = colNames;
-		columnKey = new HashMap<String,Integer>();
-		int index = 0;
-		for(String column : columnNames)
-		{
-			columnKey.put(column, index);
-			index = index++;
-		}
 		this.values = new HashMap<Integer, ResultsObject>();
+		this.allColumns = new LinkedHashSet<String>();
+		for(String column : columnNames)
+			allColumns.add(column);
 	}
 	
 	/** 
@@ -90,6 +90,11 @@ class ResultsTableModel
 	void addRow(ResultsObject row)
 	{
 		values.put(values.size(), row);
+		fireTableStructureChanged();
+	}
+	
+	void changed()
+	{
 		fireTableStructureChanged();
 	}
 	
@@ -137,6 +142,37 @@ class ResultsTableModel
 		fireTableStructureChanged();
     }
     
+    /**
+     * Add the column to the list of all columns.
+     * @param column See above.
+     */
+    public void addColumn(String column)
+    {
+    	allColumns.add(column);
+    }
+    
+    /**
+     * Get the list of all columns used in the model.
+     * @return See above.
+     */
+    public List<String> getAllColumns()
+    {
+    	List<String> cols = new ArrayList<String>();
+    	Iterator<String> columnIterator = allColumns.iterator();
+    	while(columnIterator.hasNext())
+    		cols.add(columnIterator.next());
+    	return cols;
+    }
+    
+    /**
+     * Get the list of all columns in the table.
+     * @return
+     */
+    public List<String> getColumns()
+    {
+    	return columnNames;
+    }
+    
 	/**
 	 * Overridden to return the name of the specified column.
 	 * @see AbstractTableModel#getColumnName(int)
@@ -177,6 +213,18 @@ class ResultsTableModel
 		if(index < columnNames.size())
 			return columnNames.get(index);
 		return null;
+	}
+	
+	/**
+	 * Set the columns in the model to columns. 
+	 * @param columns See above.
+	 */
+	public void setColumns(List<String> columns)
+	{
+		this.columnNames = columns;
+		for(String column : columnNames)
+			allColumns.add(column);
+		fireTableStructureChanged();
 	}
 	
 	/**

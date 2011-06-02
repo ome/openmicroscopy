@@ -26,6 +26,10 @@ package org.openmicroscopy.shoola.agents.util.flim;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,11 +38,15 @@ import java.util.Map;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.flim.resultstable.ResultsTable;
+import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 
 /** 
@@ -56,7 +64,7 @@ import org.openmicroscopy.shoola.agents.util.flim.resultstable.ResultsTable;
  */
 public class ResultsDialog
 	extends JPanel 
-	implements ActionListener
+	implements ActionListener, PropertyChangeListener
 {
 	
 	/** The action to save the results. */
@@ -89,10 +97,25 @@ public class ResultsDialog
 	/** The list of buttons and their visibility. */
 	protected Map<JButton, Boolean> buttonVisibility;
 	
+	/** The columns to display. */
 	protected List<String> columnNames;
 	
+	/** The results table that this dialog wraps. */
 	protected ResultsTable resultsTable;
 	
+	/** Filters used for the save options. */
+	private static List<FileFilter> FILTERS;
+	
+	static 
+	{
+		FILTERS = new ArrayList<FileFilter>();
+		FILTERS.add(new ExcelFilter());
+	}
+	
+	/**
+	 * Instatiate the dialog, with the visible column names.
+	 * @param columnNames See above.
+	 */
 	ResultsDialog(List<String> columnNames)
 	{
 		this.columnNames = columnNames;
@@ -100,7 +123,9 @@ public class ResultsDialog
 		buildUI();
 	}
 	
-	
+	/**
+	 * Initialise the components in the dialog.
+	 */
 	private void initComponents()
 	{
 		resultsTable = new ResultsTable(columnNames);
@@ -138,6 +163,9 @@ public class ResultsDialog
 		return button;
 	}
 	
+	/**
+	 * Build the UI for the dialog.
+	 */
 	private void buildUI()
 	{
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -154,7 +182,40 @@ public class ResultsDialog
 		add(buttonPanel);
 	}
 
+	/**
+	 * The save button has been pressed, show the save file dialog and then save data.
+	 */
+	private void saveAction()
+	{
+		
+		FileChooser chooser = new FileChooser(null, FileChooser.SAVE, 
+				"Save Results", "Saves the results", FILTERS);
+		chooser.setCurrentDirectory(UIUtilities.getDefaultFolder());
+		chooser.addPropertyChangeListener(this);
+		chooser.centerDialog();
+	}
 
+	/**
+	 * The load button has been pressed, show the load file dialog and then load data.
+	 */
+	private void loadAction()
+	{
+		
+		FileChooser chooser = new FileChooser(null, FileChooser.LOAD, 
+				"Load Results", "Loads the results", FILTERS);
+		chooser.setCurrentDirectory(UIUtilities.getDefaultFolder());
+		chooser.addPropertyChangeListener(this);
+		chooser.centerDialog();
+	}
+	
+	/**
+	 * Show the wizard to change selected columns.
+	 */
+	private void wizardAction()
+	{
+		resultsTable.showResultsWizard();
+	}
+	
 	/**
 	 * Overrides {@link ActionListener#actionPerformed(ActionEvent)
 	 */
@@ -166,13 +227,49 @@ public class ResultsDialog
 		switch(command)
 		{
 		case CLEARACTION:
+			resultsTable.clear();
 			break;
 		case SAVEACTION:
+			saveAction();
 			break;
 		case LOADACTION:
+			loadAction();
 			break;
 		case WIZARDACTION:
+			wizardAction();
 			break;
 		}
+	}
+
+	/**
+	 * Reacts to property fired by the filechooser. 
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt) 
+	{
+		String name = evt.getPropertyName();
+		if(evt.getSource() instanceof FileChooser)
+		{
+			FileChooser theSource = (FileChooser)evt.getSource();
+			if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) 
+			{
+				File[] files = (File[]) evt.getNewValue();
+				File f = files[0];
+				if(theSource.getChooserType()==FileChooser.SAVE)
+					resultsTable.saveResults(f);
+				else
+					resultsTable.loadResults(f);
+			}
+		}
+	}
+
+	public void setRowHighlightMod(int i) 
+	{
+		resultsTable.setRowHighlightMod(i);
+	}
+
+	public void insertData(Map<String, Object> rowData) 
+	{
+		resultsTable.insertData(rowData);
 	}
 }

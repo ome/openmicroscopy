@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.util.flim.resultstable;
 
 //Java imports
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTable;

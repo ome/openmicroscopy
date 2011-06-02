@@ -184,7 +184,7 @@ public class FLIMResultsDialog
 	private Double[][] data;
 	
 	/** The stats table.  */
-	private ResultsTable statsTable;
+	private ResultsDialog statsTable;
 	
 	/** The component hosting the various JXTaskPane. */
 	private JXTaskPaneContainer paneContainer;
@@ -595,7 +595,7 @@ public class FLIMResultsDialog
 		colourMapSlider = new TextualTwoKnobsSlider();
 		colourMapSlider.layoutComponents(
         		TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
-		statsTable = new ResultsTable(DEFAULTCOLUMNS);
+		statsTable = new ResultsDialog(DEFAULTCOLUMNS);
 		statsTable.setRowHighlightMod(3);
 		canvas = new ImageCanvas();
 		RGBButton = new JToggleButton("RGB");
