@@ -327,25 +327,29 @@ class BrowserControl
     		Iterator<TreePath> i = added.iterator();
     		Object nho;
     		String nsNode;
+    		Object lastPath;
         	while (i.hasNext()) {
     			path = i.next();
-    			node = (TreeImageDisplay) path.getLastPathComponent();
-    			nho = node.getUserObject();
-    			if (nho.getClass().equals(ref) && node.isSelectable()) {
-    				if (nho.getClass().equals(TagAnnotationData.class)) {
-    					nsNode = ((TagAnnotationData) nho).getNameSpace();
-    					if (ns == null && nsNode == null) l.add(node);
-    					else if (ns == null && nsNode != null)
-    						toRemove.add(path);
-    					else if (ns != null && nsNode == null)
-    						toRemove.add(path);
-    					else if (ns != null && nsNode != null) {
-    						if (ns.equals(nsNode))
-        						l.add(node);
-    					}
-    				} else l.add(node);
+    			lastPath = path.getLastPathComponent();
+    			if (lastPath instanceof TreeImageDisplay) {
+    				node = (TreeImageDisplay) lastPath;
+        			nho = node.getUserObject();
+        			if (nho.getClass().equals(ref) && node.isSelectable()) {
+        				if (nho.getClass().equals(TagAnnotationData.class)) {
+        					nsNode = ((TagAnnotationData) nho).getNameSpace();
+        					if (ns == null && nsNode == null) l.add(node);
+        					else if (ns == null && nsNode != null)
+        						toRemove.add(path);
+        					else if (ns != null && nsNode == null)
+        						toRemove.add(path);
+        					else if (ns != null && nsNode != null) {
+        						if (ns.equals(nsNode))
+            						l.add(node);
+        					}
+        				} else l.add(node);
+        			}
+        			else toRemove.add(path);
     			}
-    			else toRemove.add(path);
     		}
     	}
     	
@@ -374,11 +378,18 @@ class BrowserControl
     	}
     	paths = tree.getSelectionPaths();
     	
-    	nodes = new TreeImageDisplay[paths.length];
+    	//nodes = new TreeImageDisplay[paths.length];
+    	List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();
+    	
     	for (int j = 0; j < paths.length; j++) {
-			nodes[j] = (TreeImageDisplay) paths[j].getLastPathComponent();
+    		if (paths[j].getLastPathComponent() instanceof TreeImageDisplay) {
+    			list.add((TreeImageDisplay) paths[j].getLastPathComponent());
+    		}
 		}
-    	model.setSelectedDisplays(nodes, false);
+    	if (list.size() > 0) {
+    		model.setSelectedDisplays(list.toArray(
+    				new TreeImageDisplay[list.size()]), false);
+    	}
     }
     
     /**
