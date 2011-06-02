@@ -45,6 +45,8 @@
                                 toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':true, 'copy':true, 'cut':true, 'paste':true, 'unlink':true, 'delete':true, 'annotation':false, 'basket':false}
                             } else if(selected.attr("id").indexOf("image")>=0) {
                                 toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':true, 'copy':true, 'cut':true, 'paste':false, 'unlink':true, 'delete':true, 'annotation':false, 'basket':true}
+                            } else if(selected.attr("id").indexOf("screen")>=0) {
+                                toolbar_config = {"addproject":false, 'adddataset':true, 'addscreen':false, 'rename':true, 'copy':false, 'cut':false, 'paste':true, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false}
                             } else if(selected.attr("id").indexOf("plate")>=0) {
                                 toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':true, 'copy':true, 'cut':true, 'paste':false, 'unlink':true, 'delete':true, 'annotation':false, 'basket':false}
                             }
@@ -395,16 +397,14 @@
         		    $("#dataTree").jstree("open_node", this);
         		})
         		.bind("select_node.jstree", function (e, data) {
-        		    var selected = data.inst.get_selected()
+        		    var selected = data.inst.get_selected();
             	    buttonsShowHide(selected);
             	    if (selected.length > 1) {
-            	        if (selected.length >= 2) {
-		                    loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% url webstatic "images/knotes16.png" %}"/> Batch Annotate</a></p>');
-                            $("#batchAnnotate").click(function() {
-                                multipleAnnotation(selected);
-                                return false;
-                            });
-                        }
+            	        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% url webstatic "images/knotes16.png" %}"/> Batch Annotate</a></p>');
+                        $("#batchAnnotate").click(function() {
+                            multipleAnnotation(selected);
+                            return false;
+                        });
                     } else {
                         loadOtherPanels(data);
                     }
@@ -624,8 +624,8 @@
         			break;
         		case "renameButton":
         		    var jstree = $.jstree._focused();
-        		    if (jstree.get_selected().length<2) {
-                        jstree.rename(obj);
+        		    if (jstree.get_selected().length==1) {
+                        jstree.rename(jstree.get_selected());
                     } else {
                         alert("Cannot rename more then one object in the same time")
                     }
