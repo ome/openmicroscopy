@@ -134,7 +134,9 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, dataset=None):
             yield offsetPlane(plane, offsets['x'], offsets['y'])
     
     newImageName = "%s_offsets" % oldImage.getName()
-    desc = str(channel_offsets)
+    descLines = [" Channel %s: Offsets x: %s y: %s z: %s" % (c['index'], c['x'], c['y'], c['z']) for c in channel_offsets]
+    desc = "Image created from Image ID: %s by applying Channel Offsets:\n" % imageId
+    desc += "\n".join(descLines)
     serviceFactory = conn.c.sf  # make sure that script_utils creates a NEW rawPixelsStore
     i = conn.createImageFromNumpySeq(offsetPlaneGen(), newImageName,
         sizeZ=sizeZ, sizeC=len(offsetMap.items()), sizeT=sizeT, description=desc, dataset=dataset)
@@ -169,11 +171,13 @@ def processImages(conn, scriptParams):
         dataset.save()
         # add to parent Project
         firstImage = conn.getObject("Image", scriptParams['IDs'][0])
-        project = firstImage.getParent().getParent()
-        link = omero.model.ProjectDatasetLinkI()
-        link.parent = omero.model.ProjectI(project.getId(), False)
-        link.child = omero.model.DatasetI(dataset.getId(), False)
-        conn.getUpdateService().saveAndReturnObject(link)
+        parentDs = firstImage.getParent()
+        project = parentDs is not None and parentDs.getParent() or None
+        if project is not None:
+            link = omero.model.ProjectDatasetLinkI()
+            link.parent = omero.model.ProjectI(project.getId(), False)
+            link.child = omero.model.DatasetI(dataset.getId(), False)
+            conn.getUpdateService().saveAndReturnObject(link)
 
     # need to handle Datasets eventually - Just do images for now
     newImgIds = []
