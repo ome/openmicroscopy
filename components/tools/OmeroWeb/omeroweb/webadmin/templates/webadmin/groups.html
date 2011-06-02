@@ -17,7 +17,10 @@
     <script type="text/javascript">
         $(document).ready(function() 
             { 
-                $("#groupTable").tablesorter( {sortList: [[1,0]]} ); 
+                $("#groupTable").tablesorter( {
+                    //sortList: [[1,0]]
+                    headers: {0: { sorter: 'digit' } }
+                    } );
                 $('input#id_search').quicksearch('table#groupTable tbody tr', {
                 	'delay': 300,
                     'loader': 'span.loading'
@@ -41,7 +44,7 @@
 <table id="groupTable" class="tablesorter"> 
     <thead> 
         <tr> 
-            <th class="action">{% trans "Actions" %}</th> 
+            <th class="action">{% trans "ID" %}</th>
             <th class="link">{% trans "Name" %}</th> 
             <th class="link">{% trans "Permissions" %}</th> 
             <th class="desc">{% trans "Description" %}</th>
@@ -51,10 +54,11 @@
     {% for dict in controller.groups %}
         <tr>
             <td class="action">
+                {{ dict.group.id }}
                 {% if not dict.locked %}
                     <a href="{% url wamanagegroupid "edit" dict.group.id %}"><img src="{% url webstatic "images/edit.png" %}" alt="edit" title="edit"></a>
                 {% endif %}
-                <a href="{% url wamanagegroupid "members" dict.group.id %}"><img src="{% url webstatic "images/editing.png" %}" alt="manage" title="manage members"></a>  id:{{ dict.group.id }}
+                <a href="{% url wamanagegroupid "members" dict.group.id %}"><img src="{% url webstatic "images/editing.png" %}" alt="manage" title="manage members"></a>
             </td>
             <td class="link">{{ dict.group.name }}</td>
             <td class="link">{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>

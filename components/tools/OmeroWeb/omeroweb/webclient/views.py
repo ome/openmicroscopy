@@ -490,7 +490,8 @@ def load_template(request, menu, **kwargs):
     form_users = None
     filter_user_id = None
     
-    users = sortByAttr(list(conn.listColleagues()), "lastName")
+    users = list(conn.listColleagues())
+    users.sort(key=lambda x: x.getOmeName().lower())
     empty_label = "*%s (%s)" % (conn.getUser().getFullName(), conn.getUser().omeName)
     if len(users) > 0:
         if request.REQUEST.get('experimenter') is not None and len(request.REQUEST.get('experimenter'))>0: 

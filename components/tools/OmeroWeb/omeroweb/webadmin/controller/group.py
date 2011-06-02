@@ -35,6 +35,7 @@ class BaseGroups(BaseController):
     def __init__(self, conn):
         BaseController.__init__(self, conn)
         groupsList = list(self.conn.getObjects("ExperimenterGroup"))
+        groupsList.sort(key=lambda x: x.getName().lower())
         self.groups = list()
         for gr in groupsList:
             self.groups.append({'group': gr, 'locked': self.isLocked(gr.name), 'permissions': self.getPermissions(gr)})
@@ -65,6 +66,7 @@ class BaseGroup(BaseController):
                 if gem.owner.val == True:
                     self.owners.append(gem.child.id.val)
         self.experimenters = list(self.conn.listExperimenters())
+        self.experimenters.sort(key=lambda x: x.getOmeName().lower())
     
     def getOwnersNames(self):
         owners = list()

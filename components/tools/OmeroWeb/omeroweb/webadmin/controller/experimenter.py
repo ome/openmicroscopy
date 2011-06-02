@@ -36,6 +36,7 @@ class BaseExperimenters(BaseController):
     def __init__(self, conn):
         BaseController.__init__(self, conn)
         self.experimentersList = list(self.conn.listExperimenters())
+        self.experimentersList.sort(key=lambda x: x.getOmeName().lower())
         self.auth = self.conn.listLdapAuthExperimenters()
         self.experimenters = list()
         self.experimentersCount = {'experimenters': 0, 'active': 0, 'ldap': 0, 'admin': 0, 'guest': 0}
@@ -83,14 +84,15 @@ class BaseExperimenter(BaseController):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
             self.ldapAuth = self.conn.getLdapAuthExperimenter(eid)
+            geMap = self.experimenter.copyGroupExperimenterMap()
             if self.experimenter.sizeOfGroupExperimenterMap() > 0:
-                self.defaultGroup = self.experimenter.copyGroupExperimenterMap()[0].parent.id.val
+                self.defaultGroup = geMap[0].parent.id.val
             else:
                 self.defaultGroup = None
             self.otherGroups = list()
             self.others = list()
             self.default = list()
-            for gem in self.experimenter.copyGroupExperimenterMap():
+            for gem in geMap:
                 if gem.parent.name.val == "user":
                     pass
                 #elif gem.parent.name.val == "system":
@@ -102,6 +104,7 @@ class BaseExperimenter(BaseController):
                     self.others.append(gem.parent)
                     self.default.append((gem.parent.id.val, gem.parent.name.val))
         self.groups = list(self.conn.getObjects("ExperimenterGroup"))
+        self.groups.sort(key=lambda x: x.getName().lower())
     
     def otherGroupsInitialList(self, exclude=list()):
         formGroups = list()
