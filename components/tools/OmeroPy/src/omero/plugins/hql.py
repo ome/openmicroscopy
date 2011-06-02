@@ -29,6 +29,7 @@ class HqlControl(BaseControl):
         parser.add_argument("-q", "--quiet", action="store_true", help="No user input")
         parser.add_argument("--limit", help="Maximum number of return values", type=int, default=25)
         parser.add_argument("--offset", help="Number of entries to skip", type=int, default=0)
+        parser.add_argument("--admin", help="Run an admin query", default=False, action="store_true")
 
     def __call__(self, args):
         if args.query:
@@ -45,11 +46,16 @@ class HqlControl(BaseControl):
 
     def hql(self, args, loop = False):
         from omero_sys_ParametersI import ParametersI
+
+        ice_map = dict()
+        if args.admin:
+            ice_map["omero.group"]="-1"
+
         c = self.ctx.conn(args)
         q = c.sf.getQueryService()
         p = ParametersI()
         p.page(args.offset, args.limit)
-        rv = self.project(q, args.query, p)
+        rv = self.project(q, args.query, p, ice_map)
         has_details = self.display(rv)
         if args.quiet:
             return
@@ -77,7 +83,15 @@ To quit, enter 'q' or just enter.
             if id.startswith("p"):
                 p.page(p.getOffset().val + p.getLimit().val, p.getLimit())
                 self.ctx.dbg("\nCurrent page: offset=%s, limit=%s\n" % (p.theFilter.offset.val, p.theFilter.limit.val))
+<<<<<<< HEAD
                 rv = self.project(q, args.query, p)
+||||||| merged common ancestors
+                rv = self.project(q, args.query, p)
+                self.ctx.set("rv", rv)
+=======
+                rv = self.project(q, args.query, p, ice_map)
+                self.ctx.set("rv", rv)
+>>>>>>> Adding --admin option to bin/omero hql
                 self.display(rv)
             elif id.startswith("r"):
                 self.display(rv)
@@ -203,12 +217,17 @@ To quit, enter 'q' or just enter.
                 rv[k] = v
         return rv
 
-    def project(self, querySvc, queryStr, params):
+    def project(self, querySvc, queryStr, params, ice_map):
         import omero
         try:
-            rv = querySvc.projection(queryStr, params)
+            rv = querySvc.projection(queryStr, params, ice_map)
             self.ctx.set("last.hql.rv", rv)
             return rv
+        except omero.SecurityViolation, sv:
+            if "omero.group" in ice_map:
+                self.ctx.die(53, "SecurityViolation: Current user is not an admin and cannot use '--admin'")
+            else:
+                self.ctx.die(54, "SecurityViolation: %s" % sv)
         except omero.QueryException, qe:
             self.ctx.set("last.hql.rv", [])
             self.ctx.die(52, "Bad query: %s" % qe.message)
