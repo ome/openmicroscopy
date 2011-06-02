@@ -6,7 +6,14 @@ PGPASSWORD=${PGPASSWORD:-"omero"}
 
 DL_ARCHIVE=""
 if [ "x$DL_ARCHIVE" == "x" ]; then
-    DL_ARCHIVE=`sh hudson.sh`
+
+	URL=`wget -q -O- "http://hudson.openmicroscopy.org.uk/job/OMERO-trunk-qa-builds/lastSuccessfulBuild/api/xml?xpath=/freeStyleBuild/url/text()"`
+	FILE=`wget -q -O- "http://hudson.openmicroscopy.org.uk/job/OMERO-trunk-qa-builds/lastSuccessfulBuild/api/xml?xpath=//relativePath[contains(.,'server')]/text()"`
+	wget -q "$URL"artifact/$FILE
+
+    #DL_ARCHIVE=`sh hudson.sh`
+    DL_ARCHIVE=$FILE
+
     DL_FOLDER=${DL_ARCHIVE%.zip}
 else
     DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-trunk-qa-builds/lastSuccessfulBuild/artifact/"
