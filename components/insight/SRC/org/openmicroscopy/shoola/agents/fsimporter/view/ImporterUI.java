@@ -359,22 +359,22 @@ class ImporterUI
 	/**
 	 * Removes the specified element. Returns the element or <code>null</code>.
 	 * 
-	 * @param index The index of the import view.
+	 * @param object The object to remove.
 	 * @return See above.
 	 */
-	ImporterUIElement removeImportElement(int index)
+	ImporterUIElement removeImportElement(Object object)
 	{
 		Iterator<ImporterUIElement> i = uiElements.values().iterator();
 		ImporterUIElement element;
 		ImporterUIElement found = null;
 		while (i.hasNext()) {
 			element = i.next();
-			if (element.getIndex() == index) {
+			if (element == object) {
 				found = element;
 				break;
 			}
 		}
-		if (found != null) uiElements.remove(found.getIndex());
+		if (found != null) uiElements.remove(found.getID());
 		return found;
 	}
 

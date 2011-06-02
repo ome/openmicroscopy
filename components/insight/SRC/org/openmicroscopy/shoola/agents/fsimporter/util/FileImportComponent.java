@@ -176,7 +176,6 @@ public class FileImportComponent
 	/** Text indicating where the images where imported. */
 	private static final String TEXT_IMPORTED = "Imported to:";
 
-
 	/** One of the constants defined by this class. */
 	private int				type;
 	
@@ -826,7 +825,7 @@ public class FileImportComponent
 				cancelButton.setVisible(false);
 				if (file.isDirectory()) setStatusText("Folder imported");
 				else setStatusText("File not valid");
-			} else setStatusText("");
+			} else resultLabel.setText("");
 		} else {
 			if (!status) {
 				statusLabel.setVisible(false);

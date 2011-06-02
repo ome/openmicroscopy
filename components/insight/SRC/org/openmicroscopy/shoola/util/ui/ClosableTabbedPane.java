@@ -154,8 +154,7 @@ public class ClosableTabbedPane
 	{
 		Component c = getComponentAt(index);
 		if (c instanceof ClosableTabbedPaneComponent) {
-			int v = ((ClosableTabbedPaneComponent) c).getIndex();
-			firePropertyChange(CLOSE_TAB_PROPERTY, -1, v);
+			firePropertyChange(CLOSE_TAB_PROPERTY, null, c);
 		}
 		super.removeTabAt(index);
 		((ClosableTabbedPaneUI) ui).resetDefault();

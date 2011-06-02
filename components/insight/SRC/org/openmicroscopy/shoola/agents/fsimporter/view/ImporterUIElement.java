@@ -707,6 +707,30 @@ class ImporterUIElement
 	}
 	
 	/**
+	 * Returns <code>true</code> if the top container has to be refreshed,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean topContainerToRefresh()
+	{
+		List<DataObject> l = getExistingContainers();
+		if (l == null || l.size() == 0) return false;
+		DataObject object = l.get(0);
+		if (!(object instanceof ProjectData)) return false;
+		//DatasetData d = getData().getDefaultDataset();
+		//if (d != null && d.getId() <= 0) return true;
+		Iterator<FileImportComponent> i = components.values().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			fc = i.next();
+			if (fc.isFolderAsContainer()) 
+				return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param controller Reference to the control. Mustn't be <code>null</code>.
@@ -736,30 +760,6 @@ class ImporterUIElement
 	 * @return See above.
 	 */
 	int getID() { return id; }
-	
-	/**
-	 * Returns <code>true</code> if the top container has to be refreshed,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	private boolean topContainerToRefresh()
-	{
-		List<DataObject> l = getExistingContainers();
-		if (l == null || l.size() == 0) return false;
-		DataObject object = l.get(0);
-		if (!(object instanceof ProjectData)) return false;
-		//DatasetData d = getData().getDefaultDataset();
-		//if (d != null && d.getId() <= 0) return true;
-		Iterator<FileImportComponent> i = components.values().iterator();
-		FileImportComponent fc;
-		while (i.hasNext()) {
-			fc = i.next();
-			if (fc.isFolderAsContainer()) 
-				return true;
-		}
-		return false;
-	}
 	
 	/**
 	 * Sets the result of the import for the specified file.

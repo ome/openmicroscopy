@@ -147,9 +147,9 @@ public interface Importer
 	/**
 	 * Removes the specified import element.
 	 * 
-	 * @param index The index of the import element.
+	 * @param element The element to remove.
 	 */
-	void removeImportElement(int index);
+	void removeImportElement(Object element);
 
 	/** Cancels any on-going import. */
 	public void cancel();

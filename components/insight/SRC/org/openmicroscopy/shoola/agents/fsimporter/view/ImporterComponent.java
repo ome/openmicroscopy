@@ -282,12 +282,12 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#removeImportElement(int)
+	 * @see Importer#removeImportElement(Object)
 	 */
-	public void removeImportElement(int index)
+	public void removeImportElement(Object object)
 	{
-		if (model.getState() == DISCARDED) return;
-		ImporterUIElement element = view.removeImportElement(index);
+		if (model.getState() == DISCARDED || object == null) return;
+		ImporterUIElement element = view.removeImportElement(object);
 		if (element != null) {
 			element.cancelLoading();
 			model.cancel(element.getID());
