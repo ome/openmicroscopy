@@ -76,17 +76,15 @@ class BaseGroup(BaseController):
     
     def containedExperimenters(self):
         self.members = list(self.conn.containedExperimenters(self.group.id))
+        self.members.sort(key=lambda x: x.getOmeName().lower())
         for i, m in enumerate(self.members):
             if m.copyGroupExperimenterMap()[0].parent.id.val == self.group.id:
                 self.members[i].setFirstName("*%s" % (m.firstName))
         
         self.available = list()
+        memberIds = [m.id for m in self.members]
         for e in self.experimenters:
-            flag = False
-            for m in self.members:
-                if e.id == m.id:
-                    flag = True
-            if not flag:
+            if e.id not in memberIds:
                 self.available.append(e)
     
     def setMembersOfGroup(self, available, members):
