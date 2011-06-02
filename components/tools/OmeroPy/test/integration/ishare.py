@@ -636,6 +636,58 @@ class TestIShare(lib.ITest):
         ec = admin.getEventContext()
         self.assertEquals(self.share_id, ec.shareId)
 
+    def test5756Raw(self):
+        """
+        Accessing deleted image in share seems to have changed.
+        This tests what happens using the raw API.
+        """
+        share = self.client.sf.getShareService()
+        query = self.client.sf.getQueryService()
+        update = self.client.sf.getUpdateService()
+
+        image = self.new_image()
+        image = update.saveAndReturnObject(image)
+        objects = [image]
+
+        self.share_id = share.createShare("", None, objects, [], [], True)
+        new_context = omero.model.ShareI(self.share_id, False)
+        old_context = self.client.sf.setSecurityContext(new_context)
+        query.get("Image", image.id.val)
+
+        self.client.sf.setSecurityContext(old_context)
+        update.deleteObject(image)
+        self.client.sf.setSecurityContext(new_context)
+
+        self.assertRaises(omero.ValidationException, query.get, "Image", image.id.val)
+
+    def test5756Wrapped(self):
+        """
+        Accessing deleted image in share seems to have changed.
+        This tests what happens using BlitzGateway wrappers.
+        """
+        share = self.client.sf.getShareService()
+        query = self.client.sf.getQueryService()
+        update = self.client.sf.getUpdateService()
+
+        image = self.new_image()
+        image = update.saveAndReturnObject(image)
+        objects = [image]
+
+        self.share_id = share.createShare("", None, objects, [], [], True)
+        new_context = omero.model.ShareI(self.share_id, False)
+        old_context = self.client.sf.setSecurityContext(new_context)
+        image = query.get("Image", image.id.val)
+
+        from omero.gateway import ImageWrapper, BlitzGateway
+
+        conn = BlitzGateway(client_obj = self.client)
+        wrapper = ImageWrapper(conn = conn, obj = image)
+
+        self.client.sf.setSecurityContext(old_context)
+        update.deleteObject(image)
+        self.client.sf.setSecurityContext(new_context)
+
+        self.assertRaises(IndexError, wrapper.__loadedHotSwap__)
 
     # Helpers
 
