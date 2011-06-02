@@ -84,14 +84,14 @@ def savePlane(image, format, cName, zRange, t=0, channel=None, greyscale=False, 
     originalName = image.getName()
     log("")
     log("savePlane..")
-    log("originalName %s" % originalName)
-    log("format %s" % format)
-    log("cName %s" % cName)
-    log("zRange %s" % zRange)
-    log("t %s" % t)
-    log("channel %s" % channel)
-    log("greyscale %s" % greyscale)
-    log("imgWidth %s" % imgWidth)
+    #log("originalName %s" % originalName)
+    #log("format %s" % format)
+    log("channel: %s" % cName)
+    log("z: %s" % zRange)
+    log("t: %s" % t)
+    #log("channel %s" % channel)
+    #log("greyscale %s" % greyscale)
+    #log("imgWidth %s" % imgWidth)
     
     # if channel == None: use current rendering settings
     if channel != None:
@@ -181,7 +181,7 @@ def savePlanesForImage(conn, image, sizeC, splitCs, mergedCs, channelNames=None,
     for c in channels:
         if c is not None:
             if c < len(channelNames):
-                cName = channelNames[c]
+                cName = channelNames[c].replace(" ", "_")
             else:
                 cName = "c%02d" % c
         for t in tIndexes:
@@ -282,19 +282,32 @@ def batchImageExport(conn, scriptParams):
     
     # do the saving to disk
     for img in images:
-        log("\nSaving image %s" % img.getName())
+        log("\n----------- Saving planes from image: '%s' ------------" % img.getName())
         sizeC = img.getSizeC()
         sizeZ = img.getSizeZ()
         sizeT = img.getSizeT()
         zRange = getZrange(sizeZ, scriptParams)
         tRange = getTrange(sizeT, scriptParams)
-        log("zRange %s" % str(zRange))
-        log("tRange %s" % str(tRange))
+        log("Using:")
+        if zRange is None:      log("  Z-index: Last-viewed")
+        elif len(zRange) == 1:  log("  Z-index: %d" % zRange[0])
+        else:                   log("  Z-range: %s-%s" % ( zRange[0],zRange[1]) )
+        if tRange is None:      log("  T-index: Last-viewed")
+        elif len(tRange) == 1:  log("  T-index: %d" % tRange[0])
+        else:                   log("  T-range: %s-%s" % ( tRange[0],tRange[1]) )
+        log("  Format: PNG")
+        if imgWidth is None:    log("  Image Width: no resize")
+        else:                   log("  Image Width: %s" % imgWidth)
+        log("  Greyscale: %s" % greyscale)
+        log("Channel Rendering Settings:")
+        for ch in img.getChannels():
+            log("  %s: %d-%d" % (ch.getLabel(), ch.getWindowStart(), ch.getWindowEnd()) )
+        
         savePlanesForImage(conn, img, sizeC, splitCs, mergedCs, channelNames,
             zRange, tRange, greyscale, imgWidth, projectZ=False, format="PNG", folder_name=folder_name)
 
     # zip up image folder, including log as text file.
-    logFile = open(os.path.join(exp_dir, 'Batch_Image_Export.log'), 'w')
+    logFile = open(os.path.join(exp_dir, 'Batch_Image_Export.txt'), 'w')
     try:
         for s in logStrings:
             logFile.write(s)
