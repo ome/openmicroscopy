@@ -1656,7 +1656,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
             request.session.modified = True            
         except Exception, x:
-            logger.error(traceback.format_exc())
+            logger.error('Failed to delete: %r' % {'did':ids, 'dtype':key}, exc_info=True)
             rdict = {'bad':'true','errs': str(x) }
         else:
             rdict = {'bad':'false' }
@@ -1669,14 +1669,14 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         try:
             for key,ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
-                    handle = manager.deleteObjects(key, ids, anns)
+                    handle = manager.deleteObjects(key, ids, child, anns)
                     if len(ids) > 1:
                         request.session['callback'][str(handle)] = {'delmany':len(ids), 'did':ids, 'dtype':key, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
                     else:
                         request.session['callback'][str(handle)] = {'delmany':False, 'did':ids[0], 'dtype':key, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
             request.session.modified = True
         except Exception, x:
-            logger.error(traceback.format_exc())
+            logger.error('Failed to delete: %r' % {'did':ids, 'dtype':key}, exc_info=True)
             rdict = {'bad':'true','errs': str(x) }
         else:
             rdict = {'bad':'false' }

@@ -529,13 +529,14 @@
         		    
         		    if (q){
                         if (confirm('Also delete content of selected object(-s)?')) {
-                            ajax_data.child = 'on';
+                            ajax_data[ajax_data.length] = 'child=on';
                         }
                     } 
                 
                     if (confirm('Also delete linked annotations?')) {
-                        ajax_data.anns = 'on';
+                        ajax_data[ajax_data.length] = 'anns=on';
                     }
+                    
                     url = '{% url manage_action_containers "deletemany" %}'
                     $.ajax({
         		        async : false,
