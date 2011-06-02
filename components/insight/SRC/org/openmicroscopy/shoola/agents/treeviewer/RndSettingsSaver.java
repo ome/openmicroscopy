@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -122,7 +123,8 @@ public class RndSettingsSaver
 	{
 		if (ImageData.class.equals(type) || DatasetData.class.equals(type) ||
 			PlateData.class.equals(type) || ProjectData.class.equals(type) ||
-			ScreenData.class.equals(type))
+			ScreenData.class.equals(type) || 
+			PlateAcquisitionData.class.equals(type))
 			return;
 		throw new IllegalArgumentException("Type not supported.");
 	}

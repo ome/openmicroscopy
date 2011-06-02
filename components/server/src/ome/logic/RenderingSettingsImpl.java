@@ -51,6 +51,7 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
+import ome.model.screen.PlateAcquisition;
 import ome.model.screen.Screen;
 import ome.model.screen.Plate;
 import ome.model.stats.StatsInfo;
@@ -117,11 +118,13 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             && !Image.class.equals(klass)
             && !Plate.class.equals(klass)
             && !Pixels.class.equals(klass) 
-            && !Screen.class.equals(klass))
+            && !Screen.class.equals(klass)
+            && !PlateAcquisition.class.equals(klass))
         	{
         		throw new IllegalArgumentException(
         			"Class parameter for resetDefaultsInSet() must be in " +
-        			"{Project, Dataset, Image, Plate, Screen, Pixels}, not " + 
+        			"{Project, Dataset, Image, Plate, Screen, PlateAcquisition, " +
+        			"Pixels}, not " + 
         				klass);
         	}	
     }
@@ -150,6 +153,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	else if (Plate.class.equals(klass))
     	{
     		pixels.addAll(loadPlatePixels(nodeIds));
+    	}
+    	else if (PlateAcquisition.class.equals(klass))
+    	{
+    		pixels.addAll(loadPlateAcquisitionPixels(nodeIds));
     	}
     	else if (Screen.class.equals(klass))
     	{
@@ -228,6 +235,30 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			"left outer join i.wellSamples as s " +
 			"left outer join s.well as w " +
 			"left outer join w.plate as p " +
+			"where p.id in (:ids)";
+		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
+		s1.stop();
+		return pixels;
+    }
+    
+    /**
+     * Retrieves all Pixels associated with the specified <code>Plate</code>s.
+     * 
+     * @param ids The identifiers of the plate acquisition to retrieve Pixels for.
+     * @return List of Pixels associated with the Plate.
+     */
+    private List<Pixels> loadPlateAcquisitionPixels(Set<Long> ids)
+    {
+		StopWatch s1 = new CommonsLogStopWatch("omero.loadPlatePixels");
+		Parameters p = new Parameters();
+		p.addIds(ids);
+		String sql = "select pix from Pixels as pix " +
+			"join fetch pix.image as i " +
+			"join fetch pix.pixelsType " +
+			"join fetch pix.channels as c " +
+			"join fetch c.logicalChannel " +
+			"left outer join i.wellSamples as s " +
+			"left outer join s.plateAcquisition as p " +
 			"where p.id in (:ids)";
 		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
 		s1.stop();

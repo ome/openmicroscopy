@@ -4170,7 +4170,7 @@ class OMEROGateway
 	 * 
 	 * @param rootNodeType	The type of nodes. Can either be 
 	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
-	 * 						<code>CategoryData</code>.
+	 * 						<code>PlateData</code>.
 	 * @param nodes			The nodes to apply settings to. 
 	 * @return <true> if the call was successful, <code>false</code> otherwise.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -4188,10 +4188,7 @@ class OMEROGateway
 			IRenderingSettingsPrx service = getRenderingSettingsService();
 			String klass = convertPojos(rootNodeType).getName();
 			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
-			if (klass.equals(Image.class.getName()) 
-					|| klass.equals(Dataset.class.getName()) ||
-					klass.equals(Plate.class.getName()))
-				success = service.resetDefaultsInSet(klass, nodes);
+			success = service.resetDefaultsInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}
@@ -4202,8 +4199,8 @@ class OMEROGateway
 			if (failure.contains(id)) failure.remove(id);
 		}
 		Map<Boolean, List> result = new HashMap<Boolean, List>(2);
-		result.put(Boolean.TRUE, success);
-		result.put(Boolean.FALSE, failure);
+		result.put(Boolean.valueOf(true), success);
+		result.put(Boolean.valueOf(false), failure);
 		return result;
 	}
   
@@ -4233,10 +4230,7 @@ class OMEROGateway
 			IRenderingSettingsPrx service = getRenderingSettingsService();
 			String klass = convertPojos(rootNodeType).getName();
 			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
-			if (klass.equals(Image.class.getName()) 
-				|| klass.equals(Dataset.class.getName()) || 
-						klass.equals(Plate.class.getName()))
-				success = service.resetMinMaxInSet(klass, nodes);
+			success = service.resetMinMaxInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}
@@ -4247,8 +4241,8 @@ class OMEROGateway
 			if (failure.contains(id)) failure.remove(id);
 		}
 		Map<Boolean, List> result = new HashMap<Boolean, List>(2);
-		result.put(Boolean.TRUE, success);
-		result.put(Boolean.FALSE, failure);
+		result.put(Boolean.valueOf(true), success);
+		result.put(Boolean.valueOf(false), failure);
 		return result;
 	}
 	
@@ -4278,10 +4272,7 @@ class OMEROGateway
 			IRenderingSettingsPrx service = getRenderingSettingsService();
 			String klass = convertPojos(rootNodeType).getName();
 			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
-			if (klass.equals(Image.class.getName()) 
-				|| klass.equals(Dataset.class.getName()) || 
-						klass.equals(Plate.class.getName()))
-				success = service.resetDefaultsByOwnerInSet(klass, nodes);
+			success = service.resetDefaultsByOwnerInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}
@@ -4292,8 +4283,8 @@ class OMEROGateway
 			if (failure.contains(id)) failure.remove(id);
 		}
 		Map<Boolean, List> result = new HashMap<Boolean, List>(2);
-		result.put(Boolean.TRUE, success);
-		result.put(Boolean.FALSE, failure);
+		result.put(Boolean.valueOf(true), success);
+		result.put(Boolean.valueOf(false), failure);
 		return result;
 	}
 	
@@ -4323,18 +4314,11 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
-			long id;
-			if (DatasetData.class.equals(rootNodeType) ||
-					PlateData.class.equals(rootNodeType) ||
-					ProjectData.class.equals(rootNodeType) ||
-					ScreenData.class.equals(rootNodeType) || 
-					ImageData.class.equals(rootNodeType)) {
-				Map m  = service.applySettingsToSet(pixelsID, 
-						convertPojos(rootNodeType).getName(),
-						nodes);
-				success = (List) m.get(Boolean.valueOf(true));
-				failure = (List) m.get(Boolean.valueOf(false));
-			} 
+			Map m  = service.applySettingsToSet(pixelsID, 
+					convertPojos(rootNodeType).getName(),
+					nodes);
+			success = (List) m.get(Boolean.valueOf(true));
+			failure = (List) m.get(Boolean.valueOf(false));
 		} catch (Exception e) {
 			handleException(e, "Cannot paste the rendering settings.");
 		}

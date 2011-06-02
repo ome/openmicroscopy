@@ -27,6 +27,7 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.Plate;
+import omero.model.PlateAcquisition;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
@@ -35,6 +36,7 @@ import omero.model.Screen;
 import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
 import omero.model.Well;
+import omero.model.WellSample;
 import omero.sys.ParametersI;
 
 /** 
@@ -527,6 +529,60 @@ public class RenderingSettingsServiceTest
     }
     
     /**
+     * Tests to apply the rendering settings to a plate acquisition.
+     * Tests the <code>ApplySettingsToSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false)
+    public void testApplySettingsToSetForPlateAcquisition() 
+    	throws Exception 
+    {
+    	Plate p = mmFactory.createPlate(1, 1, 1, 1, true);
+    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	//load the well
+    	List<Well> results = loadWells(p.getId().getValue(), true);
+    	Well well = results.get(0);
+    	
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	WellSample ws = well.getWellSample(0);
+    	Image image = ws.getImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	//Image
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(ws.getPlateAcquisition().getId().getValue());
+    	//method already tested 
+    	 prx.resetDefaultsInSet(PlateAcquisition.class.getName(), ids);
+    
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+
+    	//Create a second plate
+    	p = mmFactory.createPlate(1, 1, 1, 1, true);
+    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	results = loadWells(p.getId().getValue(), true);
+    	well = (Well) results.get(0);
+    	ws = well.getWellSample(0);
+    	Image image2 = ws.getImage();
+    	ids = new ArrayList<Long>();
+    	ids.add(ws.getPlateAcquisition().getId().getValue());
+    	Map<Boolean, List<Long>> m = 
+    		prx.applySettingsToSet(id, PlateAcquisition.class.getName(), ids);
+    	assertNotNull(m);
+    	List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
+    	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
+    	assertNotNull(success);
+    	assertNotNull(failure);
+    	assertTrue(success.size() == 1);
+    	assertTrue(failure.size() == 0);
+    	id = success.get(0); //image id.
+    	assertTrue(id == image2.getId().getValue());
+    	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
+    			image2.getPrimaryPixels().getId().getValue());
+    	compareRenderingDef(def, def2);
+    }
+    
+    /**
      * Tests to apply the rendering settings to a screen.
      * Tests the <code>ApplySettingsToSet</code> method.
      * @throws Exception Thrown if an error occurred.
@@ -627,6 +683,40 @@ public class RenderingSettingsServiceTest
     	assertTrue(values.size() == 1);
     }
  
+    /**
+     * Tests to reset the default rendering settings to a plate acquisition.
+     * Tests the <code>ResetDefaultInSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false)
+    public void testResetDefaultInSetForPlateAcquisition() 
+    	throws Exception 
+    {
+    	Plate p = mmFactory.createPlate(1, 1, 1, 1, true);
+    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	//load the well
+    	List<Well> results = loadWells(p.getId().getValue(), true);
+    	Well well = results.get(0);
+    	WellSample ws = well.getWellSample(0);
+    	Image image = ws.getImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	//Image
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(ws.getPlateAcquisition().getId().getValue());
+    	List<Long> v = prx.resetDefaultsInSet(PlateAcquisition.class.getName(),
+    			ids);
+    	assertNotNull(v);
+    	assertTrue(v.size() == 1);
+    	ParametersI param = new ParametersI();
+    	param.addLong("pid", pixels.getId().getValue());
+    	String sql = "select rdef from RenderingDef as rdef " +
+    			"where rdef.pixels.id = :pid";
+    	List<IObject> values = iQuery.findAllByQuery(sql, param);
+    	assertNotNull(values);
+    	assertTrue(values.size() == 1);
+    }
+    
     /**
      * Tests to apply the rendering settings to a collection of images.
      * Tests the <code>ResetMinMaxForSet</code> method.
@@ -874,6 +964,65 @@ public class RenderingSettingsServiceTest
     	iUpdate.saveAndReturnArray(toUpdate);
     	
     	List<Long> m = prx.resetMinMaxInSet(Plate.class.getName(), ids);
+    	assertNotNull(m);
+    	assertTrue(m.size() == 1);
+    	def = factory.getPixelsService().retrieveRndSettings(id);
+    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+			channel = def.getChannelBinding(i);
+			p = list.get(i);
+			assertTrue(channel.getInputStart().getValue() == p.getX());
+			assertTrue(channel.getInputEnd().getValue() == p.getY());
+		}
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a plate.
+     * Tests the <code>ResetMinMaxForSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false)
+    public void testResetMinMaxForSetForPlateAcquisition() 
+    	throws Exception 
+    {
+    	Plate plate = mmFactory.createPlate(1, 1, 1, 1, true);
+    	plate = (Plate) iUpdate.saveAndReturnObject(plate);
+    	//load the well
+    	List<Well> results = loadWells(plate.getId().getValue(), true);
+    	Well well = results.get(0);
+    	
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	WellSample ws = well.getWellSample(0);
+    	Image image = ws.getImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	//Image
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(ws.getPlateAcquisition().getId().getValue());
+    	//method already tested 
+    	 prx.resetDefaultsInSet(PlateAcquisition.class.getName(), ids);
+    
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	//Modified the settings.
+    	ChannelBinding channel;
+    	List<Point> list = new ArrayList<Point>();
+    	
+    	Point p;
+    	List<IObject> toUpdate = new ArrayList<IObject>();
+    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+			channel = def.getChannelBinding(0);
+			p = new Point();
+			p.setLocation(channel.getInputStart().getValue(), 
+					channel.getInputEnd().getValue());
+			list.add(p);
+			channel.setInputStart(omero.rtypes.rdouble(1));
+			channel.setInputEnd(omero.rtypes.rdouble(2));
+			toUpdate.add(channel);
+		}
+    	iUpdate.saveAndReturnArray(toUpdate);
+    	
+    	List<Long> m = prx.resetMinMaxInSet(PlateAcquisition.class.getName(), 
+    			ids);
     	assertNotNull(m);
     	assertTrue(m.size() == 1);
     	def = factory.getPixelsService().retrieveRndSettings(id);
