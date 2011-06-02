@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
-import javax.swing.AbstractButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -33,6 +32,7 @@ import javax.swing.JMenuItem;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 
 /** 
  * Defines the functionality of the task bar UI.
@@ -70,6 +70,13 @@ import javax.swing.JMenuItem;
  */
 public interface TaskBar 
 {
+	/** Indicates that the connection has been lost. */
+	public static final int LOST_CONNECTION = 
+		DataServicesFactory.LOST_CONNECTION;
+	
+	/** Indicates that the server is out of service. */
+	public static final int SERVER_OUT_OF_SERVICE = 
+		DataServicesFactory.SERVER_OUT_OF_SERVICE;
 	
 	//NOTE: The TaskBarView uses these constants to do direct indexing.
 	//So changing these values requires a review of TaskBarView as well.  
@@ -181,4 +188,12 @@ public interface TaskBar
      * @param path The path to handle.
      */
     public void openURL(String path);
+    
+    /**
+     * Invokes when an error has occurred and the connection is lost.
+     * 
+     * @param index One of the constants defined by this class.
+     */
+    public void sessionExpired(int index);
+    
 }

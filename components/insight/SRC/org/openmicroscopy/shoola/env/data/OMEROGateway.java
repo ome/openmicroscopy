@@ -231,12 +231,6 @@ import pojos.WorkflowData;
 class OMEROGateway
 {
 	
-	/** Indicates that the connection has been lost. */
-	static final int LOST_CONNECTION = 0;
-	
-	/** Indicates that the server is out of service. */
-	static final int SERVER_OUT_OF_SERVICE = 1;
-	
 	/** Identifies the image as root. */
 	private static final String REF_IMAGE = "/Image";
 	
@@ -867,12 +861,13 @@ class OMEROGateway
 				cause instanceof ConnectionTimeoutException || 
 				t instanceof ConnectionTimeoutException) {
 			connected = false;
-			dsFactory.sessionExpiredExit(SERVER_OUT_OF_SERVICE);
+			dsFactory.sessionExpiredExit(
+					DataServicesFactory.SERVER_OUT_OF_SERVICE);
 			return;
 		} else if (cause instanceof ConnectionLostException ||
 				t instanceof ConnectionLostException) {
 			connected = false;
-			dsFactory.sessionExpiredExit(LOST_CONNECTION);
+			dsFactory.sessionExpiredExit(DataServicesFactory.LOST_CONNECTION);
 			return;
 		}
 		throw new DSAccessException("Cannot access data. \n"+message, t);

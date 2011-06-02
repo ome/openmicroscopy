@@ -69,9 +69,9 @@ class KeepClientAlive
         	message.print(t);
         	container.getRegistry().getLogger().error(this, message);
         	Throwable cause = t.getCause();
-			int index = OMEROGateway.SERVER_OUT_OF_SERVICE;
+			int index = DataServicesFactory.SERVER_OUT_OF_SERVICE;
 			if (cause instanceof ConnectionLostException)
-				index = OMEROGateway.LOST_CONNECTION;
+				index = DataServicesFactory.LOST_CONNECTION;
         	try {
         		DataServicesFactory f = 
         			DataServicesFactory.getInstance(container);

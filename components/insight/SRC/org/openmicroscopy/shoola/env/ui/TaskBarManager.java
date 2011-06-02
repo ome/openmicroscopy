@@ -648,6 +648,25 @@ public class TaskBarManager
 	}
 	
 	/**
+	 * Notifies that the connection is lost or the server is out of service.
+	 * @param index
+	 */
+	void sessionExpired(int index)
+	{
+		switch (index) {
+			case DataServicesFactory.LOST_CONNECTION:
+			case DataServicesFactory.SERVER_OUT_OF_SERVICE:
+			try {
+				DataServicesFactory factory = 
+					DataServicesFactory.getInstance(container);
+				factory.sessionExpiredExit(index);
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+		}
+	}
+	
+	/**
 	 * Returns <code>true</code> if already connected,
      * <code>false</code> otherwise.
      * 

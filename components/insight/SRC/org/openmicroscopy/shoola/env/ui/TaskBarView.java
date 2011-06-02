@@ -49,6 +49,7 @@ import javax.swing.event.MenuListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -661,6 +662,15 @@ class TaskBarView
 		if (path == null || path.trim().length() == 0)
 			return;
 		manager.openURL(path); 
+	}
+	
+    /**
+     * Implemented as specified by {@link TaskBar}.
+     * @see TaskBar#sessionExpired(int)
+     */
+	public void sessionExpired(int index)
+	{
+		manager.sessionExpired(index);
 	}
 	
 }

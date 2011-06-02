@@ -40,6 +40,10 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
+import Ice.ConnectionLostException;
+import Ice.ConnectionRefusedException;
+import Ice.ConnectionTimeoutException;
+
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
@@ -53,6 +57,7 @@ import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import pojos.ChannelData;
@@ -191,13 +196,13 @@ class RenderingControlProxy
      * Methods in this class are required to fill in a meaningful context
      * message.
      * 
-     * @param e			The exception.
+     * @param t			The exception.
      * @param message	The context message.  
      * @param message
      * @throws RenderingServiceException A rendering problem
      * @throws DSOutOfServiceException A connection problem.
      */
-    private void handleException(Throwable e, String message)
+    private void handleException(Throwable t, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
     	/*
@@ -207,8 +212,22 @@ class RenderingControlProxy
 					printErrorText(e), e);
     	}
     	*/
+    	Throwable cause = t.getCause();
+    	if (cause instanceof ConnectionRefusedException || 
+				t instanceof ConnectionRefusedException ||
+				cause instanceof ConnectionTimeoutException || 
+				t instanceof ConnectionTimeoutException) {
+			context.getTaskBar().sessionExpired(
+					TaskBar.SERVER_OUT_OF_SERVICE);
+			return;
+		} else if (cause instanceof ConnectionLostException ||
+				t instanceof ConnectionLostException) {
+			context.getTaskBar().sessionExpired(
+					TaskBar.LOST_CONNECTION);
+			return;
+		}
     	throw new RenderingServiceException(message+"\n\n"+
-				printErrorText(e), e);
+				printErrorText(t), t);
     }
     
     /**

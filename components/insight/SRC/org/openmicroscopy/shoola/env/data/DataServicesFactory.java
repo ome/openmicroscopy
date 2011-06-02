@@ -77,6 +77,12 @@ import pojos.GroupData;
 public class DataServicesFactory
 {
 	
+	/** Indicates that the connection has been lost. */
+	public static final int LOST_CONNECTION = 0;
+	
+	/** Indicates that the server is out of service. */
+	public static final int SERVER_OUT_OF_SERVICE = 1;
+	
 	/** The name of the fs configuration file in the configuration directory. */
 	private static final String		FS_CONFIG_FILE = "fs.config";
 
@@ -291,12 +297,12 @@ public class DataServicesFactory
 	 * 
 	 * @param index One of the connection constants defined by the gateway.
 	 */
-	void sessionExpiredExit(int index)
+	public void sessionExpiredExit(int index)
 	{
 		String message;
 		UserNotifier un = registry.getUserNotifier();
 		switch (index) {
-			case OMEROGateway.LOST_CONNECTION:
+			case LOST_CONNECTION:
 				message = "The connection has been lost. \nDo you want " +
 						"to reconnect? If no, the application will exit.";
 				MessageBox box = new MessageBox(
@@ -320,7 +326,7 @@ public class DataServicesFactory
 					}
 				}
 				break;
-			case OMEROGateway.SERVER_OUT_OF_SERVICE:
+			case SERVER_OUT_OF_SERVICE:
 				message = "The server is no longer " +
 				"running. \nPlease contact your system administrator." +
 				"\nThe application will exit.";
