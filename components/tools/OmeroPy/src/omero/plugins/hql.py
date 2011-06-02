@@ -83,15 +83,7 @@ To quit, enter 'q' or just enter.
             if id.startswith("p"):
                 p.page(p.getOffset().val + p.getLimit().val, p.getLimit())
                 self.ctx.dbg("\nCurrent page: offset=%s, limit=%s\n" % (p.theFilter.offset.val, p.theFilter.limit.val))
-<<<<<<< HEAD
-                rv = self.project(q, args.query, p)
-||||||| merged common ancestors
-                rv = self.project(q, args.query, p)
-                self.ctx.set("rv", rv)
-=======
                 rv = self.project(q, args.query, p, ice_map)
-                self.ctx.set("rv", rv)
->>>>>>> Adding --admin option to bin/omero hql
                 self.display(rv)
             elif id.startswith("r"):
                 self.display(rv)
