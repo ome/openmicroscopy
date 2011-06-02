@@ -167,7 +167,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         }
         @Override
         public String toLog() {
-            this.exception.printStackTrace();
+            //this.exception.printStackTrace();
             return super.toLog() + ": "+filename;
         }
     }
