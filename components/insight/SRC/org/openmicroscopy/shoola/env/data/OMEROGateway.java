@@ -5326,7 +5326,7 @@ class OMEROGateway
 				LogicalChannel lc = (LogicalChannel) l.get(0);
 				ChannelAcquisitionData data = new ChannelAcquisitionData(lc);
 				LightSourceData src = data.getLightSource();
-				if (src.isLoaded()) return data;
+				if (src == null || src.isLoaded()) return data;
 				//Not loaded so need to load
 				IObject io = src.asIObject();
 				if (io instanceof Laser) { //only case to handle.
