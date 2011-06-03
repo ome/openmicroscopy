@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 //Third-party libraries
 import org.testng.annotations.BeforeClass;
@@ -30,7 +31,10 @@ import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
+import omero.model.CommentAnnotation;
+import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
+import omero.model.DatasetAnnotationLinkI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Experimenter;
@@ -47,6 +51,7 @@ import omero.model.PermissionsI;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.Project;
+import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.Screen;
@@ -54,6 +59,7 @@ import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
 import omero.model.StageLabel;
 import static omero.rtypes.rlong;
+import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.DatasetData;
@@ -1009,6 +1015,87 @@ public class PojosServiceTest
 			env.getId().getValue());
 		assertTrue(test.getStageLabel().getId().getValue() == 
 			label.getId().getValue());
+    }
+    
+    /**
+     * Test to load container hierarchy and make sure the annotations are
+     * counted.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = true)
+    public void testLoadContainerHierarchyProjectDatasetWithAnnotations() 
+    	throws Exception 
+    {
+    	//first create a project
+    	Project p = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asIObject());
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	long datasetID = d.getId().getValue();
+    	CommentAnnotation comment = new CommentAnnotationI();
+    	comment.setTextValue(omero.rtypes.rstring("comment Project"));
+    	comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
+    	//attach comment to Project
+    	ProjectAnnotationLinkI pal = new ProjectAnnotationLinkI();
+    	pal.setParent((Project) p.proxy());
+    	pal.setChild(comment);
+    	iUpdate.saveAndReturnObject(pal);
+    	comment = new CommentAnnotationI();
+    	comment.setTextValue(omero.rtypes.rstring("comment Dataset"));
+    	comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
+    	//attach comment to Project
+    	DatasetAnnotationLinkI dal = new DatasetAnnotationLinkI();
+    	dal.setParent((Dataset) d.proxy());
+    	dal.setChild(comment);
+    	iUpdate.saveAndReturnObject(dal);
+    	
+    	//link the 2
+    	ProjectDatasetLink link = new ProjectDatasetLinkI();
+    	link.setParent((Project) p.proxy());
+    	link.setChild((Dataset) d.proxy());
+    	iUpdate.saveAndReturnObject(link);
+    	Parameters param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(p.getId().getValue());
+        List results = iContainer.loadContainerHierarchy(
+        		Project.class.getName(), ids, param);
+        assertTrue(results.size() == 1);
+        Iterator i = results.iterator();
+        ProjectData project;
+        Set<DatasetData> datasets;
+        Iterator<DatasetData> j;
+        DatasetData dataset;
+        Map<Long, Long> count;
+        Entry entry;
+        Iterator k;
+        while (i.hasNext()) {
+        	//use pojos
+			project = new  ProjectData((Project) i.next());
+			count = project.getAnnotationsCounts();
+			assertEquals(1, count.size());
+			datasets = project.getDatasets();
+			k = count.entrySet().iterator();
+			while (k.hasNext()) {
+				entry = (Entry) k.next();
+				assertEquals(((Long) entry.getValue()).longValue(), 1);
+				
+			}
+			//assertTrue(count.containsKey(ctx.userId));
+			//one annotation to project.
+			//assertEquals(((Long) count.get(ctx.userId)).longValue(), 1);
+			j = datasets.iterator();
+			while (j.hasNext()) {
+				dataset = j.next();
+				count = dataset.getAnnotationsCounts();
+				assertEquals(1, count.size());
+				k = count.entrySet().iterator();
+				while (k.hasNext()) {
+					entry = (Entry) k.next();
+					assertEquals(((Long) entry.getValue()).longValue(), 1);
+					
+				}
+			}
+		}
     }
     
 }
