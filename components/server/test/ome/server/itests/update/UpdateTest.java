@@ -11,9 +11,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 
 import ome.api.ITypes;
 import ome.api.Search;
+import ome.conditions.TryAgain;
 import ome.model.acquisition.Instrument;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.ObjectiveSettings;
@@ -42,9 +45,15 @@ import ome.model.roi.Rect;
 import ome.model.roi.Roi;
 import ome.model.roi.Shape;
 import ome.parameters.Parameters;
-import ome.system.EventContext;
+import ome.services.util.Executor;
+import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
 
+import org.hibernate.LockOptions;
+import org.hibernate.Session;
+import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
+import org.springframework.orm.hibernate3.HibernateInterceptor;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
 public class UpdateTest extends AbstractUpdateTest {
@@ -648,4 +657,95 @@ public class UpdateTest extends AbstractUpdateTest {
         Roi r = new Roi();
         iUpdate.saveAndReturnObject(r);
     }
+
+    @Test(groups = "ticket:5639")
+    public void testCatchDeadlockException() throws Exception {
+        /*
+        HibernateInterceptor ht = (HibernateInterceptor) this.applicationContext.getBean("hibernateHandler");
+        SQLErrorCodeSQLExceptionTranslator trans = (SQLErrorCodeSQLExceptionTranslator) ht.getJdbcExceptionTranslator();
+        if (trans == null) {
+            trans = new SQLEr
+            ht.setJdbcExceptionTranslator(jdbcExceptionTranslator)
+        }
+        String[] loserCodes = trans.getSqlErrorCodes().getDeadlockLoserCodes();
+        String[] newLoserCodes;
+        if (loserCodes != null) {
+            newLoserCodes = new String[loserCodes.length+1];
+            System.arraycopy(loserCodes, 0, newLoserCodes, 0, loserCodes.length);
+        } else {
+            newLoserCodes = new String[1];
+        }
+        newLoserCodes[newLoserCodes.length-1] = "40P01";
+        trans.getSqlErrorCodes().setDeadlockLoserCodes(newLoserCodes);
+        */
+        loginNewUser();
+        final Image i1 = iUpdate.saveAndReturnObject(new_Image("catchDeadLock1"));
+        final Image i2 = iUpdate.saveAndReturnObject(new_Image("catchDeadLock2"));
+
+        final CyclicBarrier barrier1 = new CyclicBarrier(2);
+        final CyclicBarrier barrier2 = new CyclicBarrier(2);
+
+        class T extends Thread {
+            long first, second;
+            String name;
+            Exception e;
+            public T(String name, long first, long second) {
+                super(name);
+                this.name = name;
+                this.first = first;
+                this.second = second;
+            }
+            @Override
+            public void run() {
+                try {
+                    executor.execute(loginAop.p, new Executor.SimpleWork(this, name) {
+                        @Transactional(readOnly = false)
+                        public Object doWork(Session session, ServiceFactory sf) {
+
+                            try {
+                                session.get(Image.class, first, LockOptions.UPGRADE);
+                                barrier1.await(5, TimeUnit.SECONDS);
+                                session.get(Image.class, second, LockOptions.UPGRADE);
+                            } catch (RuntimeException rt) {
+                                throw rt;
+                            } catch (Exception exc) {
+                                throw new RuntimeException(e);
+                            } finally {
+                                try {
+                                    barrier2.await(5, TimeUnit.SECONDS);
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                            return null;
+                        }
+                });
+                } catch (Exception e) {
+                    this.e = e;
+                }
+
+            }
+        }
+
+
+        final T t1 = new T("thread1", i1.getId(), i2.getId());
+        final T t2 = new T("thread2", i2.getId(), i1.getId());
+
+        t1.start();
+        t2.start();
+        t1.join();
+        t2.join();
+
+        if (t1.e == null) {
+            assertEquals(TryAgain.class, t2.e.getClass());
+        } else if (t2.e == null) {
+            assertEquals(TryAgain.class, t1.e.getClass());
+        } else {
+            t1.e.printStackTrace();
+            t2.e.printStackTrace();
+            fail("Expected exactly one exception");
+        }
+
+    }
+
 }
