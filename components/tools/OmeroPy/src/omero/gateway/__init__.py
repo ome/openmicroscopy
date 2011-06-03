@@ -4562,6 +4562,8 @@ class _ChannelWrapper (BlitzObjectWrapper):
         @rtype:     Boolean
         """
         
+        if self._re is None:
+            return False
         return self._re.isActive(self._idx)
 
     def getLogicalChannel (self):
@@ -4637,6 +4639,8 @@ class _ChannelWrapper (BlitzObjectWrapper):
         @rtype:     L{ColorHolder}
         """
         
+        if self._re is None:
+            return None
         return ColorHolder.fromRGBA(*self._re.getRGBA(self._idx))
 
     def getWindowStart (self):
