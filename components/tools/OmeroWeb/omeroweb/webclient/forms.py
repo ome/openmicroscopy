@@ -107,7 +107,7 @@ class BasketShareForm(ShareForm):
 
 class ShareCommentForm(NonASCIIForm):
 
-    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 8, 'cols': 39}), help_text=help_wiki_c)
+    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}))# help_text=help_wiki_c
     
 class ContainerForm(NonASCIIForm):
     

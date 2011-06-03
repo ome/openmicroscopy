@@ -3,7 +3,7 @@ var multi_key = function() {
     else return "ctrl";
 };
 
-var loadOtherPanels = function(data) {
+var loadOtherPanels = function(data, prefix) {
     if(data.rslt.obj.length > 0) {
         var cm_var = new Object();
 	    cm_var['content_details'] = {'url': null, 'rel': null, 'empty':false };
@@ -17,29 +17,46 @@ var loadOtherPanels = function(data) {
                 if(oid!==crel) {
                     cm_var['metadata_details']['html'] = '<p>This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container.</p>';
                     cm_var['content_details']['rel'] = oid;
-                    cm_var['content_details']['url'] = '/webclient/load_data/'+orel+'/?view=icon';
+                    cm_var['content_details']['url'] = prefix+orel+'/?view=icon';
                 } else {
                     cm_var['metadata_details']['html'] = '<p>This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container.</p>';
                 }
             } else if(oid.indexOf("experimenter")<0) {
-                cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
+                if(orel=="image") {
+                    var pr = data.rslt.obj.parent().parent();
+                    if (pr.length>0 && pr.attr('rel').replace("-locked", "")==="share") {
+                        cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/'+pr.attr("id").split("-")[1]+'/';
+                    } else {
+                        cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
+                    }                    
+                } else {
+                    cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/';    
+                }
+                
                 if ($.inArray(orel, ["project", "screen"]) > -1) {
                     cm_var['content_details']['url'] = null;
                     cm_var['content_details']['rel'] = null;
                     cm_var['content_details']['empty'] = true;
                 } else if($.inArray(orel, ["dataset", "plate"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
-                    cm_var['content_details']['url'] = '/webclient/load_data/'+orel+'/'+oid.split("-")[1]+'/?view=icon';
+                    cm_var['content_details']['url'] = prefix+orel+'/'+oid.split("-")[1]+'/?view=icon';
+                    
+                } else if($.inArray(orel, ["share"]) > -1 && oid!==crel) {
+                    cm_var['content_details']['rel'] = oid;
+                    cm_var['content_details']['url'] = prefix+oid.split("-")[1]+'/?view=icon';
                     
                 } else if(orel=="image") {
                     var pr = data.rslt.obj.parent().parent();
                     if (pr.length>0 && pr.attr('id')!==crel) {
-                        if (pr.attr('rel').replace("-locked", "")!=="orphaned") {
+                        if(pr.attr('rel').replace("-locked", "")==="share" && pr.attr('id')!==crel) {
                             cm_var['content_details']['rel'] = pr.attr('id');
-                            cm_var['content_details']['url'] = '/webclient/load_data/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
+                            cm_var['content_details']['url'] = prefix+pr.attr('id').split("-")[1]+'/?view=icon';
+                        } else if (pr.attr('rel').replace("-locked", "")!=="orphaned") {
+                            cm_var['content_details']['rel'] = pr.attr('id');
+                            cm_var['content_details']['url'] = prefix+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
                         } else {
                             cm_var['content_details']['rel'] = pr.attr("id");
-                            cm_var['content_details']['url'] = '/webclient/load_data/'+pr.attr('rel').replace("-locked", "")+'/?view=icon';
+                            cm_var['content_details']['url'] = prefix+pr.attr('rel').replace("-locked", "")+'/?view=icon';
                         }
                     }
                 } 

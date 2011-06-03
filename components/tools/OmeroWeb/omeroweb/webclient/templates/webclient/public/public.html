@@ -29,7 +29,35 @@
                 $("div#metadata_details iframe").attr('height', h+31);
                 $("div#content_details").css('height', h+31);
                 
-                $("#dataTree").jstree({ 
+                var buttonsShowHide = function(selected) { 
+                    var toolbar_config = new Object();
+                    if(selected.length > 0) {
+                        if(selected.attr("rel").indexOf("locked")>=0) {            	            
+                            toolbar_config = {"adddiscussion":false, 'removecontent':false}
+                        } else {
+                            if(selected.attr("id").indexOf("experimenter")>=0) {
+                                toolbar_config = {"adddiscussion":true, 'removecontent':false}
+                            } else if(selected.attr("id").indexOf("share")>=0) {
+                                toolbar_config = {"adddiscussion":false, 'removecontent':false}
+                            } else if(selected.attr("id").indexOf("discussion")>=0) {
+                               toolbar_config = {"adddiscussion":false, 'removecontent':false}
+                            } else if(selected.attr("id").indexOf("image")>=0) {
+                               toolbar_config = {"adddiscussion":false, 'removecontent':true}
+                            }
+                        }
+                    }
+                    
+                    if (selected.length > 1) toolbar_config['annotation'] = true;
+                    for (var sIndex in toolbar_config) { 
+                        if (toolbar_config[sIndex]){
+                            $('input#'+sIndex+'Button').removeClass('button-disabled');
+                        } else {
+                            $('input#'+sIndex+'Button').addClass('button-disabled');                            
+                        }
+                    }
+                }
+                
+                $("#datashareTree").jstree({ 
             			// the list of plugins to include
             			"plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
             			// Plugin configuration
@@ -70,7 +98,6 @@
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},
             					"share" : {
@@ -81,7 +108,6 @@
             						"create_node" : false,
                                     "start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : true,
             						"remove" : false
             					},
             					"share-locked" : {
@@ -92,7 +118,6 @@
             						"create_node" : false,
                                     "start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},            					
             					"discussion" : {
@@ -103,7 +128,6 @@
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : true,
             						"remove" : false
             					},
             					"discussion-locked" : {
@@ -114,7 +138,6 @@
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},
             					"image" : {
@@ -125,8 +148,7 @@
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
-            						"remove" : false
+            						"remove" : true
             					},
             					"image-locked" : {
             						"valid_children" : "none",
@@ -136,7 +158,6 @@
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					}
             				}
@@ -162,38 +183,41 @@
                         }
             			
             	})
+            	.delegate("a", "click.jstree", function (event) {
+					var data = $.jstree._focused();
+					if(!data.is_open()) {
+                	    data.open_node(data.get_selected());
+                	}
+				})
             	.bind("select_node.jstree", function (e, data) {
-            	    var oid = data.rslt.obj
-            	    if(oid.attr("id").indexOf("experimenter")<0) {
-            	        var cm_var = new Object();
-    				    cm_var['content_details'] = {'url': null, 'rel': null, 'empty':false };
-    				    cm_var['metadata_details']= {'iframe': null, 'html': null};
-    				    
-            	        if (oid.attr("id").indexOf("image")>=0) {
-            	            if(oid.parent().parent().attr("id")!==$("div#content_details").attr('rel')) {
-            	                cm_var['content_details']['url'] = '/webclient/load_public/'+oid.parent().parent().attr('id').split("-")[1]+'/?view=icon';
-            	                cm_var['content_details']['rel'] = oid.parent().parent().attr("id");
-            	            }
-            	            cm_var['metadata_details']['iframe'] = "/webclient/metadata_details/image/"+oid.attr("id").split("-")[1]+"/"+oid.parent().parent().attr('id').split("-")[1]+"/";
-            	        } else {
-            	            if(oid.attr("id")!==$("div#content_details").attr('rel')) {
-            	                cm_var['content_details']['url'] = '/webclient/load_public/'+oid.attr('id').split("-")[1]+'/?view=icon';
-            	                cm_var['content_details']['rel'] = oid.attr("id");
-            	            }
-            	            cm_var['metadata_details']['iframe'] = "/webclient/metadata_details/"+oid.attr("rel").replace("-locked", "")+"/"+oid.attr("id").split("-")[1]+"/";
-        	            }
-        	            
-        	            if (cm_var.content_details.rel!==null && cm_var.content_details.url!==null){
-        	                $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-                            $("div#content_details").load(cm_var.content_details.url);
-                            $("div#content_details").attr('rel', cm_var.content_details.rel);
-        	            }        	            
-                        loadMetadataPanel(cm_var.metadata_details.iframe);
-                    } else {
-                        $("#right_panel").show();
-                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                        $("div#metadata_details").html('<p>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</p>');  
-                    }
+            	    buttonsShowHide(data.rslt.obj);
+            	    loadOtherPanels(data, '{% url load_public %}');
+        		})
+        		.bind("remove.jstree", function (e, data) {
+        		    var pr = $(data.args[1]);
+        		    data.args[0].each(function (i) {
+                        url = '/webclient/action/removefromshare/share/'+pr.attr('id').split('-')[1]+'/'
+                        $.ajax({
+            		        async : false,
+                            url: url,
+                            data : {'source':$(this).attr('id')},
+                            dataType: "json",
+                            type: "POST",
+                            success: function(r){
+                                if(eval(r.bad)) {
+          							$.jstree.rollback(data.rlbk);
+          							alert(r.errs);
+          						} else {
+          						    refreshCenterPanel();
+          						}
+                            },
+                            error: function(response) {
+                                $.jstree.rollback(data.rlbk);
+                                alert("Internal server error. Cannot remove object.");
+                            }
+                        });
+        		    });
+                    
         		});
             	
         	});
@@ -204,14 +228,19 @@
     	$("#buttons input").click(function () {
     		switch(this.id) {
     			case "adddiscussionButton":
-    			    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'discussion' } });
+    			    $("#datashareTree").jstree("create", null, "first", { "attr" : { "rel" : 'discussion' } });
     				break;
     			case "removecontentButton":
-    			    $("#dataTree").jstree("removecontent");
+    			    if (confirm("Remove image?")) {
+    			        var jstree = $.jstree._focused();
+    			        $("#datashareTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
+                    }    			    
     				break;
-    			default:
-    				$("#dataTree").jstree(this.id.replace("Button", ""));
-    				break;
+    			case "refreshButton":
+                    $("#datashareTree").jstree("refresh");
+                    break;
+		        default:
+        		    break;
     		}
     	});
     });
@@ -224,7 +253,6 @@
         <div id="buttons" class="align_left">
             <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'">
             <input id="adddiscussionButton" class="button button-disabled" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="Create discussion" title="Create discussion" /> 
-            <input id="deleteButton" class="button button-disabled" type="image" src="{% url webstatic "images/cancel16.png" %}" alt="Delete" title="Delete" /> 
             <input id="removecontentButton" class="button button-disabled" type="image" src="{% url webstatic "images/cancel16.png" %}" alt="Remove content" title="Remove content" /> 
         </div>
     </div>
@@ -233,7 +261,7 @@
 <div class="clear"> </div>
 
 <div id="tree_details">
-    <div class="dataTree" id="dataTree"></div>
+    <div class="datashareTree" id="datashareTree"></div>
 </div>
 
 {% endblock %}

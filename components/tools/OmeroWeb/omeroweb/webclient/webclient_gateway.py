@@ -1807,10 +1807,27 @@ omero.gateway.ScreenWrapper = ScreenWrapper
 # IMPORTANT to update the map of wrappers 'project', 'dataset', 'image' etc. returned by getObjects()
 omero.gateway.refreshWrappers()
 
-class ShareWrapper (OmeroWebObjectWrapper):
+class SessionAnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):
     """
-    omero_model_ShareI class wrapper overwrite omero.gateway.ShareWrapper
-    and extends OmeroWebObjectWrapper.
+    omero_model_AnnotationLinkI class wrapper extends omero.gateway.BlitzObjectWrapper.
+    """
+    
+    def getComment(self):
+        return ShareCommentWrapper(self._conn, self.child)
+    
+    def getShare(self):
+        return ShareWrapper(self._conn, self.parent)
+    
+class EventLogWrapper (omero.gateway.BlitzObjectWrapper):
+    """
+    omero_model_EventLogI class wrapper extends omero.gateway.BlitzObjectWrapper.
+    """
+    
+    LINK_CLASS = "EventLog"
+
+class ShareWrapper (omero.gateway.BlitzObjectWrapper):
+    """
+    omero_model_ShareI class wrapper extends BlitzObjectWrapper.
     """
     
     def truncateMessageForTree(self):
@@ -1845,42 +1862,7 @@ class ShareWrapper (OmeroWebObjectWrapper):
         except:
             logger.info(traceback.format_exc())
         return None
-    
-    def isExpired(self):
-        #workaround for problem of year 2038
-        now = time.time()
-        try:
-            d = long(self.started+self.timeToLive)
-            if (d / 1000) > now:
-                return False
-            return True
-        except:
-            logger.info(traceback.format_exc())
-        return None
-
-class SessionAnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):
-    """
-    omero_model_AnnotationLinkI class wrapper extends omero.gateway.BlitzObjectWrapper.
-    """
-    
-    def getComment(self):
-        return ShareCommentWrapper(self._conn, self.child)
-    
-    def getShare(self):
-        return ShareWrapper(self._conn, self.parent)
-    
-class EventLogWrapper (omero.gateway.BlitzObjectWrapper):
-    """
-    omero_model_EventLogI class wrapper extends omero.gateway.BlitzObjectWrapper.
-    """
-    
-    LINK_CLASS = "EventLog"
-
-class ShareWrapper (omero.gateway.BlitzObjectWrapper):
-    """
-    omero_model_ShareI class wrapper extends BlitzObjectWrapper.
-    """
-    
+        
     def getStartDate(self):
         """
         Gets the start date of the share
@@ -1899,10 +1881,14 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         @rtype:     datetime object
         """
         
+        #workaround for problem of year 2038
         try:
-            return datetime.fromtimestamp((self.getStarted().val+self.getTimeToLive().val)/1000)
-        except ValueError:
-            pass
+            d = self.started+self.timeToLive
+            if d > 2051222400:
+                return datetime(2035, 1, 1, 0, 0, 0)            
+            return datetime.fromtimestamp(d / 1000)
+        except:
+            logger.info(traceback.format_exc())
         return None
     
     def isExpired(self):
@@ -1913,13 +1899,16 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         @rtype:     Boolean
         """
         
+        #workaround for problem of year 2038
+        now = time.time()
         try:
-            if (self.getStarted().val+self.getTimeToLive().val)/1000 <= time.time():
-                return True
-            else:
+            d = long(self.started+self.timeToLive)
+            if (d / 1000) > now:
                 return False
-        except:
             return True
+        except:
+            logger.info(traceback.format_exc())
+        return None
     
     def isOwned(self):
         """

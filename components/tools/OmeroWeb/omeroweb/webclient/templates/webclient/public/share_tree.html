@@ -8,7 +8,7 @@
         <ul>
             {% for s in share.shares %}
             {% if s.isEmpty %}
-            <li id='discussion-{{ s.id }}' rel="discussion{% if not s.isOwned %}-locked{% endif %}" class="jstree-closed"><a href="#">{{ s.id }}</a></li>
+            <li id='discussion-{{ s.id }}' rel="discussion{% if not s.isOwned %}-locked{% endif %}"><a href="#">{{ s.id }}</a></li>
             {% else %}
             <li id='share-{{ s.id }}' rel="share{% if not s.isOwned %}-locked{% endif %}" class="jstree-closed"><a href="#">{{ s.id }}</a></li>
             {% endif %}

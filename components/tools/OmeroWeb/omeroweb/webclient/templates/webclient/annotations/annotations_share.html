@@ -147,14 +147,14 @@
         <!-- ANNOTATIONS "General" -->
         <div id="annotation_tab">
             {% if manager.image %}            
-            {% if manager.image.isOwned %}<div id="imagename-{{ manager.image.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="imagename-{{ manager.image.id }}-name">{{ manager.image.name|warphtml:"30" }}</span></h1></div>{% else %}<h1>{{ manager.image.name|warphtml:"30" }}</h1>{% endif %}
+            <h1>{{ manager.image.name|warphtml:"30" }}</h1>
             
             <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>    
             <!-- open-image link -->
             <div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
                     
             <div class="description">
-                {% if manager.image.isOwned %}<div id="imagedescription-{{ manager.image.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='image_desc'>{{ manager.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                <span id='image_desc'>{{ manager.image.description|default_if_none:"no description"|linebreaks }}</span>
             </div>
             <table>                    
                 {% if not manager.image.isOwned %}
@@ -204,7 +204,7 @@
             {% endif %}
     
             {% if manager.share %}
-                <h1>{{ manager.share.getShareType }} {{ manager.share.id }}</h1>
+                <h1>{{ manager.share.getShareType }} {{ manager.share.id }} {% if manager.share.isOwned %}<a href="{% url manage_action_containers "edit" "share" manager.share.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</h1>
                 
                 <div class="description">
                     {{ manager.share.message|default_if_none:""|sharewikify|safe|linebreaks }}

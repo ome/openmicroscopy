@@ -876,12 +876,14 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
     except:
         index = 0
 
+    form_comment = None
     try:
         if c_type in ("share", "discussion"):
             template = "webclient/annotations/annotations_share.html"
             manager = BaseShare(conn, conn_share, c_id)
             manager.getAllUsers(c_id)
             manager.getComments(c_id)
+            form_comment = ShareCommentForm()
         else:
             if conn_share is not None:
                 template = "webclient/annotations/annotations_share.html"
@@ -891,13 +893,12 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
                 template = "webclient/annotations/metadata_general.html"
                 manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
                 manager.annotationList()
+                form_comment = CommentAnnotationForm()
     except AttributeError, x:
         logger.error(traceback.format_exc())
-        return handlerInternalError(x)
+        return handlerInternalError(x)    
 
-    form_comment = CommentAnnotationForm()
-
-    if c_type in ("share", "discussion", "tag"):
+    if c_type in ("tag"):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment}

@@ -406,7 +406,7 @@
                             return false;
                         });
                     } else {
-                        loadOtherPanels(data);
+                        loadOtherPanels(data, '{% url load_data %}');
                     }
                     syncPanels(selected);
         		})
@@ -414,7 +414,7 @@
             	    buttonsShowHide(data.inst.get_selected());
             	    if (data.inst.get_selected().length < 2) {
             	        data.rslt.obj = data.inst.get_selected()
-                        loadOtherPanels(data);                        
+                        loadOtherPanels(data, '{% url load_data %}');                        
                     }
                     syncPanels(data.inst.get_selected());
         	    })

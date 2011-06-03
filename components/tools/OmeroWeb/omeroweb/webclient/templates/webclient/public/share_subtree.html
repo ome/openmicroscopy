@@ -5,9 +5,7 @@
 {% if share.imgSize %}
 {% for d in share.imageInShare %}
     {% if d.loaded %}
-    <li id='image-{{ d.id }}' rel="image{% if not d.isOwned %}-locked{% endif %}"><a href="#">{{ d.name|truncatebefor:"30" }}</a>
-        {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %} 
-    </li>
+    <li id='image-{{ d.id }}' rel="image{% if not d.isOwned %}-locked{% endif %}"><a href="#">{{ d.name|truncatebefor:"30" }}</a></li>
     {% else %}
     <li>Object deleted.</li>
     {% endif %}
