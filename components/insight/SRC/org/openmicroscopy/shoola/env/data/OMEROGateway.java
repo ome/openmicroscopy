@@ -6404,36 +6404,40 @@ class OMEROGateway
 		{
 			IUpdatePrx updateService = getUpdateService();
 			IRoiPrx svc = getROIService();
-			
 			RoiOptions options = new RoiOptions();
 			options.userId = omero.rtypes.rlong(userID);
 			RoiResult serverReturn;
 			serverReturn = svc.findByImage(imageID, new RoiOptions());
-	
 			Map<Long, Roi> roiMap = new HashMap<Long, Roi>();
 			List<Roi> serverRoiList = serverReturn.rois;
 
 			/* Create a map of all the client roi with id as key */
 			Map<Long, ROIData> clientROIMap = new HashMap<Long, ROIData>();
-			for (ROIData roi : roiList)
-				clientROIMap.put(roi.getId(), roi);
+			for (ROIData roi : roiList) {
+				if (roi != null)
+					clientROIMap.put(roi.getId(), roi);
+			}
+				
 			
 			/* Create a map of the <id, serverROI>, but remove any roi from 
 			 * the server that should be deleted, before creating map.
 			 * To delete an roi we first must delete all the roiShapes in 
 			 * the roi. */
-			for (Roi roi : serverRoiList)
-				if (!clientROIMap.containsKey(roi.getId().getValue()))
-				{
-					if (roi.getDetails().getOwner().getId().getValue()
-							== userID) {
-						for (int i = 0 ; i < roi.sizeOfShapes() ; i++)
-							updateService.deleteObject(roi.getShape(i));
-						updateService.deleteObject(roi);
-					}
+			for (Roi roi : serverRoiList) {
+				if (roi != null) {
+					if (!clientROIMap.containsKey(roi.getId().getValue()))
+					{
+						/* rois are now deleted using the roi service.
+						if (roi.getDetails().getOwner().getId().getValue()
+								== userID) {
+							for (int i = 0 ; i < roi.sizeOfShapes() ; i++)
+								updateService.deleteObject(roi.getShape(i));
+							updateService.deleteObject(roi);
+						}
+						*/
+					} else roiMap.put(roi.getId().getValue(), roi);
 				}
-				else
-					roiMap.put(roi.getId().getValue(), roi);
+			}
 			
 			/* For each roi in the client, see what should be done:
 			 * 1. Create a new roi if it does not exist. 
