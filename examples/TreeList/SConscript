@@ -46,7 +46,7 @@ if env["run"] or env["run_java"]:
 # Python
 #
 if env["run"] or env["run_py"]:
-    run = env.Alias("Main.py", [], "python " + _("TreeList", "Main.py") + args)
+    run = env.Alias("Main.py", [], "python " + _(["TreeList", "Main.py"]) + args)
     env.AlwaysBuild(run)
     targets.append(run)
 
@@ -57,7 +57,7 @@ if not env["no_cpp"]:
     make = env.Program("TreeList.exe", "Main.cpp", LIBS = libs)
     targets.append(make)
     if env["run"] or env["run_cpp"]:
-        run = env.Command("TreeList.out", "TreeList.exe", _(".", "$SOURCE ") + args)
+        run = env.Command("TreeList.out", "TreeList.exe", _([".", "$SOURCE "]) + args)
         env.Depends(run, make)
         env.AlwaysBuild(run)
         targets.append(run)
