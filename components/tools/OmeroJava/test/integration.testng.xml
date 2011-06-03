@@ -13,8 +13,10 @@
       <package name="coverage.*"/>
       <package name="integration.*"/>
       <package name="unit.*"/>
+      <!--
       <package name="ome.*"/>
       <package name="omero.*"/>
+      -->
     </packages>
   </test>
 

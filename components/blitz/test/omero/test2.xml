@@ -36,7 +36,6 @@
   <bean id="ring" class="ome.services.blitz.fire.Ring">
     <constructor-arg ref="uuid"/>
     <constructor-arg ref="executor"/>
-    <constructor-arg ref="sessionCache"/>
   </bean>
   
   <bean id="uuid_object" class="java.util.UUID" factory-method="randomUUID"/>

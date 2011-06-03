@@ -62,6 +62,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,12 +75,15 @@ import org.springframework.transaction.annotation.Transactional;
  * 
  * Uses the name of a Principal as the key to the session. We may need to limit
  * user names to prevent this. (Strictly alphanumeric)
- * 
+ *
+ * Receives notifications as an {@link ApplicationListener}, which should be
+ * used to keep the {@link Session} instances up-to-date.
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
 public class SessionManagerImpl implements SessionManager, SessionCache.StaleCacheListener,
-        ApplicationContextAware {
+        ApplicationContextAware, ApplicationListener {
 
     private final static Log log = LogFactory.getLog(SessionManagerImpl.class);
 

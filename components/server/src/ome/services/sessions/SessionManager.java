@@ -22,14 +22,8 @@ import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
 
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-
 /**
  * Responsible for holding onto {@link Session} instances for optimized login.
- * 
- * Receives notifications as an {@link ApplicationListener}, which should be
- * used to keep the {@link Session} instances up-to-date.
  * 
  * {@link SessionManager} implementations should strive to be only in-memory
  * representations of the database used as a performance optimization. When
@@ -39,7 +33,7 @@ import org.springframework.context.ApplicationListener;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public interface SessionManager extends ApplicationListener {
+public interface SessionManager {
 
     /**
      * 
@@ -188,8 +182,6 @@ public interface SessionManager extends ApplicationListener {
             throws RemovedSessionException;
 
     java.util.List<String> getUserRoles(String uuid);
-
-    void onApplicationEvent(ApplicationEvent event);
 
     /**
      * Executes a password check using the {@link Executor} framework. Also
