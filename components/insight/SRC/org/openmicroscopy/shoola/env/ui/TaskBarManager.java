@@ -40,6 +40,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.Icon;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -333,12 +335,20 @@ public class TaskBarManager
 				container.getRegistry().getUserNotifier();
 			List<Object> nodes = new ArrayList<Object>();
 			if (map != null) {
-				Iterator i = map.values().iterator();
-				while (i.hasNext())
-					nodes.add(i.next());
+				Iterator i = map.entrySet().iterator();
+				Entry entry;
+				Agent agent;
+				AgentSaveInfo info;
+				while (i.hasNext()) {
+					entry = (Entry) i.next();
+					agent = (Agent) entry.getKey();
+					info = (AgentSaveInfo) entry.getValue();
+					agent.save(info.getInstances());
+					nodes.add(info);
+				}
 			}
-			nodes.add(evt.getExperimenterData());
-			un.notifySaving(nodes, null);
+			//nodes.add(evt.getExperimenterData());
+			//un.notifySaving(nodes, null);
 			Registry reg = container.getRegistry();
 			UserNotifierLoader loader = new SwitchUserLoader(
 					reg.getUserNotifier(), reg, evt.getExperimenterData(), 
@@ -374,13 +384,21 @@ public class TaskBarManager
 					exitApplication();
 				} else {
 					List<Object> nodes = new ArrayList<Object>();
-					Iterator i = map.values().iterator();
+					Iterator i = map.entrySet().iterator();
+					Entry entry;
+					Agent agent;
+					AgentSaveInfo info;
 					while (i.hasNext()) {
-						nodes.add(i.next());
+						entry = (Entry) i.next();
+						agent = (Agent) entry.getKey();
+						info = (AgentSaveInfo) entry.getValue();
+						agent.save(info.getInstances());
+						nodes.add(info);
 					}
-					UserNotifierImpl un = (UserNotifierImpl) 
-					container.getRegistry().getUserNotifier();
-					un.notifySaving(nodes, this);
+					exitApplication();
+					//UserNotifierImpl un = (UserNotifierImpl) 
+					//container.getRegistry().getUserNotifier();
+					//un.notifySaving(nodes, this);
 					/*
 					Registry reg = container.getRegistry();
 					UserNotifierLoader loader = new SwitchUserLoader(
