@@ -5064,17 +5064,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         return rv
 
     @assert_pixels
-    def getPrimaryPixels (self):
-        """
-        Returns the Primary Pixels for the image.
-        
-        @return:    Pixels
-        @rtype:     omero.model.Pixels
-        """
-        
-        return self._obj.getPrimaryPixels()
-
-    @assert_pixels
     def getPixelsId (self):
         """
         Returns the Primary Pixels ID for the image.
