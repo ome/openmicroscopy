@@ -275,6 +275,12 @@ class TreeViewerComponent
 			if (parent != null) {
 				Object ho = parent.getUserObject();
 				db = DataBrowserFactory.getDataBrowser(ho);
+				DataBrowser mdb = model.getDataViewer();
+				if (mdb != db) {
+					DataBrowser gdb = DataBrowserFactory.getDataBrowser(
+							parent.getParentDisplay().getUserObject());
+					if (gdb != null) db = gdb;
+				}
 				if (db != null) {
 					db.setComponentTitle("");
 					if (visible) {
@@ -1886,14 +1892,13 @@ class TreeViewerComponent
 					value = m.get(d.getId());
 					if (value != null) {
 						dataObjects = d.getImages();
-						if (dataObjects != null) {
+						if (dataObjects != null && !value.isChildrenLoaded()) {
 							value.removeAllChildrenDisplay();
 							k = dataObjects.iterator();
 							while (k.hasNext()) {
 								value.addChildDisplay(
-								 TreeViewerTranslator.transformDataObject(
-										 (ImageData) k.next(), userID, groupID)
-										);
+										TreeViewerTranslator.transformDataObject(
+										 (ImageData) k.next(), userID, groupID));
 							}
 						}
 						value.setChildrenLoaded(true);
