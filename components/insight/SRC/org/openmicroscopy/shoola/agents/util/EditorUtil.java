@@ -99,6 +99,18 @@ import pojos.WellSampleData;
 public class EditorUtil 
 {
 	
+	/** Identifies the Laser type. */
+	public static final String LASER_TYPE = "Laser";
+	
+	/** Identifies the Arc type. */
+	public static final String ARC_TYPE = "Arc";
+	
+	/** Identifies the Filament type. */
+	public static final String FILAMENT_TYPE = "Filament";
+	
+	/** Identifies the Emitting Diode type. */
+	public static final String EMITTING_DIODE_TYPE = "Light Emitting Diode";
+	
 	/** The default value for the scale bar. */
 	public static final int		DEFAULT_SCALE = 5;
 
@@ -440,7 +452,7 @@ public class EditorUtil
 	public static final int		MAX_FIELDS_OBJECTIVE = 11;
 	
 	/** The maximum number of fields for a laser. */
-	public static final int		MAX_FIELDS_LASER = 14;
+	public static final int		MAX_FIELDS_LASER = 15;
 	
 	/** The maximum number of fields for a filament and arc. */
 	public static final int		MAX_FIELDS_LIGHT = 7;
@@ -1248,7 +1260,6 @@ public class EditorUtil
 			notSet.add(NOMINAL_MAGNIFICATION);
 		}
 		details.put(NOMINAL_MAGNIFICATION, i);
-		System.err.println("NM:"+details.get(NOMINAL_MAGNIFICATION));
 		double f = data.getCalibratedMagnification();
  		if (f < 0) {
  			f = 0;
@@ -1641,7 +1652,6 @@ public class EditorUtil
     	details.put(LIGHT_TYPE, "");
     	details.put(POWER, new Double(0));
     	details.put(TYPE, "");
-
     	if (data == null) {
     		notSet.add(MODEL);
     		notSet.add(MANUFACTURER);
@@ -1684,6 +1694,23 @@ public class EditorUtil
         details.put(TYPE, s); 
         s = data.getKind();
         if (LightSourceData.LASER.equals(s)) {
+        	LightSourceData pump = data.getLaserPump();
+        	if (pump != null) {
+        		String value = getLightSourceType(pump.getKind());
+        		s = pump.getLightSourceModel();
+        		if (s == null || s.trim().length() == 0) {
+        			s = pump.getManufacturer();
+        			if (s == null || s.trim().length() == 0) {
+        				s = pump.getSerialNumber();
+        				if (s == null || s.trim().length() == 0) {
+            				s = pump.getLotNumber();
+            			}
+        				if (s == null || s.trim().length() == 0)
+        					s = ""+pump.getId();
+        			}
+        		}
+        		details.put(PUMP, value+": "+s);
+        	} else notSet.add(PUMP);
         	s = data.getLaserMedium();
         	if (s == null || s.trim().length() == 0) 
     			notSet.add(MEDIUM);
@@ -2224,4 +2251,23 @@ public class EditorUtil
     	l.add(v);
     	return l;
     }
+    
+	/**
+	 * Returns the type of light source to handle.
+	 * 
+	 * @param kind The type of light source.
+	 * @return See above.
+	 */
+	public static String getLightSourceType(String kind)
+	{
+		if (LightSourceData.LASER.equals(kind))
+			return LASER_TYPE;
+		else if (LightSourceData.ARC.equals(kind))
+			return ARC_TYPE;
+		else if (LightSourceData.FILAMENT.equals(kind))
+			return FILAMENT_TYPE;
+		else if (LightSourceData.LIGHT_EMITTING_DIODE.equals(kind))
+			return EMITTING_DIODE_TYPE;
+		return "Light Source";
+	}
 }

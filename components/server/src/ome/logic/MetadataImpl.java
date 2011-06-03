@@ -115,7 +115,7 @@ public class MetadataImpl
 			sb.append("left outer join fetch l.type ");
 			sb.append("left outer join fetch l.laserMedium ");
 			sb.append("left outer join fetch l.pulse as pulse ");
-			sb.append("left outer join fetch l.pump as pump ");
+			//sb.append("left outer join fetch l.pump as pump ");
 			if (idClause)
 				sb.append("where l.id = :id");
 			else sb.append("where l.instrument.id = :instrumentId");

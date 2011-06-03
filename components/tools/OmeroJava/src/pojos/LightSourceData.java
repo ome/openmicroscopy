@@ -312,4 +312,18 @@ public class LightSourceData
 		return value.getValue();
 	}
 	
+	/**
+	 * Returns the pump.
+	 * 
+	 * @return See above.
+	 */
+	public LightSourceData getLaserPump()
+	{
+		if (!LASER.equals(getKind())) return null;
+		Laser laser = (Laser) asIObject();
+		LightSource pump = laser.getPump();
+		if (pump == null) return null;
+		return new LightSourceData(pump);
+	}
+	
 }

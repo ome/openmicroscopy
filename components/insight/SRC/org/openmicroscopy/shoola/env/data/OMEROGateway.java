@@ -153,6 +153,7 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Instrument;
+import omero.model.Laser;
 import omero.model.Line;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
@@ -196,6 +197,7 @@ import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
+import pojos.LightSourceData;
 import pojos.LongAnnotationData;
 import pojos.MultiImageData;
 import pojos.PixelsData;
@@ -5302,11 +5304,31 @@ class OMEROGateway
 			List l = service.loadChannelAcquisitionData(ids);
 			if (l != null && l.size() == 1) {
 				LogicalChannel lc = (LogicalChannel) l.get(0);
-				return new ChannelAcquisitionData(lc);
+				ChannelAcquisitionData data = new ChannelAcquisitionData(lc);
+				LightSourceData src = data.getLightSource();
+				if (src.isLoaded()) return data;
+				//Not loaded so need to load
+				IObject io = src.asIObject();
+				if (io instanceof Laser) { //only case to handle.
+					StringBuilder sb = new StringBuilder();
+					sb.append("select l from Laser as l ");
+					sb.append("left outer join fetch l.type ");
+					sb.append("left outer join fetch l.laserMedium ");
+					sb.append("left outer join fetch l.pulse as pulse ");
+					sb.append("left outer join fetch l.pump as pump ");
+					sb.append("left outer join fetch pump.type as pt ");
+					sb.append("where l.id = :id");
+					ParametersI param = new ParametersI();
+					param.addId(src.getId());
+					Laser laser = (Laser) getQueryService().findByQuery(
+							sb.toString(), param);
+					if (laser != null)
+						data.setLightSource(new LightSourceData(laser));
+				}
+				return data;
 			}
 			return null;
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot load channel acquisition data.");
 		}
 		return null;
