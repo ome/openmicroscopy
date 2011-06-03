@@ -98,12 +98,12 @@ public class FileTableRenderer
 			c = table.getDefaultRenderer(
 					Boolean.class).getTableCellRendererComponent(
 							table, value, isSelected, hasFocus, row, column);
-
+			/*
 			if (element.getFile().isFile()) {
-				//c.setVisible(false);
-				//((JCheckBox) c).setOpaque(true);
 				c.setEnabled(element.isToggleContainer());
 			}
+			*/
+			c.setEnabled(false);
 			return c;
 		} else if (column == FileSelectionTable.CONTAINER_INDEX) {
 			DataNodeElement n = (DataNodeElement) dtm.getValueAt(row, column);

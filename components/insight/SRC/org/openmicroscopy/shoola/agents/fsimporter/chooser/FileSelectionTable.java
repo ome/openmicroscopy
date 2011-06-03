@@ -743,7 +743,7 @@ class FileSelectionTable
 					FileElement f = (FileElement) getValueAt(row, FILE_INDEX);
 					if (f.getType() == Importer.SCREEN_TYPE)
 						return false;
-					return f.isDirectory();
+					return false;//f.isDirectory();
 				case ARCHIVED_INDEX: return archivedTunable;
 			}
 			return false; 

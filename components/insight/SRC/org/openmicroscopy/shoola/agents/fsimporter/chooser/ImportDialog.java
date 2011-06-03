@@ -291,8 +291,15 @@ public class ImportDialog
 	/** The selected container where to import the data. */
 	private TreeImageDisplay		selectedContainer;
 	
-	/** The possible node. */
+	/** The possible nodes. */
 	private Collection<TreeImageDisplay> 		objects;
+	
+	/** The possible P/D nodes. */
+	private Collection<TreeImageDisplay> 		pdNodes;
+	
+	/** The possible Screen nodes. */
+	private Collection<TreeImageDisplay> 		screenNodes;
+	
 	
 	/** The component displaying the table, options etc. */
 	private JTabbedPane 				tabbedPane;
@@ -328,13 +335,13 @@ public class ImportDialog
 	private JCheckBox					showThumbnails;
 
 	/** Indicates to turn the folder as dataset. */
-	private JCheckBox					fadBox;
+	//private JCheckBox					fadBox;
 	
 	/** The listener linked to the parents box. */
 	private ActionListener				parentsBoxListener;
 	
 	/** The listener linked to the dataset box. */
-	private ActionListener				datasetsBoxListener;
+	//private ActionListener				datasetsBoxListener;
 	
 	/** The collection of <code>HCS</code> filters. */
 	private List<FileFilter> 			hcsFilters;
@@ -357,7 +364,7 @@ public class ImportDialog
 	/** 
 	 * Used to create a dataset using the folder containing the selected images. 
 	 */
-	private JCheckBox					folderAsDatasetBox;
+	//private JCheckBox					folderAsDatasetBox;
 	
 	/** The owner related to the component. */
 	private JFrame						owner;
@@ -481,7 +488,8 @@ public class ImportDialog
 		for (int i = 0; i < files.length; i++) {
 			checkFile(files[i], l);
 		}
-		table.addFiles(l, fadBox.isSelected());
+		
+		table.addFiles(l, isParentFolderAsDataset());//fadBox.isSelected());
 		importButton.setEnabled(table.hasFilesToImport());
 	}
 
@@ -671,10 +679,21 @@ public class ImportDialog
 	private void handleLocationSwitch()
 	{
 		int t = Importer.PROJECT_TYPE;
-		if (getType() == Importer.PROJECT_TYPE)
+		Collection<TreeImageDisplay> nodes = null;
+		if (getType() == Importer.PROJECT_TYPE) {
 			t = Importer.SCREEN_TYPE;
+			nodes = screenNodes;
+		} else nodes = pdNodes;
+			
 		formatSwitchButton(t);
-		firePropertyChange(REFRESH_LOCATION_PROPERTY, getType(), t);
+		if (nodes == null || nodes.size() == 0) //load the missing nodes
+			firePropertyChange(REFRESH_LOCATION_PROPERTY, getType(), t);
+		else {
+			TreeImageDisplay display = null;
+			Iterator<TreeImageDisplay> i = nodes.iterator();
+			if (i.hasNext()) display = i.next();
+			reset(display, nodes, t);
+		}
 	}
 	
 	/** 
@@ -684,6 +703,7 @@ public class ImportDialog
 	 */
 	private void initComponents(FileFilter[] filters)
 	{
+		/*
 		List<String> tips = new ArrayList<String>();
 		tips.add("If selected, when adding images to queue, ");
     	tips.add("the folder containing the images will be ");
@@ -700,7 +720,7 @@ public class ImportDialog
 				addButton.setEnabled(b);
 			}
 		});
-    	 
+    	*/
     	canvas = new QuotaCanvas();
 		sizeImportLabel = new JLabel();
 		//sizeImportLabel.setText(UIUtilities.formatFileSize(0));
@@ -722,6 +742,8 @@ public class ImportDialog
     	}
     	b = (Boolean) ImporterAgent.getRegistry().lookup(
     			FOLDER_AS_DATASET);
+    	
+    	/*
     	fadBox = new JCheckBox("Folder As Dataset");
     	tips = new ArrayList<String>();
     	tips.add("If selected, folders added to the import queue ");
@@ -730,7 +752,6 @@ public class ImportDialog
     	//fadBox.setVisible(type != Importer.SCREEN_TYPE);
     	fadBox.setBackground(UIUtilities.BACKGROUND);
     	fadBox.setSelected(true);
-    	
     	fadBox.addChangeListener(new ChangeListener() {
 			
 			public void stateChanged(ChangeEvent e) {
@@ -742,7 +763,9 @@ public class ImportDialog
 				} 
 			}
 		});
-    	if (b != null) fadBox.setSelected(b.booleanValue());
+		if (b != null) fadBox.setSelected(b.booleanValue());
+		*/
+    	
     	if (!isFastConnection()) //slow connection
     		showThumbnails.setSelected(false);
 		reference = null;
@@ -755,6 +778,7 @@ public class ImportDialog
 		};
 		parentsBox.addActionListener(parentsBoxListener);
 		datasetsBox = new JComboBox();
+		/*
 		datasetsBoxListener = new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
@@ -763,6 +787,7 @@ public class ImportDialog
 						node.isDefaultNode());
 			}
 		};
+		*/
 		sorter = new ViewerSorter();
 		datasets = new ArrayList<DataNode>();
 		addProjectButton = new JButton("New...");
@@ -1321,9 +1346,14 @@ public class ImportDialog
 				n = new DataNode(datasetsList);
 			} else {
 				List<DataNode> list = new ArrayList<DataNode>();
+				/*
 				if (l == null || l.size() == 0)
 					list.add(new DataNode(DataNode.createDefaultDataset()));
 				else list.addAll(l);
+				*/
+				list.add(new DataNode(DataNode.createDefaultDataset()));
+				if (l != null && l.size() > 0)
+					list.addAll(l);
 				n = new DataNode(list);
 			}
 			sortedList.add(n);
@@ -1393,7 +1423,7 @@ public class ImportDialog
 		List<DataNode> nl = n.getNewNodes();
 		if (nl != null) list.addAll(nl);
 		List l = sorter.sort(list);
-		datasetsBox.removeActionListener(datasetsBoxListener);
+		//datasetsBox.removeActionListener(datasetsBoxListener);
 		datasetsBox.removeAllItems();
 		
 		datasetsBox.setModel(new DefaultComboBoxModel(l.toArray()));
@@ -1412,9 +1442,9 @@ public class ImportDialog
 			}
 		} 
 		//now check what is the selected node
-		n = (DataNode) datasetsBox.getSelectedItem();
-		folderAsDatasetBox.setSelected(n.isDefaultNode());
-		datasetsBox.addActionListener(datasetsBoxListener);
+		//n = (DataNode) datasetsBox.getSelectedItem();
+		//folderAsDatasetBox.setSelected(n.isDefaultNode());
+		//datasetsBox.addActionListener(datasetsBoxListener);
 	}
 	
 	/**
@@ -1458,23 +1488,31 @@ public class ImportDialog
 		locationPane.add(row);
 		if (type == Importer.PROJECT_TYPE) {
 			locationPane.add(Box.createVerticalStrut(8));
+			/*
 			JPanel p = UIUtilities.buildComponentPanel(folderAsDatasetBox, 0, 0);
 			p.setBackground(UIUtilities.BACKGROUND);
 			JPanel right = new JPanel();
 			right.setBackground(UIUtilities.BACKGROUND);
 			right.setLayout(new BoxLayout(right, BoxLayout.Y_AXIS));
 			right.add(p);
+			*/
 			row = createRow();
+			row.add(UIUtilities.setTextFont(DATASET_TXT));
 			row.add(datasetsBox);
 			row.add(addButton);
+			/*
 			right.add(row);
 			row = createRow();
 			row.add(UIUtilities.setTextFont(DATASET_TXT));
 			row.add(right);
+			row.add(row);
+			*/
 			locationPane.add(row);
+			/*
 			row = createRow();
 			row.add(fadBox);
 			locationPane.add(row);
+			*/
 		}
 	}
 
@@ -1670,6 +1708,8 @@ public class ImportDialog
     	setClosable(false);
     	setCloseVisible(false);
     	this.objects = objects;
+    	if (type == Importer.PROJECT_TYPE) pdNodes = objects;
+    	else screenNodes = objects;
     	this.type = type;
     	this.selectedContainer = selectedContainer;
     	setProperties();
@@ -1708,7 +1748,10 @@ public class ImportDialog
      */
     boolean isParentFolderAsDataset()
     {
-    	return folderAsDatasetBox.isSelected();
+    	if (type == Importer.SCREEN_TYPE) return false;
+    	DataNode node = (DataNode) datasetsBox.getSelectedItem();
+    	return node.isDefaultDataset();
+    	//return folderAsDatasetBox.isSelected();
     }
     /**
 	 * Returns the name to display for a file.
@@ -1780,6 +1823,9 @@ public class ImportDialog
 		this.objects = objects;
 		int oldType = this.type;
 		this.type = type;
+		if (type == Importer.PROJECT_TYPE) {
+			pdNodes = objects;
+		} else screenNodes = objects;
 		formatSwitchButton(type);
 		if (oldType != this.type) { 
 			//change filters.
@@ -1908,6 +1954,7 @@ public class ImportDialog
 				}
 			}
 		}
+		/*
 		boolean b;
 		if (directory == count) {
 			if (fadBox.isSelected()) {
@@ -1931,6 +1978,7 @@ public class ImportDialog
 			datasetsBox.setEnabled(!b);
 			addButton.setEnabled(!b);
 		}
+		*/
 		return count;
 	}
 	

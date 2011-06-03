@@ -57,7 +57,7 @@ class DataNode
 	static final String DEFAULT_SCREEN = "--No Screen--";
 	
 	/** The default text if no dataset. */
-	static final String DEFAULT_DATASET = "--No Dataset--";
+	static final String DEFAULT_DATASET = "--New From Folder--";
 	
 	/** The default text if no project. */
 	private static final String DEFAULT_PROJECT = "--No Project--";
@@ -261,7 +261,7 @@ class DataNode
 						n.parent = this;
 						children.add(n);
 					}
-					if (this.isDefaultNode())
+					//if (this.isDefaultNode())
 						children.add(new DataNode(
 								DataNode.createDefaultDataset(), 
 								this));
@@ -295,9 +295,18 @@ class DataNode
 	 */
 	boolean isDefaultNode()
 	{
-		String name = toString().trim();
-		return (DEFAULT_PROJECT.equals(name) || DEFAULT_DATASET.equals(name) ||
-				DEFAULT_SCREEN.equals(name));
+		return (isDefaultProject() || isDefaultScreen() || isDefaultDataset());
+	}
+	
+	/**
+	 * Returns <code>true</code> if the node is a default node for screen, 
+	 * <code>false</code> otherwise.
+	 *  
+	 * @return See above.
+	 */
+	boolean isDefaultProject()
+	{ 
+		return DEFAULT_PROJECT.equals(toString().trim());
 	}
 	
 	/**
@@ -309,6 +318,17 @@ class DataNode
 	boolean isDefaultScreen()
 	{ 
 		return DEFAULT_SCREEN.equals(toString().trim());
+	}
+	
+	/**
+	 * Returns <code>true</code> if the node is a default node for dataset, 
+	 * <code>false</code> otherwise.
+	 *  
+	 * @return See above.
+	 */
+	boolean isDefaultDataset()
+	{ 
+		return DEFAULT_DATASET.equals(toString().trim());
 	}
 	
 	/**
