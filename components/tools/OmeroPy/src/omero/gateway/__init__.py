@@ -5276,8 +5276,15 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:    Channels
         @rtype:     List of L{ChannelWrapper}
         """
-        
-        return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(self._re.getPixels().iterateChannels())]
+        if self._re is not None:
+            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(self._re.getPixels().iterateChannels())]
+        else:       # E.g. MissingPyramidException (no rendering engine): load channels by hand, use pixels to order channels
+            pid = self.getPixelsId()
+            params = omero.sys.Parameters()
+            params.map = {"pid": rlong(pid)}
+            query = "select p from Pixels p join fetch p.channels as c join fetch c.logicalChannel as lc where p.id=:pid"
+            pixels = self._conn.getQueryService().findByQuery(query, params)
+            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(pixels.iterateChannels())]
 
     def setActiveChannels(self, channels, windows=None, colors=None):
         """
