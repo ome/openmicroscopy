@@ -33,7 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BoxLayout;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
@@ -113,7 +112,7 @@ class GeneralPaneUI
 	private List<AnnotationUI>			components;
 
 	/** The component hosting the various protocols. */
-	private JXTaskPane					protocolTaskPane;
+	//private JXTaskPane					protocolTaskPane;
 	
 	/** Collection of preview panels. */
 	private List<PreviewPanel>			previews;
@@ -153,7 +152,7 @@ class GeneralPaneUI
 			browserTaskPane.addPropertyChangeListener(controller);
 		}
 		
-		protocolTaskPane = EditorUtil.createTaskPane(PROTOCOL);
+		//protocolTaskPane = EditorUtil.createTaskPane(PROTOCOL);
 		
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
@@ -405,13 +404,15 @@ class GeneralPaneUI
 			}
 		}
 		container.remove(annotationTaskPane);
-		container.remove(protocolTaskPane);
+		//container.remove(protocolTaskPane);
 		container.remove(browserTaskPane);
 		if (annotation > 0) 
 			container.add(annotationTaskPane);
+		/*
 		if (protocolTaskPane.getComponentCount() > 0)
 			container.add(protocolTaskPane);
-		if (browser > 0) 
+		*/
+		//if (browser > 0) 
 			container.add(browserTaskPane);
 			
 		revalidate();

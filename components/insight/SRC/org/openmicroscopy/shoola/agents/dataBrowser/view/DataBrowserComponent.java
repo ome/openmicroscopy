@@ -196,7 +196,9 @@ class DataBrowserComponent
 				model.fireTabularDataLoading(null);
 			}
 			view.setSelectedView(DataBrowserUI.THUMB_VIEW);
-		} else view.setSelectedView(DataBrowserUI.COLUMNS_VIEW);
+		} else {
+			view.setSelectedView(DataBrowserUI.COLUMNS_VIEW);
+		}
 		if (model.getBrowser() != null) {
 			Browser browser = model.getBrowser();
 	    	ResetNodesVisitor visitor = new ResetNodesVisitor(null, false);
