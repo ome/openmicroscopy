@@ -80,6 +80,7 @@ import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
+import omero.ClientError;
 import omero.ConcurrencyException;
 import omero.InternalException;
 import omero.MissingPyramidException;
@@ -2432,21 +2433,40 @@ class OMEROGateway
 		clear();
 		try {
 			//first to rejoin the session.
-			secureClient.joinSession(secureClient.getSessionId());
 			connected = true;
+			try {
+				secureClient.closeSession();
+			} catch (Exception e) {
+				
+			}
+			entryEncrypted = secureClient.joinSession(
+					secureClient.getSessionId());
 		} catch (Throwable t) {
 			Throwable cause = t.getCause();
 			connected = false;
 			//joining the session did not work so trying to create a session
 			if (cause instanceof ConnectionLostException ||
-					t instanceof ConnectionLostException) {
+					t instanceof ConnectionLostException || 
+					cause instanceof ClientError ||
+					t instanceof ClientError) {
 				try {
-					secureClient.createSession(userName, password);
+					connected = true;
+					entryEncrypted =  secureClient.createSession(
+							userName, password);
 				} catch (Throwable e) {
 					connected = false;
 				}
 			}
-		} 
+		}
+		try {
+			if (connected) {
+				if (unsecureClient != null)
+					unsecureClient = secureClient.createClient(false);
+			}
+		} catch (Exception e) {
+			return false;
+		}
+
 		return connected;
 	}
 	
