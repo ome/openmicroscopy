@@ -1056,7 +1056,8 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
                                         'pulses': list(conn.getEnumerationEntries("PulseI"))})
                 # TODO: We don't display filter sets here yet since they are not populated on Import by BioFormats.
                 channel['label'] = ch.getLabel()
-                channel['color'] = ch.getColor().getHtml()
+                color = ch.getColor()
+                channel['color'] = color is not None and color.getHtml() or None
                 planeInfo = manager.image and manager.image.getPrimaryPixels().copyPlaneInfo(theC=theC, theZ=0)
                 channel['plane_info'] = list(planeInfo)
                 form_channels.append(channel)

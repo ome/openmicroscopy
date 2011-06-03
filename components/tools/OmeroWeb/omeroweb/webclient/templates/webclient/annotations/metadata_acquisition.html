@@ -234,7 +234,12 @@
             
             <!-- Channels -->
             {% for ch in form_channels %}
-            <h1 class="can-collapse defclose"><span style="padding:0 3px; color:#000; border:1px solid #000; background-color: #{{ ch.color }};">&nbsp&nbsp</span> {{ ch.label }}</h1>
+            <h1 class="can-collapse defclose">
+                {% if ch.color %}
+                    <span style="padding:0 3px; color:#000; border:1px solid #000; background-color: #{{ ch.color }};">&nbsp&nbsp</span>
+                {% endif %}
+                {{ ch.label }}
+            </h1>
             <div id="channel_{{ forloop.counter }}">
                 <table class="metadata_details">
                     {% for field in ch.form %}
