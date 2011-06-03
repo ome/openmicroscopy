@@ -152,7 +152,7 @@ public class PreviewPanel
     	
     	JPanel p = new JPanel();
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+    	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
     	if (fileID > 0) p.add(bar);
     	p.add(UIUtilities.setTextFont(getTitle()));
     	JPanel content = UIUtilities.buildComponentPanel(p, 0, 0);
@@ -167,14 +167,21 @@ public class PreviewPanel
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		
-		String description = model.getDescription();
-		if (description == null || description.trim().length() == 0)
+		String description = "";
+		List<String> values = getFormattedDesciption();
+		if (values.size() == 0)
 			description = "Description and Summary Not available";
-		if (description != null) {
+		else {
 			//TODO: externalize that
+			Iterator<String> i = values.iterator();
+			StringBuffer buffer = new StringBuffer();
+			while (i.hasNext()) {
+				buffer.append(i.next());
+				buffer.append("<br>");
+			}
 			description = "<html>" +
 					"<span style='font-family:sans-serif;font-size:11pt'>"
-							+ description + "</span></html>";
+							+ buffer.toString() + "</span></html>";
 			// display description in EditorPane, because text wraps nicely!
 			JEditorPane ep = new JEditorPane("text/html", description);
 			ep.setEditable(false);
@@ -356,7 +363,7 @@ public class PreviewPanel
 	 * Allows classes that want to display this panel to get access to the 
 	 * protocol title, which is not displayed in this panel. 
 	 * 
-	 * @return		the protocol title. 
+	 * @return See above
 	 */
 	public String getTitle()
 	{
@@ -364,6 +371,44 @@ public class PreviewPanel
 		return model.getTitle();
 	}
 
+	/**
+	 * Allows classes that want to display this panel to get access to the 
+	 * protocol description, which is not displayed in this panel. 
+	 * 
+	 * @return See above.
+	 */
+	public String getDescription()
+	{
+		if (model == null) return "";
+		return model.getDescription();
+	}
+	
+	/**
+	 * Returns the formatted description. Each element of the array is a
+	 * string with maximum <code>10</code> words. 
+	 * 
+	 * @return See above.
+	 */
+	public List<String> getFormattedDesciption()
+	{
+		List<String> list = new ArrayList<String>();
+		String description = getDescription();
+		if (description == null || description.length() == 0) return list;
+		String[] values = description.split(" ");
+		StringBuffer buffer = null;
+		int n = 0;
+		for (int i = 0; i < values.length; i++) {
+			if (n == 0) buffer = new StringBuffer();
+			buffer.append(values[i]+" ");
+			n++;
+			if (n == 10) {
+				n = 0;
+				list.add(buffer.toString());
+			}
+		}
+		return list;
+	}
+	
 	/**
 	 * Returns <code>true</code> if the preview has been modified,
 	 * <code>false</code> otherwise.

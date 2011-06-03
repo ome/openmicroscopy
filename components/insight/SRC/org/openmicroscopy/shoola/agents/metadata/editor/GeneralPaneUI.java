@@ -317,18 +317,20 @@ class GeneralPaneUI
 			browserTaskPane.setCollapsed(true);
 		}
 		browserTaskPane.setTitle(s);
-		
-		container.remove(protocolTaskPane);
 		container.remove(browserTaskPane);
+		
+
+		/*
+		container.remove(protocolTaskPane);
 		protocolTaskPane.removeAll();
 		JComponent n = buildProtocolTaskPanes();
 		if (n != null) {
 			protocolTaskPane.add(n);
 			container.add(protocolTaskPane);
 		}
-			
+		*/
 		if (h > 0) {
-			container.add(browserTaskPane);
+			//container.add(browserTaskPane);
 			if (!browserTaskPane.isCollapsed())
 				loadParents(true);
 		}

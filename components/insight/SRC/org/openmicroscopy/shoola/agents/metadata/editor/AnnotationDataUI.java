@@ -887,6 +887,7 @@ class AnnotationDataUI
 		//Add attachments
 		Collection l = model.getAttachments();
 		int count = 0;
+		/*
 		List v = null;
 		if (l != null) {
 			v = new ArrayList();
@@ -901,7 +902,9 @@ class AnnotationDataUI
 			}
 			count += v.size();
 		}
-		layoutAttachments(v);
+		*/
+		count += l.size();
+		layoutAttachments(l);
 		
 		//Viewed by
 		if (!model.isMultiSelection()) {
