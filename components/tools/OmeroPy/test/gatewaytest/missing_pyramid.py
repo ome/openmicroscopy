@@ -47,7 +47,7 @@ class PyramidTest (lib.GTest):
             print "Handling MissingPyramidException with backoff: %s secs" % (ce.backOff/1000)
 
 
-    def XtestGetChannels(self):
+    def testGetChannels(self):
         """ Missing Pyramid shouldn't stop us from getting Channel Info """
         
         image = self.TESTIMG
