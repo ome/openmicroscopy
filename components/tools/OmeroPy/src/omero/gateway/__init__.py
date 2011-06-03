@@ -6544,12 +6544,28 @@ class _LightSettingsWrapper (BlitzObjectWrapper):
     """
     _attrs = ('attenuation',
               'wavelength',
-              'lightSource|LightSourceWrapper',
+              #'lightSource|LightSourceWrapper',
               'microbeamManipulation',
               'version')
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'LightSettings'
+
+    def getLightSource(self):
+        if self._obj.lightSource is None:
+            return None
+        if not self._obj.lightSource.isLoaded():    # see #5742
+            lid = self._obj.lightSource.id.val
+            params = omero.sys.Parameters()
+            params.map = {"id": rlong(lid)}
+            query = "select l from Laser as l left outer join fetch l.type " \
+                    "left outer join fetch l.laserMedium " \
+                    "left outer join fetch l.pulse as pulse " \
+                    "left outer join fetch l.pump as pump " \
+                    "left outer join fetch pump.type as pt " \
+                    "where l.id = :id"
+            self._obj.lightSource = self._conn.getQueryService().findByQuery(query, params)
+        return LightSourceWrapper(self._conn, self._obj.lightSource)
 
 LightSettingsWrapper = _LightSettingsWrapper
 
