@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.Action;
 
 //Third-party libraries
@@ -34,8 +33,8 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.util.ScriptUploaderDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptUploaderDialog;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -87,7 +86,7 @@ public class UploadScriptAction
     public void actionPerformed(ActionEvent e)
     { 
     	ScriptUploaderDialog dialog = new ScriptUploaderDialog(model.getUI()
-    			, model.getScriptsAsString());
+    			, model.getScriptsAsString(), TreeViewerAgent.getRegistry());
     	dialog.addPropertyChangeListener(new PropertyChangeListener() {
 			
 			public void propertyChange(PropertyChangeEvent evt) {

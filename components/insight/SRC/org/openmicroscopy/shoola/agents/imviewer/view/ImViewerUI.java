@@ -99,6 +99,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.ChannelData;
+import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * The {@link ImViewer} view.
@@ -2374,6 +2376,26 @@ class ImViewerUI
 		controlPane.createGridImage(busy);
 	}
 
+	/**
+     * Returns the parent of the image or <code>null</code> 
+     * if no context specified.
+     * 
+     * @return See above.
+     */
+    DataObject getParentObject() { return model.getParent(); }
+    
+	/**
+	 * Returns the image to view.
+	 * 
+	 * @return See above.
+	 */
+	ImageData getImage() { return model.getImage(); }
+	/**
+	 * Returns the ID of the viewed image.
+	 * 
+	 * @return See above.
+	 */
+	long getImageID() { return model.getImageID(); }
 	/**
 	 * Returns <code>true</code> if the passed object is one of the
 	 * channel buttons, <code>false</code> otherwise.

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.ScriptUploaderDialog
+ * org.openmicroscopy.shoola.agents.util.ScriptUploaderDialog
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.util;
+package org.openmicroscopy.shoola.agents.util.ui;
 
 
 //Java imports
@@ -56,11 +56,11 @@ import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXTaskPane;
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.CppFilter;
@@ -68,6 +68,7 @@ import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.JavaFilter;
 import org.openmicroscopy.shoola.util.filter.file.MatlabFilter;
 import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -176,6 +177,20 @@ public class ScriptUploaderDialog
     /** The menu displaying the list of available folders. */
     private JPopupMenu	menu;
     
+    /** Helper reference.*/
+    private Registry context;
+    
+    /**
+	 * Helper method returning the current user's details.
+	 * 
+	 * @return See above.
+	 */
+    private ExperimenterData getUserDetails()
+    {
+    	return (ExperimenterData) context.lookup(
+				LookupNames.CURRENT_USER_DETAILS);
+    }
+    
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -214,7 +229,7 @@ public class ScriptUploaderDialog
 				UIUtilities.formatToolTipText("Closes the dialog."));
         cancelButton.addActionListener(this);
         cancelButton.setActionCommand(""+CANCEL);
-        ExperimenterData exp = TreeViewerAgent.getUserDetails();
+        ExperimenterData exp = getUserDetails();
         author = new JTextField(exp.getFirstName()+", "+exp.getLastName());
         eMail = new JTextField(exp.getEmail());
         institution = new JTextField(exp.getInstitution());
@@ -364,7 +379,7 @@ public class ScriptUploaderDialog
 			}
 		}
 		if (!supported) {
-			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			UserNotifier un = context.getUserNotifier();
 			un.notifyInfo(TITLE, "The selected script does not seem to " +
 					"be supported.");
 			return;
@@ -406,13 +421,13 @@ public class ScriptUploaderDialog
 		
 		ExperimenterData exp = new ExperimenterData();
 		value = author.getText();
-		if (value == null) exp = TreeViewerAgent.getUserDetails();
+		if (value == null) exp = getUserDetails();
 		else {
 			String[] v = value.split(SEPARATOR);
 			if (v != null && v.length == 2) {
 				exp.setFirstName(v[0].trim());
 				exp.setLastName(v[1].trim());
-			} else exp = TreeViewerAgent.getUserDetails(); 
+			} else exp = getUserDetails(); 
 		}
 		value = eMail.getText();
 		if (value != null) exp.setEmail(value.trim());
@@ -495,11 +510,14 @@ public class ScriptUploaderDialog
 	 * 
 	 * @param owner The owner of the dialog.
 	 * @param scripts The scripts already uploaded.
+	 * @param context Reference to the context.
 	 */
-	public ScriptUploaderDialog(JFrame owner, Map<Long, String> scripts)
+	public ScriptUploaderDialog(JFrame owner, Map<Long, String> scripts, 
+			Registry context)
 	{
 		super(owner);
 		this.scripts = scripts;
+		this.context = context;
 		setProperties();
 		initComponents();
 		buildGUI();

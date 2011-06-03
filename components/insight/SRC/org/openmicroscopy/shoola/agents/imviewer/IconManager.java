@@ -269,11 +269,20 @@ public class IconManager
     /** The <code>Ratio max</code> icon. */
     public static final int           RATIO_MAX_DISABLED = 71;
     
+    /** The 48x48 <code>Download</code> icon. */
+    public static final int           DOWNLOAD_48 = 72;
+    
+    /** The 22x22 <code>Download</code> icon. */
+    public static final int           DOWNLOAD_22 = 73;
+    
+    /** The 22x22 <code>Split view figure</code> icon. */
+    public static final int           SPLIT_VIEW_FIGURE_22 = 74;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 71;
+    private static final int          MAX_ID = 74;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -350,6 +359,9 @@ public class IconManager
         relPaths[FLIM_48] = "nuvola_messagebox_info48.png";
         relPaths[RATIO_MIN_DISABLED] = "nuvola_disabled_viewmag-16.png";
         relPaths[RATIO_MAX_DISABLED] = "nuvola_disabled_viewmag+16.png";
+        relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
+        relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
+        relPaths[SPLIT_VIEW_FIGURE_22] = "splitViewFigure22.png";
     }
     
     /** The sole instance. */

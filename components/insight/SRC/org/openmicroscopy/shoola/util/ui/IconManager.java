@@ -515,14 +515,20 @@ public class IconManager
     /** The <code>Ontology</code> icon. */
     public static final int	ONTOLOGY = 149;
     
-    /** The <code>Ontology</code> icon. */
+    /** The 32x32 <code>Error</code> icon. */
     public static final int	ERROR_32 = 150;
+    
+    /** The 48x48 <code>Upload Script</code> icon. */
+    public static final int	 UPLOAD_SCRIPT_48 = 151;
+    
+    /** The <code>Upload Script</code> icon. */
+    public static final int	 UPLOAD_SCRIPT = 152;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 150;
+    private static int      MAX_ID = 152;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -681,6 +687,9 @@ public class IconManager
         relPaths[PUBLIC_GROUP_DD_12] = "nuvola_permission_public_dd12.png";
         relPaths[ONTOLOGY] = "nuvola_ledorange_readOnly16.png";
         relPaths[ERROR_32] = "nuvola_no32.png";
+        relPaths[UPLOAD_SCRIPT_48] = "nuvola_script_add48.png";
+        relPaths[UPLOAD_SCRIPT] = "nuvola_script_add16.png";
+
     }
 	
 	/**

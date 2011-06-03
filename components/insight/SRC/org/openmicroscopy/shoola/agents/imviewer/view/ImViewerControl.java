@@ -38,11 +38,16 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
@@ -56,6 +61,8 @@ import javax.swing.event.MenuListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivityImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelsSelectionAction;
@@ -95,12 +102,28 @@ import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjSavingDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptUploaderDialog;
+import org.openmicroscopy.shoola.env.Environment;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
+import org.openmicroscopy.shoola.env.data.model.FigureParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
+import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -534,6 +557,81 @@ class ImViewerControl
 		view.addWindowFocusListener(this);
 	}
 
+	/** Uploads the script.*/
+	private void uploadScript()
+	{
+		Map<Long, String> map;
+    	Registry reg = ImViewerAgent.getRegistry();
+		try {
+			//TODO: asynchronous call instead
+			map = reg.getImageService().getScriptsAsString();
+		} catch (Exception e) {
+			String s = "Data Retrieval Failure: ";
+	        LogMessage msg = new LogMessage();
+	        msg.print(s);
+	        msg.print(e);
+	        reg.getLogger().error(this, msg);
+	        map =  new HashMap<Long, String>();
+		}
+    	
+		ScriptUploaderDialog dialog = new ScriptUploaderDialog(model.getUI()
+    			, map, ImViewerAgent.getRegistry());
+    	dialog.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				Object o = evt.getNewValue();
+				if (o instanceof ScriptObject) {
+					ScriptObject script = (ScriptObject) o;
+					UserNotifier un = 
+						ImViewerAgent.getRegistry().getUserNotifier();
+					if (script == null) {
+						un.notifyInfo("Upload Script", "No script to upload");
+						return;
+					}
+					ScriptActivityParam p = new ScriptActivityParam(script, 
+							ScriptActivityParam.UPLOAD);
+					un.notifyActivity(p);
+				}
+			}
+		});
+    	UIUtilities.centerAndShow(dialog);
+	}
+	/**
+	 * Downloads the possible script.
+	 * 
+	 * @param param The parameter holding the script.
+	 */
+	private void downloadScript(ScriptActivityParam param)
+	{
+		FileChooser chooser = new FileChooser(view, FileChooser.SAVE, 
+				"Download", "Select where to download the file.", null, 
+				true);
+		IconManager icons = IconManager.getInstance();
+		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+		chooser.setSelectedFileFull(param.getScript().getName());
+		chooser.setApproveButtonText("Download");
+		final long id = param.getScript().getScriptID();
+		chooser.addPropertyChangeListener(new PropertyChangeListener() {
+		
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+					File[] files = (File[]) evt.getNewValue();
+					File folder = files[0];
+					IconManager icons = IconManager.getInstance();
+					DownloadActivityParam activity;
+					activity = new DownloadActivityParam(id, 
+							DownloadActivityParam.ORIGINAL_FILE,
+							folder, icons.getIcon(IconManager.DOWNLOAD_22));
+					UserNotifier un = 
+						ImViewerAgent.getRegistry().getUserNotifier();
+					un.notifyActivity(activity);
+				}
+			}
+		});
+		chooser.centerDialog();
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize(ImViewerComponent, ImViewerUI) initialize} 
@@ -938,7 +1036,60 @@ class ImViewerControl
 				pName)) {
 			int index = (Integer) pce.getNewValue();
 			model.onChannelColorChanged(index);
-		} 
+		} else if (MetadataViewer.HANDLE_SCRIPT_PROPERTY.equals(pName)) {
+			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+			ScriptActivityParam p = (ScriptActivityParam) pce.getNewValue();
+			int index = p.getIndex();
+			ScriptObject script = p.getScript();
+			if (index == ScriptActivityParam.VIEW) {
+				Environment env = (Environment) 
+				ImViewerAgent.getRegistry().lookup(LookupNames.ENV);
+				String path = env.getOmeroFilesHome();
+				path += File.separator+script.getName();
+				File f = new File(path);
+				DownloadActivityParam activity;
+				activity = new DownloadActivityParam(
+						p.getScript().getScriptID(), 
+						DownloadActivityParam.ORIGINAL_FILE, f, null);
+				activity.setApplicationData(new ApplicationData(""));
+				un.notifyActivity(activity);
+			} else if (index == ScriptActivityParam.DOWNLOAD) {
+				downloadScript(p);
+			} else {
+				un.notifyActivity(pce.getNewValue());
+			}
+		} else if (MetadataViewer.UPLOAD_SCRIPT_PROPERTY.equals(pName)) {
+			uploadScript();
+		} else if (MetadataViewer.GENERATE_FIGURE_PROPERTY.equals(pName)) {
+			Object object = pce.getNewValue();
+			if (!(object instanceof FigureParam)) return;
+			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+			IconManager icons = IconManager.getInstance();
+			Icon icon = icons.getIcon(IconManager.SPLIT_VIEW_FIGURE_22);
+			FigureActivityParam activity;
+			List<Long> ids = new ArrayList<Long>();
+			Iterator i;
+			DataObject obj;
+			FigureParam param = (FigureParam) object;
+			Class klass = null;
+			Object p = null;
+			if (param.getIndex() == FigureParam.THUMBNAILS) {
+				klass = ImageData.class;
+				p = view.getParentObject();
+				if (!(p instanceof DatasetData)) p = null;
+				if (p == null) p = model.getImageName();
+				if (p != null) param.setAnchor((DataObject) p);
+			}
+			ids.add(view.getImageID());
+			// not set
+			if (param.getIndex() != FigureParam.THUMBNAILS) 
+				param.setAnchor((DataObject) p);
+
+			activity = new FigureActivityParam(object, ids, klass,
+					FigureActivityParam.SPLIT_VIEW_FIGURE);
+			activity.setIcon(icon);
+			un.notifyActivity(activity);
+		}
 	}
 
 	/**

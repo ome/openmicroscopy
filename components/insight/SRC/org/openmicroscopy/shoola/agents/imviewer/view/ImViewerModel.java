@@ -477,18 +477,6 @@ class ImViewerModel
 	}
 	
 	/**
-	 * Returns the image to view.
-	 * 
-	 * @return See above.
-	 */
-	private ImageData getImage()
-	{
-		if (image instanceof WellSampleData)
-			return ((WellSampleData) image).getImage();
-		return (ImageData) image;
-	}
-	
-	/**
 	 * Creates a new instance.
 	 * 
 	 * @param imageID 	The id of the image.
@@ -501,6 +489,18 @@ class ImViewerModel
 	{
 		this.imageID = imageID;
 		initialize(bounds, separateWindow);
+	}
+	
+	/**
+	 * Returns the image to view.
+	 * 
+	 * @return See above.
+	 */
+	ImageData getImage()
+	{
+		if (image instanceof WellSampleData)
+			return ((WellSampleData) image).getImage();
+		return (ImageData) image;
 	}
 	
 	/**
