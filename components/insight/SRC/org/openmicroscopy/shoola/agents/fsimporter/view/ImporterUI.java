@@ -25,9 +25,12 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,9 +38,13 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -47,6 +54,8 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXLabel;
+import org.jdesktop.swingx.JXPanel;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
@@ -78,6 +87,10 @@ class ImporterUI
 	/** The window's title. */
 	private static final String TITLE = "Import Data";
 	
+	/** The text displayed to notify the user to refresh. */
+	private static final String	REFRESH_TXT = "New containers added. " +
+			"Please Refresh";
+	
 	/** Reference to the model. */
 	private ImporterModel	model;
 	
@@ -102,6 +115,9 @@ class ImporterUI
 	/** The controls bar. */
 	private JComponent controlsBar;
 
+	/** The component indicating to refresh the containers view.*/
+	private JXLabel messageLabel;
+	
 	/**
 	 * Builds and lays out the controls.
 	 * 
@@ -130,7 +146,16 @@ class ImporterUI
 		TitlePanel tp = new TitlePanel(TITLE, "", "Select data to import " +
 				"and monitor imports.", 
 				icons.getIcon(IconManager.IMPORT_48));
-		container.add(tp, BorderLayout.NORTH);
+		JXPanel p = new JXPanel();
+		JXPanel lp = new JXPanel();
+		lp.setLayout(new FlowLayout(FlowLayout.LEFT));
+		lp.add(messageLabel);
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(tp);
+		p.add(lp);
+		p.setBackgroundPainter(tp.getBackgroundPainter());
+		lp.setBackgroundPainter(tp.getBackgroundPainter());
+		container.add(p, BorderLayout.NORTH);
 		container.add(tabs, BorderLayout.CENTER);
 		container.add(controlsBar, BorderLayout.SOUTH);
 	}
@@ -147,6 +172,12 @@ class ImporterUI
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		messageLabel = new JXLabel();
+		IconManager icons = IconManager.getInstance();
+		messageLabel.setIcon(icons.getIcon(IconManager.REFRESH));
+		messageLabel.setText(REFRESH_TXT);
+		messageLabel.setVisible(false);
+		messageLabel.setFont(messageLabel.getFont().deriveFont(Font.BOLD));
 		controlsBar = buildControls();
 		controlsBar.setVisible(false);
 		uiElementID = 0;
@@ -196,6 +227,13 @@ class ImporterUI
 		setJMenuBar(createMenuBar());
 		buildGUI();
 	}
+	
+	/**
+	 * Displays or hides the message indicating to refresh the location view.
+	 * 
+	 * @param show Pass <code>true</code> to show, <code>false</code> to hide.
+	 */
+	void showRefreshMessage(boolean show) { messageLabel.setVisible(show); }
 
 	/** 
 	 * Adds the chooser to the tab.

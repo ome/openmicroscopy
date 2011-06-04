@@ -70,8 +70,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.UIManager;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -374,6 +372,9 @@ public class ImportDialog
 	
 	/** The new nodes to create in the screen view.*/
 	private List<DataNode>				newNodesS;
+	
+	/** Flag indicating that the containers view needs to be refreshed.*/
+	private boolean refreshLocation;
 	
 	/** 
 	 * Creates the dataset.
@@ -1599,6 +1600,54 @@ public class ImportDialog
 		return value == RenderingControl.UNCOMPRESSED;
 	}
 	
+	/** 
+	 * Handles the selection of files. Returns the files that can be imported.
+	 * 
+	 * @param The selected files.
+	 * @return See above.
+	 */
+	private int handleFilesSelection(File[] files)
+	{
+		int count = 0;
+		if (files == null) return count;
+		File f;
+		int directory = 0;
+		for (int i = 0; i < files.length; i++) {
+			f = files[i];
+			if (!f.isHidden()) {
+				count++;
+				if (f.isDirectory()) {
+					directory++;
+				}
+			}
+		}
+		/*
+		boolean b;
+		if (directory == count) {
+			if (fadBox.isSelected()) {
+				folderAsDatasetBox.setSelected(false);
+				folderAsDatasetBox.setEnabled(false);
+				datasetsBox.setEnabled(false);
+				addButton.setEnabled(false);
+			} else {
+				DataNode node = (DataNode) datasetsBox.getSelectedItem();
+				b = node != null && node.isDefaultNode();
+				folderAsDatasetBox.setEnabled(b);
+				folderAsDatasetBox.setSelected(b);
+				datasetsBox.setEnabled(!b);
+				addButton.setEnabled(!b);
+			}
+		} else {
+			DataNode node = (DataNode) datasetsBox.getSelectedItem();
+			b = node != null && node.isDefaultNode();
+			folderAsDatasetBox.setEnabled(b);
+			folderAsDatasetBox.setSelected(b);
+			datasetsBox.setEnabled(!b);
+			addButton.setEnabled(!b);
+		}
+		*/
+		return count;
+	}
     /** Imports the selected files. */
     private void importFiles()
     {
@@ -1642,6 +1691,20 @@ public class ImportDialog
 			index++;
 		}
     	if (count > 0) object.setPixelsSize(size);
+    	//Check if we need to display the refresh text
+    	boolean refresh = false;
+    	Iterator<ImportableFile> j = files.iterator();
+    	while (j.hasNext()) {
+    		if (j.next().isFolderAsContainer()) {
+    			refresh = true;
+    			break;
+    		}
+		}
+    	if (newNodesPD != null && newNodesPD.size() > 0 ||
+				newNodesS != null && newNodesS.size() > 0) {
+			refresh = true;
+		}
+    	if (refresh) refreshLocation = true;
     	if (newNodesPD != null) newNodesPD.clear();
     	if (newNodesS != null) newNodesS.clear();
     	firePropertyChange(IMPORT_PROPERTY, null, object);
@@ -1807,6 +1870,14 @@ public class ImportDialog
 		return null;
 	}
 	
+	/**
+	 * Returns <code>true</code> to indicate that the refresh containers
+	 * view needs to be refreshed.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isRefreshLocation() { return refreshLocation; }
+	
     /**
      * Resets the text and remove all the files to import.
      * 
@@ -1932,55 +2003,6 @@ public class ImportDialog
 		canvas.setPercentage(quota);
 		canvas.setVisible(true);
 	}
-
-	/** 
-	 * Handles the selection of files. Returns the files that can be imported.
-	 * 
-	 * @param The selected files.
-	 * @return See above.
-	 */
-	private int handleFilesSelection(File[] files)
-	{
-		int count = 0;
-		if (files == null) return count;
-		File f;
-		int directory = 0;
-		for (int i = 0; i < files.length; i++) {
-			f = files[i];
-			if (!f.isHidden()) {
-				count++;
-				if (f.isDirectory()) {
-					directory++;
-				}
-			}
-		}
-		/*
-		boolean b;
-		if (directory == count) {
-			if (fadBox.isSelected()) {
-				folderAsDatasetBox.setSelected(false);
-				folderAsDatasetBox.setEnabled(false);
-				datasetsBox.setEnabled(false);
-				addButton.setEnabled(false);
-			} else {
-				DataNode node = (DataNode) datasetsBox.getSelectedItem();
-				b = node != null && node.isDefaultNode();
-				folderAsDatasetBox.setEnabled(b);
-				folderAsDatasetBox.setSelected(b);
-				datasetsBox.setEnabled(!b);
-				addButton.setEnabled(!b);
-			}
-		} else {
-			DataNode node = (DataNode) datasetsBox.getSelectedItem();
-			b = node != null && node.isDefaultNode();
-			folderAsDatasetBox.setEnabled(b);
-			folderAsDatasetBox.setSelected(b);
-			datasetsBox.setEnabled(!b);
-			addButton.setEnabled(!b);
-		}
-		*/
-		return count;
-	}
 	
 	/**
 	 * Reacts to property fired by the table.
@@ -2071,6 +2093,7 @@ public class ImportDialog
 				UIUtilities.centerAndShow(d);
 				break;
 			case REFRESH_LOCATION:
+				refreshLocation = false;
 				chooser.rescanCurrentDirectory();
 				chooser.repaint();
 				firePropertyChange(REFRESH_LOCATION_PROPERTY, 

@@ -209,6 +209,7 @@ class ImporterComponent
 			un.notifyInfo("Import", "No Files to import.");
 			return;
 		}
+		view.showRefreshMessage(chooser.isRefreshLocation());
 		if (data.hasNewTags()) model.setTags(null);
 		ImporterUIElement element = view.addImporterElement(data);
 		if (model.getState() == IMPORTING) return;
@@ -446,6 +447,7 @@ class ImporterComponent
 			case DISCARDED:
 				return;
 		}
+		view.showRefreshMessage(false);
 		Class rootType = ProjectData.class;
 		if (type == Importer.SCREEN_TYPE)
 			rootType = ScreenData.class;

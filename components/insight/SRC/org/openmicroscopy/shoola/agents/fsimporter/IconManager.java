@@ -118,7 +118,6 @@ public class IconManager
     /** The <code>Delete 48x48</code> icon. */
     public static final int 	DELETE_48 = 20;
     
-    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
