@@ -733,7 +733,7 @@ public class FileImportComponent
 				resultLabel.setText(VIEW_TEXT);
 				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
 				resultLabel.setToolTipText(ThumbnailLabel.IMAGE_LABEL_TOOLTIP);
-				resultLabel.setEnabled(false);
+				//resultLabel.setEnabled(false);
 				resultLabel.setVisible(true);
 				fileNameLabel.addMouseListener(adapter);
 				resultLabel.addMouseListener(adapter);
@@ -757,7 +757,7 @@ public class FileImportComponent
 				resultLabel.setText(VIEW_TEXT);
 				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
 				resultLabel.setToolTipText(ThumbnailLabel.IMAGE_LABEL_TOOLTIP);
-				resultLabel.setEnabled(false);
+				//resultLabel.setEnabled(false);
 				resultLabel.setVisible(true);
 				resultLabel.addMouseListener(adapter);
 				showContainerLabel = 
@@ -783,7 +783,7 @@ public class FileImportComponent
 			resultLabel.setText(BROWSE_TEXT);
 			resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
 			resultLabel.setToolTipText(ThumbnailLabel.PLATE_LABEL_TOOLTIP);
-			resultLabel.setEnabled(false);
+			//resultLabel.setEnabled(false);
 			resultLabel.setVisible(true);
 			fileNameLabel.addMouseListener(adapter);
 			resultLabel.addMouseListener(adapter);
