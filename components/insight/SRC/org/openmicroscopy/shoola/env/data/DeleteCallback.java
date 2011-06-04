@@ -63,6 +63,9 @@ public class DeleteCallback
 	/** Flag indicating that the operation has finished. */
 	private boolean finished;
 	
+	/** Flag indicating that the results have been submitted. */
+	private boolean submitted;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -86,8 +89,12 @@ public class DeleteCallback
 	public void setAdapter(DSCallAdapter adapter)
 	{
 		this.adapter = adapter;
-		if (finished && adapter != null)
-			adapter.handleResult(reports);
+		if (finished && adapter != null) {
+			if (!submitted) adapter.handleResult(reports);
+			try {
+				close();
+			} catch (Exception e) {}
+		}
 	}
 	
 	/**
@@ -105,13 +112,16 @@ public class DeleteCallback
 				for (int i = 0; i < reports.length; i++) 
 					this.reports.add(reports[i]);
 			}
-			if (adapter != null) adapter.handleResult(this.reports);
+			if (adapter != null) {
+				submitted = true;
+				adapter.handleResult(this.reports);
+			}
 		} catch (Exception e) {
 			finished = false;
 		    //if (adapter != null) adapter.handleResult(null);
 		}
 		
-		if (finished) {
+		if (finished && adapter != null) {
 			try {
 				close();
 			} catch (Exception e) {

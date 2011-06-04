@@ -60,13 +60,16 @@ public class ScriptCallback
 {
 
 	/** The identifier of the script. */
-	private long              scriptID;
+	private long		scriptID;
 	
 	/** Helper reference to the adapter to notify. */
 	private DSCallAdapter adapter;
 	
 	/** Flag indicating that the operation has finished. */
 	private boolean finished;
+	
+	/** Flag indicating that the results have been submitted. */
+	private boolean submitted;
 	
 	/** The results of the script. */
 	private Map<String, Object> results;
@@ -97,8 +100,12 @@ public class ScriptCallback
 	public void setAdapter(DSCallAdapter adapter)
 	{
 		this.adapter = adapter;
-		if (finished && adapter != null)
-			adapter.handleResult(results);
+		if (finished && adapter != null) {
+			if (!submitted) adapter.handleResult(results);
+			try {
+				close();
+			} catch (Exception e) {}
+		}	
 	}
 	
 	/**
@@ -152,17 +159,18 @@ public class ScriptCallback
 						ParamData.convertRType((RType) entry.getValue()));
 				}
 			}
-			if (adapter != null) adapter.handleResult(results);
+			if (adapter != null) {
+				submitted = true;
+				adapter.handleResult(results);
+			}
 		} catch (Exception e) {
 			finished = false;
 		}
 		
-		if (finished) {
+		if (finished && adapter != null) {
 			try {
 				close();
-			} catch (Exception e) {
-				//ignore the exception.
-			}
+			} catch (Exception e) {}
 		}
 	}
 	
