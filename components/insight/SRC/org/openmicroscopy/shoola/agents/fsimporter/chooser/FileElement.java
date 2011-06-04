@@ -29,9 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 //Third-party libraries
+import org.apache.commons.io.FileUtils;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -58,7 +58,7 @@ class FileElement
 	private String name;
 	
 	/** The size of the file. */
-	private double length;
+	private long length;
 	
 	/** 
 	 * Flag indicating that it is allowed to modify the container location.
@@ -147,12 +147,14 @@ class FileElement
 	 * 
 	 * @return See above.
 	 */
-	double getFileLength()
+	long getFileLength()
 	{
 		if (length > 0) return length;
-		if (file.isFile()) length = file.length();
-		else { 
-			determineLength(file, ImporterAgent.getScanningDepth(), 0);
+		if (file.isFile()) {
+			length = file.length();
+		} else { 
+			length = FileUtils.sizeOfDirectory(file);
+			//determineLength(file, ImporterAgent.getScanningDepth(), 0);
 		}
 		return length;
 	}
@@ -164,7 +166,7 @@ class FileElement
 	 */
 	String getFileLengthAsString()
 	{
-		long l = (long) (getFileLength());
+		long l = getFileLength();
 		if (l <= 0) return "--";
 		return UIUtilities.formatFileSize(l);
 	}

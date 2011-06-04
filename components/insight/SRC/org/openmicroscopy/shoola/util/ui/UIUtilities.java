@@ -1633,21 +1633,17 @@ public class UIUtilities
 	 */
 	public static String formatFileSize(long v)
 	{
-		if (v < 0) return "";
-
-		//if (v < 1000) 
-		//	return NumberFormat.getInstance().format(v)+" b";
-		/*
-		double value = v;///1000;
-		if (value <= BYTES) 
-			return NumberFormat.getInstance().format(value)+" Kb";
-		value = value/BYTES;
-		if (value <= BYTES)
-			return NumberFormat.getInstance().format(value)+" Mb";
-		value = value/BYTES;
-		return NumberFormat.getInstance().format(value)+" Gb";
-		*/
-		return FileUtils.byteCountToDisplaySize(v);
+		if (v <= 0) return "";
+		String s = "";
+		if (v < FileUtils.ONE_KB) 
+			s = String.format("%.1f", (double) v)+" bytes";
+		else if (v >= FileUtils.ONE_KB && v < FileUtils.ONE_MB)
+			s = String.format("%.1f", ((double) v/FileUtils.ONE_KB))+" Kb";
+		else if (v >= FileUtils.ONE_MB && v < FileUtils.ONE_GB) 
+			s = String.format("%.1f", ((double) v/FileUtils.ONE_MB))+" Mb";
+		else if (v >= FileUtils.ONE_GB)
+			s = String.format("%.1f", ((double) v/FileUtils.ONE_GB))+" Gb";
+		return s;
 	}
 	
 	/**
