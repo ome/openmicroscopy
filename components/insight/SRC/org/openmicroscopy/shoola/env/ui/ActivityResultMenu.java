@@ -65,6 +65,12 @@ class ActivityResultMenu
 	/** The result to handle. */
 	private Object row;
 	
+	/** The item indicating to download the file.*/
+	private JMenuItem downloadItem;
+	
+	/** The item indicating to view the file.*/
+	private JMenuItem viewItem;
+	
 	/**
      * Creates a button.
      * 
@@ -87,8 +93,10 @@ class ActivityResultMenu
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		add(createItem("Download", DOWNLOAD));
-		add(createItem("View", VIEW));
+		downloadItem = createItem("Download", DOWNLOAD);
+		viewItem = createItem("View", VIEW);
+		add(downloadItem);
+		add(viewItem);
 	}
 	
 	/**
@@ -113,9 +121,11 @@ class ActivityResultMenu
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case DOWNLOAD:
+				downloadItem.setEnabled(false);
 				activity.download("", row);
 				break;
 			case VIEW:
+				viewItem.setEnabled(false);
 				activity.view(row);
 		}
 	}

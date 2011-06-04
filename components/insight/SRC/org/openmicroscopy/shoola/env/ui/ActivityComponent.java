@@ -702,6 +702,8 @@ public abstract class ActivityComponent
 	{
 		if (!(object instanceof FileAnnotationData || 
 				object instanceof OriginalFile)) return;
+		if (downloadButton != null)
+			downloadButton.setEnabled(false);
 		int index = -1;
 		if (text == null) text = "";
 		String name = "";
@@ -781,6 +783,7 @@ public abstract class ActivityComponent
 	 */
 	void view(Object object)
 	{
+		if (viewButton != null) viewButton.setEnabled(false);
 		if (object instanceof FileAnnotationData || 
 				object instanceof OriginalFile) {
 			open(object, new ApplicationData(""));
@@ -915,6 +918,7 @@ public abstract class ActivityComponent
 				download("", result);
 				break;
 			case CANCEL:
+				if (cancelButton != null) cancelButton.setEnabled(false);
 				if (loader != null) loader.cancel();
 				break;
 			case VIEW:
