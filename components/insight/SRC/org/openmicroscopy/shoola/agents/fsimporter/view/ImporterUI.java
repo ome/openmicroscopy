@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -38,13 +37,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -173,8 +169,8 @@ class ImporterUI
 	private void initComponents()
 	{
 		messageLabel = new JXLabel();
-		IconManager icons = IconManager.getInstance();
-		messageLabel.setIcon(icons.getIcon(IconManager.REFRESH));
+		//IconManager icons = IconManager.getInstance();
+		//messageLabel.setIcon(icons.getIcon(IconManager.REFRESH));
 		messageLabel.setText(REFRESH_TXT);
 		messageLabel.setVisible(false);
 		messageLabel.setFont(messageLabel.getFont().deriveFont(Font.BOLD));
