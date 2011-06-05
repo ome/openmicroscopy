@@ -1497,12 +1497,12 @@ class MeasurementViewerUI
      */
     public void setOnScreen()
     {
+    	setSize(DEFAULT_SIZE);
         if (model != null) { //Shouldn't happen
-        	setSize(DEFAULT_SIZE);
             UIUtilities.setLocationRelativeToAndSizeToWindow(
             		model.getRequesterBounds(), this, MAXIMUM_SIZE);
         } else {
-            pack();
+            //pack();
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
