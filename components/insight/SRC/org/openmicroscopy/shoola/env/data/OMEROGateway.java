@@ -2215,18 +2215,6 @@ class OMEROGateway
 				}
 			}
 			
-			/*
-			Runtime run = Runtime.getRuntime();
-			String 
-			v = "env DYLD_LIBRARY_PATH=/Users/jburel/Documents/Volviewer/OMERO.cpp-4.3.0-DEV-darwin-gcc-4.0.1-32dbg/lib:$DYLD_LIBRARY_PATH";
-			v += " /Users/jburel/Documents/Volviewer/src.app/Contents/MacOS/src ";
-			v += "omero_server=localhost ";
-			v += "omero_sessionid="+secureClient.getSessionId()+" ";
-			//v += "omero_username=root omero_password=ome omero_port=4064 ";
-			v += "omero_imageid=52";
-			System.err.println(v);
-			run.exec(v);
-			*/
 			return exp;
 		} catch (Throwable e) {
 			connected = false;
@@ -2795,7 +2783,6 @@ class OMEROGateway
 			isSessionAlive();
 			return saveAndReturnObject(object, null);
 		} catch (Throwable t) {
-			t.printStackTrace();
 			handleException(t, "Cannot update the object.");
 		}
 		return null;
@@ -3035,7 +3022,6 @@ class OMEROGateway
 			return service.getThumbnail(omero.rtypes.rint(sizeX), 
 					omero.rtypes.rint(sizeY));
 		} catch (Throwable t) {
-			t.printStackTrace();
 			if (thumbnailService != null) {
 				try {
 					thumbnailService.close();
@@ -4163,7 +4149,6 @@ class OMEROGateway
 			}
 			return count;
 		} catch (Throwable e) {
-			e.printStackTrace();
 			handleException(e, "Cannot retrieve the free space");
 		}
 		return -1;
@@ -5919,7 +5904,6 @@ class OMEROGateway
 			script = new ScriptObject(scriptID, "", "");
 			script.setJobParams(svc.getParams(scriptID));
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new ProcessException("Cannot load the script: "+scriptID, 
 					e);
 		}
@@ -6891,7 +6875,6 @@ class OMEROGateway
 						buf.toString());
 			return svc.uploadScript(script.getFolder(), buf.toString());
 		} catch (Exception e) {
-			
 			handleException(e, 
 					"Cannot upload the script: "+script.getName()+".");
 		}
