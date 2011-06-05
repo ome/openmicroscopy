@@ -51,6 +51,7 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 
 /** 
  * Hosts the UI components displaying the rendered image.
@@ -278,15 +279,30 @@ class BrowserUI
      * Adds the component to the {@link #layeredPane}. The component will
      * be added to the top of the pile
      * 
-     * @param c 	The component to add.
+     * @param c The component to add.
+     * @param reset Pass <code>true</code> to re-organize the components, 
+     * 				<code>false</code> otherwise.
      */
-    void addComponentToLayer(Component c)
+    void addComponentToLayer(Component c, boolean reset)
     {
     	Component[] components = layeredPane.getComponents();
+    	int count = components.hashCode();
     	for (int i = 0; i < components.length; i++) {
 			if (components[i] == c) return;
 		}
-    	layeredPane.add(c, Integer.valueOf(1));
+    	
+    	if (reset) {
+    		for (int i = 0; i < components.length; i++) {
+    			if (components[i] != canvas)
+    				layeredPane.remove(components[i]);
+			}
+    		layeredPane.add(c, Integer.valueOf(1));
+    		for (int i = 0; i < components.length; i++) {
+    			if (components[i] != canvas)
+    				layeredPane.add(components[i], Integer.valueOf(1));
+    		}
+    	} else layeredPane.add(c, Integer.valueOf(1));
+    	
     }
     
     /**
@@ -320,7 +336,7 @@ class BrowserUI
 				}
 			});
     		birdEyeView.setup();
-    		addComponentToLayer(birdEyeView);
+    		addComponentToLayer(birdEyeView, false);
     		setBirdEyeViewLocation();
     	}
     	Dimension d = birdEyeView.getSize();

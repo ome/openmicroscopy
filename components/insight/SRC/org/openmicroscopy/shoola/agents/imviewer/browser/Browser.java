@@ -113,8 +113,10 @@ public interface Browser
      * @param viewIndex Identifies the index of the view i.e. 
      * 					{@link ImViewer#VIEW_INDEX} or 
      * 					{@link ImViewer#GRID_INDEX}.
+     * @param reset		Flag indicating to re-organize the components in the 
+     * 					layer.
      */
-    public void addComponent(JComponent c, int viewIndex);
+    public void addComponent(JComponent c, int viewIndex, boolean reset);
     
     /**
      * Sets the zoom factor.

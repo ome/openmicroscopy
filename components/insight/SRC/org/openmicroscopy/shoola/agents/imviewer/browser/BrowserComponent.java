@@ -187,15 +187,15 @@ class BrowserComponent
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#addComponent(JComponent, int)
+     * @see Browser#addComponent(JComponent, int, boolean reset)
      */
-    public void addComponent(JComponent c, int index)
+    public void addComponent(JComponent c, int index, boolean reset)
     {
         if (c == null)
             throw new IllegalArgumentException("Component cannot be null.");
         switch (index) {
 			case ImViewer.VIEW_INDEX:
-				view.addComponentToLayer(c);
+				view.addComponentToLayer(c, reset);
 				break;
 			case ImViewer.GRID_INDEX:
 				gridView.addComponentToLayer(c);

@@ -1643,7 +1643,7 @@ class ImViewerUI
 			}
 			if (img != null) lens.resetLens(img, f, lensX, lensY);  
 		}
-		model.getBrowser().addComponent(c, index);
+		model.getBrowser().addComponent(c, index, true);
 		scrollLens();
 		UIUtilities.setLocationRelativeTo(this, lens.getZoomWindow());
 		lens.setVisible(b);

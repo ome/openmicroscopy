@@ -2014,7 +2014,7 @@ class ImViewerComponent
 		if (layers == null) layers = new ArrayList<JComponent>();
 		layers.add(comp);
 		view.setMeasurementLaunchingStatus(false);
-		model.getBrowser().addComponent(comp, ImViewer.VIEW_INDEX);
+		model.getBrowser().addComponent(comp, ImViewer.VIEW_INDEX, false);
 		comp.setVisible(true);
 		view.repaint();
 	}
