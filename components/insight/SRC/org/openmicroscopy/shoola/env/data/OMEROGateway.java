@@ -3825,22 +3825,43 @@ class OMEROGateway
 				oFile.setSha1(omero.rtypes.rstring("pending"));
 				oFile.setMimetype(omero.rtypes.rstring(mimeType));
 				save = 
-					(OriginalFile) getUpdateService().saveAndReturnObject(oFile);
+					(OriginalFile) getUpdateService().saveAndReturnObject(
+							oFile);
 				store.setFileId(save.getId().getValue());
 				fileCreated = true;
 			} else {
 				oFile = (OriginalFile) findIObject(OriginalFile.class.getName(), 
 					originalFileID);
-				OriginalFile newFile = new OriginalFileI();
-				newFile.setId(omero.rtypes.rlong(originalFileID));
-				newFile.setName(omero.rtypes.rstring(file.getName()));
-				newFile.setPath(omero.rtypes.rstring(file.getAbsolutePath()));
-				newFile.setSize(omero.rtypes.rlong(file.length()));
-				newFile.setSha1(omero.rtypes.rstring("pending"));
-				oFile.setMimetype(oFile.getMimetype());
-				save = (OriginalFile) 
-					getUpdateService().saveAndReturnObject(newFile);
-				store.setFileId(save.getId().getValue());
+				if (oFile == null) {
+					oFile = new OriginalFileI();
+					String name = file.getName();
+					oFile.setName(omero.rtypes.rstring(name));
+					String absolutePath = file.getAbsolutePath();
+					String path = absolutePath.substring(0, 
+							absolutePath.length()-name.length());
+					oFile.setPath(omero.rtypes.rstring(path));
+					oFile.setSize(omero.rtypes.rlong(file.length()));
+					//Need to be modified
+					oFile.setSha1(omero.rtypes.rstring("pending"));
+					oFile.setMimetype(omero.rtypes.rstring(mimeType));
+					save = 
+						(OriginalFile) getUpdateService().saveAndReturnObject(
+								oFile);
+					store.setFileId(save.getId().getValue());
+					fileCreated = true;
+				} else {
+					OriginalFile newFile = new OriginalFileI();
+					newFile.setId(omero.rtypes.rlong(originalFileID));
+					newFile.setName(omero.rtypes.rstring(file.getName()));
+					newFile.setPath(omero.rtypes.rstring(
+							file.getAbsolutePath()));
+					newFile.setSize(omero.rtypes.rlong(file.length()));
+					newFile.setSha1(omero.rtypes.rstring("pending"));
+					oFile.setMimetype(oFile.getMimetype());
+					save = (OriginalFile) 
+						getUpdateService().saveAndReturnObject(newFile);
+					store.setFileId(save.getId().getValue());
+				}
 			}
 		} catch (Exception e) {
 			closeService(store);
