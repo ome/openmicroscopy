@@ -104,14 +104,14 @@ class IntensityResultsView
 	
 	/** Tooltip for the add button. */
 	private final static String ADD_DESCRIPTION = "Add Intensities for " +
-							"selected ROI to results table.";
+							"the selected ROIs to results table.";
 
 	/** The addAll button name. */
-	private final static String ADDALL_NAME = "Add All";
+	private final static String ADDALL_NAME = "Add Selected";
 	
 	/** Tooltip for the add button. */
 	private final static String ADDALL_DESCRIPTION = "Add Intensities for " +
-						"all ROIShapes of the selected ROI to results table.";
+						"all the shapes of the selected ROIs to results table.";
 	
 	/** The remove button name. */
 	private final static String REMOVE_NAME = "Remove";
@@ -284,6 +284,9 @@ class IntensityResultsView
 				UIUtilities.formatToolTipText(REMOVE_ALL_DESCRIPTION));
 		removeAllButton.setActionCommand(""+REMOVE_ALL);
 		removeAllButton.addActionListener(this);
+		addAllButton.setEnabled(false);
+		removeAllButton.setEnabled(false);
+		removeButton.setEnabled(false);
 	}
 	
 	/**
@@ -323,7 +326,7 @@ class IntensityResultsView
 		centrePanel.add(scrollPane, BorderLayout.CENTER);
 		JPanel bottomPanel = new JPanel();
 		bottomPanel.setLayout(new FlowLayout());
-		bottomPanel.add(addButton);
+		//bottomPanel.add(addButton);
 		bottomPanel.add(addAllButton);
 		bottomPanel.add(removeButton);
 		bottomPanel.add(removeAllButton);
@@ -541,6 +544,7 @@ class IntensityResultsView
 		if (shapeList.size() > 0) {
 			view.calculateStats(shapeList);
 		}
+		removeAllButton.setEnabled(true);
 		state = State.READY;
 	}
 	

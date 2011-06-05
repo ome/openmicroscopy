@@ -264,6 +264,7 @@ class IntensityView
 		stateChanged(null);
 	}
 
+	/** Initializes the table model.*/
 	private void initTableModel()
 	{
 		Double summaryData[][] = new Double[1][1];
