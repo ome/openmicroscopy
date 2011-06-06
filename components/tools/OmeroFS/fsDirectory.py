@@ -9,6 +9,7 @@
 
 """
 
+import logging
 from time import localtime, strftime
 
 # Third party path package. It provides much of the 
@@ -49,7 +50,7 @@ class Directory(object):
                     A list of subdirectories to be ignored.                                               
 
         """
-        
+
         #: path as a string 
         self.pathString = pathString
         
@@ -521,6 +522,7 @@ class DirNode(Node):
                     
         """
         Node.__init__(self, path)
+        self.log = logging.getLogger("fsserver."+__name__)
         #: children is a dictionary of child paths keyed by name
         self.children = {} 
         self.base = base
@@ -534,7 +536,7 @@ class DirNode(Node):
         #
         for d in path.listdir('*'):
             self.addChild(d)
-       
+
     def __repr__(self, padding=''):
         """
             Return a string form of current node concatenated with 
@@ -582,12 +584,14 @@ class DirNode(Node):
         if path.isfile():
             if self.base.onWhitelist(path.ext): 
                 self.children[path.name] = FileNode(path)
-        else:
+        elif path.isdir():
             if self.mode == 'Flat':
                 self.children[path.name] = DirStub(path)
             elif self.mode == 'Follow':
                 self.children[path.name] = DirNode(path, self.base, self.mode)
-                
+        else:
+            self.log.info('Not a file or directory. Ignoring ' + path.abspath())
+
     def getAllFiles(self):
         """
             Return a list form of the full filenames under the current node with 
