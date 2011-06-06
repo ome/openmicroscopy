@@ -30,7 +30,7 @@ import javax.swing.table.TableCellRenderer;
 import org.jdesktop.swingx.JXTable;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.util.flim.util.ResultsCellRenderer;
+//import org.openmicroscopy.shoola.agents.util.flim.util.ResultsCellRenderer;
 
 /**
  * The View of the results table.
@@ -69,9 +69,11 @@ extends JXTable
 	 * Overridden to return a customized cell renderer.
 	 * @see JXTable#getCellRenderer(int, int)
 	 */
+	/*
 	public TableCellRenderer getCellRenderer(int row, int column) 
 	{
         return new ResultsCellRenderer(mod);
     }
+    */
 }
 
