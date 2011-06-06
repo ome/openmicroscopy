@@ -2316,6 +2316,36 @@ class _BlitzGateway (object):
             yield wrapper(self, r)
 
 
+    def listFileAnnotations (self, eid=None, toInclude=[], toExclude=[]):
+        """
+        Lists FileAnnotations created by users, filtering by namespaces if specified.
+        If NO namespaces are specified, then 'known' namespaces are excluded by default,
+        such as original files and companion files etc.
+        File objects are loaded so E.g. file name is available without lazy loading.
+
+        @param eid:         Filter results by this owner Id
+        @param toInclude:   Only return annotations with these namespaces. List of strings.
+        @param toExclude:   Don't return annotations with these namespaces. List of strings.
+        @return:            Generator of L{FileAnnotationWrapper}s - with files loaded.
+        """
+
+        params = omero.sys.Parameters()
+        params.theFilter = omero.sys.Filter()
+        if eid is not None:
+            params.theFilter.ownerId = rlong(eid)
+
+        if len(toInclude) == 0 and len(toExclude) == 0:
+            toExclude.append(omero.constants.namespaces.NSCOMPANIONFILE)
+            toExclude.append(omero.constants.annotation.file.ORIGINALMETADATA)
+            toExclude.append(omero.constants.namespaces.NSEXPERIMENTERPHOTO)
+            toExclude.append(omero.constants.analysis.flim.NSFLIM)
+
+        anns = self.getMetadataService().loadSpecifiedAnnotations("FileAnnotation", toInclude, toExclude, params)
+
+        for a in anns:
+            yield(FileAnnotationWrapper(self, a))
+
+
     def getAnnotationLinks (self, parent_type, parent_ids=None, ann_ids=None, ns=None, params=None):
         """
         Retrieve Annotation Links by parent_type E.g. "Image". Not Ordered. 
