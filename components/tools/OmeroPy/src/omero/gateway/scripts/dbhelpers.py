@@ -143,8 +143,9 @@ class UserEntry (object):
         u.setEmail(omero.gateway.omero_type(self.email))
         a.createUser(u, g.getName().val)
         if self.admin:
-            u =a.lookupExperimenter(self.name)
+            u = a.lookupExperimenter(self.name)
             a.addGroups(u,(a.lookupGroup("system"),))
+        client.c.sf.setSecurityPassword(ROOT.passwd) # See #3202
         a.changeUserPassword(u.getOmeName().val, omero.gateway.omero_type(self.passwd))
         return True
 
