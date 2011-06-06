@@ -133,8 +133,12 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         this.readerFile = new File(filePath);
         this.pixels = pixels;
 
-        if (!write)
+        if (!write || readerFile.exists())
         {
+            if (write) {
+                log.debug("Initialized in a write-context; setting read-only for " + filePath);
+            }
+
             if (!readerFile.exists() && !readerFile.canRead()) {
                 throw new IOException("Cannot access " + filePath);
             }
@@ -372,6 +376,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
     }
 
+    /**
+     * This method should never exit without releasing the lock.
+     */
     private void closeWriter() throws IOException
     {
         try {
@@ -380,12 +387,16 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
                 writer = null;
             }
         } finally {
-            if (writerFile != null) {
-                try {
-                    FileUtils.moveFile(writerFile, readerFile);
-                } finally {
-                    writerFile = null;
+            try {
+                if (writerFile != null) {
+                    try {
+                        FileUtils.moveFile(writerFile, readerFile);
+                    } finally {
+                        writerFile = null;
+                    }
                 }
+            } finally {
+                releaseLock();
             }
         }
     }
@@ -628,14 +639,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             }
         }
 
-        try
-        {
-            closeWriter();
-        }
-        finally
-        {
-            releaseLock();
-        }
+        closeWriter();
 
     }
 
