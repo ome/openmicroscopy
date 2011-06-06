@@ -1276,7 +1276,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         logger.error(traceback.format_exc())
     
     #manager = None        
-    if o_type in ("dataset", "project", "image", "screen", "plate", "well","comment", "file", "tag"):
+    if o_type in ("dataset", "project", "image", "screen", "plate", "well","comment", "file", "tag", "tagset"):
         kw = dict()
         if o_type is not None and o_id > 0:
             kw[str(o_type)] = long(o_id)
@@ -1661,7 +1661,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
             request.session.modified = True            
         except Exception, x:
-            logger.error('Failed to delete: %r' % {'did':ids, 'dtype':key}, exc_info=True)
+            logger.error('Failed to delete: %r' % {'did':o_id, 'dtype':o_type}, exc_info=True)
             rdict = {'bad':'true','errs': str(x) }
         else:
             rdict = {'bad':'false' }

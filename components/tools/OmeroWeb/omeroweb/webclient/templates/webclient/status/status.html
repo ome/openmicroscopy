@@ -55,7 +55,7 @@
                                 Delete {{ v.delmany }} {{ v.dtype }}(s):
                                 {% for iid in v.did %}                                    
                                     {% ifequal v.dstatus "failed" %}
-                                        <a onclick="loadMetadata('{% url load_metadata_details "image" iid %}');">{{ v.dtype }} {{ iid }}</a>, 
+                                        <a onclick="loadMetadata('{% url load_metadata_details v.dtype iid %}');">{{ v.dtype }} {{ iid }}</a>, 
                                     {% else %}
                                         {{ v.dtype }} {{ iid }},
                                     {% endifequal %}
@@ -63,7 +63,7 @@
                             {% else %}
                                 Delete 
                                 {% ifequal v.dstatus "failed" %}
-                                    <a onclick="loadMetadata('{% url load_metadata_details "image" v.did %}');">{{ v.dtype }} {{ v.did }}</a>
+                                    <a onclick="loadMetadata('{% url load_metadata_details v.dtype v.did %}');">{{ v.dtype }} {{ v.did }}</a>
                                 {% else %}
                                     {{ v.dtype }} {{ v.did }}
                                 {% endifequal %}

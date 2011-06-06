@@ -29,8 +29,32 @@
                 $("div#metadata_details iframe").attr('height', h+31);
                 $("div#content_details").css('height', h+31);
                 
-                $("#dataTree")
-            		.jstree({ 
+                var buttonsShowHide = function(selected) { 
+                    var toolbar_config = new Object();
+                    
+                    if(selected.length > 0) {
+                        if(selected.attr("rel").indexOf("locked")>=0) {            	            
+                            toolbar_config = {'rename':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}}
+                        } else {
+                            if(selected.attr("id").indexOf("tagset")>=0) {
+                                toolbar_config = {'rename':true, 'delete':true}
+                            } else if(selected.attr("id").indexOf("tag")>=0) {
+                                toolbar_config = {'rename':true, 'delete':true}
+                            } 
+                        }
+                    }
+                    
+                    if (selected.length > 1) toolbar_config['annotation'] = true;
+                    for (var sIndex in toolbar_config) { 
+                        if (toolbar_config[sIndex]){
+                            $('input#'+sIndex+'Button').removeClass('button-disabled');
+                        } else {
+                            $('input#'+sIndex+'Button').addClass('button-disabled');                            
+                        }
+                    }
+                }
+                
+                $("#dataTagTree").jstree({ 
             			// the list of plugins to include
             			"plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
             			// Plugin configuration
@@ -71,7 +95,6 @@
             						"create_node" : true,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},
             					"tagset" : {
@@ -81,8 +104,7 @@
             						},
             						"create_node" : true,
                                     "start_drag" : false,
-            						"move_node" : true,
-            						"delete_node" : true,
+            						"move_node" : false,
             						"remove" : true
             					},
             					"tagset-locked" : {
@@ -93,7 +115,6 @@
             						"create_node" : false,
                                     "start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},            					
             					"tag" : {
@@ -115,7 +136,6 @@
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},
             					"project" : {
@@ -126,7 +146,6 @@
             						"create_node" : false,
                                     "start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},
             					"project-locked" : {
@@ -137,7 +156,6 @@
             						"create_node" : false,
                                     "start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},
             					"dataset" : {
@@ -148,7 +166,6 @@
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},
             					"dataset-locked" : {
@@ -159,7 +176,6 @@
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},
             					"image" : {
@@ -170,7 +186,6 @@
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},
             					"image-locked" : {
@@ -181,7 +196,6 @@
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},
             					"screen" : {
@@ -192,7 +206,6 @@
             						"create_node" : false,
                                     "start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},
             					"screen-locked" : {
@@ -203,7 +216,6 @@
             						"create_node" : false,
                                     "start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},
             					"plate" : {
@@ -214,7 +226,6 @@
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					},
             					"plate-locked" : {
@@ -225,7 +236,6 @@
             						"create_node" : false,
             						"start_drag" : false,
             						"move_node" : false,
-            						"delete_node" : false,
             						"remove" : false
             					}
             				}
@@ -251,37 +261,115 @@
                         }
             			
             	})
-            	.bind("select_node.jstree", function (e, data) {
-            	    if(data.rslt.obj.attr("rel")!="experimenter") {
-            	        var r = data.rslt.obj.attr("rel").replace("-locked", "");            	        
-            	        $("#right_panel").show();
-                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/'+r+'/'+data.rslt.obj.attr("id").split("-")[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
-                        $('iframe#metadata_details').load();
-                
-                        if($.inArray(r, ["dataset", "plate"]) == 0 && data.rslt.obj.attr("id")!=$("div#content_details").attr('rel')) {
-                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-                            $("div#content_details").load('/webclient/load_data/'+r+'/'+data.rslt.obj.attr("id").split("-")[1]+'/?view=icon');
-                            $("div#content_details").attr('rel', data.rslt.obj.attr("id"));
-                        } else if(r=="image") {
-                            var pr = data.rslt.obj.parent().parent().attr("rel");
-                            if (pr!="orphaned" && data.rslt.obj.parent().parent().attr("id")!=$("div#content_details").attr('rel')){
-                                $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-                                $("div#content_details").load('/webclient/load_data/'+pr+'/'+data.rslt.obj.parent().parent().attr("id").split("-")[1]+'/?view=icon');
-                                $("div#content_details").attr('rel', data.rslt.obj.parent().parent().attr("id"));
-                            }                            
-                        } else if (data.rslt.obj.attr("id")!=$("div#content_details").attr('rel') && data.rslt.obj.parent().parent().attr("id")!=$("div#content_details").attr('rel')) {
-                            $("div#content_details").removeAttr('rel').children().remove();
+            	.delegate("a", "click.jstree", function (event) {
+					var data = $.jstree._focused();
+					if(!data.is_open() && data.get_selected().length < 2) {
+                	    data.open_node(data.get_selected());
+                	}
+				})
+				.delegate("a", "dblclick", function(e, data) {
+        		    if ($(this).parent().attr('rel')=='image') {
+        		        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+        		    }
+        		    $("#dataTagTree").jstree("open_node", this);
+        		})
+        		.bind("select_node.jstree", function (e, data) {
+            	    var selected = data.inst.get_selected();
+            	    buttonsShowHide(selected);
+            	    loadOtherPanels(data, '{% url load_data %}');
+            	    syncPanels(selected);
+        		})
+        		.bind("rename.jstree", function (e, data) {
+        		    url = '{% url manage_action_containers "savename" %}'+data.rslt.obj.attr("rel")+'/'+data.rslt.obj.attr("id").split("-")[1]+'/';
+        		    $.ajax({
+                        url: url,
+                        data: {
+      			            "name" : data.rslt.new_name
+                        },
+                        dataType: "json",
+                        type: "POST",
+                        success: function(r){
+                            if(eval(r.bad)) {
+                                $.jstree.rollback(data.rlbk);
+                                alert(r.errs);
+                            }
+                        },
+                        error: function(response) {
+                            $.jstree.rollback(data.rlbk);
+                            alert("Internal server error. Cannot rename object.");
                         }
-                    } else {
-                        $("#right_panel").show();
-                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                        $("div#metadata_details").html('<p>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</p>');  
-                    }
-        		});
-            	
+                    });
+        		})
+            	.bind("remove.jstree", function (e, data) {
+            	    data.args[0].each(function (i) {
+        		        url = '{% url manage_action_containers "delete" %}'+$(this).attr("rel").replace("locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
+
+                        $.ajax({
+            		        async : false,
+                            url: url,
+                            dataType: "json",
+                            type: "POST",
+                            success: function(r){
+                                if(eval(r.bad)) {
+          							$.jstree.rollback(data.rlbk);
+          							alert(r.errs);
+          						} else {
+          						    refreshCenterPanel();
+          						    var i = setInterval(function (){
+                                        $.getJSON("/webclient/progress/", function(data) {
+                                            if (data.inprogress== 0) {
+                                                clearInterval(i);
+                                                $("#progress").hide();
+                                                if(data.failure>0) {
+                                                    $("#jobstatus").html(data.failure + ' job(s) failed');
+                                                } else {
+                                                    $("#jobstatus").html(data.jobs + ' job(s)');
+                                                }
+                                                return;
+                                            }
+
+                                            $("#progress").show();
+                                            $("#jobstatus").html(data.inprogress + ' job(s) in progress');
+                                        });
+                                    }, 10000);
+          						}
+                            },
+                            error: function(response) {
+                                $.jstree.rollback(data.rlbk);
+                                alert("Internal server error. Cannot remove object.");
+                            }
+                        });
+        		    });
+        		});            	
         	});
         
+    </script>
+    
+    <script type="text/javascript">
+    $(function () {
+    	$("#buttons input").click(function () {
+    		switch(this.id) {
+    			case "deleteButton":
+    			    if (confirm("Delete permanently selected object(-s)? You will NOT be able to access this object any more.")) {
+                        $("#dataTagTree").jstree('remove', $.jstree._focused().get_selected());
+                    }    			    
+    				break;
+        		case "renameButton":
+        		    var jstree = $.jstree._focused();
+        		    if (jstree.get_selected().length==1) {
+                        jstree.rename(jstree.get_selected());
+                    } else {
+                        alert("Cannot rename more then one object in the same time")
+                    }
+                    break;
+                case "refreshButton":
+                    $("#dataTagTree").jstree("refresh");
+                    break;
+                default:
+    			    break;
+    		}
+    	});
+    });
     </script>
 {% endblock %}
 
@@ -289,7 +377,10 @@
 
     <div class="toolbar">
         <div id="buttons" class="align_left">
-            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/view_tree16.png" %}" alt="Data" title="Data" onclick="document.location.href='{% url load_template "userdata" %}'">
+            <input id="refreshButton" class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
+            <input class="button" type="image" src="{% url webstatic "images/view_tree16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "usertags" %}'"> | 
+            <input id="renameButton" class="button button-disabled" type="image" src="{% url webstatic "images/color_line16.png" %}" alt="Rename" title="Rename" />            
+            <input id="deleteButton" class="button button-disabled" type="image" src="{% url webstatic "images/cancel16.png" %}" alt="Delete" title="Delete" /> 
         </div>
     </div>
     
@@ -299,7 +390,7 @@
 <div class="clear"> </div>
 
 <div id="tree_details">
-    <div class="dataTree" id="dataTree"></div>
+    <div class="dataTagTree" id="dataTagTree"></div>
 </div>
 
 {% endblock %}

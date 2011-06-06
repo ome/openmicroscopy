@@ -367,6 +367,21 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##   Container Queries                                                           ###
     ####################################################################################
 
+    def listTags(self, eid=None):
+        params = omero.sys.ParametersI()
+        params.orphan()
+        params.map = {}
+        params.map['ns'] = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
+        
+        sql = "select tg from TagAnnotation tg where ((ns=:ns) or (ns is null and not exists ( select aal from AnnotationAnnotationLink as aal where aal.child=tg.id))) "
+        if eid is not None:
+            params.map["eid"] = rlong(long(eid))
+            sql+=" and tg.details.owner.id = :eid"
+            
+        q = self.getQueryService()
+        for ann in q.findAllByQuery(sql, params):
+            yield TagAnnotationWrapper(self, ann)
+    
     def listOrphans (self, obj_type, eid=None, page=None):
         """
         List orphaned Datasets, Images, Plates controlled by the security system, 

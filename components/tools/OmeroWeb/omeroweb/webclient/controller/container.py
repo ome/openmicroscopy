@@ -54,7 +54,7 @@ class BaseContainer(BaseController):
     
     orphaned = False
     
-    def __init__(self, conn, project=None, dataset=None, image=None, screen=None, plate=None, well=None, tag=None, file=None, comment=None, annotation=None, index=None, orphaned=None, **kw):
+    def __init__(self, conn, project=None, dataset=None, image=None, screen=None, plate=None, well=None, tag=None, tagset=None, file=None, comment=None, annotation=None, index=None, orphaned=None, **kw):
         BaseController.__init__(self, conn)
         if project is not None:
             self.project = self.conn.getObject("Project", project)
@@ -106,6 +106,12 @@ class BaseContainer(BaseController):
                 raise AttributeError("We are sorry, but that well (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(well))
         elif tag is not None:
             self.tag = self.conn.getObject("Annotation", tag)
+            if self.tag is None:
+                raise AttributeError("We are sorry, but that tag (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(tag))
+            if self.tag._obj is None:
+                raise AttributeError("We are sorry, but that tag (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(tag))
+        elif tagset is not None:
+            self.tag = self.conn.getObject("Annotation", tagset)
             if self.tag is None:
                 raise AttributeError("We are sorry, but that tag (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(tag))
             if self.tag._obj is None:
@@ -167,10 +173,8 @@ class BaseContainer(BaseController):
             self.experimenter = self.conn.getExperimenter(eid)
         else:            
             eid = self.conn.getEventContext().userId
-        params = omero.sys.Parameters()
-        params.theFilter = omero.sys.Filter()
-        params.theFilter.ownerId = omero.rtypes.rlong(eid)
-        self.tags = list(self.conn.getObjects("TagAnnotation", params=params))
+        
+        self.tags = list(self.conn.listTags(eid))
         self.t_size = len(self.tags)
     
     def loadDataByTag(self):

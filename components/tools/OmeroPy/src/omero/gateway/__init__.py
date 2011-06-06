@@ -3501,6 +3501,32 @@ class TagAnnotationWrapper (AnnotationWrapper):
     
     OMERO_TYPE = TagAnnotationI
 
+    def countTagsInTagset(self):
+        # temp solution waiting for #5785
+        if self.ns in (omero.constants.metadata.NSINSIGHTTAGSET):
+            params = omero.sys.Parameters()
+            params.map = {}
+            params.map['tid'] = self._obj.id
+            sql = "select tg from TagAnnotation tg "\
+                "where exists ( select aal from AnnotationAnnotationLink as aal where aal.child=tg.id and aal.parent.id=:tid) "
+             
+            res = self._conn.getQueryService().findAllByQuery(sql, params)
+            return res is not None and len(res) or 0
+                
+    def listTagsInTagset(self):
+        # temp solution waiting for #5785  
+        if self.ns in (omero.constants.metadata.NSINSIGHTTAGSET):
+            params = omero.sys.Parameters()
+            params.map = {}
+            params.map["tid"] = rlong(self._obj.id)
+            
+            sql = "select tg from TagAnnotation tg "\
+                "where exists ( select aal from AnnotationAnnotationLink as aal where aal.child.id=tg.id and aal.parent.id=:tid) "
+            
+            q = self._conn.getQueryService()
+            for ann in q.findAllByQuery(sql, params):
+                yield TagAnnotationWrapper(self._conn, ann)
+    
     def _getQueryString(self):
         """
         Used for building queries in generic methods such as getObjects("TagAnnotation")
