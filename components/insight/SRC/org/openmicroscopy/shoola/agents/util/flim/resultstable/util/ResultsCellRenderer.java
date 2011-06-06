@@ -162,8 +162,7 @@ public class ResultsCellRenderer
 			//return list;
 		}
 		if (!(value instanceof Color)) {
-			RowRenderer.setRowColor(thisComponent, table.getSelectedRow(), 
-					row, mod);
+			RowRenderer.setRowColor(thisComponent, table.getSelectedRow(), mod);
 		}
 		return thisComponent;
 	}

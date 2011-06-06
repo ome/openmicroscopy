@@ -47,6 +47,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Map.Entry;
+
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -88,6 +90,8 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+
+import com.sun.tools.javac.util.Name.Table;
 
 import pojos.FileAnnotationData;
 
@@ -181,6 +185,24 @@ public class FLIMResultsDialog
 		CURSORSTATS.add("percentBin");
 	}
 	
+	static Map<String, Boolean> statsButtons;
+	
+	static {
+		statsButtons = new HashMap<String, Boolean>();
+		statsButtons.put(ResultsDialog.LOAD,true);
+		statsButtons.put(ResultsDialog.SAVE,true);
+		statsButtons.put(ResultsDialog.CLEAR,true);
+		statsButtons.put(ResultsDialog.WIZARD,true);
+	}
+	
+	static Map<String, Boolean> cursorButtons;
+	
+	static {
+		cursorButtons = new HashMap<String, Boolean>();
+		cursorButtons.put(ResultsDialog.CLEAR,true);
+		cursorButtons.put(ResultsDialog.WIZARD,true);
+	}
+	
 	/** Button to close the dialog. */
 	private JButton closeButton;
 	
@@ -241,60 +263,6 @@ public class FLIMResultsDialog
 	/** Used to sort the results. */
 	private ViewerSorter sorter;
 
-	/** The label displaying the mean. */
-	private JLabel meanLabel;
-
-	/** The label displaying the median. */
-	private JLabel medianLabel;
-
-	/** The label displaying the min of the bin. */
-	private JLabel minBinLabel;
-
-	/** The label displaying the max of the bin. */
-	private JLabel maxBinLabel;
-
-	/** The label displaying the bin mean. */
-	private JLabel meanBinLabel;
-	
-	/** The label displaying the bin name. */
-	private JLabel binLabel;
-
-	/** The label displaying the median. */
-	private JLabel stddevBinLabel;
-
-	/** The label displaying the mean. */
-	private JLabel frequencyBinLabel;
-
-	/** The label displaying the median. */
-	private JLabel percentBinLabel;
-	
-	/** The label displaying the median. */
-	private JTextField meanBinTextField;
-	
-	/** The label displaying the mean. */
-	private JTextField meanTextField;
-
-	/** The label displaying the median. */
-	private JTextField medianTextField;
-
-	/** The label displaying the mean. */
-	private JTextField minBinTextField;
-
-	/** The label displaying the median. */
-	private JTextField maxBinTextField;
-
-	/** The label displaying the mean. */
-	private JTextField binTextField;
-
-	/** The label displaying the median. */
-	private JTextField stddevBinTextField;
-
-	/** The label displaying the mean. */
-	private JTextField frequencyBinTextField;
-
-	/** The label displaying the median. */
-	private JTextField percentBinTextField;
-
 	/** The label displaying the maximum value of the slider. */
 	private JTextField thresholdSliderMaxValue;
 
@@ -307,11 +275,8 @@ public class FLIMResultsDialog
 	/** The value of the right hand knob of the colour map slider. */
 	private JTextField colourMapMaxValue;
 
-	/** Slider used to enter the minimum and maximum values. */
-	private TextualTwoKnobsSlider slider;
-	
 	/** Slider used to enter the red and blue components of the colourmap. */
-	private TextualTwoKnobsSlider colourMapSlider;
+	private TwoKnobsSlider colourMapSlider;
 	
 	/** Button to toggle between RGB->BGR values. */
 	private JToggleButton RGBButton; 
@@ -493,8 +458,9 @@ public class FLIMResultsDialog
 		double median = 0;
 		if (n > 2) median = (Double) list.get(n/2+1);
 		else if (n == 1 || n == 2) median = (Double) list.get(0);
-		meanTextField.setText(""+UIUtilities.roundTwoDecimals(totalValue/index));
-		medianTextField.setText(""+UIUtilities.roundTwoDecimals(median));
+		//TODO:fix for results table
+		//meanTextField.setText(""+UIUtilities.roundTwoDecimals(totalValue/index));
+		//medianTextField.setText(""+UIUtilities.roundTwoDecimals(median));
 		
 		ImageData data = new ImageData(values, columns, rows, 1);
 		sortedData = (List<Double>) sorter.sort(values);
@@ -525,50 +491,30 @@ public class FLIMResultsDialog
 		JPanel p = new JPanel();
 		Dimension dd = chartObject.getPreferredSize();
 		int h = dd.height;
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		double[][] topsize = {{0.2,0.1,0.7},{TableLayout.PREFERRED, 200,200}};
-		JPanel row = new JPanel();
-		row.setLayout(new TableLayout(topsize));
-		row.add(settings,"0,0,0,1");
-		row.add(cursorResultsPanel,"2,0,2,1");
-		row.setPreferredSize(new Dimension(1000,200));
-		row.setMaximumSize(new Dimension(1000,200));
-		row.setMaximumSize(new Dimension(1000,200));
-		
-		p.add(row);
-		chartObject.setPreferredSize(new Dimension(1000,300));
-		chartObject.setMaximumSize(new Dimension(1000,300));
-		chartObject.setMaximumSize(new Dimension(1000,300));
-		p.add(chartObject);
-		JPanel sliderPanel = new JPanel();
-
-		sliderPanel.setPreferredSize(new Dimension(1000,30));
-		sliderPanel.setMaximumSize(new Dimension(1000,30));
-		sliderPanel.setMinimumSize(new Dimension(1000,30));
-		  double sliderPanelTableSize[][] =
-          {{0.07,0.14, 0.07,0.05,0.55,0.1},
-           {TableLayout.PREFERRED,TableLayout.PREFERRED, TableLayout.PREFERRED,TableLayout.PREFERRED, TableLayout.PREFERRED,TableLayout.PREFERRED}};
-		sliderPanel.setLayout(new TableLayout(sliderPanelTableSize));
-
-		sliderPanel.add(thresholdSliderMinValue,"0,0,0,0");
-		sliderPanel.add(thresholdSlider,"1,0,1,1");
-		sliderPanel.add(thresholdSliderMaxValue,"2,0,2,0");
-		sliderPanel.add(colourMapSlider,"4,0,4,1" );
-		sliderPanel.add(RGBButton,"5,0,5,0");
-		JPanel chartStatsPanel = new JPanel();
-		  double size[][] =
-          {{0.3, 0.7},
-           {TableLayout.FILL, TableLayout.FILL}};
-		chartStatsPanel.setLayout(new TableLayout(size));
-		
-		chartStatsPanel.add(photonChart,"0,0,0,1");
-		chartStatsPanel.add(statsTable,"1,0,1,1");
-		chartStatsPanel.setPreferredSize(new Dimension(1000,250));
-		chartStatsPanel.setMaximumSize(new Dimension(1000,250));
-		chartStatsPanel.setMaximumSize(new Dimension(1000,250));
-		p.add(sliderPanel);
-		p.add(Box.createVerticalStrut(5));
-		p.add(chartStatsPanel);
+		double[][] topsize = 
+		{	{0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05},
+			{0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05}};
+		p.setLayout(new TableLayout(topsize));
+		p.add(settings,"0,0,3,2");
+		p.add(cursorResultsPanel,"5,0,19,2");
+		p.add(chartObject, "0,3,19,12");
+		p.add(thresholdSliderMinValue,"0,13,0,13");
+		JPanel spacer = new JPanel();
+		spacer.setLayout(new BoxLayout(spacer, BoxLayout.Y_AXIS));
+		spacer.add(Box.createVerticalStrut(10));
+		spacer.add(thresholdSlider);
+		p.add(spacer,"1,13,3,13");
+		p.add(thresholdSliderMaxValue,"4,13,4,13");
+		p.add(colourMapMinValue,"6,13,7,13");
+		spacer = new JPanel();
+		spacer.setLayout(new BoxLayout(spacer, BoxLayout.Y_AXIS));
+		spacer.add(Box.createVerticalStrut(10));
+		spacer.add(colourMapSlider);
+		p.add(spacer,"8,13,15,13");
+		p.add(colourMapMaxValue,"16,13,17,13");
+		p.add(RGBButton, "18,13,19,13");
+		p.add(statsTable,"0,15,19,19");
+		p.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 		return p;
 	}
 	
@@ -592,42 +538,21 @@ public class FLIMResultsDialog
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		meanLabel = new JLabel("Mean");
-		medianLabel = new JLabel("Median");
-		meanBinLabel = new JLabel("Bin Mean");
-		maxBinLabel = new JLabel("Bin Max");
-		minBinLabel = new JLabel("Bin Min");
-		binLabel = new JLabel("Bin");
-		percentBinLabel = new JLabel("Percent");
-		frequencyBinLabel = new JLabel("Freq");
-		stddevBinLabel = new JLabel("StdDev");
+		colourMapMinValue = new JTextField("");
+		colourMapMaxValue = new JTextField("");
+		colourMapMinValue.setEditable(false);
+		colourMapMaxValue.setEditable(false);
 		
-		meanTextField = new JTextField("");
-		medianTextField = new JTextField("");
-		meanBinTextField = new JTextField("");
-		maxBinTextField = new JTextField("");
-		minBinTextField = new JTextField("");
-		binTextField = new JTextField("");
-		percentBinTextField = new JTextField("");
-		frequencyBinTextField = new JTextField("");
-		stddevBinTextField = new JTextField("");
-	
-		meanTextField.setEditable(false);
-		medianTextField.setEditable(false);
-		meanBinTextField.setEditable(false);
-		maxBinTextField.setEditable(false);
-		minBinTextField.setEditable(false);
-		binTextField.setEditable(false);
-		percentBinTextField.setEditable(false);
-		frequencyBinTextField.setEditable(false);
-		stddevBinTextField.setEditable(false);
+		colourMapSlider = new TwoKnobsSlider();
+		colourMapSlider.setPaintMinorTicks(false);
+		colourMapSlider.setPaintTicks(false);
+		colourMapSlider.setPaintEndLabels(false);
+		colourMapSlider.setPaintCurrentValues(false);
+
 		
-		colourMapSlider = new TextualTwoKnobsSlider();
-		colourMapSlider.layoutComponents(
-        		TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
-		statsTable = new ResultsDialog(HISTOGRAMSTATS);
+		statsTable = new ResultsDialog(HISTOGRAMSTATS, ResultsDialog.VERTICAL, true, statsButtons);
 		statsTable.setRowHighlightMod(3);
-		cursorResults = new ResultsDialog(CURSORSTATS);
+		cursorResults = new ResultsDialog(CURSORSTATS, ResultsDialog.VERTICAL, true, cursorButtons);
 		statsTable.setRowHighlightMod(1);
 		canvas = new ImageCanvas();
 		RGBButton = new JToggleButton("RGB");
@@ -689,7 +614,6 @@ public class FLIMResultsDialog
 		
 		//parse the file
 		parseValues = parseFile(file);
-		initSlider();
 		if (parseValues == null || parseValues.size() == 0) {
 			 return;
 		} else {
@@ -770,20 +694,9 @@ public class FLIMResultsDialog
 		}
 		if (found == null) return;
 		parseValues = parseFile(results.get(found));
-		initSlider();
 		plot();
 	}
 	
-	/** Initializes the slider. */
-	private void initSlider()
-	{
-		int s = (int) Math.round(start);
-		int e = (int) Math.round(end);
-		slider = new TextualTwoKnobsSlider(s, e, s, e);
-		slider.layoutComponents(
-        		TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
-		slider.getSlider().addPropertyChangeListener(this);
-	}
 	
 	/**
 	 * Parses a CSV file.

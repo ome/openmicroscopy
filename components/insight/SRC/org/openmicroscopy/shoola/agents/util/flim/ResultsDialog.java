@@ -30,8 +30,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,7 +66,24 @@ public class ResultsDialog
 	extends JPanel 
 	implements ActionListener, PropertyChangeListener
 {
+	/** The text property of the Load button, also used for visibility. */
+	public final static String LOAD = "Load";
+
+	/** The text property of the Load button, also used for visibility. */
+	public final static String SAVE = "Save";
 	
+	/** The text property of the Load button, also used for visibility. */
+	public final static String CLEAR = "Clear";
+	
+	/** The text property of the Load button, also used for visibility. */
+	public final static String WIZARD = "Wizard";
+	
+	/** The value for laying out the buttons vertically. */
+	public final static int VERTICAL = 0;
+	
+	/** The value for laying out the buttons horizontally.  */
+	public final static int HORIZONTAL = 1;
+
 	/** The action to save the results. */
 	protected final static int SAVEACTION = 0;
 	
@@ -95,13 +112,22 @@ public class ResultsDialog
 	protected JButton loadButton;
 	
 	/** The list of buttons and their visibility. */
-	protected Map<JButton, Boolean> buttonVisibility;
+	protected Map<String, Boolean> buttonVisibility;
 	
 	/** The columns to display. */
 	protected List<String> columnNames;
 	
 	/** The results table that this dialog wraps. */
 	protected ResultsTable resultsTable;
+	
+	/** The orientation of the buttons on the dialog. */
+	protected int orient;
+	
+	/** The map of button names and buttons. */
+	protected Map<String, JButton> buttonMap;
+	
+	/** Display the buttons as icons. */
+	protected boolean asIcons;
 	
 	/** Filters used for the save options. */
 	private static List<FileFilter> FILTERS;
@@ -115,10 +141,15 @@ public class ResultsDialog
 	/**
 	 * Instatiate the dialog, with the visible column names.
 	 * @param columnNames See above.
+	 * @param orient The orientation of the buttons on the table.
 	 */
-	ResultsDialog(List<String> columnNames)
+	ResultsDialog(List<String> columnNames, int orient, boolean asIcons, Map<String, Boolean> buttonVisibility)
 	{
 		this.columnNames = columnNames;
+		this.orient = orient;
+		this.buttonVisibility = buttonVisibility;
+		this.asIcons = asIcons;
+		this.buttonMap = new HashMap<String, JButton>();
 		initComponents();
 		buildUI();
 	}
@@ -139,11 +170,14 @@ public class ResultsDialog
 	 */
 	protected void createButtons()
 	{
-		buttonVisibility = new LinkedHashMap<JButton, Boolean>();
-		saveButton = createButton("Save", "Save results to CSV file.",SAVEACTION, true);
-		loadButton = createButton("Load", "Load results from CSV file.",LOADACTION, true);
-		clearButton = createButton("Clear", "Clear the table",CLEARACTION, true);
-		wizardButton = createButton("Wizard", "Display the results wizard.",WIZARDACTION, true);
+		saveButton = createButton(SAVE, "Save results to CSV file.",SAVEACTION, true);
+		loadButton = createButton(LOAD, "Load results from CSV file.",LOADACTION, true);
+		clearButton = createButton(CLEAR, "Clear the table",CLEARACTION, true);
+		wizardButton = createButton(WIZARD, "Display the results wizard.",WIZARDACTION, true);
+		buttonMap.put(saveButton.getText(), saveButton);
+		buttonMap.put(loadButton.getText(), loadButton);
+		buttonMap.put(clearButton.getText(), clearButton);
+		buttonMap.put(wizardButton.getText(), wizardButton);
 	}
 	
 	/**
@@ -159,7 +193,6 @@ public class ResultsDialog
 		button.setToolTipText(tooltop);
 		button.setActionCommand(actionCommand+"");
 		button.addActionListener(this);
-		buttonVisibility.put(button, isVisible);
 		return button;
 	}
 	
@@ -168,16 +201,26 @@ public class ResultsDialog
 	 */
 	private void buildUI()
 	{
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		if(orient==VERTICAL)
+			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		else
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(resultsTable);
 		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new FlowLayout());
-		Iterator<JButton> keyIterator = buttonVisibility.keySet().iterator();
+		if(orient==VERTICAL)
+			buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+		else
+			buttonPanel.setLayout(new FlowLayout());
+		Iterator<String> keyIterator = buttonVisibility.keySet().iterator();
 		while(keyIterator.hasNext())
 		{
-			JButton button = keyIterator.next();
-			if(buttonVisibility.get(button))
+			String buttonName = keyIterator.next();
+			if(buttonVisibility.get(buttonName))
+			{
+				JButton button = buttonMap.get(buttonName);
 				buttonPanel.add(button);
+			}
+			
 		}
 		add(buttonPanel);
 	}
@@ -263,13 +306,23 @@ public class ResultsDialog
 		}
 	}
 
+	/** 
+	 * Set the hightlighting scheme of the table.
+	 * @param i See above.
+	 */
 	public void setRowHighlightMod(int i) 
 	{
 		resultsTable.setRowHighlightMod(i);
 	}
 
+	/**
+	 * Inset data into the table, this is a key value pair, only columns which are visible will display data.
+	 * @param rowData See above.
+	 */
 	public void insertData(Map<String, Object> rowData) 
 	{
 		resultsTable.insertData(rowData);
 	}
+	
+	
 }
