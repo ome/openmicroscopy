@@ -9,7 +9,9 @@ import subprocess
 import re
 import time
 import urllib2
+
 from types import StringTypes
+from path import path
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 TESTIMG_URL = 'http://users.openmicroscopy.org.uk/~cneves-x/'
@@ -314,10 +316,15 @@ class ImageEntry (ObjectEntry):
                 raise IOError('No such file %s' % fpath)
         host = dataset._conn.c.ic.getProperties().getProperty('omero.host') or 'localhost'
         port = dataset._conn.c.ic.getProperties().getProperty('omero.port') or '4063'
-        if os.path.exists('../bin/omero'):
-            exe = '../bin/omero'
-        else:
-            exe = 'omero'
+
+
+        exe = path(".") / ".." / "bin" /"omero" # Running from dist
+        if not exe.exists():
+            exe = path(".") / ".." / ".."/ ".." / "dist" / "bin" / "omero" # Running from OmeroPy
+            if not exe.exists():
+                print "\n\nNo omero found! Add OMERO_HOME/bin to your PATH variable (See #5176)\n\n"
+                exe = "omero"
+
         newconn = dataset._conn.clone()
         newconn.connect()
         UserEntry.setGroupForSession(newconn, dataset.getDetails().getGroup().getName())
