@@ -2,7 +2,8 @@ The purpose of these scripts is to automate the process of building an OMERO vir
 
 1. Retrieve the OMERO VM scripts:
 (a) If you have ssh access to the OMERO git repo then:
-	$ git archive --remote=ssh://szwells@git.openmicroscopy.org/home/git/ome.git --format=tar HEAD:docs/install/VM > omerovmscripts.tar
+	$ git archive --remote=ssh://$USERNAME@git.openmicroscopy.org/home/git/ome.git --format=tar HEAD:docs/install/VM > omerovmscripts.tar
+	Replacing $USERNAME with your user name as required. For this method you will require valid credentials for the omero git repository.
 (b) Download the scripts from:
 	http://git.openmicroscopy.org/?p=ome.git;a=tree;f=docs/install/VM;hb=HEAD
 & save them all to suitable directory on your machine.
@@ -32,8 +33,14 @@ The purpose of these scripts is to automate the process of building an OMERO vir
 			$ chmod 600 omerokey*
 		in the OMERO.VM directory.
 
-6. In the setup_omero.sh script alter the DL_ARCHIVE var to reflect the build of OMERO.server that you want to install. The current default is for QA builds from the hudson build process. To specify a different build you can adjust the following vars:
+6. In the setup_omero.sh script alter the DL_ARCHIVE var to reflect the build of OMERO.server that you want to install. The current default is for latest trunk QA builds from the Hudson build process. To specify a different build you can adjust the following vars, DL_LOC & DL_ARCHIVE:
+	DL_LOC stores the URL from which to retrieve our build:
+		DL_LOC="http://url-of-your-download-folder"
+	e.g.
 		DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-trunk-qa-builds/lastSuccessfulBuild/artifact/"
+	DL_ARCHIVE stores the name of the zip archive to retrieve from DL_LOC because the build process could deploy many archives to that location and we must specify the particular one that we want to retrieve.
+	DL_ARCHIVE="omero.server.archive.zip"
+	e.g.
 		DL_ARCHIVE="OMERO.server-4.3.0-DEV-bfe035dd.zip"
 	
 7. Run the VM build script:
