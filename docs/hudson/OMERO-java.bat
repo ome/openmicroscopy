@@ -8,10 +8,10 @@ if errorlevel 1 goto ERROR
 python build.py test-compile
 if errorlevel 1 goto ERROR
 
-python build.py -f components\tools\OmeroJava\build.xml -Dtest.with.fail=true test
+python build.py -f components\tools\OmeroJava\build.xml -Dtest.with.fail=false test
 if errorlevel 1 goto ERROR
 
-python build.py -f components\tools\OmeroJava\build.xml -Dtest.with.fail=true integration
+python build.py -f components\tools\OmeroJava\build.xml -Dtest.with.fail=false integration
 if errorlevel 1 goto ERROR
 
 cd examples

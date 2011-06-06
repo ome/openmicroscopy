@@ -10,6 +10,6 @@ ulimit -a
 #
 ./build.py clean
 ./build.py
-./build.py -f components/tools/OmeroFS/build.xml  -Dtest.with.fail=true test
-./build.py -f components/tools/OmeroFS/build.xml  -Dtest.with.fail=true integration
+./build.py -f components/tools/OmeroFS/build.xml  -Dtest.with.fail=false test
+./build.py -f components/tools/OmeroFS/build.xml  -Dtest.with.fail=false integration
 
