@@ -118,6 +118,10 @@ $.fn.roi_display = function(options) {
                           newShape = paper.ellipse( shape['cx'], shape['cy'], 2, 2);
                           toolTip = "cx:"+ shape['cx'] +" cy:"+ shape['cy'];
                         }
+                        else if (shape['type'] == 'Line') {
+                          // define line as 'path': Move then Line: E.g. "M10 10L90 90"
+                          newShape = paper.path("M"+ shape['x1'] +" "+ shape['y1'] +"L"+ shape['x2'] +" "+ shape['y2'] );
+                        }
                         else if (shape['type'] == 'PolyLine') {
                           newShape = paper.path( shape['points'] );
                         }
