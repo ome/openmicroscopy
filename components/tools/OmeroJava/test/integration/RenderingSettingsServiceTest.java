@@ -57,7 +57,76 @@ import omero.sys.ParametersI;
 public class RenderingSettingsServiceTest 
 	extends AbstractTest
 {
-	
+
+    /**
+     * Create a single image with binary.
+     *
+     * After recent changes on the server to check for existing
+     * binary data for pixels, many resetDefaults methods tested
+     * below began returning null since {@link omero.LockTimeout}
+     * exceptions were being thrown server-side. By using
+     * omero.client.forEachTile, we can set the necessary data easily.
+     *
+     * @see ticket:5755
+     */
+    public Image createBinaryImage() throws Exception {
+        Image image = mmFactory.createImage();
+        image = (Image) iUpdate.saveAndReturnObject(image);
+        return createBinaryImage(image);
+    }
+
+    /**
+     * Create the binary data for the given image.
+     */
+    public Image createBinaryImage(Image image) throws Exception {
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        //Image
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(image.getId().getValue());
+        //method already tested
+
+        // first write to the image
+        client.forEachTile(pixels, 256, 256, new omero.client.TileLoopIteration(){
+            public void run(omero.api.RawPixelsStorePrx rps, int z, int c, int t, int x, int y, int tileWidth,
+                    int tileHeight, int tileCount) throws omero.ServerError {
+                rps.setTile(new byte[tileWidth*tileHeight*8], z, c, t, x, y, tileWidth, tileHeight);
+            }
+        });
+        // This block will change the updateEvent on the pixels
+        // therefore we're going to reload the pixels.
+
+        image.setPixels(0, factory.getPixelsService().retrievePixDescription(id));
+        return image;
+
+    }
+
+    /**
+     * Create an entire plate, uploading binary data for all the images.
+     *
+     * After recent changes on the server to check for existing
+     * binary data for pixels, many resetDefaults methods tested
+     * below began returning null since {@link omero.LockTimeout}
+     * exceptions were being thrown server-side. By using
+     * omero.client.forEachTile, we can set the necessary data easily.
+     *
+     * @see ticket:5755
+     */
+    public Plate createBinaryPlate(int rows, int cols, int fields, int acquisitions) throws Exception {
+        Plate plate = mmFactory.createPlate(rows, cols, fields, acquisitions, true);
+        plate = (Plate) iUpdate.saveAndReturnObject(plate);
+
+        for (Well well : plate.copyWells()) {
+            for (WellSample ws : well.copyWellSamples()) {
+                Image image = createBinaryImage(ws.getImage());
+                ws.setImage(image);
+            }
+        }
+
+        return plate;
+
+    }
+
     /**
      * Tests to set the default rendering settings for a set.
      * @throws Exception Thrown if an error occurred.
@@ -66,8 +135,7 @@ public class RenderingSettingsServiceTest
     public void testResetDefaultInSetForPixels() 
     	throws Exception 
     {
-    	Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = createBinaryImage();
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first
@@ -102,8 +170,7 @@ public class RenderingSettingsServiceTest
     public void testResetDefaultInSetForImage() 
     	throws Exception 
     {
-    	Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = createBinaryImage();
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Image
@@ -129,8 +196,7 @@ public class RenderingSettingsServiceTest
     public void testResetDefaultInSetForDataset() 
     	throws Exception 
     {
-    	Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = createBinaryImage();
     	Pixels pixels = image.getPrimaryPixels();
     	
     	//create a dataset
@@ -173,8 +239,7 @@ public class RenderingSettingsServiceTest
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	
-    	Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = createBinaryImage();
     	Pixels pixels = image.getPrimaryPixels();
     	
         ProjectDatasetLink link = new ProjectDatasetLinkI();
@@ -231,7 +296,7 @@ public class RenderingSettingsServiceTest
     {
     	Screen screen = (Screen) iUpdate.saveAndReturnObject(
     			mmFactory.simpleScreenData().asIObject());
-    	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
+    	Plate p = createBinaryPlate(1, 1, 1, 0);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	
     	ScreenPlateLink link = new ScreenPlateLinkI();
@@ -292,8 +357,7 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = createBinaryImage();
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
@@ -305,8 +369,7 @@ public class RenderingSettingsServiceTest
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
     	//Create a second image.
-    	Image image2 = mmFactory.createImage();
-    	image2 = (Image) iUpdate.saveAndReturnObject(image2);
+    	Image image2 = createBinaryImage();
     	ids = new ArrayList<Long>();
     	ids.add(image2.getId().getValue());
     	Map<Boolean, List<Long>> m = 
@@ -336,8 +399,7 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = createBinaryImage();
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
@@ -349,9 +411,7 @@ public class RenderingSettingsServiceTest
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
     	//Create a second image.
-    	Image image2 = mmFactory.createImage();
-
-    	image2 = (Image) iUpdate.saveAndReturnObject(image2);
+    	Image image2 = createBinaryImage();
     	//Create a dataset
     	
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
@@ -389,8 +449,7 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = createBinaryImage();
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
@@ -423,9 +482,7 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = mmFactory.createImage();
-
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = createBinaryImage();
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
@@ -437,9 +494,7 @@ public class RenderingSettingsServiceTest
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
     	//Create a second image.
-    	Image image2 = mmFactory.createImage();
-
-    	image2 = (Image) iUpdate.saveAndReturnObject(image2);
+    	Image image2 = createBinaryImage();
     	//Create a dataset
     	//Link image and dataset
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
@@ -483,7 +538,7 @@ public class RenderingSettingsServiceTest
     public void testApplySettingsToSetForPlate() 
     	throws Exception 
     {
-    	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
+    	Plate p = createBinaryPlate(1, 1, 1, 0);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	//load the well
     	List<Well> results = loadWells(p.getId().getValue(), true);
@@ -505,7 +560,7 @@ public class RenderingSettingsServiceTest
     	
     	
     	//Create a second plate
-    	p = mmFactory.createPlate(1, 1, 1, 0, true);
+    	p = createBinaryPlate(1, 1, 1, 0);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	results = loadWells(p.getId().getValue(), true);
     	well = (Well) results.get(0);
@@ -537,7 +592,7 @@ public class RenderingSettingsServiceTest
     public void testApplySettingsToSetForPlateAcquisition() 
     	throws Exception 
     {
-    	Plate p = mmFactory.createPlate(1, 1, 1, 1, true);
+    	Plate p = createBinaryPlate(1, 1, 1, 1);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	//load the well
     	List<Well> results = loadWells(p.getId().getValue(), true);
@@ -558,7 +613,7 @@ public class RenderingSettingsServiceTest
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
 
     	//Create a second plate
-    	p = mmFactory.createPlate(1, 1, 1, 1, true);
+    	p = createBinaryPlate(1, 1, 1, 1);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	results = loadWells(p.getId().getValue(), true);
     	well = (Well) results.get(0);
@@ -593,7 +648,7 @@ public class RenderingSettingsServiceTest
     {
     	Screen screen = (Screen) iUpdate.saveAndReturnObject(
     			mmFactory.simpleScreenData().asIObject());
-    	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
+    	Plate p = createBinaryPlate(1, 1, 1, 0);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	
     	ScreenPlateLink link = new ScreenPlateLinkI();
@@ -621,7 +676,7 @@ public class RenderingSettingsServiceTest
     	
     	
     	//Create a second plate
-    	p = mmFactory.createPlate(1, 1, 1, 0, true);
+    	p = createBinaryPlate(1, 1, 1, 0);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	
     	link = new ScreenPlateLinkI();
@@ -660,7 +715,7 @@ public class RenderingSettingsServiceTest
     public void testResetDefaultInSetForPlate() 
     	throws Exception 
     {
-    	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
+    	Plate p = createBinaryPlate(1, 1, 1, 0);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	//load the well
     	List<Well> results = loadWells(p.getId().getValue(), true);
@@ -692,7 +747,7 @@ public class RenderingSettingsServiceTest
     public void testResetDefaultInSetForPlateAcquisition() 
     	throws Exception 
     {
-    	Plate p = mmFactory.createPlate(1, 1, 1, 1, true);
+    	Plate p = createBinaryPlate(1, 1, 1, 1);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	//load the well
     	List<Well> results = loadWells(p.getId().getValue(), true);
@@ -727,8 +782,7 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = createBinaryImage();
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
@@ -779,8 +833,7 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = createBinaryImage();
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
@@ -853,24 +906,24 @@ public class RenderingSettingsServiceTest
      * Tests the <code>ResetMinMaxForSet</code> method.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "ticket:5755")
     public void testResetMinMaxForSetForProject() 
     	throws Exception 
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = createBinaryImage();
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(image.getId().getValue());
     	//method already tested 
-    	 prx.resetDefaultsInSet(Image.class.getName(), ids);
-    
-    	//method already tested 
+
+    	prx.resetDefaultsInSet("Image", ids);
+    	//method already tested
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	
+    	assertNotNull(def);
+
     	//Modified the settings.
     	ChannelBinding channel;
     	List<Point> list = new ArrayList<Point>();
@@ -927,7 +980,7 @@ public class RenderingSettingsServiceTest
     public void testResetMinMaxForSetForPlate() 
     	throws Exception 
     {
-    	Plate plate = mmFactory.createPlate(1, 1, 1, 0, true);
+    	Plate plate = createBinaryPlate(1, 1, 1, 0);
     	plate = (Plate) iUpdate.saveAndReturnObject(plate);
     	//load the well
     	List<Well> results = loadWells(plate.getId().getValue(), true);
@@ -984,7 +1037,7 @@ public class RenderingSettingsServiceTest
     public void testResetMinMaxForSetForPlateAcquisition() 
     	throws Exception 
     {
-    	Plate plate = mmFactory.createPlate(1, 1, 1, 1, true);
+    	Plate plate = createBinaryPlate(1, 1, 1, 1);
     	plate = (Plate) iUpdate.saveAndReturnObject(plate);
     	//load the well
     	List<Well> results = loadWells(plate.getId().getValue(), true);
@@ -1039,13 +1092,13 @@ public class RenderingSettingsServiceTest
      * Tests the <code>ResetMinMaxForSet</code> method.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "ticket:5755")
     public void testResetMinMaxForSetForScreen() 
     	throws Exception 
     {
     	Screen screen = (Screen) iUpdate.saveAndReturnObject(
     			mmFactory.simpleScreenData().asIObject());
-    	Plate plate = mmFactory.createPlate(1, 1, 1, 0, true);
+    	Plate plate = createBinaryPlate(1, 1, 1, 0);
     	plate = (Plate) iUpdate.saveAndReturnObject(plate);
     	
     	ScreenPlateLink link = new ScreenPlateLinkI();
