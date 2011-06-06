@@ -122,7 +122,7 @@ public class FLIMResultsDialog
 	private static final int SELECTION = 2;
 
 	/** The number of bins. */
-	private static final int BINS = 100;
+	private static final int BINS = 500;
 	
 	/** The multiplication factor. */
 	private static final int FACTOR = 1;//1000;
@@ -149,20 +149,36 @@ public class FLIMResultsDialog
 		NAMES_TO_EXCLUDE.add("(?i)gb.*");
 	}
 	
-	/** The default columns in the table. */
-	static List<String> DEFAULTCOLUMNS;
+	/** The default columns in the historgram table. */
+	static List<String> HISTOGRAMSTATS;
 	
 	static{
-		DEFAULTCOLUMNS = new ArrayList<String>();
-		DEFAULTCOLUMNS.add("Colour");
-		DEFAULTCOLUMNS.add("Bin Start");
-		DEFAULTCOLUMNS.add("Bin End");
-		DEFAULTCOLUMNS.add("Min");
-		DEFAULTCOLUMNS.add("Max");
-		DEFAULTCOLUMNS.add("Mean");
-		DEFAULTCOLUMNS.add("Stddev");
-		DEFAULTCOLUMNS.add("Freq");
-		DEFAULTCOLUMNS.add("Percent");
+		HISTOGRAMSTATS = new ArrayList<String>();
+		HISTOGRAMSTATS.add("Colour");
+		HISTOGRAMSTATS.add("Bin Start");
+		HISTOGRAMSTATS.add("Bin End");
+		HISTOGRAMSTATS.add("Min");
+		HISTOGRAMSTATS.add("Max");
+		HISTOGRAMSTATS.add("Mean");
+		HISTOGRAMSTATS.add("Stddev");
+		HISTOGRAMSTATS.add("Freq");
+		HISTOGRAMSTATS.add("Percent");
+	}
+	
+	/** The default columns in the cursor results table. */
+	static List<String> CURSORSTATS;
+	
+	static{
+		CURSORSTATS = new ArrayList<String>();
+		CURSORSTATS.add("mean");
+		CURSORSTATS.add("median");
+		CURSORSTATS.add("binText");
+		CURSORSTATS.add("meanBin");
+		CURSORSTATS.add("minBin");
+		CURSORSTATS.add("maxBin");
+		CURSORSTATS.add("stddevBin");
+		CURSORSTATS.add("frequencyBin");
+		CURSORSTATS.add("percentBin");
 	}
 	
 	/** Button to close the dialog. */
@@ -182,9 +198,12 @@ public class FLIMResultsDialog
 	
 	/** The table displaying the values plotted. */
 	private Double[][] data;
-	
+
 	/** The stats table.  */
 	private ResultsDialog statsTable;
+
+	/** The cursorResults table.  */
+	private ResultsDialog cursorResults;
 	
 	/** The component hosting the various JXTaskPane. */
 	private JXTaskPaneContainer paneContainer;
@@ -208,7 +227,7 @@ public class FLIMResultsDialog
 	private JPanel settings;
 	
 	/** Component hosting the values of the selected data. */
-	private JPanel cursorResults;
+	private JPanel cursorResultsPanel;
 	
 	/** Component hosting the settings. */
 	private JComponent mainPane;
@@ -281,6 +300,12 @@ public class FLIMResultsDialog
 
 	/** The label displaying the minimum value of the slider. */
 	private JTextField thresholdSliderMinValue;
+
+	/** The value of the left hand knob of the colour map slider. */
+	private JTextField colourMapMinValue;
+
+	/** The value of the right hand knob of the colour map slider. */
+	private JTextField colourMapMaxValue;
 
 	/** Slider used to enter the minimum and maximum values. */
 	private TextualTwoKnobsSlider slider;
@@ -501,10 +526,15 @@ public class FLIMResultsDialog
 		Dimension dd = chartObject.getPreferredSize();
 		int h = dd.height;
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		double[][] topsize = {{0.2,0.1,0.7},{TableLayout.PREFERRED, 200,200}};
 		JPanel row = new JPanel();
-		row.setLayout(new FlowLayout(FlowLayout.LEFT));
-		row.add((settings));
-		row.add(cursorResults);
+		row.setLayout(new TableLayout(topsize));
+		row.add(settings,"0,0,0,1");
+		row.add(cursorResultsPanel,"2,0,2,1");
+		row.setPreferredSize(new Dimension(1000,200));
+		row.setMaximumSize(new Dimension(1000,200));
+		row.setMaximumSize(new Dimension(1000,200));
+		
 		p.add(row);
 		chartObject.setPreferredSize(new Dimension(1000,300));
 		chartObject.setMaximumSize(new Dimension(1000,300));
@@ -595,8 +625,10 @@ public class FLIMResultsDialog
 		colourMapSlider = new TextualTwoKnobsSlider();
 		colourMapSlider.layoutComponents(
         		TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
-		statsTable = new ResultsDialog(DEFAULTCOLUMNS);
+		statsTable = new ResultsDialog(HISTOGRAMSTATS);
 		statsTable.setRowHighlightMod(3);
+		cursorResults = new ResultsDialog(CURSORSTATS);
+		statsTable.setRowHighlightMod(1);
 		canvas = new ImageCanvas();
 		RGBButton = new JToggleButton("RGB");
 		RGBButton.setSelected(true);
@@ -611,9 +643,6 @@ public class FLIMResultsDialog
 		thresholdSliderMinValue.setEditable(false);
 		thresholdSliderMaxValue = new JTextField("");
 		thresholdSliderMaxValue.setEditable(false);
-		
-		
-		
 		
 		Iterator<FileAnnotationData> iterator = results.keySet().iterator();
 		List<String> names = new ArrayList<String>();
@@ -833,25 +862,8 @@ public class FLIMResultsDialog
 	private JPanel buildCursorResultsComponent()
 	{
 		JPanel content = new JPanel();
-		double size[][] = {{60,80,60,80,60,80,60,80},{26,26}};
-		content.setLayout(new TableLayout(size));
-		
-		content.add(meanLabel,"0,0");
-		content.add(meanTextField,"1,0");		
-		content.add(minBinLabel,"2,0");
-		content.add(minBinTextField,"3,0");
-		content.add(meanBinLabel,"4,0");
-		content.add(meanBinTextField,"5,0");
-		content.add(frequencyBinLabel,"6,0");
-		content.add(frequencyBinTextField,"7,0");
-		content.add(medianLabel,"0,1");
-		content.add(medianTextField,"1,1");
-		content.add(maxBinLabel,"2,1");
-		content.add(maxBinTextField,"3,1");
-		content.add(stddevBinLabel,"4,1");
-		content.add(stddevBinTextField,"5,1");
-		content.add(percentBinLabel,"6,1");
-		content.add(percentBinTextField,"7,1");
+		content.setLayout(new BorderLayout());
+		content.add(cursorResults, BorderLayout.CENTER);
 		return content;
 	}
 	
@@ -882,7 +894,7 @@ public class FLIMResultsDialog
 			text += " for "+imageName;
 		TitlePanel tp = new TitlePanel("Results", text, icon);
 		settings = buildSettingsComponent();
-		cursorResults = buildCursorResultsComponent();
+		cursorResultsPanel = buildCursorResultsComponent();
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout());
 		container.add(tp, BorderLayout.NORTH);
@@ -1091,15 +1103,19 @@ public class FLIMResultsDialog
 		Map<String, Double> binStats = chartObject.getBinStats(bin);
 		if(binStats==null)
 			return;
-		meanTextField.setText(UIUtilities.formatToDecimal(chartObject.getMean()));
-		medianTextField.setText(UIUtilities.formatToDecimal(chartObject.getMedian()));
-		meanBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));
-		maxBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MAX)));
-		binTextField.setText(UIUtilities.formatToDecimal(bin));
-		minBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MIN)));
-		percentBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.PERCENT)));
-		stddevBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.STDDEV)));
-		frequencyBinTextField.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.FREQ)));
+		Map<String, Object> rowData = new HashMap<String, Object>();
+		
+		rowData.put("mean",UIUtilities.formatToDecimal(chartObject.getMean()));
+		rowData.put("median",UIUtilities.formatToDecimal(chartObject.getMedian()));
+		rowData.put("meanBin",UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));
+		rowData.put("maxBin",UIUtilities.formatToDecimal(binStats.get(Histogram.MAX)));
+		rowData.put("binText",UIUtilities.formatToDecimal(bin));
+		rowData.put("minBin",UIUtilities.formatToDecimal(binStats.get(Histogram.MIN)));
+		rowData.put("percentBin",UIUtilities.formatToDecimal(binStats.get(Histogram.PERCENT)));
+		rowData.put("stddevBin",UIUtilities.formatToDecimal(binStats.get(Histogram.STDDEV)));
+		rowData.put("frequencyBin",UIUtilities.formatToDecimal(binStats.get(Histogram.FREQ)));
+		statsTable.insertData(rowData);
+		
 	}
 
 	/**

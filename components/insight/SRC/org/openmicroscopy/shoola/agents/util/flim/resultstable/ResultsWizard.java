@@ -24,7 +24,10 @@
 package org.openmicroscopy.shoola.agents.util.flim.resultstable;
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -32,6 +35,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
@@ -308,18 +312,17 @@ class ResultsWizard
 	private void buildUI()
 	{
 		JPanel container = new JPanel();
-		container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
+		double size[][] = {{0.4,0.07,0.06,0.07,0.4},
+				{TableLayout.PREFERRED, TableLayout.PREFERRED,TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED}};
+		container.setLayout(new TableLayout(size));
 		JPanel leftPanel = createRemainingColumnsPanel();
 		JPanel buttonPanel = createButtonPanel();
 		JPanel rightPanel = createCurrentColumnsPanel();
-		container.add(Box.createHorizontalStrut(10));
-		container.add(leftPanel);
-		container.add(Box.createHorizontalStrut(20));
-		container.add(buttonPanel);
-		container.add(Box.createHorizontalStrut(20));
-		container.add(rightPanel);
-		container.add(Box.createHorizontalStrut(10));
-
+		container.add(leftPanel,"0,0,0,1");
+		container.add(buttonPanel,"2,0,2,1");	
+		container.add(rightPanel,"4,0,4,1");
+		container.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+		
 		IconManager icons = IconManager.getInstance();
 		TitlePanel tp = new TitlePanel("Results Wizard", 
 				"Select the values you wish to record.",	
