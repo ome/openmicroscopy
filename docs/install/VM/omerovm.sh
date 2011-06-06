@@ -106,11 +106,11 @@ SSH_K="spawn ssh -2 -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthentication
 
 [ -f omerokey.pub ] && {
 	echo "Copying my RSA key"
-	expect -c "$SCP_K omerokey.pub omero@localhost:~/; expect "?assword:*"; send \"omero\n\r\"; interact"
-	expect -c "$SCP_K setup_keys.sh omero@localhost:~/; expect "?assword:*"; send \"omero\n\r\"; interact"
+	expect -c "$SCP_K omerokey.pub omero@localhost:~/; expect \"?assword:*\"; send \"omero\n\r\"; interact"
+	expect -c "$SCP_K setup_keys.sh omero@localhost:~/; expect \"?assword:*\"; send \"omero\n\r\"; interact"
 
 	echo "Setup key"
-	expect -c "$SSH_K omero@localhost sh /home/omero/setup_keys.sh ; expect "?assword:*"; send \"omero\n\r\"; interact"
+	expect -c "$SSH_K omero@localhost sh /home/omero/setup_keys.sh ; expect \"?assword:*\"; send \"omero\n\r\"; interact"
 
 } || echo "Local RSAAuthentication key was not found. Use: $ ssh-keygen -t rsa"
 
