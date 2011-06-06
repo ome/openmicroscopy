@@ -166,9 +166,9 @@ omero.version=${omero.version}
 		<testng outputDir="${testreports.dir}"
 			haltonfailure="${test.with.fail}"
 			haltonskipped="${test.with.fail}"
-			verbose="2"
+			verbose="${testng.verbose}"
                         groups="@{groups}"
-                        useDefaultListeners="false"
+                        useDefaultListeners="${testng.useDefaultListeners}"
                         listeners="org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter"
 			>
 			<classpath>

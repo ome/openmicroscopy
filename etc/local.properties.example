@@ -43,6 +43,9 @@ ivy.log.resolved.revision=false
 test.with.fail=false
 # Turns on code-coverage measurements during testing
 emma.enabled=false
+# Output verbosity from testng
+testng.verbose=2
+testng.useDefaultListeners=false
 
 # Determines which Ivy resolver to use for
 # finding the loci libraries. Look in
