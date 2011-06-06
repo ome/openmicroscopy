@@ -30,6 +30,7 @@ def monitorPackage():
                   'WIN_XP'                 : 'fsWin-XP-Monitor', 
                   'WIN_2003Server'         : 'fsWin-XP-Monitor', 
                   'WIN_Vista'              : 'fsWin-XP-Monitor', 
+                  'WIN_7'                  : 'fsWin-XP-Monitor',
                 }
     
     # Initial state
@@ -78,8 +79,10 @@ def monitorPackage():
             current = 'WIN_2003Server'
         elif version[1] == 'Vista':
             current = 'WIN_Vista'
+        elif version[1] == '7':
+            current = 'WIN_7'
         else:
-            errorString = "Windows XP, Vista or 2003Server required. You have: %s" % platform.platform()
+            errorString = "Windows XP, Vista, 7 or 2003Server required. You have: %s" % platform.platform()
 
     # Unknown OS.
     else:
