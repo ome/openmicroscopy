@@ -29,7 +29,7 @@ import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IRenderingSettings;
 import ome.api.ServiceInterface;
-import ome.conditions.MissingPyramidException;
+import ome.conditions.ConcurrencyException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
@@ -618,8 +618,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			 imageIds.add(p.getImage().getId());
 			} catch (ResourceError e) {
 				//Exception has already been written to log file.
-            } catch (MissingPyramidException e) {
-                log.warn("Missing pyramid, not resetting settings for Image:"
+            } catch (ConcurrencyException e) {
+                log.warn(e.getClass().getSimpleName() + ", not resetting settings for Image:"
                          + p.getImage().getId());
             } catch (Exception e) {
                 log.warn("Exception while resetting settings for Image:"
