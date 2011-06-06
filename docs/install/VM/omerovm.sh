@@ -79,6 +79,19 @@ $VBOX list runningvms | grep "$VMNAME" || {
     sleep 20
 }
 
+
+# TESTING key setup procedures :: START
+# Remove entry from known_hosts for old key
+ssh-keygen -R [localhost]:2222 -f ~/.ssh/known_hosts
+
+# Delete any old keys that are hanging around
+rm -f omerokey omerokey.pub
+
+# Create clean new keys
+ssh-keygen -f omerokey -N ''
+# TESTING key setup procedures :: END
+
+
 echo "Setting omerokey permissions"
 chmod 600 ./omerokey
 
