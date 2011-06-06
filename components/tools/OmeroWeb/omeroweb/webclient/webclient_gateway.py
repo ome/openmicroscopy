@@ -1201,11 +1201,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sh = self.getShareService()
         for e in sh.getContents(long(share_id)):
             try:
-                yield ShareContentWrapper(self, e)
+                obj = ShareContentWrapper(self, e)
             except:
                 obj = ShareContentWrapper(self,None)
                 obj._obj = e
-                yield obj
+            yield obj
                 
     def getComments(self, share_id):
         """
