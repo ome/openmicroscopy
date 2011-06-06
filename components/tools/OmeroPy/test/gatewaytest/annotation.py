@@ -159,9 +159,38 @@ class AnnotationsTest (lib.GTest):
         fileSize = os.path.getsize(tempFileName)
         ns = self.TESTANN_NS
         image = self.TESTIMG
+        # use the same file to create various file annotations with different namespaces
         fileAnn = self.gateway.createFileAnnfromLocalFile(tempFileName, mimetype='text/plain', ns=ns)
         image.linkAnnotation(fileAnn)
+        compAnn = self.gateway.createFileAnnfromLocalFile(tempFileName, mimetype='text/plain', ns=omero.constants.namespaces.NSCOMPANIONFILE)
+        image.linkAnnotation(compAnn)
         os.remove(tempFileName)
+
+        # get user-id of another user to use below.
+        self.loginAsAdmin()
+        adminId = self.gateway.getUser().getId()
+        self.loginAsAuthor()
+
+        # test listing of File Annotations. Should exclude companion files by default and all files should be loaded
+        eid = self.gateway.getUser().getId()
+        fas = list( self.gateway.listFileAnnotations(eid=eid, toInclude=[ns]) )
+        faIds = [fa.id for fa in fas]
+        self.assertTrue(fileAnn.getId() in faIds)
+        self.assertFalse(compAnn.getId() in faIds)
+        for fa in fas:
+            #print fa.id, fa.ns, fa.getFile().id, fa.getFile().name, fa._obj.file.loaded
+            self.assertEqual(fa.getNs(), ns, "All files should be filtered by this namespace")
+            self.assertTrue(fa._obj.file.loaded, "All file annotations should have files loaded")
+
+        # filtering by namespace
+        fas = list( self.gateway.listFileAnnotations(toInclude=["nothing.with.this.namespace"], eid=eid) )
+        self.assertEqual(len(fas), 0, "No file annotations should exist with bogus namespace")
+
+        # filtering files by a different user should not return the annotations above.
+        fas = list( self.gateway.listFileAnnotations(eid=adminId) )
+        faIds = [fa.id for fa in fas]
+        self.assertFalse(fileAnn.getId() in faIds)
+        self.assertFalse(compAnn.getId() in faIds)
 
         ann = image.getAnnotation(ns)
         annId = ann.getId()
