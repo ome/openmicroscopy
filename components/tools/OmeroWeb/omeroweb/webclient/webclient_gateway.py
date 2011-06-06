@@ -1200,8 +1200,13 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         
         sh = self.getShareService()
         for e in sh.getContents(long(share_id)):
-            yield ShareContentWrapper(self, e)
-    
+            try:
+                yield ShareContentWrapper(self, e)
+            except:
+                obj = ShareContentWrapper(self,None)
+                obj._obj = e
+                yield obj
+                
     def getComments(self, share_id):
         """
         Looks up all comments which belong to the share, wrapped in object wrapper
