@@ -19,6 +19,17 @@ from binascii import hexlify as hex
 
 class TestRPS(lib.ITest):
 
+    def check_pix(self, pix):
+        pix = self.query.get("Pixels", pix.id.val)
+        self.assert_(pix.sha1.val != "")
+        rps = self.client.sf.createRawPixelsStore()
+        try:
+            rps.setPixelsId(pix.id.val, True)
+            sha1 = hex(rps.calculateMessageDigest())
+            self.assertEquals(sha1, pix.sha1.val)
+        finally:
+            rps.close()
+
     def testTicket4737WithClose(self):
         pix = self.pix()
         rps = self.client.sf.createRawPixelsStore()
@@ -39,6 +50,16 @@ class TestRPS(lib.ITest):
             self.check_pix(pix)
         finally:
             rps.close()
+        self.check_pix(pix)
+
+    def testTicket4737WithForEachTile(self):
+        pix = self.pix()
+        class Iteration(self.client.TileLoopIteration):
+            def run(self, rps, z, c, t, x, y, tileWidth, tileHeight, tileCount):
+                rps.setTile([5]*tileWidth*tileHeight, z, c, t, x, y, tileWidth, tileHeight)
+
+        self.client.forEachTile(pix, 256, 256, Iteration())
+        pix = self.query.get("Pixels", pix.id.val)
         self.check_pix(pix)
 
     def testBigPlane(self):
