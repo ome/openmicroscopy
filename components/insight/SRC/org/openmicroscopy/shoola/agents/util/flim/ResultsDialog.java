@@ -23,6 +23,10 @@
 package org.openmicroscopy.shoola.agents.util.flim;
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,7 +39,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
@@ -43,6 +50,7 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.util.flim.resultstable.ResultsTable;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -170,29 +178,41 @@ public class ResultsDialog
 	 */
 	protected void createButtons()
 	{
-		saveButton = createButton(SAVE, "Save results to CSV file.",SAVEACTION, true);
-		loadButton = createButton(LOAD, "Load results from CSV file.",LOADACTION, true);
-		clearButton = createButton(CLEAR, "Clear the table",CLEARACTION, true);
-		wizardButton = createButton(WIZARD, "Display the results wizard.",WIZARDACTION, true);
-		buttonMap.put(saveButton.getText(), saveButton);
-		buttonMap.put(loadButton.getText(), loadButton);
-		buttonMap.put(clearButton.getText(), clearButton);
-		buttonMap.put(wizardButton.getText(), wizardButton);
+		saveButton = createButton(SAVE, "Save results to CSV file.", IconManager.getInstance().
+				getIcon(IconManager.SAVE_AS),SAVEACTION, true);
+		loadButton = createButton(LOAD, "Load results from CSV file.",IconManager.getInstance().
+				getIcon(IconManager.LOAD), LOADACTION, true);
+		clearButton = createButton(CLEAR, "Clear the table",IconManager.getInstance().
+				getIcon(IconManager.DELETE), CLEARACTION, true);
+		wizardButton = createButton(WIZARD, "Display the results wizard.",IconManager.getInstance().
+				getIcon(IconManager.WIZARD), WIZARDACTION, true);
+		buttonMap.put(SAVE, saveButton);
+		buttonMap.put(LOAD, loadButton);
+		buttonMap.put(CLEAR, clearButton);
+		buttonMap.put(WIZARD, wizardButton);
 	}
 	
 	/**
 	 * Create a button with name, tooltip and actionCommand, add table as listener to button.
 	 * @param name See above.
-	 * @param tooltop See above.
+	 * @param tooltip See above.
 	 * @param actionCommand See above.
 	 * @return See above.
 	 */
-	protected JButton createButton(String name, String tooltop, Integer actionCommand, boolean isVisible)
+	protected JButton createButton(String name, String tooltip, Icon icon, Integer actionCommand, boolean isVisible)
 	{
-		JButton button = new JButton(name);
-		button.setToolTipText(tooltop);
+		JButton button;
+		if(asIcons)
+		{
+			button = new JButton(icon);
+			UIUtilities.unifiedButtonLookAndFeel(button);
+		}	
+		else
+			button = new JButton(name);
+		button.setToolTipText(tooltip);
 		button.setActionCommand(actionCommand+"");
 		button.addActionListener(this);
+		button.setIcon(icon);
 		return button;
 	}
 	
@@ -201,28 +221,49 @@ public class ResultsDialog
 	 */
 	private void buildUI()
 	{
+		double size[][];
 		if(orient==VERTICAL)
-			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		else
-			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		add(resultsTable);
-		JPanel buttonPanel = new JPanel();
-		if(orient==VERTICAL)
-			buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-		else
-			buttonPanel.setLayout(new FlowLayout());
-		Iterator<String> keyIterator = buttonVisibility.keySet().iterator();
-		while(keyIterator.hasNext())
 		{
-			String buttonName = keyIterator.next();
-			if(buttonVisibility.get(buttonName))
+			size = new double[][]{{0.95,0.01,0.03},{TableLayout.PREFERRED, TableLayout.PREFERRED}};
+			setLayout(new TableLayout(size));
+			add(resultsTable,"0,0,0,1");
+			JPanel buttonPanel = new JPanel();
+			buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+				Iterator<String> keyIterator = buttonVisibility.keySet().iterator();
+			while(keyIterator.hasNext())
 			{
-				JButton button = buttonMap.get(buttonName);
-				buttonPanel.add(button);
+				String buttonName = keyIterator.next();
+				if(buttonVisibility.get(buttonName))
+				{
+					JButton button = buttonMap.get(buttonName);
+					buttonPanel.add(button);
+					if(orient==VERTICAL)
+						buttonPanel.add(Box.createVerticalStrut(10));
+				}
+				
 			}
-			
+			add(buttonPanel,"2,0,2,1");
 		}
-		add(buttonPanel);
+		else
+		{
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			add(resultsTable);
+			JPanel buttonPanel = new JPanel();
+			buttonPanel.setLayout(new FlowLayout());
+			Iterator<String> keyIterator = buttonVisibility.keySet().iterator();
+			while(keyIterator.hasNext())
+			{
+				String buttonName = keyIterator.next();
+				if(buttonVisibility.get(buttonName))
+				{
+					JButton button = buttonMap.get(buttonName);
+					buttonPanel.add(button);
+				}
+				
+			}
+			add(buttonPanel);
+		}
+	
 	}
 
 	/**
