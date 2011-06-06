@@ -50,11 +50,14 @@ import omero.model.ObjectiveSettings;
 import omero.model.PermissionsI;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
+import omero.model.PlateAcquisitionAnnotationLinkI;
+import omero.model.PlateAnnotationLinkI;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.Screen;
+import omero.model.ScreenAnnotationLinkI;
 import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
 import omero.model.StageLabel;
@@ -66,6 +69,7 @@ import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.PlateData;
+import pojos.PlateAcquisitionData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -1031,7 +1035,6 @@ public class PojosServiceTest
     			mmFactory.simpleProjectData().asIObject());
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	long datasetID = d.getId().getValue();
     	CommentAnnotation comment = new CommentAnnotationI();
     	comment.setTextValue(omero.rtypes.rstring("comment Project"));
     	comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
@@ -1070,7 +1073,7 @@ public class PojosServiceTest
         Iterator k;
         while (i.hasNext()) {
         	//use pojos
-			project = new  ProjectData((Project) i.next());
+			project = new ProjectData((Project) i.next());
 			count = project.getAnnotationsCounts();
 			assertEquals(1, count.size());
 			datasets = project.getDatasets();
@@ -1098,4 +1101,113 @@ public class PojosServiceTest
 		}
     }
     
+    /**
+     * Test to load container hierarchy and make sure the annotations are
+     * counted.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = true)
+    public void testLoadContainerHierarchyScreenPlatePlateAcquisitionWithAnnotations() 
+    	throws Exception 
+    {
+    	//first create a Screen/Plate/PlateAcquisition
+    	Screen s = (Screen) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleScreenData().asIObject());
+    	Plate p = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	PlateAcquisition a = (PlateAcquisition) 
+    		mmFactory.simplePlateAcquisitionData().asIObject();
+    	a.setPlate(p);
+    	a = (PlateAcquisition) iUpdate.saveAndReturnObject(a);
+
+        //Now create and attach comments to each
+    	CommentAnnotation comment = new CommentAnnotationI();
+    	comment.setTextValue(omero.rtypes.rstring("comment Screen"));
+    	comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
+    	//attach comment to Screen
+    	ScreenAnnotationLinkI sal = new ScreenAnnotationLinkI();
+    	sal.setParent((Screen) s.proxy());
+    	sal.setChild(comment);
+    	iUpdate.saveAndReturnObject(sal);
+
+    	comment = new CommentAnnotationI();
+    	comment.setTextValue(omero.rtypes.rstring("comment Plate"));
+    	comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
+    	//attach comment to Plate
+    	PlateAnnotationLinkI pal = new PlateAnnotationLinkI();
+    	pal.setParent((Plate) p.proxy());
+    	pal.setChild(comment);
+    	iUpdate.saveAndReturnObject(pal);
+    	
+    	comment = new CommentAnnotationI();
+    	comment.setTextValue(omero.rtypes.rstring("comment PlateAcquisition"));
+    	comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
+    	//attach comment to Plate
+    	PlateAcquisitionAnnotationLinkI aal = new PlateAcquisitionAnnotationLinkI();
+    	aal.setParent((PlateAcquisition) a.proxy());
+    	aal.setChild(comment);
+    	iUpdate.saveAndReturnObject(aal);
+    	
+    	//link the Screen and Plate
+    	ScreenPlateLink splink = new ScreenPlateLinkI();
+    	splink.setParent((Screen) s.proxy());
+    	splink.setChild((Plate) p.proxy());
+    	iUpdate.saveAndReturnObject(splink);
+
+    	Parameters param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(s.getId().getValue());
+        List results = iContainer.loadContainerHierarchy(
+        		Screen.class.getName(), ids, param);
+        assertTrue(results.size() == 1);
+        Iterator i = results.iterator();
+        ScreenData screen;
+        Set<PlateData> plates;
+        Set<PlateAcquisitionData> plateAcquisitions;
+        Iterator<PlateData> j;
+        Iterator<PlateAcquisitionData> l;
+        PlateData plate;
+        PlateAcquisitionData plateAcquisition;
+        Map<Long, Long> count;
+        Entry entry;
+        Iterator k;
+        while (i.hasNext()) {
+        	//use pojos
+			screen = new ScreenData((Screen) i.next());
+			count = screen.getAnnotationsCounts();
+			assertEquals(1, count.size());
+			k = count.entrySet().iterator();
+			while (k.hasNext()) {
+				entry = (Entry) k.next();
+				assertEquals(((Long) entry.getValue()).longValue(), 1);
+				
+			}
+			plates = screen.getPlates();
+			j = plates.iterator();
+			while (j.hasNext()) {
+				plate = j.next();
+				count = plate.getAnnotationsCounts();
+				assertEquals(1, count.size());
+				k = count.entrySet().iterator();
+				while (k.hasNext()) {
+					entry = (Entry) k.next();
+					assertEquals(((Long) entry.getValue()).longValue(), 1);
+					
+				}
+			    plateAcquisitions = plate.getPlateAcquisitions();
+				l = plateAcquisitions.iterator();
+			    while (l.hasNext()) {
+				    plateAcquisition = l.next();
+				    count = plateAcquisition.getAnnotationsCounts();
+				    assertEquals(1, count.size());
+				    k = count.entrySet().iterator();
+				    while (k.hasNext()) {
+					    entry = (Entry) k.next();
+					    assertEquals(((Long) entry.getValue()).longValue(), 1);
+					}
+				}
+			}
+		}
+    }
+
 }
