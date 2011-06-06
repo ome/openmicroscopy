@@ -91,9 +91,12 @@ rm -f omerokey omerokey.pub
 ssh-keygen -t dsa -f omerokey -N ''
 # TESTING key setup procedures :: END
 
+cp omerokey ~/.ssh/omerokey
+cp omerokey.pub ~/.ssh/omerokey.pub
 
 echo "Setting omerokey permissions"
-chmod 600 ./omerokey
+#chmod 600 ./omerokey
+chmod 600 ~/.ssh/omerokey*
 
 SCP="scp -2 -v -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i ~/VM/omerokey -P $SSH_PF"
 SSH="ssh -2 -v -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i ~/VM/omerokey -p $SSH_PF -t"
