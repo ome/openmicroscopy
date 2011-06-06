@@ -1400,10 +1400,13 @@ class _BlitzGateway (object):
         @type secure:   Boolean
         """
         if hasattr(self.c, 'createClient') and (secure ^ self.c.isSecure()):
+            oldC = self.c
+            self.c = oldC.createClient(secure=secure)
+            oldC.__del__() # only needs to be called if previous doesn't throw
             self.c = self.c.createClient(secure=secure)
             self._createProxies()
             self.secure = secure
-    
+
     def isSecure (self):
         """ Returns 'True' if the underlying omero.clients.BaseClient is connected using SSL """
         return hasattr(self.c, 'isSecure') and self.c.isSecure() or False
