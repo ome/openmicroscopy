@@ -88,7 +88,7 @@ ssh-keygen -R [localhost]:2222 -f ~/.ssh/known_hosts
 rm -f omerokey omerokey.pub
 
 # Create clean new keys
-ssh-keygen -f omerokey -N ''
+ssh-keygen -t dsa -f omerokey -N ''
 # TESTING key setup procedures :: END
 
 
