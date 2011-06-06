@@ -161,6 +161,7 @@ omero.version=${omero.version}
 
 	<macrodef name="suite">
 		<attribute name="groups" default=""/>
+		<attribute name="methods" default=""/>
 		<element name="files" implicit="yes"/>
 		<sequential>
 		<testng outputDir="${testreports.dir}"
@@ -168,6 +169,7 @@ omero.version=${omero.version}
 			haltonskipped="${test.with.fail}"
 			verbose="${testng.verbose}"
                         groups="@{groups}"
+                        methods="@{methods}"
                         useDefaultListeners="${testng.useDefaultListeners}"
                         listeners="org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter"
 			>
@@ -245,7 +247,20 @@ omero.version=${omero.version}
 		<property name="test.with.fail" value="false"/>
 		<property name="integration.suite" value="integration.testng.xml"/>
 		<suite groups="${GROUPS}">
-                    <classfileset dir="${testclasses.dir}" includes="**/*Test*.class" />
+                    <classfileset dir="${testclasses.dir}">
+                            <include name="**/*.class"/>
+                    </classfileset>
+                </suite>
+	</target>
+
+	<target name="test-methods" unless="TEST">
+		<!-- may be overriden by fail-on-error -->
+		<property name="test.with.fail" value="false"/>
+		<property name="integration.suite" value="integration.testng.xml"/>
+		<suite methods="${METHODS}">
+                    <classfileset dir="${testclasses.dir}">
+                            <include name="**/*.class"/>
+                    </classfileset>
                 </suite>
 	</target>
 
@@ -254,6 +269,9 @@ omero.version=${omero.version}
                         <antcall target="test-single" inheritRefs="true" inheritAll="true"/></then>
                     <elseif><isset property="GROUPS"/><then>
                         <antcall target="test-groups" inheritRefs="true" inheritAll="true"/></then>
+                    </elseif>
+                    <elseif><isset property="METHODS"/><then>
+                        <antcall target="test-methods" inheritRefs="true" inheritAll="true"/></then>
                     </elseif>
                     <else>
                         <antcall target="test-suite" inheritRefs="true" inheritAll="true"/>
