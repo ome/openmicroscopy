@@ -161,6 +161,12 @@ public class FileImportComponent
 	/** Text to indicate to browse the container. */
 	private static final String BROWSE_CONTAINER_TEXT = "Browse container";
 
+	/** Text to indicate that the folder has been imported. */
+	private static final String FOLDER_IMPORTED_TEXT = "Folder Importer";
+	
+	/** Text to indicate that the file, after scanning is not valid. */
+	private static final String FILE_NOT_VALID_TEXT = "File Not Valid";
+	
 	/** The number of extra labels for images to add. */
 	private static final int NUMBER = 3;
 	
@@ -823,8 +829,14 @@ public class FileImportComponent
 		} else if (image instanceof Boolean) {
 			if (!statusLabel.isMarkedAsCancel()) {
 				cancelButton.setVisible(false);
-				if (file.isDirectory()) setStatusText("Folder imported");
-				else setStatusText("File not valid");
+				if (file.isDirectory()) {
+					statusLabel.setVisible(false);
+					setStatusText(FILE_NOT_VALID_TEXT);
+				}
+				else {
+					statusLabel.setVisible(false);
+					setStatusText(FILE_NOT_VALID_TEXT);
+				}
 			} else resultLabel.setText("");
 		} else {
 			if (!status) {
