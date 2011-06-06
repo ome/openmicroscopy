@@ -328,9 +328,13 @@ class XmlReport(object):
 								# use September 2009 schema
 								self.theSchemaFile = "ome-2010-04-V1.xsd"
 							else:
-								if self.theNamespace == "http://www.openmicroscopy.org/Schemas/OME/2010-04":
+								if self.theNamespace == "http://www.openmicroscopy.org/Schemas/OME/2010-06":
 									# use June 2010 schema
 									self.theSchemaFile = "ome-2010-06-V1.xsd"
+								else:
+									if self.theNamespace == "http://www.openmicroscopy.org/Schemas/OME/2011-06":
+										# use June 2010 schema
+										self.theSchemaFile = "ome-2011-06-V1.xsd"
 		
 		# loading the OME schema to validate against
 		try:
