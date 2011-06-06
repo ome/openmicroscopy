@@ -5469,7 +5469,6 @@ class OMEROGateway
 			List result = new ArrayList();
 			IMetadataPrx service = getMetadataService();
 			List<IObject> list = service.loadTagSets(options);
-			
 			if (list == null) return result;
 			Iterator<IObject> i = list.iterator();
 			AnnotationAnnotationLink link;
@@ -6246,11 +6245,11 @@ class OMEROGateway
 			OMEROWrapper reader = new OMEROWrapper(config);
 			String[] paths = new String[1];
 			paths[0] = file.getAbsolutePath();
-			int depth = 4;//object.getScanningDepth();
-			ImportCandidates candidates = new ImportCandidates(depth, reader, 
+			ImportCandidates candidates = new ImportCandidates(reader, 
 					paths, status);
 			return new ArrayList<String>(candidates.getPaths());
 		} catch (Throwable e) {
+			e.printStackTrace();
 			throw new ImportException(getImportFailureMessage(e), e);
 		}
 	}

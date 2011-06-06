@@ -80,6 +80,8 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -1152,9 +1154,7 @@ class OmeroImageServiceImpl
 			}
 		} //file import ends.
 		//Checks folder import.
-		
 		candidates = gateway.getImportCandidates(object, file, status);
-		
 		if (candidates.size() == 0) return Boolean.valueOf(false);
 		Map<File, StatusLabel> hcsFiles = new HashMap<File, StatusLabel>();
 		Map<File, StatusLabel> otherFiles = new HashMap<File, StatusLabel>();
