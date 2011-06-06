@@ -95,11 +95,11 @@ ssh-keygen -f omerokey -N ''
 echo "Setting omerokey permissions"
 chmod 600 ./omerokey
 
-SCP="scp -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -i ./omerokey -P $SSH_PF"
-SSH="ssh -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -i ./omerokey -p $SSH_PF -t"
+SCP="scp -vvv -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -i ./omerokey -P $SSH_PF"
+SSH="ssh -vvv -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -i ./omerokey -p $SSH_PF -t"
 
-SCP_K="spawn scp -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -P $SSH_PF"
-SSH_K="spawn ssh -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -p $SSH_PF -t"
+SCP_K="spawn scp -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -P $SSH_PF"
+SSH_K="spawn ssh -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -p $SSH_PF -t"
 
 [ -f omerokey.pub ] && {
 	echo "Copying my RSA key"
