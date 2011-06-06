@@ -11,8 +11,9 @@ set -e -u -x
 cd /home/omero 
 if [ ! -d ".ssh" ]; then
 	mkdir .ssh
-	
 fi
+
+chmod 0700 .ssh
 
 if [ -f ".ssh/authorized_keys" ]; then
 	cp .ssh/authorized_keys .ssh/authorized_keys.backup
@@ -20,6 +21,7 @@ if [ -f ".ssh/authorized_keys" ]; then
 fi
 
 cat omerokey.pub >> .ssh/authorized_keys
+chmod 0600 .ssh/authorized_keys
 
 
 
