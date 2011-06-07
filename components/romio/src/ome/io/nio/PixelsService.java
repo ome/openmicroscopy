@@ -204,7 +204,7 @@ public class PixelsService extends AbstractFileSystemService
     }
 
     private PixelsPyramidMinMaxStore performWrite(
-            Pixels pixels,final File pixelsPyramidFile,
+            final Pixels pixels,final File pixelsPyramidFile,
             final PixelBuffer pixelsPyramid, final File pixelsFile,
             final String pixelsFilePath, final String originalFilePath) {
 
@@ -261,10 +261,23 @@ public class PixelsService extends AbstractFileSystemService
 
         try
         {
+            final double totalTiles =
+                source.getSizeZ() * source.getSizeC() * source.getSizeT() *
+                (Math.ceil(source.getSizeX() / tileSize.getWidth())) *
+                (Math.ceil(source.getSizeY() / tileSize.getHeight()));
+            final int tenPercent = (int) totalTiles / 10;
             Utils.forEachTile(new TileLoopIteration() {
                 public void run(int z, int c, int t, int x, int y, int w,
                             int h, int tileCount)
             {
+                if (log.isInfoEnabled()
+                    && tileCount % tenPercent == 0)
+                {
+                    log.info(String.format(
+                            "Pyramid creation for Pixels:%d %d/%d (%d%%).",
+                            pixels.getId(), tileCount + 1, (int) totalTiles,
+                            (int) (tileCount / totalTiles * 100)));
+                }
                 try
                 {
                     PixelData tile = source.getTile(z, c, t, x, y, w, h);
