@@ -39,8 +39,6 @@ import org.openmicroscopy.shoola.util.processing.chart.HeatMap;
 import org.openmicroscopy.shoola.util.processing.chart.HistogramChart;
 import org.openmicroscopy.shoola.util.processing.chart.ImageData;
 
-import controlP5.ControlP5;
-
 /**
  * Component displaying the histogram.
  *

@@ -33,7 +33,6 @@ import processing.core.PVector;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.processing.chart.XYChart;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
  * Component displaying the histogram.

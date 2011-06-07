@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.util.flim.resultstable;
 //Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
