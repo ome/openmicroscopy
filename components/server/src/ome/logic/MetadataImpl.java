@@ -41,13 +41,13 @@ import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.model.IAnnotated;
 import ome.model.IObject;
-import ome.model.annotations.AnnotationAnnotationLink;
 import ome.model.annotations.DatasetAnnotationLink;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.PlateAnnotationLink;
 import ome.model.annotations.ProjectAnnotationLink;
 import ome.model.annotations.ScreenAnnotationLink;
+import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.WellSampleAnnotationLink;
 import ome.model.acquisition.Arc;
 import ome.model.acquisition.Filament;
@@ -90,9 +90,6 @@ public class MetadataImpl
 	
 	/** Identifies the file annotation class. */
 	private final String FILE_TYPE = "ome.model.annotations.FileAnnotation";
-	
-	/** Identifies the tag annotation class. */
-	private final String TAG_TYPE = "ome.model.annotations.TagAnnotation";
 	
 	/** Reference to the {@link IContainer} service. */
 	private IContainer iContainer;
@@ -727,88 +724,56 @@ public class MetadataImpl
     	Parameters po = new Parameters(options);
     	Parameters param = new Parameters();
     	StringBuilder sb = new StringBuilder();
-    	sb.append("select link from AnnotationAnnotationLink as link ");
-		sb.append("left outer join fetch link.child child ");
-		sb.append("left outer join fetch link.parent parent ");
-		sb.append("left outer join fetch child.details.owner ownerChild ");
-		sb.append("left outer join fetch parent.details.owner ownerParent ");
-		sb.append("where child member of "+TAG_TYPE);
-		sb.append(" and parent member of "+TAG_TYPE);
+    	param.addString("include", NS_INSIGHT_TAG_SET);
+    	sb.append("select tag from TagAnnotation as tag ");
+		sb.append("left outer join fetch tag.annotationLinks as l ");
+		sb.append("left outer join fetch l.parent as parent ");
+		sb.append("left outer join fetch l.child as child ");
+		sb.append("left outer join fetch child.details.owner as ownerChild ");
+		sb.append("left outer join fetch parent.details.owner as ownerParent ");
+		sb.append("left outer join fetch tag.details.owner as tagOwner ");
+		sb.append("where tag.ns is not null and tag.ns = :include");
+
 		if (po.isExperimenter()) {
-			sb.append(" and parent.details.owner.id = :userID");
+			sb.append(" and tagOwner.id = :userID");
 			param.addLong("userID", po.getExperimenter());
 		}
 		
+		//All the tag
     	List l = iQuery.findAllByQuery(sb.toString(), param);
-    	List<Long> tagSetIds = new ArrayList<Long>();
-    	List<Long> ids = new ArrayList<Long>();
-    	List<Long> children = new ArrayList<Long>();
-    	Annotation ann;
-		Long id;
-		Iterator i;
-		AnnotationAnnotationLink link;
-		//check the tag set-tag link.
-    	if (l != null) {
-    		i = l.iterator();
-    		while (i.hasNext()) {
-				link = (AnnotationAnnotationLink) i.next();
-				id = link.getId();
-				ann = link.parent();
-				if (NS_INSIGHT_TAG_SET.equals(ann.getNs())) {
-					if (!ids.contains(ann.getId())) {
-						ids.add(id);
-						result.add(link);
-						if (!tagSetIds.contains(ann.getId()))
-							tagSetIds.add(ann.getId());
-					}
-				}
-				id = link.getChild().getId();
-				if (!children.contains(id))
-					children.add(id);
-			}
-    	}
-    	
-    	//Retrieve the tagSets not linked to a tag
-    	sb = new StringBuilder();
-    	Set<String> include = new HashSet<String>();
-    	include.add(NS_INSIGHT_TAG_SET);
-		
-    	sb.append("select ann from Annotation as ann");
-		sb.append(" where ann member of "+TAG_TYPE);
-		sb.append(" and ann.ns is not null and ann.ns in (:include)");
-		
-		param = new Parameters();
-		param.addSet("include", include);
-		if (tagSetIds.size() > 0) {
-			sb.append(" and ann.id not in (:ids)");
-			param.addIds(tagSetIds);
-		}
-		if (po.isExperimenter()) {
-			sb.append(" and ann.details.owner.id = :userID");
-			param.addLong("userID", po.getExperimenter());
-		}
-		l = iQuery.findAllByQuery(sb.toString(), param);
-	    if (l != null) {
-	    	i = l.iterator();
-    		while (i.hasNext()) {
-				result.add((Annotation) i.next());
-    		}
-	    }
-	    
+    	if (l != null) result.addAll(l);
     	//retrieve the orphan tags.
 		if (po.isOrphan()) {
+			List<Long> children = new ArrayList<Long>();
+			if (l != null) {
+				Iterator j = l.iterator();
+				TagAnnotation tag;
+				List list;
+				Iterator k;
+				Long id;
+				while (j.hasNext()) {
+					tag = (TagAnnotation) j.next();
+					if (tag.sizeOfAnnotationLinks() > 0) {
+						list = tag.linkedAnnotationList();
+						k = list.iterator();
+						while (k.hasNext()) {
+							id = ((IObject) k.next()).getId();
+							if (!children.contains(id))
+								children.add(id);
+						}
+					}
+				}
+			}
+			
+			
 			sb = new StringBuilder();
-			Set<String> exclude = new HashSet<String>();
-			exclude.add(NS_INSIGHT_TAG_SET);
-			sb.append("select ann from Annotation as ann");
-			sb.append(" where ann member of "+TAG_TYPE);
-			sb.append(" and (ann.ns is null or ann.ns not in (:exclude))");
-    		
 			param = new Parameters();
-			param.addSet("exclude", exclude);
+			sb.append("select ann from TagAnnotation as ann");
+			//sb.append(" where ann member of "+TAG_TYPE);
+			sb.append(" where ann.ns is null");
 			if (children.size() > 0) {
 				sb.append(" and ann.id not in (:ids)");
-				param.addIds(children);
+				param.addList("ids", children);
 			}
 			if (po.isExperimenter()) {
 				sb.append(" and ann.details.owner.id = :userID");
@@ -816,10 +781,7 @@ public class MetadataImpl
 			}
 			l = iQuery.findAllByQuery(sb.toString(), param);
 		    if (l != null) {
-		    	i = l.iterator();
-	    		while (i.hasNext()) {
-					result.add((Annotation) i.next());
-	    		}
+		    	result.addAll(l);
 		    }
 		}
 

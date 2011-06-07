@@ -319,7 +319,7 @@ public class MetadataServiceTest
         IObject object;
         while (i.hasNext()) {
         	object = (IObject) i.next();
-        	 assertTrue(object.getId().longValue() == link.getId().longValue());
+        	assertTrue(object.getId().longValue() == t2.getId().longValue());
 		}
     }
     
@@ -354,13 +354,16 @@ public class MetadataServiceTest
         Set set = iMetadata.loadTagSets(po);
         assertEquals(2, set.size());
         Iterator i = set.iterator();
-        IObject object;
+        TagAnnotation object;
+        String ns;
         while (i.hasNext()) {
-        	object = (IObject) i.next();
-        	if (object instanceof AnnotationAnnotationLink)
-        		assertTrue(object.getId().longValue() == link.getId().longValue());
-        	else 
+        	object = (TagAnnotation) i.next();
+        	ns = object.getNs();
+        	if (ns != null && IMetadata.NS_INSIGHT_TAG_SET.equals(ns)) {
+        		assertTrue(object.getId().longValue() == t2.getId().longValue());
+        	} else {
         		assertTrue(object.getId().longValue() == t3.getId().longValue());
+        	}
 		}
     }
     

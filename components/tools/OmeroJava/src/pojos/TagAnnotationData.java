@@ -171,25 +171,22 @@ public class TagAnnotationData extends AnnotationData {
     }
 
     /**
-     * Sets the collection of tags.
-     * 
-     * @param tags
-     *            The value to set.
-     */
-    public void setTags(Set<TagAnnotationData> tags) {
-    	String ns = getNameSpace();
-    	if (!INSIGHT_TAGSET_NS.equals(ns)) 
-    		throw new IllegalArgumentException("Can only add Tags to " +
-    				"a Tag Set.");
-        this.tags = tags;
-    }
-
-    /**
      * Returns the collection of tags related to this tag.
      * 
      * @return See above.
      */
     public Set<TagAnnotationData> getTags() {
+    	String ns = getNameSpace();
+    	if (!INSIGHT_TAGSET_NS.equals(ns)) return null;
+    	TagAnnotation tagSet = (TagAnnotation) asIObject();
+    	if (tags == null && tagSet.sizeOfAnnotationLinks() >= 0) {
+    		tags = new HashSet<TagAnnotationData>();
+    		List l = tagSet.linkedAnnotationList();
+    		Iterator i = l.iterator();
+    		while (i.hasNext()) {
+    			tags.add(new TagAnnotationData((TagAnnotation) i.next()));
+			}
+    	}
         return tags;
     }
 

@@ -5466,46 +5466,13 @@ class OMEROGateway
 		
 		isSessionAlive();
 		try {
-			List result = new ArrayList();
 			IMetadataPrx service = getMetadataService();
 			List<IObject> list = service.loadTagSets(options);
-			if (list == null) return result;
-			Iterator<IObject> i = list.iterator();
-			AnnotationAnnotationLink link;
-			Annotation parent, child;
-			TagAnnotationData tagSet;
-			Map<Long, TagAnnotationData> 
-				sets = new HashMap<Long, TagAnnotationData>();
-			Set<TagAnnotationData> tags;
-			List<Long> ids = new ArrayList<Long>();
-			IObject object;
-			Long id;
-			while (i.hasNext()) {
-				object = i.next();
-				if (object instanceof TagAnnotation) {
-					result.add(new TagAnnotationData((TagAnnotation) object));
-				} else if (object instanceof AnnotationAnnotationLink) {
-					link = (AnnotationAnnotationLink) object;
-					parent = link.getParent();
-					child = link.getChild();
-					id = parent.getId().getValue();
-					if (sets.get(id) == null) {
-						tagSet = new TagAnnotationData((TagAnnotation) parent);
-						sets.put(id, tagSet);
-						result.add(tagSet);
-						tagSet.setTags(new HashSet<TagAnnotationData>());
-					} else 
-						tagSet = sets.get(parent.getId().getValue());
-					tags = tagSet.getTags();
-					tags.add(new TagAnnotationData((TagAnnotation) child));
-					ids.add(child.getId().getValue());
-				}
-			}
-			return result;
+			return PojoMapper.asDataObjects(list);
 		} catch (Exception e) {
 			handleException(e, "Cannot find the Tags.");
 		}
-		return new ArrayList();
+		return new HashSet();
 	}
 	
 	/**
