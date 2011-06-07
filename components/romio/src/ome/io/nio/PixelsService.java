@@ -218,7 +218,7 @@ public class PixelsService extends AbstractFileSystemService
             source = createRomioPixelBuffer(pixelsFilePath, pixels, false);
             // FIXME: This should be configuration or service driven
             // FIXME: Also implemented in RenderingBean.getTileSize()
-            tileSize = new Dimension(256, 256);
+            tileSize = new Dimension(256, 128);
         }
         else
         {
@@ -251,7 +251,7 @@ public class PixelsService extends AbstractFileSystemService
                 || tileHeight == source.getSizeY()
                 || tileDimensionTooSmall)
             {
-                tileSize = new Dimension(256, 256);
+                tileSize = new Dimension(256, 128);
             }
             else
             {
