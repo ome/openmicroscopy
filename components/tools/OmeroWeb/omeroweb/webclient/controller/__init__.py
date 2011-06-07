@@ -72,6 +72,7 @@ class BaseController(object):
     
     def __init__(self, conn, **kw):
         self.conn = conn
+        self.eContext['image_limit'] = PAGE
         self.eContext['context'] = self.conn.getEventContext()
         gr = self.conn.getObject("ExperimenterGroup", self.conn.getEventContext().groupId)
         self.eContext['isReadOnly'] = gr.isReadOnly()
@@ -117,5 +118,6 @@ class BaseController(object):
         prev = None
         if page > 1:
             prev = page - 1
-        
-        return {'page': page, 'total':total, 'next':next, "prev":prev}
+        if len(total)>1:
+            return {'page': page, 'total':total, 'next':next, "prev":prev}
+        return None

@@ -454,7 +454,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "join fetch im.details.owner join fetch im.details.group " \
                 "left outer join fetch im.datasetLinks dil "\
                 "left outer join fetch dil.parent d " \
-                "where d.id = :oid"
+                "where d.id = :oid order by im.name ASC"
         
         if eid is not None:
             p.map["eid"] = rlong(long(eid))
