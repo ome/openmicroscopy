@@ -43,10 +43,10 @@ public class PersistentEventLogLoader extends ome.services.eventlogs.PersistentE
     
     /**
      * Uses data from the {@link #dataPerUser} "queue" to allow new requests to
-     * be processed even if one user add a large number of PIXELDATA events.
+     * be processed even if one user adds a large number of PIXELDATA events.
      * Only the lowest event log id will be saved as the {@link #getCurrentId()}
      * meaning that some event logs will be processed multiple times. The call
-     * to create the pyramid must properly
+     * to create the pyramid must properly ignore existing pyramids.
      */
     @Override
     protected EventLog query() {

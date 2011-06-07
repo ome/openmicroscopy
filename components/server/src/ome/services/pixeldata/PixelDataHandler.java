@@ -69,33 +69,28 @@ public class PixelDataHandler extends SimpleWork {
         }
     }
 
+    /**
+     * Handles only single elements from the {@link PersistentEventLogLoader}
+     * in order to keep transactions short and safe.
+     *
+     * @see ticket:5814
+     */
     @Transactional(readOnly = false)
     public Object doWork(Session session, ServiceFactory sf) {
-        int count = 1;
-        int perbatch = 0;
-        long start = System.currentTimeMillis();
-        do {
-            process(sf, session);
-            count++;
-        } while (doMore(count));
-        if (perbatch > 0) {
-            log.info(String.format("HANDLED %s objects in %s batch(es) [%s ms.]",
-                    perbatch, (count - 1), (System.currentTimeMillis() - start)));
-        } else {
-            log.debug("No objects indexed");
-        }
-        return null;
-    }
 
-    public int process(ServiceFactory sf, Session s) {
-        int count = 0;
-        for (EventLog eventLog : loader) {
-            if (eventLog != null && eventLog.getEntityId() != null) {
-                process(eventLog.getEntityId(), sf, s);
-                count++;
-            }
+        if (!loader.hasNext()) {
+            log.debug("No objects indexed");
+            return null;
         }
-        return count;
+
+        long start = System.currentTimeMillis();
+        EventLog eventLog = loader.next();
+        process(eventLog.getEntityId(), sf, session);
+
+        log.info(String.format("HANDLED %s object(s) in %s batch(es) [%s ms.]",
+                1, 1, (System.currentTimeMillis() - start)));
+
+        return null;
     }
 
     /**
@@ -147,26 +142,6 @@ public class PixelDataHandler extends SimpleWork {
         }
 
         return true;
-    }
-
-    /**
-     * Default implementation suggests doing more if fewer than {@link #reps}
-     * runs have been made and if there are still more than
-     * {@link EventLogLoader#batchSize} x 100 backlog entries.
-     * 
-     * This is based on the assumption that indexing runs roughly 120 times an
-     * hour, so if there are more than an hours worth of batches, do extra work
-     * to catch up.
-     */
-    public boolean doMore(int count) {
-        if (count < this.reps && loader.more() > loader.getBatchSize() * 100) {
-            log.info(String
-                    .format("Suggesting round %s of "
-                            + "processing to reduce backlog of %s:", count,
-                            loader.more()));
-            return true;
-        }
-        return false;
     }
 
 }
