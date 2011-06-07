@@ -295,6 +295,7 @@ class ImageTable
 	{
         // node is visited exactly once
         //process(node);
+		if (objects == null) return;
 		Object ho = node.getHierarchyObject();
 		if (ho instanceof DataObject) {
 			Iterator<DataObject> i = objects.iterator();
@@ -329,6 +330,7 @@ class ImageTable
 	{
         // node is visited exactly once
         //process(node);
+		if (node == null | ids == null) return;
 		Object ho = node.getHierarchyObject();
 		if (ho == null) return;
 		if (ho.getClass().equals(type) && ho instanceof DataObject) {
