@@ -793,6 +793,8 @@ class MeasurementViewerUI
     	ROIAssistant assistant = new ROIAssistant(model.getNumTimePoints(), 
     		model.getNumZSections(), model.getCurrentView(), currentROI, this);
     	UIUtilities.setLocationRelativeToAndShow(this, assistant);
+    	updateDrawingArea();
+    	
 	}
 	
 	/**
@@ -814,6 +816,7 @@ class MeasurementViewerUI
 	  	ROIAssistant assistant = new ROIAssistant(model.getNumTimePoints(), 
     		model.getNumZSections(), model.getCurrentView(), roi, this);
     	UIUtilities.setLocationRelativeToAndShow(this, assistant);
+    	updateDrawingArea();
 	}
 	
     /**
