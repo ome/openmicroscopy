@@ -14,6 +14,8 @@ import integration.library as lib
 import omero
 import omero.callbacks
 import Ice
+import sys
+import os
 
 class TestDelete(lib.ITest):
 
@@ -420,47 +422,52 @@ class TestDelete(lib.ITest):
         self.assertEquals(None, query_o.find('Dataset', dataset.id.val))
 
     def test5793(self):
-        def _formatReport(delete_handle):
-            """
-            Added as workaround to the changes made in #3006.
-            """
-            delete_reports = delete_handle.report()
-            rv = []
-            for report in delete_reports:
-                if report.error:
-                    rv.append(report.error)
-                elif report.warning:
-                    rv.append(report.warning)
-            return "; ".join(rv)
-            
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
         query = self.client.sf.getQueryService()
         update = self.client.sf.getUpdateService()
-        
+
         img = omero.model.ImageI()
         img.name = omero.rtypes.rstring("delete tagset test")
         img.acquisitionDate = omero.rtypes.rtime(0)
-                
+
         tag = omero.model.TagAnnotationI()
-        tag.textValue = omero.rtypes.rstring("tag %s" % uuid)        
+        tag.textValue = omero.rtypes.rstring("tag %s" % uuid)
         tag = self.client.sf.getUpdateService().saveAndReturnObject( tag )
-                      
+
         img.linkAnnotation( tag )
         img = self.client.sf.getUpdateService().saveAndReturnObject( img )
-        
+
         tagset = omero.model.TagAnnotationI()
-        tagset.textValue = omero.rtypes.rstring("tagset %s" % uuid)        
-        tagset.linkAnnotation(tag)        
+        tagset.textValue = omero.rtypes.rstring("tagset %s" % uuid)
+        tagset.linkAnnotation(tag)
         tagset = self.client.sf.getUpdateService().saveAndReturnObject( tagset )
-        
+
+        tag = tagset.linkedAnnotationList()[0]
+
         command = omero.api.delete.DeleteCommand("/Annotation", tagset.id.val, None)
         handle = self.client.sf.getDeleteService().queueDelete([command])
         callback = omero.callbacks.DeleteCallbackI(self.client, handle)
         errors = None
         count = 10
+
+        errs = []
         while callback.block(500) is None: # ms.
-            print _formatReport(handle)
-            
+            delete_reports = handle.report()
+            for report in delete_reports:
+                if report.error:
+                    errs.append(report.error)
+                if report.warning:
+                    print report.warning
+
+        self.assertEquals([], errs)
+        self.assertEquals(None, query.find("TagAnnotation", tagset.id.val))
+        self.assertEquals(tag.id.val, query.find("TagAnnotation", tag.id.val).id.val)
+
 
 if __name__ == '__main__':
-    unittest.main()
+    if "TRACE" in os.environ:
+        import trace
+        tracer = trace.Trace(ignoredirs=[sys.prefix, sys.exec_prefix], trace=1)
+        tracer.runfunc(unittest.main)
+    else:
+        unittest.main()
