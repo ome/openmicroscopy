@@ -55,7 +55,6 @@ public class MockFixture {
 
     public final SchedulerFactoryBean scheduler;
     public final BlitzConfiguration blitz;
-    public final SimpleJdbcTemplate jdbc;
     public final SessionManagerI sm;
     public final SessionManager mgr;
     public final SecuritySystem ss;
@@ -97,7 +96,6 @@ public class MockFixture {
         this.ex = (Executor) ctx.getBean("executor");
         this.ss = (SecuritySystem) ctx.getBean("securitySystem");
         this.mgr = (SessionManager) ctx.getBean("sessionManager");
-        this.jdbc = (SimpleJdbcTemplate) ctx.getBean("simpleJdbcTemplate");
 
         // --------------------------------------------
 
