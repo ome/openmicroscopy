@@ -226,7 +226,37 @@ public class PixelsService extends AbstractFileSystemService
             int series = getSeries(pixels);
             source = createMinMaxBfPixelBuffer(
                     originalFilePath, series, minMaxStore);
-            tileSize = source.getTileSize();
+            // If the tile sizes we've been given are completely ridiculous
+            // then reset them to 256x256. Currently these conditions are:
+            //  * TileWidth == ImageWidth
+            //  * TileHeight == ImageHeight
+            //  * Smallest tile dimension divided by the largest resolution
+            //    level factor is < 1.
+            // -- Chris Allan (ome:#5224).
+            final Dimension sourceTileSize = source.getTileSize();
+            final double tileWidth = sourceTileSize.getWidth();
+            final double tileHeight = sourceTileSize.getHeight();
+            final boolean tileDimensionTooSmall;
+            double factor = Math.pow(2, 5);
+            if (((tileWidth / factor) < 1.0)
+                || ((tileHeight / factor) < 1.0))
+            {
+                tileDimensionTooSmall = true;
+            }
+            else
+            {
+                tileDimensionTooSmall = false;
+            }
+            if (tileWidth == source.getSizeX()
+                || tileHeight == source.getSizeY()
+                || tileDimensionTooSmall)
+            {
+                tileSize = new Dimension(256, 256);
+            }
+            else
+            {
+                tileSize = sourceTileSize;
+            }
         }
 
         try
