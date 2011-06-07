@@ -2272,6 +2272,8 @@ class _BlitzGateway (object):
         @type obj_type:     String
         @param ids:         object IDs
         @type ids:          List of Long
+        @param params:      omero.sys.Parameters, can be used for pagination, filtering etc.
+        @param attributes:  Map of key-value pairs to filter results by. Key must be attribute of obj_type. E.g. 'name', 'ns'
         @return:            Generator yielding wrapped objects.
         """
 
