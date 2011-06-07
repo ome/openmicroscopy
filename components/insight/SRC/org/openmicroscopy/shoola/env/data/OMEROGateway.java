@@ -7637,17 +7637,17 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
-			/*
+			
 			RawPixelsStorePrx store = getPixelsStore();
 			store.setPixelsId(pixels.getId().getValue(), true);
 			boolean b = store.requiresPixelsPyramid();
 			store.close();
 			return b;
-			*/
+			
 			//Do not use the store might cause issue.
-			int sizeX = pixels.getSizeX().getValue();
-			int sizeY = pixels.getSizeY().getValue();
-			return (sizeX * sizeY) > (MAX_BYTES*MAX_BYTES);
+			//int sizeX = pixels.getSizeX().getValue();
+			//int sizeY = pixels.getSizeY().getValue();
+			//return (sizeX * sizeY) > (MAX_BYTES*MAX_BYTES);
 		} catch (Exception e) {
 			handleException(e, "Cannot start the Raw pixels store.");
 		}

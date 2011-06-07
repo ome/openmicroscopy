@@ -753,19 +753,20 @@ public class FileImportComponent
 			ThumbnailData thumbnail = (ThumbnailData) image;
 			if (thumbnail.isValidImage()) {
 				imageLabel.setData(thumbnail);
-				if (thumbnail.requirePyramid() != null 
-					&& thumbnail.requirePyramid().booleanValue()) {
-					imageLabel.setToolTipText(PYRAMID_TEXT);
-				}
+				
 				statusLabel.setVisible(false);
 				fileNameLabel.addMouseListener(adapter);
 				addMouseListener(adapter);
 				resultLabel.setText(VIEW_TEXT);
 				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
 				resultLabel.setToolTipText(ThumbnailLabel.IMAGE_LABEL_TOOLTIP);
-				//resultLabel.setEnabled(false);
-				resultLabel.setVisible(true);
-				resultLabel.addMouseListener(adapter);
+				resultLabel.setVisible(false);
+				if (thumbnail.requirePyramid() != null 
+						&& thumbnail.requirePyramid().booleanValue()) {
+						imageLabel.setToolTipText(PYRAMID_TEXT);
+						resultLabel.setVisible(true);
+						resultLabel.addMouseListener(adapter);	
+				}
 				showContainerLabel = 
 					(dataset != null || containerFromFolder != null);
 				browseButton.setVisible(showContainerLabel);
