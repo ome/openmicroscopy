@@ -266,6 +266,7 @@ class PublishingDialog
     	thumbnailsFigureItem.setEnabled(true);
     	if (refObject instanceof ImageData) {
     		img = (ImageData) refObject;
+    		thumbnailsFigureItem.setEnabled(true);
     	} else if (refObject instanceof WellSampleData) {
     		img = ((WellSampleData) refObject).getImage();
     		thumbnailsFigureItem.setEnabled(false);
@@ -290,6 +291,7 @@ class PublishingDialog
     			thumbnailsFigureItem.setEnabled(true);
     		else if (refObject instanceof PlateData) 
     			thumbnailsFigureItem.setEnabled(false);
+    		else thumbnailsFigureItem.setEnabled(false);
     	}
 	}
 
