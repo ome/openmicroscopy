@@ -268,6 +268,12 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     host = request.session.get('host', r.get('host', None))
     port = request.session.get('port', r.get('port', None))
     secure = request.session.get('ssl', r.get('ssl', False))
+    logger.debug(':: (session) %s %s %s' % (str(request.session.get('username', None)),
+                                            str(request.session.get('host', None)),
+                                            str(request.session.get('port', None))))
+    logger.debug(':: (request) %s %s %s' % (str(r.get('username', None)),
+                                            str(r.get('host', None)),
+                                            str(r.get('port', None))))
     #logger.debug(':: %s %s :: %s' % (str(username), str(passwd), str(browsersession_connection_key)))
 
 #    if r.has_key('logout'):
