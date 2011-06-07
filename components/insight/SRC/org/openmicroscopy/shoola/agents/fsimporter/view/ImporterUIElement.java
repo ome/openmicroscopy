@@ -238,7 +238,7 @@ class ImporterUIElement
 	/** Sets the text of indicating the number of imports. */
 	private void setNumberOfImport()
 	{
-		numberOfImportLabel.setText(countImported+"/"+totalToImport);
+		numberOfImportLabel.setText(countImported+" of "+totalToImport);
 	}
 	
 	/**
@@ -450,8 +450,8 @@ class ImporterUIElement
 		c.insets = new Insets(0, 2, 2, 0);
 		c.gridy = 0;
 		c.gridx = 0;
-		JLabel label = UIUtilities.setTextFont("Number of Files/Folders:", 
-				Font.BOLD);
+		JLabel label = UIUtilities.setTextFont(
+				"The number of files/folders imported:", Font.BOLD);
 		JLabel value;
     	header.add(label, c);
     	c.gridx = c.gridx+2;

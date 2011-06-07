@@ -1183,7 +1183,7 @@ public class ImportDialog
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		JLabel l = new JLabel();
-		l.setText("Add Tag");
+		l.setText("Add tag to images");
 		JPanel tagPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		tagPanel.add(l);
 		tagPanel.add(tagButton);

@@ -288,7 +288,7 @@ public class FileImportComponent
 		if (pane == null) return;
 		String end = " file";
 		if (totalFiles > 1) end +="s";
-		String text = file.getName()+": "+importCount+"/"+totalFiles+end;
+		String text = file.getName()+": "+importCount+" of "+totalFiles+end;
 		pane.setTitle(text);
 	}
 	
