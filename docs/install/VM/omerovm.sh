@@ -109,8 +109,8 @@ SSH_K="spawn ssh -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyCheckin
 
 [ -f omerokey.pub ] && {
     echo "Copying my DSA key"
-    expect -c "$SCP_K omerokey.pub omero@localhost:~/; expect \"?assword:*\"; send \"omero\n\"; interact"
-    expect -c "$SCP_K setup_keys.sh omero@localhost:~/; expect \"?assword:*\"; send \"omero\n\"; interact"
+    expect -c "$SCP_K omerokey.pub omero@localhost:~/; expect \"?assword:*\"; send \"omero\r\"; interact"
+    expect -c "$SCP_K setup_keys.sh omero@localhost:~/; expect \"?assword:*\"; send \"omero\r\"; interact"
 
     echo "Setup key"
     expect -c "$SSH_K omero@localhost sh /home/omero/setup_keys.sh ; expect \"?assword:*\" ; send \"omero\n\" ; interact "
