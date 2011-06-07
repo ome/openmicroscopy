@@ -125,6 +125,9 @@ class ImporterControl
 	private void createWindowsMenuItems(JMenu menu)
 	{
 		menu.removeAll();
+		menu.add(new ActivateAction(model));
+		/*
+		menu.removeAll();
 		Collection<ImporterUIElement> elements = view.getImportElements();
 		if (elements == null || elements.size() == 0) return;
 		Iterator<ImporterUIElement> i = elements.iterator();
@@ -136,6 +139,7 @@ class ImporterControl
 					e.getID());
 			menu.add(new JMenuItem(a));
 		}
+		*/
 	}
 	
 	/** Attaches listener to the window listener. */

@@ -186,12 +186,12 @@ public interface Importer
 	public void close();
 
 	/**
-	 * Displays the specified import.
-	 * 
-	 * @param importID The import identifier.
+	 * Moves the window to the front.
+	 * @throws IllegalStateException If the current state is not
+	 *                               {@link #DISCARDED}.
 	 */
-	public void displayImport(int importID);
-
+	public void moveToFront();
+	
 	/** Tries to re-import failed import. */
 	public void retryImport();
 

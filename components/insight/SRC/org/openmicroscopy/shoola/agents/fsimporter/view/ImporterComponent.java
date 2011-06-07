@@ -49,7 +49,6 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 import pojos.ExperimenterData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -398,21 +397,7 @@ class ImporterComponent
 		} else markToclose = false;
 		if (!markToclose) view.setVisible(false);
 	}
-
-	/** 
-	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#displayImport(int)
-	 */
-	public void displayImport(int importID)
-	{
-		if (model.getState() == DISCARDED) return;
-		if (!view.isVisible()) view.setVisible(true);
-		if (view.getExtendedState() == Frame.ICONIFIED)
-			view.deIconify();
-		ImporterUIElement element = view.getUIElement(importID);
-		if (element != null) view.setSelectedPane(element, false);
-	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#retryImport()
@@ -530,4 +515,16 @@ class ImporterComponent
 		}
 	}
 
+	/**
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#moveToFront()
+	 */
+	public void moveToFront()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		if (!view.isVisible()) view.setVisible(true);
+		view.toFront();
+	}
 }

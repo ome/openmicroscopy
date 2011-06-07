@@ -27,11 +27,11 @@ package org.openmicroscopy.shoola.agents.fsimporter.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
-import javax.swing.Icon;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -52,12 +52,12 @@ public class ActivateAction
 	extends ImporterAction
 {
 	
+	/** The name of the action. */
+    private static final String NAME = "Importer";
+    
     /** The description of the action. */
-    private static final String DESCRIPTION = "Display the selected import.";
-    
-    /** The identifier of the import. */
-    private int importID;
-    
+    private static final String DESCRIPTION = "Display the import.";
+
     /**
      * Creates a new instance.
      * 
@@ -66,24 +66,20 @@ public class ActivateAction
      * @param icon The icon associated to the node.
      * @param importID The id of the import.
      */
-    public ActivateAction(Importer model, String name, Icon icon, int importID)
+    public ActivateAction(Importer model)
     {
         super(model);
-        this.importID = importID;
         setEnabled(true);
-        putValue(Action.NAME, name);
+        putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
-        if (icon != null) putValue(Action.SMALL_ICON, icon);
+        IconManager icons = IconManager.getInstance();
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.IMPORT));
     }
     
     /**
      * Brings up on screen the {@link Importer}.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    { 
-    	model.displayImport(importID);
-    }
-    
+    public void actionPerformed(ActionEvent e) { model.moveToFront(); }
 }
