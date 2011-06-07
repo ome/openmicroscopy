@@ -101,10 +101,12 @@ public class ScriptCallback
 	{
 		this.adapter = adapter;
 		if (finished && adapter != null) {
-			if (!submitted) adapter.handleResult(results);
-			try {
-				close();
-			} catch (Exception e) {}
+			if (!submitted) {
+				adapter.handleResult(results);
+				try {
+					close();
+				} catch (Exception e) {}
+			}
 		}	
 	}
 	
@@ -167,7 +169,7 @@ public class ScriptCallback
 			finished = false;
 		}
 		
-		if (finished && adapter != null) {
+		if (finished && submitted) {
 			try {
 				close();
 			} catch (Exception e) {}

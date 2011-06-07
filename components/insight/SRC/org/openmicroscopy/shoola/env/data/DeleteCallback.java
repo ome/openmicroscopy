@@ -90,10 +90,12 @@ public class DeleteCallback
 	{
 		this.adapter = adapter;
 		if (finished && adapter != null) {
-			if (!submitted) adapter.handleResult(reports);
-			try {
-				close();
-			} catch (Exception e) {}
+			if (!submitted) {
+				adapter.handleResult(reports);
+				try {
+					close();
+				} catch (Exception e) {}
+			}
 		}
 	}
 	
@@ -121,7 +123,7 @@ public class DeleteCallback
 		    //if (adapter != null) adapter.handleResult(null);
 		}
 		
-		if (finished && adapter != null) {
+		if (finished && submitted) {
 			try {
 				close();
 			} catch (Exception e) {
