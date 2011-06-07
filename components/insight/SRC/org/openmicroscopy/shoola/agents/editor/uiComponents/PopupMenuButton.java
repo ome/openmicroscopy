@@ -94,12 +94,16 @@ public class PopupMenuButton
 		
 		this.addMouseListener(new MouseListener() {
 			public void mousePressed(MouseEvent e) {
-				maybeShowPopup(e);
+				//maybeShowPopup(e);
 			}
 			public void mouseReleased(MouseEvent e) {
 				maybeShowPopup(e);
 			}
 			private void maybeShowPopup(MouseEvent e) {
+				boolean enabled = PopupMenuButton.this.isEnabled();
+				if (!enabled){
+					return;
+				}
 				if (e.getComponent().isVisible()) {
 					try {
 						popupMenu.show(e.getComponent(), e.getX(), e.getY());
