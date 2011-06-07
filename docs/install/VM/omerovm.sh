@@ -101,19 +101,19 @@ chmod 600 ~/.ssh/omerokey*
 #SCP="scp -2 -v -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i ~/VM/omerokey -P $SSH_PF"
 #SSH="ssh -2 -v -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i ~/VM/omerokey -p $SSH_PF -t"
 
-SCP_K="spawn scp -2 -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -P $SSH_PF"
-SSH_K="spawn ssh -2 -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -p $SSH_PF -t"
+#SCP_K="spawn scp -2 -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -P $SSH_PF"
+#SSH_K="spawn ssh -2 -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -p $SSH_PF -t"
 
 SCP_K="spawn scp -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -P $SSH_PF"
 SSH_K="spawn ssh -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -p $SSH_PF -t"
 
 [ -f omerokey.pub ] && {
     echo "Copying my DSA key"
-    expect -c "$SCP_K omerokey.pub omero@localhost:~/; expect \"?assword:*\"; send \"omero\r\"; interact"
-    expect -c "$SCP_K setup_keys.sh omero@localhost:~/; expect \"?assword:*\"; send \"omero\r\"; interact"
+    expect -c "$SCP_K omerokey.pub omero@localhost:~/; expect -re \".*assword.*\"; send 'omero\r\n'; interact"
+    expect -c "$SCP_K setup_keys.sh omero@localhost:~/; expect -re \".*assword.*\"; send 'omero\r\n'; interact"
 
     echo "Setup key"
-    expect -c "$SSH_K omero@localhost sh /home/omero/setup_keys.sh ; expect \"?assword:*\" ; send \"omero\r\" ; interact "
+    expect -c "$SSH_K omero@localhost sh /home/omero/setup_keys.sh  expect -re \".*assword.*\"; send 'omero\r\n'; interact"
     
 } || echo "Local DSAAuthentication key was not found. Use: $ ssh-keygen -t dsa"
 
@@ -129,7 +129,7 @@ SSH_K="spawn ssh -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyCheckin
 #
 #sleep 40
 #
-#echo "ALL DONE!"
-#echo "Connect to your OMERO VM using either OMERO.insight or another OMERO client or SSH using the connect.sh script"
-#echo "Your VM has th following IP addresses:"
-#VBoxManage guestproperty enumerate $VMNAME | grep IP
+echo "ALL DONE!"
+echo "Connect to your OMERO VM using either OMERO.insight or another OMERO client or SSH using the connect.sh script"
+echo "Your VM has th following IP addresses:"
+VBoxManage guestproperty enumerate $VMNAME | grep IP
