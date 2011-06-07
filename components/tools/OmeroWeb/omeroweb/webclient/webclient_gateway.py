@@ -454,12 +454,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "join fetch im.details.owner join fetch im.details.group " \
                 "left outer join fetch im.datasetLinks dil "\
                 "left outer join fetch dil.parent d " \
-                "where d.id = :oid order by im.name ASC"
-        
+                "where d.id = :oid"
         if eid is not None:
             p.map["eid"] = rlong(long(eid))
             sql += " and im.details.owner.id=:eid"
-            
+        sql+=" order by im.name ASC"
+        
         for e in q.findAllByQuery(sql, p):
             kwargs = {'link': omero.gateway.BlitzObjectWrapper(self, e.copyDatasetLinks()[0])}
             yield ImageWrapper(self, e, None, **kwargs)
