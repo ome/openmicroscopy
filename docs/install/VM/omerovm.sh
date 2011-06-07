@@ -113,7 +113,7 @@ SSH_K="spawn ssh -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyCheckin
     expect -c "$SCP_K setup_keys.sh omero@localhost:~/; expect \"?assword:*\"; send \"omero\r\"; interact"
 
     echo "Setup key"
-    expect -c "$SSH_K omero@localhost sh /home/omero/setup_keys.sh ; expect \"?assword:*\" ; send \"omero\n\" ; interact "
+    expect -c "$SSH_K omero@localhost sh /home/omero/setup_keys.sh ; expect \"?assword:*\" ; send \"omero\r\" ; interact "
     
 } || echo "Local DSAAuthentication key was not found. Use: $ ssh-keygen -t dsa"
 
