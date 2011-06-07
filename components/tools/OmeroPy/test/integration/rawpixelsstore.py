@@ -79,6 +79,7 @@ class TestRPS(lib.ITest):
         in order to trick the service into throwing
         us a MissingPyramidException
         """
+        from omero.util import concurrency
         pix = self.missing_pyramid()
         rps = self.client.sf.createRawPixelsStore()
         try:
@@ -98,6 +99,10 @@ class TestRPS(lib.ITest):
                     success = True
                 except omero.MissingPyramidException, mpm:
                     self.assertEquals(pix.id.val, mpm.pixelsID)
+                    backOff = mpm.backOff/1000
+                    event = concurrency.get_event("testRomio")
+                    event.wait(backOff) # seconds
+                i -=1
             self.assert_(success)
         finally:
             rps.close()
