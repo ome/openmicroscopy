@@ -101,24 +101,24 @@ chmod 600 ~/.ssh/omerokey*
 #SCP="scp -2 -v -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i ~/VM/omerokey -P $SSH_PF"
 #SSH="ssh -2 -v -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i ~/VM/omerokey -p $SSH_PF -t"
 
-#SCP_K="spawn scp -2 -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -P $SSH_PF"
-#SSH_K="spawn ssh -2 -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -p $SSH_PF -t"
+SCP_K="spawn scp -2 -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -P $SSH_PF"
+SSH_K="spawn ssh -2 -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -p $SSH_PF -t"
 
 #SCP_K="spawn scp -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -P $SSH_PF"
 #SSH_K="spawn ssh -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -p $SSH_PF -t"
 
-SCP_K="spawn scp -vvv -P $SSH_PF"
-SSH_K="spawn ssh -vvv -p $SSH_PF -t"
+#SCP_K="spawn scp -vvv -P $SSH_PF"
+#SSH_K="spawn ssh -vvv -p $SSH_PF -t"
 
 
 [ -f omerokey.pub ] && {
     echo "Copying my DSA key"
     expect -c "$SCP_K omerokey.pub omero@localhost:~/; sleep 5; expect \"*assword*\"; send -- \"omero\r\"; interact"
-    echo "Copying key setup script: setup_keys.sh"
-    expect -c "$SCP_K setup_keys.sh omero@localhost:~/; sleep 5; expect \"assword*\"; send -- \"omero\r\"; interact"
+#    echo "Copying key setup script: setup_keys.sh"
+#    expect -c "$SCP_K setup_keys.sh omero@localhost:~/; sleep 5; expect \"*assword*\"; send -- \"omero\r\"; interact"
 
-    echo "Setup key"
-    expect -c "$SSH_K omero@localhost sh /home/omero/setup_keys.sh; sleep 5; \"expect assword*\"; send -- \"omero\r\"; interact"
+#    echo "Setup key"
+#    expect -c "$SSH_K omero@localhost sh /home/omero/setup_keys.sh; sleep 5; expect \"*assword*\"; send -- \"omero\r\"; interact"
     
 } || echo "Local DSAAuthentication key was not found. Use: $ ssh-keygen -t dsa"
 
