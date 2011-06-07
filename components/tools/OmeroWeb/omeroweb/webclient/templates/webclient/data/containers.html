@@ -520,6 +520,8 @@
                     if (refresh) refreshCenterPanel();
         		})
         		.bind("remove.jstree", function (e, data) {
+        		    data.inst.select_node("li#experimenter-0");
+        		    
         		    var ajax_data = new Array();
         		    var q = false;
         		    data.args[0].each(function (i) {
