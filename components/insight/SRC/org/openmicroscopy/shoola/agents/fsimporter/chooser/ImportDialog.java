@@ -1337,6 +1337,7 @@ public class ImportDialog
 			sortedList = sorter.sort(topList);
 		}
 		int size;
+		List finalList = new ArrayList();
 		if (type == Importer.PROJECT_TYPE) {
 			//sort the node
 			List<DataNode> l = getOrphanedNewDatasetNode();
@@ -1347,20 +1348,16 @@ public class ImportDialog
 				n = new DataNode(datasetsList);
 			} else {
 				List<DataNode> list = new ArrayList<DataNode>();
-				/*
-				if (l == null || l.size() == 0)
-					list.add(new DataNode(DataNode.createDefaultDataset()));
-				else list.addAll(l);
-				*/
 				list.add(new DataNode(DataNode.createDefaultDataset()));
 				if (l != null && l.size() > 0)
 					list.addAll(l);
 				n = new DataNode(list);
 			}
-			sortedList.add(n);
-			
+			//sortedList.add(n);
+			finalList.add(n);
+			finalList.addAll(sortedList);
 			parentsBox.removeActionListener(parentsBoxListener);
-			parentsBox.setModel(new DefaultComboBoxModel(sortedList.toArray()));
+			parentsBox.setModel(new DefaultComboBoxModel(finalList.toArray()));
 			parentsBox.addActionListener(parentsBoxListener);
 			//Determine the node to select.
 			size = parentsBox.getItemCount();
@@ -1394,9 +1391,10 @@ public class ImportDialog
 					parentsBox.setSelectedIndex(0);
 			}
 		} else if (type == Importer.SCREEN_TYPE) {
-			sortedList.add(new DataNode(DataNode.createDefaultScreen()));
+			finalList.add(new DataNode(DataNode.createDefaultScreen()));
+			finalList.addAll(sortedList);
 			parentsBox.removeActionListener(parentsBoxListener);
-			parentsBox.setModel(new DefaultComboBoxModel(sortedList.toArray()));
+			parentsBox.setModel(new DefaultComboBoxModel(finalList.toArray()));
 			parentsBox.addActionListener(parentsBoxListener);
 			size = sortedList.size();
 			if (selectedContainer != null) {

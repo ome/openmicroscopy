@@ -86,8 +86,8 @@ public class DataLoader
 	 */
 	public void load()
 	{
-		handle = dmView.loadContainerHierarchy(rootType, null, false, userID,
-				groupID, this);	
+		handle = dmView.loadContainerHierarchy(rootType, null, false,
+				getCurrentUserID(), groupID, this);	
 	}
 	
 	/** 
