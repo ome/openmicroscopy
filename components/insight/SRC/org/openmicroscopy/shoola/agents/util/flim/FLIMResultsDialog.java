@@ -60,21 +60,20 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import org.jdesktop.swingx.JXTaskPane;
+import org.jdesktop.swingx.JXTaskPaneContainer;
+import org.jdesktop.swingx.VerticalLayout;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 import processing.core.PVector;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.jdesktop.swingx.VerticalLayout;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -171,7 +170,7 @@ public class FLIMResultsDialog
 		CURSORSTATS = new ArrayList<String>();
 		CURSORSTATS.add("mean");
 		CURSORSTATS.add("median");
-		CURSORSTATS.add("binText");
+		CURSORSTATS.add("binNo");
 		CURSORSTATS.add("meanBin");
 		CURSORSTATS.add("minBin");
 		CURSORSTATS.add("maxBin");
@@ -259,16 +258,16 @@ public class FLIMResultsDialog
 	private ViewerSorter sorter;
 
 	/** The label displaying the maximum value of the slider. */
-	private JTextField thresholdSliderMaxValue;
+	private JLabel thresholdSliderMaxValue;
 
 	/** The label displaying the minimum value of the slider. */
-	private JTextField thresholdSliderMinValue;
+	private JLabel thresholdSliderMinValue;
 
 	/** The value of the left hand knob of the colour map slider. */
-	private JTextField colourMapMinValue;
+	private JLabel colourMapMinValue;
 
 	/** The value of the right hand knob of the colour map slider. */
-	private JTextField colourMapMaxValue;
+	private JLabel colourMapMaxValue;
 
 	/** Slider used to enter the red and blue components of the colourmap. */
 	private TwoKnobsSlider colourMapSlider;
@@ -493,21 +492,30 @@ public class FLIMResultsDialog
 		p.add(settings,"0,0,3,2");
 		p.add(cursorResultsPanel,"6,0,19,2");
 		p.add(chartObject, "0,3,19,12");
-		p.add(thresholdSliderMinValue,"0,13,1,13");
+		JPanel sliderPanel = new JPanel();
+		double[][] sliderPanelSize = {{0.2,0.6,0.2},{TableLayout.PREFERRED,TableLayout.PREFERRED}};
+		sliderPanel.setLayout(new TableLayout(sliderPanelSize));
 		JPanel spacer = new JPanel();
 		spacer.setLayout(new BoxLayout(spacer, BoxLayout.Y_AXIS));
-		spacer.add(Box.createVerticalStrut(10));
+		spacer.add(Box.createVerticalStrut(5));
 		spacer.add(thresholdSlider);
-		p.add(spacer,"2,13,3,13");
-		p.add(thresholdSliderMaxValue,"4,13,5,13");
-		p.add(colourMapMinValue,"6,13,7,13");
+		sliderPanel.add(thresholdSliderMinValue,"0,0,0,1");
+		sliderPanel.add(spacer,"1,0,1,1");
+		sliderPanel.add(thresholdSliderMaxValue,"2,0,2,1");
+		
+		p.add(sliderPanel,"0,13,4,13");
+		sliderPanel = new JPanel();
+		sliderPanelSize = new double[][] {{0.1,0.7,0.1,0.1},{TableLayout.PREFERRED,TableLayout.PREFERRED}};
 		spacer = new JPanel();
 		spacer.setLayout(new BoxLayout(spacer, BoxLayout.Y_AXIS));
-		spacer.add(Box.createVerticalStrut(10));
+		spacer.add(Box.createVerticalStrut(5));
 		spacer.add(colourMapSlider);
-		p.add(spacer,"8,13,15,13");
-		p.add(colourMapMaxValue,"16,13,17,13");
-		p.add(RGBButton, "18,13,19,13");
+		sliderPanel.setLayout(new TableLayout(sliderPanelSize));
+		sliderPanel.add(colourMapMinValue,"0,0,0,1");
+		sliderPanel.add(spacer,"1,0,1,1");
+		sliderPanel.add(colourMapMaxValue,"2,0,2,1");
+		sliderPanel.add(RGBButton,"3,0,3,1");
+		p.add(sliderPanel,"6,13,19,13");
 		p.add(statsTable,"0,15,19,19");
 		p.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 		return p;
@@ -533,10 +541,10 @@ public class FLIMResultsDialog
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		colourMapMinValue = new JTextField("");
-		colourMapMaxValue = new JTextField("");
-		colourMapMinValue.setEditable(false);
-		colourMapMaxValue.setEditable(false);
+		colourMapMinValue = new JLabel("-");
+		colourMapMinValue.setBorder(BorderFactory.createLoweredBevelBorder());
+		colourMapMaxValue = new JLabel("-");
+		colourMapMaxValue.setBorder(BorderFactory.createLoweredBevelBorder());
 		
 		colourMapSlider = new TwoKnobsSlider();
 		colourMapSlider.setPaintMinorTicks(false);
@@ -559,10 +567,10 @@ public class FLIMResultsDialog
 		thresholdSlider.setPaintLabels(false);
 		thresholdSlider.setPaintEndLabels(false);
 		thresholdSlider.setPaintCurrentValues(false);
-		thresholdSliderMinValue = new JTextField("");
-		thresholdSliderMinValue.setEditable(false);
-		thresholdSliderMaxValue = new JTextField("");
-		thresholdSliderMaxValue.setEditable(false);
+		thresholdSliderMinValue = new JLabel("-");
+		thresholdSliderMinValue.setBorder(BorderFactory.createLoweredBevelBorder());
+		thresholdSliderMaxValue = new JLabel("-");
+		thresholdSliderMaxValue.setBorder(BorderFactory.createLoweredBevelBorder());
 		
 		Iterator<FileAnnotationData> iterator = results.keySet().iterator();
 		List<String> names = new ArrayList<String>();
@@ -950,6 +958,16 @@ public class FLIMResultsDialog
 	{
 		chartObject.setRGB(RGBButton.isSelected(), start, end);
 		
+		Map<String, Double> binStats = chartObject.getBinStats(start);
+		if(binStats==null)
+			return;
+	
+		colourMapMinValue.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));
+		binStats = chartObject.getBinStats(end);
+		if(binStats==null)
+			return;
+	
+		colourMapMaxValue.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));;
 		Map<String, Double> redStats = chartObject.getRangeStats(0,start);
 		Map<String, Double> greenStats = chartObject.getRangeStats(start, end);
 		Map<String, Double> blueStats = chartObject.getRangeStats(end, BINS);
@@ -1017,12 +1035,12 @@ public class FLIMResultsDialog
 		rowData.put("median",UIUtilities.formatToDecimal(chartObject.getMedian()));
 		rowData.put("meanBin",UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));
 		rowData.put("maxBin",UIUtilities.formatToDecimal(binStats.get(Histogram.MAX)));
-		rowData.put("binText",UIUtilities.formatToDecimal(bin));
+		rowData.put("binNo",UIUtilities.formatToDecimal(bin));
 		rowData.put("minBin",UIUtilities.formatToDecimal(binStats.get(Histogram.MIN)));
 		rowData.put("percentBin",UIUtilities.formatToDecimal(binStats.get(Histogram.PERCENT)));
 		rowData.put("stddevBin",UIUtilities.formatToDecimal(binStats.get(Histogram.STDDEV)));
 		rowData.put("frequencyBin",UIUtilities.formatToDecimal(binStats.get(Histogram.FREQ)));
-		statsTable.insertData(rowData);
+		cursorResults.insertData(rowData);
 		
 	}
 
