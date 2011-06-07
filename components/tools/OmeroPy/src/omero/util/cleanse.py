@@ -148,8 +148,6 @@ class Cleanser(object):
             parameters, {"omero.group":"-1"})
         existing_ids = [cols[0].val for cols in rows]
         
-        print existing_ids
-        
         for i, object_id in enumerate(object_ids):
             path = self.deferred_paths[i]
             if object_id.val not in existing_ids:
