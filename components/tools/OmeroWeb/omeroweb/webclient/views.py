@@ -2202,7 +2202,8 @@ def load_history(request, year, month, day, **kwargs):
     except:
         cal_type = None    
     
-    controller = BaseCalendar(conn=conn, year=year, month=month, day=day)
+    filter_user_id = request.session.get('nav')['experimenter']
+    controller = BaseCalendar(conn=conn, year=year, month=month, day=day, eid=filter_user_id)
     controller.get_items(cal_type, page)
     
     #if cal_type is None:

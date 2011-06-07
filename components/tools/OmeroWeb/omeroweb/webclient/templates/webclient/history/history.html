@@ -26,8 +26,9 @@
             {
                 var h = $(window).height()-200;
                 $("div#history_calendar").css('height', h+31);
-                $("div#content_details").css('height', h+31);
                 $("div#metadata_details").css('height', h+31);
+                $("div#metadata_details iframe").attr('height', h+31);
+                $("div#content_details").css('height', h+31);
                 
                 $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
                 $("div#history_calendar").load('{% url load_calendar %}');
@@ -50,6 +51,9 @@
 
 {% block right %}
 
-<div id="metadata_details"> </div>
+<div id="metadata_details">
+    <div id="metadata_description"></div>
+    <iframe width="370" name="metadata_details"></iframe>
+</div>
 
 {% endblock %}

@@ -8,37 +8,64 @@
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
     
+    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+    
     <script type="text/javascript">
         $(document).ready(function(){
             
-            $("table#dataTable tbody").selectable({
-            	filter: 'tr',
-            	stop: function(){
-            		var l = $('tr.ui-selected', this).length;
-            		$("tr.ui-selected td input", this).each(function(){
-            		    this.checked = true;
-            		});
-            		if (l == 1) {
-            		    $("#toolbar").html("");
-            		    $("#right_panel").show();
-                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-            		    $('tr.ui-selected', this).each(function(){  
-            		        var h = $(window).height()-169;
-            		        var obj = this.id.split("-");
-            		        $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/metadata_details/'+obj[0]+'/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
-                            $('iframe#metadata_details').load();
-                        });
-            		} else {
-            		    $("#toolbar").html('');
-            		    manyToAnnotation();
-            		}
-            	},
-            	start: function(){
-            		$("tr td input", this).each(function(){
-            			this.checked = false;
-            		});
-            	}
+            // double-click handler on image - launches image viewer
+            //$("table#dataTable tbody tr").dblclick(function(event) {
+                // TODO: path to the object should be rendered on the server side
+            //});
+
+            // single click handler on image (container). Selection then update toolbar & metadata pane
+            $("table#dataTable tbody tr").click(function(event) {
+                handleClickSelection(event);
             });
+            
+            // handles selection for 'clicks' (not drags) including multi-select for shift and meta keys
+            var handleClickSelection = function(event) {
+
+                var $clickedRow = $(event.target).parents('tr:first');
+                var $clickedImage = $clickedRow.find('img');
+
+                var rows = $("table#dataTable tbody tr");
+                var $images = $("table#dataTable tbody tr td img");
+
+                var primaryIndex = -1;
+                var selIndex = rows.index($clickedRow.get(0));
+                
+                if ( event.shiftKey ) {
+                    
+                }
+                else if (event.metaKey) {
+                    
+                }
+                else {
+                    rows.removeClass("ui-selected");
+                    $clickedRow.addClass("ui-selected");
+                    var obj = $clickedRow.attr('id').split("-");
+                    loadMetadataPanel('/webclient/metadata_details/'+obj[0]+'/'+obj[1]+'/');
+                    primaryIndex = selIndex;
+                }
+            }
+            
+            // plugin to handle drag-select of images
+            $("table#dataTable tbody").selectable({
+                filter: 'tr',
+                distance: 2,
+                stop: function(){  
+                    var selected = $('tr.ui-selected', this);
+                    loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% url webstatic "images/knotes16.png" %}"/> Batch Annotate</a></p>');
+                    $("#batchAnnotate").click(function() {
+                        multipleAnnotation(selected);
+                        return false;
+                    });
+                },
+                start: function(){
+                }
+            });
+            
             
             $("#dataTable").tablesorter( {sortList: [[1,0]]} ); 
 
@@ -50,7 +77,6 @@
     </script>
 
 
-    <div id="toolbar" class="toolbar_noborder"></div>
     <div class="clear"> </div>
 
     <div>
@@ -71,9 +97,8 @@
                 <tr id="project-{{ c.id }}">
                     <td class="action">
                         <img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" alt="project" title="{{ c.name }}"/>
-                        <input type="checkbox" name="project" id="{{ c.id }}" class="hide">      
                     </td>
-                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a> {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="roles">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}
@@ -81,9 +106,8 @@
                 <tr id="screen-{{ c.id }}">
                     <td class="action">
                         <img id="{{ c.id }}" src="{% url webstatic "images/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/>
-                        <input type="checkbox" name="screen" id="{{ c.id }}" class="hide">      
                     </td>
-                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a> {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="roles">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}
@@ -91,9 +115,8 @@
                 <tr id="dataset-{{ c.id }}">
                     <td class="action">
                         <img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" alt="dataset" title="{{ c.name }}"/>
-                        <input type="checkbox" name="dataset" id="{{ c.id }}" class="hide">      
                     </td>
-                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a> {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="roles">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}
@@ -101,9 +124,8 @@
                 <tr id="plate-{{ c.id }}">
                     <td class="action">
                         <img id="{{ c.id }}" src="{% url webstatic "images/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/>
-                        <input type="checkbox" name="plate" id="{{ c.id }}" class="hide">      
                     </td>
-                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a> {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="roles">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}
@@ -111,9 +133,8 @@
                 <tr id="image-{{ c.id }}">
                     <td class="action">
                         <img id="{{ c.id }}" src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
-                        <input type="checkbox" name="image" id="{{ c.id }}" class="hide">      
                     </td>
-                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a> {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="roles">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}

@@ -3,19 +3,8 @@
 {% load custom_tags %}
 {% load wikitags %}
 
-    <style type="text/css">
+    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
 
-    #dataTable tr.ui-selected img {
-        background-color: #CCCCCC;
-        border: 1px dashed #555555;
-        padding: 2px;
-    }
-
-    .ui-selected {
-        background: #ddddff;
-    }
-    </style>
-    
     <script type="text/javascript" src="{% url webstatic "javascript/ui/jquery.ui.selectable.js" %}"></script>
 
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>

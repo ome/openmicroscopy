@@ -1544,7 +1544,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in tm.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p):
             yield omero.gateway.BlitzObjectWrapper(self, e.child)
     
-    def getDataByPeriod (self, start, end, otype=None, page=None):
+    def getDataByPeriod (self, start, end, eid, otype=None, page=None):
         """
         Retrieve given data objects by the given period of time 
         controlled by the security system.
@@ -1558,12 +1558,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @return:            Map of project, dataset and image lists
         @rtype:             Map
         """
-        
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
         f = omero.sys.Filter()
-        f.ownerId = rlong(self.getEventContext().userId)
+        f.ownerId = rlong(eid)
         f.groupId = rlong(self.getEventContext().groupId)
         if page is not None:
             f.limit = rint(PAGE)
@@ -1612,7 +1611,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 pass
         return {'project': pr_list, 'dataset':ds_list, 'image':im_list}
     
-    def countDataByPeriod (self, start, end, otype=None):
+    def countDataByPeriod (self, start, end, eid, otype=None):
         """
         Counts given data objects by the given period of time 
         controlled by the security system.
@@ -1626,12 +1625,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @return:            Counter
         @rtype:             Long
         """
-        
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
         f = omero.sys.Filter()
-        f.ownerId = rlong(self.getEventContext().userId)
+        f.ownerId = rlong(eid)
         f.groupId = rlong(self.getEventContext().groupId)
         p.theFilter = f
         if otype == 'image':
@@ -1644,7 +1642,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             c = tm.countByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p)
             return c['Image']+c['Dataset']+c['Project']
 
-    def getEventsByPeriod (self, start, end):
+    def getEventsByPeriod (self, start, end, eid):
         """
         Retrieve event log objects by the given period of time 
         controlled by the security system.
@@ -1656,13 +1654,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @return:            List of event logs
         @rtype:             List
         """
-        
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
         f = omero.sys.Filter()
         f.limit = rint(100000)
-        f.ownerId = rlong(self.getEventContext().userId)
+        f.ownerId = rlong(eid)
         f.groupId = rlong(self.getEventContext().groupId)
         p.theFilter = f
         return tm.getEventLogsByPeriod(rtime(start), rtime(end), p)

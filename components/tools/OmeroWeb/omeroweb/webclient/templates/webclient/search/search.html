@@ -27,8 +27,9 @@
             {
                 var h = $(window).height()-200;
                 $("div#searching").css('height', h+11);
-                $("div#content_details").css('height', h+31);
                 $("div#metadata_details").css('height', h+31);
+                $("div#metadata_details iframe").attr('height', h+31);
+                $("div#content_details").css('height', h+31);
                 
                 $('#dateperiodinput').datepicker({
                     changeMonth: true, 
@@ -166,6 +167,9 @@
 
 {% block right %}
 
-<div id="metadata_details" style="overflow: auto;"> </div>
+<div id="metadata_details">
+    <div id="metadata_description"></div>
+    <iframe width="370" name="metadata_details"></iframe>
+</div>
 
 {% endblock %}
