@@ -27,10 +27,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -46,6 +44,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -434,6 +433,19 @@ class ImporterUIElement
 	}
 	
 	/** 
+	 * Builds a row.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel createRow()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new FlowLayout(FlowLayout.LEFT));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		return p;
+	}
+	
+	/** 
 	 * Builds and lays out the header.
 	 * 
 	 * @return See above.
@@ -443,6 +455,42 @@ class ImporterUIElement
 		JPanel header = new JPanel();
 		header.setBackground(UIUtilities.BACKGROUND_COLOR);
 		header.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+		header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
+		
+		JLabel label = UIUtilities.setTextFont(
+				"The number of files/folders imported:", Font.BOLD);
+		JPanel row = createRow();
+		row.add(label);
+		row.add(numberOfImportLabel);
+		header.add(row);
+		row = createRow();
+		label = UIUtilities.setTextFont("Import Time:", Font.BOLD);
+		startImport = System.currentTimeMillis();
+		timeLabel = UIUtilities.createComponent(null);
+		timeLabel.setText(UIUtilities.formatShortDateTime(null));
+    	row.add(label);
+    	row.add(timeLabel);
+    	header.add(row);
+    	Collection<TagAnnotationData> tags = object.getTags();
+		if (tags != null && tags.size() > 0) {
+			row = createRow();
+			label = UIUtilities.setTextFont("Images Tagged with: ", Font.BOLD);
+			JLabel value = UIUtilities.createComponent(null);
+			StringBuffer buffer = new StringBuffer();
+			Iterator<TagAnnotationData> i = tags.iterator();
+			int index = 0;
+			int n = tags.size()-1;
+			while (i.hasNext()) {
+				buffer.append((i.next()).getTagValue());
+				if (index < n) buffer.append(", ");
+				index++;
+			}
+			value.setText(buffer.toString());
+			row.add(label);
+			row.add(value);
+			header.add(row);
+		}
+		/*
 		header.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -468,145 +516,6 @@ class ImporterUIElement
     	c.gridy++; 	
     	c.gridx = 0;
     	int n;
-    	Entry entry;
-		Object h;
-		/*
-    	n = containerComponents.size();
-    	if (n == 1) {
-    		String text = "";
-			Iterator i = containerComponents.entrySet().iterator();
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				h = entry.getValue();
-				if (h instanceof DatasetData) {
-					text = "Imported to Dataset: ";
-				} else if (h instanceof ScreenData) {
-					text = "Imported to Screen: ";
-				} else if (h instanceof ProjectData) {
-					text = "Imported to Project: ";
-				}
-				header.add(UIUtilities.setTextFont(text, Font.BOLD), c);
-				c.gridx = c.gridx+2;
-				header.add((JLabel) entry.getKey(), c);
-			}
-			c.gridy++; 	
-	    	c.gridx = 0;
-		} else if (n == 0 && foldersName.size() == 1) {
-			String text = "";
-			Iterator i = foldersName.entrySet().iterator();
-			FileImportComponent fic;
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				h = entry.getValue();
-				if (h instanceof FileImportComponent) {
-					fic = (FileImportComponent) h;
-					h = fic.getDataset();
-					text = "Imported to Dataset: ";
-					header.add(UIUtilities.setTextFont(text, Font.BOLD), c);
-					c.gridx = c.gridx+2;
-					header.add((JLabel) entry.getKey(), c);
-				}
-			}
-			c.gridy++; 	
-	    	c.gridx = 0;
-		}
-    	*/
-    	
-    	
-    	
-    	/*
-    	List<Object> containers = object.getRefNodes();
-		String text = "Imported in Dataset: ";
-		
-		String nameProject = "";
-		if (containers != null && containers.size() > 0) {
-			Iterator<Object> i = containers.iterator();
-			int index = 0;
-			n = containers.size()-1;
-			TreeImageDisplay node;
-			Object h;
-			while (i.hasNext()) {
-				node = (TreeImageDisplay) i.next();
-				h = node.getUserObject();
-				if (h instanceof DatasetData) {
-					containerComponents.put(createNameLabel(h), node);;
-				} else if (h instanceof ScreenData) {
-					containerComponents.put(createNameLabel(h), node);
-					if (index == 0) text = "Imported in Screen: ";
-				} else if (h instanceof ProjectData) {
-					//if (index == 0) text += "Project: ";
-					//name += ((ProjectData) h).getName();
-					topContainerComponents.put(createNameLabel(h), node);
-					nameProject = ((ProjectData) h).getName();
-				}
-			}
-		} 
-		//Project List
-		if (topContainerComponents.size() > 0) {
-			label = UIUtilities.setTextFont("Imported in Project", Font.BOLD);
-			//value = UIUtilities.createComponent(null);
-	    	//value.setText(name);
-			header.add(label, c);
-	    	c.gridx = c.gridx+2;
-	    	JPanel p = new JPanel();
-    		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    		p.setLayout(new FlowLayout(FlowLayout.LEFT));
-    		Iterator<JLabel> l = topContainerComponents.keySet().iterator();
-    		while (l.hasNext())
-				p.add(l.next());
-    		header.add(p, c);
-	    	c.gridy++; 	
-	    	c.gridx = 0;
-		}
-		if (text != null) {
-			label = UIUtilities.setTextFont(text, Font.BOLD);
-			header.add(label, c);
-	    	c.gridx = c.gridx+2;
-	    	JPanel p = new JPanel();
-    		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    		p.setLayout(new FlowLayout(FlowLayout.LEFT));
-    		Iterator<JLabel> l;
-	    	if (containerComponents.size() > 0) {
-	    		l = containerComponents.keySet().iterator();
-	    		while (l.hasNext())
-					p.add(l.next());
-	    	} 
-	    	if (type != FileImportComponent.SCREEN_TYPE) {
-	    		if (foldersName.size() > 0) {
-		    		l = foldersName.keySet().iterator();
-		    		while (l.hasNext())
-						p.add(l.next());
-	    		}
-	    		if (containerComponents.size() == 0) {
-	    			DatasetData dataset = object.getDefaultDataset();
-	    			if (dataset != null) {
-	    				p.add(createNameLabel(dataset));
-	    			}
-	    		}
-		    	header.add(p, c);
-		    	c.gridy++; 	
-		    	c.gridx = 0;
-	    	} else {
-	    		header.add(p, c);
-	    		if (foldersName.size() > 0) {
-	    			c.gridy++;
-	    			c.gridx = 0;
-	    			p = new JPanel();
-	        		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-	        		p.setLayout(new FlowLayout(FlowLayout.LEFT));
-	        		label = UIUtilities.setTextFont(text, Font.BOLD);
-	    			header.add(label, c);	
-	    	    	c.gridx = c.gridx+2;
-		    		l = foldersName.keySet().iterator();
-		    		while (l.hasNext())
-						p.add(l.next());
-		    		header.add(p, c);
-	    		}
-	    		c.gridy++; 	
-		    	c.gridx = 0;
-	    	}
-		}
-		*/
 		Collection<TagAnnotationData> tags = object.getTags();
 		if (tags != null && tags.size() > 0) {
 			label = UIUtilities.setTextFont("Images Tagged with: ", Font.BOLD);
@@ -627,6 +536,7 @@ class ImporterUIElement
 	    	c.gridy++; 	
 	    	c.gridx = 0;
 		}
+		*/
 		topContainerToRefresh = topContainerToRefresh();
 		JPanel content = UIUtilities.buildComponentPanel(header);
 		content.setBackground(UIUtilities.BACKGROUND_COLOR);
