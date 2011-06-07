@@ -205,7 +205,7 @@ class BaseCalendar(BaseController):
         self.total_items_size = self.conn.countDataByPeriod(start, end, self.eid)
         
         if cal_type is not None:
-            obj_logs = self.conn.getDataByPeriod(start, end, self.eid, cal_type, page)
+            obj_logs = self.conn.getDataByPeriod(start=start, end=end, eid=self.eid, otype=cal_type, page=page)
             obj_logs_counter = self.conn.countDataByPeriod(start, end, self.eid, cal_type)
             if len(obj_logs[cal_type]) > 0 :
                 

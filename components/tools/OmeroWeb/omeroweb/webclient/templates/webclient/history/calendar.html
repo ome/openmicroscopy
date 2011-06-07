@@ -6,17 +6,17 @@
         $(document).ready(function() {
             $("#prevMonth").click(function() { 
                 $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-                $("div#history_calendar").load('{% url load_calendar controller.last_month.year controller.last_month.month %}');     
+                $("div#history_calendar").load('{% url load_calendar controller.last_month.year controller.last_month.month %}?experimenter={{ nav.experimenter }}');     
             });
             $("#nextMonth").click(function() { 
                 $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-                $("div#history_calendar").load('{% url load_calendar controller.next_month.year controller.next_month.month %}');
+                $("div#history_calendar").load('{% url load_calendar controller.next_month.year controller.next_month.month %}?experimenter={{ nav.experimenter }}');
             });
         })
         
         function load_details(y,m,d) {
             $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-            $("div#content_details").load('/webclient/load_history/'+y+'/'+m+'/'+d+'/'); 
+            $("div#content_details").load('/webclient/load_history/'+y+'/'+m+'/'+d+'/?experimenter={{ nav.experimenter }}'); 
         }
     </script>
     

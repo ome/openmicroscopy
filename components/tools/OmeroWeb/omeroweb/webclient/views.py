@@ -2158,11 +2158,13 @@ def load_calendar(request, year=None, month=None, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
    
+    filter_user_id = request.session.get('nav')['experimenter']
+   
     if year is not None and month is not None:
-        controller = BaseCalendar(conn=conn, year=year, month=month)
+        controller = BaseCalendar(conn=conn, year=year, month=month, eid=filter_user_id)
     else:
         today = datetime.datetime.today()
-        controller = BaseCalendar(conn=conn, year=today.year, month=today.month)
+        controller = BaseCalendar(conn=conn, year=today.year, month=today.month, eid=filter_user_id)
     controller.create_calendar()
     
     context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller}
