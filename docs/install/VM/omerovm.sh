@@ -131,5 +131,5 @@ SSH_K="spawn ssh -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyCheckin
 #
 echo "ALL DONE!"
 echo "Connect to your OMERO VM using either OMERO.insight or another OMERO client or SSH using the connect.sh script"
-echo "Your VM has th following IP addresses:"
+echo "Your VM has the following IP addresses:"
 VBoxManage guestproperty enumerate $VMNAME | grep IP
