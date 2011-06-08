@@ -98,17 +98,20 @@ echo "Setting omerokey permissions"
 chmod 600 ./omerokey
 chmod 600 ~/.ssh/omerokey*
 
-#SCP="scp -2 -v -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i ~/VM/omerokey -P $SSH_PF"
-#SSH="ssh -2 -v -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i ~/VM/omerokey -p $SSH_PF -t"
+SCP="scp -2 -v -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i ~/VM/omerokey -P $SSH_PF"
+SSH="ssh -2 -v -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i ~/VM/omerokey -p $SSH_PF -t"
 
-SCP_K="spawn scp -2 -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -P $SSH_PF"
-SSH_K="spawn ssh -2 -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -p $SSH_PF -t"
+#SCP_K="spawn scp -2 -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -P $SSH_PF"
+#SSH_K="spawn ssh -2 -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -p $SSH_PF -t"
 
 #SCP_K="spawn scp -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -P $SSH_PF"
 #SSH_K="spawn ssh -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -p $SSH_PF -t"
 
 #SCP_K="spawn scp -vvv -P $SSH_PF"
 #SSH_K="spawn ssh -vvv -p $SSH_PF -t"
+
+SCP_K="scp -v -o StrictHostKeyChecking=no -o NoHostAuthenticationForLocalhost=yes -P $SSH_PF"
+SSH_K="ssh -v -o StrictHostKeyChecking=no -p $SSH_PF -t"
 
 
 [ -f omerokey.pub ] && {
