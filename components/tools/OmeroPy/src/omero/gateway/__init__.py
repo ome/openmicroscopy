@@ -2911,13 +2911,15 @@ def safeCallWrap (self, attr, f): #pragma: no cover
                 try:
 #                    if self._conn.c.sf.getSessionService().getReferenceCount(self._conn._sessionUuid) > 0:
                     # Recreate connection
-                    self._connect()
+                    self._connect(forcejoin=True)
                     logger.debug('last try for %s' % attr)
                     # Last try, don't catch exception
                     func = getattr(self._obj, attr)
                     return func(*args, **kwargs)
 #                    raise Ice.ConnectionLostException()
                 except Ice.ObjectNotExistException:
+                    raise Ice.ConnectionLostException()
+                except Ice.CommunicatorDestroyedException:
                     raise Ice.ConnectionLostException()
                 except:
                     raise
@@ -2943,10 +2945,13 @@ def safeCallWrap (self, attr, f): #pragma: no cover
         except Ice.ConnectionLostException:
             logger.debug("ConnectionLostException, bailing out")
             raise
+        except Ice.CommunicatorDestroyedException:
+            logger.debug("CommunicatorDestroyedException, bailing out")
+            raise
         except Ice.Exception, x:
             logger.debug('wrapped ' + f.func_name)
             logger.debug(x.__dict__)
-            if x.serverExceptionClass == 'ome.conditions.InternalException':
+            if hasattr(x, 'serverExceptionClass') and x.serverExceptionClass == 'ome.conditions.InternalException':
                 if x.message.find('java.lang.NullPointerException') > 0:
                     logger.debug("NullPointerException, bailing out")
                     raise
@@ -3026,15 +3031,23 @@ class ProxyObjectWrapper (object):
         
         return ProxyObjectWrapper(self._conn, self._func_str)
 
-    def _connect (self): #pragma: no cover
+    def _connect (self, forcejoin=False): #pragma: no cover
         """
         Returns True if connected. If connection OK, wrapped service is also created. 
+
+        @param forcejoin: if True forces the connection to only succeed if we can
+                          rejoin the current sessionid
+        @type forcejoin:  Boolean
         
         @return:    True if connection OK
         @rtype:     Boolean
         """
         logger.debug("proxy_connect: a");
-        if not self._conn.connect():
+        if forcejoin:
+            sUuid = self._conn._sessionUuid
+        else:
+            sUuid = None
+        if not self._conn.connect(sUuid=sUuid):
             logger.debug('connect failed')
             logger.debug('/n'.join(traceback.format_stack()))
             return False
