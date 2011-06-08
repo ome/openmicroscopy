@@ -162,7 +162,7 @@ public class RegionDef
 	 */
 	public String toString()
 	{
-		return "x: "+x+" y: "+y+" width: "+width+" height: "+height;
+		return "x="+x+" y="+y+" width="+width+" height="+height;
 	}
 	
 }

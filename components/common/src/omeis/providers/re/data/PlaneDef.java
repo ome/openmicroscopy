@@ -347,6 +347,9 @@ public class PlaneDef implements Serializable {
                 break;
         }
         buf.append(", t=" + t);
+        if (region != null) {
+            buf.append("; Region: " + region.toString());
+        }
         return buf.toString();
     }
 
