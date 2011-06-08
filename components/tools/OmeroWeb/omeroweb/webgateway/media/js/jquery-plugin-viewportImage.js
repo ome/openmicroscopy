@@ -410,7 +410,7 @@ $.fn.viewportImage = function(options) {
       }
     });
 
-    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, max_zoom, href) {
+    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, href) {
         $('<div id="weblitz-viewport-tiles" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
         jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});
         var myPyramid = new BisqueISPyramid( imagewidth, imageheight, xtilesize, ytilesize);
@@ -421,7 +421,7 @@ $.fn.viewportImage = function(options) {
         }
         
         if (viewerBean == null) {
-
+            
             viewerBean = new PanoJS('weblitz-viewport-tiles', {
                 tileUrlProvider : myProvider,
                 xTileSize       : myPyramid.xtilesize,
@@ -429,9 +429,9 @@ $.fn.viewportImage = function(options) {
                 maxZoom         : myPyramid.getMaxLevel(),
                 imageWidth      : myPyramid.width,
                 imageHeight     : myPyramid.height,
-                initialZoom     : max_zoom - init_zoom,
-                blankTile       : '/appmedia/webgateway/img/3rdparty/panojs/blank.gif',
-                loadingTile     : '/appmedia/webgateway/img/3rdparty/panojs/progress.gif'
+                initialZoom     : init_zoom,
+                blankTile       : '/appmedia/webgateway/img/3rdparty/panojs/blank.gif'
+                //loadingTile     : '/appmedia/webgateway/img/3rdparty/panojs/progress.gif'
             });
             PanoJS.MSG_BEYOND_MIN_ZOOM = null;
             PanoJS.MSG_BEYOND_MAX_ZOOM = null;

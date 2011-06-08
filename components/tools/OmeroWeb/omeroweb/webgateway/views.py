@@ -612,13 +612,13 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
             img._prepareRenderingEngine()
             tiles = img._re.requiresPixelsPyramid()
             w, h = img._re.getTileSize()
-            max_zoom = img._re.getResolutionLevels()-1
+            levels = img._re.getResolutionLevels()-1
             
             zxyt = tile.split(",")
             
             #w = int(zxyt[3])
             #h = int(zxyt[4])
-            level = max_zoom-int(zxyt[0])
+            level = levels-int(zxyt[0])
 
             x = int(zxyt[1])*w
             y = int(zxyt[2])*h
@@ -1054,20 +1054,20 @@ def imageMarshal (image, key=None):
             }
         }
         return rv
-    
+        
     #big images
     tiles = image._re.requiresPixelsPyramid()
     width, height = image._re.getTileSize()
-    max_zoom = image._re.getResolutionLevels()-1
-    init_zoom = max_zoom-image._re.getResolutionLevel()
-    
+    levels = image._re.getResolutionLevels()-1
+    init_zoom = image._re.getResolutionLevel()
+
     try:
         rv = {
             'tiles': tiles,
             'tile_size': {'width': width,
                           'height': height},
             'init_zoom': init_zoom,
-            'max_zoom': max_zoom,
+            'levels': levels,
             'id': image.id,
             'size': {'width': image.getSizeX(),
                      'height': image.getSizeY(),

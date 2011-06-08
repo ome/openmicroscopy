@@ -211,6 +211,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
     hideLoading();
     clearTimeout(ajaxTimeout);
     // If 'MissingPyramidException' we can't do anything else but notify user
+    if(data==null) {
+        loadError();
+        return;
+    }
     if (data["ConcurrencyException"] != undefined) {
         backOff = data["ConcurrencyException"]['backOff'];
         _this.self.trigger('ConcurrencyException', [backOff]);
@@ -268,7 +272,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       showLoading();
       if (_this.loadedImg.tiles) {
           rcb()
-          _this.viewportimg.get(0).setUpTiles(_this.loadedImg.size.width, _this.loadedImg.size.height, _this.loadedImg.tile_size.width, _this.loadedImg.tile_size.height, _this.loadedImg.init_zoom, _this.loadedImg.max_zoom, href);
+          _this.viewportimg.get(0).setUpTiles(_this.loadedImg.size.width, _this.loadedImg.size.height, _this.loadedImg.tile_size.width, _this.loadedImg.tile_size.height, _this.loadedImg.init_zoom, _this.loadedImg.levels, href);
       } else {
           _this.viewportimg.load(rcb);
           _this.viewportimg.attr('src', href);

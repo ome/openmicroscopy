@@ -78,7 +78,8 @@ function PanoJS(viewer, options) {
 
   this.xTileSize = (options.xTileSize ? options.xTileSize : PanoJS.TILE_SIZE);
   this.yTileSize = (options.yTileSize ? options.yTileSize : PanoJS.TILE_SIZE);
-  this.realTileSize = this.xTileSize;
+  this.realXTileSize = this.xTileSize;
+  this.realYTileSize = this.yTileSize;
   
   
   if (options.staticBaseURL) PanoJS.STATIC_BASE_URL = options.staticBaseURL;  
@@ -477,7 +478,7 @@ PanoJS.prototype.assignTileImage = function(tile) {
       this.well.removeChild(tile.element);
     }
 
-    var scale = Math.max(this.xTileSize / this.realTileSize, 1.0);         
+    var scale = Math.max(this.xTileSize / this.realXTileSize, 1.0);
     var tileImg = this.cache[tileImgId];
 
     //window.localStorage (details)
@@ -663,13 +664,12 @@ PanoJS.prototype.zoom = function(direction) {
     if (this.zoomLevel+direction > this.maxZoomLevel) {
         //dima
         var scale_dif = (this.zoomLevel+direction - this.maxZoomLevel) * 2;
-        this.xTileSize = this.realTileSize*scale_dif;
-        this.yTileSize = this.realTileSize*scale_dif;
+        this.xTileSize = this.realXTileSize*scale_dif;
+        this.yTileSize = this.realYTileSize*scale_dif;
     } else {
-        this.xTileSize = this.realTileSize;
-        this.yTileSize = this.realTileSize;
+        this.xTileSize = this.realXTileSize;
+        this.yTileSize = this.realYTileSize;
     }
-        
     var coords = { 'x' : Math.floor(this.width / 2), 'y' : Math.floor(this.height / 2) };
         
     var before = {
