@@ -50,6 +50,7 @@ import omero.model.PlaneInfo;
 import omero.romio.PlaneDef;
 import omero.romio.RegionDef;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.imviewer.BirdEyeLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
@@ -126,9 +127,6 @@ class ImViewerModel
 
 	/** The maximum height of the thumbnail. */
 	private static final int    THUMB_MAX_HEIGHT = 24;
-
-	/** The maximum size for the bird eye view.*/
-	private static final int 	BIRD_EYE_SIZE = 128;
 	
 	/** Index of the <code>RenderingSettings</code> loader. */
 	private static final int	SETTINGS = 0;
@@ -2462,8 +2460,6 @@ class ImViewerModel
 	 */
 	void fireBirdEyeViewRetrieval()
 	{
-		//BirdEyeLoader loader = new BirdEyeLoader(component, getImage());
-		//loader.load();
 		// use the lowest resolution
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
@@ -2502,17 +2498,23 @@ class ImViewerModel
 		rnd.setSelectedResolutionLevel(0);
 		BufferedImage image = rnd.renderPlane(pDef);
 		double ratio = 1;
-		w = image.getWidth();
-		h = image.getHeight();
-		if (w < BIRD_EYE_SIZE || h < BIRD_EYE_SIZE) ratio = 1;
+		w = tiledImageSizeX;
+		h = tiledImageSizeY;
+		if (w < BirdEyeLoader.BIRD_EYE_SIZE || h < BirdEyeLoader.BIRD_EYE_SIZE)
+			ratio = 1;
 		else {
-			if (w >= h) ratio = (double) BIRD_EYE_SIZE/w;
-			else ratio = (double) BIRD_EYE_SIZE/h;
+			if (w >= h) ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/w;
+			else ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/h;
 		}
-		BufferedImage newImage;
-		if (ratio != 1) newImage = Factory.magnifyImage(ratio, image);
-		else newImage = image;
-		component.setBirdEyeView(newImage);
+		if (image != null) {
+			BufferedImage newImage;
+			if (ratio != 1) newImage = Factory.magnifyImage(ratio, image);
+			else newImage = image;
+			component.setBirdEyeView(newImage);
+		} else {
+			BirdEyeLoader loader = new BirdEyeLoader(component, getImage());
+			loader.load();
+		}
 		rnd.setSelectedResolutionLevel(level);
 	}
 

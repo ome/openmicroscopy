@@ -54,7 +54,10 @@ import pojos.ImageData;
 public class BirdEyeLoader 
 	extends DataLoader
 {
-
+	
+	/** The maximum size for the bird eye view.*/
+	public static final int 	BIRD_EYE_SIZE = 128;
+	
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
