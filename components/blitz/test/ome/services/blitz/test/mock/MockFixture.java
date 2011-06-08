@@ -25,6 +25,7 @@ import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Roles;
+import ome.util.SqlAction;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
 import omero.constants.CLIENTUUID;
@@ -35,7 +36,6 @@ import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.quartz.JobDetail;
 import org.quartz.Trigger;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
@@ -62,6 +62,7 @@ public class MockFixture {
     public final Executor ex;
     public final Ring ring;
     public final String router;
+    public final SqlAction sql;
 
     public static OmeroContext basicContext() {
         return new OmeroContext(new String[] {
@@ -96,6 +97,7 @@ public class MockFixture {
         this.ex = (Executor) ctx.getBean("executor");
         this.ss = (SecuritySystem) ctx.getBean("securitySystem");
         this.mgr = (SessionManager) ctx.getBean("sessionManager");
+        this.sql = (SqlAction) ctx.getBean("simpleSqlAction");
 
         // --------------------------------------------
 
