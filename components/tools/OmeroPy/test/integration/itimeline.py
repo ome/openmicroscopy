@@ -134,7 +134,7 @@ class TestITimeline(lib.ITest):
 
         # now log in as another user (default group is same as user-created images above)
         timeline2 = client2.sf.getTimelineService()
-        assert_timeline(timeline2, None, None)
+        assert_timeline(timeline2, rlong(-1), None)
 
     def test1173(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
