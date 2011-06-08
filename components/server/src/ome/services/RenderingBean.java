@@ -153,6 +153,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /** Notification that the bean has just returned from passivation. */
     private transient boolean wasPassivated = false;
 
+    /** The resolution level to be used by the pixel buffer. */
+    private Integer resolutionLevel;
+
     /**
      * Compression service Bean injector.
      * 
@@ -241,6 +244,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             pixelsObj = retrievePixels(pixelsId);
             closeRenderer();
             renderer = null;
+            resolutionLevel = null;
 
             if (pixelsObj == null) {
                 throw new ValidationException("Pixels object with id "
@@ -466,6 +470,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             errorIfInvalidState();
+            checkPlaneDef(pd);
+            if (resolutionLevel != null)
+            {
+                renderer.setResolutionLevel(resolutionLevel);
+            }
             return renderer.renderAsPackedInt(pd, null);
         } catch (IOException e) {
             log.error("IO error while rendering.", e);
@@ -489,6 +498,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     	try {
     		errorIfInvalidState();
+            checkPlaneDef(pd);
+            if (resolutionLevel != null)
+            {
+                renderer.setResolutionLevel(resolutionLevel);
+            }
     		return renderer.renderAsPackedIntAsRGBA(pd, null);
     	} catch (IOException e) {
     	    log.error("IO error while rendering.", e);
@@ -515,6 +529,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
         	int stride = pd.getStride();
         	if (stride < 0) stride = 0;
         	stride++;
+            checkPlaneDef(pd);
+            if (resolutionLevel != null)
+            {
+                renderer.setResolutionLevel(resolutionLevel);
+            }
             int[] buf = renderAsPackedInt(pd);
             int sizeX = pixelsObj.getSizeX();
             int sizeY = pixelsObj.getSizeY();
@@ -558,6 +577,10 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             errorIfInvalidState();
+            if (resolutionLevel != null)
+            {
+                renderer.setResolutionLevel(resolutionLevel);
+            }
             ChannelBinding[] channelBindings = renderer.getChannelBindings();
             byte[][][][] planes = new byte[1][pixelsObj.getSizeC()][1][];
             long pixelsId = pixelsObj.getId();
@@ -604,6 +627,10 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         ByteArrayOutputStream byteStream = null;
         try {
+            if (resolutionLevel != null)
+            {
+                renderer.setResolutionLevel(resolutionLevel);
+            }
             int[] buf = renderProjectedAsPackedInt(algorithm, timepoint,
                     stepping, start, end);
             int sizeX = pixelsObj.getSizeX();
@@ -1415,6 +1442,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             errorIfInvalidState();
+            this.resolutionLevel = resolutionLevel;
             renderer.setResolutionLevel(resolutionLevel);
         } finally {
             rwl.writeLock().unlock();
@@ -1434,6 +1462,63 @@ public class RenderingBean implements RenderingEngine, Serializable {
             return renderer.getPixelsTypeUpperBound(w);
         } finally {
             rwl.readLock().unlock();
+        }
+    }
+
+    /**
+     * Validates the plane definition.
+     * @param pd Plane definition to validate.
+     */
+    private void checkPlaneDef(PlaneDef pd) {
+        RegionDef rd = pd.getRegion();
+        if (rd == null)
+        {
+            return;
+        }
+        PixelBuffer pixelBuffer = renderer.getPixels();
+        int sizeX = pixelBuffer.getSizeX();
+        int sizeY = pixelBuffer.getSizeY();
+        if (rd.getWidth() + rd.getX() > sizeX)
+        {
+            int newWidth = sizeX - rd.getX();
+            if (log.isDebugEnabled())
+            {
+                log.debug(String.format(
+                        "Resetting out of bounds region XOffset %d width %d" +
+                        " vs. sizeX %d to %d",
+                        rd.getX(), rd.getWidth(), sizeX, newWidth));
+            }
+            rd.setWidth(newWidth);
+        }
+        else
+        {
+            if (log.isDebugEnabled())
+            {
+                log.debug(String.format(
+                        "Leaving region xOffset %d width %d alone vs. sizeX %d",
+                        rd.getX(), rd.getWidth(), sizeX));
+            }
+        }
+        if (rd.getHeight() + rd.getY() > sizeY)
+        {
+            int newHeight = sizeY - rd.getY();
+            if (log.isDebugEnabled())
+            {
+                log.debug(String.format(
+                        "Resetting out of bounds region yOffset %d height %d" +
+                        " vs. sizeY %d to %d",
+                        rd.getY(), rd.getHeight(), sizeY, newHeight));
+            }
+            rd.setHeight(newHeight);
+        }
+        else
+        {
+            if (log.isDebugEnabled())
+            {
+                log.debug(String.format(
+                        "Leaving region yOffset %d height %d alone vs. sizeY %d",
+                        rd.getY(), rd.getHeight(), sizeY));
+            }
         }
     }
 
