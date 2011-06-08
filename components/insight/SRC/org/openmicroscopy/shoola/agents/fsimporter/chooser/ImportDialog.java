@@ -84,18 +84,23 @@ import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -118,6 +123,9 @@ public class ImportDialog
 	implements ActionListener, PropertyChangeListener
 {
 
+	/** Bound property indicating to create the object. */
+	public static final String	CREATE_OBJECT_PROPERTY = "createObject";
+	
 	/** Bound property indicating to load the tags. */
 	public static final String	LOAD_TAGS_PROPERTY = "loadTags";
 	
@@ -383,6 +391,26 @@ public class ImportDialog
 	 */
 	private void createDataset(DatasetData dataset)
 	{
+		if (dataset == null) return;
+		DataNode node = (DataNode) parentsBox.getSelectedItem();
+		DataNode nn = new DataNode(dataset, node);
+		List<DataNode> nodes = new ArrayList<DataNode>();
+		nodes.add(nn);
+		DataNode n, dn = null;
+		for (int i = 0; i < datasetsBox.getItemCount(); i++) {
+			n = (DataNode) datasetsBox.getItemAt(i);
+			if (!n.isDefaultNode()) nodes.add(n);
+			else dn = n;
+		}
+		List l = sorter.sort(nodes);
+		if (dn != null) l.add(dn);
+		datasetsBox.removeAllItems();
+		Iterator i = l.iterator();
+		while (i.hasNext()) {
+			datasetsBox.addItem((DataNode) i.next());
+		}
+		datasetsBox.setSelectedItem(nn);
+		/*
 		if (dataset == null || dataset.getName().trim().length() == 0) return;
 		if (newNodesPD == null) 
 			newNodesPD = new HashMap<DataNode, List<DataNode>>();
@@ -409,15 +437,42 @@ public class ImportDialog
 		}
 		datasetsBox.setSelectedItem(n);
 		repaint();
+		*/
 	}
 
 	/**
-	 * Creates a project.
+	 * Creates a project or screen.
 	 * 
-	 * @param project The project to create.
+	 * @param data The project or screen to create.
 	 */
-	private void createProject(ProjectData project)
+	private void createContainer(DataObject data)
 	{
+		if (data == null) return;
+		List<DataNode> nodes = new ArrayList<DataNode>();
+		DataNode n;
+		DataNode dn = null;
+		for (int i = 0; i < parentsBox.getItemCount(); i++) {
+			n = (DataNode) parentsBox.getItemAt(i);
+			if (!n.isDefaultProject()) nodes.add(n);
+			else dn = n;
+		}
+		DataNode nn = new DataNode(data);
+		if (data instanceof ProjectData) 
+			nn.addNode(new DataNode(DataNode.createDefaultDataset(), nn));
+		nodes.add(nn);
+		List l = sorter.sort(nodes);
+		if (dn != null) l.add(dn);
+		parentsBox.removeActionListener(parentsBoxListener);
+		parentsBox.removeAllItems();
+		Iterator i = l.iterator();
+		while (i.hasNext()) {
+			parentsBox.addItem((DataNode) i.next());
+		}
+		parentsBox.addActionListener(parentsBoxListener);
+		parentsBox.setSelectedItem(nn);
+		repaint();
+		
+		/*//code if not saved.
 		if (project == null || project.getName().trim().length() == 0) return;
 		if (newNodesPD == null) 
 			newNodesPD = new HashMap<DataNode, List<DataNode>>();
@@ -445,6 +500,7 @@ public class ImportDialog
 		}
 		parentsBox.setSelectedItem(n);
 		repaint();
+		*/
 	}
 	
 	/**
@@ -1650,12 +1706,126 @@ public class ImportDialog
     private void importFiles()
     {
     	option = IMPORT;
+    	importButton.setEnabled(false);
     	//Set the current directory as the defaults
     	File dir = chooser.getCurrentDirectory();
     	if (dir != null) UIUtilities.setDefaultFolder(dir.toString());
     	List<ImportableFile> files = table.getFilesToImport();
+    	// That's the hard part.
+    	if (files.size() == 0) return;
     	ImportableObject object = new ImportableObject(files,
     			overrideName.isSelected());
+    	Iterator<ImportableFile> i = files.iterator();
+    	ImportableFile file;
+    	ProjectData project;
+    	DataObject parent;
+    	DatasetData dataset, folder;
+    	//TODO asynchronous save.
+    	OmeroDataService svc = ImporterAgent.getRegistry().getDataService();
+    	boolean reload = false;
+    	Logger log = ImporterAgent.getRegistry().getLogger();
+    	while (i.hasNext()) {
+			file = i.next();
+			if (file.isFolderAsContainer() && 
+					!ImportableObject.isHCSFile(file.getFile())) {
+				//going to check if the dataset has been created.
+				parent = file.getParent();
+				try {
+					if (parent != null && parent instanceof ProjectData) {
+						folder = (DatasetData) object.createFolderAsContainer(
+								file);
+						dataset = object.isDatasetCreated(parent.getId(),
+								folder);
+						
+						if (dataset == null) {
+							dataset = (DatasetData) 
+								svc.createDataObject(folder, parent, null);
+							//reload the project.
+							object.registerDataset(parent.getId(), dataset);
+							//toReload.add(parent);
+							reload = true;
+						}
+						file.setLocation(parent, dataset);
+						file.setFolderAsContainer(false);
+					} else if (parent == null) {
+						folder = (DatasetData) object.createFolderAsContainer(
+								file);
+						parent = object.hasObjectBeenCreated(folder);
+						if (parent == null) {
+							dataset = (DatasetData) 
+								svc.createDataObject(folder, null, 
+										null);
+							object.addNewDataObject(dataset);
+							reload = true;
+						} else dataset = (DatasetData) parent;
+						file.setLocation(null, dataset);
+						file.setFolderAsContainer(false);
+					}
+				} catch (Exception e) {
+					LogMessage msg = new LogMessage();
+					msg.print("Cannot create container");
+					msg.print(e);
+					log.error(this, msg);
+				}
+			}
+		}
+    	if (reload) {
+    		Class klass = ProjectData.class;
+    		if (type == Importer.SCREEN_TYPE)
+    			klass = ScreenData.class;
+    		try {
+    			ExperimenterData exp = ImporterAgent.getUserDetails();
+    			Set set = svc.loadContainerHierarchy(klass, null, false, 
+        				exp.getId(), -1);
+    			if (set != null) {
+    				
+    				Set nodes = TreeViewerTranslator.transformHierarchy(set, 
+    						exp.getId(), -1);
+    				DataNode node = (DataNode) parentsBox.getSelectedItem();
+    				Iterator kk = nodes.iterator();
+					TreeImageDisplay display;
+					Object ho;
+					DataObject o = null;
+					String name = "", hoName = "";
+    				if (node.isDefaultNode()) {
+    					selectedContainer = null;
+    					node = (DataNode) datasetsBox.getSelectedItem();
+    					if (!node.isDefaultNode()) {
+    						o = node.getDataObject();
+    						name = node.toString().trim();
+    					}
+    				} else {
+    					o = node.getDataObject();
+    					name = node.toString().trim();
+    				}
+    				if (o != null) {
+    					while (kk.hasNext()) {
+    						display = (TreeImageDisplay) kk.next();
+    						ho = display.getUserObject();
+    						if (ho instanceof ProjectData) {
+    							hoName = ((ProjectData) ho).getName();
+    						} else if (ho instanceof ScreenData) {
+    							hoName = ((ScreenData) ho).getName();
+    						}
+    						if (ho.getClass().equals(o.getClass()) && 
+    								name.equals(hoName)) {
+    							selectedContainer = display;
+    							break;
+    						}
+    					}
+    				}
+    				
+    				reset(selectedContainer, nodes, type);
+    			}
+			} catch (Exception e) {
+				LogMessage msg = new LogMessage();
+				msg.print("Cannot reload container");
+				msg.print(e);
+				log.error(this, msg);
+			}
+    	}
+    	
+    	
     	object.setScanningDepth(ImporterAgent.getScanningDepth());
     	Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(
     			LOAD_THUMBNAIL);
@@ -1674,13 +1844,13 @@ public class ImportDialog
         	if (number != null && number >= 0) object.setDepthForName(number);
     	} 
     	NumericalTextField nf;
-    	Iterator<NumericalTextField> i = pixelsSize.iterator();
+    	Iterator<NumericalTextField> ij = pixelsSize.iterator();
     	Number n;
     	double[] size = new double[3];
     	int index = 0;
     	int count = 0;
-    	while (i.hasNext()) {
-			nf = i.next();
+    	while (ij.hasNext()) {
+			nf = ij.next();
 			n = nf.getValueAsNumber();
 			if (n != null) {
 				count++;
@@ -2002,6 +2172,23 @@ public class ImportDialog
 		canvas.setVisible(true);
 	}
 	
+	/** 
+	 * Notifies that the new object has been created.
+	 * 
+	 * @param d The newly created object.
+	 * @param parent The parent of the object.
+	 */
+	public void onDataObjectSaved(DataObject d, DataObject parent)
+	{
+		if (d instanceof ProjectData || d instanceof ScreenData) {
+			createContainer(d);
+		//} else if (d instanceof ScreenData) {
+		//	createScreen((ScreenData) d);
+		} else if (d instanceof DatasetData) {
+			createDataset((DatasetData) d);
+		}
+	}
+	
 	/**
 	 * Reacts to property fired by the table.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -2036,12 +2223,26 @@ public class ImportDialog
 			}
 		} else if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name)) {
 			Object ho = evt.getNewValue();
+			List<DataObject> l = new ArrayList<DataObject>();
+			if (ho instanceof ProjectData || ho instanceof ScreenData) {
+				l.add((DataObject) ho);
+			} else if (ho instanceof DatasetData) {
+				l.add((DataObject) ho);
+				DataNode n = (DataNode) parentsBox.getSelectedItem();
+				if (!n.isDefaultNode()) {
+					l.add(n.getDataObject());
+				}
+			}
+			if (l.size() > 0) 
+				firePropertyChange(CREATE_OBJECT_PROPERTY, null, l);
+			/*
 			if (ho instanceof DatasetData)
 				createDataset((DatasetData) ho);
 			else if (ho instanceof ProjectData)
 				createProject((ProjectData) ho);
 			else if (ho instanceof ScreenData)
 				createScreen((ScreenData) ho);
+				*/
 		}
 	}
 
@@ -2105,5 +2306,5 @@ public class ImportDialog
 						Boolean.valueOf(false), Boolean.valueOf(true));
 		}
 	}
-	
+
 }

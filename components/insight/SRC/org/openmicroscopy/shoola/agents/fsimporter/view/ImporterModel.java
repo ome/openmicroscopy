@@ -33,12 +33,14 @@ import javax.swing.filechooser.FileFilter;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.DataLoader;
+import org.openmicroscopy.shoola.agents.fsimporter.DataObjectCreator;
 import org.openmicroscopy.shoola.agents.fsimporter.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 
+import pojos.DataObject;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -231,6 +233,20 @@ class ImporterModel
 		DataLoader loader = new DataLoader(component, rootType, refreshImport);
 		loader.load();
 		state = Importer.LOADING_CONTAINER;
+	}
+
+	/**
+	 * Creates a new data object.
+	 * 
+	 * @param child The object to create.
+	 * @param parent The parent of the object or <code>null</code>.
+	 */
+	void fireDataCreation(DataObject child, DataObject parent)
+	{
+		DataObjectCreator loader = new DataObjectCreator(component, child,
+				parent);
+		loader.load();
+		state = Importer.CREATING_CONTAINER;
 	}
 	
 }

@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
-import java.awt.Frame;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,14 +40,15 @@ import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -240,11 +240,13 @@ class ImporterComponent
 						importData(element);
 				} else {
 					//reload the data
+					/*
 					Class rootType = ProjectData.class;
 					if (chooser != null && 
 							chooser.getType() == Importer.SCREEN_TYPE)
 						rootType = ScreenData.class;
 					model.fireContainerLoading(rootType, true);
+					*/
 				}
 			}	
 			fireStateChange();
@@ -526,5 +528,28 @@ class ImporterComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		if (!view.isVisible()) view.setVisible(true);
 		view.toFront();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#onDataObjectSaved(DataObject, DataObject)
+	 */
+	public void onDataObjectSaved(DataObject d, DataObject parent)
+	{
+		if (model.getState() != CREATING_CONTAINER) return;
+		if (chooser == null) return;
+		chooser.onDataObjectSaved(d, parent);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#createDataObject(DataObject, DataObject)
+	 */
+	public void createDataObject(DataObject child, DataObject parent)
+	{
+		if (child == null)
+			throw new IllegalArgumentException("No object to create.");
+		model.fireDataCreation(child, parent);
+		fireStateChange();
 	}
 }

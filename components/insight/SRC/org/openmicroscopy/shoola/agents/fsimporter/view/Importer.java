@@ -36,6 +36,8 @@ import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
+import pojos.DataObject;
+
 /** 
  * Defines the interface provided by the importer component. 
  * The Viewer provides a top-level window hosting UI components to interact 
@@ -80,6 +82,9 @@ public interface Importer
 	
 	/** Flag to denote the <i>Loading Container</i> state. */
 	public static final int     LOADING_CONTAINER = 5;
+	
+	/** Flag to denote the <i>Creating Container</i> state. */
+	public static final int     CREATING_CONTAINER = 6;
 	
 	/**
 	 * Starts the data loading process when the current state is {@link #NEW} 
@@ -225,5 +230,21 @@ public interface Importer
 
 	/** Cancels all the ongoing imports.*/
 	public void cancelAllImports();
+
+	/** 
+	 * Notifies that the new object has been created.
+	 * 
+	 * @param d The newly created object.
+	 * @param parent The parent of the object.
+	 */
+	public void onDataObjectSaved(DataObject d, DataObject parent);
+
+	/**
+	 * Creates the data object.
+	 * 
+	 * @param child The data object to create.
+	 * @param parent The parent of the object or <code>null</code>.
+	 */
+	public void createDataObject(DataObject child, DataObject parent);
 	
 }

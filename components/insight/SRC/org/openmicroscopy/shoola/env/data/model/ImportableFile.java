@@ -91,10 +91,23 @@ public class ImportableFile
 	 * 							container e.g. a dataset, <code>false</code>
 	 * 							otherwise.
 	 */
-	public ImportableFile(File file, boolean archived, boolean folderAsContainer)
+	public ImportableFile(File file, boolean archived,
+			boolean folderAsContainer)
 	{
 		this.file = file;
 		this.archived = archived;
+		this.folderAsContainer = folderAsContainer;
+	}
+	
+	/**
+	 * Sets the flag indicating to create a container from the folder.
+	 * 
+	 * @param folderAsContainer Pass <code>true</code> to make the folder a 
+	 * 							container e.g. a dataset, <code>false</code>
+	 * 							otherwise.
+	 */
+	public void setFolderAsContainer(boolean folderAsContainer)
+	{
 		this.folderAsContainer = folderAsContainer;
 	}
 	
@@ -118,7 +131,7 @@ public class ImportableFile
 	public pojos.DataObject getParent() { return parent; }
 	
 	/**
-	 * Returns the parent, either a project or a screen.
+	 * Returns the dataset.
 	 * 
 	 * @return See above.
 	 */

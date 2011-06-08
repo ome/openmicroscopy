@@ -28,13 +28,11 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.WindowConstants;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuKeyEvent;
@@ -61,6 +59,7 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.DataObject;
 import pojos.ExperimenterData;
 
 /** 
@@ -307,6 +306,16 @@ class ImporterControl
 			int v = Importer.PROJECT_TYPE;
 			if (value != null) v = value.intValue();
 			model.refreshContainers(v);
+		} else if (ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
+			List<DataObject> l = (List<DataObject>) evt.getNewValue();
+			if (l == null) return;
+			switch (l.size()) {
+				case 1:
+					model.createDataObject(l.get(0), null);
+					break;
+				case 2:
+					model.createDataObject(l.get(0), l.get(1));
+			}
 		}
 	}
 	
