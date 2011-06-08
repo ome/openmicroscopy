@@ -115,14 +115,20 @@ SSH_K="ssh -v -o StrictHostKeyChecking=no -p $SSH_PF -t"
 
 
 [ -f omerokey.pub ] && {
-    echo "Copying my DSA key"
-    expect -c "$SCP_K omerokey.pub omero@localhost:~/; sleep 5; expect \"*assword*\"; send -- \"omero\r\"; interact"
+   # echo "Copying my DSA key"
+   # expect -c "$SCP_K omerokey.pub omero@localhost:~/; sleep 5; expect \"*assword*\"; send -- \"omero\r\"; interact"
 #    echo "Copying key setup script: setup_keys.sh"
 #    expect -c "$SCP_K setup_keys.sh omero@localhost:~/; sleep 5; expect \"*assword*\"; send -- \"omero\r\"; interact"
 
 #    echo "Setup key"
 #    expect -c "$SSH_K omero@localhost sh /home/omero/setup_keys.sh; sleep 5; expect \"*assword*\"; send -- \"omero\r\"; interact"
     
+    echo "Copying my DSA key"
+	expect -c "spawn $SCP_K omerokey.pub omero@localhost:~/; expect \"*?assword:*\"; send \"omero\n\r\"; interact"
+	expect -c "spawn $SCP_K setup_keys.sh omero@localhost:~/; expect \"*?assword:*\"; send \"omero\n\r\"; interact"
+
+	echo "Setup key"
+	expect -c "spawn $SSH_K omero@localhost sh /home/omero/setup_keys.sh; expect \"*?assword:*\"; send \"omero\n\r\"; interact"
 } || echo "Local DSAAuthentication key was not found. Use: $ ssh-keygen -t dsa"
 
 #echo "Copying scripts to VM"
