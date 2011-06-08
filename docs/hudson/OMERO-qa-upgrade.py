@@ -204,6 +204,7 @@ class Upgrade(object):
             from path import path
             old_grid = path("OMERO-CURRENT") / "etc" / "grid"
             old_cfg = old_grid / "config.xml"
+            old_cfg.copy(target)
         else:
             self.cfg.copy(target)
             _(["config", "set", "omero.web.server_list", WEB]) # TODO: Unneeded if copy old?
@@ -247,7 +248,7 @@ class Upgrade(object):
         self.cli.invoke(command, strict=True)
 
     def web(self):
-        return "false" != self.skipweb.lower()
+        return "false" == self.skipweb.lower()
 
 
 class UnixUpgrade(Upgrade):
