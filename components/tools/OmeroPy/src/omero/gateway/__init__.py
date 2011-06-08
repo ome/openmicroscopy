@@ -5273,6 +5273,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @rtype: string or None
         @return: the rendered JPEG, or None if there was an error.
         """
+        tb = None
         try:
             tb = self._prepareTB()
             if tb is None:
@@ -5317,6 +5318,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             return rv
         except Exception: #pragma: no cover
             logger.error(traceback.format_exc())
+            if tb is not None:
+                tb.close()
             return None
 
     @assert_pixels
