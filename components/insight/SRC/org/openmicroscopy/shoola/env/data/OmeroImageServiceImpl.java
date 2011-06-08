@@ -440,9 +440,10 @@ class OmeroImageServiceImpl
 		throws RenderingServiceException
 	{
 		try {
-			if (!largeImage)
+			//if (!largeImage)
 				return PixelsServicesFactory.render(context, 
 						Long.valueOf(pixelsID), pDef, asTexture);
+			/*
 			List<Long> ids = new ArrayList<Long>();
 			ids.add(pixelsID);
 			int w = pDef.x;
@@ -459,6 +460,7 @@ class OmeroImageServiceImpl
 			} else {
 				return createImage(values);
 			}
+			*/
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);
 		}

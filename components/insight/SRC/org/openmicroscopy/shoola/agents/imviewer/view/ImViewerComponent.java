@@ -3188,15 +3188,31 @@ class ImViewerComponent
     	if (cs < 0) cs = 0;
     	if (rs < 0) rs = 0;
     	List<Tile> l = new ArrayList<Tile>();
+    	List<Tile> toKeep = new ArrayList<Tile>();
     	for (int i = rs; i <= h; i++) {
 			for (int j = cs; j <= w; j++) {
 				index = i*columns+j;
 				t = tiles.get(index);
-				if (t != null && !t.isImageLoaded() && !l.contains(t)) {
-					l.add(t);
+				if (t != null) {
+					if (t.isImageLoaded()) {
+						if (!toKeep.contains(t))
+							toKeep.add(t);
+					} else {
+						if (!l.contains(t))
+							l.add(t);
+					}
 				}
 			}
-    	}
+		}
+    	List<Tile> toClear = new ArrayList<Tile>();
+    	Iterator<Tile> k = tiles.values().iterator();
+    	while (k.hasNext()) {
+			t = k.next();
+			if (t.isImageLoaded() && !toClear.contains(t) && 
+					!toKeep.contains(t))
+				toClear.add(t);
+		}
+    	model.clearTileImages(toClear);
 		if (l.size() > 0) {
 			model.fireTileLoading(l);
 			fireStateChange();

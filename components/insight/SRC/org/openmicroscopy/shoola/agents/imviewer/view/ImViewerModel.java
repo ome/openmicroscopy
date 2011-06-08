@@ -2625,7 +2625,8 @@ class ImViewerModel
 		if (level >= getResolutionLevels())
 			level = getResolutionLevels()-1;
 		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return; 
+		if (rnd == null) return;
+		clearTileImages(tiles.values());
 		tiles.clear();
 		rnd.setSelectedResolutionLevel(level);
 		//tileSize = null;
@@ -2647,5 +2648,36 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	int getTiledImageSizeY() { return tiledImageSizeY; }
+
+	/**
+	 * Clears the images hosted by the tile if not <code>null</code>.
+	 * 
+	 * @param toClear The collection to handle.
+	 */
+	 void clearTileImages(Collection<Tile> toClear)
+	 {
+		if (toClear == null || toClear.size() == 0) return;
+		Iterator<Tile> i = toClear.iterator();
+		Tile tile;
+		Object image;
+		BufferedImage bi;
+		TextureData data;
+		while (i.hasNext()) {
+			tile = i.next();
+			image = tile.getImage();
+			if (image != null) {
+				if (image instanceof BufferedImage) {
+					bi = (BufferedImage) image;
+					bi.getGraphics().dispose();
+					bi.flush();
+					tile.setImage(null);
+				} else {
+					data = (TextureData) image;
+					data.flush();
+					tile.setImage(null);
+				}
+			}
+		}
+	}
 	
 }
