@@ -76,7 +76,7 @@ $VBOX list runningvms | grep "$VMNAME" || {
     echo "Starting VM..."
     $VBOX startvm "$VMNAME" --type headless
     echo "Give the VM time to boot..."
-    sleep 20
+    sleep 30
 }
 
 
