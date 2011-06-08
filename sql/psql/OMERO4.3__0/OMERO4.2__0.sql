@@ -121,6 +121,11 @@ ALTER TABLE microscope ADD COLUMN lotnumber character varying(255);
 ALTER TABLE objective ADD COLUMN lotnumber character varying(255);
 
 -- #4900 Adding almost all FK indexes
+DROP INDEX planeinfo_pixels;
+CREATE INDEX eventlog_action ON eventlog USING btree (action);
+CREATE INDEX eventlog_entityid ON eventlog USING btree (entityid);
+CREATE INDEX eventlog_entitytype ON eventlog USING btree (entitytype);
+
 CREATE INDEX i_wellsampleannotationlink_owner ON wellsampleannotationlink(owner_id);
 CREATE INDEX i_wellsampleannotationlink_group ON wellsampleannotationlink(group_id);
 CREATE INDEX i_WellSampleAnnotationLink_parent ON wellsampleannotationlink(parent);
