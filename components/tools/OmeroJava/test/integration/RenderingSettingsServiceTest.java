@@ -87,16 +87,18 @@ public class RenderingSettingsServiceTest
         //method already tested
 
         // first write to the image
-        client.forEachTile(pixels, 256, 256, new omero.client.TileLoopIteration(){
-            public void run(omero.api.RawPixelsStorePrx rps, int z, int c, int t, int x, int y, int tileWidth,
-                    int tileHeight, int tileCount) throws omero.ServerError {
-                rps.setTile(new byte[tileWidth*tileHeight*8], z, c, t, x, y, tileWidth, tileHeight);
+        omero.util.RPSTileLoop loop =
+            new omero.util.RPSTileLoop(client.getSession(), pixels);
+        loop.forEachTile(256, 256, new omero.util.TileLoopIteration(){
+            public void run(omero.util.TileData data, int z, int c, int t, int x, int y, int tileWidth,
+                    int tileHeight, int tileCount) {
+                data.setTile(new byte[tileWidth*tileHeight*8], z, c, t, x, y, tileWidth, tileHeight);
             }
         });
         // This block will change the updateEvent on the pixels
         // therefore we're going to reload the pixels.
 
-        image.setPixels(0, factory.getPixelsService().retrievePixDescription(id));
+        image.setPixels(0, loop.getPixels());
         return image;
 
     }

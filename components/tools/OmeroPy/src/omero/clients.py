@@ -678,58 +678,6 @@ class BaseClient(object):
         finally:
             prx.close()
 
-    def forEachTile(self, pixels, tileWidth, tileHeight, iteration):
-        if pixels is None or pixels.id is None:
-            raise omero.ClientError("pixels instance must be managed!")
-        elif not pixels.loaded:
-            try:
-                pixels = getSession().getPixelsService().retrievePixDescription(pixels.id.val)
-            except:
-                raise omero.ClientError("Failed to load %s\n%s" % (pixels.id.val, e))
-
-        rps = self.getSession().createRawPixelsStore()
-
-        try:
-            rps.setPixelsId(pixels.getId().getValue(), False) # 'false' is ignored here.
-
-            tileCount = 0
-            sizeX = pixels.getSizeX().getValue()
-            sizeY = pixels.getSizeY().getValue()
-            sizeZ = pixels.getSizeZ().getValue()
-            sizeC = pixels.getSizeC().getValue()
-            sizeT = pixels.getSizeT().getValue()
-            for t in range(0, sizeT):
-
-                for c in range(0, sizeC):
-
-                    for z in range(0, sizeZ):
-
-                        for tileOffsetY in range(0, ((sizeY + tileHeight - 1) / tileHeight)):
-
-                            for tileOffsetX in range(0, ((sizeX + tileWidth - 1) / tileWidth)):
-
-                                x = tileOffsetX * tileWidth
-                                y = tileOffsetY * tileHeight
-                                w = tileWidth
-
-                                if (w + x > sizeX):
-                                    w = sizeX - x;
-
-                                h = tileHeight
-                                if (h + y > sizeY):
-                                    h = sizeY - y
-
-                                iteration.run(rps, z, c, t, x, y, w, h, tileCount)
-                                tileCount += 1
-            return tileCount;
-
-        finally:
-            rps.close()
-
-    class TileLoopIteration(object):
-        def run(self, rps, z, c, t, x, y, tileWidth, tileHeight, tileCount):
-            raise NotImplemented()
-
     def getStatefulServices(self):
         """
         Returns all active StatefulServiceInterface proxies. This can

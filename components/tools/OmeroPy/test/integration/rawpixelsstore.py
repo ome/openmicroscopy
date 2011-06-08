@@ -14,6 +14,7 @@ import integration.library as lib
 
 from omero.rtypes import rstring, rlong, rint
 from omero.util.concurrency import get_event
+from omero.util.tiles import *
 from binascii import hexlify as hex
 
 
@@ -54,11 +55,12 @@ class TestRPS(lib.ITest):
 
     def testTicket4737WithForEachTile(self):
         pix = self.pix()
-        class Iteration(self.client.TileLoopIteration):
-            def run(self, rps, z, c, t, x, y, tileWidth, tileHeight, tileCount):
-                rps.setTile([5]*tileWidth*tileHeight, z, c, t, x, y, tileWidth, tileHeight)
+        class Iteration(TileLoopIteration):
+            def run(self, data, z, c, t, x, y, tileWidth, tileHeight, tileCount):
+                data.setTile([5]*tileWidth*tileHeight, z, c, t, x, y, tileWidth, tileHeight)
 
-        self.client.forEachTile(pix, 256, 256, Iteration())
+        loop = RPSTileLoop(self.client.getSession(), pix)
+        loop.forEachTile(256, 256, Iteration())
         pix = self.query.get("Pixels", pix.id.val)
         self.check_pix(pix)
 
