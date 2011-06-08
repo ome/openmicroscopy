@@ -316,7 +316,7 @@ class ImViewerModel
 		int edgeHeight = h;
 		ResolutionLevel rl = resolutionMap.get(getSelectedResolutionLevel());
 		int px = rl.getPowerAlongX();
-		int py = rl.getPowerAlongX();
+		int py = rl.getPowerAlongY();
 		rl = resolutionMap.get(getResolutionLevels()-1);
 		int mx = rl.getPowerAlongX();
 		int my = rl.getPowerAlongY();
@@ -2472,7 +2472,7 @@ class ImViewerModel
 		int edgeHeight = h;
 		ResolutionLevel rl = resolutionMap.get(0);
 		int px = rl.getPowerAlongX();
-		int py = rl.getPowerAlongX();
+		int py = rl.getPowerAlongY();
 		rl = resolutionMap.get(getResolutionLevels()-1);
 		int mx = rl.getPowerAlongX();
 		int my = rl.getPowerAlongY();
