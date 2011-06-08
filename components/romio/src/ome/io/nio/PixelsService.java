@@ -218,7 +218,8 @@ public class PixelsService extends AbstractFileSystemService
             source = createRomioPixelBuffer(pixelsFilePath, pixels, false);
             // FIXME: This should be configuration or service driven
             // FIXME: Also implemented in RenderingBean.getTileSize()
-            tileSize = new Dimension(256, 128);
+            tileSize = new Dimension(Math.min(pixels.getSizeX(), 256),
+                                     Math.min(pixels.getSizeY(), 128));
         }
         else
         {
@@ -251,13 +252,15 @@ public class PixelsService extends AbstractFileSystemService
                 || tileHeight == source.getSizeY()
                 || tileDimensionTooSmall)
             {
-                tileSize = new Dimension(256, 128);
+                tileSize = new Dimension(Math.min(pixels.getSizeX(), 256),
+                                         Math.min(pixels.getSizeY(), 128));
             }
             else
             {
                 tileSize = sourceTileSize;
             }
         }
+        log.info("Destination pyramid tile size: " + tileSize);
 
         try
         {
@@ -265,7 +268,7 @@ public class PixelsService extends AbstractFileSystemService
                 source.getSizeZ() * source.getSizeC() * source.getSizeT() *
                 (Math.ceil(source.getSizeX() / tileSize.getWidth())) *
                 (Math.ceil(source.getSizeY() / tileSize.getHeight()));
-            final int tenPercent = (int) totalTiles / 10;
+            final int tenPercent = Math.max((int) totalTiles / 10, 1);
             Utils.forEachTile(new TileLoopIteration() {
                 public void run(int z, int c, int t, int x, int y, int w,
                             int h, int tileCount)
