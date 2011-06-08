@@ -87,7 +87,6 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.SaveEventBox;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -1021,19 +1020,6 @@ class ImViewerComponent
 			}
 		} else {
 			if (stop) return;
-			/*
-			if (model.isBigImage()) { //we no longer use the thumbnail service
-				try {
-					model.saveRndSettings(false);
-				} catch (Exception e) {
-					LogMessage logMsg = new LogMessage();
-					logMsg.println("Cannot save rendering settings for " +
-							""+model.getImageID());
-					logMsg.print(e);
-					ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
-				}
-			}
-			*/
 			model.fireImageRetrieval();
 			newPlane = false;
 			fireStateChange();

@@ -49,14 +49,11 @@ import com.sun.opengl.util.texture.TextureData;
 import omero.model.PlaneInfo;
 import omero.romio.PlaneDef;
 import omero.romio.RegionDef;
-
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
-import org.openmicroscopy.shoola.agents.imviewer.BirdEyeLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImageDataLoader;
-import org.openmicroscopy.shoola.agents.imviewer.ImageLoader;
 import org.openmicroscopy.shoola.agents.imviewer.MeasurementsLoader;
 import org.openmicroscopy.shoola.agents.imviewer.OverlaysRenderer;
 import org.openmicroscopy.shoola.agents.imviewer.PlaneInfoLoader;
@@ -266,10 +263,7 @@ class ImViewerModel
     
     /** The id of the table containing the overlay. */
     private long						overlayTableID;
-    
-    /** Flag indicating to load the image asynchronously. */
-    private Boolean						asynchronousCall;
-    
+
     /** 
      * The value indicating the reduction factor used for big images. 
      * The default value is <code>1</code>.
@@ -468,7 +462,6 @@ class ImViewerModel
 		this.separateWindow = separateWindow;
 		tiles = new HashMap<Integer, Tile>();
 		originalRatio = 1;
-		asynchronousCall = null;
 		overlayTableID = -1;
 		requesterBounds = bounds;
 		state = ImViewer.NEW;
@@ -843,24 +836,6 @@ class ImViewerModel
 		if (ImViewerAgent.hasOpenGLSupport()) 
 			component.setImage(rnd.renderPlaneAsTexture(pDef));
 		else component.setImage(rnd.renderPlane(pDef));
-		/* code when using the thumbnail to view big images
-		if (asynchronousCall == null) {
-			asynchronousCall = isBigImage();
-			//asynchronousCall = (getMaxX() >= RenderingControl.MAX_SIZE || 
-			//		getMaxY() >= RenderingControl.MAX_SIZE);
-		}
-		if (asynchronousCall) {
-			pDef.x = computedSize.width;
-			pDef.y = computedSize.height;
-			ImageLoader loader = new ImageLoader(component, getPixelsID(), 
-					pDef, isBigImage());
-			loader.load();
-		} else {
-			if (ImViewerAgent.hasOpenGLSupport()) 
-				component.setImage(rnd.renderPlaneAsTexture(pDef));
-			else component.setImage(rnd.renderPlane(pDef));
-		}
-		*/
 	}
 
 	/**
