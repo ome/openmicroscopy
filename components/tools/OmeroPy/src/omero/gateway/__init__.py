@@ -2884,17 +2884,28 @@ def safeCallWrap (self, attr, f): #pragma: no cover
         try:
             return f(*args, **kwargs)
         except omero.ResourceError:
-            logger.debug('captured resource error')
+            logger.debug( "omero.ResourceError on safeCallWrap %s(%s,%s)" % (attr, str(args), str(kwargs)))
+            logger.debug(traceback.format_exc())
             raise
         except omero.SecurityViolation:
+            logger.debug( "omero.SecurityViolation on safeCallWrap %s(%s,%s)" % (attr, str(args), str(kwargs)))
+            logger.debug(traceback.format_exc())
             raise
         except omero.ApiUsageException:
+            logger.debug( "omero.ApiUsageException on safeCallWrap %s(%s,%s)" % (attr, str(args), str(kwargs)))
+            logger.debug(traceback.format_exc())
             raise
         except Ice.MemoryLimitException:
+            logger.debug( "omero.MemoryLimitException on safeCallWrap %s(%s,%s)" % (attr, str(args), str(kwargs)))
+            logger.debug(traceback.format_exc())
             raise
         except omero.InternalException:
+            logger.debug( "omero.InternalException on safeCallWrap %s(%s,%s)" % (attr, str(args), str(kwargs)))
+            logger.debug(traceback.format_exc())
             raise
         except omero.ConcurrencyException:
+            logger.debug( "omero.ConcurrencyException on safeCallWrap %s(%s,%s)" % (attr, str(args), str(kwargs)))
+            logger.debug(traceback.format_exc())
             raise # ticket:5835
         except Ice.Exception, x:
             # Failed
