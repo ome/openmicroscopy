@@ -82,6 +82,103 @@ class TestITimeline(lib.ITest):
         self.assertEquals(im_ids[5][0], res[4].id.val)
 
 
+    def testCollaborativeTimeline(self):
+        """ Create some images as one user - test if another user can see these events in timeline. """
+
+        user = self.new_user().omeName.val
+        client = omero.client()
+        sf = client.createSession(user, "")
+
+        uuid = sf.getAdminService().getEventContext().sessionUuid
+
+        # root creates 2 users in same group
+        rootAdmin = self.root.sf.getAdminService()
+        listOfGroups = list()
+        listOfGroups.append(rootAdmin.lookupGroup("user"))  # all users need to be in 'user' group to do anything!
+        #new collaborative group
+        new_grp = omero.model.ExperimenterGroupI()
+        new_grp.name = rstring("timeline-test-%s" % uuid)
+        p = omero.model.PermissionsI()
+        p.setUserRead(True)
+        p.setUserWrite(True)
+        p.setGroupRead(False)
+        p.setGroupWrite(False)
+        p.setWorldRead(False)
+        p.setWorldWrite(False)
+        new_grp.details.permissions = p
+        gid = rootAdmin.createGroup(new_grp)
+        collaborativeGroup = rootAdmin.getGroup(gid)
+        self.assertEquals('rw----', str(collaborativeGroup.details.permissions))
+        listOfGroups.append(collaborativeGroup)
+
+        #new user...
+        new_exp = omero.model.ExperimenterI()
+        new_exp.omeName = rstring("timeline-user-%s" % uuid)
+        new_exp.firstName = rstring("Timeline")
+        new_exp.lastName = rstring("Test")
+        eid = rootAdmin.createExperimenterWithPassword(new_exp, rstring("ome"), collaborativeGroup, listOfGroups)
+        new_exp = rootAdmin.getExperimenter(eid)
+
+        #new user 2...
+        new_exp2 = omero.model.ExperimenterI()
+        new_exp2.omeName = rstring("timeline-user2-%s" % uuid)
+        new_exp2.firstName = rstring("Timeline")
+        new_exp2.lastName = rstring("Test")
+        eid2 = rootAdmin.createExperimenterWithPassword(new_exp2, rstring("ome"), collaborativeGroup, listOfGroups)
+        new_exp = rootAdmin.getExperimenter(eid2)
+
+        # log in as first user & create images
+        client = omero.client()
+        client.createSession(new_exp.omeName.val,"ome")
+        update = client.sf.getUpdateService()
+        timeline = client.sf.getTimelineService()
+        admin = client.sf.getAdminService()
+
+        im_ids = dict()
+        for i in range(0,10):
+            # create image
+            acquired = long(time.time()*1000)
+            img = omero.model.ImageI()
+            img.setName(rstring('test-img-%s' % (uuid)))
+            img.setAcquisitionDate(rtime(acquired))
+
+            # default permission 'rw----':
+            img = update.saveAndReturnObject(img)
+            img.unload()
+
+            im_ids[i] = [img.id.val, acquired]
+
+        # Here we assume that this test is not run within the last 1 second
+        start = acquired - 86400
+        end = acquired + 1
+
+        p = omero.sys.Parameters()
+        p.map = {}
+        f = omero.sys.Filter()
+        f.ownerId = rlong(admin.getEventContext().userId)
+        f.groupId = rlong(admin.getEventContext().groupId)
+        p.theFilter = f
+
+        counter = timeline.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p)
+        self.assertEquals(counter['Image'], 10)
+        data = timeline.getByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, False)
+        self.assertEquals(len(data['Image']), 10)
+
+        # now log in as another user (default group is same as user-created images above)
+        new_client = omero.client()
+        new_client.createSession(new_exp2.omeName.val,"ome")
+        timeline2 = new_client.sf.getTimelineService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        f = omero.sys.Filter()
+        #f.ownerId = rlong(admin.getEventContext().userId)
+        #f.groupId = rlong(admin.getEventContext().groupId)
+        p.theFilter = f
+        counter2 = timeline2.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p)
+        self.assertEquals(counter2['Image'], 10)
+        data2 = timeline2.getByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, False)
+        self.assertEquals(len(data2['Image']), 10)
+
     def test1173(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         update = self.root.sf.getUpdateService()
