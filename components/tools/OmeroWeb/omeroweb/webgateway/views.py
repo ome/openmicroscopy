@@ -171,6 +171,7 @@ class UserProxy (object):
 def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=None, port=None, retry=True, group=None, try_super=False, secure=False, anonymous=False, useragent=None):
     """
     Attempts to create a L{omero.gateway.BlitzGateway} connection.
+    Tries to join an existing session for the specified user, using sUuid.
     
     @param server_id:   Way of referencing the server, used in connection dict keys. Int or String
     @param sUuid:       Session ID - used for attempts to join sessions etc without password
@@ -308,6 +309,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
         logger.debug('k=%s' % str(browsersession_connection_key))
         blitzcon = None
     else:
+        # During normal use of web (not login), this is where we lookup connections
         logger.debug('trying stored connection with userAgent: %s  ckey: %s' % (useragent, ckey))
         logger.debug(connectors.items())
         blitzcon = connectors.get(ckey, None)
@@ -321,11 +323,12 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
         # No stored connection matching the request found, so create a new one
         if ckey.startswith('S:') and not force_key:
             ckey = 'S:'
-        logger.debug('creating new connection with "%s" (%s)' % (ckey, try_super))
         if force_key or r.get('username', None):
             sUuid = None
         else:
             sUuid = request.session.get(browsersession_connection_key, None)
+        logger.debug('creating new connection with ckey "%s", sUuid "%s" (%s)' % (ckey, sUuid, try_super))
+        # create connection, by trying to join existing session...
         blitzcon = _createConnection(server_id, sUuid=sUuid,
                                      username=username, passwd=passwd,
                                      host=host, port=port, group=group, try_super=try_super, secure=secure,
