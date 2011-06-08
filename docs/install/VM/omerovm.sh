@@ -39,7 +39,7 @@ $VBOX list vms | grep "$VMNAME" || {
 	#VBoxManage modifyvm "$VMNAME" --nic2 hostonly --nictype2 "Am79C973" --hostonlyadapter2 "vboxnet0"
 	
 	VBoxManage modifyvm "$VMNAME" --nic1 nat --nictype1 "82540EM"
-	VBoxManage modifyvm "$VMNAME" --nic2 hostonly --nictype2 "82540EM" --hostonlyadapter2 "vboxnet0"
+	#VBoxManage modifyvm "$VMNAME" --nic2 hostonly --nictype2 "82540EM" --hostonlyadapter2 "vboxnet0"
 	
 	VBoxManage modifyvm "$VMNAME" --memory $MEMORY --acpi on
 	
@@ -65,9 +65,9 @@ $VBOX list vms | grep "$VMNAME" || {
 	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroservers/HostPort" $OMEROS_PF
 	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroservers/GuestPort" $OMEROS_PORT
 	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroserver/Protocol" TCP
-	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroweb/HostPort" $OMEROWEB_PF
-	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroweb/GuestPort" $OMEROWEB_PORT
-	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroweb/Protocol" TCP
+	#VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroweb/HostPort" $OMEROWEB_PF
+	#VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroweb/GuestPort" $OMEROWEB_PORT
+	#VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroweb/Protocol" TCP
 	
 	sleep 5
 }
