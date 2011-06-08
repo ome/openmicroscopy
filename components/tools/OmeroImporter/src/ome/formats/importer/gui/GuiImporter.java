@@ -597,7 +597,7 @@ WindowStateListener, WindowFocusListener
                 "Doing so will cancel any running imports.\n\n" +
                 "NOTE: You still have unsent error messages!";
         	
-            if (GuiCommonElements.quitConfirmed(this, message) == false)
+            if (GuiCommonElements.quitConfirmed(this, message) == true)
             {
                 try {
                     // Save login screen groups
