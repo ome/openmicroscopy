@@ -48,6 +48,7 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import omero.model.PlaneInfo;
 import omero.romio.PlaneDef;
+import omero.romio.RegionDef;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.imviewer.BirdEyeLoader;
@@ -129,6 +130,9 @@ class ImViewerModel
 	/** The maximum height of the thumbnail. */
 	private static final int    THUMB_MAX_HEIGHT = 24;
 
+	/** The maximum size for the bird eye view.*/
+	private static final int 	BIRD_EYE_SIZE = 128;
+	
 	/** Index of the <code>RenderingSettings</code> loader. */
 	private static final int	SETTINGS = 0;
 	
@@ -295,6 +299,20 @@ class ImViewerModel
 	
 	/** The size of the tiled image along the Y-axis.*/
 	private int tiledImageSizeY;
+	
+	/**
+	 * Creates the plane to retrieve.
+	 * 
+	 * @return See above.
+	 */
+	private PlaneDef createPlaneDef()
+	{
+		PlaneDef pDef = new PlaneDef();
+		pDef.t = getDefaultT();
+		pDef.z = getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
+		return pDef;
+	}
 	
 	/** Initializes the tiles objects.*/
 	private void initializeTiles()
@@ -814,20 +832,22 @@ class ImViewerModel
 		PlaneInfoLoader loader = new PlaneInfoLoader(component, getPixelsID());
 		loader.load();
 	}
-	
+
 	/** Fires an asynchronous retrieval of the rendered image. */
 	void fireImageRetrieval()
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		PlaneDef pDef = new PlaneDef();
-		pDef.t = getDefaultT();
-		pDef.z = getDefaultZ();
-		pDef.slice = omero.romio.XY.value;
+		PlaneDef pDef = createPlaneDef();
 		state = ImViewer.LOADING_IMAGE;
+		if (ImViewerAgent.hasOpenGLSupport()) 
+			component.setImage(rnd.renderPlaneAsTexture(pDef));
+		else component.setImage(rnd.renderPlane(pDef));
+		/* code when using the thumbnail to view big images
 		if (asynchronousCall == null) {
-			asynchronousCall = (getMaxX() >= RenderingControl.MAX_SIZE || 
-					getMaxY() >= RenderingControl.MAX_SIZE);
+			asynchronousCall = isBigImage();
+			//asynchronousCall = (getMaxX() >= RenderingControl.MAX_SIZE || 
+			//		getMaxY() >= RenderingControl.MAX_SIZE);
 		}
 		if (asynchronousCall) {
 			pDef.x = computedSize.width;
@@ -840,6 +860,7 @@ class ImViewerModel
 				component.setImage(rnd.renderPlaneAsTexture(pDef));
 			else component.setImage(rnd.renderPlane(pDef));
 		}
+		*/
 	}
 
 	/**
@@ -2466,21 +2487,58 @@ class ImViewerModel
 	 */
 	void fireBirdEyeViewRetrieval()
 	{
-		BirdEyeLoader loader = new BirdEyeLoader(component, getImage());
-		loader.load();
+		//BirdEyeLoader loader = new BirdEyeLoader(component, getImage());
+		//loader.load();
 		// use the lowest resolution
-		/*
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		PlaneDef pDef = new PlaneDef();
-		pDef.t = getDefaultT();
-		pDef.z = getDefaultZ();
-		pDef.slice = omero.romio.XY.value;
-		pDef.region = new RegionDef(0, 0, 128, 128); //test
+		int level = getSelectedResolutionLevel();
+		PlaneDef pDef = createPlaneDef();
+		Dimension d = getTileSize();
+		int w = d.width;
+		int h = d.height;
+		int edgeWidth = w;
+		int edgeHeight = h;
+		ResolutionLevel rl = resolutionMap.get(0);
+		int px = rl.getPowerAlongX();
+		int py = rl.getPowerAlongX();
+		rl = resolutionMap.get(getResolutionLevels()-1);
+		int mx = rl.getPowerAlongX();
+		int my = rl.getPowerAlongY();
+		int size = (int) (getMaxX()/Math.pow(2, mx-px));
+		edgeWidth = w;
+		int n = size/w;
+		int tiledImageSizeX = n*w;
+		if (n*w < size) {
+			edgeWidth = size-n*w;
+			tiledImageSizeX += edgeWidth;
+			n++;
+		}
+		size = (int) (getMaxY()/Math.pow(2, my-py));
+		edgeHeight = h;
+		n = size/h;
+		int tiledImageSizeY = n*h;
+		if (n*h < size) {
+			edgeHeight = size-n*h;
+			tiledImageSizeY += edgeHeight;
+			n++;
+		}
+		pDef.region = new RegionDef(0, 0, tiledImageSizeX, tiledImageSizeY);
 		rnd.setSelectedResolutionLevel(0);
-		component.setBirdEyeView(rnd.renderPlane(pDef));
-		rnd.setSelectedResolutionLevel(getResolutionLevels()-1);
-		*/
+		BufferedImage image = rnd.renderPlane(pDef);
+		double ratio = 1;
+		w = image.getWidth();
+		h = image.getHeight();
+		if (w < BIRD_EYE_SIZE || h < BIRD_EYE_SIZE) ratio = 1;
+		else {
+			if (w >= h) ratio = (double) BIRD_EYE_SIZE/w;
+			else ratio = (double) BIRD_EYE_SIZE/h;
+		}
+		BufferedImage newImage;
+		if (ratio != 1) newImage = Factory.magnifyImage(ratio, image);
+		else newImage = image;
+		component.setBirdEyeView(newImage);
+		rnd.setSelectedResolutionLevel(level);
 	}
 
 	/**

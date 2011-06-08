@@ -988,6 +988,7 @@ class ImViewerComponent
 				return;
 		} 
 		if (model.isBigImage()) {
+			model.fireBirdEyeViewRetrieval();
 			model.resetTiles();
 			loadTiles(model.getBrowser().getVisibleRectangle());
 			return;
@@ -1020,7 +1021,8 @@ class ImViewerComponent
 			}
 		} else {
 			if (stop) return;
-			if (model.isBigImage()) {
+			/*
+			if (model.isBigImage()) { //we no longer use the thumbnail service
 				try {
 					model.saveRndSettings(false);
 				} catch (Exception e) {
@@ -1031,6 +1033,7 @@ class ImViewerComponent
 					ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
 				}
 			}
+			*/
 			model.fireImageRetrieval();
 			newPlane = false;
 			fireStateChange();
@@ -2773,10 +2776,10 @@ class ImViewerComponent
 			view.switchRndControl();
 		}
 		
+		/*
 		if (model.isBigImage()) { //bird eye loaded.
-			//use the lowest resolution.
 			model.fireBirdEyeViewRetrieval();
-		}
+		}*/
 		renderXYPlane();
 		fireStateChange();
 	}
