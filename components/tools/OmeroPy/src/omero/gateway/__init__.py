@@ -1484,9 +1484,9 @@ class _BlitzGateway (object):
                         self._connected = False
                         logger.debug("was connected, creating new omero.client")
                         self._resetOmeroClient()
-                    s = self.c.joinSession(self._sessionUuid)
+                    s = self.c.joinSession(self._sessionUuid)   # timeout to allow this is $ omero config set omero.sessions.timeout 3600000
                     s.detachOnDestroy()
-                    logger.debug('joinSession(%s)' % self._sessionUuid)
+                    logger.debug('Joined Session OK with Uuid: %s and timeToIdle: %s, timeToLive: %s' % (self._sessionUuid, self.getSession().timeToIdle.val, self.getSession().timeToLive.val))
                     self._was_join = True
                 except Ice.SyscallException: #pragma: no cover
                     raise
@@ -1501,6 +1501,7 @@ class _BlitzGateway (object):
                 if self._connected:
                     self._connected = False
                     try:
+                        logger.debug("Closing previous connection...creating new client")
                         #args = self.c._ic_args
                         #logger.debug(str(args))
                         self._closeSession()
@@ -1515,7 +1516,9 @@ class _BlitzGateway (object):
                 if self.group is not None:
                     self.c.ic.getImplicitContext().put(omero.constants.GROUP, self.group)
                 try:
+                    logger.debug("Creating Session...")
                     self._createSession()
+                    logger.debug("Session created with timeout: %s & timeToLive: %s" % (self.getSession().timeToIdle.val, self.getSession().timeToLive.val))
                 except omero.SecurityViolation:
                     if self.group is not None:
                         # User don't have access to group
@@ -1527,7 +1530,7 @@ class _BlitzGateway (object):
                         return self.connect()
                     else: #pragma: no cover
                         logger.debug("BlitzGateway.connect().createSession(): " + traceback.format_exc())
-                        logger.info('first create session threw SecurityViolation, hold off 10 secs and retry (but only once)')
+                        logger.info('first create session threw SecurityViolation, retry (but only once)')
                         #time.sleep(10)
                         try:
                             self._createSession()
