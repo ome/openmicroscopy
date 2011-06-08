@@ -205,12 +205,12 @@ jQuery._WeblitzViewport = function (container, server, options) {
    *                     {id, width, height, z_count, t_count, c_count,
    *                      rdefs:{model,},
    *                      channels:[{emissionWave,color,active},]}
-   *  If a 'MissingPyramidException' is thrown, this key will be in the returned data
+   *  If a 'ConcurrencyException' is thrown, this key will be in the returned data
    */
   var _reset = function (data, textStatus) {
     hideLoading();
     clearTimeout(ajaxTimeout);
-    // If 'MissingPyramidException' we can't do anything else but notify user
+    // If 'ConcurrencyException' we can't do anything else but notify user
     if(data==null) {
         loadError();
         return;
@@ -218,7 +218,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (data["ConcurrencyException"] != undefined) {
         backOff = data["ConcurrencyException"]['backOff'];
         _this.self.trigger('ConcurrencyException', [backOff]);
-        //alert("MissingPyramidException: please try again in " + minutes + " minutes");
+        //alert("ConcurrencyException: please try again in " + minutes + " minutes");
         //self.close();
         return;
     }

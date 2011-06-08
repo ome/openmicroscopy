@@ -964,7 +964,7 @@
     /* Bind line plot position pick */
     viewport.bind('linePlotPos', linePlotPos);
 
-    /* Bind 'MissingPyramidException' to display message */
+    /* Bind 'ConcurrencyException' to display message */
     viewport.bind('ConcurrencyException', function(e, backOff) {
         if (backOff != undefined){
             seconds = backOff/1000;

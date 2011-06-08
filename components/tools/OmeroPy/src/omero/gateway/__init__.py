@@ -2891,8 +2891,8 @@ def safeCallWrap (self, attr, f): #pragma: no cover
             raise
         except omero.InternalException:
             raise
-        except omero.MissingPyramidException:
-            raise
+        except omero.ConcurrencyException:
+            raise # ticket:5835
         except Ice.Exception, x:
             # Failed
             logger.debug( "Ice.Exception (1) on safe call %s(%s,%s)" % (attr, str(args), str(kwargs)))
@@ -2936,8 +2936,8 @@ def safeCallWrap (self, attr, f): #pragma: no cover
         except omero.ApiUsageException:
             logger.debug("ApiUsageException, bailing out")
             raise
-        except omero.MissingPyramidException:
-            logger.debug("MissingPyramidException, bailing out")
+        except omero.ConcurrencyException:
+            logger.debug("ConcurrencyException, bailing out")
             raise
         except Ice.UnknownException:
             logger.debug("UnknownException, bailing out")
@@ -4989,7 +4989,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                     self._pd = omero.romio.PlaneDef(self.PLANEDEF)
                 self._re = self._prepareRE()
             return self._re is not None
-        # allow others to handle MissingPyramidException - display Message etc.
+        # allow others to handle ConcurrencyException- display Message etc.
         except omero.ConcurrencyException, ce:
             raise ce
         except:
@@ -5286,7 +5286,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 pos = None
                 # The following was commented out in the context of
                 # omero:#5191. Preparing the rendering engine has the
-                # potential to cause the raising of MissingPyramidException's
+                # potential to cause the raising of ConcurrencyException's
                 # which prevent OMERO.web from executing the thumbnail methods
                 # below and consequently showing "in-progress" thumbnails.
                 # Tue 24 May 2011 10:42:47 BST -- cxallan
@@ -5357,7 +5357,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         if self._re is not None:
             return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(self._re.getPixels().iterateChannels())]
-        else:       # E.g. MissingPyramidException (no rendering engine): load channels by hand, use pixels to order channels
+        else:       # E.g. ConcurrencyException (no rendering engine): load channels by hand, use pixels to order channels
             pid = self.getPixelsId()
             params = omero.sys.Parameters()
             params.map = {"pid": rlong(pid)}
