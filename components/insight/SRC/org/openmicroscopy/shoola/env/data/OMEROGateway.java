@@ -6572,6 +6572,7 @@ class OMEROGateway
 					coord = (ROICoordinate) entry.getKey();
 					shape = (ShapeData) entry.getValue();
 					if (shape != null) {
+						
 						if (!serverCoordMap.containsKey(coord))
 							serverRoi.addShape((Shape) shape.asIObject());
 						else if (shape.isDirty())
@@ -6581,20 +6582,51 @@ class OMEROGateway
 							{
 								if (serverRoi != null) {
 									serverShape = serverRoi.getShape(j);
-									if (serverShape != null) {
-										if (serverShape.getId().getValue() == 
-											shape.getId())
+									if (serverShape != null) 
+									{
+										if (serverShape.getId()!=null)
 										{
+											if(serverShape.getId().getValue() == shape.getId())
+											{
 											shapeIndex = j;
 											break;
+											}
 										}
 									}
 								}
 							}
 							if (shapeIndex == -1)
-								throw new Exception("serverRoi.shapeList is " +
-										"corrupted");
-							serverRoi.setShape(shapeIndex,
+							{
+								serverShape=null;
+								shapeIndex = -1;
+								for (int j = 0 ; j < serverRoi.sizeOfShapes() ; j++)
+								{
+									if (serverRoi != null) 
+									{
+										serverShape = serverRoi.getShape(j);
+										if (serverShape != null) 
+										{
+											if (serverShape.getTheT().getValue()==shape.getT() && 
+													serverShape.getTheZ().getValue()==shape.getZ())
+											{
+												shapeIndex = j;
+												break;
+											}
+										}
+									}
+								}
+								if(shapeIndex!=-1)
+								{
+									updateService.deleteObject(serverShape);
+									serverRoi.addShape((Shape) shape.asIObject());
+								}
+								else
+								{
+									throw new Exception("serverRoi.shapeList is corrupted");
+								}
+							}
+							else
+								serverRoi.setShape(shapeIndex,
 									(Shape) shape.asIObject());
 						}
 					}
