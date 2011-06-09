@@ -44,7 +44,7 @@ public class OmeroPixelsPyramidWriter extends TiffWriter {
     @Override
     public void close() throws IOException
     {
-        log.info("close(" + currentId + ")");
+        log.debug("close(" + currentId + ")");
         try
         {
             if (currentId != null)
@@ -68,7 +68,7 @@ public class OmeroPixelsPyramidWriter extends TiffWriter {
     @Override
     public void setId(String id) throws FormatException, IOException
     {
-        log.info("setId(" + id +")");
+        log.debug("setId(" + id + ")");
         super.setId(id);
     }
 

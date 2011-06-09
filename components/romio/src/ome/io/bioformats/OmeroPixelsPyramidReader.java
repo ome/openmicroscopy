@@ -83,12 +83,22 @@ public class OmeroPixelsPyramidReader extends MinimalTiffReader {
     }
 
     /* (non-Javadoc)
+     * @see loci.formats.FormatReader#setId(java.lang.String)
+     */
+    @Override
+    public void setId(String id) throws FormatException, IOException
+    {
+        log.debug("setId(" + id + ")");
+        super.setId(id);
+    }
+
+    /* (non-Javadoc)
      * @see loci.formats.FormatReader#close()
      */
     @Override
     public void close() throws IOException
     {
-        log.info("close(" + currentId + ")");
+        log.debug("close(" + currentId + ")");
         super.close();
     }
 
