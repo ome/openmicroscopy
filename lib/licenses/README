@@ -502,6 +502,19 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   // Located under components/
   //
 
+  Artifacts:    components/server/src/ome/services/SVGRasterizer.java
+  Project:      Batik Java SVG Toolkit
+  Web Site:     http://xmlgraphics.apache.org/batik/tools/rasterizer.html
+  License:      Apache License, Version 1.1
+  License File: apache-v1.1.txt
+
+
+  Artifacts:    components/server/test/org/springframework/security/ldap/server/ApacheDSContainer.java
+  Project:      Spring Framework. A layered Java application platform.
+  Website:      http://springframework.org
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
 
   Artifacts:    components/tools/OmeroImporter/src/ome/formats/importer/util/ETable.java
   Project:      Salma-Hayek Java Repository

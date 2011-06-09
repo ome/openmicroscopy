@@ -24,6 +24,12 @@
 ## * Where present, the fully qualified class or "$Id$" field
 ##   can be left, but omitting them is the preferred style.
 ##
+## * The patterns below are checked via checkstyle patterns
+##   defined in docs/styles/headers.xml
+##
+## * For non-licensed files (XSL, XSD), the license block
+##   can be omitted.
+##
 
 ###
 ### OMERO.insight

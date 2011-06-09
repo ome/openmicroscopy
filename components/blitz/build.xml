@@ -229,4 +229,13 @@
 	  </copy>
 	</target>
 
+    <target name="headers" description="Run checkstyle header check " depends="load-findbugs">
+        <do-checkstyle config="${omero.home}/docs/styles/headers.xml" toFile="${target.dir}/headers.xml" failOnViolation="true">
+            <fileset dir="${basedir}">
+                <exclude name="**/generated/**"/><!-- Ice generated; TODO: check our code -->
+                <include name="**/*"/>
+            </fileset>
+        </do-checkstyle>
+    </target>
+
 </project>
