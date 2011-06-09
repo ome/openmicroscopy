@@ -1,3 +1,30 @@
+##
+## Templates and guidelines for copyright and license headers
+## which should be included in ALL files within this repository
+## except where specified below.
+##
+## General guidelines:
+## -------------------
+##
+## * The "(C)" is preferred but optional, and need not
+##   be added to files missing it, but in general should be
+##
+## * Shorter copyright lines (80 or less) can have the
+##   "All rights reserved." on the "Copyright" line. E.g.,
+##
+##     Copyright 2011 Glencoe Software, Inc. All rights reserved.
+##
+## * When a file is modified in a year not covered in the
+##   copyright, the year range should be updated to reflect
+##   the new year. The copyright itself should not be
+##   changed. For example, "2008-2010" in a file modified
+##   in 2011 should become "2008-2011", and no other changes
+##   should be made to the header.
+##
+## * Where present, the fully qualified class or "$Id$" field
+##   can be left, but omitting them is the preferred style.
+##
+
 ###
 ### OMERO.insight
 ###
@@ -31,8 +58,6 @@
 ###
 
 /*
- * <fully qualified class name>
- *
  *   Copyright (C) <year> University of Dundee & Open Microscopy Environment.
  *                        All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
