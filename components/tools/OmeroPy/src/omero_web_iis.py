@@ -30,7 +30,18 @@ sys.path.append(str(os.path.join(CWD, 'omeroweb')))
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
 import django.core.handlers.wsgi
-application = django.core.handlers.wsgi.WSGIHandler()
+import threading
+lock = threading.Lock()
+
+class SerialWSGIHandler (django.core.handlers.wsgi.WSGIHandler):
+    def __call__ (self, *args, **kwargs):
+        try:
+            lock.acquire()
+            return super(SerialWSGIHandler, self).__call__(*args, **kwargs)
+        finally:
+            lock.release()
+        
+application = SerialWSGIHandler()
 
 import isapi_wsgi
 # The entry points for the ISAPI extension.
