@@ -2879,34 +2879,27 @@ def safeCallWrap (self, attr, f): #pragma: no cover
     @return:        Wrapped function
     @rtype:         Function
     """
-    
+
+    try:
+        __f__name = f.im_self.ice_getIdentity().name
+    except:
+        __f__name = "unknown"
+
+    def debug(exc_class, args, kwargs):
+        logger.debug( "%s on safeCallWrap to <%s> %s(%s,%s)", exc_class, __f__name, attr, args, kwargs)
+        logger.debug(traceback.format_exc())
+
     def inner (*args, **kwargs):
         try:
             return f(*args, **kwargs)
-        except omero.ResourceError:
-            logger.debug( "omero.ResourceError on safeCallWrap %s(%s,%s)" % (attr, str(args), str(kwargs)))
-            logger.debug(traceback.format_exc())
+        except (Ice.MemoryLimitException,\
+                omero.ApiUsageException,\
+                omero.InternalException,\
+                omero.ResourceError,\
+                omero.SecurityViolation,\
+                omero.ConcurrencyException), e:
+            debug(e.__class__.__name__, args, kwargs)
             raise
-        except omero.SecurityViolation:
-            logger.debug( "omero.SecurityViolation on safeCallWrap %s(%s,%s)" % (attr, str(args), str(kwargs)))
-            logger.debug(traceback.format_exc())
-            raise
-        except omero.ApiUsageException:
-            logger.debug( "omero.ApiUsageException on safeCallWrap %s(%s,%s)" % (attr, str(args), str(kwargs)))
-            logger.debug(traceback.format_exc())
-            raise
-        except Ice.MemoryLimitException:
-            logger.debug( "omero.MemoryLimitException on safeCallWrap %s(%s,%s)" % (attr, str(args), str(kwargs)))
-            logger.debug(traceback.format_exc())
-            raise
-        except omero.InternalException:
-            logger.debug( "omero.InternalException on safeCallWrap %s(%s,%s)" % (attr, str(args), str(kwargs)))
-            logger.debug(traceback.format_exc())
-            raise
-        except omero.ConcurrencyException:
-            logger.debug( "omero.ConcurrencyException on safeCallWrap %s(%s,%s)" % (attr, str(args), str(kwargs)))
-            logger.debug(traceback.format_exc())
-            raise # ticket:5835
         except Ice.Exception, x:
             # Failed
             logger.debug( "Ice.Exception (1) on safe call %s(%s,%s)" % (attr, str(args), str(kwargs)))
