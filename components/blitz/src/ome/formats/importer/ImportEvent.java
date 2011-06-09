@@ -103,6 +103,10 @@ public class ImportEvent {
 
     }
 
+    public static class ERRORS_CLEARED extends ImportEvent {
+
+    }
+    
     public static class ERRORS_COMPLETE extends ImportEvent {
 
     }

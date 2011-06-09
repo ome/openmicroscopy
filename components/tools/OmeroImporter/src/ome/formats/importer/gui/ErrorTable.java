@@ -245,6 +245,7 @@ public class ErrorTable
         clearDoneBtn.addActionListener(this);
         clearDoneBtn.setOpaque(false);
         clearDoneBtn.setEnabled(false);
+        //clearDoneBtn.setVisible(false); // Disabled (See #5250)
         
         sendBtn = GuiCommonElements.addButton(mainPanel, "Send Feedback", 's', "Send your errors to the OMERO team", "4,4,R,C", debug);
         sendBtn.setOpaque(false);
@@ -280,10 +281,11 @@ public class ErrorTable
                 {
                     if (table.getValueAt(i, 3) == (Integer)20)
                     {
-                        removeFileFromQueue(i);                    
+                        removeFileFromQueue(i);
                     }
                 }
                 clearDoneBtn.setEnabled(false);
+                notifyObservers(new ImportEvent.ERRORS_CLEARED());
         }
         
     } 

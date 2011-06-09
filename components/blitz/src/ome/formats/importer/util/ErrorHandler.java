@@ -425,6 +425,10 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         notifyObservers(new ImportEvent.ERRORS_PENDING());
     }
 
+    protected void clearErrors() {
+    	errors.clear();
+    }
+    
     //
     // OBSERVER PATTERN
     //

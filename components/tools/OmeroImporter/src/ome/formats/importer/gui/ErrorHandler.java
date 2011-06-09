@@ -142,6 +142,8 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             	log.debug("Uploads Cancelled");
                 cancelUploads = true;
                 super.cancelUploads = true;
+            } else if (event instanceof ImportEvent.ERRORS_CLEARED) {
+            	super.clearErrors();
             }
         }
 
