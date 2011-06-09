@@ -5,7 +5,7 @@
 {% block link %}
     <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
 
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/panojs.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/panojs.css" media="all" />
 
     <link rel="stylesheet" href="/appmedia/webgateway/css/jquery-plugin-gs_slider.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="/appmedia/webgateway/css/weblitz-viewport.css" type="text/css" media="screen"/>
@@ -36,10 +36,11 @@
     <script type="text/javascript">
         var preview_loaded = function() {
             var viewport = $.WeblitzViewport($("#viewport"), "/webclient" );
-            viewport.load({{ imageId }});
+            viewport.load({{ imageId }}, null, location.search);
         }
         $(document).ready(function() {
             preview_loaded();
+            
         });
     </script>
     
