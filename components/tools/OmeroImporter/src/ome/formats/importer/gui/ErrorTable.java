@@ -282,10 +282,10 @@ public class ErrorTable
                     if (table.getValueAt(i, 3) == (Integer)20)
                     {
                         removeFileFromQueue(i);
+                        notifyObservers(new ImportEvent.ERRORS_CLEARED(i));
                     }
                 }
                 clearDoneBtn.setEnabled(false);
-                notifyObservers(new ImportEvent.ERRORS_CLEARED());
         }
         
     } 

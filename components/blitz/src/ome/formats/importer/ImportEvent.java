@@ -91,6 +91,14 @@ public class ImportEvent {
         }
     }
 
+    public static class ERRORS_CLEARED extends ImportEvent {
+    	public final int index;
+    	
+    	public ERRORS_CLEARED(int index) {
+    		this.index = index;
+    	}
+    }
+    
     // Data-less events
 
     public static class ADD extends ImportEvent {
@@ -100,10 +108,6 @@ public class ImportEvent {
     }
 
     public static class ERRORS_SEND extends ImportEvent {
-
-    }
-
-    public static class ERRORS_CLEARED extends ImportEvent {
 
     }
     
