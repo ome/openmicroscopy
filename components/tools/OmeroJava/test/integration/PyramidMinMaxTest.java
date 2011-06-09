@@ -58,20 +58,20 @@ import org.testng.annotations.Test;
 public class PyramidMinMaxTest 
     extends AbstractTest
 {
-    
-	/** The format tested here. */
-	private static final String FORMAT = "png";
-	
-	/* Total wait time will be WAITS * INTERVAL milliseconds */
-	/** Maximum number of intervals to wait for pyramid **/
-	private static final int WAITS = 100;
 
-	/** Wait time in milliseconds **/
-	private static final long INTERVAL = 100L;
-	
+    /** The format tested here. */
+    private static final String FORMAT = "png";
+
+    /* Total wait time will be WAITS * INTERVAL milliseconds */
+    /** Maximum number of intervals to wait for pyramid **/
+    private static final int WAITS = 100;
+
+    /** Wait time in milliseconds **/
+    private static final long INTERVAL = 100L;
+
     /** The collection of files that have to be deleted. */
     private List<File> files;
-    
+
     /**
      * Overridden to initialize the list.
      * @see AbstractTest#setUp()
@@ -84,7 +84,7 @@ public class PyramidMinMaxTest
         super.setUp();
         files = new ArrayList<File>();
     }
-    
+
     /**
      * Overridden to delete the files.
      * @see AbstractTest#tearDown()
@@ -203,7 +203,7 @@ public class PyramidMinMaxTest
         Pixels p = importAndWaitForPyramid(f, FORMAT);
         assertMinMaxOnAllChannels(p, 0.0, 255.0);        
     }
-   
+
     /**
      * Check the min and max on all three channels
      */
