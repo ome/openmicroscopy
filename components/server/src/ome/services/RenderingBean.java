@@ -475,6 +475,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             {
                 renderer.setResolutionLevel(resolutionLevel);
             }
+            log.error("renderAsPackedInt: "+renderer.getResolutionLevel());
             return renderer.renderAsPackedInt(pd, null);
         } catch (IOException e) {
             log.error("IO error while rendering.", e);
@@ -529,11 +530,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
         	int stride = pd.getStride();
         	if (stride < 0) stride = 0;
         	stride++;
-            checkPlaneDef(pd);
-            if (resolutionLevel != null)
-            {
-                renderer.setResolutionLevel(resolutionLevel);
-            }
             int[] buf = renderAsPackedInt(pd);
             int sizeX = pixelsObj.getSizeX();
             int sizeY = pixelsObj.getSizeY();
