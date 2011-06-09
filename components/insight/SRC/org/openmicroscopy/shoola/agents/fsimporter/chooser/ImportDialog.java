@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -550,6 +551,15 @@ public class ImportDialog
 		importButton.setEnabled(table.hasFilesToImport());
 	}
 
+	/** Displays the location of the import.*/
+	private void showLocationDialog()
+	{
+		LocationDialog dialog = new LocationDialog(owner, locationPane);
+		if (dialog.centerLocation() == LocationDialog.ADD_OPTION) {
+			addFiles();
+		}
+	}
+	
 	/** 
 	 * Handles <code>Enter</code> key pressed. 
 	 * 
@@ -559,7 +569,8 @@ public class ImportDialog
 	{
 		if (source instanceof JList || source instanceof JTable) {
 			JComponent c = (JComponent) source;
-			if (c.isFocusOwner()) addFiles();
+			if (c.isFocusOwner()) //addFiles();
+				showLocationDialog();
 		}
 	}
 	
@@ -848,7 +859,7 @@ public class ImportDialog
 		sorter = new ViewerSorter();
 		datasets = new ArrayList<DataNode>();
 		addProjectButton = new JButton("New...");
-		addProjectButton.setBackground(UIUtilities.BACKGROUND);
+		//addProjectButton.setBackground(UIUtilities.BACKGROUND);
 		addProjectButton.setToolTipText("Create a new Project.");
 		if (type == Importer.SCREEN_TYPE) {
 			addProjectButton.setToolTipText("Create a new Screen.");
@@ -858,7 +869,7 @@ public class ImportDialog
 		addProjectButton.addActionListener(this);
 		
 		addButton = new JButton("New...");
-		addButton.setBackground(UIUtilities.BACKGROUND);
+		//addButton.setBackground(UIUtilities.BACKGROUND);
 		addButton.setToolTipText("Create a new Dataset.");
 		addButton.setActionCommand(""+CREATE_DATASET);
 		addButton.addActionListener(this);
@@ -874,7 +885,7 @@ public class ImportDialog
 		UIUtilities.unifiedButtonLookAndFeel(reloadContainerButton);
 		
 		locationButton = new JButton();
-		locationButton.setBackground(UIUtilities.BACKGROUND);
+		//locationButton.setBackground(UIUtilities.BACKGROUND);
 		locationButton.setToolTipText("Select the location of the data.");
 		locationButton.addActionListener(this);
 		locationButton.setActionCommand(""+LOCATION);
@@ -897,7 +908,7 @@ public class ImportDialog
 		};
 		locationPane = new JPanel();
 		locationPane.setLayout(new BoxLayout(locationPane, BoxLayout.Y_AXIS));
-		locationPane.setBackground(UIUtilities.BACKGROUND);
+		//locationPane.setBackground(UIUtilities.BACKGROUND);
 		
 		tabbedPane = new JTabbedPane();
 		numberOfFolders = new NumericalTextField();
@@ -1278,9 +1289,21 @@ public class ImportDialog
 	 */
 	private JPanel createRow()
 	{
+		return createRow(UIUtilities.BACKGROUND);
+	}
+	
+	/**
+	 * Creates a row.
+	 * 
+	 * @param background The background of color.
+	 * @return See above.
+	 */
+	private JPanel createRow(Color background)
+	{
 		JPanel row = new JPanel();
 		row.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
-		row.setBackground(UIUtilities.BACKGROUND);
+		if (background != null)
+			row.setBackground(background);
 		row.setBorder(null);
 		return row;
 	}
@@ -1529,44 +1552,26 @@ public class ImportDialog
 		locationPane.removeAll();
 		//locationPane.add(buildLocationBar());
 		//locationPane.add(new JSeparator());
-		JPanel row = createRow();
+		JPanel row = createRow(null);
 		String message = PROJECT_TXT;
 		if (type == Importer.SCREEN_TYPE) message = SCREEN_TXT;
 		row.add(UIUtilities.setTextFont(MESSAGE_LOCATION));
 		locationPane.add(row);
 		locationPane.add(Box.createVerticalStrut(2));
-		row = createRow();
+		locationPane.add(new JSeparator());
+		row = createRow(null);
 		row.add(UIUtilities.setTextFont(message));
 		row.add(parentsBox);
 		row.add(addProjectButton);
 		locationPane.add(row);
 		if (type == Importer.PROJECT_TYPE) {
 			locationPane.add(Box.createVerticalStrut(8));
-			/*
-			JPanel p = UIUtilities.buildComponentPanel(folderAsDatasetBox, 0, 0);
-			p.setBackground(UIUtilities.BACKGROUND);
-			JPanel right = new JPanel();
-			right.setBackground(UIUtilities.BACKGROUND);
-			right.setLayout(new BoxLayout(right, BoxLayout.Y_AXIS));
-			right.add(p);
-			*/
-			row = createRow();
+			row = createRow(null);
 			row.add(UIUtilities.setTextFont(DATASET_TXT));
 			row.add(datasetsBox);
 			row.add(addButton);
-			/*
-			right.add(row);
-			row = createRow();
-			row.add(UIUtilities.setTextFont(DATASET_TXT));
-			row.add(right);
-			row.add(row);
-			*/
 			locationPane.add(row);
-			/*
-			row = createRow();
-			row.add(fadBox);
-			locationPane.add(row);
-			*/
+			locationPane.add(new JSeparator());
 		}
 	}
 
@@ -1606,7 +1611,7 @@ public class ImportDialog
 		p.add(table.buildControls(), "0, 1, LEFT, CENTER");
 		
 		buildLocationPane();
-		p.add(locationPane, "3, 0");
+		//p.add(locationPane, "3, 0");
 		p.add(tabbedPane, "2, 1, 3, 1");
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser, 
 				p);
@@ -2196,7 +2201,8 @@ public class ImportDialog
 	{
 		String name = evt.getPropertyName();
 		if (FileSelectionTable.ADD_PROPERTY.equals(name)) {
-			addFiles();
+			//addFiles();
+			showLocationDialog();
 		} else if (FileSelectionTable.REMOVE_PROPERTY.equals(name)) {
 			importButton.setEnabled(table.hasFilesToImport());
 		} else if (JFileChooser.SELECTED_FILES_CHANGED_PROPERTY.equals(name)) {
