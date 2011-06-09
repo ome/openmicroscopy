@@ -72,6 +72,7 @@ import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.plaf.basic.BasicFileChooserUI;
 
 //Third-party libraries
 import loci.formats.gui.ComboFileFilter;
@@ -546,7 +547,7 @@ public class ImportDialog
 		for (int i = 0; i < files.length; i++) {
 			checkFile(files[i], l);
 		}
-		
+		chooser.setSelectedFile(new File("."));
 		table.addFiles(l, isParentFolderAsDataset());//fadBox.isSelected());
 		importButton.setEnabled(table.hasFilesToImport());
 	}
@@ -1679,31 +1680,6 @@ public class ImportDialog
 				}
 			}
 		}
-		/*
-		boolean b;
-		if (directory == count) {
-			if (fadBox.isSelected()) {
-				folderAsDatasetBox.setSelected(false);
-				folderAsDatasetBox.setEnabled(false);
-				datasetsBox.setEnabled(false);
-				addButton.setEnabled(false);
-			} else {
-				DataNode node = (DataNode) datasetsBox.getSelectedItem();
-				b = node != null && node.isDefaultNode();
-				folderAsDatasetBox.setEnabled(b);
-				folderAsDatasetBox.setSelected(b);
-				datasetsBox.setEnabled(!b);
-				addButton.setEnabled(!b);
-			}
-		} else {
-			DataNode node = (DataNode) datasetsBox.getSelectedItem();
-			b = node != null && node.isDefaultNode();
-			folderAsDatasetBox.setEnabled(b);
-			folderAsDatasetBox.setSelected(b);
-			datasetsBox.setEnabled(!b);
-			addButton.setEnabled(!b);
-		}
-		*/
 		return count;
 	}
     /** Imports the selected files. */
@@ -2204,6 +2180,8 @@ public class ImportDialog
 			//addFiles();
 			showLocationDialog();
 		} else if (FileSelectionTable.REMOVE_PROPERTY.equals(name)) {
+			int n = handleFilesSelection(chooser.getSelectedFiles());
+			table.allowAddition(n > 0);
 			importButton.setEnabled(table.hasFilesToImport());
 		} else if (JFileChooser.SELECTED_FILES_CHANGED_PROPERTY.equals(name)) {
 			int n = handleFilesSelection(chooser.getSelectedFiles());
