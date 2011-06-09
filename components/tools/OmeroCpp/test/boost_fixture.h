@@ -16,6 +16,7 @@
 #include <omero/ClientErrors.h>
 #include <omero/ServerErrors.h>
 #include <omero/model/ImageI.h>
+#include <omero/model/PixelsI.h>
 #include <omero/model/ExperimenterI.h>
 
 // boost
@@ -60,6 +61,7 @@ struct Fixture
                 const std::string& password = std::string());
         omero::client_ptr root_login();
 	omero::model::ExperimenterPtr newUser(const omero::api::IAdminPrx& admin, const omero::model::ExperimenterGroupPtr& g = omero::model::ExperimenterGroupPtr());
+	omero::model::PixelsIPtr pixels();
 };
 
 //

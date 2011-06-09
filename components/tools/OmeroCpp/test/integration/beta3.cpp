@@ -28,38 +28,7 @@ BOOST_AUTO_TEST_CASE( SavingPixels )
     const omero::client_ptr client = f.login();
     ServiceFactoryPrx sf = client->getSession();
 
-    PixelsIPtr pix = new PixelsI();
-    PixelsTypePtr pt = new PixelsTypeI();
-    PhotometricInterpretationIPtr pi = new PhotometricInterpretationI();
-    ImagePtr i = new_ImageI();
-    AcquisitionModeIPtr mode = new AcquisitionModeI();
-    DimensionOrderIPtr d0 = new DimensionOrderI();
-    ChannelIPtr c = new ChannelI();
-    LogicalChannelIPtr lc = new LogicalChannelI();
-    StatsInfoIPtr si = new StatsInfoI();
-    PlaneInfoIPtr pl = new PlaneInfoI();
-
-    mode->setValue( rstring("Wide-field") );
-    pi->setValue( rstring("RGB") );
-    pt->setValue( rstring("int8") );
-    d0->setValue( rstring("XYZTC") );
-
-    lc->setPhotometricInterpretation( pi );
-
-    pix->setSizeX( rint(1) );
-    pix->setSizeY( rint(1) );
-    pix->setSizeZ( rint(1) );
-    pix->setSizeT( rint(1) );
-    pix->setSizeC( rint(1) );
-    pix->setSha1 (rstring("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356") ); // for "pixels"
-    pix->setPixelsType( pt );
-    pix->setDimensionOrder( d0 );
-    pix->setPhysicalSizeX( rdouble(1.0) );
-    pix->setPhysicalSizeY( rdouble(1.0) );
-    pix->setPhysicalSizeZ( rdouble(1.0) );
-
-    pix->addChannel( c );
-    c->setLogicalChannel( lc) ;
+    PixelsIPtr pix = f.pixels();
 
     // At this point trying to save throws a ValidationException
     try {
@@ -69,6 +38,7 @@ BOOST_AUTO_TEST_CASE( SavingPixels )
         // ok
     }
 
+    ImagePtr i = new_ImageI();
     i->addPixels( pix );
     i->setName( rstring("test1") );
 

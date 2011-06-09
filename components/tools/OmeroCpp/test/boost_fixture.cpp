@@ -9,6 +9,17 @@
 
 #include <IceUtil/UUID.h>
 #include <boost_fixture.h>
+#include <omero/model/PixelsTypeI.h>
+#include <omero/model/PhotometricInterpretationI.h>
+#include <omero/model/AcquisitionModeI.h>
+#include <omero/model/DimensionOrderI.h>
+#include <omero/model/ChannelI.h>
+#include <omero/model/LogicalChannelI.h>
+#include <omero/model/StatsInfoI.h>
+#include <omero/model/PlaneInfoI.h>
+
+using namespace omero::model;
+using namespace omero::rtypes;
 
 void stringHandler(std::string str) {
   std::cout << "Handling:" << str << std::endl;
@@ -129,4 +140,39 @@ omero::model::ExperimenterPtr Fixture::newUser(const omero::api::IAdminPrx& admi
 	e->setLastName( name );
 	long id = admin->createUser(e, groupName->getValue());
 	return admin->getExperimenter(id);
+}
+
+omero::model::PixelsIPtr Fixture::pixels() {
+    PixelsIPtr pix = new PixelsI();
+    PixelsTypePtr pt = new PixelsTypeI();
+    PhotometricInterpretationIPtr pi = new PhotometricInterpretationI();
+    AcquisitionModeIPtr mode = new AcquisitionModeI();
+    DimensionOrderIPtr d0 = new DimensionOrderI();
+    ChannelIPtr c = new ChannelI();
+    LogicalChannelIPtr lc = new LogicalChannelI();
+    StatsInfoIPtr si = new StatsInfoI();
+    PlaneInfoIPtr pl = new PlaneInfoI();
+
+    mode->setValue( rstring("Wide-field") );
+    pi->setValue( rstring("RGB") );
+    pt->setValue( rstring("int8") );
+    d0->setValue( rstring("XYZTC") );
+
+    lc->setPhotometricInterpretation( pi );
+
+    pix->setSizeX( rint(1) );
+    pix->setSizeY( rint(1) );
+    pix->setSizeZ( rint(1) );
+    pix->setSizeT( rint(1) );
+    pix->setSizeC( rint(1) );
+    pix->setSha1 (rstring("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356") ); // for "pixels"
+    pix->setPixelsType( pt );
+    pix->setDimensionOrder( d0 );
+    pix->setPhysicalSizeX( rdouble(1.0) );
+    pix->setPhysicalSizeY( rdouble(1.0) );
+    pix->setPhysicalSizeZ( rdouble(1.0) );
+
+    pix->addChannel( c );
+    c->setLogicalChannel( lc) ;
+    return pix;
 }
