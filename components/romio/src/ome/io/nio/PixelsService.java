@@ -219,7 +219,7 @@ public class PixelsService extends AbstractFileSystemService
             // FIXME: This should be configuration or service driven
             // FIXME: Also implemented in RenderingBean.getTileSize()
             tileSize = new Dimension(Math.min(pixels.getSizeX(), 256),
-                                     Math.min(pixels.getSizeY(), 128));
+                                     Math.min(pixels.getSizeY(), 256));
         }
         else
         {
@@ -253,7 +253,7 @@ public class PixelsService extends AbstractFileSystemService
                 || tileDimensionTooSmall)
             {
                 tileSize = new Dimension(Math.min(pixels.getSizeX(), 256),
-                                         Math.min(pixels.getSizeY(), 128));
+                                         Math.min(pixels.getSizeY(), 256));
             }
             else
             {
