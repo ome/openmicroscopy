@@ -40,6 +40,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -158,8 +159,11 @@ public class ScreenLogin
 	/** The number of column of the text field. */
 	private static final int		TEXT_COLUMN = 12;
 	
+	/** The maximum number of characters.*/
+	private static final int 		MAX_CHAR = 50;
+	
 	/** Text field to enter the login user name. */
-	private JTextField          user;
+	private static JTextField          user;
 
 	/** Password field to enter login password. */
 	private JPasswordField      pass;
@@ -177,7 +181,7 @@ public class ScreenLogin
 	private String				serverName;
 
 	/** Field hosting the server text. */
-	private JTextPane 			serverText;
+	private static JTextPane 	serverText;
 	
 	/** The UI component hosting the server text. */
 	private JPanel 				serverTextPane;
@@ -238,6 +242,9 @@ public class ScreenLogin
 	/** Flag indicating that the transfer of data is secured or not. */
 	private boolean				encrypted;
 	
+	/** The map hosting the real group names.*/
+	private Map<Integer, String> groupNames;
+	
 	/** Quits the application. */
 	private void quit()
 	{
@@ -245,8 +252,8 @@ public class ScreenLogin
 		String server = serverText.getText();
 		if (usr == null) usr = "";
 		if (server == null) server = "";
-		if (!server.equals(originalServerName) || !usr.equals(originalName))
-			registerGroup(null);
+		//if (!server.equals(originalServerName) || !usr.equals(originalName))
+			//registerGroup(null);
 	
 		firePropertyChange(QUIT_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));
@@ -280,7 +287,7 @@ public class ScreenLogin
 			long id = -1L;
 			if (hasGroupOption() && groupsBox.isVisible()) 
 				//id = getGroupId(groupsBox.getText());
-				id = getGroupId((String) groupsBox.getSelectedItem());
+				id = getGroupId(groupNames.get(groupsBox.getSelectedIndex()));
 			
 			lc = new LoginCredentials(usr, psw, s, speedIndex, 
 					selectedPort, id, encrypted);
@@ -319,9 +326,7 @@ public class ScreenLogin
 	{
 		String usr = user.getText().trim();
 		String s = serverText.getText().trim();
-		if (usr.equals(originalName) && s.equals(originalServerName)) 
-			return true;
-		return false;
+		return (usr.equals(originalName) && s.equals(originalServerName));
 	}
 	
 	/** 
@@ -428,6 +433,51 @@ public class ScreenLogin
 		button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	}
 	
+	/** Initializes the groups.*/
+	private void initializeGroups()
+	{
+		groups = getGroups();
+		if (groups != null && groups.size() > 1) {
+			groupNames = new HashMap<Integer, String>();
+			groupValues = new String[groups.size()];
+			Entry entry;
+			Iterator i = groups.entrySet().iterator();
+			int index = 0;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				groupValues[index] = (String) entry.getValue();
+				index++;
+			}
+			String selectedGroup = groupValues[groupValues.length-1];
+			
+			//Review the groups
+			Arrays.sort(groupValues, new StringComparator());
+			String[] sorted = new String[groupValues.length];
+			String v;
+			String value;
+			for (int j = 0; j < groupValues.length; j++) {
+				v = groupValues[j];
+				value = v;
+				if (v.length() > MAX_CHAR) {
+					value = v.substring(0, MAX_CHAR)+"...";
+				}
+				groupNames.put(j, v);
+				sorted[j] = value;
+				if (selectedGroup.equals(v)) {
+					selectedGroup = value;
+				}
+			}
+			
+			
+			
+			groupsBox = new JComboBox(sorted);
+			groupsBox.setSelectedItem(selectedGroup);
+		} else {
+			if (groupNames != null) groupNames.clear();
+			groupsBox = null;
+		}
+	}
+	
 	/** 
 	 * Creates and initializes the components
 	 * 
@@ -503,24 +553,7 @@ public class ScreenLogin
 				false);
 		serverTextPane.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
 		
-		groups = getGroups();
-		if (groups != null && groups.size() > 1) {
-			groupValues = new String[groups.size()];
-			Entry entry;
-			Iterator i = groups.entrySet().iterator();
-			int index = 0;
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				groupValues[index] = (String) entry.getValue();
-				index++;
-			}
-
-			String selectedGroup = groupValues[groupValues.length-1];
-			Arrays.sort(groupValues, new StringComparator());
-			
-			groupsBox = new JComboBox(groupValues);
-			groupsBox.setSelectedItem(selectedGroup);
-		}
+		initializeGroups();
 		ref = new ArrayList<JComponent>();
 		login = new JButton("Login");
 		defaultForeground = login.getForeground();
@@ -759,6 +792,8 @@ public class ScreenLogin
 		//serverText.repaint();
 		serverTextPane.validate();
 		serverTextPane.repaint();
+		initializeGroups();
+		layout(groupsBox != null);
 		enableControls();
 	}
 
@@ -905,11 +940,15 @@ public class ScreenLogin
         String name;
         long id;
         String[] values;
+        String userName;
+        String serverName;
+        String selectedName = user.getText();
+        String selectedServer = serverText.getText();
         for (index = 0; index < l.length; index++) {
         	group = l[index].trim();
         	if (group.length() > 0) {
         		values = group.split(ServerEditor.SERVER_PORT_SEPARATOR, 0);
-        		if (values.length > 1) {
+        		if (values.length == 2) {
         			name = values[1];
         			try {
 						id = Long.parseLong(values[0]);
@@ -917,6 +956,19 @@ public class ScreenLogin
 					} catch (Exception e) {
 						//ignore: not possible to read the group
 					}
+        		} else if (values.length == 4) {
+        			userName = values[0];
+        			serverName = values[1];
+        			name = values[3];
+        			if (userName.equals(selectedName) &&
+        					serverName.equals(selectedServer)) {
+        				try {
+    						id = Long.parseLong(values[2]);
+    						groups.put(id, name);
+    					} catch (Exception e) {
+    						//ignore: not possible to read the group
+    					}
+        			}
         		}
         	}
         }	
@@ -1162,7 +1214,7 @@ public class ScreenLogin
 	{
 		cancel.setMnemonic(mnemonic);
 	}
-	
+
 	/**
 	 * Registers the passed groups.
 	 * 
@@ -1185,9 +1237,13 @@ public class ScreenLogin
 		String list = "";
 		Long id;
 		StringBuffer buffer = new StringBuffer();
+		//need to get the 
+		String value = user.getText()+ServerEditor.SERVER_PORT_SEPARATOR+
+		serverText.getText()+ServerEditor.SERVER_PORT_SEPARATOR;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			id = (Long) entry.getKey();
+			buffer.append(value);
 			buffer.append(""+id);
 			buffer.append(ServerEditor.SERVER_PORT_SEPARATOR);
 			if (entry.getValue() != null)
