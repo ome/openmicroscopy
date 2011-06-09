@@ -1440,11 +1440,10 @@ public class ImportDialog
 					}
 					parentsBox.setSelectedIndex(index);
 				} else { //orphaned dataset
-					parentsBox.setSelectedIndex(size-1);
+					parentsBox.setSelectedIndex(0);
 				}
 			} else { //nothing selected so we will select the first item
-				if (size > 0)
-					parentsBox.setSelectedIndex(0);
+				parentsBox.setSelectedIndex(0);
 			}
 		} else if (type == Importer.SCREEN_TYPE) {
 			finalList.add(new DataNode(DataNode.createDefaultScreen()));
