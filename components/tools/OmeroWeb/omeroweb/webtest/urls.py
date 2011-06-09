@@ -17,6 +17,9 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^img_detail/(?P<iid>[0-9]+)/$', views.image_viewer, name="image_viewer"),
     url( r'^viewport/$', 'direct_to_template', {'template': 'webtest/viewport.html'}, name="viewport" ),
 
+    # 'Hello World' example from tutorial on http://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb
+    url( r'^dataset/(?P<datasetId>[0-9]+)/$', views.dataset ),
+
     # big image examples
     url( r'^panojs/$', 'direct_to_template', {'template': 'webtest/bigimage/panojs.html'}, name="panojs" ),
     url( r'^kasuari/$', 'direct_to_template', {'template': 'webtest/bigimage/kasuari.html'}, name="kasuari" ),

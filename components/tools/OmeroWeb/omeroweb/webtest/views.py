@@ -24,6 +24,15 @@ except: #pragma: nocover
         logger.error('No PIL installed, line plots and split channel will fail!')
 
 logger = logging.getLogger('webtest')    
+
+
+@isUserConnected    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
+def dataset(request, datasetId, **kwargs):
+    """ 'Hello World' example from tutorial on http://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb """
+    conn = kwargs['conn']
+    ds = conn.getObject("Dataset", datasetId)     # before OMERO 4.3 this was conn.getDataset(datasetId)
+    return render_to_response('webtest/dataset.html', {'dataset': ds})    # generate html from template
+
     
 def login (request):
     """
