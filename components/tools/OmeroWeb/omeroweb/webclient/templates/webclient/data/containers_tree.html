@@ -11,7 +11,7 @@
                 {% if c.countChildren %}
                 <ul>    
                     {% for d in c.listChildrenWithLinks %}
-                        <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" {% if eContext.image_limit > d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }} {% if d.countChildren %}<span id="counter-dataset-{{ d.id }}">[{{ d.countChildren}}]</span>{% endif %}</a></li>
+                        <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" {% if d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }} {% if d.countChildren %}<span id="counter-dataset-{{ d.id }}">[{{ d.countChildren}}]</span>{% endif %}</a></li>
                     {% endfor %}
                 </ul>
                 {% endif %}
@@ -19,7 +19,7 @@
             {% endfor %}
         
             {% for d in manager.containers.datasets %}
-                <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" {% if eContext.image_limit > d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }} {% if d.countChildren %}<span id="counter-dataset-{{ d.id }}">[{{ d.countChildren}}]</span>{% endif %}</a></li>
+                <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" {% if d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }} {% if d.countChildren %}<span id="counter-dataset-{{ d.id }}">[{{ d.countChildren}}]</span>{% endif %}</a></li>
             {% endfor %}
             
             {% for c in manager.containers.screens %}

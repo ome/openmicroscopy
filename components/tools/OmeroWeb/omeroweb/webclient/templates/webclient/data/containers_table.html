@@ -31,7 +31,6 @@
                 var $clickedRow = $(event.target).parents('tr:first');
                 var $clickedImage = $clickedRow.find('img');
 
-                var lastSelected = datatree.data.ui.last_selected
                 var rows = $("table#dataTable tbody tr");
                 var $images = $("table#dataTable tbody tr td img");
 
@@ -39,9 +38,11 @@
                 //$clickedRow.css('background', 'red');
 
                 var primaryIndex = -1;
-                var lsId = lastSelected.attr('id').split('-')[1];
-                primaryIndex = rows.index($('#dataTable tr#'+ lsId).get(0));
-
+                var lastSelected = datatree.data.ui.last_selected
+                if (lastSelected) {
+                    primaryIndex = rows.index($('#dataTable tr#'+ lastSelected.attr('id').split('-')[1]).get(0));
+                }
+                
                 var selIndex = rows.index($clickedRow.get(0));
 
                 if ( event.shiftKey ) {
@@ -173,7 +174,8 @@
             {% for c in manager.containers.images %}
                 <tr id="{{ c.id }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
                     <td class="action">
-                        <img src="{% url render_thumbnail_resize 32 c.id  %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+                        {% comment %}<img src="{% url render_thumbnail_resize 32 c.id  %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>{% endcomment %}
+                        <img src="{% url webstatic "images/image16.png" %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
                         <input type="checkbox" name="image" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>

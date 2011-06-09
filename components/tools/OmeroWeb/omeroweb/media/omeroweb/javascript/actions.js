@@ -244,7 +244,11 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
 function doPagination(view, page) {
     var rel = $("div#content_details").attr('rel').split("-");
     $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
-    $("div#content_details").load('/webclient/load_data/dataset/'+rel[1]+'/?view='+view+'&page='+page);
+    $("div#content_details").load('/webclient/load_data/dataset/'+rel[1]+'/?view='+view+'&page='+page, function() {
+        $("#dataTree").jstree("refresh", $('#dataset-'+rel[1]));
+        src = '/webclient/metadata_details/dataset/'+rel[1]+'/';
+        loadMetadata(src);
+    });
     return false;
 }
 

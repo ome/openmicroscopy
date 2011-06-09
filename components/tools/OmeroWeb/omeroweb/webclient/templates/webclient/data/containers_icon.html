@@ -28,10 +28,12 @@
                 //var thumbs = $("#dataIcons img");
                 //var selIndex = thumbs.index(event.target);
                 
-                var lastSelected = datatree.data.ui.last_selected
                 var thumbs = $("#dataIcons img");
-                
-                var primaryIndex = thumbs.index($('#'+lastSelected.attr('id').split('-')[1]).children().get(1));
+                var primaryIndex = -1;
+                var lastSelected = datatree.data.ui.last_selected;
+                if (lastSelected) {
+                    primaryIndex = thumbs.index($('#'+lastSelected.attr('id').split('-')[1]).children().get(1));
+                }
                 var selIndex = thumbs.index(event.target);
 
                 if ( event.shiftKey ) {

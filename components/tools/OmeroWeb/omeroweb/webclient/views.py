@@ -564,7 +564,8 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     try:
         page = int(request.REQUEST['page'])
     except:
-        page = (1, None)[view=="tree"]
+        #page = (1, None)[view=="tree"]
+        page = 1
         
     # get index of the plate
     try:

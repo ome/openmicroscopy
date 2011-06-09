@@ -82,7 +82,7 @@
                 					    } else {
                 					        url = "{% url load_data %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
                 					    }
-            					    } else { 
+            					    } else {
             					        url = "{% url load_data %}";
             					    }
             					    return url;
@@ -90,9 +90,15 @@
             					// this function is executed in the instance's scope (this refers to the tree instance)
             					// the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
             					"data" : function (n) {
-                                    return { 
-                                        "view" : "tree"
-            						};
+            					    if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset"]) > -1) {
+            					        var r = { "view" : "tree" };
+            					        if($("div#content_details").has("#page").length > 0) {
+            					            r["page"] = parseInt($("div#content_details").find("#page").attr("rel"));
+            					        }
+            					        return r;
+            					    } else {
+            					        return { "view" : "tree" };
+            					    }
                                 }
             				}
             			},
