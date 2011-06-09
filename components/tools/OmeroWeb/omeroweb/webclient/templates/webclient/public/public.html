@@ -33,16 +33,16 @@
                     var toolbar_config = new Object();
                     if(selected.length > 0) {
                         if(selected.attr("rel").indexOf("locked")>=0) {            	            
-                            toolbar_config = {"adddiscussion":false, 'removecontent':false}
+                            toolbar_config = {"adddiscussion":false, 'removecontent':false};
                         } else {
                             if(selected.attr("id").indexOf("experimenter")>=0) {
-                                toolbar_config = {"adddiscussion":true, 'removecontent':false}
+                                toolbar_config = {"adddiscussion":true, 'removecontent':false};
                             } else if(selected.attr("id").indexOf("share")>=0) {
-                                toolbar_config = {"adddiscussion":false, 'removecontent':false}
+                                toolbar_config = {"adddiscussion":false, 'removecontent':false};
                             } else if(selected.attr("id").indexOf("discussion")>=0) {
-                               toolbar_config = {"adddiscussion":false, 'removecontent':false}
+                               toolbar_config = {"adddiscussion":false, 'removecontent':false};
                             } else if(selected.attr("id").indexOf("image")>=0) {
-                               toolbar_config = {"adddiscussion":false, 'removecontent':true}
+                               toolbar_config = {"adddiscussion":false, 'removecontent':true};
                             }
                         }
                     }
@@ -50,9 +50,9 @@
                     if (selected.length > 1) toolbar_config['annotation'] = true;
                     for (var sIndex in toolbar_config) { 
                         if (toolbar_config[sIndex]){
-                            $('input#'+sIndex+'Button').removeClass('button-disabled');
+                            $('input#'+sIndex+'Button').removeClass('button-disabled').removeAttr('disabled');
                         } else {
-                            $('input#'+sIndex+'Button').addClass('button-disabled');                            
+                            $('input#'+sIndex+'Button').addClass('button-disabled').attr('disabled', true);
                         }
                     }
                 }
@@ -228,7 +228,7 @@
     	$("#buttons input").click(function () {
     		switch(this.id) {
     			case "adddiscussionButton":
-    			    $("#datashareTree").jstree("create", null, "first", { "attr" : { "rel" : 'discussion' } });
+    			    makeDiscussion();
     				break;
     			case "removecontentButton":
     			    if (confirm("Remove image?")) {

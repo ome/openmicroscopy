@@ -34,12 +34,14 @@
                     
                     if(selected.length > 0) {
                         if(selected.attr("rel").indexOf("locked")>=0) {            	            
-                            toolbar_config = {'rename':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}}
+                            toolbar_config = {'rename':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}};
                         } else {
-                            if(selected.attr("id").indexOf("tagset")>=0) {
-                                toolbar_config = {'rename':true, 'delete':true}
+                            if(selected.attr("id").indexOf("experimenter")>=0) {
+                                toolbar_config = {'rename':false, 'delete':false};
+                            } else if(selected.attr("id").indexOf("tagset")>=0) {
+                                toolbar_config = {'rename':true, 'delete':true};
                             } else if(selected.attr("id").indexOf("tag")>=0) {
-                                toolbar_config = {'rename':true, 'delete':true}
+                                toolbar_config = {'rename':true, 'delete':true};
                             } 
                         }
                     }
@@ -47,9 +49,9 @@
                     if (selected.length > 1) toolbar_config['annotation'] = true;
                     for (var sIndex in toolbar_config) { 
                         if (toolbar_config[sIndex]){
-                            $('input#'+sIndex+'Button').removeClass('button-disabled');
+                            $('input#'+sIndex+'Button').removeClass('button-disabled').removeAttr('disabled');
                         } else {
-                            $('input#'+sIndex+'Button').addClass('button-disabled');                            
+                            $('input#'+sIndex+'Button').addClass('button-disabled').attr('disabled', true);
                         }
                     }
                 }

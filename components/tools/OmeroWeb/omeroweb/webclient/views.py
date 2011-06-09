@@ -1278,6 +1278,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     
     #manager = None        
     if o_type in ("dataset", "project", "image", "screen", "plate", "well","comment", "file", "tag", "tagset"):
+        if o_type == 'tagset': o_type = 'tag' # TODO: this should be handled by the BaseContainer
         kw = dict()
         if o_type is not None and o_id > 0:
             kw[str(o_type)] = long(o_id)

@@ -808,7 +808,7 @@ class BaseContainer(BaseController):
     
     def updateName(self, o_type, o_id, name):
         obj = getattr(self, o_type)._obj
-        if o_type != 'tag':
+        if o_type not in ('tag', 'tagset'):
             obj.name = rstring(str(name))
         else:
             obj.textValue = rstring(str(name))
