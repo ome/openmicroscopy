@@ -439,7 +439,7 @@ public class PixelsService extends AbstractFileSystemService
     public boolean requiresPixelsPyramid(Pixels pixels) {
         final int sizeX = pixels.getSizeX();
         final int sizeY = pixels.getSizeY();
-        final boolean requirePyramid = (sizeX * sizeY) > (1024*1024); // FIXME
+        final boolean requirePyramid = (sizeX * sizeY) > (3192*3192); // TODO
         return requirePyramid;
     }
 
