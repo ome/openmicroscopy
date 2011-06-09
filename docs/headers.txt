@@ -67,12 +67,19 @@
 ### OmeroPy
 ###
 
-"""
- Copyright (C) <year> University of Dundee & Open Microscopy Environment.
-                      All Rights Reserved.
- Use is subject to license terms supplied in LICENSE.txt
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#
+# Copyright (C) <year> University of Dundee & Open Microscopy Environment.
+#                      All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
 
 """
+Module documentation
+"""
+
 
 ###
 ### OMERO.web Python
