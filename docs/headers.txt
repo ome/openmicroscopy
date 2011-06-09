@@ -14,6 +14,9 @@
 ##
 ##     Copyright 2011 Glencoe Software, Inc. All rights reserved.
 ##
+##   in which case there doesn't have to be a blank line
+##   before the license block.
+##
 ## * When a file is modified in a year not covered in the
 ##   copyright, the year range should be updated to reflect
 ##   the new year. The copyright itself should not be

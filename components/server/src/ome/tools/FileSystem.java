@@ -1,3 +1,7 @@
+/*
+ *   Copyright (C) 2007-2011 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
 package ome.tools;
 
 import java.io.File;
@@ -15,11 +19,6 @@ import org.apache.commons.logging.LogFactory;
  * this application. The methods are getTotalSpace() and getFreeSpace(). These
  * methods will be used to monitor a specific filesystem and determine if
  * maximum points may be exceeded.
- * 
- * <p>
- * Copyright 2007 Glencoe Software Inc. All rights reserved.
- * Use is subject to license terms supplied in LICENSE.txt 
- * <p/>
  *
  * @author David L. Whitehurst &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:david@glencoesoftware.com">david@glencoesoftware.com</a>
