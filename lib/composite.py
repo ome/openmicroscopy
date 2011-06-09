@@ -44,7 +44,7 @@ NOW = time.ctime()
 
 HUDSON_ROOT = 'http://hudson.openmicroscopy.org.uk/job'
 
-HUDSON_XML_SUFFIX = 'lastBuild/api/xml'
+HUDSON_XML_SUFFIX = 'lastSuccessfulBuild/api/xml'
 
 BRANCH = os.environ["OMERO_BRANCH"]
 
