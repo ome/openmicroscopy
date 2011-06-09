@@ -40,8 +40,7 @@
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) <year> University of Dundee & Open Microscopy Environment.
- *                       All rights reserved.
- *
+ *  All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -65,7 +64,8 @@
 
 /*
  *   Copyright (C) <year> University of Dundee & Open Microscopy Environment.
- *                        All rights reserved.
+ *   All rights reserved.
+ *
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -93,7 +93,7 @@ Module documentation
 
 #
 # Copyright (C) <year> University of Dundee & Open Microscopy Environment.
-#                      All rights reserved.
+# All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -115,7 +115,7 @@ Module documentation
 
 //
 // Copyright (C) <year> University of Dundee & Open Microscopy Environment.
-//                      All rights reserved.
+// All rights reserved.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -137,7 +137,7 @@ Module documentation
 
 /*
  * Copyright (C) <year> University of Dundee & Open Microscopy Environment.
- *                      All rights reserved.
+ * All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -161,7 +161,7 @@ Module documentation
 <!--
 
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
-                     All rights reserved.
+  All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU Affero General Public License as
