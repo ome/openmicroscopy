@@ -45,12 +45,19 @@ var loadOtherPanels = function(data, prefix) {
                     cm_var['content_details']['rel'] = oid;
                     cm_var['content_details']['url'] = prefix+oid.split("-")[1]+'/?view=icon';
                     
+                } else if($.inArray(orel, ["tag"]) > -1 && oid!==crel) {
+                    cm_var['content_details']['rel'] = oid;
+                    cm_var['content_details']['url'] = "/webclient/load_tags/?view=icon&o_type=tag&o_id="+oid.split("-")[1];
+
                 } else if(orel=="image") {
                     var pr = data.rslt.obj.parent().parent();
                     if (pr.length>0 && pr.attr('id')!==crel) {
                         if(pr.attr('rel').replace("-locked", "")==="share" && pr.attr('id')!==crel) {
                             cm_var['content_details']['rel'] = pr.attr('id');
                             cm_var['content_details']['url'] = prefix+pr.attr('id').split("-")[1]+'/?view=icon';
+                        } else if (pr.attr('rel').replace("-locked", "")=="tag") {
+                            cm_var['content_details']['rel'] = pr.attr('id');
+                            cm_var['content_details']['url'] = "/webclient/load_tags/?view=icon&o_type=tag&o_id="+pr.attr('id').split("-")[1];
                         } else if (pr.attr('rel').replace("-locked", "")!=="orphaned") {
                             cm_var['content_details']['rel'] = pr.attr('id');
                             cm_var['content_details']['url'] = prefix+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
