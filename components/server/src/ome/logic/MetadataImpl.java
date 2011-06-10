@@ -91,6 +91,9 @@ public class MetadataImpl
 	/** Identifies the file annotation class. */
 	private final String FILE_TYPE = "ome.model.annotations.FileAnnotation";
 	
+	/** Identifies the tag annotation class. */
+	private final String TAG_TYPE = "ome.model.annotations.TagAnnotation";
+	
 	/** Reference to the {@link IContainer} service. */
 	private IContainer iContainer;
 
@@ -732,7 +735,8 @@ public class MetadataImpl
 		sb.append("left outer join fetch child.details.owner as ownerChild ");
 		sb.append("left outer join fetch parent.details.owner as ownerParent ");
 		sb.append("left outer join fetch tag.details.owner as tagOwner ");
-		sb.append("where tag.ns is not null and tag.ns = :include");
+		sb.append("where child member of "+TAG_TYPE+" and " +
+				"tag.ns is not null and tag.ns = :include");
 
 		if (po.isExperimenter()) {
 			sb.append(" and tagOwner.id = :userID");

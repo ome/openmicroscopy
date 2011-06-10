@@ -567,8 +567,10 @@ public class MetadataServiceTest
     	CommentAnnotation comment = new CommentAnnotationI();
     	comment.setTextValue(omero.rtypes.rstring("comment"));
     	comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
-    	
-    	
+    	link = new AnnotationAnnotationLinkI();
+    	link.setChild(comment);
+    	link.setParent(tagSetReturned);
+    	iUpdate.saveAndReturnObject(link); 
     	
     	ParametersI param = new ParametersI();
     	param.exp(omero.rtypes.rlong(self));
@@ -587,10 +589,13 @@ public class MetadataServiceTest
 			ns = data.getNameSpace();
 			if (ns != null && TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
 				if (data.getId() == tagSetReturned.getId().getValue()) {
-					assertEquals(tag.sizeOfAnnotationLinks(), 2);
+					assertEquals(tag.sizeOfAnnotationLinks(), 1);
 					assertEquals(data.getTags().size(), 1);
 					List l = tag.linkedAnnotationList();
+					
 					assertEquals(l.size(), 1);
+					TagAnnotationData child = (TagAnnotationData) l.get(0);
+					assertEquals(child.getId(), tagReturned.getId().getValue());
 				}
 			}
 		}
