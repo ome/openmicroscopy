@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -40,10 +41,13 @@ import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
+import javax.swing.SwingUtilities;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
@@ -101,21 +105,26 @@ class BrowserUI
     /** The bird eye view.*/
     private BirdEyeViewComponent	birdEyeView;
     
+    private JPanel glass;
+    
     /** Sets the location of the bird eye view.*/
     private void setBirdEyeViewLocation()
     {
     	if (birdEyeView == null) return;
 		Rectangle r = getViewport().getViewRect();
+		Point p = new Point(0, 0);
+		p = SwingUtilities.convertPoint(getViewport(), p, glass);
+		birdEyeView.setLocation(p);
 		switch (birdEyeView.getLocationIndex()) {
 			case ImageCanvas.BOTTOM_RIGHT:
 				Dimension d = birdEyeView.getSize();
-				Point p = new Point(r.x+r.width-d.width, 
-						r.y+r.height-d.height);
+				p = new Point(p.x+r.width-d.width, 
+						p.y+r.height-d.height);
 				birdEyeView.setLocation(p);
 				break;
 			case ImageCanvas.TOP_LEFT:
 			default:
-				birdEyeView.setLocation(r.x, r.y);
+				birdEyeView.setLocation(p);
 		}
     }
     
@@ -336,7 +345,13 @@ class BrowserUI
 				}
 			});
     		birdEyeView.setup();
-    		addComponentToLayer(birdEyeView, false);
+    		JFrame frame = model.getParentModel().getUI();
+    		glass = (JPanel) frame.getGlassPane();
+    		glass.setLayout(null);
+    		glass.add(birdEyeView);
+    		glass.setVisible(true);
+    		
+    		//addComponentToLayer(birdEyeView, false);
     		setBirdEyeViewLocation();
     	}
     	Dimension d = birdEyeView.getSize();
@@ -419,6 +434,7 @@ class BrowserUI
     void setComponentsSize(int w, int h)
     {
     	Dimension d = new Dimension(w, h);
+    	/*
     	if (model.isBigImage()) {
     		Dimension dl = layeredPane.getPreferredSize();
     		if (dl != null && (dl.width == 0 || dl.height == 0)) {
@@ -429,6 +445,9 @@ class BrowserUI
     		layeredPane.setPreferredSize(d);
             layeredPane.setSize(d);
     	}
+    	*/
+    	layeredPane.setPreferredSize(d);
+        layeredPane.setSize(d);
         canvas.setPreferredSize(d);
         canvas.setSize(d);
         if (model.isBigImage()) setSelectionRegion();
