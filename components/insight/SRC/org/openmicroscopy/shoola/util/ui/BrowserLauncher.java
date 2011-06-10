@@ -123,7 +123,7 @@ public class BrowserLauncher
 				f.setIconImage((Image) topLeftIcon);
 			}
 			NotificationDialog dialog = new NotificationDialog(
-                    new JFrame(), "Launch Browser", 
+                    f, "Launch Browser", 
                     "Cannot launch The web browser.", 
                     IconManager.getInstance().getIcon(IconManager.INFO_32));
 			dialog.pack();  
