@@ -5,6 +5,11 @@
 
 <ul>
     {% if manager.containers.projects or manager.containers.datasets or manager.containers.screens or manager.containers.plates or manager.containers.images %}
+    
+    {% for i in manager.containers.images %}
+        <li id='image-{{ i.id }}' rel="image{% if not i.isOwned %}-locked{% endif %}"><a href="#">{{ i.name|truncatebefor:"30" }}</a></li>
+    {% endfor %}
+    
     {% for c in manager.containers.projects %}
     <li id='project-{{ c.id }}' rel="project"><a href="#">{{ c.name|truncatebefor:"35" }}</a>
         <ul>
@@ -19,10 +24,6 @@
 
     {% for d in manager.containers.datasets %}
         <li id='dataset-{{ d.id }}' rel="dataset" {% if d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
-    {% endfor %}
-    
-    {% for i in manager.containers.images %}
-        <li id='image-{{ i.id }}' rel="image{% if not i.isOwned %}-locked{% endif %}"><a href="#">{{ i.name|truncatebefor:"30" }}</a></li>
     {% endfor %}
 
     {% for c in manager.containers.screens %}

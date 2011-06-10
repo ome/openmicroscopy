@@ -58,7 +58,7 @@
                     }
                 }
                 
-                $("#dataTagTree").jstree({ 
+                $("#dataTree").jstree({ 
             			// the list of plugins to include
             			"plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
             			// Plugin configuration
@@ -69,15 +69,33 @@
             				// All the options are the same as jQuery's except for `data` which CAN (not should) be a function
             				"ajax" : {
             					// the URL to fetch the data
-            					"url" : "{% url load_data_by_tag %}",
+            					"url" : function(n) {
+            					    if (n.attr) {
+            					        var parent = this._get_parent(n);
+            					        if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["project", "screen"]) > -1) {
+                                            url = "{% url load_data %}"+$(parent).attr("rel").replace("-locked", "")+"/"+$(parent).attr("id").split("-")[1]+"/"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
+                					    } else if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["image"]) > -1){
+                					        url = "{% url load_data %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
+                					    } else {
+                					        url = "{% url load_data_by_tag %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
+                					    }
+            					    } else {
+            					        url = "{% url load_data_by_tag %}";
+            					    }
+            					    return url;
+            					},
             					// this function is executed in the instance's scope (this refers to the tree instance)
             					// the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
             					"data" : function (n) {
-                                    return { 
-                                        "view" : "tree", 
-            							"o_type" : n.attr ? n.attr("rel").replace("-locked", "") : "",
-            							"o_id" : n.attr ? n.attr("id").split("-")[1] : 0
-            						};
+            					    if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset"]) > -1) {
+            					        var r = { "view" : "tree" };
+            					        if($("div#content_details").has("#page").length > 0) {
+            					            r["page"] = parseInt($("div#content_details").find("#page").attr("rel"));
+            					        }
+            					        return r;
+            					    } else {
+            					        return { "view" : "tree" };
+            					    }
                                 }
             				}
             			},
@@ -275,12 +293,16 @@
         		    if ($(this).parent().attr('rel')=='image') {
         		        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
         		    }
-        		    $("#dataTagTree").jstree("open_node", this);
+        		    $("#dataTree").jstree("open_node", this);
         		})
         		.bind("select_node.jstree", function (e, data) {
             	    var selected = data.inst.get_selected();
             	    buttonsShowHide(selected);
-            	    loadOtherPanels(data, '{% url load_data_by_tag %}');
+            	    if (data.rslt.obj.attr("id").indexOf("tag")<0) {
+            	        loadOtherPanels(data, '{% url load_data %}');
+            	    } else {
+            	        loadOtherPanels(data, '{% url load_data_by_tag %}');
+            	    }
             	    syncPanels(selected);
         		})
         		.bind("rename.jstree", function (e, data) {
@@ -355,7 +377,7 @@
     		switch(this.id) {
     			case "deleteButton":
     			    if (confirm("Delete permanently selected object(-s)? You will NOT be able to access this object any more.")) {
-                        $("#dataTagTree").jstree('remove', $.jstree._focused().get_selected());
+                        $("#dataTree").jstree('remove', $.jstree._focused().get_selected());
                     }    			    
     				break;
         		case "renameButton":
@@ -367,7 +389,7 @@
                     }
                     break;
                 case "refreshButton":
-                    $("#dataTagTree").jstree("refresh");
+                    $("#dataTree").jstree("refresh");
                     break;
                 default:
     			    break;
@@ -394,7 +416,7 @@
 <div class="clear"> </div>
 
 <div id="tree_details">
-    <div class="dataTagTree" id="dataTagTree"></div>
+    <div class="dataTree" id="dataTree"></div>
 </div>
 
 {% endblock %}
