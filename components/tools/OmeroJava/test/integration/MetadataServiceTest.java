@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 
@@ -22,7 +21,6 @@ import org.testng.annotations.Test;
 
 //Application-internal dependencies
 import omero.api.IAdminPrx;
-import omero.api.IMetadata;
 import omero.api.IMetadataPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.AcquisitionMode;
@@ -539,6 +537,65 @@ public class MetadataServiceTest
     	assertTrue(count > 0);
     }
     
+    /**
+     * Tests the retrieval of tag sets. The tag set has a tag and a comment.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadTagSets() 
+    	throws Exception
+    {
+    	long self = iAdmin.getEventContext().userId;
+    	
+    	//Create a tag set.
+    	TagAnnotation tagSet = new TagAnnotationI();
+    	tagSet.setTextValue(omero.rtypes.rstring("tagSet"));
+    	tagSet.setNs(omero.rtypes.rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
+    	TagAnnotation tagSetReturned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tagSet);
+    	//create a tag and link it to the tag set
+    	TagAnnotation tag = new TagAnnotationI();
+    	tag.setTextValue(omero.rtypes.rstring("tag"));
+    	TagAnnotation tagReturned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tag);
+    	AnnotationAnnotationLinkI link = new AnnotationAnnotationLinkI();
+    	link.setChild(tagReturned);
+    	link.setParent(tagSetReturned);
+    	//save the link.
+    	iUpdate.saveAndReturnObject(link); 
+    	
+    	CommentAnnotation comment = new CommentAnnotationI();
+    	comment.setTextValue(omero.rtypes.rstring("comment"));
+    	comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
+    	
+    	
+    	
+    	ParametersI param = new ParametersI();
+    	param.exp(omero.rtypes.rlong(self));
+    	param.orphan(); //no tag loaded
+    	
+    	List<IObject> result = iMetadata.loadTagSets(param);
+    	assertNotNull(result);
+    	Iterator<IObject> i = result.iterator();
+    	TagAnnotationData data;
+    	int count = 0;
+    	int orphan = 0;
+    	String ns;
+    	while (i.hasNext()) {
+    		tag = (TagAnnotation) i.next();
+			data = new TagAnnotationData(tag);
+			ns = data.getNameSpace();
+			if (ns != null && TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+				if (data.getId() == tagSetReturned.getId().getValue()) {
+					assertEquals(tag.sizeOfAnnotationLinks(), 2);
+					assertEquals(data.getTags().size(), 1);
+					List l = tag.linkedAnnotationList();
+					assertEquals(l.size(), 1);
+				}
+			}
+		}
+    }
+
     /**
      * Tests the retrieval of annotations used but not owned.
      * @throws Exception Thrown if an error occurred.

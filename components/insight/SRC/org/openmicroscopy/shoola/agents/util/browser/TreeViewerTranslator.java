@@ -50,6 +50,8 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
+
+import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -63,7 +65,6 @@ import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellData;
-import pojos.WellSampleData;
 
 /** 
  * This class contains a collection of utility static methods that transform
@@ -286,10 +287,13 @@ public class TreeViewerTranslator
             	tag.setChildrenLoaded(Boolean.TRUE);
             	
                 Iterator i = tags.iterator();
-                TagAnnotationData tmp;
+                AnnotationData tmp;
                 while (i.hasNext()) {
-                	tmp = (TagAnnotationData) i.next();
-                	tag.addChildDisplay(transformTag(tmp, userID, groupID));
+                	tmp = (AnnotationData) i.next();
+                	if (tmp instanceof TagAnnotationData)
+                		tag.addChildDisplay(
+                				transformTag((TagAnnotationData) tmp, userID,
+                						groupID));
                 }
                 tag.setNumberItems(tags.size());
                 return tag;

@@ -35,6 +35,7 @@ import java.util.Set;
 //Application-internal dependencies
 import static omero.rtypes.rstring;
 import omero.RString;
+import omero.model.Annotation;
 import omero.model.CommentAnnotation;
 import omero.model.DatasetAnnotationLink;
 import omero.model.ImageAnnotationLink;
@@ -183,8 +184,11 @@ public class TagAnnotationData extends AnnotationData {
     		tags = new HashSet<TagAnnotationData>();
     		List l = tagSet.linkedAnnotationList();
     		Iterator i = l.iterator();
+    		Annotation data;
     		while (i.hasNext()) {
-    			tags.add(new TagAnnotationData((TagAnnotation) i.next()));
+    			data = (Annotation) i.next();
+    			if (data instanceof TagAnnotation)
+    				tags.add(new TagAnnotationData((TagAnnotation) data));
 			}
     	}
         return tags;
