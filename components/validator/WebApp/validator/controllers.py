@@ -1,3 +1,5 @@
+# Copyright (C) 2007-2011 University of Dundee & Open Microscopy Environment.
+# All Rights Reserved.
 import turbogears, cherrypy, re
 from turbogears import controllers, expose, validators
 from docutils.core import publish_parts

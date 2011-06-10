@@ -4,7 +4,8 @@
 mateTiff.py
 
 Created by Andrew Patterson on 2007-09-14.
-Copyright (c) 2007 OME Group. All rights reserved.
+Copyright (C) 2007-2011 University of Dundee & Open Microscopy Environment.
+All Rights Reserved.
 """
 
 import sys, os, tempfile

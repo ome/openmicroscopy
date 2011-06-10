@@ -1,4 +1,10 @@
 Validator
+---------
+
+Copyright (C) 2007-2011 University of Dundee & Open Microscopy Environment.
+All Rights Reserved.
+
+---------
 
 This is a TurboGears (http://www.turbogears.org) project. It can be
 started by running the start-validator.py script.
@@ -8,7 +14,7 @@ python start-validator.py
 
 This project was generated from a standard TurboGears template.
 
-The following file have been edited/added
+The following files have been edited/added
 -----------------------------------------
 ./:
 README.txt

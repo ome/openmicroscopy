@@ -1,9 +1,10 @@
 # Release information about Validator
-
-version = "1.0"
+# Copyright (C) 2007-2011 University of Dundee & Open Microscopy Environment.
+# All Rights Reserved.
+version = "1.1"
 author = "Aleksandra Tarkowska"
 email = "A.Tarkowska@dundee.ac.uk"
-copyright = "Open Microscopy Environment 2007"
+copyright = "2007-2011 University of Dundee & Open Microscopy Environment."
 
 # description = "Your plan to rule the world"
 # long_description = "More description about your plan"

@@ -7,7 +7,8 @@ Created by Andrew Patterson on 2007-07-24.
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# Copyright (C) 2002-2007 Open Microscopy Environment
+# Copyright (C) 2002-2011 Open Microscopy Environment
+# All Rights Reserved.
 #       Massachusetts Institute of Technology,
 #       National Institutes of Health,
 #       University of Dundee,

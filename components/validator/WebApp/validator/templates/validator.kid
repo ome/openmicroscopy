@@ -3,6 +3,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://purl.org/kid/ns#"
       py:extends="'master.kid'">
+<!--
+ * Copyright (C) 2007-2011 University of Dundee & Open Microscopy Environment.
+ * All Rights Reserved. 
+-->
 <head>
 <meta content="text/html; charset=utf-8"
       http-equiv="Content-Type" py:replace="''"/>
