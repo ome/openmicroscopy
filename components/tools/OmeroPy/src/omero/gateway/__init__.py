@@ -5755,6 +5755,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:    Tuple of (file-ext, format)
         @rtype:     (String, String)
         """
+        logger.warning('createMovie support is currently disabled.')
+        logger.warning('  - see https://trac.openmicroscopy.org.uk/ome/ticket/3857')
+        return None, None
         if opts is None: opts = {}
         slides = opts.get('slides', None)
         minsize = opts.get('minsize', None)

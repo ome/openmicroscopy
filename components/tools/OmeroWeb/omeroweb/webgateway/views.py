@@ -835,6 +835,10 @@ def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs)
             dext, mimetype = img.createMovie(fn, 0, img.getSizeZ()-1, pos-1, pos-1, opts)
         else:
             dext, mimetype = img.createMovie(fn, pos-1, pos-1, 0, img.getSizeT()-1, opts)
+        if dext is None and mimetype is None:
+            # createMovie is currently only available on 4.1_custom
+            # https://trac.openmicroscopy.org.uk/ome/ticket/3857
+            raise Http404
         if fpath is None:
             movie = open(fn).read()
             os.close(fo)
