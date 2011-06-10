@@ -30,7 +30,6 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
@@ -1819,8 +1818,12 @@ class ControlPane
         		controller.setGridMagnificationFactor(r);
         		return;
         	} else if (object == ratioSlider) {
-        		if (!ratioSlider.isDragging())
+        		if (model.isBigImage()) {
+        			if (!ratioSlider.isDragging())
+            			controller.setZoomFactor(ratioSlider.getValue());
+        		} else {
         			controller.setZoomFactor(ratioSlider.getValue());
+        		}
         	} else if (object == projectionRatioSlider) {
         		controller.setZoomFactor(projectionRatioSlider.getValue());
         	}
