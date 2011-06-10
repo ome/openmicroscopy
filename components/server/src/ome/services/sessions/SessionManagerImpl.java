@@ -684,24 +684,23 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         return ctx;
     }
 
-    public EventContext reload(String uuid) {
+    public EventContext reload(final String uuid) {
         final SessionContext ctx = cache.getSessionContext(uuid);
         if (ctx == null) {
             throw new RemovedSessionException("No session with uuid:"
                     + uuid);
         }
-        Future<SessionContext> future = executor.submit(
-                new Callable<SessionContext>(){
-                    public SessionContext call() throws Exception {
-                        return reload(ctx);
+        Future<Object> future = executor.submit(
+                new Callable<Object>(){
+                    public Object call() throws Exception {
+                        cache.reload(uuid);
+                        return null;
                     }});
 
-        // Storing the freshly loaded context back in the SessionCache
-        // so that the users of getEventContext() can benefit from the
-        // newer view.
-        final SessionContext fresh = executor.get(future);
-        cache.refresh(uuid, fresh);
-        return fresh;
+        // A freshly loaded session should now have been saved
+        // as if it had been reloaded during synchronization.
+        executor.get(future);
+        return cache.getSessionContext(uuid);
     }
 
     // ~ Notifications
@@ -860,6 +859,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             Share from = (Share) source;
             to.setItemCount(from.getItemCount());
             to.setActive(from.getActive());
+            to.setGroup(from.getGroup());
             to.setData(from.getData());
         }
 
