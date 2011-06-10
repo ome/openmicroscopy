@@ -141,6 +141,7 @@ def isUserConnected (f):
             # Thu  6 Jan 2011 09:57:27 GMT -- callan at blackcat dot ca
             if request.is_ajax():
                 return HttpResponseServerError(reverse("weblogin"))
+            _session_logout(request, request.REQUEST.get('server', None))
             if server is not None:
                 return HttpLoginRedirect(reverse("weblogin")+(("?url=%s&server=%s") % (url,server)))
             return HttpLoginRedirect(reverse("weblogin")+(("?url=%s") % url))
@@ -421,22 +422,24 @@ def change_active_group(request, **kwargs):
     request.session['version'] = conn.getServerVersion()
     
     return HttpResponseRedirect(url)
-    
-@isUserConnected
-def logout(request, **kwargs):
-    webgateway_views._session_logout(request, request.session.get('server'))
+
+def _session_logout (request, server_id):
+    webgateway_views._session_logout(request, server_id)
      
     try:
         if request.session.get('shares') is not None:
             for key in request.session.get('shares').iterkeys():
-                session_key = "S:%s#%s#%s" % (request.session.session_key,request.session.get('server'), key)
-                webgateway_views._session_logout(request,request.session.get('server'), force_key=session_key)
+                session_key = "S:%s#%s#%s" % (request.session.session_key,server_id, key)
+                webgateway_views._session_logout(request,server_id, force_key=session_key)
         for k in request.session.keys():
             if request.session.has_key(k):
                 del request.session[k]      
     except:
         logger.error(traceback.format_exc())
     
+@isUserConnected
+def logout(request, **kwargs):
+    _session_logout(request, request.session.get('server'))
     #request.session.set_expiry(1)
     return HttpResponseRedirect(reverse("webindex"))
 
