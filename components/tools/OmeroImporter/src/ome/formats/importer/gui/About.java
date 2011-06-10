@@ -69,10 +69,17 @@ public abstract class About
             
             ResourceBundle bundle = ResourceBundle.getBundle("omero");
             String omeroVersion = bundle.getString("omero.version");
+            StringBuffer buffer = new StringBuffer();
+            buffer.append("Version: " + omeroVersion);
+            buffer.append("\nBio-Formats " +FormatTools.VERSION);
+            buffer.append(" ("+ FormatTools.VCS_REVISION+", "
+            		+FormatTools.DATE+")");
+            //tmp solution. No time to rewrite code.
+            buffer.append("\n(c) Copyright 2006-2011. University of Dundee " +
+            		"& Open Microscopy Environment. All Rights Reserved.");
+            //msg = "Version: " + omeroVersion;
             
-            msg = "Version: " + omeroVersion;
-            msg = msg + "\n Bio-Formats " + FormatTools.VERSION + 
-            " (SVN " + FormatTools.VCS_REVISION + ", " + FormatTools.DATE + ")";
+            msg = buffer.toString();
             JOptionPane.showMessageDialog(parent, msg, title,
                     JOptionPane.INFORMATION_MESSAGE); 
             parent.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
