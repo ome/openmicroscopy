@@ -268,6 +268,29 @@ class WebAdminTest(WebTest):
             errors = form.errors.as_text()
             self.fail(errors)            
     
+    def test_createGroupsWithNonASCII(self):        
+        conn = self.rootconn
+        uuid = conn._sessionUuid
+        
+        # private group
+        params = {
+            "name":"русский_алфавит %s" % uuid,
+            "description":"Frühstück-Śniadanie. Tschüß-Cześć",
+            "owners": [0L],
+            "permissions":0
+        }
+        request = fakeRequest(method="post", params=params)
+        gid = _createGroup(request, conn)
+           
+        # check if group created
+        controller = BaseGroup(conn, gid)
+        perm = controller.getActualPermissions()
+        self.assertEquals(params['name'], controller.group.name)
+        self.assertEquals(params['description'], controller.group.description)
+        self.assertEquals(sorted(params['owners']), sorted(controller.owners))
+        self.assertEquals(params['permissions'], perm)
+        self.assertEquals(False, controller.isReadOnly())
+    
     def test_createGroups(self):        
         conn = self.rootconn
         uuid = conn._sessionUuid
