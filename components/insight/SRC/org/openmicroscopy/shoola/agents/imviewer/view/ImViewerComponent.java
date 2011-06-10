@@ -1007,7 +1007,7 @@ class ImViewerComponent
 		//if (stop) return;
 		
 		if (index == PROJECTION_INDEX) {
-			if (stop) return;
+			//if (stop) return;
 			previewProjection();
 			fireStateChange();
 		} else if (index == GRID_INDEX) {
@@ -1019,7 +1019,7 @@ class ImViewerComponent
 				fireStateChange();
 			}
 		} else {
-			if (stop) return;
+			//if (stop) return;
 			model.fireImageRetrieval();
 			newPlane = false;
 			fireStateChange();
