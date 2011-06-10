@@ -69,7 +69,6 @@ public class UpdateVisitor
 		DataObject data = (DataObject) ho;
 		if (data.getClass().equals(object.getClass()) &&
 			object.getId() == data.getId()) {
-			System.err.println(node);
 			node.setUserObject(data);
 			TreeViewerTranslator.formatToolTipFor(node);
 		}
