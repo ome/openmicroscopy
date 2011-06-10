@@ -91,9 +91,27 @@ class UserControl(BaseControl):
                 self.ctx.err(self.format_name(s))
 
     def password(self, args):
+        import omero
         from omero.rtypes import rstring
         client = self.ctx.conn(args)
+        own_name = self.ctx._event_context.userName
         admin = client.sf.getAdminService()
+
+        # tickets 3202, 5841
+        own_pw = self._ask_for_password(" for your user (%s)" % own_name, strict = False)
+        try:
+            client.sf.setSecurityPassword(own_pw)
+            self.ctx.out("Verified password.\n")
+        except omero.SecurityViolation, sv:
+            import traceback
+            self.ctx.die(456, "SecurityViolation: Bad credentials")
+            self.ctx.dbg(traceback.format_exc(sv))
+
+        if args.username:
+            self.ctx.out("Changing password for %s" % args.username)
+        else:
+            self.ctx.out("Changing password for %s" % own_name)
+
         pw = self._ask_for_password(" to be set")
         pw = rstring(pw)
         if args.username:
