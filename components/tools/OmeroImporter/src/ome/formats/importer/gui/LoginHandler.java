@@ -208,7 +208,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         
                         if (config.getStaticDisableUpgradeCheck() == false)
                         	store.isUpgradeRequired(config.getVersionNumber(), "importer");
-                        store.logVersionInfo(config.getVersionNumber());
+                        store.logVersionInfo(config.getIniVersionNumber());
                         viewer.getStatusBar().setProgress(false, 0, "");
                         viewer.appendToOutput("> Login Successful.\n");
                         viewer.getFileQueueHandler().enableImports(true);
@@ -325,7 +325,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         
         ResourceBundle bundle = ResourceBundle.getBundle("omero");
         String omeroVersion = bundle.getString("omero.version");
-        
+        omeroVersion = this.viewer.getConfig().getIniVersionNumber();
         view = new ScreenLogin(config.getAppTitle(),
                 GuiCommonElements.getImageIcon("gfx/login_background.png"),
                 img,
