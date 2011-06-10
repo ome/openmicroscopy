@@ -475,7 +475,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
             {
                 renderer.setResolutionLevel(resolutionLevel);
             }
-            log.error("renderAsPackedInt: "+renderer.getResolutionLevel());
             return renderer.renderAsPackedInt(pd, null);
         } catch (IOException e) {
             log.error("IO error while rendering.", e);
