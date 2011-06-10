@@ -89,6 +89,9 @@ public class DataServicesFactory
     /** The sole instance. */
 	private static DataServicesFactory		singleton;
 	
+	/** The dialog indicating that the connection is lost.*/
+	private MessageBox connectionDialog;
+	
 	/**
 	 * Creates a new instance. This can't be called outside of container 
 	 * b/c agents have no references to the singleton container.
@@ -299,28 +302,33 @@ public class DataServicesFactory
 	 */
 	public void sessionExpiredExit(int index)
 	{
+		if (connectionDialog != null) return;
 		String message;
 		UserNotifier un = registry.getUserNotifier();
 		switch (index) {
 			case LOST_CONNECTION:
 				message = "The connection has been lost. \nDo you want " +
-						"to reconnect? If no, the application will exit.";
-				MessageBox box = new MessageBox(
+						"to reconnect? If no, the application will now exit.";
+				connectionDialog = new MessageBox(
 						registry.getTaskBar().getFrame(), "Lost Connection", 
 						message);
-				int v = box.centerMsgBox();
-				if (v == MessageBox.NO_OPTION) exitApplication();
-				else if (v == MessageBox.YES_OPTION) {
+				connectionDialog.setModal(true);
+				int v = connectionDialog.centerMsgBox();
+				if (v == MessageBox.NO_OPTION) {
+					connectionDialog = null;
+					exitApplication();
+				} else if (v == MessageBox.YES_OPTION) {
 					UserCredentials uc = (UserCredentials) 
 					registry.lookup(LookupNames.USER_CREDENTIALS);
 					boolean b =  omeroGateway.reconnect(uc.getUserName(), 
             				uc.getPassword());
+					connectionDialog = null;
 					if (b) {
 						message = "You are reconnected to the server.";
 						un.notifyInfo("Reconnection Success", message);
 					} else {
 						message = "A failure occurred while attempting to " +
-								"reconnect.\nThe application will exit.";
+								"reconnect.\nThe application will now exit.";
 						un.notifyInfo("Reconnection Failure", message);
 						exitApplication();
 					}
@@ -329,7 +337,7 @@ public class DataServicesFactory
 			case SERVER_OUT_OF_SERVICE:
 				message = "The server is no longer " +
 				"running. \nPlease contact your system administrator." +
-				"\nThe application will exit.";
+				"\nThe application will now exit.";
 				un.notifyInfo("Connection Refused", message);
 				exitApplication();
 				break;	
