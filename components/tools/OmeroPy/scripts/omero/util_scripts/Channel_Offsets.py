@@ -69,6 +69,15 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, dataset=None):
     sizeT = oldImage.getSizeT()
     sizeX = oldImage.getSizeX()
     sizeY = oldImage.getSizeY()
+
+    # check we're not dealing with Big image.
+    rps = oldImage.getPrimaryPixels()._prepareRawPixelsStore()
+    bigImage = rps.requiresPixelsPyramid()
+    rps.close()
+    if bigImage:
+        print "This script does not support 'BIG' images such as Image ID: %s X: %d Y: %d" % (imageId, sizeX, sizeY)
+        return
+
     dataType = None
     
     # setup the (z,c,t) list of planes we need
