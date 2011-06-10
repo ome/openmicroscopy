@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.util.ui;
 import java.awt.Image;
 import java.lang.reflect.Method;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -64,7 +65,7 @@ public class BrowserLauncher
 	}
 	
 	/** The icon displayed in the top-left corner of the message box. */
-	private Icon topLeftIcon;
+	private Image topLeftIcon;
 
 	/** Creates a new instance. */
 	public BrowserLauncher()
@@ -77,12 +78,13 @@ public class BrowserLauncher
 	 * 
 	 * @param topLeftIcon The icon displayed in the top-left corner
 	 */
-	public BrowserLauncher(Icon topLeftIcon)
+	public BrowserLauncher(Image topLeftIcon)
 	{
 		this.topLeftIcon = topLeftIcon;
 		if (this.topLeftIcon == null) {
-			this.topLeftIcon = 
-				IconManager.getInstance().getIcon(IconManager.INFO);
+			ImageIcon icon = 
+				IconManager.getInstance().getImageIcon(IconManager.INFO);
+			if (icon != null) this.topLeftIcon = icon.getImage();
 		}
 	}
 	

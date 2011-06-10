@@ -660,7 +660,7 @@ public class TaskBarManager
 	void openURL(String url)
 	{
 		BrowserLauncher launcher = new BrowserLauncher(
-				AbstractIconManager.getOMEIcon());
+				AbstractIconManager.getOMEImageIcon());
 		launcher.openURL(url);
 		if (suDialog != null) suDialog.close();
 	}
