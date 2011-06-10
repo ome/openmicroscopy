@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.UpdateVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog;
@@ -1051,6 +1052,10 @@ class TreeViewerComponent
 		if (operation == REMOVE_OBJECT || operation == CREATE_OBJECT) {
 			DataBrowserFactory.discardAll();
 			view.removeAllFromWorkingPane();
+		}
+		if (operation == UPDATE_OBJECT) {
+			browser.accept(new UpdateVisitor(browser, data));
+			browser.getUI().repaint();
 		}
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

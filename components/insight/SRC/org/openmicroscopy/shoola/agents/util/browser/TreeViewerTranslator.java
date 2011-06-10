@@ -84,33 +84,7 @@ import pojos.WellData;
  */
 public class TreeViewerTranslator
 {
-    
-    /**
-     * Formats the toolTip of the specified {@link TreeImageDisplay} node.
-     * 
-     * @param node The specified node. Mustn't be <code>null</code>.
-     */
-    private static void formatToolTipFor(TreeImageDisplay node)
-    {
-        if (node == null) throw new IllegalArgumentException("No node");
-        String toolTip = "";
-        String title = null;
-        Object uo = node.getUserObject();
-        List<String> l = null;
-        String s = "";
-        if (uo instanceof ImageData) {
-        	l = EditorUtil.formatObjectTooltip((ImageData) uo);
-        	s = UIUtilities.formatString(((ImageData) uo).getName(), -1);
-        }
-        if (l == null || l.size() == 0) node.setToolTip(s);
-        else {
-        	List<String> ll = new ArrayList<String>();
-        	ll.add(s);
-        	ll.addAll(l);
-        	node.setToolTip(UIUtilities.formatToolTipText(ll));
-        }
-    }
-    
+
     /**
      * Transforms a {@link DatasetData} into a visualisation object i.e.
      * a {@link TreeCheckNode}.
@@ -893,5 +867,31 @@ public class TreeViewerTranslator
 		return new TreeImageNode(object);
 	}
 	
-}
+	 /**
+     * Formats the toolTip of the specified {@link TreeImageDisplay} node.
+     * 
+     * @param node The specified node. Mustn't be <code>null</code>.
+     */
+    public static void formatToolTipFor(TreeImageDisplay node)
+    {
+        if (node == null) throw new IllegalArgumentException("No node");
+        String toolTip = "";
+        String title = null;
+        Object uo = node.getUserObject();
+        List<String> l = null;
+        String s = "";
+        if (uo instanceof ImageData) {
+        	l = EditorUtil.formatObjectTooltip((ImageData) uo);
+        	s = UIUtilities.formatString(((ImageData) uo).getName(), -1);
+        }
+        if (l == null || l.size() == 0) node.setToolTip(s);
+        else {
+        	List<String> ll = new ArrayList<String>();
+        	ll.add(s);
+        	ll.addAll(l);
+        	node.setToolTip(UIUtilities.formatToolTipText(ll));
+        }
+    }
     
+	
+}
