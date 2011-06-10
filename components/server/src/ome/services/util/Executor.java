@@ -273,6 +273,7 @@ public interface Executor extends ApplicationContextAware {
         private final static Log log = LogFactory.getLog(Executor.class);
 
         protected OmeroContext context;
+        protected InternalServiceFactory isf;
         final protected List<Advice> advices = new ArrayList<Advice>();
         final protected CurrentDetails principalHolder;
         final protected String[] proxyNames;
@@ -299,6 +300,7 @@ public interface Executor extends ApplicationContextAware {
         public void setApplicationContext(ApplicationContext applicationContext)
                 throws BeansException {
             this.context = (OmeroContext) applicationContext;
+            this.isf = new InternalServiceFactory(this.context);
             for (String name : proxyNames) {
                 advices.add((Advice) this.context.getBean(name));
             }
@@ -366,8 +368,7 @@ public interface Executor extends ApplicationContextAware {
 
             try {
                 // Arguments will be replaced after hibernate is in effect
-                return wrapper.doWork(null, new InternalServiceFactory(
-                        this.context));
+                return wrapper.doWork(null, isf);
             } finally {
                 if (p != null) {
                     this.principalHolder.logout();

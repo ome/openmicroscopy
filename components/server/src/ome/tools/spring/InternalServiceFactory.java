@@ -63,4 +63,8 @@ public class InternalServiceFactory extends ServiceFactory implements
         this.ctx = (OmeroContext) applicationContext;
     }
 
+    @Override
+    public String toString() {
+        return "InternalSF@"+hashCode();
+    }
 }
