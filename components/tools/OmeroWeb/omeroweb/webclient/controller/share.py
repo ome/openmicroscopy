@@ -75,7 +75,7 @@ class BaseShare(BaseController):
         expiration_date = None
         if expiration is not None:
             d1 = datetime.datetime(*(time.strptime((expiration+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
-            expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
+            expiration_date = long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000
         ms = [str(m) for m in members]
         
         self.conn.createShare(host, int(blitz_id), image, message, ms, enable, expiration_date)
@@ -97,7 +97,7 @@ class BaseShare(BaseController):
         expiration_date = None
         if expiration is not None:
             d1 = datetime.datetime(*(time.strptime((expiration+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
-            expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
+            expiration_date = long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000
         
         old_groups =  [m._obj for m in self.conn.getAllMembers(self.share.id)]
         new_groups = [e._obj for e in self.conn.getObjects("Experimenter", members)]

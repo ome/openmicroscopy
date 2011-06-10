@@ -35,12 +35,16 @@
 
     <script type="text/javascript">
         var preview_loaded = function() {
-            var viewport = $.WeblitzViewport($("#viewport"), "/webclient" );
+            {% if manager.getShareId %}
+            var viewport = $.WeblitzViewport($("#viewport"), "/webclient/{{ manager.getShareId }}" );
             viewport.load({{ imageId }}, null, location.search);
+            {% else %}
+            var viewport = $.WeblitzViewport($("#viewport"), "/webclient" );
+            viewport.load({{ manager.image.id }});
+            {% endif %}
         }
         $(document).ready(function() {
-            preview_loaded();
-            
+            preview_loaded();            
         });
     </script>
     
@@ -52,7 +56,7 @@
 <!-- VIEWER "Preview"-->
 
 <!-- open-image link -->
-<div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer imageId %}')"><img src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
+<div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% if manager.getShareId %}{% url web_image_viewer manager.getShareId manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')"><img src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
 
 <div id="preview_tab">
     <div class="miniview" id="viewport"></div>

@@ -32,7 +32,10 @@ class NonASCIIForm(forms.Form):
                     initial = self.initial.get(name, field.initial)
                     value = field.clean(value, initial)
                 elif isinstance(field, CharField):
-                    value = str(smart_str(value))
+                    if value is not None and len(value)>0:
+                        value = str(smart_str(value))
+                    else:
+                        value = field.clean(value)
                 else:
                     value = field.clean(value)
                 self.cleaned_data[name] = value

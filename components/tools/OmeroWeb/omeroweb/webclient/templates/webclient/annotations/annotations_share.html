@@ -128,7 +128,7 @@
         {% if manager.image %}
         <!-- VIEWER "Preview"-->
         <div id="preview_tab">
-            <a id="preview-link" href="{% url load_metadata_preview manager.image.id %}" style='display:none'>Preview</a>
+            <a id="preview-link" href="{% if manager.getShareId %}{% url load_metadata_preview manager.image.id manager.getShareId %}{% else %}{% url load_metadata_preview manager.image.id %}{% endif %}" style='display:none'>Preview</a>
             <img src="{% url webstatic "images/spinner.gif" %}" />
         </div>
         {% endif %}    
@@ -137,7 +137,7 @@
         {% if manager.image %}
         <div id="metadata_tab">
             <!-- content is loaded by ajax when this tab is first displayed -->
-            <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.image.id %}" style='display:none' >Acquisition</a>
+            <a id="acquisition-link" href="{% if manager.getShareId %}{% url load_metadata_acquisition 'image' manager.image.id manager.getShareId %}{% else %}{% url load_metadata_acquisition 'image' manager.image.id %}{% endif %}" style='display:none' >Acquisition</a>
             <img src="{% url webstatic "images/spinner.gif" %}" />
         </div>
         {% endif %}
@@ -151,7 +151,7 @@
             
             <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>    
             <!-- open-image link -->
-            <div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
+            <div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% if manager.getShareId %}{% url web_image_viewer manager.getShareId manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
                     
             <div class="description">
                 <span id='image_desc'>{{ manager.image.description|default_if_none:"no description"|linebreaks }}</span>
@@ -221,11 +221,11 @@
                     </tr>
                     <tr>
                         <th>Creation Date:</th>
-                        <td id='creation_date'>{{ manager.screen.getStartDate|date:"Y-m-d H:i:s" }}</td>
+                        <td id='creation_date'>{{ manager.share.getStartDate|date:"Y-m-d H:i:s" }}</td>
                     </tr> 
                     <tr>
                         <th>Expiry Date:</th>
-                        <td id='creation_date'>{{ manager.screen.getExpireDate|date:"Y-m-d H:i:s" }}</td>
+                        <td id='creation_date'>{{ manager.share.getExpireDate|date:"Y-m-d H:i:s" }}</td>
                     </tr>                   
                     <tr>
                         <th>Share Count:</th>

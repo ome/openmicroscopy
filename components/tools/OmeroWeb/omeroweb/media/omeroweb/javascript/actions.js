@@ -37,7 +37,7 @@ var loadOtherPanels = function(data, prefix) {
                     cm_var['content_details']['url'] = null;
                     cm_var['content_details']['rel'] = null;
                     cm_var['content_details']['empty'] = true;
-                } else if($.inArray(orel, ["dataset", "plate"]) > -1 && oid!==crel) {
+                } else if($.inArray(orel, ["dataset", "plate", "tag"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
                     cm_var['content_details']['url'] = prefix+orel+'/'+oid.split("-")[1]+'/?view=icon';
                     
@@ -55,9 +55,9 @@ var loadOtherPanels = function(data, prefix) {
                         if(pr.attr('rel').replace("-locked", "")==="share" && pr.attr('id')!==crel) {
                             cm_var['content_details']['rel'] = pr.attr('id');
                             cm_var['content_details']['url'] = prefix+pr.attr('id').split("-")[1]+'/?view=icon';
-                        } else if (pr.attr('rel').replace("-locked", "")=="tag") {
+                        } else if (pr.attr('rel').replace("-locked", "")!=="tag") {
                             cm_var['content_details']['rel'] = pr.attr('id');
-                            cm_var['content_details']['url'] = "/webclient/load_tags/?view=icon&o_type=tag&o_id="+pr.attr('id').split("-")[1];
+                            cm_var['content_details']['url'] = prefix+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
                         } else if (pr.attr('rel').replace("-locked", "")!=="orphaned") {
                             cm_var['content_details']['rel'] = pr.attr('id');
                             cm_var['content_details']['url'] = prefix+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
@@ -203,6 +203,10 @@ var refreshCenterPanel = function() {
             $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
             $("div#content_details").attr('rel', rel);
             $("div#content_details").load('/webclient/load_data/'+rel.split('-')[0]+'/?view=icon');
+        } else if (rel.indexOf("share")>=0) {
+                $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
+                $("div#content_details").attr('rel', rel);
+                $("div#content_details").load('/webclient/load_public/'+rel.split('-')[1]+'/?view=icon');
         } else {
             $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
             $("div#content_details").attr('rel', rel);

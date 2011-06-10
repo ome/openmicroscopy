@@ -939,7 +939,7 @@
 {% block content_script %}
   $(document).ready(function () {
     /* Prepare the viewport */
-    viewport = $.WeblitzViewport($('#weblitz-viewport'), '{% block viewport_base %}/webgateway{% endblock %}',{% block viewport_opts %}null{% endblock %});
+    viewport = $.WeblitzViewport($('#weblitz-viewport'), '{{ viewport_server }}',{% block viewport_opts %}null{% endblock %});
     viewport.bind('imageLoad', _refresh_cb);
 
     /* Prepare the Zoom spin button */

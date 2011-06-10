@@ -4,11 +4,6 @@
 {% load custom_tags %}
 {% load wikitags %}
 
-{% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
-{% endblock %}
-
 {% block jscript %}
 
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.cookie.js" %}"></script>
@@ -119,6 +114,17 @@
                                     "start_drag" : false,
             						"move_node" : false,
             						"remove" : false
+            					},
+            					"share-disabled" : {
+            						"valid_children" : [ "image", "image-locked" ],
+            						"icon" : {
+            							"image" : '{% url webstatic "images/folder_html_locked16.png" %}'
+            						},
+            						"select_node" : false,
+            						"create_node" : false,
+                                    "start_drag" : false,
+            						"move_node" : false,
+            						"remove" : false
             					},            					
             					"discussion" : {
             						"valid_children" : "none",
@@ -192,15 +198,17 @@
             	.bind("select_node.jstree", function (e, data) {
             	    buttonsShowHide(data.rslt.obj);
             	    loadOtherPanels(data, '{% url load_public %}');
+            	    syncPanels(data.inst.get_selected());
         		})
         		.bind("remove.jstree", function (e, data) {
         		    var pr = $(data.args[1]);
+        		    
         		    data.args[0].each(function (i) {
                         url = '/webclient/action/removefromshare/share/'+pr.attr('id').split('-')[1]+'/'
                         $.ajax({
             		        async : false,
                             url: url,
-                            data : {'source':$(this).attr('id')},
+                            data : {'source':$(this).attr('id').split("-")[1]},
                             dataType: "json",
                             type: "POST",
                             success: function(r){
@@ -213,7 +221,7 @@
                             },
                             error: function(response) {
                                 $.jstree.rollback(data.rlbk);
-                                alert("Internal server error. Cannot remove object.");
+                                alert("Internal server error. Cannot remove image.");
                             }
                         });
         		    });

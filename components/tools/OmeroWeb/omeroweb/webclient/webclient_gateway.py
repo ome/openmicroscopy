@@ -1351,7 +1351,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql = "select e from Experimenter e " \
                   "where e.id in (:ids) order by e.omeName"
             ms = q.findAllByQuery(sql, p)
-        sid = sh.createShare(message, expiration, items, ms, [], enable)
+        sid = sh.createShare(message, rtime(expiration), items, ms, [], enable)
         sh.addObjects(sid, items)
         
         #send email if avtive
@@ -1379,7 +1379,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     def updateShareOrDiscussion (self, host, blitz_id, share_id, message, add_members, rm_members, enable, expiration=None):
         sh = self.getShareService()
         sh.setDescription(long(share_id), message)
-        sh.setExpiration(long(share_id), expiration)
+        sh.setExpiration(long(share_id), rtime(expiration))
         sh.setActive(long(share_id), enable)
         if len(add_members) > 0:
             sh.addUsers(long(share_id), add_members)
@@ -1847,17 +1847,6 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
     omero_model_ShareI class wrapper extends BlitzObjectWrapper.
     """
     
-    def truncateMessageForTree(self):
-        try:
-            msg = self.getMessage().val
-            l = len(msg)
-            if l < 38:
-                return msg
-            return "..." + msg[l - 35:]
-        except:
-            logger.info(traceback.format_exc())
-            return self.getMessage().val
-    
     def getShareType(self):
         if self.itemCount == 0:
             return "Discussion"
@@ -1873,7 +1862,7 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         #workaround for problem of year 2038
         try:
             d = self.started+self.timeToLive
-            if d > 2051222400:
+            if d > 2051222400000:
                 return datetime(2035, 1, 1, 0, 0, 0)            
             return datetime.fromtimestamp(d / 1000)
         except:
@@ -1888,7 +1877,7 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         @rtype:     datetime object
         """
         
-        return datetime.fromtimestamp(self.getStarted().val/1000)
+        return datetime.fromtimestamp(self.getStarted()/1000)
         
     def getExpirationDate(self):
         """

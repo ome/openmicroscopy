@@ -505,10 +505,10 @@ class BaseContainer(BaseController):
     ####################################################################
     # Creation
     
-    def createDataset(self, name, description):
+    def createDataset(self, name, description=None):
         ds = omero.model.DatasetI()
         ds.name = rstring(str(name))
-        if description != "" :
+        if description is not None and description != "" :
             ds.description = rstring(str(description))
         if self.project is not None:
             l_ds = omero.model.ProjectDatasetLinkI()
@@ -517,17 +517,17 @@ class BaseContainer(BaseController):
             ds.addProjectDatasetLink(l_ds)
         return self.conn.saveAndReturnId(ds)
         
-    def createProject(self, name, description):
+    def createProject(self, name, description=None):
         pr = omero.model.ProjectI()
         pr.name = rstring(str(name))
-        if description != "" :
+        if description is not None and description != "" :
             pr.description = rstring(str(description))
         return self.conn.saveAndReturnId(pr)
     
-    def createScreen(self, name, description):
+    def createScreen(self, name, description=None):
         sc = omero.model.ScreenI()
         sc.name = rstring(str(name))
-        if description != "" :
+        if description is not None and description != "" :
             sc.description = rstring(str(description))
         return self.conn.saveAndReturnId(sc)
     
@@ -798,9 +798,9 @@ class BaseContainer(BaseController):
     ################################################################
     # Update
     
-    def updateDescription(self, o_type, o_id, description):
+    def updateDescription(self, o_type, o_id, description=None):
         obj = getattr(self, o_type)._obj
-        if description != "" :
+        if description is not None and description != "" :
             obj.description = rstring(str(description))
         else:
             obj.description = None
@@ -814,46 +814,46 @@ class BaseContainer(BaseController):
             obj.textValue = rstring(str(name))
         self.conn.saveObject(obj)
     
-    def updateImage(self, name, description):
+    def updateImage(self, name, description=None):
         img = self.image._obj
         img.name = rstring(str(name))
-        if description != "" :
+        if description is not None and description != "" :
             img.description = rstring(str(description))
         else:
             img.description = None
         self.conn.saveObject(img)
     
-    def updateDataset(self, name, description):
+    def updateDataset(self, name, description=None):
         container = self.dataset._obj
         container.name = rstring(str(name))
-        if description != "" :
+        if description is not None and description != "" :
             container.description = rstring(str(description))
         else:
             container.description = None
         self.conn.saveObject(container)
     
-    def updatePlate(self, name, description):
+    def updatePlate(self, name, description=None):
         container = self.plate._obj
         container.name = rstring(str(name))
-        if description != "" :
+        if description is not None and description != "" :
             container.description = rstring(str(description))
         else:
             container.description = None
         self.conn.saveObject(container)
     
-    def updateProject(self, name, description):
+    def updateProject(self, name, description=None):
         container = self.project._obj
         container.name = rstring(str(name))
-        if description != "" :
+        if description is not None and description != "" :
             container.description = rstring(str(description))
         else:
             container.description = None
         self.conn.saveObject(container)
     
-    def updateScreen(self, name, description):
+    def updateScreen(self, name, description=None):
         container = self.screen._obj
         container.name = rstring(str(name))
-        if description != "" :
+        if description is not None and description != "" :
             container.description = rstring(str(description))
         else:
             container.description = None
@@ -864,10 +864,10 @@ class BaseContainer(BaseController):
         ann.textValue = rstring(str(content))
         self.conn.saveObject(ann)
     
-    def saveTagAnnotation(self, tag, description):
+    def saveTagAnnotation(self, tag, description=None):
         ann = self.tag._obj
         ann.textValue = rstring(str(tag))
-        if description != "" :
+        if description is not None and description != "" :
             ann.description = rstring(str(description))
         else:
             ann.description = None

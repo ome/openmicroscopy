@@ -4,7 +4,6 @@
 {% load wikitags %}
     
     <script type="text/javascript" src="{% url webstatic "javascript/ui/jquery.ui.selectable.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function(){
@@ -150,7 +149,7 @@
         
     <ul id="dataIcons">
         {% for c in manager.containers.images %}
-        <li id="{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}><em>{{ c.name }}</em>
+        <li id="{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
             <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
         </li>
         {% endfor %}

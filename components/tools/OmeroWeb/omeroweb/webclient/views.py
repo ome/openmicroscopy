@@ -152,7 +152,8 @@ def isUserConnected (f):
             sh = conn.getShare(share_id)
             if sh is not None:
                 try:
-                    conn_share = getShareConnection(request, share_id)
+                    if sh.getOwner().id != conn.getEventContext().userId:
+                        conn_share = getShareConnection(request, share_id)
                 except Exception, x:
                     logger.error(traceback.format_exc())
         
@@ -913,9 +914,44 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def load_metadata_preview(request, imageId, **kwargs):
+def load_metadata_preview(request, imageId, share_id=None, **kwargs):
 
-    return render_to_response("webclient/annotations/metadata_preview.html", {"imageId": imageId})
+    conn = None
+    try:
+        conn = kwargs["conn"]        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    conn_share = None
+    try:
+        conn_share = kwargs["conn_share"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+    
+    try:
+        template = "webclient/annotations/metadata_preview.html"
+        if conn_share is not None:
+            manager = BaseContainer(conn_share, index=index, image=long(imageId))
+        else:
+            manager = BaseContainer(conn, index=index, image=long(imageId))
+    except AttributeError, x:
+        logger.error(traceback.format_exc())
+        return handlerInternalError(x)
+    
+    context = {'imageId':imageId, 'manager':manager}
+
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
 
 @isUserConnected
 def load_metadata_hierarchy(request, c_type, c_id, **kwargs):
@@ -945,11 +981,10 @@ def load_metadata_hierarchy(request, c_type, c_id, **kwargs):
         index = 0
 
     try:
+        template = "webclient/annotations/metadata_hierarchy.html"
         if conn_share is not None:
-            template = "webclient/annotations/annotations_share.html"                
             manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
         else:
-            template = "webclient/annotations/metadata_hierarchy.html"
             manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     except AttributeError, x:
         logger.error(traceback.format_exc())
@@ -997,7 +1032,7 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
             manager.getComments(c_id)
         else:
             if conn_share is not None:
-                template = "webclient/annotations/annotations_share.html"                
+                template = "webclient/annotations/metadata_acquisition.html"                
                 manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
             else:
                 template = "webclient/annotations/metadata_acquisition.html"
@@ -1333,7 +1368,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form.is_valid():
                 logger.debug("Create new in %s: %s" % (o_type, str(form.cleaned_data)))
                 name = form.cleaned_data['name']
-                description = form.cleaned_data['description']                
+                description = form.cleaned_data['description']              
                 oid = manager.createDataset(name, description)
                 rdict = {'bad':'false', 'id': oid}
                 json = simplejson.dumps(rdict, ensure_ascii=False)
@@ -1370,6 +1405,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         if o_type == "project" and o_id > 0:
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
+                logger.debug("Create new dataset: %s" % (str(form.cleaned_data)))
                 name = form.cleaned_data['name']
                 description = form.cleaned_data['description']
                 manager.createDataset(name, description)
@@ -1381,6 +1417,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if request.REQUEST.get('folder_type') in ("project", "screen", "dataset"):
                 form = ContainerForm(data=request.REQUEST.copy())
                 if form.is_valid():
+                    logger.debug("Create new folder: %s" % (str(form.cleaned_data)))
                     name = form.cleaned_data['name']
                     description = form.cleaned_data['description']
                     getattr(manager, "create"+request.REQUEST.get('folder_type').capitalize())(name, description)
@@ -1394,6 +1431,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             manager.getMembers(o_id)
             manager.getComments(o_id)
             experimenters = list(conn.getExperimenters())
+            experimenters.sort(key=lambda x: x.getOmeName().lower())
             if manager.share.getExpirationDate() is not None:
                 form = ShareForm(initial={'message': manager.share.message, 'expiration': manager.share.getExpirationDate().strftime("%Y-%m-%d"), \
                                         'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
@@ -1415,6 +1453,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if hasattr(manager, o_type) and o_id > 0:
                 form = ContainerForm(data=request.REQUEST.copy())
                 if form.is_valid():
+                    logger.debug("Update: %s" % (str(form.cleaned_data)))
                     name = form.cleaned_data['name']
                     description = form.cleaned_data['description']               
                     getattr(manager, "update"+o_type.capitalize())(name, description)
@@ -1425,6 +1464,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         elif o_type == 'comment':
             form = CommentAnnotationForm(data=request.REQUEST.copy())
             if form.is_valid():
+                logger.debug("Save Comment: %s" % (str(form.cleaned_data)))
                 content = form.cleaned_data['content']
                 manager.saveCommentAnnotation(content)
                 return HttpResponseRedirect(url)
@@ -1434,6 +1474,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         elif o_type == 'tag':
             form = TagAnnotationForm(data=request.REQUEST.copy())
             if form.is_valid():
+                logger.debug("Save Tag: %s" % (str(form.cleaned_data)))
                 tag = form.cleaned_data['tag']
                 description = form.cleaned_data['description']
                 manager.saveTagAnnotation(tag, description)
@@ -1442,9 +1483,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 template = "webclient/data/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
         elif o_type == "share":
-            experimenters = list(conn.getExperimenters())            
+            experimenters = list(conn.getExperimenters())
+            experimenters.sort(key=lambda x: x.getOmeName().lower())
             form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
             if form.is_valid():
+                logger.debug("Update share: %s" % (str(form.cleaned_data)))
                 message = form.cleaned_data['message']
                 expiration = form.cleaned_data['expiration']
                 members = form.cleaned_data['members']
@@ -1454,7 +1497,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
                 except:
                     host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
-                manager.updateShareOrDiscussion(host, request.session['server'], message, members, enable, expiration)
+                manager.updateShareOrDiscussion(host, request.session.get('server'), message, members, enable, expiration)
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/public/share_form.html"
@@ -1462,6 +1505,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         elif o_type == "sharecomment":
             form_sharecomments = ShareCommentForm(data=request.REQUEST.copy())
             if form_sharecomments.is_valid():
+                logger.debug("Create share comment: %s" % (str(form_sharecomments.cleaned_data)))
                 comment = form_sharecomments.cleaned_data['comment']
                 try:
                     host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
@@ -1580,14 +1624,17 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         json = simplejson.dumps(rdict, ensure_ascii=False)
         return HttpResponse( json, mimetype='application/javascript')
     elif action == 'removefromshare':
-        image_id = request.REQUEST['source'].split('-')[1]
+        image_id = request.REQUEST.get('source')
         try:
             manager.removeImage(image_id)
         except Exception, x:
             logger.error(traceback.format_exc())
-            rv = "Error: %s" % x
-            return HttpResponse(rv)
-        return HttpResponseRedirect(url)
+            rdict = {'bad':'true','errs': str(x) }
+            json = simplejson.dumps(rdict, ensure_ascii=False)
+            return HttpResponse( json, mimetype='application/javascript')
+        rdict = {'bad':'false' }
+        json = simplejson.dumps(rdict, ensure_ascii=False)
+        return HttpResponse( json, mimetype='application/javascript')
     elif action == 'addcomment':
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newcomment", o_type, oid]))
@@ -1789,8 +1836,6 @@ def load_public(request, share_id=None, **kwargs):
             template = "webclient/public/share_subtree.html"
         elif view == 'icon':
             template = "webclient/public/share_content_icon.html"
-        elif view == 'table':
-            template = "webclient/public/share_content_table.html"
         controller = BaseShare(conn, conn_share, share_id)
         if conn_share is None:
             controller.loadShareOwnerContent()
@@ -1833,7 +1878,8 @@ def basket_action (request, action=None, **kwargs):
         template = "webclient/basket/basket_share_action.html"
         basket = BaseBasket(conn)
         basket.load_basket(request)
-        experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
+        experimenters = list(conn.getExperimenters())
+        experimenters.sort(key=lambda x: x.getOmeName().lower())
         selected = [long(i) for i in request.REQUEST.getlist('image')]        
         form = BasketShareForm(initial={'experimenters':experimenters, 'images':basket.imageInBasket, 'enable':True, 'selected':selected})            
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
@@ -1843,7 +1889,8 @@ def basket_action (request, action=None, **kwargs):
         
         basket = BaseBasket(conn)
         basket.load_basket(request)
-        experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
+        experimenters = list(conn.getExperimenters())
+        experimenters.sort(key=lambda x: x.getOmeName().lower())
         form = BasketShareForm(initial={'experimenters':experimenters, 'images':basket.imageInBasket}, data=request.REQUEST.copy())
         if form.is_valid():
             images = form.cleaned_data['image']
@@ -1865,7 +1912,8 @@ def basket_action (request, action=None, **kwargs):
     elif action == "todiscuss":
         template = "webclient/basket/basket_discussion_action.html"
         basket = BaseBasket(conn)
-        experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
+        experimenters = list(conn.getExperimenters())
+        experimenters.sort(key=lambda x: x.getOmeName().lower())
         form = ShareForm(initial={'experimenters':experimenters, 'enable':True})            
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
     elif action == "createdisc":
@@ -1873,7 +1921,8 @@ def basket_action (request, action=None, **kwargs):
             return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, oid]))
         
         basket = BaseBasket(conn)
-        experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
+        experimenters = list(conn.getExperimenters())
+        experimenters.sort(key=lambda x: x.getOmeName().lower())
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
             message = form.cleaned_data['message']
@@ -2366,7 +2415,7 @@ def render_thumbnail (request, iid, share_id=None, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
+        raise Exception("Connection not available")
     img = conn.getObject("Image", iid)
     
     if img is None:
@@ -2394,7 +2443,7 @@ def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
+        raise Exception("Connection not available")
     img = conn.getObject("Image", iid)
     
     if img is None:
@@ -2426,7 +2475,7 @@ def render_image (request, iid, z, t, share_id=None, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
+        raise Exception("Connection not available")
 
     return webgateway_views.render_image(request, iid, z, t, _conn=conn, **kwargs)
 
@@ -2451,7 +2500,7 @@ def render_image_region (request, iid, z, t, server_id=None, share_id=None, _con
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
+        raise Exception("Connection not available")
 
     return webgateway_views.render_image_region(request, iid, z, t, server_id=None, _conn=conn, **kwargs)
 
@@ -2476,7 +2525,7 @@ def image_viewer (request, iid, share_id=None, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
+        raise Exception("Connection not available")
 
     return webgateway_views.full_viewer(request, iid, _conn=conn, **kwargs)
 
@@ -2499,7 +2548,7 @@ def imageData_json (request, iid, share_id=None, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
+        raise Exception("Connection not available")
 
     return HttpResponse(webgateway_views.imageData_json(request, iid=iid, _conn=conn, **kwargs), mimetype='application/javascript')
 
@@ -2521,7 +2570,7 @@ def render_row_plot (request, iid, z, t, y, share_id=None, w=1, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
+        raise Exception("Connection not available")
     img = conn.getObject("Image", iid)
 
     return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, _conn=conn, **kwargs)
@@ -2544,7 +2593,7 @@ def render_col_plot (request, iid, z, t, x, share_id=None, w=1, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
+        raise Exception("Connection not available")
     img = conn.getObject("Image", iid)
 
     return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, _conn=conn, **kwargs)
@@ -2567,7 +2616,7 @@ def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
+        raise Exception("Connection not available")
     img = conn.getObject("Image", iid)
 
     return webgateway_views.render_split_channel(request, iid, z, t, _conn=conn, **kwargs)

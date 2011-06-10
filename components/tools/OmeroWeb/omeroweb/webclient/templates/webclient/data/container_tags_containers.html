@@ -4,7 +4,7 @@
     
 
 <ul>
-    {% if manager.containers.projects or manager.containers.datasets or manager.containers.screens or manager.containers.images %}
+    {% if manager.containers.projects or manager.containers.datasets or manager.containers.screens or manager.containers.plates or manager.containers.images %}
     {% for c in manager.containers.projects %}
     <li id='project-{{ c.id }}' rel="project"><a href="#">{{ c.name|truncatebefor:"35" }}</a>
         <ul>

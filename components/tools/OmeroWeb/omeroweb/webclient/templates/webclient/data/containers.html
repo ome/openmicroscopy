@@ -49,6 +49,8 @@
                                 toolbar_config = {"addproject":false, 'adddataset':true, 'addscreen':false, 'rename':true, 'copy':false, 'cut':false, 'paste':true, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false};
                             } else if(selected.attr("id").indexOf("plate")>=0) {
                                 toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':true, 'copy':true, 'cut':true, 'paste':false, 'unlink':true, 'delete':true, 'annotation':false, 'basket':false};
+                            } else {
+                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
                             }
                         }
                     }

@@ -42,7 +42,9 @@
                                 toolbar_config = {'rename':true, 'delete':true};
                             } else if(selected.attr("id").indexOf("tag")>=0) {
                                 toolbar_config = {'rename':true, 'delete':true};
-                            } 
+                            } else {
+                                toolbar_config = {'rename':false, 'delete':false};
+                            }
                         }
                     }
                     
@@ -278,7 +280,7 @@
         		.bind("select_node.jstree", function (e, data) {
             	    var selected = data.inst.get_selected();
             	    buttonsShowHide(selected);
-            	    loadOtherPanels(data, '{% url load_data %}');
+            	    loadOtherPanels(data, '{% url load_data_by_tag %}');
             	    syncPanels(selected);
         		})
         		.bind("rename.jstree", function (e, data) {
