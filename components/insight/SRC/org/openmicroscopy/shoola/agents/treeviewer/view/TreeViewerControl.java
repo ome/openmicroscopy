@@ -990,7 +990,12 @@ class TreeViewerControl
 		} else if (MetadataViewer.APPLY_SETTINGS_PROPERTY.equals(name)) {
 			Object object = pce.getNewValue();
 			if (object instanceof ImageData) {
+				ImageData img = (ImageData) object;
 				model.copyRndSettings((ImageData) object);
+				List<Long> ids = new ArrayList<Long>(1);
+				ids.add(img.getId());
+				view.reloadThumbnails(ids);
+				
 				//improve code to speed it up
 				List l = model.getSelectedBrowser().getSelectedDataObjects();
 				Collection toUpdate;
@@ -1005,8 +1010,12 @@ class TreeViewerControl
 				Object[] objects = (Object[]) object;
 				WellSampleData wsd = (WellSampleData) objects[0];
 				WellData well = (WellData) objects[1];
-				model.copyRndSettings(wsd.getImage());
+				ImageData img = wsd.getImage();
+				model.copyRndSettings(img);
 				List<Long> ids = new ArrayList<Long>(1);
+				ids.add(img.getId());
+				view.reloadThumbnails(ids);
+				ids = new ArrayList<Long>(1);
 				ids.add(well.getPlate().getId());
 				model.pasteRndSettings(ids, PlateData.class);
 			}
