@@ -1,7 +1,4 @@
 # encoding: utf-8
-import sys
-reload(sys)
-sys.setdefaultencoding("utf-8")
 
 import unittest, time, os, datetime
 import tempfile
@@ -279,8 +276,8 @@ class WebAdminTest(WebTest):
         
         # private group
         params = {
-            "name":"русский_алфавит %s" % uuid,
-            "description":"Frühstück-Śniadanie. Tschüß-Cześć",
+            "name":u"русский_алфавит %s" % uuid,
+            "description":u"Frühstück-Śniadanie. Tschüß-Cześć",
             "owners": [0L],
             "permissions":0
         }
