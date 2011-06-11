@@ -174,6 +174,21 @@ class BrowserUI
     	birdEyeView.setSelection(x, y, w, h);
     }
     
+	/** Centers the image.*/
+	private void center()
+	{
+		Rectangle r = getViewport().getViewRect();
+		Dimension d = layeredPane.getPreferredSize();
+		int xLoc = ((r.width-d.width)/2);
+		int yLoc = ((r.height-d.height)/2);
+		JComponent sibling = siblings.get(model.getSelectedIndex());
+		if (sibling != null) 
+			sibling.setBounds(sibling.getBounds());
+		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
+		setSelectionRegion();
+		setBirdEyeViewLocation();
+	}
+	
     /** Initializes the components composing the display. */
     private void initComponents()
     {
@@ -434,23 +449,18 @@ class BrowserUI
     void setComponentsSize(int w, int h)
     {
     	Dimension d = new Dimension(w, h);
-    	/*
-    	if (model.isBigImage()) {
-    		Dimension dl = layeredPane.getPreferredSize();
-    		if (dl != null && (dl.width == 0 || dl.height == 0)) {
-    			layeredPane.setPreferredSize(d);
-                layeredPane.setSize(d);
-    		}
-    	} else {
-    		layeredPane.setPreferredSize(d);
-            layeredPane.setSize(d);
-    	}
-    	*/
     	layeredPane.setPreferredSize(d);
         layeredPane.setSize(d);
         canvas.setPreferredSize(d);
         canvas.setSize(d);
-        if (model.isBigImage()) setSelectionRegion();
+        if (model.isBigImage()) {
+        	setSelectionRegion();
+        	Rectangle r = getViewport().getViewRect();
+    		d = layeredPane.getPreferredSize();
+			if (d.width < r.width && d.height < r.height) {
+				center();
+			}
+        }
     }
     
     /** 
@@ -644,21 +654,17 @@ class BrowserUI
 	public void setBounds(int x, int y, int width, int height)
 	{
 		super.setBounds(x, y, width, height);
+		Rectangle r = getViewport().getViewRect();
+		Dimension d = layeredPane.getPreferredSize();
 		if (model.isBigImage()) {
     		//setSelectionRegion();
 			setBirdEyeViewLocation();
-			return;
+			if (!(d.width < r.width && d.height < r.height))
+				return;
 		}
 		if (!scrollbarsVisible() && adjusting) adjusting = false;
 		if (adjusting) return;
-		Rectangle r = getViewport().getViewRect();
-		Dimension d = layeredPane.getPreferredSize();
-		int xLoc = ((r.width-d.width)/2);
-		int yLoc = ((r.height-d.height)/2);
-		JComponent sibling = siblings.get(model.getSelectedIndex());
-		if (sibling != null) 
-			sibling.setBounds(sibling.getBounds());
-		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
+		center();
 	}
 	
 }
