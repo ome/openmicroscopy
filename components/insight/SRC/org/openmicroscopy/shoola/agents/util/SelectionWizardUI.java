@@ -76,7 +76,7 @@ public class SelectionWizardUI
 {
 
 	/** Bound property indicating that the selection has changed. */
-	static final String SELECTION_CHANGE = "selectionChange";
+	public static final String SELECTION_CHANGE = "selectionChange";
 	
 	/** Action command ID to add a field to the result table. */
 	private static final int 		ADD = 0;

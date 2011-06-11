@@ -58,11 +58,7 @@ abstract class DataPane
     /** Fires a property allowing or not to save the data. */
     private void enableSave()
     {
-    	if (nameArea == null) return;
-    	String name = nameArea.getText();
-    	name = name.trim();
-    	int l = name.length();
-    	boolean b = l > 0;
+    	boolean b = isNameValid();
     	firePropertyChange(AdminDialog.ENABLE_SAVE_PROPERTY, !b, b);
     }
     
@@ -73,6 +69,20 @@ abstract class DataPane
     	nameArea.getDocument().addDocumentListener(this);
     }
 	
+    /**
+     * Returns <code>true</code> if the name is valid, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isNameValid()
+    {
+    	if (nameArea == null) return false;
+    	String name = nameArea.getText();
+    	name = name.trim();
+    	return name.length() > 0;
+    }
+
 	/**
 	 * Fires property indicating that some text has been entered.
 	 * @see DocumentListener#insertUpdate(DocumentEvent)
