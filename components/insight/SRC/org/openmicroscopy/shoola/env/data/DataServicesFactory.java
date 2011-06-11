@@ -40,12 +40,15 @@ import java.util.concurrent.TimeUnit;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.api.RenderingEnginePrx;
+
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
@@ -320,12 +323,31 @@ public class DataServicesFactory
 				} else if (v == MessageBox.YES_OPTION) {
 					UserCredentials uc = (UserCredentials) 
 					registry.lookup(LookupNames.USER_CREDENTIALS);
+					List<Long> l = omeroGateway.getRenderingServices();
 					boolean b =  omeroGateway.reconnect(uc.getUserName(), 
             				uc.getPassword());
 					connectionDialog = null;
 					if (b) {
+						//reactivate the rendering engine.
+						Iterator<Long> i = l.iterator();
+						OmeroImageService svc = registry.getImageService();
+						Long id;
+						List<Long> failure = new ArrayList<Long>();
+						while (i.hasNext()) {
+							id = i.next();
+							try {
+								svc.reloadRenderingService(id);
+							} catch (Exception e) {
+								failure.add(id);
+							}
+						}
 						message = "You are reconnected to the server.";
 						un.notifyInfo("Reconnection Success", message);
+						if (failure.size() > 0) {
+							//notify user.
+							registry.getEventBus().post(
+									new ReloadRenderingEngine(failure));
+						}
 					} else {
 						message = "A failure occurred while attempting to " +
 								"reconnect.\nThe application will now exit.";
@@ -566,4 +588,9 @@ public class DataServicesFactory
 		container.exit();
 	}
 
+	public static void isSessionAlive(Registry context)
+	{
+		if (context == registry) omeroGateway.isSessionAlive();
+	}
+	
 }

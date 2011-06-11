@@ -389,5 +389,5 @@ public interface AdminService
 	 */
 	public DiskQuota getQuota(Class type, long id)
 		throws DSOutOfServiceException, DSAccessException;
-	
+
 }

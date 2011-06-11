@@ -260,7 +260,7 @@ public class PixelsServicesFactory
 	 * @param pixelsID	The ID of the pixels set.
 	 * @param re		The {@link RenderingEngine rendering service}.
 	 * @return See above.
-	 * @throws RenderingServiceException	If an error occured while setting 
+	 * @throws RenderingServiceException	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -291,7 +291,7 @@ public class PixelsServicesFactory
 	 * 					This is passed to speed up the initialization 
 	 * 					sequence.
 	 * @return See above.
-	 * @throws RenderingServiceException	If an error occured while setting 
+	 * @throws RenderingServiceException	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */

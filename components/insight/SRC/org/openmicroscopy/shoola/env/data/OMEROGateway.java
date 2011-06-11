@@ -67,6 +67,8 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import Ice.CommunicatorDestroyedException;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
@@ -474,21 +476,20 @@ class OMEROGateway
 	private Map<Long, FSFileSystemView>				fsViews;
 	
 	/** Checks if the session is still alive. */
-	private void isSessionAlive()
+	synchronized void isSessionAlive()
 	{
 		if (!connected) return;
-		/*
 		try {
 			getAdminService().getEventContext();
 		} catch (Exception e) {
 			Throwable cause = e.getCause();
 			int index = DataServicesFactory.SERVER_OUT_OF_SERVICE;
-			if (cause instanceof ConnectionLostException)
+			if (cause instanceof ConnectionLostException ||
+				e instanceof ConnectionLostException)
 				index = DataServicesFactory.LOST_CONNECTION;
 			connected = false;
 			dsFactory.sessionExpiredExit(index);
 		}
-		*/
 	}
 	
 	/**
@@ -868,16 +869,20 @@ class OMEROGateway
 				t instanceof ConnectionRefusedException ||
 				cause instanceof ConnectionTimeoutException || 
 				t instanceof ConnectionTimeoutException) {
+			/*
 			if (!connected) return;
 			connected = false;
 			dsFactory.sessionExpiredExit(
 					DataServicesFactory.SERVER_OUT_OF_SERVICE);
+					*/
 			return;
 		} else if (cause instanceof ConnectionLostException ||
 				t instanceof ConnectionLostException) {
+			/*
 			if (!connected) return;
 			connected = false;
 			dsFactory.sessionExpiredExit(DataServicesFactory.LOST_CONNECTION);
+			*/
 			return;
 		}
 		throw new DSAccessException("Cannot access data. \n"+message, t);
@@ -2421,6 +2426,25 @@ class OMEROGateway
 		*/
 	}
 	
+	/**
+	 * Returns the pixels id corresponding to the Rendering engine to
+	 * reactivate.
+	 * 
+	 * @return See above.
+	 */
+	List<Long> getRenderingServices()
+	{
+		List<Long> l = new ArrayList<Long>();
+		if (reServices == null || reServices.size() == 0) return l;
+		Entry entry;
+		Iterator i = reServices.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			l.add((Long) entry.getKey());
+		}
+		return l;
+	}
+	
 	/** 
 	 * Tries to reconnect to the server. Returns <code>true</code>
 	 * if it was possible to reconnect, <code>false</code>
@@ -2433,6 +2457,7 @@ class OMEROGateway
 	boolean reconnect(String userName, String password)
 	{
 		boolean b = entryUnencrypted != null;
+		//sList
 		clear();
 		try {
 			//first to rejoin the session.

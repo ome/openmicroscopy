@@ -56,6 +56,7 @@ import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -205,29 +206,28 @@ class RenderingControlProxy
     private void handleException(Throwable t, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	/*
-    	if (e instanceof ServerError) {
-    		shutDown();
-    		throw new DSOutOfServiceException(message+"\n\n"+
-					printErrorText(e), e);
-    	}
-    	*/
     	Throwable cause = t.getCause();
     	if (cause instanceof ConnectionRefusedException || 
 				t instanceof ConnectionRefusedException ||
 				cause instanceof ConnectionTimeoutException || 
 				t instanceof ConnectionTimeoutException) {
-			context.getTaskBar().sessionExpired(
-					TaskBar.SERVER_OUT_OF_SERVICE);
+			//context.getTaskBar().sessionExpired(
+			//		TaskBar.SERVER_OUT_OF_SERVICE);
 			return;
 		} else if (cause instanceof ConnectionLostException ||
 				t instanceof ConnectionLostException) {
-			context.getTaskBar().sessionExpired(
-					TaskBar.LOST_CONNECTION);
+			//context.getTaskBar().sessionExpired(
+			//		TaskBar.LOST_CONNECTION);
 			return;
 		}
     	throw new RenderingServiceException(message+"\n\n"+
 				printErrorText(t), t);
+    }
+    
+    /** Checks if the session is still alive.*/
+    private void isSessionAlive()
+    {
+    	DataServicesFactory.isSessionAlive(context);
     }
     
     /**
@@ -819,7 +819,6 @@ class RenderingControlProxy
     	try {
 			this.servant.close();
 		} catch (Exception e) {} //digest exception if already close.
-    	//DataServicesFactory.isSessionAlive(context);
     	invalidateCache();
     	this.servant = servant;
     	try {
@@ -926,7 +925,7 @@ class RenderingControlProxy
     public void setModel(String value)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		Iterator i = models.iterator();
             RenderingModel model;
@@ -969,7 +968,7 @@ class RenderingControlProxy
     public void setDefaultZ(int z)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		int maxZ = getPixelsDimensionsZ();
     		if (z < 0) z = 0;
@@ -989,7 +988,7 @@ class RenderingControlProxy
     public void setDefaultT(int t)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		int maxT = getPixelsDimensionsT();
     		if (t < 0) t = 0;
@@ -1010,7 +1009,7 @@ class RenderingControlProxy
     	throws RenderingServiceException, DSOutOfServiceException
     {
         //TODO: need to convert value.
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		checkBitResolution(bitResolution);
             servant.setQuantumStrategy(bitResolution);
@@ -1029,7 +1028,7 @@ class RenderingControlProxy
     public void setCodomainInterval(int start, int end)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		servant.setCodomainInterval(start, end);
             rndDef.setCodomain(start, end);
@@ -1048,7 +1047,7 @@ class RenderingControlProxy
                                     boolean noiseReduction)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		List list = servant.getAvailableFamilies();
             Iterator i = list.iterator();
@@ -1110,7 +1109,7 @@ class RenderingControlProxy
     public void setChannelWindow(int w, double start, double end)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		servant.setChannelWindow(w, start, end);
             rndDef.getChannel(w).setInterval(start, end);
@@ -1150,7 +1149,7 @@ class RenderingControlProxy
     public void setRGBA(int w, Color c)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		servant.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), 
     						c.getAlpha());
@@ -1181,7 +1180,7 @@ class RenderingControlProxy
     public void setActive(int w, boolean active)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		servant.setActive(w, active);
             rndDef.getChannel(w).setActive(active);
@@ -1258,7 +1257,7 @@ class RenderingControlProxy
     public RndProxyDef saveCurrentSettings()
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		servant.saveCurrentSettings();
 			return rndDef.copy();
@@ -1275,7 +1274,7 @@ class RenderingControlProxy
     public void resetDefaults()
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		 servant.resetDefaultsNoSave();
     		 invalidateCache();
@@ -1455,7 +1454,7 @@ class RenderingControlProxy
 		if (rndDef.getNumberOfChannels() != getPixelsDimensionsC())
 			throw new IllegalArgumentException("Rendering settings not " +
 					"compatible.");
-		//DataServicesFactory.isSessionAlive(context);
+		isSessionAlive();
 		setDefaultT(rndDef.getDefaultT());
 		setDefaultZ(rndDef.getDefaultZ());
 		setModel(rndDef.getColorModel());
@@ -1509,7 +1508,6 @@ class RenderingControlProxy
 	public boolean validatePixels(PixelsData pixels)
 	{
 		if (pixels == null) return false;
-		//DataServicesFactory.isSessionAlive(context);
 		if (getPixelsDimensionsC() != pixels.getSizeC()) return false;
 		if (getPixelsDimensionsY() != pixels.getSizeY()) return false;
 		if (getPixelsDimensionsX() != pixels.getSizeX()) return false;
@@ -1526,6 +1524,7 @@ class RenderingControlProxy
     public BufferedImage render(PlaneDef pDef)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	isSessionAlive();
         return render(pDef, compression);
     }
     
@@ -1536,6 +1535,7 @@ class RenderingControlProxy
     public BufferedImage render(PlaneDef pDef, int value)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	isSessionAlive();
     	if (pDef == null) 
              throw new IllegalArgumentException("Plane def cannot be null.");
     	if (value != compression) setCompression(value);
@@ -1585,7 +1585,7 @@ class RenderingControlProxy
 	public void setOriginalRndSettings() 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		//DataServicesFactory.isSessionAlive(context);
+		isSessionAlive();
     	try {
     		servant.resetDefaultsNoSave();
     		if (getPixelsDimensionsC() > 1) setModel(RGB);
@@ -1624,7 +1624,7 @@ class RenderingControlProxy
 			                           int type, List<Integer> channels) 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		//DataServicesFactory.isSessionAlive(context);
+		isSessionAlive();
 		List<Integer> active = getActiveChannels();
 		for (int i = 0; i < getPixelsDimensionsC(); i++) 
 			setActive(i, false);
@@ -1652,7 +1652,7 @@ class RenderingControlProxy
 			int stepping, int type, List<Integer> channels) 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		//DataServicesFactory.isSessionAlive(context);
+		isSessionAlive();
 		List<Integer> active = getActiveChannels();
 		for (int i = 0; i < getPixelsDimensionsC(); i++) 
 			setActive(i, false);
@@ -1800,11 +1800,12 @@ class RenderingControlProxy
 	public TextureData renderAsTexture(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		 if (pDef == null) 
-	            throw new IllegalArgumentException("Plane def cannot be null.");
-	        //DataServicesFactory.isSessionAlive(context);
-	     if (isCompressed()) 
-	    	 return renderCompressedAsTexture(pDef);
+		isSessionAlive();
+		if (pDef == null) 
+			throw new IllegalArgumentException("Plane def cannot be null.");
+		//DataServicesFactory.isSessionAlive(context);
+		if (isCompressed()) 
+			return renderCompressedAsTexture(pDef);
 	     return renderUncompressedAsTexture(pDef);
 	}
 
