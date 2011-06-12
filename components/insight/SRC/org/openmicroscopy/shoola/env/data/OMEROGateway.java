@@ -67,8 +67,6 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import Ice.CommunicatorDestroyedException;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
@@ -6676,6 +6674,7 @@ class OMEROGateway
 				 */
 				Iterator si = serverCoordMap.entrySet().iterator();
 				Entry entry;
+				List<ROICoordinate> removed = new ArrayList<ROICoordinate>();
 				while (si.hasNext())
 				{
 					entry = (Entry) si.next();
@@ -6692,8 +6691,10 @@ class OMEROGateway
 							if ((s instanceof Line && 
 									shape.asIObject() instanceof Polyline) ||
 								(s instanceof Polyline && 
-									shape.asIObject() instanceof Line))
+									shape.asIObject() instanceof Line)) {
+								removed.add(coord);
 								updateService.deleteObject(s);
+							}
 						}
 					}
 				}
@@ -6712,10 +6713,10 @@ class OMEROGateway
 				}
 				
 				/*
-				 * Step 6. Check to see if the roi in the cleint has been updated
+				 * Step 6. Check to see if the roi in the client has been updated
 				 * if so replace the server roiShape with the client one.
 				 */
-				si  = clientCoordMap.entrySet().iterator();
+				si = clientCoordMap.entrySet().iterator();
 				Shape serverShape;
 				
 				while (si.hasNext())
@@ -6724,7 +6725,6 @@ class OMEROGateway
 					coord = (ROICoordinate) entry.getKey();
 					shape = (ShapeData) entry.getValue();
 					if (shape != null) {
-						
 						if (!serverCoordMap.containsKey(coord))
 							serverRoi.addShape((Shape) shape.asIObject());
 						else if (shape.isDirty())
@@ -6736,9 +6736,10 @@ class OMEROGateway
 									serverShape = serverRoi.getShape(j);
 									if (serverShape != null) 
 									{
-										if (serverShape.getId()!=null)
+										if (serverShape.getId() != null)
 										{
-											if(serverShape.getId().getValue() == shape.getId())
+											if (serverShape.getId().getValue()
+												== shape.getId())
 											{
 											shapeIndex = j;
 											break;
@@ -6749,7 +6750,7 @@ class OMEROGateway
 							}
 							if (shapeIndex == -1)
 							{
-								serverShape=null;
+								serverShape = null;
 								shapeIndex = -1;
 								for (int j = 0 ; j < serverRoi.sizeOfShapes() ; j++)
 								{
@@ -6758,8 +6759,10 @@ class OMEROGateway
 										serverShape = serverRoi.getShape(j);
 										if (serverShape != null) 
 										{
-											if (serverShape.getTheT().getValue()==shape.getT() && 
-													serverShape.getTheZ().getValue()==shape.getZ())
+											if (serverShape.getTheT().getValue()
+												== shape.getT() && 
+												serverShape.getTheZ().getValue()
+												== shape.getZ())
 											{
 												shapeIndex = j;
 												break;
@@ -6767,9 +6770,10 @@ class OMEROGateway
 										}
 									}
 								}
-								if(shapeIndex!=-1)
+								if (shapeIndex!=-1)
 								{
-									updateService.deleteObject(serverShape);
+									if (!removed.contains(coord))
+										updateService.deleteObject(serverShape);
 									serverRoi.addShape((Shape) shape.asIObject());
 								}
 								else
