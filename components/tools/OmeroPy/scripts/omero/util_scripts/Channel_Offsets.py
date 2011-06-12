@@ -69,6 +69,7 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, dataset=None):
     sizeT = oldImage.getSizeT()
     sizeX = oldImage.getSizeX()
     sizeY = oldImage.getSizeY()
+    colors = [c.getColor().getRGB() for c in oldImage.getChannels()]
 
     # check we're not dealing with Big image.
     rps = oldImage.getPrimaryPixels()._prepareRawPixelsStore()
@@ -93,9 +94,11 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, dataset=None):
 
     # for convenience, make a map of channel:offsets
     offsetMap = {}
+    newImageColors = []
     for c in channel_offsets:
         cIndex = c['index']
         if cIndex < sizeC:
+            newImageColors.append(colors[cIndex])
             offsetMap[cIndex] = {'x':c['x'], 'y': c['y'], 'z':c['z']}
 
     def offsetPlane(plane, x, y):
@@ -128,20 +131,28 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, dataset=None):
         dt = None
         # get the planes one at a time - exceptions on getPlane() don't affect subsequent calls (new RawPixelsStore)
         for i in range(len(zctList)):
-            print "generating plane offset for zct:", zctList[i]
-            try:
-                plane = pixels.getPlane(*zctList[i])
-                dt = plane.dtype
-            except:
-                # E.g. the Z-index is out of range - Simply supply an array of zeros.
+            z,c,t = zctList[i]
+            offsets = offsetMap[c]
+            if z < 0 or z >= sizeZ:
+                print "Black plane for zct:", zctList[i]
                 if dt is None:
                     # if we are on our first plane, we don't know datatype yet...
                     dt = pixels.getPlane(0,0,0).dtype  # hack! TODO: add method to pixels to supply dtype
                 plane = zeros((sizeY, sizeX), dt)
-            z,c,t = zctList[i]
-            offsets = offsetMap[c]
+            else:
+                print "getPlane for zct:", zctList[i], "applying offsets:", offsets
+                try:
+                    plane = pixels.getPlane(*zctList[i])
+                    dt = plane.dtype
+                except:
+                    # E.g. the Z-index is out of range - Simply supply an array of zeros.
+                    if dt is None:
+                        # if we are on our first plane, we don't know datatype yet...
+                        dt = pixels.getPlane(0,0,0).dtype  # hack! TODO: add method to pixels to supply dtype
+                    plane = zeros((sizeY, sizeX), dt)
             yield offsetPlane(plane, offsets['x'], offsets['y'])
     
+    # create a new image with our generator of numpy planes.
     newImageName = "%s_offsets" % oldImage.getName()
     descLines = [" Channel %s: Offsets x: %s y: %s z: %s" % (c['index'], c['x'], c['y'], c['z']) for c in channel_offsets]
     desc = "Image created from Image ID: %s by applying Channel Offsets:\n" % imageId
@@ -149,6 +160,16 @@ def newImageWithChannelOffsets(conn, imageId, channel_offsets, dataset=None):
     serviceFactory = conn.c.sf  # make sure that script_utils creates a NEW rawPixelsStore
     i = conn.createImageFromNumpySeq(offsetPlaneGen(), newImageName,
         sizeZ=sizeZ, sizeC=len(offsetMap.items()), sizeT=sizeT, description=desc, dataset=dataset)
+
+    # apply colors from the original image to the new one
+    i._prepareRenderingEngine()
+    print "Applying colors..."
+    for c, color in enumerate(newImageColors):
+        r,g,b = color
+        print "Index %d: r,g,b: %d, %d, %d" % (c, r, g, b)
+        i._re.setRGBA(c, r, g, b, 255)
+    i._re.saveCurrentSettings()
+    i._re.close()
     return i
 
 def processImages(conn, scriptParams):
