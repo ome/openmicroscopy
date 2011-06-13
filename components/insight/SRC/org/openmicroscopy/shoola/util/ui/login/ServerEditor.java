@@ -252,7 +252,7 @@ public class ServerEditor
 				else requestFocusOnEditedCell(row, 1);
 			}
 		});
-		addButton.setEnabled(enabled);
+		//addButton.setEnabled(enabled);
 		editButton.setEnabled(enabled);
 	}
 
@@ -338,7 +338,7 @@ public class ServerEditor
 	 */
 	private void setButtonsEnabled(boolean b)
 	{
-		addButton.setEnabled(b);
+		//addButton.setEnabled(b);
 		removeButton.setEnabled(b);
 		editButton.setEnabled(b);
 	}
@@ -389,7 +389,7 @@ public class ServerEditor
 		originalRow = -1;
 		if (n == 0) {
 			requestFocusOnEditedCell(table.getRowCount()-1, 1);
-			addButton.setEnabled(false);
+			//addButton.setEnabled(false);
 			editButton.setEnabled(false);
 			removeButton.setEnabled(false);
 		} else {
@@ -459,7 +459,7 @@ public class ServerEditor
 	 */
 	void setEditing(boolean b)
 	{
-		addButton.setEnabled(!b);
+		//addButton.setEnabled(!b);
 		editButton.setEnabled(!b);
 		editing = b; 
 	}
@@ -806,21 +806,23 @@ public class ServerEditor
 			
 			//if (model.getRowCount() == 0) {
 				editing = false;
+				//if (hostName != null && hostName.trim().length() != 0)
 				addRow(hostName);
 			//}
 			return;
 		}
-		addButton.setEnabled(false);
+		//addButton.setEnabled(false);
 		DefaultTableModel model= ((DefaultTableModel) table.getModel());
 		int m = model.getRowCount();
 		Object[] newRow = new Object[3];
 		newRow[0] = icons.getIcon(IconManager.SERVER_22);
 		boolean editing = true;
-		if (hostName != null) {
+		if (hostName != null && hostName.trim().length() != 0) {
 			newRow[1] = hostName;
-			setButtonsEnabled(true);
 			editing = false;
 		} else newRow[1] = "";
+		setButtonsEnabled(true);
+		//addButton.setEnabled(true);
 		newRow[2] = defaultPort;
 		model.insertRow(m, newRow);
 		model.fireTableDataChanged();
