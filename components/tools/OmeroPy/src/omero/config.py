@@ -49,6 +49,10 @@ class ConfigXml(object):
         self.source = open(filename, "a+")                          #: Open file handle
         self.lock = self._open_lock()                               #: Open file handle for lock
         self.exclusive = exclusive                                  #: Whether or not an exclusive lock should be acquired
+        try:
+            self._CloseEx = WindowsError
+        except NameError:
+            self._CloseEx = None
         if exclusive:
             try:
                 portalocker.lock(self.lock, portalocker.LOCK_NB|portalocker.LOCK_EX)
@@ -84,7 +88,26 @@ class ConfigXml(object):
     def _close_lock(self):
         if self.lock is not None:
             self.lock.close()
-            os.remove("%s.lock" % self.filename)
+            if self._CloseEx is not None:
+                from omero.util.concurrency import get_event
+                event = get_event("websettings")
+                count = 10
+                while True:
+                    try:
+                        os.remove("%s.lock" % self.filename)
+                        del event
+                        del get_event
+                        break
+                    except self._CloseEx:
+                        if count == 0:
+                            del event
+                            del get_event
+                            raise
+                        self.logger.error('failed removal of lock file, retrying', exc_info=True)
+                        count -= 1
+                        event.wait(1) # Wait a total of 10 seconds
+            else:
+                os.remove("%s.lock" % self.filename)
 
     def version(self, id = None):
         if id is None:

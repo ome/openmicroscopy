@@ -85,6 +85,7 @@ while True:
         CONFIG_XML.close()
         break
     except lockexceptions:
+        logger.error("Exception while loading configuration retrying...", exc_info=True)
         count -= 1
         if not count:
             raise
