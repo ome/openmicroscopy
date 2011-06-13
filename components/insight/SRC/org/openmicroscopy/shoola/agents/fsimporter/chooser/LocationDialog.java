@@ -140,7 +140,7 @@ class LocationDialog
 	{
 		super(parent);
 		setModal(true);
-		setResizable(false);
+		//setResizable(false);
 		setTitle(TITLE);
 		initComponents();
 		buildGUI(location);
