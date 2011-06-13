@@ -263,17 +263,17 @@
                                         "project": {
                                             "label" : "Project",
                                             "icon"  : '{% url webstatic "images/folder16.png" %}',
-                                            "action": function (obj) { this.create(obj, null, {"attr": {"rel": "project"}}); }
+                                            "action": function (obj) { this.create(obj, null, {"attr": {"rel": "project"}, "data":"New project"}, false, true); }
                                         },
                                         "dataset": {
                                             "label" : "Dataset",
                                             "icon"  : '{% url webstatic "images/folder_image16.png" %}',
-                                            "action": function (obj) { this.create(obj, null, {"attr":{"rel": "dataset"}}); }
+                                            "action": function (obj) { this.create(obj, null, {"attr":{"rel": "dataset"}, "data":"New dataset"}, false, true); }
                                       	},
                                       	"screen": {
                                             "label" : "Screen",
                                             "icon"  : '{% url webstatic "images/folder_screen16.png" %}',
-                                            "action": function (obj) { this.create(obj, null, {"attr":{"rel": "screen"}}); }
+                                            "action": function (obj) { this.create(obj, null, {"attr":{"rel": "screen"}, "data":"New screen"}, false, true); }
                                       	}
                                     }
                                 };
@@ -560,13 +560,13 @@
     	$("#buttons input").click(function () {
     		switch(this.id) {
     			case "addprojectButton":
-    			    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'project' } });
+    			    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'project' }, "data":"New project" }, false, true);
     				break;
     			case "adddatasetButton":
-    			    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'dataset' } });
+    			    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'dataset' }, "data":"New dataset" }, false, true);
     				break;
     			case "addscreenButton":
-    			    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'screen' } });
+    			    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'screen' }, "data":"New screen" }, false, true);
     				break;
     			case "copyButton":
     			    $("#dataTree").jstree('copy', $.jstree._focused().get_selected());
