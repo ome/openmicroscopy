@@ -210,16 +210,30 @@ jQuery._WeblitzViewport = function (container, server, options) {
   var _reset = function (data, textStatus) {
     hideLoading();
     clearTimeout(ajaxTimeout);
-    // If 'ConcurrencyException' we can't do anything else but notify user
     if(data==null) {
-        loadError();
+        loadError("No data received from the server.");
         return;
     }
+    // If 'ConcurrencyException' we can't do anything else but notify user
     if (data["ConcurrencyException"] != undefined) {
+        /* //backOff is hardcoded on the server 
+        //there is no point to display it right now
+        
         backOff = data["ConcurrencyException"]['backOff'];
-        _this.self.trigger('ConcurrencyException', [backOff]);
-        //alert("ConcurrencyException: please try again in " + minutes + " minutes");
-        //self.close();
+        if (backOff != undefined || backOff != null){
+            seconds = backOff/1000;
+            hrs = parseInt(seconds / 3600);
+            mins = parseInt((seconds % 3600)/60);
+            secs = parseInt(seconds % (3600 * 60));
+            if (hrs > 0) {
+                label = hrs + " hours " + mins + " minutes";
+            } else if (mins > 0) {
+                label = mins + " minutes";
+            } else {
+                label = secs + " seconds";
+            }
+        } */
+        loadError('A "Pyramid" of zoom levels is currently being calculated for this image. Please try viewing again later.');
         return;
     }
     _this.loadedImg._load(data);
@@ -295,10 +309,11 @@ jQuery._WeblitzViewport = function (container, server, options) {
     jQuery.getJSON(server+'/imgData/'+iid+'/?callback=?', _reset);
   };
 
-  var loadError = function () {
+  var loadError = function (msg) {
     if (_this.origHTML) _this.self.replaceWith(_this.origHTML);
     hideLoading();
-    showLoading('Error loading image!', 5);
+    if (msg!=='null') showLoading(msg, 5);
+    else showLoading('Error loading image!', 5);
   }
 
   var loadingQ = 0;
@@ -957,8 +972,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
    * Some events are handled by us, some are proxied to the viewport plugin.
    */
   this.bind = function (event, callback) {
-    if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' || event == 'ConcurrencyException' ||
-        event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange') {
+    if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' || 
+    event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange') {
       _this.self.bind(event, callback);
     } else {
       _this.viewportimg.bind(event, callback);
