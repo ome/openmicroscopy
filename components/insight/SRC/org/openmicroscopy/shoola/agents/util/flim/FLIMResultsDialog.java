@@ -556,7 +556,7 @@ public class FLIMResultsDialog
 		statsTable = new ResultsDialog(HISTOGRAMSTATS, ResultsDialog.VERTICAL, true, statsButtons);
 		statsTable.setRowHighlightMod(3);
 		cursorResults = new ResultsDialog(CURSORSTATS, ResultsDialog.VERTICAL, true, cursorButtons);
-		statsTable.setRowHighlightMod(1);
+		cursorResults.setRowHighlightMod(3);
 		canvas = new ImageCanvas();
 		RGBButton = new JToggleButton("RGB");
 		RGBButton.setSelected(true);

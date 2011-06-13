@@ -24,6 +24,7 @@
 package org.openmicroscopy.shoola.agents.util.flim.resultstable;
 
 //Java imports
+import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 //Third-party libraries
@@ -47,7 +48,7 @@ import org.openmicroscopy.shoola.agents.util.flim.resultstable.util.ResultsCellR
  * @since 3.0-Beta4
  */
 public class ResultsTableView 
-extends JXTable
+extends JTable
 {
 	/** The grouping of rows in the table. */
 	int mod;
@@ -70,10 +71,10 @@ extends JXTable
 	 * Overridden to return a customized cell renderer.
 	 * @see JXTable#getCellRenderer(int, int)
 	 */
-	public TableCellRenderer getCellRenderer(int row, int column) 
+	/*public TableCellRenderer getCellRenderer(int row, int column) 
 	{
         return new ResultsCellRenderer(mod);
-    }
+    }*/
     
 }
 
