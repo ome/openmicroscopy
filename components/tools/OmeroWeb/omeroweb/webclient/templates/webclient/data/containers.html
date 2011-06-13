@@ -33,24 +33,24 @@
                     
                     if(selected.length > 0) {
                         if(selected.attr("rel").indexOf("locked")>=0) {            	            
-                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}, 'annotation':false, 'basket':false};
+                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}, 'annotation':false, 'basket':false};
                         } else {
                             if(selected.attr("id").indexOf("orphaned")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
+                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
                             } else if(selected.attr("id").indexOf("experimenter")>=0) {
-                                toolbar_config = {"addproject":true, 'adddataset':true, 'addscreen':true, 'rename':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
+                                toolbar_config = {"addproject":true, 'adddataset':true, 'addscreen':true, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
                             } else if(selected.attr("id").indexOf("project")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':true, 'addscreen':false, 'rename':true, 'copy':false, 'cut':false, 'paste':true, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false};
+                                toolbar_config = {"addproject":false, 'adddataset':true, 'addscreen':false, 'copy':false, 'cut':false, 'paste':true, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false};
                             } else if(selected.attr("id").indexOf("dataset")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':true, 'copy':true, 'cut':true, 'paste':true, 'unlink':true, 'delete':true, 'annotation':false, 'basket':false};
+                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':true, 'cut':true, 'paste':true, 'unlink':true, 'delete':true, 'annotation':false, 'basket':false};
                             } else if(selected.attr("id").indexOf("image")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':true, 'copy':true, 'cut':true, 'paste':false, 'unlink':true, 'delete':true, 'annotation':false, 'basket':true};
+                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':true, 'cut':true, 'paste':false, 'unlink':true, 'delete':true, 'annotation':false, 'basket':true};
                             } else if(selected.attr("id").indexOf("screen")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':true, 'addscreen':false, 'rename':true, 'copy':false, 'cut':false, 'paste':true, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false};
+                                toolbar_config = {"addproject":false, 'adddataset':true, 'addscreen':false, 'copy':false, 'cut':false, 'paste':true, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false};
                             } else if(selected.attr("id").indexOf("plate")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':true, 'copy':true, 'cut':true, 'paste':false, 'unlink':true, 'delete':true, 'annotation':false, 'basket':false};
+                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':true, 'cut':true, 'paste':false, 'unlink':true, 'delete':true, 'annotation':false, 'basket':false};
                             } else {
-                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'rename':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
+                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
                             }
                         }
                     }
@@ -278,17 +278,6 @@
                                     }
                                 };
                                 
-                                config["rename"] = {
-                                    "label" : "Rename",
-                                    "icon"  : '{% url webstatic "images/color_line16.png" %}',                                    
-                                    "action": function(obj){
-                                        if (this.get_selected().length<2) {
-                                            this.rename(obj);
-                                        } else {
-                                            alert("Cannot rename more then one object in the same time")
-                                        } }
-                                };
-                                
                                 config["ccp"] = {
                                     "label"     : "Edit",
                                     "action"    : false,
@@ -350,20 +339,17 @@
                                 };
                                 
                                 if(obj.attr("rel").indexOf("locked")>=0) {
-                                    config["rename"]["_disabled"] = true;
                                     {% if not eContext.isLeader %}config["delete"]["_disabled"] = true;{% endif %}
                                     config["ccp"]["_disabled"] = true;
                                     config["create"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
                                 } else {
                                     if(obj.attr("id").indexOf("orphaned")>=0) {
-                                        config["rename"]["_disabled"] = true;
                                         config["delete"]["_disabled"] = true;
                                         config["ccp"]["_disabled"] = true;
                                         config["create"]["_disabled"] = true;
                                         config["basket"]["_disabled"] = true;
                                     } else if(obj.attr("id").indexOf("experimenter")>=0) {
-                                        config["rename"]["_disabled"] = true;
                                         config["delete"]["_disabled"] = true;
                                         config["ccp"]["_disabled"] = true;
                                         config["basket"]["_disabled"] = true;
@@ -453,27 +439,6 @@
                           $.jstree.rollback(data.rlbk);
                           alert("Internal server error. Cannot create object.");
                       }
-                    });
-        		})
-        		.bind("rename.jstree", function (e, data) {
-        		    url = '{% url manage_action_containers "savename" %}'+data.rslt.obj.attr("rel")+'/'+data.rslt.obj.attr("id").split("-")[1]+'/';
-        		    $.ajax({
-                        url: url,
-                        data: {
-      			            "name" : data.rslt.new_name
-                        },
-                        dataType: "json",
-                        type: "POST",
-                        success: function(r){
-                            if(eval(r.bad)) {
-                                $.jstree.rollback(data.rlbk);
-                                alert(r.errs);
-                            }
-                        },
-                        error: function(response) {
-                            $.jstree.rollback(data.rlbk);
-                            alert("Internal server error. Cannot rename object.");
-                        }
                     });
         		})
         		.bind("move_node.jstree", function (e, data) {
@@ -633,14 +598,6 @@
     			case "basketButton":
         		    addToBasket($.jstree._focused().get_selected());
         			break;
-        		case "renameButton":
-        		    var jstree = $.jstree._focused();
-        		    if (jstree.get_selected().length==1) {
-                        jstree.rename(jstree.get_selected());
-                    } else {
-                        alert("Cannot rename more then one object in the same time")
-                    }
-                    break;
                 case "refreshButton":
                     $("#dataTree").jstree("refresh");
                     break;
@@ -661,8 +618,7 @@
             <input id="addprojectButton" class="button button-disabled" type="image" src="{% url webstatic "images/folder16.png" %}" alt="Create new project" title="Create new Project" /> 
             <input id="adddatasetButton" class="button button-disabled" type="image" src="{% url webstatic "images/folder_image16.png" %}" alt="Create new dataset" title="Create new Dataset" /> 
             <input id="addscreenButton" class="button button-disabled" type="image" src="{% url webstatic "images/folder_screen16.png" %}" alt="Create new screen" title="Create new Screen" /> |
-             
-            <input id="renameButton" class="button button-disabled" type="image" src="{% url webstatic "images/color_line16.png" %}" alt="Rename" title="Rename" />            
+            
             <input id="copyButton" class="button button-disabled" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" /> 
             <input id="cutButton" class="button button-disabled" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Cut" title="Cut" /> 
             <input id="pasteButton" class="button button-disabled" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste" title="Paste" /> 

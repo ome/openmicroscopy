@@ -34,16 +34,16 @@
                     
                     if(selected.length > 0) {
                         if(selected.attr("rel").indexOf("locked")>=0) {            	            
-                            toolbar_config = {'rename':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}};
+                            toolbar_config = {'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}};
                         } else {
                             if(selected.attr("id").indexOf("experimenter")>=0) {
-                                toolbar_config = {'rename':false, 'delete':false};
+                                toolbar_config = {'delete':false};
                             } else if(selected.attr("id").indexOf("tagset")>=0) {
-                                toolbar_config = {'rename':true, 'delete':true};
+                                toolbar_config = {'delete':true};
                             } else if(selected.attr("id").indexOf("tag")>=0) {
-                                toolbar_config = {'rename':true, 'delete':true};
+                                toolbar_config = {'delete':true};
                             } else {
-                                toolbar_config = {'rename':false, 'delete':false};
+                                toolbar_config = {'delete':false};
                             }
                         }
                     }
@@ -305,27 +305,6 @@
             	    }
             	    syncPanels(selected);
         		})
-        		.bind("rename.jstree", function (e, data) {
-        		    url = '{% url manage_action_containers "savename" %}'+data.rslt.obj.attr("rel")+'/'+data.rslt.obj.attr("id").split("-")[1]+'/';
-        		    $.ajax({
-                        url: url,
-                        data: {
-      			            "name" : data.rslt.new_name
-                        },
-                        dataType: "json",
-                        type: "POST",
-                        success: function(r){
-                            if(eval(r.bad)) {
-                                $.jstree.rollback(data.rlbk);
-                                alert(r.errs);
-                            }
-                        },
-                        error: function(response) {
-                            $.jstree.rollback(data.rlbk);
-                            alert("Internal server error. Cannot rename object.");
-                        }
-                    });
-        		})
             	.bind("remove.jstree", function (e, data) {
             	    data.args[0].each(function (i) {
         		        url = '{% url manage_action_containers "delete" %}'+$(this).attr("rel").replace("locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
@@ -380,14 +359,6 @@
                         $("#dataTree").jstree('remove', $.jstree._focused().get_selected());
                     }    			    
     				break;
-        		case "renameButton":
-        		    var jstree = $.jstree._focused();
-        		    if (jstree.get_selected().length==1) {
-                        jstree.rename(jstree.get_selected());
-                    } else {
-                        alert("Cannot rename more then one object in the same time")
-                    }
-                    break;
                 case "refreshButton":
                     $("#dataTree").jstree("refresh");
                     break;
@@ -405,7 +376,6 @@
         <div id="buttons" class="align_left">
             <input id="refreshButton" class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
             <input class="button" type="image" src="{% url webstatic "images/view_tree16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "userdata" %}'"> | 
-            <input id="renameButton" class="button button-disabled" type="image" src="{% url webstatic "images/color_line16.png" %}" alt="Rename" title="Rename" />            
             <input id="deleteButton" class="button button-disabled" type="image" src="{% url webstatic "images/cancel16.png" %}" alt="Delete" title="Delete" /> 
         </div>
     </div>
