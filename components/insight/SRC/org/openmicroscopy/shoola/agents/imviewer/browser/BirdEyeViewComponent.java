@@ -38,6 +38,7 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Bird eye view using <code>JPanel</code>.
@@ -75,8 +76,14 @@ class BirdEyeViewComponent
 	/** The default stroke color. */
 	private static final Color STROKE_COLOR = Color.BLACK;
 	
+	/** The default color for the border. */
+	private static final Color BORDER_COLOR = Color.WHITE;
+	
 	/** The default selection color. */
 	private static final Color SELECTION_COLOR = new Color(255, 0, 0, 100);
+	
+	/** The default selection color. */
+	private static final Color SELECTION_BLUE_COLOR = new Color(0, 0, 255, 100);
 	
 	/** The processing image. */
 	private BufferedImage pImage;
@@ -125,10 +132,7 @@ class BirdEyeViewComponent
 	
 	/** The Y-coordinate of the arrow. */
 	private int yArrow = 2;
-	
-	/** The weight of the stroke. */
-	private int strokeWeight = 1;
-	
+
 	/** The area covered by the image. */
 	private Rectangle imageRectangle;
 	
@@ -291,6 +295,25 @@ class BirdEyeViewComponent
 	{
 		pImage = image;
 		if (image != null) {
+    		long count = 0;
+    		long totalRed = 0, totalGreen = 0, totalBlue = 0;
+    		Color c;
+    		//determine the color of the lens
+    		for (int i = 0 ; i < image.getWidth() ; i += 10) {
+    			for (int j = 0 ; j < image.getHeight() ; j += 10) {
+    				count++;
+    				c = new Color(image.getRGB(i, j));
+    				totalRed += c.getRed(); 
+    				totalGreen += c.getGreen(); 
+    				totalBlue += c.getBlue();
+    			}
+    		}
+    		c = new Color((int) (totalRed/count), (int) (totalGreen/count),
+    				(int) (totalBlue/count));
+    		int result = UIUtilities.getColorRange(c);
+    		if (result == UIUtilities.RED_COLOR)
+    			setSelectionColor(SELECTION_BLUE_COLOR);
+    		else setSelectionColor(SELECTION_COLOR);
 			setCanvasSize(image.getWidth(), image.getHeight());
 		}
 		repaint();
@@ -363,6 +386,7 @@ class BirdEyeViewComponent
 		if (imageRectangle == null) {
 			//imageRectangle = new Rectangle(BORDER, BORDER, pImage.getWidth(), 
 			//		pImage.getHeight());
+			g2D.setColor(BORDER_COLOR);
 			imageRectangle = new Rectangle(0, 0, pImage.getWidth(), 
 					pImage.getHeight());
 		}
@@ -396,7 +420,7 @@ class BirdEyeViewComponent
 		bover = (mouseX > bx-w && mouseX < bx+w && 
 				mouseY > by-h && mouseY < by+h);
 		g2D.fillRect(bx, by, w, h);
-		g2D.setColor(STROKE_COLOR);
+		g2D.setColor(BORDER_COLOR);
 		g2D.drawRect(0, 0, canvasWidth, canvasHeight);
 		//noFill();
 	}

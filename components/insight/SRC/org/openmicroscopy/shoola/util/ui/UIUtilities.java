@@ -105,6 +105,15 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 public class UIUtilities
 {
 
+	/** Indicates that the image is predominantly <code>red</code>.*/
+	public static final int RED_COLOR = 0;
+	
+	/** Indicates that the image is predominantly <code>green</code>.*/
+	public static final int GREEN_COLOR = 1;
+	
+	/** Indicates that the image is predominantly <code>blue</code>.*/
+	public static final int BLUE_COLOR = 2;
+	
 	/** The maximum number read at once. */
 	public static final int	BYTES = 1024;
 	
@@ -2300,6 +2309,24 @@ public class UIUtilities
 	public static int convertArgbToRgba(int argb)
 	{
 		return (argb << 8) | (argb >>> (32-8));
+	}
+	
+	/**
+	 * Returns {@link #RED}, {@link #RED} or {@link #RED} to indicate the
+	 * range of the color.
+	 * 
+	 * @param color The color to handle.
+	 * @return See above
+	 */
+	public static int getColorRange(Color color)
+	{
+		if (color == null) return -1;
+		int r = color.getRed();
+		int g = color.getGreen();
+		int b = color.getBlue();
+		if (g < r/2 && b < r/2) return RED_COLOR;
+		if (r < g/2 && b < g/2) return GREEN_COLOR;
+		return BLUE_COLOR;
 	}
 	
 }
