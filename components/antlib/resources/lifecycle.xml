@@ -350,18 +350,30 @@ omero.version=${omero.version}
 			</sequential>
 		</macrodef>
 		<macrodef name="do-checkstyle">
+                        <attribute name="config" default="${omero.home}/docs/styles/checkstyle.xml"/>
+                        <attribute name="failOnViolation" default="false"/>
+                        <attribute name="toFile" default="${target.dir}/checkstyle.xml"/>
+                        <element name="srcelements" implicit="yes"/>
 			<sequential>
-			<checkstyle config="${omero.home}/docs/styles/checkstyle.xml" failOnViolation="false">
-				<fileset dir="${basedir}" includes="**/*.java"/>
-				<formatter type="xml" toFile="${target.dir}/checkstyle.xml"/>
+			<checkstyle config="@{config}" failOnViolation="@{failOnViolation}">
+				<formatter type="xml" toFile="@{toFile}"/>
+                                <srcelements/>
 			</checkstyle>
 			</sequential>
 		</macrodef>
 	</target>
 
+	<target name="headers" description="Run checkstyle header check" depends="load-findbugs">
+		<do-checkstyle config="${omero.home}/docs/styles/headers.xml" toFile="${target.dir}/headers.xml" failOnViolation="true">
+			<fileset dir="${basedir}" includes="**/*"/>
+		</do-checkstyle>
+	</target>
+
 	<target name="findbugs" description="Run findbugs on components' jar" depends="load-findbugs" unless="no.findbugs">
 		<do-find-bugs/>
-		<do-checkstyle/>
+		<do-checkstyle>
+			<fileset dir="${basedir}" includes="**/*.java"/>
+		</do-checkstyle>
 	</target>
 
 	<target name="install" depends="package">

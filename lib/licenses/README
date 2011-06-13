@@ -502,12 +502,38 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   // Located under components/
   //
 
+  Artifacts:    components/blitz/src/org/hibernate/stat/ConcurrentStatisticsImpl.java
+  Project:      Hibernate. A powerful, high performance object/relational persistence and
+                query service.
+  Web Site:     http://hibernate.org
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+
+
+  Artifacts:    components/server/src/ome/services/SVGRasterizer.java
+  Project:      Batik Java SVG Toolkit
+  Web Site:     http://xmlgraphics.apache.org/batik/tools/rasterizer.html
+  License:      Apache License, Version 1.1
+  License File: apache-v1.1.txt
+
+
+  Artifacts:    components/server/test/org/springframework/security/ldap/server/ApacheDSContainer.java
+  Project:      Spring Framework. A layered Java application platform.
+  Website:      http://springframework.org
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
 
   Artifacts:    components/tools/OmeroImporter/src/ome/formats/importer/util/ETable.java
   Project:      Salma-Hayek Java Repository
   Web Site:     http://software.jessies.org/salma-hayek/
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
+
+  Artifact:     components/tools/OmeroImporter/src/ome/formats/importer/util/BareBonesBrowserLaunch.java
+  Project:      Bare Bones Browser Launch
+  Web Site:     http://www.centerkey.com
+  License:      Public Domain Software
 
 
   Artifacts:    components/tools/OmeroPy/src/omero_ext/argparse.py

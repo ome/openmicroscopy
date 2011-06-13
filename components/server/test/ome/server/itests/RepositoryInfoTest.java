@@ -1,3 +1,7 @@
+/*
+ *   Copyright (C) 2007-2011 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
 package ome.server.itests;
 
 import ome.api.IRepositoryInfo;

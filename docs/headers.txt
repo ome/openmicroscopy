@@ -14,6 +14,9 @@
 ##
 ##     Copyright 2011 Glencoe Software, Inc. All rights reserved.
 ##
+##   in which case there doesn't have to be a blank line
+##   before the license block.
+##
 ## * When a file is modified in a year not covered in the
 ##   copyright, the year range should be updated to reflect
 ##   the new year. The copyright itself should not be
@@ -23,6 +26,12 @@
 ##
 ## * Where present, the fully qualified class or "$Id$" field
 ##   can be left, but omitting them is the preferred style.
+##
+## * The patterns below are checked via checkstyle patterns
+##   defined in docs/styles/headers.xml
+##
+## * For non-licensed files (XSL, XSD), the license block
+##   can be omitted.
 ##
 
 ###
@@ -34,8 +43,7 @@
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) <year> University of Dundee & Open Microscopy Environment.
- *                       All rights reserved.
- *
+ *  All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -59,7 +67,8 @@
 
 /*
  *   Copyright (C) <year> University of Dundee & Open Microscopy Environment.
- *                        All rights reserved.
+ *   All rights reserved.
+ *
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -87,7 +96,7 @@ Module documentation
 
 #
 # Copyright (C) <year> University of Dundee & Open Microscopy Environment.
-#                      All rights reserved.
+# All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -109,7 +118,7 @@ Module documentation
 
 //
 // Copyright (C) <year> University of Dundee & Open Microscopy Environment.
-//                      All rights reserved.
+// All rights reserved.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -131,7 +140,7 @@ Module documentation
 
 /*
  * Copyright (C) <year> University of Dundee & Open Microscopy Environment.
- *                      All rights reserved.
+ * All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -155,7 +164,7 @@ Module documentation
 <!--
 
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
-                     All rights reserved.
+  All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU Affero General Public License as

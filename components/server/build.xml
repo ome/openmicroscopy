@@ -13,4 +13,18 @@
       </sql_run>
     </target>
 
+    <target name="headers" description="Run checkstyle header check " depends="load-findbugs">
+        <do-checkstyle config="${omero.home}/docs/styles/headers.xml" toFile="${target.dir}/headers.xml" failOnViolation="true">
+            <fileset dir="${basedir}">
+                <exclude name="**/SVGRasterizer.java"/><!-- see lib/licenses/README -->
+                <exclude name="**/ApacheDSContainer.java"/><!-- see lib/licenses/README -->
+                <exclude name="**/SqlArray.java"/><!-- see lib/licenses/README -->
+                <exclude name="**/ListAsSQLArrayUserType.java"/><!-- see lib/licenses/README -->
+                <exclude name="**/ome/services/sharing/data/*.java"/><!-- Ice generated -->
+                <exclude name="**/SecuritySystemTest.java"/><!-- weird errors -->
+                <include name="**/*"/>
+            </fileset>
+        </do-checkstyle>
+    </target>
+
 </project>

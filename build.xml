@@ -331,6 +331,16 @@ java component.
         </tar>
     </target>
 
+    <target name="release-headers" description="Generates headers.xml for all components" depends="init">
+       <iterate buildpathref="all.buildpath"   target="headers"/>
+       <iterate buildpathref="tools.buildpath" target="headers"/>
+       <taskdef resource="checkstyletask.properties" classpathref="omero.classpath"/>
+        <checkstyle config="${omero.home}/docs/styles/checkstyle-header.xml" failOnViolation="true">
+            <fileset dir="${basedir}" includes="*,docs/**/*,etc/**/*,sql/**/*"/>
+            <formatter type="xml" toFile="${target.dir}/headers.xml"/>
+        </checkstyle>
+    </target>
+
     <target name="release-findbugs" description="Generates findbugs.xml and checkstyle.xml for all components" depends="init">
        <iterate buildpathref="all.buildpath"   target="findbugs"/>
        <iterate buildpathref="tools.buildpath" target="findbugs"/>
