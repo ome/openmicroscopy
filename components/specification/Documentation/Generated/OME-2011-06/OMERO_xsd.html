@@ -1,0 +1,2057 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <title>Schema documentation for OMERO.xsd</title>
+      <link rel="stylesheet" href="docHtml.css" type="text/css" /><script type="text/javascript">
+         <!--
+        var propertiesBoxes= new Array('properties_OMERO.xsd', 
+				'properties_ProfileSet', 
+				'properties_ProfileSet_ImageProfile', 
+				'properties_ProfileSet_ProfileSet_ImageProfile_Name', 
+				'properties_ProfileSet_ProfileSet_ImageProfile_Description', 
+				'properties_ProfileSet_ChannelProfile', 
+				'properties_ProfileSet_ProfileSet_ChannelProfile_Name', 
+				'properties_ProfileSet_ProfileSet_ChannelProfile_Description', 
+				'properties_ProfileSet_ProfileSet_ImageProfile_origin', 
+				'properties_ProfileSet_ProfileSet_ChannelProfile_Origin');
+
+        var facetsBoxes= new Array('facets_ProfileSet_ProfileSet_ImageProfile_Description', 
+				'facets_ProfileSet_ProfileSet_ChannelProfile_Description', 
+				'facets_ProfileSource', 
+				'facets_ProfileSet_ProfileSet_ImageProfile_origin', 
+				'facets_ProfileSet_ProfileSet_ChannelProfile_Origin');
+
+        var usedByBoxes= new Array('usedBy_ProfileSource', 
+				'usedBy_ProfileSet_ProfileSet_ImageProfile_origin', 
+				'usedBy_ProfileSet_ProfileSet_ChannelProfile_Origin');
+
+        var sourceBoxes= new Array('source_ProfileSet', 
+				'source_ProfileSet_ImageProfile', 
+				'source_ProfileSet_ProfileSet_ImageProfile_Name', 
+				'source_ProfileSet_ProfileSet_ImageProfile_Description', 
+				'source_ProfileSet_ChannelProfile', 
+				'source_ProfileSet_ProfileSet_ChannelProfile_Name', 
+				'source_ProfileSet_ProfileSet_ChannelProfile_Description', 
+				'source_ProfileSource', 
+				'source_ProfileSet_ProfileSet_ImageProfile_origin', 
+				'source_ProfileSet_ProfileSet_ChannelProfile_Origin');
+
+        var instanceBoxes= new Array('instance_ProfileSet', 
+				'instance_ProfileSet_ImageProfile', 
+				'instance_ProfileSet_ChannelProfile');
+
+        var diagramBoxes= new Array('diagram_ProfileSet', 
+				'diagram_ProfileSet_ImageProfile', 
+				'diagram_ProfileSet_ProfileSet_ImageProfile_Name', 
+				'diagram_ProfileSet_ProfileSet_ImageProfile_Description', 
+				'diagram_ProfileSet_ChannelProfile', 
+				'diagram_ProfileSet_ProfileSet_ChannelProfile_Name', 
+				'diagram_ProfileSet_ProfileSet_ChannelProfile_Description', 
+				'diagram_ProfileSource');
+
+        var annotationBoxes= new Array('annotations_ProfileSet_ProfileSet_ImageProfile_Description', 
+				'annotations_ProfileSet_ProfileSet_ChannelProfile_Description', 
+				'annotations_ProfileSource', 
+				'annotations_ProfileSet_ProfileSet_ChannelProfile_Origin');
+
+        var attributesBoxes= new Array('attributes_ProfileSet_ImageProfile', 
+				'attributes_ProfileSet_ChannelProfile');
+
+        
+        var button_prefix = 'button_';
+        
+        /**
+        * Returns an element in the current HTML document.
+        *
+        * @param elementID Identifier of HTML element
+        * @return               HTML element object
+        */
+        function getElementObject(elementID) {
+            var elemObj = null;
+            if (document.getElementById) {
+                elemObj = document.getElementById(elementID);
+            }
+            return elemObj;
+        }
+        
+        /**
+        * Switches the state of a collapseable box, e.g.
+        * if it's opened, it'll be closed, and vice versa.
+        *
+        * @param boxID Identifier of box
+        */
+        function switchState(boxID) {
+            var boxObj = getElementObject(boxID);
+            var buttonObj = getElementObject(button_prefix + boxID);
+            if (boxObj == null || buttonObj == null) {
+                // Box or button not found
+            } else if (boxObj.style.display == "none") {
+                // Box is closed, so open it
+                openBox(boxObj, buttonObj);
+            } else if (boxObj.style.display == "block") {
+                // Box is opened, so close it
+                closeBox(boxObj, buttonObj);
+            }
+        }
+        
+        /**
+        * Opens a collapseable box.
+        *
+        * @param boxObj       Collapseable box
+        * @param buttonObj Button controlling box
+        */
+        function openBox(boxObj, buttonObj) {
+            if (boxObj == null || buttonObj == null) {
+                // Box or button not found
+            } else {
+                // Change 'display' CSS property of box
+                boxObj.style.display = "block";
+                
+                // Change text of button
+                if (boxObj.style.display == "block") {
+                    buttonObj.src = "img/btM.gif";
+                }
+            }
+        }
+        
+        /**
+        * Closes a collapseable box.
+        *
+        * @param boxObj       Collapseable box
+        * @param buttonObj Button controlling box
+        */
+        function closeBox(boxObj, buttonObj) {
+            if (boxObj == null || buttonObj == null) {
+                // Box or button not found
+            } else {
+                // Change 'display' CSS property of box
+                boxObj.style.display = "none";
+                
+                // Change text of button
+                if (boxObj.style.display == "none") {
+                    buttonObj.src = "img/btP.gif";
+                }
+            }
+        }
+    
+       function switchStateForAll(buttonObj, boxList) {
+            if (buttonObj == null) {
+                // button not found
+            } else if (buttonObj.value == "+") {
+                // Expand all
+                expandAll(boxList);
+                buttonObj.value = "-";
+            } else if (buttonObj.value == "-") {
+                // Collapse all
+                collapseAll(boxList);
+                buttonObj.value = "+";
+            }
+        }
+        
+        /**
+        * Closes all boxes in a given list.
+        *
+        * @param boxList Array of box IDs
+        */
+        function collapseAll(boxList) {
+            var idx;
+            for (idx = 0; idx < boxList.length; idx++) {
+                var boxObj = getElementObject(boxList[idx]);
+                var buttonObj = getElementObject(button_prefix + boxList[idx]);
+                closeBox(boxObj, buttonObj);
+            }
+        }
+            
+        /**
+        * Open all boxes in a given list.
+        *
+        * @param boxList Array of box IDs
+        */
+        function expandAll(boxList) {
+            var idx;
+            for (idx = 0; idx < boxList.length; idx++) {
+                var boxObj = getElementObject(boxList[idx]);
+                var buttonObj = getElementObject(button_prefix + boxList[idx]);
+                openBox(boxObj, buttonObj);
+            }
+        }
+        
+        /**
+         * Update the message presented in the title of the html page.
+         * - If the documentation was splited by namespace we present something like: "Documentation for namespace 'ns'"
+         * - If the documentation was splited by location we present somehing like: "Documentation for 'Schema.xsd'"
+         * - If no split we always present: "Documentation for 'MainSchema.xsd'"
+         */
+        function updatePageTitle(message) {
+            top.document.title = message;
+        }
+        
+          
+                    
+         /**
+          * Finds an HTML element by its ID and makes it floatable over the normal content.
+          *
+          * @param x_displacement The difference in pixels to the right side of the window from 
+          *           the left side of the element.
+          * @param y_displacement The difference in pixels to the right side of the window from 
+          *           the top of the element.          
+          */
+         function findAndFloat(id, x_displacement, y_displacement){
+
+            var element = getElementObject(id);            
+            
+            window[id + "_obj"] = element;
+            
+            if(document.layers) {
+               element.style = element;
+            }
+            
+            element.current_y = y_displacement;      
+            element.first_time = true;
+         
+            element.floatElement = function(){
+               // It may be closed by an user action.
+                
+               // Target X and Y coordinates.
+               var x, y;
+               
+               var myWidth = 0, myHeight = 0;
+               if( typeof( window.innerWidth ) == 'number' ) {
+                  //Non-IE
+                  myWidth = window.innerWidth;
+                  myHeight = window.innerHeight;
+               } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+                  //IE 6+ in 'standards compliant mode'
+                  myWidth = document.documentElement.clientWidth;
+                  myHeight = document.documentElement.clientHeight;
+               } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
+                  //IE 4 compatible
+                  myWidth = document.body.clientWidth;
+                  myHeight = document.body.clientHeight;
+               }
+               
+               
+               x = myWidth - x_displacement;
+               
+               var ns = (navigator.appName.indexOf("Netscape") != -1);               
+               y = ns ? pageYOffset : document.documentElement && document.documentElement.scrollTop ? 
+                  document.documentElement.scrollTop : document.body.scrollTop;               
+               y = y + y_displacement;               
+               
+               // The current y is the current coordinate of the floating element.
+               // This should be at the limit the y target coordinate.
+               this.current_y += (y - this.current_y)/1.25;
+               
+               // Add the pixels constant after the values
+               // and move the element.
+               var px = document.layers ? "" : "px";
+               this.style.left =  x + px;
+               this.style.top =  this.current_y + px;
+                              
+               setTimeout(this.id + "_obj.floatElement()", 100);
+            }
+            
+            element.floatElement();
+            return element;
+          }
+
+         /**
+          * Finds an HTML element by its ID and makes it floatable over the normal content.
+          *
+          * @param x_displacement The difference in pixels to the right side of the window from 
+          *           the left side of the element.
+          * @param y_displacement The difference in pixels to the right side of the window from 
+          *           the top of the element.          
+          */
+         function selectTOCGroupBy(id, isChunked, indexFileLocation, indexFileNamespace, indexFileComponent){
+
+            if (!isChunked) {
+             var selectIds = new Array('toc_group_by_namespace', 'toc_group_by_location', 'toc_group_by_component_type');
+             // Make all the tabs invisible.
+               for (i = 0; i < 3; i++){
+                  var tab = getElementObject(selectIds[i]);
+                  tab.style.display = 'none';
+               }
+               var selTab = getElementObject(id);
+               selTab.style.display = 'block';
+            } else {
+             if (id == 'toc_group_by_namespace') {
+               parent.indexFrame.location = indexFileNamespace;
+             } else  if (id == 'toc_group_by_location') {
+               parent.indexFrame.location = indexFileLocation;
+             } else  if (id == 'toc_group_by_component_type') {
+              parent.indexFrame.location = indexFileComponent;
+             }
+            }
+         }
+          
+
+    --></script></head>
+   <body>
+      <div id="global_controls" class="globalControls" style="position:absolute;right:0;">
+         <table class="rt">
+            <tr>
+               <td class="rt_cornerTopLeft"></td>
+               <td class="rt_lineTop"></td>
+               <td class="rt_cornerTopRight"></td>
+            </tr>
+            <tr>
+               <td class="rt_lineLeft"></td>
+               <td class="rt_content">
+                  <h3>Showing:</h3>
+                  <table>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, annotationBoxes);"
+                                     class="control" /></span><span class="globalControlName">Annotations</span></td>
+                     </tr>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, attributesBoxes);"
+                                     class="control" /></span><span class="globalControlName">Attributes </span></td>
+                     </tr>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, diagramBoxes);"
+                                     class="control" /></span><span class="globalControlName">Diagrams</span></td>
+                     </tr>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, facetsBoxes);"
+                                     class="control" /></span><span class="globalControlName">Facets </span></td>
+                     </tr>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, instanceBoxes);"
+                                     class="control" /></span><span class="globalControlName">Instances</span></td>
+                     </tr>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, propertiesBoxes);"
+                                     class="control" /></span><span class="globalControlName">Properties </span></td>
+                     </tr>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, sourceBoxes);"
+                                     class="control" /></span><span class="globalControlName">Source</span></td>
+                     </tr>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, usedByBoxes);"
+                                     class="control" /></span><span class="globalControlName">Used by </span></td>
+                     </tr>
+                  </table>
+                  <div align="right"><span><input type="button"
+                               onclick="getElementObject('global_controls').style.display = 'none';"
+                               value="Close" /></span></div>
+               </td>
+               <td class="rt_lineRight"></td>
+            </tr>
+            <tr>
+               <td class="rt_cornerBottomLeft"></td>
+               <td class="rt_lineBottom"></td>
+               <td class="rt_cornerBottomRight"></td>
+            </tr>
+         </table>
+      </div><a id="OMERO.xsd"></a><div class="componentTitle">Main schema <span class="qname">OMERO.xsd</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/OMERO/2011-06</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_OMERO.xsd" type="image" src="img/btM.gif" value="-"
+                                     onclick="switchState('properties_OMERO.xsd');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_OMERO.xsd" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">attribute form default:
+                                       
+                                    </td>
+                                    <td><b>unqualified</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">element form default:
+                                       
+                                    </td>
+                                    <td><b>qualified</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">version:
+                                       
+                                    </td>
+                                    <td><b>1</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>file:/Users/andrew/Work/ome/components/specification/Schemas/OMERO/2011-06/OMERO.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="ProfileSet"></a><div class="componentTitle">Element <span class="qname">ProfileSet</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/OMERO/2011-06</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Diagram</b></div>
+                           <div class="floatRight"><input id="button_diagram_ProfileSet" type="image" src="img/btM.gif" value="-"
+                                     onclick="switchState('diagram_ProfileSet');"
+                                     class="control" /></div>
+                        </td>
+                        <td class="diagram">
+                           <div id="diagram_ProfileSet" style="display:block"><img alt="Diagram" border="0" src="img/OMERO_xsd_Element_ProfileSet.png"
+                                   usemap="#OMERO_xsd_Element_ProfileSet" /><map name="OMERO_xsd_Element_ProfileSet" id="OMERO_xsd_Element_ProfileSet">
+                                 <area alt="OMERO_xsd.tmp#ProfileSet_ImageProfile"
+                                       href="OMERO_xsd.html#ProfileSet_ImageProfile"
+                                       coords="198,2,295,26" />
+                                 <area alt="OMERO_xsd.tmp#ProfileSet_ChannelProfile"
+                                       href="OMERO_xsd.html#ProfileSet_ChannelProfile"
+                                       coords="198,36,307,60" /></map></div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_ProfileSet" type="image" src="img/btM.gif" value="-"
+                                     onclick="switchState('properties_ProfileSet');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_ProfileSet" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">content:
+                                       
+                                    </td>
+                                    <td><b>complex</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Model</b></td>
+                        <td><b><a href="OMERO_xsd.html#ProfileSet_ImageProfile" target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                 onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ImageProfile{0,2}</a></b> , <b><a href="OMERO_xsd.html#ProfileSet_ChannelProfile" target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                 onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ChannelProfile{0,2}</a></b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Children</b></td>
+                        <td><b><a href="OMERO_xsd.html#ProfileSet_ChannelProfile" target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                 onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ChannelProfile</a></b>, <b><a href="OMERO_xsd.html#ProfileSet_ImageProfile" target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                 onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ImageProfile</a></b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Instance</b></div>
+                           <div class="floatRight"><input id="button_instance_ProfileSet" type="image" src="img/btM.gif" value="-"
+                                     onclick="switchState('instance_ProfileSet');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="instance_ProfileSet" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tEl">&lt;ProfileSet</span><span class="tEl">&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;ImageProfile</span><span class="tT"> </span><span class="tAN">origin=</span><span class="tAV">""</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">{0,2}</span><span class="tEl">&lt;/ImageProfile&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;ChannelProfile</span><span class="tT"> </span><span class="tAN">Origin=</span><span class="tAV">""</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">{0,2}</span><span class="tEl">&lt;/ChannelProfile&gt;</span><span class="tI">
+</span><span class="tEl">&lt;/ProfileSet&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_ProfileSet" type="image" src="img/btM.gif" value="-"
+                                     onclick="switchState('source_ProfileSet');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_ProfileSet" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"ProfileSet"</span><span class="tEl">&gt;</span><span class="tI">
+  </span><span class="tC">&lt;!-- top level definition --&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;xsd:complexType</span><span class="tEl">&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;xsd:sequence</span><span class="tEl">&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"ImageProfile"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"2"</span><span class="tEl">&gt;</span><span class="tI">
+        </span><span class="tEl">&lt;xsd:complexType</span><span class="tEl">&gt;</span><span class="tI">
+          </span><span class="tEl">&lt;xsd:sequence</span><span class="tEl">&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"Name"</span><span class="tAN"> type=</span><span class="tAV">"xsd:string"</span><span class="tAN"> minOccurs=</span><span class="tAV">"1"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"Description"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">&gt;</span><span class="tI">
+              </span><span class="tEl">&lt;xsd:annotation</span><span class="tEl">&gt;</span><span class="tI">
+                </span><span class="tEl">&lt;xsd:documentation</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">A description for the image profile.</span><span class="tEl">&lt;/xsd:documentation&gt;</span><span class="tI">
+              </span><span class="tEl">&lt;/xsd:annotation&gt;</span><span class="tI">
+              </span><span class="tEl">&lt;xsd:simpleType</span><span class="tEl">&gt;</span><span class="tI">
+                </span><span class="tEl">&lt;xsd:restriction</span><span class="tAN"> base=</span><span class="tAV">"xsd:string"</span><span class="tEl">&gt;</span><span class="tI">
+                  </span><span class="tEl">&lt;xsd:whiteSpace</span><span class="tAN"> value=</span><span class="tAV">"preserve"</span><span class="tEl">/&gt;</span><span class="tI">
+                </span><span class="tEl">&lt;/xsd:restriction&gt;</span><span class="tI">
+              </span><span class="tEl">&lt;/xsd:simpleType&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;/xsd:element&gt;</span><span class="tI">
+            </span><span class="tC">&lt;!-- InstrumentRef is used instead of a reference to Microscope as 
+								there is no ID in Microscope. There is a 1 to 1 mapping as each
+								Instrument can contain only 1 Microscope.
+							--&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> ref=</span><span class="tAV">"OME:InstrumentRef"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> ref=</span><span class="tAV">"OME:ObjectiveSettings"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+          </span><span class="tEl">&lt;/xsd:sequence&gt;</span><span class="tI">
+          </span><span class="tEl">&lt;xsd:attribute</span><span class="tAN"> name=</span><span class="tAV">"origin"</span><span class="tAN"> use=</span><span class="tAV">"optional"</span><span class="tAN"> type=</span><span class="tAV">"ProfileSource"</span><span class="tEl">/&gt;</span><span class="tI">
+        </span><span class="tEl">&lt;/xsd:complexType&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;/xsd:element&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"ChannelProfile"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"2"</span><span class="tEl">&gt;</span><span class="tI">
+        </span><span class="tEl">&lt;xsd:complexType</span><span class="tEl">&gt;</span><span class="tI">
+          </span><span class="tEl">&lt;xsd:sequence</span><span class="tEl">&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"Name"</span><span class="tAN"> type=</span><span class="tAV">"xsd:string"</span><span class="tAN"> minOccurs=</span><span class="tAV">"1"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"Description"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">&gt;</span><span class="tI">
+              </span><span class="tEl">&lt;xsd:annotation</span><span class="tEl">&gt;</span><span class="tI">
+                </span><span class="tEl">&lt;xsd:documentation</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">A description for the channel profile.</span><span class="tEl">&lt;/xsd:documentation&gt;</span><span class="tI">
+              </span><span class="tEl">&lt;/xsd:annotation&gt;</span><span class="tI">
+              </span><span class="tEl">&lt;xsd:simpleType</span><span class="tEl">&gt;</span><span class="tI">
+                </span><span class="tEl">&lt;xsd:restriction</span><span class="tAN"> base=</span><span class="tAV">"xsd:string"</span><span class="tEl">&gt;</span><span class="tI">
+                  </span><span class="tEl">&lt;xsd:whiteSpace</span><span class="tAN"> value=</span><span class="tAV">"preserve"</span><span class="tEl">/&gt;</span><span class="tI">
+                </span><span class="tEl">&lt;/xsd:restriction&gt;</span><span class="tI">
+              </span><span class="tEl">&lt;/xsd:simpleType&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;/xsd:element&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> ref=</span><span class="tAV">"OME:LightSourceSettings"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> ref=</span><span class="tAV">"OME:OTFRef"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> ref=</span><span class="tAV">"OME:DetectorSettings"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> ref=</span><span class="tAV">"OME:FilterSetRef"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+          </span><span class="tEl">&lt;/xsd:sequence&gt;</span><span class="tI">
+          </span><span class="tEl">&lt;xsd:attribute</span><span class="tAN"> name=</span><span class="tAV">"Origin"</span><span class="tAN"> use=</span><span class="tAV">"optional"</span><span class="tAN"> type=</span><span class="tAV">"ProfileSource"</span><span class="tEl">&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;xsd:annotation</span><span class="tEl">&gt;</span><span class="tI">
+              </span><span class="tEl">&lt;xsd:documentation</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">The case of this attribute has been fixed, it was "origin".</span><span class="tEl">&lt;/xsd:documentation&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;/xsd:annotation&gt;</span><span class="tI">
+          </span><span class="tEl">&lt;/xsd:attribute&gt;</span><span class="tI">
+        </span><span class="tEl">&lt;/xsd:complexType&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;/xsd:element&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;/xsd:sequence&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;/xsd:complexType&gt;</span><span class="tI">
+</span><span class="tEl">&lt;/xsd:element&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>file:/Users/andrew/Work/ome/components/specification/Schemas/OMERO/2011-06/OMERO.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="ProfileSet_ImageProfile"></a><div class="componentTitle">Element <span class="qname"><b><a href="OMERO_xsd.html#ProfileSet" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                  onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSet</a></b> / ImageProfile</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/OMERO/2011-06</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Diagram</b></div>
+                           <div class="floatRight"><input id="button_diagram_ProfileSet_ImageProfile" type="image" src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('diagram_ProfileSet_ImageProfile');"
+                                     class="control" /></div>
+                        </td>
+                        <td class="diagram">
+                           <div id="diagram_ProfileSet_ImageProfile" style="display:block"><img alt="Diagram" border="0" src="img/OMERO_xsd_Element_ImageProfile.png"
+                                   usemap="#OMERO_xsd_Element_ImageProfile" /><map name="OMERO_xsd_Element_ImageProfile" id="OMERO_xsd_Element_ImageProfile">
+                                 <area alt="OMERO_xsd.tmp#ProfileSet_ProfileSet_ImageProfile_origin"
+                                       href="OMERO_xsd.html#ProfileSet_ProfileSet_ImageProfile_origin"
+                                       coords="139,40,275,82" />
+                                 <area alt="OMERO_xsd.tmp#ProfileSet_ProfileSet_ImageProfile_Name"
+                                       href="OMERO_xsd.html#ProfileSet_ProfileSet_ImageProfile_Name"
+                                       coords="196,99,316,141" />
+                                 <area alt="OMERO_xsd.tmp#ProfileSet_ProfileSet_ImageProfile_Description"
+                                       href="OMERO_xsd.html#ProfileSet_ProfileSet_ImageProfile_Description"
+                                       coords="196,151,395,193" /></map></div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_ProfileSet_ImageProfile" type="image" src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('properties_ProfileSet_ImageProfile');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_ProfileSet_ImageProfile" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">content:
+                                       
+                                    </td>
+                                    <td><b>complex</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">minOccurs:
+                                       
+                                    </td>
+                                    <td><b>0</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">maxOccurs:
+                                       
+                                    </td>
+                                    <td><b>2</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Model</b></td>
+                        <td><b><a href="OMERO_xsd.html#ProfileSet_ProfileSet_ImageProfile_Name"
+                                 target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                 onclick="updatePageTitle('Schema documentation for OMERO.xsd')">Name</a></b> , <b><a href="OMERO_xsd.html#ProfileSet_ProfileSet_ImageProfile_Description"
+                                 target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                 onclick="updatePageTitle('Schema documentation for OMERO.xsd')">Description{0,1}</a></b> , <b>InstrumentRef{0,1}</b> , <b>ObjectiveSettings{0,1}</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Children</b></td>
+                        <td><b><a href="OMERO_xsd.html#ProfileSet_ProfileSet_ImageProfile_Description"
+                                 target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                 onclick="updatePageTitle('Schema documentation for OMERO.xsd')">Description</a></b>, <b>InstrumentRef</b>, <b><a href="OMERO_xsd.html#ProfileSet_ProfileSet_ImageProfile_Name"
+                                 target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                 onclick="updatePageTitle('Schema documentation for OMERO.xsd')">Name</a></b>, <b>ObjectiveSettings</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Instance</b></div>
+                           <div class="floatRight"><input id="button_instance_ProfileSet_ImageProfile" type="image" src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('instance_ProfileSet_ImageProfile');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="instance_ProfileSet_ImageProfile" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tEl">&lt;ImageProfile</span><span class="tT"> </span><span class="tAN">origin=</span><span class="tAV">""</span><span class="tEl">&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;Name</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">{1,1}</span><span class="tEl">&lt;/Name&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;Description</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">{0,1}</span><span class="tEl">&lt;/Description&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;InstrumentRef</span><span class="tT"> </span><span class="tAN">ID=</span><span class="tAV">""</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">{0,1}</span><span class="tEl">&lt;/InstrumentRef&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;ObjectiveSettings</span><span class="tT"> </span><span class="tAN">CorrectionCollar=</span><span class="tAV">""</span><span class="tT"> </span><span class="tAN">ID=</span><span class="tAV">""</span><span class="tT"> </span><span class="tAN">Medium=</span><span class="tAV">""</span><span class="tT"> </span><span class="tAN">RefractiveIndex=</span><span class="tAV">""</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">{0,1}</span><span class="tEl">&lt;/ObjectiveSettings&gt;</span><span class="tI">
+</span><span class="tEl">&lt;/ImageProfile&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Attributes</b></div>
+                           <div class="floatRight"><input id="button_attributes_ProfileSet_ImageProfile" type="image" src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('attributes_ProfileSet_ImageProfile');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="attributes_ProfileSet_ImageProfile" style="display:block">
+                              <table class="attributesTable">
+                                 <thead>
+                                    <tr>
+                                       <th>QName</th>
+                                       <th>Type</th>
+                                       <th>Fixed</th>
+                                       <th>Default</th>
+                                       <th>Use</th>
+                                       <th>Annotation</th>
+                                    </tr>
+                                 </thead>
+                                 <tr>
+                                    <td class="firstColumn"><b><a href="OMERO_xsd.html#ProfileSet_ProfileSet_ImageProfile_origin"
+                                             target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for OMERO.xsd')">origin</a></b></td>
+                                    <td><b><a href="OMERO_xsd.html#ProfileSource" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                             onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSource</a></b></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>optional</td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_ProfileSet_ImageProfile" type="image" src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('source_ProfileSet_ImageProfile');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_ProfileSet_ImageProfile" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"ImageProfile"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"2"</span><span class="tEl">&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;xsd:complexType</span><span class="tEl">&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;xsd:sequence</span><span class="tEl">&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"Name"</span><span class="tAN"> type=</span><span class="tAV">"xsd:string"</span><span class="tAN"> minOccurs=</span><span class="tAV">"1"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"Description"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">&gt;</span><span class="tI">
+        </span><span class="tEl">&lt;xsd:annotation</span><span class="tEl">&gt;</span><span class="tI">
+          </span><span class="tEl">&lt;xsd:documentation</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">A description for the image profile.</span><span class="tEl">&lt;/xsd:documentation&gt;</span><span class="tI">
+        </span><span class="tEl">&lt;/xsd:annotation&gt;</span><span class="tI">
+        </span><span class="tEl">&lt;xsd:simpleType</span><span class="tEl">&gt;</span><span class="tI">
+          </span><span class="tEl">&lt;xsd:restriction</span><span class="tAN"> base=</span><span class="tAV">"xsd:string"</span><span class="tEl">&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;xsd:whiteSpace</span><span class="tAN"> value=</span><span class="tAV">"preserve"</span><span class="tEl">/&gt;</span><span class="tI">
+          </span><span class="tEl">&lt;/xsd:restriction&gt;</span><span class="tI">
+        </span><span class="tEl">&lt;/xsd:simpleType&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;/xsd:element&gt;</span><span class="tI">
+      </span><span class="tC">&lt;!-- InstrumentRef is used instead of a reference to Microscope as 
+								there is no ID in Microscope. There is a 1 to 1 mapping as each
+								Instrument can contain only 1 Microscope.
+							--&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> ref=</span><span class="tAV">"OME:InstrumentRef"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> ref=</span><span class="tAV">"OME:ObjectiveSettings"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;/xsd:sequence&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;xsd:attribute</span><span class="tAN"> name=</span><span class="tAV">"origin"</span><span class="tAN"> use=</span><span class="tAV">"optional"</span><span class="tAN"> type=</span><span class="tAV">"ProfileSource"</span><span class="tEl">/&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;/xsd:complexType&gt;</span><span class="tI">
+</span><span class="tEl">&lt;/xsd:element&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>file:/Users/andrew/Work/ome/components/specification/Schemas/OMERO/2011-06/OMERO.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="ProfileSet_ProfileSet_ImageProfile_Name"></a><div class="componentTitle">Element <span class="qname"><b><a href="OMERO_xsd.html#ProfileSet" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                  onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSet</a></b> / <b><a href="OMERO_xsd.html#ProfileSet_ImageProfile" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                  onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ImageProfile</a></b> / Name</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/OMERO/2011-06</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Diagram</b></div>
+                           <div class="floatRight"><input id="button_diagram_ProfileSet_ProfileSet_ImageProfile_Name" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('diagram_ProfileSet_ProfileSet_ImageProfile_Name');"
+                                     class="control" /></div>
+                        </td>
+                        <td class="diagram">
+                           <div id="diagram_ProfileSet_ProfileSet_ImageProfile_Name" style="display:block"><img alt="Diagram" border="0" src="img/OMERO_xsd_Element_Name_1.png" /></div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td><b>xsd:string</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_ProfileSet_ProfileSet_ImageProfile_Name" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('properties_ProfileSet_ProfileSet_ImageProfile_Name');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_ProfileSet_ProfileSet_ImageProfile_Name" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">content:
+                                       
+                                    </td>
+                                    <td><b>simple</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">minOccurs:
+                                       
+                                    </td>
+                                    <td><b>1</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">maxOccurs:
+                                       
+                                    </td>
+                                    <td><b>1</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_ProfileSet_ProfileSet_ImageProfile_Name" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('source_ProfileSet_ProfileSet_ImageProfile_Name');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_ProfileSet_ProfileSet_ImageProfile_Name" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"Name"</span><span class="tAN"> type=</span><span class="tAV">"xsd:string"</span><span class="tAN"> minOccurs=</span><span class="tAV">"1"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>file:/Users/andrew/Work/ome/components/specification/Schemas/OMERO/2011-06/OMERO.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="ProfileSet_ProfileSet_ImageProfile_Description"></a><div class="componentTitle">Element <span class="qname"><b><a href="OMERO_xsd.html#ProfileSet" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                  onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSet</a></b> / <b><a href="OMERO_xsd.html#ProfileSet_ImageProfile" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                  onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ImageProfile</a></b> / Description</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/OMERO/2011-06</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Annotations</b></div>
+                           <div class="floatRight"><input id="button_annotations_ProfileSet_ProfileSet_ImageProfile_Description"
+                                     type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('annotations_ProfileSet_ProfileSet_ImageProfile_Description');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="annotations_ProfileSet_ProfileSet_ImageProfile_Description"
+                                style="display:block">
+                              <div class="annotation">
+                                 <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                        class="preWrapContainer">
+                                    <tr>
+                                       <td width="100%"><pre><span class="tT">A description for the image profile.</span></pre></td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Diagram</b></div>
+                           <div class="floatRight"><input id="button_diagram_ProfileSet_ProfileSet_ImageProfile_Description" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('diagram_ProfileSet_ProfileSet_ImageProfile_Description');"
+                                     class="control" /></div>
+                        </td>
+                        <td class="diagram">
+                           <div id="diagram_ProfileSet_ProfileSet_ImageProfile_Description"
+                                style="display:block"><img alt="Diagram" border="0" src="img/OMERO_xsd_Element_Description.png" /></div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td>restriction of <b>xsd:string</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_ProfileSet_ProfileSet_ImageProfile_Description"
+                                     type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('properties_ProfileSet_ProfileSet_ImageProfile_Description');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_ProfileSet_ProfileSet_ImageProfile_Description"
+                                style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">content:
+                                       
+                                    </td>
+                                    <td><b>simple</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">minOccurs:
+                                       
+                                    </td>
+                                    <td><b>0</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">maxOccurs:
+                                       
+                                    </td>
+                                    <td><b>1</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Facets</b></div>
+                           <div class="floatRight"><input id="button_facets_ProfileSet_ProfileSet_ImageProfile_Description" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('facets_ProfileSet_ProfileSet_ImageProfile_Description');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="facets_ProfileSet_ProfileSet_ImageProfile_Description"
+                                style="display:block">
+                              <table class="facetsTable">
+                                 <tr>
+                                    <td class="firstColumn">whiteSpace</td>
+                                    <td width="30%"><b>preserve</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_ProfileSet_ProfileSet_ImageProfile_Description" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('source_ProfileSet_ProfileSet_ImageProfile_Description');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_ProfileSet_ProfileSet_ImageProfile_Description"
+                                style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"Description"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;xsd:annotation</span><span class="tEl">&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;xsd:documentation</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">A description for the image profile.</span><span class="tEl">&lt;/xsd:documentation&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;/xsd:annotation&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;xsd:simpleType</span><span class="tEl">&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;xsd:restriction</span><span class="tAN"> base=</span><span class="tAV">"xsd:string"</span><span class="tEl">&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;xsd:whiteSpace</span><span class="tAN"> value=</span><span class="tAV">"preserve"</span><span class="tEl">/&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;/xsd:restriction&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;/xsd:simpleType&gt;</span><span class="tI">
+</span><span class="tEl">&lt;/xsd:element&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>file:/Users/andrew/Work/ome/components/specification/Schemas/OMERO/2011-06/OMERO.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="ProfileSet_ChannelProfile"></a><div class="componentTitle">Element <span class="qname"><b><a href="OMERO_xsd.html#ProfileSet" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                  onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSet</a></b> / ChannelProfile</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/OMERO/2011-06</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Diagram</b></div>
+                           <div class="floatRight"><input id="button_diagram_ProfileSet_ChannelProfile" type="image" src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('diagram_ProfileSet_ChannelProfile');"
+                                     class="control" /></div>
+                        </td>
+                        <td class="diagram">
+                           <div id="diagram_ProfileSet_ChannelProfile" style="display:block"><img alt="Diagram" border="0" src="img/OMERO_xsd_Element_ChannelProfile.png"
+                                   usemap="#OMERO_xsd_Element_ChannelProfile" /><map name="OMERO_xsd_Element_ChannelProfile" id="OMERO_xsd_Element_ChannelProfile">
+                                 <area alt="OMERO_xsd.tmp#ProfileSet_ProfileSet_ChannelProfile_Origin"
+                                       href="OMERO_xsd.html#ProfileSet_ProfileSet_ChannelProfile_Origin"
+                                       coords="151,40,287,82" />
+                                 <area alt="OMERO_xsd.tmp#ProfileSet_ProfileSet_ChannelProfile_Name"
+                                       href="OMERO_xsd.html#ProfileSet_ProfileSet_ChannelProfile_Name"
+                                       coords="208,99,328,141" />
+                                 <area alt="OMERO_xsd.tmp#ProfileSet_ProfileSet_ChannelProfile_Description"
+                                       href="OMERO_xsd.html#ProfileSet_ProfileSet_ChannelProfile_Description"
+                                       coords="208,151,407,193" /></map></div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_ProfileSet_ChannelProfile" type="image" src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('properties_ProfileSet_ChannelProfile');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_ProfileSet_ChannelProfile" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">content:
+                                       
+                                    </td>
+                                    <td><b>complex</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">minOccurs:
+                                       
+                                    </td>
+                                    <td><b>0</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">maxOccurs:
+                                       
+                                    </td>
+                                    <td><b>2</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Model</b></td>
+                        <td><b><a href="OMERO_xsd.html#ProfileSet_ProfileSet_ChannelProfile_Name"
+                                 target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                 onclick="updatePageTitle('Schema documentation for OMERO.xsd')">Name</a></b> , <b><a href="OMERO_xsd.html#ProfileSet_ProfileSet_ChannelProfile_Description"
+                                 target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                 onclick="updatePageTitle('Schema documentation for OMERO.xsd')">Description{0,1}</a></b> , <b>LightSourceSettings{0,1}</b> , <b>OTFRef{0,1}</b> , <b>DetectorSettings{0,1}</b> , <b>FilterSetRef{0,1}</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Children</b></td>
+                        <td><b><a href="OMERO_xsd.html#ProfileSet_ProfileSet_ChannelProfile_Description"
+                                 target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                 onclick="updatePageTitle('Schema documentation for OMERO.xsd')">Description</a></b>, <b>DetectorSettings</b>, <b>FilterSetRef</b>, <b>LightSourceSettings</b>, <b><a href="OMERO_xsd.html#ProfileSet_ProfileSet_ChannelProfile_Name"
+                                 target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                 onclick="updatePageTitle('Schema documentation for OMERO.xsd')">Name</a></b>, <b>OTFRef</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Instance</b></div>
+                           <div class="floatRight"><input id="button_instance_ProfileSet_ChannelProfile" type="image" src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('instance_ProfileSet_ChannelProfile');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="instance_ProfileSet_ChannelProfile" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tEl">&lt;ChannelProfile</span><span class="tT"> </span><span class="tAN">Origin=</span><span class="tAV">""</span><span class="tEl">&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;Name</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">{1,1}</span><span class="tEl">&lt;/Name&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;Description</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">{0,1}</span><span class="tEl">&lt;/Description&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;LightSourceSettings</span><span class="tT"> </span><span class="tAN">Attenuation=</span><span class="tAV">""</span><span class="tT"> </span><span class="tAN">ID=</span><span class="tAV">""</span><span class="tT"> </span><span class="tAN">Wavelength=</span><span class="tAV">""</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">{0,1}</span><span class="tEl">&lt;/LightSourceSettings&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;OTFRef</span><span class="tT"> </span><span class="tAN">ID=</span><span class="tAV">""</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">{0,1}</span><span class="tEl">&lt;/OTFRef&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;DetectorSettings</span><span class="tT"> </span><span class="tAN">Binning=</span><span class="tAV">""</span><span class="tT"> </span><span class="tAN">Gain=</span><span class="tAV">""</span><span class="tT"> </span><span class="tAN">ID=</span><span class="tAV">""</span><span class="tT"> </span><span class="tAN">Offset=</span><span class="tAV">""</span><span class="tT"> </span><span class="tAN">ReadOutRate=</span><span class="tAV">""</span><span class="tT"> </span><span class="tAN">Voltage=</span><span class="tAV">""</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">{0,1}</span><span class="tEl">&lt;/DetectorSettings&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;FilterSetRef</span><span class="tT"> </span><span class="tAN">ID=</span><span class="tAV">""</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">{0,1}</span><span class="tEl">&lt;/FilterSetRef&gt;</span><span class="tI">
+</span><span class="tEl">&lt;/ChannelProfile&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Attributes</b></div>
+                           <div class="floatRight"><input id="button_attributes_ProfileSet_ChannelProfile" type="image" src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('attributes_ProfileSet_ChannelProfile');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="attributes_ProfileSet_ChannelProfile" style="display:block">
+                              <table class="attributesTable">
+                                 <thead>
+                                    <tr>
+                                       <th>QName</th>
+                                       <th>Type</th>
+                                       <th>Fixed</th>
+                                       <th>Default</th>
+                                       <th>Use</th>
+                                       <th>Annotation</th>
+                                    </tr>
+                                 </thead>
+                                 <tr>
+                                    <td class="firstColumn"><b><a href="OMERO_xsd.html#ProfileSet_ProfileSet_ChannelProfile_Origin"
+                                             target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for OMERO.xsd')">Origin</a></b></td>
+                                    <td><b><a href="OMERO_xsd.html#ProfileSource" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                             onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSource</a></b></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>optional</td>
+                                    <td>
+                                       <div class="annotation">
+                                          <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                                 class="preWrapContainer">
+                                             <tr>
+                                                <td width="100%"><pre><span class="tT">The case of this attribute has been fixed, it was "origin".</span></pre></td>
+                                             </tr>
+                                          </table>
+                                       </div>
+                                    </td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_ProfileSet_ChannelProfile" type="image" src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('source_ProfileSet_ChannelProfile');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_ProfileSet_ChannelProfile" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"ChannelProfile"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"2"</span><span class="tEl">&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;xsd:complexType</span><span class="tEl">&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;xsd:sequence</span><span class="tEl">&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"Name"</span><span class="tAN"> type=</span><span class="tAV">"xsd:string"</span><span class="tAN"> minOccurs=</span><span class="tAV">"1"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"Description"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">&gt;</span><span class="tI">
+        </span><span class="tEl">&lt;xsd:annotation</span><span class="tEl">&gt;</span><span class="tI">
+          </span><span class="tEl">&lt;xsd:documentation</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">A description for the channel profile.</span><span class="tEl">&lt;/xsd:documentation&gt;</span><span class="tI">
+        </span><span class="tEl">&lt;/xsd:annotation&gt;</span><span class="tI">
+        </span><span class="tEl">&lt;xsd:simpleType</span><span class="tEl">&gt;</span><span class="tI">
+          </span><span class="tEl">&lt;xsd:restriction</span><span class="tAN"> base=</span><span class="tAV">"xsd:string"</span><span class="tEl">&gt;</span><span class="tI">
+            </span><span class="tEl">&lt;xsd:whiteSpace</span><span class="tAN"> value=</span><span class="tAV">"preserve"</span><span class="tEl">/&gt;</span><span class="tI">
+          </span><span class="tEl">&lt;/xsd:restriction&gt;</span><span class="tI">
+        </span><span class="tEl">&lt;/xsd:simpleType&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;/xsd:element&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> ref=</span><span class="tAV">"OME:LightSourceSettings"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> ref=</span><span class="tAV">"OME:OTFRef"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> ref=</span><span class="tAV">"OME:DetectorSettings"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;xsd:element</span><span class="tAN"> ref=</span><span class="tAV">"OME:FilterSetRef"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;/xsd:sequence&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;xsd:attribute</span><span class="tAN"> name=</span><span class="tAV">"Origin"</span><span class="tAN"> use=</span><span class="tAV">"optional"</span><span class="tAN"> type=</span><span class="tAV">"ProfileSource"</span><span class="tEl">&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;xsd:annotation</span><span class="tEl">&gt;</span><span class="tI">
+        </span><span class="tEl">&lt;xsd:documentation</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">The case of this attribute has been fixed, it was "origin".</span><span class="tEl">&lt;/xsd:documentation&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;/xsd:annotation&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;/xsd:attribute&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;/xsd:complexType&gt;</span><span class="tI">
+</span><span class="tEl">&lt;/xsd:element&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>file:/Users/andrew/Work/ome/components/specification/Schemas/OMERO/2011-06/OMERO.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="ProfileSet_ProfileSet_ChannelProfile_Name"></a><div class="componentTitle">Element <span class="qname"><b><a href="OMERO_xsd.html#ProfileSet" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                  onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSet</a></b> / <b><a href="OMERO_xsd.html#ProfileSet_ChannelProfile" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                  onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ChannelProfile</a></b> / Name</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/OMERO/2011-06</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Diagram</b></div>
+                           <div class="floatRight"><input id="button_diagram_ProfileSet_ProfileSet_ChannelProfile_Name" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('diagram_ProfileSet_ProfileSet_ChannelProfile_Name');"
+                                     class="control" /></div>
+                        </td>
+                        <td class="diagram">
+                           <div id="diagram_ProfileSet_ProfileSet_ChannelProfile_Name" style="display:block"><img alt="Diagram" border="0" src="img/OMERO_xsd_Element_Name.png" /></div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td><b>xsd:string</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_ProfileSet_ProfileSet_ChannelProfile_Name" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('properties_ProfileSet_ProfileSet_ChannelProfile_Name');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_ProfileSet_ProfileSet_ChannelProfile_Name" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">content:
+                                       
+                                    </td>
+                                    <td><b>simple</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">minOccurs:
+                                       
+                                    </td>
+                                    <td><b>1</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">maxOccurs:
+                                       
+                                    </td>
+                                    <td><b>1</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_ProfileSet_ProfileSet_ChannelProfile_Name" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('source_ProfileSet_ProfileSet_ChannelProfile_Name');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_ProfileSet_ProfileSet_ChannelProfile_Name" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"Name"</span><span class="tAN"> type=</span><span class="tAV">"xsd:string"</span><span class="tAN"> minOccurs=</span><span class="tAV">"1"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">/&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>file:/Users/andrew/Work/ome/components/specification/Schemas/OMERO/2011-06/OMERO.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="ProfileSet_ProfileSet_ChannelProfile_Description"></a><div class="componentTitle">Element <span class="qname"><b><a href="OMERO_xsd.html#ProfileSet" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                  onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSet</a></b> / <b><a href="OMERO_xsd.html#ProfileSet_ChannelProfile" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                  onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ChannelProfile</a></b> / Description</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/OMERO/2011-06</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Annotations</b></div>
+                           <div class="floatRight"><input id="button_annotations_ProfileSet_ProfileSet_ChannelProfile_Description"
+                                     type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('annotations_ProfileSet_ProfileSet_ChannelProfile_Description');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="annotations_ProfileSet_ProfileSet_ChannelProfile_Description"
+                                style="display:block">
+                              <div class="annotation">
+                                 <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                        class="preWrapContainer">
+                                    <tr>
+                                       <td width="100%"><pre><span class="tT">A description for the channel profile.</span></pre></td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Diagram</b></div>
+                           <div class="floatRight"><input id="button_diagram_ProfileSet_ProfileSet_ChannelProfile_Description"
+                                     type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('diagram_ProfileSet_ProfileSet_ChannelProfile_Description');"
+                                     class="control" /></div>
+                        </td>
+                        <td class="diagram">
+                           <div id="diagram_ProfileSet_ProfileSet_ChannelProfile_Description"
+                                style="display:block"><img alt="Diagram" border="0" src="img/OMERO_xsd_Element_Description_1.png" /></div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td>restriction of <b>xsd:string</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_ProfileSet_ProfileSet_ChannelProfile_Description"
+                                     type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('properties_ProfileSet_ProfileSet_ChannelProfile_Description');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_ProfileSet_ProfileSet_ChannelProfile_Description"
+                                style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">content:
+                                       
+                                    </td>
+                                    <td><b>simple</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">minOccurs:
+                                       
+                                    </td>
+                                    <td><b>0</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">maxOccurs:
+                                       
+                                    </td>
+                                    <td><b>1</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Facets</b></div>
+                           <div class="floatRight"><input id="button_facets_ProfileSet_ProfileSet_ChannelProfile_Description"
+                                     type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('facets_ProfileSet_ProfileSet_ChannelProfile_Description');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="facets_ProfileSet_ProfileSet_ChannelProfile_Description"
+                                style="display:block">
+                              <table class="facetsTable">
+                                 <tr>
+                                    <td class="firstColumn">whiteSpace</td>
+                                    <td width="30%"><b>preserve</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_ProfileSet_ProfileSet_ChannelProfile_Description"
+                                     type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('source_ProfileSet_ProfileSet_ChannelProfile_Description');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_ProfileSet_ProfileSet_ChannelProfile_Description"
+                                style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tEl">&lt;xsd:element</span><span class="tAN"> name=</span><span class="tAV">"Description"</span><span class="tAN"> minOccurs=</span><span class="tAV">"0"</span><span class="tAN"> maxOccurs=</span><span class="tAV">"1"</span><span class="tEl">&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;xsd:annotation</span><span class="tEl">&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;xsd:documentation</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">A description for the channel profile.</span><span class="tEl">&lt;/xsd:documentation&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;/xsd:annotation&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;xsd:simpleType</span><span class="tEl">&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;xsd:restriction</span><span class="tAN"> base=</span><span class="tAV">"xsd:string"</span><span class="tEl">&gt;</span><span class="tI">
+      </span><span class="tEl">&lt;xsd:whiteSpace</span><span class="tAN"> value=</span><span class="tAV">"preserve"</span><span class="tEl">/&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;/xsd:restriction&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;/xsd:simpleType&gt;</span><span class="tI">
+</span><span class="tEl">&lt;/xsd:element&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>file:/Users/andrew/Work/ome/components/specification/Schemas/OMERO/2011-06/OMERO.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="ProfileSource"></a><div class="componentTitle">Simple Type <span class="qname">ProfileSource</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/OMERO/2011-06</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Annotations</b></div>
+                           <div class="floatRight"><input id="button_annotations_ProfileSource" type="image" src="img/btM.gif" value="-"
+                                     onclick="switchState('annotations_ProfileSource');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="annotations_ProfileSource" style="display:block">
+                              <div class="annotation">
+                                 <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                        class="preWrapContainer">
+                                    <tr>
+                                       <td width="100%"><pre><span class="tT">Where the profile data came from.</span></pre></td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Diagram</b></div>
+                           <div class="floatRight"><input id="button_diagram_ProfileSource" type="image" src="img/btM.gif" value="-"
+                                     onclick="switchState('diagram_ProfileSource');"
+                                     class="control" /></div>
+                        </td>
+                        <td class="diagram">
+                           <div id="diagram_ProfileSource" style="display:block"><img alt="Diagram" border="0" src="img/OMERO_xsd_Simple_Type_ProfileSource.png" /></div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td>restriction of <b>xsd:string</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Facets</b></div>
+                           <div class="floatRight"><input id="button_facets_ProfileSource" type="image" src="img/btM.gif" value="-"
+                                     onclick="switchState('facets_ProfileSource');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="facets_ProfileSource" style="display:block">
+                              <table class="facetsTable">
+                                 <tr>
+                                    <td class="firstColumn">enumeration</td>
+                                    <td width="30%"><b>User</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">enumeration</td>
+                                    <td width="30%"><b>File</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_ProfileSource" type="image" src="img/btM.gif" value="-"
+                                     onclick="switchState('usedBy_ProfileSource');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_ProfileSource" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Attributes </td>
+                                    <td><b><a href="OMERO_xsd.html#ProfileSet_ProfileSet_ChannelProfile_Origin"
+                                             target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSet/ChannelProfile/@Origin</a></b>, <b><a href="OMERO_xsd.html#ProfileSet_ProfileSet_ImageProfile_origin"
+                                             target="mainFrame"
+                                             title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSet/ImageProfile/@origin</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_ProfileSource" type="image" src="img/btM.gif" value="-"
+                                     onclick="switchState('source_ProfileSource');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_ProfileSource" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tEl">&lt;xsd:simpleType</span><span class="tAN"> name=</span><span class="tAV">"ProfileSource"</span><span class="tEl">&gt;</span><span class="tI">
+  </span><span class="tC">&lt;!-- top level definition --&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;xsd:annotation</span><span class="tEl">&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;xsd:documentation</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">Where the profile data came from.</span><span class="tEl">&lt;/xsd:documentation&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;/xsd:annotation&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;xsd:restriction</span><span class="tAN"> base=</span><span class="tAV">"xsd:string"</span><span class="tEl">&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;xsd:enumeration</span><span class="tAN"> value=</span><span class="tAV">"User"</span><span class="tEl">/&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;xsd:enumeration</span><span class="tAN"> value=</span><span class="tAV">"File"</span><span class="tEl">/&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;/xsd:restriction&gt;</span><span class="tI">
+</span><span class="tEl">&lt;/xsd:simpleType&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>file:/Users/andrew/Work/ome/components/specification/Schemas/OMERO/2011-06/OMERO.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="ProfileSet_ProfileSet_ImageProfile_origin"></a><div class="componentTitle">Attribute <span class="qname"><b><a href="OMERO_xsd.html#ProfileSet" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                  onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSet</a></b> / <b><a href="OMERO_xsd.html#ProfileSet_ImageProfile" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                  onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ImageProfile</a></b> / @origin</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>No namespace</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td><b><a href="OMERO_xsd.html#ProfileSource" target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                 onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSource</a></b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_ProfileSet_ProfileSet_ImageProfile_origin" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('properties_ProfileSet_ProfileSet_ImageProfile_origin');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_ProfileSet_ProfileSet_ImageProfile_origin" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">use:
+                                       
+                                    </td>
+                                    <td><b>optional</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Facets</b></div>
+                           <div class="floatRight"><input id="button_facets_ProfileSet_ProfileSet_ImageProfile_origin" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('facets_ProfileSet_ProfileSet_ImageProfile_origin');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="facets_ProfileSet_ProfileSet_ImageProfile_origin" style="display:block">
+                              <table class="facetsTable">
+                                 <tr>
+                                    <td class="firstColumn">enumeration</td>
+                                    <td width="30%"><b>User</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">enumeration</td>
+                                    <td width="30%"><b>File</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_ProfileSet_ProfileSet_ImageProfile_origin" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('usedBy_ProfileSet_ProfileSet_ImageProfile_origin');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_ProfileSet_ProfileSet_ImageProfile_origin" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Element </td>
+                                    <td><b><a href="OMERO_xsd.html#ProfileSet_ImageProfile" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                             onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSet/ImageProfile</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_ProfileSet_ProfileSet_ImageProfile_origin" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('source_ProfileSet_ProfileSet_ImageProfile_origin');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_ProfileSet_ProfileSet_ImageProfile_origin" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tEl">&lt;xsd:attribute</span><span class="tAN"> name=</span><span class="tAV">"origin"</span><span class="tAN"> use=</span><span class="tAV">"optional"</span><span class="tAN"> type=</span><span class="tAV">"ProfileSource"</span><span class="tEl">/&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>file:/Users/andrew/Work/ome/components/specification/Schemas/OMERO/2011-06/OMERO.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="ProfileSet_ProfileSet_ChannelProfile_Origin"></a><div class="componentTitle">Attribute <span class="qname"><b><a href="OMERO_xsd.html#ProfileSet" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                  onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSet</a></b> / <b><a href="OMERO_xsd.html#ProfileSet_ChannelProfile" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                  onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ChannelProfile</a></b> / @Origin</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>No namespace</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Annotations</b></div>
+                           <div class="floatRight"><input id="button_annotations_ProfileSet_ProfileSet_ChannelProfile_Origin"
+                                     type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('annotations_ProfileSet_ProfileSet_ChannelProfile_Origin');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="annotations_ProfileSet_ProfileSet_ChannelProfile_Origin"
+                                style="display:block">
+                              <div class="annotation">
+                                 <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                        class="preWrapContainer">
+                                    <tr>
+                                       <td width="100%"><pre><span class="tT">The case of this attribute has been fixed, it was "origin".</span></pre></td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td><b><a href="OMERO_xsd.html#ProfileSource" target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                 onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSource</a></b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_ProfileSet_ProfileSet_ChannelProfile_Origin" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('properties_ProfileSet_ProfileSet_ChannelProfile_Origin');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_ProfileSet_ProfileSet_ChannelProfile_Origin"
+                                style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">use:
+                                       
+                                    </td>
+                                    <td><b>optional</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Facets</b></div>
+                           <div class="floatRight"><input id="button_facets_ProfileSet_ProfileSet_ChannelProfile_Origin" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('facets_ProfileSet_ProfileSet_ChannelProfile_Origin');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="facets_ProfileSet_ProfileSet_ChannelProfile_Origin" style="display:block">
+                              <table class="facetsTable">
+                                 <tr>
+                                    <td class="firstColumn">enumeration</td>
+                                    <td width="30%"><b>User</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">enumeration</td>
+                                    <td width="30%"><b>File</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_ProfileSet_ProfileSet_ChannelProfile_Origin" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('usedBy_ProfileSet_ProfileSet_ChannelProfile_Origin');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_ProfileSet_ProfileSet_ChannelProfile_Origin" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Element </td>
+                                    <td><b><a href="OMERO_xsd.html#ProfileSet_ChannelProfile" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OMERO/2011-06"
+                                             onclick="updatePageTitle('Schema documentation for OMERO.xsd')">ProfileSet/ChannelProfile</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_ProfileSet_ProfileSet_ChannelProfile_Origin" type="image"
+                                     src="img/btM.gif"
+                                     value="-"
+                                     onclick="switchState('source_ProfileSet_ProfileSet_ChannelProfile_Origin');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_ProfileSet_ProfileSet_ChannelProfile_Origin" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tEl">&lt;xsd:attribute</span><span class="tAN"> name=</span><span class="tAV">"Origin"</span><span class="tAN"> use=</span><span class="tAV">"optional"</span><span class="tAN"> type=</span><span class="tAV">"ProfileSource"</span><span class="tEl">&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;xsd:annotation</span><span class="tEl">&gt;</span><span class="tI">
+    </span><span class="tEl">&lt;xsd:documentation</span><span class="tEl">&gt;</span><span class="tT" style="white-space:normal">The case of this attribute has been fixed, it was "origin".</span><span class="tEl">&lt;/xsd:documentation&gt;</span><span class="tI">
+  </span><span class="tEl">&lt;/xsd:annotation&gt;</span><span class="tI">
+</span><span class="tEl">&lt;/xsd:attribute&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>file:/Users/andrew/Work/ome/components/specification/Schemas/OMERO/2011-06/OMERO.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table>
+      <div class="footer">
+         <hr />
+         <div align="center">XML Schema documentation generated by <a href="http://www.oxygenxml.com" target="_parent"><span class="oXygenLogo"><span class="redX">&lt;</span>o<span class="redX">X</span>ygen<span class="redX">/&gt;</span></span></a><sup>®</sup> XML Editor.
+         </div>
+      </div><script type="text/javascript">
+         <!--                     
+                     // The namespace is the selected option in the TOC combo.
+                    
+                     // Floats the toolbar.
+                     var globalControls = getElementObject("global_controls"); 
+                     
+                     if(globalControls != null){
+	                     var browser=navigator.appName;
+						 var version = parseFloat(navigator.appVersion.split('MSIE')[1]);
+						 
+						 var IE6 = false;
+						 if ((browser=="Microsoft Internet Explorer") && (version < 7)){
+						 	IE6 = true;
+						 }
+	
+	                     //alert (IE6 + " |V| " + version);
+	                     
+	                     if(IE6){
+	                     	// On IE 6 the 'fixed' property is not supported. We must use javascript. 
+	                         globalControls.style.position='absolute';                         
+	                         // The global controls will do not exist in the TOC frame, when chunking.
+	                         findAndFloat("global_controls", 225, 30);    
+	                     } else {
+	                      	  globalControls.style.position='fixed';                     	
+	                     }
+	                     
+	                     globalControls.style.right='0';                       
+                     }
+                --></script></body>
+</html>
