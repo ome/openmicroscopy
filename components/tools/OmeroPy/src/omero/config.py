@@ -88,26 +88,12 @@ class ConfigXml(object):
     def _close_lock(self):
         if self.lock is not None:
             self.lock.close()
-            if self._CloseEx is not None:
-                from omero.util.concurrency import get_event
-                event = get_event("websettings")
-                count = 10
-                while True:
-                    try:
-                        os.remove("%s.lock" % self.filename)
-                        del event
-                        del get_event
-                        break
-                    except self._CloseEx:
-                        if count == 0:
-                            del event
-                            del get_event
-                            raise
-                        self.logger.error('failed removal of lock file, retrying', exc_info=True)
-                        count -= 1
-                        event.wait(1) # Wait a total of 10 seconds
-            else:
+            try:
                 os.remove("%s.lock" % self.filename)
+            except:
+                # On windows a WindowsError 32 can happen (file opened by another process), ignoring
+                self.logger.error("Failed to removed lock file, ignoring", exc_info=True)
+                pass
 
     def version(self, id = None):
         if id is None:
