@@ -661,6 +661,7 @@ class ImViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		view.setLeftStatus(description);
+		if (perc == 100) view.setLeftStatus();
 	}
 
 	/** 

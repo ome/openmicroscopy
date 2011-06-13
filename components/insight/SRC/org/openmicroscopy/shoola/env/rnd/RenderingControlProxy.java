@@ -58,7 +58,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
-import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import pojos.ChannelData;
@@ -271,6 +270,7 @@ class RenderingControlProxy
      */
     private void cache(PlaneDef pd, Object object)
     {
+    	if (isBigImage()) return;
         if (pd.slice == omero.romio.XY.value) {
             //We only cache XY images.
             //if (xyCache != null) xyCache.add(pd, object);
@@ -285,12 +285,14 @@ class RenderingControlProxy
     /** Clears the cache. */
     private void invalidateCache()
     {
+    	if (isBigImage()) return;
     	if (cacheID >= 0) context.getCacheService().clearCache(cacheID);
     }
     
     /** Clears the cache and releases memory. */
     private void eraseCache()
     {
+    	if (isBigImage()) return;
     	invalidateCache();
     	context.getCacheService().removeCache(cacheID);
     }
@@ -302,6 +304,7 @@ class RenderingControlProxy
      */
     private void initializeCache(PlaneDef pDef)
     {
+    	if (isBigImage()) return;
     	//if (xyCache != null) return;
     	if (cacheID >= 0) return;
     	/*

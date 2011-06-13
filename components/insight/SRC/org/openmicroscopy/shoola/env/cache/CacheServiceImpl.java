@@ -92,7 +92,7 @@ class CacheServiceImpl
 	public int createCache(int type, int size) 
 	{
 		Cache cache;
-		if (size < 0) size = 0;
+		if (size <= 0) size = 1;
 		switch (type) {
 			case PERSISTENCE_ON_DISK:
 				//TODO: implement.

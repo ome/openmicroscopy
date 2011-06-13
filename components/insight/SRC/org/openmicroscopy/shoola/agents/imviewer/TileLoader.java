@@ -138,7 +138,7 @@ public class TileLoader
         String status = fe.getStatus();
         int percDone = fe.getPercentDone();
         if (status == null) 
-            status = (percDone == 100) ? "Done" :  //Else
+            status = (percDone == 100) ? "" :  //Else
                                      ""; //Description wasn't available.   
         viewer.setStatus(status, percDone);
         Tile tile = (Tile) fe.getPartialResult();
