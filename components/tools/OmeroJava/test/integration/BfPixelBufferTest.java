@@ -1,7 +1,9 @@
 /*
+ *   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+ *   All rights reserved.
  *
+ *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration;
 
 import java.io.File;
