@@ -81,6 +81,12 @@ public class StatsFactory {
     /** Value determined according to the location of the pixels' value. */
     private double inputEnd;
 
+    /** The size of the bin.*/
+    private double sizeBin;
+    
+    /** The epsilon value.*/
+    private double epsilon;
+    
     /**
      * For the specified {@link Plane2D}, computes the bins, determines the
      * inputWindow and the noiseReduction flag.
@@ -92,14 +98,8 @@ public class StatsFactory {
      */
     private void computeBins(Plane2D p2D, StatsInfo stats, int sizeX2,
             int sizeX1) {
-        double gMin = stats.getGlobalMin().doubleValue();
-        double gMax = stats.getGlobalMax().doubleValue();
-        double sizeBin = (gMax - gMin) / NB_BIN;
-        double epsilon = sizeBin / EPSILON;
+    	double gMin = stats.getGlobalMin().doubleValue();
         int[] totals = new int[NB_BIN];
-        if (locationStats == null) {
-            locationStats = new double[NB_BIN];
-        }
         /*
          * Segment[] segments = new Segment[NB_BIN]; for (int i = 0; i < NB_BIN;
          * i++) { segments[i] = new Segment( gMin + i * sizeBin, 0, gMin + (i +
@@ -149,9 +149,10 @@ public class StatsFactory {
 
         double total = sizeX2 * sizeX1;
         for (int i = 0; i < totals.length; i++) {
-            locationStats[i] = totals[i] / total;
+            locationStats[i] += totals[i] / total;
         }
         // Default, we assume that we have at least 3 sub-intervals.
+        /*
         inputStart = segments[0].x2;// segments[0].getPoint(1).x1;
         inputEnd = segments[NB_BIN - 1].x2;// segments[NB_BIN -
                                             // 1].getPoint(1).x1;
@@ -161,6 +162,18 @@ public class StatsFactory {
         } else {
             inputStart = accumulateCloseToMax(totals, segments, total, epsilon);
         }
+        
+        */
+        double s = segments[0].x2;
+        double end = segments[NB_BIN - 1].x2;
+        total = total - totals[0] - totals[NB_BIN - 1];
+        if (totals[0] >= totals[NB_BIN - 1]) {
+            end = accumulateCloseToMin(totals, segments, total, epsilon);
+        } else {
+            s = accumulateCloseToMax(totals, segments, total, epsilon);
+        }
+        if (s < inputStart) inputStart = s;
+        if (end > inputEnd) inputEnd = end;
         noiseReduction = noiseReduction();
     }
 
@@ -250,11 +263,20 @@ public class StatsFactory {
         double gMin = stats.getGlobalMin().doubleValue();
         double gMax = stats.getGlobalMax().doubleValue();
         Dimension tileSize = pixelsData.getTileSize();
-        if (gMax-gMin <= RANGE_RGB) {
+        double range = gMax-gMin;
+        if (range <= RANGE_RGB) {
             inputEnd = gMax;
             inputStart = gMin;
             return;
         }
+        sizeBin = range / NB_BIN;
+        epsilon = sizeBin / EPSILON;
+        if (locationStats == null) {
+            locationStats = new double[NB_BIN];
+        }
+        //value will be reset when calculating data.
+        inputStart = gMax;
+        inputEnd = gMin;
         Utils.forEachTile(new TileLoopIteration() {
             public void run(int z, int c, int t, int x, int y, int tileWidth,
                     int tileHeight, int tileCount)
