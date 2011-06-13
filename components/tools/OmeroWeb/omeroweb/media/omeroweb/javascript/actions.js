@@ -207,6 +207,9 @@ var refreshCenterPanel = function() {
                 $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
                 $("div#content_details").attr('rel', rel);
                 $("div#content_details").load('/webclient/load_public/'+rel.split('-')[1]+'/?view=icon');
+        } else if(rel.indexOf('tag')>=0) {
+            $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
+            $("div#content_details").load('/webclient/load_tags/tag/'+rel.split('-')[1]+'/?view=icon');
         } else {
             $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
             $("div#content_details").attr('rel', rel);

@@ -266,6 +266,7 @@
     				break;
     			case "refreshButton":
                     $("#datashareTree").jstree("refresh");
+                    refreshCenterPanel();
                     break;
 		        default:
         		    break;
@@ -279,7 +280,7 @@
 
     <div class="toolbar">
         <div id="buttons" class="align_left">
-            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'">
+            <input id="refreshButton" class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
             <input id="adddiscussionButton" class="button button-disabled" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="Create discussion" title="Create discussion" /> 
             <input id="removecontentButton" class="button button-disabled" type="image" src="{% url webstatic "images/cancel16.png" %}" alt="Remove content" title="Remove content" /> 
         </div>
