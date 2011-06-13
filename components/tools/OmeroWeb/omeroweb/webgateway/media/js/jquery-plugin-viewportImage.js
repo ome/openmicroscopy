@@ -410,7 +410,7 @@ $.fn.viewportImage = function(options) {
       }
     });
 
-    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, href) {
+    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, href, thref) {
         $('<div id="weblitz-viewport-tiles" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
         jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});
         var myPyramid = new BisqueISPyramid( imagewidth, imageheight, xtilesize, ytilesize);
@@ -419,6 +419,10 @@ $.fn.viewportImage = function(options) {
             return href+'&'+myPyramid.tile_filename( zoom, xIndex, yIndex )
             //return MY_URL + '/' + MY_PREFIX + myPyramid.tile_filename( zoom, xIndex, yIndex );
         }
+        myProvider.thumbnailUrl = function (thref) {
+            this.thumbnailUrl = thref;
+        }
+        myProvider.thumbnailUrl(thref);
         
         if (viewerBean == null) {
             
@@ -433,18 +437,27 @@ $.fn.viewportImage = function(options) {
                 blankTile       : '/appmedia/webgateway/img/3rdparty/panojs/blank.gif'
                 //loadingTile     : '/appmedia/webgateway/img/3rdparty/panojs/progress.gif'
             });
+            
+            // thumbnail url overwritten
+            // bird-eye view cannot relay on levels in order to load thumbail,
+            // becuase of the way pyramid is generated.
+            viewerBean.thumbnailURL = function() {
+                return this.tileUrlProvider.thumbnailUrl;
+            }
+            
             PanoJS.MSG_BEYOND_MIN_ZOOM = null;
             PanoJS.MSG_BEYOND_MAX_ZOOM = null;
             // cause conflict with channels, needs more investigation !!!
             //Ext.EventManager.addListener( window, 'resize', callback(viewerBean, viewerBean.resize) );
             viewerBean.init();
+            
             // not supported elements
             jQuery('#wblitz-zoom').parent().hide();
             jQuery('#wblitz-lp-enable').parent().hide();
             jQuery('.multiselect').hide();
             jQuery('#wblitz-invaxis').attr('disable', true);
             jQuery('#roi_controls').hide();
-        } else {            
+        } else {
             viewerBean.tileUrlProvider = myProvider;
             viewerBean.update_url();
         }

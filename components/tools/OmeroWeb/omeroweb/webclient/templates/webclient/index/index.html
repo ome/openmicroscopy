@@ -38,6 +38,7 @@
             {
                 var h = $(window).height()-200;
                 $("div#import_details").css('height', h+31);
+                $("div#metadata_details").css('height', h+31);
                 $("#right_panel").show();
                 $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
                 
@@ -61,8 +62,10 @@
 {% endblock %}
 
 {% block right %}
-
-    <div id="tag_details"></div>
-    <div id="most_recent_details"></div>
+    
+    <div id="metadata_details">
+        <div id="tag_details"></div>
+        <div id="most_recent_details"></div>
+    </div>
     
 {% endblock %}

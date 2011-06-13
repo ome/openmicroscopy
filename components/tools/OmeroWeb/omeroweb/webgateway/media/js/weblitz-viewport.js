@@ -268,9 +268,13 @@ jQuery._WeblitzViewport = function (container, server, options) {
    */
   var _load = function (callback) {
     if (_this.loadedImg._loaded) {
-      var href;
+      var href, thref;
       if (_this.loadedImg.tiles) {
         href = server + '/render_image_region/' + _this.getRelUrl();
+        // temporary solution for sharing. ShareId must me passed in a different way.
+        var serverPrefix = server.split("/");
+        thref = "/" + serverPrefix[1] + '/render_thumbnail/' + _this.loadedImg.id + '/'
+        if (serverPrefix.length > 2) thref += (serverPrefix[2] + "/");
       } else if (_this.loadedImg.rdefs.projection.toLowerCase() != 'split') {
         href = server + '/render_image/' + _this.getRelUrl();
       } else {
@@ -286,7 +290,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       showLoading();
       if (_this.loadedImg.tiles) {
           rcb()
-          _this.viewportimg.get(0).setUpTiles(_this.loadedImg.size.width, _this.loadedImg.size.height, _this.loadedImg.tile_size.width, _this.loadedImg.tile_size.height, _this.loadedImg.init_zoom, _this.loadedImg.levels, href);
+          _this.viewportimg.get(0).setUpTiles(_this.loadedImg.size.width, _this.loadedImg.size.height, _this.loadedImg.tile_size.width, _this.loadedImg.tile_size.height, _this.loadedImg.init_zoom, _this.loadedImg.levels, href, thref);
       } else {
           _this.viewportimg.load(rcb);
           _this.viewportimg.attr('src', href);
