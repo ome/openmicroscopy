@@ -131,11 +131,6 @@ public class RenderingControlLoader
      */
     public void handleException(Throwable exc) 
     {
-    	String s = "Data Retrieval Failure: ";
-    	LogMessage log = new LogMessage();
-    	log.print(s);
-    	log.print(exc);
-    	registry.getLogger().error(this, log);
     	String msg = "The image could not be opened.\n" +
     	"The image is not a valid image.";
     	if (exc instanceof FSAccessException) {
@@ -143,6 +138,12 @@ public class RenderingControlLoader
     		if (fsa.getIndex() == FSAccessException.PYRAMID) {
     			msg = fsa.getMessage();
     		}
+    	} else {
+    		String s = "Data Retrieval Failure: ";
+        	LogMessage log = new LogMessage();
+        	log.print(s);
+        	log.print(exc);
+    		registry.getLogger().error(this, log);
     	}
     	registry.getUserNotifier().notifyInfo("Loading Rendering data", msg);
     	viewer.setRenderingControl(null);

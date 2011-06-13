@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
-import omero.MissingPyramidException;
-
 //Java imports
 
 //Third-party libraries

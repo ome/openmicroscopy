@@ -901,11 +901,11 @@ class OMEROGateway
 		throws FSAccessException
 	{
 		Throwable cause = t.getCause();
-		String s = "\n Image not ready. Please try again later, " +
-		"ready in approximately ";
+		String s = "\n Image not ready. Please try again later.";
 		if (cause instanceof ConcurrencyException) {
 			ConcurrencyException mpe = (ConcurrencyException) cause;
-			s +=UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
+			//s += ", ready in approximately ";
+			//s +=UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
 			FSAccessException fsa = new FSAccessException(message+s, cause);
 			if (mpe instanceof MissingPyramidException)
 				fsa.setIndex(FSAccessException.PYRAMID);
