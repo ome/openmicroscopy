@@ -56,7 +56,6 @@ import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
-import ome.system.UpgradeCheck;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -420,7 +419,8 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     public void logout()
     {
     	store.logout();
-    	viewer.setLoggedIn(false);
+    	if (viewer != null)
+    		viewer.setLoggedIn(false);
     }
     
     /**
