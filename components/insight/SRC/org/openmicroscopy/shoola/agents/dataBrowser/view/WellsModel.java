@@ -340,7 +340,7 @@ class WellsModel
 		
 		columns++;
 		rows++;
-		
+		boolean isMac = UIUtilities.isMacOS();
 		CellDisplay cell;
 		for (int k = 1; k <= columns; k++) {
 			columnSequence = "";
@@ -354,7 +354,7 @@ class WellsModel
 				cell.setHighlight(co.getColor());
 				cell.setDescription(co.getDescription());
 			}
-			samples.add(cell);
+			if (!isMac) samples.add(cell);
 			cells.add(cell);
 		}
 		for (int k = 1; k <= rows; k++) {
@@ -370,10 +370,10 @@ class WellsModel
 				cell.setHighlight(co.getColor());
 				cell.setDescription(co.getDescription());
 			}
-			samples.add(cell);
+			if (!isMac) samples.add(cell);
 			cells.add(cell);
 		}
-        browser = BrowserFactory.createBrowser(samples);
+		browser = BrowserFactory.createBrowser(samples);
 		layoutBrowser(LayoutFactory.PLATE_LAYOUT);
 		if (wellDimension == null)
 			wellDimension = new Dimension(ThumbnailProvider.THUMB_MAX_WIDTH,
