@@ -165,7 +165,8 @@ public class CreateCmd
 					}
             	}
             }
-        	TreeImageDisplay display = browser.getLastSelectedDisplay();
+        	TreeImageDisplay display = null;
+        	if (withParent) display = browser.getLastSelectedDisplay();
         	LoadImporter event = null;
         	int type = LoadImporter.PROJECT_TYPE;
         	switch (browser.getBrowserType()) {

@@ -72,7 +72,6 @@ import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.plaf.basic.BasicFileChooserUI;
 
 //Third-party libraries
 import loci.formats.gui.ComboFileFilter;
@@ -386,6 +385,9 @@ public class ImportDialog
 	/** Flag indicating that the containers view needs to be refreshed.*/
 	private boolean refreshLocation;
 	
+	/** Indicates to pop-up the location.*/
+	private boolean popUpLocation;
+	
 	/** 
 	 * Creates the dataset.
 	 * 
@@ -555,9 +557,13 @@ public class ImportDialog
 	/** Displays the location of the import.*/
 	private void showLocationDialog()
 	{
-		LocationDialog dialog = new LocationDialog(owner, locationPane);
-		if (dialog.centerLocation() == LocationDialog.ADD_OPTION) {
+		if (!popUpLocation) {
 			addFiles();
+		} else {
+			LocationDialog dialog = new LocationDialog(owner, locationPane);
+			if (dialog.centerLocation() == LocationDialog.ADD_OPTION) {
+				addFiles();
+			}
 		}
 	}
 	
@@ -1592,6 +1598,8 @@ public class ImportDialog
 		return row;
 	}
 	
+	private JPanel container;
+	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
@@ -1605,17 +1613,17 @@ public class ImportDialog
 		tabbedPane.add("Files to import", p);
 		tabbedPane.add("Options", buildOptionsPane());
 		
-		p = new JPanel();
+		container = new JPanel();
 		double[][] size = {{TableLayout.PREFERRED, 10, 5, TableLayout.FILL}, 
 				{TableLayout.PREFERRED, TableLayout.FILL}};
-		p.setLayout(new TableLayout(size));
-		p.add(table.buildControls(), "0, 1, LEFT, CENTER");
+		container.setLayout(new TableLayout(size));
+		container.add(table.buildControls(), "0, 1, LEFT, CENTER");
 		
 		buildLocationPane();
-		//p.add(locationPane, "3, 0");
-		p.add(tabbedPane, "2, 1, 3, 1");
+		if (!popUpLocation) container.add(locationPane, "3, 0");
+		container.add(tabbedPane, "2, 1, 3, 1");
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser, 
-				p);
+				container);
 		JPanel body = new JPanel();
 		double[][] ss = {{TableLayout.FILL}, 
 				{TableLayout.PREFERRED, TableLayout.FILL}};
@@ -1923,6 +1931,7 @@ public class ImportDialog
     	else screenNodes = objects;
     	this.type = type;
     	this.selectedContainer = selectedContainer;
+    	popUpLocation = selectedContainer == null;
     	setProperties();
     	initComponents(filters);
     	installListeners();
@@ -2080,6 +2089,13 @@ public class ImportDialog
 			chooser.setFileFilter(filters[0]);
 		initializeLocationBoxes();
 		buildLocationPane();
+		boolean b = popUpLocation;
+		popUpLocation = selectedContainer == null;
+		if (b != popUpLocation) {
+			if (b) container.add(locationPane, "3, 0");
+			else container.remove(locationPane);
+			container.repaint();
+		}
 		locationPane.repaint();
 		tagsPane.removeAll();
 		tagsMap.clear();
