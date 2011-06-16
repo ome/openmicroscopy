@@ -19,7 +19,7 @@ The purpose of these scripts is to automate the process of building an OMERO vir
 		team/virtual-machines/OMERO.VM/vdi/omero-base-image-debian-6.vdi.gz [388MB]
 	on squig, or via the public web repo:	
 		http://
-	NB. If you download the zipped version then you will have to unzip to before use.
+	NB. If you download the zipped version then you will have to unzip it before use.
 	
 	Place the VDI in your VirtualBox harddisk directory. On Mac OS X this should be $HOME/Library/VirtualBox/HardDisks/ and on Linux $HOME/.VirtualBox/HardDisks/
 	The OMERO.VM script will look in these locations for the VDI to kick start the VM building process.
