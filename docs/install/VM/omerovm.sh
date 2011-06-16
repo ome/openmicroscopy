@@ -111,7 +111,7 @@ SSH="ssh -2 -v -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/de
 #SSH_K="spawn ssh -vvv -p $SSH_PF -t"
 
 SCP_K="scp -v -o StrictHostKeyChecking=no -o NoHostAuthenticationForLocalhost=yes -P $SSH_PF"
-SSH_K="ssh -v -o StrictHostKeyChecking=no -p $SSH_PF -t"
+SSH_K="ssh -v -o StrictHostKeyChecking=no -o NoHostAuthenticationForLocalhost=yes -p $SSH_PF -t"
 
 
 [ -f omerokey.pub ] && {
