@@ -10,9 +10,6 @@ export OMERO_PF=${OMERO_PF:-"4063"}
 export OMEROS_PORT=${OMEROS_PORT:-"4064"}
 export OMEROS_PF=${OMEROS_PF:-"4064"}
 
-#export OMEROWEB_PORT=${OMEROWEB_PORT:-"80"}
-#export OMEROWEB_PF=${OMEROWEB_PF:-"8080"}
-
 set -e
 set -u
 set -x
@@ -34,28 +31,11 @@ $VBOX list vms | grep "$VMNAME" || {
 	VBoxManage storagectl "$VMNAME" --name "IDE CONTROLLER" --add ide
 	VBoxManage storagectl "$VMNAME" --name "SATA CONTROLLER" --add sata
 	VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium $HARDDISKS$VMNAME.vdi
-	
-	#VBoxManage modifyvm "$VMNAME" --nic1 nat --nictype1 "Am79C973"
-	#VBoxManage modifyvm "$VMNAME" --nic2 hostonly --nictype2 "Am79C973" --hostonlyadapter2 "vboxnet0"
-	
+		
 	VBoxManage modifyvm "$VMNAME" --nic1 nat --nictype1 "82540EM"
-	#VBoxManage modifyvm "$VMNAME" --nic2 hostonly --nictype2 "82540EM" --hostonlyadapter2 "vboxnet0"
 	
 	VBoxManage modifyvm "$VMNAME" --memory $MEMORY --acpi on
 	
-#	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/ssh/HostPort" $SSH_PF
-#	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/ssh/GuestPort" 22
-#	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/ssh/Protocol" TCP
-#	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroserver/HostPort" $OMERO_PF
-#	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroserver/GuestPort" $OMERO_PORT
-#	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroservers/Protocol" TCP
-#	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroservers/HostPort" $OMEROS_PF
-#	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroservers/GuestPort" $OMEROS_PORT
-#	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroserver/Protocol" TCP
-#	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroweb/HostPort" $OMEROWEB_PF
-#	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroweb/GuestPort" $OMEROWEB_PORT
-#	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroweb/Protocol" TCP
-
 	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/ssh/HostPort" $SSH_PF
 	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/ssh/GuestPort" 22
 	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/ssh/Protocol" TCP
@@ -65,9 +45,6 @@ $VBOX list vms | grep "$VMNAME" || {
 	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroservers/HostPort" $OMEROS_PF
 	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroservers/GuestPort" $OMEROS_PORT
 	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroserver/Protocol" TCP
-	#VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroweb/HostPort" $OMEROWEB_PF
-	#VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroweb/GuestPort" $OMEROWEB_PORT
-	#VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroweb/Protocol" TCP
 	
 	sleep 5
 }
@@ -79,70 +56,47 @@ $VBOX list runningvms | grep "$VMNAME" || {
     sleep 30
 }
 
-
-# TESTING key setup procedures :: START
-# Remove entry from known_hosts for old key
+echo "Cleaning up any old OMERO.VM keys"
 ssh-keygen -R [localhost]:2222 -f ~/.ssh/known_hosts
-
-# Delete any old keys that are hanging around
 rm -f omerokey omerokey.pub
 
-# Create clean new keys
+echo "Generat a new DSA keypair"
 ssh-keygen -t dsa -f omerokey -N ''
-# TESTING key setup procedures :: END
-
 cp omerokey ~/.ssh/omerokey
 cp omerokey.pub ~/.ssh/omerokey.pub
 
-echo "Setting omerokey permissions"
+echo "Enforce correct permissions for key"
 chmod 600 ./omerokey
 chmod 600 ~/.ssh/omerokey*
 
 SCP="scp -2 -v -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i ~/VM/omerokey -P $SSH_PF"
 SSH="ssh -2 -v -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i ~/VM/omerokey -p $SSH_PF -t"
 
-#SCP_K="spawn scp -2 -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -P $SSH_PF"
-#SSH_K="spawn ssh -2 -vvv -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -p $SSH_PF -t"
-
-#SCP_K="spawn scp -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -P $SSH_PF"
-#SSH_K="spawn ssh -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o StrictHostKeyChecking=no -o CheckHostIP=no -p $SSH_PF -t"
-
-#SCP_K="spawn scp -vvv -P $SSH_PF"
-#SSH_K="spawn ssh -vvv -p $SSH_PF -t"
-
 SCP_K="scp -v -o StrictHostKeyChecking=no -o NoHostAuthenticationForLocalhost=yes -P $SSH_PF"
 SSH_K="ssh -v -o StrictHostKeyChecking=no -o NoHostAuthenticationForLocalhost=yes -p $SSH_PF -t"
 
 
-[ -f omerokey.pub ] && {
-   # echo "Copying my DSA key"
-   # expect -c "$SCP_K omerokey.pub omero@localhost:~/; sleep 5; expect \"*assword*\"; send -- \"omero\r\"; interact"
-#    echo "Copying key setup script: setup_keys.sh"
-#    expect -c "$SCP_K setup_keys.sh omero@localhost:~/; sleep 5; expect \"*assword*\"; send -- \"omero\r\"; interact"
-
-#    echo "Setup key"
-#    expect -c "$SSH_K omero@localhost sh /home/omero/setup_keys.sh; sleep 5; expect \"*assword*\"; send -- \"omero\r\"; interact"
-    
-    echo "Copying my DSA key"
+[ -f omerokey.pub ] && {    
+    echo "Copying DSA key to VM"
 	expect -c "spawn $SCP_K omerokey.pub omero@localhost:~/; expect \"*?assword:*\"; send \"omero\n\r\"; interact"
 	expect -c "spawn $SCP_K setup_keys.sh omero@localhost:~/; expect \"*?assword:*\"; send \"omero\n\r\"; interact"
 
-	echo "Setup key"
+	echo "Execute the key setup script"
 	expect -c "spawn $SSH_K omero@localhost sh /home/omero/setup_keys.sh; expect \"*?assword:*\"; send \"omero\n\r\"; interact"
 } || echo "Local DSAAuthentication key was not found. Use: $ ssh-keygen -t dsa"
 
-#echo "Copying scripts to VM"
-#$SCP driver.sh omero@localhost:~/
-#$SCP setup_userspace.sh omero@localhost:~/
-#$SCP setup_environment.sh omero@localhost:~/
-#$SCP setup_omero.sh omero@localhost:~/
-#$SCP omero-init.d omero@localhost:~/
-#
-#echo "ssh : exec driver.sh"
-#$SSH omero@localhost 'sh /home/omero/driver.sh'
-#
-#sleep 40
-#
+echo "Copying scripts to VM"
+$SCP driver.sh omero@localhost:~/
+$SCP setup_userspace.sh omero@localhost:~/
+$SCP setup_environment.sh omero@localhost:~/
+$SCP setup_omero.sh omero@localhost:~/
+$SCP omero-init.d omero@localhost:~/
+
+echo "ssh : exec driver.sh"
+$SSH omero@localhost 'sh /home/omero/driver.sh'
+
+sleep 40
+
 echo "ALL DONE!"
 echo "Connect to your OMERO VM using either OMERO.insight or another OMERO client or SSH using the connect.sh script"
 echo "Your VM has the following IP addresses:"
