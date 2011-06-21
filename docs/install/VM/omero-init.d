@@ -9,16 +9,15 @@ prog="omero"
 
 start() {	
 	echo -n $"Starting $prog:"
-	sudo -u omero /Server/omero/dist/bin/omero admin start
-	sudo -u omero /Server/omero/dist/bin/omero web start localhost 8080 &
+	sudo -u omero /home/omero/OMERO.server/bin/omero admin start
 	RETVAL=$?
-	[ "$RETVAL" = 0 ] 
+	[ "$RETVAL" = 0 ]
 	echo
 }
 
 stop() {
 	echo -n $"Stopping $prog:"
-	sudo -u omero /Server/omero/dist/bin/omero admin stop
+	sudo -u omero /home/omero/OMERO.server/bin/omero admin stop
 	RETVAL=$?
 	[ "$RETVAL" = 0 ]
 	echo
@@ -26,14 +25,14 @@ stop() {
 
 status() {
 	echo -n $"Status $prog:"
-	sudo -u omero /Server/omero/dist/bin/omero admin status
+	sudo -u omero /home/omero/OMERO.server/bin/omero admin status
 	RETVAL=$?
 	echo
 }
 
 diagnostics() {
 	echo -n $"Diagnostics $prog:"
-	sudo -u omero /Server/omero/dist/bin/omero admin diagnostics
+	sudo -u omero /home/omero/OMERO.server/bin/omero admin diagnostics
 	RETVAL=$?
 	echo
 }

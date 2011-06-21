@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export VMNAME=${VMNAME:-"$1"}
-export VMNAME=${VMNAME:-"OMERO42"}
+export VMNAME=${VMNAME:-"omero-vm"}
 
 set -e
 set -u
@@ -11,5 +11,5 @@ VBOX="VBoxManage --nologo"
 
 ($VBOX list runningvms | grep "$VMNAME") && {
     echo "Stopping VM "
-    $VBOX controlvm "$VMNAME" poweroff && sleep 10
+    $VBOX controlvm "$VMNAME" poweroff && sleep 5
 }

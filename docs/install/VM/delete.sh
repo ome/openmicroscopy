@@ -2,7 +2,7 @@
 # delete VM
 
 export VMNAME=${VMNAME:-"$1"}
-export VMNAME=${VMNAME:-"OMERO42"}
+export VMNAME=${VMNAME:-"omero-vm"}
 if test -e $HOME/Library/VirtualBox; then
     export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks/"}
 elif test -e $HOME/.VirtualBox; then
