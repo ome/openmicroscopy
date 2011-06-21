@@ -111,15 +111,9 @@ class PropertiesUI
     
 	/** The title associated to this component. */
 	static final String			TITLE = "Properties";
-
-	/** The default text indicating the type of plate displayed. */
-	private static final String	DEFAULT_PLATE_TYPE ="Type: ";
 	
 	/** The default description. */
     private static final String	DEFAULT_DESCRIPTION_TEXT = "Description";
-    
-    /** The text for the external identifier. */
-    private static final String	EXTERNAL_IDENTIFIER = "External Identifier:";
     
     /** The text for the id. */
     private static final String ID_TEXT = "ID: ";
@@ -198,6 +192,9 @@ class PropertiesUI
 	
 	/** Flag indicating to build the UI once. */
 	private boolean 			init;
+	
+	/** Description pane.*/
+	private JScrollPane			pane;
 	
 	/** Initializes the components composing this display. */
     private void initComponents()
@@ -330,14 +327,15 @@ class PropertiesUI
     	String v = plate.getPlateType();
     	JLabel value;
     	if (v != null && v.trim().length() > 0) {
-    		l = UIUtilities.setTextFont(DEFAULT_PLATE_TYPE, Font.BOLD, size);
+    		l = UIUtilities.setTextFont(EditorUtil.TYPE, Font.BOLD, size);
         	value = UIUtilities.createComponent(null);
         	value.setFont(font.deriveFont(font.getStyle(), size));
         	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
         	value.setText(v);
         	components.put(l, value);
     	}
-    	l = UIUtilities.setTextFont(EXTERNAL_IDENTIFIER, Font.BOLD, size);
+    	l = UIUtilities.setTextFont(EditorUtil.EXTERNAL_IDENTIFIER,
+    			Font.BOLD, size);
     	value = UIUtilities.createComponent(null);
     	value.setFont(font.deriveFont(font.getStyle(), size));
     	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
@@ -345,11 +343,60 @@ class PropertiesUI
     	if (v == null || v.length() == 0) v = NO_SET_TEXT;
     	value.setText(v);
     	components.put(l, value);
-    	l = UIUtilities.setTextFont("Status:", Font.BOLD, size);
+    	l = UIUtilities.setTextFont(EditorUtil.STATUS, Font.BOLD, size);
     	value = UIUtilities.createComponent(null);
     	value.setFont(font.deriveFont(font.getStyle(), size));
     	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
     	v = plate.getStatus();
+    	if (v == null || v.length() == 0) v = NO_SET_TEXT;
+    	value.setText(v);
+    	components.put(l, value);
+    	layoutComponents(content, components);
+    	return content;
+    }
+    
+    /**
+     * Lays out the well fields.
+     * 
+     * @param well The well to handle.
+     * @return See above.
+     */
+    private JPanel layoutWellContent(WellData well)
+    {
+    	JPanel content = new JPanel();
+    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+    	content.setLayout(new GridBagLayout());
+		JLabel l = new JLabel();
+    	Font font = l.getFont();
+    	int size = font.getSize()-2;
+    	
+    	Map<JLabel, JComponent> components = 
+    		new LinkedHashMap<JLabel, JComponent>();
+    	String v = well.getWellType();
+    	JLabel value;
+    	if (v != null && v.trim().length() > 0) {
+    		l = UIUtilities.setTextFont(EditorUtil.TYPE, Font.BOLD, size);
+        	value = UIUtilities.createComponent(null);
+        	value.setFont(font.deriveFont(font.getStyle(), size));
+        	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+        	value.setText(v);
+        	components.put(l, value);
+    	}
+    	l = UIUtilities.setTextFont(EditorUtil.EXTERNAL_DESCRIPTION, 
+    			Font.BOLD, size);
+    	value = UIUtilities.createComponent(null);
+    	value.setFont(font.deriveFont(font.getStyle(), size));
+    	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	v = well.getExternalDescription();
+    	if (v == null || v.length() == 0) v = NO_SET_TEXT;
+    	value.setText(v);
+    	components.put(l, value);
+    	l = UIUtilities.setTextFont(EditorUtil.STATUS, Font.BOLD, size);
+    	value = UIUtilities.createComponent(null);
+    	value.setFont(font.deriveFont(font.getStyle(), size));
+    	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	v = well.getStatus();
     	if (v == null || v.length() == 0) v = NO_SET_TEXT;
     	value.setText(v);
     	components.put(l, value);
@@ -536,7 +583,7 @@ class PropertiesUI
     	JLabel l = new JLabel();
     	Font font = l.getFont();
     	int size = font.getSize()-2;
-    	JLabel label = UIUtilities.setTextFont("Acquisition Date", 
+    	JLabel label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE, 
     			Font.BOLD, size);
     	JLabel value = UIUtilities.createComponent(null);
     	String v = model.formatDate(image);
@@ -547,7 +594,7 @@ class PropertiesUI
     	c.gridy++; 	
     	c.gridx = 0;
     	try { //just to be on the save side
-    		label = UIUtilities.setTextFont("Imported Date", 
+    		label = UIUtilities.setTextFont(EditorUtil.IMPORTED_DATE, 
         			Font.BOLD, size);
         	value = UIUtilities.createComponent(null);
         	v =  UIUtilities.formatShortDateTime(image.getInserted());
@@ -559,7 +606,8 @@ class PropertiesUI
 		} catch (Exception e) {
 			
 		}
-    	label = UIUtilities.setTextFont("Dimensions (XY)", Font.BOLD, size);
+    	label = UIUtilities.setTextFont(EditorUtil.XY_DIMENSION, Font.BOLD, 
+    			size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SIZE_X);
     	v += " x ";
@@ -570,7 +618,7 @@ class PropertiesUI
     	c.gridx = c.gridx+2;
     	content.add(value, c);
     	c.gridy++;
-    	label = UIUtilities.setTextFont("Pixels Type", Font.BOLD, size);
+    	label = UIUtilities.setTextFont(EditorUtil.PIXEL_TYPE, Font.BOLD, size);
     	value = UIUtilities.createComponent(null);
     	value.setText((String) details.get(EditorUtil.PIXEL_TYPE));
     	c.gridx = 0;
@@ -590,7 +638,7 @@ class PropertiesUI
         	content.add(value, c);
     	}
     	c.gridy++;
-    	label = UIUtilities.setTextFont("z-sections/timepoints", Font.BOLD, 
+    	label = UIUtilities.setTextFont(EditorUtil.Z_T_FIELDS, Font.BOLD, 
     			size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SECTIONS);
@@ -603,7 +651,8 @@ class PropertiesUI
     	content.add(value, c);
     	c.gridy++;
     	if (!model.isNumerousChannel() && model.getRefObjectID() > 0) {
-    		label = UIUtilities.setTextFont("Channels", Font.BOLD, size);
+    		label = UIUtilities.setTextFont(EditorUtil.CHANNELS,
+    				Font.BOLD, size);
     		c.gridx = 0;
         	content.add(label, c);
         	c.gridx = c.gridx+2;
@@ -721,12 +770,12 @@ class PropertiesUI
         	 p.add(Box.createVerticalStrut(5));
         	 descriptionPanel = layoutEditablefield(editDescription, 
         			 descriptionPane, 5);
-        	 descriptionPanel.setBorder(AnnotationUI.EDIT_BORDER);
+        	 //descriptionPanel.setBorder(AnnotationUI.EDIT_BORDER);
 
-        	 JScrollPane pane = new JScrollPane(descriptionPanel);
+        	 pane = new JScrollPane(descriptionPanel);
+        	 pane.setBorder(AnnotationUI.EDIT_BORDER);
         	 Dimension d = pane.getPreferredSize();
         	 pane.getViewport().setPreferredSize(new Dimension(d.width, 60));
-        	 pane.setBorder(null);
         	 p.add(pane);
          } else if (refObject instanceof FileData) {
         	 /*
@@ -763,6 +812,11 @@ class PropertiesUI
         	img = ((WellSampleData) refObject).getImage();
         	if (img != null && img.getId() > 0)
         		data = img.getDefaultPixels();
+        	Object parent = model.getParentRootObject();
+        	if (parent instanceof WellData) {
+        		add(Box.createVerticalStrut(5));
+            	add(layoutWellContent((WellData) parent));
+        	}
         } else if (refObject instanceof FileAnnotationData) {
         	FileAnnotationData fa = (FileAnnotationData) refObject;
         	String ns = fa.getNameSpace();
@@ -787,6 +841,7 @@ class PropertiesUI
         if (data == null) return;
         add(Box.createVerticalStrut(5));
     	add(buildContentPanel(EditorUtil.transformPixelsData(data), img));
+    	
     }
 
 	/**
@@ -822,10 +877,10 @@ class PropertiesUI
 		} else if (field == descriptionPane) {
 			descriptionPane.setEnabled(editable); //was editable
 			if (editable) {
-				panel.setBorder(EDIT_BORDER_BLACK);
+				pane.setBorder(EDIT_BORDER_BLACK);
 				field.requestFocus();
 			} else {
-				panel.setBorder(EDIT_BORDER);
+				pane.setBorder(EDIT_BORDER);
 			}
 		}
 	}
@@ -844,10 +899,10 @@ class PropertiesUI
 	/**
 	 * Returns the label associated to the well.
 	 * 
-	 * @param well
-	 * @param columnIndex
-	 * @param rowIndex
-	 * @return
+	 * @param well The object to handle.
+	 * @param columnIndex Indicates how to label the columns.
+	 * @param rowIndex Indicates how to label the rows.
+	 * @return See above.
 	 */
 	private String getWellLabel(WellData well, int columnIndex, 
 			int rowIndex)
@@ -980,6 +1035,7 @@ class PropertiesUI
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
+		descriptionPane.setCaretPosition(0);
 		descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
     	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
     	
@@ -1021,7 +1077,7 @@ class PropertiesUI
         }
         //buildGUI();
 	}
-	
+
 	/** Updates the data object. */
 	void updateDataObject() 
 	{
@@ -1093,16 +1149,16 @@ class PropertiesUI
 	void setChannelData(Map channels)
 	{
 		if (channels == null) return;
-		String s = "";
 		int n = channels.size()-1;
 		Iterator k = channels.keySet().iterator();
 		int j = 0;
+		StringBuffer buffer = new StringBuffer();
 		while (k.hasNext()) {
-			s += ((ChannelData) k.next()).getChannelLabeling();
-			if (j != n) s +=", ";
+			buffer.append(((ChannelData) k.next()).getChannelLabeling());
+			if (j != n) buffer.append(", ");
 			j++;
 		}
-		channelsArea.setText(s);
+		channelsArea.setText(buffer.toString());
 		channelsArea.revalidate();
 		channelsArea.repaint();
 	}
@@ -1297,19 +1353,6 @@ class PropertiesUI
 			}
 			//namePane.select(0, 0);
 			//namePane.setCaretPosition(0);
-		} else if (src == descriptionPane) {
-			String text = descriptionPane.getText();
-			if (text != null) {
-				/*
-				if (DEFAULT_DESCRIPTION_TEXT.equals(text.trim())) {
-					descriptionPane.selectAll();
-				} else {
-					int n = text.length()-1;
-					if (n >= 0) descriptionPane.setCaretPosition(n);
-				}
-				*/
-				//descriptionPane.selectAll();
-			}
 		}
 	}
 	

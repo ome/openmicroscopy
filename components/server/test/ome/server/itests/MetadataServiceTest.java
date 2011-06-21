@@ -1,24 +1,8 @@
 /*
- * ome.server.itests.MetadataServiceTest 
+ *   Copyright (C) 2009-2011 University of Dundee & Open Microscopy Environment.
+ *   All rights reserved.
  *
- *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
- *
- *
- * 	This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *  
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- *------------------------------------------------------------------------------
+ *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests;
 
@@ -46,6 +30,7 @@ import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
 import ome.testing.FileUploader;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /** 
@@ -71,11 +56,10 @@ public class MetadataServiceTest
     /** 
      * Sets the service.
      */
-    @Override
-    protected void onSetUp() 
+    @BeforeClass
+    protected void setup()
     	throws Exception
     {
-        super.onSetUp();
         iMetadata = factory.getMetadataService();
     }
     
@@ -319,7 +303,7 @@ public class MetadataServiceTest
         IObject object;
         while (i.hasNext()) {
         	object = (IObject) i.next();
-        	 assertTrue(object.getId().longValue() == link.getId().longValue());
+        	assertTrue(object.getId().longValue() == t2.getId().longValue());
 		}
     }
     
@@ -354,13 +338,16 @@ public class MetadataServiceTest
         Set set = iMetadata.loadTagSets(po);
         assertEquals(2, set.size());
         Iterator i = set.iterator();
-        IObject object;
+        TagAnnotation object;
+        String ns;
         while (i.hasNext()) {
-        	object = (IObject) i.next();
-        	if (object instanceof AnnotationAnnotationLink)
-        		assertTrue(object.getId().longValue() == link.getId().longValue());
-        	else 
+        	object = (TagAnnotation) i.next();
+        	ns = object.getNs();
+        	if (ns != null && IMetadata.NS_INSIGHT_TAG_SET.equals(ns)) {
+        		assertTrue(object.getId().longValue() == t2.getId().longValue());
+        	} else {
         		assertTrue(object.getId().longValue() == t3.getId().longValue());
+        	}
 		}
     }
     

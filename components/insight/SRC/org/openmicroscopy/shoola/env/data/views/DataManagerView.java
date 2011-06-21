@@ -38,7 +38,6 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
-import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -164,7 +163,7 @@ public interface DataManagerView
 	 * @param observer  Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle addExistingObjects(Map objects, 
+	public CallHandle addExistingObjects(Map objects, Map toRemove,
 			AgentEventListener observer);
 
 	/**

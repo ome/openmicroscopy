@@ -1,0 +1,32 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Screen_SchemasSPW200809'>
+ <area
+  shape='rect'
+  alt='element_Description'
+  coords='256,0,417,42'
+  href='SPW.xsd.html#element_Description'/>
+
+ <area
+  shape='rect'
+  alt='element_Reagent'
+  coords='256,52,361,94'
+  href='SPW.xsd.html#element_Reagent'/>
+
+ <area
+  shape='rect'
+  alt='element_PlateRef'
+  coords='256,104,368,146'
+  href='SPW.xsd.html#element_PlateRef'/>
+
+ <area
+  shape='rect'
+  alt='element_ScreenAcquisition'
+  coords='256,156,431,198'
+  href='SPW.xsd.html#element_ScreenAcquisition'/>
+
+ <area
+  shape='rect'
+  alt='type_ScreenID'
+  coords='170,208,264,234'
+  href='SPW.xsd.html#type_ScreenID'/>
+
+</map>

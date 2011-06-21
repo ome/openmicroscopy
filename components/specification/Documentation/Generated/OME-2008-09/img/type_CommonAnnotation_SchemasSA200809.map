@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='type_CommonAnnotation_SchemasSA200809'>
+ <area
+  shape='rect'
+  alt='element_Link'
+  coords='278,0,362,42'
+  href='SA.xsd.html#element_Link'/>
+
+ <area
+  shape='rect'
+  alt='type_AnnotationID'
+  coords='192,52,286,78'
+  href='SA.xsd.html#type_AnnotationID'/>
+
+</map>

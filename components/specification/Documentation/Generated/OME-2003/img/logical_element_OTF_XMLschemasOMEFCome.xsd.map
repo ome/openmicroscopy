@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_OTF_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_ObjectiveRef'
+  coords='472,265,858,308'
+  href='ome.xsd.html#element_ObjectiveRef'/>
+
+ <area
+  shape='rect'
+  alt='element_FilterRef'
+  coords='472,318,858,361'
+  href='ome.xsd.html#element_FilterRef'/>
+
+ <area
+  shape='rect'
+  alt='element_BinaryFile'
+  coords='472,371,948,414'
+  href='ome.xsd.html#element_BinaryFile'/>
+
+</map>

@@ -1,6 +1,11 @@
+/*
+ *   Copyright (C) 2009-2011 University of Dundee & Open Microscopy Environment.
+ *   All rights reserved.
+ *
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
 package omeis.providers.re.utests;
 
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
@@ -20,9 +25,7 @@ public class TestPixelsService extends PixelsService
 	}
 	
 	@Override
-	public PixelBuffer getPixelBuffer(Pixels pixels,
-			                          OriginalFileMetadataProvider provider,
-			                          boolean bypassOriginalFile)
+	public PixelBuffer getPixelBuffer(Pixels pixels)
 	{
 		return new TestPixelBuffer(pixels.getPixelsType(), dummyPlane);
 	}

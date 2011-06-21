@@ -9,6 +9,7 @@ import traceback
 import omero
 # use the webclient's gateway connection wrapper
 from webclient.webclient_gateway import OmeroWebGateway
+import webmobile_util
 
 logger = logging.getLogger('webmobilewebmobile')
     
@@ -150,11 +151,29 @@ def viewer(request, imageId):
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webmobile_login'))
         
-    image = conn.getImage(imageId)
-    w = image.getWidth()
-    h = image.getHeight()
+    image = conn.getObject("Image", imageId)
+    w = image.getSizeX()
+    h = image.getSizeY()
     
-    return render_to_response('webmobile/viewer.html', {'image':image})
+    return render_to_response('webmobile/viewers/viewer_iphone.html', {'image':image})
+    
+
+@isUserConnected
+def viewer_big(request, imageId, **kwargs):
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return HttpResponse(traceback.format_exc())
+        
+    image = conn.getImage(imageId)
+    w = image.getWidth() 
+    h = image.getHeight() 
+    z = image.z_count() /2
+    print z
+    
+    return render_to_response('webmobile/viewers/big_iphone.html', {'image':image, 'w':w, 'h': h, 'z':z})
     
     
 @isUserConnected
@@ -178,12 +197,13 @@ def projects (request, eid=None, **kwargs):
         eid = conn.getEventContext().userId
         
     projs = conn.listProjects(eid=eid)
+    projs = list(projs)
     
     if request.REQUEST.get('sort', None) == 'recent':
-        projs = list(projs)
         projs.sort(key=lambda x: x.creationEventDate())
         projs.reverse()
-        
+    else:
+        projs.sort(key=lambda x: x.getName().lower())
     ods = conn.listOrphans("Dataset", eid=eid)
     orphanedDatasets = list(ods)
     
@@ -202,7 +222,7 @@ def project(request, id, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
         
-    prj = conn.getProject(id)
+    prj = conn.getObject("Project", id)
     return render_to_response('webmobile/browse/project.html', {'client':conn, 'project':prj})
 
 
@@ -218,14 +238,14 @@ def object_details(request, obj_type, id, **kwargs):
         return HttpResponse(traceback.format_exc())
         
     if obj_type == 'project':
-        obj = conn.getProject(id)
+        obj = conn.getObject("Project", id)
         title = 'Project'
     elif obj_type == 'dataset':
-        obj = conn.getDataset(id)
+        obj = conn.getObject("Dataset", id)
         title = 'Dataset'
     anns = getAnnotations(obj)
     
-    parent = obj.listParents()
+    parent = obj.getParent()
     print "parent", parent
     
     return render_to_response('webmobile/browse/object_details.html', {'client': conn, 'object': obj, 'title': title, 
@@ -243,7 +263,7 @@ def dataset(request, id, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
         
-    ds = conn.getDataset(id)
+    ds = conn.getObject("Dataset", id)
     return render_to_response('webmobile/browse/dataset.html', {'client': conn, 'dataset': ds})
     
         
@@ -258,7 +278,7 @@ def image(request, imageId, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
         
-    img = conn.getImage(imageId)
+    img = conn.getObject("Image", imageId)
     anns = getAnnotations(img)
     
     return render_to_response('webmobile/browse/image.html', {'client': conn, 'object':img, 'obj_type':'image',
@@ -322,7 +342,7 @@ def screen(request, id, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
         
-    scrn = conn.getScreen(id)
+    scrn = conn.getObject("Screen", id)
     return render_to_response('webmobile/browse/screen.html', {'client': conn, 'screen': scrn})   
 
 
@@ -337,7 +357,7 @@ def plate(request, id, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
         
-    scrn = conn.getScreen(id)
+    scrn = conn.getObject("Screen", id)
     return render_to_response('webmobile/browse/screen.html', {'client': conn, 'screen': scrn})
 
 
@@ -382,15 +402,15 @@ def edit_object(request, obj_type, obj_id, **kwargs):
         return HttpResponse(traceback.format_exc())
     
     if obj_type == 'image': 
-        obj = conn.getImage(obj_id)
+        obj = conn.getObject("Image", obj_id)
         title = 'Image'
         redirect = reverse('webmobile_image', kwargs={'imageId':obj_id})
     elif obj_type == 'dataset':
-        obj = conn.getDataset(obj_id)
+        obj = conn.getObject("Dataset", obj_id)
         title = 'Dataset'
         redirect = reverse('webmobile_dataset_details', kwargs={'id':obj_id})
     elif obj_type == 'project':
-        obj = conn.getProject(obj_id)
+        obj = conn.getObject("Project", obj_id)
         title = 'Project'
         redirect = reverse('webmobile_project_details', kwargs={'id':obj_id})
         
@@ -443,7 +463,8 @@ def add_comment(request, obj_type, obj_id, **kwargs):
         
     updateService = conn.getUpdateService()
     ann = omero.model.CommentAnnotationI()
-    ann.setTextValue(rstring(str( comment.strip() ) ))
+    comment = unicode(comment).encode("utf-8").strip()
+    ann.setTextValue(rstring(comment))
     ann = updateService.saveAndReturnObject(ann)
     l.setParent(parent)
     l.setChild(ann)
@@ -499,18 +520,81 @@ def index (request, eid=None, **kwargs):
     experimenter = None
     if eid is not None:
         experimenter = conn.getExperimenter(eid)
-        
-    rc = conn.listMostRecentComments()
-    rc = list(rc)
-    for link in rc:
-        print ""
-        print link.creationEventDate()
-        print link.child.textValue.val
-        print type(link.parent)
       
     return render_to_response('webmobile/index.html', {'client': conn, 'experimenter': experimenter})
 
 
+@isUserConnected
+def recent (request, obj_type, eid=None, **kwargs):
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return HttpResponse(traceback.format_exc())
+    
+    experimenter = None
+    if eid:
+        experimenter = conn.getExperimenter(eid)
+        
+    # By default, get 3 each of Projects, Datasets, Images, Ratings, Comments, Tags
+    obj_count = 3   
+    obj_types = None
+    if obj_type == 'images':    # Get the last 12 images
+        obj_types = ['Image']
+        obj_count = 12
+    elif obj_type == 'anns':    # 4 each of Tags, Comments, Rating
+        obj_types = ['Annotation']
+        obj_count = 4
+    
+    if obj_type == 'rois':
+        recentResults = webmobile_util.listRois(conn, eid)
+    else:
+        recentItems = webmobile_util.listMostRecentObjects(conn, obj_count, obj_types, eid)
+        recentResults = [ webmobile_util.RecentEvent(r) for r in recentItems ]
+    
+    # list members for links to other's recent activity
+    groupId = conn.getEventContext().groupId
+    members = conn.containedExperimenters(groupId)
+        
+    return render_to_response('webmobile/timeline/recent.html', {'client':conn, 'recent':recentResults, 
+        'exp':experimenter, 'members':members, 'obj_type':str(obj_type) })
+
+@isUserConnected
+def recent_full_page (request, **kwargs):
+    """
+    Mock-up full page for Usability testing of recent views. 
+    """
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return HttpResponse(traceback.format_exc())
+    
+    exp = conn.getExperimenter(conn.getEventContext().userId)
+        
+    return render_to_response('webmobile/timeline/recent_full_page.html', {'client':conn, 'exp':exp })
+    
+    
+
+@isUserConnected
+def collab_annotations (request, myData=True, **kwargs):
+    """
+    Page displays recent annotations of OTHER users on MY data (myData=True) or
+    MY annotations on data belonging to OTHER users. 
+    """
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return HttpResponse(traceback.format_exc())
+        
+    collabAnns = webmobile_util.listCollabAnnotations(conn, myData)
+    
+    return render_to_response('webmobile/timeline/recent_collab.html', {'client':conn, 'recent':collabAnns, 'myData':myData })
+    
 
 def image_viewer (request, iid, **kwargs):
     """ This view is responsible for showing pixel data as images """

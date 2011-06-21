@@ -30,13 +30,16 @@ $.fn.viewportImage = function(options) {
     var dragdiv = jQuery('#'+insideId);
     var dragdiv_dom = dragdiv.get(0);
     var wrapdiv = jQuery(dragdiv_dom.parentNode);
-    var overlay =   $('<img id="'+insideId+'-ovl">').appendTo(dragdiv);
+    var overlay = $('<img id="'+insideId+'-ovl">').appendTo(dragdiv);
     overlay.addClass('weblitz-viewport-img').hide();
-
+    
+    // big images
+    var viewerBean = null;
+    
     var panbars = options == null || options.panbars;
     var mediaroot = options == null ? null : options.mediaroot;
     mediaroot = mediaroot || '/appmedia';
-
+    
     if (panbars) { 
     /* Panning sides */
     var panleftId = this.id + '-panl';
@@ -278,6 +281,9 @@ $.fn.viewportImage = function(options) {
     };
     this.setYOffset = function (yoffset) {dragdiv.css('top', -yoffset); this.doMove(0,0);};
 
+    this.getZoom = function () {
+        return cur_zoom;
+    };
     this.setZoom = function (val, width, height) {
       if (width != null && height != null) {
         orig_width = width;
@@ -295,9 +301,11 @@ $.fn.viewportImage = function(options) {
           changing = null;
 			      }, 20);
       }
+      image.trigger("instant_zoom", [cur_zoom])
       image.attr({width: width, height: height});
       overlay.attr({width: width, height: height});
-     }
+            
+     }     
 
     this.setZoomToFit = function (only_shrink, width, height) {
       if (width != null && height != null) {
@@ -333,7 +341,6 @@ $.fn.viewportImage = function(options) {
       
       e.preventDefault();
     })
-  
   
     /**
      * Handle Zoom by mousewheel (FF)
@@ -403,17 +410,75 @@ $.fn.viewportImage = function(options) {
       }
     });
 
-    /**
-     * Make sure the image is correctly located inside the div and assert context variables are sync'd
-     */
-
+    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, href, thref) {
+        $('<div id="weblitz-viewport-tiles" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
+        jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});
+        var myPyramid = new BisqueISPyramid( imagewidth, imageheight, xtilesize, ytilesize);
+        var myProvider = new PanoJS.TileUrlProvider('','','');
+        myProvider.assembleUrl = function(xIndex, yIndex, zoom) {
+            return href+'&'+myPyramid.tile_filename( zoom, xIndex, yIndex )
+            //return MY_URL + '/' + MY_PREFIX + myPyramid.tile_filename( zoom, xIndex, yIndex );
+        }
+        myProvider.thumbnailUrl = function (thref) {
+            this.thumbnailUrl = thref;
+        }
+        myProvider.thumbnailUrl(thref);
+        
+        if (viewerBean == null) {
+            
+            viewerBean = new PanoJS('weblitz-viewport-tiles', {
+                tileUrlProvider : myProvider,
+                xTileSize       : myPyramid.xtilesize,
+                yTileSize       : myPyramid.ytilesize,
+                maxZoom         : myPyramid.getMaxLevel(),
+                imageWidth      : myPyramid.width,
+                imageHeight     : myPyramid.height,
+                initialZoom     : init_zoom,
+                blankTile       : '/appmedia/webgateway/img/3rdparty/panojs/blank.gif'
+                //loadingTile     : '/appmedia/webgateway/img/3rdparty/panojs/progress.gif'
+            });
+            
+            // thumbnail url overwritten
+            // bird-eye view cannot relay on levels in order to load thumbail,
+            // becuase of the way pyramid is generated.
+            viewerBean.thumbnailURL = function() {
+                return this.tileUrlProvider.thumbnailUrl;
+            }
+            
+            PanoJS.MSG_BEYOND_MIN_ZOOM = null;
+            PanoJS.MSG_BEYOND_MAX_ZOOM = null;
+            // cause conflict with channels, needs more investigation !!!
+            //Ext.EventManager.addListener( window, 'resize', callback(viewerBean, viewerBean.resize) );
+            viewerBean.init();
+            
+            // not supported elements
+            jQuery('#wblitz-zoom').parent().hide();
+            jQuery('#wblitz-lp-enable').parent().hide();
+            jQuery('.multiselect').hide();
+            jQuery('#wblitz-invaxis').attr('disable', true);
+            jQuery('#roi_controls').hide();
+        } else {
+            viewerBean.tileUrlProvider = myProvider;
+            viewerBean.update_url();
+        }
+        cur_zoom = viewerBean.zoomLevel   
+    }
+    
+    
     this.refresh = function () {
+        
       imagewidth = image.width();
       imageheight = image.height();
       wrapwidth = wrapdiv.width();
       wrapheight = wrapdiv.height();
       //orig_width = image.get(0).clientWidth;
-      //orig_height = image.get(0).clientHeight;
+      //orig_height = image.get(0).clientHeight;   
+      
+      if (viewerBean != null) {
+          jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});
+          viewerBean.resize();
+      }
+      
       if (panbars) {
       pantop.center();
       panbottom.center();
@@ -426,3 +491,4 @@ $.fn.viewportImage = function(options) {
     //jQuery(window).resize(this.refresh);
   });
 }
+

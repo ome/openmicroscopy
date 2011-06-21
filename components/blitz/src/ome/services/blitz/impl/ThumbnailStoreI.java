@@ -20,6 +20,7 @@ import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.AMD_ThumbnailStore_createThumbnail;
 import omero.api.AMD_ThumbnailStore_createThumbnails;
 import omero.api.AMD_ThumbnailStore_createThumbnailsByLongestSideSet;
+import omero.api.AMD_ThumbnailStore_getRenderingDefId;
 import omero.api.AMD_ThumbnailStore_getThumbnail;
 import omero.api.AMD_ThumbnailStore_getThumbnailByLongestSide;
 import omero.api.AMD_ThumbnailStore_getThumbnailByLongestSideDirect;
@@ -152,6 +153,11 @@ public class ThumbnailStoreI extends AbstractAmdServant implements
             RInt sizeX, RInt sizeY, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, sizeX, sizeY);
 
+    }
+
+    public void getRenderingDefId_async(AMD_ThumbnailStore_getRenderingDefId __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
     }
 
 }

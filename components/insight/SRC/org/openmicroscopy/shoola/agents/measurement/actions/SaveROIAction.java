@@ -67,8 +67,6 @@ public class SaveROIAction
 	 */
 	protected void onStateChange()
 	{
-	//	if (model.getState() == MeasurementViewer.READY) 
-	//		setEnabled(model.hasROIToSave());
 		//Depends on the status of the group
 		if (model.getState() == MeasurementViewer.READY)
 			setEnabled(model.isImageWritable());

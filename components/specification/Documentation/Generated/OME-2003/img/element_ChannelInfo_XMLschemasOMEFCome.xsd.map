@@ -1,0 +1,44 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_ChannelInfo_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_LightSourceRef'
+  coords='291,0,445,42'
+  href='ome.xsd.html#element_LightSourceRef'/>
+
+ <area
+  shape='rect'
+  alt='element_AuxLightSourceRef'
+  coords='291,52,466,94'
+  href='ome.xsd.html#element_AuxLightSourceRef'/>
+
+ <area
+  shape='rect'
+  alt='element_OTFRef'
+  coords='291,104,389,146'
+  href='ome.xsd.html#element_OTFRef'/>
+
+ <area
+  shape='rect'
+  alt='element_DetectorRef'
+  coords='291,156,424,198'
+  href='ome.xsd.html#element_DetectorRef'/>
+
+ <area
+  shape='rect'
+  alt='element_FilterRef'
+  coords='291,208,410,250'
+  href='ome.xsd.html#element_FilterRef'/>
+
+ <area
+  shape='rect'
+  alt='element_ChannelComponent'
+  coords='291,260,459,302'
+  href='ome.xsd.html#element_ChannelComponent'/>
+
+ <area
+  shape='rect'
+  alt='type_LogicalChannelID'
+  coords='205,312,299,338'
+  href='ome.xsd.html#type_LogicalChannelID'/>
+
+</map>

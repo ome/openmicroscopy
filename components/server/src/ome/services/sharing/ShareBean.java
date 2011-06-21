@@ -130,7 +130,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
      * @see ticket:2219
      */
     public Long setShareId(Long shareId) {
-        String sessId = admin.getEventContext().getCurrentSessionUuid();
+        String sessId = getSecuritySystem().getEventContext().getCurrentSessionUuid();
         SessionContext sc = (SessionContext) sessionManager
                 .getEventContext(new Principal(sessId));
         Long old = sc.getCurrentShareId();
@@ -206,16 +206,20 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         return rv;
     }
 
+    long getCurrentUserId() {
+        return getSecuritySystem().getEventContext().getCurrentUserId();
+    }
+
     @RolesAllowed("user")
     public Set<Session> getOwnShares(boolean active) {
-        long id = admin.getEventContext().getCurrentUserId();
+        long id = getCurrentUserId();
         List<ShareData> shares = store.getShares(id, true /* own */, active);
         return sharesToSessions(shares);
     }
 
     @RolesAllowed("user")
     public Set<Session> getMemberShares(boolean active) {
-        long id = admin.getEventContext().getCurrentUserId();
+        long id = getCurrentUserId();
         List<ShareData> shares = store.getShares(id, false /* own */, active);
         return sharesToSessions(shares);
     }
@@ -310,10 +314,10 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         //
         // Setting defaults on new session
         //
-        final String omename = this.admin.getEventContext()
-                .getCurrentUserName();
-        final Long user = this.admin.getEventContext().getCurrentUserId();
-        final Long group = this.admin.getEventContext().getCurrentGroupId();
+        final EventContext ec = getSecuritySystem().getEventContext();
+        final String omename = ec.getCurrentUserName();
+        final Long user = ec.getCurrentUserId();
+        final Long group = ec.getCurrentGroupId();
         final Future<Share> future = executor.submit(new Callable<Share>() {
             public Share call() throws Exception {
                 return sessionManager.createShare(new Principal(omename),
@@ -895,7 +899,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
      * {@link QueryBuilder#where()} should already have been called.
      */
     protected void applyIfShareAccessible(QueryBuilder qb) {
-        EventContext ec = admin.getEventContext();
+        EventContext ec = getSecuritySystem().getEventContext();
         if ( ! ec.isCurrentUserAdmin()) {
             qb.param("userId", ec.getCurrentUserId());
             qb.and("(");
@@ -919,7 +923,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
             return null;
         }
 
-        EventContext ec = admin.getEventContext();
+        EventContext ec = getSecuritySystem().getEventContext();
         boolean isAdmin = ec.isCurrentUserAdmin();
         long userId = ec.getCurrentUserId();
         if (data.owner == userId || data.members.contains(userId) || isAdmin) {

@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_IterateRange_SchemasSA200809'>
+ <area
+  shape='rect'
+  alt='element_Start'
+  coords='436,0,786,43'
+  href='SA.xsd.html#element_Start'/>
+
+ <area
+  shape='rect'
+  alt='element_End'
+  coords='436,53,786,96'
+  href='SA.xsd.html#element_End'/>
+
+ <area
+  shape='rect'
+  alt='element_OutputTo'
+  coords='436,106,786,165'
+  href='SA.xsd.html#element_OutputTo'/>
+
+</map>

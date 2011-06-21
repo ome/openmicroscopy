@@ -17,49 +17,50 @@
 
 {% block jscript %}
     
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
     
     <script type="text/javascript">
     $(document).ready(function() 
     {
         $('#add').click(function() {
-            $("option:selected", "select[name=available_groups]").each(function(){
-                $('<li><label for="id_default_group_'+$(this).attr('value')+'"><input type="radio" name="default_group" value="'+$(this).attr('value')+'"> '+$(this).html()+'</label><input id="remove" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove"></li>').appendTo("div.pickListRadio ul");
+            $("option:selected", "select[name=available_groups]").each(function(){                
+                $('<li><label for="id_default_group_'+this.value+'"><input type="radio" name="default_group" value="'+this.value+'" id="id_default_group_'+this.value+'"> '+$(this).html()+' <input id="default_group_'+this.value+'" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove"></label></li>').appendTo("div.pickListRadio ul");
                 $("#id_other_groups").append(this);
             });
         });
         
-        $("#remove").live("click", function() {
-            var val = $('label input', $(this).parent()).attr('value');
+        $('.removeButton').live("click", function() {
+            var val = $('#id_'+this.id).attr('value');
             $("option:selected", "select[name=other_groups]").each(function(){
                 if(this.value == val) {
-                    $('<option value="'+$(this).attr('value')+'">'+$(this).html()+'</option>').appendTo("#id_available_groups");
+                    if (val > 0) $('<option value="'+this.value+'">'+$(this).html()+'</option>').appendTo("#id_available_groups");
                     $(this).remove();
                     return false;
                 }
             });
-            $(this).parent().remove();
+            $(this).parent().parent().remove();
+            if (val == 0) $("input[name='administrator']").attr('checked', false);
         });
         
+        
         $("input[name='administrator']").click( function() { 
-            if($("input[name='administrator']:checked").length > 0) {
-                $('<option value="0">system</option>').attr('selected', true).appendTo("#id_other_groups");
-                
-                $('<li><label for="id_default_group_'+$("option", "select[name=other_groups]").length+'"><input type="radio" name="default_group" value="0"> system</label><input id="remove" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove"></li>').appendTo("div.pickListRadio ul");
+            if($("input[name='administrator']").is(':checked')) {
+                $('<option value="0">system</option>').attr('selected', true).appendTo("#id_other_groups");                
+                $('<li><label for="id_default_group_0"><input type="radio" name="default_group" value="0" id="id_default_group_0"> system <input id="default_group_0" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove"></label></li>').appendTo("div.pickListRadio ul");
             } else {
                 $("option:selected", "select[name=other_groups]").each(function(){
-                    if(this.value == "0") {
+                    if(this.value == 0) {
                         $(this).remove();
                         return false;
                     }
                 });
-                $('label input[value=0]').parent().parent().remove();
+                $('#id_default_group_0').parent().parent().remove();                
             }
         });
         
-        for(i=0; i<$("option", "select[name=other_groups]").length; i++) {
-            $('#id_default_group_'+i).parent().parent().append('<input id="remove" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove">')
-        }
+        $("option:selected", "select[name=other_groups]").each(function(){
+            $('#id_default_group_'+this.value).parent().append('<input id="default_group_'+this.value+'" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove">');
+        });
 
     });    
     

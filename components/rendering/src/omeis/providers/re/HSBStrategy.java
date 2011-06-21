@@ -18,8 +18,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-
-
 // Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,11 +25,11 @@ import org.apache.commons.logging.LogFactory;
 // Application-internal dependencies
 import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelData;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
+import ome.util.PixelData;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;
@@ -69,46 +67,17 @@ class HSBStrategy extends RenderingStrategy {
 	
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(HSBStrategy.class);
-
-    /**
-     * Initializes the <code>sizeX1</code> and <code>sizeX2</code> fields
-     * according to the specified {@link PlaneDef#getSlice() slice}.
-     * 
-     * @param pd
-     *            Reference to the plane definition defined for the strategy.
-     * @param pixels
-     *            Dimensions of the pixels set.
-     */
-    private void initAxesSize(PlaneDef pd, Pixels pixels) {
-        try {
-            switch (pd.getSlice()) {
-                case PlaneDef.XY:
-                    sizeX1 = pixels.getSizeX().intValue(); // TODO int?
-                    sizeX2 = pixels.getSizeY().intValue();
-                    break;
-                case PlaneDef.XZ:
-                    sizeX1 = pixels.getSizeX().intValue();
-                    sizeX2 = pixels.getSizeZ().intValue();
-                    break;
-                case PlaneDef.ZY:
-                    sizeX1 = pixels.getSizeZ().intValue();
-                    sizeX2 = pixels.getSizeY().intValue();
-            }
-        } catch (NumberFormatException nfe) {
-            throw new RuntimeException("Invalid slice ID: " + pd.getSlice()
-                    + ".", nfe);
-        }
-    }
-
+    
     /**
      * Retrieves the maximum number of reasonable tasks to schedule based on
      * image size and <i>maxTasks</i>.
      * 
+     * @param size The width along the X2 axis.
      * @return the number of tasks to schedule.
      */
-    private int numTasks() {
+    private int numTasks(int size) {
         for (int i = maxTasks; i > 0; i--) {
-            if (sizeX2 % i == 0) {
+            if (size % i == 0) {
                 return i;
             }
         }
@@ -124,7 +93,7 @@ class HSBStrategy extends RenderingStrategy {
         ChannelBinding[] channelBindings = renderer.getChannelBindings();
         Pixels metadata = renderer.getMetadata();
         PixelBuffer pixels = renderer.getPixels();
-        ArrayList<Plane2D> wData = null;
+        List<Plane2D> wData = null;
         try
         {
         	RenderingStats performanceStats = renderer.getStats();
@@ -141,12 +110,10 @@ class HSBStrategy extends RenderingStrategy {
         	Map<byte[], Integer> overlays = renderer.getOverlays();
         	if (overlays != null)
         	{
-        		PixelsType bitType = new PixelsType();
-        		bitType.setValue("bit");
         		for (byte[] overlay : overlays.keySet())
         		{
-        			PixelData data =
-        				new PixelData(bitType, ByteBuffer.wrap(overlay));
+				ome.util.PixelData data =
+					new PixelData(PlaneFactory.BIT, ByteBuffer.wrap(overlay));
         			wData.add(new Plane2D(pDef, metadata, data));
         		}
         	}
@@ -176,7 +143,7 @@ class HSBStrategy extends RenderingStrategy {
      */
     private List<int[]> getColors() {
         ChannelBinding[] channelBindings = renderer.getChannelBindings();
-        ArrayList<int[]> colors = new ArrayList<int[]>();
+        List<int[]> colors = new ArrayList<int[]>();
 
         for (int w = 0; w < channelBindings.length; w++) {
             ChannelBinding cb = channelBindings[w];
@@ -209,7 +176,7 @@ class HSBStrategy extends RenderingStrategy {
     private List<QuantumStrategy> getStrategies() {
         ChannelBinding[] channelBindings = renderer.getChannelBindings();
         QuantumManager qManager = renderer.getQuantumManager();
-        ArrayList<QuantumStrategy> strats = new ArrayList<QuantumStrategy>();
+        List<QuantumStrategy> strats = new ArrayList<QuantumStrategy>();
 
         for (int w = 0; w < channelBindings.length; w++) {
             if (channelBindings[w].getActive()) {
@@ -221,7 +188,7 @@ class HSBStrategy extends RenderingStrategy {
     	{
     		QuantumDef def = new QuantumDef();  // Just to fulfill interface
     		PixelsType bitType = new PixelsType();
-    		bitType.setValue("bit");
+    		bitType.setValue(PlaneFactory.BIT);
     		for (int i = 0; i < overlays.size(); i++)
     		{
     			strats.add(new BinaryMaskQuantizer(def, bitType));
@@ -249,23 +216,23 @@ class HSBStrategy extends RenderingStrategy {
         List<Plane2D> wData = getWavelengthData(def);
         List<int[]> colors = getColors();
         List<QuantumStrategy> strategies = getStrategies();
-
         // Create a number of rendering tasks.
-        int taskCount = numTasks();
-        int delta = sizeX2 / taskCount;
+        int taskCount = numTasks(sizeX2);
+        int delta = sizeX2/taskCount;
+        int x1Start = 0;
+        int x1End = sizeX1;
+        int x2Start, x2End;
+        log.info("taskCount: "+taskCount+" delta: "+delta);
         for (int i = 0; i < taskCount; i++) {
-            int x1Start = 0;
-            int x1End = sizeX1;
-            int x2Start = i * delta;
-            int x2End = (i + 1) * delta;
+            x2Start = i*delta;
+            x2End = (i+1)*delta;
             tasks.add(new RenderHSBRegionTask(buf, wData, strategies, cc,
             		colors, renderer.getOptimizations(),
             		x1Start, x1End, x2Start, x2End));
         }
 
         // Turn the list into an array an return it.
-        RenderingTask[] tArray = new RenderingTask[tasks.size()];
-        return tasks.toArray(tArray);
+        return tasks.toArray(new RenderingTask[tasks.size()]);
     }
 
     /**
@@ -285,7 +252,6 @@ class HSBStrategy extends RenderingStrategy {
         // create the RGB buffer.
         initAxesSize(planeDef, metadata);
         RGBBuffer buf = getRgbBuffer();
-
         render(buf, planeDef);
         return buf;
     }
@@ -306,7 +272,6 @@ class HSBStrategy extends RenderingStrategy {
         // create the RGB buffer.
         initAxesSize(planeDef, metadata);
         RGBIntBuffer buf = getIntBuffer();
-        
         render(buf, planeDef);
         return buf;
     }
@@ -340,10 +305,6 @@ class HSBStrategy extends RenderingStrategy {
     private void render(RGBBuffer buf, PlaneDef planeDef) throws IOException,
             QuantizationException {
         RenderingStats performanceStats = renderer.getStats();
-
-        // Initialize sizeX1 and sizeX2 according to the plane.
-        initAxesSize(planeDef, renderer.getMetadata());
-
         // Process each active wavelength. If their number N > 1, then
         // process N-1 async and one in the current thread. If N = 1,
         // just use the current thread.

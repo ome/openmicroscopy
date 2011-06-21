@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 
 import pojos.DataObject;
@@ -176,24 +177,21 @@ class AdminServiceImpl
 		context.lookup(LookupNames.USER_CREDENTIALS);
 		return uc.getUserName();
 	}
-	
+
 	/**
 	 * Implemented as specified by {@link AdminService}.
-	 * @see AdminService#getSpace(int, long)
+	 * @see AdminService#getQuota(Class, long)
 	 */
-	public long getSpace(int index, long id)
+	public DiskQuota getQuota(Class type, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		try {
-			switch (index) {
-				case USED: return gateway.getUsedSpace(id);
-				case FREE: return gateway.getFreeSpace();
-			}
-		} catch (Exception e) {
-			return -1;
-		}
-		
-		return -1;
+		long v = 1000;
+		long used = 0;//gateway.getUsedSpace(type, id);
+		long available = gateway.getFreeSpace(type, id);
+		int t = DiskQuota.USER;
+		if (GroupData.class.equals(type))
+			t = DiskQuota.GROUP;
+		return new DiskQuota(t, id, used*v, available*v);
 	}
 	
 	/**
@@ -512,9 +510,10 @@ class AdminServiceImpl
 		l = new HashMap<ExperimenterData, Exception>();
 		List<Experimenter> ownersToAdd = new ArrayList<Experimenter>();
 		List<Experimenter> ownersToRemove = new ArrayList<Experimenter>();
-		List<Experimenter> administratorsToAdd = new ArrayList<Experimenter>();
-		List<Experimenter> 
-		administratorsToRemove = new ArrayList<Experimenter>();
+		List<ExperimenterData> administratorsToAdd = 
+			new ArrayList<ExperimenterData>();
+		List<ExperimenterData> 
+		administratorsToRemove = new ArrayList<ExperimenterData>();
 		List<ExperimenterData> toActivate = new ArrayList<ExperimenterData>();
 		List<ExperimenterData> toDeactivate = new ArrayList<ExperimenterData>();
 		
@@ -530,7 +529,9 @@ class AdminServiceImpl
 			//		omero.rtypes.rstring(uc.getUserName()));
 			try {
 				updateExperimenter(exp, group, true);
-				b = uc.isOwner();
+				//b = uc.isOwner();
+				group = uc.getGroupToHandle();
+				b = uc.isGroupOwner(group);
 				if (b != null) {
 					if (b.booleanValue()) ownersToAdd.add(exp.asExperimenter());
 					else ownersToRemove.add(exp.asExperimenter());
@@ -538,8 +539,8 @@ class AdminServiceImpl
 				b = uc.isAdministrator();
 				if (b != null) {
 					if (b.booleanValue()) 
-						administratorsToAdd.add(exp.asExperimenter());
-					else administratorsToRemove.add(exp.asExperimenter());
+						administratorsToAdd.add(exp);
+					else administratorsToRemove.add(exp);
 				}
 				b = uc.isActive();
 				if (b != null) {
@@ -572,6 +573,13 @@ class AdminServiceImpl
 		if (toDeactivate.size() > 0)
 			gateway.modifyExperimentersRoles(false, toDeactivate, 
 					GroupData.USER);
+		if (administratorsToAdd.size() > 0)
+			gateway.modifyExperimentersRoles(true, administratorsToAdd, 
+					GroupData.SYSTEM);
+		if (administratorsToRemove.size() > 0)
+			gateway.modifyExperimentersRoles(false, administratorsToRemove, 
+					GroupData.SYSTEM);
+
 		return l;
 	}
 
@@ -586,7 +594,7 @@ class AdminServiceImpl
 			throw new IllegalArgumentException("No experimenters" +
 					" specified");
 		if (AdminObject.RESET_PASSWORD != object.getIndex())
-			throw new IllegalArgumentException("No experimenters specified");
+			throw new IllegalArgumentException("Index not valid");
 		Map<ExperimenterData, UserCredentials> map = object.getExperimenters();
 		if (map == null) 
 			throw new IllegalArgumentException("No experimenters specified");
@@ -614,6 +622,45 @@ class AdminServiceImpl
 		return l;
 	}
 
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#activateExperimenters(AdminObject)
+	 */
+	public List<ExperimenterData> activateExperimenters(AdminObject object)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (object == null)
+			throw new IllegalArgumentException("No experimenters" +
+					" specified");
+		if (AdminObject.ACTIVATE_USER != object.getIndex())
+			throw new IllegalArgumentException("Index not valid.");
+		Map<ExperimenterData, UserCredentials> map = object.getExperimenters();
+		if (map == null) 
+			throw new IllegalArgumentException("No experimenters specified");
+			
+		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
+		UserCredentials uc;
+		Entry entry;
+		ExperimenterData exp;
+		Iterator i = map.entrySet().iterator();
+		List<ExperimenterData> toActivate = new ArrayList<ExperimenterData>();
+		List<ExperimenterData> toDeactivate = new ArrayList<ExperimenterData>();
+		
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			exp = (ExperimenterData) entry.getKey();
+			uc = (UserCredentials) entry.getValue();
+			if (uc.isActive()) toActivate.add(exp);
+			else toDeactivate.add(exp);
+		}
+		if (toActivate.size() > 0)
+			gateway.modifyExperimentersRoles(true, toActivate, GroupData.USER);
+		if (toDeactivate.size() > 0)
+			gateway.modifyExperimentersRoles(false, toDeactivate, 
+					GroupData.USER);
+		return l;
+	}
+	
 	/**
 	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#reloadPIGroups(ExperimenterData)
@@ -729,5 +776,5 @@ class AdminServiceImpl
 			context.getImageService().getExperimenterThumbnailSet(exp, 0);
 		return map.get(experimenter);
 	}
-	
+
 }

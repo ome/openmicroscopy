@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.Action;
 
 //Third-party libraries
@@ -34,8 +33,8 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.util.ScriptUploaderDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptUploaderDialog;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -87,20 +86,23 @@ public class UploadScriptAction
     public void actionPerformed(ActionEvent e)
     { 
     	ScriptUploaderDialog dialog = new ScriptUploaderDialog(model.getUI()
-    			, model.getScriptsAsString());
+    			, model.getScriptsAsString(), TreeViewerAgent.getRegistry());
     	dialog.addPropertyChangeListener(new PropertyChangeListener() {
 			
 			public void propertyChange(PropertyChangeEvent evt) {
-				ScriptObject script = (ScriptObject) evt.getNewValue();
-				UserNotifier un = 
-					TreeViewerAgent.getRegistry().getUserNotifier();
-				if (script == null) {
-					un.notifyInfo("Upload Script", "No script to upload");
-					return;
+				Object o = evt.getNewValue();
+				if (o instanceof ScriptObject) {
+					ScriptObject script = (ScriptObject) o;
+					UserNotifier un = 
+						TreeViewerAgent.getRegistry().getUserNotifier();
+					if (script == null) {
+						un.notifyInfo("Upload Script", "No script to upload");
+						return;
+					}
+					ScriptActivityParam p = new ScriptActivityParam(script, 
+							ScriptActivityParam.UPLOAD);
+					un.notifyActivity(p);
 				}
-				ScriptActivityParam p = new ScriptActivityParam(script, 
-						ScriptActivityParam.UPLOAD);
-				un.notifyActivity(p);
 			}
 		});
     	UIUtilities.centerAndShow(dialog);

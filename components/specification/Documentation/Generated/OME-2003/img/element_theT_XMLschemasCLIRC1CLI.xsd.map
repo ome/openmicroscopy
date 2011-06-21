@@ -1,0 +1,26 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_theT_XMLschemasCLIRC1CLI.xsd'>
+ <area
+  shape='rect'
+  alt='element_AutoIterate'
+  coords='228,0,389,26'
+  href='CLI.xsd.html#element_AutoIterate'/>
+
+ <area
+  shape='rect'
+  alt='element_UseValue'
+  coords='228,36,368,62'
+  href='CLI.xsd.html#element_UseValue'/>
+
+ <area
+  shape='rect'
+  alt='element_IterateRange'
+  coords='228,72,396,98'
+  href='CLI.xsd.html#element_IterateRange'/>
+
+ <area
+  shape='rect'
+  alt='element_Match'
+  coords='228,108,347,134'
+  href='CLI.xsd.html#element_Match'/>
+
+</map>

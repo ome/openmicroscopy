@@ -29,6 +29,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.AbstractButton;
@@ -142,8 +145,13 @@ class MoviePlayerControl
     private void initListeners()
     {
         JTextField editor = view.editor;
-        editor.addActionListener(this);
-        editor.setActionCommand(""+EDITOR_CMD);
+        editor.addKeyListener(new KeyAdapter() {
+        	
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER)
+					editorActionHandler();
+			}
+		});
         //JButton
         attachButtonListener(view.play, PLAY_CMD);
         attachButtonListener(view.pause, PAUSE_CMD);
@@ -261,29 +269,16 @@ class MoviePlayerControl
      */
     private void editorActionHandler()
     {
-        boolean valid = false;
-        int val = MoviePlayer.FPS_MIN;
-        int maxValue = 0;
-        try {
-            val = Integer.parseInt(view.editor.getText());
-            if (MoviePlayer.FPS_MIN <= val && val <= maxValue) {
-                valid = true;
-            } else if (val < MoviePlayer.FPS_MIN) {
-                val = MoviePlayer.FPS_MIN;
-                valid = true;
-            } else if (val > maxValue) {
-                val = maxValue;
-                valid = true;
-            }
-        } catch(NumberFormatException nfe) {}
-        if (valid) {
+    	int val = ((Integer) view.fps.getValue()).intValue();
+        Number n = view.editor.getValueAsNumber();
+        if (n != null) {
+        	val = n.intValue();
             model.setTimerDelay(val);
             view.setTimerDelay(val);
         } else {
-            view.editor.selectAll();
-            UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Invalid value", "Please enter a value " +
-                    "between "+MoviePlayer.FPS_MIN+" and "+maxValue);
+        	view.editor.setText(""+val);
+        	 model.setTimerDelay(val);
+             view.setTimerDelay(val);
         }
     } 
     
@@ -363,7 +358,8 @@ class MoviePlayerControl
                     model.setPlayerState(Player.STOP); 
                     break;
                 case EDITOR_CMD:
-                    editorActionHandler(); break; 
+                    editorActionHandler(); 
+                    break; 
                 case MOVIE_TYPE_CMD:
                     int i = ((JComboBox) ae.getSource()).getSelectedIndex();
                     model.setMovieType(view.getMovieType(i));
@@ -425,18 +421,17 @@ class MoviePlayerControl
         Object source = evt.getSource();
         int s = -1;
         int e = -1;
-        if (name.equals(TwoKnobsSlider.LEFT_MOVED_PROPERTY)) {
-                if (source.equals(view.zSlider)) {
-                    s = view.zSlider.getStartValue();
-                    model.setStartZ(s);
-                    view.setStartZ(s);
-                } else if (source.equals(view.tSlider)) {
-                    s = view.tSlider.getStartValue();
-                    model.setStartT(s);
-                    view.setStartT(s);
-                }
-            } 
-        if (name.equals(TwoKnobsSlider.RIGHT_MOVED_PROPERTY)) {
+        if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)) {
+        	if (source.equals(view.zSlider)) {
+        		s = view.zSlider.getStartValue();
+        		model.setStartZ(s);
+        		view.setStartZ(s);
+        	} else if (source.equals(view.tSlider)) {
+        		s = view.tSlider.getStartValue();
+        		model.setStartT(s);
+        		view.setStartT(s);
+        	}
+        } else if (TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
             if (source.equals(view.zSlider)) {
                 e = view.zSlider.getEndValue();
                 model.setEndZ(e);
@@ -446,12 +441,12 @@ class MoviePlayerControl
                 model.setEndT(e);
                 view.setEndT(e);
             }
-        } 
+        }
     }
 
     /** 
      * Required by {@link FocusListener} I/F but not actually needed in
-     * our case, no op implementation.
+     * our case, no operation implementation.
      * @see FocusListener#focusGained(FocusEvent)
      */ 
     public void focusGained(FocusEvent e) {}

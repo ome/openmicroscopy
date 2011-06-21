@@ -1,0 +1,56 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_PixelOutput_SchemasSA200809'>
+ <area
+  shape='rect'
+  alt='element_SizeX'
+  coords='436,142,786,201'
+  href='SA.xsd.html#element_SizeX'/>
+
+ <area
+  shape='rect'
+  alt='element_SizeY'
+  coords='436,211,786,270'
+  href='SA.xsd.html#element_SizeY'/>
+
+ <area
+  shape='rect'
+  alt='element_SizeZ'
+  coords='436,280,786,339'
+  href='SA.xsd.html#element_SizeZ'/>
+
+ <area
+  shape='rect'
+  alt='element_SizeC'
+  coords='436,349,786,408'
+  href='SA.xsd.html#element_SizeC'/>
+
+ <area
+  shape='rect'
+  alt='element_SizeT'
+  coords='436,418,786,477'
+  href='SA.xsd.html#element_SizeT'/>
+
+ <area
+  shape='rect'
+  alt='element_PixelType'
+  coords='436,487,786,546'
+  href='SA.xsd.html#element_PixelType'/>
+
+ <area
+  shape='rect'
+  alt='element_BitsPerPixel'
+  coords='436,556,786,615'
+  href='SA.xsd.html#element_BitsPerPixel'/>
+
+ <area
+  shape='rect'
+  alt='element_Repository'
+  coords='436,625,786,684'
+  href='SA.xsd.html#element_Repository'/>
+
+ <area
+  shape='rect'
+  alt='element_Path'
+  coords='436,694,786,753'
+  href='SA.xsd.html#element_Path'/>
+
+</map>

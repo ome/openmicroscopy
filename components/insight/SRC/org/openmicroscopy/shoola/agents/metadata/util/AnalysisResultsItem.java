@@ -242,13 +242,14 @@ public class AnalysisResultsItem
 	 * Initializes the components. 
 	 * 
 	 * @param nameSpace The name space to use to determine the name.
+	 * @param index The value of the results.
 	 */
-	private void initComponents(String nameSpace)
+	private void initComponents(String nameSpace, int index)
 	{
 		attachments = new ArrayList<FileAnnotationData>();
 		this.nameSpace = nameSpace;
 		resultsButton = new JButton();
-		resultsButton.setText(convertNameSpace(nameSpace));
+		resultsButton.setText(convertNameSpace(nameSpace)+" #"+index);
 		resultsButton.setOpaque(false);
 		resultsButton.setForeground(UIUtilities.HYPERLINK_COLOR);
 		resultsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -309,13 +310,14 @@ public class AnalysisResultsItem
 	 * 
 	 * @param data The data object to host.
 	 * @param nameSpace The name space to use to determine the name.
+	 * @param index The index of the results.
 	 */
-	public AnalysisResultsItem(DataObject data, String nameSpace)
+	public AnalysisResultsItem(DataObject data, String nameSpace, int index)
 	{
 		if (data == null) 
 			throw new IllegalArgumentException("Object cannot be null.");
 		this.data = data;
-		initComponents(nameSpace);
+		initComponents(nameSpace, index);
 		buildGUI();
 	}
 	

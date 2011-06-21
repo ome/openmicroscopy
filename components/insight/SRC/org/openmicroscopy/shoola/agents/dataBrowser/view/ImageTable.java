@@ -25,7 +25,9 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -34,8 +36,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
+import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
@@ -43,12 +49,17 @@ import org.jdesktop.swingx.JXTreeTable;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.util.ImageTableIconRenderer;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.ImageTableRenderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
+import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.NumberCellRenderer;
 import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * Tree table displaying the hierarchy.
@@ -71,55 +82,60 @@ class ImageTable
 	static final int  					NAME_COL = 0;
 	
 	/** Identified the column displaying the added date. */
-	static final int  					DATE_COL = 1;
+	//static final int  					DATE_COL = 1;
 	
-	/** Identified the column displaying if the file has been annotated. */
-	static final int  					ANNOTATED_COL = 2;
-
+	/** Identified the column displaying the added date. */
+	static final int  					THUMBNAIL_COL = 1;
+	
 	/** The text of the {@link #NAME_COL}. */
-	static final String					NAME =  "Name";
+	static final String					NAME = "Name";
+	
+	/** The text of the {@link #SIZE_COL}. */
+	static final String					SIZE = "Size";
+	
+	/** The text of the {@link #THUMBNAIL_COL}. */
+	static final String					VIEW = "Image";
 	
 	/** The text of the {@link #LOGIN_NAME_COL}. */
-	static final String					LOGIN_NAME =  "User Name";
+	static final String					LOGIN_NAME = "User Name";
 	
 	/** The text of the {@link #DATE_COL}. */
-	static final String					DATE =  "Acquisition Date";
+	static final String					DATE = "Acquired";
 	
 	/** The text of the {@link #ANNOTATED_COL}. */
-	static final String					ANNOTATED =  "Annotated";
+	static final String					ANNOTATED = "Annotated";
 	
 	/** The text of the {@link #INSTITUTION_COL}. */
-	static final String					INSTITUTION =  "Institution";
+	static final String					INSTITUTION = "Institution";
 	
 	/** The columns of the table. */
-	private static Vector<String>		COLUMNS;
+	static Vector<String>		COLUMNS;
 	
 	/** Map indicating how to render each column. */
 	private static Map<Integer, Class> RENDERERS;
 	
 	/** The columns of the table. */
-	private static Vector<String>		COLUMNS_GROUPS;
+	static Vector<String>		COLUMNS_GROUPS;
 	
 	/** Map indicating how to render each column. */
 	private static Map<Integer, Class> RENDERERS_GROUPS;
 	
 	static {
-		COLUMNS = new Vector<String>(3);
+		COLUMNS = new Vector<String>(2);
 		COLUMNS.add(NAME);
-		COLUMNS.add(DATE);
+		//COLUMNS.add(DATE);
+		COLUMNS.add(VIEW);
 		
 		RENDERERS = new HashMap<Integer, Class>();
 		RENDERERS.put(NAME_COL, ImageTableNode.class);
-		RENDERERS.put(DATE_COL, String.class);
+		//RENDERERS.put(DATE_COL, String.class);
+		RENDERERS.put(THUMBNAIL_COL, ImageTableNode.class);
 		
 		COLUMNS_GROUPS = new Vector<String>(3);
 		COLUMNS_GROUPS.add(LOGIN_NAME);
 		COLUMNS_GROUPS.add(NAME);
 		COLUMNS_GROUPS.add(INSTITUTION);
 		RENDERERS_GROUPS = new HashMap<Integer, Class>();
-		//RENDERERS_GROUPS.put(DATE_COL, String.class);
-		//RENDERERS_GROUPS.put(NAME_COL, String.class);
-		//RENDERERS_GROUPS.put(ANNOTATED_COL, String.class);
 	}
 	
 	/** The root node of the table. */
@@ -136,6 +152,37 @@ class ImageTable
 	
 	/** Reference to the model. */
 	private DataBrowserModel 		model;
+	
+	/** The default height of row.*/
+	private int						rowHeight;
+	
+	/** Flag indicating if the mouse has entered the table.*/
+	private boolean entered;
+	
+	/**
+	 * Displays the node if roll over flag is <code>one</code> when the mouse 
+	 * enters the table or is over the table.
+	 * 
+	 * @param p The location of the mouse.
+	 */
+	private void handleRollOver(Point p)
+	{
+		int column = columnAtPoint(p);
+		if (column != THUMBNAIL_COL) {
+			view.rollOverNode(null);
+			return;
+		}
+		OMETreeNode n = getNodeAtRow(rowAtPoint(p));
+		if (n instanceof ImageTableNode) {
+			ImageTableNode node = (ImageTableNode) n;
+			Object ho = node.getHierarchyObject();
+			if (ho instanceof ImageData) {
+				ImageNode image = (ImageNode) node.getUserObject();
+				SwingUtilities.convertPointToScreen(p, this);
+				view.rollOverNode(new RollOverNode(image, p));
+			}
+		}
+	}
 	
 	/**
 	 * Builds the node.
@@ -182,28 +229,44 @@ class ImageTable
         view.selectNodes(nodes);
 	}
 	
-	/** Initializes the component. */
-	private void initialize()
+	/** Formats the table.*/
+	private void formatTable()
 	{
-		setBackground(UIUtilities.BACKGROUND_COLOR);
-		nodes  = new ArrayList<ImageTableNode>();
 		OMETreeTableModel om;
 		if (model.getType() == DataBrowserModel.GROUP)
 			om = new OMETreeTableModel(tableRoot, COLUMNS_GROUPS, 
 					RENDERERS_GROUPS);
 		else 
 			om = new OMETreeTableModel(tableRoot, COLUMNS, RENDERERS);
-		
+		double f = view.getMagnification();
+		if (f <= ImageTableNode.MIN_FACTOR)
+			setRowHeight(ImageTableNode.MIN_HEIGHT);
+		else if (f > ImageTableNode.MEDIUM_FACTOR)
+			setRowHeight(ImageTableNode.MAX_HEIGHT);
+		else 
+			setRowHeight(ImageTableNode.MEDIUM_HEIGHT);
 		setTableModel(om);
+		TableColumnModel tcm = getColumnModel();
+		TableColumn tc = tcm.getColumn(THUMBNAIL_COL);
+		tc.setCellRenderer(new ImageTableIconRenderer()); 
+		setDefaultRenderer(String.class, new NumberCellRenderer());
+	}
+	
+	/** Initializes the component. */
+	private void initialize()
+	{
+		setBackground(UIUtilities.BACKGROUND_COLOR);
+		nodes  = new ArrayList<ImageTableNode>();
+		formatTable();
 		setTreeCellRenderer(new ImageTableRenderer());
 		setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
 		setDefaultRenderer(String.class, new NumberCellRenderer());
+		//setDefaultRenderers();
 		setRootVisible(false);
 		setColumnSelectionAllowed(true);
 		setRowSelectionAllowed(true);
 		setHorizontalScrollEnabled(true);
 		setColumnControlVisible(true);
-		
 		selectionListener = new TreeSelectionListener() {
 	        
             public void valueChanged(TreeSelectionEvent e)
@@ -212,6 +275,14 @@ class ImageTable
             }
         };
         addTreeSelectionListener(selectionListener);
+        addMouseMotionListener(new MouseMotionListener() {
+			
+			public void mouseMoved(MouseEvent e) {
+				handleRollOver(e.getPoint());
+			}
+			
+			public void mouseDragged(MouseEvent e) {}
+		});
 	}
 	
 	/**
@@ -224,6 +295,7 @@ class ImageTable
 	{
         // node is visited exactly once
         //process(node);
+		if (objects == null) return;
 		Object ho = node.getHierarchyObject();
 		if (ho instanceof DataObject) {
 			Iterator<DataObject> i = objects.iterator();
@@ -258,6 +330,7 @@ class ImageTable
 	{
         // node is visited exactly once
         //process(node);
+		if (node == null | ids == null) return;
 		Object ho = node.getHierarchyObject();
 		if (ho == null) return;
 		if (ho.getClass().equals(type) && ho instanceof DataObject) {
@@ -310,14 +383,7 @@ class ImageTable
 		tableRoot = new ImageTableNode(root);
 		Component[] comp = root.getInternalDesktop().getComponents();
 		buildTreeNode(tableRoot, view.getSorter().sort(comp));
-		OMETreeTableModel om;
-		if (model.getType() == DataBrowserModel.GROUP)
-			om = new OMETreeTableModel(tableRoot, COLUMNS_GROUPS, 
-					RENDERERS_GROUPS);
-		else 
-			om = new OMETreeTableModel(tableRoot, COLUMNS, RENDERERS);
-		setTableModel(om);
-		setDefaultRenderer(String.class, new NumberCellRenderer());
+		formatTable();
 		invalidate();
 		repaint();
 	}
@@ -342,7 +408,7 @@ class ImageTable
 		}
 		nodes.clear();
 		repaint();
-        addTreeSelectionListener(selectionListener);
+		addTreeSelectionListener(selectionListener);
 	}
 
 	/**
@@ -375,9 +441,9 @@ class ImageTable
 		}
 		nodes.clear();
 		repaint();
-        addTreeSelectionListener(selectionListener);
+		addTreeSelectionListener(selectionListener);
 	}
-	
+
 	/**
 	 * Overridden to pop up a menu when the user right-clicks on a selected 
 	 * item.
@@ -404,5 +470,23 @@ class ImageTable
 		}
 	}
 	
+	/**
+	 * Overridden to display a larger thumbnail when mousing over.
+	 * @see OMETreeTable#onMouseEnter(MouseEvent)
+	 */
+	protected void onMouseEnter(MouseEvent e)
+	{
+		handleRollOver(e.getPoint());
+	}
+	
+	/**
+	 * Overridden to hide the thumbnail.
+	 * @see OMETreeTable#onMouseExited(MouseEvent)
+	 */
+	protected void onMouseExited(MouseEvent e)
+	{
+		view.rollOverNode(null);
+	}
+
 }
 

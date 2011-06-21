@@ -1,0 +1,32 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_OTF_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_ObjectiveRef'
+  coords='235,0,375,26'
+  href='ome.xsd.html#element_ObjectiveRef'/>
+
+ <area
+  shape='rect'
+  alt='element_FilterRef'
+  coords='235,36,354,62'
+  href='ome.xsd.html#element_FilterRef'/>
+
+ <area
+  shape='rect'
+  alt='element_BinaryFile'
+  coords='235,72,389,98'
+  href='BinaryFile.xsd.html#element_BinaryFile'/>
+
+ <area
+  shape='rect'
+  alt='type_OTFID'
+  coords='149,108,243,134'
+  href='ome.xsd.html#type_OTFID'/>
+
+ <area
+  shape='rect'
+  alt='type_PixelTypes'
+  coords='149,144,286,170'
+  href='ome.xsd.html#type_PixelTypes'/>
+
+</map>

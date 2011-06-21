@@ -1,0 +1,32 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_AnalysisModule_SchemasAnalysisModule200809'>
+ <area
+  shape='rect'
+  alt='element_Description'
+  coords='312,0,473,42'
+  href='AnalysisModule.xsd.html#element_Description'/>
+
+ <area
+  shape='rect'
+  alt='element_Declaration'
+  coords='312,52,473,78'
+  href='AnalysisModule.xsd.html#element_Declaration'/>
+
+ <area
+  shape='rect'
+  alt='element_ExecutionInstructions'
+  coords='384,88,615,114'
+  href='AnalysisModule.xsd.html#element_ExecutionInstructions'/>
+
+ <area
+  shape='rect'
+  alt='element_ExecutionInstructions'
+  coords='384,124,615,150'
+  href='AnalysisModule.xsd.html#element_ExecutionInstructions'/>
+
+ <area
+  shape='rect'
+  alt='type_ModuleID'
+  coords='226,772,320,798'
+  href='AnalysisModule.xsd.html#type_ModuleID'/>
+
+</map>

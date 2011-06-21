@@ -27,6 +27,7 @@
   </publications>
   <dependencies>
     <!-- Internal -->
+    <dependency org="omero" name="specification" rev="${omero.version}" changing="true" conf="build->build"/>
     <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" conf="build->build"/>
   </dependencies>
 </ivy-module>

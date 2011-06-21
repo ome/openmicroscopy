@@ -2,7 +2,7 @@
 # 
 # 
 # 
-# Copyright (c) 2008 University of Dundee. 
+# Copyright (c) 2008-2011 University of Dundee.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -33,8 +33,8 @@ class BaseIndex(BaseController):
     #def loadData(self):
     #    self.supervisor = self.conn.getCurrentSupervisor()
     #    self.leaderOfGroups = self.sortByAttr(list(self.conn.getGroupsLeaderOf()), "name")
-    #    self.colleagues = self.sortByAttr(list(self.conn.getColleagues()), "omeName")
-    #    self.staffs = self.sortByAttr(list(self.conn.getStaffs()), "omeName")
+    #    self.colleagues = self.sortByAttr(list(self.conn.listColleagues()), "omeName")
+    #    self.staffs = self.sortByAttr(list(self.conn.listStaffs()), "omeName")
     #    self.default_group = self.conn.getDefaultGroup(self.eContext['context'].userId)
     
     def loadMostRecent(self):

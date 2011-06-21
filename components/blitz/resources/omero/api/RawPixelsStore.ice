@@ -10,8 +10,8 @@
 #define OMERO_API_RAWPIXELSSTORE_ICE
 
 #include <omero/ModelF.ice>
-#include <omero/ServicesF.ice>
 #include <omero/Collections.ice>
+#include <omero/api/PyramidService.ice>
 
 module omero {
 
@@ -25,8 +25,18 @@ module omero {
          * by the getter methods and passed to the setter methods can and will
          * be interpreted according to results of {@link #getByteWidth()},
          * {@link #isFloat()}, and {@link #isSigned()}.
+         *
+         *
+         * Read-only caveat:
+         *
+         * Mutating methods (set*) are only available during the first access.
+         * Once the Pixels data has been successfully saved (via the save or close
+         * methods on this interface), then the data should be treated read-only.
+         * If Pixels data writing fails and the service is inadvertently closed,
+         * delete the Pixels object, and create a new one. Any partially written
+         * data will be removed.
          **/
-        ["ami", "amd"] interface RawPixelsStore extends StatefulServiceInterface
+        ["ami", "amd"] interface RawPixelsStore extends PyramidService
             {
 
                 /**
@@ -37,6 +47,8 @@ module omero {
                  * are predominantly <code>write-only</code> or involve the population of
                  * a brand new pixel buffer using <code>true</code> here is a safe
                  * optimization otherwise <code>false</code> is expected.
+                 *
+                 * See "read-only caveat" under [RawPixelsStore]
                  **/
                 void setPixelsId(long pixelsId, bool bypassOriginalFile) throws ServerError;
 
@@ -133,6 +145,19 @@ module omero {
                 idempotent long getTimepointOffset(int t) throws ServerError;
 
                 /**
+                 * Retrieves a tile from this pixel buffer.
+                 * @param z offset across the Z-axis of the pixel buffer.
+                 * @param c offset across the C-axis of the pixel buffer.
+                 * @param t offset across the T-axis of the pixel buffer.
+                 * @param x Top left corner of the tile, X offset.
+                 * @param y Top left corner of the tile, Y offset.
+                 * @param w Width of the tile.
+                 * @param h Height of the tile.
+                 * @return buffer containing the data.
+                 */
+                idempotent Ice::ByteSeq getTile(int z, int c, int t, int x, int y, int w, int h) throws ServerError;
+
+                /**
                  * Retrieves a n-dimensional block from this pixel store.
                  * @param start offset for each dimension within pixel store.
                  * @param size of each dimension (dependent on dimension).
@@ -140,7 +165,7 @@ module omero {
                  * @return buffer containing the data.
                  **/
                 idempotent Ice::ByteSeq getHypercube(omero::sys::IntList offset, omero::sys::IntList size, omero::sys::IntList step) throws ServerError;
-                
+
                 /**
                  * Retrieves a region from this pixel store.
                  * @param size byte width of the region to retrieve.
@@ -208,10 +233,30 @@ module omero {
                 idempotent Ice::ByteSeq getTimepoint(int t) throws ServerError;
 
                 /**
+                 * Sets a tile in this pixel buffer.
+                 * @param buf A byte array of the data.
+                 * @param z offset across the Z-axis of the pixel buffer.
+                 * @param c offset across the C-axis of the pixel buffer.
+                 * @param t offset across the T-axis of the pixel buffer.
+                 * @param x Top left corner of the tile, X offset.
+                 * @param y Top left corner of the tile, Y offset.
+                 * @param w Width of the tile.
+                 * @param h Height of the tile.
+                 * @throws IOException if there is a problem writing to the pixel buffer.
+                 * @throws BufferOverflowException if an attempt is made to write off the
+                 * end of the file.
+                 *
+                 * See "read-only caveat" under [RawPixelsStore]
+                 */
+                idempotent void setTile(Ice::ByteSeq buf, int z, int c, int t, int x, int y, int w, int h) throws ServerError;
+
+                /**
                  * Sets a region in this pixel buffer.
                  * @param size byte width of the region to set.
                  * @param offset offset within the pixel buffer.
                  * @param buf a byte array of the data.
+                 *
+                 * See "read-only caveat" under [RawPixelsStore]
                  **/
                 idempotent void setRegion(int size, long offset, Ice::ByteSeq buf) throws ServerError;
 
@@ -222,6 +267,8 @@ module omero {
                  * @param z offset across the Z-axis of the pixel store.
                  * @param c offset across the C-axis of the pixel store.
                  * @param t offset across the T-axis of the pixel store.
+                 *
+                 * See "read-only caveat" under [RawPixelsStore]
                  **/
                 idempotent void setRow(Ice::ByteSeq buf, int y, int z, int c, int t) throws ServerError;
 
@@ -231,6 +278,8 @@ module omero {
                  * @param z offset across the Z-axis of the pixel store.
                  * @param c offset across the C-axis of the pixel store.
                  * @param t offset across the T-axis of the pixel store.
+                 *
+                 * See "read-only caveat" under [RawPixelsStore]
                  **/
                 idempotent void setPlane(Ice::ByteSeq buf, int z, int c, int t) throws ServerError;
 
@@ -240,6 +289,8 @@ module omero {
                  * @param buf a byte array of the data comprising this stack.
                  * @param c offset across the C-axis of the pixel store.
                  * @param t offset across the T-axis of the pixel store.
+                 *
+                 * See "read-only caveat" under [RawPixelsStore]
                  **/
                 idempotent void setStack(Ice::ByteSeq buf, int z, int c, int t) throws ServerError;
 
@@ -248,6 +299,8 @@ module omero {
                  * wavelengths or channels at a particular timepoint in this pixel store.
                  * @param buf a byte array of the data comprising this timepoint.
                  * @param t offset across the T-axis of the pixel buffer.
+                 *
+                 * See "read-only caveat" under [RawPixelsStore]
                  **/
                 idempotent void setTimepoint(Ice::ByteSeq buf, int t) throws ServerError;
 
@@ -274,6 +327,18 @@ module omero {
                  * @return byte array containing the message digest.
                  **/
                 idempotent Ice::ByteSeq calculateMessageDigest() throws ServerError;
+
+                /**
+                 * Save the current state of the pixels, updating the SHA1. This should
+                 * only be called AFTER all data is successfully set. Future invocations
+                 * of set methods may be disallowed. This read-only status will allow
+                 * background processing (generation of thumbnails, compression, etc)
+                 * to begin. More information under [RawPixelsStore].
+                 *
+                 * A null instance will be returned if no save was performed.
+                 *
+                 **/
+                idempotent omero::model::Pixels save() throws ServerError;
 
             };
 

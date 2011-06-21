@@ -14,11 +14,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import ome.api.local.LocalAdmin;
+import ome.api.local.LocalQuery;
+import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
 import ome.conditions.InternalException;
@@ -42,7 +46,6 @@ import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.events.ChangeSecurityContextEvent;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
-import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.CounterFactory;
 import ome.services.sessions.stats.SessionStats;
 import ome.services.util.Executor;
@@ -59,6 +62,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,12 +75,15 @@ import org.springframework.transaction.annotation.Transactional;
  * 
  * Uses the name of a Principal as the key to the session. We may need to limit
  * user names to prevent this. (Strictly alphanumeric)
- * 
+ *
+ * Receives notifications as an {@link ApplicationListener}, which should be
+ * used to keep the {@link Session} instances up-to-date.
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
 public class SessionManagerImpl implements SessionManager, SessionCache.StaleCacheListener,
-        ApplicationContextAware {
+        ApplicationContextAware, ApplicationListener {
 
     private final static Log log = LogFactory.getLog(SessionManagerImpl.class);
 
@@ -677,6 +684,25 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         return ctx;
     }
 
+    public EventContext reload(final String uuid) {
+        final SessionContext ctx = cache.getSessionContext(uuid);
+        if (ctx == null) {
+            throw new RemovedSessionException("No session with uuid:"
+                    + uuid);
+        }
+        Future<Object> future = executor.submit(
+                new Callable<Object>(){
+                    public Object call() throws Exception {
+                        cache.reload(uuid);
+                        return null;
+                    }});
+
+        // A freshly loaded session should now have been saved
+        // as if it had been reloaded during synchronization.
+        executor.get(future);
+        return cache.getSessionContext(uuid);
+    }
+
     // ~ Notifications
     // =========================================================================
 
@@ -833,6 +859,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             Share from = (Share) source;
             to.setItemCount(from.getItemCount());
             to.setActive(from.getActive());
+            to.setGroup(from.getGroup());
             to.setData(from.getData());
         }
 
@@ -913,21 +940,14 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     private boolean executeCheckPassword(final Principal _principal,
             final String credentials) {
 
-        Boolean ok = null;
-
-        try {
-            ok = executeCheckPasswordRO(_principal, credentials);
-        } catch (ApiUsageException aue) {
-            // ok. Read-write required.
-        }
-
+        Boolean ok = executeCheckPasswordRO(_principal, credentials);
         if (ok == null) {
             ok = executeCheckPasswordRW(_principal, credentials);
         }
         return ok;
     }
 
-    private boolean executeCheckPasswordRO(final Principal _principal,
+    private Boolean executeCheckPasswordRO(final Principal _principal,
             final String credentials) {
         return (Boolean) executor.execute(asroot, new Executor.SimpleWork(this,
                 "executeCheckPasswordRO", _principal) {
@@ -936,16 +956,19 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                     ServiceFactory sf) {
                 try {
                     return ((LocalAdmin) sf.getAdminService()).checkPassword(
-                            _principal.getName(), credentials);
-                } catch (IllegalStateException e) {
-                    // thrown if ldap is trying to create a user. 
-                    throw new ApiUsageException("Read-write required.");
+                            _principal.getName(), credentials, true);
+                } catch (Exception e) {
+                    // thrown if ldap is trying to create a user;
+                    // primarily a performance optimization to prevent
+                    // creating an event, etc. for all the password
+                    // checks which will *not* try to create a user.
+                    return null;
                 }
             }
         });
     }
 
-    private boolean executeCheckPasswordRW(final Principal _principal,
+    private Boolean executeCheckPasswordRW(final Principal _principal,
             final String credentials) {
         return (Boolean) executor.execute(asroot, new Executor.SimpleWork(this,
                 "executeCheckPasswordRW", _principal) {
@@ -953,7 +976,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
                 return ((LocalAdmin) sf.getAdminService()).checkPassword(
-                        _principal.getName(), credentials);
+                        _principal.getName(), credentials, false);
             }
         });
     }

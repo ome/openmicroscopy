@@ -112,6 +112,26 @@ public class RateFilter
     }
     
     /**
+     * Returns the rating owned by the user currently logged in.
+     * 
+     * @param ratings The ratings to handle.
+     * @return See above.
+     */
+    private RatingAnnotationData getAnnotation(List ratings)
+    {
+    	if (ratings == null || ratings.size() == 0) return null;
+    	long userID = DataBrowserAgent.getUserDetails().getId();
+    	Iterator i = ratings.iterator();
+    	RatingAnnotationData data;
+    	while (i.hasNext()) {
+			data = (RatingAnnotationData) i.next();
+			if (data.getOwner().getId() == userID)
+				return data;
+		}
+    	return null;
+    }
+
+    /**
      * Creates a new instance.
      * 
      * @param viewer 	The viewer this data loader is for.
@@ -167,8 +187,6 @@ public class RateFilter
     	long id;
     	Iterator i = map.keySet().iterator();
     	List<DataObject> filteredNodes = new ArrayList<DataObject>();
-    	List ratings;
-    	int rate;
     	if (ratingLevel == UNRATED) {
     		while (i.hasNext()) {
     			id = (Long) i.next();
@@ -179,12 +197,12 @@ public class RateFilter
     			filteredNodes.add(nodes.get(i.next()));
     		}
     	} else {
+    		RatingAnnotationData data;
     		while (i.hasNext()) {
     			id = (Long) i.next();
-    			ratings = (List) map.get(id);
-    			if (ratings.size() > 0) {
-    				rate = ((RatingAnnotationData) ratings.get(0)).getRating();
-    				if (rate >= ratingLevel) 
+    			data = getAnnotation((List) map.get(id));
+    			if (data != null) {
+    				if (data.getRating() >= ratingLevel) 
     					filteredNodes.add(nodes.get(id));
     				
     			}
@@ -192,5 +210,5 @@ public class RateFilter
     	}
     	viewer.setFilteredNodes(filteredNodes, null);
     }
-    
+
 }

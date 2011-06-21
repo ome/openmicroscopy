@@ -30,8 +30,6 @@ package pojos;
 import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
-import omero.model.Line;
-import omero.model.LineI;
 import omero.model.Point;
 import omero.model.PointI;
 import omero.model.Shape;
@@ -73,7 +71,8 @@ public class PointData
 	}
 	
 	/**
-	 * Create a new instance of the PointData, 
+	 * Create a new instance of the PointData,
+	 * 
 	 * @param x x-coordinate of the shape.
 	 * @param y y-coordinate of the shape.
 	 */
@@ -121,6 +120,7 @@ public class PointData
 	public double getX()
 	{
 		Point shape = (Point) asIObject();
+		if (shape == null) return 0;
 		RDouble value = shape.getCx();
 		if (value == null) return 0;
 		return value.getValue();
@@ -133,7 +133,7 @@ public class PointData
 	 */
 	public void setX(double x)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Point shape = (Point) asIObject();
 		if (shape == null) 
@@ -149,6 +149,7 @@ public class PointData
 	public double getY()
 	{
 		Point shape = (Point) asIObject();
+		if (shape == null) return 0;
 		RDouble value = shape.getCy();
 		if (value == null) return 0;
 		return value.getValue();
@@ -161,7 +162,7 @@ public class PointData
 	 */
 	public void setY(double y)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Point shape = (Point) asIObject();
 		if (shape == null) 

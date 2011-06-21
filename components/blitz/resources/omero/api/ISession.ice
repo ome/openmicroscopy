@@ -26,6 +26,12 @@ module omero {
                 omero::model::Session createSession(omero::sys::Principal p, string credentials)
                 throws ServerError, Glacier2::CannotCreateSessionException;
 
+                /**
+                 * HasPassword: Requires the session to have been created with a password
+                 * as opposed to with a session uuid (via joinSession). If that's not the
+                 * case, a SecurityViolation will be thrown, in which case
+                 * ServiceFactory.setSecurityPassword can be used.
+                 **/
                 omero::model::Session createUserSession(long timeToLiveMilliseconds, long timeToIdleMilliseconds, string defaultGroup)
                 throws ServerError, Glacier2::CannotCreateSessionException;
 

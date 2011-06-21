@@ -56,7 +56,7 @@ public class BarPlot
 	/** Default series. WTF. */
 	private final static String DEFAULTSERIES = "default";
 		
-	/** The X-Axis label. Also can,but not currenly used set the range. */
+	/** The X-Axis label. Also can,but not currently used set the range. */
 	private CategoryAxis  			categoryAxis;
 	
 	/** The BarPlot dataset. */
@@ -141,5 +141,3 @@ public class BarPlot
 	}
 	
 }
-
-

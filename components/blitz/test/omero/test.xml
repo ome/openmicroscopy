@@ -53,6 +53,18 @@
    </constructor-arg>
  </bean>
 
+  <bean id="threadPool" class="ome.services.scheduler.ThreadPool">
+    <constructor-arg index="0" value="0"/>
+    <constructor-arg index="1" value="4"/>
+    <constructor-arg index="2" value="5000"/>
+  </bean>
+
+  <bean name="/OMERO/Pixels" class="ome.io.nio.PixelsService"
+        parent="filesystem">
+    <constructor-arg><null/></constructor-arg>
+  </bean>
+ <bean id="shareStore" class="ome.services.sharing.BlobShareStore"/>
+
  <bean id="securitySystem" factory-bean="securityMock" factory-method="proxy"/>
  <bean id="methodSecurity" factory-bean="methodMock" factory-method="proxy"/>
   <bean id="executor"      factory-bean="executorMock" factory-method="proxy"/>
@@ -70,6 +82,12 @@
  <bean id="methodMock" class="org.jmock.Mock">
    <constructor-arg value="ome.security.MethodSecurity" type="java.lang.Class"/>
  </bean>
+
+ <bean id="sqlActionMock" class="org.jmock.Mock">
+   <constructor-arg value="ome.util.SqlAction" type="java.lang.Class"/>
+ </bean>
+
+ <bean id="simpleSqlAction" factory-bean="sqlActionMock" factory-method="proxy"/>
 
   <bean id="executorMock" class="ome.services.blitz.test.fixtures.ExecutorMockFactory"/>
 
@@ -110,9 +128,13 @@
     <constructor-arg value="${omero.data.dir}"/>
   </bean>
 
+  <bean id="sfMock" class="ome.services.blitz.test.fixtures.SessionFactoryMockFactory"/>
+  <bean id="sessionFactory" factory-bean="sfMock" factory-method="proxy"/>
+
   <!-- TODO: passing null for the moment. Will need to use a mock eventually -->
   <bean id="omeroSessionFactory" class="ome.tools.hibernate.SessionFactory">
-    <constructor-arg><null/></constructor-arg>
+    <constructor-arg index="0" ref="sessionFactory"/>
+    <constructor-arg index="1"><null/></constructor-arg>
   </bean>
 
 </beans>

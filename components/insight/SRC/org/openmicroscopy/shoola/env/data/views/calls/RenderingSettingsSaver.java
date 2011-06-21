@@ -32,7 +32,6 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.IObject;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
@@ -46,6 +45,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -97,7 +97,8 @@ public class RenderingSettingsSaver
 	{
 		if (ImageData.class.equals(type) || DatasetData.class.equals(type) ||
 				PlateData.class.equals(type) || ProjectData.class.equals(type)
-				|| ScreenData.class.equals(type))
+				|| ScreenData.class.equals(type) ||
+				PlateAcquisitionData.class.equals(type))
 			return;
 		throw new IllegalArgumentException("Type not supported.");
 	}

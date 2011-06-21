@@ -68,6 +68,10 @@ module omero {
             omero::api::LongArray values;
         };
 
+        class PlateColumn extends Column {
+            omero::api::LongArray values;
+        };
+
         class BoolColumn extends Column {
             omero::api::BoolArray values;
         };

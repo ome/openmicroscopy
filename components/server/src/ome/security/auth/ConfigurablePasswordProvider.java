@@ -87,7 +87,7 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
      * knows no users. Otherwise, return {@link Boolean#FALSE} specifying that
      * authentication should fail.
      */
-    public Boolean checkPassword(String user, String password) {
+    public Boolean checkPassword(String user, String password, boolean readOnly) {
         if (ignoreUnknown) {
             return null;
         } else {

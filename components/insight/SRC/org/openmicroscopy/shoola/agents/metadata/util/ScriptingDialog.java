@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.util;
 
-
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -30,6 +29,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -76,6 +76,9 @@ import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
+import pojos.DataObject;
 
 /** 
  * Dialog to run the selected script. The UI is created on the fly.
@@ -103,7 +106,7 @@ public class ScriptingDialog
 	public static final String DOWNLOAD_SELECTED_SCRIPT_PROPERTY = 
 		"downloadSelectedScript";
 	
-	/** Bound property indicating to download the script. */
+	/** Bound property indicating to view the script. */
 	public static final String VIEW_SELECTED_SCRIPT_PROPERTY = 
 		"viewSelectedScript";
 	
@@ -154,11 +157,57 @@ public class ScriptingDialog
 	/** The components to display. */
 	private Map<String, ScriptComponent> components;
 	
+	/** The components to display. */
+	private Map<String, ScriptComponent> componentsAll;
+	
 	/** Used to sort collections. */
 	private ViewerSorter sorter;
 	
 	/** The menu offering various options to manipulate the script. */
 	private JPopupMenu optionMenu;
+	
+	/** The objects of reference.*/
+	private List<DataObject> refObjects;
+	
+	/** The component displaying the data types.*/
+	private JComboBox dataTypes;
+	
+	/** The component related to the identifier.*/
+	private IdentifierParamPane identifier;
+	
+	/** Populates the changes of data types.*/
+	private void handleDataTypeChanges()
+	{
+		if (identifier == null || dataTypes == null) return;
+		Object o = dataTypes.getSelectedItem();
+		Class c = script.convertDataType(o.toString());
+		if (c != null && refObjects != null && refObjects.size() > 0) {
+			DataObject object = refObjects.get(0);
+			if (object.getClass().equals(c))
+				identifier.setValues(refObjects);
+			else identifier.setValues(null);
+		}
+	}
+	
+	/** Sets the type according to the selected objects.*/
+	private void setSelectedDataType()
+	{
+		if (identifier == null || dataTypes == null || refObjects == null ||
+			refObjects.size() == 0)
+			return;
+		DataObject object = refObjects.get(0);
+		Class klass = object.getClass();
+		Class c;
+		int selected = 0;
+		for (int i = 0; i < dataTypes.getItemCount(); i++) {
+			c = script.convertDataType(dataTypes.getItemAt(i).toString());
+			if (klass.equals(c)) {
+				selected = i;
+				break;
+			}
+		}
+		dataTypes.setSelectedIndex(selected);
+	}
 	
 	/** 
 	 * Creates the option menu.
@@ -201,6 +250,21 @@ public class ScriptingDialog
 	}
 	
 	/**
+	 * Displays information of the identifier. 
+	 * 
+	 * @param location Indicates where to display the component.
+	 */
+	private void displayIdentifierInformation(Point location)
+	{
+		JLabel l = new JLabel(IdentifierParamPane.INFO_TEXT);
+		TinyDialog d = new TinyDialog((Frame) getOwner(), l, 
+				TinyDialog.CLOSE_ONLY);
+		d.pack();
+		d.setLocation(location);
+		d.setVisible(true);
+	}
+	
+	/**
 	 * Sets the enabled flag of the {@link #applyButton} to <code>true</code>
 	 * if the script can run i.e. all required fields are filled, to 
 	 * <code>false</code> otherwise.
@@ -235,11 +299,13 @@ public class ScriptingDialog
 	/** Collects the data and fires a property.*/
 	private void runScript()
 	{
-		Entry entry;
+		Entry entry, e;
 		ScriptComponent c;
-		Iterator i = components.entrySet().iterator();
+		Iterator i = componentsAll.entrySet().iterator();
+		Iterator k;
 		Map<String, ParamData> inputs = script.getInputs();
 		ParamData param;
+		Map<String, Object> values;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			c = (ScriptComponent) entry.getValue();
@@ -264,7 +330,7 @@ public class ScriptingDialog
 		Iterator<Object> i = values.iterator();
 		int j = 0;
 		while (i.hasNext()) {
-			v[j] = i.next();;
+			v[j] = i.next();
 			j++;
 		}
 		JComboBox box = new JComboBox(v);
@@ -299,7 +365,8 @@ public class ScriptingDialog
 				}
 			}
 		});
-		components = new LinkedHashMap<String, ScriptComponent>(); 
+		components = new LinkedHashMap<String, ScriptComponent>();
+		componentsAll = new LinkedHashMap<String, ScriptComponent>();
 		Map<String, ParamData> types = script.getInputs();
 		if (types == null) return;
 		List <ScriptComponent> results = new ArrayList<ScriptComponent>();
@@ -319,8 +386,6 @@ public class ScriptingDialog
 		String parent;
 		Map<String, List<ScriptComponent>> childrenMap = 
 			new HashMap<String, List<ScriptComponent>>();
-		Map<String, ScriptComponent> 
-			parents = new HashMap<String, ScriptComponent>();
 		List<ScriptComponent> l;
 		while (i.hasNext()) {
 			text = "";
@@ -358,7 +423,8 @@ public class ScriptingDialog
 							((NumericalTextField) comp).setMinimum(
 									n.floatValue());
 						} 
-					}
+					} else 
+						((NumericalTextField) comp).setNegativeAccepted(true);
 					n = param.getMaxValue();
 					if (n != null) {
 						if (Long.class.equals(type)) {
@@ -403,10 +469,17 @@ public class ScriptingDialog
 					comp = new ComplexParamPane(param.getKeyType(), 
 							(JComboBox) comp);
 			} else if (List.class.equals(type)) {
-				if (comp == null)
-					comp = new ComplexParamPane(param.getKeyType());
-				else 
-					comp = new ComplexParamPane((JComboBox) comp);
+				if (script.isIdentifier(name)) {
+					identifier = new IdentifierParamPane(Long.class);
+					identifier.setValues(refObjects);
+					identifier.addDocumentListener(this);
+					comp = identifier;
+				} else {
+					if (comp == null)
+						comp = new ComplexParamPane(param.getKeyType());
+					else 
+						comp = new ComplexParamPane((JComboBox) comp);
+				}
 			}
 			if (comp != null) {
 				if (comp instanceof JTextField) {
@@ -422,7 +495,15 @@ public class ScriptingDialog
 					c.setRequired(!param.isOptional());
 				if (details != null && details.trim().length() > 0)
 					c.setInfo(details);
-
+				if (comp instanceof JComboBox && script.isDataType(name)) {
+					dataTypes = (JComboBox) comp;
+					dataTypes.addActionListener(new ActionListener() {
+						
+						public void actionPerformed(ActionEvent e) {
+							handleDataTypeChanges();
+						}
+					});
+				}
 				grouping = param.getGrouping();
 				parent = param.getParent();
 				c.setParentIndex(parent);
@@ -438,8 +519,13 @@ public class ScriptingDialog
 				if (grouping.length() > 0) {
 					c.setGrouping(grouping);
 					c.setNameLabel(grouping);
-				} else c.setNameLabel(name);
-				results.add(c);
+				} else {
+					c.setNameLabel(name);
+				}
+				if (c.hasChildren() || parent.length() == 0) {
+					results.add(c);
+				} 
+				componentsAll.put(c.getParameterName(), c);
 			}
 		}
 		ScriptComponent key;
@@ -448,10 +534,22 @@ public class ScriptingDialog
 			key = k.next();
 			grouping = key.getGrouping();
 			l = childrenMap.get(grouping);
+			childrenMap.remove(grouping);
 			if (l != null)
-				key.setChildren(l);
+				key.setChildren(sorter.sort(l));
 		}
-		
+		if (childrenMap != null && childrenMap.size() > 0) {
+			Iterator<String> j = childrenMap.keySet().iterator();
+			ScriptComponent sc;
+			while (j.hasNext()) {
+				parent = j.next();
+				sc = new ScriptComponent();
+				sc.setGrouping(parent);
+				sc.setNameLabel(parent);
+				sc.setChildren(sorter.sort(childrenMap.get(parent)));
+				results.add(sc);
+			}
+		}
 		List<ScriptComponent> sortedKeys = sorter.sort(results);
 		k = sortedKeys.iterator();
 		
@@ -459,6 +557,9 @@ public class ScriptingDialog
 			key = k.next();
 			components.put(key.getParameterName(), key);
 		}
+		setSelectedDataType();
+		if (identifier != null) 
+			identifier.addPropertyChangeListener(this);
 		canRunScript();
 	}
 	
@@ -529,16 +630,16 @@ public class ScriptingDialog
 		JLabel l;
 		if (authors != null && authors.length > 0) {
 			l = UIUtilities.setTextFont("Authors:");
-			String v = "";
+			StringBuffer buffer = new StringBuffer();
 			int n = authors.length-1;
 			for (int i = 0; i < authors.length; i++) {
-				v += authors[i];
-				if (i < n) v += ", ";
+				buffer.append(authors[i]);
+				if (i < n) buffer.append(", ");
 			}
 			layout.insertRow(row, TableLayout.PREFERRED);
 			p.add(l, "0,"+row);
 			l = new JLabel();
-			l.setText(v);
+			l.setText(buffer.toString());
 			p.add(l, "2,"+row);
 			row++;
 		}
@@ -645,13 +746,17 @@ public class ScriptingDialog
 	 * 
 	 * @param parent The parent of the frame.
 	 * @param script The script to run. Mustn't be <code>null</code>.
+	 * @param refObjects The objects of reference.
 	 */
-	public ScriptingDialog(JFrame parent, ScriptObject script)
+	public ScriptingDialog(JFrame parent, ScriptObject script, 
+			List<DataObject> refObjects)
 	{
 		super(parent);
+		setModal(true);
 		if (script == null)
 			throw new IllegalArgumentException("No script specified");
 		this.script = script;
+		this.refObjects = refObjects;
 		initComponents();
 		buildGUI();
 		pack();
@@ -689,6 +794,9 @@ public class ScriptingDialog
 		String name = evt.getPropertyName();
 		if (RowPane.MODIFIED_CONTENT_PROPERTY.equals(name))
 			canRunScript();
+		else if (IdentifierParamPane.DISPLAY_INFO_PROPERTY.equals(name)) {
+			displayIdentifierInformation((Point) evt.getNewValue());
+		}
 	}
 	
 	/**

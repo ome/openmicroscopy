@@ -90,7 +90,7 @@ public class TagsModel
 			visTrees = DataBrowserTranslator.transformImages(dataObjects, 
 					userID, 0);
         browser = BrowserFactory.createBrowser(visTrees);
-        layoutBrowser();
+        //layoutBrowser();
         
         DataObject child;
         Set<DatasetData> datasets;

@@ -441,6 +441,7 @@ class AnnotationDataUI
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+		removeAll();
 		JLabel l = new JLabel();
 		Font f = l.getFont();
 		int size = f.getSize()-1;
@@ -485,13 +486,14 @@ class AnnotationDataUI
 		
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		
 		p.add(UIUtilities.setTextFont("attachment", Font.BOLD, size));
 		p.add(createBar(addDocsButton, removeDocsButton));
 		c.gridy = 3;
 		panel.add(p, c);
 		c.gridy = 0;
 		c.gridx++;
-		c.ipady = 2;
+		//c.ipady = 2;
 		c.gridheight = 2;
 		panel.add(tagsPane, c);
 		c.gridy = 3;
@@ -502,23 +504,49 @@ class AnnotationDataUI
 		//analysis results
 		List results = model.getAnalysisResults();
 		if (results != null && results.size() > 0) {
+			//panel = new JPanel(new GridBagLayout());
+			//panel.setBorder(null);
+			//panel.setBackground(UIUtilities.BACKGROUND_COLOR);
+			//c = new GridBagConstraints();
+			//c.fill = GridBagConstraints.HORIZONTAL;
+			c.anchor = GridBagConstraints.WEST;
+			c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+			c.fill = GridBagConstraints.NONE;      //reset to default
+			c.insets = new Insets(0, 2, 2, 0);
+			c.gridy = 4;
+			c.gridx = 0;
+			
 			p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 			p.setBackground(UIUtilities.BACKGROUND_COLOR);
+			p.setBorder(null);
 			l = UIUtilities.setTextFont("analysis", Font.BOLD, size);
 			l.setToolTipText("Displays the results of analysis run.");
 			p.add(l);
+			panel.add(p, c);
 			Iterator i = results.iterator();
 			AnalysisResultsItem item;
 			JPanel list = new JPanel();
 			list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
 			list.setBackground(UIUtilities.BACKGROUND_COLOR);
+			int n = 0;
+			JPanel row = null;
 			while (i.hasNext()) {
 				item = (AnalysisResultsItem) i.next();
 				item.addPropertyChangeListener(controller);
-				list.add(item);
+				if (n == 0) {
+					row = initRow();
+					row.add(item);
+					n++;
+				} else if (n == 1) {
+					row.add(item);
+					list.add(row);
+					n = 0;
+				}
 			}
-			p.add(list);
-			content.add(p);
+			if (row != null) list.add(row);
+			c.gridx++;
+			c.gridheight = 2;
+			panel.add(UIUtilities.buildComponentPanel(list, 0, 0), c);
 		}
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		setBackground(UIUtilities.BACKGROUND);
@@ -548,8 +576,6 @@ class AnnotationDataUI
 	private void layoutAttachments(Collection list)
 	{
 		docPane.removeAll();
-		//TableLayout layout = (TableLayout) content.getLayout();
-		//layout.setRow(docIndex, TableLayout.PREFERRED);
 		filesDocList.clear();
 		DocComponent doc;
 		int h = 0;
@@ -580,6 +606,24 @@ class AnnotationDataUI
 					}
 					break;
 				case ADDED_BY_OTHERS:
+					while (i.hasNext()) {
+						data = (DataObject) i.next();
+						if (!toReplace.contains(data)) {
+							doc = new DocComponent(data, model);
+							doc.addPropertyChangeListener(controller);
+							filesDocList.add(doc);
+							if (model.isAnnotatedByOther(data)) {
+								if (doc.hasThumbnailToLoad()) {
+									loadThumbnails.put(
+											(FileAnnotationData) data, doc);
+								}
+								docPane.add(doc);
+								v = doc.getPreferredSize().height;
+								if (h < v) h = v;
+							}
+						}
+					}
+					/*
 					immutable = model.getImmutableAnnotationIds();
 					while (i.hasNext()) {
 						data = (DataObject) i.next();
@@ -598,8 +642,27 @@ class AnnotationDataUI
 							}
 						}
 					}
+					*/
 					break;
 				case ADDED_BY_ME:
+					while (i.hasNext()) {
+						data = (DataObject) i.next();
+						if (!toReplace.contains(data)) {
+							doc = new DocComponent(data, model);
+							doc.addPropertyChangeListener(controller);
+							filesDocList.add(doc);
+							if (model.isLinkOwner(data)) {
+								if (doc.hasThumbnailToLoad()) {
+									loadThumbnails.put(
+											(FileAnnotationData) data, doc);
+								}
+								docPane.add(doc);
+								v = doc.getPreferredSize().height;
+								if (h < v) h = v;
+							}
+						}
+					}
+					/*
 					immutable = model.getImmutableAnnotationIds();
 					while (i.hasNext()) {
 						data = (DataObject) i.next();
@@ -618,6 +681,7 @@ class AnnotationDataUI
 							}
 						}
 					}
+					*/
 			}
 			//load the thumbnails 
 			/*
@@ -683,6 +747,25 @@ class AnnotationDataUI
 					}
 					break;
 				case ADDED_BY_ME:
+					while (i.hasNext()) {
+						data = (DataObject) i.next();
+						doc = new DocComponent(data, model);
+						doc.addPropertyChangeListener(controller);
+						tagsDocList.add(doc);
+						if (model.isLinkOwner(data)) {
+							if (width+doc.getPreferredSize().width 
+									>= COLUMN_WIDTH) {
+								tagsPane.add(p);
+								p = initRow();
+								width = 0;
+							} else {
+								width += doc.getPreferredSize().width;
+								width += 2;
+							}
+							p.add(doc);
+						}
+					}
+					/*
 					immutable = model.getImmutableAnnotationIds();
 					while (i.hasNext()) {
 						data = (DataObject) i.next();
@@ -702,8 +785,10 @@ class AnnotationDataUI
 							p.add(doc);
 						}
 					}
+					*/
 					break;
 				case ADDED_BY_OTHERS:
+					/*
 					immutable = model.getImmutableAnnotationIds();
 					while (i.hasNext()) {
 						data = (DataObject) i.next();
@@ -711,6 +796,24 @@ class AnnotationDataUI
 						doc.addPropertyChangeListener(controller);
 						tagsDocList.add(doc);
 						if (immutable.contains(data.getId())) {
+							if (width+doc.getPreferredSize().width 
+									>= COLUMN_WIDTH) {
+								tagsPane.add(p);
+								p = initRow();
+								width = 0;
+							} else {
+								width += doc.getPreferredSize().width;
+								width += 2;
+							}
+							p.add(doc);
+						}
+					}*/
+					while (i.hasNext()) {
+						data = (DataObject) i.next();
+						doc = new DocComponent(data, model);
+						doc.addPropertyChangeListener(controller);
+						tagsDocList.add(doc);
+						if (model.isAnnotatedByOther(data)) {
 							if (width+doc.getPreferredSize().width 
 									>= COLUMN_WIDTH) {
 								tagsPane.add(p);
@@ -784,6 +887,7 @@ class AnnotationDataUI
 		//Add attachments
 		Collection l = model.getAttachments();
 		int count = 0;
+		/*
 		List v = null;
 		if (l != null) {
 			v = new ArrayList();
@@ -798,10 +902,11 @@ class AnnotationDataUI
 			}
 			count += v.size();
 		}
-		layoutAttachments(v);
+		*/
+		count += l.size();
+		layoutAttachments(l);
 		
 		//Viewed by
-		Object refObject = model.getRefObject();
 		if (!model.isMultiSelection()) {
 			l = model.getTags();
 			if (l != null) count += l.size();
@@ -863,7 +968,7 @@ class AnnotationDataUI
 						} else {
 							if (fa.getFileName().equals(files[j].getName())) {
 								toReplace.add(fa);
-							}
+							} else toAdd.add(files[j]);
 						}
 					}
 					
@@ -1180,7 +1285,7 @@ class AnnotationDataUI
 			while (j.hasNext()) {
 				tag = (TagAnnotationData) j.next();
 				id = tag.getId();
-				if (!idsToKeep.contains(id) && !model.isAnnotationToDelete(tag))
+				if (!idsToKeep.contains(id))// && model.isAnnotationToDelete(tag))
 					l.add(tag);
 			}
 		}
@@ -1203,7 +1308,7 @@ class AnnotationDataUI
 			while (j.hasNext()) {
 				fa = (FileAnnotationData) j.next();
 				id = fa.getId();
-				if (!idsToKeep.contains(id)  && !model.isAnnotationToDelete(fa))
+				if (!idsToKeep.contains(id))//  && model.isAnnotationToDelete(fa))
 					l.add(fa);
 			}
 		}
@@ -1230,7 +1335,6 @@ class AnnotationDataUI
 		Iterator j;
 		List<Long> ids;
 		Collection original;
-		List<Long> added = new ArrayList<Long>();
 		long id;
 		if (tagFlag) {
 			original = model.getTags();

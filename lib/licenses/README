@@ -214,16 +214,19 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
-  
+
+
   Artifacts:    java-image-scaling*.jar
   Web Site:     http://code.google.com/p/java-image-scaling/
   License:      Lesser General Public License (LGPL) v3.0
   License File: lgpl-v3.0.txt
 
+
   Artifacts:    jfilechooser.jar
   Web Site:     https://code.google.com/p/jfilechooser/
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
+
 
   Artifacts:    hibernate-*.jar
   Project:      Hibernate. A powerful, high performance object/relational persistence and
@@ -404,7 +407,7 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   License File: postgresql.txt
 
 
-  Artifcats:    libquaqua-unknown.jnilib, quaqua-filechooser-only-unknown.jar
+  Artifacts:    libquaqua-unknown.jnilib, quaqua-filechooser-only-unknown.jar
   Project:      Quaqua Look and Feel. A user interface library for Java applications
                 which wish to closely adhere to the Apple Human Interface Guidelines
                 for Mac OS X
@@ -499,12 +502,38 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   // Located under components/
   //
 
+  Artifacts:    components/blitz/src/org/hibernate/stat/ConcurrentStatisticsImpl.java
+  Project:      Hibernate. A powerful, high performance object/relational persistence and
+                query service.
+  Web Site:     http://hibernate.org
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+
+
+  Artifacts:    components/server/src/ome/services/SVGRasterizer.java
+  Project:      Batik Java SVG Toolkit
+  Web Site:     http://xmlgraphics.apache.org/batik/tools/rasterizer.html
+  License:      Apache License, Version 1.1
+  License File: apache-v1.1.txt
+
+
+  Artifacts:    components/server/test/org/springframework/security/ldap/server/ApacheDSContainer.java
+  Project:      Spring Framework. A layered Java application platform.
+  Website:      http://springframework.org
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
 
   Artifacts:    components/tools/OmeroImporter/src/ome/formats/importer/util/ETable.java
   Project:      Salma-Hayek Java Repository
   Web Site:     http://software.jessies.org/salma-hayek/
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
+
+  Artifact:     components/tools/OmeroImporter/src/ome/formats/importer/util/BareBonesBrowserLaunch.java
+  Project:      Bare Bones Browser Launch
+  Web Site:     http://www.centerkey.com
+  License:      Public Domain Software
 
 
   Artifacts:    components/tools/OmeroPy/src/omero_ext/argparse.py
@@ -519,6 +548,13 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://code.google.com/p/pymox
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
+
+
+  Artifacts:    components/tools/OmeroPy/src/omero_ext/pyinotify.py
+  Project:      python interface to inotify
+  Web Site:     https://github.com/seb-m/pyinotify
+  License:      MIT
+  License File: pyinotify.py
 
 
   Artifacts:    components/tools/OmeroPy/src/path.py
@@ -673,7 +709,19 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://www.everaldo.com/crystal/
   License:      Lesser General Public License
   License File: crystalclear.txt
-
+  
+  
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/applet/OpenAstexViewer.java
+  Project:      Open Astex Viewer
+  Web Site:     http://www.openastexviewer.net/web/
+  License:      GNU GENERAL PUBLIC LICENSE Version 3.
+  License File: lgpl-3.0.txt
+  
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/media/js/3rdparty/raphael-min.js
+  Project:      Raphael javascript library
+  Web Site:     http://raphaeljs.com/
+  License:      MIT license.
+  License File: jquery.txt
 
   //
   // Used but not distributed

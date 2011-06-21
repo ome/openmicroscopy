@@ -15,12 +15,12 @@
 </head>
 <body>
     <div class="bodyWrapper">
-        <div class="error"><h1>
+        <div><h1>
             {% trans "Go back to" %}: <a href="{% url waindex %}">{% trans "Webadmin" %}</a>, <a href="{% url webindex %}">{% trans "Webclient" %}</a> {% trans "or" %}  <a href="{% url weblogout %}">{% trans "Logout" %}</a>
         </h1>
         {% block content %}{% endblock %}
         </div>
-        <div id="footer"><p>&copy; University of Dundee & Open Microscopy Environment</p></div>
+        <div id="footer"><p>&copy; 2007-2011 University of Dundee & Open Microscopy Environment</p></div>
 
         </div>
     </div>

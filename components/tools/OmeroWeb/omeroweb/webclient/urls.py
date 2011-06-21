@@ -2,7 +2,7 @@
 # 
 # 
 # 
-# Copyright (c) 2008 University of Dundee. 
+# Copyright (c) 2008-2011 University of Dundee.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -55,10 +55,8 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^progress/', views.progress, name="progress"),
     url( r'^status/(?:(?P<action>[a-zA-Z]+)/)?$', views.status_action, name="status"),
     
-    # loading data
-    url( r'^load_data/(?P<o1_type>((?i)orphaned))/$', views.load_data, name="load_data_ajax" ),
-    
-    url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|image|screen|plate|well))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    
+    # loading data    
+    url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|image|screen|plate|well|orphaned))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    
     
     url( r'^load_data/(?P<o1_type>((?i)project|dataset|image|screen|plate|well))/(?P<o1_id>[0-9]+)/$', views.load_data, name="load_data_t_id" ),
     url( r'^load_data/(?P<o1_type>((?i)project|dataset|screen|plate))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset|image|plate|well))/(?P<o2_id>[0-9]+)/$', views.load_data, name="load_data_t_id_t_id" ),
@@ -77,6 +75,9 @@ urlpatterns = patterns('django.views.generic.simple',
     
     # metadata
     url( r'^metadata_details/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_details, name="load_metadata_details" ),
+    url( r'^metadata_acquisition/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_acquisition, name="load_metadata_acquisition" ),
+    url( r'^metadata_preview/(?P<imageId>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_preview, name="load_metadata_preview" ),
+    url( r'^metadata_hierarchy/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_hierarchy, name="load_metadata_hierarchy" ),
     url( r'^metadata_details/multiaction/(?:(?P<action>[a-zA-Z]+)/)?$', views.manage_annotation_multi, name="manage_annotation_multi" ),
     
     url( r'^action/(?P<action>[a-zA-Z]+)/(?:(?P<o_type>[a-zA-Z]+)/)?(?:(?P<o_id>[0-9]+)/)?$', views.manage_action_containers, name="manage_action_containers" ),
@@ -85,11 +86,16 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^load_tags/(?:(?P<o_type>((?i)tag|dataset))/(?P<o_id>[0-9]+)/)?$', views.load_data_by_tag, name="load_data_by_tag" ),
     url( r'^autocompletetags/$', views.autocomplete_tags, name="autocomplete_tags" ),
     
+    # Open Astex Viewer will try to show file as volume, e.g. mrc.map file. 
+    url( r'^open_astex_viewer/file/(?P<fileAnnId>[0-9]+)/$', views.open_astex_viewer, name='open_astex_viewer' ),  # html page
+    url( r'^file/(?P<iid>[0-9]+)\.map$', views.download_annotation, {'action':'download'}, name='open_astex_map' ),# download file
+    url( r'^file/(?P<iid>[0-9]+)\.bit$', views.download_annotation, {'action':'download'}, name='open_astex_bit' ),# download file
+    
     # render thumbnails
     url( r'^render_thumbnail/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail, name="render_thumbnail" ),
     url( r'^render_thumbnail/size/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail_resize, name="render_thumbnail_resize" ),
-    url( r'^render_thumbnail/big/(?P<iid>[0-9]+)/$', views.render_big_thumbnail, name="render_big_thumbnail" ),
     
+    url( r'^(?:(?P<share_id>[0-9]+)/)?render_image_region/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', views.render_image_region, name="web_render_image_region"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?render_image/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', views.render_image, name="web_render_image"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?img_detail/(?P<iid>[0-9]+)/$', views.image_viewer, name="web_image_viewer"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?imgData/(?P<iid>[0-9]+)/$', views.imageData_json, name="web_imageData_json"),
@@ -97,7 +103,7 @@ urlpatterns = patterns('django.views.generic.simple',
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_col_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)/(?:(?P<w>[^/]+)/)?$', views.render_col_plot, name="web_render_col_plot"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', views.render_split_channel, name="web_render_split_channel"),
     
-    url( r'^clipboard/$', views.update_clipboard, name="update_clipboard"),
+    #url( r'^clipboard/$', views.update_clipboard, name="update_clipboard"),
         
     #url( r'^import/$', views.importer, name="importer"),
     

@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
@@ -170,6 +171,12 @@ class DocComponent
 	private JButton		menuButton;
 	
 	/** 
+	 * The component used to display the summary of the protocol or
+	 * experiment.
+	 */
+	private PreviewPanel	preview;
+	
+	/** 
 	 * Index indicating that the attachment is an image that
 	 * can be displayed as a thumbnail e.g. TIFF, JPEG, PNG, etc.
 	 */
@@ -224,9 +231,9 @@ class DocComponent
 		if (openButton != null) {
 			//openButton.setEnabled(enabled);
 			//openButton.setVisible(enabled);
-			downloadButton.setEnabled(link);
-			downloadButton.setVisible(link);
-			if (enabled) count++;
+			openButton.setEnabled(link);
+			openButton.setVisible(link);
+			if (link) count++;
 		}
 		if (infoButton != null) {
 			infoButton.setEnabled(true);
@@ -279,9 +286,16 @@ class DocComponent
 	{
 		String text = label.getToolTipText();
 		if (text == null || text.trim().length() == 0) return;
-		JLabel l = new JLabel();
-		l.setText(text);
-		TinyDialog d = new TinyDialog(null, l, TinyDialog.CLOSE_ONLY);
+		JComponent comp;
+		if (preview != null) {
+			comp = preview;
+		} else {
+			JLabel l = new JLabel();
+			l.setText(text);
+			comp = l;
+		}
+		
+		TinyDialog d = new TinyDialog(null, comp, TinyDialog.CLOSE_ONLY);
 		d.setModal(true);
 		d.getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 		SwingUtilities.convertPointToScreen(p, invoker);
@@ -337,21 +351,23 @@ class DocComponent
 		
 		if (data instanceof FileAnnotationData) {
 			String ns = ((FileAnnotationData) data).getNameSpace();
-			if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns)) {
+			if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns) ||
+				FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns)) {
+				FileAnnotationData fa = (FileAnnotationData) data;
+				preview = new PreviewPanel(fa.getDescription(), fa.getId());
 				buf.append("<b>");
-				buf.append("Editor File: ");
+				if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns))
+					buf.append("Experiment Description: ");
+				else buf.append("Protocol Description: ");
 				buf.append("</b>");
-				buf.append("Experiment");
-				buf.append("<br>");
+				List<String> values = preview.getFormattedDesciption();
+				Iterator<String> i = values.iterator();
+				while (i.hasNext()) {
+					buf.append(i.next());
+					buf.append("<br>");
+				}
 				buf.append("<b>");
-			} else if (FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns)) {
-				buf.append("<b>");
-				buf.append("Editor File: ");
-				buf.append("</b>");
-				buf.append("Protocol");
-				buf.append("<br>");
-				buf.append("<b>");
-			}
+			} 
 			if (annotation.getId() > 0) {
 				buf.append("<b>");
 				buf.append("File ID: ");
@@ -372,7 +388,7 @@ class DocComponent
 			buf.append("</b>");
 			//size not kb
 			long size = ((FileAnnotationData) annotation).getFileSize();
-			buf.append(UIUtilities.formatFileSize(size/1000));
+			buf.append(UIUtilities.formatFileSize(size));
 			buf.append("<br>");
 			checkAnnotators(buf, annotation);
 		} else if (data instanceof TagAnnotationData) {
@@ -788,14 +804,26 @@ class DocComponent
 			label.setToolTipText(formatTootTip(tag));
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
 		} else if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-			File[] files = (File[]) evt.getNewValue();
-			File folder = files[0];
-			if (folder == null)
-				folder = UIUtilities.getDefaultFolder();
-			UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
 			if (data == null) return;
 			FileAnnotationData fa = (FileAnnotationData) data;
 			OriginalFile f = (OriginalFile) fa.getContent();
+			File folder;
+			Object o = evt.getNewValue();
+			if (o instanceof String) {
+				String path = (String) o;
+				if (!path.endsWith(File.separator)) {
+					path += File.separator;
+				}
+				path += fa.getFileName();
+				folder = new File(path);
+			} else {
+				File[] files = (File[]) o;
+				folder = files[0];
+			}
+			if (folder == null)
+				folder = UIUtilities.getDefaultFolder();
+			UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+			
 			IconManager icons = IconManager.getInstance();
 			
 			DownloadActivityParam activity = new DownloadActivityParam(f,

@@ -55,43 +55,42 @@ public class UIUtilities {
 	/**
 	 * The height of a JSpinner
 	 */
-	public static final Integer SPINNER_H = new Integer(1);
+	public static final Integer SPINNER_H = Integer.valueOf(1);
 	
 	/**
 	 * The width of a JSpinner
 	 */
-	public static final Integer SPINNER_W = new Integer(2);
+	public static final Integer SPINNER_W = Integer.valueOf(2);
 	
 	/**
-	 * All components that take up a single row (eg Button, TextField, etc)
+	 * All components that take up a single row (e.g. Button, TextField, etc)
 	 * should try to be this height. 
 	 * This should make everything align nicely. 
 	 */
-	public static final Integer SINGLE_ROW_HEiGHT = new Integer(3);
+	public static final Integer SINGLE_ROW_HEiGHT = Integer.valueOf(3);
 	
 	/**
 	 * The minimum width for a text field. Field should be at least
 	 * this wide, but could be longer if the text gets longer?
 	 */
-	public static final Integer TEXT_FIELD_MIN_WIDTH = new Integer(4);;
+	public static final Integer TEXT_FIELD_MIN_WIDTH = Integer.valueOf(4);
 	
 	/**
 	 * The minimum width for a text field that displays a number. 
 	 */
-	public static final Integer NUMB_FIELD_MIN_WIDTH = new Integer(5);
+	public static final Integer NUMB_FIELD_MIN_WIDTH = Integer.valueOf(5);
 	
 	/**
 	 * The width of a Formatted text field for displaying 2 digits.
-	 * Eg used for showing Hrs:Mins:Secs in the timer. 
+	 * e.g. used for showing Hrs:Mins:Secs in the timer. 
 	 */
-	public static final Integer DOUBLE_DIGIT_FIELD_W = new Integer(6);
+	public static final Integer DOUBLE_DIGIT_FIELD_W = Integer.valueOf(6);
 	
 	/**
-	 * The thinkness of a border around eg. buttons. 
+	 * The thickness of a border around e.g. buttons. 
 	 */
-	public static final Integer EMPTY_BORDER_THINKNESS = new Integer(7);
-	
-	
+	public static final Integer EMPTY_BORDER_THINKNESS = Integer.valueOf(7);
+
 	/**
 	 * A map of the dimensions
 	 */

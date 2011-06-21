@@ -148,4 +148,14 @@
 
     <target name="tools-clean" depends="clean"/>
 
+    <target name="headers" description="Run checkstyle header check " depends="load-findbugs">
+        <do-checkstyle config="${omero.home}/docs/styles/headers.xml" toFile="${target.dir}/headers.xml" failOnViolation="true">
+            <fileset dir="${basedir}">
+                <exclude name="**/BareBonesBrowserLaunch.java"/><!-- see lib/licenses/README -->
+                <exclude name="**/ETable.java"/><!-- see lib/licenses/README -->
+                <include name="**/*"/>
+            </fileset>
+        </do-checkstyle>
+    </target>
+
 </project>

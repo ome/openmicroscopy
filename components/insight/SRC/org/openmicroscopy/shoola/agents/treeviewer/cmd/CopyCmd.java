@@ -49,7 +49,7 @@ public class CopyCmd
     implements ActionCmd
 {
 
-    /** Reference to the model. */
+    /** Reference to the model.*/
     private TreeViewer model;
     
     /**

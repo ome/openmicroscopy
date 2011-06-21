@@ -147,10 +147,7 @@ class UserProfile
     
     /** The original index. */
     private int						originalIndex;
-    
-    /** The currently selected index. */
-    private int						selectedIndex;
-    
+
     /** The user's details. */
     private Map						details;
     
@@ -295,7 +292,6 @@ class UserProfile
     	oldPassword.setBackground(UIUtilities.BACKGROUND_COLOR);
     	items = new HashMap<String, JTextField>();
     	ExperimenterData user = (ExperimenterData) model.getRefObject();
-    	List userGroups = user.getGroups();
     	GroupData defaultGroup = user.getDefaultGroup();
 
     	permissionsPane = new PermissionsPane(defaultGroup.getPermissions(), 
@@ -307,13 +303,18 @@ class UserProfile
     	
 		long groupID = defaultGroup.getId();
 		boolean owner = false;
-		
+		/*
 		if (defaultGroup.getLeaders() != null)
 			owner = setGroupOwner(defaultGroup);
 		else {
 			GroupData g = model.loadGroup(groupID);
 			if (g != null)
 				owner = setGroupOwner(g);
+		}
+		*/
+		Object parentRootObject = model.getParentRootObject();
+		if (parentRootObject instanceof GroupData) {
+			owner = setGroupOwner((GroupData) parentRootObject);
 		}
 		//Build the array for box.
 		/*
@@ -362,8 +363,14 @@ class UserProfile
 			active = user.isActive();
 			activeBox.setSelected(active);
 			activeBox.addChangeListener(this);
-			admin = false;
+			//indicate if the user is an administrator.a
+			admin = isUserAdministrator();
+			adminBox.setSelected(admin);
+			ownerBox.setEnabled(true);
+			ownerBox.addChangeListener(this);
+			//admin = false;
 		} else {
+			ownerBox.setEnabled(false);
 			passwordConfirm.getDocument().addDocumentListener(
 					new DocumentListener() {
 				
@@ -425,8 +432,6 @@ class UserProfile
 			 */
 			public void changedUpdate(DocumentEvent e) {}
 		});
-		ownerBox.setEnabled(owner);
-		ownerBox.addChangeListener(this);
 		ExperimenterData logUser = MetadataViewerAgent.getUserDetails();
 		if (user.getId() == logUser.getId()) {
 			userPicture.addMouseListener(new MouseAdapter() {
@@ -441,6 +446,28 @@ class UserProfile
 		}
     }
     
+    /**
+     * Returns <code>true</code> if the user is an administrator, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    private boolean isUserAdministrator()
+    {
+    	ExperimenterData user = (ExperimenterData) model.getRefObject();
+    	ExperimenterData loggedInUser = MetadataViewerAgent.getUserDetails();
+    	if (user.getId() == loggedInUser.getId())
+    		return MetadataViewerAgent.isAdministrator();
+    	List<GroupData> groups = user.getGroups();
+    	Iterator<GroupData> i = groups.iterator();
+    	GroupData g;
+    	while (i.hasNext()) {
+			g = i.next();
+			if (GroupData.SYSTEM.equals(g.getName()))
+				return true;
+		}
+    	return false;
+    }
     /**
      * Sets the enabled flag of some password controls depending on the
      * text entered.
@@ -530,7 +557,6 @@ class UserProfile
 		//Add log in name but cannot edit.
 		c.gridx = 0;
 		c.gridy = 0;
-		c.gridwidth = 3;
 		c.gridwidth = GridBagConstraints.REMAINDER;     //end row
 		c.fill = GridBagConstraints.HORIZONTAL;
 		content.add(userPicture, c);
@@ -852,11 +878,11 @@ class UserProfile
 	{
 		ExperimenterData original = (ExperimenterData) model.getRefObject();
     	//Required fields first
-    	JTextField f = items.get(EditorUtil.LAST_NAME);
-    	String v = f.getText();
+		
+    	String v = loginArea.getText();
     	if (v == null || v.trim().length() == 0) showRequiredField();
     	original.setLastName(v);
-    	f = items.get(EditorUtil.EMAIL);
+    	JTextField f = items.get(EditorUtil.EMAIL);
     	v = f.getText();
     	if (v == null || v.trim().length() == 0) v = "";//showRequiredField();
     	original.setEmail(v);
@@ -864,10 +890,10 @@ class UserProfile
     	v = f.getText();
     	if (v == null) v = "";
     	original.setInstitution(v.trim());
-    	f = items.get(EditorUtil.FIRST_NAME);
+    	f = items.get(EditorUtil.LAST_NAME);
     	v = f.getText();
     	if (v == null) v = "";
-    	original.setFirstName(v.trim());
+    	original.setLastName(v.trim());
     	
     	f = items.get(EditorUtil.FIRST_NAME);
     	v = f.getText();
@@ -906,11 +932,17 @@ class UserProfile
     	String value = loginArea.getText().trim();
     	UserCredentials uc = new UserCredentials(value, "");
     	Boolean b = ownerBox.isSelected();
-    	if (g == null) g = original.getDefaultGroup();
+    	//if (g == null) g = original.getDefaultGroup();
     	boolean a = false;
     	if (b.compareTo(groupOwner) != 0) {
     		a = true;
     		uc.setOwner(b);
+    		Object parent = model.getParentRootObject();
+    		if (parent instanceof GroupData) {
+    			Map<GroupData, Boolean> map = new HashMap<GroupData, Boolean>();
+    			map.put((GroupData) parent, b);
+    			uc.setGroupsOwner(map);
+    		}
     	}
     	if (adminBox.isVisible()) {
     		b = adminBox.isSelected();
@@ -947,12 +979,19 @@ class UserProfile
 	 */
 	void setUserPhoto(BufferedImage image)
 	{
-		if (image == null) {
-			return;
-		}
+		if (image == null) return;
 		BufferedImage img = Factory.scaleBufferedImage(image, 
 				UserProfileCanvas.WIDTH);
 		userPicture.setImage(img);
+	}
+	
+	/** Sets the parent of the node. */
+	void setParentRootObject()
+	{
+		Object parentRootObject = model.getParentRootObject();
+		if (parentRootObject instanceof GroupData) {
+			setGroupOwner((GroupData) parentRootObject);
+		}
 	}
 	
 	/** 
@@ -961,7 +1000,6 @@ class UserProfile
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		selectedIndex = groups.getSelectedIndex();
 		buildGUI();
 		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));

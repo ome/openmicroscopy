@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.layout;
 //Java imports
 import java.util.Set;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -48,7 +47,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
  * </small>
  * @since OME3.0
  */
-public interface Layout    
+public interface Layout
 	extends ImageDisplayVisitor
 {
     

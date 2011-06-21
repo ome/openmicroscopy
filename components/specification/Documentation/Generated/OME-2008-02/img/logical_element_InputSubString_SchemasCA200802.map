@@ -1,0 +1,26 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_InputSubString_SchemasCA200802'>
+ <area
+  shape='rect'
+  alt='element_Input'
+  coords='422,0,772,43'
+  href='CA.xsd.html#element_Input'/>
+
+ <area
+  shape='rect'
+  alt='element_XYPlane'
+  coords='422,53,772,96'
+  href='CA.xsd.html#element_XYPlane'/>
+
+ <area
+  shape='rect'
+  alt='element_RawImageFilePath'
+  coords='422,106,772,149'
+  href='CA.xsd.html#element_RawImageFilePath'/>
+
+ <area
+  shape='rect'
+  alt='element_RawText'
+  coords='422,159,772,219'
+  href='CA.xsd.html#element_RawText'/>
+
+</map>

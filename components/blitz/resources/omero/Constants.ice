@@ -115,6 +115,31 @@ module omero {
     };
 
     /**
+     * General constants used for annotations.
+     **/
+    module annotation {
+
+        /** Constants used for file annotations. **/
+        module file {
+            const string ORIGINALMETADATAPREFIX = "/openmicroscopy.org/omero/image_files/";
+            const string ORIGINALMETADATA = "original_metadata.txt";
+        };
+    };
+
+    /**
+     * Constants used for field defaults and similar
+     * in the [omero::model::] classes.
+     **/
+    module data {
+
+        /**
+         * Set as Image.name when no name is provided by the user.
+         **/
+        const string NONAMESET = "NO_NAME_SET";
+
+    };
+
+    /**
      * Namespaces for the [omero::api::IMetadata] interface.
      **/
     module metadata {
@@ -123,6 +148,8 @@ module omero {
         const string NSEDITORPROTOCOL = "openmicroscopy.org/omero/editor/protocol";
         const string NSEDITOREXPERIMENT = "openmicroscopy.org/omero/editor/experiment";
         const string NSMOVIE = "openmicroscopy.org/omero/movie";
+        
+
     };
 
     /**
@@ -131,9 +158,8 @@ module omero {
     module namespaces {
         const string NSMEASUREMENT = "openmicroscopy.org/omero/measurement";
         const string NSCOMPANIONFILE = "openmicroscopy.org/omero/import/companionFile";
-        const string NSORIGINALMETADATA = "/openmicroscopy.org/omero/image_files/";
         const string NSEXPERIMENTERPHOTO = "openmicroscopy.org/omero/experimenter/photo";
-
+        const string NSBULKANNOTATIONS = "openmicroscopy.org/omero/bulk_annotations";
         //
         // omero.grid.Param.namespaces in Scripts.ice
         //

@@ -78,7 +78,7 @@ class SearchModel
 		long userID = DataBrowserAgent.getUserDetails().getId();
 		Set vis = DataBrowserTranslator.transformObjects(results, userID, 0);
         browser = BrowserFactory.createBrowser(vis);
-        layoutBrowser();
+        //layoutBrowser();
 	}
 	
 	/**

@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_XYPlane_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_theZ'
+  coords='478,214,870,257'
+  href='ome.xsd.html#element_theZ'/>
+
+ <area
+  shape='rect'
+  alt='element_theT'
+  coords='478,267,870,310'
+  href='ome.xsd.html#element_theT'/>
+
+ <area
+  shape='rect'
+  alt='element_theW'
+  coords='478,320,870,363'
+  href='ome.xsd.html#element_theW'/>
+
+</map>

@@ -69,14 +69,15 @@ public class WordFilter
 		extensions[1] = WORD_X;
 		extensions[2] = WORD_T;
 		
-		String s = "Microsoft Word (";
+		StringBuffer s = new StringBuffer();
+		s.append("Microsoft Word (");
 		for (int i = 0; i < extensions.length; i++) {
-			s += "*."+extensions[i];
+			s.append("*."+extensions[i]);
 			if (i < extensions.length-1)
-				s += ", ";
+				s.append(", ");
 		}
-		s += ")";
-		description = s;
+		s.append(")");
+		description = s.toString();
 	}
 	
 	/**

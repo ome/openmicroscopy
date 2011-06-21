@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.examples.viewer;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -36,18 +37,22 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.DirectColorModel;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.ByteArrayInputStream;
-
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 
 //Third-party libraries
@@ -55,13 +60,16 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import omero.api.RenderingEnginePrx;
 import omero.romio.PlaneDef;
+import omero.romio.RegionDef;
 import pojos.ImageData;
 import pojos.PixelsData;
 import sun.awt.image.IntegerInterleavedRaster;
 
 /** 
  * Displays the image and controls.
- *
+ * Thanks to  Galli Vanni vanni.galli@supsi.ch to add controls for turning
+ * channels on and off.
+ * 
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
@@ -105,10 +113,24 @@ class ViewerPane
 	private JCheckBox compressed;
 	
 	/** The image canvas. */
-	private ImageCanvas canvas;
+	private ImageCanvasInterface canvas;
 	
 	/** The image currently viewed. */
 	private ImageData image;
+	
+	/** JPanel displaying all the available channels **/
+	private JPanel channelsPane;
+	
+	/** Number of channels of the image **/
+	private int channelsNumber;
+	
+	/** Indicates that the channels are selected or not. */
+	private JCheckBox[] channels;
+	
+	/** The canvas. */
+	private BirdEyeCanvas birdEye;
+	
+	private double factor = 0.25;
 	
 	/**
 	 * Creates a buffer image from the specified <code>array</code> of 
@@ -145,17 +167,16 @@ class ViewerPane
 	private void render()
 	{
 		try {
+			int sizeX = image.getDefaultPixels().getSizeX();
+            int sizeY = image.getDefaultPixels().getSizeY();
 			PlaneDef pDef = new PlaneDef();
 			pDef.t = engine.getDefaultT();
 			pDef.z = engine.getDefaultZ();
 			pDef.slice = omero.romio.XY.value;
-			
 			//now render the image. possible to render it compressed or not
 			//not compressed
 			BufferedImage img = null;
-			int sizeX = image.getDefaultPixels().getSizeX();
-            int sizeY = image.getDefaultPixels().getSizeY();
-			if (compressed.isSelected()) {
+			if (!compressed.isSelected()) {
 				int[] buf = engine.renderAsPackedInt(pDef);
 				img = createImage(buf, 32, sizeX, sizeY);
 			} else {
@@ -165,14 +186,55 @@ class ViewerPane
 				img.setAccelerationPriority(1f);
 			}
              canvas.setImage(img);
+             birdEye.setImage(Factory.magnifyImage(factor, img));
 		} catch (Exception e) {
-			// TODO: handle exception
 		}
-		
 	}
 	
-	/** Initializes the components. */
-	private void initComponents()
+	/** 
+	 * Renders a region. 
+	 * 
+	 * @param region The region to render
+	 */
+	private void renderRegion(Rectangle region)
+	{
+		try {
+			PlaneDef pDef = new PlaneDef();
+			pDef.t = engine.getDefaultT();
+			pDef.z = engine.getDefaultZ();
+			pDef.slice = omero.romio.XY.value;
+			int factor = 4;
+			pDef.region = new RegionDef(region.x*factor, region.y*factor, 
+					region.width*factor, region.height*factor);
+			//now render the image. possible to render it compressed or not
+			//not compressed
+			BufferedImage img = null;
+			if (!compressed.isSelected()) {
+				int[] buf = engine.renderAsPackedInt(pDef);
+				img = createImage(buf, 32, pDef.region.width, pDef.region.height);
+			} else {
+				byte[] values = engine.renderCompressed(pDef);
+				ByteArrayInputStream stream = new ByteArrayInputStream(values);
+				img = ImageIO.read(stream);
+				img.setAccelerationPriority(1f);
+			}
+			canvas.setImage(Factory.magnifyImage(5, img)); //for testing purpose only
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void setSelection(Point p)
+	{
+		birdEye.setSelection((float) (p.x*factor), (float) (p.y*factor));
+	}
+	
+	/** 
+	 * Initializes the components. 
+	 * @param viewType The type of viewer to display the image, JAVA, or 
+	 * Processing.
+	 */
+	private void initComponents(ViewType viewType)
 	{
 		compressed = new JCheckBox("Compressed Image");
 		compressed.addActionListener(new ActionListener() {
@@ -181,7 +243,41 @@ class ViewerPane
 				render();
 			}
 		});
-		canvas = new ImageCanvas();
+		switch(viewType)
+		{
+			case JAVA:
+				canvas = new ImageCanvas();
+				break;
+			case PROCESSING_OPENGL:
+				canvas = new ProcessingCanvas();
+				break;
+			case PROCESSING:
+				canvas = new ProcessingOnlyCanvas();
+				((ProcessingOnlyCanvas) canvas).addPropertyChangeListener(
+						new PropertyChangeListener() {
+					
+					public void propertyChange(PropertyChangeEvent evt) {
+						String name = evt.getPropertyName();
+						if (ProcessingOnlyCanvas.PANNING_OFFSET_PROPERTY.endsWith(name)) 
+						{
+							setSelection((Point) evt.getNewValue());
+						}
+						
+					}
+				});
+				birdEye = new BirdEyeCanvas();
+				birdEye.addPropertyChangeListener(new PropertyChangeListener() {
+					
+					public void propertyChange(PropertyChangeEvent evt) {
+						String name = evt.getPropertyName();
+						if (BirdEyeCanvas.RENDER_REGION_PROPERTY.endsWith(name)) 
+						{
+							renderRegion((Rectangle) evt.getNewValue());
+						}
+						
+					}
+				});
+		}
 		zSlider = new JSlider();
 		zSlider.setMinimum(0);
 		zSlider.setEnabled(false);
@@ -190,6 +286,64 @@ class ViewerPane
 		tSlider.setMinimum(0);
 		tSlider.setEnabled(false);
 		tSlider.addChangeListener(this);
+	}
+	
+	/**
+	 * Builds the channel component.
+	 * 
+	 * @param n The number of channels.
+	 */
+	private void buildChannelsPane(int n)
+	{		
+		try
+		{
+			channelsPane.removeAll();
+			remove(channelsPane);
+			
+			channels = new JCheckBox[n];
+			
+			for (int i = 0; i < n; i ++)
+			{
+				channels[i] = new JCheckBox("Channel " + i);
+				channels[i].setSelected(true);         
+				channels[i].addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+					{
+						setActiveChannels(e);
+					}
+				});
+				
+				channelsPane.add(channels[i]);
+			}
+
+			add(channelsPane);
+		}
+		catch (Exception e)
+		{
+			
+		}
+	}
+	
+	/**
+	 * Sets the channel active or not.
+	 * 
+	 * @param evt The event to handle.
+	 */
+	private void setActiveChannels(ActionEvent evt)
+	{
+		try
+		{
+			for (int i = 0; i < channelsNumber; i ++)
+			{
+				engine.setActive(i, channels[i].isSelected());
+			}
+			render();
+		}
+		catch(Exception e)
+		{
+			// TODO: handle exception
+		}
 	}
 	
 	/** Builds and lays out the component. */
@@ -210,17 +364,32 @@ class ViewerPane
 		content.setLayout(new FlowLayout(FlowLayout.LEFT));
 		content.add(compressed);
 		p.add(content);
+		
+		channelsPane = new JPanel();
+		channelsPane.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+		p.add(channelsPane);
+		
 		JPanel pp = new JPanel();
 		pp.setLayout(new FlowLayout(FlowLayout.LEFT));
 		pp.add(p);
-		add(new JScrollPane(canvas));
+		if (birdEye != null) {
+			JLayeredPane pane = new JLayeredPane();
+			pane.add(canvas.getCanvas(), Integer.valueOf(0));
+			pane.add(birdEye, Integer.valueOf(1));
+			add(pane);
+		} else
+			add(new JScrollPane(canvas.getCanvas()));
 		add(pp);
 	}
 	
-	/** Creates a new instance. */
-	ViewerPane()
+	/** Creates a new instance. 
+	 * @param viewType The type of viewer used to display the image, Java or 
+	 * processing.
+	 */
+	ViewerPane(ViewType viewType)
 	{
-		initComponents();
+		initComponents(viewType);
 		buildGUI();
 	}
 	
@@ -241,9 +410,14 @@ class ViewerPane
 		}
 		
 		PixelsData pixels = image.getDefaultPixels();
-		Dimension d = new Dimension(pixels.getSizeX(), pixels.getSizeY());
-		canvas.setPreferredSize(d);
-		canvas.setSize(d);
+		int sizeX = pixels.getSizeX();
+		int sizeY = pixels.getSizeY();
+		Dimension d = new Dimension(sizeX, sizeY);
+		canvas.setCanvasSize(d);
+		if (birdEye != null) {
+			birdEye.setCanvasSize((int) (sizeX*factor)+2*BirdEyeCanvas.BORDER, 
+					(int) (sizeY*factor)+2*BirdEyeCanvas.BORDER);
+		}
 		zSlider.removeChangeListener(this);
 		tSlider.removeChangeListener(this);
 		zSlider.setMaximum(pixels.getSizeZ());
@@ -258,6 +432,9 @@ class ViewerPane
 		}
 		zSlider.addChangeListener(this);
 		tSlider.addChangeListener(this);
+		// number of channels in the image (RGB)
+		channelsNumber = image.getDefaultPixels().getSizeC();		
+		buildChannelsPane(channelsNumber);
 		render();
 	}
 
@@ -277,8 +454,5 @@ class ViewerPane
 			
 		}
 	}
-	
-	
-	
-	
+
 }

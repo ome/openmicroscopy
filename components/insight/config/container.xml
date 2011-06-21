@@ -32,11 +32,12 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <services>
    <!-- OMERO Data Server (OMERO) configuration.
-         This entry specifies the hostname and the port to use to connect to 
+         This entry specifies the hostName and the port to use to connect to 
          OMERO using blitz
          port using JBoss 1099
     -->
     <structuredEntry name="/services/OMERODS" type="OMERODS">
+      <hostName>localhost</hostName>
       <port>4063</port>
       <portSSL>4064</portSSL>
     </structuredEntry>
@@ -140,12 +141,12 @@
          This entry specifies the name of the server and 
          and e-mail address to submit comment.
     -->
-<entry name="/services/DEBUGGER/email">comments@openmicroscopy.org.uk</entry>
 <entry name="/services/DEBUGGER/hostnameToken">http://qa.openmicroscopy.org.uk/qa/initial/</entry>
 <entry name="/services/DEBUGGER/hostnameProcessing">http://qa.openmicroscopy.org.uk/qa/upload_processing/</entry>
 <entry name="/services/DEBUGGER/applicationNameBug">4</entry>
 <entry name="/services/DEBUGGER/applicationNameComment">3</entry>
 <entry name="/services/DEBUGGER/postTimeout" type="integer">2000</entry>
+<entry name="/services/DEBUGGER/emailAddress">qa@openmicroscopy.org.uk</entry>
   </services>
   
   
@@ -283,7 +284,7 @@
    * etc.
    * <entry name="SplashScreenLogo">client_splashscreen.png</entry>
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-    <entry name="Version">Beta4.3-DEV</entry>
+    <entry name="Version">Beta4.3.0</entry>
     <entry name="SoftwareName">OMERO.clients</entry>
     <entry name="AboutFile">about.xml</entry>
     <entry name="HelpOnLine">http://www.openmicroscopy.org/site/support/omero4/products/feature-list</entry>

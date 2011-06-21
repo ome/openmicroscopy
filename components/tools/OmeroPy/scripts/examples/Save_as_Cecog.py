@@ -168,7 +168,6 @@ def save_as_cecog():
 
         print parameterMap
 
-        gateway = session.createGateway()
         queryService = session.getQueryService()
         updateService = session.getUpdateService()
         rawFileStore = session.createRawFileStore()
@@ -178,7 +177,7 @@ def save_as_cecog():
         os.mkdir(tiff_dir)
         
         imageId = parameterMap["Image_ID"]
-        image = gateway.getImage(imageId)
+        image = queryService.get("Image", imageId)
         
         print "Downloading tiffs to %s" % tiff_dir
         

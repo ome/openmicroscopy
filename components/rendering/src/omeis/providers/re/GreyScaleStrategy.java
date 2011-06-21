@@ -15,6 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
+import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
@@ -47,36 +48,6 @@ class GreyScaleStrategy extends RenderingStrategy {
     
     /** The channel binding we're using */
     private ChannelBinding channelBinding;
-    
-    /**
-     * Initializes the <code>sizeX1</code> and <code>sizeX2</code> fields
-     * according to the specified {@link PlaneDef#getSlice() slice}.
-     * 
-     * @param pd
-     *            Reference to the plane definition defined for the strategy.
-     * @param pixels
-     *            Dimensions of the pixels set.
-     */
-    private void initAxesSize(PlaneDef pd, Pixels pixels) {
-        try {
-            switch (pd.getSlice()) {
-                case PlaneDef.XY:
-                    sizeX1 = pixels.getSizeX().intValue();
-                    sizeX2 = pixels.getSizeY().intValue();
-                    break;
-                case PlaneDef.XZ:
-                    sizeX1 = pixels.getSizeX().intValue();
-                    sizeX2 = pixels.getSizeZ().intValue();
-                    break;
-                case PlaneDef.ZY:
-                    sizeX1 = pixels.getSizeZ().intValue();
-                    sizeX2 = pixels.getSizeY().intValue();
-            }
-        } catch (NumberFormatException nfe) {
-            throw new RuntimeException("Invalid slice ID: " + pd.getSlice()
-                    + ".", nfe);
-        }
-    }
 
     /**
      * Implemented as specified by the superclass.
@@ -166,10 +137,26 @@ class GreyScaleStrategy extends RenderingStrategy {
         CodomainChain cc = renderer.getCodomainChain();
         
         // Retrieve the planar data to render
-        performanceStats.startIO(channel);
-        Plane2D plane =
-        	PlaneFactory.createPlane(planeDef, channel, metadata, pixels);
-        performanceStats.endIO(channel);
+        
+        Plane2D plane;
+        try {
+        	performanceStats.startIO(channel);
+        	plane = PlaneFactory.createPlane(planeDef, channel, metadata, pixels);
+        	performanceStats.endIO(channel);
+		} finally
+		{
+			try
+            {
+                pixels.close();
+            } 
+            catch (IOException e)
+            {
+                log.error("Pixels could not be closed successfully.", e);
+    			throw new ResourceError(
+    					e.getMessage() + " Please check server log.");
+            }
+		}
+       
 	
 	    // Initialize sizeX1 and sizeX2 according to the plane definition and
 	    // create the RGB buffer.

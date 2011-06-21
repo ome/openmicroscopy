@@ -84,7 +84,6 @@ public class FigureUtil
 	/** The default tab size. */
 	static final int 			TAB_SIZE = 8;
 
-
 	/**
 	 * Creates a layout for the text.
 	 * 

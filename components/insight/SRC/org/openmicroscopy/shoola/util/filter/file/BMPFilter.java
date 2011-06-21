@@ -63,14 +63,15 @@ public class BMPFilter
 	static {
 		extensions = new String[1];
 		extensions[0] = BMP;
-		String s = "Windows Bitmap (";
+		StringBuffer s = new StringBuffer();
+		s.append("Windows Bitmap (");
 		for (int i = 0; i < extensions.length; i++) {
-			s += "*."+extensions[i];
+			s.append("*."+extensions[i]);
 			if (i < extensions.length-1)
-				s += ", ";
+				s.append(", ");
 		}
-		s += ")";
-		description = s;
+		s.append(")");
+		description = s.toString();
 	}
 	
 	/**

@@ -221,8 +221,8 @@ public class CustomComboBox
 			
 			String fulltext = value.toString();
 			
-			String htmlText = "<html>";
-			
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("<html>");
 			while (fulltext.length() > 0) {
 				
 				int newLineLength = MAX_LINE_LENGTH;
@@ -235,11 +235,12 @@ public class CustomComboBox
 				
 				String newLine = fulltext.substring(0, newLineLength);
 				
-				htmlText = htmlText + newLine + "<br> &nbsp &nbsp &nbsp";
+				buffer.append(newLine);
+				buffer.append("<br> &nbsp &nbsp &nbsp");
 				
 				fulltext = fulltext.substring(newLineLength, fulltext.length());
 			}
-			
+			String htmlText = buffer.toString();
 			htmlText = htmlText.substring(0, htmlText.lastIndexOf("<br>"));
 			
 			htmlText = htmlText + "</html>";

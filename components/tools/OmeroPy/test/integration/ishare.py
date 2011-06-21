@@ -378,13 +378,14 @@ class TestIShare(lib.ITest):
 
         expiration = long(time.time()*1000)+86400
         share1.setExpiration(sid, rtime(expiration))
-        self.assertEquals((share1.getShare(sid).started.val+share1.getShare(sid).timeToLive.val), expiration)
+        self.assertExpiration(expiration, share1.getShare(sid))
 
         share1.setActive(sid, False)
         self.assert_(share1.getShare(sid).active.val == False)
 
         owned = share1.getOwnShares(False)
         self.assertEquals(1, len(owned))
+        return (client_share1, sid, expiration)
 
     def test1201b(self):
         share = self.client.sf.getShareService()
@@ -623,6 +624,98 @@ class TestIShare(lib.ITest):
         self.assertEquals(1, len(shares))
         self.assert_(shares[0].isLoaded())
 
+    def test5711(self):
+        """
+        Recent changes have caused shares to be disabled.
+        """
+        share = self.client.sf.getShareService()
+        update = self.client.sf.getUpdateService()
+        admin = self.client.sf.getAdminService()
+
+        self.share_id = share.createShare("", None, [], [], [], True)
+        self.client.sf.setSecurityContext(omero.model.ShareI(self.share_id, False))
+        ec = admin.getEventContext()
+        self.assertEquals(self.share_id, ec.shareId)
+
+    def test5756Raw(self):
+        """
+        Accessing deleted image in share seems to have changed.
+        This tests what happens using the raw API.
+        """
+        share = self.client.sf.getShareService()
+        query = self.client.sf.getQueryService()
+        update = self.client.sf.getUpdateService()
+
+        image = self.new_image()
+        image = update.saveAndReturnObject(image)
+        objects = [image]
+
+        self.share_id = share.createShare("", None, objects, [], [], True)
+        new_context = omero.model.ShareI(self.share_id, False)
+        old_context = self.client.sf.setSecurityContext(new_context)
+        query.get("Image", image.id.val)
+
+        self.client.sf.setSecurityContext(old_context)
+        update.deleteObject(image)
+        self.client.sf.setSecurityContext(new_context)
+
+        self.assertRaises(omero.ValidationException, query.get, "Image", image.id.val)
+
+    def test5756Wrapped(self):
+        """
+        Accessing deleted image in share seems to have changed.
+        This tests what happens using BlitzGateway wrappers.
+        """
+        share = self.client.sf.getShareService()
+        query = self.client.sf.getQueryService()
+        update = self.client.sf.getUpdateService()
+
+        image = self.new_image()
+        image = update.saveAndReturnObject(image)
+        objects = [image]
+
+        self.share_id = share.createShare("", None, objects, [], [], True)
+        new_context = omero.model.ShareI(self.share_id, False)
+        old_context = self.client.sf.setSecurityContext(new_context)
+        image = query.get("Image", image.id.val)
+
+        from omero.gateway import ImageWrapper, BlitzGateway
+
+        conn = BlitzGateway(client_obj = self.client)
+        wrapper = ImageWrapper(conn = conn, obj = image)
+
+        self.client.sf.setSecurityContext(old_context)
+        update.deleteObject(image)
+        self.client.sf.setSecurityContext(new_context)
+
+        self.assertRaises(IndexError, wrapper.__loadedHotSwap__)
+
+    def test5851(self):
+        """
+        Expiration is being lost. This test tries to simulate
+        a share that was created some time ago and is being
+        accessed again.
+        """
+        client, sid, expiration = self.test1201()
+        adminService = client.sf.getAdminService()
+        shareService = client.sf.getShareService()
+        sessionService = client.sf.getSessionService()
+
+        # Regular reloading
+        shareService.setActive(sid, True)
+        shareService.activate(sid)
+        adminService.getEventContext() # Refreshes
+        shareService.deactivate()
+        adminService.getEventContext() # Refreshes
+        self.assertExpiration(expiration, shareService.getShare(sid))
+
+        # Forced closing
+        self.assertEquals(-2, sessionService.closeSession(shareService.getShare(sid)))
+        shareService.activate(sid)
+        adminService.getEventContext() # Refreshes
+        self.assertExpiration(expiration, shareService.getShare(sid))
+
+
     # Helpers
 
     def assertAccess(self, client, sid, success = True):
@@ -635,6 +728,9 @@ class TestIShare(lib.ITest):
         # For the moment, preventing all non-IShare download.
         share_from_iquery = query.get("Share", sid)
         self.assertEquals(False, share_from_iquery.isLoaded())
+
+    def assertExpiration(self, expiration, share):
+        self.assertEquals(expiration, (share.started.val+share.timeToLive.val))
 
 
 if __name__ == '__main__':

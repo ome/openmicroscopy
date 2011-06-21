@@ -43,8 +43,6 @@ import omero.util.figureUtil as figUtil
 import omero.util.script_utils as scriptUtil
 from omero.model import ImageI
 from omero.rtypes import *      # includes wrap()
-import omero.gateway
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero_api_IRoi_ice
 # import util.figureUtil as figUtil    # need to comment out for upload to work. But need import for script to work!!
 import getopt, sys, os, subprocess
@@ -159,7 +157,10 @@ def getROImovieView    (re, queryService, pixels, timeShapeMap, mergedIndexes, m
     # set up rendering engine with the pixels
     pixelsId = pixels.getId().getValue()
     re.lookupPixels(pixelsId)
-    re.lookupRenderingDef(pixelsId)
+    if not re.lookupRenderingDef(pixelsId):
+        re.resetDefaults()
+    if not re.lookupRenderingDef(pixelsId):
+        raise "Failed to lookup Rendering Def"
     re.load()
     
     # now get each channel in greyscale (or colour)
@@ -200,7 +201,7 @@ def getROImovieView    (re, queryService, pixels, timeShapeMap, mergedIndexes, m
     for t, timepoint in enumerate(timeIndexes):
         roiX, roiY, proStart, proEnd = timeShapeMap[timepoint]
         box = (roiX, roiY, int(roiX+roiWidth), int(roiY+roiHeight))
-        log("  Time-index: %d Time-label: %s  Projecting z range: %d - %d (max Z is %d)" % (timepoint+1, timeLabels[t], proStart+1, proEnd+1, sizeZ))
+        log("  Time-index: %d Time-label: %s  Projecting z range: %d - %d (max Z is %d) of region x: %s y: %s" % (timepoint+1, timeLabels[t], proStart+1, proEnd+1, sizeZ, roiX, roiY))
         
         merged = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
         fullMergedImage = Image.open(StringIO.StringIO(merged))
@@ -294,7 +295,7 @@ def getRectangle(roiService, imageId, roiLabel):
                 z = shape.getTheZ().getValue()
                 x = int(shape.getX().getValue())
                 y = int(shape.getY().getValue())
-                text = shape.getTextValue().getValue()
+                text = shape.getTextValue() and shape.getTextValue().getValue() or None
                 
                 # build a map of tIndex: (x,y,zMin,zMax)
                 if t in timeShapeMap:
@@ -365,7 +366,6 @@ def getSplitView(session, imageIds, pixelIds, mergedIndexes,
     @ spacer        the gap between images and around the figure. Doubled between rows. 
     """
     
-    gateway = session.createGateway()
     roiService = session.getRoiService()
     re = session.createRenderingEngine()
     queryService = session.getQueryService()    # only needed for movie
@@ -378,7 +378,7 @@ def getSplitView(session, imageIds, pixelIds, mergedIndexes,
     
     if roiZoom == None:
         # get the pixels for priamry image. 
-        pixels = gateway.getPixels(pixelIds[0])
+        pixels = queryService.get("Pixels", pixelIds[0])
         sizeY = pixels.getSizeY().getValue()
     
         roiZoom = float(height) / float(roiHeight)
@@ -426,7 +426,7 @@ def getSplitView(session, imageIds, pixelIds, mergedIndexes,
             continue
         roiX, roiY, roiWidth, roiHeight, timeShapeMap = roi
         
-        pixels = gateway.getPixels(pixelsId)
+        pixels = queryService.get("Pixels", pixelsId)
         sizeX = pixels.getSizeX().getValue()
         sizeY = pixels.getSizeY().getValue()
         
@@ -506,6 +506,7 @@ def roiFigure(session, commandArgs):
     queryService = session.getQueryService()
     updateService = session.getUpdateService()
     rawFileStore = session.createRawFileStore()
+    containerService = session.getContainerService()
     
     log("ROI figure created by OMERO on %s" % date.today())
     log("")
@@ -514,7 +515,6 @@ def roiFigure(session, commandArgs):
     imageIds = []
     imageLabels = []
     imageNames = {}
-    gateway = session.createGateway()
     omeroImage = None    # this is set as the first image, to link figure to
 
     # function for getting image labels.
@@ -535,21 +535,21 @@ def roiFigure(session, commandArgs):
             
     # process the list of images. If imageIds is not set, script can't run. 
     log("Image details:")
-    if "Image_IDs" in commandArgs:
-        for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
-            iId = imageId.getValue()
-            image = gateway.getImage(iId)
-            if image == None:
-                print "Image not found for ID:", iId
-                continue
-            imageIds.append(iId)
-            if idCount == 0:
-                omeroImage = image        # remember the first image to attach figure to
-            pixelIds.append(image.getPrimaryPixels().getId().getValue())
-            imageNames[iId] = image.getName().getValue()
-    
+    dataType = commandArgs["Data_Type"]
+    ids = commandArgs["IDs"]
+    images = containerService.getImages(dataType, ids, None)
+
+    for idCount, image in enumerate(images):
+        iId = image.getId().getValue()
+        imageIds.append(iId)
+        if idCount == 0:
+            omeroImage = image        # remember the first image to attach figure to
+        pixelIds.append(image.getPrimaryPixels().getId().getValue())
+        imageNames[iId] = image.getName().getValue()
+
     if len(imageIds) == 0:
         print "No image IDs specified."
+        return
             
     pdMap = figUtil.getDatasetsProjectsFromImages(queryService, imageIds)    # a map of imageId : list of (project, dataset) names. 
     tagMap = figUtil.getTagsFromImages(metadataService, imageIds)
@@ -571,7 +571,7 @@ def roiFigure(session, commandArgs):
     
     # use the first image to define dimensions, channel colours etc. 
     pixelsId = pixelIds[0]
-    pixels = gateway.getPixels(pixelsId)
+    pixels = queryService.get("Pixels", pixelsId)
 
     sizeX = pixels.getSizeX().getValue();
     sizeY = pixels.getSizeY().getValue();
@@ -596,20 +596,19 @@ def roiFigure(session, commandArgs):
             
     log("Image dimensions for all panels (pixels): width: %d  height: %d" % (width, height))
         
-                        
+    # the channels in the combined image,
     if "Merged_Channels" in commandArgs:
-        mergedIndexes = []    # the channels in the combined image, 
-        for i in commandArgs["Merged_Channels"]:
-            mergedIndexes.append(int(i.getValue())) # value may be a string - no type checking
+        mergedIndexes = [c-1 for c in commandArgs["Merged_Channels"]]  # convert to 0-based
     else:
         mergedIndexes = range(sizeC) # show all
     mergedIndexes.reverse()
         
     mergedColours = {}    # if no colours added, use existing rendering settings.
-    if "Merged_Colours" in commandArgs:
-        for i, c in enumerate(commandArgs["Merged_Colours"]):
-            if c.getValue() in COLOURS: 
-                mergedColours[i] = COLOURS[c.getValue()]
+    # Actually, nicer to always use existing rendering settings.
+    #if "Merged_Colours" in commandArgs:
+    #    for i, c in enumerate(commandArgs["Merged_Colours"]):
+    #        if c in COLOURS:
+    #            mergedColours[i] = COLOURS[c]
     
     algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
     if "Algorithm" in commandArgs:
@@ -700,6 +699,7 @@ def runAsScript():
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
     
+    dataTypes = [rstring('Image')]
     labels = [rstring('Image Name'), rstring('Datasets'), rstring('Tags')]
     algorithums = [rstring('Maximum Intensity'),rstring('Mean Intensity')]
     roiLabel = """Specify an ROI to pick by specifying it's shape label. 'FigureROI' by default,
@@ -711,48 +711,51 @@ def runAsScript():
     oColours = wrap(OVERLAY_COLOURS.keys())
     
     client = scripts.client('Movie_ROI_Figure.py', """Create a figure of movie frames from ROI region of image.
-See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure""",
+See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/exporting-figures""",
 
-    scripts.List("Image_IDs", optional=False, grouping="1",
-        description="List of Images. Figure will be attached to first image").ofType(rlong(0)),
+    scripts.String("Data_Type", optional=False, grouping="01",
+        description="The data you want to work with.", values=dataTypes, default="Image"),
+
+    scripts.List("IDs", optional=False, grouping="02",
+        description="List of Image IDs").ofType(rlong(0)),
     
-    scripts.List("Merged_Colours", grouping="2",
-        description="A list of colours to apply to merged channels.", values=cOptions),
+    #scripts.List("Merged_Colours", grouping="03",
+    #    description="A list of colours to apply to merged channels.", values=cOptions),
          
-    scripts.List("Merged_Channels", grouping="3",
-        description="A list of channel indexes to display").ofType(rint(0)), 
+    scripts.List("Merged_Channels", grouping="03",
+        description="A list of channel indexes to display. E.g. 1, 2, 3").ofType(rint(0)),
         
-    scripts.Float("Roi_Zoom", grouping="4", default=1,
+    scripts.Float("Roi_Zoom", grouping="04", default=1,
         description="How much to zoom the ROI. E.g. x 2. If 0 then ROI panel will zoom to same size as main image"),
     
-    scripts.Int("Max_Columns", grouping="4.1", default=10,
+    scripts.Int("Max_Columns", grouping="04.1", default=10,
         description="The maximum number of columns in the figure, for ROI-movie frames.", min=1),
     
-    scripts.Bool("Resize_Images", grouping="5", default=True,
+    scripts.Bool("Resize_Images", grouping="05", default=True,
         description="Images are shown full-size by default, but can be resized below"),
         
-    scripts.Int("Width", grouping="5.1",
+    scripts.Int("Width", grouping="05.1",
         description="Max width of each image panel in pixels", min=1), 
           
-    scripts.Int("Height", grouping="5.2",
+    scripts.Int("Height", grouping="05.2",
         description="The max height of each image panel in pixels", min=1),
              
-    scripts.String("Image_Labels", grouping="6",
+    scripts.String("Image_Labels", grouping="06",
         description="Label images with the Image Name or Datasets or Tags", values=labels), 
     
-    scripts.Bool("Show_ROI_Duration", grouping="6.1",
+    scripts.Bool("Show_ROI_Duration", grouping="06.1",
         description="If true, times shown as duration from first timepoint of the ROI, otherwise use movie timestamp."),
         
-    scripts.Int("Scalebar", grouping="7",
+    scripts.Int("Scalebar", grouping="07",
         description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
         
-    scripts.String("Scalebar_Colour", grouping="7.1",
+    scripts.String("Scalebar_Colour", grouping="07.1",
         description="The colour of the scalebar and ROI outline.",default='White',values=oColours),
     
-    scripts.String("Roi_Selection_Label", grouping="8",
+    scripts.String("Roi_Selection_Label", grouping="08",
         description=roiLabel),
         
-    scripts.String("Algorithm", grouping="9",
+    scripts.String("Algorithm", grouping="09",
         description="Algorithum for projection, if ROI spans several Z sections.", values=algorithums),
 
     scripts.String("Figure_Name", grouping="10",
@@ -761,7 +764,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure"""
     scripts.String("Format", grouping="10.1",
         description="Format to save figure.", values=formats, default='JPEG'),
     
-    version = "4.2.0",
+    version = "4.3.0",
     authors = ["William Moore", "OME Team"],
     institutions = ["University of Dundee"],
     contact = "ome-users@lists.openmicroscopy.org.uk",
@@ -769,21 +772,23 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure"""
     
     try:
         session = client.getSession();
-        gateway = session.createGateway();
-        commandArgs = {"Image_IDs":client.getInput("Image_IDs").getValue()}
+        commandArgs = {}
 
         # process the list of args above. 
         for key in client.getInputKeys():
             if client.getInput(key):
-                commandArgs[key] = client.getInput(key).getValue()
+                commandArgs[key] = unwrap(client.getInput(key))
 
         print commandArgs
         # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
-        fileAnnotation, image = roiFigure(session, commandArgs)
-        # return this fileAnnotation to the client. 
-        if fileAnnotation:
-            client.setOutput("Message", rstring("ROI Movie Figure Attached to Image: %s" % image.name.val))
-            client.setOutput("File_Annotation", robject(fileAnnotation))
+        result = roiFigure(session, commandArgs)
+        if result:
+            fileAnnotation, image = result
+            # return this fileAnnotation to the client. 
+            if fileAnnotation:
+                client.setOutput("Message", rstring("ROI Movie Figure Attached to Image: %s" % image.name.val))
+                client.setOutput("File_Annotation", robject(fileAnnotation))
+
     finally: client.closeSession()
 
 if __name__ == "__main__":

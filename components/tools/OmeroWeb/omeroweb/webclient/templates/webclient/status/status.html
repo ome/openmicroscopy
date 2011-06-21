@@ -3,6 +3,26 @@
 {% load markup %}
 {% load custom_tags %}
 
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
 {% block link %}
     <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
     
@@ -22,7 +42,7 @@
             var h = $(window).height()-200;
             $("div#content_details").css('height', h+31);
             $("#right_panel").show();
-            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
             
         });    
     </script>
@@ -55,15 +75,15 @@
                                 Delete {{ v.delmany }} {{ v.dtype }}(s):
                                 {% for iid in v.did %}                                    
                                     {% ifequal v.dstatus "failed" %}
-                                        <a onclick="loadMetadata('{% url load_metadata_details "image" iid %}');">{{ v.dtype }} {{ iid }}</a>, 
+                                        <a onclick="loadMetadata('{% url load_metadata_details v.dtype iid %}');">{{ v.dtype }} {{ iid }}</a>, 
                                     {% else %}
-                                        {{ iid }},
+                                        {{ v.dtype }} {{ iid }},
                                     {% endifequal %}
                                 {% endfor %}
                             {% else %}
                                 Delete 
                                 {% ifequal v.dstatus "failed" %}
-                                    <a onclick="loadMetadata('{% url load_metadata_details "image" v.did %}');">{{ v.dtype }} {{ v.did }}</a>
+                                    <a onclick="loadMetadata('{% url load_metadata_details v.dtype v.did %}');">{{ v.dtype }} {{ v.did }}</a>
                                 {% else %}
                                     {{ v.dtype }} {{ v.did }}
                                 {% endifequal %}

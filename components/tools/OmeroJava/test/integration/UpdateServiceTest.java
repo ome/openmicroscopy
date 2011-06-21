@@ -141,112 +141,6 @@ public class UpdateServiceTest
     }
     
     /**
-     * Test to link datasets and images using the 
-     * <code>saveAndReturnObject</code> method.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testNoDuplicateDatasetImageLinks() 
-    	throws Exception
-    {
-    	/*TODO: rewrite test
-    	Image img = new ImageI();
-        img.setName(rstring("duplinks"));
-        img.setAcquisitionDate( rtime(0) );
-
-        Dataset ds = new DatasetI();
-        ds.setName(rstring("duplinks"));
-
-        img.linkDataset(ds);
-
-        img = (Image) iUpdate.saveAndReturnObject(img);
-        ds = img.linkedDatasetList().get(0);
-
-        List imgLinks = iQuery.findAllByQuery("from DatasetImageLink",
-                new ParametersI().addLong("child.id", img.getId()));
-
-        List dsLinks = iQuery.findAllByQuery("from DatasetImageLink",
-                new ParametersI().addLong("parent.id", ds.getId()));
-
-        assertTrue(imgLinks.size() == 1);
-        assertTrue(dsLinks.size() == 1);
-
-        assertTrue(((DatasetImageLink) imgLinks.get(0)).getId().equals(
-                ((DatasetImageLink) dsLinks.get(0)).getId()));
-                */
-    }
-    
-    /**
-     * Test to link datasets and images using the 
-     * <code>saveAndReturnArray</code> method.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testNoDuplicateDatasetImageLink() 
-    	throws Exception 
-    {
-    	/*
-    	Image img = new ImageI();
-        img.setName(rstring("duplinks2"));
-        img.setAcquisitionDate(rtime(0));
-
-        Dataset ds = new DatasetI();
-        ds.setName(rstring("duplinks2"));
-
-        img.linkDataset(ds);
-
-        List<IObject> l = new ArrayList<IObject>();
-        l.add(img);
-        List<IObject> retVal = iUpdate.saveAndReturnArray(l);
-        assertTrue(retVal.size() == 1);
-        
-        assertTrue(retVal.get(0) instanceof Image);
-        img = (Image) retVal.get(0);
-        ds = img.linkedDatasetList().get(0);
-        List dsLinks = iQuery.findAllByQuery("from DatasetImageLink",
-                new ParametersI().addLong("parent.id", ds.getId()));
-
-       
-        List imgLinks = iQuery.findAllByQuery("from DatasetImageLink",
-                new ParametersI().addLong("child.id", img.getId()));
-        assertTrue(imgLinks.size() > 0);
-        assertTrue(dsLinks.size() > 0);
- */
-    }
-    
-    /**
-     * Test to link datasets and images using the 
-     * <code>saveAndReturnObject</code> method.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testNoDuplicateProjectDatasetLink() 
-    	throws Exception 
-    {
-    	/*TODO: rewrite test
-    	String name = "TEST:" + System.currentTimeMillis();
-
-        // Save Project.
-        Project p = new ProjectI();
-        p.setName(rstring(name));
-        p = (Project) iUpdate.saveAndReturnObject(p);
-
-        // Update it.
-        ProjectData pd = new ProjectData(p);
-        pd.setDescription("....testnodups....");
-        Project send = (Project) pd.asIObject();
-        assertEquals(p.getId().getValue(), pd.getId());
-        assertEquals(send.getId().getValue(), pd.getId());
-
-        Project result = (Project) iUpdate.saveAndReturnObject(send);
-        ProjectData test = new ProjectData(result);
-        assertEquals(test.getId(), p.getId().getValue());
-        */
-    }
-    
-    /**
      * Test to make sure that an update event is created for an object
      * after updating an annotation linked to the image.
      * @throws Exception Thrown if an error occurred.
@@ -572,158 +466,6 @@ public class UpdateServiceTest
 					image.getId() == d2.getId().getValue()) count++;
 		}
         assertTrue(count == 2);
-    }
-    
-    /**
-     * Test to unlink projects and datasets from just one side.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test(groups = { "ticket:541" })
-    public void testUnlinkProjectAndDatasetFromJustOneSide() 
-    	throws Exception 
-    {
-    	/*
-    	 *broken
-        Image img = saveImage(true);
-        DatasetImageLink link = img.copyDatasetLinks().get(0);
-        img.removeDatasetImageLinkFromBoth(link, false);
-
-        iContainer.updateDataObject(img, null);
-
-        DatasetImageLink test = (DatasetImageLink) 
-        	iQuery.find(DatasetImageLink.class.getName(), 
-        			link.getId().getValue());
-
-        assertNull(test);
-        */
-    }
-
-    /**
-     * Test to unlink datasets and images.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test(groups = { "ticket:541" })
-    public void testUnlinkDatasetAndImage() 
-    	throws Exception
-    {
-
-    	/*
-        // Method 1:
-        Image img = saveImage(true);
-        List updated = unlinkImage(img);
-        iUpdate.saveCollection(updated);
-
-        // Make sure it's not linked.
-        List list = iQuery.findAllByQuery(DatasetImageLink.class.getName(),
-                new ParametersI().addLong("child.id", img.getId()));
-        assertTrue(list.size() == 0);
-
-        // Method 2:
-        img = saveImage(true);
-        updated = unlinkImage(img);
-        iContainer.updateDataObjects(updated, null);
-
-        List list2 = iQuery.findAllByQuery(DatasetImageLink.class.getName(),
-                new ParametersI().addLong("child.id", img.getId()));
-        assertTrue(list.size() == 0);
-
-        // Method 3:
-        img = saveImage(true);
-        Dataset target = img.linkedDatasetList().get(0);
-        // For querying
-        DatasetImageLink dslink = img.findDatasetImageLink(target).iterator()
-                .next();
-
-        img.unlinkDataset(target);
-        img = (Image) iContainer.updateDataObject(img, null);
-
-        IObject test = iQuery.find(DatasetImageLink.class.getName(), 
-        		dslink.getId().getValue());
-        assertNull(test);
-
-        // Method 4;
-        Dataset d = new DatasetI();
-        d.setName(rstring("unlinking"));
-        Project p = new ProjectI();
-        p.setName(rstring("unlinking"));
-        p = (Project) iContainer.createDataObject(p, null);
-        d = (Dataset) iContainer.createDataObject(d, null);
-
-        ProjectDatasetLink link = new ProjectDatasetLinkI();
-        link.setParent(p);
-        link.setChild(d);
-        */
-    }
-    
-    /**
-     * Test to unlink datasets and images from just one side.
-     * @throws Exception
-     */
-    @Test(groups = { "ticket:541" })
-    public void testUnlinkDatasetAndImageFromJustOneSide() 
-    	throws Exception 
-    {
-    	/*
-        Image img = saveImage(true);
-        DatasetImageLink link = img.copyDatasetLinks().get(0);
-        img.removeDatasetImageLinkFromBoth(link, false);
-
-        iContainer.updateDataObject(img, null);
-
-        DatasetImageLink test = (DatasetImageLink) 
-        	iQuery.find(DatasetImageLink.class.getName(), 
-        			link.getId().getValue());
-
-        assertNull(test);
-        */
-    }
-    
-    /**
-     * Test to handle duplicate links
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testDuplicateProjectDatasetLink() 
-    	throws Exception 
-    {
-
-    	/*TODO: rewrite test
-        String string = "duplinksagain" + System.currentTimeMillis();
-
-        Dataset d = new DatasetI();
-        d.setName(rstring(string));
-
-        Project p = new ProjectI();
-        p.setName(rstring(string));
-
-        d.linkProject(p);
-        d = (Dataset) iContainer.createDataObject(d, null);
-        List<Project> orig = d.linkedProjectList();
-        Set orig_ids = new HashSet();
-        for (Project pr : orig) {
-            orig_ids.add(pr.getId().getValue());
-        }
-
-        DatasetData dd = new DatasetData(d);
-        Dataset toSend = dd.asDataset();
-
-        Dataset updated = (Dataset) iContainer.updateDataObject(toSend, null);
-
-        List<Project> updt = updated.linkedProjectList();
-        Set updt_ids = new HashSet();
-        for (Project pr : updt) {
-            updt_ids.add(pr.getId().getValue());
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug(orig_ids);
-            log.debug(updt_ids);
-        }
-
-        assertTrue(updt_ids.containsAll(orig_ids));
-        assertTrue(orig_ids.containsAll(updt_ids));
-        */
     }
 
     //Annotation section
@@ -1391,15 +1133,13 @@ public class UpdateServiceTest
      * Tests the creation of an ROI not linked to an image.
      * @throws Exception  Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false)
     public void testCreateROIWithoutImage()
     	throws Exception
     {
-    	/*
     	 Roi roi = new RoiI();
          roi.setDescription(omero.rtypes.rstring("roi w/o image"));
          Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
-    	 */
     }
     
     /**
@@ -1863,4 +1603,95 @@ public class UpdateServiceTest
     	param.addId(r.getId().getValue());
     	assertNotNull(iQuery.findByQuery(sql, param));
     }
+    
+    /**
+     * Tests to create a file annotation and link it to several images using
+     * the saveAndReturnArray.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = { "ticket:5370" })
+    public void testAttachFileAnnotationToSeveralImages()
+    	throws Exception 
+    {
+    	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+    			mmFactory.createOriginalFile());
+		assertNotNull(of);
+		FileAnnotation fa = new FileAnnotationI();
+		fa.setFile(of);
+		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+		assertNotNull(data);
+		//Image
+        Image i1 = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        Image i2 = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        List<IObject> links = new ArrayList<IObject>();
+        ImageAnnotationLink l = new ImageAnnotationLinkI();
+        l.setParent((Image) i1.proxy());
+        l.setChild((Annotation) data.proxy());
+        links.add(l);
+        l = new ImageAnnotationLinkI();
+        l.setParent((Image) i2.proxy());
+        l.setChild((Annotation) data.proxy());
+        links.add(l);
+        links = iUpdate.saveAndReturnArray(links);
+        assertNotNull(links);
+        assertEquals(links.size(), 2);
+        Iterator<IObject> i = links.iterator();
+        long id;
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(i1.getId().getValue());
+        ids.add(i2.getId().getValue());
+        int n = 0;
+        while (i.hasNext()) {
+			l = (ImageAnnotationLink) i.next();
+			assertEquals(l.getChild().getId().getValue(),
+					data.getId().getValue());
+			id = l.getParent().getId().getValue();
+			if (ids.contains(id)) n++;
+		}
+        assertEquals(ids.size(), n);
+    }
+
+    /**
+     * Tests to create a file annotation and link it to several images using
+     * the saveAndReturnArray.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = { "ticket:5370" })
+    public void testAttachFileAnnotationToSeveralImagesII()
+    	throws Exception 
+    {
+    	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+    			mmFactory.createOriginalFile());
+		assertNotNull(of);
+		FileAnnotation fa = new FileAnnotationI();
+		fa.setFile(of);
+		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+		assertNotNull(data);
+		//Image
+        Image i1 = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        Image i2 = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        ImageAnnotationLink l = new ImageAnnotationLinkI();
+        l.setParent((Image) i1.proxy());
+        l.setChild((Annotation) data.proxy());
+        
+        l =  (ImageAnnotationLink) iUpdate.saveAndReturnObject(l);
+        assertEquals(l.getChild().getId().getValue(),
+				data.getId().getValue());
+        assertEquals(l.getParent().getId().getValue(),
+				i1.getId().getValue());
+        l = new ImageAnnotationLinkI();
+        l.setParent((Image) i2.proxy());
+        l.setChild((Annotation) data.proxy());
+        l =  (ImageAnnotationLink) iUpdate.saveAndReturnObject(l);
+        
+        assertEquals(l.getChild().getId().getValue(),
+				data.getId().getValue());
+        assertEquals(l.getParent().getId().getValue(),
+				i2.getId().getValue());
+    }
+    
 }

@@ -73,7 +73,7 @@ class TableModelAdapter
 		rowCount = array.length;
 		for (int i = 0; i < typeArray.length; i++)
 			for (int j = 0; j < typeArray[i].length; j++)
-				array[i][j] = new Integer(typeArray[i][j]);
+				array[i][j] = Integer.valueOf(typeArray[i][j]);
 		return array;
 	}
 	
@@ -91,7 +91,7 @@ class TableModelAdapter
 		rowCount = array.length;
 		for (int i = 0; i < typeArray.length; i++)
 			for (int j = 0; j < typeArray[i].length; j++)
-				array[i][j] = new Long(typeArray[i][j]);
+				array[i][j] = Long.valueOf(typeArray[i][j]);
 		return array;
 	}
 	

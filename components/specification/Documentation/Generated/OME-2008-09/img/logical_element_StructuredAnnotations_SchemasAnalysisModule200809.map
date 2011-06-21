@@ -1,0 +1,50 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_StructuredAnnotations_SchemasAnalysisModule200809'>
+ <area
+  shape='rect'
+  alt='element_XmlAnnotation'
+  coords='416,0,760,43'
+  href='AnalysisModule.xsd.html#element_XmlAnnotation'/>
+
+ <area
+  shape='rect'
+  alt='element_FileAnnotation'
+  coords='416,53,760,96'
+  href='AnalysisModule.xsd.html#element_FileAnnotation'/>
+
+ <area
+  shape='rect'
+  alt='element_ListAnnotation'
+  coords='416,106,760,149'
+  href='AnalysisModule.xsd.html#element_ListAnnotation'/>
+
+ <area
+  shape='rect'
+  alt='element_LongAnnotation'
+  coords='416,159,760,202'
+  href='AnalysisModule.xsd.html#element_LongAnnotation'/>
+
+ <area
+  shape='rect'
+  alt='element_DoubleAnnotation'
+  coords='416,212,760,255'
+  href='AnalysisModule.xsd.html#element_DoubleAnnotation'/>
+
+ <area
+  shape='rect'
+  alt='element_StringAnnotation'
+  coords='416,265,760,308'
+  href='AnalysisModule.xsd.html#element_StringAnnotation'/>
+
+ <area
+  shape='rect'
+  alt='element_BooleanAnnotation'
+  coords='416,318,760,361'
+  href='AnalysisModule.xsd.html#element_BooleanAnnotation'/>
+
+ <area
+  shape='rect'
+  alt='element_TimestampAnnotation'
+  coords='416,371,760,414'
+  href='AnalysisModule.xsd.html#element_TimestampAnnotation'/>
+
+</map>

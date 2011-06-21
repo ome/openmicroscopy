@@ -397,7 +397,7 @@ class TreeViewerModel
 	 * 
 	 * @return See above.
 	 */
-	Map getBrowsers() { return browsers; }
+	Map<Integer, Browser> getBrowsers() { return browsers; }
 
 	/**
 	 * Returns the current state.
@@ -572,7 +572,7 @@ class TreeViewerModel
 	}
 
 	/**
-	 * Returns the first name and the last name of the currently 
+	 * Returns the first name and the last name of the currently
 	 * selected experimenter as a String.
 	 * 
 	 * @return See above.
@@ -1149,6 +1149,5 @@ class TreeViewerModel
 	 * Returns 
 	 */
 	boolean isFullScreen() { return true; }
-	
 	
 }

@@ -1,0 +1,57 @@
+Synchronization record for develop --> dev_4_2
+===============================================
+
+This record contains a record of the backporting from 4.3
+to 4.2 using cherry-picking. The first synchronization
+(based on the instructions in docs/backporting/README.txt)
+was on Feb. 18, starting with "master_START":
+
+*** 2011-02-18  ***
+
+~/git/docs/backports $ git log -n 1 master_START
+commit 46b98f2df51ca0d3f458fa7001159b5ac82c270d
+Merge: 9755be6 a0d6f86
+Author: Josh Moore <josh@glencoesoftware.com>
+Date:   Thu Jan 20 09:02:44 2011 +0000
+
+    Merge specification/master project as components/specification
+
+It finished with:
+
+~/git/docs/backports $ git log -n 1 ome/develop
+commit 7420d0fa812d46bff15c3cc8ed9bdd5eda99236c
+Merge: 81a442c 617034d
+Author: jmoore <josh@glencoesoftware.com>
+Date:   Fri Feb 18 11:14:01 2011 +0000
+
+    Merge branch 'feature/hudson-fixes-4404' into develop
+
+Two commits which were found via:
+
+  git cherry dev_4_2 develop master_START
+
+did not aply cleanly:
+
+~/git $ git one -n 40 | grep -E "(3883|4384)"
+369b495 - Forcing reload of user context in test (Fix #4384, See #4011) (2 hours ago) <jmoore>
+4479825 - More :port fixes for omero.plugin.sessions (See #3883) (2 hours ago) <Josh>
+
+
+*** 2011-03-10 ***
+
+~/git/docs/backports $ git tip --help
+`git tip' is aliased to `log --pretty=format:'%h' -n 1'
+
+git cherry -v ome/dev_4_2 ome/develop `git tip 4.3-to-4.2.txt`
+
+Then sent the list out to the team for validation after
+running it through:
+
+~/git/docs/backports $ git lg0 --help
+`git lg0' is aliased to `log --oneline --pretty=format:'%an - %h %s%n''
+
+cut -b3-10 | xargs -IX git lg0 -n 1 X | sort
+
+There were some issues with the web backporting, mostly of unit
+testing.
+

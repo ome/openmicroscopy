@@ -360,7 +360,7 @@ public final class Container
      */
     public static Container startupInTestMode(String home)
     {
-        if (singleton != null) return singleton;
+        if (Container.getInstance() != null) return Container.getInstance();
         
         //Don't use the AbnormalExitHandler, let the test environment deal 
         //with exceptions instead.  Initialize services as usual though.

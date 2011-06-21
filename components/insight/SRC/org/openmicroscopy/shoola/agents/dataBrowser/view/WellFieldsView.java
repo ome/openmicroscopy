@@ -99,7 +99,7 @@ class WellFieldsView
 	private static final String	DEFAULT_FIELD_TEXT = "Field #";
 	
 	/** The grid representing the plate. */
-	private PlateGrid 			grid;
+	//private PlateGrid 			grid;
 	
 	/** Reference to the model. */
 	private WellsModel 			model;
@@ -137,16 +137,24 @@ class WellFieldsView
 		magnificationUnscaled = MAGNIFICATION_UNSCALED_MIN;
 		layoutFields = DEFAULT_LAYOUT;
 		selectedField = new JLabel();
+		WellImageSet node = model.getSelectedWell();
+		selectedNode = new JLabel();
+		if (node != null) {
+			selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
+		}
+		/*
 		grid = new PlateGrid(model.getRowSequenceIndex(), 
 				model.getColumnSequenceIndex(), model.getValidWells(), 
 				model.getRows(), model.getColumns());
 		grid.addPropertyChangeListener(controller);
+		
 		WellImageSet node = model.getSelectedWell();
 		selectedNode = new JLabel();
 		if (node != null) {
 			selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
 			grid.selectCell(node.getRow(), node.getColumn());
 		}
+		*/
 		canvas = new WellFieldsCanvas(this);
 		canvas.addMouseListener(new MouseAdapter() {
 
@@ -220,7 +228,8 @@ class WellFieldsView
 		setLayout(new BorderLayout(0, 0));
 		JScrollPane pane = new JScrollPane(canvas);
 		pane.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
-		
+		add(pane, BorderLayout.CENTER);
+		/*
 		JPanel p = new JPanel();
 		double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED},
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
@@ -229,11 +238,12 @@ class WellFieldsView
 		p.add(grid, "0, 0, 0, 2");
 		p.add(selectedNode, "2, 0, LEFT, TOP");
 		p.add(selectedField, "2, 1, LEFT, TOP");
-		add(pane, BorderLayout.CENTER);
+		
 		plateTask = EditorUtil.createTaskPane("Plate");
 		plateTask.add(UIUtilities.buildComponentPanel(p));
 		plateTask.setCollapsed(false);
 		add(plateTask, BorderLayout.SOUTH);
+		*/
 	}
 	
 	/**

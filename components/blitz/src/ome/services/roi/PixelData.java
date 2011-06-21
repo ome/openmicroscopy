@@ -38,11 +38,13 @@ public class PixelData {
         this.meta = meta;
     }
 
-    public double get(long pix, int x, int y, int z, int c, int t) {
-        PixelBuffer buf = data.getPixelBuffer(meta.retrievePixDescription(pix),
-                null, true);
+    public PixelBuffer getBuffer(long pix) {
+        return data.getPixelBuffer(meta.retrievePixDescription(pix), false);
+    }
+
+    public double get(PixelBuffer buf, int x, int y, int z, int c, int t) {
         try {
-            ome.io.nio.PixelData pd = buf.getRow(y, z, c, t);
+            ome.util.PixelData pd = buf.getRow(y, z, c, t);
             return pd.getPixelValue(x);
         } catch (IOException e) {
             throw new ResourceError("IOException: " + e);

@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_ExecutionInstructions_SchemasAnalysisModule200809'>
+ <area
+  shape='rect'
+  alt='element_CommandLine'
+  coords='436,89,786,148'
+  href='AnalysisModule.xsd.html#element_CommandLine'/>
+
+ <area
+  shape='rect'
+  alt='element_STDIN'
+  coords='436,158,786,217'
+  href='AnalysisModule.xsd.html#element_STDIN'/>
+
+ <area
+  shape='rect'
+  alt='element_STDOUT'
+  coords='436,227,786,286'
+  href='AnalysisModule.xsd.html#element_STDOUT'/>
+
+</map>

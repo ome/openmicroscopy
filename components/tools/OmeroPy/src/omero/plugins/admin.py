@@ -147,7 +147,8 @@ LIMITATION: omero.db.pass values do not currently get passed to the Java process
         ports = Action("ports", """Allows modifying the ports from a standard OMERO install
 
 To have two OMERO's running on the same machine, several ports must be modified from their default values.
-Internally, this command uses the omero.install.change_ports module.
+Internally, this command uses the omero.install.change_ports module. Changing the ports on a running server
+is usually not what you want and will be prevented. Use --skipcheck to change the ports anyway.
 
 Examples:
 
@@ -161,6 +162,9 @@ Examples:
         ports.add_argument("--tcp", help = "The tcp port to be used by Glacier2 (default: %(default)s)", default = "4063")
         ports.add_argument("--ssl", help = "The ssl port to be used by Glacier2 (default: %(default)s", default = "4064")
         ports.add_argument("--revert", action="store_true", help = "Used to rollback from the given settings to the defaults")
+        ports.add_argument("--skipcheck", action="store_true", help = "Skips the check if the server is already running")
+
+        sessionlist = Action("sessionlist", """List currently running sessions""").parser
 
         cleanse = Action("cleanse", """Remove binary data files from OMERO.
 
@@ -326,7 +330,7 @@ Examples:
             self.ctx.out("Found default value: %s" % nodepath)
             self.ctx.out("Attempting to correct...")
             from omero.install.win_set_path import win_set_path
-            count = win_set_path()
+            count = win_set_path(dir = self.ctx.dir)
             if count:
                 return
         self.ctx.die(400, """
@@ -633,7 +637,7 @@ OMERO Diagnostics %s
                     where = whichall(cmd[0])
                     sz = len(where)
                     if sz == 0:
-                        where = unknown
+                        where = "unknown"
                     else:
                         where = where[0]
                         if sz > 1:
@@ -930,10 +934,17 @@ OMERO Diagnostics %s
     def ports(self, args):
         self.check_access()
         from omero.install.change_ports import change_ports
+        if not args.skipcheck:
+            if 0 == self.status(args, node_only=True):
+                self.ctx.die(100, "Can't change ports while the server is running!")
+
+            # Resetting return value.
+            self.ctx.rv = 0
+
         if args.prefix:
             for x in ("registry", "tcp", "ssl"):
                 setattr(args, x, "%s%s" % (args.prefix, getattr(args, x)))
-        change_ports(args.ssl, args.tcp, args.registry, args.revert)
+        change_ports(args.ssl, args.tcp, args.registry, args.revert, dir=self.ctx.dir)
 
     def cleanse(self, args):
         self.check_access()
@@ -944,6 +955,37 @@ OMERO Diagnostics %s
             query_service=client.sf.getQueryService(), \
             config_service=client.sf.getConfigService())
 
+    def sessionlist(self, args):
+        client = self.ctx.conn(args)
+        service = client.sf.getQueryService()
+        params = omero.sys.ParametersI()
+        query = "select s from Session s join fetch s.node n join fetch s.owner o where s.closed is null and n.id != 0"
+        results = service.findAllByQuery(query, params)
+        mapped = list()
+        for s in results:
+            rv = list()
+            mapped.append(rv)
+            if not s.isLoaded():
+                rv.append("")
+                rv.append("id=%s" % s.id.val)
+                rv.append("")
+                rv.append("")
+                rv.append("")
+                rv.append("insufficient privileges")
+            else:
+                rv.append(s.node.id)
+                rv.append(s.uuid)
+                rv.append(s.started)
+                rv.append(s.owner.omeName)
+                if s.userAgent is None:
+                    rv.append("")
+                else:
+                    rv.append(s.userAgent)
+                if client.getSessionId() == s.uuid.val:
+                    rv.append("current session")
+                else:
+                    rv.append("")
+        self.ctx.controls["hql"].display(mapped, ("node", "session", "started", "owner", "agent", "notes"))
 try:
     register("admin", AdminControl, HELP)
 except NameError:

@@ -39,12 +39,13 @@ import org.jhotdraw.draw.TextFigure;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 /** 
- * 
+ * Text figure with measurement.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -95,8 +96,9 @@ public class MeasureTextFigure
     }
     
     /** Creates a new instance. Default value <code>(0, 0) </code>.
+     * 
 	 * @param readOnly The figure is read only.
-	 * @param clientObject The figure is created clientside.
+	 * @param clientObject The figure is created client-side.
      */
     public MeasureTextFigure(boolean readOnly, boolean clientObject) 
     {
@@ -121,15 +123,17 @@ public class MeasureTextFigure
      * @param x	The x-coordinate of the top-left corner.
      * @param y The y-coordinate of the top-left corner.
 	 * @param readOnly The figure is read only.
-	 * @param clientObject The figure is created clientside.
+	 * @param clientObject The figure is created client-side.
  	 */
     public MeasureTextFigure(double x, double y, boolean readOnly, 
     							boolean clientObject) 
     {
     	super();
-    	this.willChange();
-    	this.setBounds(new Point2D.Double(x, y), new Point2D.Double(x, y));
-    	this.changed();
+    	setAttribute(MeasurementAttributes.FONT_FACE, ROIFigure.DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
+    	willChange();
+    	setBounds(new Point2D.Double(x, y), new Point2D.Double(x, y));
+    	changed();
     	shape = null;
    		roi = null;
    		status = IDLE;
@@ -138,12 +142,12 @@ public class MeasureTextFigure
    }
 	
 	/**
-	 * Overridden to stop updating shape if read only
+	 * Overridden to stop updating shape if read-only
 	 * @see AbstractAttributedFigure#transform(AffineTransform)
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if(!readOnly)
+		if (!readOnly)
 		{
 			super.transform(tx);
 			this.setObjectDirty(true);
@@ -151,12 +155,12 @@ public class MeasureTextFigure
 	}
 		
 	/**
-	 * Overridden to stop updating shape if readonly.
+	 * Overridden to stop updating shape if read-only.
 	 * @see AbstractAttributedFigure#setBounds(Double, Double)
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if(!readOnly)
+		if (!readOnly)
 		{
 			super.setBounds(anchor, lead);
 			this.setObjectDirty(true);
@@ -266,10 +270,7 @@ public class MeasureTextFigure
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#isClientObject()
 	 */
-	public boolean isClientObject() 
-	{
-		return clientObject;
-	}
+	public boolean isClientObject() { return clientObject; }
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface
@@ -284,25 +285,17 @@ public class MeasureTextFigure
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#isDirty()
 	 */
-	public boolean isDirty() 
-	{
-		return dirty;
-	}
+	public boolean isDirty() { return dirty; }
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#setObjectDirty(boolean)
 	 */
-	public void setObjectDirty(boolean dirty) 
-	{
-		this.dirty = dirty;
-	}
-	
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasureTextFigure#clone()
+	public void setObjectDirty(boolean dirty) { this.dirty = dirty; }
+
+	/**
+	 * Clones the figure.
+	 * @see MeasureTextFigure#clone()
 	 */
 	public MeasureTextFigure clone()
 	{
@@ -313,10 +306,10 @@ public class MeasureTextFigure
 		return that;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasureTextFigure#setText(String)
+	/** 
+	 * Marks the figure as dirty.
+	 * 
+	 * @see MeasureTextFigure#setText(String)
 	 */
 	public void setText(String text)
 	{
@@ -332,11 +325,10 @@ public class MeasureTextFigure
 	{
 		List<FigureListener> figListeners = new ArrayList<FigureListener>();
 		Object[] listeners = listenerList.getListenerList();
-		for(Object listener : listeners)
-			if(listener instanceof FigureListener)
+		for (Object listener : listeners)
+			if (listener instanceof FigureListener)
 				figListeners.add((FigureListener)listener);
 		return figListeners;
 	}
+	
 }
-
-

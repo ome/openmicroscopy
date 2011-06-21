@@ -118,7 +118,19 @@ public class SessionCache implements ApplicationContextAware {
          * increments {@link #hitCount} by one. Used when reloading the session.
          */
         Data(Data old, boolean reset) {
-            this(old.sessionContext, reset ? System.currentTimeMillis() : old.lastAccessTime, old.hitCount+1);
+            this(old, old.sessionContext, reset);
+        }
+
+        /**
+         * Like {@link Data#Data(Data, boolean)} but allows setting the
+         * {@link SessionContext} which should be stored in the new instance.
+         * This is used on reload. See {@link SessionCache#doUpdate()}.
+         * @param old
+         * @param ctx
+         * @param reset
+         */
+        Data(Data old, SessionContext ctx, boolean reset) {
+            this(ctx, reset ? System.currentTimeMillis() : old.lastAccessTime, old.hitCount+1);
         }
 
         Data(SessionContext sc, long last, long count) {
@@ -301,6 +313,29 @@ public class SessionCache implements ApplicationContextAware {
             public void close() {
                 sw.stop();
             }});
+    }
+
+    /**
+     * Used externally to refresh the {@link SessionContext} instance
+     * associated with the session uuid
+     * @param id
+     * @param replacement
+     */
+    public void refresh(String uuid, SessionContext replacement) {
+        Data data = getDataNullOrThrowOnTimeout(uuid, true);
+        refresh(uuid, data, replacement);
+    }
+
+    /**
+     *
+     * @param uuid
+     * @param data
+     * @param replacement
+     */
+    private void refresh(String uuid, Data data, SessionContext replacement) {
+        // Adding and upping hit information.
+        Data fresh = new Data(data, replacement, false);
+        this.sessions.put(uuid, fresh);
     }
 
     /**
@@ -529,12 +564,6 @@ public class SessionCache implements ApplicationContextAware {
             return;
         }
 
-        final StaleCacheListener listener = staleCacheListener.get();
-        if (listener == null) {
-            log.error("Null stale cache listener!");
-            return;
-        }
-
         // Prevent recursion!
         // ------------------
         // To prevent another call from entering this block it's
@@ -548,45 +577,7 @@ public class SessionCache implements ApplicationContextAware {
             log.info("Synchronizing session cache. Count = " + ids.size());
             final StopWatch sw = new CommonsLogStopWatch();
             for (String id : ids) {
-                Data data = null;
-                try {
-                    data = getDataNullOrThrowOnTimeout(id, false);
-                    if (data == null) {
-                        internalRemove(id, "Timeout");
-                        continue;
-                    }
-                } catch (Exception e) {
-                    // If an exception occurs here, then something is wrong
-                    // with the Data instance itself since no DB calls are
-                    // made. Therefore the instance will be removed.
-                    log.warn("Removing session on get error of " + id, e);
-                    internalRemove(id, "Get error");
-                }
-
-                try {
-                    SessionContext ctx = data.sessionContext;
-                    // May throw an exception
-                    SessionContext replacement = listener.reload(ctx);
-                    if (replacement == null) {
-                        internalRemove(id, "Replacement null");
-                    } else {
-                        // Adding and upping hit information.
-                        Data fresh = new Data(data, false);
-                        this.sessions.put(id, fresh);
-                    }
-                } catch (Exception e) {
-                    // If an exception occurs it MAY be transient, therefore
-                    // we count the number of errors that have happened for
-                    // this specific instance as described under Data#errors
-                    // just to be safe.
-                    int count = data.error.incrementAndGet();
-                    if (count > Data.MAX_ERROR) {
-                        log.warn("Removing session on reload error of " + id, e);
-                        internalRemove(id, "Reload error");
-                    } else {
-                        log.warn(count + "error(s) on reload of " + id, e);
-                    }
-                }
+                reload(id);
             }
 
             sw.stop("omero.sessions.synchronization");
@@ -600,4 +591,59 @@ public class SessionCache implements ApplicationContextAware {
         }
 
     }
+
+    /**
+     * Provides the reloading logic of the {@link SessionCache} for the
+     * {@link SessionManagerImpl} to use.
+     *
+     * @see ticket:4011
+     * @see ticket:5849
+     */
+    public void reload(String id) {
+
+        final StaleCacheListener listener = staleCacheListener.get();
+        if (listener == null) {
+            log.error("Null stale cache listener!");
+            return;
+        }
+
+        Data data = null;
+        try {
+            data = getDataNullOrThrowOnTimeout(id, false);
+            if (data == null) {
+                internalRemove(id, "Timeout");
+                return;
+            }
+        } catch (Exception e) {
+            // If an exception occurs here, then something is wrong
+            // with the Data instance itself since no DB calls are
+            // made. Therefore the instance will be removed.
+            log.warn("Removing session on get error of " + id, e);
+            internalRemove(id, "Get error");
+        }
+
+        try {
+            SessionContext ctx = data.sessionContext;
+            // May throw an exception
+            SessionContext replacement = listener.reload(ctx);
+            if (replacement == null) {
+                internalRemove(id, "Replacement null");
+            } else {
+                refresh(id, data, replacement);
+            }
+        } catch (Exception e) {
+            // If an exception occurs it MAY be transient, therefore
+            // we count the number of errors that have happened for
+            // this specific instance as described under Data#errors
+            // just to be safe.
+            int count = data.error.incrementAndGet();
+            if (count > Data.MAX_ERROR) {
+                log.warn("Removing session on reload error of " + id, e);
+                internalRemove(id, "Reload error");
+            } else {
+                log.warn(count + "error(s) on reload of " + id, e);
+            }
+        }
+    }
+
 }

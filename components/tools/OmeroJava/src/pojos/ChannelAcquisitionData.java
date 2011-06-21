@@ -376,6 +376,16 @@ public class ChannelAcquisitionData
 	}
 	
 	/**
+	 * Sets the light source associated to the settings.
+	 * 
+	 * @param ligthSource The value to set.
+	 */
+	public void setLightSource(LightSourceData ligthSource)
+	{
+		this.ligthSource = ligthSource;
+	}
+	
+	/**
 	 * Returns the light path or <code>null</code>.
 	 * 
 	 * @return See above.

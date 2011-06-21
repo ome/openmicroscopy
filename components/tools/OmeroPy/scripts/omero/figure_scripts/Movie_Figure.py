@@ -43,9 +43,6 @@ import omero.util.figureUtil as figUtil
 import omero.util.script_utils as scriptUtil
 import omero
 from omero.rtypes import *
-import omero.gateway
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
-# import util.figureUtil as figUtil    # need to comment out for upload to work. But need import for script to work!!
 import getopt, sys, os, subprocess
 import StringIO
 from omero_sys_ParametersI import ParametersI
@@ -126,7 +123,7 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spa
     
     # create a rendering engine
     re = session.createRenderingEngine()
-    gateway = session.createGateway()
+    queryService = session.getQueryService()
     
     rowPanels = []
     totalHeight = 0
@@ -137,7 +134,7 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spa
     for row, pixelsId in enumerate(pixelIds):
         log("Rendering row %d" % (row))
         
-        pixels = gateway.getPixels(pixelsId)
+        pixels = queryService.get("Pixels", pixelsId)
         sizeX = pixels.getSizeX().getValue()
         sizeY = pixels.getSizeY().getValue()
         sizeZ = pixels.getSizeZ().getValue()
@@ -165,7 +162,10 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spa
         
         # set up rendering engine with the pixels
         re.lookupPixels(pixelsId)
-        re.lookupRenderingDef(pixelsId)
+        if not re.lookupRenderingDef(pixelsId):
+            re.resetDefaults()
+        if not re.lookupRenderingDef(pixelsId):
+            raise "Failed to lookup Rendering Def"
         re.load()
         
         proStart = zStart
@@ -193,9 +193,15 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spa
             if time >= sizeT:
                 log(" WARNING: This image does not have Time frame: %d. (max is %d)" % (time+1, sizeT))     
             else: 
-                projection = re.renderProjectedCompressed(algorithm, time, stepping, proStart, proEnd)
+                if proStart != proEnd:
+                    renderedImg = re.renderProjectedCompressed(algorithm, time, stepping, proStart, proEnd)
+                else:
+                    planeDef = omero.romio.PlaneDef()
+                    planeDef.z = proStart
+                    planeDef.t = time
+                    renderedImg = re.renderCompressed(planeDef)
                 # create images and resize, add to list
-                image = Image.open(StringIO.StringIO(projection))
+                image = Image.open(StringIO.StringIO(renderedImg))
                 resizedImage = imgUtil.resizeImage(image, width, height)
                 renderedImages.append(resizedImage)
 
@@ -348,6 +354,7 @@ def movieFigure(session, commandArgs):
     queryService = session.getQueryService()
     updateService = session.getUpdateService()
     rawFileStore = session.createRawFileStore()
+    containerService = session.getContainerService()
     
     log("Movie figure created by OMERO on %s" % date.today())
     log("")
@@ -369,7 +376,6 @@ def movieFigure(session, commandArgs):
     imageIds = []
     imageLabels = []
     imageNames = {}
-    gateway = session.createGateway()
     omeroImage = None    # this is set as the first image, to link figure to
 
     # function for getting image labels.
@@ -390,18 +396,17 @@ def movieFigure(session, commandArgs):
             
     # process the list of images. If imageIds is not set, script can't run. 
     log("Image details:")
-    if "Image_IDs" in commandArgs:
-        for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
-            iId = long(imageId.getValue())
-            image = gateway.getImage(iId)
-            if image == None:
-                print "Image not found for ID:", iId
-                continue
-            imageIds.append(iId)
-            if idCount == 0:
-                omeroImage = image        # remember the first image to attach figure to
-            pixelIds.append(image.getPrimaryPixels().getId().getValue())
-            imageNames[iId] = image.getName().getValue()
+    for idCount, imageId in enumerate(commandArgs["IDs"]):
+        iId = long(imageId.getValue())
+        image = containerService.getImages("Image", [iId], None)[0]
+        if image == None:
+            print "Image not found for ID:", iId
+            continue
+        imageIds.append(iId)
+        if idCount == 0:
+            omeroImage = image        # remember the first image to attach figure to
+        pixelIds.append(image.getPrimaryPixels().getId().getValue())
+        imageNames[iId] = image.getName().getValue()
         
     if len(imageIds) == 0:
         print "No image IDs specified."
@@ -427,17 +432,21 @@ def movieFigure(session, commandArgs):
     
     # use the first image to define dimensions, channel colours etc. 
     pixelsId = pixelIds[0]
-    pixels = gateway.getPixels(pixelsId)
+    pixels = queryService.get("Pixels", pixelsId)
                 
     sizeX = pixels.getSizeX().getValue()
     sizeY = pixels.getSizeY().getValue()
     sizeZ = pixels.getSizeZ().getValue()
     sizeC = pixels.getSizeC().getValue()
+    sizeT = pixels.getSizeT().getValue()
 
     tIndexes = []
     if "T_Indexes" in commandArgs:
         for t in commandArgs["T_Indexes"]:
             tIndexes.append(t.getValue())
+        print "T_Indexes", tIndexes
+    if len(tIndexes) == 0:      # if no t-indexes given, use all t-indices
+        tIndexes = range(sizeT)
             
     zStart = -1
     zEnd = -1
@@ -521,7 +530,8 @@ def runAsScript():
     The main entry point of the script. Gets the parameters from the scripting service, makes the figure and 
     returns the output to the client. 
     """
-        
+
+    dataTypes = [rstring('Image')]
     labels = [rstring('Image Name'), rstring('Datasets'), rstring('Tags')]
     algorithums = [rstring('Maximum Intensity'),rstring('Mean Intensity')]
     tunits =  [rstring("SECS"), rstring("MINS"), rstring("HOURS"), rstring("MINS SECS"), rstring("HOURS MINS")]
@@ -531,12 +541,20 @@ def runAsScript():
     cOptions = wrap(ckeys)
     oColours = wrap(OVERLAY_COLOURS.keys())
     
-    client = scripts.client('Movie_Figure.py', 'Export a figure of a movie. See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport', 
-    scripts.List("Image_IDs", grouping="01", 
-        description="List of image IDs. Resulting figure will be attached to first image.", optional=False).ofType(rlong(0)),
-    scripts.List("T_Indexes", grouping="02", 
+    client = scripts.client('Movie_Figure.py', """Export a figure of a movie, showing a row of frames for each chosen image. 
+NB: OMERO.insight client provides a nicer UI for this script under 'Publishing Options'
+See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/exporting-figures""",
+
+    # provide 'Data_Type' and 'IDs' parameters so that Insight auto-populates with currently selected images.
+    scripts.String("Data_Type", optional=False, grouping="01",
+        description="The data you want to work with.", values=dataTypes, default="Image"),
+
+    scripts.List("IDs", optional=False, grouping="02",
+        description="List of Image IDs").ofType(rlong(0)),
+
+    scripts.List("T_Indexes", grouping="03", 
         description="The time frames to display in the figure for each image").ofType(rint(0)),
-    scripts.String("Image_Labels", grouping="03", 
+    scripts.String("Image_Labels", grouping="04", 
         description="Label images with Image name (default) or datasets or tags", values=labels),
     scripts.Int("Width", grouping="06", 
         description="The max width of each image panel. Default is first image width", min=1),
@@ -563,7 +581,7 @@ def runAsScript():
     scripts.String("Time_Units", grouping="13",
         description="The units to use for time display", values=tunits),
     
-    version = "4.2.0",
+    version = "4.3.0",
     authors = ["William Moore", "OME Team"],
     institutions = ["University of Dundee"],
     contact = "ome-users@lists.openmicroscopy.org.uk",
@@ -571,7 +589,6 @@ def runAsScript():
     
     try:
         session = client.getSession();
-        gateway = session.createGateway();
         commandArgs = {}
     
         for key in client.getInputKeys():

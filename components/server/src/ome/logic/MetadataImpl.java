@@ -1,24 +1,9 @@
 /*
- *  $Id$
+/*
+ *   Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *   All rights reserved.
  *
- *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
- *
- *
- * 	This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *  
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- *------------------------------------------------------------------------------
+ *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.logic;
 
@@ -41,13 +26,13 @@ import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.model.IAnnotated;
 import ome.model.IObject;
-import ome.model.annotations.AnnotationAnnotationLink;
 import ome.model.annotations.DatasetAnnotationLink;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.PlateAnnotationLink;
 import ome.model.annotations.ProjectAnnotationLink;
 import ome.model.annotations.ScreenAnnotationLink;
+import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.WellSampleAnnotationLink;
 import ome.model.acquisition.Arc;
 import ome.model.acquisition.Filament;
@@ -102,9 +87,11 @@ public class MetadataImpl
      * light source.
      * 
      * @param src The light source to handle.
+     * @param instrument Pass <code>true</code> for clause on id,
+     * 					<code>false</code> for clause on instrument
      * @return See above.
      */
-    private StringBuilder createLightQuery(LightSource src)
+    private StringBuilder createLightQuery(LightSource src, boolean idClause)
     {
     	if (src == null) return null;
     	StringBuilder sb = new StringBuilder();
@@ -113,16 +100,23 @@ public class MetadataImpl
 			sb.append("left outer join fetch l.type ");
 			sb.append("left outer join fetch l.laserMedium ");
 			sb.append("left outer join fetch l.pulse as pulse ");
-	        sb.append("where l.instrument.id = :instrumentId");
+			//sb.append("left outer join fetch l.pump as pump ");
+			if (idClause)
+				sb.append("where l.id = :id");
+			else sb.append("where l.instrument.id = :instrumentId");
 		} else if (src instanceof Filament) {
 			sb.append("select l from Filament as l ");
 			sb.append("left outer join fetch l.type ");
-	        sb.append("where l.instrument.id = :instrumentId");
+			if (idClause)
+				sb.append("where l.id = :id");
+			else sb.append("where l.instrument.id = :instrumentId");
 		} else if (src instanceof Arc) {
 			sb.append("select l from Arc as l ");
 			sb.append("left outer join fetch l.type ");
-	        sb.append("where l.instrument.id = :instrumentId");
-		}
+			if (idClause)
+				sb.append("where l.id = :id");
+			else sb.append("where l.instrument.id = :instrumentId");
+		} else sb = null;
     	return sb;
     }
     
@@ -394,7 +388,7 @@ public class MetadataImpl
     				name = ls.getClass().getName();
     				if (!names.contains(name)) {
         				names.add(name);
-        				builder = createLightQuery(ls);
+        				builder = createLightQuery(ls, false);
         				if (builder != null) {
         					list.addAll(
         						iQuery.findAllByQuery(builder.toString(), 
@@ -481,28 +475,35 @@ public class MetadataImpl
         Iterator<LogicalChannel> i = list.iterator();
         LogicalChannel channel;
         LightSettings light;
-        LightSource src;
-        IObject object;
-        Parameters params; 
+        LightSource src, pump;
+        Parameters params;
         Laser laser;
-        Instrument instrument;
         while (i.hasNext()) {
         	channel = i.next();
 			light = channel.getLightSourceSettings();
 			if (light != null) {
 				src = light.getLightSource();
-				if (src instanceof LightEmittingDiode) {
-					light.setLightSource(src);
-				} else {
-					sb = createLightQuery(src);
+				if (!(src instanceof LightEmittingDiode)) {
+					sb = createLightQuery(src, true);
 					if (sb != null) {
 						params = new Parameters(); 
-						params.addLong("instrumentId", 
-								src.getInstrument().getId());
 						params.addId(src.getId());
-						sb.append(" and l.id = :id");
-						object = iQuery.findByQuery(sb.toString(), params);
-						light.setLightSource((LightSource) object);
+						src = iQuery.findByQuery(sb.toString(), params);
+						if (src instanceof Laser) {
+							laser = (Laser) src;
+							pump = laser.getPump();
+							if (pump != null && 
+									!(pump instanceof LightEmittingDiode)) {
+								params = new Parameters(); 
+								params.addId(pump.getId());
+								sb = createLightQuery(pump, true);
+								if (sb != null)
+									laser.setPump((LightSource)
+											iQuery.findByQuery(sb.toString(), 
+													params));
+								light.setLightSource(laser);
+							}
+						} else light.setLightSource(src);
 					}
 				}
 			}
@@ -711,88 +712,57 @@ public class MetadataImpl
     	Parameters po = new Parameters(options);
     	Parameters param = new Parameters();
     	StringBuilder sb = new StringBuilder();
-    	sb.append("select link from AnnotationAnnotationLink as link ");
-		sb.append("left outer join fetch link.child child ");
-		sb.append("left outer join fetch link.parent parent ");
-		sb.append("left outer join fetch child.details.owner ownerChild ");
-		sb.append("left outer join fetch parent.details.owner ownerParent ");
-		sb.append("where child member of "+TAG_TYPE);
-		sb.append(" and parent member of "+TAG_TYPE);
+    	param.addString("include", NS_INSIGHT_TAG_SET);
+    	sb.append("select tag from TagAnnotation as tag ");
+		sb.append("left outer join fetch tag.annotationLinks as l ");
+		sb.append("left outer join fetch l.parent as parent ");
+		sb.append("left outer join fetch l.child as child ");
+		sb.append("left outer join fetch child.details.owner as ownerChild ");
+		sb.append("left outer join fetch parent.details.owner as ownerParent ");
+		sb.append("left outer join fetch tag.details.owner as tagOwner ");
+		sb.append("where child member of "+TAG_TYPE+" and " +
+				"tag.ns is not null and tag.ns = :include");
+
 		if (po.isExperimenter()) {
-			sb.append(" and parent.details.owner.id = :userID");
+			sb.append(" and tagOwner.id = :userID");
 			param.addLong("userID", po.getExperimenter());
 		}
 		
+		//All the tag
     	List l = iQuery.findAllByQuery(sb.toString(), param);
-    	List<Long> tagSetIds = new ArrayList<Long>();
-    	List<Long> ids = new ArrayList<Long>();
-    	List<Long> children = new ArrayList<Long>();
-    	Annotation ann;
-		Long id;
-		Iterator i;
-		AnnotationAnnotationLink link;
-		//check the tag set-tag link.
-    	if (l != null) {
-    		i = l.iterator();
-    		while (i.hasNext()) {
-				link = (AnnotationAnnotationLink) i.next();
-				id = link.getId();
-				ann = link.parent();
-				if (NS_INSIGHT_TAG_SET.equals(ann.getNs())) {
-					if (!ids.contains(ann.getId())) {
-						ids.add(id);
-						result.add(link);
-						if (!tagSetIds.contains(ann.getId()))
-							tagSetIds.add(ann.getId());
-					}
-				}
-				id = link.getChild().getId();
-				if (!children.contains(id))
-					children.add(id);
-			}
-    	}
-    	
-    	//Retrieve the tagSets not linked to a tag
-    	sb = new StringBuilder();
-    	Set<String> include = new HashSet<String>();
-    	include.add(NS_INSIGHT_TAG_SET);
-		
-    	sb.append("select ann from Annotation as ann");
-		sb.append(" where ann member of "+TAG_TYPE);
-		sb.append(" and ann.ns is not null and ann.ns in (:include)");
-		
-		param = new Parameters();
-		param.addSet("include", include);
-		if (tagSetIds.size() > 0) {
-			sb.append(" and ann.id not in (:ids)");
-			param.addIds(tagSetIds);
-		}
-		if (po.isExperimenter()) {
-			sb.append(" and ann.details.owner.id = :userID");
-			param.addLong("userID", po.getExperimenter());
-		}
-		l = iQuery.findAllByQuery(sb.toString(), param);
-	    if (l != null) {
-	    	i = l.iterator();
-    		while (i.hasNext()) {
-				result.add((Annotation) i.next());
-    		}
-	    }
-	    
+    	if (l != null) result.addAll(l);
     	//retrieve the orphan tags.
 		if (po.isOrphan()) {
+			List<Long> children = new ArrayList<Long>();
+			if (l != null) {
+				Iterator j = l.iterator();
+				TagAnnotation tag;
+				List list;
+				Iterator k;
+				Long id;
+				while (j.hasNext()) {
+					tag = (TagAnnotation) j.next();
+					if (tag.sizeOfAnnotationLinks() > 0) {
+						list = tag.linkedAnnotationList();
+						k = list.iterator();
+						while (k.hasNext()) {
+							id = ((IObject) k.next()).getId();
+							if (!children.contains(id))
+								children.add(id);
+						}
+					}
+				}
+			}
+			
+			
 			sb = new StringBuilder();
-			Set<String> exclude = new HashSet<String>();
-			exclude.add(NS_INSIGHT_TAG_SET);
-			sb.append("select ann from Annotation as ann");
-			sb.append(" where ann member of "+TAG_TYPE);
-			sb.append(" and (ann.ns is null or ann.ns not in (:exclude))");
-    		
 			param = new Parameters();
-			param.addSet("exclude", exclude);
+			sb.append("select ann from TagAnnotation as ann");
+			//sb.append(" where ann member of "+TAG_TYPE);
+			sb.append(" where ann.ns is null");
 			if (children.size() > 0) {
 				sb.append(" and ann.id not in (:ids)");
-				param.addIds(children);
+				param.addList("ids", children);
 			}
 			if (po.isExperimenter()) {
 				sb.append(" and ann.details.owner.id = :userID");
@@ -800,10 +770,7 @@ public class MetadataImpl
 			}
 			l = iQuery.findAllByQuery(sb.toString(), param);
 		    if (l != null) {
-		    	i = l.iterator();
-	    		while (i.hasNext()) {
-					result.add((Annotation) i.next());
-	    		}
+		    	result.addAll(l);
 		    }
 		}
 

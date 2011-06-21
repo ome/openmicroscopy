@@ -29,6 +29,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
@@ -60,9 +61,9 @@ import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
@@ -237,7 +238,7 @@ class ControlPane
     /** Button to play movie across T displayed in the split view. */
     private JButton					playZMovieGrid;
     
-    /** Button to bring up the color picker. */
+    /** Button to project the displayed image. */
     private JButton         		projectionProject;
 
     /** The type of supported projections. */
@@ -263,6 +264,12 @@ class ControlPane
 
     /** The listener attached to the overlays. */
     private ActionListener			overlaysListener;
+    
+    /** Button to reset the zoom level to <code>1</code>.*/
+    private JButton					resetZoom;
+    
+    /** The mouse listener for the slider.*/
+    private MouseAdapter			ratioListener;
     
     /**
      * Sets the selected plane.
@@ -442,8 +449,13 @@ class ControlPane
        
         ratioSlider.setArrowsImageIcon(
         		icons.getImageIcon(IconManager.RATIO_MAX), 
-        		icons.getImageIcon(IconManager.RATIO_MIN));
-        
+        		icons.getImageIcon(IconManager.RATIO_MIN),
+        		icons.getImageIcon(IconManager.RATIO_MAX_DISABLED), 
+        		icons.getImageIcon(IconManager.RATIO_MIN_DISABLED));
+        resetZoom = new JButton(icons.getImageIcon(IconManager.ZOOM_FIT));
+        resetZoom.setVisible(false);
+        UIUtilities.unifiedButtonLookAndFeel(resetZoom);
+
         projectionRatioSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 
 				ZoomAction.MIN_ZOOM_INDEX, 
 				ZoomAction.MAX_ZOOM_INDEX, 
@@ -538,7 +550,7 @@ class ControlPane
         double size[][] = {{TableLayout.PREFERRED}, 
         				{TableLayout.PREFERRED, TableLayout.PREFERRED,
         				TableLayout.PREFERRED, TableLayout.PREFERRED, 
-        				SLIDER_HEIGHT, TableLayout.PREFERRED}};
+        				SLIDER_HEIGHT, TableLayout.PREFERRED, TableLayout.PREFERRED}};
         controls.setLayout(new TableLayout(size));
     }
     
@@ -570,7 +582,7 @@ class ControlPane
         	slider.setMajorTickSpacing(1);
         }
     }
-    
+
     /**
      * Initializes the value of the components displaying the currently selected
      * z-section and time-point.
@@ -597,8 +609,18 @@ class ControlPane
         initSlider(tSliderGrid, maxT, model.getDefaultT(), 
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
         
-        gridRatioSlider.addChangeListener(this);
+        if (model.isBigImage()) {
+        	ratioSlider.addPropertyChangeListener(this);
+        	ratioSlider.setMaximum(model.getResolutionLevels()-1);
+        	ratioSlider.setValue(model.getSelectedResolutionLevel());
+        	resetZoom.addActionListener(
+        			controller.getZoomActionFromLevels(
+        					model.getResolutionLevels()-1));
+        	resetZoom.setToolTipText("Reset to full size.");
+        	resetZoom.setText("");
+        } 
         ratioSlider.addChangeListener(this);
+        gridRatioSlider.addChangeListener(this);
         projectionRatioSlider.addChangeListener(this);
         
         playTMovie.setVisible(maxT != 0);
@@ -625,6 +647,7 @@ class ControlPane
 		initSlider(lifetimeSlider, maxBin, model.getSelectedBin(), 
      			LITEIME_SLIDER_DESCRIPTION, LIFETIME_SLIDER_TIPSTRING);
 		lifetimeSlider.setPaintTicks(false);
+		if (model.isBigImage()) resetZoom.setVisible(true);
     }
     
     /**
@@ -801,6 +824,8 @@ class ControlPane
         }
         k++;
         controls.add(ratioSlider, "0, "+k+", CENTER, CENTER");
+        k++;
+    	controls.add(resetZoom, "0, "+k+", CENTER, CENTER");
         return UIUtilities.buildComponentPanel(controls);
     }
     
@@ -1262,6 +1287,7 @@ class ControlPane
      */
     void onStateChange(boolean b)
     {
+    	if (model.getState() == ImViewer.LOADING_IMAGE) return;
         //if (model.isPlayingMovie()) enableSliders(!b);
         //else enableSliders(b);
         Iterator i = channelButtons.iterator();
@@ -1288,6 +1314,18 @@ class ControlPane
         		while (i.hasNext())
         			((ChannelButton) i.next()).setEnabled(false);
         	}
+    	}
+    	//big images.
+    	if (model.isBigImage()) {
+    		if (model.getState() == ImViewer.LOADING_TILES) {
+    			ratioSlider.setEnabled(false);
+    			gridRatioSlider.setEnabled(false);
+    			projectionRatioSlider.setEnabled(false);
+    		} else {
+    			ratioSlider.setEnabled(true);
+    			gridRatioSlider.setEnabled(true);
+    			projectionRatioSlider.setEnabled(true);
+    		}
     	}
     }
     
@@ -1545,7 +1583,7 @@ class ControlPane
 	/** Resets the zoom values when the image is large. */
 	void resetZoomValues()
 	{
-		ratioSlider.setMaximum(ZoomAction.ZOOM_100);
+		//ratioSlider.setMaximum(ZoomAction.ZOOM_100);
 	}
 	
 	/**
@@ -1716,7 +1754,7 @@ class ControlPane
 		}
 		return m;
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the overlays are turned on,
 	 * <code>false</code> otherwise.
@@ -1780,7 +1818,12 @@ class ControlPane
         		controller.setGridMagnificationFactor(r);
         		return;
         	} else if (object == ratioSlider) {
-        		controller.setZoomFactor(ratioSlider.getValue());
+        		if (model.isBigImage()) {
+        			if (!ratioSlider.isDragging())
+            			controller.setZoomFactor(ratioSlider.getValue());
+        		} else {
+        			controller.setZoomFactor(ratioSlider.getValue());
+        		}
         	} else if (object == projectionRatioSlider) {
         		controller.setZoomFactor(projectionRatioSlider.getValue());
         	}
@@ -1834,6 +1877,9 @@ class ControlPane
 			controller.setProjectionRange(false);
 		else if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name))
 			controller.setProjectionRange(true);
+		else if (OneKnobSlider.ONE_KNOB_RELEASED_PROPERTY.equals(name)) {
+			controller.setZoomFactor(ratioSlider.getValue());
+		}
 	}
 
 }

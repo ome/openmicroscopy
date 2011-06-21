@@ -1,0 +1,26 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_InputSubString_XMLschemasCLIRC1CLI.xsd'>
+ <area
+  shape='rect'
+  alt='element_Input'
+  coords='298,0,417,26'
+  href='CLI.xsd.html#element_Input'/>
+
+ <area
+  shape='rect'
+  alt='element_XYPlane'
+  coords='298,36,431,62'
+  href='CLI.xsd.html#element_XYPlane'/>
+
+ <area
+  shape='rect'
+  alt='element_RawImageFilePath'
+  coords='298,72,494,98'
+  href='CLI.xsd.html#element_RawImageFilePath'/>
+
+ <area
+  shape='rect'
+  alt='element_RawText'
+  coords='298,108,431,134'
+  href='CLI.xsd.html#element_RawText'/>
+
+</map>

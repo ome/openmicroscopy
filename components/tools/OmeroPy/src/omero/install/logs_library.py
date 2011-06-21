@@ -66,7 +66,9 @@ class log_line(object):
 
 class log_watcher(object):
 
-    def __init__(self, files, entries, exits, storeonce = [], storeall = []):
+    def __init__(self, files, entries, exits, storeonce = None, storeall = None):
+        if storeonce is None: storeonce = []
+        if storeall is None: storeall = []
         self.files = files
         self.entries = entries
         self.exits = exits
@@ -156,7 +158,7 @@ class MyLine(lines.Line2D):
       lines.Line2D.draw(self, renderer)
       self.text.draw(renderer)
 
-def plot_threads(watcher, all_colors = ["blue","red","yellow","green","pink","purple"]):
+def plot_threads(watcher, all_colors = ("blue","red","yellow","green","pink","purple")):
     digit = re.compile(".*(\d+).*")
 
     fig = plt.figure()

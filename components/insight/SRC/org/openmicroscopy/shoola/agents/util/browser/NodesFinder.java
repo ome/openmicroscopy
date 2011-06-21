@@ -24,16 +24,32 @@ package org.openmicroscopy.shoola.agents.util.browser;
 
 
 //Java imports
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+
 //Third-party libraries
 
 //Application-internal dependencies
 import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
+import pojos.FileData;
+import pojos.GroupData;
+import pojos.ImageData;
+import pojos.MultiImageData;
+import pojos.PlateAcquisitionData;
+import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 /** 
  * Finds the nodes corresponding the specified type and the identifier.
@@ -62,7 +78,47 @@ public class NodesFinder
     private Set<TreeImageDisplay> nodes;
     
     /** The collection of nodes to find. */
-    private List<DataObject> refObjects;
+    private Collection<DataObject> refObjects;
+    
+    /** Flag indicating to find the node by name. */
+    private boolean byName;
+    
+    /**
+     * Returns the name of the node.
+     * 
+     * @param obj The objetc to handle.
+     * @return See above.
+     */
+    private String getNodeName(Object obj)
+    { 
+        if (obj instanceof ProjectData) return ((ProjectData) obj).getName();
+        else if (obj instanceof DatasetData) 
+            return ((DatasetData) obj).getName();
+        else if (obj instanceof ImageData) 
+            return ((ImageData) obj).getName();
+        else if (obj instanceof ExperimenterData) {
+        	return EditorUtil.getExperimenterName((ExperimenterData) obj);
+        } else if (obj instanceof GroupData) {
+        	 return ((GroupData) obj).getName();
+        } else if (obj instanceof TagAnnotationData)
+        	return ((TagAnnotationData) obj).getTagValue();
+        else if (obj instanceof ScreenData)
+        	return ((ScreenData) obj).getName();
+        else if (obj instanceof PlateData) {
+        	return ((PlateData) obj).getName();
+        } else if (obj instanceof FileAnnotationData)
+        	return ((FileAnnotationData) obj).getFileName();
+        else if (obj instanceof File)
+        	return ((File) obj).getName();
+        else if (obj instanceof FileData)
+        	return ((FileData) obj).getName();
+        else if (obj instanceof PlateAcquisitionData)
+        	return ((PlateAcquisitionData) obj).getLabel();
+        else if (obj instanceof MultiImageData) 
+        	return ((MultiImageData) obj).getName();
+        else if (obj instanceof String) return (String) obj;
+        return "";
+    }
     
 	/**
 	 * Checks if the node is of the desired type.
@@ -78,13 +134,21 @@ public class NodesFinder
 				DataObject object;
 				Class k = userObject.getClass();
 				DataObject uo;
+				String n = getNodeName(userObject);
 				while (i.hasNext()) {
 					object = i.next();
 					if (object.getClass().equals(k)) {
 						uo = (DataObject) userObject;
-						if (uo.getId() == object.getId()) {
-							nodes.add(node);
-							break;
+						if (byName) {
+							if (n.equals(getNodeName(object))) {
+								nodes.add(node);
+								break;
+							}
+						} else {
+							if (uo.getId() == object.getId()) {
+								nodes.add(node);
+								break;
+							}
 						}
 					}
 				}
@@ -93,10 +157,26 @@ public class NodesFinder
 			if (userObject != null && userObject.getClass().equals(type)) {
 				if (userObject instanceof DataObject) {
 					DataObject data = (DataObject) userObject;
-					if (ids.contains(data.getId())) nodes.add(node);
+					if (ids == null) {
+						nodes.add(node);
+					} else {
+						if (ids.contains(data.getId())) nodes.add(node);
+					}
 				}
 			} 	
 		}
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param type The type to data object.
+	 */
+	public NodesFinder(Class type)
+	{
+		this.type = type;
+		this.ids = null;
+		nodes = new HashSet<TreeImageDisplay>();
 	}
 	
 	/**
@@ -131,7 +211,7 @@ public class NodesFinder
 	 * 
 	 * @param refObjects The collection of objects to find.
 	 */
-	public NodesFinder(List<DataObject> refObjects)
+	public NodesFinder(Collection<DataObject> refObjects)
 	{
 		type = null;
 		this.refObjects = refObjects;
@@ -148,6 +228,7 @@ public class NodesFinder
 		type = null;
 		if (refObject == null)
 			throw new IllegalArgumentException("No object to find.");
+		byName = refObject.getId() <= 0;
 		refObjects = new ArrayList<DataObject>();
 		refObjects.add(refObject);
 		nodes = new HashSet<TreeImageDisplay>();

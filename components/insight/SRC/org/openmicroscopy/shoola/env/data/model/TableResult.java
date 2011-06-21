@@ -22,7 +22,9 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
+
 //Java imports
+import java.util.Map;
 
 //Third-party libraries
 
@@ -44,6 +46,15 @@ package org.openmicroscopy.shoola.env.data.model;
 public class TableResult
 {
 
+	/** Identifies the index of the <code>ROI</code> column. */
+	public static final Integer ROI_COLUMN_INDEX = 0;
+	
+	/** Identifies the index of the <code>Image</code> column. */
+	public static final Integer IMAGE_COLUMN_INDEX = 1;
+	
+	/** Identifies the index of the <code>Well</code> column. */
+	public static final Integer WELL_COLUMN_INDEX = 2;
+		
 	/** The id of the table hosting the result. */
 	private long tableID;
 	
@@ -55,6 +66,9 @@ public class TableResult
 	
 	/** The data to display. */
 	private Object[][] data;
+	
+	/** The indexes of the column. */
+	private Map<Integer, Integer> indexes;
 	
 	/**
 	 * Creates a new instance.
@@ -81,6 +95,29 @@ public class TableResult
 		this.data = data;
 		this.columns = columns;
 		this.columnsDescription = columnsDescription;
+	}
+	
+	/**
+	 * Returns the index of the column corresponding to the specified value.
+	 * One of the constants defined by this class.
+	 * 
+	 * @param index One of the constants defined by this class.
+	 * @return See above.
+	 */
+	public int getColumnIndex(int index)
+	{ 
+		if (indexes == null) return -1;
+		return indexes.get(index); 
+	}
+
+	/**
+	 * Sets the indexes.
+	 * 
+	 * @param indexes The value to set.
+	 */
+	public void setIndexes(Map<Integer, Integer> indexes)
+	{
+		this.indexes = indexes;
 	}
 	
 	/**

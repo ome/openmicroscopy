@@ -410,20 +410,20 @@ public class TreeViewerFactory
 				String line = null;
 				String mimeType;
 				String[] values;
-				String v;
 				int index;
+				StringBuffer buffer;
 				List<ApplicationData> list;
 				while ((line = input.readLine()) != null) {
 					if (line.contains(SEPARATOR)) {
 						values = line.split(SEPARATOR);
 						if (values.length >= 2) {
 							mimeType = values[0];
-							v = "";
 							index = 1;
+							buffer = new StringBuffer();
 							for (int i = 1; i < values.length; i++) {
-								v += values[i];
+								buffer.append(values[i]);
 								if (index != values.length-1)
-									v += SEPARATOR;
+									buffer.append(SEPARATOR);
 								index++;
 							}
 							list = applications.get(mimeType);
@@ -431,7 +431,7 @@ public class TreeViewerFactory
 								list = new ArrayList<ApplicationData>();
 								applications.put(mimeType, list);
 							}
-							list.add(new ApplicationData(v));
+							list.add(new ApplicationData(buffer.toString()));
 						}
 					}
 				}

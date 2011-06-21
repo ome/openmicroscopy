@@ -138,11 +138,11 @@ public abstract class Player
      */
     public void setDelay(int v)
     {
-        if (state != STOP) return;
+        //if (state != STOP) return;
         if (v == 0) return;
         delay = DELAY/v;
         timer.setDelay(delay);
-        timer.setInitialDelay(delay*10);//to check if that's correct.
+        //timer.setInitialDelay(delay*10);//to check if that's correct.
     }
     
     /**

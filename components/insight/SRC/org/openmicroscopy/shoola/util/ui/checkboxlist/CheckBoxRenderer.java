@@ -66,8 +66,9 @@ public class CheckBoxRenderer
 	extends JComponent 
 	implements TableCellRenderer
 {
+	
 	/** The font size of the label. */
-	final int FONTSIZE = 10;
+	static final int FONTSIZE = 10;
 		
 	/** 
 	 * Set the renderer for the checkbox list.
@@ -85,14 +86,14 @@ public class CheckBoxRenderer
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		Component thisComponent = new JLabel();
+		Component thisComponent;
 		if (column == 0)
 		{
 			JLabel label = new JLabel();
 			label.setText(value+"");
 			label.setOpaque(true);
 			label.setFont(label.getFont().deriveFont(FONTSIZE));
-			thisComponent=label;
+			thisComponent = label;
 		}
 		else
 		{
@@ -101,7 +102,7 @@ public class CheckBoxRenderer
 			checkBox.setBackground(UIUtilities.BACKGROUND_COLOR);
 			thisComponent = checkBox;
 		}
-		if(row % 2 == 0)
+		if (row % 2 == 0)
 			thisComponent.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 		else
 			thisComponent.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);

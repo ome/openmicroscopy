@@ -347,6 +347,7 @@ class ToolBar
 		int setUp = view.convertCompressionLevel(value);
 		if (compression != setUp) compression = setUp;
 		int index = view.convertCompressionLevel();
+		/*
 		if (view.isBigImage()) {
 			compressionBox = EditorUtil.createComboBox(compressionPartial, 0, 
 	    			getBackground());
@@ -361,7 +362,10 @@ class ToolBar
 				index = compression;
 			compressionBox.setSelectedIndex(index);
 		}
-		
+		*/
+		if (compression >= UNCOMPRESSED && compression <= LOW)
+			index = compression;
+		compressionBox.setSelectedIndex(index);
 		compressionBox.addActionListener(
     			controller.getAction(ImViewerControl.COMPRESSION));
     	buildGUI(); 
@@ -450,9 +454,7 @@ class ToolBar
      */
 	int getUICompressionLevel()
 	{ 
-		int index = compressionBox.getSelectedIndex();
-		if (!view.isBigImage()) return index;
-		return index++;
+		return compressionBox.getSelectedIndex();
 	}
 	
 }

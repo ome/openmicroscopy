@@ -98,7 +98,7 @@ public class MockFuture
     public void getResult(long timeout, Object retVal, Exception e)
     {
         MockedCall mc = new MockedCall(getResultLong,
-                                    new Object[] {new Long(timeout)},
+                                    new Object[] {Long.valueOf(timeout)},
                                     retVal);
         if (e != null) mc.setException(new ExecException(e));
         mockSupport.add(mc);
@@ -109,7 +109,7 @@ public class MockFuture
         throws ExecException
     {
         MockedCall mc = new MockedCall(getResultLong, 
-                                        new Object[] {new Long(timeout)},
+                                        new Object[] {Long.valueOf(timeout)},
                                         null);
         mc = mockSupport.verifyCall(mc);
         if (mc.hasException()) {

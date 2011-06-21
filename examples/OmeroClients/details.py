@@ -1,4 +1,5 @@
 import omero
+import omero.clients
 
 image = omero.model.ImageI()
 details = image.getDetails()

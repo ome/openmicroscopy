@@ -38,14 +38,13 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import omero.constants.projection.ProjectionType;
 import omero.romio.PlaneDef;
-
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
+import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -122,9 +121,11 @@ public interface OmeroImageService
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws FSAccessException       If an error occurred while trying to 
+	 *                                  retrieve data using OMERO.fs.
 	 */
 	public RenderingControl loadRenderingControl(long pixelsID)
-		throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException, FSAccessException;
 
 	/**
 	 * Renders the specified 2D-plane. 
@@ -133,14 +134,14 @@ public interface OmeroImageService
 	 * @param pd        The plane to render.
 	 * @param asTexture	Pass <code>true</code> to return a texture,
 	 * 					<code>false</code> to return a buffered image.
-	 * @param largeImae Pass <code>true</code> to render a large image,
+	 * @param largeImage Pass <code>true</code> to render a large image,
 	 * 					<code>false</code> otherwise.
 	 * @return The image representing the plane.
 	 * @throws RenderingServiceException If the server cannot render the image.
 	 */
 	public Object renderImage(long pixelsID, PlaneDef pd, boolean asTexture,
 			boolean largeImage)
-		throws RenderingServiceException;    
+		throws RenderingServiceException;
 
 	/**
 	 * Shuts downs the rendering service attached to the specified 
@@ -230,9 +231,11 @@ public interface OmeroImageService
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws FSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data using OMERO.fs.
 	 */
 	public byte[] getPlane(long pixelsID, int z, int t, int c)
-		throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException, FSAccessException;
 
 	/**
 	 * Applies the rendering settings associated to the passed pixels set 
@@ -425,12 +428,14 @@ public interface OmeroImageService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws FSAccessException       If an error occurred while trying to 
+	 *                                  retrieve data using OMERO.fs.
 	 */
 	public Boolean createRenderingSettings(long pixelsID, RndProxyDef rndToCopy,
 			List<Integer> indexes)
-		throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException, FSAccessException;
 
 	/**
 	 * Loads the plane info objects related to the passed pixels set.
@@ -456,11 +461,13 @@ public interface OmeroImageService
 	 * @param importable The file to import. Mustn't be <code>null</code>.
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
+     * @param close Pass <code>true</code> to close the import,
+     * 		<code>false</code> otherwise.
 	 * @return See above.
-	 * @throws ImportException If an error occurred while importing.                            
+	 * @throws ImportException If an error occurred while importing.
 	 */
 	public Object importFile(ImportableObject object, ImportableFile importable,
-			long userID, long groupID)
+			long userID, long groupID, boolean close)
 		throws ImportException;
 	
 	/**
@@ -486,10 +493,7 @@ public interface OmeroImageService
 	public ScriptCallback createMovie(long imageID, long pixelsID, 
 			List<Integer> channels, MovieExportParam param)
 		throws DSOutOfServiceException, DSAccessException;
-
-	public Object monitor(String path, DataObject container, 
-			long userID, long groupID);
-
+	
 	/**
 	 * Loads the ROI related to the specified image and the file.
 	 * 
@@ -699,7 +703,12 @@ public interface OmeroImageService
 	 * @param maxLength The maximum length of a thumbnail.
 	 * @param userID	The id of the user.
 	 * @return See above.
-	 * @throws RenderingServiceException  If the server is out of service.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 * @throws FSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data using OMERO.fs.
 	 */
 	public Map<DataObject, BufferedImage> getFSThumbnailSet(
 			List<DataObject> files, int maxLength, long userID)
@@ -709,8 +718,10 @@ public interface OmeroImageService
 	 * Get all the available workflows from the server for the user.
 	 * @param userID The users id.
 	 * @return See above.
-	 * @throws DSAccessException
-	 * @throws DSOutOfServiceException
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	public List<WorkflowData> retrieveWorkflows(long userID) 
 		throws DSAccessException, DSOutOfServiceException;
@@ -720,8 +731,11 @@ public interface OmeroImageService
 	 * 
 	 * @param workflows See above.
 	 * @param userID The id of the user.
-	 * @throws DSAccessException
-	 * @throws DSOutOfServiceException
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	public  Object storeWorkflows(List<WorkflowData> workflows, long userID) 
 	throws DSAccessException, DSOutOfServiceException;
@@ -733,10 +747,27 @@ public interface OmeroImageService
 	 * @param experimenters	The experimenters to handle.
 	 * @param maxLength The maximum length of a thumbnail.
 	 * @return See above.
-	 * @throws RenderingServiceException  If the server is out of service.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	public Map<DataObject, BufferedImage> getExperimenterThumbnailSet(
 			List<DataObject> experimenters, int maxLength)
+		throws DSAccessException, DSOutOfServiceException;
+
+	/**
+	 * Saves locally the images as <code>JPEG</code>.
+	 * 
+	 * @param param Hosts the information about the objects to save,
+	 * 				where to save etc.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public ScriptCallback saveAs(SaveAsParam param)
 		throws DSAccessException, DSOutOfServiceException;
 	
 }

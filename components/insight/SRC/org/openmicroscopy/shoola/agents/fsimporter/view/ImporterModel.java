@@ -23,22 +23,26 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.fsimporter.DataImporterLoader;
+import org.openmicroscopy.shoola.agents.fsimporter.DataLoader;
+import org.openmicroscopy.shoola.agents.fsimporter.DataObjectCreator;
+import org.openmicroscopy.shoola.agents.fsimporter.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+
+import pojos.DataObject;
+import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * The Model component in the <code>Importer</code> MVC triad.
@@ -67,13 +71,7 @@ class ImporterModel
 
 	/** Reference to the component that embeds this model. */
 	protected Importer			component;
-	
-	/** 
-	 * Will either be a data loader or
-	 * <code>null</code> depending on the current state. 
-	 */
-	private DataImporterLoader 	currentLoader;
-	
+
 	/** The collection of existing tags. */
 	private Collection			tags;
 	
@@ -135,10 +133,6 @@ class ImporterModel
 	 */
 	void cancel()
 	{
-		if (currentLoader != null) {
-			currentLoader.cancel();
-			currentLoader = null;
-		}
 		state = Importer.READY;
 	}
 
@@ -151,8 +145,8 @@ class ImporterModel
 	{
 		ImagesImporter loader = loaders.get(loaderID);
 		if (loader != null) {
-			loader.cancel();
-			loaders.remove(loader);
+			//loader.cancel();
+			loaders.remove(loaderID);
 		}
 	}
 	
@@ -217,6 +211,42 @@ class ImporterModel
 		if (tags != null) return; //already loading tags
 		TagsLoader loader = new TagsLoader(component);
 		loader.load();
+	}
+	
+	/** Starts an asynchronous call to load the available disk space. */
+	void fireDiskSpaceLoading()
+	{
+		DiskSpaceLoader loader = new DiskSpaceLoader(component);
+		loader.load();
+	}
+	
+	/**
+	 * Fires an asynchronous call to load the container.
+	 * 
+	 * @param rootType The type of nodes to load.
+	 * @param refreshImport Flag indicating to refresh the on-going import.
+	 */
+	void fireContainerLoading(Class rootType, boolean refreshImport)
+	{
+		if (!(ProjectData.class.equals(rootType) ||
+			ScreenData.class.equals(rootType))) return;
+		DataLoader loader = new DataLoader(component, rootType, refreshImport);
+		loader.load();
+		state = Importer.LOADING_CONTAINER;
+	}
+
+	/**
+	 * Creates a new data object.
+	 * 
+	 * @param child The object to create.
+	 * @param parent The parent of the object or <code>null</code>.
+	 */
+	void fireDataCreation(DataObject child, DataObject parent)
+	{
+		DataObjectCreator loader = new DataObjectCreator(component, child,
+				parent);
+		loader.load();
+		state = Importer.CREATING_CONTAINER;
 	}
 	
 }

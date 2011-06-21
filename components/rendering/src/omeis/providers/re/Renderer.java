@@ -8,6 +8,7 @@
 package omeis.providers.re;
 
 // Java imports
+import java.awt.Dimension;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,6 +32,7 @@ import ome.model.enums.RenderingModel;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.PlaneFactory;
+import omeis.providers.re.data.RegionDef;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;
@@ -289,6 +291,34 @@ public class Renderer {
     }
 
     /**
+     * Checks the region definition to ensure that the requested tile width
+     * and height are valid with respect to the current resolution level.
+     * @param rd Requested region definition.
+     */
+    private void checkRegionDef(RegionDef rd)
+    {
+        if (rd == null)
+        {
+            return;
+        }
+        // We're using the buffer X and Y size because of the
+        // possibility that we're on a resolution level where
+        // Pixels.Size[X,Y] != PixelBuffer.Size[X,Y].
+        int sizeX = buffer.getSizeX();
+        int sizeY = buffer.getSizeY();
+        int x = rd.getX();
+        int y = rd.getY();
+        if ((rd.getWidth() + x) > sizeX)
+        {
+            rd.setWidth(sizeX - x);
+        }
+        if ((rd.getHeight() + y) > sizeY)
+        {
+            rd.setHeight(sizeY - y);
+        }
+    }
+
+    /**
      * Creates a new instance to render the specified pixels set and get this
      * new instance ready for rendering.
      * 
@@ -426,6 +456,7 @@ public class Renderer {
         if (pd == null) {
             throw new NullPointerException("No plane definition.");
         }
+        checkRegionDef(pd.getRegion());
         stats = new RenderingStats(this, pd);
         log.info("Using: '" + renderingStrategy.getClass().getName()
                 + "' rendering strategy.");
@@ -466,6 +497,7 @@ public class Renderer {
         if (pd == null) {
             throw new NullPointerException("No plane definition.");
         }
+        checkRegionDef(pd.getRegion());
         stats = new RenderingStats(this, pd);
         log.info("Using: '" + renderingStrategy.getClass().getName()
                 + "' rendering strategy.");
@@ -519,6 +551,7 @@ public class Renderer {
         if (pd == null) {
             throw new NullPointerException("No plane definition.");
         }
+        checkRegionDef(pd.getRegion());
         stats = new RenderingStats(this, pd);
         log.info("Using: '" + renderingStrategy.getClass().getName()
                 + "' rendering strategy.");
@@ -897,5 +930,44 @@ public class Renderer {
 		QuantumStrategy qs = getQuantumManager().getStrategyFor(w);
 		return qs.getPixelsTypeMax();
 	}
-	
+
+    /**
+     * Sets the active resolution level.
+     * @param resolutionLevel The resolution level to be used by the renderer.
+     **/
+    public void setResolutionLevel(int resolutionLevel)
+    {
+        buffer.setResolutionLevel(resolutionLevel);
+    }
+
+    /**
+     * Retrieves the active resolution level.
+     * @return The active resolution level.
+     **/
+    public int getResolutionLevel()
+    {
+        return buffer.getResolutionLevel();
+    }
+
+    /**
+     * Retrieves the number of resolution levels that the backing
+     * pixels pyramid contains.
+     * @return The number of resolution levels. This value does not
+     * necessarily indicate either the presence or absence of a
+     * pixels pyramid.
+     **/
+    public int getResolutionLevels()
+    {
+        return buffer.getResolutionLevels();
+    }
+
+    /**
+     * Retrieves the tile size for the pixel store.
+     * @return The dimension of the tile or <code>null</code> if the pixel
+     * buffer is not tiled.
+     **/
+    public Dimension getTileSize()
+    {
+        return buffer.getTileSize();
+    }
 }

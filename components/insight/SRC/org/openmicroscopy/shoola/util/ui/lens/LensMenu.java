@@ -54,33 +54,35 @@ class LensMenu
 {
 	
 	/** Text for the popup Menu -- not shown. */
-	final static String POPUP_MENU_DESCRIPTION = "Magnifying Lens Options"; 
+	private final static String POPUP_MENU_DESCRIPTION =
+		"Magnifying Lens Options"; 
 	
 	/** Text for the popup menu -- shown as a top option to the user. */
-	final static String POPUP_MENU_TOPOPTION = "Magnifying Lens Options"; 
+	private final static String POPUP_MENU_TOPOPTION = 
+		"Magnifying Lens Options"; 
 	
 	/** 
 	 * Text for the lens options -- parent of the resizing methods for the 
 	 * lens. 
 	 * */
-	final static String LENS_OPTIONS = "Lens";
+	private final static String LENS_OPTIONS = "Lens";
 	
 	/** 
 	 * Text for the zoom options -- parent of the changing of magnification 
 	 * methods for the lens. 
 	 */
-	final static String ZOOM_OPTIONS = "Zoom";
+	private final static String ZOOM_OPTIONS = "Zoom";
 	
 	/** 
 	 * Text for the option to display units -- parent of the micron/pixel 
 	 * options. 
 	 */
-	final static String DISPLAY_UNITS = "Units";
+	private final static String DISPLAY_UNITS = "Units";
 	
 	/** 
 	 * Text for the option to change the colour of the lens.
 	 */
-	final static String LENS_COLOR_OPTIONS = "Lens Color";
+	private final static String LENS_COLOR_OPTIONS = "Lens Color";
 	
 	/** Parent component of the lens and zoomWindowUI. */
 	private LensComponent		lensComponent;
@@ -190,6 +192,18 @@ class LensMenu
 		return displayOptions;
 	}
 	
+	/**
+	 * Create the menu displaying the action related to file handling e.g. 
+	 * Save as. 
+	 * 
+	 * @return The lens select units menu.
+	 */
+	private JMenu createFileMenu()
+	{
+		JMenu menu = new JMenu("File");
+		menu.add(new JMenuItem(new SaveAction(lensComponent)));
+		return menu;
+	}
 	/** 
 	 * Creates the popmenu for the lens, allow the user to change settings:
 	 * zoom factor, lens size and display units.
@@ -199,6 +213,7 @@ class LensMenu
 		popupMenu = new JPopupMenu(POPUP_MENU_DESCRIPTION);
 		popupMenu.add(new JMenuItem(POPUP_MENU_TOPOPTION));
 		popupMenu.addSeparator();
+		popupMenu.add(createFileMenu());
 		popupMenu.add(createLensOptions());
 		popupMenu.add(createZoomOptions());
 		popupMenu.add(createDisplayOptions());
@@ -212,6 +227,7 @@ class LensMenu
 	private void createMenubarMenu()
 	{
 		menubar = new JMenuBar();
+		menubar.add(createFileMenu());
 		menubar.add(createLensOptions());
 		menubar.add(createZoomOptions());
 		menubar.add(createDisplayOptions());

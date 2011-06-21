@@ -130,6 +130,13 @@ module omero {
              **/
             omero::model::IObject setSecurityContext(omero::model::IObject obj) throws ServerError;
 
+            /**
+             * Re-validates the password for the current session. This prevents
+             *
+             * See methods that mention "HasPassword".
+             **/
+            void setSecurityPassword(string password) throws ServerError;
+
 	    // Central OMERO.blitz stateless services.
 
 	    IAdmin*          getAdminService() throws ServerError;
@@ -153,7 +160,12 @@ module omero {
 
 	    // Central OMERO.blitz stateful services.
 
-	    Gateway*         createGateway() throws ServerError;
+	    /**
+	     * The gateway service provided here is deprecated in OMERO 4.3
+	     * see <a href="http://trac.openmicroscopy.org.uk/ome/wiki/Api/DeprecatedServices">Deprecated Services</a>
+	     * for more information and alternative usage.
+	     **/
+	    ["deprecated:createGateway() is deprecated"] Gateway*         createGateway() throws ServerError;
 	    Exporter*        createExporter() throws ServerError;
 	    JobHandle*       createJobHandle() throws ServerError;
 	    RawFileStore*    createRawFileStore() throws ServerError;

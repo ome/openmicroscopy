@@ -68,7 +68,11 @@ class Timer(threading._Timer):
     "completed" and the "exception" Event instances.
     """
 
-    def __init__(self, interval, function, args=[], kwargs={}):
+    def __init__(self, interval, function, args=None, kwargs=None):
+        if args is None:
+            args = []
+        if kwargs is None:
+            kwargs = {}
         threading._Timer.__init__(self, interval, function, args, kwargs)
         self.log = logging.getLogger(omero.util.make_logname(self))
         self.completed = threading.Event()

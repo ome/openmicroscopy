@@ -9,8 +9,14 @@
 """
 
 import unittest, os, subprocess, StringIO, getpass, exceptions
+import Ice
+import Glacier2
+import omero
+import omero_Constants_ice
+import omero_ext.uuid as uuid # see ticket:3774
+
 from path import path
-from omero.cli import Context, BaseControl, CLI
+from omero.cli import Context, BaseControl, CLI, NonZeroReturnCode
 from omero.util.sessions import SessionsStore
 from omero.util.temp_files import create_path
 from omero.plugins.sessions import SessionsControl
@@ -27,8 +33,16 @@ class MyStore(SessionsStore):
     def __init__(self, *args, **kwargs):
         SessionsStore.__init__(self, *args, **kwargs)
         self.clients = []
+        self.exceptions = []
 
     def create(self, name, pasw, props, new=True):
+
+        if not isinstance(props, dict):
+            raise exceptions.Exception("Bad type")
+
+        if self.exceptions:
+            raise self.exceptions.pop(0)
+
         cb = getattr(self, "create_callback", None)
         if cb:
             cb(*args, **kwargs)
@@ -43,6 +57,7 @@ class MyStore(SessionsStore):
 
     def __del__(self):
         assert len(self.clients) == 0, ("clients not empty! %s" % self.clients)
+        assert len(self.exceptions) == 0, ("exceptions not empty! %s" % self.exceptions)
 
 
 class MyClient(object):
@@ -51,7 +66,8 @@ class MyClient(object):
         self.sf = self
         self.userName = user
         self.groupName = group
-        self.props = props
+        self.props = {"omero.port":"4064"} # Fix after #3883
+        self.props.update(props)
 
     def __del__(self, *args):
         pass
@@ -104,6 +120,9 @@ class MyCLI(CLI):
         return_tuple = (MyClient(name, group, {"omero.host":host}), sess, 0, 0)
         add_tuple = (host, name, sess, props)
         self.STORE.clients.append((return_tuple, add_tuple, new))
+
+    def throw_on_create(self, e):
+        self.STORE.exceptions.append(e)
 
     def requests_host(self, host = "testhost"):
         self.REQRESP["Server: [localhost]"] = host
@@ -226,8 +245,9 @@ class TestSessions(unittest.TestCase):
 
     def test4(self):
         cli = MyCLI()
-        cli.creates_client(name="key")
-        cli.invoke(["-s", "localhost","-k", "key", "s", "login"])
+        cli.STORE.add("testhost","testuser","key", {})
+        cli.creates_client(sess="key", new=False)
+        cli.invoke(["-s", "testuser@testhost","-k", "key", "s", "login"])
         self.assertEquals(0, cli.rv)
 
     def testReuseWorks(self):
@@ -290,6 +310,57 @@ class TestSessions(unittest.TestCase):
         cli.creates_client(port="4444", new=False)
         cli.invoke("s login") # Should work. No conflict
         del cli
+
+    def testBadSessionKeyDies(self):
+        """
+        As seen in ticket 4223, when a bad session is
+        provided, a password shouldn't be asked for.
+        """
+        cli = MyCLI()
+
+        MOCKKEY = "MOCKKEY"
+
+        # First, successful login
+        cli.creates_client(sess=MOCKKEY)
+        cli.requests_pass()
+        cli.invoke("-s testuser@testhost s login")
+        cli.assertReqSize(self, 0) # All were requested
+        cli._client = None # Forcing new instance
+
+        key_login = "-s testuser@testhost -k %s s login" % MOCKKEY
+
+        # Now try with session when it's still available
+        cli.creates_client(sess=MOCKKEY, new=False)
+        cli.invoke(key_login)
+        cli._client = None # Forcing new instance
+
+        # Don't do creates_client, so the session key
+        # is now bad.
+        cli.throw_on_create(Glacier2.PermissionDeniedException("MOCKKEY EXPIRED"))
+        try:
+            cli.invoke(key_login)
+            self.fail("This must throw 'Bad session key'")
+        except NonZeroReturnCode:
+            pass
+        cli._client = None # Forcing new instance
+
+        del cli
+
+    def testCopiedSessionWorks(self):
+        """
+        Found by Colin while using a session key from
+        a non-CLI-source.
+        """
+        cli = MyCLI()
+
+        MOCKKEY = "MOCKKEY%s" % uuid.uuid4()
+
+        key_login = "-s testuser@testhost -k %s s login" % MOCKKEY
+
+        # Try with session when it's still available
+        cli.creates_client(sess=MOCKKEY, new=True)
+        cli.invoke(key_login)
+        cli._client = None # Forcing new instance
 
 if __name__ == '__main__':
     unittest.main()

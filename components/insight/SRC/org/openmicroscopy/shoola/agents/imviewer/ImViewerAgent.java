@@ -49,11 +49,13 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -351,6 +353,32 @@ public class ImViewerAgent
     }
     
     /**
+     * Closes the viewer b/c the rendering engine could not be loade.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleReloadRenderingEngineEvent(ReloadRenderingEngine evt)
+    {
+    	if (evt == null) return;
+    	List<Long> pixels = evt.getPixels();
+    	if (pixels == null || pixels.size() == 0) return;
+    	Iterator<Long> i = pixels.iterator();
+    	Long id;
+    	ImViewer viewer;
+    	UserNotifier un = registry.getUserNotifier();
+    	while (i.hasNext()) {
+			id = i.next();
+			viewer = ImViewerFactory.getImageViewer(id);
+			if (viewer != null) {
+				un.notifyInfo("Reload", "The rendering engine could not be " +
+						"reloaded for " + viewer.getUI().getTitle()+
+						".\nThe viewer will now close.");
+				viewer.discard();
+			}
+		}
+    }
+    
+    /**
      * Checks if the passed image is actually opened in the viewer.
      * 
      * @param image The image to handle.
@@ -400,6 +428,7 @@ public class ImViewerAgent
         bus.register(this, DeleteObjectEvent.class);
         bus.register(this, RndSettingsSaved.class);
         bus.register(this, FLIMResultsEvent.class);
+        bus.register(this, ReloadRenderingEngine.class);
     }
 
     /**
@@ -460,6 +489,8 @@ public class ImViewerAgent
         	handleRndSettingsSavedEvent((RndSettingsSaved) e);
         else if (e instanceof FLIMResultsEvent) 
         	handleFLIMResultsEvent((FLIMResultsEvent) e);
+        else if (e instanceof ReloadRenderingEngine) 
+        	handleReloadRenderingEngineEvent((ReloadRenderingEngine) e);
     }
 
 }

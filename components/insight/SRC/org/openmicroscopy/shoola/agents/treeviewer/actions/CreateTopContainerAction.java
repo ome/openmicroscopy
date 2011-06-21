@@ -180,7 +180,8 @@ public class CreateTopContainerAction
 				break;
 			case GROUP:
 				name = NAME_GROUP;
-				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.ADMIN));
+				putValue(Action.SMALL_ICON, icons.getIcon(
+						IconManager.OWNER_GROUP));
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_GROUP));
 				break;
@@ -337,6 +338,7 @@ public class CreateTopContainerAction
 					case EXPERIMENTER:
 						if (uo instanceof ExperimenterData) 
 							withParent = false;//true;
+						break;
 					case TAG:
 						if (fromTopMenu) withParent = false;
 						else {

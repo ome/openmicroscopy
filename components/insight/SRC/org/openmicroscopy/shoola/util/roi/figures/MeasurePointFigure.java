@@ -51,7 +51,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointTextFigure;
 
 /** 
- * 
+ * Point with measurement.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -81,6 +81,7 @@ public class MeasurePointFigure
     * This is used to perform faster drawing and hit testing.
     */
 	private	Rectangle2D bounds;
+	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */
 	protected 	ROI					roi;
 
@@ -98,19 +99,22 @@ public class MeasurePointFigure
 
 	/** 
 	 * Creates a new instance.
+	 * 
 	 * @param text text of the ellipse. 
-	 * @param x    coord of the figure. 
-	 * @param y    coord of the figure. 
+	 * @param x    coordinate of the figure. 
+	 * @param y    coordinate of the figure. 
 	 * @param width of the figure. 
 	 * @param height of the figure. 
 	 * @param readOnly The figure is read only.
-	 * @param clientObject The figure is created clientside.
+	 * @param clientObject The figure is created client-side.
 	 */
 	public MeasurePointFigure(String text, double x, double y, double width, 
 					double height, boolean readOnly, boolean clientObject) 
     {
     	super(text, x, y, width, height);
     	setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
+		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
 	    shape = null;
 		roi = null;
 		status = IDLE;
@@ -120,8 +124,9 @@ public class MeasurePointFigure
 
 	  /** 
      * Creates a new instance.
-     * @param x    coord of the figure. 
-     * @param y    coord of the figure. 
+     * 
+     * @param x    coordinate of the figure. 
+     * @param y    coordinate of the figure. 
      * @param width of the figure. 
      * @param height of the figure. 
      * */  
@@ -133,7 +138,7 @@ public class MeasurePointFigure
     /**
 	 * Create an instance of the Point Figure.
 	 * @param readOnly The figure is read only.
-	 * @param clientObject The figure is created clientside.
+	 * @param clientObject The figure is created client-side.
 	 */
 	public MeasurePointFigure(boolean readOnly, boolean clientObject)
 	{
@@ -149,7 +154,7 @@ public class MeasurePointFigure
 	}
 
 	/** 
-     * Get the X Coord of the figure, convert to microns if isInMicrons set. 
+     * Get the X coordinate of the figure, convert to microns if isInMicrons set. 
      * 
      * @return see above.
      */
@@ -174,7 +179,7 @@ public class MeasurePointFigure
     }
     
     /** 
-     * Get the Y Coord of the figure, convert to microns if isInMicrons set. 
+     * Get the Y coordinate of the figure, convert to microns if isInMicrons set. 
      * 
      * @return see above.
      */
@@ -207,25 +212,25 @@ public class MeasurePointFigure
     }
     
     /** 
-     * Get the x coord of the figure. 
+     * Get the x coordinate of the figure. 
      * @return see above.
      */
     public double getX() { return ellipse.getX(); }
     
     /** 
-     * Get the y coord of the figure. 
+     * Get the y coordinate of the figure. 
      * @return see above.
      */
     public double getY() { return ellipse.getY(); }
     
     /** 
-     * Get the width coord of the figure. 
+     * Get the width coordinate of the figure. 
      * @return see above.
      */
     public double getWidth() { return ellipse.getWidth(); }
     
     /** 
-     * Get the height coord of the figure. 
+     * Get the height coordinate of the figure. 
      * @return see above.
      */
     public double getHeight() { return ellipse.getHeight(); }
@@ -238,25 +243,29 @@ public class MeasurePointFigure
 	public void draw(Graphics2D g)
 	{
 		super.draw(g);
-		if(MeasurementAttributes.SHOWMEASUREMENT.get(this)  || MeasurementAttributes.SHOWID.get(this))
+		if(MeasurementAttributes.SHOWMEASUREMENT.get(this)  || 
+				MeasurementAttributes.SHOWID.get(this))
 		{
-			NumberFormat formatter = new DecimalFormat("###.#");
+			NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 			String pointCentre = 
 				"("+formatter.format(getMeasurementCentre().getX()) 
 				+ ","+formatter.format(getMeasurementCentre().getY())+")";
 			//ellipseArea = addUnits(ellipseArea);
-			double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
-			g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
+			double sz = ((Double) this.getAttribute(
+					MeasurementAttributes.FONT_SIZE));
+			g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 			bounds = g.getFontMetrics().getStringBounds(pointCentre, g);
-			bounds = new Rectangle2D.Double(this.getBounds().getCenterX()-bounds.getWidth()/2,
+			bounds = new Rectangle2D.Double(
+					this.getBounds().getCenterX()-bounds.getWidth()/2,
 					this.getBounds().getCenterY()+bounds.getHeight()/2,
 					bounds.getWidth(), bounds.getHeight());
-			if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
+			if (MeasurementAttributes.SHOWMEASUREMENT.get(this))
 			{
 				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
-				g.drawString(pointCentre, (int)bounds.getX(), (int)bounds.getY());
+				g.drawString(pointCentre, (int) bounds.getX(), 
+						(int) bounds.getY());
 			}
-			if(MeasurementAttributes.SHOWID.get(this))
+			if (MeasurementAttributes.SHOWID.get(this))
 			{
 				Rectangle2D 		bounds;
 				bounds = g.getFontMetrics().getStringBounds(getROI().getID()+"", g);
@@ -265,14 +274,14 @@ public class MeasurePointFigure
 							getBounds().getCenterY()+bounds.getHeight()/2,
 						bounds.getWidth(), bounds.getHeight());
 				g.setColor(this.getTextColor());
-				g.drawString(getROI().getID()+"", (int)bounds.getX(), (int)bounds.getY());
+				g.drawString(getROI().getID()+"", (int) bounds.getX(), 
+						(int) bounds.getY());
 			}
-			 
 		}
 	}
 	
 	/**
-	 * Overridden to stop updating shape if read only
+	 * Overridden to stop updating shape if read-only
 	 * @see AbstractAttributedFigure#transform(AffineTransform)
 	 */
 	public void transform(AffineTransform tx)
@@ -285,7 +294,7 @@ public class MeasurePointFigure
 	}
 		
 	/**
-	 * Overridden to stop updating shape if readonly.
+	 * Overridden to stop updating shape if read-only.
 	 * @see AbstractAttributedFigure#setBounds(Double, Double)
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
@@ -296,7 +305,6 @@ public class MeasurePointFigure
 			this.setObjectDirty(true);
 		}
 	}
-	
 
 	
 	/**
@@ -324,28 +332,32 @@ public class MeasurePointFigure
 	public Rectangle2D.Double getDrawingArea()
 	{
 		Rectangle2D.Double newBounds = super.getDrawingArea();
-		if(bounds!=null)
+		if (bounds != null)
 		{
-			if(newBounds.getX()>bounds.getX())
+			if (newBounds.getX() > bounds.getX())
 			{
 				double diff = newBounds.x-bounds.getX();
 				newBounds.x = bounds.getX();
 				newBounds.width = newBounds.width+diff;
 			}
-			if(newBounds.getY()>bounds.getY())
+			if (newBounds.getY() > bounds.getY())
 			{
 				double diff = newBounds.y-bounds.getY();
 				newBounds.y = bounds.getY();
 				newBounds.height = newBounds.height+diff;
 			}
-			if(bounds.getX()+bounds.getWidth()>newBounds.getX()+newBounds.getWidth())
+			if (bounds.getX()+bounds.getWidth() > 
+			newBounds.getX()+newBounds.getWidth())
 			{
-				double diff = bounds.getX()+bounds.getWidth()-newBounds.getX()+newBounds.getWidth();
+				double diff = bounds.getX()+bounds.getWidth()
+				-newBounds.getX()+newBounds.getWidth();
 				newBounds.width = newBounds.width+diff;
 			}
-			if(bounds.getY()+bounds.getHeight()>newBounds.getY()+newBounds.getHeight())
+			if (bounds.getY()+bounds.getHeight() > 
+			newBounds.getY()+newBounds.getHeight())
 			{
-				double diff = bounds.getY()+bounds.getHeight()-newBounds.getY()+newBounds.getHeight();
+				double diff = bounds.getY()+bounds.getHeight()
+				-newBounds.getY()+newBounds.getHeight();
 				newBounds.height = newBounds.height+diff;
 			}
 		}
@@ -505,12 +517,10 @@ public class MeasurePointFigure
 	{
 		this.dirty = dirty;
 	}
-	
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasurePointFigure#clone()
+
+	/**
+	 * Clones the figure.
+	 * @see MeasurePointFigure#clone()
 	 */
 	public MeasurePointFigure clone()
 	{
@@ -521,10 +531,9 @@ public class MeasurePointFigure
 		return that;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasurePointFigure#setText(String)
+	/**
+	 * Marks the object as dirty.
+	 * @see MeasurePointFigure#setText(String)
 	 */
 	public void setText(String text)
 	{
@@ -540,11 +549,9 @@ public class MeasurePointFigure
 	{
 		List<FigureListener> figListeners = new ArrayList<FigureListener>();
 		Object[] listeners = listenerList.getListenerList();
-		for(Object listener : listeners)
-			if(listener instanceof FigureListener)
+		for (Object listener : listeners)
+			if (listener instanceof FigureListener)
 				figListeners.add((FigureListener)listener);
 		return figListeners;
 	}
 }
-
-

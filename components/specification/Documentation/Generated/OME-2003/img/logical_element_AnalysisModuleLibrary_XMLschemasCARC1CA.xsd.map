@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_AnalysisModuleLibrary_XMLschemasCARC1CA.xsd'>
+ <area
+  shape='rect'
+  alt='element_AnalysisModule'
+  coords='610,72,1134,131'
+  href='CA.xsd.html#element_AnalysisModule'/>
+
+ <area
+  shape='rect'
+  alt='element_Category'
+  coords='610,141,1134,200'
+  href='CA.xsd.html#element_Category'/>
+
+ <area
+  shape='rect'
+  alt='element_Program'
+  coords='610,210,1134,269'
+  href='CA.xsd.html#element_Program'/>
+
+</map>

@@ -30,6 +30,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -74,7 +76,7 @@ public class SelectionWizardUI
 {
 
 	/** Bound property indicating that the selection has changed. */
-	static final String SELECTION_CHANGE = "selectionChange";
+	public static final String SELECTION_CHANGE = "selectionChange";
 	
 	/** Action command ID to add a field to the result table. */
 	private static final int 		ADD = 0;
@@ -193,6 +195,20 @@ public class SelectionWizardUI
 				}
 			}
 		});
+		availableItemsListbox.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Adds the items to the selected list.
+			 * @see MouseListener#mouseReleased(MouseEvent)
+			 */
+			public void mouseReleased(MouseEvent e)
+			{
+				if (e.getClickCount() == 2) {
+					if (availableItemsListbox.isFocusOwner())
+						addItem();
+				}
+			}
+		});
 		cellRendererLeft = new DataObjectListCellRenderer(userID, this);
 		availableItemsListbox.setCellRenderer(cellRendererLeft);
 		selectedItemsListbox = new JList();
@@ -205,6 +221,20 @@ public class SelectionWizardUI
 			public void keyPressed(KeyEvent e)
 			{
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					if (selectedItemsListbox.isFocusOwner())
+						removeItem();
+				}
+			}
+		});
+		selectedItemsListbox.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Removes the selected elements from the selected list.
+			 * @see MouseListener#mouseReleased(MouseEvent)
+			 */
+			public void mouseReleased(MouseEvent e)
+			{
+				if (e.getClickCount() == 2) {
 					if (selectedItemsListbox.isFocusOwner())
 						removeItem();
 				}

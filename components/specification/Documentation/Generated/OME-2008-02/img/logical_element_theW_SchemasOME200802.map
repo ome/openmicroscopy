@@ -1,0 +1,26 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_theW_SchemasOME200802'>
+ <area
+  shape='rect'
+  alt='element_AutoIterate'
+  coords='422,0,772,43'
+  href='ome.xsd.html#element_AutoIterate'/>
+
+ <area
+  shape='rect'
+  alt='element_UseValue'
+  coords='422,53,772,96'
+  href='ome.xsd.html#element_UseValue'/>
+
+ <area
+  shape='rect'
+  alt='element_IterateRange'
+  coords='422,106,772,149'
+  href='ome.xsd.html#element_IterateRange'/>
+
+ <area
+  shape='rect'
+  alt='element_Match'
+  coords='422,159,772,202'
+  href='ome.xsd.html#element_Match'/>
+
+</map>

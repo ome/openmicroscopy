@@ -10,8 +10,8 @@ ulimit -a
 #
 ./build.py clean
 ./build.py
-./build.py -f components/tools/OmeroPy/build.xml -Dtest.with.fail=true test
-./build.py -f components/tools/OmeroPy/build.xml -Dtest.with.fail=true integration
+./build.py -f components/tools/OmeroPy/build.xml -Dtest.with.fail=false test
+./build.py -f components/tools/OmeroPy/build.xml -Dtest.with.fail=false integration
 
 cd examples
-python ../target/scons/scons.py run_py=1
+python ../target/scons/scons.py run_py=1 no_cpp=1

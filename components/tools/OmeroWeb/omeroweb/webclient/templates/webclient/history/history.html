@@ -4,6 +4,26 @@
 {% load custom_tags %}
 {% load wikitags %}
 
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
 {% block link %}
     <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/calendar.css" %}" type="text/css" media="screen"/>
@@ -12,7 +32,7 @@
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
+
 {% endblock %}
 
 {% block script %}
@@ -26,11 +46,12 @@
             {
                 var h = $(window).height()-200;
                 $("div#history_calendar").css('height', h+31);
-                $("div#content_details").css('height', h+31);
                 $("div#metadata_details").css('height', h+31);
+                $("div#metadata_details iframe").attr('height', h+31);
+                $("div#content_details").css('height', h+31);
                 
-                $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                $("div#history_calendar").load('{% url load_calendar %}');
+                $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                $("div#history_calendar").load('{% url load_calendar %}?experimenter={{ nav.experimenter }}');
         })
     </script>
 {% endblock %}
@@ -50,6 +71,9 @@
 
 {% block right %}
 
-<div id="metadata_details" style="overflow: auto;"> </div>
+<div id="metadata_details">
+    <div id="metadata_description"></div>
+    <iframe width="370" name="metadata_details"></iframe>
+</div>
 
 {% endblock %}

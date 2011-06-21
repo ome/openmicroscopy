@@ -119,22 +119,24 @@ public class FilePathMethods
 		// The relative image file path needs to be built from the remaining directories of 
 		// the image file path.
 		// This is the path from the last common directory to the image. 
-		String relativeFilePath = "";
-		for (int i=commonDirsCount; i<imageFileDirectories.length; i++) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = commonDirsCount; i < imageFileDirectories.length; i++) {
 			// don't add fileSeparator at start. 
 			if (i > commonDirsCount)
-				relativeFilePath = relativeFilePath + File.separator;
+				buffer.append(File.separator);
 			
-			relativeFilePath = relativeFilePath + imageFileDirectories[i];
+			buffer.append(imageFileDirectories[i]);
 		}
 		
 		// If the editor File has additional directories after the last common directory...
 		// See how many...
-		int editorFileDirsRemaining = editorFileDirectories.length - commonDirsCount;
+		int editorFileDirsRemaining = editorFileDirectories.length - 
+			commonDirsCount;
 		
 		// Add  ../ for every directory level.
-		for (int i=0; i<editorFileDirsRemaining; i++) {
-			relativeFilePath = ".." + File.separator + relativeFilePath;
+		String relativeFilePath = "";
+		for (int i = 0; i < editorFileDirsRemaining; i++) {
+			relativeFilePath = ".." + File.separator + buffer.toString();
 		}
 		
 		// windows troubleshooting!!

@@ -54,7 +54,7 @@ import com.sun.opengl.util.texture.TextureIO;
  * @since OME3.0
  */
 class GridCanvas 
-	extends GLImageCanvas//ImageCanvas
+	extends GLImageCanvas
 {
 
 	/** The horizontal gap between image. */

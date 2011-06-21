@@ -100,7 +100,7 @@ public class ScreenLogo
 	{
 		JLabel splash = new JLabel(logo);
 		layers = new JLayeredPane(); 
-		layers.add(splash, new Integer(0));
+		layers.add(splash, Integer.valueOf(0));
 		getContentPane().add(layers);
 		int width = logo.getIconWidth();
 		int height = logo.getIconHeight();
@@ -192,7 +192,7 @@ public class ScreenLogo
 	public void addToLayer(JComponent c)
 	{
 		if (c == null) return;
-		layers.add(c, new Integer(1));
+		layers.add(c, Integer.valueOf(1));
 	}
 	
 	/**

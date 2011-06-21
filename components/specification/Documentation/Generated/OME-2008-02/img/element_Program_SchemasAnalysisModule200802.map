@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Program_SchemasAnalysisModule200802'>
+ <area
+  shape='rect'
+  alt='element_InstallationScript'
+  coords='335,0,545,26'
+  href='AnalysisModule.xsd.html#element_InstallationScript'/>
+
+ <area
+  shape='rect'
+  alt='element_InstallationFile'
+  coords='335,36,531,62'
+  href='AnalysisModule.xsd.html#element_InstallationFile'/>
+
+ <area
+  shape='rect'
+  alt='element_Installed'
+  coords='249,72,396,98'
+  href='AnalysisModule.xsd.html#element_Installed'/>
+
+</map>

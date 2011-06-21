@@ -23,6 +23,12 @@ import ome.model.enums.PixelsType;
  */
 public class PlaneFactory {
     
+	/** 
+     * Identifies the <i>Bit</i> data type used to store pixel values,
+     * as per <i>OME</i> spec. 
+     */
+    public static final String     BIT = "bit";
+    
     /** 
      * Identifies the <i>INT8</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
@@ -201,17 +207,41 @@ public class PlaneFactory {
         Integer z = Integer.valueOf(planeDef.getZ());
         Integer c = Integer.valueOf(channel);
         Integer t = Integer.valueOf(planeDef.getT());
-
+        Integer stride = planeDef.getStride();
         try {
-            switch (planeDef.getSlice()) {
-                case PlaneDef.XY:
-                    return new Plane2D(planeDef, pixels, buffer.getPlane(z, c,
-                            t));
-                case PlaneDef.XZ:
-                    return new Plane2D(planeDef, pixels, buffer.getStack(c, t));
-                case PlaneDef.ZY:
-                    return new Plane2D(planeDef, pixels, buffer.getStack(c, t));
-            }
+        	RegionDef region = planeDef.getRegion();
+        	if (region != null) {
+        		switch (planeDef.getSlice()) {
+	                case PlaneDef.XY:
+                        return new Plane2D(planeDef, pixels, buffer.getTile(
+                                z, c, t, region.getX(), region.getY(),
+                                region.getWidth(), region.getHeight()));
+	                case PlaneDef.XZ: //TODO
+	                    return new Plane2D(planeDef, pixels, 
+	                    		buffer.getStack(c, t));
+	                case PlaneDef.ZY: //TODO
+	                    return new Plane2D(planeDef, pixels, 
+	                    		buffer.getStack(c, t));
+        		}
+        	} else {
+        		switch (planeDef.getSlice()) {
+	                case PlaneDef.XY:
+	                	if (stride == null || stride <= 0)
+	                		return new Plane2D(planeDef, pixels, 
+	                    		buffer.getPlane(z, c, t));
+	                	return new Plane2D(planeDef, pixels, 
+	                    		buffer.getPlaneRegion(0, 0, 
+	                    				pixels.getSizeX(), 
+	                    				pixels.getSizeY(), z, c, t, 
+	                    				stride));
+	                case PlaneDef.XZ:
+	                    return new Plane2D(planeDef, pixels, 
+	                    		buffer.getStack(c, t));
+	                case PlaneDef.ZY:
+	                    return new Plane2D(planeDef, pixels, 
+	                    		buffer.getStack(c, t));
+        		}
+        	}
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (DimensionsOutOfBoundsException e) {

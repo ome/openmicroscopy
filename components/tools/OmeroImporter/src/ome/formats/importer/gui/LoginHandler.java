@@ -205,6 +205,9 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                             viewer.setVisible(true);
                         }
                         
+                        if (config.getStaticDisableUpgradeCheck() == false)
+                        	store.isUpgradeRequired(config.getVersionNumber(), "importer");
+                        store.logVersionInfo(config.getIniVersionNumber());
                         viewer.getStatusBar().setProgress(false, 0, "");
                         viewer.appendToOutput("> Login Successful.\n");
                         viewer.getFileQueueHandler().enableImports(true);
@@ -286,7 +289,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             }
         }.start();
     }
-
+    
     /**
      *  refresh login
      */
@@ -321,7 +324,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         
         ResourceBundle bundle = ResourceBundle.getBundle("omero");
         String omeroVersion = bundle.getString("omero.version");
-        
+        omeroVersion = this.viewer.getConfig().getIniVersionNumber();
         view = new ScreenLogin(config.getAppTitle(),
                 GuiCommonElements.getImageIcon("gfx/login_background.png"),
                 img,
@@ -352,7 +355,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             view.setBounds((screenSize.width-d.width)/2,
                     (screenSize.height-totalHeight)/2, 
                     dlogin.width, dlogin.height);
-            view.setQuitButtonText("Canel");
+            view.setQuitButtonText("Cancel");
         }
         view.addPropertyChangeListener((PropertyChangeListener) viewer);
         view.addWindowStateListener((WindowStateListener) viewer);
@@ -391,7 +394,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         	{
         		try
         		{
-        			viewer.getHistoryTable().db.initialize(store);
+        			viewer.getHistoryTable().db.initialize(store, (config.getStaticDisableHistory() | config.getUserDisableHistory()));
         			viewer.getHistoryTable().db.initializeDataSource();
         	        if (viewer.getHistoryTable().db.historyEnabled == false)
         	        	viewer.tPane.setEnabledAt(viewer.historyTabIndex,false);
@@ -416,7 +419,8 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     public void logout()
     {
     	store.logout();
-    	viewer.setLoggedIn(false);
+    	if (viewer != null)
+    		viewer.setLoggedIn(false);
     }
     
     /**

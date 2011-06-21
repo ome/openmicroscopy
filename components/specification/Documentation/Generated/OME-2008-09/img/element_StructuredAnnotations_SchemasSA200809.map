@@ -1,0 +1,50 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_StructuredAnnotations_SchemasSA200809'>
+ <area
+  shape='rect'
+  alt='element_XmlAnnotation'
+  coords='347,0,494,26'
+  href='SA.xsd.html#element_XmlAnnotation'/>
+
+ <area
+  shape='rect'
+  alt='element_FileAnnotation'
+  coords='347,36,501,62'
+  href='SA.xsd.html#element_FileAnnotation'/>
+
+ <area
+  shape='rect'
+  alt='element_ListAnnotation'
+  coords='347,72,501,98'
+  href='SA.xsd.html#element_ListAnnotation'/>
+
+ <area
+  shape='rect'
+  alt='element_LongAnnotation'
+  coords='347,108,501,134'
+  href='SA.xsd.html#element_LongAnnotation'/>
+
+ <area
+  shape='rect'
+  alt='element_DoubleAnnotation'
+  coords='347,144,515,170'
+  href='SA.xsd.html#element_DoubleAnnotation'/>
+
+ <area
+  shape='rect'
+  alt='element_StringAnnotation'
+  coords='347,180,515,206'
+  href='SA.xsd.html#element_StringAnnotation'/>
+
+ <area
+  shape='rect'
+  alt='element_BooleanAnnotation'
+  coords='347,216,522,242'
+  href='SA.xsd.html#element_BooleanAnnotation'/>
+
+ <area
+  shape='rect'
+  alt='element_TimestampAnnotation'
+  coords='347,252,536,278'
+  href='SA.xsd.html#element_TimestampAnnotation'/>
+
+</map>

@@ -242,8 +242,12 @@ public interface IAdmin extends ServiceInterface {
     List<OriginalFile> getMyUserPhotos();
 
     /**
-     * Updates an experimenter if admin or owner of group.
-     * Only string fields on the object are taken into account.
+     * Updates an experimenter if admin or owner of group. Only string fields on
+     * the object are taken into account.
+     *
+     * Before a SecurityViolation would be thrown, however, this method will
+     * pass to {@link #updateSelf(Experimenter)} <em>if</em> the current user
+     * matches the given experimenter.
      * 
      * @param experimenter
      *            the Experimenter to update.

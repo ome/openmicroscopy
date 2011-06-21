@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_LightSource_SchemasAnalysisModule200802'>
+ <area
+  shape='rect'
+  alt='element_Laser'
+  coords='422,265,772,308'
+  href='AnalysisModule.xsd.html#element_Laser'/>
+
+ <area
+  shape='rect'
+  alt='element_Filament'
+  coords='422,318,772,361'
+  href='AnalysisModule.xsd.html#element_Filament'/>
+
+ <area
+  shape='rect'
+  alt='element_Arc'
+  coords='422,371,772,414'
+  href='AnalysisModule.xsd.html#element_Arc'/>
+
+</map>

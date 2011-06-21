@@ -93,7 +93,7 @@ public class NumberFilter
 		}
 		
 		try {
-			Float s = Float.valueOf(str);
+			Float.valueOf(str);
 			return true;
 		}
 		catch (NumberFormatException ex) {

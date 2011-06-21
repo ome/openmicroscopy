@@ -25,7 +25,7 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Rectangle;
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +37,6 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.rnd.data.Region;
-
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -628,30 +626,25 @@ public interface RenderingControl
 	 * Renders the specified {@link PlaneDef 2D-plane}.
 	 * 
 	 * @param pDef   Information about the plane to render.
-	 * @param region The region to render, if <code>null</code> the specified 
-	 * 				 plane is rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	public BufferedImage renderRegion(PlaneDef pDef, Region region)
+	public BufferedImage render(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException;
 
 	/**
 	 * Renders the specified {@link PlaneDef 2D-plane}.
 	 * 
 	 * @param pDef 	 Information about the plane to render.
-	 * @param region The region to render, if <code>null</code> the specified 
-	 * 				 plane is rendered.
 	 * @param compression The compression level.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	public BufferedImage renderRegion(PlaneDef pDef, Region region, 
-			int compression)
+	public BufferedImage render(PlaneDef pDef, int compression)
 		throws RenderingServiceException, DSOutOfServiceException;
 
 	/**
@@ -772,14 +765,12 @@ public interface RenderingControl
 	 * Renders the specified {@link PlaneDef 2D-plane}.
 	 * 
 	 * @param pDef   Information about the plane to render.
-	 * @param region The region to render, if <code>null</code> the specified 
-	 * 				 plane is rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	public TextureData renderRegionAsTexture(PlaneDef pDef, Region region)
+	public TextureData renderAsTexture(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException;
 
 	/**
@@ -798,18 +789,52 @@ public interface RenderingControl
 	public Map<String, List<RndProxyDef>> getRenderingSettings();
 	
 	/**
-	 * Returns the viewport. This should only be available for big images.
+	 * Returns the possible resolution levels. This method should only be used
+	 * when dealing with large images.
 	 * 
 	 * @return See above.
 	 */
-	public Rectangle getViewport();
+	public int getResolutionLevels();
 	
 	/**
-	 * Returns the magnification factor at which the large image should 
-	 * be displayed.
+	 * Returns the currently selected resolution level. This method should only 
+	 * be used when dealing with large images.
 	 * 
 	 * @return See above.
 	 */
-	public double getZoomFactor();
+	public int getSelectedResolutionLevel();
+	
+	/**
+	 * Sets resolution level. This method should only be used when dealing with
+	 * large images.
+	 * 
+	 * @param level The value to set.
+	 * @throws RenderingServiceException 	If an error occurred while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	public void setSelectedResolutionLevel(int level)
+		throws RenderingServiceException, DSOutOfServiceException;
+	
+	/**
+	 * Returns the dimension of a tile.
+	 * 
+	 * @return See above.
+	 * @throws RenderingServiceException 	If an error occurred while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	public Dimension getTileSize()
+		throws RenderingServiceException, DSOutOfServiceException;
+	
+	/**
+	 * Returns <code>true</code> if it is a big image, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return
+	 * @throws RenderingServiceException
+	 * @throws DSOutOfServiceException
+	 */
+	public boolean isBigImage();
 	
 }

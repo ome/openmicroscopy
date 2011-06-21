@@ -1,0 +1,56 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_PixelOutput_SchemasCLI200802'>
+ <area
+  shape='rect'
+  alt='element_SizeX'
+  coords='291,0,410,42'
+  href='CLI.xsd.html#element_SizeX'/>
+
+ <area
+  shape='rect'
+  alt='element_SizeY'
+  coords='291,52,410,94'
+  href='CLI.xsd.html#element_SizeY'/>
+
+ <area
+  shape='rect'
+  alt='element_SizeZ'
+  coords='291,104,410,146'
+  href='CLI.xsd.html#element_SizeZ'/>
+
+ <area
+  shape='rect'
+  alt='element_SizeC'
+  coords='291,156,410,198'
+  href='CLI.xsd.html#element_SizeC'/>
+
+ <area
+  shape='rect'
+  alt='element_SizeT'
+  coords='291,208,410,250'
+  href='CLI.xsd.html#element_SizeT'/>
+
+ <area
+  shape='rect'
+  alt='element_PixelType'
+  coords='291,260,438,302'
+  href='CLI.xsd.html#element_PixelType'/>
+
+ <area
+  shape='rect'
+  alt='element_BitsPerPixel'
+  coords='291,312,459,354'
+  href='CLI.xsd.html#element_BitsPerPixel'/>
+
+ <area
+  shape='rect'
+  alt='element_Repository'
+  coords='291,364,445,406'
+  href='CLI.xsd.html#element_Repository'/>
+
+ <area
+  shape='rect'
+  alt='element_Path'
+  coords='291,416,403,458'
+  href='CLI.xsd.html#element_Path'/>
+
+</map>

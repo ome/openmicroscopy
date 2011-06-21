@@ -244,16 +244,11 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
 
         Job job = internalJobOnly();
 
-        //
-        // FIXME Unknown lazy initialization exceptions. Cleaning up for the
-        // moment.
-        //
-        iQuery.evict(job);
+        JobStatus status = job.getStatus();
+        Details unloadedDetails = status.getDetails().shallowCopy();
+        status.getDetails().shallowCopy(unloadedDetails);
+
         Job copy = new ShallowCopy().copy(job);
-        // 
-        iQuery.evict(job.getStatus());
-        Details unloadedDetails = job.getStatus().getDetails().shallowCopy();
-        job.getStatus().getDetails().shallowCopy(unloadedDetails);
         copy.setStatus(job.getStatus());
 
         return copy;

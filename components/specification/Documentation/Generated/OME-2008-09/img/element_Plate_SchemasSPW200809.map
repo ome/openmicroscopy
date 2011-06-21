@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Plate_SchemasSPW200809'>
+ <area
+  shape='rect'
+  alt='element_ScreenRef'
+  coords='249,0,368,42'
+  href='SPW.xsd.html#element_ScreenRef'/>
+
+ <area
+  shape='rect'
+  alt='element_Well'
+  coords='249,52,333,94'
+  href='SPW.xsd.html#element_Well'/>
+
+ <area
+  shape='rect'
+  alt='type_PlateID'
+  coords='163,104,257,130'
+  href='SPW.xsd.html#type_PlateID'/>
+
+</map>

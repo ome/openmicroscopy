@@ -123,7 +123,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
   this.viewport = jQuery('#'+viewportid);
   this.viewport.append('<img id="'+viewportimgid+'">');
   this.viewportimg = jQuery('#'+viewportimgid);
-  this.viewport.append('<div id="'+viewportmsgid+'" class="weblitz-viewport-msg"></div>');
+  this.viewport.append('<div id="'+viewportmsgid+'" class="weblitz-viewport-msg"></div>');  
   this.viewportmsg = jQuery('#'+viewportmsgid);
   this.self.append('<div id="'+bottomid+'" class="weblitz-viewport-bot">');
   this.bottom = jQuery('#'+bottomid);
@@ -134,7 +134,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     return _this.viewportmsg.is(':hidden');
   };
 
-  this.viewportimg.viewportImage(options);
+  this.viewportimg.viewportImage(options);  
   this.viewportimg.bind('zoom', function (e,z) { _this.loadedImg.current.zoom = z; });
   this.zslider.gs_slider({ orientation: 'v', min:0, max:0, tooltip_prefix: 'Z=', repeatCallback: done_reload });
   this.tslider.gs_slider({ tooltip_prefix: 'T=', min:0, max:0, repeatCallback: done_reload });
@@ -155,10 +155,33 @@ jQuery._WeblitzViewport = function (container, server, options) {
       }
         _load();
      });
+     
+  
+  // Sets the Z position (1-based index) of the image viewer by delegating to the slider. 
+  // Setting the slider should also result in the image plane changing. 
+  this.setZPos = function(pos) {
+      if (this.getZPos() != pos) {  // don't reload etc if we don't have to
+          if (_this.loadedImg.rdefs.invertAxis) {
+              this.tslider.get(0).setSliderPos(pos);
+          } else {
+              this.zslider.get(0).setSliderPos(pos);
+          }
+      }
+  };
+  this.setTPos = function(pos) {
+      if (this.getTPos() != pos) {
+          if (_this.loadedImg.rdefs.invertAxis) {
+              this.zslider.get(0).setSliderPos(pos);
+          } else {
+              this.tslider.get(0).setSliderPos(pos);
+          }
+      }
+  }
 
   var after_img_load_cb = function (callback) {
     hideLoading();
     _this.viewportimg.show();
+    
     _this.zslider.get(0).pos = -1;
     if (_this.loadedImg.rdefs.projection.toLowerCase().substring(3,0) == 'int') {
 	_this.zslider.get(0).setSliderRange(1, 1, _this.getPos().z+1, false);
@@ -171,7 +194,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
     if (_this.hasLinePlot()) {
       _this.viewportimg.one('zoom', function () {_this.refreshPlot();});
-    }
+    }    
   }
   
   /**
@@ -182,10 +205,37 @@ jQuery._WeblitzViewport = function (container, server, options) {
    *                     {id, width, height, z_count, t_count, c_count,
    *                      rdefs:{model,},
    *                      channels:[{emissionWave,color,active},]}
+   *  If a 'ConcurrencyException' is thrown, this key will be in the returned data
    */
   var _reset = function (data, textStatus) {
     hideLoading();
     clearTimeout(ajaxTimeout);
+    if(data==null) {
+        loadError("No data received from the server.");
+        return;
+    }
+    // If 'ConcurrencyException' we can't do anything else but notify user
+    if (data["ConcurrencyException"] != undefined) {
+        /* //backOff is hardcoded on the server 
+        //there is no point to display it right now
+        
+        backOff = data["ConcurrencyException"]['backOff'];
+        if (backOff != undefined || backOff != null){
+            seconds = backOff/1000;
+            hrs = parseInt(seconds / 3600);
+            mins = parseInt((seconds % 3600)/60);
+            secs = parseInt(seconds % (3600 * 60));
+            if (hrs > 0) {
+                label = hrs + " hours " + mins + " minutes";
+            } else if (mins > 0) {
+                label = mins + " minutes";
+            } else {
+                label = secs + " seconds";
+            }
+        } */
+        loadError('A "Pyramid" of zoom levels is currently being calculated for this image. Please try viewing again later.');
+        return;
+    }
     _this.loadedImg._load(data);
     _this.loadedImg_def = jQuery.extend(true, {}, _this.loadedImg);
     if (_this.loadedImg.current.query) {
@@ -194,7 +244,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     _this.refresh();
     _load(function () {
       //_this.refresh();
-      if (!_this.loadedImg.current.query.zm) {
+      if (!_this.loadedImg.current.query.zm && !_this.loadedImg.tiles) {
         var size = getSizeDict();
         _this.viewportimg.get(0).setZoomToFit(true, size.width, size.height);
       }
@@ -218,20 +268,33 @@ jQuery._WeblitzViewport = function (container, server, options) {
    */
   var _load = function (callback) {
     if (_this.loadedImg._loaded) {
-      var href;
-      if (_this.loadedImg.rdefs.projection.toLowerCase() != 'split') {
+      var href, thref;
+      if (_this.loadedImg.tiles) {
+        href = server + '/render_image_region/' + _this.getRelUrl();
+        // temporary solution for sharing. ShareId must me passed in a different way.
+        var serverPrefix = server.split("/");
+        thref = "/" + serverPrefix[1] + '/render_thumbnail/' + _this.loadedImg.id + '/'
+        if (serverPrefix.length > 2) thref += (serverPrefix[2] + "/");
+      } else if (_this.loadedImg.rdefs.projection.toLowerCase() != 'split') {
         href = server + '/render_image/' + _this.getRelUrl();
       } else {
         href = server + '/render_split_channel/' + _this.getRelUrl();
       }
+      
       var rcb = function () {
         after_img_load_cb(callback);
         _this.viewportimg.unbind('load', rcb);
         _this.self.trigger('imageChange', [_this]);
       };
+      
       showLoading();
-      _this.viewportimg.load(rcb);
-      _this.viewportimg.attr('src', href);
+      if (_this.loadedImg.tiles) {
+          rcb()
+          _this.viewportimg.get(0).setUpTiles(_this.loadedImg.size.width, _this.loadedImg.size.height, _this.loadedImg.tile_size.width, _this.loadedImg.tile_size.height, _this.loadedImg.init_zoom, _this.loadedImg.levels, href, thref);
+      } else {
+          _this.viewportimg.load(rcb);
+          _this.viewportimg.attr('src', href);
+      }      
     }
   }
 
@@ -250,10 +313,11 @@ jQuery._WeblitzViewport = function (container, server, options) {
     jQuery.getJSON(server+'/imgData/'+iid+'/?callback=?', _reset);
   };
 
-  var loadError = function () {
+  var loadError = function (msg) {
     if (_this.origHTML) _this.self.replaceWith(_this.origHTML);
     hideLoading();
-    showLoading('Error loading image!', 5);
+    if (msg!=='null') showLoading(msg, 5);
+    else showLoading('Error loading image!', 5);
   }
 
   var loadingQ = 0;
@@ -791,6 +855,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
    * @return {String} The current query with state information.
    */
   this.getQuery = function (include_slider_pos) {
+      
     var query = new Array();
     /* Channels (verbose as IE7 does not support Array.filter */
     var chs = new Array();
@@ -911,7 +976,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
    * Some events are handled by us, some are proxied to the viewport plugin.
    */
   this.bind = function (event, callback) {
-    if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' || event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange') {
+    if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' || 
+    event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange') {
       _this.self.bind(event, callback);
     } else {
       _this.viewportimg.bind(event, callback);

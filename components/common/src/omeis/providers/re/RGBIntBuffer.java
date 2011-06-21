@@ -7,9 +7,9 @@
 
 package omeis.providers.re;
 
-import java.util.Arrays;
 
 // Java imports
+import java.util.Arrays;
 
 // Third-party libraries
 

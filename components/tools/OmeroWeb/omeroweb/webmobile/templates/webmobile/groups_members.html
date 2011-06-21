@@ -4,7 +4,7 @@
 
 
 {% block header-title %}
-    Choose user or switch group
+    Choose user:
 {% endblock %}
 
 {% block content %}
@@ -24,6 +24,7 @@ Choose User from group '{{ client.getEventContext.groupName }}':
 
 {% endif %}
 
+<!-- turning of group switching for 4.3 release 
 
 <div class="subtitle">
 Switch current group:
@@ -43,6 +44,8 @@ Switch current group:
     </a>
 {% endfor %}
 </div>
+
+-->
 
 {% endblock %}
 

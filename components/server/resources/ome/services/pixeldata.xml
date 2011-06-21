@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2011 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<beans>
+  <description>
+  Registers the cron job for background pixeldata handling.
+  </description>
+
+  <bean id="adapterName" class="java.lang.String">
+    <constructor-arg value="PixelDataAdapter"/>
+  </bean>
+
+  <bean id="pixelDataTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    <property name="jobDetail" ref="pixelDataThreadRun" />
+    <property name="cronExpression" value="${omero.pixeldata.cron}" />
+  </bean>
+
+  <!-- used by session factory -->
+  <bean id="org.hibernate.EmptyInterceptor.INSTANCE"
+    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+  <alias name="org.hibernate.EmptyInterceptor.INSTANCE" alias="omeroInterceptor"/>
+
+  <bean id="securityFilter" class="ome.tools.hibernate.SecurityFilter">
+    <property name="defaultFilterCondition" value="true"/>
+  </bean>
+
+  <bean id="eventListeners" class="ome.security.basic.EventListenersFactoryBean">
+    <constructor-arg ref="currentDetails"/>
+    <constructor-arg ref="tokenHolder"/>
+    <constructor-arg index="2"><null/></constructor-arg>
+    <constructor-arg index="3"><null/></constructor-arg>
+    <property name="debugAll" value="false"/>
+  </bean>
+
+  <alias name="basicSecuritySystem" alias="securitySystem"/>
+  <bean id="basicSecuritySystem" class="ome.security.basic.BasicSecuritySystem">
+    <constructor-arg><null/></constructor-arg>
+    <constructor-arg ref="systemTypes"/>
+    <constructor-arg ref="currentDetails"/>
+    <constructor-arg ref="sessionManager"/>
+    <constructor-arg ref="roles"/>
+    <constructor-arg ref="internalServiceFactory"/>
+    <constructor-arg ref="tokenHolder"/>
+  </bean>
+
+  <bean id="eventHandler" class="ome.security.basic.NullEventHandler">
+    <description>
+    Scope: private
+    </description>
+    <constructor-arg ref="basicSecuritySystem"/>
+    <constructor-arg ref="omeroSessionFactory"/>
+  </bean>
+
+  <bean id="serverDirectoryCheck"
+     class="ome.services.util.ServerDirectoryCheck"
+     init-method="run" lazy-init="false">
+     <constructor-arg value="${omero.data.dir}"/>
+  </bean>
+
+</beans>

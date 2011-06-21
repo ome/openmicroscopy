@@ -26,11 +26,11 @@ package org.openmicroscopy.shoola.env.data.model;
 //Java imports
 import java.io.File;
 
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+import pojos.DatasetData;
 
 /** 
  * Store information about the file or folder to import.
@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.env.data.util.StatusLabel;
  */
 public class ImportableFile
 {
-
+	
 	/** The file or folder to import. */
 	private File file;
 	
@@ -59,6 +59,15 @@ public class ImportableFile
 	
 	/** Object used to find result back. */
 	private StatusLabel status;
+	
+	/** Indicate where to import the file, either a project or screen. */
+	private pojos.DataObject parent;
+	
+	/** Indicate where to import the images. */
+	private DatasetData dataset;
+	
+	/** The node of reference if set. */
+	private Object refNode;
 	
 	/**
 	 * Creates a new instance.
@@ -82,12 +91,51 @@ public class ImportableFile
 	 * 							container e.g. a dataset, <code>false</code>
 	 * 							otherwise.
 	 */
-	public ImportableFile(File file, boolean archived, boolean folderAsContainer)
+	public ImportableFile(File file, boolean archived,
+			boolean folderAsContainer)
 	{
 		this.file = file;
 		this.archived = archived;
 		this.folderAsContainer = folderAsContainer;
 	}
+	
+	/**
+	 * Sets the flag indicating to create a container from the folder.
+	 * 
+	 * @param folderAsContainer Pass <code>true</code> to make the folder a 
+	 * 							container e.g. a dataset, <code>false</code>
+	 * 							otherwise.
+	 */
+	public void setFolderAsContainer(boolean folderAsContainer)
+	{
+		this.folderAsContainer = folderAsContainer;
+	}
+	
+	/**
+	 * Sets where to import the files.
+	 * 
+	 * @param parent The parent either a project or a screen.
+	 * @param dataset The dataset where to import the images.
+	 */
+	public void setLocation(pojos.DataObject parent, DatasetData dataset)
+	{
+		this.parent = parent;
+		this.dataset = dataset;
+	}
+	
+	/**
+	 * Returns the parent, either a project or a screen.
+	 * 
+	 * @return See above.
+	 */
+	public pojos.DataObject getParent() { return parent; }
+	
+	/**
+	 * Returns the dataset.
+	 * 
+	 * @return See above.
+	 */
+	public DatasetData getDataset() { return dataset; }
 	
 	/**
 	 * Returns the object to import.
@@ -126,4 +174,18 @@ public class ImportableFile
 	 */
 	public StatusLabel getStatus() { return status; }
 	
+	/**
+	 * Returns the node of reference if set.
+	 * 
+	 * @return See above. 
+	 */
+	public Object getRefNode() { return refNode; }
+	
+	/**
+	 * Sets the node of reference if set.
+	 *  
+	 * @param refNode The node to set.
+	 */
+	public void setRefNode(Object refNode) { this.refNode = refNode; }
+		
 }

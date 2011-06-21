@@ -112,7 +112,7 @@ public class LightSourceData
 	{
 		LightSource light = (LightSource) asIObject();
 		if (light == null) return "";
-		RString value = light.getSerialNumber();
+		RString value = null;//light.getLotNumber();
 		if (value == null) return "";
 		return value.getValue();
 	}
@@ -310,6 +310,20 @@ public class LightSourceData
 		RDouble value = laser.getRepetitionRate();
 		if (value  == null) return -1;
 		return value.getValue();
+	}
+	
+	/**
+	 * Returns the pump.
+	 * 
+	 * @return See above.
+	 */
+	public LightSourceData getLaserPump()
+	{
+		if (!LASER.equals(getKind())) return null;
+		Laser laser = (Laser) asIObject();
+		LightSource pump = laser.getPump();
+		if (pump == null) return null;
+		return new LightSourceData(pump);
 	}
 	
 }

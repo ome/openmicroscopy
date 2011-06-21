@@ -1,0 +1,26 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Screen_SchemasSA200809'>
+ <area
+  shape='rect'
+  alt='element_Description'
+  coords='436,371,786,430'
+  href='SA.xsd.html#element_Description'/>
+
+ <area
+  shape='rect'
+  alt='element_Reagent'
+  coords='436,440,786,499'
+  href='SA.xsd.html#element_Reagent'/>
+
+ <area
+  shape='rect'
+  alt='element_PlateRef'
+  coords='436,509,786,568'
+  href='SA.xsd.html#element_PlateRef'/>
+
+ <area
+  shape='rect'
+  alt='element_ScreenAcquisition'
+  coords='436,578,786,637'
+  href='SA.xsd.html#element_ScreenAcquisition'/>
+
+</map>

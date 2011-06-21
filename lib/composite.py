@@ -44,7 +44,7 @@ NOW = time.ctime()
 
 HUDSON_ROOT = 'http://hudson.openmicroscopy.org.uk/job'
 
-HUDSON_XML_SUFFIX = 'lastBuild/api/xml'
+HUDSON_XML_SUFFIX = 'lastSuccessfulBuild/api/xml'
 
 BRANCH = os.environ["OMERO_BRANCH"]
 
@@ -79,6 +79,7 @@ def download(job, regex):
     """Grabs platform specific distribution targets from Hudson"""
     url = urllib.urlopen("/".join([HUDSON_ROOT, job, HUDSON_XML_SUFFIX]))
     hudson_xml = url.read()
+    hudson_xml = hudson_xml.replace('origin/', 'origin_')
     url.close()
     root = XML(hudson_xml)
 
@@ -197,13 +198,13 @@ target_artifacts = list()
 regex = re.compile(r'.*b\d+.zip')
 revision, artifacts = download(INSIGHT_JOB_NAME, regex)
 target_artifacts += artifacts
-regex = re.compile(r'.*importer.*b\d+.zip')
+regex = re.compile(r'.*importer.*-\w{8}.zip')
 revision, artifacts = download(IMPORTER_JOB_NAME, regex)
 target_artifacts += artifacts
 target = '%s.linux' % TARGET_PREFIX
 # Since Insight relies on its MANIFEST to start via the JAR, we're leaving
 # libs/OmeroImporter-Beta-4.1.0-DEV.jar in the ZIP.
-ignore = ['omero_client.jar', 'omero-clients-util-r\d+-b\d+.jar'] + IGNORE
+ignore = ['omero-clients-util-r\d+-b\d+.jar'] + IGNORE
 
 for artifact in target_artifacts:
     extract(artifact, target, ignore)

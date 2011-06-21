@@ -35,7 +35,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 //Application-internal dependencies
 
 /** 
- * 
+ * Displays the icon.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

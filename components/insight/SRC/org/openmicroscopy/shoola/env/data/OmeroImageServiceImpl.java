@@ -52,19 +52,23 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.Project;
+import omero.model.ProjectDatasetLink;
 import omero.model.RenderingDef;
+import omero.model.Screen;
+import omero.model.ScreenI;
+import omero.model.TagAnnotation;
 import omero.romio.PlaneDef;
 import omero.sys.Parameters;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
-import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
+import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
@@ -76,6 +80,8 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -83,7 +89,6 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PixelsData;
-import pojos.ProjectData;
 import pojos.ROIData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -106,26 +111,8 @@ class OmeroImageServiceImpl
  	implements OmeroImageService
 {
 
-	/** 
-	 * The collection of arbitrary files extensions to check
-	 * before importing. If a file has one of the extensions, we need
-	 * to check the import candidates.
-	 */
-	private static final List<String> ARBITRARY_FILES_EXTENSION;
-	
-	static {
-		ARBITRARY_FILES_EXTENSION = new ArrayList<String>();
-		ARBITRARY_FILES_EXTENSION.add("text");
-		ARBITRARY_FILES_EXTENSION.add("xml");
-		ARBITRARY_FILES_EXTENSION.add("exp");
-		ARBITRARY_FILES_EXTENSION.add("log");
-	}
-	
 	/** The collection of supported file filters. */
 	private FileFilter[]		filters;
-	
-	/** The extensions of the supported files formats. */
-	private String[]				supportedExtensions;
 	
 	/** Uses it to gain access to the container's services. */
 	private Registry                context;
@@ -133,7 +120,6 @@ class OmeroImageServiceImpl
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway            gateway;
 	
-
 	/**
 	 * Imports the specified candidates.
 	 * 
@@ -146,15 +132,15 @@ class OmeroImageServiceImpl
 	 * @param list   The list of annotations.
 	 * @param userID The identifier of the user.
 	 */
-	private void importCandidates(List<String> candidates, StatusLabel status, 
-			ImportableObject object, boolean archived, List<IObject> ioList, 
-			List<Annotation> list, long userID)
+	private Boolean importCandidates(Map<File, StatusLabel> files, StatusLabel status, 
+			ImportableObject object, boolean archived, IObject ioContainer, 
+			List<Annotation> list, long userID, boolean close)
 	{
-		Iterator<String> i = candidates.iterator();
-		Map<File, StatusLabel> files = new HashMap<File, StatusLabel>();
-		while (i.hasNext()) 
-			files.put(new File(i.next()), new StatusLabel());
-		status.setFiles(files);
+		if (status.isMarkedAsCancel()) {
+			gateway.closeImport();
+			return Boolean.valueOf(false);
+		}
+		boolean thumbnail = object.isLoadThumbnail();
 		Entry entry;
 		Iterator jj = files.entrySet().iterator();
 		StatusLabel label = null;
@@ -166,33 +152,57 @@ class OmeroImageServiceImpl
 		Set<ImageData> ll;
 		Iterator<ImageData> kk;
 		List<Object> converted;
+		boolean toClose = false;
+		int n = files.size()-1;
+		int index = 0;
 		while (jj.hasNext()) {
 			entry = (Entry) jj.next();
 			file = (File) entry.getKey();
+			if (ImportableObject.isHCSFile(file)) {
+				if (ioContainer != null && 
+					!(ioContainer.getClass().equals(Screen.class) ||
+					ioContainer.getClass().equals(ScreenI.class)))
+					ioContainer = null;
+			}
 			label = (StatusLabel) entry.getValue();
-			try {
-				result = gateway.importImage(object, ioList, file, label, 
-						archived);
-				if (result instanceof ImageData) {
-					image = (ImageData) result;
-					images.add(image);
-					label.setFile(file, createImportedImage(userID, image));
-				} else if (result instanceof Set) {
-					ll = (Set<ImageData>) result;
-					annotatedImportedImage(list, ll);
-					images.addAll(ll);
-					kk = ll.iterator();
-					converted = new ArrayList<Object>(ll.size());
-					while (kk.hasNext()) {
-						converted.add(createImportedImage(userID, kk.next()));	
-					}
-					label.setFile(file, converted);
-				} else label.setFile(file, result);
-			} catch (ImportException e) {
-				label.setFile(file, e);
+			if (close) {
+				toClose = index == n;
+				index++;
+			}
+			if (!label.isMarkedAsCancel()) {
+				try {
+					result = gateway.importImage(object, ioContainer, file,
+							label, archived, toClose);
+					if (result instanceof ImageData) {
+						image = (ImageData) result;
+						images.add(image);
+						if (thumbnail)
+							label.setFile(file, 
+									createImportedImage(userID, image));
+						else label.setFile(file, image);
+					} else if (result instanceof Set) {
+						ll = (Set<ImageData>) result;
+						annotatedImportedImage(list, ll);
+						images.addAll(ll);
+						kk = ll.iterator();
+						converted = new ArrayList<Object>(ll.size());
+						while (kk.hasNext()) {
+							image = kk.next();
+							if (thumbnail)
+								converted.add(
+										createImportedImage(userID, image));
+							else converted.add(image);
+						}
+						label.setFile(file, converted);
+					} else label.setFile(file, result);
+				} catch (ImportException e) {
+					label.setFile(file, e);
+				}
 			}
 		}
 		annotatedImportedImage(list, images);
+		if (close) gateway.closeImport();
+		return null;
 	}
 	
 	/**
@@ -233,32 +243,57 @@ class OmeroImageServiceImpl
 	 * @param userID  The identifier of the user.
 	 * @param image   The image to handle.
 	 * @return See above.
-	 * @throws ImportException
 	 */
 	private Object createImportedImage(long userID, ImageData image)
-		throws ImportException
 	{
 		if (image != null) {
+			ThumbnailData data;
 			try {
 				PixelsData pix = image.getDefaultPixels();
 				BufferedImage img = createImage(
-						gateway.getThumbnailByLongestSide(pix.getId(), 96));
-				ThumbnailData data = new ThumbnailData(image.getId(), img, 
-						userID, true);
+						gateway.getThumbnailByLongestSide(pix.getId(),
+								Factory.THUMB_DEFAULT_WIDTH));
+				data = new ThumbnailData(image.getId(), img, userID, true);
 				data.setImage(image);
 				return data;
 			} catch (Exception e) {
-				DeletableObject d = new DeletableObject(image);
-				List<DeletableObject> l = new ArrayList<DeletableObject>(1);
-				l.add(d);
-				try {
-					context.getDataService().delete(l);
-				} catch (Exception ex) {}
-				throw new ImportException("Failed to import image", e);
+				data = new ThumbnailData(image.getId(), 
+						createDefaultImage(image), userID, false);
+				data.setImage(image);
+				data.setError(e);
+				return data;
 			}
 		}
 		return image;
 	}
+	
+	/**
+	 * Formats the result of an image import.
+	 * 
+	 * @param image The image to handle.
+	 * @param userID The user's id.
+	 * @param thumbnail Pass <code>true</code> if thumbnail has to be created,
+	 * 					<code>false</code> otherwise.
+	 * @return See above.
+	 */
+	private Object formatResult(ImageData image, long userID, boolean thumbnail)
+	{
+		Boolean backoff = null;
+		try {
+			backoff = gateway.isLargeImage(
+					image.getDefaultPixels().asPixels());
+		} catch (Exception e) {}
+		//if (backoff != null && backoff.booleanValue())
+		//	return new ThumbnailData(image, backoff);
+		if (thumbnail) {
+			ThumbnailData thumb = (ThumbnailData) createImportedImage(userID, 
+					image);
+			thumb.setBackOffForPyramid(backoff);
+			return thumb;
+		} 
+		return image;
+	}
+	
 	
 	/**
 	 * Returns <code>true</code> if the binary data are available, 
@@ -285,14 +320,31 @@ class OmeroImageServiceImpl
 	{
 		try {
 			return WriterImage.bytesToImage(values);
-			//ByteArrayInputStream stream = new ByteArrayInputStream(values);
-			//return ImageIO.read(stream);
 		} catch (Exception e) {
 			throw new RenderingServiceException("Cannot create buffered image",
 					e);
 		}
 	}
 	
+    /**
+     * Creates a default thumbnail for the passed image.
+     * 
+     * @param data The image to handle.
+     * @return See above.
+     */
+    private BufferedImage createDefaultImage(ImageData data) 
+    {
+    	PixelsData pxd = null;
+        try {
+        	pxd = data.getDefaultPixels();
+		} catch (Exception e) {} //something went wrong during import
+        if (pxd == null)
+        	return Factory.createDefaultImageThumbnail(-1);
+        Dimension d = Factory.computeThumbnailSize(Factory.THUMB_DEFAULT_WIDTH,
+        		Factory.THUMB_DEFAULT_HEIGHT, pxd.getSizeX(), pxd.getSizeY());
+        return Factory.createDefaultImageThumbnail(d.width, d.height);
+    }
+    
 	/**
 	 * Creates a <code>BufferedImage</code> from the passed array of bytes.
 	 * 
@@ -339,11 +391,11 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#loadRenderingControl(long)
 	 */
 	public RenderingControl loadRenderingControl(long pixelsID)
-		throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 		RenderingControl proxy = 
 			PixelsServicesFactory.getRenderingControl(context, 
-					new Long(pixelsID), true);
+					Long.valueOf(pixelsID), true);
 		if (proxy == null) {
 			UserCredentials uc = 
 				(UserCredentials) context.lookup(LookupNames.USER_CREDENTIALS);
@@ -388,9 +440,10 @@ class OmeroImageServiceImpl
 		throws RenderingServiceException
 	{
 		try {
-			if (!largeImage)
-				return PixelsServicesFactory.render(context, new Long(pixelsID), 
-						pDef, asTexture);
+			//if (!largeImage)
+				return PixelsServicesFactory.render(context, 
+						Long.valueOf(pixelsID), pDef, asTexture);
+			/*
 			List<Long> ids = new ArrayList<Long>();
 			ids.add(pixelsID);
 			int w = pDef.x;
@@ -407,11 +460,12 @@ class OmeroImageServiceImpl
 			} else {
 				return createImage(values);
 			}
+			*/
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);
 		}
 	}
-
+	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#shutDown(long)
@@ -552,7 +606,7 @@ class OmeroImageServiceImpl
 	{
 		RenderingControl proxy = 
 			PixelsServicesFactory.getRenderingControl(context, 
-					new Long(pixelsID), false);
+					Long.valueOf(pixelsID), false);
 		if (proxy == null) return null;
 		try {
 			RenderingEnginePrx re = gateway.createRenderingEngine(pixelsID);
@@ -573,7 +627,7 @@ class OmeroImageServiceImpl
 	{
 		RenderingControl proxy = 
 			PixelsServicesFactory.getRenderingControl(context, 
-					new Long(pixelsID), false);
+					Long.valueOf(pixelsID), false);
 		if (proxy == null) return null;
 		try {
 			RenderingEnginePrx re = gateway.createRenderingEngine(pixelsID);
@@ -606,7 +660,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#getPlane(long, int, int, int)
 	 */
 	public byte[] getPlane(long pixelsID, int z, int t, int c)
-		throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 		if (pixelsID < 0) 
 			throw new IllegalArgumentException("Pixels' ID not valid.");
@@ -778,7 +832,7 @@ class OmeroImageServiceImpl
 	 */
 	public Boolean createRenderingSettings(long pixelsID, RndProxyDef rndToCopy,
 			List<Integer> indexes) 
-		throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 		if (rndToCopy == null) {
 			RenderingDef def = gateway.createRenderingDef(pixelsID);
@@ -808,92 +862,147 @@ class OmeroImageServiceImpl
 	{
 		return gateway.loadPlaneInfo(pixelsID, z, t, channel);
 	}
-
-	/**
-	 * Creates the default container where the images should be added.
-	 * 
-	 * @param container The container to handle.
-	 * @param dataset 	The default dataset where to import the orphaned images.
-	 * @param userID The owner of the container.
-	 * @return See above.
-	 */
-	private IObject createDefaultContainer(DataObject container, DatasetData
-			dataset, long userID)
-	{
-		//images have to be added to a container.
-		//specified container
-		IObject io = null;
-		Map m = new HashMap();
-		try {
-			if (container != null) {
-				if (container instanceof DatasetData) {
-					io = container.asIObject();
-				} else if (container instanceof ProjectData) {
-					if (dataset.getId() > 0) return dataset.asIObject();
-					io = gateway.findIObjectByName(
-							DatasetData.class, dataset.getName(), userID);
-					if (io == null) {
-						io = gateway.saveAndReturnObject(
-								dataset.asIObject(), m);
-					}
-				}
-			} else {
-				if (dataset.getId() > 0) return dataset.asIObject();
-				io = gateway.findIObjectByName(
-						DatasetData.class, dataset.getName(), userID);
-				if (io == null) {
-					io = gateway.saveAndReturnObject(
-							dataset.asIObject(), m);
-				}
-			}
-		} catch (Exception e) {
-			io = null;
-		}
-		return io;
-	}
 	
 	/**
-	 * Returns <code>true</code> if the extension of the specified file
-	 * is arbitrary and so requires to use the import candidates,
-	 * <code>false</code> otherwise.
+	 * Recycles or creates the container.
 	 * 
-	 * @param f The file to handle.
+	 * @param dataset The dataset to create or recycle.
+	 * @param container The container to create and link the dataset to.
+	 * @param object The object hosting the import option.
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
 	 */
-	private boolean isArbitraryFile(File f)
+	private IObject determineContainer(DatasetData dataset,
+		DataObject container, ImportableObject object)
+		throws DSOutOfServiceException, DSAccessException
 	{
-		if (f == null) return false;
-		String name = f.getName();
-		if (!name.contains(".")) return false; 	
-		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
-		return ARBITRARY_FILES_EXTENSION.contains(ext);
+		IObject ioContainer = null;
+		Map parameters = new HashMap();
+		DataObject createdData;
+		IObject project = null;
+		IObject link;
+		if (dataset != null) { //dataset
+			if (dataset.getId() <= 0) { 
+				//Check if it has been already been created.
+				//need to create it first
+				if (container != null) {
+					if (container.getId() <= 0) { 
+						//project needs to be created to.
+						createdData = object.hasObjectBeenCreated(
+								container);
+						if (createdData == null) {
+							project = gateway.saveAndReturnObject(
+									container.asIObject(), parameters);
+							//register
+							object.addNewDataObject(
+									PojoMapper.asDataObject(
+									project));
+							//now create the dataset
+							ioContainer = gateway.saveAndReturnObject(
+									dataset.asIObject(), parameters);
+							//register
+							object.registerDataset(
+									project.getId().getValue(),
+									(DatasetData) 
+									PojoMapper.asDataObject(
+									ioContainer));
+							link = (ProjectDatasetLink) 
+							ModelMapper.linkParentToChild(
+									(Dataset) ioContainer, 
+									(Project) project);
+							link = (ProjectDatasetLink) 
+							gateway.saveAndReturnObject(link, 
+									parameters);
+						} else {
+							DatasetData d;
+							d = object.isDatasetCreated(
+									createdData.getId(), dataset);
+							if (d == null) {
+								ioContainer = gateway.saveAndReturnObject(
+										dataset.asIObject(), parameters);
+								//register
+								object.registerDataset(
+										createdData.getId(),
+										(DatasetData) 
+										PojoMapper.asDataObject(
+										ioContainer));
+								link = (ProjectDatasetLink) 
+								ModelMapper.linkParentToChild(
+										(Dataset) ioContainer, 
+										(Project) createdData.asProject());
+								link = (ProjectDatasetLink) 
+								gateway.saveAndReturnObject(link, 
+										parameters);
+							} else ioContainer = d.asIObject();
+						}
+					} else { //project already exists.
+						createdData = object.isDatasetCreated(
+								container.getId(), dataset);
+						if (createdData == null) {
+							ioContainer = gateway.saveAndReturnObject(
+									dataset.asIObject(), parameters);
+							//register
+							object.registerDataset(
+									container.getId(),
+									(DatasetData) 
+									PojoMapper.asDataObject(
+									ioContainer));
+							link = (ProjectDatasetLink) 
+							ModelMapper.linkParentToChild(
+									(Dataset) ioContainer, 
+									(Project) container.asProject());
+							link = (ProjectDatasetLink) 
+							gateway.saveAndReturnObject(link, 
+									parameters);
+						} else ioContainer = createdData.asIObject();
+					}
+				} else { //dataset w/o project.
+					createdData = object.hasObjectBeenCreated(dataset);
+					if (createdData == null) {
+						ioContainer = gateway.saveAndReturnObject(
+								dataset.asIObject(), parameters);
+						//register
+						object.addNewDataObject(PojoMapper.asDataObject(
+								ioContainer));
+					} else ioContainer = createdData.asIObject();
+				}
+			} else ioContainer = dataset.asIObject();
+		}
+		return ioContainer;
 	}
 	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#importFile(ImportableObject, ImportableFile, 
-	 * long, long)
+	 * long, long, boolean)
 	 */
 	public Object importFile(ImportableObject object, ImportableFile importable, 
-			long userID, long groupID) 
+			long userID, long groupID, boolean close) 
 		throws ImportException
 	{
 		if (importable == null || importable.getFile() == null)
 			throw new IllegalArgumentException("No images to import.");
 		StatusLabel status = importable.getStatus();
+		if (status.isMarkedAsCancel()) {
+			gateway.closeImport();
+			return Boolean.valueOf(false);
+		}
 		Object result = null;
-		List<DataObject> containers = object.getContainers();
-		List<IObject> ioList = new ArrayList<IObject>();
 		Collection<TagAnnotationData> tags = object.getTags();
 		List<Annotation> list = new ArrayList<Annotation>();
 		List<IObject> l;
+		//Tags
 		if (tags != null && tags.size() > 0) {
+			List<TagAnnotationData> values = new ArrayList<TagAnnotationData>();
 			Iterator<TagAnnotationData> i = tags.iterator();
 			TagAnnotationData tag;
 			l = new ArrayList<IObject>();
 			while (i.hasNext()) {
 				tag = i.next();
 				if (tag.getId() > 0) {
+					values.add(tag);
 					list.add((Annotation) tag.asIObject());
 				} else l.add(tag.asIObject());
 			}
@@ -901,17 +1010,19 @@ class OmeroImageServiceImpl
 			try {
 				l = gateway.saveAndReturnObject(l, new HashMap());
 				Iterator<IObject> j = l.iterator();
+				Annotation a;
 				while (j.hasNext()) {
-					list.add((Annotation) j.next());
+					a = (Annotation) j.next();
+					values.add(new TagAnnotationData((TagAnnotation) a));
+					list.add(a);
 				}
+				object.setTags(values);
 			} catch (Exception e) {}
 		}
 		IObject link;
 		//prepare the container.
 		List<ImageData> images = new ArrayList<ImageData>();
-		Iterator<DataObject> j;
-		DataObject container;
-		IObject io;
+		//IObject io;
 		List<IObject> links = new ArrayList<IObject>();
 		Set<ImageData> ll;
 		ImageData image;
@@ -920,123 +1031,247 @@ class OmeroImageServiceImpl
 		List<String> candidates;
 		File file = importable.getFile();
 		boolean thumbnail = object.isLoadThumbnail();
+		DatasetData dataset = importable.getDataset();
+		DataObject container = importable.getParent();
+		IObject ioContainer = null;
+		Map parameters = new HashMap();
+		DataObject createdData;
+		IObject project = null;
+		DataObject folder = null;
+		boolean hcsFile;
 		if (file.isFile()) {
-			if (containers != null && containers.size() > 0) {
-				j = containers.iterator();
-				container = containers.get(0);
-				if (container instanceof ProjectData) {
-					io = createDefaultContainer(container, 
-							object.getDefaultDataset(), userID);
-					if (io != null) ioList.add(io);
-				} else if (container instanceof DatasetData || 
-						container instanceof ScreenData) {
-					while (j.hasNext())
-						ioList.add(j.next().asIObject());
+			hcsFile = ImportableObject.isHCSFile(file);
+			//Create the container if required.
+			if (hcsFile) {
+				dataset = null;
+				if (!(container instanceof ScreenData))
+					container = null;
+			}
+			if (!hcsFile && importable.isFolderAsContainer()) {
+				//we have to import the image in this container.
+				folder = object.createFolderAsContainer(importable);
+				if (folder != null && folder instanceof DatasetData) {
+					try {
+						ioContainer = determineContainer((DatasetData) folder, 
+								container, object);
+						status.setContainerFromFolder(PojoMapper.asDataObject(
+								ioContainer));
+					} catch (Exception e) {
+						context.getLogger().error(this, "Cannot create " +
+								"the container hosting the images.");
+					}
+				} 
+			}
+			if (folder == null && dataset != null) { //dataset
+				try {
+					ioContainer = determineContainer(dataset, container,
+							object);
+				} catch (Exception e) {
+					context.getLogger().error(this, "Cannot create " +
+					"the container hosting the images.");
+				}
+			} else { //no dataset specified.
+				if (container instanceof ScreenData) {
+					if (container.getId() <= 0) {
+						//project needs to be created to.
+						createdData = object.hasObjectBeenCreated(
+								container);
+						if (createdData == null) {
+							try {
+								ioContainer = gateway.saveAndReturnObject(
+										container.asIObject(), parameters);
+								//register
+								object.addNewDataObject(
+										PojoMapper.asDataObject(
+												ioContainer));
+							} catch (Exception e) {
+								context.getLogger().error(this, 
+										"Cannot create the Screen hosting " +
+										"the data.");
+							}
+						}
+					} else ioContainer = container.asIObject();
 				}
 			}
-			if (isArbitraryFile(file)) {
+			if (ImportableObject.isArbitraryFile(file)) {
 				candidates = gateway.getImportCandidates(object, file, status);
 				int size = candidates.size();
 				if (size == 0) return Boolean.valueOf(false);
 				else if (size == 1) {
 					File f = new File(candidates.get(0));
 					status.resetFile(f);
-					result = gateway.importImage(object, ioList, f,
-							status, importable.isArchived());
+					result = gateway.importImage(object, ioContainer, f,
+							status, importable.isArchived(), close);
 					if (result instanceof ImageData) {
 						image = (ImageData) result;
 						images.add(image);
 						annotatedImportedImage(list, images);
-						if (!thumbnail) return image;
-						return createImportedImage(userID, image);
+						return formatResult(image, userID, thumbnail);
 					} else if (result instanceof Set) {
 						ll = (Set<ImageData>) result;
 						annotatedImportedImage(list, ll);
 						kk = ll.iterator();
 						converted = new ArrayList<Object>(ll.size());
 						while (kk.hasNext()) {
-							if (!thumbnail) converted.add(kk.next());
-							else converted.add(createImportedImage(userID, 
-									kk.next()));	
+							converted.add(formatResult(kk.next(), userID,
+									thumbnail));	
 						}
 						return converted;
 					}
 					return result;
 				} else {
-					importCandidates(candidates, status, object, 
-							importable.isArchived(), ioList, list, userID);
+					Map<File, StatusLabel> files = 
+						new HashMap<File, StatusLabel>();
+					Iterator<String> i = candidates.iterator();
+					while (i.hasNext()) 
+						files.put(new File(i.next()), new StatusLabel());
+					status.setFiles(files);
+					Boolean v = importCandidates(files, status, object, 
+							importable.isArchived(), ioContainer, list, userID,
+							close);
+					if (v != null) {
+						return v.booleanValue();
+					}
 				}
-			} else {
-				result = gateway.importImage(object, ioList, file, status, 
-						importable.isArchived());
+			} else { //single file let's try to import it.
+				result = gateway.importImage(object, ioContainer, file, status, 
+						importable.isArchived(), close);
 				if (result instanceof ImageData) {
 					image = (ImageData) result;
 					images.add(image);
 					annotatedImportedImage(list, images);
-					if (!thumbnail) return image;
-					return createImportedImage(userID, image);
+					return formatResult(image, userID, thumbnail);
 				} else if (result instanceof Set) {
 					ll = (Set<ImageData>) result;
 					annotatedImportedImage(list, ll);
 					kk = ll.iterator();
 					converted = new ArrayList<Object>(ll.size());
 					while (kk.hasNext()) {
-						if (!thumbnail) converted.add(kk.next());
-						else converted.add(createImportedImage(userID, 
-								kk.next()));		
+						converted.add(formatResult(kk.next(), userID,
+								thumbnail));
 					}
 					return converted;
 				}
 				return result;
 			}
-		}
-		DataObject folder = object.createFolderAsContainer(importable);
-		Map m = new HashMap();
-		if (folder != null) {
-			//we have to import the image in this container.
-			try {
-				io = gateway.saveAndReturnObject(folder.asIObject(), m);
-				ioList.add(io);
-				if (folder instanceof DatasetData) {
-					if (containers != null && containers.size() > 0) {
-						j = containers.iterator();
-						while (j.hasNext()) {
-							container = j.next();
-							if (container instanceof ProjectData) {
-								link = ModelMapper.linkParentToChild(
-										(Dataset) io, 
-										(Project) container.asProject());
-								links.add(link);
-							}
-						}
-						try {
-							if (links.size() > 0) 
-								links = gateway.saveAndReturnObject(links, m);
-						} catch (Exception e) {
-						}
-					}
-				}
-			} catch (Exception e) {
-			}
-		} else { //import images not in the folder
-			if (containers != null && containers.size() > 0) {
-				j = containers.iterator();
-				container = containers.get(0);
-				if (container instanceof ProjectData) {
-					io = createDefaultContainer(container, 
-							object.getDefaultDataset(), userID);
-					if (io != null) ioList.add(io);
-				} else if (container instanceof DatasetData) {
-					while (j.hasNext())
-						ioList.add(j.next().asIObject());
-				}
-			}
-		}
-		
+		} //file import ends.
+		//Checks folder import.
 		candidates = gateway.getImportCandidates(object, file, status);
 		if (candidates.size() == 0) return Boolean.valueOf(false);
-		importCandidates(candidates, status, object, 
-				importable.isArchived(), ioList, list, userID);
+		Map<File, StatusLabel> hcsFiles = new HashMap<File, StatusLabel>();
+		Map<File, StatusLabel> otherFiles = new HashMap<File, StatusLabel>();
+		Map<File, StatusLabel> files = new HashMap<File, StatusLabel>();
+		Iterator<String> i = candidates.iterator();
+		File f;
+		StatusLabel sl;
+		while (i.hasNext()) {
+			f = new File(i.next());
+			sl = new StatusLabel();
+			if (ImportableObject.isHCSFile(f))
+				hcsFiles.put(f, sl);
+			else otherFiles.put(f, sl);
+			files.put(f, sl);
+		}
+		status.setFiles(files);
+		//check candidates and see if we are dealing with HCS data
+		if (hcsFiles.size() > 0) {
+			if (container != null && container instanceof ScreenData) {
+				if (container.getId() <= 0) {
+					//project needs to be created to.
+					createdData = object.hasObjectBeenCreated(
+							container);
+					if (createdData == null) {
+						try {
+							ioContainer = gateway.saveAndReturnObject(
+									container.asIObject(), parameters);
+							//register
+							object.addNewDataObject(
+									PojoMapper.asDataObject(
+											ioContainer));
+						} catch (Exception e) {
+							context.getLogger().error(this, 
+									"Cannot create the Screen hosting " +
+									"the data.");
+						}
+					}
+				} else ioContainer = container.asIObject();
+			}
+			importCandidates(hcsFiles, status, object, 
+					importable.isArchived(), ioContainer, list, userID, close);
+		}
+		if (otherFiles.size() > 0) {
+			folder = object.createFolderAsContainer(importable);
+			if (folder != null) { //folder
+				//we have to import the image in this container.
+				try {
+					ioContainer = gateway.saveAndReturnObject(
+							folder.asIObject(), parameters);
+					status.setContainerFromFolder(PojoMapper.asDataObject(
+							ioContainer));
+					if (folder instanceof DatasetData) {
+						if (container != null) {
+							try {
+								if (container.getId() <= 0) { 
+									//project needs to be created to.
+									createdData = object.hasObjectBeenCreated(
+											container);
+									if (createdData == null) {
+										project = gateway.saveAndReturnObject(
+												container.asIObject(), 
+												parameters);
+										object.addNewDataObject(
+											PojoMapper.asDataObject(project));
+										link = (ProjectDatasetLink) 
+										ModelMapper.linkParentToChild(
+												(Dataset) ioContainer, 
+												(Project) project);
+										link = (ProjectDatasetLink) 
+										gateway.saveAndReturnObject(link, 
+												parameters);
+									} else {
+										link = (ProjectDatasetLink) 
+										ModelMapper.linkParentToChild(
+												(Dataset) ioContainer, 
+												(Project) 
+												createdData.asProject());
+										link = (ProjectDatasetLink) 
+										gateway.saveAndReturnObject(link, 
+												parameters);
+									}
+								} else { //project already exists.
+									link = (ProjectDatasetLink) 
+									ModelMapper.linkParentToChild(
+											(Dataset) ioContainer, 
+											(Project) container.asProject());
+									link = (ProjectDatasetLink) 
+									gateway.saveAndReturnObject(link, 
+											parameters);
+								}
+							} catch (Exception e) {
+								context.getLogger().error(this, 
+										"Cannot create the container hosting " +
+										"the data.");
+							}
+						}
+					}
+				} catch (Exception e) {
+				}
+			} else { //folder 
+				if (dataset != null) { //dataset
+					try {
+						ioContainer = determineContainer(dataset, container,
+								object);
+					} catch (Exception e) {
+						context.getLogger().error(this, 
+								"Cannot create the container hosting " +
+								"the data.");
+					}
+				}
+			}
+			
+			importCandidates(otherFiles, status, object, 
+					importable.isArchived(), ioContainer, list, userID, close);
+		}
 		return Boolean.valueOf(true);
 	}
 	
@@ -1059,40 +1294,6 @@ class OmeroImageServiceImpl
 		return filters;
 	}
 	
-	public Object monitor(String directory, DataObject container, 
-			long userID, long groupID)
-	{
-		if (supportedExtensions == null) {
-			FileFilter[] l = getSupportedFileFormats();
-			List<String> formats = new ArrayList<String>();
-			String description;
-			String regEx = "\\*";
-			String[] terms;
-			String v;
-			for (int i = 0; i < l.length; i++) {
-				description = l[i].getDescription();
-				terms = description.split(regEx);
-				for (int j = 1; j < terms.length; j++) {
-					v = terms[j].trim();
-					v = v.replaceAll(",", "");
-					if (v.endsWith(")"))
-						v = v.substring(0, v.length()-1);
-					formats.add(v);
-				}
-			}
-			supportedExtensions = new String[formats.size()];
-			Iterator<String> k = formats.iterator();
-			int index = 0;
-			
-			while (k.hasNext()) {
-				supportedExtensions[index] = k.next();
-				index++;
-			}
-		}
-		gateway.monitor(directory, supportedExtensions, container);
-		return true;
-	}
-	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#createMovie(long, long, List, MovieExportParam)
@@ -1112,8 +1313,6 @@ class OmeroImageServiceImpl
 
 		return gateway.createMovie(imageID, pixelsID, exp.getId(), channels, 
 				param);
-		//if (id < 0) return null;
-		//return context.getMetadataService().loadAnnotation(id);
 	}
 	
 	/** 
@@ -1471,6 +1670,24 @@ class OmeroImageServiceImpl
 			}
 		}
 		return m;
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#saveAs(SaveAsParam)
+	 */
+	public ScriptCallback saveAs(SaveAsParam param)
+		throws DSAccessException, DSOutOfServiceException
+	{
+		if (param == null)
+			throw new IllegalArgumentException("No parameters specified.");
+		List<DataObject> objects = param.getObjects();
+		if (objects == null || objects.size() == 0)
+			throw new IllegalArgumentException("No objects specified.");
+		ExperimenterData exp = (ExperimenterData) context.lookup(
+				LookupNames.CURRENT_USER_DETAILS);
+
+		return gateway.saveAs(exp.getId(), param);
 	}
 	
 }

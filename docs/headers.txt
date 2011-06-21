@@ -1,0 +1,182 @@
+##
+## Templates and guidelines for copyright and license headers
+## which should be included in ALL files within this repository
+## except where specified below.
+##
+## General guidelines:
+## -------------------
+##
+## * The "(C)" is preferred but optional, and need not
+##   be added to files missing it, but in general should be
+##
+## * Shorter copyright lines (80 or less) can have the
+##   "All rights reserved." on the "Copyright" line. E.g.,
+##
+##     Copyright 2011 Glencoe Software, Inc. All rights reserved.
+##
+##   in which case there doesn't have to be a blank line
+##   before the license block.
+##
+## * When a file is modified in a year not covered in the
+##   copyright, the year range should be updated to reflect
+##   the new year. The copyright itself should not be
+##   changed. For example, "2008-2010" in a file modified
+##   in 2011 should become "2008-2011", and no other changes
+##   should be made to the header.
+##
+## * Where present, the fully qualified class or "$Id$" field
+##   can be left, but omitting them is the preferred style.
+##
+## * The patterns below are checked via checkstyle patterns
+##   defined in docs/styles/headers.xml
+##
+## * For non-licensed files (XSL, XSD), the license block
+##   can be omitted.
+##
+
+###
+### OMERO.insight
+###
+
+/*
+ * <fully qualified class name>
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) <year> University of Dundee & Open Microscopy Environment.
+ *  All rights reserved.
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+
+###
+### OMERO.server
+###
+
+/*
+ *   Copyright (C) <year> University of Dundee & Open Microscopy Environment.
+ *   All rights reserved.
+ *
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
+
+###
+### OmeroPy
+###
+
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#
+# Copyright (C) <year> University of Dundee & Open Microscopy Environment.
+#                      All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+
+"""
+Module documentation
+"""
+
+
+###
+### OMERO.web Python
+###
+
+#
+# Copyright (C) <year> University of Dundee & Open Microscopy Environment.
+# All rights reserved.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+###
+### OMERO.web JavaScript
+###
+
+//
+// Copyright (C) <year> University of Dundee & Open Microscopy Environment.
+// All rights reserved.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+
+###
+### OMERO.web CSS
+###
+
+/*
+ * Copyright (C) <year> University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+###
+### OMERO.web HTML / Templates
+###
+
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+--!>

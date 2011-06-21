@@ -34,10 +34,14 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
@@ -86,7 +90,7 @@ class TreeViewerWin
 	static final String			JXTASKPANE_TYPE = "JXTaskPane";
 
 	/** Indicates how much to give to the Metadata View. */
-	private static final double WEIGHT = 0.7;
+	private static final double WEIGHT = 0.8;
 	
     /** The default title of the window. */
     private static final String TITLE = "Data Manager";
@@ -142,9 +146,6 @@ class TreeViewerWin
 	/** The location of the divider. */
 	private int					dividerLocation;
 	
-	/** Dialog displaying the supported file formats. */
-	private TinyDialog			formatDialog;
-	
 	/** Flag indicating that the tree is visible or hidden. */
 	private boolean				treeVisible;
 	
@@ -163,19 +164,8 @@ class TreeViewerWin
     /** The pane displaying the viewer. */
     private JSplitPane			viewerPane;
     
-    /**
-     * Returns <code>true</code> if the Screening data are displayed first,
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    private boolean isSPWFirst()
-    {
-    	Boolean type = (Boolean) 
-		TreeViewerAgent.getRegistry().lookup("BrowserSPW");
-    	if (type == null) return false;
-		return type;
-    }
+    /** The listener to the split panes.*/
+    private PropertyChangeListener listener;
     
     /**
      * Checks if the specified {@link Browser} is already visible.
@@ -195,46 +185,46 @@ class TreeViewerWin
     /** Creates the components hosting the browsers. */
     private void layoutBrowsers()
     {
-    	Map browsers = model.getBrowsers();
+    	Map<Integer, Browser> browsers = model.getBrowsers();
     	Browser browser;
     	if (getLayoutType().equals(JXTASKPANE_TYPE)) {
     		container = new JXTaskPaneContainerSingle();
     		container.addPropertyChangeListener(controller);
     		JXTaskPane pane;
-    		if (isSPWFirst()) {
-    			 browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
+    		if (TreeViewerAgent.isSPWFirst()) {
+    			 browser = browsers.get(Browser.SCREENS_EXPLORER);
     			 pane = new TaskPaneBrowser(browser);
     			 firstPane = pane;
     			 container.add(pane);
-    			 browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
+    			 browser = browsers.get(Browser.PROJECTS_EXPLORER);
     			 container.add(new TaskPaneBrowser(browser));
     		} else {
-    			browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
+    			browser = browsers.get(Browser.PROJECTS_EXPLORER);
     			pane = new TaskPaneBrowser(browser);
    			 	firstPane = pane;
    			 	container.add(pane);
-   			 	browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
+   			 	browser = browsers.get(Browser.SCREENS_EXPLORER);
    			 	container.add(new TaskPaneBrowser(browser));
     		}
             
     		//browser = (Browser) browsers.get(Browser.FILE_SYSTEM_EXPLORER);
     		//container.add(new TaskPaneBrowser(browser));
              
-            browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
+            browser = browsers.get(Browser.FILES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
             
-            browser = (Browser) browsers.get(Browser.TAGS_EXPLORER);
+            browser = browsers.get(Browser.TAGS_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
             
-            browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
+            browser = browsers.get(Browser.IMAGES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
             if (model.isLeader() || model.isAdministrator()) {
-            	browser = (Browser) browsers.get(Browser.ADMIN_EXPLORER);
+            	browser = browsers.get(Browser.ADMIN_EXPLORER);
                 container.add(new TaskPaneBrowser(browser));
             }
             AdvancedFinder finder = model.getAdvancedFinder();
     		finder.addPropertyChangeListener(controller);
-    		container.add(new TaskPaneBrowser(finder));
+    		container.add(new TaskPaneBrowser(new JScrollPane(finder)));
     		JScrollPane s = new JScrollPane(container);
     		s.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
             browsersDisplay = s;
@@ -346,24 +336,24 @@ class TreeViewerWin
         JMenu menu = new JMenu("View");
         menu.setMnemonic(KeyEvent.VK_V);
         JCheckBoxMenuItem item = new JCheckBoxMenuItem();
-        Map browsers = model.getBrowsers();
-        Browser browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
+        Map<Integer, Browser> browsers = model.getBrowsers();
+        Browser browser = browsers.get(Browser.PROJECTS_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(
                 controller.getAction(TreeViewerControl.HIERARCHY_EXPLORER));
         menu.add(item);
         item = new JCheckBoxMenuItem();
-        browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
+        browser = browsers.get(Browser.FILES_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(controller.getAction(TreeViewerControl.FILES_EXPLORER));
         menu.add(item);
         item = new JCheckBoxMenuItem();
-        browser = (Browser) browsers.get(Browser.TAGS_EXPLORER);
+        browser = browsers.get(Browser.TAGS_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(controller.getAction(TreeViewerControl.TAGS_EXPLORER));
         menu.add(item);
         item = new JCheckBoxMenuItem();
-        browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
+        browser = browsers.get(Browser.IMAGES_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(controller.getAction(TreeViewerControl.IMAGES_EXPLORER));
         menu.add(item);
@@ -387,6 +377,10 @@ class TreeViewerWin
         item.setText(a.getActionName());
         //menu.add(createRootMenu());
         a = controller.getAction(TreeViewerControl.EDITOR_NO_SELECTION);
+        item = new JMenuItem(a);
+        menu.add(item);
+        item.setText(a.getActionName());
+        a = controller.getAction(TreeViewerControl.IMPORT_NO_SELECTION);
         item = new JMenuItem(a);
         menu.add(item);
         item.setText(a.getActionName());
@@ -444,8 +438,34 @@ class TreeViewerWin
         viewerPane.setContinuousLayout(true);
         viewerPane.setBackground(UIUtilities.BACKGROUND_COLOR);
         //viewerPane.setResizeWeight(1.0);
+        listener = new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (JSplitPane.DIVIDER_LOCATION_PROPERTY.equals(name)) {
+					if (evt.getSource() == rightPane && metadataVisible)
+						dividerRightLocation = rightPane.getDividerLocation();
+					handleDividerMoved();
+				}
+			}
+		};
     }
 
+    /** Handles the change of location of the divider of the split panes.*/
+    private void handleDividerMoved()
+    {
+		DataBrowser db = model.getDataViewer();
+		if (db != null) {
+			JViewport viewPort = workingPane.getViewport();
+			JComponent component = db.getBrowser().getUI();
+			component.setPreferredSize(viewPort.getExtentSize());
+			component.setSize(viewPort.getExtentSize());
+			component.validate();
+			component.repaint();
+			db.layoutDisplay();
+		}
+    }
+    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
@@ -459,6 +479,7 @@ class TreeViewerWin
     	rightPane.setLeftComponent(workingPane);
     	rightPane.setRightComponent(null);
     	rightPane.setResizeWeight(WEIGHT);
+    	
     	splitPane = new JSplitPane();
         //splitPane.setResizeWeight(1);
         splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
@@ -467,7 +488,7 @@ class TreeViewerWin
         splitPane.setLeftComponent(browsersDisplay);
         //splitPane.setRightComponent(workingPane);
         splitPane.setRightComponent(rightPane);
-        splitPane.setResizeWeight(0.1);
+        splitPane.setResizeWeight(0);
         Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
         c.add(toolBar, BorderLayout.NORTH);
@@ -535,9 +556,20 @@ class TreeViewerWin
     /** Adds the metadata editor. */
     void initializeDisplay()
     {
-    	if (rightPane.getRightComponent() == null)
-    		rightPane.setRightComponent(
-    				model.getMetadataViewer().getEditorUI());
+    	if (rightComponent == null) {
+			rightComponent = new JScrollPane(
+					model.getMetadataViewer().getEditorUI());
+    	}
+    	if (metadataVisible) {
+    		Component[] components = rightPane.getComponents();
+    		boolean b = false;
+    		for (int i = 0; i < components.length; i++) {
+				if (components[i] == rightComponent) {
+					b = true;
+				}
+			}
+    		if (!b) rightPane.setRightComponent(rightComponent);
+    	}
     }
     
     /**
@@ -551,14 +583,17 @@ class TreeViewerWin
     		List<JXTaskPane> list = container.getTaskPanes();
     		TaskPaneBrowser p;
     		Browser b;
+    		container.removePropertyChangeListener(controller);
     		for (JXTaskPane pane: list)  {
     			if (pane instanceof TaskPaneBrowser) {
     				p = (TaskPaneBrowser) pane;
     				b = p.getBrowser();
-    				if (b != null && b.getBrowserType() == browserType)
-    					p.setCollapsed(false);	
+    				if (b != null && b.getBrowserType() == browserType) {
+    					p.setCollapsed(false);
+    				}
     			}
     		}
+    		container.addPropertyChangeListener(controller);
     	} else {
     		
     	}
@@ -619,11 +654,11 @@ class TreeViewerWin
                     model.setSelectedBrowser(null);
                     return;
                 }
-                Map browsers = model.getBrowsers();
-                Iterator i = browsers.values().iterator();
+                Map<Integer, Browser> browsers = model.getBrowsers();
+                Iterator<Browser> i = browsers.values().iterator();
                 boolean selected = false;
                 while (i.hasNext()) {
-                    browser = (Browser) i.next();
+                    browser = i.next();
                     if (c.equals(browser.getUI())) {
                         model.setSelectedBrowser(browser);
                         selected = true;
@@ -668,13 +703,18 @@ class TreeViewerWin
     void addComponent(JComponent component)
     {
     	if (component == null) return;
+    	rightPane.removePropertyChangeListener(listener);
+    	splitPane.removePropertyChangeListener(listener);
         JViewport viewPort = workingPane.getViewport();
         component.setPreferredSize(viewPort.getExtentSize());
         viewPort.removeAll();
         viewPort.add(component);
-        viewPort.validate();
+        viewPort.validate(); 
+        rightPane.addPropertyChangeListener(listener);
+        splitPane.addPropertyChangeListener(listener);
     }
 
+    
 	/**
 	 * Displays the passed viewer in the working area.
 	 * 
@@ -850,11 +890,14 @@ class TreeViewerWin
      */
     void onStateChanged(boolean b)
     { 
-        Map browsers = model.getBrowsers();
+    	Map<Integer, Browser> browsers = model.getBrowsers();
         if (browsers != null) {
-            Iterator i = browsers.keySet().iterator();
-            while (i.hasNext())
-                ((Browser) browsers.get(i.next())).onComponentStateChange(b);
+        	Entry entry;
+            Iterator i = browsers.entrySet().iterator();
+            while (i.hasNext()) {
+            	entry = (Entry) i.next();
+            	((Browser) entry.getValue()).onComponentStateChange(b);
+            }    
 
         }
         //if (browser != null) browser.onComponentStateChange(b);
@@ -912,10 +955,21 @@ class TreeViewerWin
 			if (leftComponent == null)
 				leftComponent = splitPane.getLeftComponent();
 			dividerLocation = splitPane.getDividerLocation();
-			splitPane.remove(leftComponent);
+			Component[] components = splitPane.getComponents();
+			if (components != null) {
+				boolean b = false;
+				for (int i = 0; i < components.length; i++) {
+					if (components[i] == leftComponent)
+						b = true;
+				}
+				if (b && leftComponent != null)
+					splitPane.remove(leftComponent);
+			}
 		} else {
-			splitPane.add(leftComponent);
-			splitPane.setDividerLocation(dividerLocation);
+			if (leftComponent != null) {
+				splitPane.add(leftComponent);
+				splitPane.setDividerLocation(dividerLocation);
+			}
 		}
 		treeVisible = !treeVisible;
 	}
@@ -923,15 +977,30 @@ class TreeViewerWin
     /** Shows or hides the Tree Viewer. */
 	void setMetadataVisibility()
 	{
+		if (rightComponent == null) {
+			rightComponent = new JScrollPane(
+					model.getMetadataViewer().getEditorUI());
+    	}
+			
 		if (metadataVisible) {
-			if (rightComponent == null)
-				rightComponent = rightPane.getRightComponent();
-			dividerRightLocation = rightPane.getDividerLocation();
-			rightPane.remove(rightComponent);
+			Component[] components = rightPane.getComponents();
+			if (components != null && components.length > 0) {
+				boolean b = false;
+				for (int i = 0; i < components.length; i++) {
+					if (components[i] == rightComponent)
+						b = true;
+				}
+				if (b) {
+					rightPane.remove(rightComponent);
+				}
+			}
 		} else {
-			rightPane.add(rightComponent);
-			rightPane.setResizeWeight(WEIGHT);
-			//rightPane.setDividerLocation(dividerRightLocation);
+			if (rightComponent != null) {
+				rightPane.add(rightComponent);
+				if (dividerRightLocation > 0) 
+					rightPane.setDividerLocation(dividerRightLocation);
+				else rightPane.setResizeWeight(WEIGHT);
+			}
 		}
 		metadataVisible = !metadataVisible;
 	}
@@ -978,7 +1047,7 @@ class TreeViewerWin
     public void setOnScreen()
     {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setSize(8*(screenSize.width/10), 8*(screenSize.height/10));
+        setSize(9*(screenSize.width/10), 8*(screenSize.height/10));
         UIUtilities.incrementRelativeToAndShow(invokerBounds, this);
         invokerBounds = null;
     }

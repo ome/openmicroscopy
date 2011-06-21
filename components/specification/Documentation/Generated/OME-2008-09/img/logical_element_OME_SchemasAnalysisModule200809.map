@@ -1,0 +1,26 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_OME_SchemasAnalysisModule200809'>
+ <area
+  shape='rect'
+  alt='element_Project'
+  coords='430,0,774,43'
+  href='AnalysisModule.xsd.html#element_Project'/>
+
+ <area
+  shape='rect'
+  alt='element_Dataset'
+  coords='430,53,774,96'
+  href='AnalysisModule.xsd.html#element_Dataset'/>
+
+ <area
+  shape='rect'
+  alt='element_Image'
+  coords='430,106,774,149'
+  href='AnalysisModule.xsd.html#element_Image'/>
+
+ <area
+  shape='rect'
+  alt='element_CustomAttributes'
+  coords='430,159,774,202'
+  href='AnalysisModule.xsd.html#element_CustomAttributes'/>
+
+</map>

@@ -432,8 +432,7 @@ public class TimelineI extends AbstractAmdServant implements
                     return new ArrayList<Annotation>(); // EARLY EXIT
                 }
 
-                final long userId = sf.getAdminService().getEventContext()
-                        .getCurrentUserId();
+                final long userId = defaultId();
                 final Set<Long> ids = new HashSet<Long>();
                 for (ome.model.meta.Session s : shares) {
                     ids.add(s.getId());

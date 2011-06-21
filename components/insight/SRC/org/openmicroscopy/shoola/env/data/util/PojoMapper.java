@@ -272,8 +272,7 @@ public class PojoMapper
         }
         return set;
     }
-    
-    
+
     /**
      * Converts each element of the list to a pair (key, value) in the map. 
      * 
@@ -305,11 +304,14 @@ public class PojoMapper
     								InvocationTargetException
     {
     	Map<K, V> map = new TreeMap<K, V>();
-    	for(Object obj: objects)
+    	V value;
+    	Method meth;
+    	K keyValue;
+    	for (Object obj: objects)
     	{
-    		V value = (V) asDataObject((IObject)obj);
-     		Method meth = (value.getClass()).getMethod(method);
-    		K keyValue = (K)meth.invoke(value, (Object[])null);
+    		value = (V) asDataObject((IObject)obj);
+     		meth = (value.getClass()).getMethod(method);
+    		keyValue = (K) meth.invoke(value, (Object[]) null);
     		map.put(keyValue, value);
     	}
    		return map;

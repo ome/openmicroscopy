@@ -64,14 +64,15 @@ public class EditorFileFilter
 		extensions = new String[2];
 		extensions[0] = CPE_XML;
 		extensions[1] = PRO_XML;
-		String s = "OMERO.Editor (";
+		StringBuffer s = new StringBuffer();
+		s.append("OMERO.Editor (");
 		for (int i = 0; i < extensions.length; i++) {
-			s += "*."+extensions[i];
+			s.append("*."+extensions[i]);
 			if (i < extensions.length-1)
-				s += ", ";
+				s.append(", ");
 		}
-		s += ")";
-		description = s;
+		s.append(")");
+		description = s.toString();
 	}
 	
 	/**

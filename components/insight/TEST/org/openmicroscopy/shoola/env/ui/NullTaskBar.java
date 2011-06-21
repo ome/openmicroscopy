@@ -110,4 +110,9 @@ public class NullTaskBar
 	 */
 	public void openURL(String path) {}
 
+	/**
+	 * @see TaskBar#sessionExpired(int)
+	 */
+	public void sessionExpired(int index) {}
+
 }

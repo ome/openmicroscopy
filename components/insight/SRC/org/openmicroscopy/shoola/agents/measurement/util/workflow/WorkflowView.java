@@ -409,8 +409,8 @@ class WorkflowView
 			if (currentWorkflow.isDirty())
 			{
 				String action = checkToClear();
-				if (action == CANCELACTION) return;
-				if (action == SAVEACTION)
+				if (CANCELACTION.equals(action)) return;
+				if (SAVEACTION.equals(action))
 					saveAction();
 			}
 		clearNamespaceKeywordsFields();
@@ -454,11 +454,11 @@ class WorkflowView
 	public void actionPerformed(ActionEvent e)
 	{
 		String cmd = e.getActionCommand();
-		if (cmd == SAVEACTION) saveAction();
-		else if (cmd == DELETEACTION) deleteAction();
-		else if (cmd == CANCELACTION) cancelAction();
-		else if (cmd == CLOSEACTION) closeAction();
-		else if (cmd == CREATEACTION) createAction();
+		if (SAVEACTION.equals(cmd)) saveAction();
+		else if (DELETEACTION.equals(cmd)) deleteAction();
+		else if (CANCELACTION.equals(cmd)) cancelAction();
+		else if (CLOSEACTION.equals(cmd)) closeAction();
+		else if (CREATEACTION.equals(cmd)) createAction();
 	}
 
 	/**

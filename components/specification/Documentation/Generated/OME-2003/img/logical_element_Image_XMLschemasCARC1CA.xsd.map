@@ -1,0 +1,104 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Image_XMLschemasCARC1CA.xsd'>
+ <area
+  shape='rect'
+  alt='element_CreationDate'
+  coords='472,477,858,537'
+  href='CA.xsd.html#element_CreationDate'/>
+
+ <area
+  shape='rect'
+  alt='element_ExperimenterRef'
+  coords='472,547,858,606'
+  href='CA.xsd.html#element_ExperimenterRef'/>
+
+ <area
+  shape='rect'
+  alt='element_Description'
+  coords='472,616,858,692'
+  href='CA.xsd.html#element_Description'/>
+
+ <area
+  shape='rect'
+  alt='element_ExperimentRef'
+  coords='472,702,858,761'
+  href='CA.xsd.html#element_ExperimentRef'/>
+
+ <area
+  shape='rect'
+  alt='element_GroupRef'
+  coords='472,771,858,830'
+  href='CA.xsd.html#element_GroupRef'/>
+
+ <area
+  shape='rect'
+  alt='element_DatasetRef'
+  coords='472,840,858,899'
+  href='CA.xsd.html#element_DatasetRef'/>
+
+ <area
+  shape='rect'
+  alt='element_InstrumentRef'
+  coords='472,909,858,968'
+  href='CA.xsd.html#element_InstrumentRef'/>
+
+ <area
+  shape='rect'
+  alt='element_ObjectiveRef'
+  coords='472,978,858,1037'
+  href='CA.xsd.html#element_ObjectiveRef'/>
+
+ <area
+  shape='rect'
+  alt='element_ImagingEnvironment'
+  coords='472,1047,858,1106'
+  href='CA.xsd.html#element_ImagingEnvironment'/>
+
+ <area
+  shape='rect'
+  alt='element_Thumbnail'
+  coords='472,1116,858,1175'
+  href='CA.xsd.html#element_Thumbnail'/>
+
+ <area
+  shape='rect'
+  alt='element_ChannelInfo'
+  coords='472,1185,858,1244'
+  href='CA.xsd.html#element_ChannelInfo'/>
+
+ <area
+  shape='rect'
+  alt='element_DisplayOptions'
+  coords='472,1254,858,1313'
+  href='CA.xsd.html#element_DisplayOptions'/>
+
+ <area
+  shape='rect'
+  alt='element_StageLabel'
+  coords='472,1323,858,1382'
+  href='CA.xsd.html#element_StageLabel'/>
+
+ <area
+  shape='rect'
+  alt='element_PlateRef'
+  coords='472,1392,858,1451'
+  href='CA.xsd.html#element_PlateRef'/>
+
+ <area
+  shape='rect'
+  alt='element_Pixels'
+  coords='472,1461,858,1520'
+  href='CA.xsd.html#element_Pixels'/>
+
+ <area
+  shape='rect'
+  alt='element_Feature'
+  coords='472,1530,858,1589'
+  href='CA.xsd.html#element_Feature'/>
+
+ <area
+  shape='rect'
+  alt='element_CustomAttributes'
+  coords='472,1599,852,1658'
+  href='CA.xsd.html#element_CustomAttributes'/>
+
+</map>

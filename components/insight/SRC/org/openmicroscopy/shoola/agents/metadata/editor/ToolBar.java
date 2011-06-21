@@ -55,6 +55,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.util.ScriptMenuItem;
 import org.openmicroscopy.shoola.agents.metadata.util.ScriptSubMenu;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -116,8 +117,14 @@ class ToolBar
 	/** Button to export an image as OME-TIFF. */
 	private JButton 		exportAsOmeTiffButton;
 	
-	/** Button to upload the . */
+	/** Button to upload the script. */
 	private JButton			uploadScriptButton;
+	
+	/** Button to save files as JPEG, OME-TIFF, download, etc. */
+	private JButton			saveAsButton;
+	
+	/** The menu displaying the saving option. */
+	private JPopupMenu		saveAsMenu;
 	
 	/** Indicates the loading progress. */
 	private JXBusyLabel		busyLabel;
@@ -147,6 +154,38 @@ class ToolBar
 		analysisButton.setEnabled(false);
     }
     
+    /** Creates or recycles the save as menu. */
+    private JPopupMenu createSaveAsMenu()
+    {
+    	if (saveAsMenu == null) {
+    		saveAsMenu = new JPopupMenu();
+    		IconManager icons = IconManager.getInstance();
+    		JMenuItem item = new JMenuItem(icons.getIcon(IconManager.DOWNLOAD));
+    		item.setToolTipText("Download the Archived File(s).");
+    		item.setText("Download...");
+    		item.addActionListener(controller);
+    		item.setActionCommand(""+EditorControl.DOWNLOAD);
+    		item.setBackground(UIUtilities.BACKGROUND_COLOR);
+    		saveAsMenu.add(item);
+    		item = new JMenuItem(icons.getIcon(
+    				IconManager.EXPORT_AS_OMETIFF));
+    		item.setText("Export as OME-TIFF...");
+    		item.setToolTipText(EXPORT_AS_OME_TIFF_TOOLTIP);
+    		item.addActionListener(controller);
+    		item.setActionCommand(
+    				""+EditorControl.EXPORT_AS_OMETIFF);
+    		saveAsMenu.add(item);
+    		item = new JMenuItem(icons.getIcon(
+    				IconManager.SAVE_AS));
+    		item.setText("Save as JPEG...");
+    		item.setToolTipText("Save the images at full size as JPEG.");
+    		item.addActionListener(controller);
+    		item.setActionCommand(""+EditorControl.SAVE_AS);
+    		saveAsMenu.add(item);
+    	}
+    	return saveAsMenu;
+    }
+    
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -169,7 +208,7 @@ class ToolBar
 		downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		rndButton = new JButton(icons.getIcon(IconManager.RENDERER));
-		rndButton.setToolTipText("Rendering control for the primary selected " +
+		rndButton.setToolTipText("Rendering control for the first selected " +
 				"image.");
 		rndButton.addActionListener(controller);
 		rndButton.setActionCommand(""+EditorControl.RENDERER);
@@ -252,14 +291,31 @@ class ToolBar
 		uploadScriptButton.setActionCommand(""+EditorControl.UPLOAD_SCRIPT);
 		uploadScriptButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
-		UIUtilities.unifiedButtonLookAndFeel(uploadScriptButton);
+		saveAsButton = new JButton(icons.getIcon(
+				IconManager.EXPORT_AS_OMETIFF));
+		saveAsButton.setToolTipText("Display the saving options.");
+		saveAsButton.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Displays the saving options.
+			 * MouseAdapter#mousePressed(MouseEvent)
+			 */
+			public void mouseReleased(MouseEvent e)
+			{
+				launchOptions((Component) e.getSource(), e.getPoint(), 
+						MetadataViewer.SAVE_OPTION);
+			}
+		});
+		saveAsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
+		UIUtilities.unifiedButtonLookAndFeel(saveAsButton);
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 		UIUtilities.unifiedButtonLookAndFeel(rndButton);
 		UIUtilities.unifiedButtonLookAndFeel(refreshButton);
 		UIUtilities.unifiedButtonLookAndFeel(exportAsOmeTiffButton);
 		UIUtilities.unifiedButtonLookAndFeel(publishingButton);
+		UIUtilities.unifiedButtonLookAndFeel(uploadScriptButton);
 		UIUtilities.unifiedButtonLookAndFeel(analysisButton);
 		UIUtilities.unifiedButtonLookAndFeel(scriptsButton);
 		
@@ -286,9 +342,12 @@ class ToolBar
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(refreshButton);
     	bar.add(Box.createHorizontalStrut(5));
+    	/*
     	bar.add(downloadButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(exportAsOmeTiffButton);
+    	*/
+    	bar.add(saveAsButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(publishingButton);
     	if (MetadataViewerAgent.isAdministrator()) {
@@ -402,7 +461,8 @@ class ToolBar
     			if (so.isOfficialScript()) menu.add(subMenu);
     			else others.add(subMenu);
     		}
-    		subMenu.addScript(so).addActionListener(controller);
+    		if (!ScriptMenuItem.isScriptWithUI(so.getScriptLabel()))
+    			subMenu.addScript(so).addActionListener(controller);
     	}
     	if (others.size() > 0) {
     		menu.add(new JSeparator());
@@ -547,6 +607,9 @@ class ToolBar
 				break;
 			case MetadataViewer.SCRIPTS_OPTION:
 				getScriptsMenu().show(source, p.x, p.y);
+				break;
+			case MetadataViewer.SAVE_OPTION:
+				createSaveAsMenu().show(source, p.x, p.y);
 		}
 	}
 	

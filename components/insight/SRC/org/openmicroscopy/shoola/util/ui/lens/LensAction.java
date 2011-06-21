@@ -53,7 +53,7 @@ class LensAction
 	final static int 			MAX = 11;
 	
 	/** Default size of lens i.e. 20x20. */
-  final static int			LENSDEFAULTSIZE = 0;
+	final static int			LENSDEFAULTSIZE = 0;
 	
 	/** Set lens to 40x40. */
 	final static int			LENS40x40 = 1;
@@ -174,29 +174,29 @@ class LensAction
    */
   static int sizeToIndex(int w, int h)
   {
-  	if (w != h) return LENSMANUAL;
-  	switch (w) {
-			case SIZE_50:
-				return LENS50x50;
-			case SIZE_40:
-				return LENS40x40;
-			case SIZE_60:
-				return LENS60x60;
-			case SIZE_70:
-				return LENS70x70;
-			case SIZE_80:
-				return LENS80x80;
-			case SIZE_90:
-				return LENS90x90;
-			case SIZE_100:
-				return LENS100x100;
-			case SIZE_120:
-				return LENS120x120;
-			case SIZE_150:
-				return LENS150x150;
-			default:
-				return LENSMANUAL;
-		}
+	  if (w != h) return LENSMANUAL;
+	  switch (w) {
+		  case SIZE_50:
+			  return LENS50x50;
+		  case SIZE_40:
+			  return LENS40x40;
+		  case SIZE_60:
+			  return LENS60x60;
+		  case SIZE_70:
+			  return LENS70x70;
+		  case SIZE_80:
+			  return LENS80x80;
+		  case SIZE_90:
+			  return LENS90x90;
+		  case SIZE_100:
+			  return LENS100x100;
+		  case SIZE_120:
+			  return LENS120x120;
+		  case SIZE_150:
+			  return LENS150x150;
+		  default:
+			  return LENSMANUAL;
+	  }
   }
   
 	/**
@@ -235,32 +235,32 @@ class LensAction
 	        	lens.setLensSize(DEFAULT_SIZE, DEFAULT_SIZE);
 	       	 	break;
 	        case LENS40x40:
-	       	 	lens.setLensSize(SIZE_40, SIZE_40);
-	       	 	break;
+	        	lens.setLensSize(SIZE_40, SIZE_40);
+	        	break;
 	        case LensAction.LENS50x50:
-	        	 lens.setLensSize(SIZE_50, SIZE_50);;
-	        	 break;
+	        	lens.setLensSize(SIZE_50, SIZE_50);;
+	        	break;
 	        case LensAction.LENS60x60:
-	        	 lens.setLensSize(SIZE_60, SIZE_60);
-	        	 break;
+	        	lens.setLensSize(SIZE_60, SIZE_60);
+	        	break;
 	        case LensAction.LENS70x70:
-	        	 lens.setLensSize(SIZE_70, SIZE_70);
-	        	 break;
+	        	lens.setLensSize(SIZE_70, SIZE_70);
+	        	break;
 	        case LensAction.LENS80x80:
-	        	 lens.setLensSize(SIZE_80, SIZE_80);
-	        	 break;
+	        	lens.setLensSize(SIZE_80, SIZE_80);
+	        	break;
 	        case LensAction.LENS90x90:
-	        	 lens.setLensSize(SIZE_90, SIZE_90);
-	        	 break;
+	        	lens.setLensSize(SIZE_90, SIZE_90);
+	        	break;
 	        case LensAction.LENS100x100:
-	       	 	lens.setLensSize(SIZE_100, SIZE_100);
-	       	 	break;
+	        	lens.setLensSize(SIZE_100, SIZE_100);
+	        	break;
 	        case LensAction.LENS120x120:
-	        	 lens.setLensSize(SIZE_120, SIZE_120);
-	        	 break;
+	        	lens.setLensSize(SIZE_120, SIZE_120);
+	        	break;
 	        case LensAction.LENS150x150:
-	        	 lens.setLensSize(SIZE_150, SIZE_150);
+	        	lens.setLensSize(SIZE_150, SIZE_150);
 		}
 	}
-	    
+
 }

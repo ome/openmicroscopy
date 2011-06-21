@@ -7,20 +7,39 @@
 
 if __name__ == "__main__":
 
-    # These are optional imports in columns.py, but for this
-    # service to run, they must be present.
-    __import__("numpy")
-    __import__("tables")
 
     import sys
     import Ice
     import omero
     import omero.clients
     import omero.tables
+    from omero.util import Dependency
 
     # Logging hack
     omero.tables.TablesI.__module__ = "omero.tables"
     omero.tables.TableI.__module__ = "omero.tables"
 
-    app = omero.util.Server(omero.tables.TablesI, "TablesAdapter", Ice.Identity("Tables", ""))
+    class TablesDependency(Dependency):
+
+        def __init__(self):
+            Dependency.__init__(self, "tables")
+
+        def get_version(self, target):
+            self.target = target
+            return "%s, hdf=%s" % (target.__version__, self.optional("hdf5", 1))
+
+        def optional(self, key, idx):
+            try:
+                x = self.target.whichLibVersion(key)
+                if x is not None:
+                    return x[idx]
+                else:
+                    return "unknown"
+            except:
+                return "error"
+
+
+    app = omero.util.Server(omero.tables.TablesI, "TablesAdapter", Ice.Identity("Tables", ""),
+        dependencies=(Dependency("numpy"), TablesDependency()))
+
     sys.exit(app.main(sys.argv))

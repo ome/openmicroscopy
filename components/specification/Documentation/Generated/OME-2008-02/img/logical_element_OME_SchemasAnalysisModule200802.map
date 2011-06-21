@@ -1,0 +1,74 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_OME_SchemasAnalysisModule200802'>
+ <area
+  shape='rect'
+  alt='element_Project'
+  coords='436,53,786,112'
+  href='AnalysisModule.xsd.html#element_Project'/>
+
+ <area
+  shape='rect'
+  alt='element_Dataset'
+  coords='436,122,786,181'
+  href='AnalysisModule.xsd.html#element_Dataset'/>
+
+ <area
+  shape='rect'
+  alt='element_Experiment'
+  coords='436,191,786,250'
+  href='AnalysisModule.xsd.html#element_Experiment'/>
+
+ <area
+  shape='rect'
+  alt='element_Plate'
+  coords='436,260,786,319'
+  href='AnalysisModule.xsd.html#element_Plate'/>
+
+ <area
+  shape='rect'
+  alt='element_Screen'
+  coords='436,329,786,388'
+  href='AnalysisModule.xsd.html#element_Screen'/>
+
+ <area
+  shape='rect'
+  alt='element_Experimenter'
+  coords='436,398,786,457'
+  href='AnalysisModule.xsd.html#element_Experimenter'/>
+
+ <area
+  shape='rect'
+  alt='element_Group'
+  coords='436,467,786,526'
+  href='AnalysisModule.xsd.html#element_Group'/>
+
+ <area
+  shape='rect'
+  alt='element_Instrument'
+  coords='436,536,786,595'
+  href='AnalysisModule.xsd.html#element_Instrument'/>
+
+ <area
+  shape='rect'
+  alt='element_Image'
+  coords='436,605,786,664'
+  href='AnalysisModule.xsd.html#element_Image'/>
+
+ <area
+  shape='rect'
+  alt='element_SemanticTypeDefinitions'
+  coords='436,674,786,733'
+  href='AnalysisModule.xsd.html#element_SemanticTypeDefinitions'/>
+
+ <area
+  shape='rect'
+  alt='element_AnalysisModuleLibrary'
+  coords='436,743,852,802'
+  href='AnalysisModule.xsd.html#element_AnalysisModuleLibrary'/>
+
+ <area
+  shape='rect'
+  alt='element_CustomAttributes'
+  coords='436,812,780,871'
+  href='AnalysisModule.xsd.html#element_CustomAttributes'/>
+
+</map>

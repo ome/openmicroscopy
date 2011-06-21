@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Screen_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_Description'
+  coords='256,0,389,42'
+  href='ome.xsd.html#element_Description'/>
+
+ <area
+  shape='rect'
+  alt='type_ScreenID'
+  coords='170,52,264,78'
+  href='ome.xsd.html#type_ScreenID'/>
+
+ <area
+  shape='rect'
+  alt='type_ExternDBref'
+  coords='170,124,307,150'
+  href='ome.xsd.html#type_ExternDBref'/>
+
+</map>

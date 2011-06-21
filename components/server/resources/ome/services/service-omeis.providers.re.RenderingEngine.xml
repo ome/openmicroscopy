@@ -26,13 +26,8 @@
 	  <constructor-arg ref="executor"/>
 	  <constructor-arg ref="internal-ome.api.LocalCompress"/>
 	  <constructor-arg ref="securitySystem"/>
-	  <constructor-arg ref="originalFileMetadataProvider"/>
   </bean>
   
-  <bean id="originalFileMetadataProvider" class="ome.services.OmeroOriginalFileMetadataProvider">
-    <constructor-arg ref="managed-ome.api.IQuery"/>
-  </bean>
-
   <bean id="managed-omeis.providers.re.RenderingEngine" parent="selfManagingService" singleton="false">
     <property name="proxyInterfaces" value="omeis.providers.re.RenderingEngine"/>
     <property name="target" ref="internal-omeis.providers.re.RenderingEngine"/>

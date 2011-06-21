@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Pixels_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_BinData'
+  coords='328,0,461,26'
+  href='BinaryFile.xsd.html#element_BinData'/>
+
+ <area
+  shape='rect'
+  alt='element_TiffData'
+  coords='328,36,440,62'
+  href='ome.xsd.html#element_TiffData'/>
+
+ <area
+  shape='rect'
+  alt='type_PixelsID'
+  coords='170,72,264,98'
+  href='ome.xsd.html#type_PixelsID'/>
+
+</map>

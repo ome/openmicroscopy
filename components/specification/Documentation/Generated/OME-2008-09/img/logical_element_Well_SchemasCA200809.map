@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Well_SchemasCA200809'>
+ <area
+  shape='rect'
+  alt='element_WellSample'
+  coords='436,318,786,377'
+  href='CA.xsd.html#element_WellSample'/>
+
+ <area
+  shape='rect'
+  alt='element_ReagentRef'
+  coords='436,387,786,446'
+  href='CA.xsd.html#element_ReagentRef'/>
+
+</map>

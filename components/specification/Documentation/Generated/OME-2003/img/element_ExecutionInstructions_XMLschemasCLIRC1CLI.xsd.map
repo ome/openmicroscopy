@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_ExecutionInstructions_XMLschemasCLIRC1CLI.xsd'>
+ <area
+  shape='rect'
+  alt='element_CommandLine'
+  coords='361,0,522,42'
+  href='CLI.xsd.html#element_CommandLine'/>
+
+ <area
+  shape='rect'
+  alt='element_STDIN'
+  coords='361,52,480,94'
+  href='CLI.xsd.html#element_STDIN'/>
+
+ <area
+  shape='rect'
+  alt='element_STDOUT'
+  coords='361,104,487,146'
+  href='CLI.xsd.html#element_STDOUT'/>
+
+</map>

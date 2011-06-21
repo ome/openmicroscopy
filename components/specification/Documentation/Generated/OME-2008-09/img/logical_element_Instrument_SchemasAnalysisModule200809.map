@@ -1,0 +1,50 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Instrument_SchemasAnalysisModule200809'>
+ <area
+  shape='rect'
+  alt='element_Microscope'
+  coords='436,53,786,112'
+  href='AnalysisModule.xsd.html#element_Microscope'/>
+
+ <area
+  shape='rect'
+  alt='element_LightSource'
+  coords='436,122,786,181'
+  href='AnalysisModule.xsd.html#element_LightSource'/>
+
+ <area
+  shape='rect'
+  alt='element_Detector'
+  coords='436,191,786,250'
+  href='AnalysisModule.xsd.html#element_Detector'/>
+
+ <area
+  shape='rect'
+  alt='element_Objective'
+  coords='436,260,786,319'
+  href='AnalysisModule.xsd.html#element_Objective'/>
+
+ <area
+  shape='rect'
+  alt='element_FilterSet'
+  coords='436,329,786,388'
+  href='AnalysisModule.xsd.html#element_FilterSet'/>
+
+ <area
+  shape='rect'
+  alt='element_Filter'
+  coords='436,398,786,457'
+  href='AnalysisModule.xsd.html#element_Filter'/>
+
+ <area
+  shape='rect'
+  alt='element_Dichroic'
+  coords='436,467,786,526'
+  href='AnalysisModule.xsd.html#element_Dichroic'/>
+
+ <area
+  shape='rect'
+  alt='element_OTF'
+  coords='436,536,786,595'
+  href='AnalysisModule.xsd.html#element_OTF'/>
+
+</map>

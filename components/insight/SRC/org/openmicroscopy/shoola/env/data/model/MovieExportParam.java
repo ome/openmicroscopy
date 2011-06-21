@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
-import java.awt.Color;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

@@ -117,10 +117,15 @@ class BrowserControl
     		if (remove) model.removeSelectedDisplay(d);
     		else model.setSelectedDisplay(d, true, true);
     	} else {
-    		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
-    			if (d instanceof CellDisplay) {
+    		//if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
+    		if (isSelectionValid(d)) {
+    			if (d instanceof CellDisplay && !(d.equals(previousDisplay))) {
     				setSelectedCell(p, (CellDisplay) d);
-    			} else model.setSelectedDisplay(d, false, true);
+    			} else {
+    				boolean b = model.isMultiSelection();
+    				if (b || !(d.equals(previousDisplay)))
+    					model.setSelectedDisplay(d, false, true);
+    			}
     		}
     	}
     }

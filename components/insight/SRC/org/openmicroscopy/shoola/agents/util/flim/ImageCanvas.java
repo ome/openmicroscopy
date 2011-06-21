@@ -30,11 +30,11 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
-import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 
 /** 
  * 

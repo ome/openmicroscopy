@@ -26,12 +26,15 @@ package org.openmicroscopy.shoola.util.roi.model;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jhotdraw.draw.AttributeKey;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -54,8 +57,9 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  */
 public class ROIShape 
 {
+	
 	/** The id of the ROIShape. */
-	long id;
+	private long id;
 	
 	/** The ROI containing the ROIShape. */
 	private ROI					parent;
@@ -73,7 +77,8 @@ public class ROIShape
 	 * Annotations are stored according to a key, object mapping, just like the 
 	 * attribute objects of JHotDraw. 
 	 */
-	private Map<AnnotationKey, Object> annotations = new HashMap<AnnotationKey,Object>();
+	private Map<AnnotationKey, Object> annotations = 
+		new HashMap<AnnotationKey,Object>();
 	
 	/**
      * Forbidden annotations can't be set by the setAnnotation() operation.
@@ -81,77 +86,98 @@ public class ROIShape
      */
     private Set<AnnotationKey> forbiddenAnnotations;
     
-
+    /**
+     * Copies the attributes from one figure to another.
+     * 
+     * @param src The figure to copy from.
+     * @param dst The figure to copy to.
+     */
+	private void copyAttributes(ROIFigure src, ROIFigure dst)
+	{
+		Map<AttributeKey, Object> map = src.getAttributes();
+		Entry entry;
+		Iterator i = map.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			dst.setAttribute((AttributeKey) entry.getKey(), entry.getValue());
+		}
+	}
+	
 	/**
-	 * Create the ROIShape with parent ROI on plane coord and figure aggregated.
+	 * Creates the ROIShape with parent ROI on plane coordinate and 
+	 * figure aggregated.
+	 * 
 	 * @param parent see above.
 	 * @param coord see above.
 	 * @param shape see above.
 	 */
 	public ROIShape(ROI parent, Coord3D coord, ROIShape shape)
 	{
+		if (shape == null)
+			throw new IllegalArgumentException("No Shape specified.");
+		if (parent == null)
+			throw new IllegalArgumentException("No ROI specified.");
+		ROIFigure src = (ROIFigure) shape.getFigure();
+		if (src == null)
+			throw new IllegalArgumentException("No Figure associated to shape.");
 		this.parent = parent;
 		this.coord = coord;
-		this.boundingBox = (Rectangle2D) shape.getBoundingBox().clone();
-		this.figure = (ROIFigure) shape.getFigure().clone();
-		this.figure.setROIShape(this);
-		this.figure.setROI(parent);
+		boundingBox = (Rectangle2D) shape.getBoundingBox().clone();
+		figure = (ROIFigure) src.clone();
+		figure.setROIShape(this);
+		figure.setROI(parent);
+		copyAttributes(src, figure);
 	}
 	
 	/**
-	 * Create the ROIShape with parent ROI on plane coord and figure aggregated.
-	 * The ROIShape bounds are set by boundingBox.
+	 * Creates the ROIShape with parent ROI on plane coordinates and 
+	 * figure aggregated. The ROIShape bounds are set by boundingBox.
+	 * 
 	 * @param parent see above.
 	 * @param coord see above.
 	 * @param figure see above.
 	 * @param boundingBox see above.
 	 */
-	public ROIShape(ROI parent, Coord3D coord, ROIFigure figure, Rectangle2D boundingBox)
+	public ROIShape(ROI parent, Coord3D coord, ROIFigure figure, 
+			Rectangle2D boundingBox)
 	{
+		if (figure == null)
+			throw new IllegalArgumentException("No Figure specified.");
+		if (parent == null)
+			throw new IllegalArgumentException("No ROI specified.");
 		this.parent = parent;
 		this.coord = coord;
-		this.figure = figure;
+		this.figure = figure;//(ROIFigure) figure.clone(); //shouldn't be clone.
 		this.figure.setROIShape(this);
 		this.figure.setROI(parent);
 		this.boundingBox = boundingBox;
+		copyAttributes(figure, this.figure);
 	}
 	
 	/**
 	 * This id will only be used by server objects.
 	 * @return See above.
 	 */
-	public long getROIShapeID()
-	{
-		return id;
-	}
+	public long getROIShapeID() { return id; }
 	
 	/**
 	 * This id will only be used by server objects.
 	 * @param id The id of the 
 	 */
-	public void setROIShapeID(long id)
-	{
-		this.id = id;
-	}
+	public void setROIShapeID(long id) { this.id = id; }
 	
 	
 	/**
 	 * Get the id of the ROI the ROIShape belongs to.
 	 * @return see above.
 	 */
-	public long getID()
-	{
-		return parent.getID();
-	}
+	public long getID() { return parent.getID(); }
 	
 	/**
 	 * The plane on which the ROIShape belongs.
 	 * @return see above.
 	 */
-	public Coord3D getCoord3D()
-	{
-		return coord;
-	}
+	public Coord3D getCoord3D() { return coord; }
 	
 	/**
 	 * Returns the z-section.
@@ -171,42 +197,35 @@ public class ROIShape
 	 * Get the bounding box of the ROIShape.
 	 * @return see above.
 	 */
-	public Rectangle2D getBoundingBox()
-	{
-		return boundingBox;
-	}
+	public Rectangle2D getBoundingBox() { return boundingBox; }
 	
 	/**
 	 * Get the ROIFigure which represents the ROIShape.
 	 * @return see above.
 	 */
-	public ROIFigure getFigure()
-	{
-		return figure;
-	}
+	public ROIFigure getFigure() { return figure; }
 	
 	/** 
 	 * Get the ROI containing this ROIShape.
 	 * @return see above.
 	 */
-	public ROI getROI()
-	{
-		return parent;
-	}
+	public ROI getROI() { return parent; }
        
 	/**
 	 * Set the annotation of the ROIShape with key to value.
 	 * @param key see above.
 	 * @param newValue see above.
 	 */
-    public void setAnnotation(AnnotationKey key, Object newValue) {
+    public void setAnnotation(AnnotationKey key, Object newValue)
+    {
         if (forbiddenAnnotations == null
                 || ! forbiddenAnnotations.contains(key)) {
             
             Object oldValue = annotations.get(key);
             if (! annotations.containsKey(key)
             || oldValue != newValue
-                    || oldValue != null && newValue != null && ! oldValue.equals(newValue)) {
+                    || oldValue != null && newValue != null && ! 
+                    oldValue.equals(newValue)) {
                 basicSetAnnotation(key, newValue);
             }
         }
@@ -234,7 +253,8 @@ public class ROIShape
      */
     public boolean isAnnotationEnabled(AnnotationKey key) 
     {
-        return forbiddenAnnotations == null || ! forbiddenAnnotations.contains(key);
+        return forbiddenAnnotations == null || 
+        !forbiddenAnnotations.contains(key);
     }
     
     /**
@@ -319,9 +339,7 @@ public class ROIShape
     public void removeAnnotation(AnnotationKey key) 
     {
         if (hasAnnotation(key)) 
-        {
-             annotations.remove(key);
-        }
+        	annotations.remove(key);
     }
     
     /**

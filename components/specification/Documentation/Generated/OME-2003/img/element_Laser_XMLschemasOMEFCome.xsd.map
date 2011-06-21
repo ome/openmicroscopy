@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Laser_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_Pump'
+  coords='249,0,333,42'
+  href='ome.xsd.html#element_Pump'/>
+
+ <area
+  shape='rect'
+  alt='type_LaserMedia'
+  coords='163,376,279,402'
+  href='ome.xsd.html#type_LaserMedia'/>
+
+</map>

@@ -34,7 +34,8 @@ class BaseGroups(BaseController):
     
     def __init__(self, conn):
         BaseController.__init__(self, conn)
-        groupsList = list(self.conn.lookupGroups())
+        groupsList = list(self.conn.getObjects("ExperimenterGroup"))
+        groupsList.sort(key=lambda x: x.getName().lower())
         self.groups = list()
         for gr in groupsList:
             self.groups.append({'group': gr, 'locked': self.isLocked(gr.name), 'permissions': self.getPermissions(gr)})
@@ -58,33 +59,32 @@ class BaseGroup(BaseController):
     def __init__(self, conn, gid=None):
         BaseController.__init__(self, conn)
         if gid is not None:
-            self.group = self.conn.getGroup(gid)
+            self.group = self.conn.getObject("ExperimenterGroup", gid)
         
             self.owners = list()
             for gem in self.group.copyGroupExperimenterMap():
                 if gem.owner.val == True:
                     self.owners.append(gem.child.id.val)
-        self.experimenters = list(self.conn.lookupExperimenters())
+        self.experimenters = list(self.conn.listExperimenters())
+        self.experimenters.sort(key=lambda x: x.getOmeName().lower())
     
     def getOwnersNames(self):
         owners = list()
-        for e in self.conn.getExperimenters(self.owners):
+        for e in self.conn.getObjects("Experimenter", self.owners):
             owners.append(e.getFullName())
         return ", ".join(owners)
     
     def containedExperimenters(self):
         self.members = list(self.conn.containedExperimenters(self.group.id))
+        self.members.sort(key=lambda x: x.getOmeName().lower())
         for i, m in enumerate(self.members):
             if m.copyGroupExperimenterMap()[0].parent.id.val == self.group.id:
                 self.members[i].setFirstName("*%s" % (m.firstName))
         
         self.available = list()
+        memberIds = [m.id for m in self.members]
         for e in self.experimenters:
-            flag = False
-            for m in self.members:
-                if e.id == m.id:
-                    flag = True
-            if not flag:
+            if e.id not in memberIds:
                 self.available.append(e)
     
     def setMembersOfGroup(self, available, members):

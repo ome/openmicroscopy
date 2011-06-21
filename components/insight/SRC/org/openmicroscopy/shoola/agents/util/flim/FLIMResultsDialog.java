@@ -25,13 +25,14 @@ package org.openmicroscopy.shoola.agents.util.flim;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -46,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -57,16 +59,19 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.JSlider;
+import javax.swing.JToggleButton;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-
-//Third-party libraries
-import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
+
+//Third-party libraries
+import info.clearthought.layout.TableLayout;
+import processing.core.PVector;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -75,15 +80,13 @@ import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+import org.openmicroscopy.shoola.util.processing.chart.Histogram;
+import org.openmicroscopy.shoola.util.processing.chart.ImageData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.colour.GradientUtil;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
-import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
-import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
-
 import pojos.FileAnnotationData;
 
 /** 
@@ -101,7 +104,7 @@ import pojos.FileAnnotationData;
  */
 public class FLIMResultsDialog 
 	extends JDialog
-	implements ActionListener, PropertyChangeListener
+	implements ActionListener, PropertyChangeListener, ItemListener, ChangeListener
 {
 
 	/** Bound property indicating that the chart as been saved. */
@@ -115,12 +118,9 @@ public class FLIMResultsDialog
 	
 	/** Action ID indicating that a new file is selected. */
 	private static final int SELECTION = 2;
-	
-	/** The default color. */
-	private static final Color DEFAULT_COLOR = new Color(192, 192, 192, 50);
-	
+
 	/** The number of bins. */
-	private static final int BINS = 1001;
+	private static final int BINS = 500;
 	
 	/** The multiplication factor. */
 	private static final int FACTOR = 1;//1000;
@@ -143,9 +143,58 @@ public class FLIMResultsDialog
 	static {
 		FILTERS = new ArrayList<FileFilter>();
 		FILTERS.add(new ExcelFilter());
-		
 		NAMES_TO_EXCLUDE = new ArrayList<String>();
 		NAMES_TO_EXCLUDE.add("(?i)gb.*");
+	}
+	
+	/** The default columns in the historgram table. */
+	static List<String> HISTOGRAMSTATS;
+	
+	static{
+		HISTOGRAMSTATS = new ArrayList<String>();
+		HISTOGRAMSTATS.add("Colour");
+		HISTOGRAMSTATS.add("Bin Start");
+		HISTOGRAMSTATS.add("Bin End");
+		HISTOGRAMSTATS.add("Min");
+		HISTOGRAMSTATS.add("Max");
+		HISTOGRAMSTATS.add("Mean");
+		HISTOGRAMSTATS.add("Stddev");
+		HISTOGRAMSTATS.add("Freq");
+		HISTOGRAMSTATS.add("Percent");
+	}
+	
+	/** The default columns in the cursor results table. */
+	static List<String> CURSORSTATS;
+	
+	static{
+		CURSORSTATS = new ArrayList<String>();
+		CURSORSTATS.add("mean");
+		CURSORSTATS.add("median");
+		CURSORSTATS.add("binNo");
+		CURSORSTATS.add("meanBin");
+		CURSORSTATS.add("minBin");
+		CURSORSTATS.add("maxBin");
+		CURSORSTATS.add("stddevBin");
+		CURSORSTATS.add("frequencyBin");
+		CURSORSTATS.add("percentBin");
+	}
+	
+	static Map<String, Boolean> statsButtons;
+	
+	static {
+		statsButtons = new HashMap<String, Boolean>();
+		statsButtons.put(ResultsDialog.LOAD,true);
+		statsButtons.put(ResultsDialog.SAVE,true);
+		statsButtons.put(ResultsDialog.CLEAR,true);
+		statsButtons.put(ResultsDialog.WIZARD,true);
+	}
+	
+	static Map<String, Boolean> cursorButtons;
+	
+	static {
+		cursorButtons = new HashMap<String, Boolean>();
+		cursorButtons.put(ResultsDialog.CLEAR,true);
+		cursorButtons.put(ResultsDialog.WIZARD,true);
 	}
 	
 	/** Button to close the dialog. */
@@ -154,12 +203,9 @@ public class FLIMResultsDialog
 	/** Button to save the graphics as <code>PNG</code> or <code>JPEG</code>. */
 	private JButton saveButton;
 	
-	/** The main component displaying the results. */
-	private JComponent body;
-	
 	/** The object hosting the chart. */
-	private ChartObject chartObject;
-	
+	private HistogramCanvas chartObject;
+
 	/** The chooser. */
 	private FileChooser chooser;
 	
@@ -168,16 +214,16 @@ public class FLIMResultsDialog
 	
 	/** The table displaying the values plotted. */
 	private Double[][] data;
+
+	/** The stats table.  */
+	private ResultsDialog statsTable;
+
+	/** The cursorResults table.  */
+	private ResultsDialog cursorResults;
 	
 	/** The component hosting the various JXTaskPane. */
 	private JXTaskPaneContainer paneContainer;
-	
-	/** The table displaying the intervals. */
-	private TableIntervals tableIntervals;
-
-	/** The table displaying the plotted values. */
-	private JTable tableValues;
-	
+		
 	/** The results to display. */
 	private Map<FileAnnotationData, File> results;
 	
@@ -192,9 +238,12 @@ public class FLIMResultsDialog
 	
 	/** Component displaying the image. */
 	private ImageCanvas canvas;
-	
+
 	/** Component hosting the settings. */
 	private JPanel settings;
+	
+	/** Component hosting the values of the selected data. */
+	private JPanel cursorResultsPanel;
 	
 	/** Component hosting the settings. */
 	private JComponent mainPane;
@@ -202,24 +251,41 @@ public class FLIMResultsDialog
 	/** The name of the image. */
 	private String	imageName;
 	
-	/** Component displaying the intervals. */
-	private JComponent intervalsPane;
-	
-	/** Component displaying the graphics. */
-	private JComponent graphicsPane;
+	/** The graph of the photons for the individual pixels selected. */
+	private XYChartCanvas photonChart;
 	
 	/** Used to sort the results. */
 	private ViewerSorter sorter;
+
+	/** The label displaying the maximum value of the slider. */
+	private JLabel thresholdSliderMaxValue;
+
+	/** The label displaying the minimum value of the slider. */
+	private JLabel thresholdSliderMinValue;
+
+	/** The value of the left hand knob of the colour map slider. */
+	private JLabel colourMapMinValue;
+
+	/** The value of the right hand knob of the colour map slider. */
+	private JLabel colourMapMaxValue;
+
+	/** Slider used to enter the red and blue components of the colourmap. */
+	private TwoKnobsSlider colourMapSlider;
 	
-	/** The label displaying the mean. */
-	private JLabel meanLabel;
+	/** Button to toggle between RGB->BGR values. */
+	private JToggleButton RGBButton; 
 	
-	/** The label displaying the median. */
-	private JLabel medianLabel;
+	/** The slider to determine the thresholding on the data.*/
+	private TwoKnobsSlider thresholdSlider;
 	
-	/** Slider used to enter the minimum and maximum values. */
-	private TextualTwoKnobsSlider slider;
+	/** The sorted data.*/
+	private List<Double> sortedData;
 	
+	/** The value of the left knob of the slider.*/
+	private double sliderLeftValue;
+	
+	/** The value of the right knob of the slider.*/
+	private double sliderRightValue;
 	/**
 	 * Saves the data to the specified file.
 	 * 
@@ -245,8 +311,8 @@ public class FLIMResultsDialog
 		try {
 			String v = f.getAbsolutePath();
 			int index = v.lastIndexOf(".");
-			tmpFile = new File(v.substring(0, index)+"."+PNGFilter.PNG);
-			chartObject.saveAs(tmpFile, ChartObject.SAVE_AS_PNG);
+			//tmpFile = new File(v.substring(0, index)+"."+PNGFilter.PNG);
+			//chartObject.saveAs(tmpFile, ChartObject.SAVE_AS_PNG);
 		} catch (Exception e) {
 			b = false;
 		}
@@ -260,12 +326,6 @@ public class FLIMResultsDialog
 			writer.openFile();
 			writer.createSheet("FLIM Results for ");
 			int row = 0;
-			if (tableIntervals != null) {
-				row = tableIntervals.getModel().getRowCount()+1;
-				writer.writeTableToSheet(0, 0, tableIntervals.getModel());
-			}
-			if (tableValues != null)
-				writer.writeTableToSheet(row+3, 0, tableValues.getModel());
 			BufferedImage image;
 			int w, h;
 			Point p = null;
@@ -285,9 +345,12 @@ public class FLIMResultsDialog
 			if (image != null) {
 				w = image.getWidth();
 				h = image.getHeight();
+				if (imageName == null) imageName = "image";
 				writer.addImageToWorkbook(imageName, image); 
+				int y = 0;
 				if (p == null) row = 0;
-				writer.writeImage(p.y+2, index, w, h, imageName);
+				if (p != null) y = p.y;
+				writer.writeImage(y+2, index, w, h, imageName);
 				String v = f.getAbsolutePath();
 				WriterImage.saveImage(new File(v+"."+PNGFilter.PNG), 
 						image, PNGFilter.PNG);
@@ -308,6 +371,7 @@ public class FLIMResultsDialog
 	 */
 	private void createTable(Map<Double, Double> values)
 	{
+		
 		//reformat table.
 		Map<Double, Double> newValues = new HashMap<Double, Double>();
 		Iterator v = values.entrySet().iterator();
@@ -346,53 +410,67 @@ public class FLIMResultsDialog
 		data[index] = numbers;
 	}
 	
-	/** 
-	 * Creates the chart. 
-	 * 
-	 * @param values The values to plot.
-	 * @param bins The number of bins.
-	 */
-	private void createChart(double[] values, int bins)
+	/** Creates the chart. */
+	private void createChart()
 	{
-		HistogramPlot hp = new HistogramPlot();
-		hp.setXAxisName(NAME_X_AXIS);
-		hp.setYAxisName(NAME_Y_AXIS);
-		if (values == null) {
-			double v;
-			List<Double> list = new ArrayList<Double>();
-			Iterator<List<Double>> i = parseValues.iterator();
-			int index = 0;
-			List<Double> l;
-			Iterator<Double> j;
-			while (i.hasNext()) {
-				l = i.next();
-				j = l.iterator();
-				while (j.hasNext()) {
-					v = j.next();
-					if (v < start) start = v;
-					if (v > end) end = v;
-					list.add(v);
-				}
-			}
-			values = new double[list.size()];
-			j = list.iterator();
-			Double d;
+		if (parseValues == null || parseValues.size() == 0) return;
+		int rows = parseValues.size();
+		List<Double> l = parseValues.get(0);
+		int columns = l.size();
+		Iterator<List<Double>> i = parseValues.iterator();
+		Iterator<Double> j;
+		int index = 0;
+		List<Double> values = new ArrayList<Double>();
+        double v;
+        int row = 0; 
+        int column = 0;
+        double totalValue = 0;
+        Map<Double, Double> map = new HashMap<Double, Double>();
+        double value;
+        while (i.hasNext()) {
+			l = i.next();
+			j = l.iterator();
 			while (j.hasNext()) {
-				d = j.next();
-				values[index] = d;
-				index++;
+				value = 0;
+				index = index+1;
+				v = j.next();
+				//if (v > min && v < max) {
+					values.add(v);
+					totalValue += v;
+				//}
+				if (map.containsKey(v)) {
+					value = map.get(v);
+					
+				} 
+				value++;
+				map.put(v, value);
 			}
 		}
-		//double range = end-start;
+        createTable(map);
+		List list = sorter.sort(values);
+		int n = list.size();
+		double median = 0;
+		if (n > 2) median = (Double) list.get(n/2+1);
+		else if (n == 1 || n == 2) median = (Double) list.get(0);
+		//TODO:fix for results table
+		//meanTextField.setText(""+UIUtilities.roundTwoDecimals(totalValue/index));
+		//medianTextField.setText(""+UIUtilities.roundTwoDecimals(median));
 		
-		if (values.length > 0) {
-			hp.addSeries((String) resultsBox.getSelectedItem(), 
-					values, DEFAULT_COLOR, BINS);
-		}
-		createTable(hp.getYValues(0));
+		ImageData data = new ImageData(values, columns, rows, 1);
+		sortedData = (List<Double>) sorter.sort(values);
+		chartObject = new HistogramCanvas(sortedData, 
+				data, BINS, true, getBestGuess(sortedData));
+		chartObject.addPropertyChangeListener(this);
+		colourMapSlider.setValues(BINS, 0, BINS, 0, BINS/4,BINS/2+BINS/4);
+		thresholdSlider.setValues(BINS, 0, BINS, 0, 0,  BINS);
+		thresholdSlider.addPropertyChangeListener(this);
+		sliderLeftValue = BINS/4;
+		sliderRightValue = BINS/4+BINS/2;
 		
-		body = hp.getChart(Factory.createGradientImage(600, 400), true);
-		chartObject = hp;
+		chartObject.setRGB(true, BINS/4, BINS/2+BINS/4);
+		colourMapSlider.addPropertyChangeListener(this);
+		thresholdSliderMinValue.setText(UIUtilities.formatToDecimal(calculateValue(0,true)));
+		thresholdSliderMaxValue.setText(UIUtilities.formatToDecimal(calculateValue(BINS,false)));
 	}
 	
 	/** 
@@ -404,26 +482,42 @@ public class FLIMResultsDialog
 	{
 		if (mainPane != null)
 			getContentPane().remove(mainPane);
-		if (body == null) return new JPanel();
-		if (data == null) return body;
 		JPanel p = new JPanel();
-		Dimension d = slider.getPreferredSize();
-		Dimension dd = canvas.getPreferredSize();
+		Dimension dd = chartObject.getPreferredSize();
 		int h = dd.height;
-		//slider.setPreferredSize(new Dimension(dd.width, d.height));
-		double[][] size = {{TableLayout.PREFERRED, TableLayout.PREFERRED}, 
-				{h, 200, 200}};
-		p.setLayout(new TableLayout(size));
-		p.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
-		p.add(canvas, "0, 0, LEFT, TOP");
-		p.add(settings, "0, 1, LEFT, TOP");
-		JPanel content = new JPanel();
-		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-		content.add(body);
-		content.add(slider);
-		p.add(content, "1, 0");
-		p.add(graphicsPane, "1, 1");
-		p.add(intervalsPane, "1, 2");
+		double[][] topsize = 
+		{	{0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05},
+			{0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05}};
+		p.setLayout(new TableLayout(topsize));
+		p.add(settings,"0,0,3,2");
+		p.add(cursorResultsPanel,"6,0,19,2");
+		p.add(chartObject, "0,3,19,12");
+		JPanel sliderPanel = new JPanel();
+		double[][] sliderPanelSize = {{0.2,0.6,0.2},{TableLayout.PREFERRED,TableLayout.PREFERRED}};
+		sliderPanel.setLayout(new TableLayout(sliderPanelSize));
+		JPanel spacer = new JPanel();
+		spacer.setLayout(new BoxLayout(spacer, BoxLayout.Y_AXIS));
+		spacer.add(Box.createVerticalStrut(5));
+		spacer.add(thresholdSlider);
+		sliderPanel.add(thresholdSliderMinValue,"0,0,0,1");
+		sliderPanel.add(spacer,"1,0,1,1");
+		sliderPanel.add(thresholdSliderMaxValue,"2,0,2,1");
+		
+		p.add(sliderPanel,"0,13,4,13");
+		sliderPanel = new JPanel();
+		sliderPanelSize = new double[][] {{0.1,0.7,0.1,0.1},{TableLayout.PREFERRED,TableLayout.PREFERRED}};
+		spacer = new JPanel();
+		spacer.setLayout(new BoxLayout(spacer, BoxLayout.Y_AXIS));
+		spacer.add(Box.createVerticalStrut(5));
+		spacer.add(colourMapSlider);
+		sliderPanel.setLayout(new TableLayout(sliderPanelSize));
+		sliderPanel.add(colourMapMinValue,"0,0,0,1");
+		sliderPanel.add(spacer,"1,0,1,1");
+		sliderPanel.add(colourMapMaxValue,"2,0,2,1");
+		sliderPanel.add(RGBButton,"3,0,3,1");
+		p.add(sliderPanel,"6,13,19,13");
+		p.add(statsTable,"0,15,19,19");
+		p.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 		return p;
 	}
 	
@@ -447,60 +541,70 @@ public class FLIMResultsDialog
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		meanLabel = new JLabel();
-		medianLabel = new JLabel();
+		colourMapMinValue = new JLabel("-");
+		colourMapMinValue.setBorder(BorderFactory.createLoweredBevelBorder());
+		colourMapMaxValue = new JLabel("-");
+		colourMapMaxValue.setBorder(BorderFactory.createLoweredBevelBorder());
+		
+		colourMapSlider = new TwoKnobsSlider();
+		colourMapSlider.setPaintMinorTicks(false);
+		colourMapSlider.setPaintTicks(false);
+		colourMapSlider.setPaintEndLabels(false);
+		colourMapSlider.setPaintCurrentValues(false);
+
+		
+		statsTable = new ResultsDialog(HISTOGRAMSTATS, ResultsDialog.VERTICAL, true, statsButtons);
+		statsTable.setRowHighlightMod(3);
+		cursorResults = new ResultsDialog(CURSORSTATS, ResultsDialog.VERTICAL, true, cursorButtons);
+		cursorResults.setRowHighlightMod(3);
 		canvas = new ImageCanvas();
-		Entry entry;
-		Iterator i = results.entrySet().iterator();
-		FileAnnotationData fa;
+		RGBButton = new JToggleButton("RGB");
+		RGBButton.setSelected(true);
+		RGBButton.addItemListener(this);
+		thresholdSlider = new TwoKnobsSlider(0,BINS,0,BINS);
+		thresholdSlider.setPaintTicks(false);
+		thresholdSlider.setPaintMinorTicks(false);
+		thresholdSlider.setPaintLabels(false);
+		thresholdSlider.setPaintEndLabels(false);
+		thresholdSlider.setPaintCurrentValues(false);
+		thresholdSliderMinValue = new JLabel("-");
+		thresholdSliderMinValue.setBorder(BorderFactory.createLoweredBevelBorder());
+		thresholdSliderMaxValue = new JLabel("-");
+		thresholdSliderMaxValue.setBorder(BorderFactory.createLoweredBevelBorder());
 		
-		int index = 0;
+		Iterator<FileAnnotationData> iterator = results.keySet().iterator();
+		List<String> names = new ArrayList<String>();
 		File file = null;
-		int selectedIndex = 0;
-		Map<FileAnnotationData, File> 
-		filtered = new HashMap<FileAnnotationData, File>();
-		
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			fa = (FileAnnotationData) entry.getKey();
-			if (!excludeName(fa.getFileName())) {
-				filtered.put(fa, (File) entry.getValue());
+		String selectedFileName=null;
+		while(iterator.hasNext())
+		{
+			FileAnnotationData annotation = iterator.next();
+			if(!excludeName(annotation.getFileName()))
+			{
+				names.add(annotation.getFileName());
+				if(results.get(annotation)!=null && file==null)
+				{
+					selectedFileName = annotation.getFileName();
+					file = results.get(annotation);
+				}
 			}
-			/*
-			names[index] = fa.getFileName();
-			if (file == null) {
-				file = (File) entry.getValue();
-				selectedIndex = index;
-			}
-			index++;
-			*/
-		}
-		String[] names = new String[filtered.size()];
-		i = filtered.entrySet().iterator();
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			fa = (FileAnnotationData) entry.getKey();
-			names[index] = fa.getFileName();
-			if (file == null) {
-				file = (File) entry.getValue();
-				selectedIndex = index;
-			}
-			index++;
 		}
 		
-		
-		resultsBox = new JComboBox(names);
-		resultsBox.setSelectedIndex(selectedIndex);
+		if(file==null)
+			return;
+		List sortedNames = (List<String>) sorter.sort(names);
+
+		int selectedFileIndex = sortedNames.indexOf(selectedFileName);
+		resultsBox = new JComboBox(sortedNames.toArray());
+		resultsBox.setSelectedIndex(selectedFileIndex);
 		resultsBox.setActionCommand(""+SELECTION);
 		resultsBox.addActionListener(this);
-		tableIntervals = new TableIntervals(this, NAME_Y_AXIS);
 		paneContainer = new JXTaskPaneContainer();
 		VerticalLayout layout = (VerticalLayout) paneContainer.getLayout();
 		layout.setGap(0);
 		
 		JXTaskPane p = UIUtilities.createTaskPane("Intervals Data", null);
 		//p.add(new JScrollPane(tableIntervals));
-		intervalsPane = new JScrollPane(tableIntervals);
 		paneContainer.add(p);
 		paneContainer.add(UIUtilities.createTaskPane("Graph Data", null));
 		
@@ -513,20 +617,18 @@ public class FLIMResultsDialog
 		
 		//parse the file
 		parseValues = parseFile(file);
-		initSlider();
 		if (parseValues == null || parseValues.size() == 0) {
-			 JLabel l = new JLabel();
-			 l.setText("Cannot display the results");
-			 body = l;
+			 return;
 		} else {
-			createChart(extractValues(), BINS);
+			createChart();//(extractValues(), BINS);
 		}
-		createImage();
-		tableIntervals.populateTable();
-		tableValues = new JTable(data, COLUMNS);
-		tableValues.getTableHeader().setReorderingAllowed(false);
-		graphicsPane = new JScrollPane(tableValues);
 		saveButton.setEnabled(chartObject != null);
+
+		photonChart = new XYChartCanvas();
+		List<PVector> data = new ArrayList<PVector>();
+		for(int h = 0 ; h < 100 ; h++)
+			data.add(new PVector(h,0));
+		photonChart.setData(data);
 	}
 	
 	/** Closes the dialog. */
@@ -550,142 +652,13 @@ public class FLIMResultsDialog
 		chooser.addPropertyChangeListener(this);
 		chooser.centerDialog();
 	}
-	
-	/** Creates the image representing the values read from the file.*/
-	private void createImage()
-	{
-		if (parseValues == null || parseValues.size() == 0) return;
-		int rows = parseValues.size();
-		List<Double> l = parseValues.get(0);
-		int columns = l.size();
-		Iterator<List<Double>> i = parseValues.iterator();
-		Iterator<Double> j;
-		int index = 0;
-		double[][] values = new double[columns][rows];
-		//double largest = Double.MIN_VALUE;
-        //double smallest = Double.MAX_VALUE;
-        double value;
-        int row = 0; 
-        int column = 0;
-        double totalValue = 0;
-        while (i.hasNext()) {
-			l = i.next();
-			j = l.iterator();
-			column = 0;
-			while (j.hasNext()) {
-				value = convertValue(j.next().doubleValue());
-				values[column][row] = value;
-				//largest = Math.max(value, largest);
-				//smallest = Math.min(value, smallest);
-				//index++;
-				column++;
-				totalValue += value;
-			}
-			row++;
-		}
-        Color[] colors = GradientUtil.GRADIENT_HOT;
-        BufferedImage image = new BufferedImage(columns, rows, 
-        		BufferedImage.TYPE_INT_RGB);
-        Color c;
-        int v;
-        double norm;
-        for (int x = 0; x < columns; x++) {
-        	for (int y = 0; y < rows; y++) {
-        		v = (int) values[x][y];
-        		//norm = (v-smallest)/range; // 0 < norm < 1
-                //c = colors[(int) Math.floor(norm*(colors.length-1))];
-        		c = colors[v];
-        		image.setRGB(x, y, c.getRGB());
-        		//index++;
-        	}
-		}
-        
-        Dimension d = new Dimension(columns, rows);
-		canvas.setPreferredSize(d);
-		canvas.setSize(d);
-		canvas.setImage(image);
-	}
-	
-	/**
-	 * Maps the value to [0, 255] for display.
-	 * 
-	 * @param value The value to convert.
-	 * @return See above.
-	 */
-	private double convertValue(double value)
-	{
-		double min = slider.getStartValue();
-		double max = slider.getEndValue();
-		if (value < min) return 0;
-		if (value > max) return 255;
-		//if (end == 0) return 0;
-		return 255*(value-min)/(max-min);
-	}
 
-	/** 
-	 * Extracts the values.
-	 * 
-	 * @return See above.
-	 */
-	private double[] extractValues()
-	{
-		double min = slider.getStartValue();
-		double max = slider.getEndValue();
-		Iterator<List<Double>> i = parseValues.iterator();
-		double[] results;
-		int index = 0;
-		double v;
-		List<Double> l;
-		Iterator<Double> j;
-		List<Double> values = new ArrayList<Double>();
-		while (i.hasNext()) {
-			l = i.next();
-			j = l.iterator();
-			while (j.hasNext()) {
-				v = j.next();
-				if (v > min && v < max) {
-					values.add(v);
-				}
-			}
-		}
-		results = new double[values.size()];
-		j = values.iterator();
-		double totalValue = 0;
-		index = 0;
-		while (j.hasNext()) {
-			v = j.next();
-			results[index] = v;
-			index++;
-			totalValue += v;
-		}
-		List list = sorter.sort(values);
-		int n = list.size();
-		double median = 0;
-		if (n > 2) median = (Double) list.get(n/2+1);
-		else if (n == 1 || n == 2) median = (Double) list.get(0);
-		meanLabel.setText(""+UIUtilities.roundTwoDecimals(totalValue/index));
-		medianLabel.setText(""+UIUtilities.roundTwoDecimals(median));
-		return results;
-	}
-	
 	/** 
 	 * Plots the results again. */
 	private void plot()
 	{
 		if (parseValues == null || parseValues.size() == 0) return;
-		double[] values = extractValues();
-		int bins = (int) (end-start);
-		//repaint
-		createChart(values, bins);
-		createImage();
-		tableIntervals.populateTable();
-		
-		JXTaskPane pane = (JXTaskPane) paneContainer.getComponent(1);
-		pane.removeAll();
-		tableValues = new JTable(data, COLUMNS);
-		tableValues.getTableHeader().setReorderingAllowed(false);
-		//pane.add(new JScrollPane(tableValues));
-		graphicsPane = new JScrollPane(tableValues);
+		createChart();
 		mainPane = layoutBody();
 		getContentPane().add(mainPane, BorderLayout.CENTER);
 		getContentPane().validate();
@@ -696,7 +669,8 @@ public class FLIMResultsDialog
 	private void selectFile()
 	{
 		int index = resultsBox.getSelectedIndex();
-		int n = 0;
+		String nameSelected = (String)resultsBox.getSelectedItem();
+		/*int n = 0;
 		Entry entry;
 		File f = null;
 		Iterator i = results.entrySet().iterator();
@@ -708,22 +682,24 @@ public class FLIMResultsDialog
 			}
 			n++;
 		}
-		if (f == null) return;
-		parseValues = parseFile(f);
-		initSlider();
+		*/
+		
+		Iterator<FileAnnotationData> iterator = results.keySet().iterator();
+		FileAnnotationData found = null;
+		while(iterator.hasNext())
+		{
+			FileAnnotationData fileAnnotation = iterator.next();
+			if(fileAnnotation.getFileName().equals(nameSelected))
+				{
+				found = fileAnnotation;
+				break;
+				}
+		}
+		if (found == null) return;
+		parseValues = parseFile(results.get(found));
 		plot();
 	}
 	
-	/** Initializes the slider. */
-	private void initSlider()
-	{
-		int s = (int) Math.round(start);
-		int e = (int) Math.round(end);
-		slider = new TextualTwoKnobsSlider(s, e, s, e);
-		slider.layoutComponents(
-        		TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
-		slider.getSlider().addPropertyChangeListener(this);
-	}
 	
 	/**
 	 * Parses a CSV file.
@@ -751,13 +727,14 @@ public class FLIMResultsDialog
 					if (v < start) start = v;
 					if (v > end) end = v;
 					v = UIUtilities.roundTwoDecimals(v*FACTOR);
+				
 					row.add(v);
 				}
 				list.add(row);
 			}
 			reader.close();
 			return list;
-		} catch (Exception e) {}
+		} catch (Exception e) {e.printStackTrace();}
 		return null;
 	}
 	
@@ -769,10 +746,7 @@ public class FLIMResultsDialog
 	 */
 	private List<List<Double>> parseFile(File file)
 	{
-		//CustomizedFileFilter filter = new CSVFilter();
-		//if (filter.accept(file))
-			return parseCSV(file);
-		//return null;
+		return parseCSV(file);
 	}
 	
 	/**
@@ -787,21 +761,6 @@ public class FLIMResultsDialog
 		row.setLayout(new FlowLayout());
 		
 		JLabel l = new JLabel();
-		/*
-		l.setText("Min Threshold:");
-		l.setToolTipText(minThreshold.getToolTipText());
-		row.add(l);
-		row.add(minThreshold);
-		content.add(UIUtilities.buildComponentPanel(row));
-		row = new JPanel();
-		row.setLayout(new FlowLayout());
-		l = new JLabel();
-		l.setText("Max Threshold:");
-		l.setToolTipText(maxThreshold.getToolTipText());
-		row.add(l);
-		row.add(maxThreshold);
-		content.add(UIUtilities.buildComponentPanel(row));
-		*/
 		row = new JPanel();
 		row.setLayout(new FlowLayout());
 		l = new JLabel();
@@ -809,21 +768,18 @@ public class FLIMResultsDialog
 		row.add(l);
 		row.add(resultsBox);
 		content.add(UIUtilities.buildComponentPanel(row));
-		row = new JPanel();
-		l = new JLabel();
-		l.setText("Mean:");
-		row.add(l);
-		row.add(meanLabel);
-		content.add(UIUtilities.buildComponentPanel(row));
-		//row.add(Box.createHorizontalStrut(5));
-		row = new JPanel();
-		row.setLayout(new FlowLayout());
-		l = new JLabel();
-		l.setText("Median:");
-		row.add(l);
-		row.add(medianLabel);
-		content.add(UIUtilities.buildComponentPanel(row));
-		
+		return content;
+	}
+	
+	/**
+	 * Build the component displaying the cursor results.
+	 * @return See above.
+	 */
+	private JPanel buildCursorResultsComponent()
+	{
+		JPanel content = new JPanel();
+		content.setLayout(new BorderLayout());
+		content.add(cursorResults, BorderLayout.CENTER);
 		return content;
 	}
 	
@@ -854,12 +810,14 @@ public class FLIMResultsDialog
 			text += " for "+imageName;
 		TitlePanel tp = new TitlePanel("Results", text, icon);
 		settings = buildSettingsComponent();
+		cursorResultsPanel = buildCursorResultsComponent();
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout());
 		container.add(tp, BorderLayout.NORTH);
 		mainPane = layoutBody();
 		container.add(mainPane, BorderLayout.CENTER);
 		container.add(buildControlsBar(), BorderLayout.SOUTH);
+		plot();
 	}
 	
 	/**
@@ -888,7 +846,7 @@ public class FLIMResultsDialog
 		}
 		initComponents();
 		buildGUI(icon);
-		pack();
+		setSize(1100, 800);
 	}
 	
 	/**
@@ -960,14 +918,199 @@ public class FLIMResultsDialog
 	 */
 	public void propertyChange(PropertyChangeEvent evt)
 	{
+		
 		String name = evt.getPropertyName();
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			File[] files = (File[]) evt.getNewValue();
 			File f = files[0];
 			saveAs(f);
-		} else if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
-			plot();
+		} else if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name) && evt.getSource().equals(colourMapSlider)) {
+			if(sliderLeftValue==colourMapSlider.getStartValue() &&sliderRightValue==colourMapSlider.getEndValue())
+				return;
+			else
+			{
+				sliderLeftValue=colourMapSlider.getStartValue();
+				sliderRightValue=colourMapSlider.getEndValue();
+				newRangeSelected((int)colourMapSlider.getStartValue(), (int)colourMapSlider.getEndValue());
+			}
+		}else if(TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name) && evt.getSource().equals(thresholdSlider))
+		{
+
+			double startValue = calculateValue(thresholdSlider.getStartValue(),true);
+			double endValue = calculateValue(thresholdSlider.getEndValue(),false);
+	    	chartObject.setThreshold(startValue, endValue);
+	    	thresholdSliderMinValue.setText(UIUtilities.formatToDecimal(startValue));
+	    	thresholdSliderMaxValue.setText(UIUtilities.formatToDecimal(endValue));
+		}else if (HistogramCanvas.CHARTSELECTED_PROPERTY.equals(name)){
+			
+			displayMapResult((Integer)evt.getNewValue());
+		}else if(name.equals(JToggleButton.MODEL_CHANGED_PROPERTY)){
+			chartObject.setRGB(RGBButton.isSelected(), (int)colourMapSlider.getStartValue(), (int)colourMapSlider.getEndValue());		
 		}
 	}
 	
+	/**
+	 * Update the table, now that a new range has been selected. 
+	 * @param start See above.
+	 * @param end See above.
+	 */
+	private void newRangeSelected(int start, int end)
+	{
+		chartObject.setRGB(RGBButton.isSelected(), start, end);
+		
+		Map<String, Double> binStats = chartObject.getBinStats(start);
+		if(binStats==null)
+			return;
+	
+		colourMapMinValue.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));
+		binStats = chartObject.getBinStats(end);
+		if(binStats==null)
+			return;
+	
+		colourMapMaxValue.setText(UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));;
+		Map<String, Double> redStats = chartObject.getRangeStats(0,start);
+		Map<String, Double> greenStats = chartObject.getRangeStats(start, end);
+		Map<String, Double> blueStats = chartObject.getRangeStats(end, BINS);
+		Map<String, Object> rowData = new HashMap<String, Object>();
+		
+		rowData.put("Colour","Red");
+		rowData.put("Bin Start",0);
+		rowData.put("Bin End", start-1);
+		rowData.put("Min", UIUtilities.formatToDecimal(redStats.get(Histogram.MIN)));
+		rowData.put("Max", UIUtilities.formatToDecimal(redStats.get(Histogram.MAX)));
+		rowData.put("Mean", UIUtilities.formatToDecimal(redStats.get(Histogram.MEAN)));
+		rowData.put("Stddev", UIUtilities.formatToDecimal(redStats.get(Histogram.STDDEV)));
+		rowData.put("Freq", UIUtilities.formatToDecimal(redStats.get(Histogram.FREQ)));
+		rowData.put("Percent", UIUtilities.formatToDecimal(redStats.get(Histogram.PERCENT)));
+		statsTable.insertData(rowData);
+		rowData =  new HashMap<String, Object>();
+		
+		rowData.put("Colour","Green");
+		rowData.put("Bin Start",start);
+		rowData.put("Bin End", end-1);
+		rowData.put("Min", UIUtilities.formatToDecimal(greenStats.get(Histogram.MIN)));
+		rowData.put("Max", UIUtilities.formatToDecimal(greenStats.get(Histogram.MAX)));
+		rowData.put("Mean", UIUtilities.formatToDecimal(greenStats.get(Histogram.MEAN)));
+		rowData.put("Stddev", UIUtilities.formatToDecimal(greenStats.get(Histogram.STDDEV)));
+		rowData.put("Freq", UIUtilities.formatToDecimal(greenStats.get(Histogram.FREQ)));
+		rowData.put("Percent", UIUtilities.formatToDecimal(greenStats.get(Histogram.PERCENT)));
+		statsTable.insertData(rowData);
+		rowData =  new HashMap<String, Object>();
+		
+		rowData.put("Colour","Blue");
+		rowData.put("Bin Start",end);
+		rowData.put("Bin End", BINS);
+		rowData.put("Min", UIUtilities.formatToDecimal(blueStats.get(Histogram.MIN)));
+		rowData.put("Max", UIUtilities.formatToDecimal(blueStats.get(Histogram.MAX)));
+		rowData.put("Mean", UIUtilities.formatToDecimal(blueStats.get(Histogram.MEAN)));
+		rowData.put("Stddev", UIUtilities.formatToDecimal(blueStats.get(Histogram.STDDEV)));
+		rowData.put("Freq", UIUtilities.formatToDecimal(blueStats.get(Histogram.FREQ)));
+		rowData.put("Percent", UIUtilities.formatToDecimal(blueStats.get(Histogram.PERCENT)));
+		statsTable.insertData(rowData);
+	}
+	
+	/**
+	 * Plot the pixel graph for the position x,y
+	 * @param x See above.
+	 * @param y See above.
+	 */
+	private void plotPixel(int x, int y)
+	{
+		System.err.println(x+" "+y);
+	}
+	
+	/**
+	 * Display the stats on the point clicked in the chart.
+	 * @param bin The bin picked.
+	 */
+	private void displayMapResult(int bin)
+	{
+		
+		Map<String, Double> binStats = chartObject.getBinStats(bin);
+		if(binStats==null)
+			return;
+		Map<String, Object> rowData = new HashMap<String, Object>();
+		
+		rowData.put("mean",UIUtilities.formatToDecimal(chartObject.getMean()));
+		rowData.put("median",UIUtilities.formatToDecimal(chartObject.getMedian()));
+		rowData.put("meanBin",UIUtilities.formatToDecimal(binStats.get(Histogram.MEAN)));
+		rowData.put("maxBin",UIUtilities.formatToDecimal(binStats.get(Histogram.MAX)));
+		rowData.put("binNo",UIUtilities.formatToDecimal(bin));
+		rowData.put("minBin",UIUtilities.formatToDecimal(binStats.get(Histogram.MIN)));
+		rowData.put("percentBin",UIUtilities.formatToDecimal(binStats.get(Histogram.PERCENT)));
+		rowData.put("stddevBin",UIUtilities.formatToDecimal(binStats.get(Histogram.STDDEV)));
+		rowData.put("frequencyBin",UIUtilities.formatToDecimal(binStats.get(Histogram.FREQ)));
+		cursorResults.insertData(rowData);
+		
+	}
+
+	/**
+	 * Overridden from {@see ItemListener#itemStateChanged(ItemEvent)
+	 */
+	public void itemStateChanged(ItemEvent e) 
+	{
+		if(e.getItem()==RGBButton)
+		{ 
+			if(e.getStateChange() == ItemEvent.SELECTED)
+		    {
+				RGBButton.setText("RGB");
+				chartObject.setRGB(RGBButton.isSelected(), (int)colourMapSlider.getStartValue(), (int)colourMapSlider.getEndValue());	
+		    }
+            else
+            {
+            	RGBButton.setText("BGR");
+            	chartObject.setRGB(RGBButton.isSelected(), (int)colourMapSlider.getStartValue(), (int)colourMapSlider.getEndValue());	
+            } 
+		}
+	}
+	
+	/**
+	 * Get the best guess for thresholding of the data.
+	 * @param sortedData The sorted data to threshold.
+	 * @return See above.
+	 */
+	private double getBestGuess(List<Double> sortedData)
+	{
+		double thresholdValue;
+		if(sortedData.size()==0)
+			thresholdValue= 0;
+		else if(sortedData.get(0).equals(sortedData.get(sortedData.size()-1)))
+			thresholdValue= sortedData.get(0)-1;
+		else if(sortedData.get(sortedData.size()-1)==null)
+			thresholdValue= sortedData.get(0)-1;
+		else
+			thresholdValue= sortedData.get(0);
+		return thresholdValue;
+	}
+
+	/**
+	 * Calculate the value that the slider would be in the data, if it was selecting the bin.
+	 * @param bin See above.
+	 * @return See above.
+	 */
+	private double calculateValue(int bin, boolean lower)
+	{
+		double min = sortedData.get(0);
+		double max = sortedData.get(sortedData.size()-1);
+		double range = max-min;
+		double binWidth = range/(double)BINS;
+		if(lower)
+			return min+bin*binWidth;
+		else
+			return min+(bin+1)*binWidth;
+	}
+	
+	/**
+	 * Overridden from {@link ChangeListener#stateChanged(ChangeEvent)}
+	 */
+	public void stateChanged(ChangeEvent e) 
+	{
+		if (e.getSource() instanceof JSlider) 
+		{
+		      JSlider thresholdSlider = (JSlider) e.getSource();
+		      if (!thresholdSlider.getValueIsAdjusting()) 
+		      {
+		      }
+		}
+	}
 }

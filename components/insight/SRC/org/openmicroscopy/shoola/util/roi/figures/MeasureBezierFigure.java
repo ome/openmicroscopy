@@ -55,7 +55,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 /** 
- * 
+ * Bezier figure with measurement.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -81,10 +81,10 @@ public class MeasureBezierFigure
 	/** has the figure been modified. */
 	private boolean dirty;
 	
-	/** The list of X coords of the nodes on the line. */
+	/** The list of X coordinates of the nodes on the line. */
 	private List<Double>			pointArrayX;
 
-	/** The list of Y coords of the nodes on the line. */
+	/** The list of Y coordinates of the nodes on the line. */
 	private List<Double>			pointArrayY;
 	
 	/** The list of lengths of sections on the line. */
@@ -161,21 +161,20 @@ public class MeasureBezierFigure
 		}
 	}
 	
-	/** Creates an instance of the bezier figure. */
+	/** Creates an instance of the Bezier figure. */
 	public MeasureBezierFigure()
 	{
 		this(false, false, true);
 	}
 	
-	/** Creates an instance of the bezier figure. */
+	/** Creates an instance of the Bezier figure. */
 	public MeasureBezierFigure(boolean closed)
 	{
 		this(closed, false, true);
 	}
-	
-	
+
 	/**
-	 * Creates an instance of the bezier figure.
+	 * Creates an instance of the Bezier figure.
 	 * 
 	 * @param closed Pass <code>true</code> if the figure is a polygon,
 	 * 				 <code>false</code> if it is a polyline.
@@ -187,7 +186,7 @@ public class MeasureBezierFigure
 	}
 	
 	/**
-	 * Creates an instance of the bezier figure (closed).
+	 * Creates an instance of the Bezier figure (closed).
 	 * 
 	 * @param text The string displayed in the figure. 
 	 */
@@ -221,6 +220,8 @@ public class MeasureBezierFigure
 			boolean clientObject)
 	{
 		super(text, closed);
+		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
 		this.readOnly = readOnly;
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
@@ -243,12 +244,12 @@ public class MeasureBezierFigure
 		{
 			if (isClosed())
 			{
-				NumberFormat formatter = new DecimalFormat("###.#");
+				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 				String polygonArea = formatter.format(getArea());
 				polygonArea = addAreaUnits(polygonArea);
 				double sz = ((Double) this.getAttribute(
 							MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font("Arial",Font.PLAIN, (int) sz));
+				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 				bounds = g.getFontMetrics().getStringBounds(polygonArea, g);
 				bounds = new Rectangle2D.Double(
 						this.getBounds().getCenterX()-bounds.getWidth()/2,
@@ -257,7 +258,8 @@ public class MeasureBezierFigure
 				if (MeasurementAttributes.SHOWMEASUREMENT.get(this))
 				{
 					g.setColor(
-							MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+							MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(
+									this));
 					g.drawString(polygonArea, (int) bounds.getX(), 
 							(int) bounds.getY());
 				}
@@ -270,12 +272,12 @@ public class MeasureBezierFigure
 			}
 			else
 			{
-				NumberFormat formatter = new DecimalFormat("###.#");
+				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 				String polygonLength = formatter.format(getLength());
 				polygonLength = addLineUnits(polygonLength);
-				double sz = ((Double) 
-						this.getAttribute(MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font("Arial", Font.PLAIN, (int) sz));
+				double sz = (Double) 
+						getAttribute(MeasurementAttributes.FONT_SIZE);
+				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 				bounds = g.getFontMetrics().getStringBounds(polygonLength, g);
 				
 				if (super.getNodeCount() > 1)
@@ -364,7 +366,8 @@ public class MeasureBezierFigure
 	}
 	
 	/**
-	 * Add length unit, (pixels, microns) to the measurements. 
+	 * Add length unit in pixels or microns to the measurements. 
+	 * 
 	 * @param str the measurement.
 	 * @return see above.
 	 */
@@ -377,7 +380,8 @@ public class MeasureBezierFigure
 	}
 	
 	/**
-	 * Add area ^2 to the measurements. 
+	 * Adds area ^2 to the measurements. 
+	 * 
 	 * @param str the measurement.
 	 * @return see above.
 	 */
@@ -390,7 +394,7 @@ public class MeasureBezierFigure
 	}
 	
 	/**
-	 * Get the point i in pixels or microns depending on the units used.
+	 * Gets the point i in pixels or microns depending on the units used.
 	 * 
 	 * @param i node
 	 * @return see above.
@@ -405,7 +409,8 @@ public class MeasureBezierFigure
 	}
 	
 	/**
-	 * Calculate the length of the line.
+	 * Calculates the length of the line.
+	 * 
 	 * @return see above.
 	 */
 	public double getLength()
@@ -422,16 +427,15 @@ public class MeasureBezierFigure
 	}
 	
 	/** 
-	 * Get the number of points.
+	 * Returns the number of points.
+	 * 
 	 * @return see above. 
 	 */
-	public int getPointCount()
-	{
-		return this.getPoints().size();
-	}
+	public int getPointCount() { return this.getPoints().size(); }
 	
 	/**
-	 * Calculate the centre of the object (in pixels, or microns). 
+	 * Calculates the centre of the object (in pixels, or microns). 
+	 * 
 	 * @return see above.
 	 */
 	public Point2D getCentre()
@@ -447,7 +451,8 @@ public class MeasureBezierFigure
 	}
 	
 	/**
-	 * Get the Area of the object, in Pixels or microns.
+	 * Returns the Area of the object, in Pixels or microns.
+	 * 
 	 * @return see above.
 	 */
 	public double getArea()
@@ -469,7 +474,7 @@ public class MeasureBezierFigure
 	}
 
 	/** 
-	 * Remove a node from the bezier figure.
+	 * Remove a node from the Bezier figure.
 	 * @param index node to remove.
 	 */
 	public void measureBasicRemoveNode(int index)
@@ -849,5 +854,3 @@ public class MeasureBezierFigure
 	}
 	
 }
-
-

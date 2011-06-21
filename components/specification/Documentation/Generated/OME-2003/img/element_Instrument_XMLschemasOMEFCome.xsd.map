@@ -1,0 +1,44 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Instrument_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_Microscope'
+  coords='284,0,410,26'
+  href='ome.xsd.html#element_Microscope'/>
+
+ <area
+  shape='rect'
+  alt='element_LightSource'
+  coords='284,36,417,78'
+  href='ome.xsd.html#element_LightSource'/>
+
+ <area
+  shape='rect'
+  alt='element_Detector'
+  coords='284,88,396,130'
+  href='ome.xsd.html#element_Detector'/>
+
+ <area
+  shape='rect'
+  alt='element_Objective'
+  coords='284,140,403,182'
+  href='ome.xsd.html#element_Objective'/>
+
+ <area
+  shape='rect'
+  alt='element_Filter'
+  coords='284,192,382,234'
+  href='ome.xsd.html#element_Filter'/>
+
+ <area
+  shape='rect'
+  alt='element_OTF'
+  coords='284,244,361,286'
+  href='ome.xsd.html#element_OTF'/>
+
+ <area
+  shape='rect'
+  alt='type_InstrumentID'
+  coords='198,296,292,322'
+  href='ome.xsd.html#type_InstrumentID'/>
+
+</map>

@@ -193,25 +193,4 @@ public class ROICoordMap
 		coordMap.put(coord, shapeList);
 	}
 	
-	/**
-	 * Create a shape list for all planes [start, end].
-	 * @param start see above.
-	 * @param end see above.
-	 */
-	private void createShapeList(Coord3D start, Coord3D end)
-	{
-	//	for( int c = start.c ; c < end.c ; c++) 
-		for(int t = start.getTimePoint(); t < end.getTimePoint() ; t++)
-			for(int z = start.getZSection(); z < end.getZSection() ; z++)
-			{
-					ShapeList shapeList;
-					Coord3D coord = new Coord3D(z, t);
-					if(!coordMap.containsKey(coord))
-					{
-						shapeList = new ShapeList(coord);
-						coordMap.put(coord, shapeList);
-					}
-				}
-	}
-	
 }

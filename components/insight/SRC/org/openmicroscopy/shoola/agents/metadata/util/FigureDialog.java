@@ -687,11 +687,16 @@ public class FigureDialog
 		if (renderer.isChannelActive(index)) {
 			if (renderer.isMappedImageRGB(renderer.getActiveChannels())) {
 				//if red
-				DataBuffer buf;
+				DataBuffer buf = null;
 				if (!scale) buf = mergeUnscaled.getRaster().getDataBuffer();
-				else 
-					buf = mergedComponent.getDisplayedImage().getRaster().
-						getDataBuffer();
+				else {
+					BufferedImage image = mergedComponent.getDisplayedImage();
+					if (image != null)
+						buf = image.getRaster().getDataBuffer();
+				}
+				if (buf == null) 
+					return scaleImage(renderer.createSingleChannelImage(true, 
+							index, pDef));
 				if (renderer.isColorComponent(Renderer.RED_BAND, index)) {
 					if (!scale) 
 						return Factory.createBandImage(buf,
@@ -774,7 +779,7 @@ public class FigureDialog
 	private void initChannelComponents()
 	{
 		initialize();
-		
+		components = new LinkedHashMap<Integer, FigureComponent>();
 		if (dialogType == SPLIT_ROI) {
 			initChannelComponentsForROI();
 			return;
@@ -799,7 +804,7 @@ public class FigureDialog
         mergedComponent.setCanvasSize(thumbnailWidth, thumbnailHeight);
         mergedComponent.setOriginalImage(getMergedImage());
         
-		components = new LinkedHashMap<Integer, FigureComponent>();
+		
 		//Initializes the channels
 		k = data.iterator();
         FigureComponent split;
@@ -889,8 +894,6 @@ public class FigureDialog
         mergedComponent.setOriginalImage(getMergedImage());
         //Add the view to the canvas.
         mergedComponent.addToView(canvasView);
-        
-        components = new LinkedHashMap<Integer, FigureComponent>();
 		//Initializes the channels
 		k = data.iterator();
         
@@ -1829,6 +1832,11 @@ public class FigureDialog
 	{
 		String text = nameField.getText();
 		saveButton.setEnabled(!(text == null || text.trim().length() == 0));
+		switch (dialogType) {
+			case SPLIT:
+			case SPLIT_ROI:
+				saveButton.setEnabled(renderer != null);
+		}
 		checkBinaryAvailability();
 	}
 	

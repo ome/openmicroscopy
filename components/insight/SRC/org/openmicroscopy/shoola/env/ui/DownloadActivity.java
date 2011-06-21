@@ -179,10 +179,11 @@ public class DownloadActivity
     public DownloadActivity(UserNotifier viewer, Registry registry,
     		DownloadActivityParam parameters)
     {
-    	super(viewer, registry, "Download", parameters.getIcon());
+		super(viewer, registry);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
+		initialize("Download", parameters.getIcon());
 		File folder = parameters.getFolder();
     	File directory = folder;
     	if (parameters.getApplicationData() == null)

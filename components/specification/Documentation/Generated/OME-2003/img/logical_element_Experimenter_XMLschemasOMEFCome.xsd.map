@@ -1,0 +1,38 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Experimenter_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_FirstName'
+  coords='472,53,858,113'
+  href='ome.xsd.html#element_FirstName'/>
+
+ <area
+  shape='rect'
+  alt='element_LastName'
+  coords='472,123,858,183'
+  href='ome.xsd.html#element_LastName'/>
+
+ <area
+  shape='rect'
+  alt='element_Email'
+  coords='472,193,858,253'
+  href='ome.xsd.html#element_Email'/>
+
+ <area
+  shape='rect'
+  alt='element_Institution'
+  coords='472,263,858,323'
+  href='ome.xsd.html#element_Institution'/>
+
+ <area
+  shape='rect'
+  alt='element_OMEName'
+  coords='472,333,858,409'
+  href='ome.xsd.html#element_OMEName'/>
+
+ <area
+  shape='rect'
+  alt='element_GroupRef'
+  coords='472,419,858,478'
+  href='ome.xsd.html#element_GroupRef'/>
+
+</map>

@@ -30,7 +30,6 @@ import java.awt.Font;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RFloat;
 import omero.RInt;
 import omero.RString;
 import omero.rtypes;
@@ -76,25 +75,42 @@ public class ShapeSettingsData
 	/** The default font size. */
 	public static final int 	DEFAULT_FONT_SIZE = 12;
 	
-	/** The default font style. */
-	public static final String 	DEFAULT_FONT_STYLE = "normal";
-	
-	/** The default font weight. */
-	public static final String 	DEFAULT_FONT_WEIGHT = "normal";
-	
 	/** The default font family. */
-	public static final String 	DEFAULT_FONT_FAMILY = "Courier";
+	public static final String 	DEFAULT_FONT_FAMILY = "sans-serif";
 	
 	/** The default stroke width. */
-	public final static double DEFAULT_STROKE_WIDTH =  1.0f;
+	public final static double DEFAULT_STROKE_WIDTH = 1.0f;
 
 	/** Set if font italic. */
-	public final static String FONT_ITALIC = "italic";
+	public final static String FONT_ITALIC = "Italic";
 	
 	/** Set if font bold. */
-	public final static String FONT_BOLD = "bold";
-	
+	public final static String FONT_BOLD = "Bold";
 
+	/** Set if font bold. */
+	public final static String FONT_BOLD_ITALIC = "BoldItalic";
+	
+	/** Set if font bold. */
+	public final static String FONT_REGULAR = "Normal";
+	
+	/**
+	 * Returns the font style is supported.
+	 * 
+	 * @param value The value to format.
+	 * @return See above.
+	 */
+	private String formatFontStyle(String value)
+	{
+		if (value == null) return FONT_REGULAR;
+		String v = value.trim();
+		v = v.toLowerCase();
+		if (FONT_ITALIC.toLowerCase().equals(v)) return FONT_ITALIC;
+		else if (FONT_BOLD.toLowerCase().equals(v)) return FONT_BOLD;
+		else if (FONT_BOLD_ITALIC.toLowerCase().equals(v)) 
+			return FONT_BOLD_ITALIC;
+		return FONT_REGULAR;
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -104,6 +120,7 @@ public class ShapeSettingsData
 	{
 		super();
 		setValue(shape);
+		setFontStyle(FONT_REGULAR);
 	}
 	
 	/**
@@ -138,7 +155,7 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
-	public Color getFillColor()
+	public Color getFill()
 	{
 		Shape shape = (Shape) asIObject();
 		RInt value = shape.getFillColor();
@@ -151,7 +168,7 @@ public class ShapeSettingsData
 	 * 
 	 * @param fillColour See above.
 	 */
-	public void setFillColor(Color fillColour)
+	public void setFill(Color fillColour)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
@@ -166,7 +183,7 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
-	public Color getStrokeColor()
+	public Color getStroke()
 	{
 		Shape shape = (Shape) asIObject();
 		RInt value = shape.getStrokeColor();
@@ -179,7 +196,7 @@ public class ShapeSettingsData
 	 * 
 	 * @param strokeColour See above.
 	 */
-	public void setStrokeColor(Color strokeColour)
+	public void setStroke(Color strokeColour)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
@@ -243,16 +260,17 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		String values = "";
+		if (dashArray == null || dashArray.length < 2) return;
+		StringBuffer values = new StringBuffer();
 		for(int i = 0 ; i < dashArray.length-1 ; i++)
-			values = values + dashArray[i] + ",";
-		values = values + dashArray[dashArray.length-1];
-		shape.setStrokeDashArray(rtypes.rstring(values));
+			values.append(dashArray[i]+ ",");
+		String v = values.toString() + dashArray[dashArray.length-1];
+		shape.setStrokeDashArray(rtypes.rstring(v));
 		setDirty(true);
 	}
 	
 	/**
-	 * Returns the stroke.
+	 * Returns the shape of the end of the line..
 	 * 
 	 * @return See above.
 	 */
@@ -269,7 +287,7 @@ public class ShapeSettingsData
 	}
 	
 	/**
-	 * Set the line cap.
+	 * Sets the line cap.
 	 * 
 	 * @param lineCap See above.
 	 */
@@ -303,12 +321,11 @@ public class ShapeSettingsData
 	public Font getFont()
 	{
 		int style = Font.PLAIN;
-		if(getFontWeight()==FONT_BOLD)
+		if (isFontBold())
 			style = style | Font.BOLD;
-		if(getFontWeight()==FONT_ITALIC)
+		if (isFontItalic())
 			style = style | Font.ITALIC;
-		
-		return new Font(getFontFamily(), style,getFontSize());
+		return new Font(getFontFamily(), style, getFontSize());
 	}
 	
 	/**
@@ -321,10 +338,9 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		if(shape.getFontFamily()!=null)
-			return shape.getFontFamily().getValue();
-		else
-			return DEFAULT_FONT_FAMILY;
+		RString family = shape.getFontFamily();
+		if (family != null) return family.getValue();
+		return DEFAULT_FONT_FAMILY;
 	}
 
 	/**
@@ -337,6 +353,8 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
+		if (fontFamily == null || fontFamily.trim().length() == 0)
+			fontFamily = DEFAULT_FONT_FAMILY;
 		shape.setFontFamily(rtypes.rstring(fontFamily));
 		setDirty(true);
 	}
@@ -351,10 +369,9 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		if(shape.getFontSize()!=null)
-			return shape.getFontSize().getValue();
-		else
-			return DEFAULT_FONT_SIZE;
+		RInt size = shape.getFontSize();
+		if (size != null) return size.getValue();
+		return DEFAULT_FONT_SIZE;
 	}
 
 	/**
@@ -367,10 +384,10 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
+		if (fontSize <= 0) fontSize = DEFAULT_FONT_SIZE;
 		shape.setFontSize(rtypes.rint(fontSize));
 		setDirty(true);
 	}
-
 	
 	/**
 	 * Returns the font style.
@@ -382,14 +399,13 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		if(shape.getFontStyle()!=null)
-			return shape.getFontStyle().getValue();
-		else
-			return DEFAULT_FONT_STYLE;
+		RString style = shape.getFontStyle();
+		if (style != null) return style.getValue();
+		return FONT_REGULAR;
 	}
 
 	/**
-	 * Set the style of the font.
+	 * Sets the style of the font.
 	 * 
 	 * @return See above.
 	 */
@@ -398,43 +414,14 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setFontStyle(rtypes.rstring(fontStyle));
+		shape.setFontStyle(rtypes.rstring(formatFontStyle(fontStyle)));
+		//update the font weight.
+		shape.setFontWeight(null);
 		setDirty(true);
 	}
-	
+
 	/**
-	 * Get the weight of the font.
-	 * 
-	 * @return See above.
-	 */
-	public String getFontWeight()
-	{
-		Shape shape = (Shape) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		if(shape.getFontWeight()!=null)
-			return shape.getFontWeight().getValue();
-		else
-			return DEFAULT_FONT_WEIGHT;
-	}
-	
-	/**
-	 * Set the weight of the font.
-	 * 
-	 * @return See above.
-	 */
-	public void setFontWeight(String fontWeight)
-	{
-		Shape shape = (Shape) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setFontWeight(rtypes.rstring(fontWeight));
-		setDirty(true);
-	}
-	
-	
-	/**
-	 * Returns the stroke.
+	 * Returns the marker start.
 	 * 
 	 * @return See above.
 	 */
@@ -444,7 +431,7 @@ public class ShapeSettingsData
 	}
 	
 	/**
-	 * Returns the stroke.
+	 * Returns the marker end.
 	 * 
 	 * @return See above.
 	 */
@@ -454,11 +441,21 @@ public class ShapeSettingsData
 	}
 	
 	/**
-	 * Returns the stroke.
+	 * Returns the marker start.
 	 * 
-	 * @return See above.
+	 * @param start The value to set.
 	 */
-	public String getText()
+	public String setMarkerStart(String start)
+	{
+		return "";
+	}
+	
+	/**
+	 * Returns the marker end.
+	 * 
+	 * @param start The value to set.
+	 */
+	public String setMarkerEnd(String end)
 	{
 		return "";
 	}
@@ -469,7 +466,14 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
-	public boolean isFontItalic() { return getFontStyle() == FONT_ITALIC; }
+	public boolean isFontItalic()
+	{ 
+		String value = getFontStyle();
+		value = value.toLowerCase();
+		String f = FONT_ITALIC.toLowerCase();
+		String f1 = FONT_BOLD_ITALIC.toLowerCase();
+		return (f.equals(value) || f1.equals(value));
+	}
 	
 	/**
 	 * Returns <code>true</code> if it is bold, <code>false</code>
@@ -477,6 +481,25 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
-	public boolean isFontBold() { return getFontWeight() == FONT_BOLD; }
+	public boolean isFontBold()
+	{ 
+		//in order to handle the previous value.
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		String f = FONT_BOLD.toLowerCase();
+		String f1 = FONT_BOLD_ITALIC.toLowerCase();
+		String value;
+		RString weight = shape.getFontWeight();
+		if (weight != null) {
+			value = weight.getValue();
+			value = value.toLowerCase();
+			if (value.trim().length() > 0)
+				return (f.equals(value) || f1.equals(value));
+		}
+		value = getFontStyle();
+		value = value.toLowerCase();
+		return (f.equals(value) || f1.equals(value));
+	}
 	
 }

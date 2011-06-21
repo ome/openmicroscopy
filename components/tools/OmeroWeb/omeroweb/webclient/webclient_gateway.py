@@ -2,7 +2,7 @@
 # 
 # webclient_gateway
 # 
-# Copyright (c) 2008 University of Dundee. 
+# Copyright (c) 2008-2011 University of Dundee.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -54,12 +54,12 @@ from omero.model import FileAnnotationI, TagAnnotationI, \
                         DatasetI, ProjectI, ImageI, ScreenI, PlateI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, \
                         LaserI
-from omero.sys import ParametersI
-from omero.gateway import TagAnnotationWrapper, FileAnnotationWrapper, CommentAnnotationWrapper, \
-                        ExperimenterGroupWrapper, ExperimenterWrapper, \
-                        EnumerationWrapper, BlitzObjectWrapper, \
-                        ShareCommentWrapper, ShareWrapper, WellWrapper
 
+from omero.gateway import TagAnnotationWrapper, ExperimenterWrapper, WellWrapper
+
+from omero.sys import ParametersI
+
+from django.utils.encoding import smart_str
 from django.utils.translation import ugettext as _
 from django.conf import settings
 from django.core.mail import send_mail
@@ -185,16 +185,15 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @type gid:      Long
         
         @return:        Boolean
-        """        
+        """
         
         try:
             for k in self._proxies.keys():
                 self._proxies[k].close()
                 
             self.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
-            admin_serv = self.getAdminService()
-            admin_serv.setDefaultGroup(self.getUser()._obj, omero.model.ExperimenterGroupI(gid, False))
-            self._ctx = self._proxies['admin'].getEventContext()
+            self.getAdminService().setDefaultGroup(self.getUser()._obj, omero.model.ExperimenterGroupI(gid, False))
+            self._ctx = self.getAdminService().getEventContext()
             return True
         except omero.SecurityViolation:
             logger.error(traceback.format_exc())
@@ -259,51 +258,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             return False
         return True
     
-    def getExperimenters(self, ids=None):
-        """ 
-        Get experimenters for the given user ids. If ID is not set, return current user.
-        TODO: omero.gateway.BlitzGateway has getExperimenter(id) method
-        
-        @param ids:     List of experimenter IDs
-        @type ids:      L{Long} 
-        @return:        Generator yielding experimetners list
-        @rtype:         L{ExperimenterWrapper} generator
-        
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        if ids is not None:
-            p.map = {}
-            p.map["ids"] = rlist([rlong(long(a)) for a in ids])
-            sql = "select e from Experimenter as e where e.id in (:ids)"
-        else:
-            p.map = {}
-            p.map["id"] = rlong(self.getEventContext().userId)
-            sql = "select e from Experimenter as e where e.id != :id "
-        for e in q.findAllByQuery(sql, p):
-            yield ExperimenterWrapper(self, e)
-    
-    def getExperimenterGroups(self, ids):
-        """ 
-        Get group for for the given group ids. 
-        TODO: omero.gateway.BlitzGateway has getGroup(id) method
-        
-        @param ids:     List of group IDs
-        @type ids:      L{Long} 
-        @return:        Generator yielding groups list
-        @rtype:         L{ExperimenterGroupWrapper} generator
-        """
-            
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a) for a in ids])
-        sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p):
-            if e.name.val != 'user':
-                yield ExperimenterGroupWrapper(self, e)
-    
     def listLdapAuthExperimenters(self):
         """
         Lists all IDs of experimenters who are authenticated by LDAP
@@ -329,27 +283,22 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         
         admin_serv = self.getAdminService()
         return admin_serv.lookupLdapAuthExperimenter(long(eid))
-            
-    def listExperimenters (self, start=''):
+
+    def getExperimenters(self):
         """
-        Return a generator for all Experimenters whose omeName starts with 'start'.
-        The generated values follow the alphabetic order on omeName.
-        TODO: omero.gateway.BlitzGateway has this exact same method & code already. 
-        
-        @param start:   Only if omero_model_ExperimenterI.omeName starts with. String.
-        @return:        Generator yielding experimenter list
+        Return all experimenters apart from current user.
+
+        @return:        Generator yielding experimetners list
         @rtype:         L{ExperimenterWrapper} generator
+
         """
-        
-        if isinstance(start, UnicodeType):
-            start = start.encode('utf8')
-        params = omero.sys.Parameters()
-        params.map = {'start': rstring('%s%%' % start.lower())}
+
         q = self.getQueryService()
-        sql = "from Experimenter e where lower(e.omeName) like :start"
-        rv = q.findAllByQuery(sql, params)
-        rv.sort(lambda x,y: cmp(x.omeName.val,y.omeName.val))
-        for e in rv:
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["id"] = rlong(self.getEventContext().userId)
+        sql = "select e from Experimenter as e where e.id != :id "
+        for e in q.findAllByQuery(sql, p):
             yield ExperimenterWrapper(self, e)
 
     #def getCurrentSupervisor(self):
@@ -418,40 +367,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##   Container Queries                                                           ###
     ####################################################################################
 
-    def listProjects (self, eid=None, page=None):
-        """
-        List all available Projects, ordered by Name.
-        Optionally filter by experimenter 'eid'
+    def listTags(self, eid=None):
+        params = omero.sys.ParametersI()
+        params.orphan()
+        params.map = {}
+        params.map['ns'] = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
         
-        @param eid:         experimenter id
-        @type eid:          Long
-        @param page:        page number
-        @type page:         Long
-        @return:            Generator yielding Projects
-        @rtype:             L{ProjectWrapper} generator
-        """
-        
-        """ 
-        TODO: omero.gateway.BlitzGateway.listProjects(self, only_owned=False)  
-        TODO: page ignored. 
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        sql = "select pr from Project pr " \
-                "join fetch pr.details.creationEvent "\
-                "join fetch pr.details.owner join fetch pr.details.group"
-        
-        # experimenter filter
+        sql = "select tg from TagAnnotation tg where ((ns=:ns) or (ns is null and not exists ( select aal from AnnotationAnnotationLink as aal where aal.child=tg.id))) "
         if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-            sql += " where pr.details.owner.id=:eid"
+            params.map["eid"] = rlong(long(eid))
+            sql+=" and tg.details.owner.id = :eid"
             
-        sql += " order by pr.name"
-        for e in q.findAllByQuery(sql, p):
-            yield ProjectWrapper(self, e)
-    
+        q = self.getQueryService()
+        for ann in q.findAllByQuery(sql, params):
+            yield TagAnnotationWrapper(self, ann)
     
     def listOrphans (self, obj_type, eid=None, page=None):
         """
@@ -526,13 +455,13 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "left outer join fetch im.datasetLinks dil "\
                 "left outer join fetch dil.parent d " \
                 "where d.id = :oid"
-        
         if eid is not None:
             p.map["eid"] = rlong(long(eid))
             sql += " and im.details.owner.id=:eid"
-            
+        sql+=" order by im.name ASC"
+        
         for e in q.findAllByQuery(sql, p):
-            kwargs = {'link': BlitzObjectWrapper(self, e.copyDatasetLinks()[0])}
+            kwargs = {'link': omero.gateway.BlitzObjectWrapper(self, e.copyDatasetLinks()[0])}
             yield ImageWrapper(self, e, None, **kwargs)
     
     # SPW
@@ -637,319 +566,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         kwargs = {'index': index}
         return WellWrapper(self, res, **kwargs)
     
-    
-    # HIERARCHY RETRIVAL
-    #def listContainerHierarchy(self, root, eid=None, gid=None):
-    #    """ Retrieves hierarchy trees rooted by a given node - Project, 
-    #        for the given user id linked to the objects in the tree,
-    #        filter them by parameters."""
-    #        
-    #    q = self.getContainerService()
-    #    if eid is not None: 
-    #        p = ParametersI().orphan().exp(long(eid))
-    #    elif gid is not None: 
-    #        p = ParametersI().orphan().grp(self.getEventContext().groupId)
-    #    else: 
-    #        p = ParametersI().orphan().exp(self.getEventContext().userId)
-    #    for e in q.loadContainerHierarchy(root, None,  p):
-    #        if isinstance(e, ProjectI):
-    #            yield ProjectWrapper(self, e)
-    #        elif isinstance(e, DatasetI):
-    #            yield DatasetWrapper(self, e)
-    #        elif isinstance(e, ScreenI):
-    #            yield ScreenWrapper(self, e)
-    #        elif isinstance(e, PlateI):
-    #            yield PlateWrapper(self, e)
-
-    def findContainerHierarchies(self, nid):
-        """ 
-        Retrieves hierarchy trees in various hierarchies that contain the specified Images.
-        This method will look for all the containers containing the specified
-        Images and then for all containers containing those containers and on up
-        the container hierarchy.
-        
-        @param nid      Contains the ids of the Objects that sit at the bottom of the
-                        trees. Not null.
-        @type nid       L{Long}
-        @return:        Generator yielding Objects with all root nodes that were found.
-        @rtype:         L{BlitzObjectWrapper} generator
-        """
-        """TODO: #1015
-        It does not support SPW"""
-            
-        q = self.getContainerService()
-        for e in q.findContainerHierarchies("Project", [long(nid)], None):
-            if isinstance(e, ProjectI):
-                yield ProjectWrapper(self, e)
-            elif isinstance(e, DatasetI):
-                yield DatasetWrapper(self, e)
-            elif isinstance(e, ScreenI):
-                yield ScreenWrapper(self, e)
-            elif isinstance(e, PlateI):
-                yield PlateWrapper(self, e)
-    
     # DATA RETRIVAL BY TAGs
-    def getProjectsByTag(self, tids):
-        """
-        Retrieve projects linked to the given tag IDs
-        controlled by the security system, ordered by id.
-        
-        @param tids:        project IDs
-        @type tids:         L{Long}
-        @return:            Generator yielding Projects
-        @rtype:             L{ProjectWrapper} generator
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["tids"] = rlist([rlong(a) for a in set(tids)])
-        sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group " \
-              "left outer join fetch pr.annotationLinks pal " \
-              "left outer join fetch pal.child tag " \
-              "where tag.id in (:tids)"
-        for e in q.findAllByQuery(sql,p):
-            #yield ProjectWrapper(self, e)
-            kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
-            yield ProjectWrapper(self, e, None, **kwargs)
-    
-    def getDatasetsByTag(self, tids):
-        """
-        Retrieve datasets linked to the given tag IDs
-        controlled by the security system, ordered by id.
-        
-        @param tids:        dataset IDs
-        @type tids:         L{Long}
-        @return:            Generator yielding Datasets
-        @rtype:             L{DatasetWrapper} generator
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["tids"] = rlist([rlong(a) for a in set(tids)])
-        sql = "select ds from Dataset ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
-              "left outer join fetch ds.annotationLinks dal " \
-              "left outer join fetch dal.child tag " \
-              "where tag.id in (:tids) "
-        for e in q.findAllByQuery(sql,p):
-            #yield DatasetWrapper(self, e)
-            kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
-            yield DatasetWrapper(self, e, None, **kwargs)
-    
-    def getImagesByTag(self, tids):
-        """
-        Retrieve images linked to the given tag IDs
-        controlled by the security system, ordered by id.
-        
-        @param tids:        images IDs
-        @type tids:         L{Long}
-        @return:            Generator yielding Images
-        @rtype:             L{ImageWrapper} generator
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["tids"] = rlist([rlong(a) for a in set(tids)])
-        sql = "select im from Image im join fetch im.details.creationEvent join fetch im.details.owner join fetch im.details.group " \
-              "left outer join fetch im.annotationLinks ial " \
-              "left outer join fetch ial.child tag " \
-              "where tag.id in (:tids)"
-        for e in q.findAllByQuery(sql,p):
-            #yield ImageWrapper(self, e)
-            kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
-            yield ImageWrapper(self, e, None, **kwargs)
-                
-    def getScreensByTag(self, tids):
-        """
-        Retrieve screens linked to the given tag IDs
-        controlled by the security system, ordered by id.
-        
-        @param tids:        screen IDs
-        @type tids:         L{Long}
-        @return:            Generator yielding Screens
-        @rtype:             L{ScreenWrapper} generator
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["tids"] = rlist([rlong(a) for a in set(tids)])
-        sql = "select sc from Screen sc join fetch sc.details.creationEvent join fetch sc.details.owner join fetch sc.details.group " \
-              "left outer join fetch sc.annotationLinks sal " \
-              "left outer join fetch sal.child tag " \
-              "where tag.id in (:tids)"
-        for e in q.findAllByQuery(sql,p):
-            #yield ScreenWrapper(self, e)
-            kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
-            yield ScreenWrapper(self, e, None, **kwargs)
-    
-    def getPlatesByTag(self, tids):
-        """
-        Retrieve plates linked to the given tag IDs
-        controlled by the security system, ordered by id.
-        
-        @param tids:        plate IDs
-        @type tids:         L{Long}
-        @return:            Generator yielding Plates
-        @rtype:             L{PlateWrapper} generator
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["tids"] = rlist([rlong(a) for a in set(tids)])
-        sql = "select pl from Plate pl join fetch pl.details.creationEvent join fetch pl.details.owner join fetch pl.details.group " \
-              "left outer join fetch pl.annotationLinks pal " \
-              "left outer join fetch pal.child tag " \
-              "where tag.id in (:tids) "
-        for e in q.findAllByQuery(sql,p):
-            #yield PlateWrapper(self, e)
-            kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
-            yield PlateWrapper(self, e, None, **kwargs)
-    
-    def getTagsByObject(self, o_type, oid):
-        """
-        Retrieve tags linked to the given Project/Dataset/Image/Screen/Plate/Well ID
-        controlled by the security system. 
-        
-        @param o_type:      type of Object
-        @type o_type:       String
-        @param oid:         Object ID
-        @type oid:          Long
-        @return:            Generator yielding Tags
-        @rtype:             L{TagAnnotationWrapper} generator
-        """
-        
-        q = self.getQueryService()        
-        if o_type == "image":
-            sql = "select a from TagAnnotation as a " \
-                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid and ial.details.owner.id=:uid) " \
-                "and a.details.group.id=:gid"
-        elif o_type == "dataset":
-            sql = "select a from TagAnnotation as a " \
-                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid and dal.details.owner.id=:uid) " \
-                "and a.details.group.id=:gid"
-        elif o_type == "project":
-            sql = "select a from TagAnnotation as a " \
-                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid and pal.details.owner.id=:uid) " \
-                "and a.details.group.id=:gid"
-        elif o_type == "screen":
-            sql = "select a from TagAnnotation as a " \
-                "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid and sal.details.owner.id=:uid) " \
-                "and a.details.group.id=:gid"
-        elif o_type == "plate":
-            sql = "select a from TagAnnotation as a " \
-                "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid and pal.details.owner.id=:uid) " \
-                "and a.details.group.id=:gid"
-        elif o_type == "well":
-            sql = "select a from TagAnnotation as a " \
-                "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid and wal.details.owner.id=:uid) " \
-                "and a.details.group.id=:gid"
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        p.map["gid"] = rlong(self.getEventContext().groupId)
-        p.map["uid"] = rlong(self.getEventContext().userId)
-        if self.getGroupFromContext().isReadOnly():
-            p.map["eid"] = rlong(self.getEventContext().userId)
-            sql += " and a.ns is null and a.details.owner.id=:eid"
-        for e in q.findAllByQuery(sql,p):
-            yield TagAnnotationWrapper(self, e)
-    
-    #def listComments(self, o_type, oid):
-    #    """ Retrieves list of Comments not linked to the for the given Project/Dataset/Image id."""
-    #    
-    #    q = self.getQueryService()
-    #    p = omero.sys.Parameters()
-    #    p.map = {}
-    #    p.map["oid"] = rlong(long(oid))
-    #    p.map["eid"] = rlong(self.getEventContext().userId)
-    #    if o_type == "image":
-    #        sql = "select a from CommentAnnotation as a " \
-    #            "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
-    #            "and a.details.owner.id=:eid and a.ns is null"
-    #    elif o_type == "dataset":
-    #        sql = "select a from CommentAnnotation as a " \
-    #            "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
-    #            "and a.details.owner.id=:eid and a.ns is null"
-    #    elif o_type == "project":
-    #        sql = "select a from CommentAnnotation as a " \
-    #            "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-    #            "and a.details.owner.id=:eid and a.ns is null"
-    #    elif o_type == "screen":
-    #        sql = "select a from CommentAnnotation as a " \
-    #            "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid ) " \
-    #            "and a.details.owner.id=:eid and a.ns is null"
-    #    elif o_type == "plate":
-    #        sql = "select a from CommentAnnotation as a " \
-    #            "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-    #            "and a.details.owner.id=:eid and a.ns is null"
-    #    elif o_type == "well":
-    #        sql = "select a from CommentAnnotation as a " \
-    #            "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid ) " \
-    #            "and a.details.owner.id=:eid and a.ns is null"
-    #    for e in q.findAllByQuery(sql,p):
-    #        yield CommentAnnotationWrapper(self, e)
-    
-    def getFilesByObject(self, o_type, oid):
-        """
-        Retrieve files linked to the given Project/Dataset/Image/Screen/Plate/Well ID
-        controlled by the security system.
-        
-        @param o_type:      type of Object
-        @type o_type:       String
-        @param oid:         Object ID
-        @type oid:          Long
-        @return:            Generator yielding Files
-        @rtype:             L{FileAnnotationWrapper} generator
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        p.map["gid"] = rlong(self.getEventContext().groupId)
-        p.map["nss"] = rlist(rstring(omero.constants.namespaces.NSCOMPANIONFILE), rstring(omero.constants.namespaces.NSEXPERIMENTERPHOTO))
-        if o_type == "image":
-            sql = "select a from FileAnnotation as a join fetch a.file " \
-                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
-                "and a.details.group.id=:gid and (a.ns not in (:nss) or a.ns is null) "
-        elif o_type == "dataset":
-            sql = "select a from FileAnnotation as a join fetch a.file " \
-                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
-                "and a.details.group.id=:gid and (a.ns not in (:nss) or a.ns is null) "
-        elif o_type == "project":
-            sql = "select a from FileAnnotation as a join fetch a.file " \
-                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-                "and a.details.group.id=:gid and (a.ns not in (:nss) or a.ns is null) "
-        elif o_type == "screen":
-            sql = "select a from FileAnnotation as a join fetch a.file " \
-                "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid ) " \
-                "and a.details.group.id=:gid and (a.ns not in (:nss) or a.ns is null) "
-        elif o_type == "plate":
-            sql = "select a from FileAnnotation as a join fetch a.file " \
-                "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-                "and a.details.group.id=:gid and (a.ns not in (:nss) or a.ns is null) "
-        elif o_type == "well":
-            sql = "select a from FileAnnotation as a join fetch a.file " \
-                "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid ) " \
-                "and a.details.group.id=:gid and (a.ns not in (:nss) or a.ns is null) "
-        for e in q.findAllByQuery(sql,p):
-            yield FileAnnotationWrapper(self, e)
-    
-    #def getDatasetsWithImages(self, oids):
-    #    query_serv = self.getQueryService()
-    #    p = omero.sys.Parameters()
-    #    p.map = {} 
-    #    p.map["ids"] = rlist([rlong(a) for a in oids])
-    #    sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group " \
-    #            "left outer join fetch ds.imageLinks dil left outer join fetch dil.child im " \
-    #            "where ds.id in (:ids) order by ds.name"
-    #    for e in query_serv.findAllByQuery(sql, p):
-    #        yield DatasetWrapper(self, e)
-    
     def findTag (self, name, desc=None):
         """ 
         Retrieves Tag by given Name and description
@@ -1204,7 +821,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["omeName"] = rstring(str(ome_name))
+        p.map["omeName"] = rstring(smart_str(ome_name))
         sql = "select e from Experimenter as e where e.omeName = (:omeName)"
         exps = query_serv.findAllByQuery(sql, p)
         if len(exps) > 0:
@@ -1218,7 +835,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["name"] = rstring(str(name))
+        p.map["name"] = rstring(smart_str(name))
         sql = "select g from ExperimenterGroup as g where g.name = (:name)"
         grs = query_serv.findAllByQuery(sql, p)
         if len(grs) > 0:
@@ -1234,7 +851,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["email"] = rstring(str(email))
+        p.map["email"] = rstring(smart_str(email))
         sql = "select e from Experimenter as e where e.email = (:email)"
         exps = query_serv.findAllByQuery(sql, p)
         if len(exps) > 0:
@@ -1256,7 +873,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##############################################
     ##   Sets methods                           ##
     
-    def changeUserPassword(self, omeName, password):
+    def changeUserPassword(self, omeName, password, my_password):
         """
         Change the password for the a given user.
         
@@ -1264,28 +881,27 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @type omeName       String
         @param password     Must pass validation in the security sub-system.
         @type password      String
+        @param my_password  Must pass validation in the security sub-system.
+        @type my_password   String
         """
         admin_serv = self.getAdminService()
+        self.c.sf.setSecurityPassword(my_password)
         admin_serv.changeUserPassword(omeName, rstring(str(password)))
         
-    def changeMyPassword(self, old_password, password):
+    def changeMyPassword(self, password, old_password):
         """
         Change the password for the current user by passing the old password.
         
-        @param old_password     Old password
-        @type old_password      String
         @param password         Must pass validation in the security sub-system.
         @type password          String
+        @param old_password     Old password
+        @type old_password      String
         @return                 None or error message if password could not be changed
         @rtype                  String
         """
         admin_serv = self.getAdminService() 
-        try:
-            admin_serv.changePasswordWithOldPassword(rstring(str(old_password)), rstring(str(password)))
-        except omero.SecurityViolation, x:
-            return x.message
-        return None
-
+        admin_serv.changePasswordWithOldPassword(rstring(str(old_password)), rstring(str(password)))
+        
     def createExperimenter(self, experimenter, defaultGroup, otherGroups, password):
         """
         Create and return a new user in the given groups with password.
@@ -1473,7 +1089,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         u = self.getUpdateService()
         res = u.saveAndReturnObject(obj)
         res.unload()
-        obj = BlitzObjectWrapper(self, res)
+        obj = omero.gateway.BlitzObjectWrapper(self, res)
         return obj
     
     def saveAndReturnId (self, obj):
@@ -1515,7 +1131,151 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             store.write(chunk, pos, rlen)
             pos = pos + rlen
         return store.save()
+    
+    ##############################################
+    ##   IShare
+    
+    def getShare (self, oid):
+           """
+           Gets share for the given share id.
 
+           @param oid:     Share ID.
+           @type oid:      Long
+           @return:        ShareWrapper or None
+           @rtype:         L{ShareWrapper}
+           """
+
+           sh_serv = self.getShareService()
+           sh = sh_serv.getShare(long(oid))
+           if sh is not None:
+               return ShareWrapper(self, sh)
+           else:
+               return None
+    
+    def getOwnShares(self):
+        """
+        Gets all owned shares for the current user.
+        
+        @return:    Shares that user owns
+        @rtype:     L{ShareWrapper} generator
+        """
+        
+        sh = self.getShareService()
+        for e in sh.getOwnShares(False):
+            yield ShareWrapper(self, e)
+    
+    def getMemberShares(self):
+        """
+        Gets all shares where current user is a member.
+        
+        @return:    Shares that user is a member of
+        @rtype:     L{ShareWrapper} generator
+        """
+        
+        sh = self.getShareService()
+        for e in sh.getMemberShares(False):
+            yield ShareWrapper(self, e)
+    
+    def getMemberCount(self, share_ids):
+        """
+        Returns a map from share id to the count of total members (including the
+        owner). This is represented by ome.model.meta.ShareMember links.
+        
+        @param share_ids:   List of IDs
+        @type share_ids:    List of Longs
+        @return:            Dict of shareId: member-count
+        @rtype:             Dict of long: long
+        """
+        
+        sh = self.getShareService()
+        return sh.getMemberCount(share_ids)
+    
+    def getCommentCount(self, share_ids):
+        """ 
+        Returns a map from share id to comment count.
+        
+        @param share_ids:   List of IDs
+        @type share_ids:    List of Longs
+        @return:            Dict of shareId: comment-count
+        @rtype:             Dict of long: long 
+        """
+        
+        sh = self.getShareService()
+        return sh.getCommentCount(share_ids)
+    
+    def getContents(self, share_id):
+        """ 
+        Looks up all items belonging to the share, wrapped in object wrapper
+        
+        @param share_id:    share ID
+        @type share_id:     Long
+        @return:            Share contents
+        @rtype:             L{ShareContentWrapper} generator
+        """
+        
+        sh = self.getShareService()
+        for e in sh.getContents(long(share_id)):
+            try:
+                obj = ShareContentWrapper(self, e)
+            except:
+                obj = ShareContentWrapper(self,None)
+                obj._obj = e
+            yield obj
+                
+    def getComments(self, share_id):
+        """
+        Looks up all comments which belong to the share, wrapped in object wrapper
+        
+        @param share_id:    share ID
+        @type share_id:     Long
+        @return:            Share comments
+        @rtype:             L{ShareCommentWrapper} generator
+        """
+        
+        sh = self.getShareService()
+        for e in sh.getComments(long(share_id)):
+            yield ShareCommentWrapper(self, e)
+    
+    def getAllMembers(self, share_id):
+        """
+        Get all {@link Experimenter users} who are a member of the share.
+        
+        @param share_id:    share ID
+        @type share_id:     Long
+        @return:            Members of share
+        @rtype:             L{ExperimenterWrapper} generator
+        """
+        
+        sh = self.getShareService()
+        for e in sh.getAllMembers(long(share_id)):
+            yield ExperimenterWrapper(self, e)
+
+    def getAllGuests(self, share_id):
+        """
+        Get the email addresses for all share guests.
+        
+        @param share_id:    share ID
+        @type share_id:     Long
+        @return:            List of e-mail addresses
+        @rtype:             List of Strings
+        """
+        
+        sh = self.getShareService()
+        return sh.getAllGuests(long(share_id))
+
+    def getAllUsers(self, share_id):
+        """
+        Get a single set containing the login names of the users as well email addresses for guests.
+        
+        @param share_id:    share ID
+        @type share_id:     Long
+        @return:            List of usernames and e-mail addresses
+        @rtype:             List of Strings
+        """
+        
+        sh = self.getShareService()
+        return sh.getAllUsers(long(share_id))
+    
     def prepareRecipients(self, recipients):
         recps = list()
         for m in recipients:
@@ -1568,7 +1328,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 
     def removeImage(self, share_id, image_id):
         sh = self.getShareService()
-        img = self.getImage(image_id)
+        img = self.getObject("Image", image_id)
         sh.removeObject(long(share_id), img._obj)
             
     def createShare(self, host, blitz_id, image, message, members, enable, expiration=None):
@@ -1591,7 +1351,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql = "select e from Experimenter e " \
                   "where e.id in (:ids) order by e.omeName"
             ms = q.findAllByQuery(sql, p)
-        sid = sh.createShare(message, expiration, items, ms, [], enable)
+        sid = sh.createShare(message, rtime(expiration), items, ms, [], enable)
         sh.addObjects(sid, items)
         
         #send email if avtive
@@ -1619,7 +1379,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     def updateShareOrDiscussion (self, host, blitz_id, share_id, message, add_members, rm_members, enable, expiration=None):
         sh = self.getShareService()
         sh.setDescription(long(share_id), message)
-        sh.setExpiration(long(share_id), expiration)
+        sh.setExpiration(long(share_id), rtime(expiration))
         sh.setActive(long(share_id), enable)
         if len(add_members) > 0:
             sh.addUsers(long(share_id), add_members)
@@ -1762,7 +1522,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.limit = rint(10)
         p.theFilter = f
         for e in tm.getMostRecentAnnotationLinks(None, ['CommentAnnotation'], None, p):
-            yield BlitzObjectWrapper(self, e)
+            yield omero.gateway.BlitzObjectWrapper(self, e)
     
     def listMostRecentTags (self):
         """
@@ -1782,9 +1542,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.limit = rint(200)
         p.theFilter = f
         for e in tm.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p):
-            yield BlitzObjectWrapper(self, e.child)
+            yield omero.gateway.BlitzObjectWrapper(self, e.child)
     
-    def getDataByPeriod (self, start, end, otype=None, page=None):
+    def getDataByPeriod (self, start, end, eid, otype=None, page=None):
         """
         Retrieve given data objects by the given period of time 
         controlled by the security system.
@@ -1798,14 +1558,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @return:            Map of project, dataset and image lists
         @rtype:             Map
         """
-        
-        if not otype.lower() in ('project', 'dataset', 'image'):
-            raise AttributeError('It only retrieves: Project, Dataset or Image')
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
         f = omero.sys.Filter()
-        f.ownerId = rlong(self.getEventContext().userId)
+        f.ownerId = rlong(eid)
         f.groupId = rlong(self.getEventContext().groupId)
         if page is not None:
             f.limit = rint(PAGE)
@@ -1854,7 +1611,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 pass
         return {'project': pr_list, 'dataset':ds_list, 'image':im_list}
     
-    def countDataByPeriod (self, start, end, otype=None):
+    def countDataByPeriod (self, start, end, eid, otype=None):
         """
         Counts given data objects by the given period of time 
         controlled by the security system.
@@ -1868,12 +1625,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @return:            Counter
         @rtype:             Long
         """
-        
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
         f = omero.sys.Filter()
-        f.ownerId = rlong(self.getEventContext().userId)
+        f.ownerId = rlong(eid)
         f.groupId = rlong(self.getEventContext().groupId)
         p.theFilter = f
         if otype == 'image':
@@ -1886,7 +1642,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             c = tm.countByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p)
             return c['Image']+c['Dataset']+c['Project']
 
-    def getEventsByPeriod (self, start, end):
+    def getEventsByPeriod (self, start, end, eid):
         """
         Retrieve event log objects by the given period of time 
         controlled by the security system.
@@ -1898,13 +1654,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @return:            List of event logs
         @rtype:             List
         """
-        
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
         f = omero.sys.Filter()
         f.limit = rint(100000)
-        f.ownerId = rlong(self.getEventContext().userId)
+        f.ownerId = rlong(eid)
         f.groupId = rlong(self.getEventContext().groupId)
         p.theFilter = f
         return tm.getEventLogsByPeriod(rtime(start), rtime(end), p)
@@ -1914,6 +1669,11 @@ omero.gateway.BlitzGateway = OmeroWebGateway
 
 class OmeroWebObjectWrapper (object):
     
+    def countParents (self):
+        l = self.listParents()
+        if l is not None:
+            return len(l)
+        
     def listChildrenWithLinks (self):
         """
         Lists available child objects.
@@ -1931,7 +1691,7 @@ class OmeroWebObjectWrapper (object):
                 "where c.parent.id=:dsid " \
                 "order by c.child.name" % self.LINK_CLASS
         for link in self._conn.getQueryService().findAllByQuery(query, params):
-            kwargs = {'link': BlitzObjectWrapper(self._conn, link)}
+            kwargs = {'link': omero.gateway.BlitzObjectWrapper(self._conn, link)}
             yield childw(self._conn, link.child, None, **kwargs)
     
     def countAnnotations (self):
@@ -2061,58 +1821,8 @@ class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.ScreenWrapper):
 
 omero.gateway.ScreenWrapper = ScreenWrapper
 
-class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.ShareWrapper):
-    """
-    omero_model_ShareI class wrapper overwrite omero.gateway.ShareWrapper
-    and extends OmeroWebObjectWrapper.
-    """
-    
-    def truncateMessageForTree(self):
-        try:
-            msg = self.getMessage().val
-            l = len(msg)
-            if l < 38:
-                return msg
-            return "..." + msg[l - 35:]
-        except:
-            logger.info(traceback.format_exc())
-            return self.getMessage().val
-    
-    def getShareType(self):
-        if self.itemCount == 0:
-            return "Discussion"
-        else:
-            return "Share"
-    
-    def isEmpty(self):
-        if self.itemCount == 0:
-            return True
-        return False
-    
-    def getExpireDate(self):
-        #workaround for problem of year 2038
-        try:
-            d = self.started+self.timeToLive
-            if d > 2051222400:
-                return datetime(2035, 1, 1, 0, 0, 0)            
-            return datetime.fromtimestamp(d / 1000)
-        except:
-            logger.info(traceback.format_exc())
-        return None
-    
-    def isExpired(self):
-        #workaround for problem of year 2038
-        now = time.time()
-        try:
-            d = long(self.started+self.timeToLive)
-            if (d / 1000) > now:
-                return False
-            return True
-        except:
-            logger.info(traceback.format_exc())
-        return None
-    
-omero.gateway.ShareWrapper = ShareWrapper
+# IMPORTANT to update the map of wrappers 'project', 'dataset', 'image' etc. returned by getObjects()
+omero.gateway.refreshWrappers()
 
 class SessionAnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):
     """
@@ -2132,3 +1842,113 @@ class EventLogWrapper (omero.gateway.BlitzObjectWrapper):
     
     LINK_CLASS = "EventLog"
 
+class ShareWrapper (omero.gateway.BlitzObjectWrapper):
+    """
+    omero_model_ShareI class wrapper extends BlitzObjectWrapper.
+    """
+    
+    def getShareType(self):
+        if self.itemCount == 0:
+            return "Discussion"
+        else:
+            return "Share"
+    
+    def isEmpty(self):
+        if self.itemCount == 0:
+            return True
+        return False
+    
+    def getExpireDate(self):
+        #workaround for problem of year 2038
+        try:
+            d = self.started+self.timeToLive
+            if d > 2051222400000:
+                return datetime(2035, 1, 1, 0, 0, 0)            
+            return datetime.fromtimestamp(d / 1000)
+        except:
+            logger.info(traceback.format_exc())
+        return None
+        
+    def getStartDate(self):
+        """
+        Gets the start date of the share
+        
+        @return:    Start Date-time
+        @rtype:     datetime object
+        """
+        
+        return datetime.fromtimestamp(self.getStarted()/1000)
+        
+    def getExpirationDate(self):
+        """
+        Gets the end date for the share
+        
+        @return:    End Date-time
+        @rtype:     datetime object
+        """
+        
+        #workaround for problem of year 2038
+        try:
+            d = self.started+self.timeToLive
+            if d > 2051222400:
+                return datetime(2035, 1, 1, 0, 0, 0)            
+            return datetime.fromtimestamp(d / 1000)
+        except:
+            logger.info(traceback.format_exc())
+        return None
+    
+    def isExpired(self):
+        """
+        Returns True if we are past the end date of the share
+        
+        @return:    True if share expired
+        @rtype:     Boolean
+        """
+        
+        #workaround for problem of year 2038
+        now = time.time()
+        try:
+            d = long(self.started+self.timeToLive)
+            if (d / 1000) > now:
+                return False
+            return True
+        except:
+            logger.info(traceback.format_exc())
+        return None
+    
+    def isOwned(self):
+        """
+        Returns True if share is owned by the current user
+        
+        @return:    True if owned
+        @rtype:     Boolean
+        """
+        
+        try:
+            if self.owner.id.val == self._conn.getEventContext().userId:
+                return True
+        except:
+            logger.error(traceback.format_exc())
+        return False
+    
+    def getOwner(self):
+        """
+        The owner of this share
+        
+        @return:    Owner
+        @rtype:     L{ExperimenterWrapper}
+        """
+        
+        return omero.gateway.ExperimenterWrapper(self, self.owner)
+
+class ShareContentWrapper (omero.gateway.BlitzObjectWrapper):
+    """
+    wrapper for share content, extends BlitzObjectWrapper.
+    """
+    pass
+
+class ShareCommentWrapper (omero.gateway.AnnotationWrapper):
+    """
+    wrapper for share comment, extends BlitzObjectWrapper.
+    """
+    pass

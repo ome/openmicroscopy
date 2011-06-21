@@ -3,39 +3,137 @@
 {% load custom_tags %}
 {% load wikitags %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.selectable.js" %}"></script>
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/jquery.ui.selectable.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
 
     <script type="text/javascript">
         $(document).ready(function(){
+            
+            var datatree = $.jstree._focused();
+            
+            // double-click handler on image - launches image viewer
+            $("#spw table tbody td.full img").dblclick(function(event) {
+                openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id') )));
+            });
 
+            // single click handler on image (container). Selection then update toolbar & metadata pane
+            $("#spw table tbody td.full").click(function(event) {
+                handleClickSelection(event);
+            });
+            
+            // handles selection for 'clicks' (not drags) including multi-select for shift and meta keys
+            var primaryIndex = -1;
+            var handleClickSelection = function(event) {
+                
+                var $clickedImage = $(event.target);
+                //var thumbs = $("#dataIcons img");
+                //var selIndex = thumbs.index(event.target);
+                
+                var thumbs = $("#spw table tbody td.full img");                
+                var selIndex = thumbs.index(event.target);
+
+                if ( event.shiftKey ) {
+                    // user tried to select a range, but we don't have a first selection yet...
+                    //if ( primaryIndex == -1 ) {
+                    //    primaryIndex = selIndex;
+                    //    $clickedImage.parent().addClass("ui-selected");
+                    //    return;
+                    //}
+                    // select range
+                    //var start = Math.min(primaryIndex,selIndex);
+                    //var end = Math.max(primaryIndex,selIndex);
+                    //thumbs.slice(start, end+1).parent().addClass("ui-selected");
+                                        
+                    if ( primaryIndex == -1 ) {
+                        primaryIndex = selIndex;
+                        $clickedImage.parent().addClass("ui-selected");
+                        return;
+                    }
+                        
+                    // select range
+                    var start = Math.min(primaryIndex,selIndex);
+                    var end = Math.max(primaryIndex,selIndex);
+                    
+                    thumbs.slice(start, end+1).parent().addClass("ui-selected");
+                    
+                }
+                else if (event.metaKey) {
+                    // user wants to add a single image to selection
+                    //if ( primaryIndex == -1 ) {
+                    //    primaryIndex = selIndex;
+                    //}
+                    //$clickedImage.parent().addClass("ui-selected");
+                    
+                    // user wants to add a single image to selection
+                    if ( primaryIndex == -1 ) {
+                        primaryIndex = selIndex;
+                    }              
+                    
+                    if($clickedImage.parent().hasClass("ui-selected")) {
+                        $clickedImage.parent().removeClass("ui-selected");
+                        loadMetadataPanel(null,'/webclient/metadata_details/plate/'+datatree.get_selected().attr('id').split('-')[1]+'/')
+                    } else {
+                        $clickedImage.parent().addClass("ui-selected");
+                        loadMetadataPanel('/webclient/metadata_details/well/'+$clickedImage.parent().attr('id')+'/?index={{index}}')
+                    }
+                }
+                else {
+                    // regular click - remove selection
+                    //thumbs.parent().removeClass("ui-selected");
+                    //$("#dataIcons li input").each(function(){
+                    //    this.checked = false;
+                    //});
+                    // and select a single image
+                    //$clickedImage.parent().addClass("ui-selected");
+                    //primaryIndex = selIndex;
+                    thumbs.parent().removeClass("ui-selected");
+                    $clickedImage.parent().addClass("ui-selected");
+                    loadMetadataPanel('/webclient/metadata_details/well/'+$clickedImage.parent().attr('id')+'/?index={{index}}')
+                    primaryIndex = selIndex;
+                    
+                }
+            }
+
+            // plugin to handle drag-select of images
             $("#spw table tbody").selectable({
-                //cancel: 'td.empty',                
-            	filter: 'td.full',
-            	stop: function(){
-            		var result = $("#select-result").empty();
-            		var l = $('td.ui-selected', this).length;
-            		$("td.ui-selected input", this).each(function(){
-            		    this.checked = true;
-            		});
-            		if (l == 1) {
-
-            		    $("#right_panel").show();
-                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-            		    $('td.ui-selected', this).each(function(){  
-            		        var h = $(window).height()-169;
-            		        $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/metadata_details/well/'+this.id+'/" id="metadata_details" name="metadata_details"></iframe>');
-                            $('iframe#metadata_details').load();
+                filter: 'td.full',
+                distance: 2,
+                stop: function(){  
+                    var $selected = $('td.ui-selected', this);
+                    if ($selected.length > 1) {
+                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% url webstatic "images/knotes16.png" %}"/> Batch Annotate</a></p>');
+                        $("#batchAnnotate").click(function() {
+                            multipleAnnotation($selected);
+                            return false;
                         });
-            		} else {
-                        $("#toolbar").html('');
-                        manyToAnnotation();
-            		}
-            	},
-            	start: function(){
-            		$("td input", this).each(function(){
-            			this.checked = false;
-            		});
-            	}
+                    } else {
+                        $selected.each(function(i){
+                            loadMetadataPanel('/webclient/metadata_details/well/'+this.id+'/?index={{index}}')
+                        });
+                    }
+                },
+                start: function(){
+                }
             });
 
         });    
@@ -44,7 +142,7 @@
     <script> 
         function changeIndex(index) {
             if(index>=0) {
-                $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
+                $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
                 var url = ('{{ url }}').split("?");                
                 $("div#content_details").load(url[0]+'?view={{ nav.view }}&index='+index);
                 return false;
@@ -84,7 +182,7 @@
         <th>{{ row.0 }}</th>
         {% for col in row.1 %}
         {% if col.1.isWellSample %}
-        <td class="full" id="{{ col.1.id }}"><img class="imgzoom" src="{% url render_thumbnail_resize 25 col.1.selectedWellSample.image.id %}" alt="" title="{{ row.0 }}-{{ col.0 }}"/><input type="checkbox" name="well" id="{{ col.1.id }}" class="hide"></td>
+        <td class="full" id="{{ col.1.id }}" rel="well-{{ col.1.id }}"><img id="{{ col.1.selectedWellSample.image.id }}" class="imgzoom" src="{% url render_thumbnail_resize 25 col.1.selectedWellSample.image.id %}" alt="" title="{{ row.0 }}-{{ col.0 }}"/><input type="checkbox" name="well" id="{{ col.1.id }}" class="hide"></td>
         {% else %}
         <td></td>
         {% endif %}

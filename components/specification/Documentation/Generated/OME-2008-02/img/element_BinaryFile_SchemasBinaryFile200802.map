@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_BinaryFile_SchemasBinaryFile200802'>
+ <area
+  shape='rect'
+  alt='element_External'
+  coords='270,0,410,26'
+  href='BinaryFile.xsd.html#element_External'/>
+
+ <area
+  shape='rect'
+  alt='element_BinData'
+  coords='270,36,403,62'
+  href='BinaryFile.xsd.html#element_BinData'/>
+
+</map>

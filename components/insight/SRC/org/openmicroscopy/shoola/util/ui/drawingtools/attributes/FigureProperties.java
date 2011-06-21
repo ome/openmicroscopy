@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.util.ui.drawingtools.attributes;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -145,12 +146,12 @@ public class FigureProperties
 	public void addAttribute(Map<AttributeKey, Object> attributeSet) 
 	{
 		if (attributeSet == null) return;
-		Iterator<AttributeKey> i = attributeSet.keySet().iterator();
-		AttributeKey key;
+		Iterator i = attributeSet.entrySet().iterator();
+		Entry entry;
 		while (i.hasNext())
 		{
-			key = i.next();
-			addAttribute(key, attributeSet.get(key));
+			entry = (Entry) i.next();
+			addAttribute((AttributeKey) entry.getKey(), entry.getValue());
 		}
 	}		
 	

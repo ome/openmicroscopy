@@ -26,18 +26,17 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 //Java imports
 import java.io.File;
 import java.util.Collection;
-import java.util.List;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
 import pojos.DataObject;
-import pojos.DatasetData;
 
 /** 
  * Defines the interface provided by the importer component. 
@@ -81,6 +80,12 @@ public interface Importer
 	/** Flag to denote the <i>Importing</i> state. */
 	public static final int     IMPORTING = 4;
 	
+	/** Flag to denote the <i>Loading Container</i> state. */
+	public static final int     LOADING_CONTAINER = 5;
+	
+	/** Flag to denote the <i>Creating Container</i> state. */
+	public static final int     CREATING_CONTAINER = 6;
+	
 	/**
 	 * Starts the data loading process when the current state is {@link #NEW} 
 	 * and puts the window on screen.
@@ -88,12 +93,12 @@ public interface Importer
 	 * window to front.
 	 * 
 	 * @param type One of the types constants defined by this class. 
-	 * @param containers The containers where to import the files.
-	 * @param datasets   The available datasets, to use by default.
+	 * @param selectedContainer The default container.
+	 * @param objects The available containers.
 	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
 	 */
-	public void activate(int type, List<TreeImageDisplay> containers, 
-			List<DatasetData> datasets);
+	public void activate(int type, TreeImageDisplay selectedContainer, 
+			Collection<TreeImageDisplay> objects);
 	
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.
@@ -147,9 +152,9 @@ public interface Importer
 	/**
 	 * Removes the specified import element.
 	 * 
-	 * @param index The index of the import element.
+	 * @param element The element to remove.
 	 */
-	void removeImportElement(int index);
+	void removeImportElement(Object element);
 
 	/** Cancels any on-going import. */
 	public void cancel();
@@ -159,8 +164,11 @@ public interface Importer
 	 * 
 	 * @param id The identifier of the import element.
 	 */
-	public void cancelImagesLoading(int id);
+	public void cancelImport(int id);
 
+	/** Cancels the on-going import. */
+	public void cancelImport();
+	
 	/**
 	 * Returns <code>true</code> if errors to send, <code>false</code>
 	 * otherwise.
@@ -168,5 +176,75 @@ public interface Importer
 	 * @return See above.
 	 */
 	public boolean hasFailuresToSend();
+	
+	/** 
+	 * Sets the used and available disk space.
+	 * 
+	 * @param qota The value to set.
+	 */
+	public void setDiskSpace(DiskQuota quota);
+	
+	/** 
+	 * Closes the dialog and cancels the import in the queue if 
+	 * selected by user.
+	 */
+	public void close();
+
+	/**
+	 * Moves the window to the front.
+	 * @throws IllegalStateException If the current state is not
+	 *                               {@link #DISCARDED}.
+	 */
+	public void moveToFront();
+	
+	/** Tries to re-import failed import. */
+	public void retryImport();
+
+	/**
+	 * Returns <code>true</code> if it is the last file to import,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isLastImport();
+
+	/**
+	 * Sets the containers.
+	 * 
+	 * @param result The result to display
+	 * @param refreshImport Pass <code>true</code> to refresh the on-going
+	 * 						import, <code>false</code> otherwise.
+	 * @param type 	The type of location to reload, either {@link #PROJECT_TYPE}
+	 * 				or {@link #SCREEN_TYPE}.
+	 */
+	public void setContainers(Collection result, boolean refreshImport, 
+			int type);
+
+	/** 
+	 * Reloads the containers where to load the data.
+	 * 
+	 * @param type 	The type of location to reload, either {@link #PROJECT_TYPE}
+	 * 				or {@link #SCREEN_TYPE}.
+	 */
+	public void refreshContainers(int type);
+
+	/** Cancels all the ongoing imports.*/
+	public void cancelAllImports();
+
+	/** 
+	 * Notifies that the new object has been created.
+	 * 
+	 * @param d The newly created object.
+	 * @param parent The parent of the object.
+	 */
+	public void onDataObjectSaved(DataObject d, DataObject parent);
+
+	/**
+	 * Creates the data object.
+	 * 
+	 * @param child The data object to create.
+	 * @param parent The parent of the object or <code>null</code>.
+	 */
+	public void createDataObject(DataObject child, DataObject parent);
 	
 }

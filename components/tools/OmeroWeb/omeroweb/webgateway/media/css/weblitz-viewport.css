@@ -12,6 +12,21 @@
  * Author: Carlos Neves <carlos(at)glencoesoftware.com>
  */
 
+/*div.weblitz-viewport-tiles {
+  background: transparent;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+}
+div.weblitz-viewport-tiles img {
+ border: medium none;
+ margin: 0;
+ padding: 0;
+ position: absolute;
+}*/
+  
 .weblitz-viewport-vp {
   position: absolute;
   display: block;

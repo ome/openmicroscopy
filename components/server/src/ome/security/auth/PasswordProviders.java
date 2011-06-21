@@ -37,9 +37,9 @@ public class PasswordProviders implements PasswordProvider {
         return false;
     }
 
-    public Boolean checkPassword(String user, String password) {
+    public Boolean checkPassword(String user, String password, boolean readOnly) {
         for (PasswordProvider provider : providers) {
-            Boolean rv = provider.checkPassword(user, password);
+            Boolean rv = provider.checkPassword(user, password, readOnly);
             if (rv != null) {
                 return rv;
             }

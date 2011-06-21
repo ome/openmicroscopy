@@ -43,6 +43,7 @@ import ome.api.ThumbnailStore;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.acquisition.Objective;
+import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.FilterType;
 import ome.model.internal.Permissions;
@@ -100,6 +101,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     @Override
     @BeforeMethod
     protected void setUp() throws Exception {
+        new GlobalMulticaster().removeAllListeners(); // Static singleton.
         tb = new Destroyable();
         ctx = new OmeroContext("classpath:ome/services/messaging.xml");
         multicaster = (GlobalMulticaster) ctx
@@ -222,6 +224,10 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         }
 
         public void setRenderingDefId(long renderingDefId) {
+        }
+
+        public long getRenderingDefId() {
+            return -1;
         }
 
     }

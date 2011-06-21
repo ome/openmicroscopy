@@ -7,13 +7,19 @@
 
 package ome.services;
 
+import java.awt.Dimension;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
@@ -22,13 +28,21 @@ import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
+import ome.conditions.RootException;
 import ome.conditions.ValidationException;
+import ome.io.bioformats.BfPixelBuffer;
+import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
+import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.parameters.Parameters;
+import ome.security.basic.BasicSecuritySystem;
+import ome.services.messages.EventLogMessage;
+import ome.util.ShallowCopy;
+import ome.util.SqlAction;
+import ome.util.Utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,7 +89,13 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     
     /** Pixels set cache. */
     private transient Map<Long, Pixels> pixelsCache;
-    
+
+    /** SQL action instance for this class. */
+    private transient SqlAction sql;
+
+    /** The server's OMERO data directory. */
+    private transient String omeroDataDir;
+
     /**
      * default constructor
      */
@@ -87,8 +107,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements
      * 
      * @param checking
      */
-    public RawPixelsBean(boolean checking) {
+    public RawPixelsBean(boolean checking, String omeroDataDir) {
         this.diskSpaceChecking = checking;
+        this.omeroDataDir = omeroDataDir;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -117,6 +138,15 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         this.iRepositoryInfo = iRepositoryInfo;
     }
 
+    /**
+     * SQL action Bean injector
+     * @param sql a <code>SqlAction</code>
+     */
+    public final void setSqlAction(SqlAction sql) {
+        getBeanHelper().throwIfAlreadySet(this.sql, sql);
+        this.sql = sql;
+    }
+
     // ~ Lifecycle methods
     // =========================================================================
 
@@ -138,14 +168,66 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
+    public synchronized Pixels save() {
+        if (isModified()) {
+            Long id = (pixelsInstance == null) ? null : pixelsInstance.getId();
+            if (id == null) {
+                return null;
+            }
+
+            try {
+                byte[] hash = buffer.calculateMessageDigest();
+                pixelsInstance.setSha1(Utils.bytesToHex(hash));
+
+            } catch (RuntimeException re) {
+                // ticket:3140
+                if (re.getCause() instanceof FileNotFoundException) {
+                    String msg = "Cannot find path. Deleted? " + buffer;
+                    log.warn(msg);
+                    clean(); // Prevent a second exception on close.
+                    throw new ResourceError(msg);
+                }
+                throw re;
+            } catch (IOException e) {
+                log.warn("calculateMessageDigest failed on " + buffer, e);
+                throw new ResourceError(e.getMessage());
+            }
+
+            iUpdate.flush();
+            modified = false;
+            return new ShallowCopy().copy(pixelsInstance);
+        }
+        return null;
+    }
+
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void close() {
+        try {
+            save();
+        } catch (RootException root) {
+            // ticket:3140
+            // if one of our exceptions, then just rethrow
+            throw root;
+        } catch (RuntimeException re) {
+            Long id = (pixelsInstance == null ? null : pixelsInstance.getId());
+            log.error("Failed to update pixels: " + id, re);
+        } finally {
+            clean();
+        }
+    }
+
+    public void clean() {
         dataService = null;
         pixelsInstance = null;
-        closePixelBuffer();
-        buffer = null;
-        readBuffer = null;
-        pixelsCache = null;
+        try {
+            closePixelBuffer();
+        } finally {
+            buffer = null;
+            readBuffer = null;
+            pixelsCache = null;
+        }
     }
 
     /**
@@ -192,10 +274,16 @@ public class RawPixelsBean extends AbstractStatefulBean implements
                 throw new ValidationException("Cannot read pixels id=" + id);
             }
 
-            OriginalFileMetadataProvider metadataProvider =
-            	new OmeroOriginalFileMetadataProvider(iQuery);
-            buffer = dataService.getPixelBuffer(
-            		pixelsInstance, metadataProvider, bypassOriginalFile);
+            try {
+                buffer = dataService.getPixelBuffer(pixelsInstance, true);
+            } catch (RuntimeException re) {
+                // Rolling back to let the next setPixelsId try again
+                // since this is most likely our MissingPyramidException.
+                // If it's anything more serious, then the instance
+                // should most likely be closed.
+                id = null;
+                throw re;
+            }
         }
     }
 
@@ -209,7 +297,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public void prepare(Set<Long> pixelsIds)
     {
-    	pixelsCache = new HashMap<Long, Pixels>(pixelsIds.size());
+	pixelsCache = new ConcurrentHashMap<Long, Pixels>(pixelsIds.size());
     	List<Pixels> pixelsList = iQuery.findAllByQuery(
     			"select p from Pixels as p join fetch p.pixelsType " +
         		"where p.id in (:ids)", new Parameters().addIds(pixelsIds));
@@ -474,6 +562,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         try {
             buffer.setPlane(arg0, arg1, arg2, arg3);
+            modified();
         } catch (Exception e) {
             handleException(e);
         }
@@ -489,6 +578,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         try {
             buffer.setRegion(arg0, arg1, arg2);
+            modified();
         } catch (Exception e) {
             handleException(e);
         }
@@ -505,6 +595,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         try {
             ByteBuffer buf = ByteBuffer.wrap(arg0);
             buffer.setRow(buf, arg1, arg2, arg3, arg4);
+            modified();
         } catch (Exception e) {
             handleException(e);
         }
@@ -520,6 +611,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         try {
             buffer.setStack(arg0, arg1, arg2, arg3);
+            modified();
         } catch (Exception e) {
             handleException(e);
         }
@@ -535,6 +627,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         try {
             buffer.setTimepoint(arg0, arg1);
+            modified();
         } catch (Exception e) {
             handleException(e);
         }
@@ -551,6 +644,10 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
     private void handleException(Exception e) {
 
+        if (e instanceof RootException) {
+            throw (RootException) e; // Allow our own exceptions.
+        }
+
         if (log.isDebugEnabled()) {
             log.debug("Error handling pixels.", e);
         }
@@ -561,11 +658,17 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         if (e instanceof DimensionsOutOfBoundsException) {
             throw new ApiUsageException(e.getMessage());
         }
-        if (e instanceof BufferOverflowException) {
-            throw new ResourceError(e.getMessage());
+        if (e instanceof BufferUnderflowException) {
+            throw new ResourceError("BufferUnderflowException: " + e.getMessage());
         }
-
+        if (e instanceof BufferOverflowException) {
+            throw new ResourceError("BufferOverflowException: " + e.getMessage());
+        }
+        
         // Fallthrough
+        if (e instanceof RuntimeException) {
+            throw (RuntimeException) e; // No reason to wrap if Runtime
+        }
         throw new RuntimeException(e);
     }
 
@@ -576,4 +679,93 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     public void setDiskSpaceChecking(boolean diskSpaceChecking) {
         this.diskSpaceChecking = diskSpaceChecking;
     }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#getResolutionLevels()
+     */
+    @RolesAllowed("user")
+    public int getResolutionLevels()
+    {
+        return buffer.getResolutionLevels();
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#getTileSize()
+     */
+    @RolesAllowed("user")
+    public int[] getTileSize()
+    {
+        Dimension tileSize = buffer.getTileSize();
+        return new int[] { (int) tileSize.getWidth(),
+                           (int) tileSize.getHeight() };
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#requiresPixelsPyramid()
+     */
+    @RolesAllowed("user")
+    public boolean requiresPixelsPyramid()
+    {
+        return dataService.requiresPixelsPyramid(pixelsInstance);
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#getResolutionLevel()
+     */
+    @RolesAllowed("user")
+    public int getResolutionLevel()
+    {
+        return buffer.getResolutionLevel();
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#setResolutionLevel(int)
+     */
+    @RolesAllowed("user")
+    public void setResolutionLevel(int resolutionLevel)
+    {
+        buffer.setResolutionLevel(resolutionLevel);
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#getTile(int, int, int, int, int, int, int)
+     */
+    @RolesAllowed("user")
+    public byte[] getTile(int z, int c, int t, int x, int y, int w, int h)
+    {
+        errorIfNotLoaded();
+
+        int size = w * h * buffer.getByteWidth();
+        if (readBuffer == null || readBuffer.length != size) {
+            readBuffer = new byte[size];
+        }
+        try {
+            readBuffer = buffer.getTileDirect(z, c, t, x, y, w, h, readBuffer);
+        } catch (Exception e) {
+            handleException(e);
+        }
+        return readBuffer;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#setTile(byte[], int, int, int, int, int, int, int)
+     */
+    @RolesAllowed("user")
+    public void setTile(byte[] data, int z, int c, int t, int x, int y,
+            int w, int h)
+    {
+        errorIfNotLoaded();
+
+        if (diskSpaceChecking) {
+            iRepositoryInfo.sanityCheckRepository();
+        }
+
+        try {
+            buffer.setTile(data, z, c, t, x, y, w, h);
+            modified();
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+
 }

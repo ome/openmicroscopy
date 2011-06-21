@@ -1,5 +1,4 @@
 html {
-    text-align: justify;
 }
 
 html.noscroll {
@@ -32,6 +31,11 @@ body.zoom {
     color: #e3646f;
 }
 
+.disabled {
+    background: #dcdcdc;
+    color: #777777;
+}
+
 #headerWrapper {
     border-bottom: 1px solid #bbb;
 }
@@ -42,7 +46,9 @@ body.zoom {
 }
 #header2 {
     margin: 0;
-    height: 25px;
+    padding: 4px 0px;
+    height: 17px;
+    position: relative;
 }
 
 #menu {
@@ -65,7 +71,7 @@ table.contentWrapper {
 }
 
 #left_panel {
-    width:400px;
+    width:350px;
     background-color: #ffffff;
     vertical-align: top;
 }
@@ -81,7 +87,6 @@ table.contentWrapper {
 
 #path {
     position: relative;
-    height:22px;
     padding:0;
 }
 
@@ -104,6 +109,9 @@ table.contentWrapper {
     float:right;
     text-align: right;
 }
+.align_center {
+    text-align: center;
+}
 #searching {
     padding: 10px;
     overflow: auto;
@@ -124,17 +132,16 @@ table.contentWrapper {
 }
 #actionWrapper {
     position: absolute;
-    padding: 4px 0;
+    padding: 0;
     top: 0;
     left: 0;
-    width: 400px;
 }
 #baskets {
-    margin: 0 10px;
+    margin: 0 5px;
     float:left;
 }
 #queue, #jobstatus {
-    margin: 0 10px;
+    margin: 0 5px;
     float:left;
 }
 #logo {
@@ -145,6 +152,10 @@ table.contentWrapper {
     background: url(/appmedia/omeroweb/images/logo.png) no-repeat bottom left ;
     top: 0;
     left: 25px;
+}
+#dataTable img {
+    /*border: 1px solid white;*/
+    padding: 2px;
 }
 
 .collapsibletrayhandle-right {
@@ -243,7 +254,7 @@ h1 {
     padding: 10px 0;
 }
 h2 {
-    font-size: 12px;
+    font-size: 13px;
     text-align: left;
 }
 
@@ -258,19 +269,17 @@ iframe {
 }
 
 table {
-    text-align: center;
     table-layout:fixed;
 }
 
 td {
-    text-align: left;
-    padding: 0px;
     vertical-align:top;
 }
 
 th {
     font-weight: bold;
     vertical-align:top;
+    text-align: left;
 }
 
 input {
@@ -285,6 +294,10 @@ input.button {
     border: 0;
     background-color: transparent;
     vertical-align:middle;
+}
+input.button-disabled {
+    opacity:0.4;
+    cursor:default !important;
 }
 
 select {
@@ -302,18 +315,15 @@ textarea {
 }
 
 form table {
-    text-align: center;
     border: 0px;
     table-layout: auto;
 }
 
 form td {
-    text-align: left;
     padding: 2px;
 }
 
 form th {
-    text-align: left;
     border: 0px;
 }
 
@@ -366,9 +376,7 @@ ul.criteria li{
 .details {
     border-bottom:1px solid #BBBBBB;
 }
-.center {
-    text-align: center;
-}
+
 label {
     font-weight: bold;
 }

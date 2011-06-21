@@ -24,10 +24,13 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -37,7 +40,10 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+
+import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Creates groups and/or experimenters.
@@ -92,10 +98,48 @@ public class AdminCreator
 			case AdminObject.RESET_PASSWORD:
 				handle = adminView.resetExperimentersPassword(object, this);
 				break;
+			case AdminObject.ACTIVATE_USER:
+				handle = adminView.activateExperimenters(object, this);
+				break;
 			case AdminObject.ADD_EXPERIMENTER_TO_GROUP:
+				long userID = getCurrentUserID();
 				Map m = new HashMap();
-				m.put(object.getGroup(), object.getExperimenters().keySet());
-				handle = dmView.addExistingObjects(m, this);
+				GroupData group = object.getGroup();
+				Set experimenters = object.getExperimenters().keySet();
+				Set existing = group.getExperimenters();
+				List<Long> ids = new ArrayList<Long>();
+				Iterator i = existing.iterator();
+				DataObject o;
+				while (i.hasNext()) {
+					o = (DataObject) i.next();
+					if (o.getId() != userID) {
+						ids.add(o.getId());
+					}
+				}
+				Set toAdd = new HashSet();
+				Set toRemove = new HashSet();
+				i = experimenters.iterator();
+				long id;
+				List<Long> selectedIds = new ArrayList<Long>();
+				while (i.hasNext()) {
+					o = (DataObject) i.next();
+					id = o.getId();
+					selectedIds.add(id);
+					if (!ids.contains(id))
+						toAdd.add(o);
+				}
+				i = existing.iterator();
+				while (i.hasNext()) {
+					o = (DataObject) i.next();
+					if (o.getId() != userID && 
+						!selectedIds.contains(o.getId())) {
+						toRemove.add(o);
+					}
+				}
+				m.put(group, toAdd);
+				Map m1 = new HashMap();
+				m1.put(group, toRemove);
+				handle = dmView.addExistingObjects(m, m1, this);
 		}
     }
 
@@ -112,6 +156,7 @@ public class AdminCreator
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
+        List l;
         switch (object.getIndex()) {
         	case AdminObject.CREATE_GROUP:
         	case AdminObject.CREATE_EXPERIMENTER:
@@ -119,23 +164,44 @@ public class AdminCreator
         		viewer.refreshTree();
 				break;
         	case AdminObject.RESET_PASSWORD:
-        		List l = (List) result;
+        		l = (List) result;
         		if (l.size() != 0) {
         			UserNotifier un = 
         				TreeViewerAgent.getRegistry().getUserNotifier();
         			Iterator i = l.iterator();
         			ExperimenterData exp;
-        			String s = "";
+        			StringBuffer s = new StringBuffer();
         			while (i.hasNext()) {
         				exp = (ExperimenterData) i.next();
-						s += exp.getUserName()+"\n";
+						s.append(exp.getUserName()+"\n");
 					}
         			StringBuffer buffer = new StringBuffer();
         			buffer.append("The password could not be reset for ");
         			buffer.append("the following experimenters:\n");
-        			buffer.append(s);
+        			buffer.append(s.toString());
         			un.notifyInfo("Reset password", buffer.toString());
         		}
+        		break;
+        	case AdminObject.ACTIVATE_USER:
+        		l = (List) result;
+        		if (l.size() != 0) {
+        			UserNotifier un = 
+        				TreeViewerAgent.getRegistry().getUserNotifier();
+        			Iterator i = l.iterator();
+        			ExperimenterData exp;
+        			StringBuffer s = new StringBuffer();
+        			while (i.hasNext()) {
+        				exp = (ExperimenterData) i.next();
+						s.append(exp.getUserName());
+						s.append("\n");
+					}
+        			StringBuffer buffer = new StringBuffer();
+        			buffer.append("Not possible to reset the status of ");
+        			buffer.append("the following experimenters:\n");
+        			buffer.append(s.toString());
+        			un.notifyInfo("Activate", buffer.toString());
+        		} 
+        		viewer.refreshTree(); 
 		}
     }
     

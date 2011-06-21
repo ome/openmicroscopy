@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
@@ -67,6 +68,18 @@ class GLImageCanvas
 
 	/** The font used. */
 	static final int FONT = GLUT.BITMAP_HELVETICA_10;
+	
+	/** The default x location for scale bar is in bottom right.*/
+	private static final float DEFAULT_X_BR = 0.99f;
+	
+	/** The default x location for scale bar is in bottom left.*/
+	private static final float DEFAULT_X_BL = 0.01f;
+	
+	/** The default y location for scale bar.*/
+	private static final float DEFAULT_Y = 0.98f;
+	
+	/** The thickness of scale bar.*/
+	private static final float STROKE = 0.001f;
 	
 	/** The capabilities. */
 	private static GLCapabilities CAPS;
@@ -162,29 +175,46 @@ class GLImageCanvas
      * 
      * @param gl 	The drawing context.
      * @param width The width of the original image.
+     * @param height The height of the original image
      */
-    protected void drawScaleBar(GL gl, int width)
+    protected void drawScaleBar(GL gl, int width, int height)
     {
+    	if (!model.isUnitBar()) return;
+    	// Position scalebar in the bottom left of the viewport or
+		// the image which ever is viewable. 
+		Rectangle viewRect = view.getViewport().getViewRect();
     	float s = (float) (model.getOriginalUnitBarSize())/width;
+    	if (s >= 1.0f) return;
 		Color c = model.getUnitBarColor();
 		//Display scale bar depending on size.
 		//draw scale bar text
 		gl.glColor3f(c.getRed()/255f, c.getGreen()/255f, c.getBlue()/255f);
-		
-		
-        float x1 = 0.99f-s;
-        float x2 = 0.99f;
-        float y1 = 0.98f;
-        float y2 = 0.983f;
-        
+		float x1, x2, y1, y2;
+        float xt = 0.0f;
+		if (view.getBirdEyeViewLocationIndex() == ImageCanvas.BOTTOM_RIGHT) {
+			x1 = (float) viewRect.x/width+DEFAULT_X_BL;
+			if (x1 > (DEFAULT_X_BR-s)) x1 = DEFAULT_X_BR-s;
+			x2 = x1+s;
+			
+			xt = 0.0f;
+		} else {
+			x1 = (float) viewRect.x/width+(float) (viewRect.width)/width
+				-DEFAULT_X_BL-s;
+			if (x1 > (DEFAULT_X_BR-s)) x1 = DEFAULT_X_BR-s;
+			x2 = x1+s;
+		}
+		y1 = (float) viewRect.y/height
+		+(float) (viewRect.height)/height-0.01f;
+		if (y1 > DEFAULT_Y) y1 = DEFAULT_Y;
+		y2 = y1+STROKE;
         if (model.getZoomFactor() > 0.25) {
         	String text = model.getUnitBarValue();
     		int length = 0;
     		if (text != null)
     			length = getFontMetrics(getFont()).stringWidth(text);
-        	float t = (float) (length) / width;
-        	float xText = x1+(s-t)/2+0.01f;
-            float yText =  0.97f;
+        	float t = (float) (length)/width;
+        	float xText = x1+(s-t)/2+xt;
+            float yText = y1-STROKE;
             gl.glRasterPos2f(xText, yText);
         	glut.glutBitmapString(FONT, text);
         }
@@ -218,11 +248,9 @@ class GLImageCanvas
 
 		}
 		if (texture != null) {
+			drawScaleBar(gl, data.getWidth(), data.getHeight());
 			float x = 1;
 			float y = 1;
-			if (model.isUnitBar())
-				drawScaleBar(gl, data.getWidth());
-			
 			//image
 			texture.enable();
 			texture.bind();

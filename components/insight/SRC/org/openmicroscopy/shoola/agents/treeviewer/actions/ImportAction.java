@@ -32,13 +32,14 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -59,15 +60,34 @@ public class ImportAction
 	extends TreeViewerAction
 {
 
+    /** The description of the action. */
+    static final String DESCRIPTION_DATASET = 
+    	"Launch the Importer. Import data to Project, Datasets...";
+    
+    /** The description of the action. */
+    static final String DESCRIPTION_SCREEN = 
+    	"Launch the Importer. Import data to Screen...";
+    
 	/** The name of the action. */
     private static final String NAME = "Import...";
     
-    /** The description of the action. */
-    private static final String DESCRIPTION = "Import the selected images.";
+    /** Flag indicating not to select any node. */
+    private boolean noNode;
     
-    /** The type of node to create. */
-    private int nodeType;
-    
+    /**
+     * Sets the description of the action depending on the active browser.
+     * 
+     * @param browserType The type of browser.
+     */
+    private void setActionDescription(int browserType)
+    {
+    	if (browserType == Browser.SCREENS_EXPLORER)
+    		putValue(Action.SHORT_DESCRIPTION, 
+					UIUtilities.formatToolTipText(DESCRIPTION_SCREEN));
+    	else 
+			putValue(Action.SHORT_DESCRIPTION, 
+					UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
+    }
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
      * @see TreeViewerAction#onBrowserStateChange(Browser)
@@ -86,12 +106,34 @@ public class ImportAction
         }
     }
     
+    /** 
+     * Sets the description of this action depending on the browser 
+     * {@link Browser}.
+     * @see TreeViewerAction#onBrowserSelection(Browser)
+     */
+    protected void onBrowserSelection(Browser browser)
+    {
+    	int type = Browser.PROJECTS_EXPLORER;
+    	if (browser == null) {
+    		if (TreeViewerAgent.isSPWFirst()) 
+    			type = Browser.SCREENS_EXPLORER;
+    	} else {
+    		if (browser.getBrowserType() == Browser.SCREENS_EXPLORER)
+        		type = Browser.SCREENS_EXPLORER;
+    	}
+    	setActionDescription(type);
+    }
+    
     /**
      * Sets the action enabled depending on the selected node.
      * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+    	if (noNode) {
+    		setEnabled(true);
+    		return;
+    	}
     	Browser browser = model.getSelectedBrowser();
     	setEnabled(false);
         if (browser == null) 
@@ -101,14 +143,18 @@ public class ImportAction
         	return;
         }
         TreeImageDisplay[] nodes = browser.getSelectedDisplays();
-        if (nodes.length > 1)
+        if (nodes != null && nodes.length > 1) {
+        	setEnabled(false);
         	return;
+        }
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof ProjectData || ho instanceof ScreenData || 
         		ho instanceof DatasetData)
-        {
         	setEnabled(model.isUserOwner(ho));
-        	nodeType = CreateCmd.IMAGE;
+        else if (ho instanceof ExperimenterData && 
+    			browser.getBrowserType() != Browser.ADMIN_EXPLORER) {
+    		ExperimenterData exp = TreeViewerAgent.getUserDetails();
+    		setEnabled(exp.getId() == ((ExperimenterData) ho).getId());
         }
     }
     
@@ -116,13 +162,18 @@ public class ImportAction
      * Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param noNode Pass <code>true</code> if no nodes need to be specified,
+     * 				 <code>false</code> otherwise.
      */
-	public ImportAction(TreeViewer model)
+	public ImportAction(TreeViewer model, boolean noNode)
 	{
 		super(model);
-		name = NAME;  
-		putValue(Action.SHORT_DESCRIPTION, 
-				UIUtilities.formatToolTipText(DESCRIPTION));
+		this.noNode = noNode;
+		name = NAME;
+		int type = Browser.PROJECTS_EXPLORER;
+		if (TreeViewerAgent.isSPWFirst()) 
+			type = Browser.SCREENS_EXPLORER;
+		setActionDescription(type);
 		IconManager im = IconManager.getInstance();
 		putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
 	}
@@ -134,6 +185,7 @@ public class ImportAction
     public void actionPerformed(ActionEvent e)
     {
        CreateCmd cmd = new CreateCmd(model, CreateCmd.IMAGE);
+       cmd.setWithParent(!noNode);
        cmd.execute();
     }
     

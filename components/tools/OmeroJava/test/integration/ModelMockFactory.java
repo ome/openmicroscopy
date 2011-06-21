@@ -115,6 +115,7 @@ import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
 import pojos.DatasetData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -256,6 +257,19 @@ public class ModelMockFactory
     }
 
     /**
+     * Creates a default project and returns it.
+     * 
+     * @return See above.
+     */
+    public PlateAcquisitionData simplePlateAcquisitionData()
+    {
+    	PlateAcquisitionData data = new PlateAcquisitionData();
+        data.setName("plate acquisition name");
+        data.setDescription("plate acquisition name");
+        return data;
+    }
+    
+    /**
      * Creates a default image and returns it.
      *
      * @param time The acquisition time.
@@ -321,7 +335,8 @@ public class ModelMockFactory
     	detector.setGain(omero.rtypes.rdouble(1));
     	detector.setManufacturer(omero.rtypes.rstring("manufacturer"));
     	detector.setModel(omero.rtypes.rstring("model"));
-    	detector.setSerialNumber(omero.rtypes.rstring("number"));
+    	detector.setSerialNumber(omero.rtypes.rstring("serial number"));
+    	detector.setLotNumber(omero.rtypes.rstring("lot number"));
     	detector.setOffsetValue(omero.rtypes.rdouble(0));
     	detector.setType((DetectorType) types.get(0));
     	return detector;
@@ -369,6 +384,7 @@ public class ModelMockFactory
     			FilterType.class.getName());
     	Filter filter = new FilterI();
     	filter.setLotNumber(omero.rtypes.rstring("lot number"));
+    	filter.setSerialNumber(omero.rtypes.rstring("serial number"));
     	filter.setManufacturer(omero.rtypes.rstring("manufacturer"));
     	filter.setModel(omero.rtypes.rstring("model"));
     	filter.setType((FilterType) types.get(0));
@@ -393,6 +409,7 @@ public class ModelMockFactory
     	set.setLotNumber(omero.rtypes.rstring("lot number"));
     	set.setManufacturer(omero.rtypes.rstring("manufacturer"));
     	set.setModel(omero.rtypes.rstring("model"));
+    	set.setSerialNumber(omero.rtypes.rstring("serial number"));
     	return set;
     }
     
@@ -410,6 +427,7 @@ public class ModelMockFactory
     	dichroic.setManufacturer(omero.rtypes.rstring("manufacturer"));
     	dichroic.setModel(omero.rtypes.rstring("model"));
     	dichroic.setLotNumber(omero.rtypes.rstring("lot number"));
+    	dichroic.setSerialNumber(omero.rtypes.rstring("serial number"));
     	return dichroic;
     }
     
@@ -426,7 +444,8 @@ public class ModelMockFactory
     	Objective objective = new ObjectiveI();
     	objective.setManufacturer(omero.rtypes.rstring("manufacturer"));
     	objective.setModel(omero.rtypes.rstring("model"));
-    	objective.setSerialNumber(omero.rtypes.rstring("0123456"));
+    	objective.setSerialNumber(omero.rtypes.rstring("serial number"));
+    	objective.setLotNumber(omero.rtypes.rstring("lot number"));
     	objective.setCalibratedMagnification(omero.rtypes.rdouble(1));
     	//correction
     	//already tested see PixelsService enumeration.
@@ -489,8 +508,8 @@ public class ModelMockFactory
     {
     	ImagingEnvironment env = new ImagingEnvironmentI();
     	env.setAirPressure(omero.rtypes.rdouble(1));
-    	env.setCo2percent(omero.rtypes.rdouble(10));
-    	env.setHumidity(omero.rtypes.rdouble(1));
+    	env.setCo2percent(omero.rtypes.rdouble(0.5));
+    	env.setHumidity(omero.rtypes.rdouble(0.5));
     	env.setTemperature(omero.rtypes.rdouble(1));
     	return env;
     }
@@ -580,6 +599,7 @@ public class ModelMockFactory
     	filament.setModel(omero.rtypes.rstring("model"));
     	filament.setPower(omero.rtypes.rdouble(1));
     	filament.setSerialNumber(omero.rtypes.rstring("serial number"));
+    	filament.setLotNumber(omero.rtypes.rstring("lot number"));
     	filament.setType((FilamentType) types.get(0));
     	return filament;
     }
@@ -601,6 +621,7 @@ public class ModelMockFactory
     	arc.setModel(omero.rtypes.rstring("model"));
     	arc.setPower(omero.rtypes.rdouble(1));
     	arc.setSerialNumber(omero.rtypes.rstring("serial number"));
+    	arc.setLotNumber(omero.rtypes.rstring("lot number"));
     	arc.setType((ArcType) types.get(0));
     	return arc;
     }
@@ -620,6 +641,7 @@ public class ModelMockFactory
     	light.setModel(omero.rtypes.rstring("model"));
     	light.setPower(omero.rtypes.rdouble(1));
     	light.setSerialNumber(omero.rtypes.rstring("serial number"));
+    	light.setLotNumber(omero.rtypes.rstring("lot number"));
     	return light;
     }
     
@@ -636,7 +658,8 @@ public class ModelMockFactory
     	Laser laser = new LaserI();
     	laser.setManufacturer(omero.rtypes.rstring("manufacturer"));
     	laser.setModel(omero.rtypes.rstring("model"));
-    	laser.setFrequencyMultiplication(omero.rtypes.rint(1));
+    	laser.setLotNumber(omero.rtypes.rstring("lot number"));
+    	laser.setSerialNumber(omero.rtypes.rstring("serial number"));
     	// type
     	List<IObject> types = pixelsService.getAllEnumerations(
     			LaserType.class.getName());
@@ -650,9 +673,11 @@ public class ModelMockFactory
     	types = pixelsService.getAllEnumerations(Pulse.class.getName());
     	laser.setPulse((Pulse) types.get(0));
     	
-    	laser.setFrequencyMultiplication(omero.rtypes.rint(0));
+    	laser.setFrequencyMultiplication(omero.rtypes.rint(1));
     	laser.setPockelCell(omero.rtypes.rbool(false));
-    	laser.setPower(omero.rtypes.rdouble(0));
+    	laser.setTuneable(omero.rtypes.rbool(true));
+    	laser.setWavelength(omero.rtypes.rint(500));
+    	laser.setPower(omero.rtypes.rdouble(1));
     	laser.setRepetitionRate(omero.rtypes.rdouble(1));
     	return laser;
     }
@@ -672,7 +697,8 @@ public class ModelMockFactory
     	MicroscopeI microscope = new MicroscopeI();
     	microscope.setManufacturer(omero.rtypes.rstring("manufacturer"));
     	microscope.setModel(omero.rtypes.rstring("model"));
-    	microscope.setSerialNumber(omero.rtypes.rstring("number"));
+    	microscope.setSerialNumber(omero.rtypes.rstring("serial number"));
+    	microscope.setLotNumber(omero.rtypes.rstring("lot number"));
     	microscope.setType((MicroscopeType) types.get(0));
     	instrument.setMicroscope(microscope);
     	return instrument;
@@ -689,6 +715,22 @@ public class ModelMockFactory
     public Instrument createInstrument(String light)
     	throws Exception
     {
+    	return createInstrument(light, null);
+    }
+    
+    /**
+     * Creates and returns an instrument. The creation using the 
+     * <code>add*</code> methods has been tested i.e. addDectector, etc.
+     * 
+     * @param light The type of light source.
+     * @param withPump Pass the type of light source of the pump or 
+     * <code>null</code>.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public Instrument createInstrument(String light, String pump)
+    	throws Exception
+    {
     	Instrument instrument = createInstrument();
     	instrument.addDetector(createDetector());
     	instrument.addFilter(createFilter(500, 560));
@@ -699,8 +741,23 @@ public class ModelMockFactory
     	instrument.addObjective(objective);
     	instrument.addFilterSet(filterSet);
     	instrument.addOTF(createOTF(filterSet, objective));
-    	if (LASER.equals(light))
-    		instrument.addLightSource(createLaser());
+    	if (LASER.equals(light)) {
+    		Laser laser = createLaser();
+    		instrument.addLightSource(laser);
+    		if (pump != null) {
+    			LightSource ls = null;
+    			if (LASER.equals(pump)) 
+    				ls = createLaser();
+    			else if (FILAMENT.equals(pump))
+    				ls = createArc();
+    			else if (ARC.equals(pump))
+    				ls = createFilament();
+    			if (ls != null) {
+    				instrument.addLightSource(ls);
+        			laser.setPump(ls);
+    			}
+    		}
+    	}
     	else if (FILAMENT.equals(light))
     		instrument.addLightSource(createFilament());
     	else if (ARC.equals(light))
@@ -709,7 +766,6 @@ public class ModelMockFactory
     		instrument.addLightSource(createLightEmittingDiode());
     	return instrument;
     }
-    
     /**
      * Creates a plane info object.
      * @return See above.
@@ -910,7 +966,7 @@ public class ModelMockFactory
     		numberOfPlateAcquisition = 0;
         Plate p = new PlateI();
         p.setRows(omero.rtypes.rint(rows));
-        p.setCols(omero.rtypes.rint(columns));
+        p.setColumns(omero.rtypes.rint(columns));
         p.setName(omero.rtypes.rstring("plate name"));
         p.setDescription(omero.rtypes.rstring("plate description"));
         p.setStatus(omero.rtypes.rstring("plate status"));
@@ -972,7 +1028,7 @@ public class ModelMockFactory
     {
     	Plate p = new PlateI();
         p.setRows(omero.rtypes.rint(rows));
-        p.setCols(omero.rtypes.rint(columns));
+        p.setColumns(omero.rtypes.rint(columns));
         p.setName(omero.rtypes.rstring("plate"));
         //now make wells
         Well well;

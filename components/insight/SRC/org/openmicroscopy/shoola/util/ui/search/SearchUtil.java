@@ -140,25 +140,29 @@ public class SearchUtil
 			if (value != null && value.equals(termToAdd))
 				exist = true;
 		}
+		StringBuffer buffer = new StringBuffer();
 		if (exist) {
 			i = terms.iterator();
 			int index = 0;
 			//n = n-1;
+			
 			while (i.hasNext()) {
     			value = i.next();
-    			result += value;
+    			buffer.append(value);
 				if (index != n) 
-					result += COMMA_SEPARATOR+SPACE_SEPARATOR;
+					buffer.append(COMMA_SEPARATOR+SPACE_SEPARATOR);
 				index++;
 			}
+			result = buffer.toString();
 			return result;
 		}
 		//terms.remove(n-1);
 		i = terms.iterator();
 		while (i.hasNext()) {
-			result += i.next();
-			result += COMMA_SEPARATOR+SPACE_SEPARATOR;
+			buffer.append(i.next());
+			buffer.append(COMMA_SEPARATOR+SPACE_SEPARATOR);
 		}
+		result += buffer.toString();
 		result += termToAdd;
 		return result;
 	}

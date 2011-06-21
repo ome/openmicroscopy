@@ -88,7 +88,7 @@ public class OptionsDialog extends JDialog implements ActionListener
     private JButton             okBtn;
 
     public boolean    cancelled = true;
-    private boolean oldQuaquaLevel;
+    private boolean oldQuaquaLevel, oldUserDisableHistory;
 
     /** Logger for this class. */
     @SuppressWarnings("unused")
@@ -132,6 +132,8 @@ public class OptionsDialog extends JDialog implements ActionListener
     private JTextPane descriptionText;
 
     private JCheckBox companionFileCheckbox;
+    
+    private JCheckBox disableHistoryCheckbox;
 
     /**
      * Initialize and show the options dialog
@@ -160,6 +162,7 @@ public class OptionsDialog extends JDialog implements ActionListener
         this.config = config;
         
         oldQuaquaLevel = config.getUseQuaqua();
+        oldUserDisableHistory = config.getUserDisableHistory();
 
         /////////////////////// START MAIN PANEL ////////////////////////
 
@@ -225,6 +228,16 @@ public class OptionsDialog extends JDialog implements ActionListener
         		" file containing all collected metadata.</html>", "0,1", debug);
         
         companionFileCheckbox.setSelected(config.companionFile.get());
+        
+        disableHistoryCheckbox = GuiCommonElements.addCheckBox(otherOptionsPanel, "<html>Disable Import History. (Improves " +
+        		" import speed. Restart required if changed).</html>", "0,3", debug);
+        
+        disableHistoryCheckbox.setSelected(config.getUserDisableHistory());
+        
+        // If disabled by admin in import.config, disable this option
+        if (config.getStaticDisableHistory()) {
+        	disableHistoryCheckbox.setEnabled(false);
+        }
         
         /////////////////////// START FILECHOOSER PANEL ////////////////////////
         
@@ -319,6 +332,7 @@ public class OptionsDialog extends JDialog implements ActionListener
                 config.setUseQuaqua(true);
             
             config.companionFile.set(companionFileCheckbox.isSelected());
+            config.setUserDisableHistory(disableHistoryCheckbox.isSelected());
             
             config.setDebugLevel(((DebugItem) dBox.getSelectedItem()).getLevel());
             
@@ -328,7 +342,7 @@ public class OptionsDialog extends JDialog implements ActionListener
             
             this.dispose();
             
-            if (config.getUseQuaqua() != oldQuaquaLevel)
+            if ((config.getUseQuaqua() != oldQuaquaLevel) || (config.getUserDisableHistory() != oldUserDisableHistory))
                 GuiCommonElements.restartNotice(owner, null);
         }
         

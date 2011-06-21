@@ -87,10 +87,7 @@ public class ViewOtherAction
         }
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof ImageData) {
-        	ImageData img = (ImageData) ho;
-        	//setEnabled(img.isArchived());
-        	//TODO: Check size
-        	setEnabled(true);
+        	setEnabled(true); //TODO: check if big image
         } else setEnabled(ho instanceof FileAnnotationData);
     }
     

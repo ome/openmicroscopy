@@ -39,7 +39,7 @@ public class HelperUnitTest {
     @Test
     public void testMissingTrailingSlash() {
         String path = new PixelsService(ROOT).getPixelsPath(new Long(1));
-        assertEquals(ROOT + "Pixels/1", path);
+        assertEquals(p(ROOT) + p("Pixels/1"), path);
     }
 
     //

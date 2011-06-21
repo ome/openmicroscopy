@@ -150,6 +150,7 @@ class TestISession(lib.ITest):
         grp1 = self.new_group([exp0])
 
         # Change: should pass
+        self.client.sf.getAdminService().getEventContext() # Force reload #4011
         self.client.sf.setSecurityContext(grp1)
 
         # Make a stateful service, and change again

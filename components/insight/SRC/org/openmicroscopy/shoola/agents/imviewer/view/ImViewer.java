@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ChannelData;
 import pojos.DataObject;
@@ -160,6 +161,9 @@ public interface ImViewer
 	
 	/** Flag to denote the <i>Pasting settings</i> state. */
 	public static final int     PASTING = 14;
+	
+	/** Flag to denote the <i>Loading The tiles</i> state. */
+	public static final int     LOADING_TILES = 15;
 	
 	/** Bound property name indicating that a new z-section is selected. */
 	public final static String  Z_SELECTED_PROPERTY = "zSelected";
@@ -327,7 +331,7 @@ public interface ImViewer
 	 * 
 	 * @param image The image to display.
 	 */
-	public void setImage(BufferedImage image);
+	public void setImage(Object image);
 
 	/**
 	 * Plays a movie across channel i.e. one channel is selected at a time.
@@ -903,12 +907,14 @@ public interface ImViewer
 	 * 
 	 * @param image 		The projected image.
 	 * @param indexes 		The channel's indexes projected.
+	 * @param containers    The containers where the projected image has been 
+	 * 						added.
 	 * @param applySettings Pass <code>true</code> to set the rendering settings
 	 * 						of the original image to the new pixels set,
 	 * 						<code>false</code> otherwise.
 	 */
 	public void setProjectedImage(ImageData image, List<Integer> indexes, 
-			boolean applySettings);
+			List<DataObject> containers, boolean applySettings);
 
 	/**
 	 * Sets the settings created for the projected image.
@@ -1054,13 +1060,6 @@ public interface ImViewer
 	 * @param bounds The rectangle to display if possible.
 	 */
 	public void scrollToViewport(Rectangle bounds);
-	
-	/**
-	 * Sets the image to display.
-	 * 
-	 * @param image The image to display.
-	 */
-	public void setImageAsTexture(TextureData image);
 
 	/**
 	 * Returns the images composing the grid. This should be invoked
@@ -1168,5 +1167,64 @@ public interface ImViewer
 	 * @param results The results to display.
 	 */
 	void displayFLIMResults(Map<FileAnnotationData, File> results);
+
+	/**
+	 * Sets the image displayed in the bird eye view.
+	 * 
+	 * @param result The value to set.
+	 */
+	void setBirdEyeView(BufferedImage result);
 	
+    /**
+     * Returns the number of rows, default is <code>1</code>.
+     * 
+     * @return See above.
+     */
+    int getRows();
+    
+    /**
+     * Returns the number of columns, default is <code>1</code>.
+     * 
+     * @return See above.
+     */
+    int getColumns();
+    
+    /**
+     * Returns the tiles to display.
+     * 
+     * @return See above.
+     */
+    Map<Integer, Tile> getTiles();
+
+    /**
+     * Indicates that all the tiles have been loaded.
+     * 
+     * @param tile The tile.
+     * @param done Passed <code>true</code> if the tile is loaded,
+     * 				<code>false</code>
+     */
+	public void setTile(Tile tile, boolean done);
+    
+	/**
+	 * Loads the tiles corresponding to the specified region.
+	 * 
+	 * @param region The selected region.
+	 */
+	public void loadTiles(Rectangle region);
+	
+	/**
+	 * Returns the size of the tiled image along the X-axis i.e.
+	 * the size of a tile along the X-axis multiplied by the number of columns.
+	 * 
+	 * @return See above.
+	 */
+	int getTiledImageSizeX();
+	
+	/**
+	 * Returns the size of the tiled image along the Y-axis i.e.
+	 * the size of a tile along the Y-axis multiplied by the number of rows.
+	 * 
+	 * @return See above.
+	 */
+	int getTiledImageSizeY();
 }

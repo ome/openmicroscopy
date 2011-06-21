@@ -112,8 +112,33 @@ class SessionsStore(object):
     def remove(self, host, name, uuid):
         """
         Removes the given session file from the store
+        and removes the sess_file() if it is equal to
+        the session we just removed.
         """
-        (self.dir / host / name / uuid).remove()
+        if uuid is None:
+            self.logger.debug("No uuid provided")
+            return
+        d = self.dir / host / name
+        f = self.dir / host / name / uuid
+        if d.exists():
+            if f.exists():
+                f.remove()
+                self.logger.debug("Removed %s" % f)
+            s = self.sess_file(host, name)
+            if s and s.exists() and s.text().strip() == uuid:
+                s.remove()
+                self.logger.debug("Removed %s" % s)
+
+    def exists(self, host, name, uuid):
+        """
+        Checks if the given file exists.
+        """
+        d = self.dir
+        for x in (host, name, uuid):
+            d = d / x
+            if not d.exists():
+                return False
+        return True
 
     def get(self, host, name, uuid):
         """
@@ -170,6 +195,28 @@ class SessionsStore(object):
         if not text:
             return "localhost"
         return text
+
+    def find_name_by_key(self, server, uuid):
+        """
+        Returns the name of a user for which the
+        session key exists. This value is taken
+        from the path rather than from the properties
+        file since that value may have been overwritten.
+        An exception is raised if there is more than one
+        name since keys should be UUIDs. A None may be
+        returned.
+        """
+        s = self.dir / server
+        if not s.exists():
+            return None
+        else:
+            n = [x.basename() for x in s.dirs() if (x/uuid).exists()]
+            if not n:
+                return None
+            elif len(n) == 1:
+                return n[0]
+            else:
+                raise exceptions.Exception("Multiple names found for uuid=%s: %s" % (uuid, ", ".join(n)))
 
     def contents(self):
         """

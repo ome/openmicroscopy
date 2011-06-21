@@ -21,6 +21,7 @@ import ome.api.RawPixelsStore;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.api.RawPixelsStorePrx;
+import ome.xml.model.primitives.PositiveFloat;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -152,9 +153,9 @@ public class OmeroReader extends FormatReader {
         store.setImageDescription(description, 0);
         MetadataTools.populatePixels(store, this);
 
-        store.setPixelsPhysicalSizeX(new Double(px), 0);
-        store.setPixelsPhysicalSizeY(new Double(py), 0);
-        store.setPixelsPhysicalSizeZ(new Double(pz), 0);
+        store.setPixelsPhysicalSizeX(new PositiveFloat(px), 0);
+        store.setPixelsPhysicalSizeY(new PositiveFloat(py), 0);
+        store.setPixelsPhysicalSizeZ(new PositiveFloat(pz), 0);
     }
 
 }

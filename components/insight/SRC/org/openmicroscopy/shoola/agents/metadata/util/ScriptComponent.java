@@ -24,10 +24,12 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
@@ -71,7 +73,10 @@ class ScriptComponent
 	static int COLUMNS = 10;
 	
 	/** Indicates the tabulation value. */
-	private static final int TAB = 10;
+	private static final int TAB = 15;
+	
+	/** The default text for the component.*/
+	private static final String DEFAULT_TEXT = "";
 	
 	/** The component to host. */
 	private JComponent component;
@@ -111,6 +116,20 @@ class ScriptComponent
 	
 	/** The parent of the component. */
 	private ScriptComponent parent;
+	
+	/**
+	 * Creates a row.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel createRow()
+	{
+		JPanel row = new JPanel();
+		row.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		row.add(getLabel());
+		row.add(getComponent());
+		return row;
+	}
 	
 	/**
 	 * Returns the tabulation index. Returns <code>0</code> if no parent index
@@ -177,6 +196,12 @@ class ScriptComponent
 				c.setEnabled(selected);
 			}
 		}
+	}
+	
+	/** Creates a new instance.*/
+	ScriptComponent()
+	{
+		this(new JLabel(), DEFAULT_TEXT);
 	}
 	
 	/**
@@ -264,14 +289,47 @@ class ScriptComponent
 	void buildUI()
 	{
 		int width = TAB*getTabulationLevel();
-		double[][] size = {{width, TableLayout.PREFERRED, 5, TableLayout.FILL}, 
-				{TableLayout.PREFERRED}};
-		setLayout(new TableLayout(size));
-		add(Box.createHorizontalStrut(width), "0, 0");
-		add(getLabel(), "1, 0");
-		add(getComponent(), "3, 0");
+		if (DEFAULT_TEXT.equals(name)) width = 0;
+		if (children == null || children.size() == 0) {
+			double[][] size = {{width, TableLayout.PREFERRED, 5,
+				TableLayout.FILL}, {TableLayout.PREFERRED}};
+			setLayout(new TableLayout(size));
+			add(Box.createHorizontalStrut(width), "0, 0");
+			add(getLabel(), "1, 0");
+			add(getComponent(), "3, 0");
+		} else {
+			//create a row.
+			double[][] size = {{TableLayout.FILL}, 
+					{TableLayout.PREFERRED}};
+			TableLayout layout = new TableLayout(size);
+			setLayout(layout);
+			Iterator<ScriptComponent> i = children.iterator();
+			ScriptComponent child;
+			setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+			
+			add(createRow(), "0, 0");
+			int index = 1;
+			while (i.hasNext()) {
+				child = i.next();
+				child.buildUI();
+				layout.insertRow(index, TableLayout.PREFERRED);
+				add(child, "0, "+index);
+				index++;
+			}
+		}
 	}
 	
+	Object getParentValue()
+	{
+		if (parent != null) {
+			Object v = parent.getValue();
+			if (v instanceof Boolean) {
+				boolean b = ((Boolean) v).booleanValue();
+				if (!b) return null;
+			}
+		}
+		return null;
+	}
 	/** 
 	 * Returns the value associated to a script.
 	 * 
@@ -313,8 +371,11 @@ class ScriptComponent
 		} else if (c instanceof JComboBox) {
 			JComboBox box = (JComboBox) c;
 			return box.getSelectedItem();
-		} else if (c instanceof ComplexParamPane)
-			return ((ComplexParamPane) c).getValue();
+		} else if (c instanceof ComplexParamPane) {
+			return ((ComplexParamPane) c).getValue(); 
+		} else if (c instanceof IdentifierParamPane) {
+			return ((IdentifierParamPane) c).isReady(); 
+		}
 			
 		return null;
 	}
@@ -330,6 +391,13 @@ class ScriptComponent
 		this.parentIndex = parentIndex;
 	}
 
+	/**
+	 * Returns the parent grouping values.
+	 * 
+	 * @return See above.
+	 */
+	String getParentIndex() { return parentIndex; }
+	
 	/**
 	 * Returns the grouping.
 	 * 
@@ -374,6 +442,14 @@ class ScriptComponent
 	}
 	
 	/**
+	 * Returns <code>true</code> if the component has children,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasChildren() { return children != null && children.size() > 0;}
+	
+	/**
 	 * Sets the name used to sort the object.
 	 * 
 	 * @param nameLabel The value to set.
@@ -384,10 +460,7 @@ class ScriptComponent
 	 * Controls the children is any set.
 	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */
-	public void stateChanged(ChangeEvent e)
-	{
-		handleSelection();
-	}
+	public void stateChanged(ChangeEvent e) { handleSelection(); }
 	
 	/**
 	 * Overridden to handle grouping.

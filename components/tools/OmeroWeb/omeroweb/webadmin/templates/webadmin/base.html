@@ -13,7 +13,7 @@
     
     <title>{% trans "WebAdmin" %} - {% block title %}{% endblock %}</title>
 
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/popup.js" %}"></script>
     {% block jscript %}{% endblock %}
         
@@ -32,6 +32,7 @@
     <div class="nav">
         <div id="navigation">
             <ul>
+            <li><a href="/webclient/">{% trans "Web Client" %}</a></li>
             <li><a href="{% url wadrivespace %}"{% if info.drivespace %} class="menu" {% endif %}>{% trans "Drive Space" %}</a></li>
             {% if eventContext.isAdmin %}
             <li><a href="{% url waexperimenters %}"{% if info.experimenters %} class="menu" {% endif %}>{% trans "Scientists" %}</a></li>
@@ -48,7 +49,7 @@
     {% block content %}{% endblock %}
 </div>
 
-<div id="footer"><p>&copy; University of Dundee & Open Microscopy Environment</p></div>
+<div id="footer"><p>&copy; 2007-2011 University of Dundee & Open Microscopy Environment</p></div>
 
 </div>
 </body>

@@ -1,0 +1,26 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_OME_SchemasCA200809'>
+ <area
+  shape='rect'
+  alt='element_Project'
+  coords='235,0,340,26'
+  href='CA.xsd.html#element_Project'/>
+
+ <area
+  shape='rect'
+  alt='element_Dataset'
+  coords='235,36,340,62'
+  href='CA.xsd.html#element_Dataset'/>
+
+ <area
+  shape='rect'
+  alt='element_Image'
+  coords='235,72,326,98'
+  href='CA.xsd.html#element_Image'/>
+
+ <area
+  shape='rect'
+  alt='element_CustomAttributes'
+  coords='235,108,403,134'
+  href='CA.xsd.html#element_CustomAttributes'/>
+
+</map>

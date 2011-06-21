@@ -202,6 +202,18 @@ class DirectoryType(FileType):
         return str(p.abspath())
 
 
+class ExceptionHandler(object):
+    """
+    Location for all logic which maps from server exceptions
+    to specific states. This could likely be moved elsewhere
+    for general client-side usage.
+    """
+    def is_constraint_violation(self, ve):
+        if isinstance(ve, omero.ValidationException):
+            if "org.hibernate.exception.ConstraintViolationException: could not insert" in str(ve):
+                return True
+
+
 class Context:
     """Simple context used for default logic. The CLI registry which registers
     the plugins installs itself as a fully functional Context.
@@ -214,10 +226,14 @@ class Context:
 
     """
 
-    def __init__(self, controls = {}, params = {}, prog = sys.argv[0]):
-        self.event = get_event(name="CLI")
-        self.params = {}
+    def __init__(self, controls = None, params = None, prog = sys.argv[0]):
         self.controls = controls
+        if self.controls is None:
+            self.controls = {}
+        self.params = params
+        if self.params is None:
+            self.params = {}
+        self.event = get_event(name="CLI")
         self.dir = OMERODIR
         self.isdebug = DEBUG # This usage will go away and default will be False
         self.topics = {"debug":"""
@@ -561,7 +577,7 @@ class BaseControl:
         to return all properties.
         """
         import Ice
-        if not hasattr(self, "_props") or self._props == None:
+        if getattr(self, "_props", None) is None:
             self._props = Ice.createProperties()
             for cfg in self._cfglist():
                 try:
@@ -570,9 +586,11 @@ class BaseControl:
                     self.ctx.die(3, "Could not find file: "+cfg + "\nDid you specify the proper node?")
         return self._props.getPropertiesForPrefix(prefix)
 
-    def _ask_for_password(self, reason = "", root_pass = None):
+    def _ask_for_password(self, reason = "", root_pass = None, strict = True):
         while not root_pass or len(root_pass) < 1:
             root_pass = self.ctx.input("Please enter password%s: "%reason, hidden = True)
+            if not strict:
+                return root_pass
             if root_pass == None or root_pass == "":
                 self.ctx.err("Password cannot be empty")
                 continue
@@ -965,10 +983,13 @@ class CLI(cmd.Cmd, Context):
                 self.dbg("Bad property:"+str(parts))
         return data
 
-    def initData(self, properties={}):
+    def initData(self, properties=None):
         """
         Uses "omero prefs" to create an Ice.InitializationData().
         """
+
+        if properties is None: properties = {}
+
         from omero.plugins.prefs import getprefs
         try:
             output = getprefs(["get"], str(OMERODIR / "lib"))

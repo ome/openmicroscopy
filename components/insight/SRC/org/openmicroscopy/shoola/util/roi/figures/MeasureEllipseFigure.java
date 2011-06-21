@@ -52,7 +52,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.figures.EllipseTextFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 /** 
- * 
+ * Ellipse figure with measurement.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -118,6 +118,8 @@ public class MeasureEllipseFigure
 	{
 		super(text, x, y, width, height);
 		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
+		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
 	   	shape = null;
 		roi = null;
 		status = IDLE;
@@ -278,12 +280,12 @@ public class MeasureEllipseFigure
 		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
 				MeasurementAttributes.SHOWID.get(this))
 		{
-			NumberFormat formatter = new DecimalFormat("###.#");
+			NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 			String ellipseArea = formatter.format(getArea());
 			ellipseArea = addUnits(ellipseArea);
-			double sz= ((Double) this.getAttribute(
+			double sz = ((Double) this.getAttribute(
 					MeasurementAttributes.FONT_SIZE));
-			g.setFont(new Font("Arial", Font.PLAIN, (int) sz));
+			g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 			Rectangle2D stringBoundsbounds = 
 				g.getFontMetrics().getStringBounds(ellipseArea, g);
 			measurementBounds =
@@ -316,7 +318,6 @@ public class MeasureEllipseFigure
 						(int) measurementBounds.getX(), 
 						(int) measurementBounds.getY());
 			}
-			
 		}
 	}
 	
@@ -422,28 +423,19 @@ public class MeasureEllipseFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getROI()
 	 */
-	public ROI getROI()
-	{
-		return roi;
-	}
+	public ROI getROI() { return roi; }
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getROIShape()
 	 */
-	public ROIShape getROIShape()
-	{
-		return shape;
-	}
+	public ROIShape getROIShape() { return shape; }
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#setROI(ROI)
 	 */
-	public void setROI(ROI roi)
-	{
-		this.roi = roi;
-	}
+	public void setROI(ROI roi) { this.roi = roi; }
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
@@ -478,7 +470,7 @@ public class MeasureEllipseFigure
 	 */
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
-		this.units=units;
+		this.units = units;
 	}
 
 	/**
@@ -653,4 +645,3 @@ public class MeasureEllipseFigure
 		return figListeners;
 	}
 }
-

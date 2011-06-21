@@ -82,6 +82,60 @@ class TestITimeline(lib.ITest):
         self.assertEquals(im_ids[5][0], res[4].id.val)
 
 
+    def testCollaborativeTimeline(self):
+        """ Create some images as one user - test if another user can see these events in timeline. """
+
+        group = self.new_group(perms = "rw----")
+        client1 = self.new_client(group = group)
+        client2 = self.new_client(group = group)
+
+        # log in as first user & create images
+        update1 = client1.sf.getUpdateService()
+        timeline1 = client1.sf.getTimelineService()
+        admin1 = client1.sf.getAdminService()
+
+        im_ids = dict()
+        for i in range(0,10):
+            # create image
+            acquired = long(time.time()*1000)
+            img = omero.model.ImageI()
+            img.setName(rstring('test-img-%s' % (client1.sf)))
+            img.setAcquisitionDate(rtime(acquired))
+
+            # default permission 'rw----':
+            img = update1.saveAndReturnObject(img)
+            img.unload()
+
+            im_ids[i] = [img.id.val, acquired]
+
+        # Here we assume that this test is not run within the last 1 second
+        start = acquired - 86400
+        end = acquired + 1
+
+        ownerId = rlong(admin1.getEventContext().userId)
+        groupId = rlong(admin1.getEventContext().groupId)
+
+        def assert_timeline(timeline, ownerId = None, groupId = None):
+            p = omero.sys.Parameters()
+            p.map = {}
+            f = omero.sys.Filter()
+            if ownerId is not None:
+                f.ownerId = ownerId
+            if groupId is not None:
+                f.groupId = groupId
+            p.theFilter = f
+
+            counter = timeline.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p)
+            self.assertEquals(10, counter['Image'])
+            data = timeline.getByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, False)
+            self.assertEquals(10, len(data['Image']))
+
+        assert_timeline(timeline1, ownerId, groupId)
+
+        # now log in as another user (default group is same as user-created images above)
+        timeline2 = client2.sf.getTimelineService()
+        assert_timeline(timeline2, rlong(-1), None)
+
     def test1173(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         update = self.root.sf.getUpdateService()

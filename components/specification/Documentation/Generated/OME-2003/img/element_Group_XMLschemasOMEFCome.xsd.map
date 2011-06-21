@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Group_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_Leader'
+  coords='249,0,347,42'
+  href='ome.xsd.html#element_Leader'/>
+
+ <area
+  shape='rect'
+  alt='element_Contact'
+  coords='249,52,354,94'
+  href='ome.xsd.html#element_Contact'/>
+
+ <area
+  shape='rect'
+  alt='type_GroupID'
+  coords='163,140,257,166'
+  href='ome.xsd.html#type_GroupID'/>
+
+</map>

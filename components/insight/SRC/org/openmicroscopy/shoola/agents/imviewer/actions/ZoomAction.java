@@ -56,10 +56,10 @@ public class ZoomAction
 	/** The Zoom fit factor. */
 	public static final double	ZOOM_FIT_FACTOR = -1;
 	
-    /** The maximun value of the zoom factor. */
+    /** The maximum value of the zoom factor. */
     public static final double  MAX_ZOOM_FACTOR = 12*ZoomCmd.INCREMENT;
     
-    /** The minimun value of the zoom factor. */
+    /** The minimum value of the zoom factor. */
     public static final double  MIN_ZOOM_FACTOR = ZoomCmd.INCREMENT;
     
     /** The default zooming factor. */
@@ -116,7 +116,7 @@ public class ZoomAction
     /** The maximum value of zooming index. */
     public static final String  ZOOM_FIT_NAME = "Zoom to Fit";
     
-    /** The number of supported ids. */
+    /** The number of supported identifiers. */
     private static final int    MAX = 12;
     
     /** The description of the action. */
@@ -161,7 +161,7 @@ public class ZoomAction
     }
     
     /** 
-     * The index of the zooming action. One of the contants defined by
+     * The index of the zooming action. One of the constants defined by
      * this class.
      */
     private int zoomingIndex;

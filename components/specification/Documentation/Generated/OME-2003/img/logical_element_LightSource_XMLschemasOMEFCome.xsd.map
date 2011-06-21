@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_LightSource_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_Laser'
+  coords='458,212,844,255'
+  href='ome.xsd.html#element_Laser'/>
+
+ <area
+  shape='rect'
+  alt='element_Filament'
+  coords='458,265,844,308'
+  href='ome.xsd.html#element_Filament'/>
+
+ <area
+  shape='rect'
+  alt='element_Arc'
+  coords='458,318,844,361'
+  href='ome.xsd.html#element_Arc'/>
+
+</map>

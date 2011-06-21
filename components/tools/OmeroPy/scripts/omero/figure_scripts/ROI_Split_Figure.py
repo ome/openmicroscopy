@@ -42,8 +42,6 @@ import omero.util.imageUtil as imgUtil
 import omero.util.figureUtil as figUtil
 import omero.util.script_utils as scriptUtil
 from omero.rtypes import *
-import omero.gateway
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero_api_IRoi_ice
 # import util.figureUtil as figUtil    # need to comment out for upload to work. But need import for script to work!!
 import getopt, sys, os, subprocess
@@ -145,7 +143,10 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
     # set up rendering engine with the pixels
     pixelsId = pixels.getId().getValue()
     re.lookupPixels(pixelsId)
-    re.lookupRenderingDef(pixelsId)
+    if not re.lookupRenderingDef(pixelsId):
+        re.resetDefaults()
+    if not re.lookupRenderingDef(pixelsId):
+        raise "Failed to lookup Rendering Def"
     re.load()
     
     # if we are missing some merged colours, get them from rendering engine. 
@@ -180,11 +181,25 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
                 re.setRGBA(index,255,255,255,255)    # if not colourChannels - channels are white
             info = (channelNames[index], re.getChannelWindowStart(index), re.getChannelWindowEnd(index))
             log("  Render channel: %s  start: %d  end: %d" % info)
-            projection = re.renderProjectedCompressed(algorithm, tIndex, stepping, proStart, proEnd)
-            fullImage = Image.open(StringIO.StringIO(projection))
             box = (roiX, roiY, roiX+roiWidth, roiY+roiHeight)
-            roiImage = fullImage.crop(box)
-            roiImage.load()        # hoping that when we zoom, don't zoom fullImage 
+            if proStart == proEnd:
+                # if it's a single plane, we can render a region (region not supported with projection)
+                planeDef = omero.romio.PlaneDef()
+                planeDef.z = long(proStart)
+                planeDef.t = long(tIndex)
+                regionDef = omero.romio.RegionDef()
+                regionDef.x = roiX
+                regionDef.y = roiY
+                regionDef.width = roiWidth
+                regionDef.height = roiHeight
+                planeDef.region = regionDef
+                rPlane = re.renderCompressed(planeDef)
+                roiImage = Image.open(StringIO.StringIO(rPlane))
+            else:
+                projection = re.renderProjectedCompressed(algorithm, tIndex, stepping, proStart, proEnd)
+                fullImage = Image.open(StringIO.StringIO(projection))
+                roiImage = fullImage.crop(box)
+                roiImage.load()        # hoping that when we zoom, don't zoom fullImage
             if roiZoom is not 1:
                 newSize = (int(roiWidth*roiZoom), int(roiHeight*roiZoom))
                 roiImage = roiImage.resize(newSize)
@@ -206,7 +221,13 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
     # get the combined image, using the existing rendering settings 
     channelsString = ", ".join([str(i) for i in mergedIndexes])
     log("  Rendering merged channels: %s" % channelsString)
-    merged = re.renderProjectedCompressed(algorithm, tIndex, stepping, proStart, proEnd)
+    if proStart != proEnd:
+        merged = re.renderProjectedCompressed(algorithm, tIndex, stepping, proStart, proEnd)
+    else:
+        planeDef = omero.romio.PlaneDef()
+        planeDef.z = proStart
+        planeDef.t = tIndex
+        merged = re.renderCompressed(planeDef)
     fullMergedImage = Image.open(StringIO.StringIO(merged))
     roiMergedImage = fullMergedImage.crop(box)
     roiMergedImage.load()    # make sure this is not just a lazy copy of the full image
@@ -383,7 +404,6 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, merged
     @ spacer        the gap between images and around the figure. Doubled between rows. 
     """
     
-    gateway = session.createGateway()
     roiService = session.getRoiService()
     re = session.createRenderingEngine()
     queryService = session.getQueryService()    # only needed for movie
@@ -399,7 +419,7 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, merged
     
     if roiZoom == None:
         # get the pixels for priamry image. 
-        pixels = gateway.getPixels(pixelIds[0])
+        pixels = queryService.get("Pixels", pixelIds[0])
         sizeY = pixels.getSizeY().getValue()
     
         roiZoom = float(height) / float(roiHeight)
@@ -448,7 +468,7 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, merged
             continue
         roiX, roiY, roiWidth, roiHeight, zMin, zMax, tStart, tEnd = roi
         
-        pixels = gateway.getPixels(pixelsId)
+        pixels = queryService.get("Pixels", pixelsId)
         sizeX = pixels.getSizeX().getValue()
         sizeY = pixels.getSizeY().getValue()
         
@@ -536,6 +556,7 @@ def roiFigure(session, commandArgs):
     queryService = session.getQueryService()
     updateService = session.getUpdateService()
     rawFileStore = session.createRawFileStore()
+    containerService = session.getContainerService()
     
     log("ROI figure created by OMERO on %s" % date.today())
     log("")
@@ -544,7 +565,6 @@ def roiFigure(session, commandArgs):
     imageIds = []
     imageLabels = []
     imageNames = {}
-    gateway = session.createGateway()
     omeroImage = None    # this is set as the first image, to link figure to
 
     # function for getting image labels.
@@ -565,18 +585,17 @@ def roiFigure(session, commandArgs):
             
     # process the list of images. If imageIds is not set, script can't run. 
     log("Image details:")
-    if "Image_IDs" in commandArgs:
-        for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
-            iId = long(imageId.getValue())
-            image = gateway.getImage(iId)
-            if image == None:
-                print "Image not found for ID:", iId
-                continue
-            imageIds.append(iId)
-            if idCount == 0:
-                omeroImage = image        # remember the first image to attach figure to
-            pixelIds.append(image.getPrimaryPixels().getId().getValue())
-            imageNames[iId] = image.getName().getValue()
+    for idCount, imageId in enumerate(commandArgs["IDs"]):
+        iId = long(imageId.getValue())
+        image = containerService.getImages("Image", [iId], None)[0]
+        if image == None:
+            print "Image not found for ID:", iId
+            continue
+        imageIds.append(iId)
+        if idCount == 0:
+            omeroImage = image        # remember the first image to attach figure to
+        pixelIds.append(image.getPrimaryPixels().getId().getValue())
+        imageNames[iId] = image.getName().getValue()
     
     if len(imageIds) == 0:
         print "No image IDs specified."    
@@ -601,7 +620,7 @@ def roiFigure(session, commandArgs):
     
     # use the first image to define dimensions, channel colours etc. 
     pixelsId = pixelIds[0]
-    pixels = gateway.getPixels(pixelsId)
+    pixels = queryService.get("Pixels", pixelsId)
 
     sizeX = pixels.getSizeX().getValue();
     sizeY = pixels.getSizeY().getValue();
@@ -754,6 +773,7 @@ def runAsScript():
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
      
+    dataTypes = [rstring('Image')]
     labels = [rstring('Image Name'), rstring('Datasets'), rstring('Tags')]
     algorithums = [rstring('Maximum Intensity'),rstring('Mean Intensity')]
     roiLabel = """Specify an ROI to pick by specifying it's shape label. 'FigureROI' by default,
@@ -765,33 +785,40 @@ def runAsScript():
     oColours = wrap(OVERLAY_COLOURS.keys())
     
     client = scripts.client('ROI_Split_Figure.py', """Create a figure of an ROI region as separate zoomed split-channel panels.
-See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""", 
-    scripts.List("Image_IDs", optional=False, description="List of image IDs. Resulting figure will be attached to first image.").ofType(rlong(0)),
-    scripts.Map("Channel_Names", description="Map of index: channel name for All channels"),
-    scripts.Bool("Merged_Names", description="If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
-    scripts.List("Split_Indexes", description="List of the channels in the split view panels"),
-    scripts.Bool("Split_Panels_Grey", description="If true, all split panels are greyscale"),
-    scripts.Map("Merged_Colours", description="Map of index:int colours for each merged channel. Otherwise use existing colour settings"),
-    scripts.Int("Width",description="Max width of each image panel", min=1),   
-    scripts.Int("Height",description="The max height of each image panel", min=1),
-    scripts.String("Image_Labels",description="Label images with the Image's Name or it's Datasets or Tags", values=labels),               
-    scripts.String("Algorithm", description="Algorithum for projection.", values=algorithums),
-    scripts.Int("Stepping",description="The Z-plane increment for projection. Default is 1", min=1),
-    scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    scripts.String("Format",description="Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
-    scripts.String("Figure_Name", description="File name of the figure to save."),
-    scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=oColours),
-    scripts.Float("ROI_Zoom", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit", min=0),
-    scripts.String("ROI_Label", description=roiLabel),
+NB: OMERO.insight client provides a nicer UI for this script under 'Publishing Options'
+See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/exporting-figures""",
+
+    # provide 'Data_Type' and 'IDs' parameters so that Insight auto-populates with currently selected images.
+    scripts.String("Data_Type", optional=False, grouping="01",
+        description="The data you want to work with.", values=dataTypes, default="Image"),
+
+    scripts.List("IDs", optional=False, grouping="02",
+        description="List of Dataset IDs or Image IDs").ofType(rlong(0)),
+
+    scripts.Map("Channel_Names", grouping="03", description="Map of index: channel name for All channels"),
+    scripts.Bool("Merged_Names", grouping="04", description="If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
+    scripts.List("Split_Indexes", grouping="05", description="List of the channels in the split view panels"),
+    scripts.Bool("Split_Panels_Grey", grouping="06", description="If true, all split panels are greyscale"),
+    scripts.Map("Merged_Colours", grouping="07", description="Map of index:int colours for each merged channel. Otherwise use existing colour settings"),
+    scripts.Int("Width", grouping="08", description="Max width of each image panel", min=1),   
+    scripts.Int("Height", grouping="09", description="The max height of each image panel", min=1),
+    scripts.String("Image_Labels", grouping="10", description="Label images with the Image's Name or it's Datasets or Tags", values=labels),               
+    scripts.String("Algorithm", grouping="11", description="Algorithum for projection.", values=algorithums),
+    scripts.Int("Stepping", grouping="12", description="The Z-plane increment for projection. Default is 1", min=1),
+    scripts.Int("Scalebar", grouping="13", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    scripts.String("Format", grouping="14", description="Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
+    scripts.String("Figure_Name", grouping="15", description="File name of the figure to save."),
+    scripts.String("Overlay_Colour", grouping="16", description="The colour of the scalebar.",default='White',values=oColours),
+    scripts.Float("ROI_Zoom", grouping="17", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit", min=0),
+    scripts.String("ROI_Label", grouping="18", description=roiLabel),
     
-    version = "4.2.0",
+    version = "4.3.0",
     authors = ["William Moore", "OME Team"],
     institutions = ["University of Dundee"],
     contact = "ome-users@lists.openmicroscopy.org.uk",
     )
     try:
-        session = client.getSession();
-        gateway = session.createGateway();
+        session = client.getSession()
         commandArgs = {}
     
         # process the list of args above. 

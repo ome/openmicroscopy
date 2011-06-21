@@ -1,12 +1,20 @@
+/*
+ *   Copyright (C) 2009-2011 University of Dundee & Open Microscopy Environment.
+ *   All rights reserved.
+ *
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
 package omeis.providers.re.utests;
 
+import java.awt.Dimension;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelData;
+import ome.util.PixelData;
 import ome.model.enums.PixelsType;
 
 public class TestPixelBuffer implements PixelBuffer {
@@ -24,12 +32,6 @@ public class TestPixelBuffer implements PixelBuffer {
 	public byte[] calculateMessageDigest() throws IOException {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	public void checkBounds(Integer arg0, Integer arg1, Integer arg2,
-			Integer arg3) throws DimensionsOutOfBoundsException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void close() throws IOException {
@@ -73,7 +75,7 @@ public class TestPixelBuffer implements PixelBuffer {
 	public PixelData getPlane(Integer arg0, Integer arg1, Integer arg2)
 			throws IOException, DimensionsOutOfBoundsException
 	{
-		return new PixelData(pixelsType, ByteBuffer.wrap(dummyPlane));
+		return new PixelData(pixelsType.getValue(), ByteBuffer.wrap(dummyPlane));
 	}
 
 	public byte[] getPlaneDirect(Integer arg0, Integer arg1, Integer arg2,
@@ -279,5 +281,100 @@ public class TestPixelBuffer implements PixelBuffer {
 		// TODO Auto-generated method stub
 
 	}
+
+	public void checkBounds(Integer arg0, Integer arg1, Integer arg2,
+			Integer arg3, Integer arg4) throws DimensionsOutOfBoundsException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public PixelData getPlaneRegion(Integer arg0, Integer arg1, Integer arg2,
+			Integer arg3, Integer arg4, Integer arg5, Integer arg6, Integer arg7)
+			throws IOException, DimensionsOutOfBoundsException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+    public PixelData getHypercube(List<Integer> arg0, List<Integer> arg1, 
+            List<Integer> arg2) throws IOException, DimensionsOutOfBoundsException 
+    {
+		// TODO Auto-generated method stub
+		return null;
+	}
+                
+    public byte[] getHypercubeDirect(List<Integer> arg0, List<Integer> arg1, 
+            List<Integer> arg2, byte[] arg3) 
+            throws IOException, DimensionsOutOfBoundsException 
+    {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTile(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h) throws IOException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTileDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
+     */
+    public byte[] getTileDirect(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h, byte[] buffer) throws IOException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#setTile(byte[], java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public void setTile(byte[] buffer, Integer z, Integer c, Integer t, Integer x, Integer y,
+            Integer w, Integer h) throws IOException,
+            BufferOverflowException
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getResolutionLevel()
+     */
+    public int getResolutionLevel()
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getResolutionLevels()
+     */
+    public int getResolutionLevels()
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTileSize()
+     */
+    public Dimension getTileSize()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#setResolutionLevel(int)
+     */
+    public void setResolutionLevel(int resolutionLevel)
+    {
+        // TODO Auto-generated method stub
+        
+    }
 
 }

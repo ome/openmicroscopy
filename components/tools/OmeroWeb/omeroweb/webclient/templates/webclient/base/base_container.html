@@ -3,9 +3,40 @@
 {% load markup %}
 {% load custom_tags %}
 
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
 {% block header %}
 
-{% include "webclient/base/header.html" %}
+<div id="path">
+    
+    <div id="actionWrapper">
+        
+        <!-- left-hand side of toolbar (BASKET, STATUS, group chooser) -->
+        {% include "webclient/base/header.html" %}
+
+    </div>
+    
+</div>
+
+<div class="clear"> </div>
 
 {% endblock %}
 
@@ -16,11 +47,11 @@
     <tr>
         <td id="left_panel">{% block left %}{% endblock %}</td>
         <td class="trayhandle-left collapsibletrayhandle-left">
-            <div id="swapTree"><img id="lhid_trayhandle_icon_left" class="expanded-left" src="{% url webstatic "images/tree/spacer.gif" %}" tabindex="0"></div>
+            <div id="swapTree"><img id="lhid_trayhandle_icon_left" class="expanded-left" src="{% url webstatic "images/spacer.gif" %}" tabindex="0"></div>
         </td>
         <td id="center_panel">{% block center %}{% endblock %}</td>
         <td class="trayhandle collapsibletrayhandle-right">
-            <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="expanded-right" src="{% url webstatic "images/tree/spacer.gif" %}" tabindex="0"></div>
+            <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="expanded-right" src="{% url webstatic "images/spacer.gif" %}" tabindex="0"></div>
         </td>
         <td id="right_panel">{% block right %}{% endblock %}</td>
     </tr>

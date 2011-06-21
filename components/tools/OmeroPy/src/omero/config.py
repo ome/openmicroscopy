@@ -47,12 +47,17 @@ class ConfigXml(object):
         self.env_config = env_config                                #: Environment override
         self.filename = filename                                    #: Path to the file to be read and written
         self.source = open(filename, "a+")                          #: Open file handle
-        self.lock = open("%s.lock" % filename, "a+")                #: Open file handle for lock
+        self.lock = self._open_lock()                               #: Open file handle for lock
         self.exclusive = exclusive                                  #: Whether or not an exclusive lock should be acquired
+        try:
+            self._CloseEx = WindowsError
+        except NameError:
+            self._CloseEx = None
         if exclusive:
             try:
                 portalocker.lock(self.lock, portalocker.LOCK_NB|portalocker.LOCK_EX)
             except portalocker.LockException, le:
+                self.lock = None # Prevent deleting of the file
                 self.close()
                 raise
 
@@ -68,7 +73,7 @@ class ConfigXml(object):
                 raise
 
         # Nothing defined, so create a new tree
-        if not self.XML:
+        if self.XML is None:
             default = self.default()
             self.XML = Element("icegrid")
             properties = SubElement(self.XML, "properties", id=self.INTERNAL)
@@ -77,11 +82,24 @@ class ConfigXml(object):
             properties = SubElement(self.XML, "properties", id=default)
             _ = SubElement(properties, "property", name=self.KEY, value=self.VERSION)
 
+    def _open_lock(self):
+        return open("%s.lock" % self.filename, "a+")
+
+    def _close_lock(self):
+        if self.lock is not None:
+            self.lock.close()
+            try:
+                os.remove("%s.lock" % self.filename)
+            except:
+                # On windows a WindowsError 32 can happen (file opened by another process), ignoring
+                self.logger.error("Failed to removed lock file, ignoring", exc_info=True)
+                pass
+
     def version(self, id = None):
         if id is None:
             id = self.default()
         properties = self.properties(id)
-        if properties:
+        if properties is not None:
             for x in properties.getchildren():
                 if x.get("name") == self.KEY:
                     return x.get("value")
@@ -119,7 +137,7 @@ class ConfigXml(object):
 
     def properties(self, id = None, filter_internal = False):
 
-        if not self.XML:
+        if self.XML is None:
             return None
 
         props = self.XML.findall("./properties")
@@ -210,13 +228,13 @@ class ConfigXml(object):
             # If we didn't get an XML instance,
             # then something has gone wrong and
             # we should exit.
-            if self.XML:
+            if self.XML is not None:
                 self.save()
         finally:
             try:
                 self.source.close()
             finally:
-                self.lock.close()
+                self._close_lock()
 
     def props_to_dict(self, c):
 

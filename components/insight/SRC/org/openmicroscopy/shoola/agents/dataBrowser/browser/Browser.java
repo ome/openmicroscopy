@@ -201,7 +201,7 @@ public interface Browser
 	 * 
 	 * @return A set of {@link ImageDisplay} objects.
 	 */
-	public Set getRootNodes();
+	public Collection getRootNodes();
 	
 	/**
 	 * Returns the widget that displays all the visualization trees hosted

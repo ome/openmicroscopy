@@ -12,8 +12,11 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,10 +33,10 @@ import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
 import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
+import ome.conditions.ConcurrencyException;
 import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
@@ -53,10 +56,12 @@ import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 
+import org.apache.batik.transcoder.TranscoderException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.springframework.core.io.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -127,6 +132,9 @@ public class ThumbnailBean extends AbstractLevel2Service
     /** ID of the pixels instance that the service is currently working on. */
     private Long pixelsId;
 
+    /** In progress marker; set to true when no data is available the pixel */
+    private boolean inProgress;
+
     /** The rendering settings that the service is currently working with. */
     private RenderingDef settings;
 
@@ -135,6 +143,9 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /** The thumbnail metadata context. */
     private ThumbnailCtx ctx;
+
+    /** The in-progress image resource we'll use for in progress images. */
+    private Resource inProgressImageResource;
 
     /** The default X-width for a thumbnail. */
     public static final int DEFAULT_X_WIDTH = 48;
@@ -228,6 +239,14 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
     }
 
+    @RolesAllowed("user")
+    public long getRenderingDefId() {
+        if (settings == null || settings.getId() == null) {
+            throw new ApiUsageException("No rendering def");
+        }
+        return settings.getId();
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -306,13 +325,11 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
         pixels = iPixels.retrievePixDescription(pixels.getId());
         settings = iPixels.loadRndSettings(settings.getId());
-        OriginalFileMetadataProvider metadataProvider =
-            new OmeroOriginalFileMetadataProvider(iQuery);
-        PixelBuffer buffer = 
-            pixelDataService.getPixelBuffer(pixels, metadataProvider, false);
         List<Family> families = getFamilies();
         List<RenderingModel> renderingModels = getRenderingModels();
         QuantumFactory quantumFactory = new QuantumFactory(families);
+        // Loading last to try to ensure that the buffer will get closed.
+        PixelBuffer buffer = pixelDataService.getPixelBuffer(pixels, false);
         renderer = new Renderer(quantumFactory, renderingModels, pixels,
                 settings, buffer);
         dirty = false;
@@ -331,6 +348,17 @@ public class ThumbnailBean extends AbstractLevel2Service
         // retrieval of thumbnail metadata is done based on the owner of the
         // settings not the owner of the session. (#2274 Part I) 
         ctx.setUserId(settings.getDetails().getOwner().getId());
+    }
+
+    /**
+     * In-progress image resource Bean injector.
+     * @param inProgressImageResource The in-progress image resource we'll be
+     * using for in progress images.
+     */
+    public void setInProgressImageResource(Resource inProgressImageResource) {
+        getBeanHelper().throwIfAlreadySet(
+                this.inProgressImageResource, inProgressImageResource);
+        this.inProgressImageResource = inProgressImageResource;
     }
 
     /**
@@ -429,8 +457,57 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
 
         FileOutputStream stream = ioService.getThumbnailOutputStream(thumb);
-        compressionService.compressToStream(image, stream);
-        stream.close();
+        try {
+            if (inProgress) {
+                compressInProgressImageToStream(thumb, stream);
+            } else {
+                compressionService.compressToStream(image, stream);
+            }
+        } finally {
+            stream.close();
+        }
+    }
+
+    /**
+     * Compresses the <i>in progress</i> image to a stream.
+     * @param thumb The thumbnail metadata.
+     * @param outputStream Stream to compress the data to.
+     */
+    private void compressInProgressImageToStream(
+            Thumbnail thumb, OutputStream outputStream) {
+        int x = thumb.getSizeX();
+        int y = thumb.getSizeY();
+        StopWatch s1 = new CommonsLogStopWatch("omero.transcodeSVG");
+        try
+        {
+            SVGRasterizer rasterizer = new SVGRasterizer(
+                    inProgressImageResource.getInputStream());
+            // Batik will automatically maintain the aspect ratio of the
+            // resulting image if we only specify the width or height.
+            if (x > y)
+            {
+                rasterizer.setImageWidth(x);
+            }
+            else
+            {
+                rasterizer.setImageHeight(y);
+            }
+            rasterizer.setQuality(compressionService.getCompressionLevel());
+            rasterizer.createJPEG(outputStream);
+            s1.stop();
+        }
+        catch (IOException e1)
+        {
+            String s = "Error loading in-progress image from Spring resource.";
+            log.error(s, e1);
+            throw new ResourceError(s);
+        }
+        catch (TranscoderException e2)
+        {
+            String s = "Error transcoding in progress SVG.";
+            log.error(s, e2);
+            throw new ResourceError(s);
+        }
     }
 
     /**
@@ -491,9 +568,10 @@ public class ThumbnailBean extends AbstractLevel2Service
         // Ensure that we have a valid state for rendering
         errorIfInvalidState();
 
-        // Original sizes and thumbnail metadata
-        int origSizeX = pixels.getSizeX();
-        int origSizeY = pixels.getSizeY();
+        if (inProgress)
+        {
+            return null;
+        }
 
         // Retrieve our rendered data
         if (theZ == null)
@@ -502,13 +580,48 @@ public class ThumbnailBean extends AbstractLevel2Service
             theT = settings.getDefaultT();
         PlaneDef pd = new PlaneDef(PlaneDef.XY, theT);
         pd.setZ(theZ);
+        // Use a resolution level that matches our requested size if we can
+        PixelBuffer pixelBuffer = renderer.getPixels();
+        int originalSizeX = pixels.getSizeX();
+        int originalSizeY = pixels.getSizeY();
+        if (pixelBuffer.getResolutionLevels() > 1)
+        {
+            int resolutionLevel = pixelBuffer.getResolutionLevels();
+            int pixelBufferSizeX = pixelBuffer.getSizeX();
+            int pixelBufferSizeY = pixelBuffer.getSizeY();
+            while (resolutionLevel > 0)
+            {
+                resolutionLevel--;
+                pixelBuffer.setResolutionLevel(resolutionLevel);
+                pixelBufferSizeX = pixelBuffer.getSizeX();
+                pixelBufferSizeY = pixelBuffer.getSizeY();
+                if (pixelBufferSizeX <= thumbnailMetadata.getSizeX()
+                    || pixelBufferSizeY <= thumbnailMetadata.getSizeY())
+                {
+                    break;
+                }
+            }
+            log.info(String.format("Using resolution level %d -- %dx%d",
+                    resolutionLevel, pixelBufferSizeX, pixelBufferSizeY));
+            renderer.setResolutionLevel(resolutionLevel);
+            pixels.setSizeX(pixelBufferSizeX);
+            pixels.setSizeY(pixelBufferSizeY);
+        }
 
         // Render the planes and translate to a buffered image
         BufferedImage image;
         try
         {
             int[] buf = renderer.renderAsPackedInt(pd, null);
-            image = ImageUtil.createBufferedImage(buf, origSizeX, origSizeY);
+            image = ImageUtil.createBufferedImage(
+                    buf, pixels.getSizeX(), pixels.getSizeY());
+
+            // Finally, scale our image using scaling factors (percentage).
+            float xScale = (float)
+                    thumbnailMetadata.getSizeX() / pixels.getSizeX();
+            float yScale = (float)
+                    thumbnailMetadata.getSizeY() / pixels.getSizeY();
+            return iScale.scaleBufferedImage(image, xScale, yScale);
         } 
         catch (IOException e)
         {
@@ -524,11 +637,12 @@ public class ThumbnailBean extends AbstractLevel2Service
             ie.initCause(e);
             throw ie;
         }
-
-        // Finally, scale our image using scaling factors (percentage).
-        float xScale = (float) thumbnailMetadata.getSizeX() / origSizeX;
-        float yScale = (float) thumbnailMetadata.getSizeY() / origSizeY;
-        return iScale.scaleBufferedImage(image, xScale, yScale);
+        finally
+        {
+            // Reset to our original dimensions (#5075)
+            pixels.setSizeX(originalSizeX);
+            pixels.setSizeY(originalSizeY);
+        }
     }
 
     /**
@@ -547,6 +661,7 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     private void resetMetadata()
     {
+        inProgress = false;
         pixels = null;
         pixelsId = null;
         settings = null;
@@ -565,9 +680,21 @@ public class ThumbnailBean extends AbstractLevel2Service
     protected void errorIfInvalidState()
     {
         errorIfNullPixelsAndRenderingDef();
+        if (inProgress)
+        {
+            return; // No-op #5191
+        }
         if ((renderer == null && wasPassivated) || dirty)
         {
-            load();
+            try
+            {
+                load();
+            }
+            catch (ConcurrencyException e)
+            {
+                inProgress = true;
+                log.info("ConcurrencyException on load()");
+            }
         }
         else if (renderer == null)
         {
@@ -594,7 +721,12 @@ public class ThumbnailBean extends AbstractLevel2Service
     protected void errorIfNullRenderingDef()
     {
         errorIfNullPixels();
-        if (settings == null && sec.isGraphCritical())
+        if (inProgress)
+        {
+            // pass. Do nothing.
+        }
+        else if (settings == null &&
+            ctx.isExtendedGraphCritical(Collections.singleton(pixelsId)))
         {
             long ownerId = pixels.getDetails().getOwner().getId();
             throw new ResourceError(String.format(
@@ -620,6 +752,11 @@ public class ThumbnailBean extends AbstractLevel2Service
     @Transactional(readOnly = false)
     public void createThumbnail(Integer sizeX, Integer sizeY)
     {
+        if (inProgress)
+        {
+            return;
+        }
+
         try
         {
             // Set defaults and sanity check thumbnail sizes
@@ -781,7 +918,18 @@ public class ThumbnailBean extends AbstractLevel2Service
             {
                 if (!ctx.hasSettings(pixelsId))
                 {
-                    continue;
+                    try
+                    {
+                        pixelDataService.getPixelBuffer(
+                                ctx.getPixels(pixelsId), false);
+                        continue;  // No exception, not an in progress image
+                    }
+                    catch (ConcurrencyException e)
+                    {
+                        log.info("ConcurrencyException on " +
+                                 "retrieveThumbnailSet.ctx.hasSettings");
+                        inProgress = true;
+                    }
                 }
                 pixels = ctx.getPixels(pixelsId);
                 pixelsId = pixels.getId();
@@ -872,6 +1020,14 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     private byte[] retrieveThumbnail()
     {
+        if (inProgress)
+        {
+            return retrieveThumbnailDirect(
+                    thumbnailMetadata.getSizeX(),
+                    thumbnailMetadata.getSizeY(),
+                    0, 0);
+        }
+
         try
         {
             boolean cached = ctx.isThumbnailCached(pixels.getId());
@@ -962,7 +1118,11 @@ public class ThumbnailBean extends AbstractLevel2Service
         BufferedImage image = createScaledImage(theZ, theT);
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try {
-            compressionService.compressToStream(image, byteStream);
+            if (inProgress) {
+                compressInProgressImageToStream(thumbnailMetadata, byteStream);
+            } else {
+                compressionService.compressToStream(image, byteStream);
+            }
             byte[] thumbnail = byteStream.toByteArray();
             return thumbnail;
         } catch (IOException e) {
@@ -1011,6 +1171,7 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     @RolesAllowed("user")
     public byte[] getThumbnailByLongestSideDirect(Integer size) {
+        errorIfNullPixelsAndRenderingDef();
         // Ensure that we do not have "dirty" pixels or rendering settings 
         // left around in the Hibernate session cache.
         iQuery.clear();
@@ -1024,6 +1185,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     public byte[] getThumbnailForSectionByLongestSideDirect(int theZ, int theT,
             Integer size)
     {
+        errorIfNullPixelsAndRenderingDef();
         // Ensure that we do not have "dirty" pixels or rendering settings 
         // left around in the Hibernate session cache.
         iQuery.clear();
@@ -1040,6 +1202,11 @@ public class ThumbnailBean extends AbstractLevel2Service
     public boolean thumbnailExists(Integer sizeX, Integer sizeY) {
         // Set defaults and sanity check thumbnail sizes
         errorIfNullPixelsAndRenderingDef();
+        if (inProgress)
+        {
+            return false;
+        }
+
         Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
 
         Set<Long> pixelsIds = new HashSet<Long>();
@@ -1055,7 +1222,8 @@ public class ThumbnailBean extends AbstractLevel2Service
     @Transactional(readOnly = false)
     public void resetDefaults()
     {
-        if (settings == null && sec.isGraphCritical())
+        if (settings == null
+            && ctx.isExtendedGraphCritical(Collections.singleton(pixelsId)))
         {
             throw new ApiUsageException(
                     "Unable to reset rendering settings in a read-only group " +
@@ -1089,7 +1257,15 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
 
         RenderingDef def = settingsService.createNewRenderingDef(pixels);
-        settingsService.resetDefaults(def, pixels);
+        try
+        {
+            settingsService.resetDefaults(def, pixels);
+        }
+        catch (ConcurrencyException mpe)
+        {
+            inProgress = true;
+            log.info("ConcurrencyException on settingsSerice.resetDefaults");
+        }
     }
 
     public boolean isDiskSpaceChecking() {

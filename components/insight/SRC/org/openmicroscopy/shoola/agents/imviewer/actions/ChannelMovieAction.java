@@ -62,9 +62,6 @@ public class ChannelMovieAction
     implements PropertyChangeListener
 {
 
-    /** The name of the action. */
-    //private static final String NAME = "Channel Movie";
-    
     /** The description of the action. */
     private static final String DESCRIPTION = "Play movie across channels.";
     
@@ -88,16 +85,19 @@ public class ChannelMovieAction
     			setEnabled(false);
     			return;
     		case ImViewer.CHANNEL_MOVIE:
-    			setEnabled(true);
+    			setEnabled(!model.isBigImage());
     			return;
 		}
+    	if (model.isBigImage()) {
+    		setEnabled(false);
+    		return;
+    	}
         if (play) {
         	if (model.getActiveChannels().size() > 1)
         		setEnabled(true);
         } else {
-            if (state == ImViewer.READY) {
+            if (state == ImViewer.READY)
                 setEnabled((model.getActiveChannels().size() > 1));
-            }
         }
     }
     
@@ -110,7 +110,6 @@ public class ChannelMovieAction
     {
         super(model);
         icons = IconManager.getInstance();
-        //putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
@@ -144,9 +143,8 @@ public class ChannelMovieAction
     {
         if (evt.getPropertyName().equals(ImViewer.CHANNEL_ACTIVE_PROPERTY)) {
             if (!play) {
-                if (model.getState() == ImViewer.READY) {
+                if (model.getState() == ImViewer.READY)
                     setEnabled(model.getActiveChannels().size() > 1);
-                }
             }    
         }
     }

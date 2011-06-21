@@ -551,4 +551,44 @@ public class Parameters implements Serializable {
 
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("PARAMS");
+        if (filter != null) {
+            sb.append(":");
+            sb.append(filter);
+        }
+        if (options != null) {
+            sb.append(":");
+            sb.append(options);
+        }
+        if (queryParameters != null && queryParameters.size() > 0) {
+            sb.append(":");
+            for ( Object obj : queryParameters.values()) {
+                QueryParameter qp = (QueryParameter) obj;
+                sb.append(qp.name);
+                sb.append("=");
+                if (qp.value == null) {
+                    sb.append(" ");
+                    continue;
+                }
+                Class k = qp.value.getClass();
+                if (Collection.class.isAssignableFrom(k)) {
+                    sb.append(k.getSimpleName());
+                    sb.append("(");
+                    sb.append(((Collection) qp.value).size());
+                    sb.append(")");
+                } else if (Map.class.isAssignableFrom(k)) {
+                    sb.append("map(");
+                    sb.append(((Map) qp.value).size());
+                    sb.append(")");
+                } else {
+                    sb.append(qp.value);
+                }
+                sb.append(" ");
+            }
+        }
+        return sb.toString();
+    }
+    
 }

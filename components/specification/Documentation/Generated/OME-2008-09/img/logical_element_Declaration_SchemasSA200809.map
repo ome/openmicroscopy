@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Declaration_SchemasSA200809'>
+ <area
+  shape='rect'
+  alt='element_FormalInput'
+  coords='502,0,918,59'
+  href='SA.xsd.html#element_FormalInput'/>
+
+ <area
+  shape='rect'
+  alt='element_FormalOutput'
+  coords='502,69,918,128'
+  href='SA.xsd.html#element_FormalOutput'/>
+
+</map>

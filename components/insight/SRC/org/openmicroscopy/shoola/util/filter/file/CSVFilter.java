@@ -63,14 +63,15 @@ public class CSVFilter
 		extensions = new String[1];
 		extensions[0] = CSV;
 		
-		String s = "Comma Separated Value (";
+		StringBuffer s = new StringBuffer();
+		s.append( "Comma Separated Value (");
 		for (int i = 0; i < extensions.length; i++) {
-			s += "*."+extensions[i];
+			s.append("*."+extensions[i]);
 			if (i < extensions.length-1)
-				s += ", ";
+				s.append(", ");
 		}
-		s += ")";
-		description = s;
+		s.append(")");
+		description = s.toString();
 	}
 	
 	/**

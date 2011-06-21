@@ -506,14 +506,23 @@ public class IconManager
     /** The <code>Screen</code> to refresh icon. */
     public static final int           SCREEN_TO_REFRESH = 150;
     
-    /** The <code>Root</code>Refresh icon. */
+    /** The <code>Owner</code> to Refresh icon. */
     public static final int           OWNER_TO_REFRESH = 151;
+    
+    /** The <code>Owner</code> Group icon. */
+    public static final int           OWNER_GROUP = 152;
+    
+    /** The 48x48<code>Group</code> icon. */
+    public static final int           OWNER_GROUP_48 = 153;
+    
+    /** The <code>Plate Acquisition</code> icon. */
+    public static final int           PLATE_ACQUISITION_ANNOTATED = 154;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 151;
+    private static final int          MAX_ID = 154;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -542,7 +551,7 @@ public class IconManager
         relPaths[CREATE_48] = "nuvola_filenew48.png"; 
         relPaths[ERROR] = "eclipse_error_tsk16.png";
         relPaths[PROPERTIES_48] = "nuvola_filenew48.png";
-        relPaths[OWNER] = "nuvola_kdmconfig16.png";
+        relPaths[OWNER] = "nuvola_kdmconfig_modified16.png";
         relPaths[COPY] = "eclipse_copy_edit16.png";
         relPaths[PASTE] = "eclipse_paste_edit16.png";
         relPaths[DELETE] = "eclipse_delete_edit16.png";
@@ -577,7 +586,7 @@ public class IconManager
         relPaths[PARTIAL_NAME] = "nuvola_kmessedwords16.png";
         relPaths[IMAGE_48] = "nuvola_thumbnail48.png";
         relPaths[USER_GROUP] = "nuvola_kgpg_photo16.png";
-        relPaths[OWNER_48] = "nuvola_kdmconfig48.png";
+        relPaths[OWNER_48] = "nuvola_kdmconfig_modified48.png";
         relPaths[SERVER] = "nuvola_server16.png";
         relPaths[HISTORY] = "eclipse_history_list16.png";
         relPaths[ROLL_OVER] = "nuvola_mouse16.png";
@@ -646,7 +655,7 @@ public class IconManager
         relPaths[IMAGE_UNREGISTERED] = "nuvola_image_grey16.png";
         relPaths[PASSWORD] = "nuvola_download_manager_rotated16.png";
         relPaths[PASSWORD_48] = "nuvola_download_manager_rotated48.png";
-        relPaths[OWNER_NOT_ACTIVE] = "nuvola_kdmconfig_grey16.png";
+        relPaths[OWNER_NOT_ACTIVE] = "nuvola_kdmconfig_modified_grey16.png";
         relPaths[UP_DOWN_9_12] = "upDown.png";
         relPaths[IMAGE_DIRECTORY] = "nuvola_folder_image16.png";
         relPaths[IMAGE_DIRECTORY_UNREGISTERED] = "nuvola_folder_image16.png";
@@ -668,15 +677,23 @@ public class IconManager
         relPaths[APPLY_22] = "nuvola_apply22.png";
         relPaths[SEND_COMMENT] = "nuvola_mail_send16.png";
         relPaths[ADD_EXISTING_48] = "nuvola_window_new48.png";
-        relPaths[PROJECT_TO_REFRESH] = "nuvola_folder_darkblue_open_ledred16.png";
-        relPaths[DATASET_TO_REFRESH] = "nuvola_folder_image_ledred16.png";
+        relPaths[PROJECT_TO_REFRESH] = "nuvola_folder_darkblue_open_reload16.png";
+        	//"nuvola_folder_darkblue_open_ledgreen16.png";
+        relPaths[DATASET_TO_REFRESH] = "nuvola_folder_image_reload16.png";//"nuvola_folder_image_ledgreen16.png";
         relPaths[SCREEN_TO_REFRESH] = 
-        	"nuvola_folder_blue_open_modified_screen_ledred16.png";
+        	"nuvola_folder_blue_open_modified_screen_reload16.png";
+        	//"nuvola_folder_blue_open_modified_screen_ledgreen16.png";
         relPaths[SCREEN_ANNOTATED_TO_REFRESH] =
-        	"nuvola_folder_blue_open_modified_screen_annotated16.png";
-        relPaths[PROJECT_ANNOTATED_TO_REFRESH] = "tagged_project_darkblue16.png";
-        relPaths[DATASET_ANNOTATED_TO_REFRESH] = "tagged_dataset16.png";
-        relPaths[OWNER_TO_REFRESH] = "nuvola_kdmconfig_ledred16.png";
+        	"nuvola_folder_blue_open_modified_screen_annotated_reload16.png";
+        	//"nuvola_folder_blue_open_modified_screen_annotated_ledgreen16.png";
+        relPaths[PROJECT_ANNOTATED_TO_REFRESH] = 
+        	"tagged_project_darkblue_reload16.png";
+        	//"tagged_project_darkblue_ledgreen16.png";
+        relPaths[DATASET_ANNOTATED_TO_REFRESH] = "tagged_dataset_reload16.png";//"tagged_dataset_ledgreen16.png";
+        relPaths[OWNER_TO_REFRESH] = "nuvola_kdmconfig_reload16.png";//"nuvola_kdmconfig_modified_ledgreen16.png";
+        relPaths[OWNER_GROUP] = "nuvola_kdmconfig16.png";
+        relPaths[OWNER_GROUP_48] = "nuvola_kdmconfig48.png";
+        relPaths[PLATE_ACQUISITION_ANNOTATED] = "plateAcquisition_annotated16.png";
     }
     
     /** The sole instance. */

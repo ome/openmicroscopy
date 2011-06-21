@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.env.config;
 
 //Java imports 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
@@ -122,11 +121,10 @@ class Parser
             }
         }
     }
-    
-    
+
 	/** 
 	 * Creates a new instance to fill up the specified registry with the
-	 * entries from the specified coniguration file.
+	 * entries from the specified configuration file.
 	 * The configuration file is not validated against a schema.
 	 *
 	 * @param configFile	Path to the configuration file.

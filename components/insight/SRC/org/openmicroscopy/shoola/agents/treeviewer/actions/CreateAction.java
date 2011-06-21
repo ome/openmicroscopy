@@ -70,7 +70,7 @@ public class CreateAction
 	private static final String NAME_TAG = "New Tag...";
 
 	/** The name of the action for the creation of a <code>Image</code>. */
-	private static final String NAME_IMAGE = "Import...";
+	private static final String NAME_IMAGE = "New...";
 
 	/** 
 	 * Description of the action if the selected node is a <code>Tag Set</code>.

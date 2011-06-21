@@ -191,7 +191,8 @@ public class WriterImage
 		try {
 			ByteArrayInputStream stream = new ByteArrayInputStream(values);
 			BufferedImage image = ImageIO.read(stream);
-			image.setAccelerationPriority(1f);
+			if (image != null) image.setAccelerationPriority(1f);
+			stream.close();
 			return image;
 		} catch (Exception e) {
 			throw new EncoderException("Cannot create buffered image", e);
@@ -214,6 +215,8 @@ public class WriterImage
 		try {
 			ByteArrayInputStream stream = new ByteArrayInputStream(values);
 			BufferedImage image = ImageIO.read(stream);
+			stream.close();
+			if (image == null) return null;
 			image.setAccelerationPriority(1f);
 			int w = image.getWidth();
 			int h = image.getHeight();
@@ -258,7 +261,5 @@ public class WriterImage
 			throw new EncoderException("Cannot decode the image.", e);
 		}
 	}
-	
-	
 	
 }

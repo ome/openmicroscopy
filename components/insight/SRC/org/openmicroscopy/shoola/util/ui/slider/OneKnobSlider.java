@@ -55,6 +55,10 @@ public class OneKnobSlider
 	extends JSlider
 {
 	
+	/** Bound property indicating that the knob has been released.*/
+	public static final String ONE_KNOB_RELEASED_PROPERTY =
+		"oneKnobReleasedProperty";
+	
 	/** Slider UI for new L&F. */
 	private OneKnobSliderUI	sliderUI;	
 	
@@ -101,6 +105,13 @@ public class OneKnobSlider
 		this(OneKnobSlider.HORIZONTAL, 0, 1, 0);
 	}
 	
+	/** Fires a property indicating that the knob has been released.*/
+	void onMouseReleased()
+	{
+		firePropertyChange(ONE_KNOB_RELEASED_PROPERTY, Boolean.valueOf(false),
+				Boolean.valueOf(true));
+	}
+	
 	/**
 	 * Returns <code>true</code> if the  arrows on the track, 
 	 * <code>false</code> otherwise.
@@ -132,6 +143,25 @@ public class OneKnobSlider
 	{
 		if (up == null || down == null) return;
 		sliderUI.setArrowsImageIcon(up, down);
+	}
+	
+	/**
+	 * Replaces the arrows icons by the specified one.
+	 * 
+	 * @param up	The icon displayed at the top of the slider if
+	 * 				vertical, at the right of the slider if horizontal.
+	 * @param down  The icon displayed at the bottom of the slider if
+	 * 				vertical, at the left of the slider if horizontal.
+	 * @param disabledUp The disabled icon displayed at the top of the slider if
+	 * 				vertical, at the right of the slider if horizontal.
+	 * @param disabledDown The disabled icon displayed at the bottom of the 
+	 * 				slider if vertical, at the left of the slider if horizontal.
+	 */
+	public void setArrowsImageIcon(ImageIcon up, ImageIcon down, 
+			ImageIcon disabledUp, ImageIcon disabledDown)
+	{
+		if (up == null || down == null) return;
+		sliderUI.setArrowsImageIcon(up, down, disabledUp, disabledDown);
 	}
 	
 	/**
@@ -205,6 +235,14 @@ public class OneKnobSlider
 	public boolean showEndLabel() { return showEndLabel; }
 	
 	/**
+	 * Returns <code>true</code> if the user is dragging the slider's knob,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isDragging() { return sliderUI.isDragging; }
+	
+	/**
 	 * Sets the space between the minor ticks. Passes <code>true</code>
 	 * to set the value to <code>0</code>, <code>false</code> otherwise
 	 * 
@@ -236,5 +274,5 @@ public class OneKnobSlider
 	{
 		super.setEnabled(enabled);
 	}
-	
+
 }

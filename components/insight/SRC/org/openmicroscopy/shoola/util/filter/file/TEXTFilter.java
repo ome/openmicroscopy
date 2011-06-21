@@ -63,14 +63,15 @@ public class TEXTFilter
 		extensions = new String[1];
 		extensions[0] = TEXT;
 		
-		String s = "Text Format (";
+		StringBuffer s = new StringBuffer();
+		s.append("Text Format (");
 		for (int i = 0; i < extensions.length; i++) {
-			s += "*."+extensions[i];
+			s.append("*."+extensions[i]);
 			if (i < extensions.length-1)
-				s += ", ";
+				s.append(", ");
 		}
-		s += ")";
-		description = s;
+		s.append(")");
+		description = s.toString();
 	}
 	
 	/**

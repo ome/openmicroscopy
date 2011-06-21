@@ -118,7 +118,7 @@ public class RectangleTextFigure
 		super(x, y, w, h);
 		setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
 		setAttribute(AttributeKeys.TEXT, text);
-		setAttribute(DrawingAttributes.SHOWTEXT, true);
+		//setAttribute(DrawingAttributes.SHOWTEXT, true);
 		textLayout = null;
 		textBounds = null;
 		editable = true;
@@ -154,10 +154,15 @@ public class RectangleTextFigure
 		drawText(g);
 	}
 	
+	/**
+	 * Overridden to handle the {@link MeasurementAttributes#HEIGHT}
+	 * and {@link MeasurementAttributes#WIDTH}.
+	 * @see #setAttribute(AttributeKey, Object)
+	 */
 	public void setAttribute(AttributeKey key, Object newValue) 
 	{
 		super.setAttribute(key, newValue);
-		if(key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
+		if (MeasurementAttributes.HEIGHT.getKey().equals(key.getKey()))
 		{
 			double newHeight = MeasurementAttributes.HEIGHT.get(this);
 			Rectangle2D.Double bounds = getBounds();
@@ -170,7 +175,7 @@ public class RectangleTextFigure
 			this.setBounds(newBounds);
 			fromAttributeUpdate = false;
 		}
-		if(key.getKey().equals(MeasurementAttributes.WIDTH.getKey()))
+		if (MeasurementAttributes.WIDTH.getKey().equals(key.getKey()))
 		{
 			double newWidth = MeasurementAttributes.WIDTH.get(this);
 			Rectangle2D.Double bounds = getBounds();
@@ -184,13 +189,17 @@ public class RectangleTextFigure
 			fromAttributeUpdate = false;
 		}
 	}
-		  
-	public void setBounds(Point2D.Double anchor, Point2D.Double lead) {
+		 
+	/**
+	 * Overridden to handle the {@link MeasurementAttributes#HEIGHT}
+	 * and {@link MeasurementAttributes#WIDTH}.
+	 * @see #setBounds(Point2D.Double, Point2D.Double)
+	 */
+	public void setBounds(Point2D.Double anchor, Point2D.Double lead)
+	{
 		super.setBounds(anchor, lead);
-
-		if(!fromAttributeUpdate)
+		if (!fromAttributeUpdate)
 		{
-
 			MeasurementAttributes.HEIGHT.set(this, getBounds().getHeight());
 			MeasurementAttributes.WIDTH.set(this, getBounds().getWidth());
 		}
@@ -208,14 +217,12 @@ public class RectangleTextFigure
 		{	
 			text = text.trim();
 			TextLayout layout = getTextLayout();
-			FontMetrics fm = 
-					g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));
+			Font font = AttributeKeys.FONT_FACE.get(this);
+			FontMetrics fm = g.getFontMetrics(font);
 			double textWidth = fm.stringWidth(text);
 			double textHeight = fm.getAscent();
 			double x = rectangle.x+rectangle.width/2-textWidth/2;
 			double y = rectangle.y+textHeight/2+rectangle.height/2;
-			
-			Font font = AttributeKeys.FONT_FACE.get(this);
 			Font viewFont = font.deriveFont(
 					AttributeKeys.FONT_SIZE.get(this).intValue());
 			g.setFont(viewFont);
@@ -286,7 +293,8 @@ public class RectangleTextFigure
 	 */
 	public void setText(String newText) 
 	{
-		setAttribute(DrawingAttributes.SHOWTEXT, true);
+		boolean b = (newText != null && newText.trim().length() > 0);
+		setAttribute(DrawingAttributes.SHOWTEXT, b);
 		setAttribute(AttributeKeys.TEXT, newText);
 	}
 	

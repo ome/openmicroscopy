@@ -196,9 +196,18 @@ class TableIntervals
 	 */
 	void populateTable()
 	{
-		for (int i = 0; i < model.getRowCount(); i++) {
+		for (int i = 0; i < model.getRowCount(); i++)
 			populateRow(i);
-		}
+	}
+	
+	/** Clears the table. */
+	void clearTable()
+	{
+		for (int i = 0; i < model.getRowCount(); i++)
+			model.removeRow(i);
+		model.setRowCount(0);
+		addEmptyRow();
+		repaint();
 	}
 	
 	/**

@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Project_SchemasAnalysisModule200802'>
+ <area
+  shape='rect'
+  alt='element_Description'
+  coords='436,106,786,165'
+  href='AnalysisModule.xsd.html#element_Description'/>
+
+ <area
+  shape='rect'
+  alt='element_ExperimenterRef'
+  coords='436,175,786,218'
+  href='AnalysisModule.xsd.html#element_ExperimenterRef'/>
+
+ <area
+  shape='rect'
+  alt='element_GroupRef'
+  coords='436,228,786,287'
+  href='AnalysisModule.xsd.html#element_GroupRef'/>
+
+</map>

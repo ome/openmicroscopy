@@ -152,6 +152,8 @@
 			<include name="**/*.properties"/>
 			<include name="**/*.vm"/>
 			<include name="**/*.dv"/>
+			<include name="**/*.bmp"/>
+			<include name="**/*.jpg"/>
 			<include name="**/*.xml"/>
 			<include name="**/*.ldif"/>
 			<exclude name="**/.svn"/>
@@ -162,17 +164,22 @@
 
 	<macrodef name="copyResources">
 		<sequential>
-		<copyResourceDir todir="${classes.dir}" fromdir="${resrc.dir}"/>
-		<copyResourceDir todir="${classes.dir}" fromdir="${resrc.dest}"/>
+		<!-- Ignoring missining resources directories -->
+		<if><available file="${resrc.dir}"></available><then>
+			<copyResourceDir todir="${classes.dir}" fromdir="${resrc.dir}"/>
+		</then></if>
+		<if><available file="${resrc.dest}"></available><then>
+			<copyResourceDir todir="${classes.dir}" fromdir="${resrc.dest}"/>
+		</then></if>
 		</sequential>
 	</macrodef>
-		
+
 	<macrodef name="copyTestResources">
 		<sequential>
 		<copyResourceDir todir="${testclasses.dir}" fromdir="${test.dir}"/>
 		</sequential>
 	</macrodef>
-		
+
 	<macrodef name="makeDirectories">
 		<sequential>
 		<mkdir dir="${target.dir}" />

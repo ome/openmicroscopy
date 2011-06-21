@@ -308,7 +308,7 @@ public class RefreshExperimenterDataLoader
     		}
         }
         viewer.setRefreshExperimenterData(expNodes, type, id);
-        if (refNode instanceof TreeImageDisplay)
+        if (refNode instanceof TreeImageDisplay || refNode == null)
         	viewer.browse((TreeImageDisplay) refNode, toBrowse, true);
     }
 

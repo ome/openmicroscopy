@@ -1,7 +1,7 @@
 #*
  *   $Id$
  *
- *   Copyright 2007,2008 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007-2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  *#
@@ -1493,14 +1493,14 @@ super class where the property was defined.
 [$cpp]       $CPPRETURNTYPE ${PojoI}::get${property.shortType}(int index, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
-[$cpp]           return ${fieldName}[index];
+[$cpp]           return ${fieldName}.at(index); // throws out_of_range
 [$cpp]       }
 [$cpp]
 [$hdr]       virtual $CPPRETURNTYPE set${property.shortType}(int index, const ${property.shortType}Ptr& element, $HDR_CURRENT);
 [$cpp]       $CPPRETURNTYPE ${PojoI}::set${property.shortType}(int index, const ${property.shortType}Ptr& element, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
-[$cpp]           $CPPRETURNTYPE old = ${fieldName}[index];
+[$cpp]           $CPPRETURNTYPE old = ${fieldName}.at(index); // throws out_of_range
 [$cpp]           ${fieldName}[index] = element;
 [$cpp]           if (element && element->isLoaded()) {
 [$cpp]               element->set${property.inverseCapped}( this );
@@ -1512,7 +1512,7 @@ super class where the property was defined.
 [$cpp]       $CPPRETURNTYPE ${PojoI}::getPrimary${property.shortType}($CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
-[$cpp]           return ${fieldName}[0];
+[$cpp]           return ${fieldName}.at(0); // throws out_of_range
 [$cpp]       }
 [$cpp]
 [$hdr]       virtual $CPPRETURNTYPE setPrimary${property.shortType}(const ${property.shortType}Ptr& element, $HDR_CURRENT);
@@ -1520,7 +1520,8 @@ super class where the property was defined.
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           int index = omero::indexOf(${fieldName}, element);
-[$cpp]           $CPPRETURNTYPE old = ${fieldName}[0];
+[$cpp]           $CPPRETURNTYPE old = ${fieldName}.at(0); // throws out_of_range
+[$cpp]           $CPPRETURNTYPE elt = ${fieldName}.at(index); // throws out_of_range
 [$cpp]           ${fieldName}[index] = old;
 [$cpp]           ${fieldName}[0] = element;
 [$cpp]           return old;

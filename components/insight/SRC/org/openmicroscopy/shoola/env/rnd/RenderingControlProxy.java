@@ -25,8 +25,8 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.PrintWriter;
@@ -40,6 +40,10 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
+import Ice.ConnectionLostException;
+import Ice.ConnectionRefusedException;
+import Ice.ConnectionTimeoutException;
+
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
@@ -52,8 +56,8 @@ import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
-import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import pojos.ChannelData;
@@ -132,6 +136,18 @@ class RenderingControlProxy
     /** The rendering settings. */
     private Map<String, List<RndProxyDef>> settings;
     
+    /** The possible resolution levels if it is a big image.*/
+    private int resolutionLevels;
+    
+    /** The selected resolution level.*/
+    private int selectedResolutionLevel;
+    
+    /** The size of a tile. */
+    private Dimension tileSize;
+    
+    /** Flag indicating that the image is a big image or not.*/
+    private Boolean bigImage;
+    
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
      * {@link #BLUE_INDEX}, Green to {@link #GREEN_INDEX} and
@@ -168,7 +184,8 @@ class RenderingControlProxy
     	i = channels.iterator();
 		while (i.hasNext()) {
 			index = (Integer) i.next();
-			if (colourIndex(index) != NON_PRIMARY_INDEX) rgb.add(true);
+			if (colourIndex(index).intValue() != NON_PRIMARY_INDEX.intValue()) 
+				rgb.add(true);
 		}
 		return (n == rgb.size());
     }
@@ -179,24 +196,37 @@ class RenderingControlProxy
      * Methods in this class are required to fill in a meaningful context
      * message.
      * 
-     * @param e			The exception.
+     * @param t			The exception.
      * @param message	The context message.  
      * @param message
      * @throws RenderingServiceException A rendering problem
      * @throws DSOutOfServiceException A connection problem.
      */
-    private void handleException(Throwable e, String message)
+    private void handleException(Throwable t, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	/*
-    	if (e instanceof ServerError) {
-    		shutDown();
-    		throw new DSOutOfServiceException(message+"\n\n"+
-					printErrorText(e), e);
-    	}
-    	*/
+    	Throwable cause = t.getCause();
+    	if (cause instanceof ConnectionRefusedException || 
+				t instanceof ConnectionRefusedException ||
+				cause instanceof ConnectionTimeoutException || 
+				t instanceof ConnectionTimeoutException) {
+			//context.getTaskBar().sessionExpired(
+			//		TaskBar.SERVER_OUT_OF_SERVICE);
+			return;
+		} else if (cause instanceof ConnectionLostException ||
+				t instanceof ConnectionLostException) {
+			//context.getTaskBar().sessionExpired(
+			//		TaskBar.LOST_CONNECTION);
+			return;
+		}
     	throw new RenderingServiceException(message+"\n\n"+
-				printErrorText(e), e);
+				printErrorText(t), t);
+    }
+    
+    /** Checks if the session is still alive.*/
+    private void isSessionAlive()
+    {
+    	DataServicesFactory.isSessionAlive(context);
     }
     
     /**
@@ -240,13 +270,14 @@ class RenderingControlProxy
      */
     private void cache(PlaneDef pd, Object object)
     {
+    	if (isBigImage()) return;
         if (pd.slice == omero.romio.XY.value) {
             //We only cache XY images.
             //if (xyCache != null) xyCache.add(pd, object);
         	if (cacheID >= 0) {
         		int index = pd.z+getPixelsDimensionsZ()*pd.t;
         		context.getCacheService().addElement(cacheID, 
-        				new Integer(index), object);
+        				Integer.valueOf(index), object);
         	}
         }
     }
@@ -254,12 +285,14 @@ class RenderingControlProxy
     /** Clears the cache. */
     private void invalidateCache()
     {
+    	if (isBigImage()) return;
     	if (cacheID >= 0) context.getCacheService().clearCache(cacheID);
     }
     
     /** Clears the cache and releases memory. */
     private void eraseCache()
     {
+    	if (isBigImage()) return;
     	invalidateCache();
     	context.getCacheService().removeCache(cacheID);
     }
@@ -271,6 +304,7 @@ class RenderingControlProxy
      */
     private void initializeCache(PlaneDef pDef)
     {
+    	if (isBigImage()) return;
     	//if (xyCache != null) return;
     	if (cacheID >= 0) return;
     	/*
@@ -382,6 +416,10 @@ class RenderingControlProxy
             default:
                 sizeX1 = pixs.getSizeX().getValue();
                 sizeX2 = pixs.getSizeY().getValue();
+                if (pDef.region != null) {
+                	sizeX1 = pDef.region.width;
+                	sizeX2 = pDef.region.height;
+                }
                 break;
         }
         return new Point(sizeX1, sizeX2);
@@ -462,50 +500,17 @@ class RenderingControlProxy
 		}
     }
 
-    /**
-	 * Renders the compressed image.
-	 * 
-	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
-     *            or <i>Z</i> axes.
-	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
-	 */
-	private int[] renderPlaneCompressed(PlaneDef pDef)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		//Need to adjust the cache.
-		Object array = getFromCache(pDef);
-		try {
-			byte[] values = servant.renderCompressed(pDef);
-			values = WriterImage.bytesToBytes(values);
-			/*
-			byte[] values = servant.renderCompressed(pDef);
-			imageSize = values.length;
-			//initializeCache(pDef);
-			//cache(pDef, values);
-			return WriterImage.bytesToDataBuffer(values);
-			*/
-		} catch (Throwable e) {
-			handleException(e, ERROR+"cannot render the compressed image.");
-		} 
-		return null;
-	}
-
 	/**
 	 * Renders the compressed image.
 	 * 
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
 	 *             or <i>Z</i> axes.
-	 * @param region The region to render, if <code>null</code> the plane is 
-	 * rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	private BufferedImage renderRegionCompressedBI(PlaneDef pDef, Region region)
+	private BufferedImage renderCompressedBI(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//Need to adjust the cache.
@@ -525,14 +530,12 @@ class RenderingControlProxy
 	 * 
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *            or <i>Z</i> axes.
-     * @param region The region to render, if <code>null</code> the plane is 
-     * 				 rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	private BufferedImage renderRegionUncompressed(PlaneDef pDef, Region region)
+	private BufferedImage renderUncompressed(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//See if the requested image is in cache.
@@ -558,15 +561,12 @@ class RenderingControlProxy
 	 * 
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *            or <i>Z</i> axes.
-     * @param region The region to render, if <code>null</code> the plane is 
-     * 				 rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	private TextureData renderRegionUncompressedAsTexture(PlaneDef pDef,
-			Region region)
+	private TextureData renderUncompressedAsTexture(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//See if the requested image is in cache.
@@ -585,15 +585,12 @@ class RenderingControlProxy
 	 * 
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *            or <i>Z</i> axes.
-     * @param region The region to render if <code>null</code> the plane will
-     * be rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	private TextureData renderRegionCompressedAsTexture(PlaneDef pDef, 
-			Region region)
+	private TextureData renderCompressedAsTexture(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		try {
@@ -768,6 +765,8 @@ class RenderingControlProxy
             throw new NullPointerException("No pixels set.");
         if (context == null)
             throw new NullPointerException("No registry.");
+        resolutionLevels = -1;
+        selectedResolutionLevel = -1;
         if (rndDefs == null) rndDefs = new ArrayList<RndProxyDef>();
         this.rndDefs = rndDefs;
         this.cacheSize = cacheSize;
@@ -802,12 +801,10 @@ class RenderingControlProxy
                 }
             }
             tmpSolutionForNoiseReduction();
-            
 		} catch (Exception e) {
 		}
     }
 
-    
     /**
      * Resets the rendering engine.
      * 
@@ -825,7 +822,6 @@ class RenderingControlProxy
     	try {
 			this.servant.close();
 		} catch (Exception e) {} //digest exception if already close.
-    	//DataServicesFactory.isSessionAlive(context);
     	invalidateCache();
     	this.servant = servant;
     	try {
@@ -932,7 +928,7 @@ class RenderingControlProxy
     public void setModel(String value)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		Iterator i = models.iterator();
             RenderingModel model;
@@ -975,7 +971,7 @@ class RenderingControlProxy
     public void setDefaultZ(int z)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		int maxZ = getPixelsDimensionsZ();
     		if (z < 0) z = 0;
@@ -995,7 +991,7 @@ class RenderingControlProxy
     public void setDefaultT(int t)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		int maxT = getPixelsDimensionsT();
     		if (t < 0) t = 0;
@@ -1016,7 +1012,7 @@ class RenderingControlProxy
     	throws RenderingServiceException, DSOutOfServiceException
     {
         //TODO: need to convert value.
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		checkBitResolution(bitResolution);
             servant.setQuantumStrategy(bitResolution);
@@ -1035,7 +1031,7 @@ class RenderingControlProxy
     public void setCodomainInterval(int start, int end)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		servant.setCodomainInterval(start, end);
             rndDef.setCodomain(start, end);
@@ -1054,7 +1050,7 @@ class RenderingControlProxy
                                     boolean noiseReduction)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		List list = servant.getAvailableFamilies();
             Iterator i = list.iterator();
@@ -1116,7 +1112,7 @@ class RenderingControlProxy
     public void setChannelWindow(int w, double start, double end)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		servant.setChannelWindow(w, start, end);
             rndDef.getChannel(w).setInterval(start, end);
@@ -1156,7 +1152,7 @@ class RenderingControlProxy
     public void setRGBA(int w, Color c)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		servant.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), 
     						c.getAlpha());
@@ -1187,7 +1183,7 @@ class RenderingControlProxy
     public void setActive(int w, boolean active)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		servant.setActive(w, active);
             rndDef.getChannel(w).setActive(active);
@@ -1264,7 +1260,7 @@ class RenderingControlProxy
     public RndProxyDef saveCurrentSettings()
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		servant.saveCurrentSettings();
 			return rndDef.copy();
@@ -1281,11 +1277,9 @@ class RenderingControlProxy
     public void resetDefaults()
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	//DataServicesFactory.isSessionAlive(context);
+    	isSessionAlive();
     	try {
     		 servant.resetDefaultsNoSave();
-    		 //servant.resetDefaults();
-    		 setModel(RGB);
     		 invalidateCache();
     		 initialize();
 		} catch (Throwable e) {
@@ -1463,7 +1457,7 @@ class RenderingControlProxy
 		if (rndDef.getNumberOfChannels() != getPixelsDimensionsC())
 			throw new IllegalArgumentException("Rendering settings not " +
 					"compatible.");
-		//DataServicesFactory.isSessionAlive(context);
+		isSessionAlive();
 		setDefaultT(rndDef.getDefaultT());
 		setDefaultZ(rndDef.getDefaultZ());
 		setModel(rndDef.getColorModel());
@@ -1517,7 +1511,6 @@ class RenderingControlProxy
 	public boolean validatePixels(PixelsData pixels)
 	{
 		if (pixels == null) return false;
-		//DataServicesFactory.isSessionAlive(context);
 		if (getPixelsDimensionsC() != pixels.getSizeC()) return false;
 		if (getPixelsDimensionsY() != pixels.getSizeY()) return false;
 		if (getPixelsDimensionsX() != pixels.getSizeX()) return false;
@@ -1529,27 +1522,29 @@ class RenderingControlProxy
 	
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#renderRegion(PlaneDef, Region)
+	 * @see RenderingControl#render(PlaneDef)
 	 */
-    public BufferedImage renderRegion(PlaneDef pDef, Region region)
+    public BufferedImage render(PlaneDef pDef)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-        return renderRegion(pDef, region, compression);
+    	isSessionAlive();
+        return render(pDef, compression);
     }
     
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#renderRegion(PlaneDef, Region, int)
+	 * @see RenderingControl#render(PlaneDef, int)
 	 */
-    public BufferedImage renderRegion(PlaneDef pDef, Region region, int value)
+    public BufferedImage render(PlaneDef pDef, int value)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	isSessionAlive();
     	if (pDef == null) 
              throw new IllegalArgumentException("Plane def cannot be null.");
     	if (value != compression) setCompression(value);
     	BufferedImage img;
-        if (isCompressed()) img = renderRegionCompressedBI(pDef, region);
-        else img = renderRegionUncompressed(pDef, region);
+        if (isCompressed()) img = renderCompressedBI(pDef);
+        else img = renderUncompressed(pDef);
         if (value != compression) setCompression(compression);
         return img;
     }
@@ -1593,7 +1588,7 @@ class RenderingControlProxy
 	public void setOriginalRndSettings() 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		//DataServicesFactory.isSessionAlive(context);
+		isSessionAlive();
     	try {
     		servant.resetDefaultsNoSave();
     		if (getPixelsDimensionsC() > 1) setModel(RGB);
@@ -1632,7 +1627,7 @@ class RenderingControlProxy
 			                           int type, List<Integer> channels) 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		//DataServicesFactory.isSessionAlive(context);
+		isSessionAlive();
 		List<Integer> active = getActiveChannels();
 		for (int i = 0; i < getPixelsDimensionsC(); i++) 
 			setActive(i, false);
@@ -1660,7 +1655,7 @@ class RenderingControlProxy
 			int stepping, int type, List<Integer> channels) 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		//DataServicesFactory.isSessionAlive(context);
+		isSessionAlive();
 		List<Integer> active = getActiveChannels();
 		for (int i = 0; i < getPixelsDimensionsC(); i++) 
 			setActive(i, false);
@@ -1803,17 +1798,18 @@ class RenderingControlProxy
 
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#renderPlaneAsBuffer(PlaneDef, Region)
+	 * @see RenderingControl#renderAsTexture(PlaneDef)
 	 */
-	public TextureData renderRegionAsTexture(PlaneDef pDef, Region region)
+	public TextureData renderAsTexture(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		 if (pDef == null) 
-	            throw new IllegalArgumentException("Plane def cannot be null.");
-	        //DataServicesFactory.isSessionAlive(context);
-	     if (isCompressed()) 
-	    	 return renderRegionCompressedAsTexture(pDef, region);
-	     return renderRegionUncompressedAsTexture(pDef, region);
+		isSessionAlive();
+		if (pDef == null) 
+			throw new IllegalArgumentException("Plane def cannot be null.");
+		//DataServicesFactory.isSessionAlive(context);
+		if (isCompressed()) 
+			return renderCompressedAsTexture(pDef);
+	     return renderUncompressedAsTexture(pDef);
 	}
 
 	/** 
@@ -1899,26 +1895,82 @@ class RenderingControlProxy
 
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#getViewport()
+	 * @see RenderingControl#getResolutionLevels()
 	 */
-	public Rectangle getViewport()
+	public int getResolutionLevels()
 	{
-		//tmp
-		//we can use roi or store value in rendering settings.
-		int sizeX = getPixelsDimensionsX();
-		int sizeY = getPixelsDimensionsY();
-		int v = sizeX/4;
-		int w = sizeY/4;
-		return new Rectangle(v, w, 2*v, 2*w);
+		try {
+			if (resolutionLevels < 0)
+				resolutionLevels = servant.getResolutionLevels();
+		} catch (Exception e) {
+			resolutionLevels = 1;
+		}
+		return resolutionLevels;
+	}
+	
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#getSelectedResolutionLevel()
+	 */
+	public int getSelectedResolutionLevel()
+	{
+		try {
+			if (selectedResolutionLevel < 0)
+				selectedResolutionLevel = servant.getResolutionLevel();
+		} catch (Exception e) {
+			selectedResolutionLevel = 0;
+		}
+		return selectedResolutionLevel;
+	}
+	
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#setSelectedResolutionLevel(int)
+	 */
+	public void setSelectedResolutionLevel(int level)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (level > getResolutionLevels())
+			level = getResolutionLevels();
+		try {
+			servant.setResolutionLevel(level);
+			selectedResolutionLevel = level;
+		} catch (Exception e) {
+			handleException(e, ERROR+" resolution level: "+level);
+		}
+	}
+	
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#getTileSize()
+	 */
+	public Dimension getTileSize()
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		try {
+			if (tileSize == null) {
+				int[] values = servant.getTileSize();
+				tileSize = new Dimension(values[0], values[1]);
+			}
+		} catch (Exception e) {
+			handleException(e, ERROR+" retrieving the tile size.");
+		}
+		return tileSize;
 	}
 
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#getZoomFactor()
+	 * @see RenderingControl#isBigImage()
 	 */
-	public double getZoomFactor()
+	public boolean isBigImage()
 	{
-		return 1;
+		if (bigImage != null) return bigImage.booleanValue();
+		try {
+			bigImage = servant.requiresPixelsPyramid();
+			return bigImage.booleanValue();
+		} catch (Exception e) {
+			//handleException(e, ERROR+" retrieving if requires pyramid.");
+		}
+		return false;
 	}
-	
 }

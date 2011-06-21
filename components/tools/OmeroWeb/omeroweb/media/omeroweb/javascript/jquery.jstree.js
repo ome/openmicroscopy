@@ -262,7 +262,7 @@
 				'.jstree > ul > li { margin-left:0px; } ' + 
 				'.jstree-rtl > ul > li { margin-right:0px; } ' + 
 				'.jstree ins { display:inline-block; text-decoration:none; width:18px; height:18px; margin:0 0 0 0; padding:0; } ' + 
-				'.jstree a { display:inline-block; line-height:16px; height:16px; color:#555; white-space:nowrap; text-decoration:none; padding:1px 2px; margin:0; } ' + 
+				'.jstree a { display:inline-block; line-height:16px; height:16px; color:#555555; white-space:nowrap; text-decoration:none; padding:1px 2px; margin:0; } ' + 
 				'.jstree a:focus { outline: none; } ' + 
 				'.jstree a > ins { height:16px; width:16px; } ' + 
 				'.jstree a > .jstree-icon { margin-right:3px; } ' + 
@@ -572,7 +572,7 @@
 				this.data = data;
 				this.__callback();
 			},
-			// Dummy functions to be overwritten by any datastore plugin included
+			// Dummy functions to be overwritten by anythis.create datastore plugin included
 			load_node	: function (obj, s_call, e_call) { this.__callback({ "obj" : obj }); },
 			_is_loaded	: function (obj) { return true; },
 
@@ -1092,7 +1092,7 @@
 				});
 			},
 			create : function (obj, position, js, callback, skip_rename) {
-				var t, _this = this;
+			    var t, _this = this;
 				obj = this._get_node(obj);
 				if(!obj) { obj = -1; }
 				this.__rollback();
@@ -1135,7 +1135,6 @@
 				}
 				this.__call_old(true, obj, ref, position, is_copy, true, skip_check);
 			},
-
 			cut : function (obj) {
 				obj = this._get_node(obj);
 				this.data.crrm.cp_nodes = false;
@@ -2902,7 +2901,7 @@
 			'#vakata-contextmenu li { line-height:20px; min-height:20px; position:relative; padding:0px; } ' + 
 			'#vakata-contextmenu li a { padding:1px 6px; line-height:17px; display:block; text-decoration:none; margin:1px 1px 0 1px; } ' + 
 			'#vakata-contextmenu li ins { float:left; width:16px; height:16px; text-decoration:none; margin-right:2px; } ' + 
-			'#vakata-contextmenu li a:hover, #vakata-contextmenu li.vakata-hover > a { background:gray; color:#1B7BC7; } ' + 
+			'#vakata-contextmenu li a:hover, #vakata-contextmenu li.vakata-hover > a { background:gray; color:white; } ' + 
 			'#vakata-contextmenu li ul { display:none; position:absolute; top:-2px; left:100%; background:#ebebeb; border:1px solid gray; } ' + 
 			'#vakata-contextmenu .right { right:100%; left:auto; } ' + 
 			'#vakata-contextmenu .bottom { bottom:-1px; top:auto; } ' + 
@@ -3348,7 +3347,6 @@
 						s.ajax.error = error_func;
 						s.ajax.success = success_func;
 						if(!s.ajax.dataType) { s.ajax.dataType = "html"; }
-						alert(s.ajax.url)
 						if($.isFunction(s.ajax.url)) { s.ajax.url = s.ajax.url.call(this, obj); }
 						if($.isFunction(s.ajax.data)) { s.ajax.data = s.ajax.data.call(this, obj); }
 						$.ajax(s.ajax);

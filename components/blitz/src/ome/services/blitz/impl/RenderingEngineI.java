@@ -11,9 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
-
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.ServiceFactoryAware;
 import omeis.providers.re.RenderingEngine;
@@ -38,9 +35,9 @@ import omero.api.AMD_RenderingEngine_getPixelsTypeLowerBound;
 import omero.api.AMD_RenderingEngine_getPixelsTypeUpperBound;
 import omero.api.AMD_RenderingEngine_getQuantumDef;
 import omero.api.AMD_RenderingEngine_getRGBA;
+import omero.api.AMD_RenderingEngine_getRenderingDefId;
 import omero.api.AMD_RenderingEngine_isActive;
 import omero.api.AMD_RenderingEngine_isPixelsTypeSigned;
-import omero.api.AMD_RenderingEngine_setOverlays;
 import omero.api.AMD_RenderingEngine_load;
 import omero.api.AMD_RenderingEngine_loadRenderingDef;
 import omero.api.AMD_RenderingEngine_lookupPixels;
@@ -62,14 +59,11 @@ import omero.api.AMD_RenderingEngine_setCompressionLevel;
 import omero.api.AMD_RenderingEngine_setDefaultT;
 import omero.api.AMD_RenderingEngine_setDefaultZ;
 import omero.api.AMD_RenderingEngine_setModel;
+import omero.api.AMD_RenderingEngine_setOverlays;
 import omero.api.AMD_RenderingEngine_setQuantizationMap;
 import omero.api.AMD_RenderingEngine_setQuantumStrategy;
 import omero.api.AMD_RenderingEngine_setRGBA;
 import omero.api.AMD_RenderingEngine_updateCodomainMap;
-import omero.api.AMD_StatefulServiceInterface_activate;
-import omero.api.AMD_StatefulServiceInterface_close;
-import omero.api.AMD_StatefulServiceInterface_passivate;
-import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.IRoiPrx;
 import omero.api._RenderingEngineOperations;
 import omero.constants.projection.ProjectionType;
@@ -82,6 +76,10 @@ import omero.model.RenderingModel;
 import omero.romio.CodomainMapContext;
 import omero.romio.PlaneDef;
 import omero.util.IceMapper;
+
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
+
 import Ice.Current;
 
 /**
@@ -91,7 +89,7 @@ import Ice.Current;
  * @since 3.0-Beta4
  * @see omeis.providers.re.RenderingEngine
  */
-public class RenderingEngineI extends AbstractAmdServant implements
+public class RenderingEngineI extends AbstractPyramidServant implements
         _RenderingEngineOperations, ServiceFactoryAware {
 	
 	private ServiceFactoryI sf;
@@ -120,80 +118,68 @@ public class RenderingEngineI extends AbstractAmdServant implements
             AMD_RenderingEngine_getAvailableFamilies __cb, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
     }
 
     public void getAvailableModels_async(
             AMD_RenderingEngine_getAvailableModels __cb, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
     }
 
     public void getChannelCurveCoefficient_async(
             AMD_RenderingEngine_getChannelCurveCoefficient __cb, int w,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w);
-
     }
 
     public void getChannelFamily_async(
             AMD_RenderingEngine_getChannelFamily __cb, int w, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w);
-
     }
 
     public void getChannelNoiseReduction_async(
             AMD_RenderingEngine_getChannelNoiseReduction __cb, int w,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w);
-
     }
 
     public void getChannelStats_async(AMD_RenderingEngine_getChannelStats __cb,
             int w, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w);
-
     }
 
     public void getChannelWindowEnd_async(
             AMD_RenderingEngine_getChannelWindowEnd __cb, int w,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w);
-
     }
 
     public void getChannelWindowStart_async(
             AMD_RenderingEngine_getChannelWindowStart __cb, int w,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w);
-
     }
 
     public void getCompressionLevel_async(
             AMD_RenderingEngine_getCompressionLevel __cb, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
     }
 
     public void getDefaultT_async(AMD_RenderingEngine_getDefaultT __cb,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
     }
 
     public void getDefaultZ_async(AMD_RenderingEngine_getDefaultZ __cb,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
     }
 
     public void getModel_async(AMD_RenderingEngine_getModel __cb,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
     }
 
     public void getPixelsTypeLowerBound_async(
@@ -207,45 +193,38 @@ public class RenderingEngineI extends AbstractAmdServant implements
             AMD_RenderingEngine_getPixelsTypeUpperBound __cb, int w,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w);
-
     }
 
     public void getPixels_async(AMD_RenderingEngine_getPixels __cb,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
     }
 
     public void getQuantumDef_async(AMD_RenderingEngine_getQuantumDef __cb,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
     }
 
     public void getRGBA_async(AMD_RenderingEngine_getRGBA __cb, int w,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w);
-
     }
 
     public void isActive_async(AMD_RenderingEngine_isActive __cb, int w,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w);
-
     }
 
     public void isPixelsTypeSigned_async(
             AMD_RenderingEngine_isPixelsTypeSigned __cb, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
     }
 
     public void loadRenderingDef_async(
             AMD_RenderingEngine_loadRenderingDef __cb, long renderingDefId,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, renderingDefId);
-
     }
     
     public void setOverlays_async(AMD_RenderingEngine_setOverlays __cb,
@@ -257,7 +236,8 @@ public class RenderingEngineI extends AbstractAmdServant implements
     		// Sanity check so that we do not attempt to slice the entire table
     		if (rowColorMap.size() == 0)
     		{
-    			callInvokerOnMappedArgs(mapper, __cb, __current, new Object[] { null});
+    			callInvokerOnMappedArgs(mapper, __cb, __current, 
+    					new Object[] { null});
     			return;
     		}
     		// Translate our set of rows to an array for table slicing
@@ -277,7 +257,6 @@ public class RenderingEngineI extends AbstractAmdServant implements
     		s1.stop();
     		s1 = new CommonsLogStopWatch("omero.getHeaders");
     		Column[] columns = table.getHeaders();
-    		System.err.println("Total columns: " + columns.length);
     		s1.stop();
     		int maskColumnIndex = 0;
     		for (; maskColumnIndex < columns.length; maskColumnIndex++)
@@ -286,12 +265,12 @@ public class RenderingEngineI extends AbstractAmdServant implements
     			{
     				break;
     			}
-    			System.err.println("Column " + maskColumnIndex + " " + columns[maskColumnIndex].name + " not mask.");
     		}
     		if (maskColumnIndex == columns.length)
     		{
     			throw new IllegalArgumentException(
-    					"Unable to find mask column in table: " + tableId.getValue());
+    					"Unable to find mask column in table: " + 
+    					tableId.getValue());
     		}
 
     		// Slice the table and feed the byte array encoded bit masks to the
@@ -326,13 +305,11 @@ public class RenderingEngineI extends AbstractAmdServant implements
     public void load_async(AMD_RenderingEngine_load __cb, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
     }
 
     public void lookupPixels_async(AMD_RenderingEngine_lookupPixels __cb,
             long pixelsId, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, pixelsId);
-
     }
 
     public void lookupRenderingDef_async(
@@ -353,21 +330,18 @@ public class RenderingEngineI extends AbstractAmdServant implements
             AMD_RenderingEngine_renderAsPackedInt __cb, PlaneDef def,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, def);
-
     }
 
     public void renderAsPackedIntAsRGBA_async(
             AMD_RenderingEngine_renderAsPackedIntAsRGBA __cb, PlaneDef def,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, def);
-
     }
 
     public void renderCompressed_async(
             AMD_RenderingEngine_renderCompressed __cb, PlaneDef def,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, def);
-
     }
 
     public void renderProjectedAsPackedInt_async(
@@ -376,7 +350,6 @@ public class RenderingEngineI extends AbstractAmdServant implements
             int end, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, algorithm.value(), timepoint, 
                 stepping, start, end);
-
     }
 
     public void renderProjectedCompressed_async(
@@ -385,66 +358,56 @@ public class RenderingEngineI extends AbstractAmdServant implements
             int end, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, algorithm.value(), timepoint,
                 stepping, start, end);
-
     }
 
     public void render_async(AMD_RenderingEngine_render __cb, PlaneDef def,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, def);
-
     }
 
     public void resetDefaultsNoSave_async(
             AMD_RenderingEngine_resetDefaultsNoSave __cb, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
     }
 
     public void resetDefaults_async(AMD_RenderingEngine_resetDefaults __cb,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
     }
 
     public void saveCurrentSettings_async(
             AMD_RenderingEngine_saveCurrentSettings __cb, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
     }
 
     public void setActive_async(AMD_RenderingEngine_setActive __cb, int w,
             boolean active, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w, active);
-
     }
 
     public void setChannelWindow_async(
             AMD_RenderingEngine_setChannelWindow __cb, int w, double start,
             double end, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w, start, end);
-
     }
 
     public void setCodomainInterval_async(
             AMD_RenderingEngine_setCodomainInterval __cb, int start, int end,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, start, end);
-
     }
 
     public void setCompressionLevel_async(
             AMD_RenderingEngine_setCompressionLevel __cb, float percentage,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, percentage);
-
     }
 
     public void setDefaultT_async(AMD_RenderingEngine_setDefaultT __cb, int t,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, t);
-
     }
 
     public void setDefaultZ_async(AMD_RenderingEngine_setDefaultZ __cb, int z,
@@ -456,7 +419,6 @@ public class RenderingEngineI extends AbstractAmdServant implements
     public void setModel_async(AMD_RenderingEngine_setModel __cb,
             RenderingModel model, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, model);
-
     }
 
     public void setQuantizationMap_async(
@@ -465,28 +427,30 @@ public class RenderingEngineI extends AbstractAmdServant implements
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w, fam, coefficient,
                 noiseReduction);
-
     }
 
     public void setQuantumStrategy_async(
             AMD_RenderingEngine_setQuantumStrategy __cb, int bitResolution,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, bitResolution);
-
     }
 
     public void setRGBA_async(AMD_RenderingEngine_setRGBA __cb, int w, int red,
             int green, int blue, int alpha, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w, red, green, blue, alpha);
-
     }
 
     public void updateCodomainMap_async(
             AMD_RenderingEngine_updateCodomainMap __cb,
             CodomainMapContext mapCtx, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, mapCtx);
-
     }
+
+    public void getRenderingDefId_async(AMD_RenderingEngine_getRenderingDefId __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
+    }
+
 
 }

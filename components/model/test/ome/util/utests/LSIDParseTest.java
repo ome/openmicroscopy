@@ -1,3 +1,9 @@
+/*
+ *   Copyright (C) 2009-2011 University of Dundee & Open Microscopy Environment.
+ *   All rights reserved.
+ *
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
 package ome.util.utests;
 
 import ome.model.core.Image;

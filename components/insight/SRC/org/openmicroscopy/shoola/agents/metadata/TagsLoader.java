@@ -55,7 +55,7 @@ public class TagsLoader
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
     
-	 /**	
+    /**	
      * Creates a new instance.
      * 
      * @param viewer The viewer this data loader is for.

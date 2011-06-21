@@ -171,6 +171,7 @@ class UserProxy (object):
 def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=None, port=None, retry=True, group=None, try_super=False, secure=False, anonymous=False, useragent=None):
     """
     Attempts to create a L{omero.gateway.BlitzGateway} connection.
+    Tries to join an existing session for the specified user, using sUuid.
     
     @param server_id:   Way of referencing the server, used in connection dict keys. Int or String
     @param sUuid:       Session ID - used for attempts to join sessions etc without password
@@ -268,6 +269,12 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     host = request.session.get('host', r.get('host', None))
     port = request.session.get('port', r.get('port', None))
     secure = request.session.get('ssl', r.get('ssl', False))
+    logger.debug(':: (session) %s %s %s' % (str(request.session.get('username', None)),
+                                            str(request.session.get('host', None)),
+                                            str(request.session.get('port', None))))
+    logger.debug(':: (request) %s %s %s' % (str(r.get('username', None)),
+                                            str(r.get('host', None)),
+                                            str(r.get('port', None))))
     #logger.debug(':: %s %s :: %s' % (str(username), str(passwd), str(browsersession_connection_key)))
 
 #    if r.has_key('logout'):
@@ -299,9 +306,10 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     if r.get('username', None):
         logger.info('getBlitzConnection(host=%s, port=%s, ssl=%s, username=%s)' %
                     (str(host), str(port), str(secure), str(username)))
-        logger.debug('p=%s, k=%s' % (str(passwd), str(browsersession_connection_key)))
+        logger.debug('k=%s' % str(browsersession_connection_key))
         blitzcon = None
     else:
+        # During normal use of web (not login), this is where we lookup connections
         logger.debug('trying stored connection with userAgent: %s  ckey: %s' % (useragent, ckey))
         logger.debug(connectors.items())
         blitzcon = connectors.get(ckey, None)
@@ -315,11 +323,12 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
         # No stored connection matching the request found, so create a new one
         if ckey.startswith('S:') and not force_key:
             ckey = 'S:'
-        logger.debug('creating new connection with "%s" (%s)' % (ckey, try_super))
         if force_key or r.get('username', None):
             sUuid = None
         else:
             sUuid = request.session.get(browsersession_connection_key, None)
+        logger.debug('creating new connection with ckey "%s", sUuid "%s" (%s)' % (ckey, sUuid, try_super))
+        # create connection, by trying to join existing session...
         blitzcon = _createConnection(server_id, sUuid=sUuid,
                                      username=username, passwd=passwd,
                                      host=host, port=port, group=group, try_super=try_super, secure=secure,
@@ -366,7 +375,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
         # session could expire or be closed by another client. webclient needs to recreate connection with new uuid
         # otherwise it will forward user to login screen.
         logger.info("Failed keepalive for connection %s" % ckey)
-        del request.session[browsersession_connection_key]
+        #del request.session[browsersession_connection_key]
         del connectors[ckey]
         #_session_logout(request, server_id)
         #return blitzcon
@@ -489,7 +498,7 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, **kwargs):
         if blitzcon is None or not blitzcon.isConnected():
             logger.debug("failed connect, HTTP404")
             raise Http404
-        img = blitzcon.getImage(iid)
+        img = blitzcon.getObject("Image", iid)
         if img is None:
             logger.debug("(b)Image %s not found..." % (str(iid)))
             raise Http404
@@ -536,7 +545,7 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
         _conn = getBlitzConnection(request, server_id=server_id, with_session=with_session, useragent="OMERO.webgateway")
     if _conn is None or not _conn.isConnected():
         return HttpResponseServerError('""', mimetype='application/javascript')
-    img = _conn.getImage(iid)
+    img = _conn.getObject("Image", iid)
     if r.has_key('c'):
         logger.debug("c="+r['c'])
         channels, windows, colors =  _split_channel_info(r['c'])
@@ -569,7 +578,79 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
             else:
                 raise
     return (img, compress_quality)
+    
+def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs):
+    """
+    Returns a jpeg of the OMERO image, rendering only a region specified in query string as
+    region=x,y,width,height. E.g. region=0,512,256,256 
+    Rendering settings can be specified in the request parameters.
+    
+    @param request:     http request
+    @param iid:         image ID
+    @param z:           Z index
+    @param t:           T index
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @return:            http response wrapping jpeg
+    """
+    
+    # if the region=x,y,w,h is not parsed correctly to give 4 ints then we simply provide whole image plane. 
+    # alternatively, could return a 404?    
+    #if h == None:
+    #    return render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs)
+    
+    USE_SESSION = False
+    pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn, with_session=USE_SESSION)
+    
+    if pi is None:
+        raise Http404
+    img, compress_quality = pi
+    
+    tile = request.REQUEST.get('tile', None)
+    region = request.REQUEST.get('region', None)
+    level = None
+    
+    if tile:
+        try:
+            img._prepareRenderingEngine()
+            tiles = img._re.requiresPixelsPyramid()
+            w, h = img._re.getTileSize()
+            levels = img._re.getResolutionLevels()-1
+            
+            zxyt = tile.split(",")
+            
+            #w = int(zxyt[3])
+            #h = int(zxyt[4])
+            level = levels-int(zxyt[0])
 
+            x = int(zxyt[1])*w
+            y = int(zxyt[2])*h
+        except:
+            logger.debug("render_image_region: tile=%s" % tile)
+            logger.debug(traceback.format_exc())
+            
+    elif region:
+        try:
+            xywh = region.split(",")
+
+            x = int(xywh[0])
+            y = int(xywh[1])
+            w = int(xywh[2])
+            h = int(xywh[3])
+        except:
+            logger.debug("render_image_region: region=%s" % region)
+            logger.debug(traceback.format_exc())
+
+    # region details in request are used as key for caching. 
+    jpeg_data = webgateway_cache.getImage(request, server_id, img, z, t)
+    if jpeg_data is None:
+        jpeg_data = img.renderJpegRegion(z,t,x,y,w,h,level=level, compression=compress_quality)
+        if jpeg_data is None:
+            raise Http404
+        webgateway_cache.setImage(request, server_id, img, z, t, jpeg_data)
+    rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
+    return rsp    
+    
 def render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs):
     """ 
     Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
@@ -596,6 +677,16 @@ def render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs):
         if jpeg_data is None:
             raise Http404
         webgateway_cache.setImage(request, server_id, img, z, t, jpeg_data)
+    
+    try:
+        from PIL import Image, ImageDraw # see ticket:2597
+    except ImportError:
+        try:
+            import Image, ImageDraw # see ticket:2597
+        except:
+            logger.error("You need to install the Python Imaging Library. Get it at http://www.pythonware.com/products/pil/")
+            logger.error(traceback.format_exc())
+        
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
@@ -618,14 +709,14 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
         return HttpResponseServerError('""', mimetype='application/javascript')
     imgs = []
     if ctx == 'p':
-        obj = _conn.getProject(cid)
+        obj = _conn.getObject("Project", cid)
         if obj is None:
             raise Http404
         for d in obj.listChildren():
             imgs.extend(list(d.listChildren()))
         name = obj.getName()
     elif ctx == 'd':
-        obj = _conn.getDataset(cid)
+        obj = _conn.getObject("Dataset", cid)
         if obj is None:
             raise Http404
         imgs.extend(list(obj.listChildren()))
@@ -637,16 +728,17 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             logger.debug(imgs)
             if len(imgs) == 0:
                 raise Http404
-        name = '%s-%s' % (obj.listParents().getName(), obj.getName())
+        name = '%s-%s' % (obj.getParent().getName(), obj.getName())
     else:
-        obj = _conn.getImage(cid)
+        obj = _conn.getObject("Image", cid)
         if obj is None:
             raise Http404
         imgs.append(obj)
 
     if len(imgs) == 1:
+        obj = imgs[0]
         key = '_'.join((str(x.getId()) for x in obj.getAncestry())) + '_' + str(obj.getId()) + '_ome_tiff'
-        fpath, rpath, fobj = webgateway_tempfile.new(obj.getName() + '.ome.tiff', key=key)
+        fpath, rpath, fobj = webgateway_tempfile.new(str(obj.getId()) + '-'+obj.getName() + '.ome.tiff', key=key)
         if fobj is True:
             # already exists
             return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
@@ -658,7 +750,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             webgateway_cache.setOmeTiffImage(request, server_id, imgs[0], tiff_data)
         if fobj is None:
             rsp = HttpResponse(tiff_data, mimetype='application/x-ome-tiff')
-            rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % obj.getName()
+            rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % (str(obj.getId()) + '-'+obj.getName())
             rsp['Content-Length'] = len(tiff_data)
             return rsp
         else:
@@ -740,9 +832,13 @@ def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs)
         else:
             fn = fpath #os.path.join(fpath, img.getName())
         if axis.lower() == 'z':
-            dext, mimetype = img.createMovie(fn, 0, img.z_count()-1, pos-1, pos-1, opts)
+            dext, mimetype = img.createMovie(fn, 0, img.getSizeZ()-1, pos-1, pos-1, opts)
         else:
-            dext, mimetype = img.createMovie(fn, pos-1, pos-1, 0, img.t_count()-1, opts)
+            dext, mimetype = img.createMovie(fn, pos-1, pos-1, 0, img.getSizeT()-1, opts)
+        if dext is None and mimetype is None:
+            # createMovie is currently only available on 4.1_custom
+            # https://trac.openmicroscopy.org.uk/ome/ticket/3857
+            raise Http404
         if fpath is None:
             movie = open(fn).read()
             os.close(fo)
@@ -751,7 +847,6 @@ def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs)
             rsp['Content-Length'] = len(movie)
             return rsp
         else:
-            print fn, fpath, rpath
             fobj.close()
             #shutil.move(fn, fn + ext)
             return HttpResponseRedirect('/appmedia/tfiles/' + rpath)#os.path.join(rpath, img.getName() + ext))
@@ -846,6 +941,9 @@ def jsonp (f):
             return HttpResponseServerError('("error in call","%s")' % traceback.format_exc(), mimetype='application/javascript')
         except:
             logger.debug(traceback.format_exc())
+            if kwargs.get('_internal', False):
+                raise
+            return HttpResponseServerError('("error in call","%s")' % traceback.format_exc(), mimetype='application/javascript')
     wrap.func_name = f.func_name
     return wrap
 
@@ -928,7 +1026,7 @@ def channelMarshal (channel):
     """
     
     return {'emissionWave': channel.getEmissionWave(),
-            'label': channel.getEmissionWave(),
+            'label': channel.getLabel(),
             'color': channel.getColor().getHtml(),
             'window': {'min': channel.getWindowMin(),
                        'max': channel.getWindowMax(),
@@ -949,14 +1047,40 @@ def imageMarshal (image, key=None):
     image.loadRenderOptions()
     pr = image.getProject()
     ds = image.getDataset()
+    
+    try:
+        reOK = image._prepareRenderingEngine()
+        if not reOK:
+            logger.debug("Failed to prepare Rendering Engine for imageMarshal")
+            return None
+    except omero.ConcurrencyException, ce:
+        backOff = ce.backOff
+        rv = {
+            'ConcurrencyException': {
+                'backOff': backOff
+            }
+        }
+        return rv
+        
+    #big images
+    tiles = image._re.requiresPixelsPyramid()
+    width, height = image._re.getTileSize()
+    levels = image._re.getResolutionLevels()-1
+    init_zoom = image._re.getResolutionLevel()
+
     try:
         rv = {
+            'tiles': tiles,
+            'tile_size': {'width': width,
+                          'height': height},
+            'init_zoom': init_zoom,
+            'levels': levels,
             'id': image.id,
-            'size': {'width': image.getWidth(),
-                     'height': image.getHeight(),
-                     'z': image.z_count(),
-                     't': image.t_count(),
-                     'c': image.c_count(),},
+            'size': {'width': image.getSizeX(),
+                     'height': image.getSizeY(),
+                     'z': image.getSizeZ(),
+                     't': image.getSizeT(),
+                     'c': image.getSizeC(),},
             'pixel_size': {'x': image.getPixelSizeX(),
                            'y': image.getPixelSizeY(),
                            'z': image.getPixelSizeZ(),},
@@ -1013,7 +1137,7 @@ def imageData_json (request, server_id=None, _conn=None, _internal=False, **kwar
     iid = kwargs['iid']
     key = kwargs.get('key', None)
     blitzcon = _conn
-    image = blitzcon.getImage(iid)
+    image = blitzcon.getObject("Image", iid)
     if image is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
     rv = imageMarshal(image, key)
@@ -1033,7 +1157,7 @@ def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
     """
     
     blitzcon = _conn
-    dataset = blitzcon.getDataset(did)
+    dataset = blitzcon.getObject("Dataset", did)
     if dataset is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
@@ -1056,7 +1180,7 @@ def listDatasets_json (request, pid, server_id=None, _conn=None, **kwargs):
     """
     
     blitzcon = _conn
-    project = blitzcon.getProject(pid)
+    project = blitzcon.getObject("Project", pid)
     rv = []
     if project is None:
         return HttpResponse('[]', mimetype='application/javascript')
@@ -1069,7 +1193,7 @@ def datasetDetail_json (request, did, server_id=None, _conn=None, **kwargs):
     TODO: cache
     """
     blitzcon = _conn
-    ds = blitzcon.getDataset(did)
+    ds = blitzcon.getObject("Dataset", did)
     return ds.simpleMarshal()
 
 @jsonp
@@ -1104,7 +1228,7 @@ def projectDetail_json (request, pid, server_id=None, _conn=None, **kwargs):
     """
     
     blitzcon = _conn
-    pr = blitzcon.getProject(pid)
+    pr = blitzcon.getObject("Project", pid)
     rv = pr.simpleMarshal()
     return rv
 
@@ -1151,6 +1275,7 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     Search for objects in blitz.
     Returns json encoded list of marshalled objects found by the search query
     Request keys include:
+        - text: The text to search for
         - ctx: (http request) 'imgs' to search only images
         - text: (http request) the actual text phrase
         - start: starting index (0 based) for result
@@ -1167,7 +1292,7 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     """
     opts = searchOptFromRequest(request)
     rv = []
-    logger.debug("simpleSearch(%s)" % (opts['search']))
+    logger.debug("searchObjects(%s)" % (opts['search']))
     # search returns blitz_connector wrapper objects
     def urlprefix(iid):
         return reverse('webgateway.views.render_thumbnail', args=(iid,))
@@ -1175,9 +1300,9 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     pks = None
     try:
         if opts['ctx'] == 'imgs':
-            sr = _conn.searchImages(opts['search'])
+            sr = _conn.searchObjects(["image"], opts['search'])
         else:
-            sr = _conn.simpleSearch(opts['search'])
+            sr = _conn.searchObjects(None, opts['search'])  # searches P/D/I
     except ApiUsageException:
         return HttpResponseServerError('"parse exception"', mimetype='application/javascript')
     def marshal ():
@@ -1251,7 +1376,7 @@ def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
     if blitzcon is None or not blitzcon.isConnected():
         img = None
     else:
-        img = blitzcon.getImage(iid)
+        img = blitzcon.getObject("Image", iid)
 
     if img is not None:
         # List all images in project
@@ -1260,8 +1385,8 @@ def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
             imgs.extend(ds.listChildren())
         # Filter the ones that would pass the applySettingsToImages call
         img_ptype = img.getPrimaryPixels().getPixelsType().getValue()
-        img_ccount = img.c_count()
-        img_ew = [x.getEmissionWave() for x in img.getChannels()]
+        img_ccount = img.getSizeC()
+        img_ew = [x.getLabel() for x in img.getChannels()]
         img_ew.sort()
         def compat (i):
             if long(i.getId()) == long(iid):
@@ -1269,9 +1394,9 @@ def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
             pp = i.getPrimaryPixels()
             if pp is None or \
                i.getPrimaryPixels().getPixelsType().getValue() != img_ptype or \
-               i.c_count() != img_ccount:
+               i.getSizeC() != img_ccount:
                 return False
-            ew = [x.getEmissionWave() for x in i.getChannels()]
+            ew = [x.getLabel() for x in i.getChannels()]
             ew.sort()
             if ew != img_ew:
                 return False
@@ -1312,7 +1437,7 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
             blitzcon = _conn
 
             
-        fromimg = blitzcon.getImage(fromid)
+        fromimg = blitzcon.getObject("Image", fromid)
         details = fromimg.getDetails()
         frompid = fromimg.getPixelsId()
         newConn = None
@@ -1330,13 +1455,13 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
             newConn.setGroupForSession(details.getGroup().getId())
 
         if newConn is not None and newConn.isConnected():
-            frompid = newConn.getImage(fromid).getPixelsId()
+            frompid = newConn.getObject("Image", fromid).getPixelsId()
             rsettings = newConn.getRenderingSettingsService()
             json_data = rsettings.applySettingsToImages(frompid, list(toids))
             if fromid in json_data[True]:
                 del json_data[True][json_data[True].index(fromid)]
             for iid in json_data[True]:
-                img = newConn.getImage(iid)
+                img = newConn.getObject("Image", iid)
                 img is not None and webgateway_cache.invalidateObject(server_id, img)
             json_data = simplejson.dumps(json_data)
 
@@ -1364,7 +1489,7 @@ def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
     if blitzcon is None or not blitzcon.isConnected():
         img = None
     else:
-        img = blitzcon.getImage(iid)
+        img = blitzcon.getObject("Image", iid)
 
     if img is not None and img.resetRDefs():
         webgateway_cache.invalidateObject(server_id, img)
@@ -1403,7 +1528,7 @@ def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
             _conn = getBlitzConnection(request, server_id=server_id, useragent="OMERO.webgateway")
         if _conn is None or not _conn.isConnected():
             raise Http404
-        image = _conn.getImage(iid)
+        image = _conn.getObject("Image", iid)
         if image is None:
             logger.debug("(a)Image %s not found..." % (str(iid)))
             raise Http404
@@ -1420,6 +1545,123 @@ def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
     except omero.SecurityViolation:
         raise Http404
     return HttpResponse(rsp)
+
+
+def get_rois_json(request, imageId, server_id=None):
+    """
+    Returns json data of the ROIs in the specified image. 
+    """
+    _conn = getBlitzConnection(request, server_id=server_id, with_session=False, useragent="OMERO.webgateway")
+    if _conn is None or not _conn.isConnected():
+        raise Http404
+    
+    def stringToSvg(string):
+        """
+        Method for converting the string returned from omero.model.ShapeI.getPoints()
+        into an SVG for display on web.
+        E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503, 190,491] points2[309,427, 366,503, 190,491]"
+        To: M 309 427 L 366 503 L 190 491 z
+        """
+        firstList = string.strip().split("points")[1]
+        nums = firstList.strip("[]").replace(", ", " L").replace(",", " ")
+        return "M" + nums
+
+    def rgb_int2css(rgbint):
+        """
+        converts a bin int number into css colour, E.g. -1006567680 to '#00ff00'
+        """
+        r,g,b = (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
+        return "#%02x%02x%02x" % (r,g,b)    # format hex
+            
+    rois = []
+    roiService = _conn.getRoiService()
+    #rois = webfigure_utils.getRoiShapes(roiService, long(imageId))  # gets a whole json list of ROIs
+    result = roiService.findByImage(long(imageId), None)
+    
+    for r in result.rois:
+        roi = {}
+        roi['id'] = r.getId().getValue()
+        # go through all the shapes of the ROI
+        shapes = []
+        for s in r.copyShapes():
+            shape = {}
+            if s is None:   # seems possible in some situations
+                continue
+            shape['id'] = s.getId().getValue()
+            shape['theT'] = s.getTheT().getValue()
+            shape['theZ'] = s.getTheZ().getValue()
+            if type(s) == omero.model.RectI:
+                shape['type'] = 'Rectangle'
+                shape['x'] = s.getX().getValue()
+                shape['y'] = s.getY().getValue()
+                shape['width'] = s.getWidth().getValue()
+                shape['height'] = s.getHeight().getValue()
+            elif type(s) == omero.model.MaskI:
+                shape['type'] = 'Mask'
+                shape['x'] = s.getX().getValue()
+                shape['y'] = s.getY().getValue()
+                shape['width'] = s.getWidth().getValue()
+                shape['height'] = s.getHeight().getValue()
+                # TODO: support for mask
+            elif type(s) == omero.model.EllipseI:
+                shape['type'] = 'Ellipse'
+                shape['cx'] = s.getCx().getValue()
+                shape['cy'] = s.getCy().getValue()
+                shape['rx'] = s.getRx().getValue()
+                shape['ry'] = s.getRy().getValue()
+            elif type(s) == omero.model.PolylineI:
+                shape['type'] = 'PolyLine'
+                shape['points'] = stringToSvg(s.getPoints().getValue())
+            elif type(s) == omero.model.LineI:
+                shape['type'] = 'Line'
+                shape['x1'] = s.getX1().getValue()
+                shape['x2'] = s.getX2().getValue()
+                shape['y1'] = s.getY1().getValue()
+                shape['y2'] = s.getY2().getValue()
+            elif type(s) == omero.model.PointI:
+                shape['type'] = 'Point'
+                shape['cx'] = s.getCx().getValue()
+                shape['cy'] = s.getCy().getValue()
+            elif type(s) == omero.model.PolygonI:
+                shape['type'] = 'Polygon'
+                shape['points'] = stringToSvg(s.getPoints().getValue()) + "z" # z = closed line
+            elif type(s) == omero.model.LabelI:
+                shape['type'] = 'Label'
+                shape['x'] = s.getX().getValue()
+                shape['y'] = s.getY().getValue()
+            else:
+                logger.debug("Shape type not supported: %s" % str(type(s)))
+            try:
+                if s.getTextValue() and s.getTextValue().getValue():
+                    shape['textValue'] = s.getTextValue().getValue()
+                    # only populate json with font styles if we have some text
+                    if s.getFontSize() and s.getFontSize().getValue():
+                        shape['fontSize'] = s.getFontSize().getValue()
+                    if s.getFontStyle() and s.getFontStyle().getValue():
+                        shape['fontStyle'] = s.getFontStyle().getValue()
+                    if s.getFontFamily() and s.getFontFamily().getValue():
+                        shape['fontFamily'] = s.getFontFamily().getValue()
+            except AttributeError: pass
+            if s.getTransform():
+                t = s.getTransform().getValue()
+                if t and t != 'none':
+                    shape['transform'] = t
+            if s.getFillColor() and s.getFillColor().getValue():
+                shape['fillColor'] = rgb_int2css(s.getFillColor().getValue())
+            if s.getStrokeColor() and s.getStrokeColor().getValue():
+                shape['strokeColor'] = rgb_int2css(s.getStrokeColor().getValue())
+            if s.getStrokeWidth() and s.getStrokeWidth().getValue():
+                shape['strokeWidth'] = s.getStrokeWidth().getValue()
+            shapes.append(shape)
+        # sort shapes by Z, then T. 
+        shapes.sort(key=lambda x: "%03d%03d"% (x['theZ'],x['theT']) );
+        roi['shapes'] = shapes
+        rois.append(roi)
+        
+    rois.sort(key=lambda x: x['id']) # sort by ID - same as in measurement tool.
+    
+    return HttpResponse(simplejson.dumps(rois), mimetype='application/javascript')
+    
 
 def test (request):
     """

@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.PlateSaver;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailFieldsLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
+import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
@@ -55,6 +56,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
+import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -184,12 +186,7 @@ class WellsModel
 	 */
 	private boolean isSameColor(Color c1, Color c2)
 	{
-		if (c1 == null && c2 == null) return true;
-		if (c1 == null && c2 != null) return false;
-		if (c1 != null && c2 == null) return false;
-		return (c1.getRed() == c2.getRed() && c1.getBlue() == c2.getBlue() &&
-				c1.getGreen() == c2.getGreen() && 
-				c1.getAlpha() == c2.getAlpha());
+		return UIUtilities.isSameColors(c1, c2);
 	}
 	
 	/**
@@ -205,7 +202,14 @@ class WellsModel
 		if (d1 == null && d2 == null) return true;
 		if (d1 == null && d2 != null) return false;
 		if (d1 != null && d2 == null) return false;
-		return d1.trim().equals(d2.trim());
+		if (d1 != null && d2 != null) {
+			String t1 = d1.trim();
+			String t2 = d2.trim();
+			if (t1 != null && t2 != null)
+				return t1.equals(t2);
+			return false;
+		}
+		return false;
 	}
 	
 	/**
@@ -336,7 +340,7 @@ class WellsModel
 		
 		columns++;
 		rows++;
-		
+		boolean isMac = UIUtilities.isMacOS();
 		CellDisplay cell;
 		for (int k = 1; k <= columns; k++) {
 			columnSequence = "";
@@ -350,7 +354,7 @@ class WellsModel
 				cell.setHighlight(co.getColor());
 				cell.setDescription(co.getDescription());
 			}
-			samples.add(cell);
+			if (!isMac) samples.add(cell);
 			cells.add(cell);
 		}
 		for (int k = 1; k <= rows; k++) {
@@ -366,11 +370,14 @@ class WellsModel
 				cell.setHighlight(co.getColor());
 				cell.setDescription(co.getDescription());
 			}
-			samples.add(cell);
+			if (!isMac) samples.add(cell);
 			cells.add(cell);
 		}
-        browser = BrowserFactory.createBrowser(samples);
+		browser = BrowserFactory.createBrowser(samples);
 		layoutBrowser(LayoutFactory.PLATE_LAYOUT);
+		if (wellDimension == null)
+			wellDimension = new Dimension(ThumbnailProvider.THUMB_MAX_WIDTH,
+					ThumbnailProvider.THUMB_MAX_HEIGHT);
 	}
 	
 	/**
@@ -490,6 +497,23 @@ class WellsModel
 			list.add(plate);
 			DataBrowserLoader loader = new PlateSaver(component, list);
 			loader.load();
+		}
+	}
+	
+	/**
+	 * Sets the tabular data.
+	 * 
+	 * @param data The value to set.
+	 */
+	void setTabularData(List<TableResult> data)
+	{
+		List<ImageDisplay> nodes = getNodes();
+		if (nodes == null || nodes.size() == 0) return;
+		Iterator<ImageDisplay> i = nodes.iterator();
+		WellImageSet well;
+		while (i.hasNext()) {
+			well = (WellImageSet) i.next();
+			well.setTabularData(data);
 		}
 	}
 	

@@ -34,8 +34,6 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
-
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
@@ -55,9 +53,8 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
  * </small>
  * @since 3.0-Beta4
  */
-class SaveLocallyCmd 
-	implements ActionCmd,
-	PropertyChangeListener
+public class SaveLocallyCmd 
+	implements ActionCmd, PropertyChangeListener
 {
 	
 	/** Reference to the model */
@@ -75,7 +72,7 @@ class SaveLocallyCmd
 	 * 
 	 * @param model		The {@link Editor} model for saving. 
 	 */
-	SaveLocallyCmd(Editor model) 
+	public SaveLocallyCmd(Editor model) 
 	{
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
@@ -96,9 +93,10 @@ class SaveLocallyCmd
 		FileChooser chooser = new FileChooser(null, FileChooser.SAVE, 
 				"Save File", "Choose a location and name to save the file", 
 				filters);
-		File startDir = UIUtilities.getDefaultFolder();
-		if (startDir != null)
-			chooser.setCurrentDirectory(startDir);
+		try {
+			File f = UIUtilities.getDefaultFolder();
+			if (f != null) chooser.setCurrentDirectory(f);
+		} catch (Exception ex) {}
 		// set default name according to the file title 
 		String text = model.getEditorTitle();
 		if (model.isExperiment()) text += Editor.EXPERIMENT_EXTENSION;
@@ -143,7 +141,7 @@ class SaveLocallyCmd
 			if (file.exists()) {
 				String title = "File Exists";
 				String message = "File Exists. Overwrite Existing File?";
-				JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
+				JFrame f = model.getUI();
 				MessageBox msg = new MessageBox(f, title, message);
 				int option = msg.centerMsgBox();
 				if (option != MessageBox.YES_OPTION) return;

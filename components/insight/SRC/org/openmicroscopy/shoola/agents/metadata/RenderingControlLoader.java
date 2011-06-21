@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
@@ -130,14 +131,21 @@ public class RenderingControlLoader
      */
     public void handleException(Throwable exc) 
     {
-    	String s = "Data Retrieval Failure: ";
-    	LogMessage msg = new LogMessage();
-    	msg.print(s);
-    	msg.print(exc);
-    	registry.getLogger().error(this, msg);
-    	registry.getUserNotifier().notifyInfo("Loading Rendering data", 
-    			"The image could not be opened. \n" +
-    	"The image is not a valid image.");
+    	String msg = "The image could not be opened.\n" +
+    	"The image is not a valid image.";
+    	if (exc instanceof FSAccessException) {
+    		FSAccessException fsa = (FSAccessException) exc;
+    		if (fsa.getIndex() == FSAccessException.PYRAMID) {
+    			msg = fsa.getMessage();
+    		}
+    	} else {
+    		String s = "Data Retrieval Failure: ";
+        	LogMessage log = new LogMessage();
+        	log.print(s);
+        	log.print(exc);
+    		registry.getLogger().error(this, log);
+    	}
+    	registry.getUserNotifier().notifyInfo("Loading Rendering data", msg);
     	viewer.setRenderingControl(null);
     	registry.getEventBus().post(new RendererUnloadedEvent(pixelsID));
     }

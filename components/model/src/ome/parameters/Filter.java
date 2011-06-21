@@ -89,4 +89,30 @@ public class Filter implements Serializable {
     // =========================================================================
     private static final long serialVersionUID = 60649802598825408L;
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("F(");
+        if (offset != null) {
+            sb.append("o");
+            sb.append(offset);
+        }
+        if (limit != null) {
+            sb.append("l");
+            sb.append(limit);
+        }
+        if (id_owner >= 0) {
+            sb.append("u");
+            sb.append(id_owner);
+        }
+        if (id_group >= 0) {
+            sb.append("g");
+            sb.append(id_group);
+        }
+        if (unique) {
+            sb.append("U");
+        }
+        sb.append(")");
+        return sb.toString();
+    }
 }

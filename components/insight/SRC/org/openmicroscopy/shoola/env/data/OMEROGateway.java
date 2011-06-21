@@ -55,7 +55,9 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
+import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
@@ -65,9 +67,9 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
+import Ice.ConnectionTimeoutException;
 import ome.conditions.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -78,7 +80,10 @@ import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
+import omero.ClientError;
+import omero.ConcurrencyException;
 import omero.InternalException;
+import omero.MissingPyramidException;
 import omero.RLong;
 import omero.RString;
 import omero.RType;
@@ -128,6 +133,7 @@ import omero.grid.ScriptProcessPrx;
 import omero.grid.SharedResourcesPrx;
 import omero.grid.StringColumn;
 import omero.grid.TablePrx;
+import omero.grid.WellColumn;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
@@ -148,6 +154,8 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Instrument;
+import omero.model.Laser;
+import omero.model.Line;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.Namespace;
@@ -161,6 +169,7 @@ import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
 import omero.model.PlateI;
+import omero.model.Polyline;
 import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.RenderingDef;
@@ -189,6 +198,7 @@ import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
+import pojos.LightSourceData;
 import pojos.LongAnnotationData;
 import pojos.MultiImageData;
 import pojos.PixelsData;
@@ -223,12 +233,6 @@ import pojos.WorkflowData;
  */
 class OMEROGateway
 {
-	
-	/** Indicates that the connection has been lost. */
-	static final int LOST_CONNECTION = 0;
-	
-	/** Indicates that the server is out of service. */
-	static final int SERVER_OUT_OF_SERVICE = 1;
 	
 	/** Identifies the image as root. */
 	private static final String REF_IMAGE = "/Image";
@@ -308,34 +312,21 @@ class OMEROGateway
 	
 	/** The collection of scripts that have a UI available. */
 	private static final List<String>		SCRIPTS_NOT_AVAILABLE_TO_USER;
-	
-	/** 
-	 * The collection of HCS files extensions to check before importing. 
-	 */
-	private static final List<String> HCS_FILES_EXTENSION;
-	
+
 	static {
-		HCS_FILES_EXTENSION = new ArrayList<String>();
-		HCS_FILES_EXTENSION.add("flex");
-		HCS_FILES_EXTENSION.add("xdce");
-		HCS_FILES_EXTENSION.add("mea");
-		HCS_FILES_EXTENSION.add("res");
-		HCS_FILES_EXTENSION.add("htd");
-		HCS_FILES_EXTENSION.add("pnl");
-		
 		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
-		SUPPORTED_SPECIAL_CHAR.add(new Character('-'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('+'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('['));
-		SUPPORTED_SPECIAL_CHAR.add(new Character(']'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character(')'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('('));
-		SUPPORTED_SPECIAL_CHAR.add(new Character(':'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('|'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('!'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('{'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('}'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('^'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('-'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('+'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('['));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf(']'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf(')'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('('));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf(':'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('|'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('!'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('{'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('}'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('^'));
 		WILD_CARDS = new ArrayList<String>();
 		WILD_CARDS.add("*");
 		WILD_CARDS.add("?");
@@ -355,8 +346,12 @@ class OMEROGateway
 		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
 		
 		SCRIPTS_NOT_AVAILABLE_TO_USER = new ArrayList<String>();
-		//SCRIPTS_NOT_AVAILABLE_TO_USER.add(
-		//		ScriptObject.REGION_PATH+"Populate_ROI.py");
+		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
+				ScriptObject.REGION_PATH+"Populate_ROI.py");
+		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
+				ScriptObject.ANALYSIS_PATH+"FLIM.py");
+		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
+				ScriptObject.ANALYSIS_PATH+"flim-omero.py");
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
 				ScriptObject.SETUP_PATH+"FLIM_initialise.py");
 	}
@@ -390,10 +385,7 @@ class OMEROGateway
 
 	/** The projection service. */
 	private IProjectionPrx							projService;
-	
-	/** The search state-full service. */
-	private SearchPrx								searchService;
-	
+
 	/** The Admin service. */
 	private IAdminPrx								adminService;
 	
@@ -426,9 +418,6 @@ class OMEROGateway
 	
 	/** The ROI (Region of Interest) service. */
 	private IRoiPrx									roiService;
-	
-	/** The exporter service. */
-	private ExporterPrx								exporterService;
 	
 	/** The time service. */
 	private ITimelinePrx							timeService;
@@ -474,10 +463,7 @@ class OMEROGateway
 	
 	/** Collection of services to keep alive. */
 	private Map<Long, StatefulServiceInterfacePrx>	reServices;
-	
-	/** Collection of monitors to end if any.*/
-	private List<String>							monitorIDs;
-	
+
 	/** The service to import files. */
 	private OMEROMetadataStoreClient				importStore;
 	
@@ -486,38 +472,22 @@ class OMEROGateway
 	
 	/** Keep track of the file system view. */
 	private Map<Long, FSFileSystemView>				fsViews;
-
-	/**
-	 * Returns <code>true</code> if the extension of the specified file
-	 * is a HCS files, <code>false</code> otherwise.
-	 * 
-	 * @param f The file to handle.
-	 * @return See above.
-	 */
-	private boolean isHCSFile(File f)
-	{
-		if (f == null) return false;
-		String name = f.getName();
-		if (!name.contains(".")) return false; 
-		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
-		return HCS_FILES_EXTENSION.contains(ext);
-	}
 	
 	/** Checks if the session is still alive. */
-	private void isSessionAlive()
+	synchronized void isSessionAlive()
 	{
-		/*
 		if (!connected) return;
 		try {
 			getAdminService().getEventContext();
 		} catch (Exception e) {
 			Throwable cause = e.getCause();
-			int index = SERVER_OUT_OF_SERVICE;
-			if (cause instanceof ConnectionLostException)
-				index = LOST_CONNECTION;
+			int index = DataServicesFactory.SERVER_OUT_OF_SERVICE;
+			if (cause instanceof ConnectionLostException ||
+				e instanceof ConnectionLostException)
+				index = DataServicesFactory.LOST_CONNECTION;
+			connected = false;
 			dsFactory.sessionExpiredExit(index);
 		}
-		*/
 	}
 	
 	/**
@@ -535,11 +505,11 @@ class OMEROGateway
 		ScriptCallback cb = null;
 		try {
 	         IScriptPrx svc = getScriptService();
+	         if (svc == null) svc = getScriptService();
 	         //scriptID, parameters, timeout (5s if null)
 	         ScriptProcessPrx prx = svc.runScript(scriptID, parameters, null);
 	         cb = new ScriptCallback(scriptID, secureClient, prx);
 		} catch (Exception e) {
-			if (cb != null) cb.close();
 			throw new ProcessException("Cannot run script with ID:"+scriptID, 
 					e);
 		}
@@ -571,6 +541,8 @@ class OMEROGateway
 			params.map.put("names", omero.rtypes.rlist(names));
 			String sql = "select g from ExperimenterGroup as g ";
 			sql += "where g.name in (:names)";
+			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService(); 
 			List<IObject> l = getQueryService().findAllByQuery(sql, params);
 			Iterator<IObject> i = l.iterator();
 			ExperimenterGroup group;
@@ -711,9 +683,8 @@ class OMEROGateway
 			} catch (Exception ex) {
 				//Digest exception
 			}
-			new DSAccessException("Unable to read the table.");
+			throw new DSAccessException("Unable to read the table.");
 		}
-		return null;
 	}
 
 	/**
@@ -725,7 +696,8 @@ class OMEROGateway
 	 * @param length Number of rows of data to be copied.
 	 */
 	private void translateTableResult(Data src, Object[][] dst, int offset,
-	                                  int length) {
+	                                  int length, Map<Integer, Integer> indexes)
+	{
 		Column[] cols = src.columns;
 		Column column;
 		for (int i = 0; i < cols.length; i++) {
@@ -751,16 +723,24 @@ class OMEROGateway
 						((BoolColumn) column).values[j];
 				}
 			} else if (column instanceof RoiColumn) {
+				indexes.put(TableResult.ROI_COLUMN_INDEX, i);
 				for (int j = 0; j < length; j++) {
 					dst[j + offset][i] =
 						((RoiColumn) column).values[j];
 				}
 			} else if (column instanceof ImageColumn) {
+				indexes.put(TableResult.IMAGE_COLUMN_INDEX, i);
 				for (int j = 0; j < length; j++) {
 					dst[j + offset][i] =
 						((ImageColumn) column).values[j];
 				}
-			}
+			} else if (column instanceof WellColumn) { 
+				indexes.put(TableResult.WELL_COLUMN_INDEX, i);
+				for (int j = 0; j < length; j++) {
+					dst[j + offset][i] =
+						((WellColumn) column).values[j];
+				}
+			} 
 		}
 	}
 
@@ -796,114 +776,62 @@ class OMEROGateway
 			int rowOffset = 0;
 			int rowCount = 0;
 			int rowsToGo = totalRowCount;
-			int loopCount = 0;
 			long[] rowSubset;
+			Map<Integer, Integer> indexes = new HashMap<Integer, Integer>();
 			while (rowsToGo > 0) {
 				rowCount = (int) Math.min(MAX_TABLE_ROW_RETRIEVAL,
 				                          totalRowCount - rowOffset);
 				rowSubset = new long[rowCount];
 				System.arraycopy(rows, rowOffset, rowSubset, 0, rowCount);
-				long t0 = System.currentTimeMillis();
 				d = table.slice(columns, rowSubset);
-				long t1 = System.currentTimeMillis();
 				for (int i = 0; i < cols.length; i++) {
-					//System.err.println(String.format(
-					//		"Transforming; loopCount:%d totalRowCount:%d " +
-					//		"rowOffset:%d rowCount:%d rowsToGo:%d column:%d "+
-					//		"readTime(ms): %d", loopCount, totalRowCount,
-					//		rowOffset, rowCount, rowsToGo, i, t1 - t0));
-					translateTableResult(d, data, rowOffset, rowCount);
+					translateTableResult(d, data, rowOffset, rowCount, indexes);
 				}
-				long t2 = System.currentTimeMillis();
-				//System.err.println(String.format(
-				//		"totalLoopTime:%d loopArrayCopyTime:%d",
-				//		t2 - t0, t2 - t1));
 				rowOffset += rowCount;
 				rowsToGo -= rowCount;
-				loopCount++;
 			}
 			table.close();
-			return new TableResult(data, headers);
+			TableResult tr = new TableResult(data, headers);
+			tr.setIndexes(indexes);
+			return tr;
 		} catch (Exception e) {
-			e.printStackTrace();
 			try {
 				if (table != null) table.close();
 			} catch (Exception ex) {
 				//Digest exception
 			}
-			new DSAccessException("Unable to read the table.");
+			throw new DSAccessException("Unable to read the table.", e);
 		}
-		return null;
 	}
 
 	/**
 	 * Transforms the passed table data for a given image.
 	 * 
 	 * @param table The table to convert.
-	 * @param imageID The <code>Image</code> to retrieve rows for.
+	 * @param key The key of the <code>where</code> clause.
+	 * @param id The identifier of the object to retrieve rows for.
 	 * @return See above
 	 * @throws DSAccessException If an error occurred while trying to 
 	 *                           retrieve data from OMEDS service.
 	 */
-	private TableResult createTableResult(TablePrx table, long imageID)
+	private TableResult createTableResult(TablePrx table, String key, long id)
 		throws DSAccessException
 	{
 		if (table == null) return null;
 		try {
+			key = "("+key+"==%d)";
 			long totalRowCount = table.getNumberOfRows();
-			Map<String, RType> variables = new HashMap<String, RType>();
-			variables.put("imageId", omero.rtypes.rlong(imageID));
-			long[] rows = table.getWhereList(
-					String.format("(Image==%d)", imageID), null, 0,
+			long[] rows = table.getWhereList(String.format(key, id), null, 0,
 					totalRowCount, 1L);
-			//System.err.println(String.format(
-			//		"imageId based creation; imageId:%d rowCount:%d",
-			//		imageID, rows.length));
 			return createTableResult(table, rows);
 		} catch (Exception e) {
-			e.printStackTrace();
 			try {
 				if (table != null) table.close();
 			} catch (Exception ex) {
 				//Digest exception
 			}
-			new DSAccessException("Unable to read the table.");
+			throw new DSAccessException("Unable to read the table.", e);
 		}
-		return null;
-	}
-
-	/**
-	 * Transforms the passed table.
-	 * 
-	 * @param table The table to convert.
-	 * @return See above
-	 * @throws DSAccessException If an error occurred while trying to 
-	 *                           retrieve data from OMEDS service.
-	 */
-	private TableResult createTableResult(TablePrx table)
-		throws DSAccessException
-	{
-		if (table == null) return null;
-		try {
-			int totalRowCount = (int) table.getNumberOfRows();
-			long[] rows = new long[totalRowCount];
-			for (int i = 0; i < totalRowCount; i++) {
-				rows[i] = i;
-			}
-			//System.err.println(String.format(
-			//		"full table based creation; rowCount:%d",
-			//		rows.length));
-			return createTableResult(table, rows);
-		} catch (Exception e) {
-			e.printStackTrace();
-			try {
-				if (table != null) table.close();
-			} catch (Exception ex) {
-				//Digest exception
-			}
-			new DSAccessException("Unable to read the table.");
-		}
-		return null;
 	}
 
 	/**
@@ -921,31 +849,77 @@ class OMEROGateway
 	private void handleException(Throwable t, String message) 
 		throws DSOutOfServiceException, DSAccessException
 	{
+		if (!connected) return;
 		Throwable cause = t.getCause();
 		if (cause instanceof SecurityViolation) {
 			String s = "For security reasons, cannot access data. \n"; 
-			throw new DSAccessException(s+message, t);
+			throw new DSAccessException(s+message, cause);
 		} else if (cause instanceof SessionException) {
 			String s = "Session is not valid. \n"; 
-			throw new DSOutOfServiceException(s+message, t);
+			throw new DSOutOfServiceException(s+message, cause);
 		} else if (cause instanceof AuthenticationException) {
 			String s = "Cannot initialize the session. \n"; 
-			throw new DSOutOfServiceException(s+message, t);
+			throw new DSOutOfServiceException(s+message, cause);
 		} else if (cause instanceof ResourceError) {
 			String s = "Fatal error. Please contact the administrator. \n"; 
 			throw new DSOutOfServiceException(s+message, t);
 		} else if (cause instanceof ConnectionRefusedException || 
-				t instanceof ConnectionRefusedException) {
+				t instanceof ConnectionRefusedException ||
+				cause instanceof ConnectionTimeoutException || 
+				t instanceof ConnectionTimeoutException) {
+			/*
+			if (!connected) return;
 			connected = false;
-			dsFactory.sessionExpiredExit(SERVER_OUT_OF_SERVICE);
+			dsFactory.sessionExpiredExit(
+					DataServicesFactory.SERVER_OUT_OF_SERVICE);
+					*/
 			return;
 		} else if (cause instanceof ConnectionLostException ||
 				t instanceof ConnectionLostException) {
+			/*
+			if (!connected) return;
 			connected = false;
-			dsFactory.sessionExpiredExit(LOST_CONNECTION);
+			dsFactory.sessionExpiredExit(DataServicesFactory.LOST_CONNECTION);
+			*/
 			return;
 		}
 		throw new DSAccessException("Cannot access data. \n"+message, t);
+	}
+	
+	/**
+	 * Helper method to handle exceptions thrown by the connection library.
+	 * Methods in this class are required to fill in a meaningful context
+	 * message.
+	 * This method is not supposed to be used in this class' constructor or in
+	 * the login/logout methods.
+	 *  
+	 * @param t     	The exception.
+	 * @param message	The context message.
+	 * @throws FSAccessException    A server-side error.
+	 */
+	private void handleFSException(Throwable t, String message) 
+		throws FSAccessException
+	{
+		Throwable cause = t.getCause();
+		String s = "\n Image not ready. Please try again later.";
+		if (cause instanceof ConcurrencyException) {
+			ConcurrencyException mpe = (ConcurrencyException) cause;
+			//s += ", ready in approximately ";
+			//s +=UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
+			FSAccessException fsa = new FSAccessException(message+s, cause);
+			if (mpe instanceof MissingPyramidException)
+				fsa.setIndex(FSAccessException.PYRAMID);
+			fsa.setBackOffTime(mpe.backOff);
+			throw fsa;
+		} else if (t instanceof ConcurrencyException) {
+			ConcurrencyException mpe = (ConcurrencyException) t;
+			s +=UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
+			FSAccessException fsa = new FSAccessException(message+s, t);
+			if (mpe instanceof MissingPyramidException)
+				fsa.setIndex(FSAccessException.PYRAMID);
+			fsa.setBackOffTime(mpe.backOff);
+			throw fsa;
+		}
 	}
 	
 	/**
@@ -1002,7 +976,7 @@ class OMEROGateway
 			int size = 0;
 			if (e instanceof InternalException) size = -1;
 			else svc.getBatchSize();
-			return new Integer(size);
+			return Integer.valueOf(size);
 		}
 		if (!hasNext) return r;
 		List l = svc.results();
@@ -1059,8 +1033,7 @@ class OMEROGateway
 		String v;
 		while (j.hasNext()) {
 			v = j.next();
-			value = firstField+":"+v+" "+sep+" ";
-			value += secondField+":"+v;
+			value = firstField+":"+v+" "+sep+" "+secondField+":"+v;
 			formatted.add(value);
 		}
 		return formatted;
@@ -1249,6 +1222,8 @@ class OMEROGateway
 					param.map.put("userID", omero.rtypes.rlong(userID));
 				}
 			}
+			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
 			return getQueryService().findAllByQuery(sb.toString(), param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
@@ -1630,13 +1605,9 @@ class OMEROGateway
 	{ 
 		try {
 			ExporterPrx store = null;
-			//if (exporterService == null) {
-				if (entryUnencrypted != null)
-					store = entryUnencrypted.createExporter();
-				else 
-					store = entryEncrypted.createExporter();
-				//services.add(exporterService);
-			//}
+			if (entryUnencrypted != null)
+				store = entryUnencrypted.createExporter();
+			else store = entryEncrypted.createExporter();
 			return store;//exporterService; 
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Exporter service.");
@@ -1713,17 +1684,10 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
-			if (pixelsStore != null) {
-				services.remove(pixelsStore);
-				try {
-					pixelsStore.close();
-				} catch (Exception e) {}
-			}
 			if (entryUnencrypted != null)
 				pixelsStore = entryUnencrypted.createRawPixelsStore();
 			else 
 				pixelsStore = entryEncrypted.createRawPixelsStore();
-			services.add(pixelsStore);
 			return pixelsStore;
 		} catch (Throwable e) {
 			handleException(e, "Cannot access RawPixelsStore service.");
@@ -1745,9 +1709,9 @@ class OMEROGateway
 		try {
 			if (pixelsService == null) {
 				if (entryUnencrypted != null)
-					pixelsService = entryUnencrypted.getPixelsService(); 
+					pixelsService = entryUnencrypted.getPixelsService();
 				else 
-					pixelsService = entryEncrypted.getPixelsService(); 
+					pixelsService = entryEncrypted.getPixelsService();
 				services.add(pixelsService);
 			}
 			return pixelsService;
@@ -1769,17 +1733,13 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
-			//if (searchService == null) {
-				//searchService = entry.createSearchService(); 
-				//services.add(searchService);
-			//}
 			if (entryUnencrypted != null)
 				return entryUnencrypted.createSearchService();
 			return entryEncrypted.createSearchService();
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Search service.");
 		}
-		return searchService;
+		return null;
 	}
 	
 	/**
@@ -1796,8 +1756,8 @@ class OMEROGateway
 		try {
 			if (projService == null) {
 				if (entryUnencrypted != null)
-					projService = entryEncrypted.getProjectionService(); 
-				else projService = entryUnencrypted.getProjectionService();
+					projService = entryUnencrypted.getProjectionService(); 
+				else projService = entryEncrypted.getProjectionService();
 				services.add(projService);
 			}
 			return projService;
@@ -1961,12 +1921,13 @@ class OMEROGateway
 	/** Clears the data. */
 	private void clear()
 	{
+		services.clear();
+		reServices.clear();
 		thumbnailService = null;
 		fileStore = null;
 		metadataService = null;
 		pojosService = null;
 		projService = null;
-		searchService = null;
 		adminService = null;
 		queryService = null;
 		rndSettingsService = null;
@@ -1977,11 +1938,9 @@ class OMEROGateway
 		pixelsStore = null;
 		updateService = null;
 		scriptService = null;
-		exporterService = null;
 		timeService = null;
 		sharedResources = null;
-		services.clear();
-		reServices.clear();
+		importStore = null;
 	}
 	
 	/**
@@ -2141,7 +2100,8 @@ class OMEROGateway
 			return REF_PLATE_ACQUISITION;
 		else if (TagAnnotationData.class.getName().equals(data) || 
 				TermAnnotationData.class.getName().equals(data) ||
-				FileAnnotationData.class.getName().equals(data)) 
+				FileAnnotationData.class.getName().equals(data) ||
+				TextualAnnotationData.class.getName().equals(data)) 
 			return REF_ANNOTATION;
 		throw new IllegalArgumentException("Cannot delete the speficied type.");
 	}
@@ -2188,6 +2148,7 @@ class OMEROGateway
 	{
 		try {
 			IAdminPrx service = getAdminService();
+			if (service == null) service = getAdminService();
 			return (ExperimenterData) 
 				PojoMapper.asDataObject(service.lookupExperimenter(name));
 		} catch (Exception e) {
@@ -2266,18 +2227,7 @@ class OMEROGateway
 					*/
 				}
 			}
-			/*
-			Runtime run = Runtime.getRuntime();
-			String 
-			v = "env DYLD_LIBRARY_PATH=/Users/jburel/Documents/Volviewer/OMERO.cpp-4.3.0-DEV-darwin-gcc-4.0.1-32dbg/lib:$DYLD_LIBRARY_PATH";
-			v += " /Users/jburel/Documents/Volviewer/src.app/Contents/MacOS/src ";
-			v += "omero_server=localhost ";
-			v += "omero_sessionid="+secureClient.getSessionId()+" ";
-			//v += "omero_username=root omero_password=ome omero_port=4064 ";
-			v += "omero_imageid=52";
-			System.err.println(v);
-			run.exec(v);
-			*/
+			
 			return exp;
 		} catch (Throwable e) {
 			connected = false;
@@ -2359,7 +2309,9 @@ class OMEROGateway
 		try {
 			shutDownServices(true);
 			clear();
-			getAdminService().setDefaultGroup(exp.asExperimenter(), 
+			IAdminPrx service = getAdminService();
+			if (service == null) service = getAdminService();
+			service.setDefaultGroup(exp.asExperimenter(), 
 					group.asGroup());
 			entryEncrypted.setSecurityContext(
 					new ExperimenterGroupI(groupID, false));
@@ -2442,7 +2394,9 @@ class OMEROGateway
 		throws DSOutOfServiceException
 	{
 		try {
-			return getAdminService().lookupLdapAuthExperimenter(userID);
+			IAdminPrx svc = getAdminService();
+			if (svc == null) svc = getAdminService();
+			return svc.lookupLdapAuthExperimenter(userID);
 		} catch (Throwable e) {
 			String s = "Can't find the LDAP information.\n\n";
 			s += printErrorText(e);
@@ -2470,6 +2424,25 @@ class OMEROGateway
 		*/
 	}
 	
+	/**
+	 * Returns the pixels id corresponding to the Rendering engine to
+	 * reactivate.
+	 * 
+	 * @return See above.
+	 */
+	List<Long> getRenderingServices()
+	{
+		List<Long> l = new ArrayList<Long>();
+		if (reServices == null || reServices.size() == 0) return l;
+		Entry entry;
+		Iterator i = reServices.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			l.add((Long) entry.getKey());
+		}
+		return l;
+	}
+	
 	/** 
 	 * Tries to reconnect to the server. Returns <code>true</code>
 	 * if it was possible to reconnect, <code>false</code>
@@ -2481,24 +2454,53 @@ class OMEROGateway
 	 */
 	boolean reconnect(String userName, String password)
 	{
+		boolean b = entryUnencrypted != null;
+		//sList
 		clear();
 		try {
 			//first to rejoin the session.
-			secureClient.joinSession(secureClient.getSessionId());
 			connected = true;
+			try {
+				secureClient.closeSession();
+			} catch (Exception e) {
+				
+			}
+			entryEncrypted = secureClient.joinSession(
+					secureClient.getSessionId());
+			if (b) {
+				unsecureClient = secureClient.createClient(false);
+				entryUnencrypted = unsecureClient.getSession();
+			}
 		} catch (Throwable t) {
 			Throwable cause = t.getCause();
 			connected = false;
 			//joining the session did not work so trying to create a session
 			if (cause instanceof ConnectionLostException ||
-					t instanceof ConnectionLostException) {
+					t instanceof ConnectionLostException || 
+					cause instanceof ClientError ||
+					t instanceof ClientError) {
 				try {
-					secureClient.createSession(userName, password);
+					connected = true;
+					entryEncrypted =  secureClient.createSession(
+							userName, password);
+					if (b) {
+						unsecureClient = secureClient.createClient(false);
+						entryUnencrypted = unsecureClient.getSession();
+					}
 				} catch (Throwable e) {
 					connected = false;
 				}
 			}
-		} 
+		}
+		try {
+			if (connected) {
+				if (unsecureClient != null)
+					unsecureClient = secureClient.createClient(false);
+			}
+		} catch (Exception e) {
+			return false;
+		}
+
 		return connected;
 	}
 	
@@ -2518,7 +2520,7 @@ class OMEROGateway
 			entryEncrypted = null;
 		}
 		try {
-			if (unsecureClient != null) secureClient.closeSession();
+			if (unsecureClient != null) unsecureClient.closeSession();
 			unsecureClient = null;
 			entryUnencrypted = null;
 		} catch (Exception e) {
@@ -2557,6 +2559,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IContainerPrx service = getPojosService();
+			if (service == null) service = getPojosService();
 			return PojoMapper.asDataObjects(
 					service.loadContainerHierarchy(
 					convertPojos(rootType).getName(), rootIDs, options));
@@ -2594,6 +2597,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IContainerPrx service = getPojosService();
+			if (service == null) service = getPojosService();
 			return PojoMapper.asDataObjects(service.findContainerHierarchies(
 					convertPojos(rootNodeType).getName(), leavesIDs, options));
 		} catch (Throwable t) {
@@ -2651,6 +2655,7 @@ class OMEROGateway
 		}
 		try {
 			IMetadataPrx service = getMetadataService();
+			if (service == null) service = getMetadataService();
 			return PojoMapper.asDataObjects(
 					service.loadAnnotations(convertPojos(nodeType).getName(), 
 							nodeIDs, types, annotatorIDs, options));
@@ -2677,6 +2682,7 @@ class OMEROGateway
 			return new HashSet<DataObject>();
 		try {
 			IMetadataPrx service = getMetadataService();
+			if (service == null) service = getMetadataService();
 			return PojoMapper.asDataObjects(
 					service.loadAnnotation(annotationIds));
 					
@@ -2702,6 +2708,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
 			String table = getTableForAnnotationLink(type.getName());
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link";
@@ -2739,6 +2746,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IContainerPrx service = getPojosService();
+			if (service == null) service = getPojosService();
 			return PojoMapper.asDataObjects(service.getImages(
 					convertPojos(nodeType).getName(), nodeIDs, options));
 		} catch (Throwable t) {
@@ -2765,6 +2773,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IContainerPrx service = getPojosService();
+			if (service == null) service = getPojosService();
 			return PojoMapper.asDataObjects(service.getUserImages(options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find user images.");
@@ -2796,9 +2805,12 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			if (TagAnnotationData.class.equals(rootNodeType)) {
-				return getMetadataService().getTaggedObjectsCount(ids, options);
+				IMetadataPrx service = getMetadataService();
+				if (service == null) service = getMetadataService();
+				return service.getTaggedObjectsCount(ids, options);
 			}
 			IContainerPrx service = getPojosService();
+			if (service == null) service = getPojosService();
 			String p = convertProperty(rootNodeType, property);
 			if (p == null) return null;
 			return PojoMapper.asDataObjects(service.getCollectionCount(
@@ -2827,7 +2839,6 @@ class OMEROGateway
 			isSessionAlive();
 			return saveAndReturnObject(object, null);
 		} catch (Throwable t) {
-			t.printStackTrace();
 			handleException(t, "Cannot update the object.");
 		}
 		return null;
@@ -2871,10 +2882,12 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			if (object instanceof Plate) {
-				IDeletePrx service = getDeleteService();
-				service.deletePlate(object.getId().getValue());
+				IDeletePrx svc = getDeleteService();
+				if (svc == null) svc = getDeleteService();
+				svc.deletePlate(object.getId().getValue());
 			} else {
 				IUpdatePrx service = getUpdateService();
+				if (service == null) service = getUpdateService();
 				service.deleteObject(object);
 			}
 		} catch (Throwable t) {
@@ -2897,6 +2910,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IUpdatePrx service = getUpdateService();
+			if (service == null) service = getUpdateService();
 			Iterator<IObject> i = objects.iterator();
 			//TODO: need method
 			while (i.hasNext()) 
@@ -2924,6 +2938,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IUpdatePrx service = getUpdateService();
+			if (service == null) service = getUpdateService();
 			if (options == null) return service.saveAndReturnObject(object);
 			return service.saveAndReturnObject(object, options);
 		} catch (Throwable t) {
@@ -2949,6 +2964,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IUpdatePrx service = getUpdateService();
+			if (service == null) service = getUpdateService();
 			return service.saveAndReturnArray(objects);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
@@ -2973,6 +2989,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IContainerPrx service = getPojosService();
+			if (service == null) service = getPojosService();
 			IObject r = service.updateDataObject(object, options);
 			return findIObject(r);
 		} catch (Throwable t) {
@@ -2999,6 +3016,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IContainerPrx service = getPojosService();
+			if (service == null) service = getPojosService();
 			List<IObject> l = service.updateDataObjects(objects, options);
 			if (l == null) return l;
 			Iterator<IObject> i = l.iterator();
@@ -3030,6 +3048,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IPixelsPrx service = getPixelsService();
+			if (service == null) service = getPixelsService();
 			return service.retrievePixDescription(pixelsID);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the pixels set of "+
@@ -3057,6 +3076,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			ThumbnailStorePrx service = getThumbService();
+			if (service == null) service = getThumbService();
 			needDefault(pixelsID, null);
 			//getRendering Def for a given pixels set.
 			if (userID >= 0) {
@@ -3067,7 +3087,6 @@ class OMEROGateway
 			return service.getThumbnail(omero.rtypes.rint(sizeX), 
 					omero.rtypes.rint(sizeY));
 		} catch (Throwable t) {
-			t.printStackTrace();
 			if (thumbnailService != null) {
 				try {
 					thumbnailService.close();
@@ -3101,6 +3120,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			ThumbnailStorePrx service = getThumbService();
+			if (service == null) service = getThumbService();
 			needDefault(pixelsID, null);
 			return service.getThumbnailByLongestSide(
 					omero.rtypes.rint(maxLength));
@@ -3142,6 +3162,7 @@ class OMEROGateway
 		try {
 			if (reset) thumbRetrieval = MAX_RETRIEVAL;
 			ThumbnailStorePrx service = getThumbService();
+			if (service == null) service = getThumbService();
 			return service.getThumbnailByLongestSideSet(
 					omero.rtypes.rint(maxLength), pixelsID);
 					
@@ -3169,21 +3190,26 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * retrieve data from OMERO service.
+	 * @throws FSAccessException If an error occurred when trying to build a 
+	 * pyramid or access file not available.
 	 */
 	synchronized RenderingEnginePrx createRenderingEngine(long pixelsID)
-		throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 		isSessionAlive();
 		try {
 			RenderingEnginePrx service = getRenderingService();
+			if (service == null) service = getRenderingService();
 			reServices.put(pixelsID, service);
 			service.lookupPixels(pixelsID);
 			needDefault(pixelsID, service);
 			service.load();
 			return service;
 		} catch (Throwable t) {
-			handleException(t, "Cannot start the Rendering Engine.");
+			String s = "Cannot start the Rendering Engine.";
+			handleFSException(t, s);
+			handleException(t, s);
 		}
 		return null;
 	}
@@ -3208,6 +3234,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
 			String table = getTableForAnnotationLink(type.getName());
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
@@ -3248,6 +3275,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
 			String table = getTableForAnnotationLink(parentType);
 			if (table == null) return null;
 			StringBuffer sb = new StringBuffer();
@@ -3301,8 +3329,9 @@ class OMEROGateway
 			param.map = new HashMap<String, RType>();
 			param.map.put("parentID", parent.getId());
 			param.map.put("childID", child.getId());
-
-			return getQueryService().findByQuery(sql, param);
+			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
+			return service.findByQuery(sql, param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
 					"parent ID: "+parent.getId()+" and child " +
@@ -3339,8 +3368,9 @@ class OMEROGateway
 				param.addLongs("childIDs", children);
 
 			}
-
-			return getQueryService().findAllByQuery(sql, param);
+			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
+			return service.findAllByQuery(sql, param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
 					"parent ID: "+parent.getId());
@@ -3375,8 +3405,9 @@ class OMEROGateway
 				sql += " and link.details.owner.id = :userID";
 				param.map.put("userID", omero.rtypes.rlong(userID));
 			}
-			
-			return getQueryService().findAllByQuery(sql, param);
+			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
+			return service.findAllByQuery(sql, param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
 			"the specified children");
@@ -3421,8 +3452,9 @@ class OMEROGateway
 				sb.append(" and link.details.owner.id = :userID");
 				param.map.put("userID", omero.rtypes.rlong(userID));
 			}
-			
-			return getQueryService().findAllByQuery(sb.toString(), param);
+			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
+			return service.findAllByQuery(sb.toString(), param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
 			"the specified children");
@@ -3469,7 +3501,9 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			return getQueryService().find(o.getClass().getName(), 
+			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
+			return service.find(o.getClass().getName(), 
 									o.getId().getValue());
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested object with "+
@@ -3497,6 +3531,7 @@ class OMEROGateway
 			param.map.put("name", rtypes.rstring(name));
 			param.map.put("ownerID", rtypes.rlong(ownerID));
 			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
 			String table = getTableForClass(dataObject);
 			String sql = "select o from "+table+" as o";
 			sql += " where o.name = :name";
@@ -3523,7 +3558,9 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			return getQueryService().find(klassName, id);
+			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
+			return service.find(klassName, id);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested object with "+
 					"object ID: "+id);
@@ -3549,7 +3586,9 @@ class OMEROGateway
 			//Need method server side.
 			ParametersI p = new ParametersI();
 			p.addId(user.getId());
-			List<IObject> groups = getQueryService().findAllByQuery(
+			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
+			List<IObject> groups = service.findAllByQuery(
                     "select distinct g from ExperimenterGroup as g "
                     + "join fetch g.groupExperimenterMap as map "
                     + "join fetch map.parent e "
@@ -3592,6 +3631,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		IQueryPrx service = getQueryService();
+		if (service == null) service = getQueryService();
 		List files = null;
 		try {
 			ParametersI param = new ParametersI();
@@ -3673,6 +3713,7 @@ class OMEROGateway
 	synchronized File downloadFile(File file, long fileID, long size)
 		throws DSAccessException, DSOutOfServiceException
 	{
+		if (file == null) return null;
 		isSessionAlive();
 		if (size <= 0) {
 			OriginalFile of = getOriginalFile(fileID);
@@ -3741,8 +3782,10 @@ class OMEROGateway
 			closeService(pixelsStore);
 		if (fileStore != null)
 			closeService(fileStore);
-		if (searchService != null)
-			closeService(searchService);
+		if (importStore != null) {
+			importStore.closeServices();
+			importStore = null;
+		}
 		Collection<StatefulServiceInterfacePrx> l = reServices.values();
 		if (l != null && rendering) {
 			Iterator<StatefulServiceInterfacePrx> i = l.iterator();
@@ -3753,7 +3796,6 @@ class OMEROGateway
 		}
 		thumbnailService = null;
 		pixelsStore = null;
-		searchService = null;
 		fileStore = null;
 	}
 	
@@ -3774,7 +3816,9 @@ class OMEROGateway
 		try {
 			ParametersI param = new ParametersI();
 			param.map.put("id", omero.rtypes.rlong(id));
-			of = (OriginalFile) getQueryService().findByQuery(
+			IQueryPrx svc = getQueryService();
+			if (svc == null) svc = getQueryService();
+			of = (OriginalFile) svc.findByQuery(
 					"select p from OriginalFile as p " +
 					"where p.id = :id", param);
 		} catch (Exception e) {
@@ -3801,7 +3845,9 @@ class OMEROGateway
 		try {
 			ParametersI param = new ParametersI();
 			param.map.put("id", omero.rtypes.rlong(pixelsID));
-			files = getQueryService().findAllByQuery(
+			IQueryPrx svc = getQueryService();
+			if (svc == null) svc = getQueryService();
+			files = svc.findAllByQuery(
 					"select ofile from OriginalFile as ofile left join " +
 					"ofile.pixelsFileMaps as pfm left join pfm.child as " +
 					"child where child.id = :id", param);
@@ -3837,6 +3883,7 @@ class OMEROGateway
 		boolean fileCreated = false;
 		try {
 			store = getRawFileService();
+			if (store == null) store = getRawFileService();
 			OriginalFile oFile;
 			if (originalFileID <= 0) {
 				oFile = new OriginalFileI();
@@ -3851,22 +3898,43 @@ class OMEROGateway
 				oFile.setSha1(omero.rtypes.rstring("pending"));
 				oFile.setMimetype(omero.rtypes.rstring(mimeType));
 				save = 
-					(OriginalFile) getUpdateService().saveAndReturnObject(oFile);
+					(OriginalFile) getUpdateService().saveAndReturnObject(
+							oFile);
 				store.setFileId(save.getId().getValue());
 				fileCreated = true;
 			} else {
 				oFile = (OriginalFile) findIObject(OriginalFile.class.getName(), 
 					originalFileID);
-				OriginalFile newFile = new OriginalFileI();
-				newFile.setId(omero.rtypes.rlong(originalFileID));
-				newFile.setName(omero.rtypes.rstring(file.getName()));
-				newFile.setPath(omero.rtypes.rstring(file.getAbsolutePath()));
-				newFile.setSize(omero.rtypes.rlong(file.length()));
-				newFile.setSha1(omero.rtypes.rstring("pending"));
-				oFile.setMimetype(oFile.getMimetype());
-				save = (OriginalFile) 
-					getUpdateService().saveAndReturnObject(newFile);
-				store.setFileId(save.getId().getValue());
+				if (oFile == null) {
+					oFile = new OriginalFileI();
+					String name = file.getName();
+					oFile.setName(omero.rtypes.rstring(name));
+					String absolutePath = file.getAbsolutePath();
+					String path = absolutePath.substring(0, 
+							absolutePath.length()-name.length());
+					oFile.setPath(omero.rtypes.rstring(path));
+					oFile.setSize(omero.rtypes.rlong(file.length()));
+					//Need to be modified
+					oFile.setSha1(omero.rtypes.rstring("pending"));
+					oFile.setMimetype(omero.rtypes.rstring(mimeType));
+					save = 
+						(OriginalFile) getUpdateService().saveAndReturnObject(
+								oFile);
+					store.setFileId(save.getId().getValue());
+					fileCreated = true;
+				} else {
+					OriginalFile newFile = new OriginalFileI();
+					newFile.setId(omero.rtypes.rlong(originalFileID));
+					newFile.setName(omero.rtypes.rstring(file.getName()));
+					newFile.setPath(omero.rtypes.rstring(
+							file.getAbsolutePath()));
+					newFile.setSize(omero.rtypes.rlong(file.length()));
+					newFile.setSha1(omero.rtypes.rstring("pending"));
+					oFile.setMimetype(oFile.getMimetype());
+					save = (OriginalFile) 
+						getUpdateService().saveAndReturnObject(newFile);
+					store.setFileId(save.getId().getValue());
+				}
 			}
 		} catch (Exception e) {
 			closeService(store);
@@ -3894,7 +3962,7 @@ class OMEROGateway
 				if (stream != null) stream.close();
 				closeService(store);
 			} catch (Exception ex) {}
-			
+			closeService(store);
 			throw new DSAccessException("Cannot upload the file with path " +
 					file.getAbsolutePath(), e);
 		}
@@ -3915,7 +3983,9 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			getAdminService().changePasswordWithOldPassword(
+			IAdminPrx service = getAdminService();
+			if (service == null) service = getAdminService();
+			service.changePasswordWithOldPassword(
 					omero.rtypes.rstring(oldPassword), 
 					omero.rtypes.rstring(password));
 		} catch (Throwable t) {
@@ -3935,12 +4005,14 @@ class OMEROGateway
 	void updateExperimenter(Experimenter exp, long currentUserID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		isSessionAlive();
+		isSessionAlive();		
 		try {
 			if (exp == null) return;
+			IAdminPrx svc = getAdminService();
+			if (svc == null) svc = getAdminService();
 			if (exp.getId().getValue() == currentUserID)
-				getAdminService().updateSelf(exp);
-			else getAdminService().updateExperimenter(exp);
+				svc.updateSelf(exp);
+			else svc.updateExperimenter(exp);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the user. ");
 		}
@@ -3961,10 +4033,11 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			getAdminService().updateGroup(group);
+			IAdminPrx svc = getAdminService();
+			if (svc == null) svc = getAdminService();
+			svc.updateGroup(group);
 			if (permissions != null) {
-				getAdminService().changePermissions(findIObject(group), 
-						permissions);
+				svc.changePermissions(findIObject(group), permissions);
 			}
 			return (GroupData) PojoMapper.asDataObject(
 					(ExperimenterGroup) findIObject(group));
@@ -3973,7 +4046,7 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Adds or removes the passed experimenters from the specified system group.
 	 * 
@@ -3992,6 +4065,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IAdminPrx svc = getAdminService();
+			if (svc == null) svc = getAdminService();
 			if (toAdd) {
 				Iterator<ExperimenterData> i = experimenters.iterator();
 				ExperimenterData exp;
@@ -4005,7 +4079,6 @@ class OMEROGateway
 				while (i.hasNext()) {
 					exp = i.next();
 					list = exp.getGroups();
-					
 					j = list.iterator();
 					while (j.hasNext()) {
 						group = j.next();
@@ -4088,16 +4161,21 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	synchronized byte[] getPlane(long pixelsID, int z, int t, int c)
-		throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 		isSessionAlive();
-		RawPixelsStorePrx service = getPixelsStore();
 		try {
+			RawPixelsStorePrx service = getPixelsStore();
+			if (service == null) service = getPixelsStore();
 			service.setPixelsId(pixelsID, false);
-			return service.getPlane(z, c, t);
+			byte[] plane = service.getPlane(z, c, t);
+			service.close();
+			return plane;
 		} catch (Throwable e) {
-			handleException(e, "Cannot retrieve the plane " +
-					"(z="+z+", t="+t+", c="+c+") for pixelsID: "+pixelsID);
+			String s = "Cannot retrieve the plane " +
+			"(z="+z+", t="+t+", c="+c+") for pixelsID: "+pixelsID;
+			handleFSException(e, s);
+			handleException(e, s);
 		}
 		return null;
 	}
@@ -4106,18 +4184,23 @@ class OMEROGateway
 	 * Returns the free or available space (in Kilobytes) on the file system
 	 * including nested sub-directories.
 	 * 
+	 * @param Either a group or a user.
+	 * @param id The identifier of the user or group or <code>-1</code> 
+	 * 			 if not specified.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	long getFreeSpace()
+	long getFreeSpace(Class type, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			return getRepositoryService().getFreeSpaceInKilobytes();
+			IRepositoryInfoPrx service = getRepositoryService();
+			if (service == null) service = getRepositoryService();
+			return service.getFreeSpaceInKilobytes();
 		} catch (Throwable e) {
 			handleException(e, "Cannot retrieve the free space");
 		}
@@ -4128,14 +4211,16 @@ class OMEROGateway
 	 * Returns the used space (in Kilobytes) on the file system
 	 * including nested sub-directories.
 	 * 
-	 * @param id The identifier of the user or <code>-1</code> if not specified.
+	 * @param Either a group or a user.
+	 * @param id The identifier of the user or group or <code>-1</code> 
+	 * 			 if not specified.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	long getUsedSpace(long id)
+	long getUsedSpace(Class type, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -4185,6 +4270,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IContainerPrx service = getPojosService();
+			if (service == null) service = getPojosService();
 			List result = service.getImagesByOptions(map);
 			if (asDataObject) return PojoMapper.asDataObjects(result);
 			return result;
@@ -4204,7 +4290,7 @@ class OMEROGateway
 	 * 
 	 * @param rootNodeType	The type of nodes. Can either be 
 	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
-	 * 						<code>CategoryData</code>.
+	 * 						<code>PlateData</code>.
 	 * @param nodes			The nodes to apply settings to. 
 	 * @return <true> if the call was successful, <code>false</code> otherwise.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -4220,12 +4306,10 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
+			if (service == null) service = getRenderingSettingsService();
 			String klass = convertPojos(rootNodeType).getName();
-			if (klass.equals(Image.class)) failure.addAll(nodes);
-			if (klass.equals(Image.class.getName()) 
-					|| klass.equals(Dataset.class.getName()) ||
-					klass.equals(Plate.class.getName()))
-				success = service.resetDefaultsInSet(klass, nodes);
+			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
+			success = service.resetDefaultsInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}
@@ -4236,8 +4320,8 @@ class OMEROGateway
 			if (failure.contains(id)) failure.remove(id);
 		}
 		Map<Boolean, List> result = new HashMap<Boolean, List>(2);
-		result.put(Boolean.TRUE, success);
-		result.put(Boolean.FALSE, failure);
+		result.put(Boolean.valueOf(true), success);
+		result.put(Boolean.valueOf(false), failure);
 		return result;
 	}
   
@@ -4265,12 +4349,10 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
+			if (service == null) service = getRenderingSettingsService();
 			String klass = convertPojos(rootNodeType).getName();
-			if (klass.equals(Image.class)) failure.addAll(nodes);
-			if (klass.equals(Image.class.getName()) 
-				|| klass.equals(Dataset.class.getName()) || 
-						klass.equals(Plate.class.getName()))
-				success = service.resetMinMaxInSet(klass, nodes);
+			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
+			success = service.resetMinMaxInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}
@@ -4281,8 +4363,8 @@ class OMEROGateway
 			if (failure.contains(id)) failure.remove(id);
 		}
 		Map<Boolean, List> result = new HashMap<Boolean, List>(2);
-		result.put(Boolean.TRUE, success);
-		result.put(Boolean.FALSE, failure);
+		result.put(Boolean.valueOf(true), success);
+		result.put(Boolean.valueOf(false), failure);
 		return result;
 	}
 	
@@ -4310,12 +4392,10 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
+			if (service == null) service = getRenderingSettingsService();
 			String klass = convertPojos(rootNodeType).getName();
-			if (klass.equals(Image.class)) failure.addAll(nodes);
-			if (klass.equals(Image.class.getName()) 
-				|| klass.equals(Dataset.class.getName()) || 
-						klass.equals(Plate.class.getName()))
-				success = service.resetDefaultsByOwnerInSet(klass, nodes);
+			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
+			success = service.resetDefaultsByOwnerInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}
@@ -4326,8 +4406,8 @@ class OMEROGateway
 			if (failure.contains(id)) failure.remove(id);
 		}
 		Map<Boolean, List> result = new HashMap<Boolean, List>(2);
-		result.put(Boolean.TRUE, success);
-		result.put(Boolean.FALSE, failure);
+		result.put(Boolean.valueOf(true), success);
+		result.put(Boolean.valueOf(false), failure);
 		return result;
 	}
 	
@@ -4357,19 +4437,12 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
-			Iterator i = nodes.iterator();
-			long id;
-			if (DatasetData.class.equals(rootNodeType) ||
-					PlateData.class.equals(rootNodeType) ||
-					ProjectData.class.equals(rootNodeType) ||
-					ScreenData.class.equals(rootNodeType) || 
-					ImageData.class.equals(rootNodeType)) {
-				Map m  = service.applySettingsToSet(pixelsID, 
-						convertPojos(rootNodeType).getName(),
-						nodes);
-				success = (List) m.get(Boolean.valueOf(true));
-				failure = (List) m.get(Boolean.valueOf(false));
-			} 
+			if (service == null) service = getRenderingSettingsService();
+			Map m  = service.applySettingsToSet(pixelsID, 
+					convertPojos(rootNodeType).getName(),
+					nodes);
+			success = (List) m.get(Boolean.valueOf(true));
+			failure = (List) m.get(Boolean.valueOf(false));
 		} catch (Exception e) {
 			handleException(e, "Cannot paste the rendering settings.");
 		}
@@ -4399,6 +4472,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IPixelsPrx service = getPixelsService();
+			if (service == null) service = getPixelsService();
 			List results = service.retrieveAllRndSettings(pixelsID, userID);
 			
 			if (results == null || results.size() == 0) return map;
@@ -4437,10 +4511,10 @@ class OMEROGateway
 	List<RndProxyDef> getRenderingSettingsFor(long pixelsID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Map map = new HashMap();
 		isSessionAlive();
 		try {
 			IPixelsPrx service = getPixelsService();
+			if (service == null) service = getPixelsService();
 			List results = service.retrieveAllRndSettings(pixelsID, userID);
 			List<RndProxyDef> l = new ArrayList<RndProxyDef>();
 			if (results == null || results.size() == 0) return l;
@@ -4473,6 +4547,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IPixelsPrx service = getPixelsService();
+			if (service == null) service = getPixelsService();
 			return service.retrieveRndSettingsFor(pixelsID, userID);
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the rendering settings");
@@ -4500,6 +4575,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IMetadataPrx service = getMetadataService();
+			if (service == null) service = getMetadataService();
 			return PojoMapper.asDataObjects(
 					service.loadSpecifiedAnnotations(
 							convertPojos(type).getName(), toInclude, 
@@ -4530,6 +4606,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IMetadataPrx service = getMetadataService();
+			if (service == null) service = getMetadataService();
 			RLong value = service.countSpecifiedAnnotations(
 					convertPojos(type).getName(), toInclude, 
 					toExclude, options);
@@ -4541,6 +4618,18 @@ class OMEROGateway
 		return -1;
 	}
 	
+	/**
+	 * Returns the number of annotations used by the passed user but not
+	 * owned.
+	 * 
+	 * @param annotationType The type of annotation.
+	 * @param userID The identifier of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
 	long countAnnotationsUsedNotOwned(Class annotationType, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -4548,6 +4637,7 @@ class OMEROGateway
 		long count = 0;
 		try {
 			IMetadataPrx service = getMetadataService();
+			if (service == null) service = getMetadataService();
 			RLong value = service.countAnnotationsUsedNotOwned(
 					convertAnnotation(annotationType), userID);
 			if (value != null)
@@ -4577,6 +4667,7 @@ class OMEROGateway
 		Set result = new HashSet();
 		try {
 			IMetadataPrx service = getMetadataService();
+			if (service == null) service = getMetadataService();
 			List<IObject> set = service.loadAnnotationsUsedNotOwned(
 					convertAnnotation(annotationType), userID);
 			Iterator<IObject> i = set.iterator();
@@ -4672,6 +4763,7 @@ class OMEROGateway
 				buf.append("where owner.id in (:ids)");
 			
 			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
 			return PojoMapper.asDataObjects(
 					service.findAllByQuery(buf.toString(), param));
 		} catch (Throwable e) {
@@ -4701,6 +4793,7 @@ class OMEROGateway
 		//if (scopes == null || scopes.size() == 0) return new HashMap();
 		isSessionAlive();
 		SearchPrx service = getSearchService();
+		if (service == null) service = getSearchService();
 		try {
 			service.setAllowLeadingWildcard(true);
 			service.setCaseSentivice(context.isCaseSensitive());
@@ -4795,10 +4888,6 @@ class OMEROGateway
 					fSome = formatText(some, "url");
 					fMust = formatText(must, "url");
 					fNone = formatText(none, "url");
-				} else if (key == SearchDataContext.CUSTOMIZED) {
-					fSome = formatText(some, "");
-					fMust = formatText(must, "");
-					fNone = formatText(none, "");
 				} else {
 					fSome = formatText(some, "");
 					fMust = formatText(must, "");
@@ -4866,6 +4955,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			SearchPrx service = getSearchService();
+			if (service == null) service = getSearchService();
 			if (start != null && end != null)
 				service.onlyAnnotatedBetween(
 						omero.rtypes.rtime(start.getTime()), 
@@ -4908,6 +4998,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
 			Parameters p = new ParametersI();
 			p.map = new HashMap<String, RType>();
 			p.map.put("id", omero.rtypes.rlong(userID));
@@ -4938,6 +5029,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
 			ParametersI param = new ParametersI();
 			param.addLongs("ids", annotationIds);
 			StringBuilder sb = new StringBuilder();
@@ -4978,6 +5070,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
 			ParametersI param;
 			StringBuilder sb = new StringBuilder();
 			
@@ -4995,7 +5088,7 @@ class OMEROGateway
 				param.addLong("tagID", id);
 				l = service.findAllByQuery(sb.toString(), param);
 				if (l != null) 
-					m.put(id, new Long(l.size()));
+					m.put(id, Long.valueOf(l.size()));
 			}
             //Dataset
             sb = new StringBuilder();
@@ -5061,6 +5154,7 @@ class OMEROGateway
 		try {
 			String type = "ome.model.annotations.TextAnnotation";
 			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
 			ParametersI param = new ParametersI();
 			param.addLong("uid", userID);
 			param.addLong("id", tagID);
@@ -5149,6 +5243,7 @@ class OMEROGateway
 	{
 		try {
 			IProjectionPrx service = getProjectionService();
+			if (service == null) service = getProjectionService();
 			PixelsType type = null;
 			if (pixType != null) {
 				IQueryPrx svc = getQueryService();
@@ -5222,6 +5317,7 @@ class OMEROGateway
 		//TODO: add method to server so that we don't have to make 2 calls.
 		try {
 			IPixelsPrx svc = getPixelsService();
+			if (svc == null) svc = getPixelsService();
 			Pixels pixels = svc.retrievePixDescription(pixelsID);
 			if (pixels == null) return null;
 			IRenderingSettingsPrx service = getRenderingSettingsService();
@@ -5233,15 +5329,25 @@ class OMEROGateway
 		return null;
 	}
 	
+	/**
+	 * Returns the plate where the specified image has been imported.
+	 * 
+	 * @param imageID The identifier of the image.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
 	PlateData getImportedPlate(long imageID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
 			List results = null;
-			Set<DataObject> wells = new HashSet<DataObject>();
 			Iterator i;
 			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
 			StringBuilder sb = new StringBuilder();
 			ParametersI param = new ParametersI();
 			param.addLong("imageID", imageID);
@@ -5276,6 +5382,7 @@ class OMEROGateway
 			Set<DataObject> wells = new HashSet<DataObject>();
 			Iterator i;
 			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
 			StringBuilder sb = new StringBuilder();
 			ParametersI param = new ParametersI();
 			param.addLong("plateID", plateID);
@@ -5322,6 +5429,7 @@ class OMEROGateway
 		List<Long> ids = new ArrayList<Long>(1);
 		ids.add(imageID);
 		IContainerPrx service = getPojosService();
+		if (service == null) service = getPojosService();
         try {
         	List images = service.getImages(Image.class.getName(), ids, po);
         	if (images != null && images.size() == 1)
@@ -5349,16 +5457,37 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IMetadataPrx service = getMetadataService();
+			if (service == null) service = getMetadataService();
 			List<Long> ids = new ArrayList<Long>(1);
 			ids.add(channelID);
 			List l = service.loadChannelAcquisitionData(ids);
 			if (l != null && l.size() == 1) {
 				LogicalChannel lc = (LogicalChannel) l.get(0);
-				return new ChannelAcquisitionData(lc);
+				ChannelAcquisitionData data = new ChannelAcquisitionData(lc);
+				LightSourceData src = data.getLightSource();
+				if (src == null || src.isLoaded()) return data;
+				//Not loaded so need to load
+				IObject io = src.asIObject();
+				if (io instanceof Laser) { //only case to handle.
+					StringBuilder sb = new StringBuilder();
+					sb.append("select l from Laser as l ");
+					sb.append("left outer join fetch l.type ");
+					sb.append("left outer join fetch l.laserMedium ");
+					sb.append("left outer join fetch l.pulse as pulse ");
+					sb.append("left outer join fetch l.pump as pump ");
+					sb.append("left outer join fetch pump.type as pt ");
+					sb.append("where l.id = :id");
+					ParametersI param = new ParametersI();
+					param.addId(src.getId());
+					Laser laser = (Laser) getQueryService().findByQuery(
+							sb.toString(), param);
+					if (laser != null)
+						data.setLightSource(new LightSourceData(laser));
+				}
+				return data;
 			}
 			return null;
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot load channel acquisition data.");
 		}
 		return null;
@@ -5382,6 +5511,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IQueryPrx service = getQueryService();
+			if (service == null) service = getQueryService();
 			return service.findByString(klass.getName(), "value", value);
 		} catch (Exception e) {
 			handleException(e, "Cannot find the enumeration's value.");
@@ -5409,6 +5539,8 @@ class OMEROGateway
 			r = enumerations.get(klassName);
 			if (r != null) return r;
 			IPixelsPrx service = getPixelsService();
+			if (service == null)
+				service = getPixelsService();
 			List<IObject> l = service.getAllEnumerations(klassName);
 			r = new ArrayList<EnumerationObject>(); 
 			if (l == null) return r;
@@ -5442,6 +5574,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IMetadataPrx service = getMetadataService();
+			if (service == null) service = getMetadataService();
 			List<Long> ids = new ArrayList<Long>(1);
 			ids.add(id);
 			Map m = service.loadTagContent(ids, options);
@@ -5470,47 +5603,14 @@ class OMEROGateway
 		
 		isSessionAlive();
 		try {
-			List result = new ArrayList();
 			IMetadataPrx service = getMetadataService();
+			if (service == null) service = getMetadataService();
 			List<IObject> list = service.loadTagSets(options);
-			
-			if (list == null) return result;
-			Iterator<IObject> i = list.iterator();
-			AnnotationAnnotationLink link;
-			Annotation parent, child;
-			TagAnnotationData tagSet;
-			Map<Long, TagAnnotationData> 
-				sets = new HashMap<Long, TagAnnotationData>();
-			Set<TagAnnotationData> tags;
-			List<Long> ids = new ArrayList<Long>();
-			IObject object;
-			Long id;
-			while (i.hasNext()) {
-				object = i.next();
-				if (object instanceof TagAnnotation) {
-					result.add(new TagAnnotationData((TagAnnotation) object));
-				} else if (object instanceof AnnotationAnnotationLink) {
-					link = (AnnotationAnnotationLink) object;
-					parent = link.getParent();
-					child = link.getChild();
-					id = parent.getId().getValue();
-					if (sets.get(id) == null) {
-						tagSet = new TagAnnotationData((TagAnnotation) parent);
-						sets.put(id, tagSet);
-						result.add(tagSet);
-						tagSet.setTags(new HashSet<TagAnnotationData>());
-					} else 
-						tagSet = sets.get(parent.getId().getValue());
-					tags = tagSet.getTags();
-					tags.add(new TagAnnotationData((TagAnnotation) child));
-					ids.add(child.getId().getValue());
-				}
-			}
-			return result;
+			return PojoMapper.asDataObjects(list);
 		} catch (Exception e) {
 			handleException(e, "Cannot find the Tags.");
 		}
-		return new ArrayList();
+		return new HashSet();
 	}
 	
 	/**
@@ -5532,6 +5632,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		IQueryPrx service = getQueryService();
+		if (service == null) service = getQueryService();
 		StringBuilder sb;
 		ParametersI param;
 		sb = new StringBuilder();
@@ -5610,6 +5711,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IDeletePrx service = getDeleteService();
+			if (service == null) service = getDeleteService();
 			if (ImageData.class.equals(objectType)) {
 				List r = service.checkImageDelete(objectID, false);
 				if (r == null || r.size() == 0) {
@@ -5641,6 +5743,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IDeletePrx service = getDeleteService();
+			if (service == null) service = getDeleteService();
 			service.deleteImage(object.getId().getValue(), true);
 			
 		} catch (Exception e) {
@@ -5666,11 +5769,59 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IDeletePrx service = getDeleteService();
+			if (service == null) service = getDeleteService();
 			return service.checkImageDelete(object.getId().getValue(), true);
 		} catch (Exception e) {
 			handleException(e, "Cannot delete the image: "+object.getId());
 		}
 		return new ArrayList<IObject>();
+	}
+	
+	/**
+	 * Creates a movie. Returns the id of the annotation hosting the movie.
+	 * 
+	 * @param imageID 	The id of the image.	
+	 * @param pixelsID	The id of the pixels.
+	 * @param userID	The id of the user.
+     * @param channels 	The channels to map.
+     * @param param 	The parameters to create the movie.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	ScriptCallback saveAs(long userID, SaveAsParam param)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IScriptPrx svc = getScriptService();
+			if (svc == null) svc = getScriptService();
+			long id = svc.getScriptID(SaveAsParam.SAVE_AS_SCRIPT);
+			if (id <= 0) return null;
+			List<DataObject> objects = param.getObjects();
+			List<RType> ids = new ArrayList<RType>();
+			Iterator<DataObject> i = objects.iterator();
+			String type = "Image";
+			DataObject data;
+			while (i.hasNext()) {
+				data = i.next();
+				if (data instanceof DatasetData) {
+					type = "Dataset";
+				}
+				ids.add(omero.rtypes.rlong(data.getId()));
+			}
+			Map<String, RType> map = new HashMap<String, RType>();
+			map.put("IDs", omero.rtypes.rlist(ids));
+			map.put("Data_Type", omero.rtypes.rstring(type));
+			map.put("Format", omero.rtypes.rstring(param.getIndexAsString()));
+			return runScript(id, map);
+		} catch (Exception e) {
+			handleException(e, "Cannot saves the mage in: "+
+					param.getFolder().getName());
+		}
+		return null;
 	}
 	
 	/**
@@ -5759,6 +5910,7 @@ class OMEROGateway
 		List<ScriptObject> scripts = new ArrayList<ScriptObject>();
 		try {
 			IScriptPrx svc = getScriptService();
+			if (svc == null) svc = getScriptService();
 			List<OriginalFile> storedScripts = svc.getScripts();
 		
 			if (storedScripts == null || storedScripts.size() == 0) 
@@ -5816,6 +5968,7 @@ class OMEROGateway
 		List<ScriptObject> scripts = new ArrayList<ScriptObject>();
 		try {
 			IScriptPrx svc = getScriptService();
+			if (svc == null) svc = getScriptService();
 			List<OriginalFile> storedScripts = svc.getScripts();
 		
 			if (storedScripts == null || storedScripts.size() == 0) 
@@ -5859,10 +6012,10 @@ class OMEROGateway
 		ScriptObject script = null;
 		try {
 			IScriptPrx svc = getScriptService();
+			if (svc == null) svc = getScriptService();
 			script = new ScriptObject(scriptID, "", "");
 			script.setJobParams(svc.getParams(scriptID));
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new ProcessException("Cannot load the script: "+scriptID, 
 					e);
 		}
@@ -5883,8 +6036,8 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-
 			IScriptPrx svc = getScriptService();
+			if (svc == null) svc = getScriptService();
 			List<OriginalFile> scripts = svc.getScripts();
 			Map<Long, String> m = new HashMap<Long, String>();
 			if (scripts != null) {
@@ -5971,6 +6124,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IScriptPrx svc = getScriptService();
+			if (svc == null) svc = getScriptService();
 			String scriptName = param.getScriptName();
 			int scriptIndex = param.getIndex();
 			long id = svc.getScriptID(scriptName);
@@ -5981,18 +6135,19 @@ class OMEROGateway
 				ids.add(omero.rtypes.rlong(i.next()));
 				
 			Map<String, RType>  map = new HashMap<String, RType>();
+			RString dataType;
+			dataType = omero.rtypes.rstring("Image");
+			map.put("Data_Type", dataType);
 			if (scriptIndex == FigureParam.THUMBNAILS) {
 				DataObject d = (DataObject) param.getAnchor();
 				long parentID = -1;
 				if (d instanceof DatasetData ||
 						d instanceof ProjectData) parentID = d.getId();
-				if (ImageData.class.equals(type)) {
-					map.put("Data_Type", omero.rtypes.rstring("Image"));
-					map.put("IDs", omero.rtypes.rlist(ids));	
-				} else if (DatasetData.class.equals(type)) {
-					map.put("Data_Type", omero.rtypes.rstring("Dataset"));
-					map.put("IDs", omero.rtypes.rlist(ids));
-				}
+				if (DatasetData.class.equals(type)) {
+					dataType = omero.rtypes.rstring("Dataset");
+				} 
+				map.put("Data_Type", dataType);
+				map.put("IDs", omero.rtypes.rlist(ids));
 				List<Long> tags = param.getTags();
 				if (tags != null && tags.size() > 0) {
 					ids = new ArrayList<RType>(tags.size());
@@ -6052,7 +6207,7 @@ class OMEROGateway
 			}
 			map.put("Merged_Names", omero.rtypes.rbool(
 					param.getMergedLabel()));
-			map.put("Image_IDs", omero.rtypes.rlist(ids));
+			map.put("IDs", omero.rtypes.rlist(ids));
 			if (param.getStartZ() >= 0)
 				map.put("Z_Start", omero.rtypes.rint(param.getStartZ()));
 			if (param.getEndZ() >= 0)
@@ -6102,70 +6257,54 @@ class OMEROGateway
 	 * Imports the specified file. Returns the image.
 	 * 
 	 * @param object Information about the file to import.
-	 * @param container The file where to import the image.
+	 * @param container The folder to import the image.
 	 * @param name		The name to give to the imported image.
 	 * @param archived  Pass <code>true</code> if the image has to be archived,
 	 * 					<code>false</code> otherwise.
+     * @param Pass <code>true</code> to close the import,
+     * 		<code>false</code> otherwise.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
-	Object importImage(ImportableObject object, List<IObject> containers, 
-			File file, StatusLabel status, boolean archived)
+	Object importImage(ImportableObject object, IObject container, 
+			File file, StatusLabel status, boolean archived, boolean close)
 		throws ImportException
 	{
+		OMEROMetadataStoreClient omsc = null;
 		try {
-			ImportLibrary library = new ImportLibrary(getImportStore(), 
+			omsc = getImportStore();
+			ImportLibrary library = new ImportLibrary(omsc,
 					new OMEROWrapper(new ImportConfig()));
 			library.addObserver(status);
-			IObject container = null;
-			if (containers != null && containers.size() > 0) {
-				container = containers.get(0);
-			}
-				
 			ImportContainer ic = new ImportContainer(file, -1L, container, 
 					archived, object.getPixelsSize(), null, null, null);
 			ic.setUseMetadataFile(true);
 			if (object.isOverrideName()) {
-				int depth = object.getDepth();
+				int depth = object.getDepthForName();
 				ic.setCustomImageName(UIUtilities.getDisplayedFileName(
 						file.getAbsolutePath(), depth));
 			}
+			
 			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 			Iterator<Pixels> j;
 			Pixels p;
 			Image image;
 			if (pixels != null && pixels.size() > 0) {
-				if (containers != null && containers.size() > 1) {
-					//going to create dataset image link
-					if (containers.get(0) instanceof Dataset) {
-						j = pixels.iterator();
-						Dataset d;
-						IObject link;
-						List<IObject> links = new ArrayList<IObject>();
-						while (j.hasNext()) {
-							p = j.next();
-							image = p.getImage();
-							for (int k = 1; k < containers.size(); k++)
-								links.add(ModelMapper.linkParentToChild(image, 
-										(Dataset) containers.get(k)));
-						}
-						if (links.size() > 0) {
-							saveAndReturnObject(links, new HashMap());
-						}
-					}
-				}
 				int n = pixels.size();
-				
 				long id;
 				List<Long> ids;
 				Parameters params = new Parameters();
 				p = pixels.get(0);
 				image = p.getImage();
 				id = image.getId().getValue();
-				if (isHCSFile(file)) {
-					return getImportedPlate(id);
+				//if (isLargeImage(p)) {
+					//return new ThumbnailData(getImage(id, params), true);
+				//}
+				if (ImportableObject.isHCSFile(file)) {
+					PlateData plate = getImportedPlate(id);
+					if (plate != null) return plate;
+					return getImage(id, params);
 				}
-				
 				if (n == 1) {
 					return getImage(id, params);
 				} else if (n == 2) {
@@ -6190,7 +6329,12 @@ class OMEROGateway
 				}
 			}
 		} catch (Throwable e) {
+			closeImport();
 			throw new ImportException(getImportFailureMessage(e), e);
+		} finally {
+			if (omsc != null && close) {
+				closeImport();
+			}
 		}
 		return null;
 	}
@@ -6214,53 +6358,15 @@ class OMEROGateway
 		try {
 			ImportConfig config = new ImportConfig();
 			OMEROWrapper reader = new OMEROWrapper(config);
-			ImportLibrary library = new ImportLibrary(getImportStore(), reader);
-			//library.addObserver(status);
 			String[] paths = new String[1];
 			paths[0] = file.getAbsolutePath();
-			ImportCandidates candidates = new ImportCandidates(reader, paths, 
-					status);
+			ImportCandidates candidates = new ImportCandidates(reader, 
+					paths, status);
 			return new ArrayList<String>(candidates.getPaths());
 		} catch (Throwable e) {
+			e.printStackTrace();
 			throw new ImportException(getImportFailureMessage(e), e);
 		}
-	}
-	
-	/**
-	 * Monitors the specified directory.
-	 * 
-	 * @param directory The directory to watch.
-	 * @param whiteList	The types of images to watch.
-	 * @return See above.
-	 */
-	Object monitor(String directory, String[] whiteList, DataObject container)
-	{
-		/*
-		String[] blackList = new String[1];
-		blackList[0] = "";
-		MonitorClientImpl mClient = new MonitorClientImpl(metadataStore, 
-				container);
-		Communicator c = getIceCommunicator();
-		String name = "monitorClient";
-		ObjectAdapter adapter = c.createObjectAdapter("omerofs.MonitorClient");
-		adapter.add(mClient, c.stringToIdentity(name));
-		adapter.activate();
-
-		MonitorClientPrx mClientProxy =
-			monitors.MonitorClientPrxHelper.uncheckedCast(                
-				adapter.createProxy(c.stringToIdentity(name)));
-		try {
-			System.err.println(directory);
-			String id = monitorPrx.createMonitor(EventType.Create, directory, 
-					whiteList, blackList, PathMode.Flat, mClientProxy);
-			monitorIDs.add(id);
-			monitorPrx.startMonitor(id);
-			System.err.println(id);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		*/
-		return null;
 	}
 	
 	/**
@@ -6311,6 +6417,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IMetadataPrx service = getMetadataService();
+			if (service == null) service = getMetadataService();
 			Instrument instrument = service.loadInstrument(id);
 			if (instrument == null) return null;
 			return new InstrumentData(instrument);
@@ -6319,6 +6426,72 @@ class OMEROGateway
 			handleException(e, "Cannot load the instrument: "+id);
 		}
 		return null;
+	}
+	
+	
+	/**
+	 * Loads the table associated to a given node.
+	 * 
+	 * @param parameters The parameters used to retrieve the table.
+	 * @param userID     The user's identifier.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<TableResult> loadTabularData(TableParameters parameters, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		TablePrx tablePrx = null;
+		long id = -1;
+		List<TableResult> results = new ArrayList<TableResult>();
+		try {
+			long[] rows;
+			TableResult result;
+			List<Long> ids;
+			if (parameters.getNodeType() != null) {
+				//TMP solution
+				List<Long> objects = new ArrayList<Long>(1);
+				objects.add(parameters.getNodeID());
+				Map map = loadAnnotations(parameters.getNodeType(), objects, 
+						null, null, new Parameters());
+				Collection list = (Collection) map.get(parameters.getNodeID());
+				Iterator j = list.iterator();
+				FileAnnotationData fa;
+				ids = new ArrayList<Long>();
+				Object k;
+				while (j.hasNext()) {
+					k = j.next();
+					if (k instanceof FileAnnotationData) {
+						fa = (FileAnnotationData) k;
+						if (FileAnnotationData.BULK_ANNOTATIONS_NS.equals(
+								fa.getNameSpace()))
+							ids.add(fa.getFileID());
+					}
+				}
+			} else ids = parameters.getOriginalFileIDs();
+			if (ids != null && ids.size() > 0) {
+				Iterator<Long> i = ids.iterator();
+				while (i.hasNext()) {
+					id = i.next();
+					tablePrx = getSharedResources().openTable(
+							new OriginalFileI(id, false));
+					if (tablePrx != null) {
+						rows = new long[(int) tablePrx.getNumberOfRows()];
+						for (int j = 0; j < rows.length; j++)
+							rows[j] = j;
+						result = createTableResult(tablePrx, rows);
+						if (result != null)
+							results.add(result);
+					}
+				}
+			}
+		} catch (Exception e) {
+			handleException(e, "Cannot load the table: "+id);
+		}
+		return results;
 	}
 	
 	/**
@@ -6339,6 +6512,7 @@ class OMEROGateway
 		List<ROIResult> results = new ArrayList<ROIResult>();
 		try {
 			IRoiPrx svc = getROIService();
+			if (svc == null) svc = getROIService();
 			RoiOptions options = new RoiOptions();
 			options.userId = omero.rtypes.rlong(userID);
 			RoiResult r;
@@ -6352,17 +6526,18 @@ class OMEROGateway
 				Map<Long, RoiResult> map = svc.getMeasuredRoisMap(imageID, 
 						measurements, options);
 				if (map == null) return results;
-				Iterator<Long> i = map.keySet().iterator();
+				Iterator i = map.entrySet().iterator();
 				Long id;
-				
+				Entry entry;
 				while (i.hasNext()) {
-					id = i.next();
-					r = map.get(id);
+					entry = (Entry) i.next();
+					id = (Long) entry.getKey();
+					r = (RoiResult) entry.getValue();
 					//get the table
 					result = new ROIResult(PojoMapper.asDataObjects(r.rois), 
 							id);
 					result.setResult(createTableResult(
-							svc.getTable(id), imageID));
+							svc.getTable(id), "Image", imageID));
 					results.add(result);
 				}
 			}
@@ -6391,37 +6566,42 @@ class OMEROGateway
 		try 
 		{
 			IUpdatePrx updateService = getUpdateService();
+			if (updateService == null) updateService = getUpdateService();
 			IRoiPrx svc = getROIService();
-			
 			RoiOptions options = new RoiOptions();
 			options.userId = omero.rtypes.rlong(userID);
 			RoiResult serverReturn;
 			serverReturn = svc.findByImage(imageID, new RoiOptions());
-	
 			Map<Long, Roi> roiMap = new HashMap<Long, Roi>();
 			List<Roi> serverRoiList = serverReturn.rois;
 
 			/* Create a map of all the client roi with id as key */
 			Map<Long, ROIData> clientROIMap = new HashMap<Long, ROIData>();
-			for (ROIData roi : roiList)
-				clientROIMap.put(roi.getId(), roi);
+			for (ROIData roi : roiList) {
+				if (roi != null)
+					clientROIMap.put(roi.getId(), roi);
+			}
+				
 			
 			/* Create a map of the <id, serverROI>, but remove any roi from 
 			 * the server that should be deleted, before creating map.
 			 * To delete an roi we first must delete all the roiShapes in 
 			 * the roi. */
-			for (Roi roi : serverRoiList)
-				if (!clientROIMap.containsKey(roi.getId().getValue()))
-				{
-					if (roi.getDetails().getOwner().getId().getValue()
-							== userID) {
-						for (int i = 0 ; i < roi.sizeOfShapes() ; i++)
-							updateService.deleteObject(roi.getShape(i));
-						updateService.deleteObject(roi);
-					}
+			for (Roi roi : serverRoiList) {
+				if (roi != null) {
+					if (!clientROIMap.containsKey(roi.getId().getValue()))
+					{
+						/* rois are now deleted using the roi service.
+						if (roi.getDetails().getOwner().getId().getValue()
+								== userID) {
+							for (int i = 0 ; i < roi.sizeOfShapes() ; i++)
+								updateService.deleteObject(roi.getShape(i));
+							updateService.deleteObject(roi);
+						}
+						*/
+					} else roiMap.put(roi.getId().getValue(), roi);
 				}
-				else
-					roiMap.put(roi.getId().getValue(), roi);
+			}
 			
 			/* For each roi in the client, see what should be done:
 			 * 1. Create a new roi if it does not exist. 
@@ -6477,53 +6657,73 @@ class OMEROGateway
 				 * Step 3. create the server roiShape map.
 				 */
 				serverCoordMap  = new HashMap<ROICoordinate, Shape>();
-				
-				for (int i = 0 ; i < serverRoi.sizeOfShapes(); i++)
-				{
-					s = serverRoi.getShape(i);
-					if (s != null) {
-						serverCoordMap.put(new ROICoordinate(
-							s.getTheZ().getValue(), s.getTheT().getValue()), s);
+				if (serverRoi != null) {
+					for (int i = 0 ; i < serverRoi.sizeOfShapes(); i++)
+					{
+						s = serverRoi.getShape(i);
+						if (s != null) {
+							serverCoordMap.put(new ROICoordinate(
+								s.getTheZ().getValue(), s.getTheT().getValue()),
+								s);
+						}
 					}
 				}
-				
 				/*
 				 * Step 4. delete any shapes in the server that have been deleted
 				 * in the client.
 				 */
-				serverIterator = serverCoordMap.keySet().iterator();
-				while (serverIterator.hasNext())
+				Iterator si = serverCoordMap.entrySet().iterator();
+				Entry entry;
+				List<ROICoordinate> removed = new ArrayList<ROICoordinate>();
+				while (si.hasNext())
 				{
-					coord = serverIterator.next();
+					entry = (Entry) si.next();
+					coord = (ROICoordinate) entry.getKey();
 					if (!clientCoordMap.containsKey(coord))
 					{
-						s = serverCoordMap.get(coord);
+						s = (Shape) entry.getValue();
 						if (s != null)
 							updateService.deleteObject(s);
+					} else {
+						s = (Shape) entry.getValue();
+						if (s instanceof Line || s instanceof Polyline) {
+							shape = clientCoordMap.get(coord);
+							if ((s instanceof Line && 
+									shape.asIObject() instanceof Polyline) ||
+								(s instanceof Polyline && 
+									shape.asIObject() instanceof Line)) {
+								removed.add(coord);
+								updateService.deleteObject(s);
+							}
+						}
 					}
 				}
 				
 				/*
 				 * Step 5. retrieve new roi as some are stale.
 				 */
-				id = serverRoi.getId().getValue();
-				tempResults = svc.findByImage(imageID, new RoiOptions());
-				for (Roi r : tempResults.rois)
-				{
-					if (r.getId().getValue() == id)
-						serverRoi = r;
+				if (serverRoi != null) {
+					id = serverRoi.getId().getValue();
+					tempResults = svc.findByImage(imageID, new RoiOptions());
+					for (Roi r : tempResults.rois)
+					{
+						if (r.getId().getValue() == id)
+							serverRoi = r;
+					}
 				}
 				
 				/*
-				 * Step 6. Check to see if the roi in the cleint has been updated
+				 * Step 6. Check to see if the roi in the client has been updated
 				 * if so replace the server roiShape with the client one.
 				 */
-				serverIterator = clientCoordMap.keySet().iterator();
+				si = clientCoordMap.entrySet().iterator();
 				Shape serverShape;
-				while (serverIterator.hasNext())
+				
+				while (si.hasNext())
 				{
-					coord = serverIterator.next();
-					shape = clientCoordMap.get(coord);
+					entry = (Entry) si.next();
+					coord = (ROICoordinate) entry.getKey();
+					shape = (ShapeData) entry.getValue();
 					if (shape != null) {
 						if (!serverCoordMap.containsKey(coord))
 							serverRoi.addShape((Shape) shape.asIObject());
@@ -6534,20 +6734,55 @@ class OMEROGateway
 							{
 								if (serverRoi != null) {
 									serverShape = serverRoi.getShape(j);
-									if (serverShape != null) {
-										if (serverShape.getId().getValue() == 
-											shape.getId())
+									if (serverShape != null) 
+									{
+										if (serverShape.getId() != null)
 										{
+											if (serverShape.getId().getValue()
+												== shape.getId())
+											{
 											shapeIndex = j;
 											break;
+											}
 										}
 									}
 								}
 							}
 							if (shapeIndex == -1)
-								throw new Exception("serverRoi.shapeList is " +
-										"corrupted");
-							serverRoi.setShape(shapeIndex,
+							{
+								serverShape = null;
+								shapeIndex = -1;
+								for (int j = 0 ; j < serverRoi.sizeOfShapes() ; j++)
+								{
+									if (serverRoi != null) 
+									{
+										serverShape = serverRoi.getShape(j);
+										if (serverShape != null) 
+										{
+											if (serverShape.getTheT().getValue()
+												== shape.getT() && 
+												serverShape.getTheZ().getValue()
+												== shape.getZ())
+											{
+												shapeIndex = j;
+												break;
+											}
+										}
+									}
+								}
+								if (shapeIndex!=-1)
+								{
+									if (!removed.contains(coord))
+										updateService.deleteObject(serverShape);
+									serverRoi.addShape((Shape) shape.asIObject());
+								}
+								else
+								{
+									throw new Exception("serverRoi.shapeList is corrupted");
+								}
+							}
+							else
+								serverRoi.setShape(shapeIndex,
 									(Shape) shape.asIObject());
 						}
 					}
@@ -6557,10 +6792,14 @@ class OMEROGateway
 				 * Step 7. update properties of ROI, if they are changed.
 				 * 
 				 */
-				serverRoi.setDescription(((Roi)roi.asIObject()).getDescription());
-				serverRoi.setNamespaces(((Roi)roi.asIObject()).getNamespaces());
-				serverRoi.setKeywords(((Roi)roi.asIObject()).getKeywords());
-				updateService.saveAndReturnObject(serverRoi);
+				if (serverRoi != null) {
+					Roi ri = (Roi) roi.asIObject();
+					serverRoi.setDescription(ri.getDescription());
+					serverRoi.setNamespaces(ri.getNamespaces());
+					serverRoi.setKeywords(ri.getKeywords());
+					updateService.saveAndReturnObject(serverRoi);
+				}
+				
 			}
 			return roiList;
 		} catch (Exception e) {
@@ -6587,6 +6826,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IRoiPrx svc = getROIService();
+			if (svc == null) svc = getROIService();
 			RoiOptions options = new RoiOptions();
 			options.userId = omero.rtypes.rlong(userID);
 			Collection files = PojoMapper.asDataObjects(
@@ -6642,6 +6882,7 @@ class OMEROGateway
 			try {
 				synchronized(new Object()) {
 					store = getExporterService();
+					if (store == null) store = getExporterService();
 					store.addImage(imageID);
 					long size = store.generateTiff();
 					int offset = 0;
@@ -6659,9 +6900,10 @@ class OMEROGateway
 					} catch (Exception e) {
 						if (stream != null) stream.close();
 						if (f != null) f.delete();
+						handleException(e, 
+								"Cannot export the image as an OME-TIFF");
 					}
 				}
-				
 			} finally {
 				try {
 					if (store != null) store.close();
@@ -6669,12 +6911,7 @@ class OMEROGateway
 				return f;
 			}
 		} catch (Throwable t) {
-			exporterService = null;
 			if (f != null) f.delete();
-			try {
-				exporterService.close();
-				exporterService = null;
-			} catch (Exception e) {}
 			handleException(t, "Cannot export the image as an OME-TIFF");
 			return null;
 		}
@@ -6766,9 +7003,10 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
+		FileInputStream stream = null;
 		try {
 			IScriptPrx svc = getScriptService(); 
-			FileInputStream stream = null;
+			if (svc == null) svc = getScriptService(); 
 			StringBuffer buf = new StringBuffer("");
 			try {
 				File file = new File(script.getPath());
@@ -6776,6 +7014,9 @@ class OMEROGateway
 				int c;
 				while ((c = stream.read()) != -1)
 					buf.append((char) c);
+				try {
+					if (stream != null) stream.close();
+				} catch (Exception e) {}
 			} catch (Exception e) {
 				try {
 					stream.close();
@@ -6793,6 +7034,10 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, 
 					"Cannot upload the script: "+script.getName()+".");
+		}
+		try {
+			if (stream != null) stream.close();
+		} catch (Exception e) {
 		}
 		return -1;
 	}
@@ -6817,6 +7062,7 @@ class OMEROGateway
 		List<ExperimenterData> results = new ArrayList<ExperimenterData>();
 		try {
 			IAdminPrx svc = getAdminService();
+			if (svc == null) svc = getAdminService();
 			Map<ExperimenterData, UserCredentials> 
 				m = object.getExperimenters();
 			Entry entry;
@@ -6843,9 +7089,10 @@ class OMEROGateway
 				uc = (UserCredentials) entry.getValue();
 				value = lookupExperimenter(uc.getUserName());
 				if (value == null) {
-					if (uc.isAdministrator()) 
+					if (uc.isAdministrator()) {
+						l.add(getSystemGroup(GroupData.USER));
 						l.add(getSystemGroup(GroupData.SYSTEM));
-					else l.add(getSystemGroup(GroupData.USER));
+					} else l.add(getSystemGroup(GroupData.USER));
 					if (g == null) {
 						g = l.get(0);
 						systemGroup = true;
@@ -6884,8 +7131,9 @@ class OMEROGateway
 	GroupData createGroup(AdminObject object)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdminPrx svc = getAdminService();
 		try {
+			IAdminPrx svc = getAdminService();
+			if (svc == null) svc = getAdminService();
 			Map<ExperimenterData, UserCredentials> 
 				m = object.getExperimenters();
 			Entry entry;
@@ -6930,9 +7178,10 @@ class OMEROGateway
 				} else {
 					exp = (Experimenter) ModelMapper.createIObject(
 							(ExperimenterData) entry.getKey());
-					if (uc.isAdministrator()) 
+					if (uc.isAdministrator()) {
 						l.add(getSystemGroup(GroupData.SYSTEM));
-					else l.add(getSystemGroup(GroupData.USER));
+						l.add(getSystemGroup(GroupData.USER));
+					} else l.add(getSystemGroup(GroupData.USER));
 					exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
 					password = uc.getPassword();
 					if (password != null && password.length() > 0) {
@@ -6973,6 +7222,7 @@ class OMEROGateway
 		Map<Long, Long> r = new HashMap<Long, Long>();
 		try {
 			IQueryPrx svc = getQueryService();
+			if (svc == null) svc = getQueryService();
 			ParametersI p = new ParametersI();
 			p.addLongs("gids", groupIds);
 			List list = (List) svc.findAllByQuery("select m " +
@@ -7036,6 +7286,7 @@ class OMEROGateway
 		if (experimenterID < 0) return pojos;
 		try {
 			IQueryPrx svc = getQueryService();
+			if (svc == null) svc = getQueryService();
 			//IAdminPrx svc = getAdminService();
 			List<ExperimenterGroup> groups = null;
 			ParametersI p = new ParametersI();
@@ -7077,7 +7328,7 @@ class OMEROGateway
 		List<GroupData> pojos = new ArrayList<GroupData>();
 		try {
 			IQueryPrx svc = getQueryService();
-			//IAdminPrx svc = getAdminService();
+			if (svc == null) svc = getQueryService();
 			List<ExperimenterGroup> groups = null;
 			if (id < 0) {
 				groups = (List)
@@ -7132,7 +7383,9 @@ class OMEROGateway
 		isSessionAlive();
 		List<ExperimenterData> pojos = new ArrayList<ExperimenterData>();
 		try {
-			List<Experimenter> l = getAdminService().lookupExperimenters();
+			IAdminPrx service = getAdminService();
+			if (service == null) service = getAdminService();
+			List<Experimenter> l = service.lookupExperimenters();
 			pojos.addAll(PojoMapper.asDataObjects(l));
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the existing groups.");
@@ -7160,6 +7413,7 @@ class OMEROGateway
 		isSessionAlive();
 		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
 		IAdminPrx svc = getAdminService();
+		if (svc == null) svc = getAdminService();
 		Iterator<ExperimenterData> i = experimenters.iterator();
 		ExperimenterData exp;
 		while (i.hasNext()) {
@@ -7192,6 +7446,7 @@ class OMEROGateway
 		isSessionAlive();
 		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
 		IAdminPrx svc = getAdminService();
+		if (svc == null) svc = getAdminService();
 		Iterator<ExperimenterData> i = experimenters.iterator();
 		ExperimenterData exp;
 		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
@@ -7226,9 +7481,9 @@ class OMEROGateway
 		isSessionAlive();
 		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
 		IAdminPrx svc = getAdminService();
+		if (svc == null) svc = getAdminService();
 		Iterator<ExperimenterData> i = experimenters.iterator();
 		ExperimenterData exp;
-		String name = group.getName();
 		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
 		groups.add(group.asGroup());
 		while (i.hasNext()) {
@@ -7259,6 +7514,7 @@ class OMEROGateway
 		isSessionAlive();
 		List<GroupData> r = new ArrayList<GroupData>();
 		IAdminPrx svc = getAdminService();
+		if (svc == null) svc = getAdminService();
 		Iterator<GroupData> i = groups.iterator();
 		GroupData g;
 		while (i.hasNext()) {
@@ -7288,6 +7544,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		IAdminPrx svc = getAdminService();
+		if (svc == null) svc = getAdminService();
 		try {
 			svc.changeUserPassword(userName, omero.rtypes.rstring(password));
 		} catch (Throwable t) {
@@ -7311,7 +7568,6 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
-		IAdminPrx svc = getAdminService();
 		try {
 			//First check that no user with the name already exists
 
@@ -7319,7 +7575,9 @@ class OMEROGateway
 			if (value == null) {
 				Experimenter exp = experimenter.asExperimenter();
 				exp.setOmeName(omero.rtypes.rstring(userName));
-				getAdminService().updateExperimenter(exp);
+				IAdminPrx service = getAdminService();
+				if (service == null) service = getAdminService();
+				service.updateExperimenter(exp);
 				return true;
 			}
 		} catch (Throwable t) {
@@ -7387,6 +7645,7 @@ class OMEROGateway
 		isSessionAlive();
 		IAdminPrx svc = getAdminService();
 		try {
+			if (svc == null) svc = getAdminService();
 			return svc.lookupGroup(name);
 		} catch (Exception e) {
 			if (e instanceof ApiUsageException) 
@@ -7413,6 +7672,7 @@ class OMEROGateway
 		isSessionAlive();
 		IAdminPrx svc = getAdminService();
 		try {
+			if (svc == null) svc = getAdminService();
 			return svc.lookupExperimenter(name);
 		} catch (Exception e) {
 			if (e instanceof ApiUsageException) 
@@ -7435,6 +7695,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		IQueryPrx svc = getQueryService();
+		if (svc == null) svc = getQueryService();
 		try
 		{
 			ParametersI param = new ParametersI();
@@ -7461,8 +7722,9 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		IUpdatePrx updateService = getUpdateService();
-		for(WorkflowData workflow : workflows)
-			if(workflow.isDirty())
+		if (updateService == null) updateService = getUpdateService();
+		for (WorkflowData workflow : workflows)
+			if (workflow.isDirty())
 			{
 				try
 				{
@@ -7472,10 +7734,8 @@ class OMEROGateway
 					handleException(e, "Unable to save Object : "+ workflow);
 				}
 			}
-		return new Boolean(true);
+		return Boolean.valueOf(true);
 	}
-	
-	
 	
 	/**
 	 * Reads the file hosting the user photo.
@@ -7494,6 +7754,7 @@ class OMEROGateway
 		isSessionAlive();
 		
 		RawFileStorePrx store = getRawFileService();
+		if (store == null) store = getRawFileService();
 		try {
 			store.setFileId(fileID);
 		} catch (Throwable e) {
@@ -7518,14 +7779,13 @@ class OMEROGateway
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
-	 *
 	 */
 	long uploadExperimenterPhoto(File file, String format, long experimenterID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		IAdminPrx svc = getAdminService();
-		
+		if (svc == null) svc = getAdminService();
 		try {
 			FileInputStream stream = new FileInputStream(file); 
 			long length = file.length(); 
@@ -7538,7 +7798,7 @@ class OMEROGateway
 			if (offset < bytes.length)
 				throw new IOException("Could not completely read file "+
 						file.getName()); 
-		    stream.close();
+			stream.close();
 			return svc.uploadMyUserPhoto(file.getName(), format, bytes);
 		} catch (Exception e) {
 			handleException(e, "Cannot upload the photo.");
@@ -7560,15 +7820,51 @@ class OMEROGateway
 		shutDownServices(false);
 		try {
 	         IDeletePrx svc = getDeleteService();
+	         if (svc == null) svc = getDeleteService();
 	         //scriptID, parameters, timeout (5s if null)
 	         DeleteHandlePrx prx = svc.queueDelete(commands);
 	         cb = new DeleteCallback(secureClient, prx);
 		} catch (Exception e) {
-			if (cb != null) cb.close();
 			throw new ProcessException("Cannot delete the speficied objects.", 
 					e);
 		}
 		return cb;
 	}
+
+	/**
+	 * Returns the back-off time if it requires a pyramid to be built, 
+	 * <code>null</code> otherwise.
+	 * 
+	 * @param pixels The pixels set to handle.
+	 * @return See above
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Boolean isLargeImage(Pixels pixels)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {	
+			RawPixelsStorePrx store = getPixelsStore();
+			if (store == null) store = getPixelsStore();
+			store.setPixelsId(pixels.getId().getValue(), true);
+			boolean b = store.requiresPixelsPyramid();
+			store.close();
+			return b;
+		} catch (Exception e) {
+			handleException(e, "Cannot start the Raw pixels store.");
+		}
+		return null;
+	}
 	
+	/** Closes the services initialized by the importer.*/
+	void closeImport()
+	{
+		if (importStore != null) {
+			importStore.closeServices();
+			importStore = null;
+		}
+	}
+
 }

@@ -74,7 +74,13 @@ class ObjectInspector
 	public final static int		INDEX = MeasurementViewerUI.INSPECTOR_INDEX;
 
 	/** Collection of column names. */
-	private static List<String>			columnNames;
+	private static final List<String>			COLUMN_NAMES;
+	
+	/** The row indicating to show the text or not. */
+	private static final int SHOW_TEXT_ROW = 3;
+	
+	/** The row indicating to show the measurement or not. */
+	private static final int SHOW_MEASUREMENT_ROW = 4;
 	
 	/** The name of the panel. */
 	private static final String			NAME = "Inspector";
@@ -89,9 +95,9 @@ class ObjectInspector
 	private MeasurementViewerModel		model;
 
 	static {
-		columnNames = new ArrayList<String>(2);
-		columnNames.add("Field");
-		columnNames.add("Value");
+		COLUMN_NAMES = new ArrayList<String>(2);
+		COLUMN_NAMES.add("Field");
+		COLUMN_NAMES.add("Value");
 	}
 	
 	/** Initializes the component composing the display. */
@@ -100,30 +106,33 @@ class ObjectInspector
 		List<AttributeField> l = new ArrayList<AttributeField>();
 		l.add(new AttributeField(MeasurementAttributes.TEXT, 
 				AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.TEXT), true));
+				AnnotationKeys.TEXT), Boolean.valueOf(true)));
 		l.add(new AttributeField(MeasurementAttributes.WIDTH, 
 				AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.WIDTH), true));
+				AnnotationKeys.WIDTH), Boolean.valueOf(true)));
 		l.add(new AttributeField(MeasurementAttributes.HEIGHT, 
 				AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.HEIGHT), true));
+				AnnotationKeys.HEIGHT), Boolean.valueOf(true)));
 		//l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Workflow", false));
 		//l.add(new AttributeField(AnnotationKeys.KEYWORDS, "Keywords", false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
-				false));
+				Boolean.valueOf(false)));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
 				AnnotationDescription.annotationDescription.get(
-						MeasurementAttributes.SHOWMEASUREMENT), false)); 
+						MeasurementAttributes.SHOWMEASUREMENT), 
+						Boolean.valueOf(false))); 
 		//l.add(new AttributeField(MeasurementAttributes.SHOWID, 
 			//"Show ID", false)); 
 		l.add(new AttributeField(MeasurementAttributes.FILL_COLOR, 
 				AnnotationDescription.annotationDescription.get(
-						MeasurementAttributes.FILL_COLOR), false));
+						MeasurementAttributes.FILL_COLOR), 
+						Boolean.valueOf(false)));
 		l.add(new AttributeField(MeasurementAttributes.STROKE_COLOR, 
 				AnnotationDescription.annotationDescription.get(
-						MeasurementAttributes.STROKE_COLOR), false));
+						MeasurementAttributes.STROKE_COLOR), 
+						Boolean.valueOf(false)));
 		//create the table
-		fieldTable = new FigureTable(new FigureTableModel(l, columnNames));
+		fieldTable = new FigureTable(new FigureTableModel(l, COLUMN_NAMES));
 		fieldTable.getTableHeader().setReorderingAllowed(false);
 		fieldTable.setRowHeight(26);
 		fieldTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -156,7 +165,6 @@ class ObjectInspector
 				}
 			}
 		});
-
 	}
 	
 	/**
@@ -198,7 +206,9 @@ class ObjectInspector
 	{
 		int col = fieldTable.getSelectedColumn();
 		int row = fieldTable.getSelectedRow();
-		Boolean value = (Boolean) fieldTable.getModel().getValueAt(row, col);
+		Object v = (Boolean) fieldTable.getModel().getValueAt(row, col);
+		Boolean value = Boolean.valueOf(false);
+		if (v != null) value = (Boolean) v;
 		boolean newValue = !(value.booleanValue()); 
 		fieldTable.getModel().setValueAt(Boolean.valueOf(newValue), row, col);
 		model.getDrawingView().repaint();
@@ -260,6 +270,44 @@ class ObjectInspector
 		fieldTable.getModel().setValueAt(c, row, col);
 	}
 
+	/**
+	 * Returns <code>true</code> if the text has to be shown, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isShowText()
+	{
+		if (fieldTable == null) return false;
+		int n = fieldTable.getRowCount();
+		if (n > 3) {
+			Object v = fieldTable.getModel().getValueAt(SHOW_TEXT_ROW, 1);
+			if (v == null) return false;
+			return (Boolean) v;
+		}
+		return false;
+	}
+
+	/**
+	 * Returns <code>true</code> if the measurement has to be shown, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isShowMeasurement()
+	{
+		if (fieldTable == null) return false;
+		int n = fieldTable.getRowCount();
+		if (n > 4) {
+			Object v = fieldTable.getModel().getValueAt(SHOW_MEASUREMENT_ROW, 
+					1);
+			if (v == null) return false;
+			return (Boolean) v;
+		}
+		return false;
+	}
+	
+	
 	/**
 	 * Sets the data.
 	 * 

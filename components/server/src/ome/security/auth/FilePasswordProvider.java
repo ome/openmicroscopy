@@ -53,15 +53,15 @@ public class FilePasswordProvider extends ConfigurablePasswordProvider {
     }
 
     @Override
-    public Boolean checkPassword(String user, String password) {
+    public Boolean checkPassword(String user, String password, boolean readOnly) {
         Properties p = getProperties();
-        return loginAttempt(user, doCheckPassword(user, password, p));
+        return loginAttempt(user, doCheckPassword(user, password, p, readOnly));
     }
 
-    protected Boolean doCheckPassword(String user, String password, Properties p) {
+    protected Boolean doCheckPassword(String user, String password, Properties p, boolean readOnly) {
         if (!p.containsKey(user)) {
             // Do the default on unknown
-            return super.checkPassword(user, password);
+            return super.checkPassword(user, password, readOnly);
         } else {
             String currentPassword = p.getProperty(user);
             return comparePasswords(currentPassword, password);

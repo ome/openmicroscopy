@@ -42,7 +42,7 @@ class SubmitCLI(CLI):
 
     def post_process(self):
         print "Uploading"
-        print submit.queue
+        print self.queue
 
 HELP = """When run without arguments, submit shell is opened
 which takes commands without executing them. On save,

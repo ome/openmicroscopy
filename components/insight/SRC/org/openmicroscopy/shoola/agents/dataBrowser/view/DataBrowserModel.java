@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataObjectSaver;
 import org.openmicroscopy.shoola.agents.dataBrowser.DatasetsLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.RateFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.ReportLoader;
+import org.openmicroscopy.shoola.agents.dataBrowser.TabularDataLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.TagsFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.TagsLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
@@ -63,12 +64,16 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -229,8 +234,7 @@ abstract class DataBrowserModel
     	if (browser == null) return;
 		//Do initial layout and set the icons.
     	if (browser.getSelectedLayout() == null) {
-    		Layout layout = LayoutFactory.createLayout(type, sorter, 
-    				LayoutUtils.DEFAULT_PER_ROW);
+    		Layout layout = LayoutFactory.createLayout(type, sorter, 0);
             browser.setSelectedLayout(layout);
     	}
         //browser.accept(browser.getSelectedLayout(), 
@@ -727,6 +731,63 @@ abstract class DataBrowserModel
 	 * @return See above.
 	 */
 	List<ApplicationData> getApplications() { return applications; }
+	
+	/** 
+	 * Starts an asynchronous call to load the tabular data.
+	 * 
+	 * @param data The data to load.
+	 */
+	void fireTabularDataLoading(List<FileAnnotationData> data)
+	{
+		TabularDataLoader loader = null;
+		if (data == null) {
+			if (this instanceof WellsModel) {
+				if (grandParent instanceof ScreenData) {
+					loader = new TabularDataLoader(component,
+							(DataObject) grandParent);
+				} else if (parent instanceof PlateData) {
+					loader = new TabularDataLoader(component,
+							(DataObject) parent);
+				}
+			}
+		} else if (data.size() > 0) {
+			List<Long> ids = new ArrayList<Long>();
+			FileAnnotationData fa;
+			Iterator<FileAnnotationData> i = data.iterator();
+			while (i.hasNext()) {
+				fa = i.next();
+				ids.add(fa.getFileID());
+			}
+			loader = new TabularDataLoader(component, ids);
+		}
+		if (loader != null) loader.load();
+	}
+	
+	/**
+	 * Sets the tabular data.
+	 * 
+	 * @param data The value to set.
+	 */
+	void setTabularData(List<TableResult> data)
+	{
+		if (this instanceof WellsModel) {
+			((WellsModel) this).setTabularData(data);
+		}
+	}
+	
+	/**
+	 * Returns the selected layout.
+	 * 
+	 * @return See above.
+	 */
+	int getLayoutIndex()
+	{
+		Browser b = getBrowser();
+		if (b == null) return LayoutFactory.SQUARY_LAYOUT;
+		Layout layout = b.getSelectedLayout();
+		if (layout == null) return LayoutFactory.SQUARY_LAYOUT;
+		return layout.getIndex();
+	}
 	
     /**
      * Creates a data loader that can retrieve the hierarchy objects needed

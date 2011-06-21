@@ -4,7 +4,15 @@ body {
     padding:0px;
     margin:0px;
     background:#ddd;
-    width: 260px;
+}
+
+a {
+    color: #339;
+    text-decoration: none;
+}
+
+a .list-item {
+    color:#000;
 }
 
 #top-header {
@@ -43,8 +51,14 @@ body {
 }
 
 .bottom-header {
-    padding: 1px 3px;
+    padding: 3px 3px 1px 3px;
     font-size:85%;
+    border: 1px solid gray;
+    border-width: 0px 0px 1px 0px;
+}
+.sub-header {
+    padding: 5px 5px 2px 5px;
+    font-size:90%;
     border: 1px solid gray;
     border-width: 0px 0px 1px 0px;
 }
@@ -92,7 +106,22 @@ body {
     background-color:#fff;
     margin: 0px;
 }
+.list-item a {
+    color: #000;
+}
 .item-name {padding: 12px;}
+
+.tab-item {
+    padding: 4px;
+    margin: 1px;
+    float:left;
+    background-color:#eee;
+    border: 1px solid #ddd;
+}
+.selected {
+    border: 1px solid #000;
+}
+
 .item-selected {
     padding: 12px;
     color: #333399;
@@ -127,6 +156,11 @@ img.thumbnail {
     width: auto;
 }
 
+img.recent_thumb {
+    float:left;
+    margin-right: 5px;
+}
+
 .page-content {
     background: white;
     padding: 5px;
@@ -142,6 +176,7 @@ img.thumbnail {
 img.preview {
     max-width: 250px;
     max-height: 250px;
+    padding-bottom: 10px;
 }
 
 .linkClass {
@@ -165,13 +200,4 @@ img.enlarged {
 
 .clear {
     clear: both;
-}
-a {
-    color: #333;
-    text-decoration: none;
-}
-a:hover,a:link {
-}
-a:visited {
-    color: #333;
 }

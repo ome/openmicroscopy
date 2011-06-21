@@ -27,7 +27,6 @@ from omero.rtypes import *
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_PermissionsI import PermissionsI
-import omero_api_Gateway_ice
 import omero_api_IRoi_ice
 import omero.util.script_utils as scriptUtil
 import omero.scripts
@@ -71,11 +70,13 @@ class TestEmanScripts(lib.ITest):
         # run as root
         session = self.root.sf
         client = self.root
-        gateway = session.createGateway()
         
         # upload script
         scriptService = session.getScriptService()
         scriptId = self.uploadScript(scriptService, emanFiltersScript)
+        # services 
+        updateService = session.getUpdateService()
+        containerService = session.getContainerService()
         
         try:
             a=test_image()
@@ -83,28 +84,29 @@ class TestEmanScripts(lib.ITest):
         except:
             print "Couldn't create EMAN2 test image. EMAN2 import failed?"
             return
-        imageId = importImage(session, None, "filterTestImage", planeData)
+        image = importImage(session, None, "filterTestImage", planeData)
+        imageId = image.getId().getValue()
         
         # put image in dataset and project
         # create dataset
         dataset = omero.model.DatasetI()
         dsName = "emanFilters-test"
         dataset.name = rstring(dsName)
-        dataset = gateway.saveAndReturnObject(dataset)
+        dataset = updateService.saveAndReturnObject(dataset)
         # create project
         project = omero.model.ProjectI()
         project.name = rstring("emanFilters-test")
-        project = gateway.saveAndReturnObject(project)
+        project = updateService.saveAndReturnObject(project)
         # put dataset in project 
         link = omero.model.ProjectDatasetLinkI()
         link.parent = omero.model.ProjectI(project.id.val, False)
         link.child = omero.model.DatasetI(dataset.id.val, False)
-        gateway.saveAndReturnObject(link)
+        updateService.saveAndReturnObject(link)
         # put image in dataset
         dlink = omero.model.DatasetImageLinkI()
         dlink.parent = omero.model.DatasetI(dataset.id.val, False)
         dlink.child = omero.model.ImageI(imageId, False)
-        gateway.saveAndReturnObject(dlink)
+        updateService.saveAndReturnObject(dlink)
         
         # run script with all parameters. See http://blake.bcm.edu/emanwiki/Eman2ProgQuickstart
         newDatasetName = "filter-results"
@@ -132,7 +134,7 @@ class TestEmanScripts(lib.ITest):
         runScript(scriptService, client, scriptId, rMap)
         
         # should now have 2 datasets in the project above...
-        pros = gateway.getProjects([project.id.val], True)
+        pros = containerService.loadContainerHierarchy("Project", [project.id.val], None)
         datasetFound = False
         for p in pros:
             self.assertEquals(2, len(p.linkedDatasetList()))   # 2 datasets
@@ -140,12 +142,12 @@ class TestEmanScripts(lib.ITest):
                 # new dataset should have 1 image
                 if ds.name.val == newDatasetName:   
                     datasetFound = True
-                    iList = gateway.getImages(omero.api.ContainerClass.Dataset, [ds.id.val])
+                    iList = containerService.getImages("Dataset", [ds.id.val], None)
                     self.assertEquals(1, len(iList))
                 else:
                     # existing dataset should have 3 images. 
                     self.assertEquals(ds.name.val, dsName)
-                    iList = gateway.getImages(omero.api.ContainerClass.Dataset, [ds.id.val])
+                    iList = containerService.getImages("Dataset", [ds.id.val], None)
                     self.assertEquals(3, len(iList))
                     
         self.assertTrue(datasetFound, "No dataset found with EMAN-filtered images")
@@ -169,39 +171,41 @@ class TestEmanScripts(lib.ITest):
         session = self.root.sf
         client = self.root
         
-        # create user services 
-        gateway = session.createGateway()    
+        # create user services   
         roiService = session.getRoiService() 
+        queryService = session.getQueryService()
+        updateService = session.getUpdateService()
+        containerService = session.getContainerService()
         
         # import image and manually add rois
         imagePath = boxerTestImage
         imageName = "roi2imageTest"
-        iId = importImage(session, imagePath, imageName)
-        image = gateway.getImage(iId)
+        image = importImage(session, imagePath, imageName)
+        iId = image.getId().getValue()
         x, y, width, height = (1355, 600, 320, 325)   
-        addRectangleRoi(gateway, x, y, width, height, image)
+        addRectangleRoi(updateService, x, y, width, height, image)
         x, y, width, height = (890, 200, 310, 330)
-        addRectangleRoi(gateway, x, y, width, height, image)
+        addRectangleRoi(updateService, x, y, width, height, image)
         
         # put image in dataset and project
         # create dataset
         dataset = omero.model.DatasetI()
         dataset.name = rstring("imagesFromRoi-test")
-        dataset = gateway.saveAndReturnObject(dataset)
+        dataset = updateService.saveAndReturnObject(dataset)
         # create project
         project = omero.model.ProjectI()
         project.name = rstring("imagesFromRoi-test")
-        project = gateway.saveAndReturnObject(project)
+        project = updateService.saveAndReturnObject(project)
         # put dataset in project 
         link = omero.model.ProjectDatasetLinkI()
         link.parent = omero.model.ProjectI(project.id.val, False)
         link.child = omero.model.DatasetI(dataset.id.val, False)
-        gateway.saveAndReturnObject(link)
+        updateService.saveAndReturnObject(link)
         # put image in dataset
         dlink = omero.model.DatasetImageLinkI()
         dlink.parent = omero.model.DatasetI(dataset.id.val, False)
         dlink.child = omero.model.ImageI(image.id.val, False)
-        gateway.saveAndReturnObject(dlink)
+        updateService.saveAndReturnObject(dlink)
         
         containerName = "particles"
         ids = [omero.rtypes.rlong(iId), ]
@@ -213,15 +217,15 @@ class TestEmanScripts(lib.ITest):
         
         
         # now we should have a dataset with 2 images, in project
-        newDatasetName = "%s_%s" % (imageName, containerName)
-        pros = gateway.getProjects([project.id.val], True)
+        newDatasetName = containerName
+        pros = containerService.loadContainerHierarchy("Project", [project.id.val], None)
         datasetFound = False
         for p in pros:
             for ds in p.linkedDatasetList():
                 if ds.name.val == newDatasetName:
                     datasetFound = True
                     dsId = ds.id.val
-                    iList = gateway.getImages(omero.api.ContainerClass.Dataset, [dsId])
+                    iList = containerService.getImages("Dataset", [dsId], None)
                     self.assertEquals(2, len(iList))
         self.assertTrue(datasetFound, "No dataset: %s found with images from ROIs" % newDatasetName)
         
@@ -245,37 +249,37 @@ class TestEmanScripts(lib.ITest):
         session = self.root.sf
         
         # create user services 
-        gateway = session.createGateway()    
+        updateService = session.getUpdateService()
         roiService = session.getRoiService() 
         
         # import image and manually pick particles. 
         imagePath = boxerTestImage
-        iId = importImage(session, imagePath)
-        image = gateway.getImage(iId)
+        image = importImage(session, imagePath)
+        iId = image.getId().getValue()
         x, y, width, height = (1355, 600, 320, 325)     # script should re-size to 330
-        addRectangleRoi(gateway, x, y, width, height, image)
+        addRectangleRoi(updateService, x, y, width, height, image)
         x, y, width, height = (890, 200, 310, 330)
-        addRectangleRoi(gateway, x, y, width, height, image)
+        addRectangleRoi(updateService, x, y, width, height, image)
         
         # put image in dataset and project
         # create dataset
         dataset = omero.model.DatasetI()
         dataset.name = rstring("boxer-test")
-        dataset = gateway.saveAndReturnObject(dataset)
+        dataset = updateService.saveAndReturnObject(dataset)
         # create project
         project = omero.model.ProjectI()
         project.name = rstring("boxer-test")
-        project = gateway.saveAndReturnObject(project)
+        project = updateService.saveAndReturnObject(project)
         # put dataset in project 
         link = omero.model.ProjectDatasetLinkI()
         link.parent = omero.model.ProjectI(project.id.val, False)
         link.child = omero.model.DatasetI(dataset.id.val, False)
-        gateway.saveAndReturnObject(link)
+        updateService.saveAndReturnObject(link)
         # put image in dataset
         dlink = omero.model.DatasetImageLinkI()
         dlink.parent = omero.model.DatasetI(dataset.id.val, False)
         dlink.child = omero.model.ImageI(image.id.val, False)
-        gateway.saveAndReturnObject(dlink)
+        updateService.saveAndReturnObject(dlink)
         
         # upload (as root) and run the boxer.py script as user 
         scriptService = self.root.sf.getScriptService()
@@ -319,29 +323,29 @@ class TestEmanScripts(lib.ITest):
         # export2em.py because it uses the scripting service to look up the 'saveImageAs.py'
         # script we just uploaded as root. 
         session = self.root.sf
-        gateway = session.createGateway()
+        updateService = session.getUpdateService()
         
         # import image into dataset and project
-        iId = importImage(session, smallTestImage)
+        iId = importImage(session, smallTestImage).getId().getValue()
         imageName = os.path.basename(smallTestImage)
         # create dataset
         dataset = omero.model.DatasetI()
         dataset.name = rstring("export2em-test")
-        dataset = gateway.saveAndReturnObject(dataset)
+        dataset = updateService.saveAndReturnObject(dataset)
         # create project
         project = omero.model.ProjectI()
         project.name = rstring("export2em-test")
-        project = gateway.saveAndReturnObject(project)
+        project = updateService.saveAndReturnObject(project)
         # put dataset in project 
         link = omero.model.ProjectDatasetLinkI()
         link.parent = omero.model.ProjectI(project.id.val, False)
         link.child = omero.model.DatasetI(dataset.id.val, False)
-        gateway.saveAndReturnObject(link)
+        updateService.saveAndReturnObject(link)
         # put image in dataset
         dlink = omero.model.DatasetImageLinkI()
         dlink.parent = omero.model.DatasetI(dataset.id.val, False)
         dlink.child = omero.model.ImageI(iId, False)
-        gateway.saveAndReturnObject(dlink)
+        updateService.saveAndReturnObject(dlink)
         
         
         extension = "png"
@@ -374,12 +378,12 @@ class TestEmanScripts(lib.ITest):
         except:
             print "Couldn't create EMAN2 test image. EMAN2 import failed?"
             return
-        reImportId = importImage(session, None, imageName, planeData)
+        reImportId = importImage(session, None, imageName, planeData).getId().getValue()
         #reImportId = importImage(session, imageName)
         dlink = omero.model.DatasetImageLinkI()
         dlink.parent = omero.model.DatasetI(dataset.id.val, False)
         dlink.child = omero.model.ImageI(reImportId, False)
-        gateway.saveAndReturnObject(dlink)
+        updateService.saveAndReturnObject(dlink)
         
         os.remove(imageName)
         
@@ -407,31 +411,31 @@ class TestEmanScripts(lib.ITest):
         queryService = session.getQueryService()
         updateService = session.getUpdateService()
         rawFileStore = session.createRawFileStore()
-        gateway = session.createGateway()
+        containerService = session.getContainerService()
         
         # import image
-        iId = importImage(session, smallTestImage)
-        image = gateway.getImage(iId)
+        image = importImage(session, smallTestImage)
+        iId = image.getId().getValue()
         
         # put image in dataset and project
         # create dataset
         dataset = omero.model.DatasetI()
         dataset.name = rstring("spider-test")
-        dataset = gateway.saveAndReturnObject(dataset)
+        dataset = updateService.saveAndReturnObject(dataset)
         # create project
         project = omero.model.ProjectI()
         project.name = rstring("spider-test")
-        project = gateway.saveAndReturnObject(project)
+        project = updateService.saveAndReturnObject(project)
         # put dataset in project 
         link = omero.model.ProjectDatasetLinkI()
         link.parent = omero.model.ProjectI(project.id.val, False)
         link.child = omero.model.DatasetI(dataset.id.val, False)
-        gateway.saveAndReturnObject(link)
+        updateService.saveAndReturnObject(link)
         # put image in dataset
         dlink = omero.model.DatasetImageLinkI()
         dlink.parent = omero.model.DatasetI(dataset.id.val, False)
         dlink.child = omero.model.ImageI(image.id.val, False)
-        gateway.saveAndReturnObject(dlink)
+        updateService.saveAndReturnObject(dlink)
         
         # create and upload a Spider Procedure File
         # make a temp text file. Example from http://www.wadsworth.org/spider_doc/spider/docs/quickstart.html
@@ -470,14 +474,14 @@ class TestEmanScripts(lib.ITest):
         
         # check that image has been created. 
         # now we should have a dataset with 1 image, in project
-        pros = gateway.getProjects([project.id.val], True)
+        pros = containerService.loadContainerHierarchy("Project", [project.id.val], None)
         datasetFound = False
         for p in pros:
             for ds in p.linkedDatasetList():
                 if ds.name.val == newDatasetName:
                     datasetFound = True
                     dsId = ds.id.val
-                    iList = gateway.getImages(omero.api.ContainerClass.Dataset, [dsId])
+                    iList = containerService.getImages("Dataset", [dsId], None)
                     self.assertEquals(1, len(iList))
         self.assertTrue(datasetFound, "No dataset found with images from ROIs")
         
@@ -526,7 +530,7 @@ def editScript(scriptService, scriptPath):
     scriptService.editScript(script, scriptText)
     return script.id.val
 
-def addRectangleRoi(gateway, x, y, width, height, image):
+def addRectangleRoi(updateService, x, y, width, height, image):
     """
     Adds a Rectangle (particle) to the current OMERO image, at point x, y. 
     Uses the self.image (OMERO image) and self.updateService
@@ -535,7 +539,7 @@ def addRectangleRoi(gateway, x, y, width, height, image):
     # create an ROI, add the rectangle and save
     roi = omero.model.RoiI()
     roi.setImage(image)
-    r = gateway.saveAndReturnObject(roi) 
+    r = updateService.saveAndReturnObject(roi) 
 
     # create and save a rectangle shape
     rect = omero.model.RectI()
@@ -551,7 +555,7 @@ def addRectangleRoi(gateway, x, y, width, height, image):
     # link the rectangle to the ROI and save it 
     rect.setRoi(r)
     r.addShape(rect)    
-    gateway.saveAndReturnObject(rect)
+    updateService.saveAndReturnObject(rect)
     
 
 def getPlaneFromImage(imagePath):
@@ -567,12 +571,6 @@ def getPlaneFromImage(imagePath):
 
 def importImage(session, imagePath, imageName=None, planeData=None):
     
-    gateway = session.createGateway()
-    renderingEngine = session.createRenderingEngine()
-    queryService = session.getQueryService()
-    pixelsService = session.getPixelsService()
-    rawPixelStore = session.createRawPixelsStore()
-    
     if imagePath != None:
         data = getPlaneFromImage(imagePath)
         if len(data.shape) == 3:
@@ -580,15 +578,11 @@ def importImage(session, imagePath, imageName=None, planeData=None):
         else: plane2D = data
     else:
         plane2D = planeData
-    pType = plane2D.dtype.name
-    pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
-    if pixelsType == None:
-        pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % 'float', None) # omero::model::PixelsType
     
     if imageName == None:
         imageName = imagePath
-    image = scriptUtil.createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, gateway, [plane2D], imageName, "description", dataset=None)
-    return image.getId().getValue()
+    image = scriptUtil.createNewImage(session, [plane2D], imageName, "description", dataset=None)
+    return image
 
 if __name__ == '__main__':
     unittest.main()

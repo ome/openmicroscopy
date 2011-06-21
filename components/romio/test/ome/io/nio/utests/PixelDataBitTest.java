@@ -1,11 +1,16 @@
+/*
+ *   Copyright (C) 2009-2011 University of Dundee & Open Microscopy Environment.
+ *   All rights reserved.
+ *
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
 package ome.io.nio.utests;
 
 import static org.testng.AssertJUnit.*;
 
 import java.nio.ByteBuffer;
 
-import ome.io.nio.PixelData;
-import ome.model.enums.PixelsType;
+import ome.util.PixelData;
 
 /**
  * Integration tests of the PixelData implementation for the bit pixel type.
@@ -17,10 +22,8 @@ public class PixelDataBitTest
 
     public void setUp()
     {
-    	PixelsType type = new PixelsType();
     	byte[] byteArray = new byte[] { (byte) 0xFF, (byte) 193 }; 
-    	type.setValue("bit");
-    	data = new PixelData(type, ByteBuffer.wrap(byteArray));
+	data = new PixelData("bit", ByteBuffer.wrap(byteArray));
     }
  
     public void testGetBits()

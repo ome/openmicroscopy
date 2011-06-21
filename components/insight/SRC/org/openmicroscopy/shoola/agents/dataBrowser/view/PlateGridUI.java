@@ -70,6 +70,9 @@ class PlateGridUI
 	/** The currently selected field. */
 	private JLabel				 selectedField;
 	
+	/** The currently selected field. */
+	private JLabel				 selectedText;
+	
 	/** Reference to the controller. */
 	private DataBrowserControl 	controller;
 	
@@ -87,6 +90,7 @@ class PlateGridUI
 			selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
 			grid.selectCell(node.getRow(), node.getColumn());
 		}
+		selectedText = new JLabel();
 	}
 	
 	/** Builds and lays out the UI. */
@@ -98,8 +102,9 @@ class PlateGridUI
 				TableLayout.FILL}};
 		setLayout(new TableLayout(size));
 		add(grid, "0, 0, 0, 2");
-		add(selectedNode, "2, 0, LEFT, TOP");
-		add(selectedField, "2, 1, LEFT, TOP");
+		//add(selectedNode, "2, 0, LEFT, TOP");
+		//add(selectedField, "2, 1, LEFT, TOP");
+		add(selectedText, "2, 2, LEFT, TOP");
 	}
 	
 	/**
@@ -123,6 +128,9 @@ class PlateGridUI
 		if (node != null) {
 			selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
 			grid.selectCell(node.getRow(), node.getColumn());
+			if (node.getText() != null) {
+				selectedText.setText(UIUtilities.formatToolTipText(node.getText()));
+			}
 		}
 	}
 	

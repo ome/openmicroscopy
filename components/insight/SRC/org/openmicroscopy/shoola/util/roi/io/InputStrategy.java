@@ -49,14 +49,11 @@ import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
-
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
@@ -65,7 +62,6 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGAttributeParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFillParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFillRuleParser;
@@ -85,6 +81,8 @@ import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeWidthParse
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGTransformParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.ShowMeasurementParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.ShowTextParser;
+
+import pojos.ShapeSettingsData;
 
 /** 
  * 
@@ -106,22 +104,26 @@ public class InputStrategy
 	 * The hashmap of the default values of each object along with the keys 
 	 * used.
 	 */
-	private final static HashMap<AttributeKey, Object>		defaultAttributes;
+	private final static Map<AttributeKey, Object>		defaultAttributes;
 	static
 	{
 		defaultAttributes=new HashMap<AttributeKey, Object>();
 		defaultAttributes.put(MeasurementAttributes.FILL_COLOR,
-			IOConstants.DEFAULT_FILL_COLOUR);
+			ShapeSettingsData.DEFAULT_FILL_COLOUR);
 		defaultAttributes.put(MeasurementAttributes.STROKE_COLOR,
-			IOConstants.DEFAULT_STROKE_COLOUR);
+				ShapeSettingsData.DEFAULT_STROKE_COLOUR);
 		defaultAttributes.put(MeasurementAttributes.TEXT_COLOR,
-			IOConstants.DEFAULT_TEXT_COLOUR);
-		defaultAttributes.put(MeasurementAttributes.FONT_SIZE, new Double(10));
-		defaultAttributes.put(MeasurementAttributes.FONT_BOLD, false);
-		defaultAttributes.put(MeasurementAttributes.STROKE_WIDTH, new Double(1.0));
-		defaultAttributes.put(MeasurementAttributes.TEXT, "Text");
+				ShapeSettingsData.DEFAULT_STROKE_COLOUR);
+		defaultAttributes.put(MeasurementAttributes.FONT_SIZE, 
+				new Double(ShapeSettingsData.DEFAULT_FONT_SIZE));
+		defaultAttributes.put(MeasurementAttributes.FONT_BOLD, 
+				Boolean.valueOf(false));
+		defaultAttributes.put(MeasurementAttributes.STROKE_WIDTH, 
+				ShapeSettingsData.DEFAULT_STROKE_WIDTH);
+		defaultAttributes.put(MeasurementAttributes.TEXT, 
+				ROIFigure.DEFAULT_TEXT);
 		defaultAttributes.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
-			IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
+				ShapeSettingsData.DEFAULT_STROKE_COLOUR);
 		defaultAttributes.put(MeasurementAttributes.SHOWMEASUREMENT, 
 				Boolean.valueOf(false));
 		defaultAttributes.put(MeasurementAttributes.SHOWTEXT, 
@@ -402,16 +404,6 @@ public class InputStrategy
 		return shape;
 	}
 		
-	/** 
-	 * Return true if the name is an annotation.
-	 * @param name see above.
-	 * @return see above.
-	 */
-	private boolean isAnnotation(String name)
-	{
-		return (AnnotationKeys.supportedAnnotations.contains(name));
-	}
-		
 	/**
 	 * Add the annotation to the shape from the XML element.
 	 * @param annotationElement the element.
@@ -419,8 +411,9 @@ public class InputStrategy
 	 */
 	private void addAnnotation(IXMLElement annotationElement, ROIShape shape)
 	{
-		String key=annotationElement.getName();
-		AnnotationKey v=new AnnotationKey(key);
+		if (annotationElement == null || shape == null) return;
+		String key = annotationElement.getName();
+		AnnotationKey v = new AnnotationKey(key);
 		shape.setAnnotation(v, createAnnotationData(annotationElement));
 	}
 		

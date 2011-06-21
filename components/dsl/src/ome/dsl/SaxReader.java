@@ -1,9 +1,9 @@
 /*
- * ome.dsl.SaxReader
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
- */
+* ome.dsl.SaxReader
+*
+*   Copyright 2006 University of Dundee. All rights reserved.
+*   Use is subject to license terms supplied in LICENSE.txt
+*/
 
 package ome.dsl;
 
@@ -30,26 +30,26 @@ import org.xml.sax.helpers.DefaultHandler;
 // Application-internal dependencies
 
 /**
- * reads semantic-type-xml and produces a Set of SemanticType objects. Most
- * logic is passed off to the {@see ome.dsl.SemanticType ST} and
- * {@see ome.dsl.Property Property} classes.
- */
+* reads semantic-type-xml and produces a Set of SemanticType objects. Most
+* logic is passed off to the {@see ome.dsl.SemanticType ST} and
+* {@see ome.dsl.Property Property} classes.
+*/
 public class SaxReader {
 
-    private static Log log = LogFactory.getLog(SaxReader.class);
+private static Log log = LogFactory.getLog(SaxReader.class);
 
-    /** input file */
-    URL xmlFile;
+/** input file */
+URL xmlFile;
 
-    /** handler which collects all types and properties from the input file */
-    DSLHandler handler;
+/** handler which collects all types and properties from the input file */
+DSLHandler handler;
 
-    /** SAXparser which does the actualy processing */
-    javax.xml.parsers.SAXParser parser;
+/** SAXparser which does the actualy processing */
+javax.xml.parsers.SAXParser parser;
 
-    public SaxReader(String profile, File file) {
-        this(file, new DSLHandler(profile));
-    }
+public SaxReader(String profile, File file) {
+this(file, new DSLHandler(profile));
+}
 
     public SaxReader(File file, DSLHandler dslHandler) {
         handler = dslHandler;
@@ -385,10 +385,10 @@ class DSLHandler extends DefaultHandler {
          */
         for (SemanticType semanticType : types.values()) {
             for (Property property : semanticType.getPropertyClosure()) {
-
+                
                 SemanticType target = types.get(property.getType());
                 property.setActualTarget(target);
-
+                
                 SemanticType currentType = semanticType;
                 SemanticType actualType = semanticType;
                 

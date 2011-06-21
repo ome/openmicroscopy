@@ -27,11 +27,18 @@ import sys
 import urllib
 import platform
 import subprocess
+import exceptions
 
 
 LOG_URL = "http://hudson.openmicroscopy.org.uk/job/OMERO-%(BRANCH)s/lastSuccessfulBuild/artifact/src/target/%(BRANCH)s.log"
 JOB_NAME_STR = "^OMERO-([^-]+)-(.*?)(/(.*))?$"
 JOB_NAME_REG = re.compile(JOB_NAME_STR)
+
+
+class ConfigOpener(urllib.FancyURLopener):
+    def http_error_default(self, url, fp, errcode, errmsg, headers):
+        if errcode and errcode > 400:
+             raise exceptions.Exception("Error loading %s: %s" % (url, errcode))
 
 
 if __name__ == "__main__":
@@ -74,7 +81,8 @@ if __name__ == "__main__":
     # LOG FILES
     #
     log_url = LOG_URL % {"BRANCH": branch}
-    url = urllib.urlopen(LOG_URL % {"BRANCH": branch})
+    print "Loading %s ..." % log_url
+    url = urllib.urlopen(log_url)
     build_log_text = url.read()
     url.close()
 
@@ -109,8 +117,18 @@ if __name__ == "__main__":
     if axises and job != "start":
         build_url = os.environ["BUILD_URL"]
         build_url = build_url.replace("component=%s" % job, "component=start")
+        # These jobs don't have their own
+        # "start" component, so let them use
+        # the "linux" label.
+        if label == "macosx" or label == "matlab":
+            build_url = build_url.replace("label=%s" % label, "label=linux")
         build_url = "%s/%s" % (build_url, "artifact/src/%s.config" % branch)
-        urllib.urlretrieve(build_url, filename=config_file)
+        if os.path.exists(config_file):
+            print "Removing %s ..." % config_file
+            os.remove(config_file)
+        print "Downloading %s ... " % build_url
+        ConfigOpener().retrieve(build_url, filename=config_file)
+        os.environ["ICE_CONFIG"] = config_file
 
 
     #

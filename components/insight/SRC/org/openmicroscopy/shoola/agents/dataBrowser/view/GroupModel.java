@@ -77,7 +77,7 @@ class GroupModel
 				experimenters);
 		numberOfImages = experimenters.size();
         browser = BrowserFactory.createBrowser(visTrees);
-        layoutBrowser();
+        //layoutBrowser();
 	}
 	
 	/**

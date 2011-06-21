@@ -98,14 +98,14 @@ public class Region
 	 * 
 	 * @return See above.
 	 */
-	public int getXLocation() { return xLocation; }
+	public int getX() { return xLocation; }
 	
 	/**
 	 * Returns the y-coordinate of the top-left corner of the region.
 	 * 
 	 * @return See above.
 	 */
-	public int getYLocation() { return yLocation; }
+	public int getY() { return yLocation; }
 	
 	/**
 	 * Returns the width of the region.
@@ -120,5 +120,14 @@ public class Region
 	 * @return See above.
 	 */
 	public int getHeight() { return height; }
+	
+	/**
+	 * Overridden to return the dimension of the region and location.
+	 * @see {@link #toString()}
+	 */
+	public String toString()
+	{
+		return "x="+xLocation+" y="+yLocation+" w="+width+" h="+height; 
+	}
 	
 }

@@ -24,3 +24,11 @@ cp dist/lib/client/omero_client.jar $OMERO_CPP/lib/client/ # For Java compilatio
 
 cd examples
 python ../target/scons/scons.py builddir=$OMERO_CPP run_cpp=1
+
+#
+# Write test file for OMERO-cpp jobs
+#
+cd ..
+FILE=cpp.xml
+mkdir -p target/reports
+wget -O - "http://hudson.openmicroscopy.org.uk/userContent/$FILE" > target/reports/$FILE

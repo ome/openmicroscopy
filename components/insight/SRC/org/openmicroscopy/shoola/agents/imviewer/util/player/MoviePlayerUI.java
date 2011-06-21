@@ -47,6 +47,7 @@ import javax.swing.border.TitledBorder;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 
@@ -112,7 +113,7 @@ class MoviePlayerUI
 	JSpinner            fps;
 
 	/** To define new editor for JSpinner (due to JSpinner bug). */
-	JTextField          editor;
+	NumericalTextField	editor;
 
 	/** To select the movie type. */
 	JComboBox           movieTypes;
@@ -172,7 +173,7 @@ class MoviePlayerUI
 		throw new IllegalArgumentException("Movie type not supported.");
 	}
 
-	/** Initializes the components constituing the display. */
+	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
 		IconManager icons = IconManager.getInstance();
@@ -189,12 +190,15 @@ class MoviePlayerUI
 
 		//Spinner timepoint granularity is 1, so must be stepSize  
 		int max = model.getMaximumTimer();
+		
 		fps = new JSpinner(new SpinnerNumberModel(model.getTimerDelay(), 
 				MoviePlayer.FPS_MIN, max, 1));
-		editor = new JTextField(""+model.getTimerDelay(), (""+max).length());
 		String s = "Select or enter the movie playback rate " +
 				"(frames per second).";
-		editor.setToolTipText(UIUtilities.formatToolTipText(s));
+		editor = new NumericalTextField(MoviePlayer.FPS_MIN, max, Integer.class);
+		editor.setText(""+model.getTimerDelay());
+		editor.setToolTipText(s);
+		editor.setColumns((""+max).length());
 		fps.setEditor(editor);
 
 		//movie selection
@@ -299,7 +303,7 @@ class MoviePlayerUI
 	/**
 	 * Builds a panel wrapping the start and end text.
 	 * 
-	 * @param length The Length of the textfields.
+	 * @param length The Length of the text fields.
 	 * @param start     The start textFields.
 	 * @param end The end textField.
 	 * @return See below.
@@ -390,7 +394,7 @@ class MoviePlayerUI
 		c.insets = new Insets(10, 0, 10, 0);
 		c.gridx = 0;
 		c.gridy = 1;
-		//controls.add(createFPSControls(), c);
+		controls.add(createFPSControls(), c);
 
 
 		//lays out components

@@ -28,7 +28,7 @@ try:
         global_value = getattr(settings, global_name, "(unset)")
         CONFIG_TABLE += CONFIG_TABLE_FMT  % (key, using_default, global_value)
 except:
-    CONFIG_TABLE="INVALID CONFIGURATION! Cannot display default values"
+    CONFIG_TABLE="INVALID OR LOCKED CONFIGURATION! Cannot display default values"
 
 HELP="""OMERO.web configuration/deployment tools
 
@@ -51,6 +51,17 @@ Example Nginx usage:
     omero web stop
     nginx -s stop
 
+Example IIS usage:
+
+    # Install server
+    omero config set omero.web.debug true
+    omero web iis
+    iisreset
+
+    # Uninstall server
+    omero web iis --remove
+    iisreset
+
 """ % CONFIG_TABLE
 
 
@@ -62,6 +73,9 @@ class WebControl(BaseControl):
         parser.add(sub, self.start, "Primary start for the OMERO.web server")
         parser.add(sub, self.stop, "Stop the OMERO.web server")
         parser.add(sub, self.status, "Status for the OMERO.web server")
+
+        iis = parser.add(sub, self.iis, "IIS (un-)install of OMERO.web ")
+        iis.add_argument("--remove", action = "store_true", default = False)
 
         #
         # Advanced
@@ -88,13 +102,17 @@ class WebControl(BaseControl):
         gateway = parser.add(sub, self.gateway, "Developer use: Loads the blitz gateway into a Python interpreter")
 
         selenium = parser.add(sub, self.seleniumtest, "Developer use: runs selenium tests on a django app")
+        selenium.add_argument("--config", action="store", help = "ice.config location")
         selenium.add_argument("djangoapp", help = "Django-app to be tested")
         selenium.add_argument("seleniumserver", help = "E.g. localhost")
         selenium.add_argument("hostname", help = "E.g. http://localhost:4080")
         selenium.add_argument("browser", help = "E.g. firefox")
 
-        test = parser.add(sub, self.test, "Developer use: Runs 'coverage -x manage.py test'")
-        test.add_argument("arg", nargs="*")
+        unittest = parser.add(sub, self.unittest, "Developer use: Runs 'coverage -x manage.py test'")
+        unittest.add_argument("--config", action="store", help = "ice.config location")
+        unittest.add_argument("--test", action="store", help = "Specific test case(-s).")
+        unittest.add_argument("--path", action="store", help = "Path to Django-app. Must include '/'.")
+
 
     def host_and_port(self, APPLICATION_HOST):
         parts = APPLICATION_HOST.split(':')
@@ -207,50 +225,57 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
             self.ctx.out('[enableapp] available apps:\n - ' + '\n - '.join(apps) + '\n')
         else:
             for app in args.appname:
-                args = ["python", location / app / "scripts" / "enable.py"]
+                args = [sys.executable, location / app / "scripts" / "enable.py"]
                 rv = self.ctx.call(args, cwd = location)
                 if rv != 0:
                     self.ctx.die(121, "Failed to enable '%s'.\n" % app)
                 else:
                     self.ctx.out("App '%s' was enabled\n" % app)
-            args = ["python", "manage.py", "syncdb", "--noinput"]
+            args = [sys.executable, "manage.py", "syncdb", "--noinput"]
             rv = self.ctx.call(args, cwd = location)
             self.syncmedia(None)
 
     def gateway(self, args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        args = ["python", "-i", location / "../omero/gateway/scripts/dbhelpers.py"]
-        os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
-        os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
+        args = [sys.executable, "-i", location / "../omero/gateway/scripts/dbhelpers.py"]
+        self.set_environ()
         os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         rv = self.ctx.call(args, cwd = location)
 
-    def test(self, args):
-        param = args.arg[0]
-        if param.find('/') >= 0:
-            path = param.split('/')
+    def unittest(self, args):
+        try:
+            ice_config = args.config
+            test = args.test
+            testpath = args.path
+        except:
+            self.ctx.die(121, "usage: unittest --config=/path/to/ice.config --test=appname.TestCase --path=/external/path/")
+            
+        if testpath is not None and testpath.find('/') >= 0:
+            path = testpath.split('/')
             test = path[len(path)-1]
-            if param.startswith('/'):
+            if testpath.startswith('/'):
                 location = "/".join(path[:(len(path)-1)])
             else:
                 appbase = test.split('.')[0]
                 location = self.ctx.dir / "/".join(path[:(len(path)-1)])
-        else:
+        
+        if testpath is None:
             location = self.ctx.dir / "lib" / "python" / "omeroweb"
-            test = param        
-        if len(args.arg) > 1:
-            cargs = args.arg[1:]
+                    
+        if testpath is not None and len(testpath) > 1:
+            cargs = [testpath]
         else:
-            cargs = ['python']
+            cargs = [sys.executable]
+        
         cargs.extend([ "manage.py", "test"])
         if test:
             cargs.append(test)
-        os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
-        os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
+        self.set_environ(ice_config=ice_config)
         rv = self.ctx.call(cargs, cwd = location)
 
     def seleniumtest (self, args):
         try:
+            ice_config = args.config
             appname = args.djangoapp
             seleniumserver = args.seleniumserver
             hostname = args.hostname
@@ -267,8 +292,10 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
             appbase = "omeroweb"
             location = self.ctx.dir / "lib" / "python" / "omeroweb"
 
-        cargs = ["python", location / appname / "tests" / "seleniumtests.py", seleniumserver, hostname, browser]
+        cargs = [sys.executable, location / appname / "tests" / "seleniumtests.py", seleniumserver, hostname, browser]
         #cargs += args.arg[1:]
+        self.set_environ(ice_config=ice_config)
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
         rv = self.ctx.call(cargs, cwd = location )
         
     def call (self, args):
@@ -285,8 +312,7 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
             cargs.extend([location / appname / "scripts" / scriptname] + args.arg)
             print cargs
             os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
-            os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
-            os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
+            self.set_environ()
             rv = self.ctx.call(cargs, cwd = location)
         except:
             import traceback
@@ -353,7 +379,7 @@ using bin\omero web start on Windows with FastCGI.
                              'port': settings.APPLICATION_SERVER_PORT}).split()
             rv = self.ctx.popen(args=django, cwd=location) # popen
         else:
-            django = ["python","manage.py","runserver", link, "--noreload"]
+            django = [sys.executable,"manage.py","runserver", link, "--noreload"]
             rv = self.ctx.call(django, cwd = location)
         self.ctx.out("[OK]")
         return rv
@@ -420,6 +446,21 @@ using bin\omero web start on Windows with FastCGI.
                     pid_path.remove()
         else:
             self.ctx.err("DEVELOPMENT: You will have to kill processes by hand!")
+
+    def set_environ(self, ice_config=None):
+        os.environ['ICE_CONFIG'] = ice_config is None and str(self.ctx.dir / "etc" / "ice.config") or str(ice_config)
+        os.environ['PATH'] = str(os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin')
+
+    def iis(self, args):
+
+        if not (self._isWindows() or self.ctx.isdebug):
+            self.ctx.die(2, "'iis' command is for Windows only")
+
+        web_iis = self.ctx.dir / "lib" / "python" / "omero_web_iis.py"
+        cmd = [sys.executable, str(web_iis)]
+        if args.remove:
+            cmd.append("remove")
+        rv = self.ctx.call(cmd)
 
 try:
     register("web", WebControl, HELP)

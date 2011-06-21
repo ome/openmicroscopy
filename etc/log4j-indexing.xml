@@ -60,6 +60,7 @@ omero.blitz.xargs.
   <!-- Qiueting indexing -->
   <category name="ome.security.basic.EventHandler"> <priority value="WARN"/> </category>
   <category name="ome.services.util.ServiceHandler"> <priority value="WARN"/> </category>
+  <category name="ome.services.sessions.state"> <priority value="WARN"/> </category>
   <!-- Inherit from Spring/etc and so are a bit verbose -->
   <category name="ome.system.OmeroContext"> <priority value="WARN"/> </category>
   <category name="ome.system.PreferenceContext"> <priority value="WARN"/> </category>
@@ -82,6 +83,8 @@ omero.blitz.xargs.
   <category name="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor"> <priority value="TRACE"/> </category>
   <!-- Quieting blitz startup -->
   <category name="net.sf.ehcache"> <priority value="ERROR"/> </category>
+  <category name="loci"> <priority value="INFO"/> </category><!-- Bio-Formats -->
+  <category name="ucar"> <priority value="WARN"/> </category><!-- NetCDF -->
 
   <!-- BUILD ////////////////////////////////////////////////////////////////// -->
   <category name="org.hibernate.tool.hbm2x.POJOExporter"> <priority value="ERROR"/> </category>
@@ -97,6 +100,8 @@ omero.blitz.xargs.
   <category name="org.hibernate.engine.loading.LoadContexts"> <priority value="ERROR"/> </category>
   <!-- This is bogus, and will be caught by our exception handlers anyway -->
   <category name="org.hibernate.util.JDBCExceptionReporter"> <priority value="FATAL"/> </category>
+  <!-- Printed on startup -->
+  <category name="org.hibernate.search.engine.DocumentBuilderContainedEntity"> <priority value="ERROR"/> </category>
   <!-- Other overly verbose messages -->
   <category name="org.hibernate.SQL"> <priority value="ERROR"/> </category>
   <category name="org.hibernate.cfg"> <priority value="ERROR"/> </category>

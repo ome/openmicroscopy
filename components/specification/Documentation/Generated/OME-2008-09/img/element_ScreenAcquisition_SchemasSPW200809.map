@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_ScreenAcquisition_SchemasSPW200809'>
+ <area
+  shape='rect'
+  alt='element_WellSampleRef'
+  coords='333,0,480,42'
+  href='SPW.xsd.html#element_WellSampleRef'/>
+
+ <area
+  shape='rect'
+  alt='type_ScreenAcquisitionID'
+  coords='247,52,341,78'
+  href='SPW.xsd.html#type_ScreenAcquisitionID'/>
+
+</map>

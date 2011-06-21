@@ -36,7 +36,9 @@ from omero.clients import ObjectFactory
 import fsDropBoxMonitorClient
 
 class DropBox(Ice.Application):
-    imageId = []
+    # Used by test client
+    imageIds = []
+    importCount = 0
     event = threading.Event()
 
     def run(self, args):
@@ -174,6 +176,7 @@ class DropBox(Ice.Application):
                     mClient[user].setServerProxy(fsServer)
                     mClient[user].setSelfProxy(mClientProxy)
                     mClient[user].setDirImportWait(monitorParameters[user]['dirImportWait'])
+                    mClient[user].setTimeouts(monitorParameters[user]['timeToLive'],monitorParameters[user]['timeToIdle'])
                     mClient[user].setReaders(monitorParameters[user]['readers'])
                     mClient[user].setImportArgs(monitorParameters[user]['importArgs'])
                     mClient[user].setHostAndPort(host,port)
@@ -197,13 +200,13 @@ class DropBox(Ice.Application):
             # If this is TestDropBox then try to copy and import a file.
             if isTestClient:
                 timeout = int(props.getPropertyWithDefault("omero.fstest.timeout","120"))
-                srcFile = props.getPropertyWithDefault("omero.fstest.srcFile","")
+                srcFiles = list(props.getPropertyWithDefault("omero.fstest.srcFile","").split(';'))
                 targetDir = monitorParameters[testUser]['watchDir']
-                if not srcFile or not targetDir:
+                if not srcFiles or not targetDir:
                     log.error("Bad configuration")
                 else:
-                    log.info("Copying test file %s to %s" % (srcFile, targetDir))
-                    retVal = self.injectTestFile(srcFile, targetDir, timeout)
+                    log.info("Copying test file(s) %s to %s" % (srcFiles, targetDir))
+                    retVal = self.injectTestFile(srcFiles, targetDir, timeout)
             else:
                 self.communicator().waitForShutdown()
         except:
@@ -241,29 +244,36 @@ class DropBox(Ice.Application):
         log.info("Setting event on sig %s" % sig)
         self.event.set();
 
-    def injectTestFile(self, srcFile, dstDir, timeout):
+    def injectTestFile(self, srcFiles, dstDir, timeout):
         """
            Copy test file and wait for import to complete.
 
         """
 
         try:
-            ext = pathModule.path(srcFile).ext
-            dstFile = os.path.join(dstDir, str(uuid.uuid1())+ext)
+            destFiles = []
+            for src in srcFiles:
+                ext = pathModule.path(src).ext
+                dstFile = os.path.join(dstDir, str(uuid.uuid1())+ext)
+                destFiles.append((src, dstFile))
         except:
             log.exception("Error source files:")
             return -1
 
         try:
-            shutil.copy(srcFile, dstFile)
+            for filePair in destFiles:
+                shutil.copy(filePair[0],filePair[1])
         except:
             log.exception("Error copying file:")
             return -1
-
+            
+        self.importCount =  len(srcFiles)
         self.event.wait(timeout)
 
-        if not hasattr(self, "imageId"):
-            log.error("notifyTestFile never called")
+        if not self.event.isSet():
+            log.error("notifyTestFile not called enough times (%s/%s)", len(srcFiles)-self.importCount, len(srcFiles))
+        else:
+            log.info("All imports completed.")
 
         try:
             sf = omero.util.internal_service_factory(
@@ -276,7 +286,7 @@ class DropBox(Ice.Application):
         p = omero.sys.Parameters()
 
         retVal = 0
-        for i in self.imageId:
+        for i in self.imageIds:
             query = "select i from Image i where i.id = " + "'" + i + "'"
             out = sf.getQueryService().findAllByQuery(query, p)
 
@@ -301,8 +311,10 @@ class DropBox(Ice.Application):
 
         """
         log.info("%s import attempted. image id=%s", fileId, imageId)
-        self.imageId = imageId
-        self.event.set()
+        self.imageIds += imageId
+        self.importCount -= 1
+        if self.importCount == 0:
+            self.event.set()
 
     def getHostAndPort(self, props):
         """
@@ -353,6 +365,8 @@ class DropBox(Ice.Application):
             ignoreSysFiles = list(props.getPropertyWithDefault("omero.fs.ignoreSysFiles","True").split(';'))
             ignoreDirEvents = list(props.getPropertyWithDefault("omero.fs.ignoreDirEvents","True").split(';'))
             dirImportWait = list(props.getPropertyWithDefault("omero.fs.dirImportWait","60").split(';'))
+            timeToLive = list(props.getPropertyWithDefault("omero.fs.timeToLive","0").split(';'))
+            timeToIdle = list(props.getPropertyWithDefault("omero.fs.timeToIdle","600").split(';'))
             readers = list(props.getPropertyWithDefault("omero.fs.readers","").split(';'))
             importArgs = list(props.getPropertyWithDefault("omero.fs.importArgs","").split(';'))
 
@@ -411,6 +425,16 @@ class DropBox(Ice.Application):
                         monitorParams[importUser[i]]['dirImportWait'] = int(dirImportWait[i].strip(string.whitespace))
                     except:
                         monitorParams[importUser[i]]['dirImportWait'] = 60 # seconds
+
+                    try:
+                        monitorParams[importUser[i]]['timeToLive'] = long(timeToLive[i].strip(string.whitespace))*1000
+                    except:
+                        monitorParams[importUser[i]]['timeToLive'] = 0L # milliseconds
+
+                    try:
+                        monitorParams[importUser[i]]['timeToIdle'] = long(timeToIdle[i].strip(string.whitespace))*1000
+                    except:
+                        monitorParams[importUser[i]]['timeToIdle'] = 600000L # milliseconds
 
                     try:
                         readersFile = readers[i].strip(string.whitespace)

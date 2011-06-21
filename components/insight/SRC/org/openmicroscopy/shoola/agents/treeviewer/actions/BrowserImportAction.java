@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.Action;
 
 //Third-party libraries
@@ -40,6 +38,8 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -60,9 +60,6 @@ public class BrowserImportAction
 	extends BrowserAction
 {
 
-    /** The description of the action. */
-    private static final String DESCRIPTION = "Import the selected images.";
-    
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
      * @see BrowserAction#onStateChange()
@@ -85,18 +82,36 @@ public class BrowserImportAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null) {
-        	setEnabled(true);
-            return;
-        }
-        Object ho = selectedDisplay.getUserObject();
-        if (ho == null) setEnabled(true);
-        else {
-        	if (ho instanceof ProjectData || ho instanceof DatasetData ||
-        		ho instanceof ScreenData) setEnabled(model.isUserOwner(ho));
-        	else setEnabled(true);
-        }
-       
+    	int t = model.getBrowserType();
+    	if (t == Browser.PROJECTS_EXPLORER || t == Browser.SCREENS_EXPLORER) {
+    		if (selectedDisplay == null) {
+            	setEnabled(true);
+                return;
+            }
+            Object ho = selectedDisplay.getUserObject();
+            if (ho == null) setEnabled(true);
+            else {
+            	/*
+            	TreeImageDisplay[] nodes = model.getSelectedDisplays();
+                if (nodes != null && nodes.length > 1) {
+                	setEnabled(false);
+                } else {
+                	if (ho instanceof ProjectData || ho instanceof DatasetData ||
+                			ho instanceof ScreenData) 
+                		setEnabled(model.isUserOwner(ho));
+                	else setEnabled(true);
+                }
+                */
+            	if (ho instanceof ProjectData || ho instanceof DatasetData ||
+            			ho instanceof ScreenData || ho instanceof ImageData) 
+            		setEnabled(model.isUserOwner(ho));
+            	else if (ho instanceof ExperimenterData && 
+            			t != Browser.ADMIN_EXPLORER) {
+            		ExperimenterData exp = TreeViewerAgent.getUserDetails();
+            		setEnabled(exp.getId() == ((ExperimenterData) ho).getId());
+            	} else setEnabled(true);
+            }
+    	} else setEnabled(false);
     }
     
     /**
@@ -107,8 +122,19 @@ public class BrowserImportAction
 	public BrowserImportAction(Browser model)
 	{
 		super(model);
-		putValue(Action.SHORT_DESCRIPTION, 
-				UIUtilities.formatToolTipText(DESCRIPTION));
+		switch (model.getBrowserType()) {
+			case Browser.SCREENS_EXPLORER:
+				putValue(Action.SHORT_DESCRIPTION, 
+						UIUtilities.formatToolTipText(
+								ImportAction.DESCRIPTION_SCREEN));
+				break;
+			case Browser.PROJECTS_EXPLORER:
+			default:
+				putValue(Action.SHORT_DESCRIPTION, 
+						UIUtilities.formatToolTipText(
+								ImportAction.DESCRIPTION_DATASET));
+				break;
+		}
 		IconManager im = IconManager.getInstance();
 		putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
 	}
@@ -119,54 +145,27 @@ public class BrowserImportAction
      */
     public void actionPerformed(ActionEvent e)
     {
-    	//No container specified in that case
-        //model.showImporter();
-    	/*
-    	int type = -1;
+    	TreeImageDisplay display = model.getLastSelectedDisplay();
+    	if (display != null) {
+    		Object o = display.getUserObject();
+        	if (o instanceof ImageData) {
+        		TreeImageDisplay p = display.getParentDisplay();
+        		if (p == null) return;
+        		display = p;
+        	}
+    	}
+    	
+    	LoadImporter event = null;
+    	int type = LoadImporter.PROJECT_TYPE;
     	switch (model.getBrowserType()) {
-			case Browser.PROJECTS_EXPLORER:
-				type = LoadImporter.PROJECT_TYPE;
-				break;
 			case Browser.SCREENS_EXPLORER:
 				type = LoadImporter.SCREEN_TYPE;
-		}
+    	}
+    	event = new LoadImporter(display, type);
+    	long id = TreeViewerAgent.getUserDetails().getId();
+    	event.setObjects(model.getNodesForUser(id));
     	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-    	bus.post(new LoadImporter(type));
-    	*/
-    	TreeImageDisplay[] list = model.getSelectedDisplays();
-    	//TreeImageDisplay display = model.getLastSelectedDisplay();
-    	LoadImporter event = null;
-    	if (list != null && list.length > 0) {
-    		List<TreeImageDisplay> containers = new ArrayList<TreeImageDisplay>();
-    		TreeImageDisplay node;
-    		Object ho;
-    		for (int j = 0; j < list.length; j++) {
-    			node = list[j];
-    			ho = node.getUserObject();
-    			if (ho instanceof DatasetData || ho instanceof ScreenData ||
-		    			ho instanceof ProjectData) {
-					containers.add(node);
-				}
-			}
-    		if (containers.size() > 0) {
-    			event = new LoadImporter(containers);
-    		}
-    	}
-    	if (event == null) {
-    		int type = -1;
-        	switch (model.getBrowserType()) {
-    			case Browser.PROJECTS_EXPLORER:
-    				type = LoadImporter.PROJECT_TYPE;
-    				break;
-    			case Browser.SCREENS_EXPLORER:
-    				type = LoadImporter.SCREEN_TYPE;
-    		}
-        	event = new LoadImporter(type);
-    	}
-    	if (event != null) {
-    		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-        	bus.post(event);
-    	}
+    	bus.post(event);
     }
     
 }

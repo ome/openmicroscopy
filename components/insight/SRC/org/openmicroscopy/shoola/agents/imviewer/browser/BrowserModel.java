@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
+import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -149,7 +151,7 @@ class BrowserModel
     
     /** Collection of retrieved images composing the grid. */
     private Map<Integer, TextureData>	gridImagesAsTextures;
-
+    
     /**
      * Returns <code>true</code> if the active channels are mapped
      * to <code>Red</code>, <code>Green</code> or <code>Blue</code>,
@@ -1147,7 +1149,7 @@ class BrowserModel
     	Iterator<ChannelData> i = l.iterator();
     	int index;
     	GridImage image;
-    	boolean[] rgb;
+    	//boolean[] rgb;
     	ChannelData data;
     	String label;
     	boolean b = isRenderedImageRGB();
@@ -1156,7 +1158,7 @@ class BrowserModel
     		data = i.next();
 			index = data.getIndex();
 			label = data.getChannelLabeling();
-			rgb = new boolean[3];
+			//rgb = new boolean[3];
 			if (parent.isChannelActive(index)) {
 				/*
 				if (b) {
@@ -1178,5 +1180,61 @@ class BrowserModel
 		}
     	return list;
     }
+
+    /**
+     * Returns the number of rows, default is <code>1</code>.
+     * 
+     * @return See above.
+     */
+    int getRows() { return parent.getRows(); }
     
+    /**
+     * Returns the number of columns, default is <code>1</code>.
+     * 
+     * @return See above.
+     */
+    int getColumns() { return parent.getColumns(); }
+    
+    /**
+     * Returns the tiles to display.
+     * 
+     * @return See above.
+     */
+    Map<Integer, Tile> getTiles() { return parent.getTiles(); }
+    
+    /**
+     * Returns <code>true</code> if it is a big image, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isBigImage() { return parent.isBigImage(); }
+
+    /**
+     * Checks if the tiles have to be loaded.
+     * 
+     * @param r The selected rectangle.
+     */
+    void checkTilesToLoad(Rectangle r)
+    {
+    	if (r == null) return;
+    	parent.loadTiles(r);
+    }
+
+	/**
+	 * Returns the size of the tiled image along the X-axis i.e.
+	 * the size of a tile along the X-axis multiplied by the number of columns.
+	 * 
+	 * @return See above.
+	 */
+	int getTiledImageSizeX() { return parent.getTiledImageSizeX(); }
+	
+	/**
+	 * Returns the size of the tiled image along the Y-axis i.e.
+	 * the size of a tile along the Y-axis multiplied by the number of rows.
+	 * 
+	 * @return See above.
+	 */
+	int getTiledImageSizeY() { return parent.getTiledImageSizeY(); }
+	
 }

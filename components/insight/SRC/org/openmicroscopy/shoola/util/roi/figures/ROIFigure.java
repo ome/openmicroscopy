@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.util.roi.figures;
 
 //Java imports
+import java.awt.Font;
 import java.awt.Point;
 import java.util.List;
 
@@ -34,6 +35,8 @@ import org.jhotdraw.draw.FigureListener;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
+
+import pojos.ShapeSettingsData;
 
 /** 
  * Interface that all areas of the Euclidean space <b>R</b><sup>2</sup> must
@@ -53,6 +56,23 @@ public interface ROIFigure
 	extends Figure
 {
 		
+	/** The pattern for the numerical format. */
+	public static final String FORMAT_PATTERN = "###.#";
+	
+	/** The default font name. */
+	public static final String FONT_FAMILY = 
+		ShapeSettingsData.DEFAULT_FONT_FAMILY;
+	
+	/** The default font name. */
+	public static final int FONT_SIZE = ShapeSettingsData.DEFAULT_FONT_SIZE;
+	
+	/** The default font name. */
+	public static final int    FONT_STYLE = Font.PLAIN; 
+	
+	/** The default font. */
+	public static final Font  DEFAULT_FONT = new Font(FONT_FAMILY, FONT_STYLE, 
+			FONT_SIZE);
+	
 	/** The default text. */
 	public static final String DEFAULT_TEXT = "Text";
 	
@@ -141,36 +161,49 @@ public interface ROIFigure
 	public boolean isReadOnly(); 
 	
 	/**
-	 * Set this roi to be ReadOnly if readOnly true. if so it will not be 
+	 * Set this figure to be ReadOnly if readOnly true. if so it will not be 
 	 * possible to move or resize it.
 	 * @param readOnly See above.
 	 */
 	public void setReadOnly(boolean readOnly);
 	
 	/**
-	 * If set the ROIFigure has been created by user on client.
+	 * Sets to <code>true</code> if the ROIFigure has been created by user 
+	 * on client, <code>false</code> otherwise.
+	 * 
 	 * @param clientSide See above.
 	 */
 	public void setClientObject(boolean clientSide);
 	
 	/**
-	 * If set the ROIFigure has been created by user on client.
+	 * Returns <code>true</code> if the ROIFigure has been created by user 
+	 * on client, <code>false</code> otherwise.
+	 * 
 	 * @return See above.
 	 */
 	public boolean isClientObject();
 	
 	/**
-	 * If set the ROIFigure has been modified by user on client.
+	 * Sets to <code>true</code> if the ROIFigure has been modified by user 
+	 * on client, <code>false</code> otherwise.
+	 * 
 	 * @param dirty See above.
 	 */
 	public void setObjectDirty(boolean dirty);
 	
 	/**
-	 * If set the ROIFigure has been modified by user on client.
+	 * Returns <code>true</code> if the ROIFigure has been modified by user 
+	 * on client, <code>false</code> otherwise.
+	 * 
 	 * @return See above.
 	 */
 	public boolean isDirty();
 	
+	/**
+	 * Returns the list of listeners or an empty list.
+	 * 
+	 * @return See above.
+	 */
 	public List<FigureListener> getFigureListeners();
 }
 

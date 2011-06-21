@@ -49,6 +49,7 @@ import omero.api.GatewayPrx;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
 import omero.api.IPixelsPrx;
+import omero.api.RawPixelsStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 import omero.model.Dataset;
@@ -187,29 +188,6 @@ class Gateway
 			throw new DSOutOfServiceException(s+message, t);
 		}
 		throw new DSAccessException("Cannot access data. \n"+message, t);
-	}
-	
-	/**
-	 * Returns the {@link IPojosPrx} service.
-	 * 
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private GatewayPrx getGService()
-		throws DSAccessException, DSOutOfServiceException
-	{ 
-		try {
-			if (gService == null) {
-				gService = entryEncrypted.createGateway();
-				services.add(gService);
-			}
-			return gService; 
-		} catch (Throwable e) {
-			handleException(e, "Cannot access Pojos service.");
-		}
-		return null;
 	}
 	
 	/**
@@ -411,6 +389,27 @@ class Gateway
 		} catch (Exception e) {
 			handleException(e, s);
 		}
+	}
+	
+	/**
+	 * Returns the {@link RawPixelsStorePrx} service.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private RawPixelsStorePrx getPixelsStore()
+		throws DSAccessException, DSOutOfServiceException
+	{
+		try {
+			if (entryUnencrypted != null)
+				return entryUnencrypted.createRawPixelsStore();
+			return entryEncrypted.createRawPixelsStore();
+		} catch (Throwable e) {
+			handleException(e, "Cannot access RawPixelsStore service.");
+		}
+		return null;
 	}
 	
 	/** 
@@ -636,8 +635,12 @@ class Gateway
 	{
 		isSessionAlive();
 		try {
-			GatewayPrx service = getGService();
-			return service.getPlane(pixelsID, z, c, t);
+			RawPixelsStorePrx service = getPixelsStore();
+			if (service == null) service = getPixelsStore();
+			service.setPixelsId(pixelsID, false);
+			byte[] plane = service.getPlane(z, c, t);
+			service.close();
+			return plane;
 		} catch (Throwable e) {
 			handleException(e, "Cannot load plane: ("+z+", "+c+", "+t+")");
 		}

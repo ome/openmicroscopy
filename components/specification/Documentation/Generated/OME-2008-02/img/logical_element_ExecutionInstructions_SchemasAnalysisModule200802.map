@@ -1,0 +1,26 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_ExecutionInstructions_SchemasAnalysisModule200802'>
+ <area
+  shape='rect'
+  alt='element_FunctionInputs'
+  coords='436,36,786,79'
+  href='AnalysisModule.xsd.html#element_FunctionInputs'/>
+
+ <area
+  shape='rect'
+  alt='element_FunctionOutputs'
+  coords='436,89,786,132'
+  href='AnalysisModule.xsd.html#element_FunctionOutputs'/>
+
+ <area
+  shape='rect'
+  alt='element_Templates'
+  coords='436,142,786,218'
+  href='AnalysisModule.xsd.html#element_Templates'/>
+
+ <area
+  shape='rect'
+  alt='element_VectorDecoder'
+  coords='436,228,786,287'
+  href='AnalysisModule.xsd.html#element_VectorDecoder'/>
+
+</map>

@@ -38,7 +38,7 @@ public class JdbcPasswordProvider extends ConfigurablePasswordProvider {
      * Uses default logic if user is unknown.
      */
     @Override
-    public Boolean checkPassword(String user, String password) {
+    public Boolean checkPassword(String user, String password, boolean readOnly) {
         Long id = util.userId(user);
 
         // If user doesn't exist, use the default settings for
@@ -46,7 +46,7 @@ public class JdbcPasswordProvider extends ConfigurablePasswordProvider {
 
         Boolean b = null;
         if (id == null) {
-            b = super.checkPassword(user, password);
+            b = super.checkPassword(user, password, readOnly);
         } else {
             String trusted = util.getUserPasswordHash(id);
             b = comparePasswords(trusted, password);

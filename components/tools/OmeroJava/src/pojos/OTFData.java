@@ -28,9 +28,7 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RBool;
 import omero.RInt;
-import omero.RString;
 import omero.model.OTF;
 
 /** 

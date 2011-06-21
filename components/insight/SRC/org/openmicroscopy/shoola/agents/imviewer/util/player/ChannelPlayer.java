@@ -104,12 +104,17 @@ public class ChannelPlayer
     public void actionPerformed(ActionEvent e)
     {
         if (activeChannels == null || activeChannels.size() == 0) return;
-        for (int j = 0; j < model.getMaxC(); j++)
-            model.setChannelActive(j, j == index);
-        model.displayChannelMovie();
-        n++;
-        if (n == activeChannels.size()) n = 0;
-        index = ((Integer) activeChannels.get(n)).intValue();
+        try {
+        	for (int j = 0; j < model.getMaxC(); j++)
+                model.setChannelActive(j, j == index);
+            model.displayChannelMovie();
+            n++;
+            if (n == activeChannels.size()) n = 0;
+            index = ((Integer) activeChannels.get(n)).intValue();
+		} catch (Exception ex) {
+			//Timer invoked the method when the viewer is getting discarded.
+		}
+        
     }
   
 }

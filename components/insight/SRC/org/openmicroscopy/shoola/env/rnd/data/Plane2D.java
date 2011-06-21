@@ -91,7 +91,7 @@ public class Plane2D
 	}
 	
 	/**
-	 * Creates a new intance.
+	 * Creates a new instance.
 	 * 
 	 * @param data			The array of byte.
 	 * @param sizeX			The number of pixels along the x-axis.
@@ -120,8 +120,6 @@ public class Plane2D
 	 */
 	public double getPixelValue(int x, int y)
 	{
-		//int offset = calculateOffset(x, y);
-		//return strategy.pack(data, offset, bytesPerPixel);
 		return mappedData[x][y];
 	}
 	

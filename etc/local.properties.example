@@ -20,8 +20,8 @@ javac.target=1.5
 javac.debug=on
 javac.debuglevel=lines,vars,source
 # "300m" suffices on 32 bit machines
-javac.maxmem=400000000
-javadoc.maxmem=400000000
+javac.maxmem=500000000
+javadoc.maxmem=500000000
 exe4j.home=/opt/exe4j
 
 # This will be set by antlib/resources/global.xml
@@ -43,6 +43,9 @@ ivy.log.resolved.revision=false
 test.with.fail=false
 # Turns on code-coverage measurements during testing
 emma.enabled=false
+# Output verbosity from testng
+testng.verbose=2
+testng.useDefaultListeners=false
 
 # Determines which Ivy resolver to use for
 # finding the loci libraries. Look in

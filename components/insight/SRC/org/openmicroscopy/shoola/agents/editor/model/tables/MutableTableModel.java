@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.editor.model.tables;
 
 import java.util.ArrayList;
+import java.util.List;
 
 //Java imports
 
@@ -53,12 +54,12 @@ public class MutableTableModel
 	/**
 	 * The array to hold a list of column names. 
 	 */
-    protected ArrayList<String> 				columnNames;
+    protected List<String> 				columnNames;
     
     /**
      * The 2-dimensional arrayList to hold the data.
      */
-    protected ArrayList<ArrayList<Object>> 		data;
+    protected List<List<Object>> 		data;
 
     /**
      * Creates an instance of this class.
@@ -67,7 +68,7 @@ public class MutableTableModel
     public MutableTableModel() 
     {	
     	columnNames = new ArrayList<String>();
-    	data = new ArrayList<ArrayList<Object>>();
+    	data = new ArrayList<List<Object>>();
     }
     
     /**
@@ -86,15 +87,15 @@ public class MutableTableModel
     	int colCount = tModel.getColumnCount();
     	
     	// populate column names from tModel
-    	for (int c=0; c<colCount; c++) {
+    	for (int c = 0; c < colCount; c++) {
     		columnNames.add(tModel.getColumnName(c));
 		}
     	
     	// populate data from tModel
-    	ArrayList<Object> row;
-    	for (int r=0 ; r<rowCount ; r++) {
+    	List<Object> row;
+    	for (int r = 0 ; r < rowCount ; r++) {
     		row = new ArrayList<Object>();
-    		for (int c=0; c<colCount; c++) {
+    		for (int c = 0; c < colCount; c++) {
     			row.add(tModel.getValueAt(r, c).toString());
     		}
     		data.add(row);
@@ -221,7 +222,7 @@ public class MutableTableModel
     {	
     	columnNames.add(colName);
     	
-    	for(ArrayList<Object> row: data) {
+    	for (List<Object> row: data) {
     		row.add("");
     	}
     	
@@ -238,7 +239,7 @@ public class MutableTableModel
     	
     	// getColumnCount is now one smaller
     	int colCount = getColumnCount();
-    	for(ArrayList<Object> row: data) {
+    	for (List<Object> row: data) {
     		row.remove(colCount);
     	}
     	fireTableStructureChanged();

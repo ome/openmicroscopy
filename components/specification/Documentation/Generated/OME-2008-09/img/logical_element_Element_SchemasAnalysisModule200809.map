@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Element_SchemasAnalysisModule200809'>
+ <area
+  shape='rect'
+  alt='element_Label'
+  coords='436,178,786,237'
+  href='AnalysisModule.xsd.html#element_Label'/>
+
+ <area
+  shape='rect'
+  alt='element_Description'
+  coords='436,247,786,306'
+  href='AnalysisModule.xsd.html#element_Description'/>
+
+</map>

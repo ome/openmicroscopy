@@ -24,6 +24,7 @@ module omero {
             {
                 bool setPixelsId(long pixelsId) throws ServerError;
                 void setRenderingDefId(long renderingDefId) throws ServerError;
+                long getRenderingDefId() throws ServerError;
                 Ice::ByteSeq getThumbnail(omero::RInt sizeX, omero::RInt sizeY) throws ServerError;
                 omero::sys::IdByteMap getThumbnailSet(omero::RInt sizeX, omero::RInt sizeY, omero::sys::LongList pixelsIds) throws ServerError;
                 omero::sys::IdByteMap getThumbnailByLongestSideSet(omero::RInt size, omero::sys::LongList pixelsIds) throws ServerError;

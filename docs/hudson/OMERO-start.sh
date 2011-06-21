@@ -35,7 +35,7 @@ cd dist
 
 dropdb $OMERO_CONFIG || echo Already gone maybe
 createdb -h localhost -U postgres -O hudson $OMERO_CONFIG
-createlang -h localhost -U postgres plpgsql $OMERO_CONFIG
+createlang -h localhost -U postgres plpgsql $OMERO_CONFIG || echo Already installed maybe
 
 python bin/omero db script "" "" ome -f omero.sql
 psql $OMERO_CONFIG -f omero.sql
@@ -49,7 +49,7 @@ python bin/omero config set omero.db.user hudson
 # Fix TestTables.testBlankTable failure
 python bin/omero config set omero.grid.registry_timeout 15000
 
-python bin/omero admin ports --prefix "$OMERO_PREFIX"
+python bin/omero admin ports --skipcheck --prefix "$OMERO_PREFIX"
 python bin/omero admin stop || echo Not running
 BUILD_ID=DONT_KILL_ME python bin/omero admin start
 python bin/omero admin deploy memcfg omero.blitz.maxmemory=-Xmx1024M omero.blitz.permgen=-XX:MaxPermSize=256m
@@ -74,6 +74,24 @@ wget "http://hudson.openmicroscopy.org.uk/userContent/$FILE"
 python bin/omero login -s localhost -p $ROUTER -u hudson -w ome
 python bin/omero import "$FILE"
 
+#
+# Try DropBox, Hudson will look for ERROR in the output log.
+# Must happen from the -start since it runs in the main
+# icegridnode process
+#
+FILE1=very_small.d3d.dv
+FILE2="very_small.d3d with spaces.dv"
+rm -f $FILE1
+rm -f $FILE2
+wget "http://hudson.openmicroscopy.org.uk/userContent/$FILE1"
+wget "http://hudson.openmicroscopy.org.uk/userContent/$FILE2"
+echo omero.fstest.srcFile=$FILE1\;$FILE2\;$FILE1 >> etc/testdropbox.config
+echo omero.fs.watchDir=TestDropBox >> etc/testdropbox.config
+echo omero.fstest.timeout=480 >> etc/testdropbox.config
+
+mkdir -p TestDropBox
+
+python bin/omero admin ice server start TestDropBox
 
 #
 # Write test file for OMERO-start jobs

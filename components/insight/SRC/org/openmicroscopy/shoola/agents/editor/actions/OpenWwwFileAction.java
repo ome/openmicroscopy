@@ -25,12 +25,9 @@ package org.openmicroscopy.shoola.agents.editor.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 
-import javax.swing.JComponent;
-
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.UrlChooser;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
@@ -58,6 +55,7 @@ public class OpenWwwFileAction
     private static final String 	DESCRIPTION = 
     	"Choose from a number of example OMERO.editor files on-line.";
     
+    /** Dialog displaying the possible URL.*/
     private static UrlChooser urlChooser = null;
     
     /** Creates a new instance.

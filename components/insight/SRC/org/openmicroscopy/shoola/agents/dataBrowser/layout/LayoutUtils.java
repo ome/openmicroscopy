@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.layout;
 
-
-
-
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
@@ -33,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -46,7 +42,7 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import pojos.DataObject;
 
 /** 
- * Helper class providint methods to lay out the nodes.
+ * Helper class providing methods to lay out the nodes.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,6 +59,9 @@ public class LayoutUtils
 
 	/** The default number of items per row. */
 	public static final int	DEFAULT_PER_ROW = 10;
+	
+	/** The minimum value for dimension.*/
+	private static final int MIN = 1;
 	
 	/**
 	 * Scales the thumbnail of the specified new node.
@@ -198,10 +197,9 @@ public class LayoutUtils
     {
         //First find out the max dim among children.
         Dimension maxDim = maxChildDim(node);
-        
         //Then figure out the number of columns, which is the same as the
         //number of rows.
-        int n = node.getChildrenDisplay().size();        
+        int n = node.getChildrenDisplay().size();
         if (n == 0) {   //Node with no children.
             node.getInternalDesktop().setPreferredSize(
                     node.getTitleBar().getMinimumSize());
@@ -215,14 +213,27 @@ public class LayoutUtils
         for (int i = 0; i < comps.length; i++) 
 			if (comps[i] instanceof ImageDisplay)
 				l.add(comps[i]);
-		
-        l = sorter.sort(l);
-        if (itemsPerRow >= 1) n = itemsPerRow; 
-        else {
-        	n = l.size();
-        	if (n > DEFAULT_PER_ROW)
-        		n = (int) Math.floor(Math.sqrt(n))+1;  //See note.
+		Dimension dd = node.getSize();
+		if (dd.width == 0 || dd.height == 0 && node.getParentDisplay() != null)
+			dd = node.getParentDisplay().getSize();
+		l = sorter.sort(l);
+        if (dd.width >= MIN && dd.height >= MIN) {
+            if (maxDim.width != 0) 
+            	n = dd.width/maxDim.width;
+        	if (n == 0) {
+        		n = DEFAULT_PER_ROW;
+        	}
+        	if (itemsPerRow >= 1) n = itemsPerRow;
+        } else {
+        	if (itemsPerRow >= 1) {
+        		n = itemsPerRow; 
+        	} else {
+            	n = l.size();
+            	if (n > DEFAULT_PER_ROW)
+            		n = (int) Math.floor(Math.sqrt(n))+1;  //See note.
+            }
         }
+        
        
         
         //Finally do layout.
@@ -245,10 +256,12 @@ public class LayoutUtils
         		i++;
 			}
         } finally {
-            Rectangle bounds = node.getContentsBounds();
-            d = bounds.getSize();
-            node.getInternalDesktop().setSize(d);
-            node.getInternalDesktop().setPreferredSize(d);
+        	//if (dd.width == 0 || dd.height == 0 || reset) {
+        	Rectangle bounds = node.getContentsBounds();
+        	d = bounds.getSize();
+        	node.getInternalDesktop().setSize(d);
+        	node.getInternalDesktop().setPreferredSize(d);
+        	//}
         }
     }
     
@@ -261,9 +274,9 @@ public class LayoutUtils
      * @param oldNodes	The previously layed out nodes.
      */
     static void redoLayout(ImageSet node, ImageSet oldNode, Collection newNodes, 
-							Set oldNodes)
+							Collection oldNodes)
     {
-    	int n = newNodes.size();        
+    	int n = newNodes.size();
     	if (n == 0) {   //Node with no children.
     		node.getInternalDesktop().setPreferredSize(
     				node.getTitleBar().getMinimumSize());
@@ -370,9 +383,16 @@ public class LayoutUtils
      */
     public static Dimension max(Dimension a, Dimension b)
     {
+    	int w = a.width;
+    	int h = a.height;
+    	if (b.width > w) w = b.width;
+    	if (b.height > h) h = b.height;
+    	return new Dimension (w, h);
+    	/*
         int areaA = a.width*a.height, areaB = b.width*b.height;
         if (areaA < areaB) return b;
         return a;
+        */
     }
     
     //NOTE: Let A be the function that calculates the area of a Dimension,

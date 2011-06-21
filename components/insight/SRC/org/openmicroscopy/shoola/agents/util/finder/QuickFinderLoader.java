@@ -74,6 +74,7 @@ public class QuickFinderLoader
     	super(viewer);
     	if (context == null) 
     		throw new IllegalArgumentException("No terms to search for.");
+    	this.context = context;
     }
     
     /**

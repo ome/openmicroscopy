@@ -415,4 +415,38 @@ public class PixelsServiceTest
     	assertNotNull(img);
     }
     
+    /**
+     * Tests the saving of rendering settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testSaveRndSettings()
+    	throws Exception 
+    {
+    	//Create some rendering settings.
+    	Image image = mmFactory.createImage(
+    			ModelMockFactory.SIZE_X, ModelMockFactory.SIZE_Y, 
+    			ModelMockFactory.SIZE_Z, ModelMockFactory.SIZE_T,
+    			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Pixels pixels = image.getPrimaryPixels();
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	//Pixels first
+    	long id = pixels.getId().getValue();
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(id);
+    	prx.resetDefaultsInSet(Pixels.class.getName(), ids);
+    	IPixelsPrx svc = factory.getPixelsService();
+    	//Already tested
+    	RenderingDef def = svc.retrieveRndSettings(id);
+    	assertNotNull(def);
+    	//change z
+    	int v = 1;
+    	def.setDefaultZ(omero.rtypes.rint(v)); 
+    	svc.saveRndSettings(def);
+    	//retrieve the settings.
+    	def = svc.retrieveRndSettings(id);
+    	assertEquals(def.getDefaultZ().getValue(), v);
+    }
+    
 }

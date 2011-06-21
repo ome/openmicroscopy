@@ -2,7 +2,7 @@
 # 
 # 
 # 
-# Copyright (c) 2008 University of Dundee. 
+# Copyright (c) 2008-2011 University of Dundee.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -44,11 +44,15 @@ class BaseCalendar(BaseController):
     next_year = None
     last_year = None
 
-    def __init__(self, conn, year=None, month=None, day=None, **kw):
+    def __init__(self, conn, year=None, month=None, day=None, eid=None, **kw):
         BaseController.__init__(self, conn)
         self.year = int(year)
         self.month = int(month)
-
+        if eid is None:
+            self.eid = self.conn.getEventContext().userId
+        else:            
+            self.eid = eid
+        
         if day:
             self.day = int(day)
             # only for python 2.5
@@ -157,7 +161,7 @@ class BaseCalendar(BaseController):
         
         start = long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000
         end = long(time.mktime(d2.timetuple())+1e-6*d2.microsecond)*1000
-        all_logs = self.conn.getEventsByPeriod(start, end)
+        all_logs = self.conn.getEventsByPeriod(start, end, self.eid)
         
         items = dict()
         for d in xrange(1,monthrange+1):
@@ -198,11 +202,11 @@ class BaseCalendar(BaseController):
         
         self.day_items = list()
         self.day_items_size = 0
-        self.total_items_size = self.conn.countDataByPeriod(start, end)
+        self.total_items_size = self.conn.countDataByPeriod(start, end, self.eid)
         
         if cal_type is not None:
-            obj_logs = self.conn.getDataByPeriod(start, end, cal_type, page)
-            obj_logs_counter = self.conn.countDataByPeriod(start, end, cal_type)
+            obj_logs = self.conn.getDataByPeriod(start=start, end=end, eid=self.eid, otype=cal_type, page=page)
+            obj_logs_counter = self.conn.countDataByPeriod(start, end, self.eid, cal_type)
             if len(obj_logs[cal_type]) > 0 :
                 
                 obj_ids = [ob.id for ob in obj_logs[cal_type]]
@@ -219,7 +223,7 @@ class BaseCalendar(BaseController):
                 self.paging = self.doPaging(page, len(obj_list_with_counters), obj_logs_counter)
 
         else:
-            obj_logs = self.conn.getDataByPeriod(start, end)
+            obj_logs = self.conn.getDataByPeriod(start, end, self.eid)
             if len(obj_logs['image']) > 0 or len(obj_logs['dataset']) > 0 or len(obj_logs['project']) > 0:
                 
                 pr_list_with_counters = list()

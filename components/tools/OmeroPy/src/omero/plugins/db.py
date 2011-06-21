@@ -74,11 +74,17 @@ class DatabaseControl(BaseControl):
             self.ctx.die(100, "Encoded password is empty")
         return value.strip()
 
-    def _copy(self, input_path, output, func):
+    def _copy(self, input_path, output, func, cfg = None):
             input = open(str(input_path))
             try:
                 for s in input.xreadlines():
-                        output.write(func(s))
+                        try:
+                            if cfg:
+                                output.write(func(s) % cfg)
+                            else:
+                                output.write(func(s))
+                        except Exception, e:
+                            self.ctx.die(154, "Failed to map line: %s\nError: %s" % (s, e))
             finally:
                 input.close()
 
@@ -90,14 +96,29 @@ class DatabaseControl(BaseControl):
                 return str_out
         return replace_method
 
+    def _db_profile(self):
+        import re
+        server_lib = self.ctx.dir / "lib" / "server"
+        model_jars = server_lib.glob("model-*.jar")
+        if len(model_jars) != 1:
+            self.ctx.die(200, "Invalid model-*.jar state: %s" % ",".join(model_jars))
+        model_jar = model_jars[0]
+        model_jar = str(model_jar.basename())
+        match = re.search("model-(.*?).jar", model_jar)
+        return match.group(1)
+
     def _sql_directory(self, db_vers, db_patch):
-        sql_directory = self.ctx.dir / "sql" / "psql" / ("%s__%s" % (db_vers, db_patch))
+        """
+        See #2689
+        """
+        dbprofile = self._db_profile()
+        sql_directory = self.ctx.dir / "sql" / dbprofile / ("%s__%s" % (db_vers, db_patch))
         if not sql_directory.exists():
             self.ctx.die(2, "Invalid Database version/patch: %s does not exist" % sql_directory)
         return sql_directory
 
-    def _create(self, sql_directory, db_vers, db_patch, password_hash, args):
-        sql_directory = self.ctx.dir / "sql" / "psql" / ("%s__%s" % (db_vers, db_patch))
+    def _create(self, sql_directory, db_vers, db_patch, password_hash, args, location = None):
+        sql_directory = self._sql_directory(db_vers, db_patch)
         if not sql_directory.exists():
             self.ctx.die(2, "Invalid Database version/patch: %s does not exist" % sql_directory)
 
@@ -111,7 +132,22 @@ class DatabaseControl(BaseControl):
             self.ctx.out("Saving to " + location)
 
         try:
-            output.write("""
+            dbprofile = self._db_profile()
+            header = sql_directory / ("%s-header.sql" % dbprofile)
+            footer = sql_directory / ("%s-footer.sql" % dbprofile)
+            if header.exists():
+                # 73 multiple DB support. OMERO 4.3+
+                cfg = {"TIME":time.ctime(time.time()),
+                    "DIR":sql_directory,
+                    "SCRIPT":script}
+                self._copy(header, output, str, cfg)
+                self._copy(sql_directory/"schema.sql", output, str)
+                self._copy(sql_directory/"views.sql", output, str)
+                self._copy(footer, output,
+                    self._make_replace(password_hash, db_vers, db_patch), cfg)
+            else:
+                # OMERO 4.2.x and before
+                output.write("""
 --
 -- GENERATED %s from %s
 --
@@ -127,11 +163,12 @@ class DatabaseControl(BaseControl):
 --
 
 BEGIN;
-            """ % ( time.ctime(time.time()), sql_directory, script ) )
-            self._copy(sql_directory/"schema.sql", output, str)
-            self._copy(sql_directory/"data.sql", output, self._make_replace(password_hash, db_vers, db_patch))
-            self._copy(sql_directory/"views.sql", output, str)
-            output.write("COMMIT;\n")
+                """ % ( time.ctime(time.time()), sql_directory, script ) )
+                self._copy(sql_directory/"schema.sql", output, str)
+                self._copy(sql_directory/"data.sql", output, self._make_replace(password_hash, db_vers, db_patch))
+                self._copy(sql_directory/"views.sql", output, str)
+                output.write("COMMIT;\n")
+
         finally:
             output.flush()
             output.close()

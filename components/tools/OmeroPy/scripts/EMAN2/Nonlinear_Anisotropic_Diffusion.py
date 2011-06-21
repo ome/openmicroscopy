@@ -44,7 +44,6 @@ import os
 import numpy
 
 import omero
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.scripts as scripts
 from omero.rtypes import *
 import omero.util.script_utils as scriptUtil
@@ -52,7 +51,7 @@ import omero.util.script_utils as scriptUtil
 from EMAN2 import *     # used for downloading OMERO to mrc and back
 
 
-def uploadImageToDataset(services, localImage, dataset=None, description="", imageName=None):
+def uploadImageToDataset(session, localImage, dataset=None, description="", imageName=None):
     
     """
     Uploads a local Spider image to an OMERO dataset. Same function exists in spider2omero.py.
@@ -62,14 +61,6 @@ def uploadImageToDataset(services, localImage, dataset=None, description="", ima
     @param imageName    The local image path/name. Also used for new image name. 
     @param dataset      Dataset to put images in, if specified. omero.model.Dataset
     """
-    
-    gateway = services["gateway"]
-    renderingEngine = services["renderingEngine"]
-    queryService = services["queryService"]
-    pixelsService = services["pixelsService"]
-    rawPixelsStore = services["rawPixelsStore"]
-    updateService = services["updateService"]
-    rawFileStore = services["rawFileStore"]
 
     if imageName == None:  imageName = localImage
     print "Importing image: %s" % imageName
@@ -82,20 +73,8 @@ def uploadImageToDataset(services, localImage, dataset=None, description="", ima
         plane2Dlist = [npArray]
     else:
         plane2Dlist = npArray
-    
-    pType = npArray.dtype.name
-    pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
-    
-    if pixelsType == None and pType.startswith("float"):
-        # try 'float'
-        pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % "float", None) # omero::model::PixelsType
-    if pixelsType == None:
-        print "Unknown pixels type for: " % pType
-        return
-    else:
-        print "Using pixels type ", pixelsType.getValue().getValue()
-    
-    image = scriptUtil.createNewImage(pixelsService, rawPixelsStore, renderingEngine, pixelsType, gateway, plane2Dlist, imageName, description, dataset)
+
+    image = scriptUtil.createNewImage(session, plane2Dlist, imageName, description, dataset)
     
     return image
     
@@ -143,7 +122,7 @@ def runNAD(session, parameterMap):
     
     # create services we need 
     services = {}
-    services["gateway"] = session.createGateway()
+    services["session"] = session
     services["renderingEngine"] = session.createRenderingEngine()
     services["queryService"] = session.getQueryService()
     services["pixelsService"] = session.getPixelsService()
@@ -151,10 +130,9 @@ def runNAD(session, parameterMap):
     services["updateService"] = session.getUpdateService()
     services["rawFileStore"] = session.createRawFileStore()
     
-    queryService = services["queryService"]
-    gateway = services["gateway"]
-    rawFileStore = services["rawFileStore"]
-    rawPixelsStore = services["rawPixelsStore"]
+    queryService = session.getQueryService()
+    rawFileStore = session.createRawFileStore()
+    rawPixelsStore = session.createRawFileStore()
     
     imageId = parameterMap["Image_ID"]
     
@@ -194,10 +172,14 @@ def runNAD(session, parameterMap):
     outputImages = []
     for fileName in os.listdir(path):
         if fileName.startswith(outputImage):
-            image = uploadImageToDataset(services, fileName, dataset, description)
+            image = uploadImageToDataset(session, fileName, dataset, description)
             outputImages.append(image)
 
     outputImages.sort(key=lambda image: image.getName().getValue())     # sort by name
+    
+    rawFileStore.close()
+    rawPixelsStore.close()
+    
     return (outputImages, dataset)
     
 

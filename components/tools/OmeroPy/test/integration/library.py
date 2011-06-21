@@ -22,7 +22,7 @@ import subprocess
 import omero
 
 from omero.util.temp_files import create_path
-from omero.rtypes import rstring, rtime
+from omero.rtypes import rstring, rtime, rint
 from path import path
 
 
@@ -145,7 +145,7 @@ class ITest(unittest.TestCase):
 
         # Search up until we find "OmeroPy"
         dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
-        args = ["python"]
+        args = [sys.executable]
         args.append(str(path(".") / "bin" / "omero"))
         args.extend(["-s", server, "-k", key, "-p", port, "import", filename])
         popen = subprocess.Popen(args, cwd=str(dist_dir), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -161,6 +161,76 @@ class ITest(unittest.TestCase):
                     pix_ids.append(imageId)
                 except: pass
         return pix_ids
+    
+    
+    def createTestImage(self, sizeX = 16, sizeY = 16, sizeZ = 1, sizeC = 1, sizeT = 1, session=None):
+        """
+        Creates a test image of the required dimensions, where each pixel value is set 
+        to the value of x+y. 
+        Returns the image (omero.model.ImageI)
+        """
+        from numpy import fromfunction, int16
+        from omero.util import script_utils
+        import random
+        
+        if session is None:
+            session = self.root.sf
+        renderingEngine = session.createRenderingEngine()
+        queryService = session.getQueryService()
+        pixelsService = session.getPixelsService()
+        rawPixelStore = session.createRawPixelsStore()
+        containerService = session.getContainerService()
+
+        def f1(x,y):
+            return y
+        def f2(x,y):
+            return (x+y)/2
+        def f3(x,y):
+            return x
+
+        pType = "int16"
+        # look up the PixelsType object from DB
+        pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+        if pixelsType == None and pType.startswith("float"):    # e.g. float32
+            pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % "float", None) # omero::model::PixelsType
+        if pixelsType == None:
+            print "Unknown pixels type for: " % pType
+            raise "Unknown pixels type for: " % pType
+
+        # code below here is very similar to combineImages.py
+        # create an image in OMERO and populate the planes with numpy 2D arrays
+        channelList = range(1, sizeC+1)
+        iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, "testImage", "description")
+        imageId = iId.getValue()
+        image = containerService.getImages("Image", [imageId], None)[0]
+
+        pixelsId = image.getPrimaryPixels().getId().getValue()
+        rawPixelStore.setPixelsId(pixelsId, True)
+
+        colourMap = {0: (0,0,255,255), 1:(0,255,0,255), 2:(255,0,0,255), 3:(255,0,255,255)}
+        fList = [f1, f2, f3]
+        for theC in range(sizeC):
+            minValue = 0
+            maxValue = 0
+            f = fList[theC % len(fList)]
+            for theZ in range(sizeZ):
+                for theT in range(sizeT):
+                    plane2D = fromfunction(f,(sizeY,sizeX),dtype=int16)
+                    script_utils.uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
+                    minValue = min(minValue, plane2D.min())
+                    maxValue = max(maxValue, plane2D.max())
+            pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(minValue), float(maxValue))
+            rgba = None
+            if theC in colourMap:
+                rgba = colourMap[theC]
+            script_utils.resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
+
+        renderingEngine.close()
+        rawPixelStore.close()
+
+        # Reloading image to prevent error on old pixels updateEvent
+        image = containerService.getImages("Image", [imageId], None)[0]
+        return image
 
     def index(self, *objs):
         if objs:
@@ -253,6 +323,105 @@ class ITest(unittest.TestCase):
             self.fail("Unknown type: %s=%s" % (type(user), user))
 
         return user, name
+
+    #
+    # Data methods
+    #
+
+    def missing_pyramid(self):
+        """
+        Creates and returns a pixels whose shape changes from
+        1,1,4000,4000,1 to 4000,4000,1,1,1 making it a pyramid
+        candidate but without the pyramid which is created on
+        initial import in 4.3+. This simulates a big image that
+        was imported in 4.2.
+        """
+        pix = self.pix(x=1, y=1, z=4000, t=4000, c=1)
+        rps = self.client.sf.createRawPixelsStore()
+        try:
+            rps.setPixelsId(pix.id.val, True)
+            for t in range(4000):
+                rps.setTimepoint([5]*4000, t) # Assuming int8
+            pix = rps.save()
+        finally:
+            rps.close()
+
+        pix.sizeX = rint(4000)
+        pix.sizeY = rint(4000)
+        pix.sizeZ = rint(1)
+        pix.sizeT = rint(1)
+        return self.update.saveAndReturnObject(pix)
+
+    def pix(self, x=10, y=10, z=10, c=3, t=50):
+        """
+        Creates an int8 pixel of the given size in the database.
+        No data is written.
+        """
+        image = self.new_image()
+        pixels = omero.model.PixelsI()
+        pixels.sizeX = rint(x)
+        pixels.sizeY = rint(y)
+        pixels.sizeZ = rint(z)
+        pixels.sizeC = rint(c)
+        pixels.sizeT = rint(t)
+        pixels.sha1 = rstring("")
+        pixels.pixelsType = omero.model.PixelsTypeI()
+        pixels.pixelsType.value = rstring("int8")
+        pixels.dimensionOrder = omero.model.DimensionOrderI()
+        pixels.dimensionOrder.value = rstring("XYZCT")
+        image.addPixels(pixels)
+        image = self.update.saveAndReturnObject(image)
+        pixels = image.getPrimaryPixels()
+        return pixels
+
+    def write(self, pix, rps):
+        """
+        Writes byte arrays consisting of [5] to as
+        either planes or tiles depending on the pixel
+        size.
+        """
+        if not rps.requiresPixelsPyramid():
+            # By plane
+            bytes_per_plane = pix.sizeX.val * pix.sizeY.val # Assuming int8
+            for z in range(pix.sizeZ.val):
+                for c in range(pix.sizeC.val):
+                    for t in range(pix.sizeT.val):
+                        rps.setPlane([5]*bytes_per_plane, z, c, t)
+        else:
+            # By tile
+            w, h = rps.getTileSize()
+            bytes_per_tile = w * h # Assuming int8
+            for z in range(pix.sizeZ.val):
+                for c in range(pix.sizeC.val):
+                    for t in range(pix.sizeT.val):
+                        for x in range(0, pix.sizeX.val, w):
+                            for y in range(0, pix.sizeY.val, h):
+
+                                changed = False
+                                if x+w > pix.sizeX.val:
+                                    w = pix.sizeX.val - x
+                                    changed = True
+                                if y+h > pix.sizeY.val:
+                                    h = pix.sizeY.val - y
+                                    changed = True
+                                if changed:
+                                    bytes_per_tile = w * h # Again assuming int8
+
+                                args = ([5]*bytes_per_tile, z, c, t, x, y, w, h)
+                                rps.setTile(*args)
+
+    def open_jpeg_buffer(self, buf):
+        try:
+            from PIL import Image, ImageDraw # see ticket:2597
+        except ImportError:
+            try:
+                import Image, ImageDraw # see ticket:2597
+            except ImportError:
+                print "PIL not installed"
+        from cStringIO import StringIO
+        tfile = StringIO(buf)
+        jpeg = Image.open(tfile) # Raises if invalid
+        return jpeg
 
     def tearDown(self):
         failure = False

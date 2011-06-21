@@ -37,6 +37,7 @@ import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ErrorHandler;
+import pojos.DataObject;
 
 /**
  * Component displaying the status of a specific import.
@@ -56,6 +57,9 @@ public class StatusLabel
 	implements IObserver
 {
 
+	/** The text displayed when loading the image to import. */
+	public static final String PREPPING_TEXT = "prepping";
+	
 	/** Bound property indicating that children files have been set. */
 	public static final String FILES_SET_PROPERTY = "filesSet";
 	
@@ -71,6 +75,20 @@ public class StatusLabel
 	
 	/** Bound property indicating that the file is imported. */
 	public static final String FILE_IMPORTED_PROPERTY = "fileImported";
+	
+	/** 
+	 * Bound property indicating that the container corresponding to the
+	 * folder has been created. 
+	 * */
+	public static final String CONTAINER_FROM_FOLDER_PROPERTY = 
+		"containerFromFolder";
+	
+	/** Bound property indicating that the status has changed.*/
+	public static final String CANCELLABLE_IMPORT_PROPERTY = 
+		"cancellableImport";
+	
+	/** Bound property indicating that the status has changed.*/
+	public static final String CANCELLED_IMPORT_PROPERTY = "cancelledImport";
 	
 	/** Default text when a failure occurred. */
 	private static final String		FAILURE_TEXT = "failed";
@@ -99,6 +117,12 @@ public class StatusLabel
 	/** The text if an error occurred. */
 	private String	 errorText;
 	
+	/** Flag indicating that the import has been cancelled. */
+	private boolean  markedAsCancel;
+	
+	/** Flag indicating that the import can or not be cancelled.*/
+	private boolean cancellable;
+	
 	/** Creates a new instance. */
 	public StatusLabel()
 	{
@@ -109,7 +133,20 @@ public class StatusLabel
 		readerType = "";
 		errorText = FAILURE_TEXT;
 		setText("pending");
+		markedAsCancel = false;
+		cancellable = true;
 	}
+	
+	/** Marks the import has cancelled. */
+	public void markedAsCancel() { this.markedAsCancel = true; }
+	
+	/**
+	 * Returns <code>true</code> if the import is marked as cancel, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isMarkedAsCancel() { return markedAsCancel; }
 	
 	/**
 	 * Returns the text if an error occurred.
@@ -161,6 +198,16 @@ public class StatusLabel
 	}
 	
 	/**
+	 * Sets the container corresponding to the folder.
+	 * 
+	 * @param container The container to set.
+	 */
+	public void setContainerFromFolder(DataObject container)
+	{
+		firePropertyChange(CONTAINER_FROM_FOLDER_PROPERTY, null, container);
+	}
+	
+	/**
 	 * Replaces the initial file by the specified one. This should only be 
 	 * invoked if the original file was an arbitrary one requiring to use the
 	 * import candidate e.g. <code>.log</code>
@@ -190,8 +237,17 @@ public class StatusLabel
 		Object[] results = new Object[2];
 		results[0] = file;
 		results[1] = result;
+		cancellable = false;
 		firePropertyChange(FILE_IMPORTED_PROPERTY, null, results);
 	}
+	
+	/**
+	 * Returns <code>true</code> if the import can be cancelled,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isCancellable() { return cancellable; }
 	
 	/**
 	 * Displays the status of an on-going import.
@@ -200,9 +256,10 @@ public class StatusLabel
 	public void update(IObservable observable, ImportEvent event)
 	{
 		if (event == null) return;
+		cancellable = false;
 		if (event instanceof ImportEvent.LOADING_IMAGE) {
 			startTime = System.currentTimeMillis();
-			setText("prepping");
+			setText(PREPPING_TEXT);
 			firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
 		} else if (event instanceof ImportEvent.LOADED_IMAGE) {
 			setText("analyzing");
@@ -231,11 +288,11 @@ public class StatusLabel
 						text = value+"/"+maxPlanes;
 					setText(text);
 				}
-            }
+			}
 		} else if (event instanceof ImportCandidates.SCANNING) {
 			ImportCandidates.SCANNING ev = (ImportCandidates.SCANNING) event;
 			numberOfFiles = ev.totalFiles;
-			setText("scanning");
+			if (!markedAsCancel) setText("scanning");
 		} else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
 			endTime = System.currentTimeMillis();
 			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
@@ -243,11 +300,15 @@ public class StatusLabel
 			usedFiles = e.usedFiles;
 		} else if (event instanceof ErrorHandler.UNKNOWN_FORMAT) {
 			errorText = "unknown format";
+			cancellable = false;
+			firePropertyChange(CANCELLABLE_IMPORT_PROPERTY, null, this);
 		} else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
 			errorText = "missing required library";
-		} else if (event instanceof ImportEvent.IMPORT_THUMBNAILING) {
-			setText("thumbnailing");
+			cancellable = false;
+			firePropertyChange(CANCELLABLE_IMPORT_PROPERTY, null, this);
+		} else if (event instanceof ImportEvent.IMPORT_PROCESSING) {
+			setText("processing");
 		} 
 	}
-	
+
 }

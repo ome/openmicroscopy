@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -215,8 +216,8 @@ class RendererComponent
 	public void discard()
 	{
 		 model.discard();
-		 firePropertyChange(RELOAD_PROPERTY, Boolean.valueOf(true), 
-					Boolean.valueOf(false));
+		 //firePropertyChange(RELOAD_PROPERTY, Boolean.valueOf(true), 
+		//			Boolean.valueOf(false));
 	}
 
     /** 
@@ -818,7 +819,7 @@ class RendererComponent
 
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#saveCurrentSettings()
+     * @see Renderer#saveCurrentSettings(boolean)
      */
 	public RndProxyDef saveCurrentSettings()
 		throws RenderingServiceException, DSOutOfServiceException
@@ -826,6 +827,16 @@ class RendererComponent
 		return model.saveCurrentSettings();
 	}
 
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#saveSettings()
+     */
+	public void saveSettings()
+	{
+		firePropertyChange(SAVE_SETTINGS_PROPERTY,  Boolean.valueOf(false), 
+	 			Boolean.valueOf(true));
+	}
+	
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setActive(int, boolean)
@@ -901,7 +912,7 @@ class RendererComponent
 	{
 		if (pDef == null) return null;
 		try {
-			return model.renderPlane(pDef);
+			return model.render(pDef);
 		} catch (Throwable e) {
 			handleException(e, false);
 		}
@@ -976,7 +987,7 @@ class RendererComponent
 			for (int i = 0; i < model.getMaxC(); i++) {
 				model.setActive(i, channel == i);
 			}
-			BufferedImage img = model.renderPlane(pDef);
+			BufferedImage img = model.render(pDef);
 			//reset active channels
 			model.setActive(channel, false);
 			if (active != null) {
@@ -1067,5 +1078,55 @@ class RendererComponent
 		a.setEnabled(loading);
 		view.displayViewedBy(results);
 	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#getTileSize()
+	 */
+	public Dimension getTileSize()
+	{
+		try {
+			return model.getTileSize();
+		} catch (Exception e) {
+			
+		}
+		return null;
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#getResolutionLevels()
+	 */
+	public int getResolutionLevels() { return model.getResolutionLevels(); }
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#getResolutionLevels()
+	 */
+	public int getSelectedResolutionLevel()
+	{
+		return model.getSelectedResolutionLevel();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#setSelectedResolutionLevel(int)
+	 */
+	public void setSelectedResolutionLevel(int level)
+	{
+		try {
+			model.setSelectedResolutionLevel(level);
+		} catch (Exception e) {
+			handleException(e);
+		}
+	}
 	
+	/**
+	 * Returns <code>true</code> if it is a large image, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isBigImage() { return model.isBigImage(); }
+
 }

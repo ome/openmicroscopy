@@ -18,7 +18,7 @@ set ICE_CONFIG=%cd%\%OMERO_CONFIG%.config
 set OMERO_DATA=%cd%\target\datadir
 
 echo omero.host=localhost >> %ICE_CONFIG%
-echo omero.user=user >> %ICE_CONFIG%
+echo omero.user=hudson >> %ICE_CONFIG%
 echo omero.pass=ome >> %ICE_CONFIG%
 echo omero.rootpass=ome >> %ICE_CONFIG%
 echo omero.host=%OMERO_HOST% >> %ICE_CONFIG%
@@ -66,6 +66,30 @@ if errorlevel 1 goto ERROR
 python bin\omero login -s localhost -p %ROUTER% -u hudson -w ome
 if errorlevel 1 goto ERROR
 python bin\omero import %FILE%
+if errorlevel 1 goto ERROR
+
+REM
+REM Try DropBox, Hudson will look for ERROR in the output log.
+REM Must happen from the -start since it runs in the main
+REM icegridnode process
+REM
+set FILE1=very_small.d3d.dv
+set FILE2=very_small.d3d%%20with%%20spaces.dv
+del %FILE1%
+del %FILE2%
+wget http://hudson.openmicroscopy.org.uk/userContent/%FILE1%
+wget http://hudson.openmicroscopy.org.uk/userContent/%FILE2%
+if errorlevel 1 goto ERROR
+echo omero.fstest.srcFile=%FILE1%;%FILE2%;%FILE1% >> etc\testdropbox.config
+echo omero.fs.watchDir=TestDropBox >> etc\testdropbox.config
+echo omero.fstest.timeout=480 >> etc\testdropbox.config
+if errorlevel 1 goto ERROR
+
+mkdir TestDropBox
+if errorlevel 1 goto ERROR
+python bin\omero admin ports --skipcheck --prefix=%OMERO_PREFIX%
+if errorlevel 1 goto ERROR
+python bin\omero admin ice server start TestDropBox
 if errorlevel 1 goto ERROR
 
 REM

@@ -181,6 +181,39 @@
     <property name="autoStartup" value="false"/>
     <property name="schedulerName" value="OMERO.scheduler"/>
     <property name="taskExecutor" ref="taskExecutor"/>
+    <property name="quartzProperties">
+        <props>
+            <prop key="org.quartz.scheduler.jmx.export">true</prop>
+        </props>
+    </property>
+  </bean>
+
+<!--
+  JMX resources
+  =======================================================================
+-->
+  <bean id="mbeanServerFactory" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+    <property name="locateExistingServerIfPossible" value="true"/>
+  </bean>
+
+  <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
+    <property name="server" ref="mbeanServerFactory"/>
+    <property name="assembler" ref="assembler"/>
+    <property name="namingStrategy" ref="namingStrategy"/>
+    <property name="autodetect" value="true"/>
+  </bean>
+
+  <bean id="jmxAttributeSource"
+        class="org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource"/>
+
+  <bean id="assembler"
+        class="org.springframework.jmx.export.assembler.MetadataMBeanInfoAssembler">
+    <property name="attributeSource" ref="jmxAttributeSource"/>
+  </bean>
+
+  <bean id="namingStrategy"
+        class="org.springframework.jmx.export.naming.MetadataNamingStrategy">
+      <property name="attributeSource" ref="jmxAttributeSource"/>
   </bean>
 
 </beans>

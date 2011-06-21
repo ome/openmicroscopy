@@ -11,6 +11,7 @@
 import unittest
 import time, datetime
 import omero
+import os
 
 import gatewaytest.library as lib
 
@@ -92,7 +93,7 @@ class AnnotationsTest (lib.GTest):
 
     def testDualLinkedAnnotation (self):
         """ Tests linking the same annotation to 2 separate objects """
-        dataset = self.TESTIMG.listParents(single=True)
+        dataset = self.TESTIMG.getParent()
         self.assertNotEqual(dataset, None)
         self.TESTIMG.removeAnnotations(self.TESTANN_NS)
         self.assertEqual(self.TESTIMG.getAnnotation(self.TESTANN_NS), None)
@@ -146,6 +147,65 @@ class AnnotationsTest (lib.GTest):
         obj.removeAnnotations(ns2)
         self.assertEqual(obj.getAnnotation(ns1), None)
         self.assertEqual(obj.getAnnotation(ns2), None)
+
+    def testFileAnnotation (self):
+        """ Creates a file annotation from a local file """
+
+        tempFileName = "tempFile"
+        f = open(tempFileName, 'w')
+        fileText = "Test text for writing to file for upload"
+        f.write(fileText)
+        f.close()
+        fileSize = os.path.getsize(tempFileName)
+        ns = self.TESTANN_NS
+        image = self.TESTIMG
+        # use the same file to create various file annotations with different namespaces
+        fileAnn = self.gateway.createFileAnnfromLocalFile(tempFileName, mimetype='text/plain', ns=ns)
+        image.linkAnnotation(fileAnn)
+        compAnn = self.gateway.createFileAnnfromLocalFile(tempFileName, mimetype='text/plain', ns=omero.constants.namespaces.NSCOMPANIONFILE)
+        image.linkAnnotation(compAnn)
+        os.remove(tempFileName)
+
+        # get user-id of another user to use below.
+        self.loginAsAdmin()
+        adminId = self.gateway.getUser().getId()
+        self.loginAsAuthor()
+
+        # test listing of File Annotations. Should exclude companion files by default and all files should be loaded
+        eid = self.gateway.getUser().getId()
+        fas = list( self.gateway.listFileAnnotations(eid=eid, toInclude=[ns]) )
+        faIds = [fa.id for fa in fas]
+        self.assertTrue(fileAnn.getId() in faIds)
+        self.assertFalse(compAnn.getId() in faIds)
+        for fa in fas:
+            #print fa.id, fa.ns, fa.getFile().id, fa.getFile().name, fa._obj.file.loaded
+            self.assertEqual(fa.getNs(), ns, "All files should be filtered by this namespace")
+            self.assertTrue(fa._obj.file.loaded, "All file annotations should have files loaded")
+
+        # filtering by namespace
+        fas = list( self.gateway.listFileAnnotations(toInclude=["nothing.with.this.namespace"], eid=eid) )
+        self.assertEqual(len(fas), 0, "No file annotations should exist with bogus namespace")
+
+        # filtering files by a different user should not return the annotations above.
+        fas = list( self.gateway.listFileAnnotations(eid=adminId) )
+        faIds = [fa.id for fa in fas]
+        self.assertFalse(fileAnn.getId() in faIds)
+        self.assertFalse(compAnn.getId() in faIds)
+
+        ann = image.getAnnotation(ns)
+        annId = ann.getId()
+        self.assertEqual(ann.OMERO_TYPE, omero.model.FileAnnotationI)
+        for t in ann.getFileInChunks():
+            self.assertEqual(str(t), fileText)   # we get whole text in one chunk
+
+        # delete what we created 
+        self.assertNotEqual(self.gateway.getObject("Annotation", annId), None)
+        link = ann.link
+        self.gateway.deleteObjectDirect(link._obj)        # delete link
+        self.gateway.deleteObjectDirect(ann._obj)         # then the annotation
+        self.gateway.deleteObjectDirect(ann._obj.file)    # then the file
+        self.assertEqual(self.gateway.getObject("Annotation", annId), None)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -73,9 +73,9 @@ public class MockAsyncByteBuffer
     void writeToBuffer(ByteBufferFiller producer, int offset, int retVal,
             Exception e) 
     {
-        Object[] args = new Object[] {producer, new Integer(offset)};
+        Object[] args = new Object[] {producer, Integer.valueOf(offset)};
         MockedCall mc = new MockedCall(writeToBuffer, args, 
-                new Integer(retVal));
+        		Integer.valueOf(retVal));
         if (e != null) mc.setException(e);
         mockSupport.add(mc);
     }
@@ -84,8 +84,8 @@ public class MockAsyncByteBuffer
     int writeToBuffer(ByteBufferFiller producer, int offset) 
         throws BufferWriteException
     {
-        Object[] args = new Object[] {producer, new Integer(offset)};
-        MockedCall mc = new MockedCall(writeToBuffer, args, new Integer(0));
+        Object[] args = new Object[] {producer, Integer.valueOf(offset)};
+        MockedCall mc = new MockedCall(writeToBuffer, args, Integer.valueOf(0));
         mc = mockSupport.verifyCall(mc);
         if (mc.hasException()) {
             Exception e = (Exception) mc.getException();

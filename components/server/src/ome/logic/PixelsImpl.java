@@ -19,7 +19,6 @@ import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.ServiceInterface;
 import ome.conditions.ValidationException;
-import ome.io.nio.PixelsService;
 import ome.model.IObject;
 import ome.model.core.Channel;
 import ome.model.core.Image;
@@ -31,6 +30,7 @@ import ome.model.enums.PixelsType;
 import ome.model.meta.Session;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
+import ome.util.PixelData;
 
 /**
  * implementation of the Pixels service interface.
@@ -321,7 +321,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 
 	@RolesAllowed("user")
 	public int getBitDepth(PixelsType pixelsType) {
-		return PixelsService.getBitDepth(pixelsType);
+		return PixelData.getBitDepth(pixelsType.getValue());
 	}
 
 	@RolesAllowed("user")
@@ -410,7 +410,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 			info.setGlobalMin(0.0);
 			info.setGlobalMax(1.0);
 			channel.setStatsInfo(info);
-			lc.setEmissionWave(wavelength);
+			lc.setEmissionWave(wavelength+1); //need positive integer
 			channels.add(channel);
 		}
 		return channels;

@@ -170,18 +170,18 @@ class DataBrowserUI
 	void buildGUI(boolean full)
 	{
 		removeAll();
-		int number = model.getNumberOfImages();
+		//int number = model.getNumberOfImages();
 		if (full) {
 			if (model.getType() == DataBrowserModel.WELLS) {
-				number = -1;
+				//number = -1;
 				add(wellToolBar, BorderLayout.NORTH);
 			} else {
-				number = toolBar.getItemsPerRow();
+				//number = toolBar.getItemsPerRow();
 				add(toolBar, BorderLayout.NORTH);
 			}
 			add(statusBar, BorderLayout.SOUTH);
 		}
-		if (number > 0) setItemsPerRow(number);
+		//if (number > 0) setItemsPerRow(number);
 		add(model.getBrowser().getUI(), BorderLayout.CENTER);
 	}
 	
@@ -450,13 +450,25 @@ class DataBrowserUI
 	 */
 	void setMagnificationFactor(double factor)
 	{
+		MagnificationVisitor visitor;
+		Browser browser;
 		switch (selectedView) {
 			case THUMB_VIEW:
-				MagnificationVisitor visitor = new MagnificationVisitor(factor);
-				Browser browser = model.getBrowser();
+				visitor = new MagnificationVisitor(factor);
+				browser = model.getBrowser();
 				browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
 				browser.accept(browser.getSelectedLayout(), 
 								ImageDisplayVisitor.IMAGE_SET_ONLY);
+				break;
+			case COLUMNS_VIEW:
+				visitor = new MagnificationVisitor(factor);
+				browser = model.getBrowser();
+				browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
+				ImageTableView v = model.getTableView();
+				if (v != null) {
+					v.setMagnification(factor);
+					v.refreshTable();
+				}
 				break;
 			case FIELDS_VIEW:
 				if (fieldsView != null)

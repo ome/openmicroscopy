@@ -67,7 +67,8 @@ class ImgSaverFileChooser
     private static final String DEFAULT_FORMAT = PNGFilter.PNG;
     
     /** Message used to indicate the directory in which the image is saved. */
-    private static final String MSG_DIR = "The image has been saved in \n";
+    private static final String MSG_DIR = "The image has been successfully " +
+    		"saved in \n";
     
     /** Reference to the model. */
     private ImgSaver    model;
@@ -102,8 +103,10 @@ class ImgSaverFileChooser
         addChoosableFileFilter(new TIFFFilter());
         setFileFilter(filter);
         
-        File f = UIUtilities.getDefaultFolder();
-        if (f != null) setCurrentDirectory(f);
+        try {
+			File f = UIUtilities.getDefaultFolder();
+			if (f != null) setCurrentDirectory(f);
+		} catch (Exception ex) {}
         if (nameArea != null) setControlButtonsAreShown(false);
         else {
         	setApproveButtonToolTipText(

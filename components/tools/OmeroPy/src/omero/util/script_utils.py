@@ -37,7 +37,6 @@
 
 import logging
 import getopt, sys, os, subprocess
-import numpy;
 from struct import *
 
 import omero.clients
@@ -355,7 +354,7 @@ def readFromOriginalFile(rawFileService, iQuery, fileId, maxBlockSize = 10000):
         block = rawFileService.read(cnt, blockSize);
         data = data + block;
         cnt = cnt+blockSize;
-    return data;
+    return data[0:fileSize];
 
 def readFileAsArray(rawFileService, iQuery, fileId, row, col, separator = ' '):
     """
@@ -368,9 +367,10 @@ def readFileAsArray(rawFileService, iQuery, fileId, row, col, separator = ' '):
     @param sep the column separator.
     @return The file as an NumPy array.
     """
+    from numpy import fromstring, reshape
     textBlock = readFromOriginalFile(rawFileService, iQuery, fileId);
-    arrayFromFile = numpy.fromstring(textBlock,sep = separator);
-    return numpy.reshape(arrayFromFile, (row, col));
+    arrayFromFile = fromstring(textBlock,sep = separator);
+    return reshape(arrayFromFile, (row, col));
 
 def readFlimImageFile(rawPixelsStore, pixels):
     """
@@ -379,6 +379,7 @@ def readFlimImageFile(rawPixelsStore, pixels):
     @param pixels The pixels of the image.
     @return The Contents of the image for z = 0, t = 0, all channels;
     """
+    from numpy import zeros
     sizeC = pixels.getSizeC().getValue();
     sizeX = pixels.getSizeX().getValue();
     sizeY = pixels.getSizeY().getValue();
@@ -386,7 +387,7 @@ def readFlimImageFile(rawPixelsStore, pixels):
     pixelsType = pixels.getPixelsType().getValue().getValue();
     rawPixelsStore.setPixelsId(id , False);
     cRange = range(0, sizeC);
-    stack = numpy.zeros((sizeC, sizeX, sizeY),dtype=pixelstypetopython.toNumpy(pixelsType));
+    stack = zeros((sizeC, sizeX, sizeY),dtype=pixelstypetopython.toNumpy(pixelsType));
     for c in cRange:
         plane = downloadPlane(rawPixelsStore, pixels, 0, c, 0);
         stack[c,:,:]=plane;
@@ -403,6 +404,7 @@ def downloadPlane(rawPixelsStore, pixels, z, c, t):
     @param t The T-Section to retrieve.
     @return The Plane of the image for z, c, t
     """
+    from numpy import array
     rawPlane = rawPixelsStore.getPlane(z, c, t);
     sizeX = pixels.getSizeX().getValue();
     sizeY = pixels.getSizeY().getValue();
@@ -411,7 +413,7 @@ def downloadPlane(rawPixelsStore, pixels, z, c, t):
     convertType ='>'+str(sizeX*sizeY)+pixelstypetopython.toPython(pixelType);
     convertedPlane = unpack(convertType, rawPlane);
     numpyType = pixelstypetopython.toNumpy(pixelType)
-    remappedPlane = numpy.array(convertedPlane, numpyType);
+    remappedPlane = array(convertedPlane, numpyType);
     remappedPlane.resize(sizeY, sizeX);
     return remappedPlane;
 
@@ -422,14 +424,14 @@ def getPlaneFromImage(imagePath, rgbIndex=None):
 
     @param imagePath   Path to image.
     """
-    import numpy
+    from numpy import asarray
     try:
          from PIL import Image # see ticket:2597
     except ImportError:
          import Image # see ticket:2597
 
     i = Image.open(imagePath)
-    a = numpy.asarray(i)
+    a = asarray(i)
     if rgbIndex == None:
         return a
     else:
@@ -448,6 +450,7 @@ def uploadDirAsImages(sf, queryService, updateService, pixelsService, path, data
     """
 
     import re
+    from numpy import zeros
 
     regex_token = re.compile(r'(?P<Token>.+)\.')
     regex_time = re.compile(r'T(?P<T>\d+)')
@@ -946,7 +949,7 @@ def getPlaneInfo(iQuery, pixelsId, asOrderedList = True):
     @return list of planeInfoTimes or map["z:t:c:]
     """
     query = "from PlaneInfo as Info where pixels.id='"+str(pixelsId)+"' orderby info.deltaT"
-    infoList = queryService.findAllByQuery(query,None)
+    infoList = iQuery.findAllByQuery(query,None)
 
     if(asOrderedList):
         map = {}
@@ -990,23 +993,28 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex, minValue, maxValue
     renderingEngine.saveCurrentSettings()
 
 
-def createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, gateway, plane2Dlist, imageName, description, dataset=None):
+def createNewImage(session, plane2Dlist, imageName, description, dataset=None):
     """
     Creates a new single-channel, single-timepoint image from the list of 2D numpy arrays in plane2Dlist 
     with each numpy 2D plane becoming a Z-section.
     
-    @param pixelsService        The OMERO pixelsService
-    @param rawPixelStore        The OMERO rawPixelsStore
-    @param renderingEngine        The OMERO renderingEngine
-    @param pixelsType            The pixelsType object     omero::model::PixelsType
-    @param gateway                The OMERO gateway service
-    @param plane2Dlist            A list of numpy 2D arrays, corresponding to Z-planes of new image. 
-    @param imageName            Name of new image
-    @param description            Description for the new image
-    @param dataset                If specified, put the image in this dataset. omero.model.Dataset object
+    @param session          An OMERO service factory or equivalent with getQueryService() etc. 
+    @param plane2Dlist      A list of numpy 2D arrays, corresponding to Z-planes of new image. 
+    @param imageName        Name of new image
+    @param description      Description for the new image
+    @param dataset          If specified, put the image in this dataset. omero.model.Dataset object
     
     @return The new OMERO image: omero.model.ImageI 
     """
+    queryService = session.getQueryService()
+    pixelsService = session.getPixelsService()
+    rawPixelStore = session.createRawPixelsStore()
+    renderingEngine = session.createRenderingEngine()
+    containerService = session.getContainerService()
+    
+    pType = plane2Dlist[0].dtype.name
+    pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+    
     theC, theT = (0,0)
     
     # all planes in plane2Dlist should be same shape.
@@ -1020,7 +1028,7 @@ def createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, ga
     sizeZ, sizeT = (len(plane2Dlist),1)
     iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
     imageId = iId.getValue()
-    image = gateway.getImage(imageId)
+    image = containerService.getImages("Image", [imageId], None)[0]
     
     # upload plane data
     pixelsId = image.getPrimaryPixels().getId().getValue()
@@ -1040,8 +1048,10 @@ def createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, ga
         link = omero.model.DatasetImageLinkI()
         link.parent = omero.model.DatasetI(dataset.id.val, False)
         link.child = omero.model.ImageI(image.id.val, False)
-        gateway.saveAndReturnObject(link)
+        session.getUpdateService().saveObject(link)
         
+    renderingEngine.close()
+    rawPixelStore.close()
     return image
 
 
@@ -1068,7 +1078,7 @@ def getROIFromImage(iROIService, imageId, namespace=None):
     @param namespace The namespace of the ROI.
     @return See above.
     """    
-    roiOpts = ROIOptions(); 
+    roiOpts = omero.api.RoiOptions()
     if(namespace!=None):
         roiOpts.namespace = namespace;
     return iROIService.findByImage(imageId, roiOpts);

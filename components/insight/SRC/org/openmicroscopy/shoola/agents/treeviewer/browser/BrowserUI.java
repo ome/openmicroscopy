@@ -69,7 +69,6 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
@@ -83,6 +82,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
@@ -194,14 +194,13 @@ class BrowserUI
     	return bar;
     }
     
+
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
     	setLayout(new BorderLayout(0, 0));
     	add(buildToolBar(), BorderLayout.NORTH);
-    	JScrollPane pane = new JScrollPane();
-    	pane.getViewport().add(treeDisplay);
-    	add(pane, BorderLayout.CENTER);
+    	add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
     }
     
     /** Helper method to create the menu bar. */
@@ -260,7 +259,7 @@ class BrowserUI
 		} else {
 			button = new JButton(controller.getAction(BrowserControl.IMPORT));
 			button.setBorderPainted(false);
-			rightMenuBar.add(button);
+			//rightMenuBar.add(button);
 		}
 		rightMenuBar.add(Box.createHorizontalStrut(6));
 		rightMenuBar.add(new JSeparator());
@@ -324,12 +323,25 @@ class BrowserUI
                 				(UIUtilities.isMacOS() && 
                 						SwingUtilities.isLeftMouseButton(me)
                 						&& me.isControlDown())) { //(me.isPopupTrigger()) {
-
+                	if (!(me.isShiftDown() || ctrl)) {
+                		TreePath path = treeDisplay.getPathForLocation(p.x, 
+                				p.y);
+                    	treeDisplay.removeTreeSelectionListener(
+                    			selectionListener);
+                		if (path != null) 
+                			treeDisplay.setSelectionPath(path);
+                		treeDisplay.addTreeSelectionListener(selectionListener);
+                    	if (path != null && 
+                    			path.getLastPathComponent()
+                    			instanceof TreeImageDisplay)
+                    		controller.onRightClick((TreeImageDisplay) 
+                    				path.getLastPathComponent());
+                	}
+                	
                 	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) 
                 		controller.showPopupMenu(TreeViewer.ADMIN_MENU);
                 	else 
                 		controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
-
                 } 
                // }
             } else if (me.getClickCount() == 2 && released && !(me.isMetaDown()
@@ -344,7 +356,10 @@ class BrowserUI
                 } else if (o instanceof FileAnnotationData) {
                 	model.openFile(d);
                 } else if (o instanceof PlateData) {
-                	if (!d.hasChildrenDisplay()) model.browser(d);
+                	
+                	if (!d.hasChildrenDisplay() || 
+                			d.getChildrenDisplay().size() == 1) 
+                		model.browser(d);
                 } else if (o instanceof PlateAcquisitionData) {
                 	model.browser(d);
                 }
@@ -651,6 +666,7 @@ class BrowserUI
                 	controller.onClick(added);
             		return;
             	}
+            	
             	TreePath[] paths = e.getPaths();
             	List<TreePath> added = new ArrayList<TreePath>();
             	for (int i = 0; i < paths.length; i++) {
@@ -1691,8 +1707,10 @@ class BrowserUI
 		treeDisplay.clearSelection();
 		if (newSelection != null) {
 			TreePath[] paths = new TreePath[newSelection.length];
-			for (int i = 0; i < newSelection.length; i++) 
+			for (int i = 0; i < newSelection.length; i++) {
 				paths[i] = new TreePath(newSelection[i].getPath());
+			}	
+			//treeDisplay.get
 			treeDisplay.setSelectionPaths(paths);
 		}
 		
@@ -1830,4 +1848,30 @@ class BrowserUI
     	repaint();
     }
     
+    /**
+     * Returns the nodes corresponding to the passed user.
+     * 
+     * @param userID The id of the user.
+     * @return See above.
+     */
+    List<TreeImageDisplay> getNodesForUser(long userID)
+    {
+    	TreeImageDisplay root = getTreeRoot();
+		TreeImageDisplay element;
+		Object ho;
+		ExperimenterData exp;
+		long id = model.getUserID();
+		for (int i = 0; i < root.getChildCount(); i++) {
+			element = (TreeImageDisplay) root.getChildAt(i);
+			ho = element.getUserObject();
+			if (ho instanceof ExperimenterData) {
+				exp = (ExperimenterData) ho;
+				if (exp.getId() == id) {
+					return element.getChildrenDisplay();
+				}
+			}
+		}
+		return null;
+    }
+
 }

@@ -42,23 +42,62 @@ from portalocker import LockException
 # TODO: In order to run utests we must set it
 DATABASE_ENGINE = 'sqlite3'
 
+# LOGS
+# NEVER DEPLOY a site into production with DEBUG turned on.
+# Debuging mode.
+# A boolean that turns on/off debug mode.
+# handler404 and handler500 works only when False
 if os.environ.has_key('OMERO_HOME'):
     OMERO_HOME =os.environ.get('OMERO_HOME') 
 else:
     OMERO_HOME = os.path.join(os.path.dirname(__file__), '..', '..', '..')
     OMERO_HOME = os.path.normpath(OMERO_HOME)
 
+LOGFILE = ('OMEROweb.log')
+LOGLEVEL = logging.INFO
+LOGDIR = os.path.join(OMERO_HOME, 'var', 'log').replace('\\','/')
+
+if not os.path.isdir(LOGDIR):
+    try:
+        os.makedirs(LOGDIR)
+    except Exception, x:
+        exctype, value = sys.exc_info()[:2]
+        raise exctype, value
+
+import logconfig
+logger = logconfig.get_logger(os.path.join(LOGDIR, LOGFILE), LOGLEVEL)
+
 # Load custom settings from etc/grid/config.xml
 # Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
+from omero.util.concurrency import get_event
 CONFIG_XML = os.path.join(OMERO_HOME, 'etc', 'grid', 'config.xml')
+count = 10
+event = get_event("websettings")
+try:
+    lockexceptions = (LockException, WindowsError)
+except NameError:
+    lockexceptions = LockException
+
 while True:
     try:
         CONFIG_XML = omero.config.ConfigXml(CONFIG_XML)
         CUSTOM_SETTINGS = CONFIG_XML.as_map()
         CONFIG_XML.close()
         break
-    except LockException:
-        pass
+    except lockexceptions:
+        logger.error("Exception while loading configuration retrying...", exc_info=True)
+        count -= 1
+        if not count:
+            raise
+        else:
+            event.wait(1) # Wait a total of 10 seconds
+    except:
+        logger.error("Exception while loading configuration...", exc_info=True)
+        raise
+
+del event
+del count
+del get_event
 
 FASTCGI = "fastcgi"
 FASTCGITCP = "fastcgi-tcp"
@@ -120,6 +159,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.application_server.host": ["APPLICATION_SERVER_HOST", "0.0.0.0", str],
     "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
     "omero.web.cache_backend": ["CACHE_BACKEND", None, leave_none_unset],
+    "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
     "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
     "omero.web.debug": ["DEBUG", "false", parse_boolean],
     "omero.web.email_host": ["EMAIL_HOST", None, identity],
@@ -128,7 +168,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.email_port": ["EMAIL_PORT", None, identity],
     "omero.web.email_subject_prefix": ["EMAIL_SUBJECT_PREFIX", "[OMERO.web] ", str],
     "omero.web.email_use_tls": ["EMAIL_USE_TLS", "false", parse_boolean],
-    "omero.web.logdir": ["LOGDIR", os.path.join(OMERO_HOME, 'var', 'log').replace('\\','/'), str],
+    "omero.web.logdir": ["LOGDIR", LOGDIR, str],
     "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean],
     "omero.web.server_email": ["SERVER_EMAIL", None, identity],
     "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],
@@ -153,47 +193,31 @@ for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
     except LeaveUnset:
         pass
 
-
-# LOGS
-# NEVER DEPLOY a site into production with DEBUG turned on.
-
-# Debuging mode.
-# A boolean that turns on/off debug mode.
-# handler404 and handler500 works only when False
-
-
 TEMPLATE_DEBUG = DEBUG
+
+if APPLICATION_HOST is not None and len(APPLICATION_HOST) > 0:
+    if APPLICATION_HOST.endswith("/"):
+        APPLICATION_HOST = APPLICATION_HOST[:-1]
 
 # Configure logging and set place to store logs.
 INTERNAL_IPS = ()
 LOGGING_LOG_SQL = False
 
-# LOG path
 # Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
 
 if DEBUG:
-    LOGFILE = ('OMEROweb-DEBUG.log')
     LOGLEVEL = logging.DEBUG
-else:
-    LOGFILE = ('OMEROweb.log')
-    LOGLEVEL = logging.INFO
-
-if not os.path.isdir(LOGDIR):
-    try:
-        os.makedirs(LOGDIR)
-    except Exception, x:
-        exctype, value = sys.exc_info()[:2]
-        raise exctype, value
-
-import logconfig
-logger = logconfig.get_logger(os.path.join(LOGDIR, LOGFILE), LOGLEVEL)
+    logger.setLevel(LOGLEVEL)
 
 for key in sorted(CUSTOM_SETTINGS_MAPPINGS):
     values = CUSTOM_SETTINGS_MAPPINGS[key]
     global_name, default_value, mapping, using_default = values
     source = using_default and "default" or key
     global_value = globals().get(global_name, "(unset)")
-    logger.debug("%s = %r (source:%s)", global_name, global_value, source)
+    if global_name.lower().find("password") < 0:
+        logger.debug("%s = %r (source:%s)", global_name, global_value, source)
+    else:
+        logger.debug("%s = '***' (source:%s)", global_name, source)
 
 
 ###
@@ -287,6 +311,7 @@ INSTALLED_APPS = (
     #'omeroweb.webemdb',
     'omeroweb.webmobile',
     'omeroweb.webpublic',
+    'omeroweb.webredirect',
 )
 
 FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
@@ -311,7 +336,7 @@ DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "ima
 try:
     PAGE
 except:
-    PAGE = 24
+    PAGE = 200
 
 SERVER_LIST = ServerObjects(SERVER_LIST)
 
@@ -319,19 +344,19 @@ MANAGERS = ADMINS
 
 EMAIL_TEMPLATES = {
     'create_share': {
-        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href="%swebclient/public/?server=%i">%swebclient/public/?server=%i</a>.</p><p>%s</p>', 
-        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %swebclient/public/?server=%i. /n %s'
+        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href="%s/webclient/public/?server=%i">%s/webclient/public/?server=%i</a>.</p><p>%s</p>', 
+        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %s/webclient/public/?server=%i. /n %s'
     },
     'add_member_to_share': {
-        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href="%swebclient/public/?server=%i">%swebclient/public/?server=%i</a>.</p><p>%s</p>', 
-        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %swebclient/public/?server=%i. /n %s'
+        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href="%s/webclient/public/?server=%i">%s/webclient/public/?server=%i</a>.</p><p>%s</p>', 
+        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %s/webclient/public/?server=%i. /n %s'
     },
     'remove_member_from_share': {
-        'html_content':'<p>You were removed from the share <a href="%swebclient/public/?server=%i">%swebclient/public/?server=%i</a>. This share is no longer available for you.</p>',
-        'text_content':'You were removed from the share %swebclient/public/?server=%i. This share is no longer available for you.'
+        'html_content':'<p>You were removed from the share <a href="%s/webclient/public/?server=%i">%s/webclient/public/?server=%i</a>. This share is no longer available for you.</p>',
+        'text_content':'You were removed from the share %s/webclient/public/?server=%i. This share is no longer available for you.'
     },
     'add_comment_to_share': {
-        'html_content':'<p>New comment is available on share <a href="%swebclient/public/?server=%i">%swebclient/public/?server=%i</a>.</p>',
-        'text_content':'New comment is available on share %swebclient/public/?server=%i.'
+        'html_content':'<p>New comment is available on share <a href="%s/webclient/public/?server=%i">%s/webclient/public/?server=%i</a>.</p>',
+        'text_content':'New comment is available on share %s/webclient/public/?server=%i.'
     }
 }

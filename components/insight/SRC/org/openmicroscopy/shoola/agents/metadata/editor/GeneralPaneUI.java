@@ -33,7 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BoxLayout;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
@@ -49,12 +48,14 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.TextualAnnotationData;
 import pojos.WellSampleData;
 
 /** 
@@ -111,7 +112,7 @@ class GeneralPaneUI
 	private List<AnnotationUI>			components;
 
 	/** The component hosting the various protocols. */
-	private JXTaskPane					protocolTaskPane;
+	//private JXTaskPane					protocolTaskPane;
 	
 	/** Collection of preview panels. */
 	private List<PreviewPanel>			previews;
@@ -151,7 +152,7 @@ class GeneralPaneUI
 			browserTaskPane.addPropertyChangeListener(controller);
 		}
 		
-		protocolTaskPane = EditorUtil.createTaskPane(PROTOCOL);
+		//protocolTaskPane = EditorUtil.createTaskPane(PROTOCOL);
 		
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
@@ -315,18 +316,20 @@ class GeneralPaneUI
 			browserTaskPane.setCollapsed(true);
 		}
 		browserTaskPane.setTitle(s);
-		
-		container.remove(protocolTaskPane);
 		container.remove(browserTaskPane);
+		
+
+		/*
+		container.remove(protocolTaskPane);
 		protocolTaskPane.removeAll();
 		JComponent n = buildProtocolTaskPanes();
 		if (n != null) {
 			protocolTaskPane.add(n);
 			container.add(protocolTaskPane);
 		}
-			
+		*/
 		if (h > 0) {
-			container.add(browserTaskPane);
+			//container.add(browserTaskPane);
 			if (!browserTaskPane.isCollapsed())
 				loadParents(true);
 		}
@@ -376,7 +379,7 @@ class GeneralPaneUI
 		if (!init) {
 			buildGUI();
 			init = true;
-		}		
+		}	
 		clearData();
 		textualAnnotationsUI.clearDisplay();
 		propertiesUI.clearDisplay();
@@ -401,13 +404,15 @@ class GeneralPaneUI
 			}
 		}
 		container.remove(annotationTaskPane);
-		container.remove(protocolTaskPane);
+		//container.remove(protocolTaskPane);
 		container.remove(browserTaskPane);
 		if (annotation > 0) 
 			container.add(annotationTaskPane);
+		/*
 		if (protocolTaskPane.getComponentCount() > 0)
 			container.add(protocolTaskPane);
-		if (browser > 0) 
+		*/
+		//if (browser > 0) 
 			container.add(browserTaskPane);
 			
 		revalidate();
@@ -536,14 +541,18 @@ class GeneralPaneUI
 	}
 	
 	/**
-	 * Removes a tag from the view.
+	 * Removes the annotation from the view.
 	 * 
-	 * @param tag The tag to remove.
+	 * @param annotation The annotation to remove.
 	 */
-	void removeTag(TagAnnotationData tag)
+	void removeObject(DataObject annotation)
 	{
-		if (tag == null) return;
-		annotationUI.removeTag(tag);
+		if (annotation == null) return;
+		if (annotation instanceof TagAnnotationData)
+			annotationUI.removeTag((TagAnnotationData) annotation);
+		else if (annotation instanceof TextualAnnotationData)
+			textualAnnotationsUI.removeTextualAnnotation(
+					(TextualAnnotationData) annotation);
 	}
 	
 	/**

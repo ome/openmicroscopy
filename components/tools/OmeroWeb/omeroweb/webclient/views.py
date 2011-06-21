@@ -2,7 +2,7 @@
 # 
 # 
 # 
-# Copyright (c) 2008 University of Dundee. 
+# Copyright (c) 2008-2011 University of Dundee.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -28,6 +28,7 @@ or a redirect, or the 404 and 500 error, or an XML document, or an image...
 or anything.'''
 
 import sys
+import re
 import os
 import calendar
 import cStringIO
@@ -48,7 +49,7 @@ from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
 from django.core import template_loader
 from django.core.cache import cache
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render_to_response
 from django.template import RequestContext as Context
 from django.utils import simplejson
@@ -56,15 +57,17 @@ from django.views.defaults import page_not_found, server_error
 from django.views import debug
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import smart_str
 
 from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpLoginRedirect
 
 from webclient_utils import _formatReport, _purgeCallback
 from forms import ShareForm, BasketShareForm, ShareCommentForm, \
-                    ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
+                    ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
+                    CommentAnnotationForm, TagAnnotationForm, \
                     UploadFileForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
-                    MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
+                    MetadataEnvironmentForm, MetadataObjectiveForm, MetadataObjectiveSettingsForm, MetadataStageLabelForm, \
                     MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
                     TagListForm, FileListForm, TagFilterForm, \
                     MultiAnnotationForm, \
@@ -72,7 +75,6 @@ from forms import ShareForm, BasketShareForm, ShareCommentForm, \
 
 from controller import sortByAttr, BaseController
 from controller.index import BaseIndex
-from controller.annotation import BaseAnnotation
 from controller.basket import BaseBasket
 from controller.container import BaseContainer
 from controller.help import BaseHelp
@@ -81,10 +83,11 @@ from controller.impexp import BaseImpexp
 from controller.search import BaseSearch
 from controller.share import BaseShare
 
-from omeroweb.webadmin.forms import MyAccountForm, UploadPhotoForm, LoginForm, ChangeMyPassword
+from omeroweb.webadmin.forms import MyAccountForm, UploadPhotoForm, LoginForm, ChangePassword
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
 from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
-from omeroweb.webadmin.views import _checkVersion, _isServerOn, toBoolean
+from omeroweb.webadmin.views import _checkVersion, _isServerOn
+from omeroweb.webclient.webclient_utils import toBoolean, string_to_dict, upgradeCheck
 
 from omeroweb.webgateway.views import getBlitzConnection
 from omeroweb.webgateway import views as webgateway_views
@@ -118,6 +121,7 @@ def getShareConnection (request, share_id):
 def isUserConnected (f):
     def wrapped (request, *args, **kwargs):
         #this check the connection exist, if not it will redirect to login page
+        server = string_to_dict(request.REQUEST.get('path')).get('server',request.REQUEST.get('server', None))
         url = request.REQUEST.get('url')
         if url is None or len(url) == 0:
             if request.META.get('QUERY_STRING'):
@@ -130,22 +134,26 @@ def isUserConnected (f):
             conn = getBlitzConnection(request, useragent="OMERO.web")
         except Exception, x:
             logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("weblogin")+(("?error=%s&url=%s") % (str(x),url)))
+        
         if conn is None:
             # TODO: Should be changed to use HttpRequest.is_ajax()
             # http://docs.djangoproject.com/en/dev/ref/request-response/
             # Thu  6 Jan 2011 09:57:27 GMT -- callan at blackcat dot ca
-            #if request.session.get('version') is not None:
-            #    return HttpLoginRedirect(reverse("weblogin"))
-            return HttpResponseRedirect(reverse("weblogin")+(("?url=%s") % (url)))
+            if request.is_ajax():
+                return HttpResponseServerError(reverse("weblogin"))
+            _session_logout(request, request.REQUEST.get('server', None))
+            if server is not None:
+                return HttpLoginRedirect(reverse("weblogin")+(("?url=%s&server=%s") % (url,server)))
+            return HttpLoginRedirect(reverse("weblogin")+(("?url=%s") % url))
             
-        conn_share = None       
+        conn_share = None     
         share_id = kwargs.get('share_id', None)
         if share_id is not None:
             sh = conn.getShare(share_id)
             if sh is not None:
                 try:
-                    conn_share = getShareConnection(request, share_id)
+                    if sh.getOwner().id != conn.getEventContext().userId:
+                        conn_share = getShareConnection(request, share_id)
                 except Exception, x:
                     logger.error(traceback.format_exc())
         
@@ -191,32 +199,13 @@ def login(request):
     request.session.modified = True    
     
     if request.REQUEST.get('server'):      
-        # upgrade check:
-        # -------------
-        # On each startup OMERO.web checks for possible server upgrades
-        # and logs the upgrade url at the WARNING level. If you would
-        # like to disable the checks, change the following to
-        #
-        #   if False:
-        #
-        # For more information, see
-        # http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck
-        #
-        try:
-            from omero.util.upgrade_check import UpgradeCheck
-            check = UpgradeCheck("web")
-            check.run()
-            if check.isUpgradeNeeded():
-                logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
-        except Exception, x:
-            logger.error("Upgrade check error: %s" % x)
         
         blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
-        request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
-        request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
+        request.session['username'] = smart_str(request.REQUEST.get('username',None))
+        request.session['password'] = smart_str(request.REQUEST.get('password',None))
         request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
         request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
         request.session['shares'] = dict()
@@ -233,6 +222,7 @@ def login(request):
         error = x.__class__.__name__
     
     if conn is not None:
+        upgradeCheck()
         request.session['version'] = conn.getServerVersion()
         if request.REQUEST.get('noredirect'):
             return HttpResponse('OK')
@@ -259,18 +249,11 @@ def login(request):
             blitz = settings.SERVER_LIST.get(pk=request.session.get('server')) 
             if blitz is not None:
                 initial = {'server': unicode(blitz.id)}
-                try:
-                    if request.session.get('username'):
-                        initial['username'] = unicode(request.session.get('username'))
-                        form = LoginForm(data=initial)
-                    else:                        
-                        form = LoginForm(initial=initial)
-                except:
-                    form = LoginForm(initial=initial)
+                form = LoginForm(initial=initial)
             else:
                 form = LoginForm()
-        context = {"version": omero_version, 'error':error, 'form':form}
         
+        context = {"version": omero_version, 'error':error, 'form':form, 'url': url}
         if url is not None and len(url) != 0:
             context['url'] = url
         
@@ -440,22 +423,24 @@ def change_active_group(request, **kwargs):
     request.session['version'] = conn.getServerVersion()
     
     return HttpResponseRedirect(url)
-    
-@isUserConnected
-def logout(request, **kwargs):
-    webgateway_views._session_logout(request, request.session.get('server'))
+
+def _session_logout (request, server_id):
+    webgateway_views._session_logout(request, server_id)
      
     try:
-        for k in ('clipboard', 'imageInBasket', 'nav'):
-            if request.session.has_key(k):
-                del request.session[k]
         if request.session.get('shares') is not None:
             for key in request.session.get('shares').iterkeys():
-                session_key = "S:%s#%s#%s" % (request.session.session_key,request.session.get('server'), key)
-                webgateway_views._session_logout(request,request.session.get('server'), force_key=session_key)
+                session_key = "S:%s#%s#%s" % (request.session.session_key,server_id, key)
+                webgateway_views._session_logout(request,server_id, force_key=session_key)
+        for k in request.session.keys():
+            if request.session.has_key(k):
+                del request.session[k]      
     except:
         logger.error(traceback.format_exc())
     
+@isUserConnected
+def logout(request, **kwargs):
+    _session_logout(request, request.session.get('server'))
     #request.session.set_expiry(1)
     return HttpResponseRedirect(reverse("webindex"))
 
@@ -490,15 +475,16 @@ def load_template(request, menu, **kwargs):
     if url is None:
         url = reverse(viewname="load_template", args=[menu])
     
-    error = request.REQUEST.get('error')
-    
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    if url is None:
-        url = reverse(viewname="load_template", args=[menu])
-    
+    #tree support
+    init = {'initially_open':[], 'initially_select': None}
+    for k,v in string_to_dict(request.REQUEST.get('path')).items():
+        if k.lower() in ('project', 'dataset', 'image', 'screen', 'plate'):
+            for i in v.split(","):
+                if ":selected" in str(i) and init['initially_select'] is None:
+                    init['initially_select'] = k+"-"+i.replace(":selected", "")
+                else:
+                    init['initially_open'].append(k+"-"+i)
+                
     try:
         manager = BaseContainer(conn)
     except AttributeError, x:
@@ -508,28 +494,31 @@ def load_template(request, menu, **kwargs):
     form_users = None
     filter_user_id = None
     
-    users = sortByAttr(list(conn.getColleagues()), "lastName")
+    users = list(conn.listColleagues())
+    users.sort(key=lambda x: x.getOmeName().lower())
     empty_label = "*%s (%s)" % (conn.getUser().getFullName(), conn.getUser().omeName)
     if len(users) > 0:
-        if request.REQUEST.get('experimenter') == "":
-            request.session.get('nav')['experimenter'] = None
-            form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
-        elif request.REQUEST.get('experimenter') is not None: 
+        if request.REQUEST.get('experimenter') is not None and len(request.REQUEST.get('experimenter'))>0: 
             form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu}, data=request.REQUEST.copy())
             if form_users.is_valid():
                 filter_user_id = request.REQUEST.get('experimenter', None)
                 request.session.get('nav')['experimenter'] = filter_user_id
                 form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
         else:
-            filter_user_id = request.session.get('nav')['experimenter']
+            if request.REQUEST.get('experimenter') == "":
+                request.session.get('nav')['experimenter'] = None
+            filter_user_id = request.session.get('nav')['experimenter'] is not None and request.session.get('nav')['experimenter'] or None
             if filter_user_id is not None:
                 form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
             else:
                 form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
             
+    else:
+        form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
+            
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups'], 'url':url})
     
-    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users}
+    context = {'nav':request.session['nav'], 'url':url, 'init':init, 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -539,7 +528,7 @@ def load_template(request, menu, **kwargs):
 @isUserConnected
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, **kwargs):
     request.session.modified = True
-        
+    
     # check menu
     menu = request.REQUEST.get("menu")
     if menu is not None:
@@ -579,17 +568,29 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     try:
         page = int(request.REQUEST['page'])
     except:
-        page = (1, None)[view=="tree"]
+        #page = (1, None)[view=="tree"]
+        page = 1
         
     # get index of the plate
     try:
         index = int(request.REQUEST['index'])
     except:
         index = 0
-    
+        
     # prepare data
+    kw = dict()
+    if o1_type is not None:
+        if o1_id is not None and o1_id > 0:
+            kw[str(o1_type)] = long(o1_id)
+        else:
+            kw[str(o1_type)] = bool(o1_id)
+    
+    if o2_type is not None and o2_id > 0:
+        kw[str(o2_type)] = long(o2_id)
+    if o3_type is not None and o3_id > 0:
+        kw[str(o3_type)] = long(o3_id)   
     try:
-        manager= BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id)
+        manager= BaseContainer(conn, **kw)
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return HttpJavascriptResponse("Object does not exist. Refresh the page.")
@@ -597,53 +598,46 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
 
     # prepare forms
     filter_user_id = request.session.get('nav')['experimenter']
+    form_well_index = None
         
-    # load data  
-    form_well_index = None    
-    
-    if o1_type is not None and o1_id > 0:
-        if o1_type == 'dataset':
-            manager.listImagesInDataset(o1_id, filter_user_id, page)
-        elif o1_type == 'project' and o2_type == 'dataset':
-            manager.listImagesInDataset(o2_id, filter_user_id, page)
-        elif o1_type == 'plate':
-            manager.listPlate(o1_id, index)
-            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
-        elif o1_type == 'screen' and o2_type == 'plate':
-            manager.listPlate(o2_id, index)
-            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
-    elif o1_type == 'orphaned':
-        manager.listOrphanedImages(filter_user_id)
-    else:
-        manager.listContainerHierarchy(filter_user_id)
-    
+    # load data & template
     template = None
-    if o1_type =='plate' or o2_type == 'plate':
-        template = "webclient/data/plate_details.html"
-    elif o1_type=='dataset' and o1_id > 0:
-        if view =='icon':
-            template = "webclient/data/containers_icon.html"
-        elif view =='table':
-            template = "webclient/data/containers_table.html"
-        else:
-            template = "webclient/data/container_subtree.html"      
-    elif o1_type=='orphaned':
+    if kw.has_key('orphaned'):
+        manager.listOrphanedImages(filter_user_id)
         if view =='icon':
             template = "webclient/data/containers_icon.html"
         elif view =='table':
             template = "webclient/data/containers_table.html"
         else:
             template = "webclient/data/container_subtree.html"
-    elif view =='tree':
-        template = "webclient/data/containers_tree.html"
-    elif view =='icon':
-        template = "webclient/data/containers_icon.html"
-    elif view =='table':
-        template = "webclient/data/containers_table.html"
+    elif len(kw.keys()) > 0 :
+        if kw.has_key('dataset'):
+            manager.listImagesInDataset(kw.get('dataset'), filter_user_id, page)
+            if view =='icon':
+                template = "webclient/data/containers_icon.html"
+            elif view =='table':
+                template = "webclient/data/containers_table.html"
+            else:
+                template = "webclient/data/container_subtree.html"
+        elif kw.has_key('plate'):
+            manager.listPlate(kw.get('plate'), index)
+            template = "webclient/data/plate_details.html"
+            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
+        elif kw.has_key('screen') and kw.has_key('plate'):
+            manager.listPlate(o2_id, index)
+            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
     else:
-        template = "webclient/data/containers.html"
-    
-    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index}
+        manager.listContainerHierarchy(filter_user_id)
+        if view =='tree':
+            template = "webclient/data/containers_tree.html"
+        elif view =='icon':
+            template = "webclient/data/containers_icon.html"
+        elif view =='table':
+            template = "webclient/data/containers_table.html"
+        else:
+            template = "webclient/data/containers.html"
+
+    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index, 'index':index}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -696,20 +690,20 @@ def load_searching(request, form=None, **kwargs):
         template = "webclient/search/search_details.html"
 
         onlyTypes = list()
-        if request.REQUEST.get('projects') is not None and request.REQUEST.get('projects').encode('utf-8') == 'on':
+        if request.REQUEST.get('projects') is not None and request.REQUEST.get('projects') == 'on':
             onlyTypes.append('projects')
-        if request.REQUEST.get('datasets') is not None and request.REQUEST.get('datasets').encode('utf-8') == 'on':
+        if request.REQUEST.get('datasets') is not None and request.REQUEST.get('datasets') == 'on':
             onlyTypes.append('datasets')
-        if request.REQUEST.get('images') is not None and request.REQUEST.get('images').encode('utf-8') == 'on':
+        if request.REQUEST.get('images') is not None and request.REQUEST.get('images') == 'on':
             onlyTypes.append('images')
-        if request.REQUEST.get('plates') is not None and request.REQUEST.get('plates').encode('utf-8') == 'on':
+        if request.REQUEST.get('plates') is not None and request.REQUEST.get('plates') == 'on':
             onlyTypes.append('plates')
-        if request.REQUEST.get('screens') is not None and request.REQUEST.get('screens').encode('utf-8') == 'on':
+        if request.REQUEST.get('screens') is not None and request.REQUEST.get('screens') == 'on':
             onlyTypes.append('screens')
         
         date = request.REQUEST.get('dateperiodinput', None)
         if date is not None:
-            date = date.encode('utf-8')
+            date = smart_str(date)
         
         manager.search(query_search, onlyTypes, date)
     else:
@@ -734,7 +728,14 @@ def load_searching(request, form=None, **kwargs):
 @isUserConnected
 def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
     request.session.modified = True
-        
+    
+    if request.REQUEST.get("o_type") is not None and len(request.REQUEST.get("o_type")) > 0:
+        o_type = request.REQUEST.get("o_type")
+        try:
+            o_id = long(request.REQUEST.get("o_id"))
+        except:
+            pass
+            
     # check menu
     menu = request.REQUEST.get("menu")
     if menu is not None:
@@ -782,8 +783,11 @@ def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
     filter_user_id = request.session.get('nav')['experimenter']
     
     # prepare data
+    kw = dict()
+    if o_type is not None and o_id > 0:
+        kw[str(o_type)] = long(o_id)
     try:
-        manager= BaseContainer(conn, o_type, o_id)
+        manager= BaseContainer(conn, **kw)
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(x)
@@ -831,7 +835,7 @@ def autocomplete_tags(request, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @isUserConnected
-def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):  
+def open_astex_viewer(request, fileAnnId, **kwargs):
     conn = None
     try:
         conn = kwargs["conn"]        
@@ -839,13 +843,93 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
+    ann = conn.getObject("Annotation", long(fileAnnId))
+    # determine mapType by name
+    mapType = "map"
+    if ann:
+        fileName = ann.getFileName()
+        if fileName.endswith(".bit"):
+            mapType = "bit"
+    
+    return render_to_response('webclient/annotations/open_astex_viewer.html', {'fileAnnId': fileAnnId, 'mapType': mapType})
+    
+    
+@isUserConnected
+def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
+    conn = None
+    try:
+        conn = kwargs["conn"]        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
     conn_share = None
     try:
         conn_share = kwargs["conn_share"]
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
+
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+
+    try:
+        index = int(request.REQUEST['index'])
+    except:
+        index = 0
+
+    form_comment = None
+    try:
+        if c_type in ("share", "discussion"):
+            template = "webclient/annotations/annotations_share.html"
+            manager = BaseShare(conn, conn_share, c_id)
+            manager.getAllUsers(c_id)
+            manager.getComments(c_id)
+            form_comment = ShareCommentForm()
+        else:
+            if conn_share is not None:
+                template = "webclient/annotations/annotations_share.html"
+                manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
+            else:
+                #template = "webclient/annotations/annotations.html"
+                template = "webclient/annotations/metadata_general.html"
+                manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+                manager.annotationList()
+                form_comment = CommentAnnotationForm()
+    except AttributeError, x:
+        logger.error(traceback.format_exc())
+        return handlerInternalError(x)    
+
+    if c_type in ("tag"):
+        context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
+    else:
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment}
+
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
+
+@isUserConnected
+def load_metadata_preview(request, imageId, share_id=None, **kwargs):
+
+    conn = None
+    try:
+        conn = kwargs["conn"]        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    conn_share = None
+    try:
+        conn_share = kwargs["conn_share"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
     url = None
     try:
         url = kwargs["url"]
@@ -853,10 +937,93 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
         logger.error(traceback.format_exc())
     
     try:
+        template = "webclient/annotations/metadata_preview.html"
+        if conn_share is not None:
+            manager = BaseContainer(conn_share, index=index, image=long(imageId))
+        else:
+            manager = BaseContainer(conn, index=index, image=long(imageId))
+    except AttributeError, x:
+        logger.error(traceback.format_exc())
+        return handlerInternalError(x)
+    
+    context = {'imageId':imageId, 'manager':manager}
+
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
+
+@isUserConnected
+def load_metadata_hierarchy(request, c_type, c_id, **kwargs):
+    conn = None
+    try:
+        conn = kwargs["conn"]        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    conn_share = None
+    try:
+        conn_share = kwargs["conn_share"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+
+    try:
         index = int(request.REQUEST['index'])
     except:
         index = 0
-    
+
+    try:
+        template = "webclient/annotations/metadata_hierarchy.html"
+        if conn_share is not None:
+            manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
+        else:
+            manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+    except AttributeError, x:
+        logger.error(traceback.format_exc())
+        return handlerInternalError(x)
+
+    context = {'manager':manager}
+
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
+
+@isUserConnected
+def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):  
+    conn = None
+    try:
+        conn = kwargs["conn"]        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    conn_share = None
+    try:
+        conn_share = kwargs["conn_share"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+
+    try:
+        index = int(request.REQUEST['index'])
+    except:
+        index = 0
+
     try:
         if c_type in ("share", "discussion"):
             template = "webclient/annotations/annotations_share.html"
@@ -865,73 +1032,90 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
             manager.getComments(c_id)
         else:
             if conn_share is not None:
-                template = "webclient/annotations/annotations_share.html"                
-                manager = BaseContainer(conn_share, c_type, c_id)
+                template = "webclient/annotations/metadata_acquisition.html"                
+                manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
             else:
-                template = "webclient/annotations/annotations.html"                
-                manager = BaseContainer(conn, c_type, c_id)
-                manager.annotationList()
+                template = "webclient/annotations/metadata_acquisition.html"
+                manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(x)
-    
+
     form_environment = None
     form_objective = None
     form_microscope = None
+    form_instrument_objectives = list()
     form_stageLabel = None
     form_filters = list()
+    form_dichroics = list()
     form_detectors = list()
     form_channels = list()
     form_lasers = list()
-    
+
+    # various enums we need for the forms (don't load unless needed)
+    mediums =  None
+    immersions = None
+    corrections = None
+
     if c_type == 'well' or c_type == 'image':
         if conn_share is None:
             manager.originalMetadata()
         manager.channelMetadata()
-        for ch in manager.channel_metadata:
-            if ch.getLogicalChannel() is not None:
+        for theC, ch in enumerate(manager.channel_metadata):
+            logicalChannel = ch.getLogicalChannel()
+            if logicalChannel is not None:
                 channel = dict()
-                channel['form'] = MetadataChannelForm(initial={'logicalChannel': ch.getLogicalChannel(), 
+                channel['form'] = MetadataChannelForm(initial={'logicalChannel': logicalChannel,
                                         'illuminations': list(conn.getEnumerationEntries("IlluminationI")), 
                                         'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")), 
                                         'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
-                if ch.getLogicalChannel().getLightPath() is not None:
-                    # one changed to many per one channel
-                    channel['form_emission_filters'] = list()
-                    if ch.getLogicalChannel().getLightPath().copyEmissionFilters():
-                        for f in ch.getLogicalChannel().getLightPath().copyEmissionFilters():
-                            channel['form_filters'].append(MetadataFilterForm(initial={'filter': f,
-                                            'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
+                lightPath = logicalChannel.getLightPath()
+                if lightPath is not None:
+                    channel['form_dichroic'] = None
                     channel['form_excitation_filters'] = list()
-                    if ch.getLogicalChannel().getLightPath().copyExcitationFilters():
-                        for f in ch.getLogicalChannel().getLightPath().copyExcitationFilters():
-                            channel['form_excitation_filters'].append(MetadataFilterForm(initial={'filter': f,
-                                            'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
+                    channel['form_emission_filters'] = list()
+                    lightPathDichroic = lightPath.getDichroic()
+                    if lightPathDichroic is not None:
+                        channel['form_dichroic'] = MetadataDichroicForm(initial={'dichroic': lightPathDichroic})
+                    filterTypes = list(conn.getEnumerationEntries("FilterTypeI"))
+                    for f in lightPath.copyEmissionFilters():
+                        channel['form_emission_filters'].append(MetadataFilterForm(initial={'filter': f,'types':filterTypes}))
+                    for f in lightPath.copyExcitationFilters():
+                        channel['form_excitation_filters'].append(MetadataFilterForm(initial={'filter': f,'types':filterTypes}))
+                if logicalChannel.getDetectorSettings()._obj is not None and logicalChannel.getDetectorSettings().getDetector():
+                    channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':logicalChannel.getDetectorSettings(),
+                        'detector': logicalChannel.getDetectorSettings().getDetector(),
+                        'types':list(conn.getEnumerationEntries("DetectorTypeI")),
+                        'binnings':list(conn.getEnumerationEntries("Binning"))})
 
-                if ch.getLogicalChannel().getDetectorSettings()._obj is not None and ch.getLogicalChannel().getDetectorSettings().getDetector():
-                    channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':ch.getLogicalChannel().getDetectorSettings(), 'detector': ch.getLogicalChannel().getDetectorSettings().getDetector(),
-                                        'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
-                if ch.getLogicalChannel().getLightSourceSettings()._obj is not None and ch.getLogicalChannel().getLightSourceSettings().getLightSource() is not None:      
-                    channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': ch.getLogicalChannel().getLightSourceSettings().getLightSource(),
-                                        'types':list(conn.getEnumerationEntries("FilterTypeI")), 
+                lightSourceSettings = logicalChannel.getLightSourceSettings()
+                if lightSourceSettings is not None and lightSourceSettings._obj is not None:
+                    if lightSourceSettings.getLightSource() is not None:
+                        channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': lightSourceSettings.getLightSource(),
+                                        'lstypes': list(conn.getEnumerationEntries("LaserType")), 
                                         'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                         'pulses': list(conn.getEnumerationEntries("PulseI"))})
-                if ch.getLogicalChannel().getFilterSet()._obj is not None and ch.getLogicalChannel().getFilterSet().getDichroic() is not None:
-                        channel['form_dichroic'] = MetadataDichroicForm(initial={'logicalchannel': ch.getLogicalChannel().getFilterSet().getDichroic()})
-                channel['name'] = ch.getEmissionWave()
-                channel['color'] = ch.getColor().getHtml()
+                # TODO: We don't display filter sets here yet since they are not populated on Import by BioFormats.
+                channel['label'] = ch.getLabel()
+                color = ch.getColor()
+                channel['color'] = color is not None and color.getHtml() or None
+                planeInfo = manager.image and manager.image.getPrimaryPixels().copyPlaneInfo(theC=theC, theZ=0)
+                channel['plane_info'] = list(planeInfo)
                 form_channels.append(channel)
-                
+
         try:
             image = manager.well.selectedWellSample().image()
         except:
             image = manager.image
-        
+
         if image.getObjectiveSettings() is not None:
-            form_objective = MetadataObjectiveForm(initial={'objectiveSettings': image.getObjectiveSettings(), 
-                                    'mediums': list(conn.getEnumerationEntries("MediumI")), 
-                                    'immersions': list(conn.getEnumerationEntries("ImmersionI")), 
-                                    'corrections': list(conn.getEnumerationEntries("CorrectionI")) })
+            # load the enums if needed and create our Objective Form
+            if mediums is None: mediums = list(conn.getEnumerationEntries("MediumI"))
+            if immersions is None: immersions = list(conn.getEnumerationEntries("ImmersionI"))
+            if corrections is None: corrections = list(conn.getEnumerationEntries("CorrectionI"))
+            form_objective = MetadataObjectiveSettingsForm(initial={'objectiveSettings': image.getObjectiveSettings(),
+                                    'objective': image.getObjectiveSettings().getObjective(),
+                                    'mediums': mediums, 'immersions': immersions, 'corrections': corrections })
         if image.getImagingEnvironment() is not None:
             form_environment = MetadataEnvironmentForm(initial={'image': image})
         if image.getStageLabel() is not None:
@@ -942,31 +1126,48 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
             if instrument.getMicroscope() is not None:
                 form_microscope = MetadataMicroscopeForm(initial={'microscopeTypes':list(conn.getEnumerationEntries("MicroscopeTypeI")), 'microscope': instrument.getMicroscope()})
 
-            filters = list(instrument.getFilters())            
+            objectives = instrument.getObjectives()
+            for o in objectives:
+                # load the enums if needed and create our Objective Form
+                if mediums is None: mediums = list(conn.getEnumerationEntries("MediumI"))
+                if immersions is None: immersions = list(conn.getEnumerationEntries("ImmersionI"))
+                if corrections is None: corrections = list(conn.getEnumerationEntries("CorrectionI"))
+                obj_form = MetadataObjectiveForm(initial={'objective': o,
+                                        'mediums': mediums, 'immersions': immersions, 'corrections': corrections })
+                form_instrument_objectives.append(obj_form)
+            filters = list(instrument.getFilters())
             if len(filters) > 0:
                 for f in filters:
                     form_filter = MetadataFilterForm(initial={'filter': f, 'types':list(conn.getEnumerationEntries("FilterTypeI"))})
                     form_filters.append(form_filter)
-            
+
+            dichroics = list(instrument.getDichroics())
+            for d in dichroics:
+                form_dichroic = MetadataDichroicForm(initial={'dichroic': d})
+                form_dichroics.append(form_dichroic)
+
             detectors = list(instrument.getDetectors())
             if len(detectors) > 0:
                 for d in detectors:
                     form_detector = MetadataDetectorForm(initial={'detectorSettings':None, 'detector': d, 'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
                     form_detectors.append(form_detector)
-        
+
             lasers = list(instrument.getLightSources())
             if len(lasers) > 0:
                 for l in lasers:
                     form_laser = MetadataLightSourceForm(initial={'lightSource': l, 
-                                    'types':list(conn.getEnumerationEntries("FilterTypeI")), 
+                                    'lstypes':list(conn.getEnumerationEntries("LaserType")),
                                     'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                     'pulses': list(conn.getEnumerationEntries("PulseI"))})
                     form_lasers.append(form_laser)
-    
+
     if c_type in ("share", "discussion", "tag"):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_microscope':form_microscope, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 
+        'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 
+        'form_microscope':form_microscope, 'form_instrument_objectives': form_instrument_objectives, 'form_filters':form_filters,
+        'form_dichroics':form_dichroics, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
 
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -986,8 +1187,12 @@ def load_hierarchies(request, o_type=None, o_id=None, **kwargs):
     
     whos = request.session['nav']['whos']
     
+    kw = dict()
+    if o_type is not None and o_id > 0:
+        kw[str(o_type)] = long(o_id)
+    
     try:
-        manager = BaseContainer(conn, o_type, o_id)
+        manager = BaseContainer(conn, **kw)
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(x)
@@ -1034,7 +1239,9 @@ def manage_annotation_multi(request, action=None, **kwargs):
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(x)
-    
+
+    oids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate'), 'well':request.REQUEST.getlist('well')}
+
     images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
     datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
     projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
@@ -1052,14 +1259,13 @@ def manage_annotation_multi(request, action=None, **kwargs):
         if request.method == 'POST':
             form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'wells':wells}, data=request.REQUEST.copy(), files=request.FILES)
             if form_multi.is_valid():
-                oids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate'), 'well':request.REQUEST.getlist('well')}
                 
-                content = request.REQUEST.get('content')
+                content = form_multi.cleaned_data['content']
                 if content is not None and content != "":
                     manager.createCommentAnnotations(content, oids)
                 
-                tag = request.REQUEST.get('tag')
-                description = request.REQUEST.get('description')
+                tag = form_multi.cleaned_data['tag']
+                description = form_multi.cleaned_data['description']
                 if tag is not None and tag != "":
                     manager.createTagAnnotations(tag, description, oids)
                 
@@ -1074,10 +1280,10 @@ def manage_annotation_multi(request, action=None, **kwargs):
                 f = request.FILES.get('annotation_file')
                 if f is not None:
                     manager.createFileAnnotations(f, oids)
-
-                return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu]))
+                
+                return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu]))
             
-    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi, 'count':count}
+    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi, 'count':count, 'oids':oids}
             
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1108,16 +1314,18 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    manager = None
-    if o_type == "dataset" or o_type == "project" or o_type == "image" or o_type == "screen" or o_type == "plate" or o_type == 'well':
+    #manager = None        
+    if o_type in ("dataset", "project", "image", "screen", "plate", "well","comment", "file", "tag", "tagset"):
+        if o_type == 'tagset': o_type = 'tag' # TODO: this should be handled by the BaseContainer
+        kw = dict()
+        if o_type is not None and o_id > 0:
+            kw[str(o_type)] = long(o_id)
         try:
-            manager = BaseContainer(conn, o_type, o_id)
+            manager = BaseContainer(conn, **kw)
         except AttributeError, x:
             logger.error(traceback.format_exc())
             return handlerInternalError(x)
-    elif o_type == "comment" or o_type == "file" or o_type == "tag":
-        manager = BaseAnnotation(conn, o_type, o_id)
-    elif o_type == "share" or o_type == "sharecomment":
+    elif o_type in ("share", "sharecomment"):
         manager = BaseShare(conn, None, o_id)
     else:
         manager = BaseContainer(conn)
@@ -1152,40 +1360,78 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         else:
             form_sharecomments = ShareCommentForm()
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}  
+    elif action == 'addnewcontainer':
+        if not request.method == 'POST':
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))        
+        if o_type is not None and hasattr(manager, o_type) and o_id > 0:        
+            form = ContainerForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                logger.debug("Create new in %s: %s" % (o_type, str(form.cleaned_data)))
+                name = form.cleaned_data['name']
+                description = form.cleaned_data['description']              
+                oid = manager.createDataset(name, description)
+                rdict = {'bad':'false', 'id': oid}
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+            else:
+                d = dict()
+                for e in form.errors.iteritems():
+                    d.update({e[0]:unicode(e[1])}) 
+                rdict = {'bad':'true','errs': d }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+        elif request.REQUEST.get('folder_type') in ("project", "screen", "dataset"):
+            form = ContainerForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                logger.debug("Create new: %s" % (str(form.cleaned_data)))
+                name = form.cleaned_data['name']                
+                description = form.cleaned_data['description']
+                oid = getattr(manager, "create"+request.REQUEST.get('folder_type').capitalize())(name, description)
+                rdict = {'bad':'false', 'id': oid}
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+            else:
+                d = dict()
+                for e in form.errors.iteritems():
+                    d.update({e[0]:unicode(e[1])}) 
+                rdict = {'bad':'true','errs': d }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+        else:
+            return HttpResponseServerError("Object does not exist")
+    elif action == 'addnew':
+        if not request.method == 'POST':
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["action", "new"]))
+        if o_type == "project" and o_id > 0:
+            form = ContainerForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                logger.debug("Create new dataset: %s" % (str(form.cleaned_data)))
+                name = form.cleaned_data['name']
+                description = form.cleaned_data['description']
+                manager.createDataset(name, description)
+                return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
+            else:
+                template = "webclient/data/container_new.html"
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
+        else:
+            if request.REQUEST.get('folder_type') in ("project", "screen", "dataset"):
+                form = ContainerForm(data=request.REQUEST.copy())
+                if form.is_valid():
+                    logger.debug("Create new folder: %s" % (str(form.cleaned_data)))
+                    name = form.cleaned_data['name']
+                    description = form.cleaned_data['description']
+                    getattr(manager, "create"+request.REQUEST.get('folder_type').capitalize())(name, description)
+                    return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
+                else:
+                    template = "webclient/data/container_new.html"
+                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
     elif action == 'edit':
-        if o_type == "dataset":
-            template = "webclient/data/container_form.html"
-            form = ContainerForm(initial={'name': manager.dataset.name, 'description':manager.dataset.description})
-            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
-        elif o_type == "project":
-            template = "webclient/data/container_form.html"
-            form = ContainerForm(initial={'name': manager.project.name, 'description':manager.project.description})
-            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
-        elif o_type == "screen":
-            template = "webclient/data/container_form.html"
-            form = ContainerForm(initial={'name': manager.screen.name, 'description':manager.screen.description})
-            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
-        elif o_type == "plate":
-            template = "webclient/data/container_form.html"
-            form = ContainerForm(initial={'name': manager.plate.name, 'description':manager.plate.description})
-            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
-        elif o_type =="image" and o_id > 0:
-            template = "webclient/data/container_form.html"
-            form = ContainerForm(initial={'name': manager.image.name, 'description':manager.image.description})
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type =="comment" and o_id > 0:
-            template = "webclient/annotations/annotation_form.html"
-            form = CommentAnnotationForm(initial={'content':manager.comment.textValue})
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type =="tag" and o_id > 0:
-            template = "webclient/annotations/annotation_form.html"
-            form = TagAnnotationForm(initial={'tag':manager.tag.textValue, 'description':manager.tag.description})
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type == "share" and o_id > 0:
+        if o_type == "share" and o_id > 0:
             template = "webclient/public/share_form.html"
             manager.getMembers(o_id)
             manager.getComments(o_id)
             experimenters = list(conn.getExperimenters())
+            experimenters.sort(key=lambda x: x.getOmeName().lower())
             if manager.share.getExpirationDate() is not None:
                 form = ShareForm(initial={'message': manager.share.message, 'expiration': manager.share.getExpirationDate().strftime("%Y-%m-%d"), \
                                         'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
@@ -1195,111 +1441,31 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                                         'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
                                         'experimenters': experimenters}) #'guests': share.guestsInShare,
             context = {'url':url, 'nav':request.session['nav'], 'eContext': manager.eContext, 'share':manager, 'form':form}
-    elif action == 'move':
-        parent = request.REQUEST['parent'].split('-')
-        #source = request.REQUEST['source'].split('-')
-        destination = request.REQUEST['destination'].split('-')
-        try:
-            if parent[1] == destination[1]:
-                return HttpResponse("Error: Cannot move to the same place.")
-        except :
-            pass
-        rv = manager.move(parent,destination)
-        if rv:
-            rv = "Error: %s" % rv
-        return HttpResponse(rv)
-    elif action == 'remove':
-        parent = request.REQUEST['parent'].split('-')
-        #source = request.REQUEST['source'].split('-')
-        try:
-            manager.remove(parent)
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            rv = "Error: %s" % x
-            return HttpResponse(rv)
-        
-        if o_type == "dataset" or o_type == "image" or o_type == "plate":
-            images = o_type=='image' and [o_id] or None
-            datasets = o_type == 'dataset' and [o_id] or None
-            plates = o_type == 'plate' and [o_id] or None        
-            request.session['clipboard'] = {'images': images, 'datasets': datasets, 'plates': plates}
-        return HttpResponseRedirect(url)
-    elif action == 'removemany':
-        images = request.REQUEST.getlist('image')
-        try:
-            manager.removemany(images)
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            rv = "Error: %s" % x
-            return HttpResponse(rv)
-        request.session['clipboard'] = source
-        return HttpResponse()
-    elif action == 'removefromshare':
-        image_id = request.REQUEST['source'].split('-')[1]
-        try:
-            manager.removeImage(image_id)
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            rv = "Error: %s" % x
-            return HttpResponse(rv)
-        return HttpResponseRedirect(url)    
+        elif hasattr(manager, o_type) and o_id > 0:
+            obj = getattr(manager, o_type)
+            template = "webclient/data/container_form.html"
+            form = ContainerForm(initial={'name': obj.name, 'description':obj.description})
+            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
     elif action == 'save':
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
-        if o_type == "dataset":
-            form = ContainerForm(data=request.REQUEST.copy())
-            if form.is_valid():
-                name = request.REQUEST['name'].encode('utf-8')
-                description = request.REQUEST['description'].encode('utf-8')
-                manager.updateDataset(name, description)
-                return HttpResponseRedirect(url)
-            else:
-                template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type == "project":
-            form = ContainerForm(data=request.REQUEST.copy())
-            if form.is_valid():
-                name = request.REQUEST['name'].encode('utf-8')
-                description = request.REQUEST['description'].encode('utf-8')
-                manager.updateProject(name, description)
-                return HttpResponseRedirect(url)
-            else:
-                template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type == "screen":
-            form = ContainerForm(data=request.REQUEST.copy())
-            if form.is_valid():
-                name = request.REQUEST['name'].encode('utf-8')
-                description = request.REQUEST['description'].encode('utf-8')
-                manager.updateScreen(name, description)
-                return HttpResponseRedirect(url)
-            else:
-                template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type == "plate":
-            form = ContainerForm(data=request.REQUEST.copy())
-            if form.is_valid():
-                name = request.REQUEST['name'].encode('utf-8')
-                description = request.REQUEST['description'].encode('utf-8')
-                manager.updatePlate(name, description)
-                return HttpResponseRedirect(url)
-            else:
-                template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type == 'image':
-            form = ContainerForm(data=request.REQUEST.copy())
-            if form.is_valid():
-                name = request.REQUEST['name'].encode('utf-8')
-                description = request.REQUEST['description'].encode('utf-8')
-                manager.updateImage(name, description)
-                return HttpResponseRedirect(url)
-            else:
-                template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))        
+        if o_type in ("project", "dataset", "image", "screen", "plate", "well"):
+            if hasattr(manager, o_type) and o_id > 0:
+                form = ContainerForm(data=request.REQUEST.copy())
+                if form.is_valid():
+                    logger.debug("Update: %s" % (str(form.cleaned_data)))
+                    name = form.cleaned_data['name']
+                    description = form.cleaned_data['description']               
+                    getattr(manager, "update"+o_type.capitalize())(name, description)
+                    return HttpResponseRedirect(url)
+                else:
+                    template = "webclient/data/container_form.html"
+                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
         elif o_type == 'comment':
             form = CommentAnnotationForm(data=request.REQUEST.copy())
             if form.is_valid():
-                content = request.REQUEST['content'].encode('utf-8')
+                logger.debug("Save Comment: %s" % (str(form.cleaned_data)))
+                content = form.cleaned_data['content']
                 manager.saveCommentAnnotation(content)
                 return HttpResponseRedirect(url)
             else:
@@ -1308,37 +1474,30 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         elif o_type == 'tag':
             form = TagAnnotationForm(data=request.REQUEST.copy())
             if form.is_valid():
-                content = request.REQUEST['tag'].encode('utf-8')
-                description = request.REQUEST['description'].encode('utf-8')
-                manager.saveTagAnnotation(content, description)
+                logger.debug("Save Tag: %s" % (str(form.cleaned_data)))
+                tag = form.cleaned_data['tag']
+                description = form.cleaned_data['description']
+                manager.saveTagAnnotation(tag, description)
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/data/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
         elif o_type == "share":
-            experimenters = list(conn.getExperimenters())            
+            experimenters = list(conn.getExperimenters())
+            experimenters.sort(key=lambda x: x.getOmeName().lower())
             form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
             if form.is_valid():
-                message = request.REQUEST['message'].encode('utf-8')
-                expiration = None
-                try:
-                    if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
-                        expiration = str(request.REQUEST['expiration'].encode('utf-8'))
-                except:
-                    pass
-                members = request.REQUEST.getlist('members')
+                logger.debug("Update share: %s" % (str(form.cleaned_data)))
+                message = form.cleaned_data['message']
+                expiration = form.cleaned_data['expiration']
+                members = form.cleaned_data['members']
                 #guests = request.REQUEST['guests']
-                enable = False
-                try:
-                    if request.REQUEST['enable']: enable = True
-                except:
-                    pass
-
+                enable = toBoolean(form.cleaned_data['enable'])
                 try:
                     host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
                 except:
                     host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
-                manager.updateShareOrDiscussion(host, request.session['server'], message, members, enable, expiration)
+                manager.updateShareOrDiscussion(host, request.session.get('server'), message, members, enable, expiration)
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/public/share_form.html"
@@ -1346,7 +1505,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         elif o_type == "sharecomment":
             form_sharecomments = ShareCommentForm(data=request.REQUEST.copy())
             if form_sharecomments.is_valid():
-                comment = request.REQUEST['comment'].encode('utf-8')
+                logger.debug("Create share comment: %s" % (str(form_sharecomments.cleaned_data)))
+                comment = form_sharecomments.cleaned_data['comment']
                 try:
                     host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
                 except:
@@ -1355,57 +1515,132 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/annotations/annotation_new_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}      
-    elif action == 'addnew':
-        if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["action", "new"]))
-        if o_type == "project" and o_id > 0:
-            form = ContainerForm(data=request.REQUEST.copy())
-            if form.is_valid():
-                name = request.REQUEST.get('name').encode('utf-8')
-                description = request.REQUEST.get('description').encode('utf-8')
-                manager.createDataset(name, description)
-                return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
-            else:
-                template = "webclient/data/container_new.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
+                context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}
+    elif action == 'editname':
+        if hasattr(manager, o_type) and o_id > 0:
+            obj = getattr(manager, o_type)
+            template = "webclient/ajax_form/container_form_ajax.html"
+            form = ContainerNameForm(initial={'name': (o_type != "tag" and obj.name or obj.textValue)})
+            context = {'nav':request.session['nav'], 'manager':manager, 'eContext':manager.eContext, 'form':form}
         else:
-            if request.REQUEST.get('folder_type') == "dataset":
-                form = ContainerForm(data=request.REQUEST.copy())
-                if form.is_valid():
-                    name = request.REQUEST['name'].encode('utf-8')
-                    description = request.REQUEST['description'].encode('utf-8')
-                    manager.createDataset(name, description)
-                    return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
-                else:
-                    template = "webclient/data/container_new.html"
-                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
-            elif request.REQUEST.get('folder_type') == "project":
-                form = ContainerForm(data=request.REQUEST.copy())
-                if form.is_valid():
-                    name = request.REQUEST['name'].encode('utf-8')
-                    description = request.REQUEST['description'].encode('utf-8')
-                    manager.createProject(name, description)
-                    return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
-                else:
-                    template = "webclient/data/container_new.html"
-                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
-            elif request.REQUEST.get('folder_type') == "screen":
-                form = ContainerForm(data=request.REQUEST.copy())
-                if form.is_valid():
-                    name = request.REQUEST['name'].encode('utf-8')
-                    description = request.REQUEST['description'].encode('utf-8')
-                    manager.createScreen(name, description)
-                    return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
-                else:
-                    template = "webclient/data/container_new.html"
-                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
+            return HttpResponseServerError("Object does not exist")
+    elif action == 'savename':
+        if not request.method == 'POST':
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
+        if hasattr(manager, o_type) and o_id > 0:
+            form = ContainerNameForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                logger.debug("Update name form:" + str(form.cleaned_data))
+                name = form.cleaned_data['name']
+                manager.updateName(o_type, o_id, name)                
+                rdict = {'bad':'false' }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+            else:
+                d = dict()
+                for e in form.errors.iteritems():
+                    d.update({e[0]:unicode(e[1])}) 
+                rdict = {'bad':'true','errs': d }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+        else:
+            return HttpResponseServerError("Object does not exist")
+    elif action == 'editdescription':
+        if hasattr(manager, o_type) and o_id > 0:
+            obj = getattr(manager, o_type)
+            template = "webclient/ajax_form/container_form_ajax.html"
+            form = ContainerDescriptionForm(initial={'description': obj.description})
+            context = {'nav':request.session['nav'], 'manager':manager, 'eContext':manager.eContext, 'form':form}
+        else:
+            return HttpResponseServerError("Object does not exist")
+    elif action == 'savedescription':
+        if not request.method == 'POST':
+            return HttpResponseServerError("Action '%s' on the '%s' id:%s cannot be complited" % (action, o_type, o_id))
+        if hasattr(manager, o_type) and o_id > 0:
+            form = ContainerDescriptionForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                logger.debug("Update name form:" + str(form.cleaned_data))
+                description = form.cleaned_data['description']
+                manager.updateDescription(o_type, o_id, description)                
+                rdict = {'bad':'false' }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+            else:
+                d = dict()
+                for e in form.errors.iteritems():
+                    d.update({e[0]:unicode(e[1])}) 
+                rdict = {'bad':'true','errs': d }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+        else:
+            return HttpResponseServerError("Object does not exist")
+    elif action == 'paste':
+        destination = request.REQUEST['destination'].split('-')
+        rv = manager.paste(destination)
+        if rv:
+            rdict = {'bad':'true','errs': rv }
+            json = simplejson.dumps(rdict, ensure_ascii=False)
+            return HttpResponse( json, mimetype='application/javascript')
+        else:
+            rdict = {'bad':'false' }
+            json = simplejson.dumps(rdict, ensure_ascii=False)
+            return HttpResponse( json, mimetype='application/javascript')
+    elif action == 'move':
+        parent = request.REQUEST['parent'].split('-')
+        #source = request.REQUEST['source'].split('-')
+        destination = request.REQUEST['destination'].split('-')
+        rv = None
+        try:
+            if parent[1] == destination[1]:
+                rv = "Error: Cannot move to the same place."
+        except Exception, x:
+            rdict = {'bad':'true','errs': str(x) }
+        else:
+            if rv is None:
+                rv = manager.move(parent,destination)
+            if rv:
+                rdict = {'bad':'true','errs': rv }
+            else:
+                rdict = {'bad':'false' }
+        json = simplejson.dumps(rdict, ensure_ascii=False)
+        return HttpResponse( json, mimetype='application/javascript')
+    elif action == 'remove':
+        parent = request.REQUEST['parent'].split('-')
+        #source = request.REQUEST['source'].split('-')
+        try:
+            manager.remove(parent)            
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            rdict = {'bad':'true','errs': str(x) }
+            json = simplejson.dumps(rdict, ensure_ascii=False)
+            return HttpResponse( json, mimetype='application/javascript')
+        
+        if o_type == "dataset" or o_type == "image" or o_type == "plate":
+            images = o_type=='image' and [o_id] or None
+            datasets = o_type == 'dataset' and [o_id] or None
+            plates = o_type == 'plate' and [o_id] or None        
+            request.session['clipboard'] = {'images': images, 'datasets': datasets, 'plates': plates}
+        rdict = {'bad':'false' }
+        json = simplejson.dumps(rdict, ensure_ascii=False)
+        return HttpResponse( json, mimetype='application/javascript')
+    elif action == 'removefromshare':
+        image_id = request.REQUEST.get('source')
+        try:
+            manager.removeImage(image_id)
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            rdict = {'bad':'true','errs': str(x) }
+            json = simplejson.dumps(rdict, ensure_ascii=False)
+            return HttpResponse( json, mimetype='application/javascript')
+        rdict = {'bad':'false' }
+        json = simplejson.dumps(rdict, ensure_ascii=False)
+        return HttpResponse( json, mimetype='application/javascript')
     elif action == 'addcomment':
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newcomment", o_type, oid]))
         form_comment = CommentAnnotationForm(data=request.REQUEST.copy())
         if form_comment.is_valid() and o_type is not None and o_id > 0:
-            content = request.REQUEST['content'].encode('utf-8')            
+            content = form_comment.cleaned_data['content']
             manager.createCommentAnnotation(o_type, content)    
             return HttpResponseRedirect(url)
         else:
@@ -1416,8 +1651,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newtag", o_type, oid]))
         form_tag = TagAnnotationForm(data=request.REQUEST.copy())
         if form_tag.is_valid() and o_type is not None and o_id > 0:
-            tag = request.REQUEST['tag'].encode('utf-8')
-            desc = request.REQUEST['description'].encode('utf-8')
+            tag = form_tag.cleaned_data['tag']
+            desc = form_tag.cleaned_data['description']
             manager.createTagAnnotation(o_type, tag, desc)
             return HttpResponseRedirect(url)
         else:
@@ -1428,10 +1663,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newtagonly"]))
         form_tag = TagAnnotationForm(data=request.REQUEST.copy())
         if form_tag.is_valid():
-            tag = request.REQUEST['tag'].encode('utf-8')
-            desc = request.REQUEST['description'].encode('utf-8')
+            tag = form_tag.cleaned_data['tag']
+            desc = form_tag.cleaned_data['description']            
             manager.createTagAnnotationOnly(tag, desc)
-            return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("load_template", args=["usertags"])) 
+            return HttpJavascriptRedirect(reverse("load_template", args=["usertags"])) 
         else:
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag}
@@ -1441,7 +1676,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         tag_list = manager.getTagsByObject()
         form_tags = TagListForm(data=request.REQUEST.copy(), initial={'tags':tag_list})
         if form_tags.is_valid() and o_type is not None and o_id > 0:
-            tags = request.POST.getlist('tags')
+            tags = form_tags.cleaned_data['tags']
             manager.createAnnotationLinks(o_type, 'tag', tags)    
             return HttpResponseRedirect(url)
         else:
@@ -1471,32 +1706,39 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files}
     elif action == 'delete':
-        child = not toBoolean(request.REQUEST.get('child'))
-        anns = not toBoolean(request.REQUEST.get('anns'))
+        child = toBoolean(request.REQUEST.get('child'))
+        anns = toBoolean(request.REQUEST.get('anns'))
         try:
             handle = manager.deleteItem(child, anns)
             request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
             request.session.modified = True            
         except Exception, x:
-            logger.error(traceback.format_exc())
-            rv = "Error: %s" % x
-            return HttpResponse(rv)      
-        return HttpResponse()
+            logger.error('Failed to delete: %r' % {'did':o_id, 'dtype':o_type}, exc_info=True)
+            rdict = {'bad':'true','errs': str(x) }
+        else:
+            rdict = {'bad':'false' }
+        json = simplejson.dumps(rdict, ensure_ascii=False)
+        return HttpResponse( json, mimetype='application/javascript')
     elif action == 'deletemany':
-        ids = request.REQUEST.getlist('image')
-        anns = not toBoolean(request.REQUEST.get('anns'))
+        object_ids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate'), 'well':request.REQUEST.getlist('well')}
+        child = toBoolean(request.REQUEST.get('child'))
+        anns = toBoolean(request.REQUEST.get('anns'))
         try:
-            handle = manager.deleteImages(ids, anns)
-            if len(ids) > 1:
-                request.session['callback'][str(handle)] = {'delmany':len(ids), 'did':ids, 'dtype':'image', 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
-            else:
-                request.session['callback'][str(handle)] = {'delmany':False, 'did':ids[0], 'dtype':'image', 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
+            for key,ids in object_ids.iteritems():
+                if ids is not None and len(ids) > 0:
+                    handle = manager.deleteObjects(key, ids, child, anns)
+                    if len(ids) > 1:
+                        request.session['callback'][str(handle)] = {'delmany':len(ids), 'did':ids, 'dtype':key, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
+                    else:
+                        request.session['callback'][str(handle)] = {'delmany':False, 'did':ids[0], 'dtype':key, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
             request.session.modified = True
         except Exception, x:
-            logger.error(traceback.format_exc())
-            rv = "Error: %s" % x
-            return HttpResponse(rv)
-        return HttpResponse()
+            logger.error('Failed to delete: %r' % {'did':ids, 'dtype':key}, exc_info=True)
+            rdict = {'bad':'true','errs': str(x) }
+        else:
+            rdict = {'bad':'false' }
+        json = simplejson.dumps(rdict, ensure_ascii=False)
+        return HttpResponse( json, mimetype='application/javascript')
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1513,7 +1755,7 @@ def download_annotation(request, action, iid, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     try:
-        ann = conn.getAnnotation(long(iid))
+        ann = conn.getObject("Annotation", long(iid))
         
         from django.conf import settings 
         tempdir = settings.FILE_UPLOAD_TEMP_DIR
@@ -1541,6 +1783,10 @@ def download_annotation(request, action, iid, **kwargs):
 @isUserConnected
 def load_public(request, share_id=None, **kwargs):
     request.session.modified = True
+    
+    # SUBTREE TODO:
+    if share_id is None:
+        share_id = request.REQUEST.get("o_id") is not None and long(request.REQUEST.get("o_id")) or None
     
     # check menu
     menu = request.REQUEST.get("menu")
@@ -1590,8 +1836,6 @@ def load_public(request, share_id=None, **kwargs):
             template = "webclient/public/share_subtree.html"
         elif view == 'icon':
             template = "webclient/public/share_content_icon.html"
-        elif view == 'table':
-            template = "webclient/public/share_content_table.html"
         controller = BaseShare(conn, conn_share, share_id)
         if conn_share is None:
             controller.loadShareOwnerContent()
@@ -1634,7 +1878,8 @@ def basket_action (request, action=None, **kwargs):
         template = "webclient/basket/basket_share_action.html"
         basket = BaseBasket(conn)
         basket.load_basket(request)
-        experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
+        experimenters = list(conn.getExperimenters())
+        experimenters.sort(key=lambda x: x.getOmeName().lower())
         selected = [long(i) for i in request.REQUEST.getlist('image')]        
         form = BasketShareForm(initial={'experimenters':experimenters, 'images':basket.imageInBasket, 'enable':True, 'selected':selected})            
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
@@ -1644,39 +1889,31 @@ def basket_action (request, action=None, **kwargs):
         
         basket = BaseBasket(conn)
         basket.load_basket(request)
-        experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
+        experimenters = list(conn.getExperimenters())
+        experimenters.sort(key=lambda x: x.getOmeName().lower())
         form = BasketShareForm(initial={'experimenters':experimenters, 'images':basket.imageInBasket}, data=request.REQUEST.copy())
         if form.is_valid():
-            images = [long(i) for i in request.REQUEST.getlist('image')]
-            message = request.REQUEST['message'].encode('utf-8')
-            expiration = None
-            try:
-                if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
-                    expiration = str(request.REQUEST['expiration'].encode('utf-8'))
-            except:
-                pass
-            members = request.REQUEST.getlist('members')
+            images = form.cleaned_data['image']
+            message = form.cleaned_data['message']
+            expiration = form.cleaned_data['expiration']
+            members = form.cleaned_data['members']
             #guests = request.REQUEST['guests']
-            enable = False
-            try:
-                if request.REQUEST['enable']: enable = True
-            except:
-                pass
-            
+            enable = toBoolean(form.cleaned_data['enable'])
             try:
                 host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
             except:
                 host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
             share = BaseShare(conn)
             share.createShare(host, request.session.get('server'), images, message, members, enable, expiration)
-            return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("load_template", args=["public"])) 
+            return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
         else:
             template = "webclient/basket/basket_share_action.html"
             context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
     elif action == "todiscuss":
         template = "webclient/basket/basket_discussion_action.html"
         basket = BaseBasket(conn)
-        experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
+        experimenters = list(conn.getExperimenters())
+        experimenters.sort(key=lambda x: x.getOmeName().lower())
         form = ShareForm(initial={'experimenters':experimenters, 'enable':True})            
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
     elif action == "createdisc":
@@ -1684,56 +1921,25 @@ def basket_action (request, action=None, **kwargs):
             return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, oid]))
         
         basket = BaseBasket(conn)
-        experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
+        experimenters = list(conn.getExperimenters())
+        experimenters.sort(key=lambda x: x.getOmeName().lower())
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
-            message = request.REQUEST['message'].encode('utf-8')
-            expiration = None
-            try:
-                if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
-                    expiration = str(request.REQUEST['expiration'].encode('utf-8'))
-            except:
-                pass
-            members = request.REQUEST.getlist('members')
+            message = form.cleaned_data['message']
+            expiration = form.cleaned_data['expiration']
+            members = form.cleaned_data['members']
             #guests = request.REQUEST['guests']
-            enable = False
-            try:
-                if request.REQUEST['enable']: enable = True
-            except:
-                pass
-            
+            enable = toBoolean(form.cleaned_data['enable'])
             try:
                 host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
             except:
                 host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
             share = BaseShare(conn)
-            share.createDiscussion(host, request.session['server'], message, members, enable, expiration)
-            return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("load_template", args=["public"])) 
+            share.createDiscussion(host, request.session.get('server'), message, members, enable, expiration)
+            return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
         else:
             template = "webclient/basket/basket_discussion_action.html"
             context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
-    elif action == "toannotate":
-        # TODO
-        template = "webclient/basket/basket_share_action.html"
-        
-        basket = BaseBasket(conn)
-        basket.load_basket(request)
-        experimenters = conn.getExperimenters()
-        
-        form = ShareForm(initial={'experimenters': experimenters})
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups'], 'url':url})
-        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
-    elif action == "totag":
-        # TODO
-        template = "webclient/basket/basket_share_action.html"
-        
-        basket = BaseBasket(conn)
-        basket.load_basket(request)
-        experimenters = conn.getExperimenters()
-        
-        form = ShareForm(initial={'experimenters': experimenters})
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups'], 'url':url})
-        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     else:
         template = "webclient/basket/basket.html"
         
@@ -1780,22 +1986,6 @@ def update_basket(request, **kwargs):
             prod = request.REQUEST.get('productId')
             ptype = request.REQUEST.get('productType')
             if action == 'add':
-                if ptype == 'image':
-                    for item in request.session['imageInBasket']:
-                        if item == long(prod):
-                            rv = "Error: This object is already in the basket"
-                            return HttpResponse(rv)
-                    request.session['imageInBasket'].add(long(prod))
-                #elif ptype == 'dataset':
-                #    for item in request.session['datasetInBasket']:
-                #        if item == prod:
-                #            rv = "Error: This object is already in the basket"
-                #            return HttpResponse(rv)
-                #    request.session['datasetInBasket'].append(prod)
-                else:
-                    rv = "Error: This action is not available"
-                    return HttpResponse(rv)
-            elif action == 'addmany':
                 images = request.REQUEST.getlist('image')
                 #datasets = request.REQUEST.getlist('datasets')
                 for i in images:
@@ -1845,103 +2035,6 @@ def update_basket(request, **kwargs):
     else:
         return handlerInternalError("Request method error in Basket.")
 
-##################################################################
-# Clipboard
-
-@isUserConnected
-def update_clipboard(request, **kwargs):
-    action = None
-    rv = None
-    if request.method == 'POST':
-        action = request.REQUEST.get('action')
-        if action is None:
-            rv = "Error: Action not available."
-        else:
-            if action == 'copy':
-                images = request.REQUEST.getlist('image')
-                datasets = request.REQUEST.getlist('dataset')
-                plates = request.REQUEST.getlist('plate')
-                request.session['clipboard'] = {'images': images, 'datasets': datasets, 'plates': plates}
-                rv = "Data were copied to clipboard."
-            elif action == 'paste':
-                destinationType = request.REQUEST.get('destinationType')
-                destinationId = request.REQUEST.get('destinationId')
-                if destinationType is not None and destinationId is not None:
-                    destination = [str(request.REQUEST.get('destinationType')), long(request.REQUEST.get('destinationId'))]
-                    conn = None
-                    try:
-                        conn = kwargs["conn"]
-                    except:
-                        logger.error(traceback.format_exc())
-                    manager = BaseContainer(conn)
-                    if request.session['clipboard']['images'] is not None and len(request.session['clipboard']['images']) > 0 :
-                        try:
-                            manager.copyImagesToDataset(request.session['clipboard']['images'], destination)
-                        except Exception, x:
-                            logger.error(traceback.format_exc())
-                            return HttpResponse("Error: %s" % (x.__class__.__name__))
-                    elif request.session['clipboard']['datasets'] is not None and len(request.session['clipboard']['datasets']) > 0:
-                        try:
-                            manager.copyDatasetsToProject(request.session['clipboard']['datasets'], destination)
-                        except Exception, x:
-                            logger.error(traceback.format_exc())
-                            return HttpResponse("Error: %s" % (x.__class__.__name__))
-                    elif request.session['clipboard']['plates'] is not None and len(request.session['clipboard']['plates']) > 0:
-                        try:
-                            manager.copyPlatesToScreen(request.session['clipboard']['plates'], destination)
-                        except Exception, x:
-                            logger.error(traceback.format_exc())
-                            return HttpResponse("Error: %s" % (x.__class__.__name__)) 
-                    else:
-                        rv = "Error: Clipboard is empty. You need to copy before paste."
-
-                    if rv is None:
-                        request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
-                        rv = "Copied successful"
-                else:
-                    rv = "Error: Destination was not specified."    
-            elif action == 'clean':
-                try:
-                    del request.session['clipboard']
-                except KeyError:
-                    logger.error(traceback.format_exc())
-                request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
-                rv = "Cleapboard is empty"
-            else:
-                rv = "Error: Action not supported."
-    else:
-        rv = "Error: Action not available."
-    return HttpResponse(rv)
-
-#@isUserConnected
-#def importer(request, **kwargs):
-#    request.session.modified = True
-#    
-#
-#    conn = None
-#    try:
-#        conn = kwargs["conn"]
-#    except:
-#        logger.error(traceback.format_exc())
-#        return handlerInternalError("Connection is not available. Please contact your administrator.")
-#    
-#    url = None
-#    try:
-#        url = kwargs["url"]
-#    except:
-#        logger.error(traceback.format_exc())
-#        
-#    controller = BaseImpexp(conn)
-#    
-#    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups'], 'url':url})
-#    
-#    context = {'sid':request.session['server'], 'uuid':conn._sessionUuid, 'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
-#    t = template_loader.get_template(template)
-#    c = Context(request,context)
-#    logger.debug('TEMPLATE: '+template)
-#    return HttpResponse(t.render(c))
-
-
 @isUserConnected
 def manage_myaccount(request, action=None, **kwargs):
     template = "webclient/person/myaccount.html"
@@ -1979,12 +2072,12 @@ def manage_myaccount(request, action=None, **kwargs):
     if action == "save":
         form = MyAccountForm(data=request.POST.copy(), initial={'groups':controller.otherGroups})
         if form.is_valid():
-            firstName = request.REQUEST['first_name'].encode('utf-8')
-            middleName = request.REQUEST['middle_name'].encode('utf-8')
-            lastName = request.REQUEST['last_name'].encode('utf-8')
-            email = request.REQUEST['email'].encode('utf-8')
-            institution = request.REQUEST['institution'].encode('utf-8')
-            defaultGroup = request.REQUEST['default_group']
+            firstName = form.cleaned_data['first_name']
+            middleName = form.cleaned_data['middle_name']
+            lastName = form.cleaned_data['last_name']
+            email = form.cleaned_data['email']
+            institution = form.cleaned_data['institution']
+            defaultGroup = form.cleaned_data['default_group']
             controller.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution)
             return HttpResponseRedirect(reverse("myaccount"))
 
@@ -2018,15 +2111,18 @@ def change_password(request, **kwargs):
     
     error = None
     if request.method != 'POST':
-        password_form = ChangeMyPassword()
+        password_form = ChangePassword()
     else:
-        password_form = ChangeMyPassword(data=request.POST.copy())
+        password_form = ChangePassword(data=request.POST.copy())
                     
         if password_form.is_valid():
-            password = request.REQUEST.get('password').encode('utf-8')
-            old_password = request.REQUEST.get('old_password').encode('utf-8')
-            error = conn.changeMyPassword(old_password, password) 
-            if error is None:
+            old_password = password_form.cleaned_data['old_password']
+            password = password_form.cleaned_data['password']
+            try:
+                conn.changeMyPassword(password, old_password) 
+            except Exception, x:
+                error = x.message
+            else:
                 request.session['password'] = password
                 return HttpJavascriptResponse("Password was changed successfully")                
                 
@@ -2060,10 +2156,10 @@ def upload_myphoto(request, action=None, **kwargs):
                 controller.attach_photo(request.FILES['photo'])
                 return HttpResponseRedirect(reverse("upload_myphoto"))
     elif action == "crop": 
-        x1 = long(request.REQUEST['x1'].encode('utf-8'))
-        x2 = long(request.REQUEST['x2'].encode('utf-8'))
-        y1 = long(request.REQUEST['y1'].encode('utf-8'))
-        y2 = long(request.REQUEST['y2'].encode('utf-8'))
+        x1 = long(request.REQUEST.get('x1'))
+        x2 = long(request.REQUEST.get('x2'))
+        y1 = long(request.REQUEST.get('y1'))
+        y2 = long(request.REQUEST.get('y2'))
         box = (x1,y1,x2,y2)
         conn.cropExperimenterPhoto(box)
         return HttpResponseRedirect(reverse("upload_myphoto"))
@@ -2116,11 +2212,13 @@ def load_calendar(request, year=None, month=None, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
    
+    filter_user_id = request.session.get('nav')['experimenter']
+   
     if year is not None and month is not None:
-        controller = BaseCalendar(conn=conn, year=year, month=month)
+        controller = BaseCalendar(conn=conn, year=year, month=month, eid=filter_user_id)
     else:
         today = datetime.datetime.today()
-        controller = BaseCalendar(conn=conn, year=today.year, month=today.month)
+        controller = BaseCalendar(conn=conn, year=today.year, month=today.month, eid=filter_user_id)
     controller.create_calendar()
     
     context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller}
@@ -2160,7 +2258,8 @@ def load_history(request, year, month, day, **kwargs):
     except:
         cal_type = None    
     
-    controller = BaseCalendar(conn=conn, year=year, month=month, day=day)
+    filter_user_id = request.session.get('nav')['experimenter']
+    controller = BaseCalendar(conn=conn, year=year, month=month, day=day, eid=filter_user_id)
     controller.get_items(cal_type, page)
     
     #if cal_type is None:
@@ -2316,8 +2415,8 @@ def render_thumbnail (request, iid, share_id=None, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
-    img = conn.getImage(iid)
+        raise Exception("Connection not available")
+    img = conn.getObject("Image", iid)
     
     if img is None:
         jpeg_data = conn.defaultThumbnail(80)
@@ -2344,8 +2443,8 @@ def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
-    img = conn.getImage(iid)
+        raise Exception("Connection not available")
+    img = conn.getObject("Image", iid)
     
     if img is None:
         jpeg_data = conn.defaultThumbnail(size=int(size))
@@ -2354,37 +2453,6 @@ def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
     else:
         jpeg_data = img.getThumbnailOrDefault(size=int(size))
     return HttpResponse(jpeg_data, mimetype='image/jpeg')
-
-@isUserConnected
-def render_big_thumbnail (request, iid, **kwargs):
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
-    img = conn.getImage(iid)
-    
-    size = 0
-    if img.getWidth() >= 200:
-        size = img.getWidth()
-    else:
-        size = 200
-    
-    if size <=750:
-        size = size
-    else:
-        size = 750
-        
-    if img is None:
-        jpeg_data = conn.defaultThumbnail(size=int(size))
-        logger.error("Image %s not found..." % (str(iid)))
-        #return handlerInternalError("Image %s not found..." % (str(iid)))
-    else:
-        jpeg_data = img.getThumbnailOrDefault(size=int(size))
-    return HttpResponse(jpeg_data, mimetype='image/jpeg')
-
 
 @isUserConnected
 def render_image (request, iid, z, t, share_id=None, **kwargs):
@@ -2407,10 +2475,34 @@ def render_image (request, iid, z, t, share_id=None, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
+        raise Exception("Connection not available")
 
     return webgateway_views.render_image(request, iid, z, t, _conn=conn, **kwargs)
 
+@isUserConnected
+def render_image_region (request, iid, z, t, server_id=None, share_id=None, _conn=None, **kwargs):
+    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
+        Many options are available from the request dict.
+    I am assuming a single Pixels object on image with id='iid'. May be wrong """
+
+    conn = None
+    if share_id is not None:
+        try:
+            conn = kwargs["conn_share"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+    else:
+        try:
+            conn = kwargs["conn"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+         
+    if conn is None:
+        raise Exception("Connection not available")
+
+    return webgateway_views.render_image_region(request, iid, z, t, server_id=None, _conn=conn, **kwargs)
 
 @isUserConnected
 def image_viewer (request, iid, share_id=None, **kwargs):
@@ -2433,7 +2525,7 @@ def image_viewer (request, iid, share_id=None, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
+        raise Exception("Connection not available")
 
     return webgateway_views.full_viewer(request, iid, _conn=conn, **kwargs)
 
@@ -2456,7 +2548,7 @@ def imageData_json (request, iid, share_id=None, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
+        raise Exception("Connection not available")
 
     return HttpResponse(webgateway_views.imageData_json(request, iid=iid, _conn=conn, **kwargs), mimetype='application/javascript')
 
@@ -2478,8 +2570,8 @@ def render_row_plot (request, iid, z, t, y, share_id=None, w=1, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
-    img = conn.getImage(iid)
+        raise Exception("Connection not available")
+    img = conn.getObject("Image", iid)
 
     return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, _conn=conn, **kwargs)
 
@@ -2501,8 +2593,8 @@ def render_col_plot (request, iid, z, t, x, share_id=None, w=1, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
-    img = conn.getImage(iid)
+        raise Exception("Connection not available")
+    img = conn.getObject("Image", iid)
 
     return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, _conn=conn, **kwargs)
 
@@ -2524,8 +2616,8 @@ def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
             return handlerInternalError("Connection is not available. Please contact your administrator.")
          
     if conn is None:
-        raise Exception("Share connection not available")
-    img = conn.getImage(iid)
+        raise Exception("Connection not available")
+    img = conn.getObject("Image", iid)
 
     return webgateway_views.render_split_channel(request, iid, z, t, _conn=conn, **kwargs)
 

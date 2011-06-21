@@ -1,0 +1,32 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Filter_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_ExFilter'
+  coords='414,0,526,26'
+  href='ome.xsd.html#element_ExFilter'/>
+
+ <area
+  shape='rect'
+  alt='element_Dichroic'
+  coords='414,36,526,62'
+  href='ome.xsd.html#element_Dichroic'/>
+
+ <area
+  shape='rect'
+  alt='element_EmFilter'
+  coords='414,72,526,98'
+  href='ome.xsd.html#element_EmFilter'/>
+
+ <area
+  shape='rect'
+  alt='element_FilterSet'
+  coords='328,108,447,134'
+  href='ome.xsd.html#element_FilterSet'/>
+
+ <area
+  shape='rect'
+  alt='type_FilterID'
+  coords='170,144,264,170'
+  href='ome.xsd.html#type_FilterID'/>
+
+</map>

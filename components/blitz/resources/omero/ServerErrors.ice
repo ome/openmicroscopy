@@ -45,7 +45,7 @@
  *   |  |_ ConcurrentModification (data was changed)
  *   |  |_ OptimisticLockException (changed data conflicts)
  *   |  |_ LockTimeout (took too long to aquire lock)
- *   |  |_ TryAgain (took too long to aquire lock)
+ *   |  |_ TryAgain (some processing required before server is ready)
  *   |  \_ TooManyUsersException
  *   |     \_ DatabaseBusyException
  *   |
@@ -264,6 +264,18 @@ module omero
     {
         int seconds; // Informational field on how long timeout was
     };
+
+  /**
+   * Background processing needed before server is ready
+   */
+  exception TryAgain extends ConcurrencyException
+    {
+    };
+
+  exception MissingPyramidException extends ConcurrencyException
+   {
+        long pixelsID;
+   };
 
   // API USAGE
 

@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,12 +62,14 @@ import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -144,6 +147,32 @@ class MetadataViewerModel
 	
 	/** The collection of rendering settings related to the image. */
 	private Map										viewedBy;
+	
+	/**
+	 * Returns the collection of the attachments linked to the 
+	 * <code>DataObject</code>.
+	 * 
+	 * @return See above.
+	 */
+	private List<FileAnnotationData> getTabularData()
+	{ 
+		StructuredDataResults data = getStructuredData();
+		List<FileAnnotationData> l = new ArrayList<FileAnnotationData>();
+		if (data == null) return l;
+		Collection<FileAnnotationData> attachements = data.getAttachments(); 
+		if (attachements == null) return l;
+		Iterator<FileAnnotationData> i = attachements.iterator();
+		FileAnnotationData f;
+		String ns;
+		while (i.hasNext()) {
+			f = i.next();
+			ns = f.getNameSpace();
+			if (FileAnnotationData.BULK_ANNOTATIONS_NS.equals(ns)) {
+				l.add(f);
+			}
+		}
+		return l; 
+	}
 	
 	/**
 	 * Creates a new object and sets its state to {@link MetadataViewer#NEW}.
@@ -264,8 +293,6 @@ class MetadataViewerModel
 	Object getRefObject()
 	{ 
 		if (data == null) return refObject;
-		Object o = data.getRelatedObject();
-		//if (o != null && o instanceof FolderData) return o;
 		return refObject; 
 	}
 	
@@ -500,7 +527,8 @@ class MetadataViewerModel
 			MetadataLoader loader = null;
 			switch (data.getIndex()) {
 				case AdminObject.UPDATE_GROUP:
-					loader = new GroupEditor(component, data.getGroup(), 
+					GroupData group = data.getGroup();
+					loader = new GroupEditor(component, group, 
 							data.getPermissions());
 					break;
 				case AdminObject.UPDATE_EXPERIMENTER:
@@ -518,8 +546,17 @@ class MetadataViewerModel
 			switch (data.getIndex()) {
 				case AdminObject.UPDATE_GROUP:
 					try {
-						svc.updateGroup(data.getGroup(), 
-								data.getPermissions());
+						GroupData group = data.getGroup();
+						GroupData g = svc.lookupGroup(group.getName());
+						if (g == null || group.getId() == g.getId())
+							svc.updateGroup(data.getGroup(), 
+									data.getPermissions());
+						else {
+							UserNotifier un = 
+								MetadataViewerAgent.getRegistry().getUserNotifier();
+							un.notifyInfo("Update Group", "A group with the " +
+									"same name already exists.");
+						}
 					} catch (Exception e) {
 						msg.print("Unable to update the group");
 						msg.print(e);
@@ -599,6 +636,7 @@ class MetadataViewerModel
 	void setSelectionMode(boolean singleMode)
 	{
 		this.singleMode = singleMode;
+		if (singleMode) relatedNodes = null;
 	}
 	
 	/** 
@@ -612,11 +650,11 @@ class MetadataViewerModel
 	/**
 	 * Sets the nodes related to the object of reference.
 	 * 
-	 * @param relateNodes The value to set.
+	 * @param relatedNodes The value to set.
 	 */
-	void setRelatedNodes(List relateNodes)
+	void setRelatedNodes(List relatedNodes)
 	{ 
-		this.relatedNodes = relateNodes;
+		this.relatedNodes = relatedNodes;
 	}
 	
 	/**
@@ -801,5 +839,5 @@ class MetadataViewerModel
 		if (editor == null) return false;
 		return editor.isWritable();
 	}
-	
+
 }

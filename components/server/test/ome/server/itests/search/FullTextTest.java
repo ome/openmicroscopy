@@ -31,7 +31,7 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
-import ome.services.fulltext.EventLogLoader;
+import ome.services.eventlogs.EventLogLoader;
 import ome.services.fulltext.FileParser;
 import ome.services.fulltext.FullTextBridge;
 import ome.services.fulltext.FullTextIndexer;

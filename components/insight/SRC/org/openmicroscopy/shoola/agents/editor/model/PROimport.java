@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -135,12 +136,14 @@ public class PROimport {
 		 // for each attribute/value pair, create a text parameter. 
 		 String name, value;
 		 IParam param;
-		 Iterator<String> i = allAttributes.keySet().iterator();
+		 Iterator i = allAttributes.entrySet().iterator();
+		 Entry entry;
 		 while (i.hasNext()) {
-			 name = i.next();
-			 value = allAttributes.get(name);
+			 entry = (Entry) i.next();
+			 value = (String) entry.getValue();
 			 param = getFieldParam(TextParam.TEXT_LINE_PARAM);
-			 param.setAttribute(AbstractParam.PARAM_NAME, name);
+			 param.setAttribute(AbstractParam.PARAM_NAME, 
+					 (String) entry.getKey());
 			 param.setAttribute(TextParam.PARAM_VALUE, value);
 			 field.addContent(param);
 		 }

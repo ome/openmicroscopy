@@ -6,7 +6,6 @@
 #
 
 import os
-import sys
 import time
 import signal
 import logging
@@ -27,6 +26,9 @@ from omero.util.temp_files import create_path, remove_path
 from omero.util.decorators import remoted, perf, locked
 from omero.rtypes import *
 from omero.util.decorators import remoted, perf, wraps
+
+sys = __import__("sys")
+
 
 def with_context(func, context):
     """ Decorator for invoking Ice methods with a context """
@@ -629,8 +631,10 @@ class UseSessionHolder(object):
 class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
     def __init__(self, ctx, needs_session = True,
-                 use_session = None, accepts_list = [], cfg = None,
+                 use_session = None, accepts_list = None, cfg = None,
                  omero_home = path.getcwd()):
+
+        if accepts_list is None: accepts_list = []
 
         self.omero_home = omero_home
 
@@ -653,7 +657,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
         omero.util.Servant.__init__(self, ctx, needs_session = needs_session)
         if cfg is None:
-            self.cfg = os.path.join(os.curdir, "etc", "ice.config")
+            self.cfg = os.path.join(omero_home, "etc", "ice.config")
             self.cfg = os.path.abspath(self.cfg)
         else:
             self.cfg = cfg
@@ -824,11 +828,13 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
 
     @perf
-    def process(self, client, session, job, current, params, properties = {}, iskill = True):
+    def process(self, client, session, job, current, params, properties = None, iskill = True):
         """
         session: session uuid, used primarily if client is None
         client: an omero.client object which should be attached to a session
         """
+
+        if properties is None: properties = {}
 
         if not session or not job or not job.id:
             raise omero.ApiUsageException("No null arguments")
@@ -855,7 +861,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             properties["omero.pass"] = session
             properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
 
-            process = ProcessI(self.ctx, "python", properties, params, iskill, omero_home = self.omero_home)
+            process = ProcessI(self.ctx, sys.executable, properties, params, iskill, omero_home = self.omero_home)
             self.resources.add(process)
 
             # client.download(file, str(process.script_path))

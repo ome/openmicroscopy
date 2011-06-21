@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Group_SchemasSPW200802'>
+ <area
+  shape='rect'
+  alt='element_Leader'
+  coords='436,106,786,165'
+  href='SPW.xsd.html#element_Leader'/>
+
+ <area
+  shape='rect'
+  alt='element_Contact'
+  coords='436,175,786,234'
+  href='SPW.xsd.html#element_Contact'/>
+
+</map>

@@ -73,7 +73,7 @@ class PlatesModel
 		Set visTrees = DataBrowserTranslator.transformHierarchy(plates, 
 							userID, 0);
         browser = BrowserFactory.createBrowser(visTrees);
-        layoutBrowser();
+        //layoutBrowser();
 	}
 	
 	/**

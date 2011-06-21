@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -55,7 +56,6 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
-import org.openmicroscopy.shoola.agents.events.iviewer.ImageProjected;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageRendered;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
+import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -86,6 +87,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.SaveEventBox;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -605,9 +607,10 @@ class ImViewerComponent
 					model.fireRenderingControlLoading(model.getPixelsID());
 				else model.fireImageLoading();
 				*/
-				if (!model.isImageLoaded())
+				if (!model.isImageLoaded()) {
 					model.fireImageLoading();
-				fireStateChange();
+					fireStateChange();
+				}
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
@@ -658,6 +661,7 @@ class ImViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		view.setLeftStatus(description);
+		if (perc == 100) view.setLeftStatus();
 	}
 
 	/** 
@@ -669,9 +673,24 @@ class ImViewerComponent
 		if (factor != ZoomAction.ZOOM_FIT_FACTOR &&
 			(factor > ZoomAction.MAX_ZOOM_FACTOR ||
 					factor < ZoomAction.MIN_ZOOM_FACTOR))
-			throw new IllegalArgumentException("The zoom factor is value " +
+			throw new IllegalArgumentException("The zoom factor is a value " +
 					"between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
 					ZoomAction.MAX_ZOOM_FACTOR);
+		switch (model.getState()) {
+			case NEW:
+			case LOADING_IMAGE:
+			case LOADING_TILES:
+			case DISCARDED:
+				return;
+		}
+		if (model.isBigImage()) {
+			model.setSelectedResolutionLevel(zoomIndex);
+			view.setZoomFactor(factor, zoomIndex);
+			model.getBrowser().setComponentsSize(model.getTiledImageSizeX(),
+					model.getTiledImageSizeY());
+			loadTiles(null);
+			return;
+		}
 		double oldFactor = model.getZoomFactor();
 		if (oldFactor == factor && factor != ZoomAction.ZOOM_FIT_FACTOR) return;
 		try {
@@ -773,9 +792,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setImage(BufferedImage)
+	 * @see ImViewer#setImage(Object)
 	 */
-	public void setImage(BufferedImage image)
+	public void setImage(Object image)
 	{
 		if (model.getState() != LOADING_IMAGE) 
 			throw new IllegalStateException("This method can only be invoked " +
@@ -786,12 +805,20 @@ class ImViewerComponent
 					"creating the image.");
 			return;
 		}
-			
+		if (!(image instanceof BufferedImage || image instanceof TextureData))
+			return;
+		view.removeComponentListener(controller);
 		if (newPlane) postMeasurePlane();
 		newPlane = false;
-
-		BufferedImage originalImage = model.getOriginalImage();
-		model.setImage(image);
+		Object originalImage;
+		if (ImViewerAgent.hasOpenGLSupport()) {
+			originalImage = model.getImageAsTexture();
+			model.setImageAsTexture((TextureData) image);
+		} else {
+			originalImage = model.getOriginalImage();
+			model.setImage((BufferedImage) image);
+		}
+		
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();
 		if (originalImage == null && model.isZoomFitToWindow()) {
@@ -813,6 +840,7 @@ class ImViewerComponent
 			view.createHistoryItem(null);
 		}
 		view.setCursor(Cursor.getDefaultCursor());
+		view.addComponentListener(controller);
 		fireStateChange();
 	}
 
@@ -894,7 +922,7 @@ class ImViewerComponent
 						"NEW state.");
 		}
 		//depends on model
-		model.setLastSettingsRef();
+		model.setLastSettingsRef(model.getTabbedIndex());
 		int uiIndex = -1;
 		if (model.getColorModel().equals(GREY_SCALE_MODEL)) {
 			if (model.getTabbedIndex() == ImViewer.GRID_INDEX) {
@@ -959,6 +987,12 @@ class ImViewerComponent
 			case DISCARDED:
 				return;
 		} 
+		if (model.isBigImage()) {
+			model.fireBirdEyeViewRetrieval();
+			model.resetTiles();
+			loadTiles(model.getBrowser().getVisibleRectangle());
+			return;
+		}
 		boolean stop = false;
 		int index = model.getTabbedIndex();
 		RndProxyDef def;
@@ -972,8 +1006,9 @@ class ImViewerComponent
 			if (def != null) stop = model.isSameSettings(def, true);
 		}
 		//if (stop) return;
+		
 		if (index == PROJECTION_INDEX) {
-			if (stop) return;
+			//if (stop) return;
 			previewProjection();
 			fireStateChange();
 		} else if (index == GRID_INDEX) {
@@ -985,18 +1020,7 @@ class ImViewerComponent
 				fireStateChange();
 			}
 		} else {
-			if (stop) return;
-			if (model.isBigImage()) {
-				try {
-					model.saveRndSettings(false);
-				} catch (Exception e) {
-					LogMessage logMsg = new LogMessage();
-					logMsg.println("Cannot save rendering settings for " +
-							""+model.getImageID());
-					logMsg.print(e);
-					ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
-				}
-			}
+			//if (stop) return;
 			model.fireImageRetrieval();
 			newPlane = false;
 			fireStateChange();
@@ -1032,8 +1056,8 @@ class ImViewerComponent
 			case NEW:
 			case DISCARDED:
 				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, NEW or" +
-				"LOADING_RENDERING_CONTROL state.");
+						"This method can't be invoked in the DISCARDED or NEW" +
+				"state.");
 		}
 		view.setChannelsSelection(ImViewerUI.ALL_VIEW);
 		renderXYPlane();
@@ -1049,8 +1073,8 @@ class ImViewerComponent
 			case NEW:
 			case DISCARDED:
 				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, " +
-						"NEW or LOADING_RENDERING_CONTROL state.");
+						"This method can't be invoked in the DISCARDED or " +
+						"NEW state.");
 		}
 		return model.getMaxC();
 	}
@@ -1980,7 +2004,7 @@ class ImViewerComponent
 		if (layers == null) layers = new ArrayList<JComponent>();
 		layers.add(comp);
 		view.setMeasurementLaunchingStatus(false);
-		model.getBrowser().addComponent(comp, ImViewer.VIEW_INDEX);
+		model.getBrowser().addComponent(comp, ImViewer.VIEW_INDEX, false);
 		comp.setVisible(true);
 		view.repaint();
 	}
@@ -2445,16 +2469,15 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setProjectedImage(ImageData, List, boolean)
+	 * @see ImViewer#setProjectedImage(ImageData, List, List, boolean)
 	 */
 	public void setProjectedImage(ImageData image, List<Integer> indexes,
-							boolean applySettings)
+				List<DataObject> containers, boolean applySettings)
 	{
 		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 		String message;
 		if (image == null) {
-			message = "An error has occurred while creating the " +
-			"projected image.";
+			message = "An error occurred while creating the projected image.";
 			un.notifyInfo("Projection", message);
 			model.setState(READY);
 		} else {
@@ -2463,8 +2486,10 @@ class ImViewerComponent
 			else
 				notifyProjection("The projected image has been " +
 						"successfully created.", image);
-			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-			bus.post(new ImageProjected(image));
+			if (containers != null) {
+				EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+				bus.post(new NodeToRefreshEvent(containers, true));
+			}
 		}
 		fireStateChange();
 	}
@@ -2538,20 +2563,6 @@ class ImViewerComponent
 		if (oldIndex == index) return;
 		
 		view.setSelectedPane(index);
-		/*
-		//Retrieve the color model of the selected pane
-		String cm = view.getSelectedPaneColorModel();
-		colorModel = model.getColorModel();
-		if (!colorModel.equals(cm)) {
-			int key = ColorModelAction.RGB_MODEL;
-			if (GREY_SCALE_MODEL.equals(cm))
-				key = ColorModelAction.GREY_SCALE_MODEL;
-			setColorModel(key);
-		}
-		firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
-		renderXYPlane();
-		*/
-		
 		if (oldIndex == ImViewer.GRID_INDEX) {
 			int key = ColorModelAction.RGB_MODEL;
 			if (GREY_SCALE_MODEL.equals(colorModel))
@@ -2559,17 +2570,23 @@ class ImViewerComponent
 			setColorModel(key);
 		}
 		
-		firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
-		if ((oldIndex == ImViewer.PROJECTION_INDEX && 
-				index == ImViewer.VIEW_INDEX) ||
-				(index == ImViewer.PROJECTION_INDEX && 
-						oldIndex == ImViewer.VIEW_INDEX)) {
-			if (model.getBrowser().hasProjectedPreview()) renderXYPlane();
+		firePropertyChange(TAB_SELECTION_PROPERTY, 
+				Boolean.valueOf(false), Boolean.valueOf(true));
+		if (oldIndex == ImViewer.PROJECTION_INDEX 
+				&& index == ImViewer.VIEW_INDEX) {
+			//check if settings have changed.
+			//model.setLastSettingsRef(oldIndex);
+			renderXYPlane();
+		} else if (index == ImViewer.PROJECTION_INDEX && 
+				oldIndex == ImViewer.VIEW_INDEX) {
+			//model.setLastSettingsRef(oldIndex);
+			if (model.getBrowser().hasProjectedPreview()) {
+				//renderXYPlane();
+			}
 		} else {
 			renderXYPlane();
 		}
 		model.getBrowser().getUI().setVisible(true);
-		//firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
 
 	/** 
@@ -2722,13 +2739,13 @@ class ImViewerComponent
 	{
 		//if (model.isNumerousChannel()) model.setForLifetime();
 		model.onRndLoaded();
-		
 		if (!reload) {
 			int index = UnitBarSizeAction.getDefaultIndex(5*getPixelsSizeX());
 			setUnitBarSize(UnitBarSizeAction.getValue(index));
 			view.setDefaultScaleBarMenu(index);
 			colorModel = model.getColorModel();
 			view.buildComponents();
+			view.onRndLoaded();
 			if (model.isSeparateWindow()) {
 				view.setOnScreen();
 				view.toFront();
@@ -2745,6 +2762,11 @@ class ImViewerComponent
 			model.resetHistory();
 			view.switchRndControl();
 		}
+		
+		/*
+		if (model.isBigImage()) { //bird eye loaded.
+			model.fireBirdEyeViewRetrieval();
+		}*/
 		renderXYPlane();
 		fireStateChange();
 	}
@@ -2846,55 +2868,6 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#scrollToViewport(Rectangle)
-	 */
-	public void setImageAsTexture(TextureData image)
-	{
-		if (model.getState() != LOADING_IMAGE) 
-			throw new IllegalStateException("This method can only be invoked " +
-			"in the LOADING_IMAGE state.");
-		if (image == null) {
-			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Image retrieval", "An error occurred while " +
-					"creating the image.");
-			return;
-		}
-
-		TextureData originalImage = model.getImageAsTexture();
-		//BufferedImage originalImage = model.getOriginalImage();
-		model.setImageAsTexture(image);
-		if (newPlane) postMeasurePlane();
-		
-		
-		newPlane = false;
-		view.setLeftStatus();
-		view.setPlaneInfoStatus();
-		
-		if (originalImage == null && model.isZoomFitToWindow()) {
-			controller.setZoomFactor(ZoomAction.ZOOM_FIT_TO_WINDOW);
-		}
-		if (model.isPlayingChannelMovie())
-			model.setState(ImViewer.CHANNEL_MOVIE);
-		if (!model.isPlayingMovie()) {
-			//Post an event
-			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-			BufferedImage icon = model.getImageIcon();
-			bus.post(new ImageRendered(model.getPixelsID(), icon, 
-					model.getBrowser().getRenderedImage()));
-			//if (icon != null) view.setIconImage(icon);
-		}
-			
-		if (!model.isPlayingMovie() && !model.isPlayingChannelMovie()) {
-			if (view.isLensVisible()) view.setLensPlaneImage();
-			view.createHistoryItem(null);
-		}
-		
-		view.setCursor(Cursor.getDefaultCursor());
-		fireStateChange();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#createImageFromTexture(int, boolean includeROI)
 	 */
 	public BufferedImage createImageFromTexture(int type, boolean includeROI)
@@ -2975,6 +2948,7 @@ class ImViewerComponent
 		switch (model.getState()) {
 			case NEW:
 			case DISCARDED:
+			case LOADING_IMAGE_DATA:
 				return false;
 		}
 		return model.isBigImage();
@@ -3134,6 +3108,134 @@ class ImViewerComponent
 			}
 		});
 		UIUtilities.centerAndShow(d);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setBirdEyeView(Object)
+	 */
+	public void setBirdEyeView(BufferedImage image)
+	{
+		if (model.getState() == DISCARDED) 
+			return;
+		model.getBrowser().setBirdEyeView(image);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getRows()
+	 */
+	public int getRows() { return model.getRows(); }
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getColumns()
+	 */
+	public int getColumns() { return model.getColumns(); }
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getTiles()
+	 */
+	public Map<Integer, Tile> getTiles()
+	{
+		if (model.getState() == DISCARDED) return null;
+		return model.getTiles();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setTile(Tile, boolean)
+	 */
+	public void setTile(Tile tile, boolean done)
+	{
+		if (model.getState() == DISCARDED) return;
+		model.getBrowser().getUI().repaint();
+		view.removeComponentListener(controller);
+		if (done) {
+			view.addComponentListener(controller);
+			model.setState(READY);
+			fireStateChange();
+		}
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#loadTiles(Rectangle)
+	 */
+	public void loadTiles(Rectangle region)
+	{
+		if (model.getState() == DISCARDED) return;
+		if (region == null) 
+			region = model.getBrowser().getVisibleRectangle();
+		Map<Integer, Tile> tiles = getTiles();
+    	if (tiles == null) return;
+    	//invalidate images.
+    	Dimension d = model.getTileSize();
+    	int width = d.width;
+    	int height = d.height;
+    	int cs = region.x/width;
+    	int rs = region.y/height;
+    	int ih = region.width/width;
+    	int iv = region.height/height;
+    	int columns = getColumns();
+    	int index;
+    	Tile t;
+    	
+    	int h = rs+iv+1;
+    	int w = cs+ih+1;
+    	cs = cs-1;
+    	rs = rs-1;
+    	if (cs < 0) cs = 0;
+    	if (rs < 0) rs = 0;
+    	List<Tile> l = new ArrayList<Tile>();
+    	List<Tile> toKeep = new ArrayList<Tile>();
+    	for (int i = rs; i <= h; i++) {
+			for (int j = cs; j <= w; j++) {
+				index = i*columns+j;
+				t = tiles.get(index);
+				if (t != null) {
+					if (t.isImageLoaded()) {
+						if (!toKeep.contains(t))
+							toKeep.add(t);
+					} else {
+						if (!l.contains(t))
+							l.add(t);
+					}
+				}
+			}
+		}
+    	List<Tile> toClear = new ArrayList<Tile>();
+    	Iterator<Tile> k = tiles.values().iterator();
+    	while (k.hasNext()) {
+			t = k.next();
+			if (t.isImageLoaded() && !toClear.contains(t) && 
+					!toKeep.contains(t))
+				toClear.add(t);
+		}
+    	model.clearTileImages(toClear);
+		if (l.size() > 0) {
+			model.fireTileLoading(l);
+			fireStateChange();
+		}
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getTiledImageSizeX()
+	 */
+	public int getTiledImageSizeX()
+	{ 
+		return model.getTiledImageSizeX();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getTiledImageSizeY()
+	 */
+	public int getTiledImageSizeY()
+	{ 
+		return model.getTiledImageSizeY();
 	}
 	
 	/** 

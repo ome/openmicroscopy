@@ -121,7 +121,7 @@ class BrowserModel
 	{
 	    if (node instanceof ImageNode) return;
 	    JComponent desktop = node.getInternalDesktop();
-	    Set children = node.getChildrenDisplay();
+	    Collection children = node.getChildrenDisplay();
 	    if (children == null) return;
 	    //desktop.removeAll();
 	    Iterator i = children.iterator();
@@ -176,20 +176,20 @@ class BrowserModel
 	 */
 	private boolean isSameNode(ImageDisplay n1, ImageDisplay n2)
 	{
-		if (n1 == null && n2 == null) return false;
-		if (n1 == null && n2 != null) return false;
-		if (n1 != null && n2 == null) return false;
-		Object o1 = n1.getHierarchyObject();
-		Object o2 = n2.getHierarchyObject();
-		if (!o1.getClass().equals(o2.getClass())) return false;
-		if ((o1 instanceof DataObject) && (o2 instanceof DataObject)) {
-			long id1 = ((DataObject) o1).getId();
-			long id2 = ((DataObject) o2).getId();
-			return id1 == id2;
-		} else if ((o1 instanceof File) && (o2 instanceof File)) {
-			String s1 = ((File) o1).getAbsolutePath();
-			String s2 = ((File) o2).getAbsolutePath();
-			return s1.equals(s2);
+		if (n1 != null && n2 != null) {
+			Object o1 = n1.getHierarchyObject();
+			Object o2 = n2.getHierarchyObject();
+			if (o1 == null || o2 == null) return false;
+			if (!o1.getClass().equals(o2.getClass())) return false;
+			if ((o1 instanceof DataObject) && (o2 instanceof DataObject)) {
+				long id1 = ((DataObject) o1).getId();
+				long id2 = ((DataObject) o2).getId();
+				return id1 == id2;
+			} else if ((o1 instanceof File) && (o2 instanceof File)) {
+				String s1 = ((File) o1).getAbsolutePath();
+				String s2 = ((File) o2).getAbsolutePath();
+				return s1.equals(s2);
+			}
 		}
 		return false;
 	}
@@ -209,7 +209,7 @@ class BrowserModel
 	    selectedDisplays = new ArrayList<ImageDisplay>();
 	    originalNodes = new HashSet<ImageDisplay>();
 	    titleBarVisible = true;
-	    Set nodes = rootDisplay.getChildrenDisplay();
+	    Collection nodes = rootDisplay.getChildrenDisplay();
 	    Iterator i = nodes.iterator();
 	    while (i.hasNext()) 
 			originalNodes.add((ImageDisplay) i.next());
@@ -253,31 +253,31 @@ class BrowserModel
 	String currentPathString(ImageDisplay parent)
 	{
 	    StringBuffer buf = new StringBuffer();
-	    String title = "";
+	    StringBuffer titleBuf = new StringBuffer();
 	    while (parent != null && !(parent instanceof RootDisplay)) {
 	    	if (parent instanceof CellDisplay) {
 	    		int type = ((CellDisplay) parent).getType();
 	    		if (type == CellDisplay.TYPE_HORIZONTAL)
-	    			title = "column: "+parent.getTitle();
-	    		else title = "row: "+parent.getTitle();
+	    			titleBuf.append("column: "+parent.getTitle());
+	    		else titleBuf.append("row: "+parent.getTitle());
 	    	} else if (parent instanceof WellImageSet) {
 	    		WellImageSet wiNode = (WellImageSet) parent;
-	    		title = wiNode.getTitle();
+	    		titleBuf.append(wiNode.getTitle());
 	    	} else if (parent instanceof WellSampleNode) {
 	    		Object o = ((WellSampleNode) parent).getParentObject();
 	    		if (o instanceof WellData) {
-	    			title = ((WellData) o).getPlate().getName();
-	    			if (title != null && title.trim().length() != 0)
-	    				title += " > ";
-	    			title += parent.getTitle();
-		    		if (title == null || title.length() == 0) title = "[..]";
+	    			titleBuf.append(((WellData) o).getPlate().getName());
+	    			if (titleBuf.length() != 0)
+	    				titleBuf.append(" > ");
+	    			titleBuf.append(parent.getTitle());
+		    		if (titleBuf.length() == 0) titleBuf.append("[..]");
 	    		}
 	    	} else {
-	    		title = parent.getTitle();
-	    		if (title == null || title.length() == 0) title = "[..]";
+	    		titleBuf.append(parent.getTitle());
+	    		if (titleBuf.length() == 0) titleBuf.append("[..]");
 	    		if (parent instanceof ImageSet) buf.insert(0, " > ");
 	    	}
-	        buf.insert(0, title);
+	        buf.insert(0, titleBuf.toString());
 	        parent = parent.getParentDisplay();
 	    }
 	    return buf.toString();
@@ -309,7 +309,7 @@ class BrowserModel
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getRootNodes()
 	 */
-	public Set getRootNodes() { return rootDisplay.getChildrenDisplay(); }
+	public Collection getRootNodes() { return rootDisplay.getChildrenDisplay(); }
 	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
@@ -518,7 +518,7 @@ class BrowserModel
 	public void resetChildDisplay()
 	{
 	    rootDisplay.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-	    Set rootChildren = rootDisplay.getChildrenDisplay();
+	    Collection rootChildren = rootDisplay.getChildrenDisplay();
 	    JComponent desktop = rootDisplay.getInternalDesktop();
 	    desktop.removeAll();
 	    Iterator i;

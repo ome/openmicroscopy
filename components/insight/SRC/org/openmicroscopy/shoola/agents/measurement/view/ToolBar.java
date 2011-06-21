@@ -57,7 +57,7 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
-import org.openmicroscopy.shoola.util.roi.io.IOConstants;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingPoint
 import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingToolBarButtonFactory;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
+import pojos.ShapeSettingsData;
 import pojos.WorkflowData;
 
 /** 
@@ -106,24 +107,26 @@ class ToolBar
 	{
 		defaultConnectionAttributes = new HashMap<AttributeKey, Object>();
 		defaultConnectionAttributes.put(MeasurementAttributes.FILL_COLOR,
-						IOConstants.DEFAULT_FILL_COLOUR);
+				ShapeSettingsData.DEFAULT_FILL_COLOUR);
 		defaultConnectionAttributes.put(MeasurementAttributes.STROKE_COLOR,
-						IOConstants.DEFAULT_STROKE_COLOUR);
+				ShapeSettingsData.DEFAULT_STROKE_COLOUR);
 		defaultConnectionAttributes.put(MeasurementAttributes.TEXT_COLOR,
-						IOConstants.DEFAULT_TEXT_COLOUR);
+				ShapeSettingsData.DEFAULT_STROKE_COLOUR);
 		defaultConnectionAttributes.put(MeasurementAttributes.FONT_SIZE, 
-				new Double(10));
-		defaultConnectionAttributes.put(MeasurementAttributes.FONT_BOLD, false);
+				new Double(ShapeSettingsData.DEFAULT_FONT_SIZE));
+		defaultConnectionAttributes.put(MeasurementAttributes.FONT_BOLD, 
+				Boolean.valueOf(false));
 		defaultConnectionAttributes.put(MeasurementAttributes.STROKE_WIDTH, 
-				new Double(1.0));
-		defaultConnectionAttributes.put(MeasurementAttributes.TEXT, "Text");
+				ShapeSettingsData.DEFAULT_STROKE_WIDTH);
+		defaultConnectionAttributes.put(MeasurementAttributes.TEXT, 
+				ROIFigure.DEFAULT_TEXT);
 		defaultConnectionAttributes.put(
 				MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
-			IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
+				ShapeSettingsData.DEFAULT_STROKE_COLOUR);
 		defaultConnectionAttributes.put(MeasurementAttributes.SHOWMEASUREMENT, 
-							Boolean.FALSE);
+							Boolean.valueOf(false));
 		defaultConnectionAttributes.put(DrawingAttributes.SHOWTEXT, 
-				Boolean.FALSE);
+				Boolean.valueOf(false));
 	}
 
 	/** The default string added to the type of Figure to create. */

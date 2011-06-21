@@ -21,6 +21,7 @@
  *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.shoola.util.ui.lens;
+
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;

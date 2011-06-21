@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +39,7 @@ import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataSaver;
@@ -55,6 +57,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ROILoader;
+import org.openmicroscopy.shoola.env.data.views.calls.SaveAsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ScriptRunner;
 import org.openmicroscopy.shoola.env.data.views.calls.ScriptUploader;
 import org.openmicroscopy.shoola.env.data.views.calls.ServerSideROILoader;
@@ -62,9 +65,12 @@ import org.openmicroscopy.shoola.env.data.views.calls.ROISaver;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.TileLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.WorkflowHandler;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.Tile;
+
 import pojos.DataObject;
 import pojos.PixelsData;
 import pojos.ROIData;
@@ -445,5 +451,29 @@ class ImageDataViewImpl
 		BatchCallTree cmd = new WorkflowHandler(workflows, userID);
 		return cmd.exec(observer);
 	}
-	
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#saveAs(SaveAsParam, AgentEventListener)
+     */
+	public CallHandle saveAs(SaveAsParam parameters,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new SaveAsLoader(parameters);
+		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#loadTiles(long, PlaneDef, List, boolean,
+     * AgentEventListener)
+     */
+	public CallHandle loadTiles(long pixelsID, PlaneDef pDef,
+			Collection<Tile> tiles, boolean asTexture,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new TileLoader(pixelsID, pDef, tiles, asTexture);
+		return cmd.exec(observer);
+	}
+
 }

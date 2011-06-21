@@ -158,7 +158,7 @@ public class UrlChooser
 			File downloadedFile = FileDownload.downloadFile(url, filePath);
 			model.openLocalFile(downloadedFile);
 			// set to edited, so that Save button is activated. 
-			//model.setEdited(true);
+			model.setEdited(true);
 			downloadedFile.delete();
 			
 			return true;
@@ -292,20 +292,20 @@ public class UrlChooser
 	 * @see HyperlinkListener#hyperlinkUpdate(HyperlinkEvent)
 	 */
 	public void hyperlinkUpdate (HyperlinkEvent event) {
-		if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-			if (event != null) {
-				String url = event.getURL().toString();
-				if (url != null) {
-					
-					boolean cpeFile = url.endsWith(EditorFileFilter.CPE_XML);
-					
-					if (cpeFile) {
-						urlField.setText(url);
-						importButton.setEnabled(true);
-					}
-					else {
-						new BrowserLauncher().openURL(url);
-					}
+		
+		if (event != null && 
+				event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+			String url = event.getURL().toString();
+			if (url != null) {
+				
+				boolean cpeFile = url.endsWith(EditorFileFilter.CPE_XML);
+				
+				if (cpeFile) {
+					urlField.setText(url);
+					importButton.setEnabled(true);
+				}
+				else {
+					new BrowserLauncher().openURL(url);
 				}
 			}
 		}

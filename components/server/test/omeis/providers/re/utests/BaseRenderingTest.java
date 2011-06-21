@@ -1,3 +1,9 @@
+/*
+ *   Copyright (C) 2009-2011 University of Dundee & Open Microscopy Environment.
+ *   All rights reserved.
+ *
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
 package omeis.providers.re.utests;
 
 import java.nio.ByteBuffer;
@@ -7,9 +13,8 @@ import java.util.Random;
 import org.testng.annotations.BeforeClass;
 
 import ome.api.IPixels;
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelData;
+import ome.util.PixelData;
 import ome.logic.RenderingSettingsImpl;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
@@ -18,7 +23,6 @@ import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
 import ome.model.stats.StatsInfo;
-import ome.services.OmeroOriginalFileMetadataProvider;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.quantum.QuantumFactory;
 
@@ -57,7 +61,7 @@ public class BaseRenderingTest extends TestCase
 		PixelsType pixelsType = getPixelsType();
 		
 		byte[] plane = getPlane();
-		data = new PixelData(pixelsType, ByteBuffer.wrap(plane));
+		data = new PixelData(pixelsType.getValue(), ByteBuffer.wrap(plane));
 
 		pixels = createDummyPixels(pixelsType, data);
 		pixelsService = new TestPixelsService();
@@ -68,11 +72,8 @@ public class BaseRenderingTest extends TestCase
 		settingsService.setPixelsData(pixelsService);
 		settings = settingsService.createNewRenderingDef(pixels);
 		settingsService.resetDefaultsNoSave(settings, pixels);
-		
-    	OriginalFileMetadataProvider metadataProvider =
-    		new OmeroOriginalFileMetadataProvider(null);
-		pixelBuffer = 
-			pixelsService.getPixelBuffer(pixels, metadataProvider, false);
+
+		pixelBuffer = pixelsService.getPixelBuffer(pixels);
 		List<RenderingModel> renderingModels =
 			pixelsMetadataService.getAllEnumerations(RenderingModel.class);
 		List<Family> families =

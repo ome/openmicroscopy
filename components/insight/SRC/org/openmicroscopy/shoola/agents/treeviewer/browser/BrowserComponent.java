@@ -49,7 +49,6 @@ import javax.swing.tree.TreePath;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -61,9 +60,9 @@ import org.openmicroscopy.shoola.agents.util.browser.SimilarNodesVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -238,6 +237,28 @@ class BrowserComponent
 		model.fireContainerCountLoading(items, nodes);
 	}
 	
+	/** 
+	 * Counts the nodes linked to the specified annotation.
+	 *
+	 * @param node The node of reference.
+	 */
+	private void countItemsInAnnotation(TreeImageSet node)
+	{
+		if (node == null) return;
+		Object ho = node.getUserObject();
+		List<Class> types = new ArrayList<Class>();
+		if (ho instanceof TagAnnotationData) {
+			types.add(DatasetData.class);
+		}
+		if (types.size() == 0) return;
+		ContainerFinder finder = new ContainerFinder(types);
+		accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+		Set<DataObject> items = finder.getContainers();
+		Set<TreeImageSet> nodes = finder.getContainerNodes();
+		if (items.size() == 0 && nodes.size() == 0) return;
+		model.fireContainerCountLoading(items, nodes);
+	}
+
 	/**
 	 * Sets the selected node.
 	 * 
@@ -447,7 +468,8 @@ class BrowserComponent
         model.setState(READY);
         if (parent != null && 
         		parent.getUserObject() instanceof TagAnnotationData)
-        	countItems(TagAnnotationData.class);
+        	//countItems(TagAnnotationData.class);
+        	countItemsInAnnotation(parent);
         if (model.getBrowserType() == TAGS_EXPLORER && 
         		parent instanceof TreeFileSet)
         	countItems(TagAnnotationData.class);
@@ -470,7 +492,7 @@ class BrowserComponent
     {
         setSelectedDisplay(display, true);
     }
-    
+
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#showPopupMenu(int)
@@ -516,7 +538,7 @@ class BrowserComponent
     {
         return model.getLastSelectedDisplay();
     }
-
+	
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#close()
@@ -544,6 +566,17 @@ class BrowserComponent
         view.collapsePath(node);
     }
 
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#expand(TreeImageDisplay)
+     */
+    public void expand(TreeImageDisplay node)
+    {
+        if (node == null) return;
+        view.expandNode(node);
+    }
+
+    
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#accept(TreeImageDisplayVisitor)
@@ -579,13 +612,13 @@ class BrowserComponent
         IconManager im = IconManager.getInstance();
         switch (model.getBrowserType()) {
             case PROJECTS_EXPLORER:
-                return im.getIcon(IconManager.HIERARCHY_EXPLORER);
+                return im.getIcon(IconManager.PROJECT);//HIERARCHY_EXPLORER);
             case TAGS_EXPLORER:
-                return im.getIcon(IconManager.TAGS_EXPLORER);
+                return im.getIcon(IconManager.TAG);//TAGS_EXPLORER);
             case IMAGES_EXPLORER:
-                return im.getIcon(IconManager.IMAGES_EXPLORER);
+                return im.getIcon(IconManager.DATE);//IMAGES_EXPLORER);
             case SCREENS_EXPLORER:
-            	return im.getIcon(IconManager.SCREENS_EXPLORER);
+            	return im.getIcon(IconManager.SCREEN);//SCREENS_EXPLORER);
             case FILES_EXPLORER:
                 return im.getIcon(IconManager.FILES_EXPLORER);
             case FILE_SYSTEM_EXPLORER:
@@ -870,7 +903,10 @@ class BrowserComponent
     		boolean expandParent)
     {
         if (nodes.length == 0) return;
-        if (nodes.length == 1) {
+        TreeImageDisplay[] oldNodes = model.getSelectedDisplays();
+        boolean b = true;
+        if (oldNodes != null && oldNodes.length > 1) b = false;
+        if (nodes.length == 1 && b) {
         	setSelectedDisplay(nodes[0], true);
         	if (expandParent) {
         		TreeImageDisplay parent = nodes[0].getParentDisplay();
@@ -881,7 +917,7 @@ class BrowserComponent
         	}
         	return;
         }
-        TreeImageDisplay[] oldNodes = model.getSelectedDisplays();
+        //TreeImageDisplay[] oldNodes = model.getSelectedDisplays();
         boolean flush = false;
         if (oldNodes.length >= nodes.length) flush = true;
         int n = nodes.length;
@@ -980,6 +1016,7 @@ class BrowserComponent
 		}   
         if (n == null) model.fireExperimenterDataLoading((TreeImageSet) exp);
         else {
+        	n.setToRefresh(false);
         	if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
         		uo = n.getUserObject();
         		TreeImageDisplay expNode = BrowserFactory.getDataOwner(n);
@@ -1197,6 +1234,7 @@ class BrowserComponent
     	}
 
 	    TreeImageDisplay root = view.getTreeRoot();
+	    //root.setToRefresh(false);
 	    TreeImageSet expNode;
 	    RefreshExperimenterDef def;
 	    RefreshVisitor v = new RefreshVisitor(this);
@@ -1441,7 +1479,7 @@ class BrowserComponent
 	public void browse(TreeImageDisplay node, DataObject data, 
 			boolean withThumbnails)
 	{
-		if (node == null) return;
+		//if (node == null) return;
 		model.getParentModel().browse(node, data, withThumbnails);
 	}
 
@@ -1452,20 +1490,26 @@ class BrowserComponent
 	public void onSelectedNode(Object parent, Object selected, 
 					Boolean multiSelection)
 	{
+		TreeImageDisplay foundNode;
 		if (selected instanceof DataObject) {
 			NodeSelectionVisitor visitor = new NodeSelectionVisitor(parent, 
 													(DataObject) selected);
 			accept(visitor);
-			TreeImageDisplay foundNode = visitor.getSelectedNode();
+			foundNode = visitor.getSelectedNode();
 			if (foundNode != null) {		
 				if (multiSelection) model.addFoundNode(foundNode);
 				else model.setSelectedDisplay(foundNode, true);
 				view.setFoundNode(model.getSelectedDisplays());
 			} else 
 				view.setFoundNode(null);
+		} else if (selected instanceof TreeImageDisplay) {
+			foundNode = (TreeImageDisplay) selected;
+			if (multiSelection) model.addFoundNode(foundNode);
+			else model.setSelectedDisplay(foundNode, true);
+			view.setFoundNode(model.getSelectedDisplays());
 		}
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#onDeselectedNode(Object, Object, Boolean)
@@ -1654,10 +1698,6 @@ class BrowserComponent
 		view.setGroups(nodes, expanded);
 		model.setState(READY);
 		countItems(null);
-		TreeImageDisplay d = model.getLastSelectedDisplay();
-		if (d instanceof TreeImageNode) d = d.getParentDisplay();
-		//model.getParentModel().setLeaves((TreeImageSet) d, groups);
-
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
 	}
@@ -1718,6 +1758,7 @@ class BrowserComponent
 				g.getExperimenters());
 		view.setLeavesViews(nodes, node);
 		model.setState(READY);
+		model.getParentModel().setLeaves(node, g.getExperimenters());
 		model.getParentModel().setStatus(false, "", true);
 		fireStateChange();
 	}
@@ -1833,5 +1874,16 @@ class BrowserComponent
 			//model.getParentModel().browse(display, true);
 		}
 	}
-	
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getNodesForUser(long)
+	 */
+	public List<TreeImageDisplay> getNodesForUser(long userID)
+	{
+		if (model.getState() == DISCARDED) return null;
+		if (userID < 0) return null;
+		return view.getNodesForUser(userID);
+	}
+
 }

@@ -15,13 +15,18 @@ class WebTest(unittest.TestCase):
         c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
         try:
             self.root_password = c.ic.getProperties().getProperty('omero.rootpass')
+            omero_host = c.ic.getProperties().getProperty('omero.host')
         finally:
             c.__del__()
 
-        blitz = settings.SERVER_LIST.get(pk=1)
-        self.rootconn = webgateway_views._createConnection('', host=blitz.host, port=blitz.port, username='root', passwd=self.root_password, secure=True, useragent="TEST.webadmin")
-        if self.rootconn is None or not self.rootconn.isConnected() or not self.rootconn.keepAlive():
-            raise exceptions.Exception("Cannot connect")
+        blitz = settings.SERVER_LIST.find(server_host=omero_host)
+        if blitz is not None:
+            self.server_id = blitz.id
+            self.rootconn = webgateway_views._createConnection('', host=blitz.host, port=blitz.port, username='root', passwd=self.root_password, secure=True, useragent="TEST.webadmin")
+            if self.rootconn is None or not self.rootconn.isConnected() or not self.rootconn.keepAlive():
+                raise exceptions.Exception("Cannot connect")
+        else:
+            raise exceptions.Exception("'%s' is not on omero.web.server_list")
     
     def tearDown(self):
         try:
@@ -29,23 +34,20 @@ class WebTest(unittest.TestCase):
         except Exception,e:
             self.fail(e)
     
-    def loginAsUser(self, username, password, server_id=1):
-        blitz = settings.SERVER_LIST.get(pk=server_id)        
-        conn = webgateway_views._createConnection('', host=blitz.host, port=blitz.port, username=username, passwd=password, secure=True, useragent="TEST.webadmin")
-        if conn is None or not conn.isConnected() or not conn.keepAlive():
-            raise exceptions.Exception("Cannot connect")
-        return conn
+    def loginAsUser(self, username, password):
+        blitz = settings.SERVER_LIST.get(pk=self.server_id) 
+        if blitz is not None:       
+            conn = webgateway_views._createConnection('', host=blitz.host, port=blitz.port, username=username, passwd=password, secure=True, useragent="TEST.webadmin")
+            if conn is None or not conn.isConnected() or not conn.keepAlive():
+                raise exceptions.Exception("Cannot connect")
+            return conn
+        else:
+            raise exceptions.Exception("'%s' is not on omero.web.server_list")
 
-
-class WebClientTest(unittest.TestCase):
+class WebAdminClientTest(WebTest):
         
     def setUp (self):
-        c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
-        try:
-            self.root_password = c.ic.getProperties().getProperty('omero.rootpass')
-        finally:
-            c.__del__()
-        
+        super(WebAdminClientTest, self).setUp()
         self.client = Client()
 
     def tearDown(self):

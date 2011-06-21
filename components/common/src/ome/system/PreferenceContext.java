@@ -82,6 +82,9 @@ public class PreferenceContext extends PropertyPlaceholderConfigurer {
         } catch (IOException e) {
             log.error("Error on mergeProperties()", e);
             return null;
+        } catch (Exception exc) {
+            log.error("Other exception on getProperty", exc);
+            return null;
         }
     }
 

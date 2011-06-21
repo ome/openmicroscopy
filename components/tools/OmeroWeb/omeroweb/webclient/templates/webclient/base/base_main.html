@@ -4,13 +4,33 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
 <html xmlns="http://www.w3.org/1999/xhtml" class="noscroll">
 
 <head>
     <link rel="stylesheet" href="{% url webstatic "css/layout.css" %}" type="text/css" />
     <link rel="stylesheet" href="{% url webstatic "css/menu.css" %}" type="text/css" />
     <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/ui-1.7.2.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/ui-1.8.12.css" %}" type="text/css" media="screen"/>
     
     {% block link %}{% endblock %}
 
@@ -18,11 +38,13 @@
 
     <title>{% trans "Webclient" %} {% block title %}{% endblock %}</title>
 
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/jquery-ui-1.8.12.custom.min.js" %}"></script>
     {% block jscript %}{% endblock %}
 
     <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/nav.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/popup.js" %}"></script>
     <script type="text/javascript">
     {% if nav.error %}
         alert("{{ nav.error }}");
@@ -48,7 +70,12 @@
                 <li class="home"><a href="{% url webindex %}" title="Home">{% trans "Home" %}</a></li>
             </ul></div>
         </div>    
-        <div id="header2">{% block header %}{% endblock %}</div>
+        <div id="header2">
+            {% block header %}{% endblock %}
+            <div id="logout">
+                <a href="{% url weblogout %}">{% trans "logout" %}</a>
+            </div>
+        </div>
     </div>
     <div id="contentWrapper">{% block content %}{% endblock %}</div>
 </div>
@@ -66,7 +93,7 @@
         <a href="{% url load_template "help" %}" title="Help">{% trans "Help" %}</a> | 
         <a href="{% url csend %}" title="Contact">{% trans "Contact" %}</a>    
     </div>
-    <p>&copy; University of Dundee & Open Microscopy Environment</p>
+    <p>&copy; 2007-2011 University of Dundee & Open Microscopy Environment</p>
 </div>
 </body>
 </html>

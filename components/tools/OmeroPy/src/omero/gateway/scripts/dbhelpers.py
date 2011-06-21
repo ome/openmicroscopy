@@ -3,23 +3,29 @@ sys.path.append('.')
 
 import omero.gateway
 import omero.model
-import omero_version
 from omero.rtypes import *
 import os
 import subprocess
 import re
 import time
 import urllib2
-from types import StringTypes
 
-omero_version = omero_version.omero_version.split('-')[1].split('.')
+from types import StringTypes
+from path import path
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 TESTIMG_URL = 'http://users.openmicroscopy.org.uk/~cneves-x/'
 
+if not omero.gateway.BlitzGateway.ICE_CONFIG:
+    try:
+        import settings
+        omero.gateway.BlitzGateway.ICE_CONFIG = os.path.join(settings.OMERO_HOME, 'etc', 'ice.config')
+    except ImportError:
+        pass
+
 #Gateway = omero.gateway.BlitzGateway
 
-def loginAsRoot ():
+def refreshConfig ():
     bg = omero.gateway.BlitzGateway()
     ru = bg.c.ic.getProperties().getProperty('omero.rootuser')
     rp = bg.c.ic.getProperties().getProperty('omero.rootpass')
@@ -28,6 +34,8 @@ def loginAsRoot ():
     if rp:
         ROOT.passwd = rp
 
+def loginAsRoot ():
+    refreshConfig()
     return login(ROOT)
 
 def login (alias, pw=None):
@@ -137,13 +145,15 @@ class UserEntry (object):
         u.setEmail(omero.gateway.omero_type(self.email))
         a.createUser(u, g.getName().val)
         if self.admin:
-            u =a.lookupExperimenter(self.name)
+            u = a.lookupExperimenter(self.name)
             a.addGroups(u,(a.lookupGroup("system"),))
+        client.c.sf.setSecurityPassword(ROOT.passwd) # See #3202
         a.changeUserPassword(u.getOmeName().val, omero.gateway.omero_type(self.passwd))
         return True
 
     def changePassword (self, client, password):
         a = client.getAdminService()
+        client.c.sf.setSecurityPassword(ROOT.passwd) # See #3202
         a.changeUserPassword(self.name, omero.gateway.omero_type(password))
 
     @staticmethod
@@ -306,16 +316,21 @@ class ImageEntry (ObjectEntry):
                 raise IOError('No such file %s' % fpath)
         host = dataset._conn.c.ic.getProperties().getProperty('omero.host') or 'localhost'
         port = dataset._conn.c.ic.getProperties().getProperty('omero.port') or '4063'
-        if os.path.exists('../bin/omero'):
-            exe = '../bin/omero'
-        else:
-            exe = 'omero'
+
+
+        exe = path(".") / ".." / "bin" /"omero" # Running from dist
+        if not exe.exists():
+            exe = path(".") / ".." / ".."/ ".." / "dist" / "bin" / "omero" # Running from OmeroPy
+            if not exe.exists():
+                print "\n\nNo omero found! Add OMERO_HOME/bin to your PATH variable (See #5176)\n\n"
+                exe = "omero"
+
         newconn = dataset._conn.clone()
         newconn.connect()
         UserEntry.setGroupForSession(newconn, dataset.getDetails().getGroup().getName())
         session = newconn._sessionUuid
         #print session
-        exe += ' import -s %s -k %s -d %i -p %s -n' % (host, session, dataset.getId(), port)
+        exe += ' -s %s -k %s -p %s import -d %i -n' % (host, session, port, dataset.getId())
         exe = exe.split() + [self.name, fpath]
         try:
             p = subprocess.Popen(exe,  shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -385,16 +400,10 @@ def bootstrap ():
         i._conn.seppuku()
     client.seppuku()
 
-NEWSTYLEPERMS = omero_version >= ['4','2','0']
 def cleanup ():
-    if not NEWSTYLEPERMS:
-        client = loginAsRoot()
     for k, p in PROJECTS.items():
         sys.stderr.write('*')
-        if NEWSTYLEPERMS:
-            p = p.get()
-        else:
-            p = p.get(client)
+        p = p.get()
         if p is not None:
             client = p._conn
             update = client.getUpdateService()

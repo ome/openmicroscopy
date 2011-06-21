@@ -7,14 +7,17 @@
 
 package ome.io.nio;
 
+import java.awt.Dimension;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import ome.model.core.Pixels;
+import ome.util.PixelData;
 
 /**
  * Class implementation of the PixelBuffer interface for in memory planar pixel
@@ -73,9 +76,14 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
         return md.digest();
     }
 
-    public void checkBounds(Integer y, Integer z, Integer c, Integer t)
+    public void checkBounds(Integer x, Integer y, Integer z, Integer c, 
+    		Integer t)
             throws DimensionsOutOfBoundsException
     {
+        if (x != null && (x > getSizeX() - 1 || x < 0)) {
+            throw new DimensionsOutOfBoundsException("X '" + x
+                    + "' greater than sizeX '" + getSizeX() + "'.");
+        }
         if (y != null && (y > getSizeY() - 1 || y < 0)) {
             throw new DimensionsOutOfBoundsException("Y '" + y
                     + "' greater than sizeY '" + getSizeY() + "'.");
@@ -103,7 +111,7 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
 
     public int getByteWidth()
     {
-        return PixelsService.getBitDepth(pixels.getPixelsType()) / 8;
+        return PixelData.getBitDepth(pixels.getPixelsType().getValue()) / 8;
     }
 
     public long getId()
@@ -116,11 +124,26 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
         throw new NullPointerException("In memory planar buffers have no path.");
     }
 
+    public PixelData getHypercube(List<Integer> offset, List<Integer> size, 
+            List<Integer> step) throws IOException, DimensionsOutOfBoundsException 
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+	}
+                
+    public byte[] getHypercubeDirect(List<Integer> offset, List<Integer> size, 
+            List<Integer> step, byte[] buffer) 
+            throws IOException, DimensionsOutOfBoundsException 
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+	}
+                
     public PixelData getPlane(Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException
     {
         ByteBuffer buf = ByteBuffer.wrap(planes[z][c][t]);
-        return new PixelData(pixels.getPixelsType(), buf);
+        return new PixelData(pixels.getPixelsType().getValue(), buf);
     }
 
     public byte[] getPlaneDirect(Integer z, Integer c, Integer t, byte[] buffer)
@@ -136,6 +159,13 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
                 "Not supported with in memory planar buffers.");
     }
 
+    public PixelData getPlaneRegion(Integer x, Integer y, Integer width, 
+    		Integer height, Integer z, Integer c, Integer t, Integer stride)
+    throws IOException, DimensionsOutOfBoundsException
+	{
+    	return null;
+	}
+    
     public byte[] getPlaneRegionDirect(Integer z, Integer c, Integer t,
             Integer count, Integer offset, byte[] buffer) throws IOException,
             DimensionsOutOfBoundsException
@@ -299,14 +329,14 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
     public boolean isFloat()
     {
         MappedByteBuffer b = null;
-        PixelData d = new PixelData(pixels.getPixelsType(), b);
+        PixelData d = new PixelData(pixels.getPixelsType().getValue(), b);
         return d.isFloat();
     }
 
     public boolean isSigned()
     {
         MappedByteBuffer b = null;
-        PixelData d = new PixelData(pixels.getPixelsType(), b);
+        PixelData d = new PixelData(pixels.getPixelsType().getValue(), b);
         return d.isSigned();
     }
 
@@ -376,5 +406,69 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
     {
         throw new UnsupportedOperationException(
             "Not supported with in memory planar buffers.");
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTile(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h) throws IOException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTileDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
+     */
+    public byte[] getTileDirect(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h, byte[] buffer) throws IOException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#setTile(byte[], java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public void setTile(byte[] buffer, Integer z, Integer c, Integer t, Integer x, Integer y,
+            Integer w, Integer h) throws IOException,
+            BufferOverflowException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getResolutionLevel()
+     */
+    public int getResolutionLevel()
+    {
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getResolutionLevels()
+     */
+    public int getResolutionLevels()
+    {
+        return 1;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTileSize()
+     */
+    public Dimension getTileSize()
+    {
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#setResolutionLevel(int)
+     */
+    public void setResolutionLevel(int resolutionLevel)
+    {
+        throw new UnsupportedOperationException(
+                "Cannot set resolution levels on an in memory pixel buffer.");
     }
 }

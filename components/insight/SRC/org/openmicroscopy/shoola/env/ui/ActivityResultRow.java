@@ -31,7 +31,9 @@ import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -80,6 +82,12 @@ class ActivityResultRow
 	
 	/** The name to set. */
 	private String name;
+	
+	/** The item indicating to download the file.*/
+	private JButton downloadButton;
+	
+	/** The item indicating to view the file.*/
+	private JButton viewButton;
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
@@ -131,11 +139,15 @@ class ActivityResultRow
 		add(new JLabel(text));
 		if (activity.isDownloadable(row)) {
 			add(Box.createHorizontalStrut(5));
-			add(activity.createButton("Download", DOWNLOAD, this));
+			downloadButton = activity.createButton("Download", DOWNLOAD, this);
+			add(downloadButton);
 		}
 		if (activity.isViewable(row)) {
 			add(Box.createHorizontalStrut(5));
-			add(activity.createButton(activity.getViewText(row), VIEW, this));
+			viewButton = activity.createButton(activity.getViewText(row), 
+					VIEW, this);
+			viewButton.setToolTipText(activity.getViewTooltip(row));
+			add(viewButton);
 		}
 	}
 	
@@ -187,11 +199,13 @@ class ActivityResultRow
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case DOWNLOAD:
+				downloadButton.setEnabled(false);
 				firePropertyChange(ACTION_PROPERTY, Boolean.valueOf(false), 
 						Boolean.valueOf(true));
 				activity.download(name, row);
 				break;
 			case VIEW:
+				viewButton.setEnabled(false);
 				firePropertyChange(ACTION_PROPERTY, Boolean.valueOf(false), 
 						Boolean.valueOf(true));
 				activity.view(row);

@@ -209,7 +209,7 @@ public class PixelsServicesFactory
 	{
 		if (c == null)
 			throw new NullPointerException();  //An agent called this method?
-		if (singleton == null)  {
+		if (PixelsServicesFactory.singleton == null)  {
 			registry = c.getRegistry();
 			singleton = new PixelsServicesFactory();
 			//Retrieve the maximum heap size.
@@ -260,7 +260,7 @@ public class PixelsServicesFactory
 	 * @param pixelsID	The ID of the pixels set.
 	 * @param re		The {@link RenderingEngine rendering service}.
 	 * @return See above.
-	 * @throws RenderingServiceException	If an error occured while setting 
+	 * @throws RenderingServiceException	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -291,7 +291,7 @@ public class PixelsServicesFactory
 	 * 					This is passed to speed up the initialization 
 	 * 					sequence.
 	 * @return See above.
-	 * @throws RenderingServiceException	If an error occured while setting 
+	 * @throws RenderingServiceException	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -479,8 +479,8 @@ public class PixelsServicesFactory
 		if (proxy == null) 
 			throw new RuntimeException("No rendering service " +
 			"initialized for the specified pixels set.");
-		if (asTexture) return proxy.renderRegionAsTexture(pDef, null);
-		return proxy.renderRegion(pDef, null);
+		if (asTexture) return proxy.renderAsTexture(pDef);
+		return proxy.render(pDef);
 	}
 
 	/**
@@ -514,8 +514,8 @@ public class PixelsServicesFactory
 			throw new RuntimeException("No rendering service " +
 			"initialized for the specified pixels set.");
 		proxy.setOverlays(tableID, overlays);
-		if (asTexture) return proxy.renderRegionAsTexture(pd, null);
-		return proxy.renderRegion(pd, null);
+		if (asTexture) return proxy.renderAsTexture(pd);
+		return proxy.render(pd);
 	}
 	
 	/**

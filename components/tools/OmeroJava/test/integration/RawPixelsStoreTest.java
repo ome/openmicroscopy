@@ -57,6 +57,13 @@ public class RawPixelsStoreTest
 
     private long totalSize;
 
+    /**
+     * Prepares an array of bytes.
+     * 
+     * @param size  The size of the array.
+     * @param start The start value.
+     * @return See above.
+     */
     private byte[] prepareTestByteArray(int size, int start)
     {
         byte[] buf = new byte[size];
@@ -67,7 +74,8 @@ public class RawPixelsStoreTest
     }
 
     @BeforeMethod
-    public void localSetUp() throws Exception
+    public void localSetUp() 
+    	throws Exception
     {
         Image image = mmFactory.createImage(ModelMockFactory.SIZE_X,
                 ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
@@ -91,7 +99,8 @@ public class RawPixelsStoreTest
      * @see RawFileStoreTest#testUploadFile()
      */
     @Test
-    public void testSetGetPlane() throws Exception
+    public void testSetGetPlane() 
+    	throws Exception
     {
         byte[] data = prepareTestByteArray(svc.getPlaneSize(), 0);
         svc.setPlane(data, 0, 0, 0);
@@ -103,9 +112,11 @@ public class RawPixelsStoreTest
 
     /**
      * Tests the <code>getPlaneSize</code> method is accurate.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testPlaneSize() throws Exception
+    public void testPlaneSize()
+    	throws Exception
     {
         assertEquals(planeSize, svc.getPlaneSize());
     }
@@ -114,9 +125,11 @@ public class RawPixelsStoreTest
      * Tests to set a whole plane as a region with the buffer larger than the 
      * plane and retrieve it, this method will test the <code>setRegion</code>
      * and <code>getPlane</code> methods.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSetPlaneOffEndAsRegion() throws Exception
+    public void testSetPlaneOffEndAsRegion()
+    	throws Exception
     {
         byte[] plane1 = new byte[planeSize * 2];
         plane1[0] = 1;
@@ -171,9 +184,11 @@ public class RawPixelsStoreTest
 
     /**
      * Tests to set a region off the end of the file.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSetRegionOffEndOfFile() throws Exception
+    public void testSetRegionOffEndOfFile() 
+    	throws Exception
     {
         byte[] a1 = prepareTestByteArray(planeSize, 0);
         long offset = svc.getPlaneOffset(
@@ -190,9 +205,11 @@ public class RawPixelsStoreTest
 
     /**
      * Tests to set a region off the end of plane.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSetRegionOffEndOfPlane() throws Exception
+    public void testSetRegionOffEndOfPlane() 
+    	throws Exception
     {
         byte[] a1 = prepareTestByteArray(planeSize, 0);
         long offset = svc.getPlaneOffset(
@@ -215,9 +232,11 @@ public class RawPixelsStoreTest
     /**
      * Tests to set a region off the end of plane and doesn't overwrite the
      * current content of the off the end plane.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSetRegionDoesntOverwrite() throws Exception
+    public void testSetRegionDoesntOverwrite() 
+    	throws Exception
     {
         byte[] a1 = prepareTestByteArray(planeSize, 0);
         long offset = svc.getPlaneOffset(
@@ -243,9 +262,11 @@ public class RawPixelsStoreTest
     /**
      * Tests to set a region off the end of plane and doesn't overwrite the
      * current content of the off the end plane.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSetRegionEveryPlane() throws Exception
+    public void testSetRegionEveryPlane() 
+    	throws Exception
     {
         byte[] buf = new byte[planeSize * 2];
         byte i = 1;
@@ -255,9 +276,9 @@ public class RawPixelsStoreTest
                 for (int z = 0; z < ModelMockFactory.SIZE_Z; z++) {
                     planeOffset = svc.getPlaneOffset(z, c, t);
                     buf[0] = i;
-                    buf[planeSize / 4] = i;
-                    buf[planeSize / 2] = i;
-                    buf[planeSize - 1] = i;
+                    buf[planeSize/4] = i;
+                    buf[planeSize/2] = i;
+                    buf[planeSize-1] = i;
                     svc.setRegion(planeSize, planeOffset, buf);
                     i++;
                 }
@@ -270,9 +291,9 @@ public class RawPixelsStoreTest
                     buf = svc.getPlane(z, c, t);
                     assertEquals(planeSize, buf.length);
                     assertEquals(i, buf[0]);
-                    assertEquals(i, buf[planeSize / 4]);
-                    assertEquals(i, buf[planeSize / 2]);
-                    assertEquals(i, buf[planeSize - 1]);
+                    assertEquals(i, buf[planeSize/4]);
+                    assertEquals(i, buf[planeSize/2]);
+                    assertEquals(i, buf[planeSize-1]);
                     i++;
                 }
             }
@@ -281,9 +302,11 @@ public class RawPixelsStoreTest
     
     /**
      * Tests to set a region that is bigger than the entire file
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSetMegabyteRegion() throws Exception
+    public void testSetMegabyteRegion() 
+    	throws Exception
     {
         byte[] buf = new byte[1048576];
         int bufSize = buf.length;
@@ -298,9 +321,9 @@ public class RawPixelsStoreTest
                     // manually set some values within the part of buf that
                     // will form each plane
                     buf[0] = i;
-                    buf[planeSize / 4] = i;
-                    buf[planeSize / 2] = i;
-                    buf[planeSize - 1] = i;
+                    buf[planeSize/4] = i;
+                    buf[planeSize/2] = i;
+                    buf[planeSize-1] = i;
                     svc.setRegion(planeSize, planeOffset, buf);
                     i++;
                 }
@@ -313,9 +336,9 @@ public class RawPixelsStoreTest
                     buf = svc.getPlane(z, c, t);
                     assertEquals(planeSize, buf.length);
                     assertEquals(i, buf[0]);
-                    assertEquals(i, buf[planeSize / 4]);
-                    assertEquals(i, buf[planeSize / 2]);
-                    assertEquals(i, buf[planeSize - 1]);
+                    assertEquals(i, buf[planeSize/4]);
+                    assertEquals(i, buf[planeSize/2]);
+                    assertEquals(i, buf[planeSize-1]);
                     i++;
                 }
             }

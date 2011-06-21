@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -80,12 +79,12 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
+import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
@@ -138,10 +137,7 @@ class EditorModel
 	
 	/** The index of the default channel. */
 	static final int	DEFAULT_CHANNEL = 0;
-	
-	/** The default name for the original metadata file. */
-	static final String ORIGINAL_METADATA_NAME = "original_metadata.txt";
-	
+
 	/** The parent of this editor. */
 	private  MetadataViewer			parent;
 	
@@ -169,10 +165,7 @@ class EditorModel
     
     /** Collection of loaders. */
     private List<EditorLoader>		loaders;
-    
-    /** The retrieved thumbnails. */
-    private Map<Long, BufferedImage> thumbnails;
-    
+
     /** Collection of existing tags if any. */
     private Collection				existingTags;
     
@@ -583,8 +576,6 @@ class EditorModel
 	{ 
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return refObject;
-		Object o = data.getRelatedObject();
-		//if (o != null && o instanceof FolderData) return o;
 		return refObject; 
 	}
 	
@@ -690,6 +681,27 @@ class EditorModel
 	}
 
 	/**
+	 * Returns <code>true</code> if the annotation  has been added by others,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The annotation to handle.
+	 * @return See above.
+	 */
+	boolean isAnnotatedByOther(DataObject data)
+	{
+		if (data == null) return false;
+		
+		List<ExperimenterData> annotators = getAnnotators(data);
+		if (annotators == null || annotators.size() == 0) return false;
+		if (annotators.size() == 1) {
+			ExperimenterData exp = annotators.get(0);
+			long id = MetadataViewerAgent.getUserDetails().getId();
+			return exp.getId() != id;
+		}
+		return true;
+	}
+	
+	/**
 	 * Returns the collection of experimenters who use the annotation.
 	 * 
 	 * @param annotation 	The annotation to handle.
@@ -702,7 +714,6 @@ class EditorModel
 		if (data == null) return list;
 		Map m = data.getLinks();
 		if (m == null) return list;
-		long id = MetadataViewerAgent.getUserDetails().getId();
 		Entry entry;
 		Iterator i = m.entrySet().iterator();
 		DataObject o;
@@ -847,23 +858,14 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns the first name and the last name of the owner.
+	 * Returns the date.
 	 * 
 	 * @param object The object to handle.
 	 * @return See above.
 	 */
 	String formatDate(DataObject object)
-	{
-		String date = "";
-		Timestamp time = null;
-		if (object == null) return date;
-		if (object instanceof AnnotationData)
-			time = ((AnnotationData) object).getLastModified();
-		else if (object instanceof ImageData) 
-			time = EditorUtil.getAcquisitionTime((ImageData) object);
-		else time = object.getCreated();
-		if (time != null) date = UIUtilities.formatShortDateTime(time);
-		return date;
+	{ 
+		return EditorUtil.formatDate(object);
 	}
 	
 	/**
@@ -966,7 +968,7 @@ class EditorModel
 			if (FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
 				//tmp
 				String name = f.getFileName();
-				if (name.contains(ORIGINAL_METADATA_NAME))
+				if (name.contains(FileAnnotationData.ORIGINAL_METADATA_NAME))
 					originalMetadata = f;
 			} else if (!FileAnnotationData.FLIM_NS.equals(ns)) {
 				l.add(f);
@@ -1013,45 +1015,30 @@ class EditorModel
 				ids.put(f.getId(), f);
 			}
 		}
-		List<Long> orderedIds =  (List<Long>) sorter.sort(ids.values());
+		List<Long> orderedIds =  (List<Long>) sorter.sort(ids.keySet());
 		if (orderedIds.size() == 0) return null;
 		int index = 0; //this should be modified.
 		Iterator<Long> j = orderedIds.iterator();
 		Long id;
-		DataObject object = (DataObject) getRefObject();
 		List<AnalysisResultsItem> 
 		results = new ArrayList<AnalysisResultsItem>();
 		item = null;
 		int n = 6;
+		int number = 1;
 		while (j.hasNext()) {
 			id = j.next();
 			if (index == 0) {
 				item = new AnalysisResultsItem((DataObject) getRefObject(), 
-						FileAnnotationData.FLIM_NS);
+						FileAnnotationData.FLIM_NS, number);
 				results.add(item);
+				number++;
 			} else if (index == n) {
 				index = -1;
 			}
 			item.addAttachment(ids.get(id));
 			index++;
 		}
-		/*
-		while (i.hasNext()) {
-			f = i.next();
-			ns = f.getNameSpace();
-			if (FileAnnotationData.FLIM_NS.equals(ns)) {
-				item = (AnalysisResultsItem) l.get(ns);
-				if (item == null) {
-					item = new AnalysisResultsItem((DataObject) getRefObject(), 
-							ns);
-					l.put(ns, item);
-				}
-				item.addAttachment(f);
-			} 
-		}
-		*/
-		return null;
-		//return (List<FileAnnotationData>) sorter.sort(l.values()); 
+		return results;
 	}
 	
 	/**
@@ -1355,8 +1342,6 @@ class EditorModel
 		boolean b = isSameObject(refObject);
 		this.refObject = refObject; 
 		parentRefObject = null;
-		if (thumbnails != null) thumbnails.clear();
-		thumbnails = null;
 		if (existingTags != null) existingTags.clear();
 		existingTags = null;
 		if (textualAnnotationsByUsers != null) 
@@ -1435,79 +1420,6 @@ class EditorModel
 			return getOwner((DataObject) ref);
 		return null;
 	}
-	
-	/**
-	 * Returns <code>true</code> if the thumbnails are loaded, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isThumbnailsLoaded() { return thumbnails != null; }
-
-	/**
-	 * Sets the retrieved thumbnails.
-	 * 
-	 * @param thumbnails The value to set.
-	 */
-	void setThumbnails(Map<Long, BufferedImage> thumbnails)
-	{
-		/*
-		this.thumbnails = thumbnails;
-		Iterator i = loaders.iterator();
-		EditorLoader loader = null;
-		while (i.hasNext()) {
-			loader = (EditorLoader) i.next();
-			if (loader instanceof ThumbnailLoader)
-				break;
-		}
-		if (loader != null) loaders.remove(loader);
-		*/
-	}
-	
-	/** 
-	 * Returns the thumbnails.
-	 * 
-	 * @return See above.
-	 */
-	Map<Long, BufferedImage> getThumbnails() { return thumbnails; }
-	
-	/** Fires an asynchronous retrieval of thumbnails. */
-	void loadThumbnails()
-	{
-		/*
-		Set<Long> ids = new HashSet<Long>();
-		Collection l = getViewedBy();
-		if (l == null) return;
-		Iterator i = l.iterator();
-		ViewedByDef def = null;
-		while (i.hasNext()) {
-			def = (ViewedByDef) i.next();
-			ids.add(def.getExperimenter().getId());
-		}
-		ThumbnailLoader loader = new ThumbnailLoader(component, 
-								(ImageData) getRefObject(), ids);
-		loader.load();
-		loaders.add(loader);
-		*/
-	}
-
-	/** Cancels any ongoing thumbnails retrieval. */
-	void cancelThumbnailsLoading()
-	{
-		/*
-		Iterator i = loaders.iterator();
-		EditorLoader loader;
-		List<EditorLoader> toKeep = new ArrayList<EditorLoader>();
-		while (i.hasNext()) {
-			loader = (EditorLoader) i.next();
-			if (loader instanceof ThumbnailLoader) {
-				loader.cancel();
-			} else toKeep.add(loader);
-		}
-		loaders.clear();
-		loaders.addAll(toKeep);
-		*/
-	}
 
 	/** Fires an asynchronous retrieval of existing tags. */
 	void loadExistingTags()
@@ -1575,8 +1487,9 @@ class EditorModel
 		else if (refObject instanceof WellSampleData) {
 			WellSampleData wsd = (WellSampleData) refObject;
 			data = wsd.getImage();
-			if (data == null || data.getId() < 0) data = null;
+			if (data != null && data.getId() < 0) data = null;
 		}
+		if (data == null) return;
 		try {
 			PixelsData pixs = data.getDefaultPixels();
 			ChannelDataLoader loader = new ChannelDataLoader(component, 
@@ -1717,7 +1630,15 @@ class EditorModel
 			if (data instanceof WellSampleData) {
 				data = ((WellSampleData) ref).getImage();
 			}
-			parent.saveData(toAdd, toRemove, toDelete, metadata, data, asynch);
+			List<AnnotationData> list = null;
+			if (toDelete != null && toDelete.size() > 0) {
+				list = new ArrayList<AnnotationData>();
+				Iterator<AnnotationData> i = toDelete.iterator();
+				while (i.hasNext())
+					list.add(i.next());
+				toDelete.clear();
+			}
+			parent.saveData(toAdd, toRemove, list, metadata, data, asynch);
 		}
 	}
 	
@@ -1786,7 +1707,6 @@ class EditorModel
 	 */
 	void download(File folder)
 	{
-		Object ref = getRefObject();
 		if (refObject instanceof ImageData) {
 			downloadImages(folder);
 		} else if (refObject instanceof FileAnnotationData) {
@@ -1797,11 +1717,13 @@ class EditorModel
 	/** 
 	 * Starts an asynchronous call to retrieve disk space information. 
 	 * 
-	 * @param id The identifier of the user.
+	 * @param type 	Either <code>ExperimenterData</code> or
+	 * 				<code>GroupData</code>.
+	 * @param id 	The identifier of the user or group.
 	 */
-	void loadDiskSpace(long id)
+	void loadDiskSpace(Class type, long id)
 	{
-		DiskSpaceLoader loader = new DiskSpaceLoader(component, id);
+		DiskSpaceLoader loader = new DiskSpaceLoader(component, type, id);
 		loader.load();
 		loaders.add(loader);
 	}
@@ -2521,7 +2443,6 @@ class EditorModel
 		}
 		//sort the scripts.
 		Map<Long, ScriptObject> map = new LinkedHashMap<Long, ScriptObject>();
-		if (scripts == null) return;
 		List l = sorter.sort(scripts);
 		Iterator i = l.iterator();
 		ScriptObject s;
@@ -2788,5 +2709,88 @@ class EditorModel
     	return false;
     }
     
+	/**
+	 * Returns the collection of the attachments linked to the 
+	 * <code>DataObject</code>.
+	 * 
+	 * @return See above.
+	 */
+	List<FileAnnotationData> getTabularData()
+	{ 
+		StructuredDataResults data = parent.getStructuredData();
+		List<FileAnnotationData> l = new ArrayList<FileAnnotationData>();
+		if (data == null) return l;
+		Collection<FileAnnotationData> attachements = data.getAttachments(); 
+		if (attachements == null) return l;
+		Iterator<FileAnnotationData> i = attachements.iterator();
+		FileAnnotationData f;
+		String ns;
+		while (i.hasNext()) {
+			f = i.next();
+			ns = f.getNameSpace();
+			if (FileAnnotationData.BULK_ANNOTATIONS_NS.equals(ns)) {
+				l.add(f);
+			}
+		}
+		return l; 
+	}
+	
+	/** 
+	 * Saves locally the images as JPEG.
+	 * 
+	 * @param folder The folder where to save the images.
+	 */
+	void saveAs(File folder)
+	{
+		Collection l = parent.getRelatedNodes();
+		List<DataObject> objects = new ArrayList<DataObject>();
+		Object o;
+		if (l != null) {
+			Iterator i = l.iterator();
+			while (i.hasNext()) {
+				o = (Object) i.next();
+				if (o instanceof ImageData || o instanceof DatasetData) {
+					objects.add((DataObject) o);
+				}
+			}
+		}
+		o = getRefObject();
+		if (o instanceof ImageData || o instanceof DatasetData) {
+			objects.add((DataObject) o);
+		}
+		
+		if (objects.size() > 0) {
+			IconManager icons = IconManager.getInstance();
+			SaveAsParam p = new SaveAsParam(folder, objects);
+			p.setIcon(icons.getIcon(IconManager.SAVE_AS_48));
+			UserNotifier un =
+				MetadataViewerAgent.getRegistry().getUserNotifier();
+			un.notifyActivity(p);
+		}
+	}
+	
+	/**
+	 * Returns the collection of selected objects.
+	 * 
+	 * @return See above.
+	 */
+	List<DataObject> getSelectedObjects()
+	{
+		List<DataObject> objects = new ArrayList<DataObject>();
+		if (getRefObject() instanceof DataObject)
+			objects.add((DataObject) getRefObject());
+		Collection l = parent.getRelatedNodes();
+		if (l == null) return objects;
+		Iterator i = l.iterator();
+		Object o;
+		while (i.hasNext()) {
+			o = i.next();
+			if (o instanceof DataObject)
+				objects.add((DataObject) o);
+		}
+		
+		return objects;
+	}
+
 }
 	

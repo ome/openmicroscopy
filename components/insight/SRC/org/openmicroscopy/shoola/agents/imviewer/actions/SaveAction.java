@@ -69,21 +69,15 @@ public class SaveAction
      */
     protected void onTabSelection()
     {
-    	setEnabled(true);
-    	//setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+    	if (model.isBigImage()) setEnabled(false);
+    	else setEnabled(model.getState() == ImViewer.READY);
     }
     
     /**
-     * Disposes and closes the movie player when the {@link ImViewer} is
-     * discarded.
+     * Sets the enabled flag.
      * @see ViewerAction#onStateChange(ChangeEvent)
      */
-    protected void onStateChange(ChangeEvent e)
-    {
-    	if (model.getState() == ImViewer.READY)
-    		 onTabSelection();
-    	else setEnabled(false);
-    }
+    protected void onStateChange(ChangeEvent e) { onTabSelection(); }
     
     /**
      * Creates a new instance.

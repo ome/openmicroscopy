@@ -250,6 +250,7 @@ public class CheckoutBox
 		{
 			super(instance.toString());
 			this.refName = refName;
+			this.instance = instance;
 			setSelected(true);
 		}
 		

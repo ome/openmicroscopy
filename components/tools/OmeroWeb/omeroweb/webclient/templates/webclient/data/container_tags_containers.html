@@ -2,72 +2,65 @@
 {% load markup %}
 {% load custom_tags %}
     
+<!--
 
-{% if manager.c_size %}
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
 <ul>
+    {% if manager.containers.projects or manager.containers.datasets or manager.containers.screens or manager.containers.plates or manager.containers.images %}
+    
+    {% for i in manager.containers.images %}
+        <li id='image-{{ i.id }}' rel="image{% if not i.isOwned %}-locked{% endif %}"><a href="#">{{ i.name|truncatebefor:"30" }}</a></li>
+    {% endfor %}
+    
     {% for c in manager.containers.projects %}
-    <li id='pr-{{ c.id }}' title="{{ c.name }}"><span id="readonly">{{ c.name|truncatebefor:"35" }}</span>
-        <!--{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}-->
-        {% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
+    <li id='project-{{ c.id }}' rel="project"><a href="#">{{ c.name|truncatebefor:"35" }}</a>
         <ul>
             {% if c.countChildren %}
             {% for d in c.listChildrenWithLinks %}
-                <li id='ds-{{ d.id }}' title="{{ d.name }}"><span id="readonly">{{ d.name|truncatebefor:"35" }}</span>
-                    <!--{% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %} -->
-                    {% if not d.link.isOwned %}{% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}, linked by {{ d.link.getOwner.getNameWithInitial }}"/>{% else %}<img src="{% url webstatic "images/kgpg_key16.png" %}" alt="l" title="linked by {{ d.link.getOwner.getNameWithInitial }}"/>{% endif %}{% else %}{% if not d.isOwned %} <img src="{% url webstatic "images/personal12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}"/>{% endif %}{% endif %}
-                    <ul class="ajax">
-                        <li id='{{ d.id.val }}'>{url:{% url load_data_by_tag "dataset" d.id %}?view=tree}</li>
-                    </ul>
-                </li>
+                <li id='dataset-{{ d.id }}' rel="dataset" {% if d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
             {% endfor %}
-            {% else %}
-                <li class="line-last"/>
             {% endif %}
         </ul>
     </li>
     {% endfor %}
-    
+
+    {% for d in manager.containers.datasets %}
+        <li id='dataset-{{ d.id }}' rel="dataset" {% if d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
+    {% endfor %}
+
     {% for c in manager.containers.screens %}
-    <li id='sc-{{ c.id }}' title="{{ c.name }}"><span id="readonly">{{ c.name|truncatebefor:"35" }}</span>
-        <!--{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}-->
-        {% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
+    <li id='screen-{{ c.id }}' rel="screen"><a href="#">{{ c.name|truncatebefor:"35" }}</a>
         <ul>
             {% if c.countChildren %}
             {% for d in c.listChildrenWithLinks %}
-                <li id='pl-{{ d.id }}' title="{{ d.name }}"><span id="readonly">{{ d.name|truncatebefor:"35" }}</span>
-                    <!--{% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}-->
-                    {% if not d.link.isOwned %}{% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}, linked by {{ d.link.getOwner.getNameWithInitial }}"/>{% else %}<img src="{% url webstatic "images/kgpg_key16.png" %}" alt="l" title="linked by {{ d.link.getOwner.getNameWithInitial }}"/>{% endif %}{% else %}{% if not d.isOwned %} <img src="{% url webstatic "images/personal12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}"/>{% endif %}{% endif %}
-                </li>
+                <li id='plate-{{ d.id }}' rel="plate"><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
             {% endfor %}
-            {% else %}
-                <li class="line-last"/>
             {% endif %}
         </ul>
     </li>
     {% endfor %}
     
-    {% for c in manager.containers.datasets %}
-        <li id='ds-{{ c.id }}' title="{{ c.name }}"><span id="readonly">{{ c.name|truncatebefor:"35" }}</span>
-            <!--{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}-->
-            {% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
-            <ul class="ajax">
-                <li id='{{ d.id.val }}'>{url:{% url load_data_by_tag "dataset" c.id %}?view=tree}</li>
-            </ul>
-        </li>
+    {% for d in manager.containers.plates %}
+        <li id='plate-{{ d.id }}' rel="plate" {% if d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
     {% endfor %}
-    
-    {% for c in manager.containers.plates %}
-        <li id='pl-{{ c.id }}' title="{{ c.name }}"><span id="readonly">{{ c.name|truncatebefor:"35" }}</span>
-            <!--{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}-->
-            {% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</li>
-    {% endfor %}
-    
-    {% for d in manager.containers.images %}
-        <li id='img-{{ d.id }}' title="{{ d.name }}"><span id="readonly">{{ d.name|truncatebefor:"35" }}</span>
-            <!--{% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}-->
-            {% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</li>
-    {% endfor %}
+    {% else %}
+    <li>empty</li>
+    {% endif %}
 </ul>
-{% endif %}
-
-

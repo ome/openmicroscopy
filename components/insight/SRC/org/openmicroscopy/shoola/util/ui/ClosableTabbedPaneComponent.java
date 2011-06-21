@@ -48,20 +48,23 @@ public class ClosableTabbedPaneComponent
 	extends JPanel
 {
 
-	/** The index of the tabbed pane. */
+	/** The index of the tab pane. */
 	private final int 	index;
 	
-	/** The name of the tabbed component. */
+	/** The name of the tab component. */
 	private String		name;
 	
-	/** The description of the tabbed component. */
+	/** The description of the tab component. */
 	private String		description;
 	
-	/** The name of the tabbed component. */
+	/** The name of the tab component. */
 	private Icon		icon;
 	
 	/** Flag indicating if the component can be removed. */
 	private boolean		closable;
+	
+	/** Flag indicating to show the close icon. */
+	private boolean		closeVisible;
 	
 	/**
 	 * Creates a new instance.
@@ -77,7 +80,7 @@ public class ClosableTabbedPaneComponent
 	 * Creates a new instance.
 	 * 
 	 * @param index	The index of the component.
-	 * @param name	The name of the tabbed component.
+	 * @param name	The name of the tab component.
 	 */
 	public ClosableTabbedPaneComponent(int index, String name)
 	{
@@ -88,8 +91,21 @@ public class ClosableTabbedPaneComponent
 	 * Creates a new instance.
 	 * 
 	 * @param index	The index of the component.
-	 * @param name	The name of the tabbed component.
-	 * @param icon	The icon related to the tabbed component.
+	 * @param name	The name of the tab component.
+	 * @param description	The name of the tab component.
+	 */
+	public ClosableTabbedPaneComponent(int index, String name, String 
+			description)
+	{
+		this(index, name, null, description);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param index	The index of the component.
+	 * @param name	The name of the tab component.
+	 * @param icon	The icon related to the tab component.
 	 */
 	public ClosableTabbedPaneComponent(int index, String name, Icon icon)
 	{
@@ -100,9 +116,9 @@ public class ClosableTabbedPaneComponent
 	 * Creates a new instance.
 	 * 
 	 * @param index			The index of the component.
-	 * @param name			The name of the tabbed component.
-	 * @param icon			The icon related to the tabbed component.
-	 * @param description	The name of the tabbed component.
+	 * @param name			The name of the tab component.
+	 * @param icon			The icon related to the tab component.
+	 * @param description	The name of the tab component.
 	 */
 	public ClosableTabbedPaneComponent(int index, String name, Icon icon, 
 										String description)
@@ -112,12 +128,36 @@ public class ClosableTabbedPaneComponent
 		this.icon = icon;
 		this.description = description;
 		closable = true;
+		closeVisible = true;
 	}
+	
+	/**
+	 * Sets to <code>true</code> if the icon is shown, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param closeVisible Pass <code>true</code> if the icon is shown,
+	 * 						<code>false</code> otherwise.
+	 */
+	public void setCloseVisible(boolean closeVisible)
+	{
+		this.closeVisible = closeVisible;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the icon is shown, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isCloseVisible() { return closeVisible; }
+	
 	
 	/**
 	 * Sets to <code>true</code> if the component can be closed,
 	 * <code>false</code>
-	 * @param closable
+	 * 
+	 * @param closable Pass <code>true</code> to allow to close the component,
+	 * 				  <code>false</code> otherwise.
 	 */
 	public void setClosable(boolean closable) { this.closable = closable; }
 	
@@ -130,28 +170,28 @@ public class ClosableTabbedPaneComponent
 	public boolean isClosable() { return closable; }
 	
 	/**
-	 * Returns the index of the tabbed component.
+	 * Returns the index of the tab component.
 	 * 
 	 * @return See above.
 	 */
 	public int getIndex() { return index; }
 
 	/**
-	 * Returns the index of the tabbed component.
+	 * Returns the index of the tab component.
 	 * 
 	 * @return See above.
 	 */
 	public String getDescription() { return description; }
 
 	/**
-	 * Returns the icon of the tabbed component.
+	 * Returns the icon of the tab component.
 	 * 
 	 * @return See above.
 	 */
 	public Icon getIcon() { return icon; }
 
 	/**
-	 * Returns the name of the tabbed component.
+	 * Returns the name of the tab component.
 	 * 
 	 * @return See above.
 	 */

@@ -53,12 +53,12 @@ from django.utils.translation import ugettext as _
 from django.views.defaults import page_not_found, server_error
 from django.views import debug
 from django.core.cache import cache
+from django.utils.encoding import smart_str
 
 from webclient.webclient_gateway import OmeroWebGateway
 
 from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
-                   GroupForm, GroupOwnerForm, MyAccountForm, \
-                   ChangeMyPassword, ChangeUserPassword, \
+                   GroupForm, GroupOwnerForm, MyAccountForm, ChangePassword, \
                    ContainedExperimentersForm, UploadPhotoForm, \
                    EnumerationEntry, EnumerationEntries
 
@@ -71,6 +71,7 @@ from controller.enums import BaseEnums
 
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webgateway.views import getBlitzConnection
+from omeroweb.webclient.webclient_utils import toBoolean, upgradeCheck
 
 logger = logging.getLogger('views-admin')
 
@@ -78,24 +79,7 @@ connectors = {}
 
 logger.info("INIT '%s'" % os.getpid())
 
-################################################################################
-def toBoolean(val):
-    """ 
-    Get the boolean value of the provided input.
-
-        If the value is a boolean return the value.
-        Otherwise check to see if the value is in 
-        ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
-        and returns True if value is not in the list
-    """
-
-    if val is True or val is False:
-        return val
-
-    falseItems = ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
-
-    return not str( val ).strip().lower() in falseItems
-    
+################################################################################    
 def getGuestConnection(host, port):
     conn = None
     guest = "guest"
@@ -267,7 +251,7 @@ def forgotten_password(request, **kwargs):
         
             if conn is not None:
                 try:
-                    conn.reportForgottenPassword(request.REQUEST.get('username').encode('utf-8'), request.REQUEST.get('email').encode('utf-8'))
+                    conn.reportForgottenPassword(smart_str(request.REQUEST.get('username')), smart_str(request.REQUEST.get('email')))
                     error = "Password was reseted. Check you mailbox."
                     form = None
                 except Exception, x:
@@ -286,32 +270,12 @@ def login(request):
     request.session.modified = True
     
     if request.method == 'POST' and request.REQUEST.get('server'):        
-        # upgrade check:
-        # -------------
-        # On each startup OMERO.web checks for possible server upgrades
-        # and logs the upgrade url at the WARNING level. If you would
-        # like to disable the checks, change the following to
-        #
-        #   if False:
-        #
-        # For more information, see
-        # http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck
-        #
-        try:
-            from omero.util.upgrade_check import UpgradeCheck
-            check = UpgradeCheck("web")
-            check.run()
-            if check.isUpgradeNeeded():
-                logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
-        except Exception, x:
-            logger.error("Upgrade check error: %s" % x)
-        
         blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
-        request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
-        request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
+        request.session['username'] = smart_str(request.REQUEST.get('username'))
+        request.session['password'] = smart_str(request.REQUEST.get('password'))
         request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
         
     error = request.REQUEST.get('error')
@@ -324,6 +288,7 @@ def login(request):
         error = str(x)
     
     if conn is not None:
+        upgradeCheck()
         request.session['version'] = conn.getServerVersion()
         return HttpResponseRedirect(reverse("waindex"))
     else:
@@ -558,27 +523,27 @@ def manage_password(request, eid, **kwargs):
     
     error = None
     if request.method != 'POST':
-        if conn.isAdmin():
-            password_form = ChangeUserPassword()
-        else:
-            password_form = ChangeMyPassword()
+        password_form = ChangePassword()
     else:
-        if conn.isAdmin():
-            password_form = ChangeUserPassword(data=request.POST.copy())
-        else:
-            password_form = ChangeMyPassword(data=request.POST.copy())
-                    
+        password_form = ChangePassword(data=request.POST.copy())            
         if password_form.is_valid():
+            old_password = password_form.cleaned_data['old_password']
             password = password_form.cleaned_data['password']
             if conn.isAdmin():
                 exp = conn.getExperimenter(eid)
-                conn.changeUserPassword(exp.omeName, password)
-                request.session['password'] = password
-                return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", eid]))
+                try:
+                    conn.changeUserPassword(exp.omeName, password, old_password)
+                except Exception, x:
+                    error = x.message
+                else:
+                    request.session['password'] = password
+                    return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", eid]))
             else:
-                old_password = password_form.cleaned_data['old_password']
-                error = conn.changeMyPassword(old_password, password) 
-                if error is None:
+                try:
+                    conn.changeMyPassword(password, old_password) 
+                except Exception, x:
+                    error = x.message
+                else:
                     request.session['password'] = password
                     return HttpResponseRedirect(reverse("wamyaccount"))
                 
@@ -663,7 +628,7 @@ def manage_group(request, action, gid=None, **kwargs):
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["edit", controller.group.id]))
         else:
-            name_check = conn.checkGroupName(request.REQUEST.get('name').encode('utf-8'), controller.group.name)
+            name_check = conn.checkGroupName(request.REQUEST.get('name'), controller.group.name)
             form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
             if form.is_valid():
                 logger.debug("Update group form:" + str(form.cleaned_data))
@@ -811,7 +776,7 @@ def ldap(request, **kwargs):
 #        if request.method == "POST":
 #            form = EnumerationEntry(data=request.POST.copy())
 #            if form.is_valid():
-#                new_entry = request.REQUEST.get('new_entry').encode('utf-8')
+#                new_entry = form.cleaned_data['new_entry]
 #                controller.saveEntry(new_entry)
 #                return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
 #        else:
@@ -864,7 +829,7 @@ def my_account(request, action=None, **kwargs):
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit"]))
         else:
-            email_check = conn.checkEmail(request.REQUEST.get('email').encode('utf-8'), myaccount.experimenter.email)
+            email_check = conn.checkEmail(request.REQUEST.get('email'), myaccount.experimenter.email)
             form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups}, email_check=email_check)
             if form.is_valid():
                 firstName = form.cleaned_data['first_name']
@@ -884,10 +849,10 @@ def my_account(request, action=None, **kwargs):
                 controller.attach_photo(request.FILES['photo'])
                 return HttpResponseRedirect(reverse("wamyaccount"))
     elif action == "crop": 
-        x1 = long(request.REQUEST.get('x1').encode('utf-8'))
-        x2 = long(request.REQUEST.get('x2').encode('utf-8'))
-        y1 = long(request.REQUEST.get('y1').encode('utf-8'))
-        y2 = long(request.REQUEST.get('y2').encode('utf-8'))
+        x1 = long(request.REQUEST.get('x1'))
+        x2 = long(request.REQUEST.get('x2'))
+        y1 = long(request.REQUEST.get('y1'))
+        y2 = long(request.REQUEST.get('y2'))
         box = (x1,y1,x2,y2)
         conn.cropExperimenterPhoto(box)
         return HttpResponseRedirect(reverse("wamyaccount"))

@@ -64,9 +64,6 @@ public class Analyser
     /** The type of object to handle. */
     private Class					type;
     
-    /** The result. */
-    private FileAnnotationData		data;
-    
     /** The type of analysis to perform. */
     private int						index;
     
@@ -154,7 +151,9 @@ public class Analyser
         Object o = fe.getPartialResult();
         if (o != null) {
         	if (o instanceof Boolean) {
-        		onException(MESSAGE_RUN, null); 
+        		Boolean b = (Boolean) o;
+        		if (!b.booleanValue())
+        			onException(MESSAGE_RUN, null); 
         	} else {
         		callBack = (ScriptCallback) o;
             	callBack.setAdapter(this);

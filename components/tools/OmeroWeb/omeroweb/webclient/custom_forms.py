@@ -1,3 +1,23 @@
+#!/usr/bin/env python
+#
+#
+# Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+# All rights reserved.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
 import re
 from itertools import chain
 
@@ -12,6 +32,10 @@ from django.forms.widgets import Select
 from django.forms import ModelChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode
+
+from omero_model_FileAnnotationI import FileAnnotationI
+from omero_model_TagAnnotationI import TagAnnotationI
+from omero_model_LongAnnotationI import LongAnnotationI
 
 ##################################################################
 # Fields
@@ -109,9 +133,7 @@ class AnnotationQuerySetIterator(object):
         if self.empty_label is not None:
             yield (u"", self.empty_label)
         for obj in self.queryset:
-            textValue = None
-            from omero_model_FileAnnotationI import FileAnnotationI
-            from omero_model_TagAnnotationI import TagAnnotationI
+            textValue = None            
             if isinstance(obj._obj, FileAnnotationI):
                 textValue = (len(obj.getFileName()) < 45) and (obj.getFileName()) or (obj.getFileName()[:42]+"...")
             elif isinstance(obj._obj, TagAnnotationI):
@@ -120,12 +142,15 @@ class AnnotationQuerySetIterator(object):
                         textValue = (len(obj.textValue) < 45) and ("%s (tagset)" % obj.textValue) or ("%s (tagset)" % obj.textValue[:42]+"...")
                     else:
                         textValue = (len(obj.textValue) < 45) and (obj.textValue) or (obj.textValue[:42]+"...")
+            elif isinstance(obj._obj, LongAnnotationI):
+                textValue = obj.longValue
             else:
                 textValue = obj.textValue
             
-            l = len(textValue)
-            if l > 55:
-                textValue = "%s..." % textValue[:55]            
+            if isinstance(textValue, str):
+                l = len(textValue)
+                if l > 55:
+                    textValue = "%s..." % textValue[:55]            
             oid = obj.id
             yield (oid, smart_unicode(textValue))
         # Clear the QuerySet cache if required.

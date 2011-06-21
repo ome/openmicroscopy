@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.TreeMap;
 
 //Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.TRANSFORM;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.geom.BezierPath;
 
@@ -56,6 +55,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.EllipseData;
 import pojos.ImageData;
+import pojos.LineData;
 import pojos.MaskData;
 import pojos.PointData;
 import pojos.PolygonData;
@@ -194,10 +194,8 @@ class OutputServerStrategy
 		throws ParsingException
 	{
 		MeasureBezierFigure fig = (MeasureBezierFigure) shape.getFigure();
-		if (fig.isClosed())
-			return createPolygonFigure(shape);
-		else
-			return createPolylineFigure(shape);
+		if (fig.isClosed()) return createPolygonFigure(shape);
+		return createPolylineFigure(shape);
 	}
 	
 	/**
@@ -218,8 +216,12 @@ class OutputServerStrategy
 		double cy = fig.getEllipse().getCenterY();
 		
 		EllipseData ellipse = new EllipseData(cx, cy, rx, ry); 
-		ellipse.setText(fig.getText());
-		AffineTransform t = TRANSFORM.get(fig);
+		ellipse.setVisible(fig.isVisible());
+		String text = fig.getText();
+		if (text != null && text.trim().length() > 0 && 
+				!text.equals(ROIFigure.DEFAULT_TEXT))
+			ellipse.setText(text);
+		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		if (t != null)
 			ellipse.setTransform(toTransform(t));
 		return ellipse;
@@ -253,8 +255,12 @@ class OutputServerStrategy
 		double cy = fig.getCentre().getY();
 		
 		PointData point = new PointData(cx, cy); 
-		point.setText(fig.getText());
-		AffineTransform t = TRANSFORM.get(fig);
+		point.setVisible(fig.isVisible());
+		String text = fig.getText();
+		if (text != null && text.trim().length() > 0 && 
+				!text.equals(ROIFigure.DEFAULT_TEXT))
+			point.setText(fig.getText());
+		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		if (t != null)
 			point.setTransform(toTransform(t));
 		return point;
@@ -274,17 +280,20 @@ class OutputServerStrategy
 		MeasureTextFigure fig = (MeasureTextFigure)shape.getFigure();
 		double x = fig.getBounds().getX();
 		double y = fig.getBounds().getY();
-		
-		TextData text = new TextData(fig.getText(),x, y); 
-		text.setDirty(fig.isDirty());
-		text.setT(shape.getT());
-		text.setZ(shape.getZ());
-		AffineTransform t = TRANSFORM.get(fig);
+		String text = fig.getText();
+		if (text != null && text.trim().length() > 0 && 
+				text.equals(ROIFigure.DEFAULT_TEXT))
+			text = "";
+		TextData data = new TextData(text, x, y); 
+		data.setDirty(fig.isDirty());
+		data.setT(shape.getT());
+		data.setZ(shape.getZ());
+		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		if (t != null)
-			text.setTransform(toTransform(t));
+			data.setTransform(toTransform(t));
 		if (!fig.isClientObject())
-			text.setId(shape.getROIShapeID());
-		return text;
+			data.setId(shape.getROIShapeID());
+		return data;
 	}
 	
 	/**
@@ -305,9 +314,12 @@ class OutputServerStrategy
 		double height = fig.getHeight();
 		
 		RectangleData rectangle = new RectangleData(x, y, width, height); 
-		rectangle.setText(fig.getText());
-		
-		AffineTransform t = TRANSFORM.get(fig);
+		String text = fig.getText();
+		if (text != null && text.trim().length() > 0 && 
+				!text.equals(ROIFigure.DEFAULT_TEXT))
+			rectangle.setText(fig.getText());
+		rectangle.setVisible(fig.isVisible());
+		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		if (t != null)
 			rectangle.setTransform(toTransform(t));
 		
@@ -326,7 +338,7 @@ class OutputServerStrategy
 		throws ParsingException
 	{
 		MeasureBezierFigure fig = (MeasureBezierFigure) shape.getFigure();
-		AffineTransform t = TRANSFORM.get(fig);
+		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		List<Point2D.Double> points = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points1 = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points2 = new LinkedList<Point2D.Double>();
@@ -341,10 +353,14 @@ class OutputServerStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolygonData poly = new PolygonData();
+		poly.setVisible(fig.isVisible());
 		poly.setPoints(points, points1, points2, maskList);
 		if (t != null)
 			poly.setTransform(toTransform(t));
-		poly.setText(fig.getText());
+		String text = fig.getText();
+		if (text != null && text.trim().length() > 0 && 
+				!text.equals(ROIFigure.DEFAULT_TEXT))
+			poly.setText(fig.getText());
 		return poly;	
 	}
 	
@@ -356,17 +372,31 @@ class OutputServerStrategy
 	 * @return See above.
 	 * @throws ParsingException If an error occurred while parsing.
 	 */
-	private PolylineData createLineFigure(ROIShape shape) 
+	private ShapeData createLineFigure(ROIShape shape) 
 				throws ParsingException
 	{
-		MeasureLineFigure fig = (MeasureLineFigure)shape.getFigure();
-		AffineTransform t = TRANSFORM.get(fig);
+		MeasureLineFigure fig = (MeasureLineFigure) shape.getFigure();
+		BezierPath bezier = fig.getBezierPath();
+		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
+		int n = bezier.size();
+		if (n == 2) { //it is a line.
+			BezierPath.Node start = bezier.get(0);
+			BezierPath.Node end = bezier.get(1);
+			LineData line = new LineData(start.x[0], start.y[0], 
+					end.x[0], end.y[0]);
+			line.setVisible(fig.isVisible());
+			if (t != null) line.setTransform(toTransform(t));
+			String text = fig.getText();
+			if (text != null && text.trim().length() > 0 && 
+					!text.equals(ROIFigure.DEFAULT_TEXT))
+				line.setText(fig.getText());
+			return line;
+		}
+		
 		List<Point2D.Double> points = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points1 = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points2 = new LinkedList<Point2D.Double>();
 		List<Integer> maskList =  new LinkedList<Integer>();
-		
-		BezierPath bezier = fig.getBezierPath();
 		for (BezierPath.Node node : bezier)
 		{
 			points.add(new Point2D.Double(node.x[0], node.y[0]));
@@ -375,10 +405,14 @@ class OutputServerStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolylineData line = new PolylineData();
+		line.setVisible(fig.isVisible());
 		line.setPoints(points, points1, points2, maskList);
 		if (t != null)
 			line.setTransform(toTransform(t));
-		line.setText(fig.getText());
+		String text = fig.getText();
+		if (text != null && text.trim().length() > 0 && 
+				!text.equals(ROIFigure.DEFAULT_TEXT))
+			line.setText(fig.getText());
 		return line;
 	}
 	
@@ -394,7 +428,7 @@ class OutputServerStrategy
 		throws ParsingException
 	{
 		MeasureBezierFigure fig = (MeasureBezierFigure)shape.getFigure();
-		AffineTransform t = TRANSFORM.get(fig);
+		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		List<Point2D.Double> points = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points1 = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points2 = new LinkedList<Point2D.Double>();
@@ -409,10 +443,14 @@ class OutputServerStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolylineData poly = new PolylineData();
+		poly.setVisible(fig.isVisible());
 		poly.setPoints(points, points1, points2, maskList);
 		if (t != null)
 			poly.setTransform(toTransform(t));
-		poly.setText(fig.getText());
+		String text = fig.getText();
+		if (text != null && text.trim().length() > 0 && 
+				!text.equals(ROIFigure.DEFAULT_TEXT))
+			poly.setText(fig.getText());
 		return poly;	
 	}
 	
@@ -425,35 +463,52 @@ class OutputServerStrategy
 	private void addShapeAttributes(ROIFigure fig, ShapeData shape)
 	{
 		ShapeSettingsData settings = shape.getShapeSettings();
+		Boolean bold;
+		Boolean italic;
 		if (AttributeKeys.FILL_COLOR.get(fig) != null)
 		{
 			Color c = AttributeKeys.FILL_COLOR.get(fig);
-			settings.setFillColor(c);
+			settings.setFill(c);
 		}
 		if (MeasurementAttributes.STROKE_COLOR.get(fig) != null)
-			settings.setStrokeColor(
+			settings.setStroke(
 					MeasurementAttributes.STROKE_COLOR.get(fig));
 		if (MeasurementAttributes.STROKE_WIDTH.get(fig) != null)
 			settings.setStrokeWidth(
 					MeasurementAttributes.STROKE_WIDTH.get(fig));
-		if (MeasurementAttributes.FONT_FACE.get(fig) != null)
-			settings.setFontFamily(
-					MeasurementAttributes.FONT_FACE.get(fig).getName());
-		else
+		if (MeasurementAttributes.FONT_FACE.get(fig) != null) {
+			settings.setFontFamily(UIUtilities.convertFont(
+					MeasurementAttributes.FONT_FACE.get(fig).getName()));
+		} else
 			settings.setFontFamily(ShapeSettingsData.DEFAULT_FONT_FAMILY);
 		if (MeasurementAttributes.FONT_SIZE.get(fig) != null)
 			settings.setFontSize(
 					MeasurementAttributes.FONT_SIZE.get(fig).intValue());
 		else
 			settings.setFontSize(ShapeSettingsData.DEFAULT_FONT_SIZE);
-		if (MeasurementAttributes.FONT_BOLD.get(fig) != null)
-			settings.setFontWeight(ShapeSettingsData.FONT_BOLD);
-		else
-			settings.setFontWeight(ShapeSettingsData.DEFAULT_FONT_WEIGHT);
-		if (MeasurementAttributes.FONT_ITALIC.get(fig) != null)
-			settings.setFontStyle(ShapeSettingsData.FONT_ITALIC);
-		else
-			settings.setFontStyle(ShapeSettingsData.DEFAULT_FONT_STYLE);
+		bold = MeasurementAttributes.FONT_BOLD.get(fig);
+		italic = MeasurementAttributes.FONT_ITALIC.get(fig);
+		if (bold != null) {
+			if (bold.booleanValue()) {
+				if (italic != null && italic.booleanValue()) {
+					settings.setFontStyle(ShapeSettingsData.FONT_BOLD_ITALIC);
+				} else settings.setFontStyle(ShapeSettingsData.FONT_BOLD);
+			} else {
+				if (italic != null && italic.booleanValue()) {
+					settings.setFontStyle(ShapeSettingsData.FONT_ITALIC);
+				} else settings.setFontStyle(ShapeSettingsData.FONT_REGULAR);
+			}
+		} else if (italic != null) {
+			if (italic.booleanValue()) {
+				if (bold != null && bold.booleanValue()) {
+					settings.setFontStyle(ShapeSettingsData.FONT_BOLD_ITALIC);
+				} else settings.setFontStyle(ShapeSettingsData.FONT_ITALIC);
+			} else {
+				if (bold != null && bold.booleanValue()) {
+					settings.setFontStyle(ShapeSettingsData.FONT_BOLD);
+				} else settings.setFontStyle(ShapeSettingsData.FONT_REGULAR);
+			}
+		} else settings.setFontStyle(ShapeSettingsData.FONT_REGULAR);
 	}
 	
 	/**

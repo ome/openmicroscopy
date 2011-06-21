@@ -78,7 +78,7 @@ public class SaveNewCmd
 		if (EditorAgent.isServerAvailable()) {
 			//Custom button text
 			
-			JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
+			JFrame f = model.getUI();
 			MessageBox msg = new MessageBox(f, "Save As...", 
 					"Would you like to save this file locally, or save it to " +
 				    "the OMERO.server?");

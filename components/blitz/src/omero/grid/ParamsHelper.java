@@ -198,6 +198,10 @@ public class ParamsHelper {
             is.readPendingObjects();
         } catch (UnmarshalOutOfBoundsException oob) {
             // ok, returning null.
+        } catch (Ice.MarshalException me) {
+            // less specific than oob; not great, but returning null. #5662
+            log.error(String.format("MarshalException: %s (len=%s)",
+                    me.reason, data.length));
         } catch (OutOfMemoryError oom) {
             // Not ok, but not much we can do.
             // This is caused by changes to slice files.
@@ -208,7 +212,7 @@ public class ParamsHelper {
         }
         return params[0];
     }
-    
+
     /**
      * Interface added in order to allow ParamHelper instances to use methods
      * from SharedResourcesI. The build does not allow for a dependency between

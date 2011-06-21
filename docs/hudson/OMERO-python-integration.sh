@@ -17,10 +17,10 @@ export ICE_CONFIG=`pwd`/ice.config
 # Run tests
 #
 ./build.py build-default test-compile
-./build.py -f components/tools/OmeroPy/build.xml -Dtest.with.fail=true test
-./build.py -f components/tools/OmeroPy/build.xml -Dtest.with.fail=true integration
-./build.py -f components/tools/OmeroFS/build.xml  -Dtest.with.fail=true test
-./build.py -f components/tools/OmeroFS/build.xml  -Dtest.with.fail=true integration
+./build.py -f components/tools/OmeroPy/build.xml -Dtest.with.fail=false test
+./build.py -f components/tools/OmeroPy/build.xml -Dtest.with.fail=false integration
+./build.py -f components/tools/OmeroFS/build.xml  -Dtest.with.fail=false test
+./build.py -f components/tools/OmeroFS/build.xml  -Dtest.with.fail=false integration
 
 #
 # Try DropBox, Hudson will look for ERROR in the output log.

@@ -5,11 +5,14 @@
  */
 package ome.services.blitz.test.fixtures;
 
+import ome.model.meta.Session;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 
 import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
 import org.jmock.core.matcher.InvokeAtLeastOnceMatcher;
+import org.jmock.core.matcher.InvokeOnceMatcher;
 import org.springframework.beans.factory.FactoryBean;
 
 /**
@@ -23,6 +26,12 @@ public class ExecutorMockFactory implements FactoryBean {
     {
         executorMock.expects(new InvokeAtLeastOnceMatcher()).method(
                 "setApplicationContext");
+        executorMock.expects(new InvokeOnceMatcher()).method(
+                "executeSql").will(new MockObjectTestCase(){}.returnValue(new Session()));
+        executorMock.expects(new InvokeOnceMatcher()).method(
+                "executeSql").will(new MockObjectTestCase(){}.returnValue(1L));
+        executorMock.expects(new InvokeOnceMatcher()).method(
+                "execute").will(new MockObjectTestCase(){}.returnValue(new java.util.ArrayList()));
     }
 
     public Object getObject() throws Exception {

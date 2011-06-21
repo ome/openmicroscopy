@@ -46,6 +46,7 @@ from omero.model import TextI
 from omero.model import PolylineI
 from omero.model import PolygonI
 from omero.model import PathI
+from omero.model import MaskI
 from omero.rtypes import rdouble 
 from omero.rtypes import rstring 
 from omero.rtypes import rint 
@@ -75,14 +76,14 @@ class ShapeSettingsData:
         self.WHITE = 16777215
         self.BLACK = 0
         self.GREY = 11184810
-        self.strokeColour = rint(GREY)
+        self.strokeColour = rint(self.GREY)
         self.strokeWidth = rint(1)
         self.strokeDashArray = rstring('')
         self.strokeDashOffset = rint(0)
         self.strokeLineCap = rstring('')
         self.strokeLineJoin = rstring('')
         self.strokeMiterLimit = rint(0)
-        self.fillColour = rint(GREY)
+        self.fillColour = rint(self.GREY)
         self.fillRule = rstring('')
 
     ##
@@ -113,7 +114,7 @@ class ShapeSettingsData:
     # Set the Fill Settings for the ShapeSettings.
     # @param colour The fill colour of the shape.
     def setFillSettings(self, colour):
-        self.fillColour = rsting(colour);
+        self.fillColour = rstring(colour);
     
     ##
     # Get the stroke settings as the tuple (strokeColour, strokeWidth).
@@ -258,9 +259,9 @@ class ShapeData:
         if(self.roi != None):
             return self.roi;
         self.roi = self.createBaseType();
-        self.setROICoord(roi);
-        self.setROIGeometry(roi);
-        self.setROIShapeSettings(roi);
+        self.setROICoord(self.roi);
+        self.setROIGeometry(self.roi);
+        self.setROIShapeSettings(self.roi);
         return self.roi;
     
     ##
@@ -570,7 +571,7 @@ class PolygonData(ShapeData, ROIDrawingI):
     # Constructor for PolygonData object.
     # @param roicoord The ROICoordinate of the object (default: 0,0)
     # @param pointList The list of points that make up the polygon, as pairs [x1, y1, x2, y2 ..].   
-    def __init__(self, roicoord = ROICoordinate(), pointsList = [0,0]):
+    def __init__(self, roicoord = ROICoordinate(), pointsList = (0,0)):
         ShapeData.__init__(self);
         self.points = rstring(self.listToString(pointsList));
         self.setCoord(roicoord);
@@ -638,7 +639,7 @@ class PolylineData(ShapeData, ROIDrawingI):
     # Constructor for PolylineData object.
     # @param roicoord The ROICoordinate of the object (default: 0,0)
     # @param pointList The list of points that make up the polygon, as pairs [x1, y1, x2, y2 ..].   
-    def __init__(self, roicoord = ROICoordinate(), pointsList = [0,0]):
+    def __init__(self, roicoord = ROICoordinate(), pointsList = (0,0)):
         ShapeData.__init__(self);
         self.points = rstring(self.listToString(pointsList));
         self.setCoord(roicoord);

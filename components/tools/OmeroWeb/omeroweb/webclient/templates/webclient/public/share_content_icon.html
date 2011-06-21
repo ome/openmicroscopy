@@ -2,28 +2,107 @@
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
-	
+
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/jquery.ui.selectable.js" %}"></script>
+
     <script type="text/javascript">
         $(document).ready(function(){
+
+            var datatree = $.jstree._focused();
+
+            // double-click handler on image - launches image viewer
+            $("#dataIcons img").dblclick(function(event) {
+                {% if share.share.isOwned %}
+                openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id') )));
+                {% else %}
+                openPopup("/webclient/{{ share.share.id }}/img_detail/" + $(this).attr('id') + "/");
+                {% endif %}
+            });
             
+            // single click handler on image (container). Selection then update toolbar & metadata pane
+            $("#dataIcons li").click(function(event) {
+                handleClickSelection(event);
+            });
+
+            // handles selection for 'clicks' (not drags) including multi-select for shift and meta keys
+            var handleClickSelection = function(event) {
+                
+                var $clickedImage = $(event.target);
+                //var thumbs = $("#dataIcons img");
+                //var selIndex = thumbs.index(event.target);
+                
+                var thumbs = $("#dataIcons img");
+                var selIndex = thumbs.index(event.target);
+
+                // regular click - remove selection
+                //thumbs.parent().removeClass("ui-selected");
+                //$("#dataIcons li input").each(function(){
+                //    this.checked = false;
+                //});
+                // and select a single image
+                //$clickedImage.parent().addClass("ui-selected");
+                //primaryIndex = selIndex;
+                datatree.deselect_all();
+                thumbs.parent().removeClass("ui-selected");
+                
+                var branch = datatree._get_children('#'+$('#content_details').attr('rel'))
+                var selectee = $(branch[selIndex]);
+                $clickedImage.parent().addClass("ui-selected");
+                if(!datatree.is_selected(selectee)) datatree.select_node(selectee);
+                primaryIndex = selIndex;
+            }
+
+            // plugin to handle drag-select of images
+            $("ul#dataIcons").selectable({
+                filter: 'li',
+                distance: 2,
+                stop: function(){  
+                },
+                start: function(){
+                }
+            });
+            
+            
+
         });
+
     </script>
 
 {% if share.imgSize %}
 
-    <div id="toolbar" class="toolbar_noborder">
-        <input onclick="changeView('table');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">
-    </div>
+    <div id="toolbar" class="toolbar_noborder"></div>
     <div class="clear"> </div>
-        
+    
     <ul id="dataIcons">
-        
         {% for c in share.imageInShare %}
-        <li id="{{ c.id }}" title="{{ c.name }}"><em>{{ c.name }}</em>
-            <a href="{% url load_metadata_details "image" c.id share.share.id %}" target="metadata_details"><img id="{{ c.id }}" src="{% url render_thumbnail c.id share.share.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/></a>
+        <li id="{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
+            {% if share.share.isOwned %}
+            <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+            {% else %}
+            <img id="{{ c.id }}" src="{% url render_thumbnail c.id share.share.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+            {% endif %}
         </li>
-        {% endfor %}    
-        
+        {% endfor %}
     </ul>
 
 {% else %}

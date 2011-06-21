@@ -136,19 +136,19 @@ public class SqlActionTest extends AbstractManagedContextTest {
         final String n = e.getOmeName();
         loginRoot();
         iAdmin.changeUserPassword(n, "");
-        assertTrue(iAdmin.checkPassword(n, "anything"));
-        assertTrue(iAdmin.checkPassword(n, ""));
-        assertTrue(iAdmin.checkPassword(n, null));
+        assertTrue(iAdmin.checkPassword(n, "anything", false));
+        assertTrue(iAdmin.checkPassword(n, "", false));
+        assertTrue(iAdmin.checkPassword(n, null, false));
 
         iAdmin.changeUserPassword(n, "ome");
-        assertTrue(iAdmin.checkPassword(n, "ome"));
-        assertFalse(iAdmin.checkPassword(n, ""));
-        assertFalse(iAdmin.checkPassword(n, null));
+        assertTrue(iAdmin.checkPassword(n, "ome", false));
+        assertFalse(iAdmin.checkPassword(n, "", false));
+        assertFalse(iAdmin.checkPassword(n, null, false));
 
         iAdmin.changeUserPassword(n, null);
-        assertFalse(iAdmin.checkPassword(n, "ome"));
-        assertFalse(iAdmin.checkPassword(n, ""));
-        assertFalse(iAdmin.checkPassword(n, null));
+        assertFalse(iAdmin.checkPassword(n, "ome", false));
+        assertFalse(iAdmin.checkPassword(n, "", false));
+        assertFalse(iAdmin.checkPassword(n, null, false));
 
     }
 

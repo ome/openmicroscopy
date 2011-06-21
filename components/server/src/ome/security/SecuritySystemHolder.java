@@ -83,6 +83,10 @@ public class SecuritySystemHolder implements SecuritySystem {
         return choose().getEventContext();
     }
 
+    public EventContext getEventContext(boolean refresh) {
+        return choose().getEventContext(refresh);
+    }
+
     public Roles getSecurityRoles() {
         return choose().getSecurityRoles();
     }

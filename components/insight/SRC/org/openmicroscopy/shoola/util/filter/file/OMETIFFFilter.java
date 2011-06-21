@@ -62,14 +62,15 @@ public class OMETIFFFilter
 		extensions = new String[2];
 		extensions[0] = OME_TIF;
 		extensions[1] = OME_TIFF;
-		String s = "OME-TIFF (";
+		StringBuffer s = new StringBuffer();
+		s.append("OME-TIFF (");
 		for (int i = 0; i < extensions.length; i++) {
-			s += "*."+extensions[i];
+			s.append("*."+extensions[i]);
 			if (i < extensions.length-1)
-				s += ", ";
+				s.append(", ");
 		}
-		s += ")";
-		description = s;
+		s.append(")");
+		description = s.toString();
 	}
 	
 	/**

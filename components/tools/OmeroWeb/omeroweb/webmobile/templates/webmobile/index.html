@@ -13,36 +13,69 @@
 
 {% block content %}
 
-<div class="subtitle">
+<!-- Turning off timeline links for 4.3 release 
+
+<div class='sub-header'>
+    Recent Activity:
+</div>
+
+<div class='list-item'> 
+    <a href="{% url webmobile_recent 'all' client.user.getId %}">
+        <div class="tab-item">
+            Mine
+        </div>
+    </a>
+    
+    <a href="{% url webmobile_recent 'all' %}">
+        <div class="tab-item">
+            Group
+        </div>
+    </a>
+    
+    <a href="{% url webmobile_collab_my_data %}">
+        <div class="tab-item">
+            Collaborative
+        </div>
+    </a>
+    
+    {% if experimenter %}
+    <a href="{% url webmobile_recent 'all' experimenter.id %}">
+        <div class="tab-item">
+            {{ experimenter.getFullName }}'s
+        </div>
+    </a>
+    {% endif %}
+    <div style="clear:both"></div>
+</div>
+
+-->
+
+
+<div class='sub-header'>
     Browse{% if experimenter %} (owned by {{ experimenter.getFullName }}){% endif %}:
 </div>
 
-<div class="list-container"> 
+<div class='list-item'> 
     <a {% if experimenter %} href="{% url webmobile_projects experimenter.id %}" 
         {% else %} href="{% url webmobile_projects %}"{% endif %} >
-        <div class="item-name">
+        <div class="tab-item">
             Projects
         </div>
     </a>
-    
-    <a {% if experimenter %} href="{% url webmobile_screens experimenter.id %}" 
-        {% else %} href="{% url webmobile_screens %}"{% endif %} >
-        <div class="item-name">
-            Screens
-        </div>
-    </a>
-    
-    <a href="{% url webmobile_projects %}{% if experimenter %}?experimenter={{ experimenter.id }}{% endif %}">
-        <div class="item-name">
-            Tags
-        </div>
-    </a>
+
+    <div style="clear:both"></div>
 </div>
 
-<div class="list-container">
+<div class="sub-header">
+    Switch:
+</div>
+
+<div class='list-item'>
     <a href="{% url webmobile_groups_members %}">
-        <div class="item-name">Switch Group / User</div></a>
+        <div class="tab-item">User</div></a>
     </a>
+
+    <div style="clear:both"></div>
 </div>
 
 {% endblock %}

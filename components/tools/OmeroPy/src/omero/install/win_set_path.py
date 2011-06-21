@@ -19,17 +19,20 @@ from xml.dom import minidom
 from path import path
 import fileinput
 
-dir = path(".")
-cfg = dir / "etc" / "Windows.cfg"
-xml = dir / "etc" / "grid" / "windefault.xml"
+dummy = object()
 
-def win_set_path(new_name = dir.abspath(), old_name = r"c:\omero_dist"):
+def win_set_path(new_name = dummy, old_name = r"c:\omero_dist", dir = path(".")):
     """
     Parses the Windows cfg and xml files and
     replaces the default "c:\omero_dist" with the
     given value.
     """
 
+    cfg = dir / "etc" / "Windows.cfg"
+    xml = dir / "etc" / "grid" / "windefault.xml"
+
+    if new_name == dummy:
+        new_name = dir.abspath()
     if new_name is None or old_name is None:
         raise exceptions.Exception("Arguments cannot be None")
 

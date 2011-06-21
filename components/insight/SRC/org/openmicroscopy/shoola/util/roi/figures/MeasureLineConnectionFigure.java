@@ -52,7 +52,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.LineConnectionTextFigure;
 
 /** 
- * 
+ * Line connection with measurement.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -78,19 +78,19 @@ public class MeasureLineConnectionFigure
 	/** has the figure been modified. */
 	private boolean dirty;
 	
-	/** The bounds of the bezier figure. */
-	private ArrayList<Rectangle2D> 			boundsArray = new ArrayList<Rectangle2D>();
+	/** The bounds of the line figure. */
+	private List<Rectangle2D>	boundsArray;
 	
 	/** The list of lengths of sections on the line. */
-	private ArrayList<Double> 				lengthArray;
+	private List<Double>	lengthArray;
 	/** The list of angles of sections on the line. */
-	private ArrayList<Double> 				angleArray;
+	private List<Double> 	angleArray;
 
 	/** The list of X coords of the nodes on the line. */
-	private ArrayList<Double>				pointArrayX;
+	private List<Double>	pointArrayX;
 	
 	/** The list of Y coords of the nodes on the line. */
-	private ArrayList<Double>				pointArrayY;
+	private List<Double>	pointArrayY;
 	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */
 	protected 	ROI					roi;
@@ -125,10 +125,13 @@ public class MeasureLineConnectionFigure
 	public MeasureLineConnectionFigure(String text, boolean readOnly)
 	{
 		super(text);
+		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
 		lengthArray = new ArrayList<Double>();
 		angleArray = new ArrayList<Double>();
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
+		boundsArray = new ArrayList<Rectangle2D>();
 		shape = null;
 		roi = null;
 		status = IDLE;
@@ -150,16 +153,16 @@ public class MeasureLineConnectionFigure
 		{
 			if (getPointCount() == 2)
 			{
-				NumberFormat formatter = new DecimalFormat("###.#");
+				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 				double angle = getAngle(0, 1);
-				if(angle>90)
+				if (angle > 90)
 					angle = Math.abs(angle-180);
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = ((Double)this.getAttribute(
-						MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
+				double sz = ( Double) getAttribute(
+						MeasurementAttributes.FONT_SIZE);
+				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle,
 						g);
 				Point2D.Double lengthPoint = getLengthPosition(0, 1);
@@ -174,32 +177,35 @@ public class MeasureLineConnectionFigure
 			}
 			for (int x = 1 ; x < this.getPointCount()-1; x++)
 			{
-				NumberFormat formatter = new DecimalFormat("###.#");
+				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 				double angle = getAngle(x-1, x, x+1);
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = ((Double) getAttribute(
-						MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
-				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle, g);
+				double sz = (Double) getAttribute(
+						MeasurementAttributes.FONT_SIZE);
+				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int)sz));
+				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle,
+						g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x, 
 						getPoint(x).y, rect.getWidth(), rect.getHeight());
-				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.setColor(
+						MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
 				boundsArray.add(bounds);
 			}
 			for (int x = 1 ; x < this.getPointCount(); x++)
 			{
-				NumberFormat formatter = new DecimalFormat("###.#");
+				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 				double length = getLength(x-1, x);
 				lengthArray.add(length);
 				String lineLength = formatter.format(length);
 				lineLength = addUnits(lineLength);
 				double sz = ((Double)
 						getAttribute(MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
-				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineLength, g);
+				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
+				Rectangle2D rect = g.getFontMetrics().getStringBounds(
+						lineLength, g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x-15, 
 						getPoint(x).y-15,rect.getWidth()+30, rect.getHeight()+30);
 				Point2D.Double lengthPoint = getLengthPosition(x-1, x);
@@ -219,22 +225,22 @@ public class MeasureLineConnectionFigure
 	}
 	
 	/**
-	 * Overridden to stop updating shape if read only
+	 * Overridden to stop updating shape if read-only
 	 * @see AbstractAttributedFigure#transform(AffineTransform)
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if(!readOnly)
+		if (!readOnly)
 			super.transform(tx);
 	}
 		
 	/**
-	 * Overridden to stop updating shape if readonly.
+	 * Overridden to stop updating shape if read-only.
 	 * @see AbstractAttributedFigure#setBounds(Double, Double)
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if(!readOnly)
+		if (!readOnly)
 			super.setBounds(anchor, lead);
 	}
 	
@@ -260,7 +266,7 @@ public class MeasureLineConnectionFigure
 	 * Get the length array. These are the lengths of each segment of the line. 
 	 * @return see above.
 	 */
-	public ArrayList<Double> getLengthArray()
+	public List<Double> getLengthArray()
 	{
 		return lengthArray;
 	}
@@ -269,7 +275,7 @@ public class MeasureLineConnectionFigure
 	 * Get the angle array. These are the angles between each segment of the line. 
 	 * @return see above.
 	 */
-	public ArrayList<Double> getAngleArray()
+	public List<Double> getAngleArray()
 	{
 		return angleArray;
 	}
@@ -306,30 +312,34 @@ public class MeasureLineConnectionFigure
 	public Rectangle2D.Double getDrawingArea()
 	{
 		Rectangle2D.Double newBounds = super.getDrawingArea();
-		if(boundsArray!=null)
-			for(int i = 0 ; i < boundsArray.size(); i++)
+		if (boundsArray != null)
+			for (int i = 0 ; i < boundsArray.size(); i++)
 			{
 				Rectangle2D bounds = boundsArray.get(i);
-				if(newBounds.getX()>bounds.getX())
+				if (newBounds.getX() > bounds.getX())
 				{
 					double diff = newBounds.x-bounds.getX();
 					newBounds.x = bounds.getX();
 					newBounds.width = newBounds.width+diff;
 				}
-				if(newBounds.getY()>bounds.getY())
+				if (newBounds.getY() > bounds.getY())
 				{
 					double diff = newBounds.y-bounds.getY();
 					newBounds.y = bounds.getY();
 					newBounds.height = newBounds.height+diff;
 				}
-				if(bounds.getX()+bounds.getWidth()>newBounds.getX()+newBounds.getWidth())
+				if (bounds.getX()+bounds.getWidth() > 
+					newBounds.getX()+newBounds.getWidth())
 				{
-					double diff = bounds.getX()+bounds.getWidth()-newBounds.getX()+newBounds.getWidth();
+					double diff = bounds.getX()+
+					bounds.getWidth()-newBounds.getX()+newBounds.getWidth();
 					newBounds.width = newBounds.width+diff;
 				}
-				if(bounds.getY()+bounds.getHeight()>newBounds.getY()+newBounds.getHeight())
+				if (bounds.getY()+bounds.getHeight() > 
+				newBounds.getY()+newBounds.getHeight())
 				{
-					double diff = bounds.getY()+bounds.getHeight()-newBounds.getY()+newBounds.getHeight();
+					double diff = bounds.getY()+bounds.getHeight()-
+					newBounds.getY()+newBounds.getHeight();
 					newBounds.height = newBounds.height+diff;
 				}
 			}
@@ -362,15 +372,16 @@ public class MeasureLineConnectionFigure
 	 */
 	private Point2D.Double getPt(int i)
 	{
-		if(shape != null)
-			if(units.isInMicrons())
+		if (shape != null) {
+			if (units.isInMicrons())
 			{
 				Point2D.Double pt = getPoint(i);
 				return new Point2D.Double(pt.getX()*units.getMicronsPixelX(), 
 					pt.getY()*units.getMicronsPixelY());
 			}
-			else
-				return getPoint(i);
+			return getPoint(i);
+		}
+			
 		return getPoint(i);
 	}
 	
@@ -382,9 +393,9 @@ public class MeasureLineConnectionFigure
 	 */
 	public double getLength(int i , int j)
 	{
-			Point2D.Double pt1 = getPt(i);
-			Point2D.Double pt2 = getPt(j);
-			return pt1.distance(pt2);
+		Point2D.Double pt1 = getPt(i);
+		Point2D.Double pt2 = getPt(j);
+		return pt1.distance(pt2);
 	}
 	
 	/**
@@ -399,8 +410,10 @@ public class MeasureLineConnectionFigure
 		Point2D p0 = getPoint(i);
 		Point2D p1 = getPoint(j);
 		Point2D p2 = getPoint(k);
-		Point2D v0 = new Point2D.Double(p0.getX()-p1.getX(), p0.getY()-p1.getY());
-		Point2D v1 = new Point2D.Double(p2.getX()-p1.getX(), p2.getY()-p1.getY());
+		Point2D v0 = new Point2D.Double(p0.getX()-p1.getX(), 
+				p0.getY()-p1.getY());
+		Point2D v1 = new Point2D.Double(p2.getX()-p1.getX(),
+				p2.getY()-p1.getY());
 		return Math.toDegrees(Math.acos(dotProd(v0, v1)));
 	}
 	
@@ -414,7 +427,8 @@ public class MeasureLineConnectionFigure
 	{
 		Point2D p0 = getPoint(i);
 		Point2D p1 = getPoint(j);
-		Point2D v0 = new Point2D.Double(p0.getX()-p1.getX(), p0.getY()-p1.getY());
+		Point2D v0 = new Point2D.Double(p0.getX()-p1.getX(), 
+				p0.getY()-p1.getY());
 		Point2D v1 = new Point2D.Double(1,0);
 		return Math.toDegrees(Math.acos(dotProd(v0, v1)));
 	}
@@ -438,28 +452,19 @@ public class MeasureLineConnectionFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getROI()
 	 */
-	public ROI getROI() 
-	{
-		return roi;
-	}
+	public ROI getROI() { return roi; }
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getROIShape()
 	 */
-	public ROIShape getROIShape() 
-	{
-		return shape;
-	}
+	public ROIShape getROIShape() { return shape; }
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#setROI(ROI)
 	 */
-	public void setROI(ROI roi) 
-	{
-		this.roi = roi;
-	}
+	public void setROI(ROI roi) { this.roi = roi; }
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
@@ -556,7 +561,7 @@ public class MeasureLineConnectionFigure
 	public int getPointCount() { return getNodeCount(); }
 	
 	/**
-	 * Overridden method for bezier, make public what 7.0 made private.
+	 * Overridden method for Line, make public what 7.0 made private.
 	 */
 	public void removeAllNodes()
 	{
@@ -646,5 +651,3 @@ public class MeasureLineConnectionFigure
 		return figListeners;
 	}
 }
-
-

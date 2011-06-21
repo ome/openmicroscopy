@@ -79,7 +79,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomCmd;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
@@ -100,6 +99,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.ChannelData;
+import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * The {@link ImViewer} view.
@@ -177,7 +178,7 @@ class ImViewerUI
 	/** The status bar. */
 	private StatusBar       					statusBar;
 
-	/** Lens component which will control all behaviour of the lens. */
+	/** Lens component which will control all behavior of the lens. */
 	private LensComponent						lens;
 
 	/** The tool bar. */
@@ -358,7 +359,8 @@ class ImViewerUI
 		JMenuBar menuBar = new JMenuBar(); 
 		menuBar.add(createControlsMenu(pref));
 		menuBar.add(createViewMenu(pref));
-		menuBar.add(createZoomMenu(pref, true));
+		if (!model.isBigImage())
+			menuBar.add(createZoomMenu(pref, true));
 		menuBar.add(createShowViewMenu());
 		TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
 		//menuBar.add(tb.getWindowsMenu());
@@ -639,8 +641,29 @@ class ImViewerUI
 	 */
 	private JMenu createZoomMenu(ViewerPreferences pref, boolean full)
 	{
-		ViewerAction action = controller.getAction(ImViewerControl.ZOOM_25);
-		JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
+		ViewerAction action;
+		JCheckBoxMenuItem item;
+		if (model.isBigImage()) {
+			action = controller.getAction(ImViewerControl.ZOOM_100);
+			item = new JCheckBoxMenuItem();
+			item.setAction(action); 
+			zoomMenu.add(item);
+			action = controller.getAction(ImViewerControl.ZOOM_125);
+			item = new JCheckBoxMenuItem();
+			item.setAction(action); 
+			zoomMenu.add(item);
+			action = controller.getAction(ImViewerControl.ZOOM_150);
+			item = new JCheckBoxMenuItem();
+			item.setAction(action); 
+			zoomMenu.add(item);
+			action = controller.getAction(ImViewerControl.ZOOM_175);
+			item = new JCheckBoxMenuItem();
+			item.setAction(action); 
+			zoomMenu.add(item);
+			return zoomMenu;
+		}
+		action = controller.getAction(ImViewerControl.ZOOM_25);
+		item = new JCheckBoxMenuItem(action);
 		zoomMenu.add(item);
 		zoomingGroup.add(item);
 		action = controller.getAction(ImViewerControl.ZOOM_50);
@@ -656,7 +679,7 @@ class ImViewerUI
 		item.setAction(action); 
 		zoomMenu.add(item);
 		zoomingGroup.add(item);
-		if (full) {
+		//if (full) {
 			action = controller.getAction(ImViewerControl.ZOOM_125);
 			item = new JCheckBoxMenuItem(action);
 			zoomMenu.add(item);
@@ -689,7 +712,7 @@ class ImViewerUI
 			item = new JCheckBoxMenuItem(action);
 			zoomMenu.add(item);
 			zoomingGroup.add(item);
-		}
+		//}
 		
 		action = controller.getAction(ImViewerControl.ZOOM_FIT_TO_WINDOW);
 		item = new JCheckBoxMenuItem(action);
@@ -754,6 +777,8 @@ class ImViewerUI
 		Dimension d = model.computeSize();
 		int sizeX = d.width;
 		int sizeY = d.height;
+		/*
+		
 		double f = model.getZoomFactor();
 		if (f > 0) {
 			sizeX = (int) (sizeX*f);
@@ -762,6 +787,7 @@ class ImViewerUI
 			setZoomFactor(factor, ZoomCmd.getZoomIndex(f));
 			setMagnificationStatus(factor);
 		}
+		*/
 		browser.setComponentsSize(sizeX, sizeY);
 		tabs = new ClosableTabbedPane(JTabbedPane.TOP, 
 									JTabbedPane.WRAP_TAB_LAYOUT);
@@ -799,11 +825,6 @@ class ImViewerUI
 			tabs.insertTab(browser.getGridViewTitle(), 
 					browser.getGridViewIcon(), gridViewPanel, "", 
 					ImViewer.GRID_INDEX);
-			/*
-			if (model.isBigImage()) {
-				controller.setGridMagnificationFactor(0.1);
-			}
-			*/
 		}
 		
 		double[][] tl2 = {{TableLayout.PREFERRED, TableLayout.FILL}, 
@@ -1032,6 +1053,7 @@ class ImViewerUI
 		} 
 		if (reset) {
 			setSize(h, h);
+			/*
 			model.setZoomFactor(ZoomAction.ZOOM_FIT_FACTOR, false);
 			//Depending on the size 
 			clearZoomMenu(zoomingGroup, zoomMenu);
@@ -1039,6 +1061,7 @@ class ImViewerUI
 			ViewerPreferences pref = ImViewerFactory.getPreferences();
 			createZoomMenu(pref, false);
 			controlPane.resetZoomValues();
+			*/
 		}
 	}
 	
@@ -1090,7 +1113,6 @@ class ImViewerUI
 		statusBar = new StatusBar(model);
 		initSplitPanes();
 		refInsets = rendererSplit.getInsets();
-		addComponentListener(controller);
 		planes = new HashMap<Integer, PlaneInfoComponent>();
 		ImageIcon icon = IconManager.getInstance().getImageIcon(
 				IconManager.VIEWER);
@@ -1132,7 +1154,7 @@ class ImViewerUI
 	 */
 	void setZoomFactor(double factor, int zoomIndex)
 	{
-		setMagnificationStatus(factor);
+		setMagnificationStatus(factor, zoomIndex);
 		JCheckBoxMenuItem b;
 		Enumeration e;
 		Action a;
@@ -1154,14 +1176,33 @@ class ImViewerUI
 	 * selected tabbedPane.
 	 * 
 	 * @param factor The value to set.
+	 * @param zoomIndex The index of the selected zoomFactor.
 	 */
-	void setMagnificationStatus(double factor)
+	void setMagnificationStatus(double factor, int zoomIndex)
 	{
 		if (statusBar == null) return;
 		if (factor != ZoomAction.ZOOM_FIT_FACTOR)
 			statusBar.setRigthStatus("x"+
 					Math.round(factor*model.getOriginalRatio()*100)/100.0);
 		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
+		if (model.isBigImage()) {
+			int levels = model.getResolutionLevels();
+			double f = (double) (100/levels);
+			int value = levels;
+			factor = 100;
+			if (zoomIndex != (levels-1)) {
+				while (value >= 0) {
+					if (value == zoomIndex) {
+						factor = (value+1)*f;
+						value = -1;
+					}
+					value--;
+				}
+			}
+			f = Math.round(factor)/100.0;
+			//model.setZoomFactor(f, false);
+			statusBar.setRigthStatus("x: "+f);
+		}
 	}
 	
 	/**
@@ -1242,7 +1283,7 @@ class ImViewerUI
 		controlPane.onStateChange(b); 
 		toolBar.onStateChange(b); 
 	}
-
+	
 	/** Sets the default text of the status bar. */
 	void setLeftStatus()
 	{
@@ -1492,6 +1533,7 @@ class ImViewerUI
 				firstTime = true;
 				lens = new LensComponent(this, 
 						ImViewerAgent.hasOpenGLSupport());
+				lens.setImageName(model.getImageName());
 				lens.setXYPixelMicron(model.getPixelsSizeX(), 
 						model.getPixelsSizeY());
 				lens.addPropertyChangeListener(
@@ -1601,7 +1643,7 @@ class ImViewerUI
 			}
 			if (img != null) lens.resetLens(img, f, lensX, lensY);  
 		}
-		model.getBrowser().addComponent(c, index);
+		model.getBrowser().addComponent(c, index, true);
 		scrollLens();
 		UIUtilities.setLocationRelativeTo(this, lens.getZoomWindow());
 		lens.setVisible(b);
@@ -1738,16 +1780,19 @@ class ImViewerUI
 				j = i;
 		}
 		if (j != -1) menuBar.remove(j);
+		double f;
 		switch (index) {
 			case ImViewer.GRID_INDEX:
 				if (j != -1) menuBar.add(zoomGridMenu, j);
-				setMagnificationStatus(model.getBrowser().getGridRatio());
+				f = model.getBrowser().getGridRatio();
+				setMagnificationStatus(f, ZoomAction.getIndex(f));
 				break;
 			case ImViewer.PROJECTION_INDEX:
 			case ImViewer.VIEW_INDEX:
 				default:
 				if (j != -1) menuBar.add(zoomMenu, j);
-				setMagnificationStatus(model.getZoomFactor());
+				f = model.getZoomFactor();
+				setMagnificationStatus(f, ZoomAction.getIndex(f));
 		}
 		int oldIndex = model.getTabbedIndex();
 		model.setTabbedIndex(index);
@@ -1789,6 +1834,12 @@ class ImViewerUI
 		c.setBounds(c.getBounds());
 	}
 
+	/** Invokes when the component is resized.*/
+	void onComponentResized()
+	{
+		model.getBrowser().onComponentResized();
+	}
+	
 	/**
 	 * Sets the <code>enable</code> flag of the slider used to select
 	 * the current z-section and timepoint.
@@ -2082,7 +2133,7 @@ class ImViewerUI
 	void setGridMagnificationFactor(double factor)
 	{
 		if (model.getTabbedIndex() == ImViewer.GRID_INDEX)
-			setMagnificationStatus(factor);
+			setMagnificationStatus(factor, ZoomAction.getIndex(factor));
 		JCheckBoxMenuItem b;
 		Enumeration e;
 		Action a;
@@ -2326,6 +2377,26 @@ class ImViewerUI
 	}
 
 	/**
+     * Returns the parent of the image or <code>null</code> 
+     * if no context specified.
+     * 
+     * @return See above.
+     */
+    DataObject getParentObject() { return model.getParent(); }
+    
+	/**
+	 * Returns the image to view.
+	 * 
+	 * @return See above.
+	 */
+	ImageData getImage() { return model.getImage(); }
+	/**
+	 * Returns the ID of the viewed image.
+	 * 
+	 * @return See above.
+	 */
+	long getImageID() { return model.getImageID(); }
+	/**
 	 * Returns <code>true</code> if the passed object is one of the
 	 * channel buttons, <code>false</code> otherwise.
 	 * 
@@ -2426,6 +2497,19 @@ class ImViewerUI
 		
 	}
 
+	/** Invokes when the rendering control is loaded. */
+	void onRndLoaded()
+	{
+		clearZoomMenu(zoomingGroup, zoomMenu);
+		clearZoomMenu(zoomingGridGroup, zoomGridMenu);
+		ViewerPreferences pref = ImViewerFactory.getPreferences();
+		createZoomMenu(pref, false);
+		int index = ZoomAction.getIndex(model.getZoomFactor());
+		if (model.isBigImage()) index = model.getSelectedResolutionLevel();
+		setMagnificationStatus(model.getZoomFactor(), index);
+		controlPane.resetZoomValues();
+	}
+	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

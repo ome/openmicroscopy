@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 // Third-party libraries
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.FILL_GRADIENT;
@@ -122,11 +123,13 @@ public class OutputStrategy
 	/**
 	 * In this hash map we store all elements to which we have assigned an id.
 	 */
-	private HashMap<IXMLElement, String>			identifiedElements;
+	private Map<IXMLElement, String>			identifiedElements;
 	
+	/** Creates a new instance. */
 	OutputStrategy()
 	{
-		nextId=0;
+		nextId = 0;
+		identifiedElements = new HashMap<IXMLElement, String>();
 	}
 
 	/**
@@ -189,38 +192,61 @@ public class OutputStrategy
 			writeROIShape(roiElement, (ROIShape) iterator.next());
 	}
 	
-	
+	/**
+	 * Writes the annotations.
+	 * 
+	 * @param roiElement The element to handle.
+	 * @param roi The roi.
+	 */
 	private void writeROIAnnotations(IXMLElement roiElement, ROI roi)
 	{
 		roiElement.setAttribute(IOConstants.ROI_ID_ATTRIBUTE, roi.getID()+"");
 		Map<AnnotationKey, Object> annotationMap=roi.getAnnotation();
-		Iterator iterator=annotationMap.keySet().iterator();
-		while (iterator.hasNext())
+		Iterator i = annotationMap.entrySet().iterator();
+		Entry entry;
+		AnnotationKey key;
+		XMLElement annotation;
+		while (i.hasNext())
 		{
-			AnnotationKey key=(AnnotationKey) iterator.next();
-			XMLElement annotation=new XMLElement(key.getKey());
-			addAttributes(annotation, annotationMap.get(key));
+			entry = (Entry) i.next();
+			key = (AnnotationKey) entry.getKey();
+			annotation = new XMLElement(key.getKey());
+			addAttributes(annotation, entry.getValue());
 		}
 	}
 	
-	
+	/**
+	 * Writes the shapes.
+	 * 
+	 * @param shapeElement The XML element to handle.
+	 * @param shape The shape.
+	 */
 	private void writeROIShapeAnnotations(IXMLElement shapeElement,
 			ROIShape shape)
 	{
 		Map<AnnotationKey, Object> annotationMap=shape.getAnnotation();
 		IXMLElement annotationLeaf=new XMLElement(IOConstants.ANNOTATION_TAG);
-		Iterator iterator=annotationMap.keySet().iterator();
-		while (iterator.hasNext())
+		Iterator i = annotationMap.entrySet().iterator();
+		Entry entry;
+		AnnotationKey key;
+		XMLElement annotation;
+		while (i.hasNext())
 		{
-			AnnotationKey key=(AnnotationKey) iterator.next();
-			XMLElement annotation=new XMLElement(key.getKey());
-			addAttributes(annotation, annotationMap.get(key));
+			entry = (Entry) i.next();
+			key = (AnnotationKey) entry.getKey();
+			annotation = new XMLElement(key.getKey());
+			addAttributes(annotation, entry.getValue());
 			annotationLeaf.addChild(annotation);
 		}
 		shapeElement.addChild(annotationLeaf);
 	}
 	
-	
+	/**
+	 * Adds the attributes to the passed object.
+	 * 
+	 * @param annotation The annotation to handle.
+	 * @param value The value.
+	 */
 	private void addAttributes(XMLElement annotation, Object value)
 	{
 		if (value instanceof Double||value instanceof Float
@@ -513,21 +539,27 @@ public class OutputStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		
-		String pointsValues=
+		String pointsValues =
 			toPoints(points.toArray(new Point2D.Double[points.size()]));
-		String points1Values=
+		String points1Values =
 			toPoints(points1.toArray(new Point2D.Double[points1.size()]));
-		String points2Values=
+		String points2Values =
 			toPoints(points2.toArray(new Point2D.Double[points2.size()]));
-		String maskValues = "";
-		for( int i = 0 ; i < maskList.size()-1; i++)
-			maskValues = maskValues + maskList.get(i)+",";
-		maskValues = maskValues+maskList.get(maskList.size()-1)+"";
+		StringBuffer maskValues = new StringBuffer();
+		for( int i = 0 ; i < maskList.size()-1; i++) {
+			maskValues.append(maskList.get(i));
+			maskValues.append(",");
+		}
+			
+		maskValues.append(maskList.get(maskList.size()-1));
 
 		bezierElement.setAttribute(IOConstants.POINTS_ATTRIBUTE, pointsValues);
-		bezierElement.setAttribute(IOConstants.POINTS_CONTROL1_ATTRIBUTE, points1Values);
-		bezierElement.setAttribute(IOConstants.POINTS_CONTROL2_ATTRIBUTE, points2Values);
-		bezierElement.setAttribute(IOConstants.POINTS_MASK_ATTRIBUTE, maskValues);
+		bezierElement.setAttribute(IOConstants.POINTS_CONTROL1_ATTRIBUTE, 
+				points1Values);
+		bezierElement.setAttribute(IOConstants.POINTS_CONTROL2_ATTRIBUTE, 
+				points2Values);
+		bezierElement.setAttribute(IOConstants.POINTS_MASK_ATTRIBUTE, 
+				maskValues.toString());
 
 		writeShapeAttributes(bezierElement, fig.getAttributes());
 		writeTransformAttribute(bezierElement, fig.getAttributes());
@@ -554,21 +586,26 @@ public class OutputStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		
-		String pointsValues=
+		String pointsValues =
 			toPoints(points.toArray(new Point2D.Double[points.size()]));
-		String points1Values=
+		String points1Values =
 			toPoints(points1.toArray(new Point2D.Double[points1.size()]));
-		String points2Values=
+		String points2Values =
 			toPoints(points2.toArray(new Point2D.Double[points2.size()]));
-		String maskValues = "";
-		for( int i = 0 ; i < maskList.size()-1; i++)
-			maskValues = maskValues + maskList.get(i)+",";
-		maskValues = maskValues+maskList.get(maskList.size()-1)+"";
+		StringBuffer maskValues = new StringBuffer();
+		for( int i = 0 ; i < maskList.size()-1; i++) {
+			maskValues.append(maskList.get(i));
+			maskValues.append(",");
+		}
+		maskValues.append(maskList.get(maskList.size()-1));
 
 		bezierElement.setAttribute(IOConstants.POINTS_ATTRIBUTE, pointsValues);
-		bezierElement.setAttribute(IOConstants.POINTS_CONTROL1_ATTRIBUTE, points1Values);
-		bezierElement.setAttribute(IOConstants.POINTS_CONTROL2_ATTRIBUTE, points2Values);
-		bezierElement.setAttribute(IOConstants.POINTS_MASK_ATTRIBUTE, maskValues);
+		bezierElement.setAttribute(IOConstants.POINTS_CONTROL1_ATTRIBUTE, 
+				points1Values);
+		bezierElement.setAttribute(IOConstants.POINTS_CONTROL2_ATTRIBUTE, 
+				points2Values);
+		bezierElement.setAttribute(IOConstants.POINTS_MASK_ATTRIBUTE, 
+				maskValues.toString());
 
 	
 		writeShapeAttributes(bezierElement, fig.getAttributes());

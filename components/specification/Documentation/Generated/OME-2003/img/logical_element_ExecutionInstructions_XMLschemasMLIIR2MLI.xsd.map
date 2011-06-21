@@ -1,0 +1,26 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_ExecutionInstructions_XMLschemasMLIIR2MLI.xsd'>
+ <area
+  shape='rect'
+  alt='element_FunctionInputs'
+  coords='478,36,870,79'
+  href='MLI.xsd.html#element_FunctionInputs'/>
+
+ <area
+  shape='rect'
+  alt='element_FunctionOutputs'
+  coords='478,89,870,132'
+  href='MLI.xsd.html#element_FunctionOutputs'/>
+
+ <area
+  shape='rect'
+  alt='element_Templates'
+  coords='478,142,870,218'
+  href='MLI.xsd.html#element_Templates'/>
+
+ <area
+  shape='rect'
+  alt='element_VectorDecoder'
+  coords='478,228,870,287'
+  href='MLI.xsd.html#element_VectorDecoder'/>
+
+</map>

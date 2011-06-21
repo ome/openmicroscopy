@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.util;
 
 //Java imports
 import java.awt.Component;
-
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -34,6 +33,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.ImageTableNode;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -41,7 +41,7 @@ import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
- * Renders. 
+ * Renders the table. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,9 +57,6 @@ public class ImageTableRenderer
 	extends DefaultTreeCellRenderer
 {
 
-	/** Reference to the <code>Image</code> icon. */
-	private static final Icon IMAGE_ICON;
-	
 	/** Reference to the <code>Dataset</code> icon. */
 	private static final Icon DATASET_ICON;
 	
@@ -68,7 +65,6 @@ public class ImageTableRenderer
 	
 	static { 
 		IconManager icons = IconManager.getInstance();
-		IMAGE_ICON = icons.getIcon(IconManager.IMAGE);
 		DATASET_ICON = icons.getIcon(IconManager.DATASET);
 		PROJECT_ICON = icons.getIcon(IconManager.PROJECT);
 	}
@@ -76,7 +72,7 @@ public class ImageTableRenderer
 	/** Creates a new instance. */
 	public ImageTableRenderer()
 	{
-		setOpaque(true);
+		setOpaque(false);
 	}
 	
 	/**
@@ -89,17 +85,13 @@ public class ImageTableRenderer
 			Object value, boolean selected, boolean expanded, 
 			boolean leaf, int row, boolean hasFocus)
 	{
-		if (selected) {
-			if (value instanceof ImageTableNode) {
-				setBackground(((ImageTableNode) value).getHighLight());
-			} else setBackground(getBackgroundSelectionColor());
-		} else setBackground(getBackgroundNonSelectionColor());
 		if (!(value instanceof ImageTableNode)) return this;
 		ImageTableNode node = (ImageTableNode) value;
 		Object v = node.getHierarchyObject();
 		if (v instanceof ImageData) {
-			setIcon(IMAGE_ICON);
-			setText(node.getUserObject().toString());
+			setIcon(null);
+			setText(((ImageDisplay) node.getUserObject()).toString());
+			setToolTipText(node.getToolTip());
 		} else if (v instanceof DatasetData) {
 			setIcon(DATASET_ICON);
 			setText(node.getUserObject().toString());

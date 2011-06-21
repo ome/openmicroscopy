@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportableObject 
+ * org.openmicroscopy.shoola.env.data.model.ImportableObject 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -25,14 +25,36 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import loci.formats.FormatReader;
+import loci.formats.in.BDReader;
+import loci.formats.in.CellWorxReader;
+import loci.formats.in.CellomicsReader;
+import loci.formats.in.FlexReader;
+import loci.formats.in.InCell3000Reader;
+import loci.formats.in.InCellReader;
+import loci.formats.in.MIASReader;
+import loci.formats.in.MetamorphTiffReader;
+import loci.formats.in.ScanrReader;
+import loci.formats.in.ScreenReader;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -52,11 +74,120 @@ import pojos.TagAnnotationData;
 public class ImportableObject
 {
 
+	/** The default name for the dataset. */
+	public static final String DEFAULT_DATASET_NAME;
+	
+	/** 
+	 * The collection of HCS files extensions to check before importing. 
+	 */
+	public static final Set<String> HCS_FILES_EXTENSION;
+
+	/** 
+	 * The collection of arbitrary files extensions to check
+	 * before importing. If a file has one of the extensions, we need
+	 * to check the import candidates.
+	 */
+	private static final List<String> ARBITRARY_FILES_EXTENSION;
+	
+	/** 
+	 * The collection of HCS format. 
+	 */
+	public static final List<String> HCS_DOMAIN;
+	
+	/** The filter used to exclude extensions.*/
+	public static final TIFFFilter	FILTER;
+	
+	static {
+		FILTER = new TIFFFilter();
+		DEFAULT_DATASET_NAME = UIUtilities.formatDate(null, 
+				UIUtilities.D_M_Y_FORMAT);
+		HCS_FILES_EXTENSION = new HashSet<String>();
+		HCS_DOMAIN = new ArrayList<String>();
+		FormatReader reader = new BDReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new CellomicsReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new CellWorxReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new FlexReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		//reader = new InCell3000Reader();
+		//populateExtensions(reader.getSuffixes());
+		//HCS_DOMAIN.add(reader.getFormat());
+		reader = new InCellReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new MetamorphTiffReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new MIASReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new ScanrReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		reader = new ScreenReader();
+		populateExtensions(reader.getSuffixes());
+		HCS_DOMAIN.add(reader.getFormat());
+		
+		//
+		ARBITRARY_FILES_EXTENSION = new ArrayList<String>();
+		ARBITRARY_FILES_EXTENSION.add("text");
+		ARBITRARY_FILES_EXTENSION.add("xml");
+		ARBITRARY_FILES_EXTENSION.add("exp");
+		ARBITRARY_FILES_EXTENSION.add("log");
+		ARBITRARY_FILES_EXTENSION.add("ini");
+		ARBITRARY_FILES_EXTENSION.add(TIFFFilter.TIFF);
+		ARBITRARY_FILES_EXTENSION.add(TIFFFilter.TIF);
+	}
+	
+	/**
+	 * Adds the specified suffixes to the list.
+	 * 
+	 * @param suffixes The values to handle.
+	 */
+	private static void populateExtensions(String[] suffixes)
+	{
+		if (suffixes != null) {
+			String s;
+			for (int i = 0; i < suffixes.length; i++) {
+				s = suffixes[i];
+				if (s != null && s.trim().length() > 0)
+					HCS_FILES_EXTENSION.add(s);
+			}
+		}
+	}
+	
+	
+	/**
+	 * Returns <code>true</code> if the extension of the specified file
+	 * is arbitrary and so requires to use the import candidates,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param f The file to handle.
+	 * @return See above.
+	 */
+	public static boolean isArbitraryFile(File f)
+	{
+		if (f == null) return false;
+		String name = f.getName();
+		if (!name.contains(".")) return false; 	
+		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
+		return ARBITRARY_FILES_EXTENSION.contains(ext);
+	}
+	
 	/** The collection of files to import. */
 	private List<ImportableFile> files;
 	
-	/** The depth. */
-	private int			depth;
+	/** The depth when the name is overridden. */
+	private int			depthForName;
+	
+	/** The depth used when scanning a folder. */
+	private int			scanningDepth;
 	
 	/** 
 	 * Flag indicating to override the name set by B-F when importing the data. 
@@ -66,23 +197,43 @@ public class ImportableObject
 	/** The collection of tags. */
 	private Collection<TagAnnotationData> tags;
 	
-	/** The containers where to import the data if set. */
-	private List<DataObject> containers;
-	
 	/** The array containing pixels size.*/
 	private double[]	pixelsSize;
 	
 	/** The type to create if the folder has to be saved as a container. */
 	private Class type;
-	
-	/** The dataset where to import the orphaned images. */
-	private DatasetData defaultDataset;
-	
+
 	/** Flag indicating to load the thumbnails. */ 
 	private boolean loadThumbnail;
 	
 	/** The nodes of reference. */
 	private List<Object> refNodes;
+	
+	/** The collection of new objects. */
+	private List<DataObject> newObjects;
+
+	/** The collection of new object. */
+	private Map<Long, List<DatasetData>> projectDatasetMap;
+
+	/**
+	 * Returns the name of the object.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	private String getObjectName(DataObject object)
+	{
+		if (object instanceof DatasetData) {
+			return ((DatasetData) object).getName();
+		}
+		if (object instanceof ProjectData) {
+			return ((ProjectData) object).getName();
+		}
+		if (object instanceof ScreenData) {
+			return ((ScreenData) object).getName();
+		}
+		return "";
+	}
 	
 	/**
 	 * Creates a new instance.
@@ -97,8 +248,10 @@ public class ImportableObject
 		this.files = files;
 		this.overrideName = overrideName;
 		type = DatasetData.class;
-		depth = -1;
+		depthForName = -1;
 		loadThumbnail = true;
+		newObjects = new ArrayList<DataObject>();
+		projectDatasetMap = new HashMap<Long, List<DatasetData>>();
 	}
 	
 	/**
@@ -121,41 +274,11 @@ public class ImportableObject
 	public boolean isLoadThumbnail() { return loadThumbnail; }
 	
 	/**
-	 * Sets the dataset where to import the orphaned images.
-	 * 
-	 * @param defaultDataset The value to set.
-	 */
-	public void setDefaultDataset(DatasetData defaultDataset)
-	{
-		this.defaultDataset = defaultDataset;
-	}
-	
-	/**
-	 * Returns the dataset where to import the orphaned images.
-	 * 
-	 * @return See above.
-	 */
-	public DatasetData getDefaultDataset()
-	{
-		return defaultDataset;
-	}
-	
-	/**
 	 * Sets the type to use when creating a folder as container.
 	 * 
 	 * @param type The type to use.
 	 */
 	public void setType(Class type) { this.type = type; }
-	
-	/**
-	 * Sets the containers where to import the data if set.
-	 * 
-	 * @param containers The containers to set.
-	 */
-	public void setContainers(List<DataObject> containers)
-	{
-		this.containers = containers;
-	}
 	
 	/**
 	 * Sets the default size of the pixels if the value is not found.
@@ -178,18 +301,38 @@ public class ImportableObject
 	}
 
 	/**
-	 * Sets the depth.
+	 * Sets the depth used scanning a folder.
 	 * 
 	 * @param depth The value to set.
 	 */
-	public void setDepth(int depth) { this.depth = depth; }
+	public void setScanningDepth(int scanningDepth)
+	{
+		this.scanningDepth = scanningDepth;
+	}
 	
 	/**
-	 * Returns the depth.
+	 * Returns the depth used scanning a folder.
 	 * 
 	 * @return See above.
 	 */
-	public int getDepth() { return depth; }
+	public int getScanningDepth() { return scanningDepth; }
+	
+	/**
+	 * Sets the depth used when the name is overridden.
+	 * 
+	 * @param depth The value to set.
+	 */
+	public void setDepthForName(int depthForName)
+	{
+		this.depthForName = depthForName;
+	}
+	
+	/**
+	 * Returns the depth used when the name is overridden.
+	 * 
+	 * @return See above.
+	 */
+	public int getDepthForName() { return depthForName; }
 	
 	/**
 	 * Returns the collection of files to import.
@@ -209,27 +352,43 @@ public class ImportableObject
 	{
 		if (file == null) return null;
 		File f = file.getFile();
-		if (f.isFile()) return null;
+		//if (f.isFile()) return null;
 		boolean b = file.isFolderAsContainer();
 		if (!b) return null;
+		File parentFile;
 		if (DatasetData.class.equals(type)) {
 			DatasetData dataset = new DatasetData();
-			dataset.setName(f.getName());
+			if (f.isFile()) {
+				parentFile = f.getParentFile();
+				if (parentFile == null)
+					return null;
+				dataset.setName(parentFile.getName());
+			} else dataset.setName(f.getName());
 			return dataset;
 		} else if (ScreenData.class.equals(type)) {
 			ScreenData screen = new ScreenData();
-			screen.setName(f.getName());
+			if (f.isFile()) {
+				parentFile = f.getParentFile();
+				if (parentFile == null)
+					return null;
+				screen.setName(parentFile.getName());
+			} else screen.setName(f.getName());
 			return screen;
 		}
 		return null;
 	}
 	
 	/**
-	 * Returns the type used when creating the object.
+	 * Returns the root type used when creating the object.
 	 * 
 	 * @return See above.
 	 */
-	public Class getType() { return type; }
+	public Class getRootType()
+	{ 
+		if (ScreenData.class.equals(type))
+			return type;
+		return ProjectData.class;
+	}
 	
 	/** 
 	 * Returns <code>true</code> if the name set while importing the data
@@ -249,20 +408,12 @@ public class ImportableObject
 	{ 
 		if (pixelsSize != null && pixelsSize.length > 0) {
 			Double[] array = new Double[pixelsSize.length];
-			for (int i = 0; i < pixelsSize.length; i++) {
+			for (int i = 0; i < pixelsSize.length; i++)
 				array[i] = new Double(pixelsSize[i]);
-			}
 			return array;
 		}
 		return null; 
 	}
-	
-	/**
-	 * Returns the containers where to import the data if set.
-	 * 
-	 * @return See above.
-	 */
-	public List<DataObject> getContainers() { return containers; }
 	
 	/**
 	 * Returns the collection of tags.
@@ -270,6 +421,24 @@ public class ImportableObject
 	 * @return See above.
 	 */
 	public Collection<TagAnnotationData> getTags() { return tags; }
+	
+	/**
+	 * Returns <code>true</code> if new tags were created, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasNewTags()
+	{
+		if (tags == null || tags.size() == 0) return false;
+		Iterator<TagAnnotationData> i = tags.iterator();
+		TagAnnotationData tag;
+		while (i.hasNext()) {
+			tag = i.next();
+			if (tag.getId() <= 0) return true;
+		}
+		return false;
+	}
 	
 	/**
 	 * Returns the nodes of reference.
@@ -285,4 +454,137 @@ public class ImportableObject
 	 */
 	public void setRefNodes(List<Object> refNodes) { this.refNodes = refNodes; }
 	
+	/**
+	 * Returns <code>true</code> if the extension of the specified file
+	 * is a HCS files, <code>false</code> otherwise.
+	 * 
+	 * @param f The file to handle.
+	 * @return See above.
+	 */
+	public static boolean isHCSFile(File f)
+	{
+		if (f == null) return false;
+		return isHCSFile(f.getAbsolutePath());
+	}
+	
+	/**
+	 * Returns <code>true</code> if the extension of the specified file
+	 * is a HCS files, <code>false</code> otherwise.
+	 * 
+	 * @param f The file to handle.
+	 * @return See above.
+	 */
+	public static boolean isHCSFile(String path)
+	{
+		if (path == null) return false;
+		if (FILTER.accept(path)) return false;
+		String name = path;
+		if (!name.contains(".")) return false; 
+		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
+		return HCS_FILES_EXTENSION.contains(ext);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the passed format is a HCS format,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param format The format to handle.
+	 * @return See above.
+	 */
+	public static boolean isHCSFormat(String format)
+	{
+		Iterator<String> i = HCS_DOMAIN.iterator();
+		while (i.hasNext()) {
+			if (format.contains(i.next()))
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if new objects have to be created,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasNewObjects()
+	{
+		int size = newObjects.size();
+		if (size > 0) return true;
+		return projectDatasetMap.size() > 0;
+	}
+	
+	/**
+	 * Adds a new object.
+	 * 
+	 * @param object The object to add.
+	 */
+	public void addNewDataObject(DataObject object)
+	{
+		if (object != null) newObjects.add(object);
+	}
+	
+	/**
+	 * Returns the object if it has already been created, 
+	 * <code>null</code> otherwise.
+	 * 
+	 * @param object The object to check.
+	 * @return See above.
+	 */
+	public DataObject hasObjectBeenCreated(DataObject object)
+	{
+		if (object == null) return null;
+		Iterator<DataObject> i = newObjects.iterator();
+		DataObject data;
+		String name = getObjectName(object);
+		String n;
+		while (i.hasNext()) {
+			data = i.next();
+			n = getObjectName(data);
+			if (data.getClass().equals(object.getClass()) && n.equals(name)) {
+				return data;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the dataset if already created.
+	 * 
+	 * @param projectID The id of the project.
+	 * @param dataset The dataset to register.
+	 * @return See above.s
+	 */
+	public DatasetData isDatasetCreated(long projectID, DatasetData dataset)
+	{
+		List<DatasetData> datasets = projectDatasetMap.get(projectID);
+		if (datasets == null || datasets.size() == 0) return null;
+		Iterator<DatasetData> i = datasets.iterator();
+		DatasetData data;
+		String name = dataset.getName();
+		while (i.hasNext()) {
+			data = i.next();
+			if (data.getName().equals(name))
+				return data;
+		}
+		return null;
+	}
+	
+	/**
+	 * Registers the dataset.
+	 * 
+	 * @param projectID The id of the project.
+	 * @param dataset The dataset to register.
+	 */
+	public void registerDataset(long projectID, DatasetData dataset)
+	{
+		if (dataset == null) return;
+		List<DatasetData> datasets = projectDatasetMap.get(projectID);
+		if (datasets == null) {
+			datasets = new ArrayList<DatasetData>();
+			projectDatasetMap.put(projectID, datasets);
+		}
+		datasets.add(dataset);
+	}
+
 }

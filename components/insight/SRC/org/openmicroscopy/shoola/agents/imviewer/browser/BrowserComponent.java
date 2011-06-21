@@ -43,8 +43,6 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
-
-
 /** 
  * Implements the {@link Browser} interface to provide the functionality
  * required of the browser component.
@@ -189,15 +187,15 @@ class BrowserComponent
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#addComponent(JComponent, int)
+     * @see Browser#addComponent(JComponent, int, boolean reset)
      */
-    public void addComponent(JComponent c, int index)
+    public void addComponent(JComponent c, int index, boolean reset)
     {
         if (c == null)
             throw new IllegalArgumentException("Component cannot be null.");
         switch (index) {
 			case ImViewer.VIEW_INDEX:
-				view.addComponentToLayer(c);
+				view.addComponentToLayer(c, reset);
 				break;
 			case ImViewer.GRID_INDEX:
 				gridView.addComponentToLayer(c);
@@ -218,7 +216,8 @@ class BrowserComponent
     	if (factor != ZoomAction.ZOOM_FIT_FACTOR) {
 	        if (factor > ZoomAction.MAX_ZOOM_FACTOR ||
 	            factor < ZoomAction.MIN_ZOOM_FACTOR)
-	            throw new IllegalArgumentException("The zoom factor is value " +
+	            throw new IllegalArgumentException(
+	            		"The zoom factor is a value " +
 	                    "between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
 	                    ZoomAction.MAX_ZOOM_FACTOR);
 	        model.setZoomFactor(factor);
@@ -411,6 +410,15 @@ class BrowserComponent
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#onComponentResized()
+     */
+	public void onComponentResized()
+	{
+		view.resetAdjusting();
+	}
+	
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setBackgroundColor(Color)
      */
 	public void setBackgroundColor(Color color)
@@ -465,7 +473,7 @@ class BrowserComponent
 				break;
 			case ImViewer.PROJECTION_INDEX:	
 				projectionView.initialize();
-				projectionView.repaint();
+				//projectionView.repaint();
 				break;
 			case ImViewer.VIEW_INDEX:	
 				view.zoomImage();
@@ -596,7 +604,7 @@ class BrowserComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#hasProjectedPreview()
 	 */
 	public boolean hasProjectedPreview()
@@ -605,7 +613,7 @@ class BrowserComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getDisplayedProjectedImage()
 	 */
 	public BufferedImage getDisplayedProjectedImage()
@@ -614,7 +622,7 @@ class BrowserComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getProjectedImage()
 	 */
 	public BufferedImage getProjectedImage()
@@ -623,7 +631,7 @@ class BrowserComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#onColorModelChange()
 	 */
 	public void onColorModelChange()
@@ -633,13 +641,13 @@ class BrowserComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getUnitInMicrons()
 	 */
 	public double getUnitInMicrons() { return model.getUnitInMicrons(); }
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#createImageFromTexture(int)
 	 */
 	public BufferedImage createImageFromTexture(int type)
@@ -658,8 +666,8 @@ class BrowserComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see Browser#saveImage(SaveObject)
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getImageAsTexture(SaveObject)
 	 */
 	public TextureData getImageAsTexture()
 	{
@@ -667,12 +675,32 @@ class BrowserComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see Browser#saveImage(SaveObject)
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getProjectedImageAsTexture(SaveObject)
 	 */
 	public TextureData getProjectedImageAsTexture()
 	{
 		return model.getProjectedImageAsTexture();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setBirdEyeView(Object)
+	 */
+	public void setBirdEyeView(BufferedImage image)
+	{
+		if (view == null) return;
+		view.setBirdEyeView(image);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getVisibleRectangle()
+	 */
+	public 	Rectangle getVisibleRectangle()
+	{
+		if (view == null) return null;
+		return view.getVisibleRectangle();
 	}
 	
 }

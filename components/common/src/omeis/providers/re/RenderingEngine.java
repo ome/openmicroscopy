@@ -20,7 +20,6 @@ import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
-import ome.system.SelfConfigurableService;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
 
@@ -106,8 +105,9 @@ public interface RenderingEngine extends StatefulServiceInterface {
  	* @param pd
  	*            Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
  	*            or <i>Z</i> axes.
- 	* @return An <i>RGB</i> image ready to be displayed on screen, using packed int
- 	*            in the format RGBA, note that java uses colour format of ARGB.
+ 	* @return An <i>RGB</i> image ready to be displayed on screen, using packed 
+ 	* 			int in the format RGBA, note that java uses colour format of
+ 	* 			ARGB.
  	* @throws ValidationException
  	*             If <code>pd</code> is <code>null</code>.
  	* @see render()
@@ -194,6 +194,12 @@ public interface RenderingEngine extends StatefulServiceInterface {
      *            The pixels set ID.
      */
     public void lookupPixels(long pixelsId);
+
+    /**
+     * Returns the id of the {@link RederingDef} loaded by either
+     * {@link #lookupRenderingDef(long)} or {@link #loadRenderingDef(long)}.
+     */
+    public long getRenderingDefId();
 
     /**
      * Loads the rendering settings associated to the specified pixels set.
@@ -560,6 +566,16 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * @return See above.
      */
 	public double getPixelsTypeUpperBound(int w);
-	
+
+    public boolean requiresPixelsPyramid();
+
+    public int getResolutionLevels();
+
+    public int getResolutionLevel();
+
+    public void setResolutionLevel(int resolutionLevel);
+
+    public int[] getTileSize();
+
 }
 

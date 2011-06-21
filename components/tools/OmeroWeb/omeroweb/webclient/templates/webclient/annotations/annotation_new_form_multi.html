@@ -3,6 +3,26 @@
 {% load markup %}
 {% load custom_tags %}
 
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
 {% block link %}
     <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
@@ -17,9 +37,6 @@
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.autocomplete.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
-  
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.tabs.js" %}"></script>
     
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
@@ -42,6 +59,11 @@
 {% endblock %}
 
 {% block content %}
+
+{% comment %}
+    <!-- Example toolbar of links to webtest pages. Remove comments to activate -->
+    {% include "webtest/webtest-toolbar-include.html" %}
+{% endcomment %}
 
 <p>You have selected: {% if count.images %}{{ count.images }} {% plural count.images 'image' 'images' %}, {% endif %}{% if count.datasets %}{{ count.datasets }} {% plural count.datasets 'dataset' 'datasets' %}, {% endif %}{% if count.projects %}{{ count.projects }} {% plural count.projects 'project' 'projects' %}, {% endif %}{% if count.screens %}{{ count.screens }} {% plural count.screens 'screen' 'screens' %}, {% endif %}{% if count.plates %}{{ count.plates }} {% plural count.plates 'plate' 'plates' %}, {% endif %}{% if count.wells %}{{ count.wells }} {% plural count.wells 'well' 'wells' %}, {% endif %} now you can annotate them using forms below.</p>
 

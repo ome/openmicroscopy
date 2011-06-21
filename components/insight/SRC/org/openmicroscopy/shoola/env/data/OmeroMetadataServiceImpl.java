@@ -66,6 +66,8 @@ import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.TableParameters;
+import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
@@ -112,6 +114,51 @@ class OmeroMetadataServiceImpl
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway            gateway;
 	
+
+	/**
+	 * Returns <code>true</code> if the value contains the terms specified,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param terms The terms to check.
+	 * @param value The value to handle.
+	 * @return See above.
+	 */
+	private boolean containTerms(List<String> terms, String value)
+	{
+		if (terms == null || terms.size() == 0 || value == null) return false;
+		Iterator<String> i = terms.iterator();
+		while (i.hasNext()) {
+			if (value.contains(i.next()))
+				return true;
+		}
+		return false;
+	}
+	
+	
+	/**
+	 * Returns <code>true</code> if the annotation is shared, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param annotation The annotation to handle.
+	 * @param object The object to handle.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	private boolean isAnnotationShared(AnnotationData annotation, 
+										DataObject object)
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(annotation.getId());
+		List l = gateway.findAnnotationLinks(object.getClass().getName(), 
+				-1, ids);
+		if (l == null) return false;
+		return l.size() > 0;
+	}
+	
 	/**
 	 * Removes the specified annotation from the object.
 	 * Returns the updated object.
@@ -124,31 +171,23 @@ class OmeroMetadataServiceImpl
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	private DataObject removeAnnotation(AnnotationData annotation, 
+	private void removeAnnotation(AnnotationData annotation, 
 										DataObject object) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		if (annotation == null)
-			throw new IllegalArgumentException("No annotation to remove.");
-		if (object == null)
-			throw new IllegalArgumentException("No object to handle.");
-		IObject ho = gateway.findIObject(annotation.asIObject());
+		if (annotation == null || object == null) return;
 		ExperimenterData exp = getUserDetails();
+		if (exp == null) return;
+		IObject ho = gateway.findIObject(annotation.asIObject());
+		if (ho == null) return;
 		IObject link = gateway.findAnnotationLink(object.getClass(), 
 				       object.getId(), ho.getId().getValue(), exp.getId());
 		if (ho != null && link != null) {
-			gateway.deleteObject(link);
-			//Check that the annotation is not shared.
-			/*
-			List<Long> ids = new ArrayList<Long>();
-			ids.add(ho.getId().getValue());
-			List l = gateway.findAnnotationLinks(object.getClass().getName(), 
-					-1, ids);
-			if (l == null || l.size() == 0)
-				gateway.deleteObject(ho);//oly work if the annotation is not shared
-				*/
+			try {
+				gateway.deleteObject(link);
+			} catch (Exception e) {
+			}
 		}
-		return PojoMapper.asDataObject(gateway.findIObject(object.asIObject()));
 	}
 
 	
@@ -369,7 +408,6 @@ class OmeroMetadataServiceImpl
 				} 
 				if (iobject != null)
 					toCreate.add(iobject);
-
 			} else {
 				if (ann instanceof TagAnnotationData) {
 					//update description
@@ -389,15 +427,6 @@ class OmeroMetadataServiceImpl
 			List<IObject> r = gateway.createObjects(l);
 			annotations.addAll(PojoMapper.asDataObjects(r));
 		}
-		/*
-		if (links.size() > 0) {
-			i = links.iterator();
-			List<IObject> l = new ArrayList<IObject>(toCreate.size());
-			while (i.hasNext()) 
-				l.add((IObject) i.next());
-			gateway.createObjects(l);
-		}
-		*/
 		return annotations;
     }
 
@@ -471,29 +500,6 @@ class OmeroMetadataServiceImpl
 		TagAnnotation ho;
 		IObject link = null;
 		if (ann instanceof TagAnnotationData) {
-			/*
-			TagAnnotationData tag = (TagAnnotationData) ann;
-			TextualAnnotationData description = tag.getTagDescription();
-			//if (description != null) {
-			id = tag.getId();
-			if (id >= 0) {
-				gateway.removeTagDescription(id, getUserDetails().getId());
-			}	
-			ioType = gateway.convertPojos(TagAnnotationData.class).getName();
-			ho = (TagAnnotation) gateway.findIObject(ioType, id);
-			
-			ModelMapper.unloadCollections(ho);
-			link = ModelMapper.createAnnotationAndLink(ho, description);
-			if (link != null) 
-				gateway.createObject(link, (new PojoOptionsI()).map());
-			RString string = ho.getTextValue();
-			if (!tag.getTagValue().equals(string.getValue())) {
-				ho.setTextValue(omero.rtypes.rstring(tag.getTagValue()));
-				IObject object = 
-					gateway.updateObject(ho, (new PojoOptionsI()).map());
-				return PojoMapper.asDataObject(object);
-			}
-			*/
 			TagAnnotationData tag = (TagAnnotationData) ann;
 			id = tag.getId();
 			ioType = gateway.convertPojos(TagAnnotationData.class).getName();
@@ -975,6 +981,7 @@ class OmeroMetadataServiceImpl
 			toExclude.add(FileAnnotationData.COMPANION_FILE_NS);
 			toExclude.add(FileAnnotationData.MEASUREMENT_NS);
 			toExclude.add(FileAnnotationData.FLIM_NS);
+			toExclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 		}
 		return gateway.loadSpecificAnnotation(annotationType, toInclude, 
 				toExclude, po);
@@ -1016,10 +1023,19 @@ class OmeroMetadataServiceImpl
 			}
 			if (toRemove != null) {
 				i = toRemove.iterator();
+				List<IObject> toDelete = new ArrayList<IObject>();
 				while (i.hasNext()) {
 					ann = (AnnotationData) i.next();
-					if (ann != null) removeAnnotation(ann, object);
+					if (ann != null) {
+						removeAnnotation(ann, object);
+						if (ann instanceof TextualAnnotationData) {
+							if (!isAnnotationShared(ann, object))
+								toDelete.add(ann.asIObject());
+						}
+					}
 				}
+				if (toDelete.size() > 0)
+					gateway.deleteObjects(toDelete);
 			}
 		}
 		return data;
@@ -1228,7 +1244,7 @@ class OmeroMetadataServiceImpl
 		Class annotationType, List<String> terms, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		List<Long> results = new ArrayList<Long>();
+		Set<Long> results = new HashSet<Long>();
 		
 		List<Long> ids = null;
 		if (userID != -1) {
@@ -1240,7 +1256,6 @@ class OmeroMetadataServiceImpl
 		Map map = gateway.loadAnnotations(nodeType, nodeIds, types, ids, 
 				new Parameters());
 		if (map == null || map.size() == 0) return results;
-		ExperimenterData exp = getUserDetails();
 		long id;
 		Collection l;
 		AnnotationData data;
@@ -1278,7 +1293,7 @@ class OmeroMetadataServiceImpl
 					} else if (annotationType.equals(
 							 TextualAnnotationData.class)) {
 						if (data instanceof TextualAnnotationData) {
-							if (terms.contains(
+							if (containTerms(terms, 
 									((TextualAnnotationData) data).getText())) {
 								nodes = m.get(data.getId());
 								if (nodes == null) {
@@ -1302,8 +1317,9 @@ class OmeroMetadataServiceImpl
 			entry = (Entry) i.next();
 			id = (Long) entry.getKey();
 			nodes = (List) entry.getValue();
-			if (results.size() == 0) results.addAll(nodes);
-			else results = ListUtils.intersection(results, nodes);
+			//if (results.size() == 0) results.addAll(nodes);
+			//else results = ListUtils.intersection(results, nodes);
+			results.addAll(nodes);
 		}
 		return results;
 	}
@@ -1496,11 +1512,12 @@ class OmeroMetadataServiceImpl
 						annotationsIds.add((Long) i.next());
 				}
 
-				i = map.keySet().iterator();
+				i = map.entrySet().iterator();
 				
 				while (i.hasNext()) {
-					id = (Long) i.next();
-					l = (Collection) map.get(id);
+					entry = (Entry) i.next();
+					id = (Long) entry.getKey();
+					l = (Collection) entry.getValue();
 					j = l.iterator();
 					while (j.hasNext()) {
 						data = (AnnotationData) j.next();
@@ -1591,7 +1608,6 @@ class OmeroMetadataServiceImpl
 		
 		if (r.size() == 0) return filteredNodes;
 		
-		i = r.keySet().iterator();
 		int index = 0;
 		type = null;
 		/*
@@ -1605,11 +1621,13 @@ class OmeroMetadataServiceImpl
 		}
 		r.remove(type);
 		*/
-		i = r.keySet().iterator();
+		i = r.entrySet().iterator();
 		while (i.hasNext()) {
-			type = (Class) i.next();
-			if (filteredNodes.size() == 0) filteredNodes.addAll(r.get(type));
-			else filteredNodes = ListUtils.intersection(filteredNodes, r.get(type));
+			entry = (Entry) i.next();
+			if (filteredNodes.size() == 0) 
+				filteredNodes.addAll((List) entry.getValue());
+			else filteredNodes = ListUtils.intersection(filteredNodes, 
+					(List) entry.getValue());
 		}
 		return filteredNodes;
 	}
@@ -1785,6 +1803,7 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
 				exclude.add(FileAnnotationData.FLIM_NS);
+				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 		}
 		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
@@ -1824,6 +1843,7 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
 				exclude.add(FileAnnotationData.FLIM_NS);
+				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 		}
 		
 		return gateway.loadSpecificAnnotation(FileAnnotationData.class, 
@@ -1848,6 +1868,18 @@ class OmeroMetadataServiceImpl
 		}
 		return null;
 	}
-	
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroMetadataService#loadTabularData(TableParameters, long)
+	 */
+	public List<TableResult> loadTabularData(TableParameters parameters, 
+			long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (parameters == null)
+			throw new IllegalArgumentException("No parameters specified.");
+		return gateway.loadTabularData(parameters, userID);
+	}
 	
 }

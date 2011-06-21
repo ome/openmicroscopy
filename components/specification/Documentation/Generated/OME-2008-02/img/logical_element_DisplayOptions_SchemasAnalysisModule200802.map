@@ -1,0 +1,44 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_DisplayOptions_SchemasAnalysisModule200802'>
+ <area
+  shape='rect'
+  alt='element_RedChannel'
+  coords='436,142,786,202'
+  href='AnalysisModule.xsd.html#element_RedChannel'/>
+
+ <area
+  shape='rect'
+  alt='element_GreenChannel'
+  coords='436,212,786,272'
+  href='AnalysisModule.xsd.html#element_GreenChannel'/>
+
+ <area
+  shape='rect'
+  alt='element_BlueChannel'
+  coords='436,282,786,342'
+  href='AnalysisModule.xsd.html#element_BlueChannel'/>
+
+ <area
+  shape='rect'
+  alt='element_GreyChannel'
+  coords='436,352,786,395'
+  href='AnalysisModule.xsd.html#element_GreyChannel'/>
+
+ <area
+  shape='rect'
+  alt='element_Projection'
+  coords='436,405,786,464'
+  href='AnalysisModule.xsd.html#element_Projection'/>
+
+ <area
+  shape='rect'
+  alt='element_Time'
+  coords='436,474,786,533'
+  href='AnalysisModule.xsd.html#element_Time'/>
+
+ <area
+  shape='rect'
+  alt='element_ROI'
+  coords='436,543,786,602'
+  href='AnalysisModule.xsd.html#element_ROI'/>
+
+</map>

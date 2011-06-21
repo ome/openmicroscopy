@@ -107,8 +107,10 @@ public class PasswordResetAction
         	 setEnabled(false);
              return;
         }
-        Object ho = selectedDisplay.getUserObject(); 
-        setEnabled(ho instanceof ExperimenterData);
+        TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+        if (nodes.length > 1) setEnabled(false);
+        else setEnabled(selectedDisplay.getUserObject() 
+        		instanceof ExperimenterData);
     }
     
 	/**

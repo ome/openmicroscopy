@@ -25,11 +25,12 @@ def monitorPackage():
     #
     # Currently supported platforms
     supported = { 
-                  'MACOS_10_5+'                : 'fsMac-10-5-Monitor', 
-                  'LINUX_2_6_13+pyinotify_0_7' : 'fsPyinotifyMonitor', 
-                  'LINUX_2_6_13+pyinotify_0_8' : 'fsPyinotifyMonitor', 
-                  'WIN_XP'                     : 'fsWin-XP-Monitor', 
-                  'WIN_2003Server'             : 'fsWin-XP-Monitor', 
+                  'MACOS_10_5+'            : 'fsMac-10-5-Monitor', 
+                  'LINUX_2_6_13+pyinotify' : 'fsPyinotifyMonitor', 
+                  'WIN_XP'                 : 'fsWin-XP-Monitor', 
+                  'WIN_2003Server'         : 'fsWin-XP-Monitor', 
+                  'WIN_Vista'              : 'fsWin-XP-Monitor', 
+                  'WIN_7'                  : 'fsWin-XP-Monitor',
                 }
     
     # Initial state
@@ -50,7 +51,7 @@ def monitorPackage():
                 current = 'MACOS_10_5+'
             # Unsupported Mac OS version.
             else:
-                errorString = "Mac Os 10.5 or above required. You have: %s" % str(platform.mac_ver()[0])
+                errorString = "Mac Os 10.5 or above required. You have: %s" % platform.platform()
         except:
             # mac_ver() on python built with macports returns a version tuple
             # full of empty strings. That's caught here but the OS version is unknown.
@@ -63,39 +64,11 @@ def monitorPackage():
         kernel = platform.platform().split('-')[1].split('.')
         # Supported Linux kernel version.
         if int(kernel[0]) == 2 and int(kernel[1]) == 6 and int(kernel[2]) >= 13:
-            try:
-                # pyinotify versions have slightly different APIs
-                # so the version needs to be determined. They also
-                # interact differently with different python versions
-                # so the python version is also needed.
-                import pyinotify
-                import sys
-                try:
-                    # 0.8.x has a __version__ attribute.
-                    version = pyinotify.__version__.split('.')
-                    if int(version[0]) == 0 and int(version[1]) == 8:
-                        try:
-                            pyinotify.PyinotifyLogger
-                            current = 'LINUX_2_6_13+pyinotify_0_8'
-                        except AttributeError:
-                            if sys.version[:3] == '2.5':
-                                current = 'LINUX_2_6_13+pyinotify_0_8'
-                            else:
-                                errorString = "pynotify version %s is not compatible with Python 2.4. Install 0.8.5 or lower to use DropBox" % pyinotify.__version__ 
-                    # This pyinotofy has a __version__ attribute but isn't 0.8.
-                    else:
-                        errorString = "pyinotify 0.7 or 0.8 required. Unknown version found."
-                except:
-                    # 0.7.x doesn't have a __version__ attribute but there is
-                    # a possibility that the installed version is 0.6 or less.
-                    # That isn't tested for and might be a point of failure.
-                    current = 'LINUX_2_6_13+pyinotify_0_7'
-            except:
-                errorString = "pyinotify 0.7 or 0.8 required. Package not found."
+            current = 'LINUX_2_6_13+pyinotify'
         # Unsupported Linux kernel version.    
         else:
             errorString = "Linux kernel 2.6.13 or above required. "
-            errorString += "You have: %s" % str(platform.platform().split('-')[1])
+            errorString += "You have: %s" % platform.platform()
 
     # Windows of some flavour.
     elif system == 'Windows':
@@ -104,8 +77,12 @@ def monitorPackage():
             current = 'WIN_XP'
         elif version[1] == '2003Server':
             current = 'WIN_2003Server'
+        elif version[1] == 'Vista':
+            current = 'WIN_Vista'
+        elif version[1] == '7':
+            current = 'WIN_7'
         else:
-            errorString = "Windows XP or 2003Server required. You have: %s" % str(version)
+            errorString = "Windows XP, Vista, 7 or 2003Server required. You have: %s" % platform.platform()
 
     # Unknown OS.
     else:

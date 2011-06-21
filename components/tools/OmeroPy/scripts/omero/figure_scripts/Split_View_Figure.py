@@ -40,10 +40,8 @@ import omero.util.figureUtil as figUtil
 import omero.util.imageUtil as imgUtil
 import omero.util.script_utils as scriptUtil
 import omero
+from omero.gateway import BlitzGateway
 from omero.rtypes import *
-import omero.gateway
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
-#import omero.util.figureUtil as figUtil    # need to comment out for upload to work. But need import for script to work!!
 import getopt, sys, os, subprocess
 import StringIO
 from omero_sys_ParametersI import ParametersI
@@ -100,7 +98,7 @@ def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
     return True
     
 
-def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, mergedIndexes, 
+def getSplitView(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, mergedIndexes, 
         mergedColours, width=None, height=None, spacer = 12, algorithm = None, stepping = 1, scalebar = None, overlayColour=(255,255,255)):
     """ This method makes a figure of a number of images, arranged in rows with each row being the split-view
     of a single image. The channels are arranged left to right, with the combined image added on the right.
@@ -131,8 +129,8 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
     white = (255, 255, 255)
     
     # create a rendering engine
-    re = session.createRenderingEngine()
-    gateway = session.createGateway()
+    re = conn.createRenderingEngine()
+    queryService = conn.getQueryService()
     
     rowPanels = []
     totalHeight = 0
@@ -153,7 +151,7 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
     for row, pixelsId in enumerate(pixelIds):
         log("Rendering row %d" % (row+1))
         
-        pixels = gateway.getPixels(pixelsId)
+        pixels = queryService.get("Pixels", pixelsId)
         sizeX = pixels.getSizeX().getValue()
         sizeY = pixels.getSizeY().getValue()
         sizeZ = pixels.getSizeZ().getValue()
@@ -180,7 +178,10 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
         
         # set up rendering engine with the pixels
         re.lookupPixels(pixelsId)
-        re.lookupRenderingDef(pixelsId)
+        if not re.lookupRenderingDef(pixelsId):
+            re.resetDefaults()
+        if not re.lookupRenderingDef(pixelsId):
+            raise "Failed to lookup Rendering Def"
         re.load()
         
         proStart = zStart
@@ -217,16 +218,26 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
                 re.setActive(index, True)                # turn channel on
                 if colourChannels:                            # if split channels are coloured...
                     if index in mergedIndexes:            # and this channel is in the combined image
-                        rgba = tuple(mergedColours[index])
-                        re.setRGBA(index, *rgba)        # set coloured 
+                        if index in mergedColours: 
+                            rgba = tuple(mergedColours[index])
+                            print "Setting channel to color", index, rgba
+                            re.setRGBA(index, *rgba)        # set coloured 
+                        else:
+                            mergedColours[index] = re.getRGBA(index)
                     else:
                         re.setRGBA(index,255,255,255,255)    # otherwise set white (max alpha)
                 else:
                     re.setRGBA(index,255,255,255,255)    # if not colourChannels - channels are white
-                info = (channelNames[index], re.getChannelWindowStart(index), re.getChannelWindowEnd(index))
+                info = (index, re.getChannelWindowStart(index), re.getChannelWindowEnd(index))
                 log("  Render channel: %s  start: %d  end: %d" % info)
-            projection = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
-            renderedImages.append(projection)
+            if proStart != proEnd:
+                renderedImg = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
+            else:
+                planeDef = omero.romio.PlaneDef()
+                planeDef.z = proStart
+                planeDef.t = timepoint
+                renderedImg = re.renderCompressed(planeDef)
+            renderedImages.append(renderedImg)
             if index < sizeC:
                 re.setActive(index, False)                # turn the channel off again!
     
@@ -243,8 +254,13 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
         # get the combined image, using the existing rendering settings 
         channelsString = ", ".join([channelNames[i] for i in mergedIndexes])
         log("  Rendering merged channels: %s" % channelsString)
-        overlay = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
-        
+        if proStart != proEnd:
+            overlay = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
+        else:
+            planeDef = omero.romio.PlaneDef()
+            planeDef.z = proStart
+            planeDef.t = timepoint
+            overlay = re.renderCompressed(planeDef)
         if channelMismatch:
             log(" WARNING channel mismatch: The current image has fewer channels than the primary image.")
         
@@ -297,7 +313,7 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
     
 
 
-def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, 
+def makeSplitViewFigure(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, 
                 mergedIndexes, mergedColours, mergedNames, width, height, imageLabels = None, algorithm = None, stepping = 1, 
                 scalebar=None, overlayColour=(255,255,255)):
 
@@ -347,7 +363,7 @@ def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNa
     
 
     # get the rendered splitview, with images surrounded on all sides by spacer
-    sv = getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, 
+    sv = getSplitView(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, 
             mergedIndexes, mergedColours, width, height, spacer, algorithm, stepping, scalebar, overlayColour)
     
     font = imgUtil.getFont(fontsize)
@@ -413,25 +429,28 @@ def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNa
         w = font.getsize(channelNames[index]) [0]
         inset = int((width - w) / 2)
         # text is coloured if channel is grey AND in the merged image
-        rgb = (0,0,0)
+        rgba = (0,0,0,255)
         if index in mergedIndexes:
             if not colourChannels:
-                rgb = tuple(mergedColours[index])
-                if rgb == (255,255,255):    # if white (unreadable), needs to be black! 
-                    rgb = (0,0,0)
-        draw.text((px+inset, py), channelNames[index], font=font, fill=rgb)
+                rgba = tuple(mergedColours[index])
+                if rgba == (255,255,255,255):    # if white (unreadable), needs to be black!
+                    rgba = (0,0,0,0)
+        draw.text((px+inset, py), channelNames[index], font=font, fill=rgba)
         px = px + width + spacer
     
     # add text for combined image
     if (mergedNames):
         mergedIndexes.reverse()
+        print "Adding merged channel names..."
         for index in mergedIndexes:
-            print index, channelNames[index]
-            rgb = tuple(mergedColours[index])
+            rgba = tuple(mergedColours[index])
+            print index, channelNames[index], rgba
+            if rgba == (255,255,255, 255):    # if white (unreadable), needs to be black!
+                rgba = (0,0,0,0)
             name = channelNames[index]
             combTextWidth = font.getsize(name)[0]
             inset = int((width - combTextWidth) / 2)
-            draw.text((px + inset, py), name, font=font, fill=rgb)
+            draw.text((px + inset, py), name, font=font, fill=rgba)
             py = py - textHeight  
     else:
         combTextWidth = font.getsize("Merged")[0]
@@ -442,7 +461,7 @@ def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNa
     return canvas
     
 
-def splitViewFigure(session, commandArgs):    
+def splitViewFigure(conn, scriptParams):    
     """
     Processes the arguments, populating defaults if necessary. Prints the details to log (fig-legend).
     Even handles missing arguments that are not optional (from when this ran from commandline with everything optional)
@@ -452,20 +471,13 @@ def splitViewFigure(session, commandArgs):
     @return: the id of the originalFileLink child. (ID object, not value) 
     """
 
-    # create the services we're going to need
-    metadataService = session.getMetadataService()
-    queryService = session.getQueryService()
-    updateService = session.getUpdateService()
-    rawFileStore = session.createRawFileStore()
-    
     log("Split-View figure created by OMERO on %s" % date.today())
     log("")
     
-    pixelIds = []
     imageIds = []
+    pixelIds = []
     imageLabels = []
     imageNames = {}
-    gateway = session.createGateway()
     omeroImage = None    # this is set as the first image, to link figure to
 
     # function for getting image labels.
@@ -474,40 +486,37 @@ def splitViewFigure(session, commandArgs):
         return [name]
         
     # default function for getting labels is getName (or use datasets / tags)
-    if "Image_Labels" in commandArgs:
-        if commandArgs["Image_Labels"] == "Datasets":
-            def getDatasets(name, tagsList, pdList):
-                return [dataset for project, dataset in pdList]
-            getLabels = getDatasets
-        elif commandArgs["Image_Labels"] == "Tags":
-            def getTags(name, tagsList, pdList):
-                return tagsList
-            getLabels = getTags
+    if scriptParams["Image_Labels"] == "Datasets":
+        def getDatasets(name, tagsList, pdList):
+            return [dataset for project, dataset in pdList]
+        getLabels = getDatasets
+    elif scriptParams["Image_Labels"] == "Tags":
+        def getTags(name, tagsList, pdList):
+            return tagsList
+        getLabels = getTags
             
-    # process the list of images. If imageIds is not set, script can't run. 
+    # process the list of images
+    omeroImage = None
     log("Image details:")
-    if "Image_IDs" in commandArgs:
-        for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
-            iId = long(imageId.getValue())
-            image = gateway.getImage(iId)
-            if image == None:
-                print "Image not found for ID:", iId
-                continue
-            imageIds.append(iId)
-            if idCount == 0:
-                omeroImage = image        # remember the first image to attach figure to
-            pixelIds.append(image.getPrimaryPixels().getId().getValue())
-            imageNames[iId] = image.getName().getValue()
-    
+    for iId in scriptParams["IDs"]:
+        image = conn.getObject("Image", iId)
+        if image == None:
+            print "Image not found for ID:", iId
+            continue
+        imageIds.append(iId)    # only listing valid images here
+        if omeroImage is None:
+            omeroImage = image   # remember the first image to attach figure to
+        pixelIds.append(image.getPrimaryPixels().getId())
+        imageNames[iId] = image.getName()
+
     if len(imageIds) == 0:
         print "No image IDs specified."
-        
-    pdMap = figUtil.getDatasetsProjectsFromImages(queryService, imageIds)    # a map of imageId : list of (project, dataset) names. 
-    tagMap = figUtil.getTagsFromImages(metadataService, imageIds)
+    pdMap = figUtil.getDatasetsProjectsFromImages(conn.getQueryService(), imageIds)    # a map of imageId : list of (project, dataset) names. 
+    tagMap = figUtil.getTagsFromImages(conn.getMetadataService(), imageIds)
     # Build a legend entry for each image
     for iId in imageIds:
         name = imageNames[iId]
-        imageDate = image.getAcquisitionDate().getValue()
+        imageDate = image.getAcquisitionDate()
         tagsList = tagMap[iId]
         pdList = pdMap[iId]
         
@@ -522,138 +531,88 @@ def splitViewFigure(session, commandArgs):
     
     
     # use the first image to define dimensions, channel colours etc. 
-    pixelsId = pixelIds[0]
-    pixels = gateway.getPixels(pixelsId)
-
-    sizeX = pixels.getSizeX().getValue();
-    sizeY = pixels.getSizeY().getValue();
-    sizeZ = pixels.getSizeZ().getValue();
-    sizeC = pixels.getSizeC().getValue();
+    sizeX = omeroImage.getSizeX()
+    sizeY = omeroImage.getSizeY()
+    sizeZ = omeroImage.getSizeZ()
+    sizeC = omeroImage.getSizeC()
         
     
     # set image dimensions
     zStart = -1
     zEnd = -1
-    if "Z_Start" in commandArgs:
-        zStart = commandArgs["Z_Start"]
-    if "Z_End" in commandArgs:
-        zEnd = commandArgs["Z_End"]
+    if "Z_Start" in scriptParams:
+        zStart = scriptParams["Z_Start"]
+    if "Z_End" in scriptParams:
+        zEnd = scriptParams["Z_End"]
     
-    width = sizeX
-    if "Width" in commandArgs:
-        w = commandArgs["Width"]
-        try:
-            width = int(w)
-        except:
-            log("Invalid width: %s Using default value: %d" % (str(w), sizeX))
-    
-    height = sizeY
-    if "Height" in commandArgs:
-        h = commandArgs["Height"]
-        try:
-            height = int(h)
-        except:
-            log("Invalid height: %s Using default value" % (str(h), sizeY))
-            
+    width = "Width" in scriptParams and scriptParams["Width"] or sizeX
+    height = "Height" in scriptParams and scriptParams["Height"] or sizeY
+
     log("Image dimensions for all panels (pixels): width: %d  height: %d" % (width, height))
     
     # Make split-indexes list. If argument wasn't specified, include them all. 
     splitIndexes = []
-    if "Split_Indexes" in commandArgs:
-        for index in commandArgs["Split_Indexes"]:
-            splitIndexes.append(index.getValue())
+    if "Split_Indexes" in scriptParams:
+        splitIndexes = scriptParams["Split_Indexes"]
     else:
-        for c in range(sizeC):
-            splitIndexes = range(sizeC)
+        splitIndexes = range(sizeC)
     
     # Make channel-names map. If argument wasn't specified, name by index
     channelNames = {}
-    if "Channel_Names" in commandArgs:
-        cNameMap = commandArgs["Channel_Names"]
+    for c in range(sizeC):
+        channelNames[c] = str(c)
+    if "Channel_Names" in scriptParams:
+        cNameMap = scriptParams["Channel_Names"]
         for c in cNameMap:
             index = int(c)
-            channelNames[index] = cNameMap[c].getValue()
-    else:
-        for c in range(sizeC):
-            channelNames[c] = str(c)            
+            channelNames[index] = cNameMap[c]      
                         
     mergedIndexes = []    # the channels in the combined image, 
     mergedColours = {}    
-    if "Merged_Colours" in commandArgs:
-        cColourMap = commandArgs["Merged_Colours"]
+    if "Merged_Colours" in scriptParams:
+        cColourMap = scriptParams["Merged_Colours"]
         for c in cColourMap:
-            rgb = cColourMap[c].getValue()
+            rgb = cColourMap[c]
             rgba = imgUtil.RGBIntToRGBA(rgb)
             mergedColours[int(c)] = rgba
             mergedIndexes.append(int(c))
         mergedIndexes.sort()
-        print mergedIndexes
     else:
-        mergedIndexes = range(sizeC)[1:]
-        for c in mergedIndexes:    # make up some colours 
-            if c%3 == 0:
-                mergedColours[c] = (0,0,255,255)    # blue
-            if c%3 == 1:
-                mergedColours[c] = (0,255,0,255)    # green
-            if c%3 == 2:
-                mergedColours[c] = (255,0,0,255)    # red
-    
-    colourChannels = True
-    if "Split_Panels_Grey" in commandArgs and commandArgs["Split_Panels_Grey"]:
-        colourChannels = False
-    
+        mergedIndexes = range(sizeC)
+
+    colourChannels = not scriptParams["Split_Panels_Grey"]
+
     algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
-    if "Algorithm" in commandArgs:
-        a = commandArgs["Algorithm"]
-        if (a == "Mean Intensity"):
-            algorithm = omero.constants.projection.ProjectionType.MEANINTENSITY
-    
-    stepping = 1
-    if "Stepping" in commandArgs:
-        s = commandArgs["Stepping"]
-        if (0 < s < sizeZ):
-            stepping = s
-    
+    if "Mean Intensity" == scriptParams["Algorithm"]:
+        algorithm = omero.constants.projection.ProjectionType.MEANINTENSITY
+
+    stepping = min(scriptParams["Stepping"], sizeZ)
+
     scalebar = None
-    if "Scalebar" in commandArgs:
-        sb = commandArgs["Scalebar"]
-        try:
-            scalebar = int(sb)
-            if scalebar <= 0:
-                scalebar = None
-            else:
-                log("Scalebar is %d microns" % scalebar)
-        except:
-            log("Invalid value for scalebar: %s" % str(sb))
-            scalebar = None
+    if "Scalebar" in scriptParams:
+        scalebar = scriptParams["Scalebar"]
+        log("Scalebar is %d microns" % scalebar)
+
+    r,g,b,a = OVERLAY_COLOURS[scriptParams["Overlay_Colour"]]
+    overlayColour = (r,g,b)
+        
+    mergedNames = scriptParams["Merged_Names"]
     
-    overlayColour = (255,255,255)
-    if "Overlay_Colour" in commandArgs:
-        r,g,b,a = OVERLAY_COLOURS[commandArgs["Overlay_Colour"]]
-        overlayColour = (r,g,b)
-        
-    mergedNames = False
-    if "Merged_Names" in commandArgs:
-        mergedNames = commandArgs["Merged_Names"]
-        
-    fig = makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, 
+    print "splitIndexes", splitIndexes
+    print "channelNames", channelNames
+    print "colourChannels", colourChannels
+    print "mergedIndexes", mergedIndexes
+    print "mergedColours", mergedColours
+    print "mergedNames", mergedNames
+    fig = makeSplitViewFigure(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, 
                         mergedIndexes, mergedColours, mergedNames, width, height, imageLabels, algorithm, stepping, scalebar, overlayColour)
-                                                    
-    #fig.show()        # bug-fixing only
-    
+
     figLegend = "\n".join(logStrings)
-    
-    #print figLegend    # bug fixing only
-    
     format = JPEG
-    if "Format" in commandArgs:
-        if commandArgs["Format"] in [PNG, "PNG", 'png']:
-            format = PNG
-            
-    output = "splitViewFigure"
-    if "Figure_Name" in commandArgs:
-        output = str(commandArgs["Figure_Name"])
-        
+    if scriptParams["Format"] == "PNG":
+        format = PNG
+    output = scriptParams["Figure_Name"]
+
     if format == PNG:
         output = output + ".png"
         fig.save(output, "PNG")
@@ -661,11 +620,12 @@ def splitViewFigure(session, commandArgs):
         output = output + ".jpg"
         fig.save(output)
 
-    # Use util method to upload the figure 'output' to the server, attaching it to the omeroImage, adding the 
-    # figLegend as the fileAnnotation description. 
-    # Returns the id of the originalFileLink child. (ID object, not value)
-    fileAnnotation = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)    
-    return fileAnnotation
+    # Upload the figure 'output' to the server, creating a file annotation and attaching it to the omeroImage, adding the 
+    # figLegend as the fileAnnotation description.
+    fa = conn.createFileAnnfromLocalFile(output, origFilePathAndName=None, mimetype=format, ns=None, desc=figLegend)
+    omeroImage.linkAnnotation(fa)
+
+    return fa._obj  # return the omero.model.FileAnnotationI
     
     
 def runAsScript():
@@ -673,6 +633,7 @@ def runAsScript():
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
        
+    dataTypes = [rstring('Image')]
     labels = [rstring('Image Name'), rstring('Datasets'), rstring('Tags')]
     algorithums = [rstring('Maximum Intensity'),rstring('Mean Intensity')]
     formats = [rstring('JPEG'),rstring('PNG')]
@@ -682,43 +643,55 @@ def runAsScript():
     oColours = wrap(OVERLAY_COLOURS.keys())
      
     client = scripts.client('Split_View_Figure.py', """Create a figure of split-view images.
-See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure""", 
-    scripts.List("Image_IDs", optional=False, description="List of image IDs. Resulting figure will be attached to first image.").ofType(rlong(0)),
-    scripts.Int("Z_Start", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
-    scripts.Int("Z_End", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
-    scripts.Map("Channel_Names", description="Map of index: channel name for all channels"),
-    scripts.List("Split_Indexes", description="List of the channels in the split view").ofType(rint(0)),
-    scripts.Bool("Split_Panels_Grey", description="If true, all split panels are greyscale"),
-    scripts.Map("Merged_Colours", description="Map of index:int colours for each merged channel"),
-    scripts.Bool("Merged_Names", description="If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
-    scripts.Int("Width", description="The max width of each image panel. Default is first image width", min=1),
-    scripts.Int("Height", description="The max height of each image panel. Default is first image height", min=1),
-    scripts.String("Image_Labels", description="Label images with Image name (default) or datasets or tags", values=labels),
-    scripts.String("Algorithm", description="Algorithum for projection.", values=algorithums),
-    scripts.Int("Stepping", description="The Z increment for projection.",default=1, min=1),
-    scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    scripts.String("Format", description="Format to save image", values=formats, default='JPEG'),
-    scripts.String("Figure_Name", description="File name of the figure to save."),
-    scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=oColours),
+NB: OMERO.insight client provides a nicer UI for this script under 'Publishing Options'
+See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/exporting-figures
+""",
+
+    # provide 'Data_Type' and 'IDs' parameters so that Insight auto-populates with currently selected images.
+    scripts.String("Data_Type", optional=False, grouping="01",
+        description="The data you want to work with.", values=dataTypes, default="Image"),
+
+    scripts.List("IDs", optional=False, grouping="02",
+        description="List of Image IDs").ofType(rlong(0)),
+
+    scripts.String("Algorithm", grouping="3", 
+        description="Algorithum for projection. Only used if a Z-range is chosen below", values=algorithums, default='Maximum Intensity'),
+    scripts.Int("Z_Start", grouping="3.1", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
+    scripts.Int("Z_End", grouping="3.2", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
+    scripts.Map("Channel_Names", grouping="4", description="Map of index: channel name for all channels"),
+    scripts.List("Split_Indexes", grouping="5", description="List of the channels in the split view").ofType(rint(0)),
+    scripts.Bool("Split_Panels_Grey", grouping="6", description="If true, all split panels are greyscale", default=False),
+    scripts.Map("Merged_Colours", grouping="7", description="Map of index:int colours for each merged channel"),
+    scripts.Bool("Merged_Names", grouping="8", 
+        description="If true, label the merged panel with channel names. Otherwise label with 'Merged'", default=True),
+    scripts.Int("Width", grouping="9", description="The max width of each image panel. Default is first image width", min=1),
+    scripts.Int("Height", grouping="91", description="The max height of each image panel. Default is first image height", min=1),
+    scripts.String("Image_Labels", grouping="92", 
+        description="Label images with Image name (default) or datasets or tags", values=labels, default='Image Name'),
+    scripts.Int("Stepping", grouping="93", description="The Z increment for projection.",default=1, min=1),
+    scripts.Int("Scalebar", grouping="94", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    scripts.String("Format", grouping="95", description="Format to save image", values=formats, default='JPEG'),
+    scripts.String("Figure_Name", grouping="96", description="File name of the figure to save.", default='Split_View_Figure'),
+    scripts.String("Overlay_Colour", grouping="97", description="The colour of the scalebar.",default='White',values=oColours),
     
-    version = "4.2.0",
+    version = "4.3.0",
     authors = ["William Moore", "OME Team"],
     institutions = ["University of Dundee"],
     contact = "ome-users@lists.openmicroscopy.org.uk",
     ) 
     
     try:
-        session = client.getSession();
-        gateway = session.createGateway();
-        commandArgs = {}
+        session = client.getSession()
+        scriptParams = {}
+        conn = BlitzGateway(client_obj=client)
     
         # process the list of args above. 
         for key in client.getInputKeys():
             if client.getInput(key):
-                commandArgs[key] = client.getInput(key).getValue()
-        print commandArgs
-        # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
-        fileAnnotation = splitViewFigure(session, commandArgs)
+                scriptParams[key] = unwrap(client.getInput(key))
+        print scriptParams
+        # call the main script, attaching resulting figure to Image. Returns the FileAnnotationI
+        fileAnnotation = splitViewFigure(conn, scriptParams)
         # return this fileAnnotation to the client. 
         if fileAnnotation:
             client.setOutput("Message", rstring("Split-View Figure Created"))

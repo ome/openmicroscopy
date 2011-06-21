@@ -43,6 +43,7 @@ import javax.imageio.ImageIO;
 import omero.client;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
+import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
@@ -51,6 +52,7 @@ import omero.api.ThumbnailStorePrx;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -93,6 +95,11 @@ public class Gateway
 	 */
 	private ServiceFactoryPrx entryEncrypted;
 	
+	/**
+	 * Information about the current login.
+	 */
+	private EventContext eventContext;
+
 	/** Flag indicating if you are connected or not. */
 	private boolean connected;
 	
@@ -275,13 +282,14 @@ public class Gateway
 		try {
 			entryEncrypted = secureClient.createSession(
 					credentials.getUserName(), credentials.getPassword());
+			eventContext = getAdminService().getEventContext();
 			connected = true;
 			KeepClientAlive kca = new KeepClientAlive(this);
 			executor = new ScheduledThreadPoolExecutor(1);
 	        executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
 			
 		} catch (Exception e) {
-			new Exception("Cannot log in");
+			throw new Exception("Cannot log in");
 		}
 		return connected;
 	}
@@ -321,8 +329,7 @@ public class Gateway
 		List<ImageData> images = new ArrayList<ImageData>();
 		try {
 			ParametersI po = new ParametersI();
-			po.exp(omero.rtypes.rlong(
-					getAdminService().getEventContext().userId));
+			po.exp(omero.rtypes.rlong(eventContext.userId));
 			IContainerPrx service = getContainerService();
 			List<Image> l = service.getUserImages(po);
 			//stop here if you want to deal with IObject.
@@ -332,7 +339,7 @@ public class Gateway
 				images.add(new ImageData(i.next()));
 			}
 		} catch (Exception e) {
-			new Exception("Cannot retrieve the images", e);
+			throw new Exception("Cannot retrieve the images", e);
 		}
 		return images;
 	}
@@ -351,8 +358,7 @@ public class Gateway
 	{
 		List<DatasetData> datasets = new ArrayList<DatasetData>();
 		ParametersI po = new ParametersI();
-		po.exp(omero.rtypes.rlong(
-				getAdminService().getEventContext().userId));
+		po.exp(omero.rtypes.rlong(eventContext.userId));
 		if (ids == null || ids.size() == 0)
 			po.noLeaves();
 		else po.leaves();
@@ -368,10 +374,8 @@ public class Gateway
 			}
 			return datasets;
 		} catch (Exception e) {
-			new Exception("Cannot retrieve the datasets", e);
+			throw new Exception("Cannot retrieve the datasets", e);
 		}
-		
-		return datasets;
 	}
 	
 	/**
@@ -398,9 +402,8 @@ public class Gateway
 			service.load();
 			return service;
 		} catch (Throwable t) {
-			new Exception("Cannot load rendering engine", t);
+			throw new Exception("Cannot load rendering engine", t);
 		}
-		return null;
 	}
 	
 	/**
@@ -451,4 +454,29 @@ public class Gateway
 		return images;
 	}
 	
+	/**
+	 * Returns the XY-plane identified by the passed z-section, time-point 
+	 * and wavelength.
+	 * 
+	 * @param pixelsID 	The id of pixels containing the requested plane.
+	 * @param z			The selected z-section.
+	 * @param t			The selected time-point.
+	 * @param c			The selected wavelength.
+	 * @return See above.
+	 */
+	 public synchronized byte[] getPlane(long pixelsID, int z, int t, int c)
+	 	throws Exception
+	 {
+		 RawPixelsStorePrx service = entryEncrypted.createRawPixelsStore();
+		 try {
+			 service.setPixelsId(pixelsID, false);
+			 return service.getPlane(z, c, t);
+		 } catch (Throwable e) {
+			 throw new Exception("Cannot retrieve the plane " +
+					 "(z="+z+", t="+t+", c="+c+") for pixelsID:  "+pixelsID, e);
+		 } finally {
+			 service.close();
+		 }
+	}
+	 
 }

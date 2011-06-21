@@ -1,0 +1,26 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_theZ_XMLschemasAnalysisModuleRC1AnalysisModule.xsd'>
+ <area
+  shape='rect'
+  alt='element_AutoIterate'
+  coords='464,0,856,43'
+  href='AnalysisModule.xsd.html#element_AutoIterate'/>
+
+ <area
+  shape='rect'
+  alt='element_UseValue'
+  coords='464,53,856,96'
+  href='AnalysisModule.xsd.html#element_UseValue'/>
+
+ <area
+  shape='rect'
+  alt='element_IterateRange'
+  coords='464,106,856,149'
+  href='AnalysisModule.xsd.html#element_IterateRange'/>
+
+ <area
+  shape='rect'
+  alt='element_Match'
+  coords='464,159,856,202'
+  href='AnalysisModule.xsd.html#element_Match'/>
+
+</map>

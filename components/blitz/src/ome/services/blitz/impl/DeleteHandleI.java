@@ -8,6 +8,7 @@
 package ome.services.blitz.impl;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,7 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import ome.conditions.InternalException;
+import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.AbstractFileSystemService;
+import ome.io.nio.PixelsService;
 import ome.services.delete.DeleteStepFactory;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
@@ -34,6 +37,7 @@ import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteReport;
 import omero.api.delete._DeleteHandleDisp;
 
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -87,7 +91,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
     private static final List<String> fileTypeList = Collections.unmodifiableList(
             Arrays.asList( "OriginalFile", "Pixels", "Thumbnail"));
-
+    
     /**
      * The identity of this servant, used during logging and similar operations.
      */
@@ -453,44 +457,63 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
         String filePath;
 
         HashMap<String, ArrayList<Long>> failedMap = new HashMap<String, ArrayList<Long>>();
-        long bytesFailed = 0;
-        long filesFailed = 0;
-
+        long bytesFailed;
+        long filesFailed;
+        
         for (Report report : reports.values()) {
-
+            bytesFailed = 0;
+            filesFailed = 0;
             for (String fileType : fileTypeList) {
                 Set<Long> deletedIds = report.state.getProcessedIds(fileType);
+                failedMap.put(fileType, new ArrayList<Long>());
                 if (deletedIds != null && deletedIds.size() > 0) {
                     log.debug(String.format("Binary delete of %s for %s:%s: %s",
                             fileType, report.command.type, report.command.id,
                             deletedIds));
-                    failedMap.put(fileType, new ArrayList<Long>());
                     for (Long id : deletedIds) {
                         if (fileType.equals("OriginalFile")) {
                             filePath = afs.getFilesPath(id);
-                        } else if (fileType.equals("Pixels")) {
-                            filePath = afs.getPixelsPath(id);
-                        } else { // Thumbnail
+                            file = new File(filePath);
+                        } else if (fileType.equals("Thumbnail")) {
                             filePath = afs.getThumbnailPath(id);
-                        }
-
-                        file = new File(filePath);
-                        if (file.exists()) {
-                            if (file.delete()) {
-                                log.debug("DELETED: " + fileType + " "
-                                        + file.getAbsolutePath());
-                            } else {
+                            file = new File(filePath);
+                        } else { // Pixels
+                            filePath = afs.getPixelsPath(id);
+                            file = new File(filePath);
+                            // Try to remove a _pyramid file if it exists
+                            File pyrFile = new File(filePath + PixelsService.PYRAMID_SUFFIX);
+                            if(!deleteSingleFile(pyrFile)) {
                                 failedMap.get(fileType).add(id);
                                 filesFailed++;
-                                bytesFailed += file.length();
-                                log.debug("Failed to delete " + fileType
-                                        + " " + file.getAbsolutePath());
+                                bytesFailed += pyrFile.length();
                             }
-                        } else {
-                            log.debug(fileType + " "
-                                    + file.getAbsolutePath()
-                                    + " does not exist.");
+                            File dir = file.getParentFile();
+                            // Now any lock file
+                            File lockFile = new File(dir, "." + id + PixelsService.PYRAMID_SUFFIX
+                                    + BfPyramidPixelBuffer.PYR_LOCK_EXT);
+                            if(!deleteSingleFile(lockFile)) {
+                                failedMap.get(fileType).add(id);
+                                filesFailed++;
+                                bytesFailed += lockFile.length();
+                            }
+                            // Now any tmp files
+                            FileFilter tmpFileFilter = new WildcardFileFilter("."
+                                    + id + PixelsService.PYRAMID_SUFFIX + "*.tmp");
+                            File[] tmpFiles = dir.listFiles(tmpFileFilter);
+                            for (int i = 0; i < tmpFiles.length; i++) {
+                                if(!deleteSingleFile(tmpFiles[i])) {
+                                    failedMap.get(fileType).add(id);
+                                    filesFailed++;
+                                    bytesFailed += tmpFiles[i].length();
+                                }
+                            }
                         }
+                        // Finally delete main file for any type.
+                        if(!deleteSingleFile(file)) {
+                            failedMap.get(fileType).add(id);
+                            filesFailed++;
+                            bytesFailed += file.length();
+                        }                        
                     }
                 }
             }
@@ -505,7 +528,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 report.undeletedFiles.put(key, array);
             }
             if (filesFailed > 0) {
-                String warning = " Warning: " + Long.toString(filesFailed) + "file(s) comprising "
+                String warning = "Warning: " + Long.toString(filesFailed) + " file(s) comprising "
                         + Long.toString(bytesFailed) + " bytes were not removed.";
                 report.warning += warning;
                 log.warn(warning);
@@ -517,6 +540,24 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 }
             }
         }
+    }
+    
+    /**
+     * Helper to delete and log
+     */
+    private boolean deleteSingleFile(File file)
+    {
+        if (file.exists()) {
+            if (file.delete()) {
+                log.debug("DELETED: " + file.getAbsolutePath());
+            } else {
+                log.debug("Failed to delete " + file.getAbsolutePath());
+                return false;
+            }
+        } else {
+            log.debug("File " + file.getAbsolutePath() + " does not exist.");
+        }
+        return true;
     }
 
     /**

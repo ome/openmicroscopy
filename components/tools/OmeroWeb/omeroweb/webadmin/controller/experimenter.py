@@ -35,7 +35,8 @@ class BaseExperimenters(BaseController):
     
     def __init__(self, conn):
         BaseController.__init__(self, conn)
-        self.experimentersList = list(self.conn.lookupExperimenters())
+        self.experimentersList = list(self.conn.listExperimenters())
+        self.experimentersList.sort(key=lambda x: x.getOmeName().lower())
         self.auth = self.conn.listLdapAuthExperimenters()
         self.experimenters = list()
         self.experimentersCount = {'experimenters': 0, 'active': 0, 'ldap': 0, 'admin': 0, 'guest': 0}
@@ -83,14 +84,15 @@ class BaseExperimenter(BaseController):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
             self.ldapAuth = self.conn.getLdapAuthExperimenter(eid)
+            geMap = self.experimenter.copyGroupExperimenterMap()
             if self.experimenter.sizeOfGroupExperimenterMap() > 0:
-                self.defaultGroup = self.experimenter.copyGroupExperimenterMap()[0].parent.id.val
+                self.defaultGroup = geMap[0].parent.id.val
             else:
                 self.defaultGroup = None
             self.otherGroups = list()
             self.others = list()
             self.default = list()
-            for gem in self.experimenter.copyGroupExperimenterMap():
+            for gem in geMap:
                 if gem.parent.name.val == "user":
                     pass
                 #elif gem.parent.name.val == "system":
@@ -101,7 +103,8 @@ class BaseExperimenter(BaseController):
                     self.otherGroups.append(gem.parent.id.val)
                     self.others.append(gem.parent)
                     self.default.append((gem.parent.id.val, gem.parent.name.val))
-        self.groups = list(self.conn.lookupGroups())
+        self.groups = list(self.conn.getObjects("ExperimenterGroup"))
+        self.groups.sort(key=lambda x: x.getName().lower())
     
     def otherGroupsInitialList(self, exclude=list()):
         formGroups = list()
@@ -121,7 +124,7 @@ class BaseExperimenter(BaseController):
     
     def getSelectedGroups(self, ids):
         if len(ids)>0:
-            return list(self.conn.getExperimenterGroups(ids))
+            return list(self.conn.getObjects("ExperimenterGroup", ids))
         return list()
     
     def getMyDetails(self):
@@ -136,7 +139,7 @@ class BaseExperimenter(BaseController):
                 self.otherGroups.append(gem.parent)
     
     def getOwnedGroups(self):
-        groupsList = list(self.conn.lookupOwnedGroups())
+        groupsList = list(self.conn.listOwnedGroups())
         self.groups = list()
         for gr in groupsList:
             if gr.name == "user" or gr.name == "system" or gr.name == "guest":
@@ -153,7 +156,7 @@ class BaseExperimenter(BaseController):
         up_exp.email = rstring(str(email))
         up_exp.institution = (institution!="" and institution is not None) and rstring(str(institution)) or None
         
-        defaultGroup = self.conn.getGroup(long(dGroup))._obj
+        defaultGroup = self.conn.getObject("ExperimenterGroup", long(dGroup))._obj
         self.conn.updateMyAccount(up_exp, defaultGroup)
     
     def createExperimenter(self, omeName, firstName, lastName, email, admin, active, dGroup, otherGroups, password, middleName=None, institution=None):

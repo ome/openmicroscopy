@@ -181,14 +181,14 @@ extends AbstractUndoableEdit {
 			int cols = newTableAdaptor.getColumnCount();
 			newTableData = new DefaultTableModel(rows, cols);
 			Object cellValue;
-			for (int r=0; r<rows; r++) {
-				for (int c=0; c<cols; c++) {
+			for (int r = 0; r < rows; r++) {
+				for (int c = 0; c < cols; c++) {
 					// copy data
 					cellValue = newTableAdaptor.getValueAt(r, c);
 					newTableData.setValueAt(cellValue, r, c);	
 					// delete old data, but not the first row
 					if (r > 0)
-					newTableAdaptor.setValueAt(null, r, c);		
+						newTableAdaptor.setValueAt(null, r, c);		
 				}
 			}
 		}
@@ -230,8 +230,8 @@ extends AbstractUndoableEdit {
 			int cols = oldTableAdaptor.getColumnCount();
 			oldTableData = new DefaultTableModel(rows, cols);
 			Object cellValue;
-			for (int r=0; r<rows; r++) {
-				for (int c=0; c<cols; c++) {
+			for (int r = 0; r < rows; r++) {
+				for (int c = 0; c < cols; c++) {
 					// copy old data
 					cellValue = oldTableAdaptor.getValueAt(r, c);
 					oldTableData.setValueAt(cellValue, r, c);	
@@ -251,8 +251,8 @@ extends AbstractUndoableEdit {
 			int cols = newTableData.getColumnCount();
 			
 			Object cellValue;
-			for (int r=0; r<rows; r++) {
-				for (int c=0; c<cols; c++) {
+			for (int r = 0; r < rows; r++) {
+				for (int c = 0; c < cols; c++) {
 					// copy new data to field
 					cellValue = newTableData.getValueAt(r, c);
 					newTableAdaptor.setValueAt(cellValue, r, c);	
@@ -300,15 +300,16 @@ extends AbstractUndoableEdit {
 	 */
 	private void notifyNodeChanged() 
 	{
-		if ((tree != null) && (node != null)) {
+		if (tree != null && node != null) {
 			
-			DefaultMutableTreeNode dmtNode = (DefaultMutableTreeNode)node;
+			//DefaultMutableTreeNode dmtNode = (DefaultMutableTreeNode)node;
 			// tree.startEditingAtPath(new TreePath(dmtNode.getPath()));
 			
 			//tree.clearSelection();
 			
-			DefaultTreeModel treeModel = (DefaultTreeModel)tree.getModel();
+			DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
 			treeModel.nodeChanged(node);
 		}
 	}
+	
 }

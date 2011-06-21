@@ -1,4 +1,7 @@
+.gitignore
 .classpath
+components/tools/OmeroCpp/compiler.log
+components/tools/OmeroCpp/scons.log
 .hg
 .hgignore
 .DS_Store
@@ -8,6 +11,7 @@
 /etc/local.properties
 /dist
 /var
+/components/insight/bin/*
 /components/*/target
 /lib/cache
 /lib/repository/omero/*
@@ -25,6 +29,7 @@
 !/lib/repository/omero/postgresql
 target
 config.log
+scons.log
 *.dylib
 *.exe
 *.lo
@@ -41,10 +46,13 @@ test-output
 temp-testng-customsuite.xml
 .settings
 .springBeans
-
+/components/tools/OmeroCpp/compiler.log
+/components/tools/OmeroWeb/omeroweb/media/webtest
+/components/xsd-fu/xsd_fu.egg-info/
 # Scons output files
 .sconsign.dblite
 *.dylib
+*.egg
 *.os
 omero_version.py
 eclipse.log

@@ -334,9 +334,13 @@ public class EditorAgent
      */
     public AgentSaveInfo getDataToSave()
     {
-    	List<Object> instances = EditorFactory.getInstancesToSave();
-    	if (instances == null || instances.size() == 0) return null;
-    	return new AgentSaveInfo("Editors", instances);
+    	try { //random error thrown. Needs to investigate why
+    		List<Object> instances = EditorFactory.getInstancesToSave();
+        	if (instances == null || instances.size() == 0) return null;
+        	return new AgentSaveInfo("Editors", instances);
+		} catch (Exception e) {
+			return null;
+		}
 	}
     
     /**

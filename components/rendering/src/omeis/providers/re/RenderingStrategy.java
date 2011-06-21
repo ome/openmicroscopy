@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import ome.model.core.Pixels;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.data.RegionDef;
 import omeis.providers.re.quantum.QuantizationException;
 
 /**
@@ -70,7 +71,83 @@ abstract class RenderingStrategy {
      * The maximum number of tasks that we will be using during rendering.
      */
     protected int maxTasks;
-    
+
+    /**
+     * Checks if the passed region is valid.
+     * 
+     * @param region The region to handle.
+     * @param pixels The pixels set.
+     */
+    private void isRegionValid(RegionDef region, Pixels pixels)
+    {
+    	if (region == null) return;
+    	int x = region.getX();
+    	if (x < 0)
+   	 		throw new RuntimeException("Invalid Region, X-coordinate of the " +
+   	 				"top-left corner cannot be negative:"+x);
+    	int y = region.getY();
+    	if (y < 0)
+   	 		throw new RuntimeException("Invalid Region, y-coordinate of the " +
+   	 				"top-left corner cannot be negative:"+y);
+    	int w = region.getWidth();
+    	if (w <= 0)
+   	 		throw new RuntimeException("Invalid Region, the width must be " +
+   	 				"positive:"+w);
+    	int h = region.getHeight();
+    	if (h <= 0)
+   	 		throw new RuntimeException("Invalid Region, the height must be " +
+   	 				"positive:"+h);
+    	//for now only check of XY plane
+    	int sizeX = pixels.getSizeX().intValue();
+    	int sizeY = pixels.getSizeY().intValue();
+    	if (x+w > sizeX) //reset the width.
+    		region.setWidth(sizeX-x); 
+    	if (y+h > sizeY) //reset the height.
+    		region.setHeight(sizeY-y); 
+    }
+
+    /**
+     * Initializes the <code>sizeX1</code> and <code>sizeX2</code> fields
+     * according to the specified {@link PlaneDef#getSlice() slice}.
+     * 
+     * @param pd
+     *            Reference to the plane definition defined for the strategy.
+     * @param pixels
+     *            Dimensions of the pixels set.
+     */
+    protected void initAxesSize(PlaneDef pd, Pixels pixels) {
+    	RegionDef region = pd.getRegion();
+    	isRegionValid(region, pixels);
+    	int stride = pd.getStride();
+    	if (stride < 0) stride = 0;
+    	stride++;
+        try {
+            switch (pd.getSlice()) {
+                case PlaneDef.XY:
+                	if (region != null) {
+                		sizeX1 = region.getWidth();
+                        sizeX2 = region.getHeight();
+                	} else {
+                		sizeX1 = pixels.getSizeX().intValue();
+                        sizeX2 = pixels.getSizeY().intValue();
+                	}
+                	sizeX1 = sizeX1/stride;
+                	sizeX2 = sizeX2/stride;
+                    break;
+                case PlaneDef.XZ:
+                    sizeX1 = pixels.getSizeX().intValue();
+                    sizeX2 = pixels.getSizeZ().intValue();
+                    break;
+                case PlaneDef.ZY:
+                    sizeX1 = pixels.getSizeZ().intValue();
+                    sizeX2 = pixels.getSizeY().intValue();
+            }
+        } catch (NumberFormatException nfe) {
+            throw new RuntimeException("Invalid slice ID: " + pd.getSlice()
+                    + ".", nfe);
+        }
+    }
+
     /**
      * Constructs a strategy.
      */
@@ -78,26 +155,30 @@ abstract class RenderingStrategy {
     {
     	maxTasks = Runtime.getRuntime().availableProcessors();
     }
-    
+
     /**
      * Returns an RGB buffer for usage. Note that the buffer is reallocated
      * upon each call. Should only be called within the context of a
      * "render" operation as it requires a {@link renderer}.
+     * 
+     * @param x1 The size to allocate along the X1-axis.
+     * @param x2 The size to allocate along the X2-axis.
      * @return See above.
      */
     protected RGBBuffer getRgbBuffer()
-	{
+    {
     	RenderingStats stats = renderer.getStats();
     	stats.startMalloc();
     	RGBBuffer buf = new RGBBuffer(sizeX1, sizeX2);
 		stats.endMalloc();
 		return buf;
-	}
+    }
 
-    /**
+	/**
      * Returns an RGB integer buffer for usage. Note that the buffer is
      * reallocated upon each call. Should only be called within the context of
      * a "render" operation as it requires a {@link renderer}.
+     * 
      * @return See above.
      */
 	protected RGBIntBuffer getIntBuffer()
@@ -108,11 +189,12 @@ abstract class RenderingStrategy {
     	stats.endMalloc();
     	return buf;
     }
-
+	
     /**
      * Returns an RGBA integer buffer for usage. Note that the buffer is
      * reallocated upon each call. Should only be called within the context of
      * a "render" operation as it requires a {@link renderer}.
+     * 
      * @return See above.
      */
 	protected RGBAIntBuffer getRGBAIntBuffer()

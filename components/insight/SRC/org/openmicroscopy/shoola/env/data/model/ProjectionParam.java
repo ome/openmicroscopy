@@ -178,7 +178,7 @@ public class ProjectionParam
 		if (stepping < 1) stepping = 1;
 		this.startZ = startZ;
 		this.endZ = endZ;
-		this.endT = startT;
+		this.startT = startT;
 		this.endT = endT;
 		this.stepping = stepping;
 		this.name = name;

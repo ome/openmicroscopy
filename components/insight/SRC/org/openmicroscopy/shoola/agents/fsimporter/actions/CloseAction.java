@@ -77,7 +77,7 @@ public class CloseAction
      */
     public void actionPerformed(ActionEvent e)
     { 
-    	((TopWindow) model.getView()).close(); 
+    	model.close(); 
     }
     
 }

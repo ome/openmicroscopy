@@ -511,7 +511,8 @@ public class TwoKnobsSlider
 			int max, int min, int start, int end)
 	{
 		model.checkValues(absoluteMax, absoluteMin, max, min, start, end);
-		firePropertyChange(SET_VALUES_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		firePropertyChange(SET_VALUES_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 		repaint();
 	}
 
@@ -529,10 +530,10 @@ public class TwoKnobsSlider
 		int oldEnd = model.getEndValue();
 		int oldStart = model.getStartValue();
 		model.setInterval(start, end);
-		firePropertyChange(START_VALUE_PROPERTY, new Integer(oldStart), 
-				new Integer(start));
-		firePropertyChange(END_VALUE_PROPERTY, new Integer(oldEnd), 
-				new Integer(end));
+		firePropertyChange(START_VALUE_PROPERTY, Integer.valueOf(oldStart), 
+				Integer.valueOf(start));
+		firePropertyChange(END_VALUE_PROPERTY, Integer.valueOf(oldEnd), 
+				Integer.valueOf(end));
 		repaint();
 	}
 	

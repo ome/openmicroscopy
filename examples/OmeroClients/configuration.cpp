@@ -10,7 +10,9 @@ int main(int argc, char* argv[]) {
         omero::client client1(argc, argv);
         client1.createSession();
         client1.closeSession();
-    } (const Ice::ConnectionRefusedException& cre) {
+    } catch (const Glacier2::PermissionDeniedException& pd) {
+        // Bad password?
+    } catch (const Ice::ConnectionRefusedException& cre) {
         // Bad address or port?
     }
 
@@ -21,13 +23,20 @@ int main(int argc, char* argv[]) {
         omero::client client2("localhost");
         client2.createSession("root", "ome");
         client2.closeSession();
+    } catch (const Glacier2::PermissionDeniedException& pd) {
+        // Bad password?
+    } catch (const Ice::ConnectionRefusedException& cre) {
+        // Bad address or port?
+    }
 
     // Configuration with port information
     try {
         omero::client client3("localhost", 24063);
         client3.createSession("root", "ome");
         client3.closeSession();
-    } (const Ice::ConnectionRefusedException& cre) {
+    } catch (const Glacier2::PermissionDeniedException& pd) {
+        // Bad password?
+    } catch (const Ice::ConnectionRefusedException& cre) {
         // Bad address or port?
     }
 
@@ -40,21 +49,28 @@ int main(int argc, char* argv[]) {
         omero::client client4(data);
         client4.createSession("root", "ome");
         client4.closeSession();
-    } (const Ice::ConnectionRefusedException& cre) {
+    } catch (const Glacier2::PermissionDeniedException& pd) {
+        // Bad password?
+    } catch (const Ice::ConnectionRefusedException& cre) {
         // Bad address or port?
     }
 
     // std::map to be added (ticket:1278)
-    data.properties->setProperty("omero.user", "root");
-    data.properties->setProperty("omero.pass", "ome");
-    omero::client client5(data);
-    // Again, no username or password needed
-    // since present in the data. But they *can*
-    // be overridden.
     try {
+        Ice::InitializationData data;
+        data.properties = Ice::createProperties();
+        data.properties->setProperty("omero.host", "localhost");
+        data.properties->setProperty("omero.user", "root");
+        data.properties->setProperty("omero.pass", "ome");
+        omero::client client5(data);
+        // Again, no username or password needed
+        // since present in the data. But they *can*
+        // be overridden.
         client5.createSession();
         client5.closeSession();
-    } (const Ice::ConnectionRefusedException& cre) {
+    } catch (const Glacier2::PermissionDeniedException& pd) {
+        // Bad password?
+    } catch (const Ice::ConnectionRefusedException& cre) {
         // Bad address or port?
     }
 }

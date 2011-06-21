@@ -458,8 +458,7 @@ public class MetadataServiceTest
     	link.setChild(tagReturned);
     	link.setParent(tagSetReturned);
     	//save the link.
-    	AnnotationAnnotationLinkI linkReturned = 
-    		(AnnotationAnnotationLinkI )iUpdate.saveAndReturnObject(link); 
+    	iUpdate.saveAndReturnObject(link); 
     	
     	ParametersI param = new ParametersI();
     	param.exp(omero.rtypes.rlong(self));
@@ -468,25 +467,140 @@ public class MetadataServiceTest
     	List<IObject> result = iMetadata.loadTagSets(param);
     	assertNotNull(result);
     	Iterator<IObject> i = result.iterator();
-    	IObject o;
+    	TagAnnotationData data;
     	int count = 0;
-    	AnnotationAnnotationLinkI l;
+    	String ns;
     	while (i.hasNext()) {
-			o = i.next();
-			if (o instanceof AnnotationAnnotationLinkI) {
-				l = (AnnotationAnnotationLinkI) o;
-				if (l.getId().getValue() == linkReturned.getId().getValue()) {
-					assertTrue(l.getChild().getId().getValue()
-							== tagReturned.getId().getValue());
-					assertTrue(l.getParent().getId().getValue()
-							== tagSetReturned.getId().getValue());					
-				}
+			data = new TagAnnotationData((TagAnnotation) i.next());
+			ns = data.getNameSpace();
+			if (ns != null && TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
 				count++;
 			}
 		}
     	assertTrue(count == result.size());
     }
     
+    /**
+     * Tests the retrieval of tag sets
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadTagSetsAndOrphan() 
+    	throws Exception
+    {
+    	long self = iAdmin.getEventContext().userId;
+    	
+    	//Create a tag set.
+    	TagAnnotation tagSet = new TagAnnotationI();
+    	tagSet.setTextValue(omero.rtypes.rstring("tagSet"));
+    	tagSet.setNs(omero.rtypes.rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
+    	TagAnnotation tagSetReturned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tagSet);
+    	//create a tag and link it to the tag set
+    	TagAnnotation tag = new TagAnnotationI();
+    	tag.setTextValue(omero.rtypes.rstring("tag"));
+    	TagAnnotation tagReturned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tag);
+    	AnnotationAnnotationLinkI link = new AnnotationAnnotationLinkI();
+    	link.setChild(tagReturned);
+    	link.setParent(tagSetReturned);
+    	
+    	tag = new TagAnnotationI();
+    	tag.setTextValue(omero.rtypes.rstring("tag2"));
+    	TagAnnotation orphaned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tag);
+    	
+    	//save the link.
+    	iUpdate.saveAndReturnObject(link); 
+    	
+    	ParametersI param = new ParametersI();
+    	param.exp(omero.rtypes.rlong(self));
+    	param.orphan(); //no tag loaded
+    	
+    	List<IObject> result = iMetadata.loadTagSets(param);
+    	assertNotNull(result);
+    	Iterator<IObject> i = result.iterator();
+    	TagAnnotationData data;
+    	int count = 0;
+    	int orphan = 0;
+    	String ns;
+    	while (i.hasNext()) {
+			data = new TagAnnotationData((TagAnnotation) i.next());
+			ns = data.getNameSpace();
+			if (ns != null && TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+				count++;
+			} else {
+				orphan++;
+			}
+		}
+    	assertTrue(orphan > 0);
+    	assertTrue(count > 0);
+    }
+    
+    /**
+     * Tests the retrieval of tag sets. The tag set has a tag and a comment.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadTagSets() 
+    	throws Exception
+    {
+    	long self = iAdmin.getEventContext().userId;
+    	
+    	//Create a tag set.
+    	TagAnnotation tagSet = new TagAnnotationI();
+    	tagSet.setTextValue(omero.rtypes.rstring("tagSet"));
+    	tagSet.setNs(omero.rtypes.rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
+    	TagAnnotation tagSetReturned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tagSet);
+    	//create a tag and link it to the tag set
+    	TagAnnotation tag = new TagAnnotationI();
+    	tag.setTextValue(omero.rtypes.rstring("tag"));
+    	TagAnnotation tagReturned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tag);
+    	AnnotationAnnotationLinkI link = new AnnotationAnnotationLinkI();
+    	link.setChild(tagReturned);
+    	link.setParent(tagSetReturned);
+    	//save the link.
+    	iUpdate.saveAndReturnObject(link); 
+    	
+    	CommentAnnotation comment = new CommentAnnotationI();
+    	comment.setTextValue(omero.rtypes.rstring("comment"));
+    	comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
+    	link = new AnnotationAnnotationLinkI();
+    	link.setChild(comment);
+    	link.setParent(tagSetReturned);
+    	iUpdate.saveAndReturnObject(link); 
+    	
+    	ParametersI param = new ParametersI();
+    	param.exp(omero.rtypes.rlong(self));
+    	param.orphan(); //no tag loaded
+    	
+    	List<IObject> result = iMetadata.loadTagSets(param);
+    	assertNotNull(result);
+    	Iterator<IObject> i = result.iterator();
+    	TagAnnotationData data;
+    	int count = 0;
+    	int orphan = 0;
+    	String ns;
+    	while (i.hasNext()) {
+    		tag = (TagAnnotation) i.next();
+			data = new TagAnnotationData(tag);
+			ns = data.getNameSpace();
+			if (ns != null && TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+				if (data.getId() == tagSetReturned.getId().getValue()) {
+					assertEquals(tag.sizeOfAnnotationLinks(), 1);
+					assertEquals(data.getTags().size(), 1);
+					List l = tag.linkedAnnotationList();
+					
+					assertEquals(l.size(), 1);
+					TagAnnotationData child = (TagAnnotationData) l.get(0);
+					assertEquals(child.getId(), tagReturned.getId().getValue());
+				}
+			}
+		}
+    }
+
     /**
      * Tests the retrieval of annotations used but not owned.
      * @throws Exception Thrown if an error occurred.
@@ -763,122 +877,131 @@ public class MetadataServiceTest
     
     /**
      * Tests the retrieval of channel acquisition data.
+     * One using an instrument with one laser, the second time with a laser
+     * with a pump
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false)
     public void testLoadChannelAcquisitionData() 
     	throws Exception
     {
-    	Image img = mmFactory.createImage();
-    	img = (Image) iUpdate.saveAndReturnObject(img);
-    	Pixels pixels = img.getPrimaryPixels();
-    	long pixId = pixels.getId().getValue();
-    	//method already tested in PixelsServiceTest
-    	//make sure objects are loaded.
-    	pixels = factory.getPixelsService().retrievePixDescription(pixId);
     	//create an instrument.
-    	Instrument instrument = mmFactory.createInstrument(
-    			ModelMockFactory.LASER);
-    	//add second laser
-    	instrument.addLightSource(mmFactory.createLaser());
-    	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
-    	assertNotNull(instrument);
-    	//retrieve the detector.
-    	ParametersI param = new ParametersI();
-    	param.addLong("iid", instrument.getId().getValue());
-    	String sql = "select d from Detector as d where d.instrument.id = :iid";
-    	Detector detector = (Detector) iQuery.findByQuery(sql, param);
-    	sql = "select d from FilterSet as d where d.instrument.id = :iid";
-    	FilterSet filterSet = (FilterSet) iQuery.findByQuery(sql, param);
-    	sql = "select d from Laser as d where d.instrument.id = :iid";
-    	List<IObject> lasers =  iQuery.findAllByQuery(sql, param);
-    	assertTrue(lasers.size() == 2);
-    	Laser laser = (Laser) lasers.get(0);
-    	
-    	
-    	sql = "select d from Dichroic as d where d.instrument.id = :iid";
-    	Dichroic dichroic = (Dichroic) iQuery.findByQuery(sql, param);
-    	sql = "select d from Objective as d where d.instrument.id = :iid";
-    	Objective objective = (Objective) iQuery.findByQuery(sql, param);
-    	
-    	sql = "select d from OTF as d where d.instrument.id = :iid";
-    	OTF otf = (OTF) iQuery.findByQuery(sql, param);
-    	assertNotNull(otf);
-    	LogicalChannel lc;
-    	Channel channel;
-    	ContrastMethod cm;
-    	Illumination illumination;
-    	AcquisitionMode mode;
-    	List<IObject> types = factory.getPixelsService().getAllEnumerations(
-    			ContrastMethod.class.getName());
-    	cm = (ContrastMethod) types.get(0);
-    	
-    	types = factory.getPixelsService().getAllEnumerations(
-    			Illumination.class.getName());
-    	illumination = (Illumination) types.get(0);
-    	types = factory.getPixelsService().getAllEnumerations(
-    			AcquisitionMode.class.getName());
-    	mode = (AcquisitionMode) types.get(0);
-    	
-    	List<Long> ids = new ArrayList<Long>();
-    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
-			channel = pixels.getChannel(i);
-			lc = channel.getLogicalChannel();
-			lc.setContrastMethod(cm);
-			lc.setIllumination(illumination);
-			lc.setMode(mode);
-			lc.setOtf(otf);
-	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
-	    	lc.setFilterSet(filterSet);
-	    	lc.setLightSourceSettings(mmFactory.createLightSettings(laser));
-	    	lc.setLightPath(mmFactory.createLightPath(null, dichroic, null));
-	    	lc = (LogicalChannel) iUpdate.saveAndReturnObject(lc);
-	    	assertNotNull(lc);
-	    	ids.add(lc.getId().getValue());
-		}
-    	List<LogicalChannel> channels = iMetadata.loadChannelAcquisitionData(
-    			ids);
-    	assertTrue(channels.size() == pixels.getSizeC().getValue());
-    	LogicalChannel loaded;
-    	Iterator<LogicalChannel> j = channels.iterator();
-    	LightSourceData l;
-    	while (j.hasNext()) {
-    		loaded = j.next();
-    		assertNotNull(loaded);
-        	ChannelAcquisitionData data = new ChannelAcquisitionData(loaded);
-        	assertTrue(data.getDetector().getId() == 
-        		detector.getId().getValue());
-        	assertTrue(data.getFilterSet().getId() == 
-        		filterSet.getId().getValue());
-        	l = (LightSourceData) data.getLightSource();
-        	assertTrue(l.getId() == laser.getId().getValue());
-        	assertNotNull(l.getLaserMedium());
-        	assertNotNull(l.getType());
-        	assertNotNull(loaded.getDetectorSettings());
-        	assertNotNull(loaded.getLightSourceSettings());
-        	assertNotNull(loaded.getDetectorSettings().getBinning());
-        	assertNotNull(loaded.getDetectorSettings().getDetector());
-        	assertNotNull(loaded.getDetectorSettings().getDetector().getType());
-        	assertNotNull(loaded.getLightPath());
-        	assertNotNull(data.getLightPath().getDichroic().getId() 
-        			== dichroic.getId().getValue());
-        	assertNotNull(data.getContrastMethod());
-        	assertNotNull(data.getIllumination());
-        	assertNotNull(data.getMode());
-        	//OTF support
+    	Boolean[] values = new Boolean[2];
+    	values[0] = Boolean.valueOf(false);
+    	values[1] = Boolean.valueOf(true);
+    	for (int k = 0; k < values.length; k++) {
+    		Image img = mmFactory.createImage();
+        	img = (Image) iUpdate.saveAndReturnObject(img);
+        	Pixels pixels = img.getPrimaryPixels();
+        	long pixId = pixels.getId().getValue();
+        	//method already tested in PixelsServiceTest
+        	//make sure objects are loaded.
+        	pixels = factory.getPixelsService().retrievePixDescription(pixId);
+        	String pump = null;
+        	if (values[k]) pump = ModelMockFactory.FILAMENT;
+    		Instrument instrument = mmFactory.createInstrument(
+        			ModelMockFactory.LASER, pump);
         	
-        	assertTrue(data.getOTF().getId() == otf.getId().getValue());
-        	assertNotNull(loaded.getOtf());
-        	assertTrue(loaded.getOtf().getId().getValue() 
-        			== otf.getId().getValue());
-        	assertNotNull(loaded.getOtf().getFilterSet());
-        	assertNotNull(loaded.getOtf().getObjective());
-        	assertTrue(loaded.getOtf().getFilterSet().getId().getValue() ==
-        		filterSet.getId().getValue());
-        	assertTrue(loaded.getOtf().getObjective().getId().getValue() ==
-        		objective.getId().getValue());
-        	assertNotNull(loaded.getOtf().getPixelsType());
+        	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
+        	assertNotNull(instrument);
+        	//retrieve the detector.
+        	ParametersI param = new ParametersI();
+        	param.addLong("iid", instrument.getId().getValue());
+        	String sql = "select d from Detector as d where d.instrument.id = :iid";
+        	Detector detector = (Detector) iQuery.findByQuery(sql, param);
+        	sql = "select d from FilterSet as d where d.instrument.id = :iid";
+        	FilterSet filterSet = (FilterSet) iQuery.findByQuery(sql, param);
+        	sql = "select d from Laser as d where d.instrument.id = :iid";
+        	List<IObject> lasers =  iQuery.findAllByQuery(sql, param);
+        	Laser laser = (Laser) lasers.get(0);
+        	
+        	sql = "select d from Dichroic as d where d.instrument.id = :iid";
+        	Dichroic dichroic = (Dichroic) iQuery.findByQuery(sql, param);
+        	sql = "select d from Objective as d where d.instrument.id = :iid";
+        	Objective objective = (Objective) iQuery.findByQuery(sql, param);
+        	
+        	sql = "select d from OTF as d where d.instrument.id = :iid";
+        	OTF otf = (OTF) iQuery.findByQuery(sql, param);
+        	assertNotNull(otf);
+        	LogicalChannel lc;
+        	Channel channel;
+        	ContrastMethod cm;
+        	Illumination illumination;
+        	AcquisitionMode mode;
+        	List<IObject> types = factory.getPixelsService().getAllEnumerations(
+        			ContrastMethod.class.getName());
+        	cm = (ContrastMethod) types.get(0);
+        	
+        	types = factory.getPixelsService().getAllEnumerations(
+        			Illumination.class.getName());
+        	illumination = (Illumination) types.get(0);
+        	types = factory.getPixelsService().getAllEnumerations(
+        			AcquisitionMode.class.getName());
+        	mode = (AcquisitionMode) types.get(0);
+        	
+        	List<Long> ids = new ArrayList<Long>();
+        	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+    			channel = pixels.getChannel(i);
+    			lc = channel.getLogicalChannel();
+    			lc.setContrastMethod(cm);
+    			lc.setIllumination(illumination);
+    			lc.setMode(mode);
+    			lc.setOtf(otf);
+    	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
+    	    	lc.setFilterSet(filterSet);
+    	    	lc.setLightSourceSettings(mmFactory.createLightSettings(laser));
+    	    	lc.setLightPath(mmFactory.createLightPath(null, dichroic, null));
+    	    	lc = (LogicalChannel) iUpdate.saveAndReturnObject(lc);
+    	    	assertNotNull(lc);
+    	    	ids.add(lc.getId().getValue());
+    		}
+        	List<LogicalChannel> channels = iMetadata.loadChannelAcquisitionData(
+        			ids);
+        	assertTrue(channels.size() == pixels.getSizeC().getValue());
+        	LogicalChannel loaded;
+        	Iterator<LogicalChannel> j = channels.iterator();
+        	LightSourceData l;
+        	while (j.hasNext()) {
+        		loaded = j.next();
+        		assertNotNull(loaded);
+            	ChannelAcquisitionData data = new ChannelAcquisitionData(loaded);
+            	assertTrue(data.getDetector().getId() == 
+            		detector.getId().getValue());
+            	assertTrue(data.getFilterSet().getId() == 
+            		filterSet.getId().getValue());
+            	l = (LightSourceData) data.getLightSource();
+            	assertTrue(l.getId() == laser.getId().getValue());
+            	assertNotNull(l.getLaserMedium());
+            	assertNotNull(l.getType());
+            	if (values[k]) {
+            		assertNotNull(((Laser) l.asIObject()).getPump());
+            	}
+            	assertNotNull(loaded.getDetectorSettings());
+            	assertNotNull(loaded.getLightSourceSettings());
+            	assertNotNull(loaded.getDetectorSettings().getBinning());
+            	assertNotNull(loaded.getDetectorSettings().getDetector());
+            	assertNotNull(loaded.getDetectorSettings().getDetector().getType());
+            	assertNotNull(loaded.getLightPath());
+            	assertNotNull(data.getLightPath().getDichroic().getId() 
+            			== dichroic.getId().getValue());
+            	assertNotNull(data.getContrastMethod());
+            	assertNotNull(data.getIllumination());
+            	assertNotNull(data.getMode());
+            	//OTF support
+            	
+            	assertTrue(data.getOTF().getId() == otf.getId().getValue());
+            	assertNotNull(loaded.getOtf());
+            	assertTrue(loaded.getOtf().getId().getValue() 
+            			== otf.getId().getValue());
+            	assertNotNull(loaded.getOtf().getFilterSet());
+            	assertNotNull(loaded.getOtf().getObjective());
+            	assertTrue(loaded.getOtf().getFilterSet().getId().getValue() ==
+            		filterSet.getId().getValue());
+            	assertTrue(loaded.getOtf().getObjective().getId().getValue() ==
+            		objective.getId().getValue());
+            	assertNotNull(loaded.getOtf().getPixelsType());
+    		}
 		}
     }
-    
+
 }

@@ -1,0 +1,44 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='type_ExperimenterType_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_FirstName'
+  coords='278,0,397,26'
+  href='ome.xsd.html#element_FirstName'/>
+
+ <area
+  shape='rect'
+  alt='element_LastName'
+  coords='278,36,390,62'
+  href='ome.xsd.html#element_LastName'/>
+
+ <area
+  shape='rect'
+  alt='element_Email'
+  coords='278,72,369,98'
+  href='ome.xsd.html#element_Email'/>
+
+ <area
+  shape='rect'
+  alt='element_Institution'
+  coords='278,108,411,134'
+  href='ome.xsd.html#element_Institution'/>
+
+ <area
+  shape='rect'
+  alt='element_OMEName'
+  coords='278,144,383,186'
+  href='ome.xsd.html#element_OMEName'/>
+
+ <area
+  shape='rect'
+  alt='element_GroupRef'
+  coords='278,196,390,238'
+  href='ome.xsd.html#element_GroupRef'/>
+
+ <area
+  shape='rect'
+  alt='type_ExperimenterID'
+  coords='192,248,286,274'
+  href='ome.xsd.html#type_ExperimenterID'/>
+
+</map>

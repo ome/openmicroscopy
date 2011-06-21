@@ -1,5 +1,25 @@
 <!-- Image Viewport -->
 
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
 {% if not user_agent.isFF %}
 
 <!-- Table based viewport -->
@@ -71,8 +91,8 @@
     var done_reload = function () {
       return viewport_wait.is(':hidden');
     };
-    $("#t-slider").slider({ min: 1, max: {{ image.t_count }}, repeatCallback: done_reload, tooltip_prefix: 'T=' });
-    $("#z-slider").slider({orientation: 'v', min: 1, max: {{ image.z_count }}, repeatCallback: done_reload, tooltip_prefix: 'Z='});
+    $("#t-slider").slider({ min: 1, max: {{ image.getSizeT }}, repeatCallback: done_reload, tooltip_prefix: 'T=' });
+    $("#z-slider").slider({orientation: 'v', min: 1, max: {{ image.getSizeZ }}, repeatCallback: done_reload, tooltip_prefix: 'Z='});
 
     /* Pan image viewer */
     viewport_img.viewportImage();
@@ -111,7 +131,7 @@
   {% if opts.z %}
     $("#z-slider").get(0).setSliderPos({{ opts.z }}, 1);
   {% else %}
-    $("#z-slider").get(0).setSliderPos(parseInt({{ image.z_count }} / 2 + 1), 1);
+    $("#z-slider").get(0).setSliderPos(parseInt({{ image.getSizeZ }} / 2 + 1), 1);
   {% endif %}
 
     /* Bind the T slider action */

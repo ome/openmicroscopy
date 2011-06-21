@@ -32,6 +32,7 @@
 import math;
 import numpy;
 import omero.clients
+from omero.model import ImageI
 from omero.model import RoiI
 from omero.model import EllipseI
 from omero.model import LineI
@@ -43,11 +44,12 @@ from omero.model import PolygonI
 from omero.model import PathI
 from omero.model import MaskI
 from omero.model import NamespaceI
-from omero.rtypes import rdouble 
-from omero.rtypes import rstring 
-from omero.rtypes import rint 
+from omero.rtypes import rdouble
+from omero.rtypes import rstring
+from omero.rtypes import rint
 from omero.rtypes import rfloat
-from omero.rtypes import rlist 
+from omero.rtypes import rlist
+from omero.rtypes import rlong
 
 ## Popo helpers ##
   
@@ -141,13 +143,13 @@ class DataObject(object):
     # Is the object loaded
     # @return see above.
     def isLoaded(self):
-        return value.isLoaded();
+        return self.value.isLoaded();
 
     ##
     # Get the user details for the object.
     # @return see above.
     def getDetails(self):
-        return  asIObject().getDetails();
+        return  self.asIObject().getDetails();
 
 class ImageData(DataObject):
     
@@ -157,9 +159,9 @@ class ImageData(DataObject):
     def __init__(self, image = None):
         DataObject.__init__(self)
         if(image==None):
-            setValue(ImageI());
+            self.setValue(ImageI());
         else:
-            setValue(image);
+            self.setValue(image);
         
     ##
     # Sets the name of the image.
@@ -661,12 +663,12 @@ class ShapeData(DataObject):
     ## 
     # Set the text for the Obect. 
     # @param See above.
-    def setText(self, text):        
+    def setText(self, text):
         shape = self.asIObject();
         if(shape==None):
             raise Exception("No Shape specified.");
         shape.setTextValue(rstring(text));
-        self.setDirty(true);        
+        self.setDirty(True)
 
     ##
     # Get the affinetransform from the object, returned as a string matrix(m00 m01 m10 m11 m02 m12) 
@@ -718,7 +720,7 @@ class ShapeData(DataObject):
     # @return see above.
     #
     def contains(self, point):
-        return false;
+        return False;
         
     ##
     #
@@ -1025,7 +1027,7 @@ class PolygonData(ShapeData):
     # 
     def toString(self, pointsList):
         str = "";
-        for index in range(len(pointsList)):
+        for index, pt in enumerate(pointsList):
             str = str + pt;
             if(index<len(pointsList)-1):
                 str = str + ",";
@@ -1245,7 +1247,7 @@ class MaskData(ShapeData):
         if(shape==None):
             raise Exception("No Shape specified.");
         mask = shape.getBytes();
-        if(x==None):
+        if(mask==None): # ??
             return 0;
         return mask.getValue();        
 
@@ -1497,7 +1499,7 @@ class WorkflowData(DataObject):
     # Remove the keyword from the workflow
     # @param keyword See Above. 
     def removeKeyword(self, keyword):
-        if(not self.containsKeyword()):
+        if(not self.containsKeyword(keyword)):
             return;
         newList = self.getKeywords();
         newList.remove(keyword);

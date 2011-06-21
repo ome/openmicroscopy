@@ -21,11 +21,11 @@ public class EventLogMessage extends InternalMessage {
 
     public final String action;
 
-    public final Class<IObject> entityType;
+    public final Class<? extends IObject> entityType;
 
     public final List<Long> entityIds;
 
-    public EventLogMessage(Object source, String action, Class<IObject> entityType,
+    public EventLogMessage(Object source, String action, Class<? extends IObject> entityType,
             List<Long> entityIds) {
         super(source);
         this.action = action;

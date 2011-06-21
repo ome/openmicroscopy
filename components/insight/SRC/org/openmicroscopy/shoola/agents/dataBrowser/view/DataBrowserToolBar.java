@@ -65,7 +65,6 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
-import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutUtils;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -671,8 +670,10 @@ class DataBrowserToolBar
 					"Create a tag report", filterList);
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.REPORT_48));
-		File f = UIUtilities.getDefaultFolder();
-		if (f != null) chooser.setCurrentDirectory(f);
+		try {
+			File f = UIUtilities.getDefaultFolder();
+			if (f != null) chooser.setCurrentDirectory(f);
+		} catch (Exception ex) {}
 		int option = chooser.centerDialog();
 		if (option != JFileChooser.APPROVE_OPTION) return;
 		File  file = chooser.getFormattedSelectedFile();
@@ -715,7 +716,7 @@ class DataBrowserToolBar
 			row = Integer.parseInt(itemsPerRow.getText());
 		} catch(NumberFormatException nfe) {}
 		
-		if (row < 0) row = LayoutUtils.DEFAULT_PER_ROW;
+		if (row < 0) row = 0;//LayoutUtils.DEFAULT_PER_ROW;
 		return row;
 	}
 	

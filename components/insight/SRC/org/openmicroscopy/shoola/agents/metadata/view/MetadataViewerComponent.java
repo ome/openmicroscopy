@@ -90,10 +90,12 @@ import pojos.FileAnnotationData;
 import pojos.FileData;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.WellData;
 import pojos.WellSampleData;
 
 /** 
@@ -135,7 +137,6 @@ class MetadataViewerComponent
 	 */
 	private void createMovie(MovieExportParam parameters)
 	{
-		if (parameters == null) return;
 		if (parameters == null) return;
 		Object refObject = model.getRefObject();
 		ImageData img = null;
@@ -369,6 +370,7 @@ class MetadataViewerComponent
 				pixelsID = data.getDefaultPixels().getId();
 			}
 			//check if I can save first
+			/*
 			if (model.isWritable()) {
 				Registry reg = MetadataViewerAgent.getRegistry();
 				RndProxyDef def = null;
@@ -390,9 +392,11 @@ class MetadataViewerComponent
 					MetadataViewerAgent.getRegistry().getEventBus();
 				bus.post(new RndSettingsSaved(pixelsID, def));
 			}
+			
 			if (imageID >= 0 && model.isWritable()) {
 				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
 			}
+			*/
 		}
 		model.setRootObject(root);
 		view.setRootObject();
@@ -489,7 +493,9 @@ class MetadataViewerComponent
 			refObject instanceof ScreenData ||
 			refObject instanceof PlateData || 
 			refObject instanceof DatasetData || 
-			refObject instanceof WellSampleData) {
+			refObject instanceof WellSampleData ||
+			refObject instanceof PlateAcquisitionData ||
+			refObject instanceof WellData) {
 			model.fireSaving(toAdd, toRemove, metadata, toSave, asynch);
 		} else if (refObject instanceof ImageData) {
 			ImageData img = (ImageData) refObject;
@@ -602,7 +608,6 @@ class MetadataViewerComponent
 	{
 		Object o = data;
 		if (data instanceof Map) {
-			o = model.getRefObject();
 			Map l = (Map) data;
 			if (l.size() > 0) {
 				UserNotifier un = 
@@ -879,7 +884,7 @@ class MetadataViewerComponent
 		if (index != AnalysisParam.FRAP) return;
 		Object refObject = model.getRefObject();
 		if (!(refObject instanceof ImageData)) return;
-		List<ChannelData> channels = null;
+		List<ChannelData> channels = new ArrayList<ChannelData>();
 		Map m = model.getEditor().getChannelData();
 		if (m != null && m.size() == 1) {
 			controller.analyseFRAP(0);
@@ -887,7 +892,6 @@ class MetadataViewerComponent
 		}
 		if (m != null) {
 			Iterator j = m.keySet().iterator();
-			channels = new ArrayList<ChannelData>();
 			while (j.hasNext()) {
 				channels.add((ChannelData) j.next());
 			}
@@ -920,7 +924,6 @@ class MetadataViewerComponent
 					"analyzing the data.");
 		} else {
 			if (folder == null) folder = UIUtilities.getDefaultFolder();
-			if (data == null) return;
 			OriginalFile f = (OriginalFile) data.getContent();
 			IconManager icons = IconManager.getInstance();
 			
@@ -1127,6 +1130,54 @@ class MetadataViewerComponent
 				Boolean.valueOf(true));
 	}
 	
+	/** Saves the settings. */
+	public void saveSettings() 
+	{
+		//Previewed the image.
+		Renderer rnd = model.getEditor().getRenderer();
+		if (rnd != null && getRndIndex() == RND_GENERAL) {
+			//save settings 
+			long imageID = -1;
+			long pixelsID = -1;
+			Object obj = model.getRefObject();
+			if (obj instanceof WellSampleData) {
+				WellSampleData wsd = (WellSampleData) obj;
+				obj = wsd.getImage();
+			}
+			if (obj instanceof ImageData) {
+				ImageData data = (ImageData) obj;
+				imageID = data.getId();
+				pixelsID = data.getDefaultPixels().getId();
+			}
+			//check if I can save first
+			if (model.isWritable()) {
+				Registry reg = MetadataViewerAgent.getRegistry();
+				RndProxyDef def = null;
+				try {
+					def = rnd.saveCurrentSettings();
+				} catch (Exception e) {
+					try {
+						reg.getImageService().resetRenderingService(pixelsID);
+						def = rnd.saveCurrentSettings();
+					} catch (Exception ex) {
+						String s = "Data Retrieval Failure: ";
+				    	LogMessage msg = new LogMessage();
+				        msg.print(s);
+				        msg.print(e);
+				        reg.getLogger().error(this, msg);
+					}
+				}
+				EventBus bus = 
+					MetadataViewerAgent.getRegistry().getEventBus();
+				bus.post(new RndSettingsSaved(pixelsID, def));
+			}
+			
+			if (imageID >= 0 && model.isWritable()) {
+				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
+			}
+		}	
+	}
+    
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()

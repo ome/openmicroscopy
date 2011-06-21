@@ -2,8 +2,8 @@
 # encoding: utf-8
 
 """
-Retrieves the JARs from the latest Hudson based build of the LOCI software
-repository; predominently Bio-Formats.
+Retrieves the JARs from the latest Hudson based build of the Bio-Formats
+software repository.
 """
 
 # Copyright (C) 2009 University of Dundee
@@ -42,36 +42,41 @@ def usage(error):
     """Prints usage so that we don't have to. :)"""
     cmd = sys.argv[0]
     print """%s
-Usage: %s [--subversion]
+Usage: %s [--git, --simple]
 Retrieves and updates Bio-Formats JARs from Hudson
 
 Options:
-  --subversion      Performs Subversion commands to update the working copy
+  --git      Performs Git commands to update the working copy
+  --simple   Does not perform any special version number manipulation of
+             the JAR files.
 
 Examples:
-  %s --subversion
+  %s --git
+  %s --simple
 
 Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
     sys.exit(2)
 
-def download():
+def download(simple=False):
     # JARs to ignore from download
-    ignore = ["loci_tools.jar"]
-    url = urllib.urlopen("http://hudson.openmicroscopy.org.uk/job/LOCI/lastBuild/api/xml")
+    ignore = ["loci_tools.jar", "ome_tools.jar", "ome-io.jar"]
+    url = urllib.urlopen("http://hudson.openmicroscopy.org.uk/job/BIOFORMATS-trunk/lastBuild/api/xml")
     hudson_xml = url.read()
+    hudson_xml = hudson_xml.replace('origin/', 'origin_')
     url.close()
     root = XML(hudson_xml)
 
-    revision = root.find("./changeSet/revision/revision").text
+    revision = root.findtext("./action/lastBuiltRevision/SHA1")
     artifacts = root.findall("./artifact")
     print "Updating Bio-Formats JARs from revision: %s" % revision
-    base_url = "http://hudson.openmicroscopy.org.uk/job/LOCI/lastBuild/artifact/"
+    base_url = "http://hudson.openmicroscopy.org.uk/job/BIOFORMATS-trunk/lastBuild/artifact/"
     new_jars = list()
     for artifact in artifacts:
         filename = artifact.find("fileName").text
         if filename in ignore:
             continue
-        filename = "%s-r%s.jar" % (filename[:-4], revision)
+        if not simple:
+            filename = "%s-%s.jar" % (filename[:-4], revision[:7])
         jar_url = base_url + artifact.findtext("relativePath")
         print "Downloading %s from URL %s" % (filename, jar_url)
         urllib.urlretrieve(jar_url, filename)
@@ -80,33 +85,40 @@ def download():
     
 def update(revision, new_jars):
     print "Updating local Subversion repository"
+    revision = revision[:7]
     f = open("../../etc/omero.properties")
     properties = f.read()
     f.close()
-    regex = re.compile(r'.*versions.bio-formats=r([^\n]*)', re.DOTALL)
+    regex = re.compile(r'.*versions.bio-formats=([^\n]*)', re.DOTALL)
     old_revision = regex.match(properties).group(1)
     print "Old revision is: %s" % old_revision
 
-    args = ['svn', 'del', '--force'] + glob('*r%s.jar' % old_revision)
+    args = ['git', 'rm', '--f'] + glob('*%s.jar' % old_revision)
     p = Popen(args)
     os.waitpid(p.pid, 0)
-    args = ['svn', 'add'] + glob('*r%s.jar' % revision)
+    args = ['git', 'add'] + glob('*%s.jar' % revision)
     p = Popen(args)
     os.waitpid(p.pid, 0)
 
-    regex = re.compile('versions.bio-formats=r%s' % old_revision)
-    properties = regex.sub('versions.bio-formats=r%s' % revision, properties)
+    regex = re.compile('versions.bio-formats=%s' % old_revision)
+    properties = regex.sub('versions.bio-formats=%s' % revision, properties)
     f = open("../../etc/omero.properties", 'w')
     f.write(properties)
     f.close()
     
 if __name__ == "__main__":
     try:
-        options, args = getopt(sys.argv[1:], "", ['subversion'])
+        options, args = getopt(sys.argv[1:], "", ['git', 'simple'])
     except GetoptError, (msg, opt):
         usage(msg)
 
-    revision, new_jars = download()
+    do_update = False
+    simple = False
     for option, argument in options:
-        if option == '--subversion':
-            update(revision, new_jars)
+        if option == '--git':
+            do_update = True
+        if option == '--simple':
+            simple = True
+    revision, new_jars = download(simple)
+    if do_update:
+        update(revision, new_jars)

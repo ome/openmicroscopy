@@ -85,11 +85,44 @@ public class IconManager
     /** The <code>Plate</code> icon. */
     public static final int      PLATE = 9;
     
+    /** The <code>Delete</code> icon. */
+    public static final int      DELETE = 10;
+    
+    /** The 22x22 <code>Delete</code> icon. */
+    public static final int      DELETE_22 = 11;
+    
+    /** The 22x22 <code>Apply</code> icon. */
+    public static final int 	APPLY_22 = 12;
+    
+    /** The <code>Project</code> icon. */
+    public static final int 	PROJECT = 13;
+    
+    /** The <code>Dataset</code> icon. */
+    public static final int 	DATASET = 14;
+    
+    /** The <code>Screen</code> icon. */
+    public static final int 	SCREEN = 15;
+    
+    /** The <code>Apply</code> icon. */
+    public static final int 	APPLY = 16;
+    
+    /** The <code>Apply Cancel</code> icon. */
+    public static final int 	APPLY_CANCEL = 17;
+    
+    /** The <code>Refresh</code> icon. */
+    public static final int 	REFRESH = 18;
+    
+    /** The <code>Switch location</code> icon. */
+    public static final int 	SWITCH_LOCATION = 19;
+    
+    /** The <code>Delete 48x48</code> icon. */
+    public static final int 	DELETE_48 = 20;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int	MAX_ID = 9;
+    private static final int	MAX_ID = 20;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -105,6 +138,17 @@ public class IconManager
         relPaths[IMAGE] = "nuvola_image16.png";
         relPaths[DIRECTORY] = "nuvola_folder_grey16.png";
         relPaths[PLATE] = "plate16.png";
+        relPaths[DELETE] = "nuvola_cancel16.png";
+        relPaths[DELETE_22] = "nuvola_cancel22.png";
+        relPaths[APPLY_22] = "nuvola_apply22.png";
+        relPaths[PROJECT] = "nuvola_folder_darkblue_open16.png";
+        relPaths[DATASET] = "nuvola_folder_image16.png";
+        relPaths[SCREEN] = "nuvola_folder_blue_open_modified_screen16.png";
+        relPaths[APPLY] = "nuvola_apply16.png";
+        relPaths[APPLY_CANCEL] = "nuvola_apply_cancel16.png";
+        relPaths[REFRESH] = "nuvola_reload16.png";
+        relPaths[SWITCH_LOCATION] = "eclipse_hierarchy_co16.png";
+        relPaths[DELETE_48] = "nuvola_cancel48.png";
     }
     
     /** The sole instance. */

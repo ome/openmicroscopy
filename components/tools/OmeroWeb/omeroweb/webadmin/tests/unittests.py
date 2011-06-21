@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import unittest, time, os, datetime
 import tempfile
 
@@ -9,23 +11,22 @@ from request_factory import fakeRequest
 from webgateway import views as webgateway_views
 from webadmin import views as webadmin_views
 from webadmin.forms import LoginForm, GroupForm, ExperimenterForm, \
-                ContainedExperimentersForm, \
-                ChangeMyPassword, ChangeUserPassword
+                ContainedExperimentersForm, ChangePassword
                    
 from webadmin.controller.experimenter import BaseExperimenter
 from webadmin.controller.group import BaseGroup
-from webadmin_test_library import WebTest, WebClientTest
+from webadmin_test_library import WebTest, WebAdminClientTest
 
 from django.core.urlresolvers import reverse
 
 # Testing client, URLs
-class WebAdminUrlTest(WebClientTest):
+class WebAdminUrlTest(WebAdminClientTest):
     
     def test_login(self):
         params = {
             'username': 'root',
             'password': self.root_password,
-            'server':1,
+            'server':self.server_id,
             'ssl':'on'
         }
         
@@ -87,8 +88,37 @@ class WebAdminUrlTest(WebClientTest):
         
 
     def test_urlsAsUser(self):
+        conn = self.rootconn
+        uuid = conn._sessionUuid
+        
+        # private group
+        params = {
+            "name":"webadmin_test_group_private %s" % uuid,
+            "description":"test group",
+            "owners": [0L],
+            "permissions":0
+        }
+        request = fakeRequest(method="post", params=params)
+        gid = _createGroup(request, conn)
+        
+        params = {
+            "omename":"webadmin_test_user %s" % uuid,
+            "first_name":uuid,
+            "middle_name": uuid,
+            "last_name":uuid,
+            "email":"user_%s@domain.com" % uuid,
+            "institution":"Laboratory",
+            "active":True,
+            "default_group":gid,
+            "other_groups":[gid],
+            "password":"123",
+            "confirmation":"123" 
+        }
+        request = fakeRequest(method="post", params=params)
+        eid = _createExperimenter(request, conn)
+        
         # TODO:Create experimenter 
-        self.client.login('user', 'abc')
+        self.client.login("webadmin_test_user %s" % uuid, '123')
         
         # response 200
         response = self.client.get(reverse(viewname="wamyaccount"))
@@ -134,25 +164,35 @@ class WebAdminUrlTest(WebClientTest):
         response = self.client.get(reverse(viewname="wamanagegroupid", args=["save", "2"]))
         self.failUnlessEqual(response.status_code, 404)
      
-     
-# Testing controllers, and forms
-class WebAdminTest(WebTest):
+class WebAdminConfigTest(unittest.TestCase):
+    
+    def setUp (self):
+        c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
+        try:
+            self.root_password = c.ic.getProperties().getProperty('omero.rootpass')
+            self.omero_host = c.ic.getProperties().getProperty('omero.host')
+            self.omero_port = c.ic.getProperties().getProperty('omero.port')
+        finally:
+            c.__del__()
     
     def test_isServerOn(self):
         from omeroweb.webadmin.views import _isServerOn
-        if not _isServerOn('localhost', 4064):
+        if not _isServerOn(self.omero_host, self.omero_port):
             self.fail('Server is offline')
             
     def test_checkVersion(self):
         from omeroweb.webadmin.views import _checkVersion
-        if not _checkVersion('localhost', 4064):
+        if not _checkVersion(self.omero_host, self.omero_port):
             self.fail('Client version does not match server')
     
+# Testing controllers, and forms
+class WebAdminTest(WebTest):
+        
     def test_loginFromRequest(self):
         params = {
             'username': 'root',
             'password': self.root_password,
-            'server':1,
+            'server':self.server_id,
             'ssl':'on'
         }        
         request = fakeRequest(method="post", path="/webadmin/login", params=params)
@@ -176,7 +216,7 @@ class WebAdminTest(WebTest):
         params = {
             'username': 'root',
             'password': self.root_password,
-            'server':1,
+            'server':self.server_id,
             'ssl':'on'
         }        
         request = fakeRequest(method="post", params=params)
@@ -207,7 +247,7 @@ class WebAdminTest(WebTest):
         params = {
             'username': 'notauser',
             'password': 'nonsence',
-            'server':1
+            'server':self.server_id
         }        
         request = fakeRequest(method="post", params=params)
         
@@ -229,6 +269,29 @@ class WebAdminTest(WebTest):
         else:
             errors = form.errors.as_text()
             self.fail(errors)            
+    
+    def test_createGroupsWithNonASCII(self):        
+        conn = self.rootconn
+        uuid = conn._sessionUuid
+        
+        # private group
+        params = {
+            "name":u"русский_алфавит %s" % uuid,
+            "description":u"Frühstück-Śniadanie. Tschüß-Cześć",
+            "owners": [0L],
+            "permissions":0
+        }
+        request = fakeRequest(method="post", params=params)
+        gid = _createGroup(request, conn)
+           
+        # check if group created
+        controller = BaseGroup(conn, gid)
+        perm = controller.getActualPermissions()
+        self.assertEquals(params['name'], controller.group.name)
+        self.assertEquals(params['description'], controller.group.description)
+        self.assertEquals(sorted(params['owners']), sorted(controller.owners))
+        self.assertEquals(params['permissions'], perm)
+        self.assertEquals(False, controller.isReadOnly())
     
     def test_createGroups(self):        
         conn = self.rootconn
@@ -675,7 +738,8 @@ class WebAdminTest(WebTest):
         #change password as root        
         params_passwd = {
             "password":"abc",
-            "confirmation":"abc" 
+            "confirmation":"abc",
+            "old_password":self.root_password
         }
         request = fakeRequest(method="post", params=params_passwd)        
         _changePassword(request, conn, eid)
@@ -696,25 +760,17 @@ class WebAdminTest(WebTest):
 # helpers
 
 def _changePassword(request, conn, eid=None):
-    if conn.isAdmin():
-        password_form = ChangeUserPassword(data=request.POST.copy())
-    else:
-        password_form = ChangeMyPassword(data=request.POST.copy())
-
+    password_form = ChangePassword(data=request.POST.copy())
     if password_form.is_valid():
+        old_password = password_form.cleaned_data['old_password']
         password = password_form.cleaned_data['password']
         if conn.isAdmin():
             exp = conn.getExperimenter(eid)
-            conn.changeUserPassword(exp.omeName, password)
+            conn.changeUserPassword(exp.omeName, password, old_password)
         else:
-            old_password = password_form.cleaned_data['old_password']
-            error = conn.changeMyPassword(old_password, password) 
-            if error is not None:
-                errors = form.errors.as_text()
-                self.fail(errors)
+            conn.changeMyPassword(password, old_password)
     else:
-        errors = form.errors.as_text()
-        self.fail(errors)
+        raise Exception(password_form.errors.as_text())
         
 def _createGroup(request, conn):
     #create group
@@ -729,8 +785,7 @@ def _createGroup(request, conn):
         readonly = webadmin_views.toBoolean(form.cleaned_data['readonly'])
         return controller.createGroup(name, owners, permissions, readonly, description)
     else:
-        errors = form.errors.as_text()
-        self.fail(errors)
+        raise Exception(form.errors.as_text())
 
 def _updateGroup(request, conn, gid):
     # update group
@@ -745,8 +800,7 @@ def _updateGroup(request, conn, gid):
         readonly = webadmin_views.toBoolean(form.cleaned_data['readonly'])
         controller.updateGroup(name, owners, permissions, readonly, description)
     else:
-        errors = form.errors.as_text()
-        self.fail(errors)                
+        raise Exception(form.errors.as_text())            
 
 def _createExperimenter(request, conn):
     # create experimenter
@@ -780,8 +834,7 @@ def _createExperimenter(request, conn):
         password = form.cleaned_data['password']
         return controller.createExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
     else:
-        errors = form.errors.as_text()
-        self.fail(errors)
+        raise Exception(form.errors.as_text())
 
 def _updateExperimenter(request, conn, eid):
     # update experimenter
@@ -816,5 +869,4 @@ def _updateExperimenter(request, conn, eid):
         otherGroups = form.cleaned_data['other_groups']
         controller.updateExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution)
     else:
-        errors = form.errors.as_text()
-        self.fail(errors)
+        raise Exception(form.errors.as_text())

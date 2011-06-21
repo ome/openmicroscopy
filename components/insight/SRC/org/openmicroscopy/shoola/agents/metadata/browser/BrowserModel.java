@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.browser;
 
 
 //Java imports
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -52,9 +51,6 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 class BrowserModel
 {
 
-	/** Position of the last pop-up trigger within the browser. */
-    private Point           			popupPoint;
-    
 	/** The selected node. */
 	private List<TreeBrowserDisplay>	selectedNodes;
 	

@@ -1,0 +1,50 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_ProfileSet_SchemasOMERO200809'>
+ <area
+  shape='rect'
+  alt='element_InstrumentRef'
+  coords='582,88,757,130'
+  href='OMERO.xsd.html#element_InstrumentRef'/>
+
+ <area
+  shape='rect'
+  alt='element_ObjectiveRef'
+  coords='582,140,750,182'
+  href='OMERO.xsd.html#element_ObjectiveRef'/>
+
+ <area
+  shape='rect'
+  alt='type_ProfileSource'
+  coords='496,192,612,218'
+  href='OMERO.xsd.html#type_ProfileSource'/>
+
+ <area
+  shape='rect'
+  alt='element_LightSourceRef'
+  coords='596,316,778,358'
+  href='OMERO.xsd.html#element_LightSourceRef'/>
+
+ <area
+  shape='rect'
+  alt='element_OTFRef'
+  coords='596,368,722,410'
+  href='OMERO.xsd.html#element_OTFRef'/>
+
+ <area
+  shape='rect'
+  alt='element_DetectorRef'
+  coords='596,420,757,462'
+  href='OMERO.xsd.html#element_DetectorRef'/>
+
+ <area
+  shape='rect'
+  alt='element_FilterSetRef'
+  coords='596,472,764,514'
+  href='OMERO.xsd.html#element_FilterSetRef'/>
+
+ <area
+  shape='rect'
+  alt='type_ProfileSource'
+  coords='510,524,626,550'
+  href='OMERO.xsd.html#type_ProfileSource'/>
+
+</map>

@@ -1,0 +1,32 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_LogicalChannel_SchemasAnalysisModule200802'>
+ <area
+  shape='rect'
+  alt='element_LightSourceRef'
+  coords='436,727,786,786'
+  href='AnalysisModule.xsd.html#element_LightSourceRef'/>
+
+ <area
+  shape='rect'
+  alt='element_OTFRef'
+  coords='436,796,786,855'
+  href='AnalysisModule.xsd.html#element_OTFRef'/>
+
+ <area
+  shape='rect'
+  alt='element_DetectorRef'
+  coords='436,865,786,924'
+  href='AnalysisModule.xsd.html#element_DetectorRef'/>
+
+ <area
+  shape='rect'
+  alt='element_FilterSetRef'
+  coords='436,934,786,993'
+  href='AnalysisModule.xsd.html#element_FilterSetRef'/>
+
+ <area
+  shape='rect'
+  alt='element_ChannelComponent'
+  coords='436,1003,786,1062'
+  href='AnalysisModule.xsd.html#element_ChannelComponent'/>
+
+</map>

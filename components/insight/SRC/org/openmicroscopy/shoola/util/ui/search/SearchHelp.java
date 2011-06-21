@@ -118,19 +118,19 @@ public class SearchHelp
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append("<html><body bgcolor=#F0F0F0>");
+		buf.append("Most of the time, a simple search will find relevant " +
+				"results. The following search operators are to help you" +
+				" refining a search");
 		buf.append("<h3 bgcolor=#FFFFF0>Wildcard Searches</h3>");
-		buf.append("<p>To perform a single character wildcard search use the " +
-				"\"?\" symbol.</p>");
-		buf.append("<p>To perform a multiple character wildcard search " +
-				"use the \"*\" symbol.</p>");
-		buf.append("<h3 bgcolor=#FFFFF0>Boosting a Term</h3>");
-		buf.append("<p>Boosting allows you to control the relevance " +
-				"of a document by boosting its term. </p> " +
-				"<p>To boost a term use the caret, \"^\", symbol with a boost" +
-				" factor (a number) <br> at the end of the term you are " +
-				"searching." +
-				"</p> <p>The higher the boost factor, the more relevant the " +
-				"term will be.</p>");
+		buf.append("<p>To perform a single character wildcard search, use " +
+				"the (\"?\") symbol. For example:</p>");
+		buf.append("<p bgcolor=#FFFFFF>Mitosi?</p>");
+		buf.append("<p><b>Will return images labelled Mitosis</b></p>");
+		buf.append("<p>To perform a multiple character wildcard search, " +
+				"use the (\"*\") symbol. For example</p>");
+		buf.append("<p bgcolor=#FFFFFF>Mito*</p>");
+		buf.append("<p><b>Will return any image labelled beginning " +
+				"with Mitosis</b></p>");
 		buf.append("</body></html>");
 		return buf.toString();
 	}
@@ -159,7 +159,8 @@ public class SearchHelp
 		setResizable(false);
 		initComponents();
 		buildGUI();
-		setSize(520, 350);
+		//setSize(520, 350);
+		pack();
 	}
 	
 }

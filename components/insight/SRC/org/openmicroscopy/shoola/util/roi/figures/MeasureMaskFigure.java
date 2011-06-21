@@ -36,12 +36,13 @@ import java.util.List;
 
 //Third-party libraries
 import org.jhotdraw.draw.FigureListener;
-import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 /**
- *
+ * Mask with measurement
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -78,8 +79,9 @@ public class MeasureMaskFigure
     
     /** 
      * Creates a new instance.
-     * @param x    coord of the figure. 
-     * @param y    coord of the figure. 
+     * 
+     * @param x    coordinate of the figure. 
+     * @param y    coordinate of the figure. 
      * @param width of the figure. 
      * @param height of the figure. 
      * */
@@ -91,8 +93,9 @@ public class MeasureMaskFigure
 
     /** 
      * Creates a new instance.
-     * @param x    coord of the figure. 
-     * @param y    coord of the figure. 
+     * 
+     * @param x    coordinate of the figure. 
+     * @param y    coordinate of the figure. 
      * @param width of the figure. 
      * @param height of the figure. 
      * @param readOnly Is the figure read only.
@@ -107,9 +110,10 @@ public class MeasureMaskFigure
     
     /** 
      * Creates a new instance.
+     * 
      * @param text text of the ellipse. 
-     * @param x    coord of the figure. 
-     * @param y    coord of the figure. 
+     * @param x    coordinate of the figure. 
+     * @param y    coordinate of the figure. 
      * @param width of the figure. 
      * @param height of the figure. 
      * @param readOnly the figure is readOnly
@@ -120,7 +124,9 @@ public class MeasureMaskFigure
     	boolean clientObject) 
     {
 		super(text, x, y, width, height, readOnly, clientObject);
-		this.mask = mask;
+		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
+		setMask(mask);
     }
     
     /**
@@ -129,6 +135,8 @@ public class MeasureMaskFigure
      */
     public void setMask(BufferedImage mask)
     {
+    	if (mask == null)
+    		throw new IllegalArgumentException("No Mask");
     	this.mask = mask;
     }    
     
@@ -136,22 +144,22 @@ public class MeasureMaskFigure
      * get the mask of the maskFigure.
      * return See above.
      */
-    public BufferedImage getMask()
-    {
-    	return this.mask;
-    }
+    public BufferedImage getMask() { return mask; }
     
-
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
 	public String getType() { return FigureUtil.MASK_TYPE; }
     
+	/**
+	 * Draws the image.
+	 * @see #draw(Graphics2D)
+	 */
 	public void draw(Graphics2D g)
 	{
-		g.drawImage(mask, (int)getX(), (int)getY(), (int)getWidth(), 
-				(int)getHeight(), null);
+		g.drawImage(mask, (int) getX(), (int) getY(), (int) getWidth(), 
+				(int) getHeight(), null);
 	}
     
 	/**
@@ -162,7 +170,7 @@ public class MeasureMaskFigure
 	private boolean hasColour(int rgb)
 	{
 		Color toColor = new Color(rgb);
-		return (toColor.getAlpha()!=0);
+		return (toColor.getAlpha() != 0);
 	}
 	
 	/**
@@ -183,10 +191,9 @@ public class MeasureMaskFigure
 		return vector;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasureMaskFigure#clone()
+	/**
+	 * Clones the mask.
+	 * @see  MeasureMaskFigure#clone()
 	 */
 	public MeasureMaskFigure clone()
 	{
@@ -206,8 +213,8 @@ public class MeasureMaskFigure
 	{
 		List<FigureListener> figListeners = new ArrayList<FigureListener>();
 		Object[] listeners = listenerList.getListenerList();
-		for(Object listener : listeners)
-			if(listener instanceof FigureListener)
+		for (Object listener : listeners)
+			if (listener instanceof FigureListener)
 				figListeners.add((FigureListener)listener);
 		return figListeners;
 	}

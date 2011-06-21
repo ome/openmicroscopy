@@ -3328,7 +3328,6 @@ public class DeleteServiceTest
 		assertDoesNotExist(d);
 		assertExists(img);
 		assertExists(pixels);
-
     }
     
     /**
@@ -3742,7 +3741,6 @@ public class DeleteServiceTest
 
         assertExists(wells.get(0));
         assertExists(images.get(0));
-
     }
 
     /**
@@ -3924,7 +3922,6 @@ public class DeleteServiceTest
             prx.close();
         }
         assertTrue(Arrays.equals(new byte[]{1,2,3,4}, buf));
-
     }
 
     /**
@@ -4073,6 +4070,7 @@ public class DeleteServiceTest
      * Tests to delete an object already deleted.
      * @throws Exception Thrown if an error occurred.
      */
+    @Test
     public void testDeleteTwice()
     	throws Exception
     {
@@ -4088,6 +4086,7 @@ public class DeleteServiceTest
      * using the <code>deleteImage</code> method.
      * @throws Exception Thrown if an error occurred.
      */
+    @Test
     public void testDeleteFullImage()
     	throws Exception
     {
@@ -4107,6 +4106,7 @@ public class DeleteServiceTest
      * using the <code>deleteImage</code> method.
      * @throws Exception Thrown if an error occurred.
      */
+    @Test
     public void testDeleteImageWithPlaneInfo()
     	throws Exception
     {
@@ -4281,5 +4281,36 @@ public class DeleteServiceTest
 		}
     }
  
- }
+    /**
+     * Simulates an SVS import in which many Pixels are attached to a
+     * single, archived OriginalFile.
+     */
+    @Test(groups = "ticket:5237")
+    public void testDeletePixelsAndFiles()
+        throws Exception
+    {
+        Image img1 = mmFactory.createImage();
+        Image img2 = mmFactory.createImage();
+        OriginalFile file = mmFactory.createOriginalFile();
+        img1.getPrimaryPixels().linkOriginalFile(file);
+        img2.getPrimaryPixels().linkOriginalFile(file);
 
+        file = (OriginalFile) iUpdate.saveAndReturnObject(file);
+        img1 = file.linkedPixelsList().get(0).getImage();
+        img2 = file.linkedPixelsList().get(1).getImage();
+
+        assertExists(img1);
+        assertExists(img2);
+        assertExists(file);
+        delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
+        assertDoesNotExist(img1);
+        assertExists(img2);
+        assertExists(file);
+        delete(new DeleteCommand(REF_IMAGE, img2.getId().getValue(), null));
+        assertDoesNotExist(img1);
+        assertDoesNotExist(img2);
+        assertDoesNotExist(file);
+
+
+    }
+ }

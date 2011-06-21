@@ -24,16 +24,13 @@ package org.openmicroscopy.shoola.agents.events.importer;
 
 
 //Java imports
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
-import pojos.DataObject;
-import pojos.DatasetData;
 
 
 /** 
@@ -59,56 +56,32 @@ public class LoadImporter
 	/** Indicates that the type is for Screening data. */
 	public static final int		SCREEN_TYPE = 1;
 	
-	/** The containers where to load the image. */
-	private List<TreeImageDisplay> containers;
+	/** The currently selected container or <code>null</code>. */
+	private TreeImageDisplay selectedContainer;
 	
-	/** The default datasets. */
-	private List<DatasetData> datasets;
+	/** The objects used for selection. */
+	private Collection<TreeImageDisplay> objects;
 	
 	/** The type of the import to handle. */
 	private int type;
 	
-	/** 
-	 * Creates a new instance.
+	/**
+	 *  Creates a new instance. 
 	 * 
-	 * @param type The type of importer.
+	 * @param selectedContainer The selected container.
 	 */
-	public LoadImporter(int type)
+	public LoadImporter(TreeImageDisplay selectedContainer, int type)
 	{
+		this.selectedContainer = selectedContainer;
 		this.type = type;
 	}
 	
 	/**
-	 *  Creates a new instance. 
-	 * 
-	 * @param container The container where import the files.
-	 */
-	public LoadImporter(TreeImageDisplay container)
-	{
-		if (container != null) {
-			containers = new ArrayList<TreeImageDisplay>();
-			containers.add(container);
-		}
-		type = -1;
-	}
-	
-	/**
-	 *  Creates a new instance. 
-	 * 
-	 * @param containers The containers where import the files.
-	 */
-	public LoadImporter(List<TreeImageDisplay> containers)
-	{
-		this.containers = containers;
-		type = -1;
-	}
-	
-	/**
-	 * Returns the containers.
+	 * Returns the container.
 	 * 
 	 * @return See above.
 	 */
-	public List<TreeImageDisplay> getContainers() { return containers; }
+	public TreeImageDisplay getSelectedContainer() { return selectedContainer; }
 	
 	/**
 	 * Returns the type of import.
@@ -118,20 +91,20 @@ public class LoadImporter
 	public int getType() { return type; }
 	
 	/**
-	 * Returns the default datasets.
+	 * Returns the top nodes.
 	 * 
 	 * @return See above.
 	 */
-	public List<DatasetData> getDatasets() { return datasets; }
+	public Collection<TreeImageDisplay> getObjects() { return objects; }
 	
 	/**
-	 * Returns the datasets.
+	 * Returns the top nodes.
 	 * 
 	 * @param datasets The values to set.
 	 */
-	public void setDatasets(List<DatasetData> datasets)
+	public void setObjects(Collection<TreeImageDisplay> objects)
 	{
-		this.datasets = datasets;
+		this.objects = objects;
 	}
 
 }

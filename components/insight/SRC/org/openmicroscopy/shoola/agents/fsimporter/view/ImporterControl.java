@@ -23,6 +23,8 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -31,7 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
+import javax.swing.WindowConstants;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
@@ -42,16 +44,22 @@ import javax.swing.event.MenuListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ActivateAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.CancelAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.RetryImportAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.SubmitFilesAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
+import org.openmicroscopy.shoola.agents.fsimporter.util.ErrorDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DataObject;
 import pojos.ExperimenterData;
 
 /** 
@@ -77,6 +85,12 @@ class ImporterControl
 	/** Action ID indicating to close the window. */
 	static final Integer CLOSE_BUTTON = 1;
 	
+	/** Action ID indicating to cancel. */
+	static final Integer CANCEL_BUTTON = 2;
+	
+	/** Action ID indicating to retry failed import. */
+	static final Integer RETRY_BUTTON = 3;
+	
 	/** 
 	 * Reference to the {@link Importer} component, which, in this context,
 	 * is regarded as the Model.
@@ -98,6 +112,8 @@ class ImporterControl
 		actionsMap = new HashMap<Integer, ImporterAction>();
 		actionsMap.put(SEND_BUTTON, new SubmitFilesAction(model));
 		actionsMap.put(CLOSE_BUTTON, new CloseAction(model));
+		actionsMap.put(CANCEL_BUTTON, new CancelAction(model));
+		actionsMap.put(RETRY_BUTTON, new RetryImportAction(model));
 	}
 	
 	/** 
@@ -108,14 +124,30 @@ class ImporterControl
 	private void createWindowsMenuItems(JMenu menu)
 	{
 		menu.removeAll();
-		Importer viewer = ImporterFactory.getImporter();
-		menu.add(new JMenuItem(new ActivateAction(viewer)));
+		menu.add(new ActivateAction(model));
+		/*
+		menu.removeAll();
+		Collection<ImporterUIElement> elements = view.getImportElements();
+		if (elements == null || elements.size() == 0) return;
+		Iterator<ImporterUIElement> i = elements.iterator();
+		ImporterUIElement e;
+		ActivateAction a;
+		while (i.hasNext()) {
+			e = i.next();
+			a = new ActivateAction(model, e.getName(), e.getImportIcon(),
+					e.getID());
+			menu.add(new JMenuItem(a));
+		}
+		*/
 	}
 	
 	/** Attaches listener to the window listener. */
 	private void attachListeners()
 	{
-		//view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		view.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) { model.close(); }
+		});
 		JMenu menu = ImporterFactory.getWindowMenu();
 		menu.addMenuListener(new MenuListener() {
 
@@ -247,23 +279,44 @@ class ImporterControl
 			model.importData((ImportableObject) evt.getNewValue());
 		} else if (ImportDialog.LOAD_TAGS_PROPERTY.equals(name)) {
 			model.loadExistingTags();
+		} else if (ImportDialog.CANCEL_SELECTION_PROPERTY.equals(name)) {
+			model.close();
+		} else if (ImportDialog.CANCEL_ALL_IMPORT_PROPERTY.equals(name)) {
+			model.cancelAllImports();
 		} else if (MessengerDialog.SEND_PROPERTY.equals(name)) {
 			//mark the files.
 			if (markedFailed == null) return;
 			Iterator<FileImportComponent> i = markedFailed.iterator();
-			FileImportComponent fc;
-			while (i.hasNext()) {
-				fc = i.next();
-				fc.markAsSent();
-			}
+			while (i.hasNext())
+				i.next().markAsSent();
 			getAction(SEND_BUTTON).setEnabled(model.hasFailuresToSend());
 			markedFailed = null;
 		} else if (ClosableTabbedPane.CLOSE_TAB_PROPERTY.equals(name)) {
-			int index = (Integer) evt.getNewValue();
-			model.removeImportElement(index);
+			model.removeImportElement(evt.getNewValue());
 		} else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
 			getAction(SEND_BUTTON).setEnabled(model.hasFailuresToSend());
-		} 
+		} else if (FileImportComponent.DISPLAY_ERROR_PROPERTY.equals(name)) {
+			ErrorDialog d = new ErrorDialog(view, 
+					(Throwable) evt.getNewValue());
+			UIUtilities.centerAndShow(d);
+		} else if (FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
+			
+		} else if (ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)) {
+			Integer value = (Integer) evt.getNewValue();
+			int v = Importer.PROJECT_TYPE;
+			if (value != null) v = value.intValue();
+			model.refreshContainers(v);
+		} else if (ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
+			List<DataObject> l = (List<DataObject>) evt.getNewValue();
+			if (l == null) return;
+			switch (l.size()) {
+				case 1:
+					model.createDataObject(l.get(0), null);
+					break;
+				case 2:
+					model.createDataObject(l.get(0), l.get(1));
+			}
+		}
 	}
 	
 }

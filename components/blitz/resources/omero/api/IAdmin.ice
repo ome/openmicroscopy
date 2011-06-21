@@ -70,8 +70,23 @@ module omero {
                 idempotent void moveToCommonSpace(IObjectList objects) throws ServerError;
 
                 // UAuth
+
+                /**
+                 * HasPassword: Requires the session to have been created with a password
+                 * as opposed to with a session uuid (via joinSession). If that's not the
+                 * case, a SecurityViolation will be thrown, in which case
+                 * ServiceFactory.setSecurityPassword can be used.
+                 **/
                 idempotent void changePassword(omero::RString newPassword) throws ServerError;
+
                 idempotent void changePasswordWithOldPassword(omero::RString oldPassword, omero::RString newPassword) throws ServerError;
+
+                /**
+                 * HasPassword: Requires the session to have been created with a password
+                 * as opposed to with a session uuid (via joinSession). If that's not the
+                 * case, a SecurityViolation will be thrown, in which case
+                 * ServiceFactory.setSecurityPassword can be used.
+                 **/
                 idempotent void changeUserPassword(string omeName, omero::RString newPassword) throws ServerError;
                 idempotent void synchronizeLoginCache() throws ServerError;
                 void changeExpiredCredentials(string name, string oldCred, string newCred) throws ServerError;

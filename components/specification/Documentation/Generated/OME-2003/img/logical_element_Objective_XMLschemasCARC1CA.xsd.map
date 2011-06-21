@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Objective_XMLschemasCARC1CA.xsd'>
+ <area
+  shape='rect'
+  alt='element_LensNA'
+  coords='472,212,858,272'
+  href='CA.xsd.html#element_LensNA'/>
+
+ <area
+  shape='rect'
+  alt='element_Magnification'
+  coords='472,282,858,342'
+  href='CA.xsd.html#element_Magnification'/>
+
+</map>

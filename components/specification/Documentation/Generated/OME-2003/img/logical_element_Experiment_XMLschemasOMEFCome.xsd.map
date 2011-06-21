@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Experiment_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_Description'
+  coords='472,89,858,165'
+  href='ome.xsd.html#element_Description'/>
+
+ <area
+  shape='rect'
+  alt='element_ExperimenterRef'
+  coords='472,175,858,218'
+  href='ome.xsd.html#element_ExperimenterRef'/>
+
+</map>

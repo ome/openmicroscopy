@@ -18,20 +18,59 @@
 #  * http://code.google.com/docreader/#p=isapi-wsgi&s=isapi-wsgi&t=ServingFromRoot
 #
 
+
 import os, sys
 CWD = os.path.dirname(__file__)
+OMERO_HOME = os.path.join(CWD, os.path.pardir, os.path.pardir)
+CONFIG = os.path.join(OMERO_HOME, "etc", "grid", "config.xml")
+LOGS = os.path.join(OMERO_HOME, "var", "log")
+
 sys.path.append(str(CWD))
 sys.path.append(str(os.path.join(CWD, 'omeroweb')))
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
 import django.core.handlers.wsgi
-application = django.core.handlers.wsgi.WSGIHandler()
+import threading
+lock = threading.Lock()
+
+class SerialWSGIHandler (django.core.handlers.wsgi.WSGIHandler):
+    def __call__ (self, *args, **kwargs):
+        try:
+            lock.acquire()
+            return super(SerialWSGIHandler, self).__call__(*args, **kwargs)
+        finally:
+            lock.release()
+        
+application = SerialWSGIHandler()
 
 import isapi_wsgi
 # The entry points for the ISAPI extension.
 def __ExtensionFactory__():
     return isapi_wsgi.ISAPISimpleHandler(application)
 
+def permit_iis(filename):
+    """
+    Allow IIS to access required OMERO.web files
+    """
+
+    from win32security import LookupAccountName, GetFileSecurity, OBJECT_INHERIT_ACE
+    from win32security import CONTAINER_INHERIT_ACE, GetNamedSecurityInfo, SE_FILE_OBJECT
+    from win32security import DACL_SECURITY_INFORMATION, ACL_REVISION_DS, SetNamedSecurityInfo
+    from win32file import FILE_ALL_ACCESS
+
+    flags = OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE
+    iusr, domain, type = LookupAccountName("", "IUSR")
+
+    fileSecDesc = GetNamedSecurityInfo(filename, SE_FILE_OBJECT, DACL_SECURITY_INFORMATION)
+    fileDacl = fileSecDesc.GetSecurityDescriptorDacl()
+    fileDacl.AddAccessAllowedAceEx(ACL_REVISION_DS, flags, FILE_ALL_ACCESS, iusr)
+    SetNamedSecurityInfo(filename, SE_FILE_OBJECT, DACL_SECURITY_INFORMATION, None, None, fileDacl, None )
+
 if __name__ == '__main__':
+
+    permit_iis(CONFIG)
+    permit_iis(LOGS)
+
     # If run from the command-line, install ourselves.
     from isapi.install import *
     params = ISAPIParameters()

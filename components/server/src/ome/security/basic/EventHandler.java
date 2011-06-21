@@ -59,7 +59,7 @@ public class EventHandler implements MethodInterceptor {
 
     protected final SessionFactory factory;
 
-    protected final SqlAction isolatedSql, simpleSql;
+    protected final SqlAction sql;
 
     protected final boolean readOnly;
 
@@ -72,22 +72,20 @@ public class EventHandler implements MethodInterceptor {
      * @param template
      *            Not null.
      */
-    public EventHandler(SqlAction isolatedSql, SqlAction simpleSql,
+    public EventHandler(SqlAction sql,
             BasicSecuritySystem securitySystem, SessionFactory factory,
             TransactionAttributeSource txSource) {
-        this(isolatedSql, simpleSql, securitySystem, factory, txSource, false);
+        this(sql, securitySystem, factory, txSource, false);
     }
 
-    public EventHandler(SqlAction isolatedSql,
-            SqlAction simpleSql,
+    public EventHandler(SqlAction sql,
             BasicSecuritySystem securitySystem, SessionFactory factory,
             TransactionAttributeSource txSource,
             boolean readOnly) {
         this.secSys = securitySystem;
         this.txSource = txSource;
         this.factory = factory;
-        this.simpleSql = simpleSql;
-        this.isolatedSql = isolatedSql;
+        this.sql = sql;
         this.readOnly = readOnly;
     }
 
@@ -112,13 +110,19 @@ public class EventHandler implements MethodInterceptor {
         final Session session = factory.getSession();
 
         if (!readOnly) {
-            simpleSql.deferConstraints();
+            sql.deferConstraints();
         }
 
         secSys.loadEventContext(readOnly, isClose);
 
         // now the user can be considered to be logged in.
         EventContext ec = secSys.getEventContext();
+        if (!readOnly) {
+            sql.prepareSession(
+                    ec.getCurrentEventId(),
+                    ec.getCurrentUserId(),
+                    ec.getCurrentGroupId());
+        }
         if (log.isInfoEnabled()) {
             StringBuilder sb = new StringBuilder();
             sb.append(" Auth:\tuser=");
@@ -242,7 +246,7 @@ public class EventHandler implements MethodInterceptor {
         }
 
         try {
-            long lastValue = isolatedSql.nextValue("seq_eventlog", logs.size());
+            long lastValue = sql.nextValue("seq_eventlog", logs.size());
             long id = lastValue - logs.size() + 1;
             List<Object[]> batchData = new ArrayList<Object[]>();
             for (EventLog l : logs) {
@@ -256,7 +260,7 @@ public class EventHandler implements MethodInterceptor {
                                 l.getEvent().getId() });
             }
 
-            simpleSql.insertLogs(batchData);
+            sql.insertLogs(batchData);
 
         } catch (Exception ex) {
             log.error("Error saving event logs: " + logs, ex);

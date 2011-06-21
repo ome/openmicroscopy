@@ -424,6 +424,8 @@ public class ProjSavingDialog
         		selectionPane.add((JCheckBox) i.next());
         	}
         }
+		if (selection == null) 
+			selection = new LinkedHashMap<JCheckBox, DatasetData>();
 		selection.put(newBox, d);
 		selectionPane.revalidate();
 		selectionPane.repaint();

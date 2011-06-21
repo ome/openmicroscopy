@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_SemanticType_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_Label'
+  coords='478,180,870,239'
+  href='ome.xsd.html#element_Label'/>
+
+ <area
+  shape='rect'
+  alt='element_Description'
+  coords='478,249,870,308'
+  href='ome.xsd.html#element_Description'/>
+
+ <area
+  shape='rect'
+  alt='element_Element'
+  coords='478,318,870,377'
+  href='ome.xsd.html#element_Element'/>
+
+</map>

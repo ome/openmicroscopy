@@ -147,12 +147,13 @@
 
         <macrodef name="tryEclipse">
             <attribute name="settingsRef"/>
+            <attribute name="filter" default="false"/>
             <sequential>
                 <trycatch>
                     <try>
                         <ivy:resolve file="test.xml" type="jar" conf="test" settingsRef="@{settingsRef}" log="quiet"/>
                         <taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
-                        <ivyeclipse conf="test"/>
+                        <ivyeclipse conf="test" filter="@{filter}"/>
                     </try>
                     <catch>
                         <echo>
@@ -164,7 +165,7 @@
                         </echo>
                         <ivy:resolve file="ivy.xml" type="jar" conf="build" settingsRef="@{settingsRef}" log="quiet"/>
                         <taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
-                        <ivyeclipse conf="build"/>
+                        <ivyeclipse conf="build" filter="@{filter}"/>
                     </catch>
                 </trycatch>
             </sequential>
@@ -239,6 +240,22 @@
                     <arg value="${env.J}"/>
                     <arg value="--arch=${env.ARCH}"/>
                     <arg value="--release=${env.RELEASE}"/>
+                    <args/>
+                </exec>
+            </sequential>
+        </macrodef>
+
+        <macrodef name="setup_py">
+            <attribute name="failonerror" default="true"/>
+            <element name="args" implicit="true"/>
+            <sequential>
+                <copy todir="${basedir}">
+                   <fileset dir="${omero.home}/lib/repository" includes="setuptools*"/>
+                </copy>
+                <exec executable="python" failonerror="@{failonerror}">
+                    <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
+                    <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
+                    <arg value="${basedir}/setup.py"/>
                     <args/>
                 </exec>
             </sequential>

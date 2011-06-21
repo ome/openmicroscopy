@@ -174,7 +174,7 @@ class TestTables(lib.TestCase):
         """
         Returns a string similar to that written by RandomAccessFile.writeUTF() in Java
         """
-        return "XX%s" % uuid4()
+        return "XX%s" % uuid.uuid4()
 
     def repodir(self, make = True):
         self.tmp = path(self.tmpdir())

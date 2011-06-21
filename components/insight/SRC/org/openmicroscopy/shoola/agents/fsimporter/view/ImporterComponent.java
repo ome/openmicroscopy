@@ -25,8 +25,11 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JFrame;
 
@@ -36,14 +39,19 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
+import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
-import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Implements the {@link Importer} interface to provide the functionality
@@ -72,6 +80,17 @@ class ImporterComponent
 	implements Importer
 {
 
+	/** Text displayed in dialog box when cancelling import.*/
+	private static final String CANCEL_TEXT = "Are you sure you want to " +
+			"cancel all imports that have not yet started?";
+	
+	/** Text displayed in dialog box when cancelling import.*/
+	private static final String CANCEL_SELECTED_TEXT = 
+		"Are you sure you want to cancel the import that have not yet started?";
+	
+	/** Title displayed in dialog box when cancelling import.*/
+	private static final String CANCEL_TITLE = "Cancel Import";
+	
 	/** The Model sub-component. */
 	private ImporterModel 	model;
 	
@@ -83,6 +102,24 @@ class ImporterComponent
 	
 	/** Reference to the chooser used to select the files to import. */
 	private ImportDialog	chooser;
+
+	/** Flag indicating that the window has been marked to be closed.*/
+	private boolean 		markToclose;
+	
+	/**
+	 * Imports the data for the specified import view.
+	 * 
+	 * @param element The import view. 
+	 */
+	private void importData(ImporterUIElement element)
+	{
+		if (element == null) return;
+		view.setSelectedPane(element, true);
+		model.fireImportData(element.getData(), element.getID());
+		EventBus bus = ImporterAgent.getRegistry().getEventBus();
+		bus.post(new ImportStatusEvent(true, element.getExistingContainers()));
+		fireStateChange();
+	}
 	
 	/**
 	 * Creates a new instance.
@@ -97,6 +134,7 @@ class ImporterComponent
 		this.model = model;
 		controller = new ImporterControl(this);
 		view = new ImporterUI();
+		markToclose = false;
 	}
 
 	/** Links up the MVC triad. */
@@ -108,21 +146,29 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#activate(int, List, List)
+	 * @see Importer#activate(int, TreeImageDisplay, Collection)
 	 */
-	public void activate(int type, List<TreeImageDisplay> containers, 
-			List<DatasetData> datasets)
+	public void activate(int type, TreeImageDisplay selectedContainer, 
+			Collection<TreeImageDisplay> objects)
 	{
 		if (model.getState() == DISCARDED) return;
 		if (chooser == null) {
 			chooser = new ImportDialog(view, model.getSupportedFormats(), 
-					containers, type, datasets);
+					selectedContainer, objects, type);
 			chooser.addPropertyChangeListener(controller);
-			chooser.pack();
+			//chooser.pack();
+			view.addComponent(chooser);
 		} else {
-			chooser.reset(containers, type);
+			chooser.reset(selectedContainer, objects, type);
+			chooser.requestFocusInWindow();
+			view.selectChooser();
 		}
-		UIUtilities.centerAndShow(chooser);
+		
+		//load available disk space
+		model.fireDiskSpaceLoading();
+		view.setOnScreen();
+		//view.setVisible(false);
+		//UIUtilities.centerAndShow(chooser);
 	}
 
 	/** 
@@ -162,26 +208,11 @@ class ImporterComponent
 			un.notifyInfo("Import", "No Files to import.");
 			return;
 		}
-		
+		view.showRefreshMessage(chooser.isRefreshLocation());
+		if (data.hasNewTags()) model.setTags(null);
 		ImporterUIElement element = view.addImporterElement(data);
 		if (model.getState() == IMPORTING) return;
 		importData(element);
-	}
-
-	/**
-	 * Imports the data for the specified import view.
-	 * 
-	 * @param element The import view. 
-	 */
-	private void importData(ImporterUIElement element)
-	{
-		if (element == null) return;
-		element.startImport();
-		model.fireImportData(element.getData(), element.getID());
-		EventBus bus = ImporterAgent.getRegistry().getEventBus();
-		bus.post(new ImportStatusEvent(true, 
-				element.getData().getContainers()));
-		fireStateChange();
 	}
 	
 	/** 
@@ -196,12 +227,29 @@ class ImporterComponent
 			element.setImportedFile(f, result);
 			if (element.isDone()) {
 				model.importCompleted(element.getID());
-				//now check if we have other import to start.
-				element = view.getElementToStartImportFor();
-				if (element != null) 
-					importData(element);
-				fireStateChange();
+				view.onImportEnded(element);
+				boolean b = element.getData().hasNewObjects();
+				if (markToclose) {
+					view.setVisible(false);
+					fireStateChange();
+					return;
+				}
+				if (!b) {
+					element = view.getElementToStartImportFor();
+					if (element != null) 
+						importData(element);
+				} else {
+					//reload the data
+					/*
+					Class rootType = ProjectData.class;
+					if (chooser != null && 
+							chooser.getType() == Importer.SCREEN_TYPE)
+						rootType = ScreenData.class;
+					model.fireContainerLoading(rootType, true);
+					*/
+				}
 			}	
+			fireStateChange();
 		}
 	}
 	
@@ -236,12 +284,12 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#removeImportElement(int)
+	 * @see Importer#removeImportElement(Object)
 	 */
-	public void removeImportElement(int index)
+	public void removeImportElement(Object object)
 	{
-		if (model.getState() == DISCARDED) return;
-		ImporterUIElement element = view.removeImportElement(index);
+		if (model.getState() == DISCARDED || object == null) return;
+		ImporterUIElement element = view.removeImportElement(object);
 		if (element != null) {
 			element.cancelLoading();
 			model.cancel(element.getID());
@@ -261,12 +309,33 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#cancelImagesLoading(int)
+	 * @see Importer#cancelImport(int)
 	 */
-	public void cancelImagesLoading(int id)
+	public void cancelImport(int id)
 	{
-		if (model.getState() != DISCARDED)
-			model.cancel(id);
+		//if (model.getState() != DISCARDED)
+		//	model.cancel(id);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#cancelImport()
+	 */
+	public void cancelImport()
+	{
+		if (model.getState() != DISCARDED) {
+			ImporterUIElement element = view.getSelectedPane();
+			if (element != null && !element.isDone()) {
+				MessageBox box = new MessageBox(view, CANCEL_TITLE,
+						CANCEL_SELECTED_TEXT);
+				if (box.centerMsgBox() == MessageBox.NO_OPTION)
+					return;
+				element.cancelLoading();
+				//if (element.isDone())
+				model.cancel(element.getID());
+			}
+			model.setState(READY);
+		}
 	}
 
 	/** 
@@ -280,4 +349,207 @@ class ImporterComponent
 		return view.hasFailuresToSend();
 	}
 	
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#setDiskSpace(DiskQuota)
+	 */
+	public void setDiskSpace(DiskQuota quota)
+	{
+		if (quota == null) return;
+		if (model.getState() == DISCARDED) return;
+		if (chooser != null && chooser.isVisible())
+			chooser.setDiskSpace(quota);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#close()
+	 */
+	public void close()
+	{
+		Collection<ImporterUIElement> list = view.getImportElements();
+		List<ImporterUIElement> 
+		toImport = new ArrayList<ImporterUIElement>();
+		if (list == null || list.size() == 0) {
+			 view.setVisible(false);
+			return;
+		}
+		Iterator<ImporterUIElement> i = list.iterator();
+		ImporterUIElement element;
+		while (i.hasNext()) {
+			element = i.next();
+			if (!element.isDone())
+				toImport.add(element);
+		}
+		if (toImport.size() > 0) {
+			MessageBox box = new MessageBox(view, CANCEL_TITLE,
+					CANCEL_TEXT+"\n" +
+					"If Yes, the window will close when the on-going " +
+					"import is completed.");
+			if (box.centerMsgBox() == MessageBox.NO_OPTION)
+				return;
+			markToclose = true;
+			i = toImport.iterator();
+			while (i.hasNext()) {
+				element = i.next();
+				element.cancelLoading();
+				//if (!element.hasStarted())
+				model.cancel(element.getID());
+			}
+		} else markToclose = false;
+		if (!markToclose) view.setVisible(false);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#retryImport()
+	 */
+	public void retryImport()
+	{
+		if (model.getState() == DISCARDED) return;
+		ImporterUIElement element = view.getSelectedPane();
+		if (element == null) return;
+		List<FileImportComponent> l = element.getMarkedFiles();
+		if (l == null || l.size() == 0) return;
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#isLastImport()
+	 */
+	public boolean isLastImport()
+	{
+		ImporterUIElement element = view.getSelectedPane();
+		if (element == null) return false;
+		return element.isLastImport();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#refreshContainers(int)
+	 */
+	public void refreshContainers(int type)
+	{
+		switch (model.getState()) {
+			case DISCARDED:
+				return;
+		}
+		view.showRefreshMessage(false);
+		Class rootType = ProjectData.class;
+		if (type == Importer.SCREEN_TYPE)
+			rootType = ScreenData.class;
+		model.fireContainerLoading(rootType, false);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#setContainers(Collection, boolean, int)
+	 */
+	public void setContainers(Collection result, boolean refreshImport, 
+			int type)
+	{
+		switch (model.getState()) {
+			case DISCARDED:
+				return;
+		}
+		if (chooser == null) return;
+		ExperimenterData exp = ImporterAgent.getUserDetails();
+		Set nodes = TreeViewerTranslator.transformHierarchy(result, exp.getId(),
+				-1);
+		chooser.reset(null, nodes, type);
+		if (refreshImport) {
+			Collection<ImporterUIElement> l = view.getImportElements();
+			Iterator<ImporterUIElement> i = l.iterator();
+			ImporterUIElement element;
+			while (i.hasNext()) {
+				element = i.next();
+				if (!element.isDone()) {
+					element.resetContainers(result);
+				}
+			}
+			//restarts The import.
+			element = view.getElementToStartImportFor();
+			if (element != null) 
+				importData(element);
+		}
+	}
+
+	/**
+	 * Cancels all-going imports, displays the di
+	 * @param closeOption
+	 */
+	private void cancellAll(boolean windowOption)
+	{
+		
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#cancelAllImports()
+	 */
+	public void cancelAllImports()
+	{
+		if (model.getState() != DISCARDED) {
+			Collection<ImporterUIElement> list = view.getImportElements();
+			List<ImporterUIElement> 
+			toImport = new ArrayList<ImporterUIElement>();
+			if (list == null || list.size() == 0) return;
+			Iterator<ImporterUIElement> i = list.iterator();
+			ImporterUIElement element;
+			while (i.hasNext()) {
+				element = i.next();
+				if (!element.isDone())
+					toImport.add(element);
+			}
+			if (toImport.size() > 0) {
+				MessageBox box = new MessageBox(view, CANCEL_TITLE,
+						CANCEL_TEXT);
+				if (box.centerMsgBox() == MessageBox.NO_OPTION)
+					return;
+				i = toImport.iterator();
+				while (i.hasNext()) {
+					element = i.next();
+					element.cancelLoading();
+					//if (!element.hasStarted())
+					model.cancel(element.getID());
+				}
+			}
+		}
+	}
+
+	/**
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#moveToFront()
+	 */
+	public void moveToFront()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		if (!view.isVisible()) view.setVisible(true);
+		view.toFront();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#onDataObjectSaved(DataObject, DataObject)
+	 */
+	public void onDataObjectSaved(DataObject d, DataObject parent)
+	{
+		if (model.getState() != CREATING_CONTAINER) return;
+		if (chooser == null) return;
+		chooser.onDataObjectSaved(d, parent);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#createDataObject(DataObject, DataObject)
+	 */
+	public void createDataObject(DataObject child, DataObject parent)
+	{
+		if (child == null)
+			throw new IllegalArgumentException("No object to create.");
+		model.fireDataCreation(child, parent);
+		fireStateChange();
+	}
 }

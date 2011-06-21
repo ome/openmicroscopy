@@ -289,17 +289,19 @@ public class CurrentDetails implements PrincipalHolder {
     // ~ Events and Details
     // =================================================================
 
-    public Event newEvent(long sessionId, EventType type,
+    public Event newEvent(Session session, EventType type,
             TokenHolder tokenHolder) {
         BasicEventContext c = current();
         Event e = new Event();
         e.setType(type);
         e.setTime(new Timestamp(System.currentTimeMillis()));
-        e.setExperimenter(c.getOwner());
-        e.setExperimenterGroup(c.getGroup());
         tokenHolder.setToken(e.getGraphHolder());
         e.getDetails().setPermissions(Permissions.READ_ONLY);
-        e.setSession(new Session(sessionId, false));
+        // Proxied if necessary
+        e.setExperimenter(c.getOwner());
+        e.setExperimenterGroup(c.getGroup());
+        e.setSession(session);
+
         c.setEvent(e);
         return e;
     }
@@ -374,7 +376,7 @@ public class CurrentDetails implements PrincipalHolder {
         d.setOwner(c.getOwner());
         d.setGroup(c.getGroup());
         // ticket:1434
-        Permissions groupPerms = c.getGroup().getDetails().getPermissions();
+        Permissions groupPerms = c.getCurrentGroupPermissions();
         Permissions userUmask = c.getCurrentUmask();
         Permissions p = new Permissions(groupPerms);
         p.revokeAll(userUmask);

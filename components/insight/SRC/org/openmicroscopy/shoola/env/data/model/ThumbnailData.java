@@ -53,7 +53,7 @@ public class ThumbnailData
     implements DataObject
 {
 
-	 /** The id of the image to which the thumbnail belong. */
+	/** The id of the image to which the thumbnail belong. */
     private long            userID;
     
     /** The id of the image to which the thumbnail belong. */
@@ -68,8 +68,17 @@ public class ThumbnailData
     /** Used to store the image. */
     private ImageData		image;
     
+    /** Flag indicating that the image required a pyramid to be build.*/
+    private Boolean			requirePyramid;
+    
     /** The object of reference. */
     private pojos.DataObject refObject;
+    
+    /** 
+     * Exception if not possible to create the object. This should
+     * be used when imported.
+     */
+    private Exception		error;
     
     /**
      * Creates a new instance.
@@ -88,12 +97,11 @@ public class ThumbnailData
         if (imageID <= 0) 
             throw new IllegalArgumentException("Non-positive image id: "+
                                                imageID+".");
-        if (thumbnail == null)
-            throw new NullPointerException("No thumbnail.");
         this.imageID = imageID;
         this.thumbnail = thumbnail;
         this.userID = userID;
         this.validImage = validImage;
+        requirePyramid = null;
     }
     
     /**
@@ -116,12 +124,12 @@ public class ThumbnailData
      * 
      * @param refOjbect The object of reference. Mustn't be <code>null</code>.
      * @param thumbnail The thumbnail pixels. Mustn't be <code>null</code>.
+     * @param validImage Passed <code>true</code> if it is a valid image, 
+     * <code>false</code> otherwise.
      */
     public ThumbnailData(pojos.DataObject refOjbect, BufferedImage thumbnail,
     		boolean validImage)
     {
-    	  if (thumbnail == null)
-              throw new NullPointerException("No thumbnail.");
     	  if (refOjbect == null)
     		  throw new IllegalArgumentException("No object.");
     	  if (!(refOjbect instanceof ImageData))
@@ -129,6 +137,20 @@ public class ThumbnailData
     	  this.refObject = refOjbect;
     	  this.validImage = validImage;
     	  this.thumbnail = thumbnail;
+    	  requirePyramid = null;
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param refOjbect The object of reference. Mustn't be <code>null</code>.
+     * @param requirePyramid Pass <code>true</code> if a pyramid is required,
+     * 						<code>false</code> otherwise.
+     */
+    public ThumbnailData(pojos.DataObject refOjbect, Boolean requirePyramid)
+    {
+        this(refOjbect, null, false);
+        this.requirePyramid = requirePyramid;
     }
     
     /**
@@ -141,6 +163,31 @@ public class ThumbnailData
     {
     	  this(refOjbect, thumbnail, true);
     }
+    
+    /**
+     * Sets the time the flag indicating if the image requires a pyramid to be
+     * built.
+     * 
+     * @param backOffForPyramid The value to set.
+     */
+    public void setBackOffForPyramid(Boolean requirePyramid)
+    {
+    	this.requirePyramid = requirePyramid;
+    }
+    
+    /**
+     * Sets the exception thrown when trying to create a thumbnail.
+     * 
+     * @param error The exception to set.
+     */
+    public void setError(Exception error) { this.error = error; }
+    
+    /**
+     * Returns the exception.
+     * 
+     * @return See above.
+     */
+    public Exception getError() { return error; }
     
     /** 
      * Sets the image.
@@ -157,16 +204,23 @@ public class ThumbnailData
      */
     public DataObject makeNew()
     {
-        BufferedImage pixClone = new BufferedImage(
-                                        thumbnail.getWidth(),
-                                        thumbnail.getHeight(), 
-                                        thumbnail.getType());
-        Graphics2D g2D = pixClone.createGraphics();
-        g2D.drawImage(thumbnail, null, 0, 0); 
+        BufferedImage pixClone = null;
+        if (thumbnail != null) {
+        	pixClone = new BufferedImage( thumbnail.getWidth(),
+                    thumbnail.getHeight(), 
+                    thumbnail.getType());
+        	 Graphics2D g2D = pixClone.createGraphics();
+             g2D.drawImage(thumbnail, null, 0, 0);
+        }
         ThumbnailData data;
-        if (refObject != null)
-        	data = new ThumbnailData(this.refObject, pixClone, this.validImage);
-        else data = new ThumbnailData(imageID, pixClone, this.validImage);
+        if (refObject != null) {
+        	if (this.requirePyramid != null) {
+        		data = new ThumbnailData(this.refObject, this.requirePyramid);
+        	} else {
+        		data = new ThumbnailData(this.refObject, pixClone,
+        				this.validImage);
+        	}
+        } else data = new ThumbnailData(imageID, pixClone, this.validImage);
         data.setImage(this.image);
         return data;
     }
@@ -214,4 +268,16 @@ public class ThumbnailData
      */
     public pojos.DataObject getRefObject() { return refObject; }
     
+    /**
+     * Returns <code>true</code> if a pyramid is required, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
+    public Boolean requirePyramid()
+    { 
+    	if (requirePyramid != null) return requirePyramid.booleanValue();
+    	return null;
+    }
+
 }

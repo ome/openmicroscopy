@@ -55,7 +55,7 @@
   <property name="dist.dir" location="${build.dir}/dist"/>
   <property name="dist.jar.file" value="omero.insight.jar"/>
   <property name="dist.bundle.name" value="omero.insight"/> 
-  <property name="dist.bundle.version" value="Beta-4.2.0-DEV"/>
+  <property name="dist.bundle.version" value="Beta-4.3.0-DEV"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 
@@ -203,7 +203,7 @@
       </sequential>
   </macrodef>
   <target name="hcs-preview" 
-  	description="Temporary 4.2 target for creating the HCS_PREVIEW files">
+  	description="Temporary 4.3 target for creating the HCS_PREVIEW files">
     <delete dir="${dist.dir}/hcs-preview"/>
     <mkdir dir="${dist.dir}/hcs-preview"/>
     <property name="hcs-container" value="hcs-preview/config/container.xml"/>

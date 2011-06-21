@@ -2,6 +2,26 @@
 {% load markup %}
 {% load custom_tags %}
 
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
 {% ifnotequal nav.menu "status" %}
 <script>
     $(document).ready(function() {
@@ -20,28 +40,23 @@
                 $("#progress").show();
                 $("#jobstatus").html(data.inprogress + ' job(s) in progress');
             });
-        }, 2000);
+        }, 10000);
+
     });
 </script>
 {% endifnotequal %}
 
-
-<div id="path">
-    
-    <div id="actionWrapper">
         {% ifnotequal nav.menu "basket" %}
-        <div id="baskets"><a href="{% url basket_action %}">{% trans "BASKET" %}</a> {% trans "contains" %} <span id="cartTotal">{{ nav.basket }}</span> {% plural nav.basket 'item' 'items' %}</div>
+        <div id="baskets"><a href="{% url basket_action %}">{% trans "BASKET:" %}</a> <span id="cartTotal">{{ nav.basket }}</span> {% plural nav.basket 'item' 'items' %}</div>
         {% endifnotequal %}
         {% ifnotequal nav.menu "status" %}
-        <div id="queue"><a href="{% url status %}" class="align_left">STATUS:</a><div id="jobstatus"></div><img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none;"/></div>
+        <div id="queue"><a href="{% url status %}" class="align_left">STATUS:</a><div id="jobstatus">0 job(s)</div><img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none;"/></div>
         {% endifnotequal %}
-    </div>
-    
-    <div id="logout">
-        | {% for field in form_active_group %} {% trans "current group" %}: {{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
-        | <a href="{% url weblogout %}">{% trans "logout" %}</a> |
-    </div>
-    
-</div>
-
-<div class="clear"> </div>
+        <div style="float:left">
+            {% for field in form_active_group %} {% trans "group" %}: {{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
+        </div>
+        {% if form_users %}
+        <div style="float:left; padding: 0px 10px">
+            {% for field in form_users %}{{ field }}{% endfor %}&nbsp;&nbsp;&nbsp;
+        </div>
+        {% endif %}

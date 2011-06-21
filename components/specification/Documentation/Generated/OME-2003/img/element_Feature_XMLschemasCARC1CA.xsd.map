@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Feature_XMLschemasCARC1CA.xsd'>
+ <area
+  shape='rect'
+  alt='element_CustomAttributes'
+  coords='263,52,431,94'
+  href='CA.xsd.html#element_CustomAttributes'/>
+
+ <area
+  shape='rect'
+  alt='type_FeatureID'
+  coords='177,104,271,130'
+  href='ome.xsd.html#type_FeatureID'/>
+
+</map>

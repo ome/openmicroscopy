@@ -87,8 +87,8 @@ public class TreeCheck
             node = (TreeCheckNode) nodes.nextElement();
             if (node.isSelected()) index++;
         }
-        firePropertyChange(NODE_SELECTED_PROPERTY, new Integer(-1), 
-        					new Integer(index));
+        firePropertyChange(NODE_SELECTED_PROPERTY, Integer.valueOf(-1), 
+        		Integer.valueOf(index));
     }
     
     /**

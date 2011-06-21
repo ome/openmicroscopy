@@ -22,6 +22,10 @@
   Registers the cron job for background indexing.
   </description>
 
+  <bean id="adapterName" class="java.lang.String">
+    <constructor-arg value="IndexerAdapter"/>
+  </bean>
+
   <bean id="fullTextIndexerTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
     <property name="jobDetail" ref="fullTextThreadRun" />
     <property name="cronExpression" value="${omero.search.cron}" />
@@ -61,6 +65,12 @@
     </description>
     <constructor-arg ref="basicSecuritySystem"/>
     <constructor-arg ref="omeroSessionFactory"/>
+  </bean>
+
+  <bean id="serverDirectoryCheck"
+     class="ome.services.util.ServerDirectoryCheck"
+     init-method="run" lazy-init="false">
+     <constructor-arg value="${omero.data.dir}"/>
   </bean>
 
 </beans>

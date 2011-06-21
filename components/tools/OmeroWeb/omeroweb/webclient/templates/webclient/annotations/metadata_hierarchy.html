@@ -1,0 +1,60 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+{% block link %}
+    <link rel="stylesheet" href="{% url webstatic "javascript/themes/default/style.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/tree.css" %}" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+        
+{% endblock %}
+
+{% block script %}
+    
+{% endblock %}
+
+{% block content %}
+
+<div id="hierarchyTree" class="jstree jstree-default">
+    {% if manager.image.countParents %}
+    <ul>
+        {% for c in manager.image.listParents %}
+            <li id='dataset-{{ c.id }}' rel="dataset" class="clear jstree-last {% if c.countParents %}jstree-open{% else %}jstree-leaf{% endif %}"><ins class="jstree-icon">&nbsp;</ins><a hre="#"><ins class="jstree-icon"><img src="{% url webstatic "images/folder_image16.png" %}"/></ins>{{ c.name|truncatebefor:"35" }}</a>
+                {% if c.countParents %}
+                <ul>
+                    {% for d in c.listParents %}
+                        <li id='project-{{ d.id }}' rel="project" class="jstree-last jstree-leaf"><ins class="jstree-icon">&nbsp;</ins><a hre="#"><ins class="jstree-icon"><img src="{% url webstatic "images/folder16.png" %}"/></ins>{{ d.name|truncatebefor:"35" }}</a></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>{% trans "Hierarchy structure not available." %}</a>
+    {% endif %}
+</div>
+
+{% endblock %}

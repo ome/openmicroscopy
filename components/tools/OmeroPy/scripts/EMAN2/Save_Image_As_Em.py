@@ -37,7 +37,6 @@ from EMAN2 import *
 import numpy
 
 import omero
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.scripts as scripts
 from omero.rtypes import *      # includes wrap
 import omero.util.script_utils as scriptUtil
@@ -123,12 +122,11 @@ def saveImageAs(session, parameterMap):
     else:
         print "No extension specified. Will attempt get extensions from image names."
     
-    gateway = session.createGateway()
     originalFiles = []
     
     for imageId in imageIds:
         
-        image = gateway.getImage(imageId)
+        image = queryService.get("Image", imageId)
         n = image.getName().getValue()
         imageName = os.path.basename(n)     # make sure we don't have path as name.
         if imageName == "":
@@ -193,7 +191,7 @@ def saveImageAs(session, parameterMap):
                 # get each plane and add to EMData 
                 #print "Downloading plane: %d" % z
                 plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, z, theC, theT)
-                EMNumPy.numpy2em(plane2D, e)
+                e = EMNumPy.numpy2em(plane2D)
                 em.insert_clip(e,(0,0,z))
             
             em.write_image(saveName)

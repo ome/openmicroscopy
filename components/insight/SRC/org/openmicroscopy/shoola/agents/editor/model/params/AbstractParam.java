@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 
@@ -93,7 +94,7 @@ public abstract class AbstractParam
 	 * Can be used to store any name, value pair. 
 	 * E.g. Parameter-Name, Default-Value, etc. 
 	 */
-	private HashMap<String, String> valueAttributesMap;
+	private Map<String, String> valueAttributesMap;
 
 	/**
 	 * A list of the values for this parameter. Used to store several 
@@ -105,7 +106,7 @@ public abstract class AbstractParam
 	/**
 	 * A list of common units that the user can choose from. 
 	 */
-	private static String[] 		commonUnits;
+	private static String[] 		COMMON_UNITS;
 	
 	/**
 	 * Creates an instance, storing the field type in the attributes map.
@@ -119,6 +120,12 @@ public abstract class AbstractParam
 		valueAttributesMap.put(PARAM_TYPE, fieldType);
 		
 		paramValues = new ArrayList<Object>();
+		String units = (String)EditorAgent.getRegistry().lookup("/model/units");
+		COMMON_UNITS = units.split(",");
+		int unitsCount = COMMON_UNITS.length;
+		for (int i = 0; i < unitsCount; i++) {
+			COMMON_UNITS[i] = COMMON_UNITS[i].trim();
+		}
 	}
 	
 	/**
@@ -126,25 +133,15 @@ public abstract class AbstractParam
 	 * 
 	 * @return		see above
 	 */
-	public static String[] getCommonUnits() { 
-		if (commonUnits == null) {
-			String units = (String)EditorAgent.getRegistry().lookup("/model/units");
-			commonUnits = units.split(",");
-			int unitsCount = commonUnits.length;
-			for (int i = 0; i < unitsCount; i++) {
-				commonUnits[i] = commonUnits[i].trim();
-			}
-		}
-		return commonUnits;	
-	}
+	public static String[] getCommonUnits() { return COMMON_UNITS;	}
 	
 	/**
 	 * Convenience method for getting all the attributes of this class,
-	 * eg for duplicating an instance.
+	 * e.g. for duplicating an instance.
 	 * 	
 	 * @return		A map of all the attributes for this Parameter
 	 */
-	public HashMap<String, String> getAllAttributes() 
+	public Map<String, String> getAllAttributes() 
 	{
 		return valueAttributesMap;
 	}
@@ -155,7 +152,7 @@ public abstract class AbstractParam
 	 * 	
 	 * @newAttributes		A map of all the new attributes for this Parameter
 	 */
-	public void setAllAttributes(HashMap<String, String> newAttributes) 
+	public void setAllAttributes(Map<String, String> newAttributes) 
 	{
 		valueAttributesMap = newAttributes;
 	}

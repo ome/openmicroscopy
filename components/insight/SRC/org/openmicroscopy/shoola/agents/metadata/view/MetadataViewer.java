@@ -194,8 +194,11 @@ public interface MetadataViewer
 	/** Indicates to launch the analysis option. */
 	public static final int		ANALYSIS_OPTION = 101;
 	
-	/** Indicates to launch the analysis option. */
+	/** Indicates to launch the scripts option. */
 	public static final int		SCRIPTS_OPTION = 102;
+	
+	/** Indicates to launch the analysis option. */
+	public static final int		SAVE_OPTION = 103;
 	
 	/**
 	 * Starts the data loading process when the current state is {@link #NEW} 
@@ -434,7 +437,7 @@ public interface MetadataViewer
 
 	/** 
 	 * Indicates to render a plane for the primary select object.
-	 * This method should only be invoked if the object is an image. 
+	 * This method should only be invoked if the object is an image.
 	 */
 	public void renderPlane();
 	
@@ -446,6 +449,9 @@ public interface MetadataViewer
 	
 	/** Notifies that the settings have been applied. */
 	void onSettingsApplied();
+	
+	/** Notifies to set the settings. */
+	void saveSettings();
 	
 	/**
 	 * Returns the renderer. This method will always return 

@@ -389,10 +389,10 @@ public class ViewerSorter
     /**
      * Sorts the objects.
      * 
-     * @param from
-     * @param to
-     * @param low
-     * @param high
+     * @param from The source.
+     * @param to   The destination.
+     * @param low  The lowest value.
+     * @param high The highest value
      */
     private void shuttlesort(Object[] from, Object[] to, int low, int high)
     {

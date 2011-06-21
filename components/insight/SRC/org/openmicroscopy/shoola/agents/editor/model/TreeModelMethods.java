@@ -112,9 +112,10 @@ public class TreeModelMethods {
 		
 		TreePath[] paths = new TreePath[nodes.size()];
 		int index = 0;
+		DefaultMutableTreeNode dnode;
 		for (TreeNode node : nodes) {
 			if (node instanceof DefaultMutableTreeNode) {
-				DefaultMutableTreeNode dnode = (DefaultMutableTreeNode)node;
+				dnode = (DefaultMutableTreeNode) node;
 				paths[index++] = new TreePath(dnode.getPath());
 			}
 		}
@@ -134,7 +135,7 @@ public class TreeModelMethods {
 	 */
 	public static void selectDNodes(List<DefaultMutableTreeNode> nodes, JTree tree) 
 	{
-		ArrayList<MutableTreeNode> mtNodes = new ArrayList<MutableTreeNode>();
+		List<MutableTreeNode> mtNodes = new ArrayList<MutableTreeNode>();
 		for (MutableTreeNode node : nodes) {
 			mtNodes.add(node);
 		}
@@ -154,7 +155,7 @@ public class TreeModelMethods {
 	{
 		List<MutableTreeNode> nodes = new ArrayList<MutableTreeNode>();
 		if (node instanceof MutableTreeNode) {
-			nodes.add((MutableTreeNode)node);
+			nodes.add((MutableTreeNode) node);
 			selectNodes(nodes, tree);
 		}
 	}
@@ -180,7 +181,7 @@ public class TreeModelMethods {
 		DefaultMutableTreeNode newChild;
 		DefaultMutableTreeNode oldChild;
 		
-		for(int i=0; i<oldNode.getChildCount(); i++) {
+		for (int i = 0; i < oldNode.getChildCount(); i++) {
 			oldChild = (DefaultMutableTreeNode)oldNode.getChildAt(i);
 			newChild = duplicateNode(oldChild);
 			newNode.add(newChild);
@@ -203,8 +204,10 @@ public class TreeModelMethods {
 	public static void indentNodesRight(List<DefaultMutableTreeNode> nodes,
 			DefaultTreeModel treeModel)
 	{
-		if (nodes == null)		return;
-		if (nodes.isEmpty())	return;
+		if (nodes == null)		
+			return;
+		if (nodes.isEmpty())	
+			return;
 		
 		DefaultMutableTreeNode firstNode = nodes.get(0);
 		
@@ -283,7 +286,8 @@ public class TreeModelMethods {
 		int lastNodeIndex = parent.getIndex(lastNode);
 		DefaultMutableTreeNode nextSibling = lastNode.getNextSibling();
 		
-		if (nextSibling == null)		return;
+		if (nextSibling == null)		
+			return;
 		
 		// remove next sibling and insert before first node
 		parent.remove(nextSibling);
@@ -333,9 +337,8 @@ public class TreeModelMethods {
 		}
 		
 		// now you can indent nodes left (top node last - added below parent)
-		for (int n=nodes.size()-1; n>-1; n--) {
-			DefaultMutableTreeNode node = nodes.get(n);
-			indentNodeLeft(node);
+		for (int n = nodes.size()-1; n > -1; n--) {
+			indentNodeLeft(nodes.get(n));
 		}
 		treeModel.nodeStructureChanged(grandParentNode);
 	}
@@ -351,13 +354,16 @@ public class TreeModelMethods {
 	 */
 	public static void indentNodeLeft(DefaultMutableTreeNode node)
 	{
-		if (node == null)  	return;
+		if (node == null)  	
+			return;
 		DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)
 												node.getParent();
-		if (parentNode == null)		return;
+		if (parentNode == null)		
+			return;
 		DefaultMutableTreeNode grandParentNode = (DefaultMutableTreeNode)
 													parentNode.getParent();
-		if (grandParentNode == null)		return;
+		if (grandParentNode == null)		
+			return;
 		
 		int indexOfParent = grandParentNode.getIndex(parentNode);
 		
@@ -415,17 +421,18 @@ public class TreeModelMethods {
 		if (node.isRoot()) {
 			return "Protocol Title";
 		}
-		
-		String steps = "Step ";
 		int index;
 		TreeNode[] pathNodes = node.getPath();
 		DefaultMutableTreeNode pathNode;
-		for (int i=0; i< pathNodes.length-1; i++) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("Step ");
+		for (int i = 0; i < pathNodes.length-1; i++) {
 			pathNode = (DefaultMutableTreeNode)pathNodes[i];
 			index = pathNode.getIndex(pathNodes[i+1]) + 1; 
-			steps = steps + (i>0 ? "." : "") + index;
+			if (i > 0) buffer.append("."+index);
+			else buffer.append(":"+index);
 		}
-		
-		return steps;
+		return buffer.toString();
 	}
+	
 }

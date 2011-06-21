@@ -65,6 +65,8 @@ public class DataServiceImpl
 	implements DataService
 {
 	
+	long ownUserId;
+
 	GatewayFactory 				gatewayFactory;
 	
 	/**
@@ -74,6 +76,12 @@ public class DataServiceImpl
 	public DataServiceImpl(GatewayFactory gatewayFactory)
 	{
 		this.gatewayFactory = gatewayFactory;
+                try
+                {
+                    ownUserId = gatewayFactory.getAdminService().getEventContext().userId;
+                } catch (ServerError se) {
+                    throw new RuntimeException(se);
+                }
 	}
 	
 	/**
@@ -138,8 +146,7 @@ public class DataServiceImpl
 		ParametersI p = new ParametersI();
 		if (getLeaves)
 			p.leaves();
-		long self = gatewayFactory.getAdminService().getEventContext().userId;
-		p.exp(omero.rtypes.rlong(self));
+		p.exp(omero.rtypes.rlong(ownUserId));
 		return ServiceUtilities.collectionCast(Dataset.class, 
 			iContainerService.loadContainerHierarchy(
 				convertContainer(ContainerClass.Dataset), ids, p));
@@ -178,8 +185,7 @@ public class DataServiceImpl
 	{
 		IContainerPrx iContainerService = gatewayFactory.getIContainer();
 		ParametersI p = new ParametersI();
-	    long self = gatewayFactory.getAdminService().getEventContext().userId;
-	    p.exp(omero.rtypes.rlong(self));
+	    p.exp(omero.rtypes.rlong(ownUserId));
 		return iContainerService.getImages(convertContainer(nodeType), 
 					nodeIds, p);
 	}
@@ -228,8 +234,7 @@ public class DataServiceImpl
 		ParametersI p = new ParametersI();
 		if (getLeaves) p.leaves();
 		else p.noLeaves();
-		long self = gatewayFactory.getAdminService().getEventContext().userId;
-		p.exp(omero.rtypes.rlong(self));
+		p.exp(omero.rtypes.rlong(ownUserId));
 		return ServiceUtilities.collectionCast(Project.class, 
 			iContainerService.loadContainerHierarchy(
 				convertContainer(ContainerClass.Project), ids, p));

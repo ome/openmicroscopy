@@ -1,6 +1,7 @@
 import sys
 import time
 import omero
+import omero.clients
 
 from omero.rtypes import *
 

@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Region_SchemasOME200809'>
+ <area
+  shape='rect'
+  alt='element_Region'
+  coords='430,159,774,218'
+  href='ome.xsd.html#element_Region'/>
+
+ <area
+  shape='rect'
+  alt='element_CustomAttributes'
+  coords='430,228,774,287'
+  href='ome.xsd.html#element_CustomAttributes'/>
+
+</map>

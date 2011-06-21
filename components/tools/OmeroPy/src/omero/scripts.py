@@ -115,7 +115,7 @@ class Type(omero.grid.Param):
             if _MAX is None:
                 self.max = _FUN(self.max)
             else:
-                self.max = MAX(self.max)
+                self.max = _MAX(self.max)
 
         if self.values is not None:
             if _VAL is None:

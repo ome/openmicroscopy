@@ -1,0 +1,56 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_PixelOutput_XMLschemasCARC1CA.xsd'>
+ <area
+  shape='rect'
+  alt='element_SizeX'
+  coords='478,142,870,201'
+  href='CA.xsd.html#element_SizeX'/>
+
+ <area
+  shape='rect'
+  alt='element_SizeY'
+  coords='478,211,870,270'
+  href='CA.xsd.html#element_SizeY'/>
+
+ <area
+  shape='rect'
+  alt='element_SizeZ'
+  coords='478,280,870,339'
+  href='CA.xsd.html#element_SizeZ'/>
+
+ <area
+  shape='rect'
+  alt='element_SizeC'
+  coords='478,349,870,408'
+  href='CA.xsd.html#element_SizeC'/>
+
+ <area
+  shape='rect'
+  alt='element_SizeT'
+  coords='478,418,870,477'
+  href='CA.xsd.html#element_SizeT'/>
+
+ <area
+  shape='rect'
+  alt='element_PixelType'
+  coords='478,487,870,546'
+  href='CA.xsd.html#element_PixelType'/>
+
+ <area
+  shape='rect'
+  alt='element_BitsPerPixel'
+  coords='478,556,870,615'
+  href='CA.xsd.html#element_BitsPerPixel'/>
+
+ <area
+  shape='rect'
+  alt='element_Repository'
+  coords='478,625,870,684'
+  href='CA.xsd.html#element_Repository'/>
+
+ <area
+  shape='rect'
+  alt='element_Path'
+  coords='478,694,870,753'
+  href='CA.xsd.html#element_Path'/>
+
+</map>

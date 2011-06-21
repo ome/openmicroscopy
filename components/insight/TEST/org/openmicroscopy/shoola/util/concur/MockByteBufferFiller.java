@@ -74,9 +74,9 @@ public class MockByteBufferFiller
     public void write(byte[] buffer, int offset, int length, int retVal,
             Exception e)
     {
-        Object[] args = new Object[] {buffer, new Integer(offset), 
-                new Integer(length)};
-        MockedCall mc = new MockedCall(write, args, new Integer(retVal));
+        Object[] args = new Object[] {buffer, Integer.valueOf(offset), 
+        		Integer.valueOf(length)};
+        MockedCall mc = new MockedCall(write, args, Integer.valueOf(retVal));
         if (e != null) mc.setException(e);
         mockSupport.add(mc);
     }
@@ -85,9 +85,9 @@ public class MockByteBufferFiller
     public int write(byte[] buffer, int offset, int length)
         throws BufferWriteException
     {
-        Object[] args = new Object[] {buffer, new Integer(offset), 
-                new Integer(length)};
-        MockedCall mc = new MockedCall(write, args, new Integer(0));
+        Object[] args = new Object[] {buffer, Integer.valueOf(offset), 
+        		Integer.valueOf(length)};
+        MockedCall mc = new MockedCall(write, args, Integer.valueOf(0));
         mc = mockSupport.verifyCall(mc);
         if (mc.hasException()) {
             Exception e = (Exception) mc.getException();
@@ -102,14 +102,14 @@ public class MockByteBufferFiller
     //Used in set up mode.
     public void getTotalLength(int retVal)
     {
-        MockedCall mc = new MockedCall(getTotalLength, new Integer(retVal));
+        MockedCall mc = new MockedCall(getTotalLength, Integer.valueOf(retVal));
         mockSupport.add(mc);
     }
     
     //Used in verification mode.
     public int getTotalLength()
     {
-        MockedCall mc = new MockedCall(getTotalLength, new Integer(0));
+        MockedCall mc = new MockedCall(getTotalLength, Integer.valueOf(0));
         mc = mockSupport.verifyCall(mc);
         Integer r = (Integer) mc.getResult();
         return r.intValue();

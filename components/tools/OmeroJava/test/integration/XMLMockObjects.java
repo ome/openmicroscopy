@@ -23,6 +23,7 @@
 package integration;
 
 //Java imports
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -125,6 +126,9 @@ import ome.xml.model.primitives.PositiveInteger;
 public class XMLMockObjects 
 {
 
+	/** The default color. */
+	public static final Color	DEFAULT_COLOR = new Color(100, 150, 200, 255);
+	
 	/** The default power of a light source. */
 	public static final Double LIGHTSOURCE_POWER = 200.0;
 
@@ -286,6 +290,7 @@ public class XMLMockObjects
 		detector.setModel(COMPONENT_MODEL);
 		detector.setManufacturer(COMPONENT_MANUFACTURER);
 		detector.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+		detector.setLotNumber(COMPONENT_LOT_NUMBER);
 		detector.setAmplificationGain(0.0);
     	detector.setGain(1.0);
 		return detector;
@@ -304,6 +309,7 @@ public class XMLMockObjects
 		set.setModel(COMPONENT_MODEL);
 		set.setManufacturer(COMPONENT_MANUFACTURER);
 		set.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+		set.setLotNumber(COMPONENT_LOT_NUMBER);
 		return set;
 	}
 	
@@ -318,6 +324,7 @@ public class XMLMockObjects
 		microscope.setManufacturer(COMPONENT_MANUFACTURER);
 		microscope.setModel(COMPONENT_MODEL);
 		microscope.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+		microscope.setLotNumber(COMPONENT_LOT_NUMBER);
 		microscope.setType(MICROSCOPE_TYPE);
 		return microscope;
 	}
@@ -335,6 +342,7 @@ public class XMLMockObjects
 		dichroic.setModel(COMPONENT_MODEL);
 		dichroic.setManufacturer(COMPONENT_MANUFACTURER);
 		dichroic.setLotNumber(COMPONENT_LOT_NUMBER);
+		dichroic.setSerialNumber(COMPONENT_SERIAL_NUMBER);
 		return dichroic;
 	}
 	
@@ -351,6 +359,7 @@ public class XMLMockObjects
 		objective.setModel(COMPONENT_MODEL);
 		objective.setManufacturer(COMPONENT_MANUFACTURER);
 		objective.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+		objective.setLotNumber(COMPONENT_LOT_NUMBER);
 		objective.setCalibratedMagnification(1.0);
 		objective.setCorrection(CORRECTION);
 		objective.setImmersion(IMMERSION);
@@ -376,6 +385,7 @@ public class XMLMockObjects
 		filter.setModel(COMPONENT_MODEL);
 		filter.setManufacturer(COMPONENT_MANUFACTURER);
 		filter.setLotNumber(COMPONENT_LOT_NUMBER);
+		filter.setSerialNumber(COMPONENT_SERIAL_NUMBER);
 		filter.setType(FILTER_TYPE);
 
 		TransmittanceRange transmittance = new TransmittanceRange();
@@ -402,6 +412,7 @@ public class XMLMockObjects
 			laser.setModel(COMPONENT_MODEL);
 			laser.setManufacturer(COMPONENT_MANUFACTURER);
 			laser.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+			laser.setLotNumber(COMPONENT_LOT_NUMBER);
 			laser.setPower(LIGHTSOURCE_POWER);
 			laser.setType(LASER_TYPE);
 			return laser;
@@ -410,6 +421,7 @@ public class XMLMockObjects
 			arc.setID("LightSource:"+index);
 			arc.setManufacturer(COMPONENT_MANUFACTURER);
 			arc.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+			arc.setLotNumber(COMPONENT_LOT_NUMBER);
 			arc.setModel(COMPONENT_MODEL);
 			arc.setPower(LIGHTSOURCE_POWER);
 			arc.setType(ARC_TYPE);
@@ -419,6 +431,7 @@ public class XMLMockObjects
 			filament.setID("LightSource:"+index);
 			filament.setManufacturer(COMPONENT_MANUFACTURER);
 			filament.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+			filament.setLotNumber(COMPONENT_LOT_NUMBER);
 			filament.setModel(COMPONENT_MODEL);
 			filament.setPower(LIGHTSOURCE_POWER);
 			filament.setType(FILAMENT_TYPE);
@@ -428,6 +441,7 @@ public class XMLMockObjects
 			light.setID("LightSource:"+index);
 			light.setManufacturer(COMPONENT_MANUFACTURER);
 			light.setSerialNumber(COMPONENT_SERIAL_NUMBER);
+			light.setLotNumber(COMPONENT_LOT_NUMBER);
 			light.setModel(COMPONENT_MODEL);
 			light.setPower(LIGHTSOURCE_POWER);
 			return light;
@@ -797,19 +811,22 @@ public class XMLMockObjects
 	/**
 	 * Creates a default plate
 	 * 
+	 * @param numberOfPlates The total number of plates.
 	 * @param index The index of the plate.
 	 * @param numberOfPlateAcquisition  The number of plate acquisition to add.
 	 * @return See above.
 	 */
-	protected Plate createPlate(int index, int numberOfPlateAcquisition)
+	protected Plate createPlate(int numberOfPlates, int index, 
+			int numberOfPlateAcquisition)
 	{
-		return createPlate(index, ROWS, COLUMNS, FIELDS, 
+		return createPlate(numberOfPlates, index, ROWS, COLUMNS, FIELDS, 
 				numberOfPlateAcquisition);
 	}
 	
 	/**
 	 * Creates a populated plate with images.
 	 * 
+	 * @param numberOfPlates The total number of plates.
 	 * @param index The index of the plate.
 	 * @param rows  The number of rows.
 	 * @param columns The number of columns.
@@ -817,7 +834,8 @@ public class XMLMockObjects
 	 * @param numberOfPlateAcquisition  The number of plate acquisition to add.
 	 * @return See above.
 	 */
-	protected Plate createPlate(int index, int rows, int columns, int fields, 
+	protected Plate createPlate(int numberOfPlates, 
+			int index, int rows, int columns, int fields, 
 			int numberOfPlateAcquisition)
 	{
 	    // ticket:3102
@@ -840,12 +858,14 @@ public class XMLMockObjects
 		plate.setStatus("Plate status");
 		PlateAcquisition pa = null;
 		List<PlateAcquisition> pas = new ArrayList<PlateAcquisition>();
+		int v;
 		if (numberOfPlateAcquisition > 0) {
 			for (int i = 0; i < numberOfPlateAcquisition; i++) {
 				pa = new PlateAcquisition();
-				pa.setID("PlateAcquisition:"+i);
-				pa.setName("PlateAcquisition Name "+i);
-				pa.setDescription("PlateAcquisition Description "+i);
+				v = i+index*numberOfPlates;
+				pa.setID("PlateAcquisition:"+v);
+				pa.setName("PlateAcquisition Name "+v);
+				pa.setDescription("PlateAcquisition Description "+v);
 				pa.setEndTime(TIME);
 				pa.setStartTime(TIME);
 				plate.addPlateAcquisition(pa);
@@ -856,13 +876,13 @@ public class XMLMockObjects
 		Well well;
 		WellSample sample;
 		Image image;
-		int i = 0;
+		int i = index*rows*columns*fields*numberOfPlateAcquisition;
 		Iterator<PlateAcquisition> k;
 		int kk = 0;
 		for (int row = 0; row < rows; row++) {
 			for (int column = 0; column < columns; column++) {
 				well = new Well();
-				well.setID(String.format("Well:%d_%d", row, column));
+				well.setID(String.format("Well:%d_%d_%d", row, column, index));
 				well.setRow(new NonNegativeInteger(row));
 				well.setColumn(new NonNegativeInteger(column));
 				well.setStatus("Transfection: done");
@@ -875,16 +895,14 @@ public class XMLMockObjects
 						sample.setPositionX(0.0);
 						sample.setPositionY(1.0);
 						sample.setTimepoint(TIME);
-						sample.setID(String.format("WellSample:%d_%d_%d", 
-								row, column, field));
+						sample.setID(String.format("WellSample:%d_%d_%d_%d", 
+								index, row, column, field));
 						sample.setIndex(new NonNegativeInteger(i));
 						//create an image. and register it
 						image = createImageWithExperiment(i, true, exp);
+						//image = createImage(i, true);
 						ome.addImage(image);
 						sample.linkImage(image);
-						if (pa != null) {
-							pa.linkWellSample(sample);
-						}
 						well.addWellSample(sample);
 						i++;
 					}
@@ -894,12 +912,13 @@ public class XMLMockObjects
 					while (k.hasNext()) {
 						pa = k.next();
 						for (int field = 0; field < fields; field++) {
+							v = kk+index*numberOfPlates;
 							sample = new WellSample();
 							sample.setPositionX(0.0);
 							sample.setPositionY(1.0);
 							sample.setTimepoint(TIME);
-							sample.setID(String.format("WellSample:%d_%d_%d_%d", 
-									row, column, field, kk));
+							sample.setID(String.format("WellSample:%d_%d_%d_%d_%d", 
+									index, row, column, field, v));
 							sample.setIndex(new NonNegativeInteger(i));
 							//create an image. and register it
 							//image = createImage(i, true);
@@ -1017,7 +1036,9 @@ public class XMLMockObjects
 		Channel channel = new Channel();
 		channel.setID("Channel:"+index);
 		channel.setAcquisitionMode(AcquisitionMode.FLUORESCENCELIFETIME);
-		channel.setColor(255);
+		int argb = DEFAULT_COLOR.getRGB();
+		int	rgba = (argb << 8) | (argb >>> (32-8));
+		channel.setColor(rgba);
 		channel.setName("Name");
 		channel.setIlluminationType(IlluminationType.OBLIQUE);
 		channel.setPinholeSize(0.5);
@@ -1336,7 +1357,8 @@ public class XMLMockObjects
      *
      * @return See above.
      */
-    public Image createImageWithExperiment(int index, boolean metadata, Experiment exp)
+    public Image createImageWithExperiment(int index, boolean metadata, 
+    		Experiment exp)
     {
         Image image = createImage(index, metadata);
         image.linkExperiment(exp);
@@ -1375,7 +1397,7 @@ public class XMLMockObjects
 	public OME createPopulatedPlate(int n)
 	{
 		populateInstrument();
-		ome.addPlate(createPlate(0, 1, 1, 1, n));
+		ome.addPlate(createPlate(1, 0, 1, 1, 1, n));
 		return ome;
 	}
 	
@@ -1394,19 +1416,31 @@ public class XMLMockObjects
 	{
 		if (fields < 1) fields = 1;
 		populateInstrument();
-		ome.addPlate(createPlate(0, 1, 1, fields, n));
+		ome.addPlate(createPlate(1, 0, 1, 1, fields, n));
 		return ome;
 	}
 
-    public OME createPopulatedScreen(int plates, int rows, int cols, int fields, int acqs)
+	/**
+	 * Creates a screen with several plates.
+	 * 
+	 * @param plates The number of plates to create.
+	 * @param rows   The number of rows for plate.
+	 * @param cols   The number of columns for plate.
+	 * @param fields The number of fields.
+	 * @param acqs   The number of plate acquisitions.
+	 * @return See above.
+	 */
+    public OME createPopulatedScreen(int plates, int rows, int cols, int fields,
+    		int acqs)
     {
         Screen screen = createScreen(0);
+        Plate plate;
         for (int p = 0; p < plates; p++) {
-            Plate plate = createPlate(p, rows, cols, fields, acqs);
+            plate = createPlate(plates, p, rows, cols, fields, acqs);
             screen.linkPlate(plate);
             ome.addPlate(plate);
-            ome.addScreen(screen);
         }
+        ome.addScreen(screen);
         return ome;
     }
 
@@ -1416,7 +1450,7 @@ public class XMLMockObjects
      */
     public OME createPopulatedScreen()
     {
-        return createPopulatedScreen(1, 2, 2, 1, 1);
+        return createPopulatedScreen(1, 2, 2, 2, 2); //1, 2, 2, 1, 1
     }
 
 	/**
@@ -1429,7 +1463,7 @@ public class XMLMockObjects
 	public OME createBasicPlateWithReagent()
 	{
 		populateInstrument();
-        Plate plate = createPlate(0, 1, 1, 1, 0);
+        Plate plate = createPlate(1, 0, 1, 1, 1, 0);
 		Reagent r = createReagent(0);
 		plate.getWell(0).linkReagent(r);
         Screen screen = createScreen(0);
@@ -1452,7 +1486,7 @@ public class XMLMockObjects
 	public OME createFullPopulatedPlate(int n)
 	{
 		populateInstrument();
-		ome.addPlate(createPlate(0, n));
+		ome.addPlate(createPlate(1, 0, n));
 		return ome;
 	}
 	

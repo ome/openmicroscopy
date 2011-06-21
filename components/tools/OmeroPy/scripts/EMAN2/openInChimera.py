@@ -40,7 +40,6 @@ python openInChimera.py -h localhost -u root -p omero -i 151 -o /Users/will/Desk
 import omero
 import omero.scripts
 import getopt, sys, os, subprocess
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero_api_IScript_ice
 import omero_SharedResources_ice
 from omero.rtypes import *
@@ -71,8 +70,8 @@ def run(commandArgs):
     scriptService = session.getScriptService()
     rawFileStore = session.createRawFileStore()
     queryService = session.getQueryService()
-    gateway = session.createGateway()
     re = session.createRenderingEngine()
+    updateService = session.getUpdateService()
     
     imageId = None
     
@@ -127,7 +126,7 @@ def run(commandArgs):
             print "   file saved to:", filePath
             fileNames.append(filePath)        # if 'name' file already exists, filePath will be different 
             # This only deletes the DB row, not the data on disk! utils.cleanse.py removes files that are not in db. 
-            gateway.deleteObject(originalFile)
+            updateService.deleteObject(originalFile)
     else:
         print "No OriginalFileIds returned by script"
         if 'stdout' in results:
@@ -145,7 +144,7 @@ def run(commandArgs):
 
     # need to get colours for each channel, to pass to chimera. Chimera uses [(0.0, 0.0, 1.0, 1.0),(0.0, 1.0, 0.0, 1.0)]
     # This returns e.g. [[0, 0, 255, 255], [0, 255, 0, 255], [255, 0, 0, 255], [255, 0, 0, 255]] but seems to work OK. 
-    pixels = gateway.getImage(imageId).getPrimaryPixels()
+    pixels = containerService.getImages('Image', [imageId], None)[0].getPrimaryPixels()
     pixelsId = pixels.getId().getValue()
     sizeC = pixels.getSizeC().getValue()
     colours = getColours(re, sizeC, pixelsId)

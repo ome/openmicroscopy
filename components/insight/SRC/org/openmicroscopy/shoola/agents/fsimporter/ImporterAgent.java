@@ -35,6 +35,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -80,6 +81,18 @@ public class ImporterAgent
 	}
 	
 	/**
+	 * Returns how deep to scan when a folder is selected.
+	 * 
+	 * @return See above.
+	 */
+	public static int getScanningDepth()
+	{
+		Integer value = (Integer) registry.lookup("/options/ScanningDepth");
+		if (value == null || value.intValue() < 0) return 1;
+		return value.intValue();
+	}
+	
+	/**
 	 * Handles the {@link LoadImporter} event.
 	 * 
 	 * @param evt The event to handle.
@@ -97,10 +110,22 @@ public class ImporterAgent
 				case LoadImporter.SCREEN_TYPE:
 					type = Importer.SCREEN_TYPE;
 			}
-    		importer.activate(type, evt.getContainers(), evt.getDatasets());
+    		importer.activate(type, evt.getSelectedContainer(), 
+    				evt.getObjects());
     	}
     }
 
+    /**
+     * Removes all the references to the existing viewers.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleUserGroupSwitched(UserGroupSwitched evt)
+    {
+    	if (evt == null) return;
+    	ImporterFactory.onGroupSwitched(evt.isSuccessful());
+    }
+    
 	/** Creates a new instance. */
 	public ImporterAgent() {}
 	
@@ -125,6 +150,7 @@ public class ImporterAgent
         registry = ctx;
         EventBus bus = registry.getEventBus();
         bus.register(this, LoadImporter.class);
+        bus.register(this, UserGroupSwitched.class);
     }
 
     /**
@@ -154,6 +180,8 @@ public class ImporterAgent
     {
     	if (e instanceof LoadImporter)
 			handleLoadImporter((LoadImporter) e);
+    	else if (e instanceof UserGroupSwitched)
+			handleUserGroupSwitched((UserGroupSwitched) e);
     }
 
 }

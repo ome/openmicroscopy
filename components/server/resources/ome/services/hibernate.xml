@@ -39,7 +39,8 @@
   </bean>
 
   <bean id="hibernateProperties"
-    class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    class="org.springframework.beans.factory.config.PropertiesFactoryBean"
+    depends-on="serverDirectoryCheck"> <!-- ticket:5526 -->
     <description>
     Scope: private
     </description>
@@ -106,7 +107,7 @@
 
   <bean id="omeroSessionFactory" class="ome.tools.hibernate.SessionFactory">
     <constructor-arg ref="sessionFactory"/>
-    <constructor-arg ref="isolatedSqlAction"/>
+    <constructor-arg ref="simpleSqlAction"/><!-- Used for ome_nextval -->
   </bean>
 
   <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
@@ -126,6 +127,12 @@
         </list>
     </property>
     <property name="lobHandler" ref="lobHandler"/>
+  </bean>
+
+  <!-- Note: it was necessary to overwrite org.hibernate.stat.ConcurrentStatisticsImpl to prevent memory issues -->
+  <bean id="hibernateMBean" class="org.hibernate.jmx.StatisticsService">
+   <property name="sessionFactory" ref="sessionFactory"/>
+   <property name="statisticsEnabled" value="${omero.db.statistics}"/>
   </bean>
 
 </beans>

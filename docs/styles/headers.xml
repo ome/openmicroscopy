@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+
+<!--
+ * Example:
+ * =======
+ *   Copyright (C) <year> University of Dundee & Open Microscopy Environment.
+ *   All rights reserved.
+ *
+ *   Followed by:
+ *
+ *   Use is subject to license terms supplied in LICENSE.txt
+ *
+ *   or:
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *   GNU General Public License for more details.
+ -->
+
+<module name="Checker">
+    <module name="TreeWalker">
+        <module name="Regexp">
+            <property name="format" value="^[ \*#]*Copyright.*(\(C\))?.*\d\d\d\d(-\d\d\d\d)?.*\n?[ \*#]*All rights reserved.$"/>
+            <property name="message" value="Copyright line missing."/>
+        </module>
+        <module name="Regexp">
+            <property name="format" value="^[ \*#]*(Use is subject to license terms supplied in LICENSE.txt|You should have received a copy of the GNU General Public License along)$"/>
+            <property name="message" value="License line missing."/>
+        </module>
+    </module>
+</module>

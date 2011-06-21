@@ -28,6 +28,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -53,6 +55,7 @@ import javax.swing.JTextField;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.SelectionWizardUI;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -76,7 +79,12 @@ import pojos.GroupData;
  */
 class ExperimenterPane 
 	extends DataPane
+	implements PropertyChangeListener
 {
+	
+	/** Bound property indicating to enable of not the save property. */
+	static final String EXPERIMENTER_ENABLE_SAVE_PROPERTY = 
+		"exprimenterEnableSave";
 	
 	/** Password field to enter password. */
     private JPasswordField 			passwordField;
@@ -115,7 +123,7 @@ class ExperimenterPane
     {
     	passwordField = new JPasswordField();
     	passwordField.getDocument().addDocumentListener(this);
-    	details = EditorUtil.convertExperimenter(null);
+    	//details = EditorUtil.convertExperimenter(null);
     	details = new LinkedHashMap<String, String>();
     	details.put(EditorUtil.DISPLAY_NAME, "");
     	details.put(EditorUtil.FIRST_NAME, "");
@@ -140,6 +148,8 @@ class ExperimenterPane
 		long userID = TreeViewerAgent.getUserDetails().getId();
 		selectionComponent = new SelectionWizardUI(available, selected,
 				GroupData.class, userID);
+		selectionComponent.addPropertyChangeListener(this);
+		addPropertyChangeListener(this);
     }
     
     /**
@@ -308,7 +318,9 @@ class ExperimenterPane
 		if (value.length() == 0) value = s;
 		data.setLastName(value);
 		field = items.get(EditorUtil.MIDDLE_NAME);
-		//data.setMiddleName(field.getText().trim());
+		value = field.getText();
+		if (value == null) value = "";
+		data.setMiddleName(value.trim());
 		field = items.get(EditorUtil.EMAIL);
 		data.setEmail(field.getText().trim());
 		field = items.get(EditorUtil.INSTITUTION);
@@ -323,7 +335,7 @@ class ExperimenterPane
 		if (s == null || s.length() == 0) return m;
 		String pass = buf.toString();
 		if (passwordRequired) {
-			if (pass == null || pass.length() == 0 )  {
+			if (pass == null || pass.length() == 0) {
 				UserNotifier un =
 					TreeViewerAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("Create Experimenter", "Please Enter a Password");
@@ -358,6 +370,29 @@ class ExperimenterPane
 			}
 		}
 		return groups;
+	}
+
+	/**
+	 * Controls if criteria are met to create a new user.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (AdminDialog.ENABLE_SAVE_PROPERTY.equals(name) ||
+				SelectionWizardUI.SELECTION_CHANGE.equals(name)) {
+			int count = 0;
+			if (isNameValid()) count++;
+			StringBuffer buf = new StringBuffer();
+			buf.append(passwordField.getPassword());
+			String v = buf.toString();
+			if (v.trim().length() > 0) count++;
+			List<GroupData> groups = getSelectedGroups();
+			if (groups != null && groups.size() > 0)
+				count++;
+			firePropertyChange(EXPERIMENTER_ENABLE_SAVE_PROPERTY, null, 
+					count == 3);
+		}
 	}
 	
 }

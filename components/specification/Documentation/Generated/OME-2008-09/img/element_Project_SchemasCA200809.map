@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Project_SchemasCA200809'>
+ <area
+  shape='rect'
+  alt='type_ProjectID'
+  coords='177,0,271,26'
+  href='CA.xsd.html#type_ProjectID'/>
+
+ <area
+  shape='rect'
+  alt='type_ExperimenterID'
+  coords='177,108,335,134'
+  href='CA.xsd.html#type_ExperimenterID'/>
+
+ <area
+  shape='rect'
+  alt='type_GroupID'
+  coords='177,144,286,170'
+  href='CA.xsd.html#type_GroupID'/>
+
+</map>

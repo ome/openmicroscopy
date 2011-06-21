@@ -35,6 +35,7 @@ import java.util.Set;
 //Application-internal dependencies
 import static omero.rtypes.rstring;
 import omero.RString;
+import omero.model.Annotation;
 import omero.model.CommentAnnotation;
 import omero.model.DatasetAnnotationLink;
 import omero.model.ImageAnnotationLink;
@@ -171,25 +172,25 @@ public class TagAnnotationData extends AnnotationData {
     }
 
     /**
-     * Sets the collection of tags.
-     * 
-     * @param tags
-     *            The value to set.
-     */
-    public void setTags(Set<TagAnnotationData> tags) {
-    	String ns = getNameSpace();
-    	if (!INSIGHT_TAGSET_NS.equals(ns)) 
-    		throw new IllegalArgumentException("Can only add Tags to " +
-    				"a Tag Set.");
-        this.tags = tags;
-    }
-
-    /**
      * Returns the collection of tags related to this tag.
      * 
      * @return See above.
      */
     public Set<TagAnnotationData> getTags() {
+    	String ns = getNameSpace();
+    	if (!INSIGHT_TAGSET_NS.equals(ns)) return null;
+    	TagAnnotation tagSet = (TagAnnotation) asIObject();
+    	if (tags == null && tagSet.sizeOfAnnotationLinks() >= 0) {
+    		tags = new HashSet<TagAnnotationData>();
+    		List l = tagSet.linkedAnnotationList();
+    		Iterator i = l.iterator();
+    		Annotation data;
+    		while (i.hasNext()) {
+    			data = (Annotation) i.next();
+    			if (data instanceof TagAnnotation)
+    				tags.add(new TagAnnotationData((TagAnnotation) data));
+			}
+    	}
         return tags;
     }
 

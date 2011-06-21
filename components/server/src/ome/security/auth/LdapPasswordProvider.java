@@ -71,7 +71,7 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
     }
 
     @Override
-    public Boolean checkPassword(String user, String password) {
+    public Boolean checkPassword(String user, String password, boolean readOnly) {
 
         if (!ldapUtil.getSetting()) {
             return null; // EARLY EXIT!
@@ -82,6 +82,9 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
         // Unknown user. First try to create.
         if (null == id) {
             try {
+                if (readOnly == true) {
+                    throw new IllegalStateException("Cannot create user!");
+                }
                 boolean login = ldapUtil.createUserFromLdap(user, password);
                 // Use default logic if the user creation did not exist,
                 // because there may be another non-database login mechanism
@@ -110,7 +113,7 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
         }
 
         // If anything goes wrong, use the default (configurable) logic.
-        return super.checkPassword(user, password);
+        return super.checkPassword(user, password, readOnly);
     }
 
 }

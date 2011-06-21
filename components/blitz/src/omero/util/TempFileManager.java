@@ -445,6 +445,13 @@ public class TempFileManager {
     }
 
     /**
+     * Calls {@link #getTempDir()} on {@link #manager}.
+     */
+    public static void gettempdir() {
+        manager.getTempDir();
+    }
+
+    /**
      * Command-line interface to the global {@link TempFileManager} instance (
      * {@link #manger}). Valid arguments: "--debug", "clean", "dir", and for
      * testing, "lock"
@@ -472,6 +479,18 @@ public class TempFileManager {
                 System.exit(0);
             } else if (args.contains("dir")) {
                 System.out.println(manager.getTempDir().getAbsolutePath());
+                System.exit(0);
+            } else if (args.contains("test")) {
+                File test = new File("/tmp/test");
+                if (test.exists()) {
+                    test.delete();
+                    System.out.println("Deleted test");
+                }
+                File f = create_path();
+                System.out.println(f.getAbsolutePath());
+                f.deleteOnExit();
+                FileUtils.writeStringToFile(f, "test");
+                FileUtils.moveFile(f, test);
                 System.exit(0);
             } else if (args.contains("lock")) {
                 System.out.println("Locking "

@@ -10,10 +10,10 @@
 #define OMERO_API_RENDERINGENGINE_ICE
 
 #include <omero/ModelF.ice>
-#include <omero/ServicesF.ice>
 #include <omero/Collections.ice>
 #include <omero/ROMIO.ice>
 #include <omero/Constants.ice>
+#include <omero/api/PyramidService.ice>
 
 module omero {
 
@@ -22,14 +22,19 @@ module omero {
         /**
          * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/omeis/re/providers/RenderingEngine.html">RenderingEngine.html</a>
          **/
-        ["ami", "amd"] interface RenderingEngine extends StatefulServiceInterface
+        ["ami", "amd"] interface RenderingEngine extends PyramidService
             {
                 omero::romio::RGBBuffer render(omero::romio::PlaneDef def) throws ServerError;
                 Ice::IntSeq renderAsPackedInt(omero::romio::PlaneDef def) throws ServerError;
-                Ice::IntSeq renderAsPackedIntAsRGBA(omero::romio::PlaneDef def) throws ServerError;
+                /**
+                 * The method provided here is deprecated in OMERO 4.3.
+                 * <code>renderAsPackedInt</code> should be used instead.
+                 **/
+                ["deprecated:renderAsPackedIntAsRGBA() is deprecated"] Ice::IntSeq renderAsPackedIntAsRGBA(omero::romio::PlaneDef def) throws ServerError;
                 Ice::IntSeq renderProjectedAsPackedInt(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
                 Ice::ByteSeq renderCompressed(omero::romio::PlaneDef def) throws ServerError;
                 Ice::ByteSeq renderProjectedCompressed(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
+                long getRenderingDefId() throws ServerError;
                 void lookupPixels(long pixelsId) throws ServerError;
                 bool lookupRenderingDef(long pixelsId) throws ServerError;
                 void loadRenderingDef(long renderingDefId) throws ServerError;
@@ -70,6 +75,7 @@ module omero {
                 bool isPixelsTypeSigned() throws ServerError;
                 double getPixelsTypeUpperBound(int w) throws ServerError;
                 double getPixelsTypeLowerBound(int w) throws ServerError;
+
             };
 
     };

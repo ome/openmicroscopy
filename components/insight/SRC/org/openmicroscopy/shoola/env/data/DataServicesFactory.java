@@ -33,23 +33,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.api.RenderingEnginePrx;
+
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.file.IOUtil;
@@ -74,11 +80,20 @@ import pojos.GroupData;
 public class DataServicesFactory
 {
 	
+	/** Indicates that the connection has been lost. */
+	public static final int LOST_CONNECTION = 0;
+	
+	/** Indicates that the server is out of service. */
+	public static final int SERVER_OUT_OF_SERVICE = 1;
+	
 	/** The name of the fs configuration file in the configuration directory. */
 	private static final String		FS_CONFIG_FILE = "fs.config";
 
     /** The sole instance. */
 	private static DataServicesFactory		singleton;
+	
+	/** The dialog indicating that the connection is lost.*/
+	private MessageBox connectionDialog;
 	
 	/**
 	 * Creates a new instance. This can't be called outside of container 
@@ -95,7 +110,8 @@ public class DataServicesFactory
 	{
 		if (c == null)
 			throw new NullPointerException();  //An agent called this method?
-		if (singleton == null)	singleton = new DataServicesFactory(c);
+		if (singleton == null)	
+			singleton = new DataServicesFactory(c);
 		return singleton;
 	}
 	
@@ -287,38 +303,63 @@ public class DataServicesFactory
 	 * 
 	 * @param index One of the connection constants defined by the gateway.
 	 */
-	void sessionExpiredExit(int index)
+	public void sessionExpiredExit(int index)
 	{
+		if (connectionDialog != null) return;
 		String message;
 		UserNotifier un = registry.getUserNotifier();
 		switch (index) {
-			case OMEROGateway.LOST_CONNECTION:
+			case LOST_CONNECTION:
 				message = "The connection has been lost. \nDo you want " +
-						"to reconnect? If no, the application will exit.";
-				MessageBox box = new MessageBox(
+						"to reconnect? If no, the application will now exit.";
+				connectionDialog = new MessageBox(
 						registry.getTaskBar().getFrame(), "Lost Connection", 
 						message);
-				int v = box.centerMsgBox();
-				if (v == MessageBox.NO_OPTION) exitApplication();
-				else if (v == MessageBox.YES_OPTION) {
+				connectionDialog.setModal(true);
+				int v = connectionDialog.centerMsgBox();
+				if (v == MessageBox.NO_OPTION) {
+					connectionDialog = null;
+					exitApplication();
+				} else if (v == MessageBox.YES_OPTION) {
 					UserCredentials uc = (UserCredentials) 
 					registry.lookup(LookupNames.USER_CREDENTIALS);
+					List<Long> l = omeroGateway.getRenderingServices();
 					boolean b =  omeroGateway.reconnect(uc.getUserName(), 
             				uc.getPassword());
+					connectionDialog = null;
 					if (b) {
+						//reactivate the rendering engine.
+						Iterator<Long> i = l.iterator();
+						OmeroImageService svc = registry.getImageService();
+						Long id;
+						List<Long> failure = new ArrayList<Long>();
+						while (i.hasNext()) {
+							id = i.next();
+							try {
+								svc.reloadRenderingService(id);
+							} catch (Exception e) {
+								failure.add(id);
+							}
+						}
 						message = "You are reconnected to the server.";
 						un.notifyInfo("Reconnection Success", message);
+						if (failure.size() > 0) {
+							//notify user.
+							registry.getEventBus().post(
+									new ReloadRenderingEngine(failure));
+						}
 					} else {
 						message = "A failure occurred while attempting to " +
-								"reconnect.\nThe application will exit.";
+								"reconnect.\nThe application will now exit.";
 						un.notifyInfo("Reconnection Failure", message);
 						exitApplication();
 					}
 				}
 				break;
-			case OMEROGateway.SERVER_OUT_OF_SERVICE:
+			case SERVER_OUT_OF_SERVICE:
 				message = "The server is no longer " +
-				"running. \nPlease contact your system administrator.";
+				"running. \nPlease contact your system administrator." +
+				"\nThe application will now exit.";
 				un.notifyInfo("Connection Refused", message);
 				exitApplication();
 				break;	
@@ -380,7 +421,7 @@ public class DataServicesFactory
                 				uc.getPassword(), uc.getHostName(),
                                  determineCompression(uc.getSpeedLevel()),
                                 uc.getGroup(), uc.isEncrypted());
-        
+        //Register into log file.
         Object v = container.getRegistry().lookup(LookupNames.VERSION);
     	String clientVersion = "";
     	if (v != null && v instanceof String)
@@ -397,6 +438,19 @@ public class DataServicesFactory
         	notifyIncompatibility(clientVersion, uc.getHostName());
         	return;
         }
+        
+        //Register into log file.
+        Map<String, String> info = ProxyUtil.collectOsInfoAndJavaVersion();
+        LogMessage msg = new LogMessage();
+        msg.println("Server version: "+version);
+        msg.println("Client version: "+clientVersion);
+        Entry entry;
+        Iterator k = info.entrySet().iterator();
+        while (k.hasNext()) {
+        	entry = (Entry) k.next();
+        	msg.println((String) entry.getKey()+": "+(String) entry.getValue());
+		}
+        registry.getLogger().info(this, msg);
         
         KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
         executor = new ScheduledThreadPoolExecutor(1);
@@ -534,4 +588,9 @@ public class DataServicesFactory
 		container.exit();
 	}
 
+	public static void isSessionAlive(Registry context)
+	{
+		if (context == registry) omeroGateway.isSessionAlive();
+	}
+	
 }

@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -93,7 +94,7 @@ public interface Renderer
      * Bound property name indicating to render the plane with the 
      * new rendering settings. 
      */
-    public final static String  RENDER_PLANE_PROPERTY = "render_plane";
+    public final static String  RENDER_PLANE_PROPERTY = "renderPlane";
     
     /** Bound property name indicating that a new channel is selected. */
     public final static String  SELECTED_CHANNEL_PROPERTY = "selectedChannel";
@@ -131,6 +132,12 @@ public interface Renderer
 	/** Bound property indicating to load the rendering settings. */
 	public static final String	VIEWED_BY_PROPERTY = "ViewedBy";
 
+	/** 
+	 * Bound property indicating that the rendering settings have been 
+	 * saved. 
+	 */
+	public static final String	SAVE_SETTINGS_PROPERTY = "saveSettings";
+	
     /** 
      * Sets the pixels intensity interval for the
      * currently selected channel.
@@ -495,6 +502,9 @@ public interface Renderer
 	RndProxyDef saveCurrentSettings()
 		throws RenderingServiceException, DSOutOfServiceException;
 
+	/** Fires a property to indicate to save the settings. */
+	void saveSettings();
+	
 	/**
 	 * Sets the compression level.
 	 * 
@@ -637,5 +647,44 @@ public interface Renderer
 	 * 				  and the associated images.
 	 */
 	void loadRndSettings(boolean loading, List results);
+	
+	/**
+	 * Returns the size of a tile.
+	 * 
+	 * @return See above.
+	 */
+	Dimension getTileSize();
+	
+	/**
+	 * Returns the possible resolution levels. This method should only be used
+	 * when dealing with large images.
+	 * 
+	 * @return See above.
+	 */
+	int getResolutionLevels();
+	
+	/**
+	 * Returns the currently selected resolution level. This method should only 
+	 * be used when dealing with large images.
+	 * 
+	 * @return See above.
+	 */
+	int getSelectedResolutionLevel();
+	
+	/**
+	 * Sets resolution level. This method should only be used when dealing with
+	 * large images.
+	 * 
+	 * @param level The value to set.
+	 */
+	void setSelectedResolutionLevel(int level);
+	
+	/**
+	 * Returns <code>true</code> if it is a large image, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isBigImage();
 	
 }

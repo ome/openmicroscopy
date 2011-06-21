@@ -115,14 +115,12 @@ public class TableTest
     	}
     }
     
-    // Simple Tests
-    
     /**
      * Retrieve table's OriginalFile.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void getOriginalFileTest() 
+    public void testGetOriginalFile() 
     	throws Exception
     {
     	if (myTable != null) myTable.getOriginalFile();
@@ -133,7 +131,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void getHeadersTest() 
+    public void testGetHeaders() 
     	throws Exception
     {
     	if (myTable != null) myTable.getHeaders();
@@ -144,7 +142,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void addDataTest() 
+    public void testAddData() 
     	throws Exception 
     {
     	Column[] newRow = createColumns(2);
@@ -168,7 +166,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void getNumberOfRowsTest() 
+    public void testGetNumberOfRows() 
     	throws Exception
     {
     	if (myTable != null) {
@@ -195,7 +193,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void getWhereListEmptyTableTest() 
+    public void testGetWhereListEmptyTable() 
     	throws Exception 
     {
     	if (myTable != null) {
@@ -211,7 +209,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void getWhereListManyRowsTest() 
+    public void testGetWhereListManyRows() 
     	throws Exception
     {
     	if (myTable != null) {
@@ -257,7 +255,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test(expectedExceptions = ApiUsageException.class)
-    public void getReadCoordinates0RowsTest() 
+    public void testReadCoordinates0Rows() 
     	throws Exception 
     {
         if (myTable != null) myTable.readCoordinates(null);
@@ -269,7 +267,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void getReadCoordinates1RowsTest()
+    public void testReadCoordinates1Rows()
     	throws Exception
     {
     	if (myTable != null) {
@@ -293,7 +291,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void getReadCoordinates2RowsTest() 
+    public void testReadCoordinates2Rows() 
     	throws Exception
     {
     	if (myTable != null) {
@@ -320,7 +318,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void read0RowsTest() 
+    public void testRead0Rows() 
     	throws Exception
     {
     	if (myTable != null)
@@ -332,7 +330,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void read1RowsTest()
+    public void testRead1Rows()
     	throws Exception
     {
     	if (myTable != null) {
@@ -356,7 +354,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void read2RowsTest() 
+    public void testRead2Rows() 
     	throws Exception
     {
     	if (myTable != null) {
@@ -383,7 +381,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test(expectedExceptions = ApiUsageException.class)
-    public void slice0RowsTest()
+    public void testSlice0Rows()
     	throws Exception 
     {
     	if (myTable != null) myTable.slice(null, null);
@@ -395,7 +393,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void slice1RowsTest() 
+    public void testSlice1Rows() 
     	throws Exception
     {
     	if (myTable != null) {
@@ -419,7 +417,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void slice2RowsTest() 
+    public void testSlice2Rows() 
     	throws Exception 
     {
     	if (myTable != null) {
@@ -447,7 +445,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void updateTableWith1RowsTest() 
+    public void testUpdateTableWith1Rows() 
     	throws Exception 
     {
     	if (myTable != null) {
@@ -475,13 +473,13 @@ public class TableTest
         			myTable.getNumberOfRows(), 1);
         	
     		// getWhereList should have returned one row
-    		assertTrue(ids.length==1); 
+    		assertTrue(ids.length == 1); 
         	    	
         	// Update the row with new data
         	Long newTime = new Date().getTime();
     		
         	((LongColumn) myData.columns[LONG_COLUMN]).values[
-        	                                              (int) ids[0]] = newTime;
+        	                                           (int) ids[0]] = newTime;
         	((StringColumn) myData.columns[STRING_COLUMN]).values[
         	                                (int) ids[0]] = newTime.toString();
         	       
@@ -496,7 +494,7 @@ public class TableTest
             // Row's time string and value should be the same
             assertTrue(newTime.toString().equals(
             		myStrings.values[(int) ids[0]]));
-            assertTrue(newTime==myLongs.values[(int) ids[0]]);
+            assertTrue(newTime == myLongs.values[(int) ids[0]]);
     	}
     	
     } //updateTableRow()
@@ -506,7 +504,7 @@ public class TableTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void updateTableWith2RowsTest()
+    public void testUpdateTableWith2Rows()
     	throws Exception
     {
     	if (myTable != null) {
@@ -530,14 +528,15 @@ public class TableTest
         	myTable.addData(newRow);
         		
         	// Retrieve the table data
-        	Data myData = myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());	
+        	Data myData = myTable.read(ColNumbers, 0L, 
+        			myTable.getNumberOfRows());	
         	
         	// Find the specific row we added
         	long[] ids = myTable.getWhereList("(Uid==" + 1 + ")", null, 0, 
         			myTable.getNumberOfRows(), 1);
         	
     		// getWhereList should have returned one row
-    		assertTrue(ids.length==1); 
+    		assertTrue(ids.length == 1); 
         	    	
         	// Update the row with new data
         	Long newTime = new Date().getTime();
@@ -545,7 +544,7 @@ public class TableTest
         	((LongColumn) myData.columns[LONG_COLUMN]).values[(int) ids[0]] 
         	                                                  = newTime;
         	((StringColumn) myData.columns[STRING_COLUMN]).values[(int) ids[0]] 
-        	                                                  = newTime.toString();
+        	                                               = newTime.toString();
         	       
             myTable.update(myData);
             
@@ -556,8 +555,9 @@ public class TableTest
             myLongs = (LongColumn) myData.columns[LONG_COLUMN];
 
             // Row's time string and value should be the same
-            assertTrue(newTime.toString().equals(myStrings.values[(int) ids[0]]));
-            assertTrue(newTime==myLongs.values[(int) ids[0]]);
+            assertTrue(newTime.toString().equals(
+            		myStrings.values[(int) ids[0]]));
+            assertTrue(newTime == myLongs.values[(int) ids[0]]);
     	}
     } 
     

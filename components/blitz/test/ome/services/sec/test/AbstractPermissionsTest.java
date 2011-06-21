@@ -55,7 +55,7 @@ import org.testng.annotations.Test;
  * and the completeness of the security system.
  * 
  */
-@Test(groups = { "security", "integration" })
+@Test(enabled=false, groups = { "broken", "security", "integration" })
 public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 
     /*

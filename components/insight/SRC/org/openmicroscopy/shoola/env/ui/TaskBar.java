@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
-import javax.swing.AbstractButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -33,6 +32,7 @@ import javax.swing.JMenuItem;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 
 /** 
  * Defines the functionality of the task bar UI.
@@ -70,6 +70,13 @@ import javax.swing.JMenuItem;
  */
 public interface TaskBar 
 {
+	/** Indicates that the connection has been lost. */
+	public static final int LOST_CONNECTION = 
+		DataServicesFactory.LOST_CONNECTION;
+	
+	/** Indicates that the server is out of service. */
+	public static final int SERVER_OUT_OF_SERVICE = 
+		DataServicesFactory.SERVER_OUT_OF_SERVICE;
 	
 	//NOTE: The TaskBarView uses these constants to do direct indexing.
 	//So changing these values requires a review of TaskBarView as well.  
@@ -126,30 +133,7 @@ public interface TaskBar
 	 * @throws IllegalArgumentException	If <code>menuID</code> is not valid.
 	 */
 	public void removeFromMenu(int menuID, JMenuItem entry);
-	
-	/**
-	 * Adds <code>entry</code> to the specified toolbar.
-	 * The <code>entry</code> is assumed to have a <code>16x16</code> icon and
-	 * no text.
-	 * 
-	 * @param toolBarID	ID of one of the toolbars supported by the task bar. 
-	 * 					Must be one of the constants defined by this interface.
-	 * @param entry		The item to add.
-	 * @throws IllegalArgumentException	If <code>toolBarID</code> is not valid.
-	 * @throws NullPointerException	If <code>entry</code> is <code>null</code>.
-	 */
-	public void addToToolBar(int toolBarID, AbstractButton entry);
-	
-	/**
-	 * Removes <code>entry</code> from the specified toolbar.  
-	 * 
-	 * @param toolBarID	ID of one of the toolbars supported by the task bar. 
-	 * 					Must be one of the constants defined by this interface.
-	 * @param entry		The item to remove.
-	 * @throws IllegalArgumentException	If <code>toolBarID</code> is not valid.
-	 */
-	public void removeFromToolBar(int toolBarID, AbstractButton entry);
-    
+
     /**
      * Returns a reference to the task bar window.
      * 
@@ -204,4 +188,12 @@ public interface TaskBar
      * @param path The path to handle.
      */
     public void openURL(String path);
+    
+    /**
+     * Invokes when an error has occurred and the connection is lost.
+     * 
+     * @param index One of the constants defined by this class.
+     */
+    public void sessionExpired(int index);
+    
 }

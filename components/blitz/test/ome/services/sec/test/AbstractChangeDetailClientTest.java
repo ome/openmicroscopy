@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 
-@Test(groups = { "client", "integration", "security", "ticket:52", "init" })
+@Test(enabled=false, groups = { "broken", "client", "integration", "security", "ticket:52", "init" })
 public class AbstractChangeDetailClientTest extends AbstractSecurityTest {
 
     private String user_name = "USER:" + UUID.randomUUID().toString();

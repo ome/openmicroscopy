@@ -34,6 +34,8 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -46,18 +48,20 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import omero.model.PlaneInfo;
 import omero.romio.PlaneDef;
+import omero.romio.RegionDef;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.imviewer.BirdEyeLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImageDataLoader;
-import org.openmicroscopy.shoola.agents.imviewer.ImageLoader;
 import org.openmicroscopy.shoola.agents.imviewer.MeasurementsLoader;
 import org.openmicroscopy.shoola.agents.imviewer.OverlaysRenderer;
 import org.openmicroscopy.shoola.agents.imviewer.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ProjectionSaver;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsCreator;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsLoader;
+import org.openmicroscopy.shoola.agents.imviewer.TileLoader;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.browser.BrowserFactory;
@@ -79,6 +83,9 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.Region;
+import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
+import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
@@ -120,7 +127,7 @@ class ImViewerModel
 
 	/** The maximum height of the thumbnail. */
 	private static final int    THUMB_MAX_HEIGHT = 24;
-
+	
 	/** Index of the <code>RenderingSettings</code> loader. */
 	private static final int	SETTINGS = 0;
 	
@@ -254,10 +261,7 @@ class ImViewerModel
     
     /** The id of the table containing the overlay. */
     private long						overlayTableID;
-    
-    /** Flag indicating to load the image asynchronously. */
-    private Boolean						asynchronousCall;
-    
+
     /** 
      * The value indicating the reduction factor used for big images. 
      * The default value is <code>1</code>.
@@ -266,6 +270,121 @@ class ImViewerModel
     
     /** The size of the object if it is a big image. */
     private Dimension					computedSize;
+    
+    /** The tiles to display. */
+    private Map<Integer, Tile>			tiles;
+    
+    /** The number of rows, default is <code>1</code>.*/
+    private Integer numberOfRows;
+    
+    /** The number of columns, default is <code>1</code>.*/
+    private Integer numberOfColumns;
+    
+	/** The size of the tile.*/
+	private Dimension tileSize;
+	
+	/** The power of 2 used to determine the tile size.*/
+	private Map<Integer, ResolutionLevel> resolutionMap;
+	
+	/** The size of the tiled image along the X-axis.*/
+	private int tiledImageSizeX;
+	
+	/** The size of the tiled image along the Y-axis.*/
+	private int tiledImageSizeY;
+	
+	/**
+	 * Creates the plane to retrieve.
+	 * 
+	 * @return See above.
+	 */
+	private PlaneDef createPlaneDef()
+	{
+		PlaneDef pDef = new PlaneDef();
+		pDef.t = getDefaultT();
+		pDef.z = getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
+		return pDef;
+	}
+	
+	/** Initializes the tiles objects.*/
+	private void initializeTiles()
+	{
+		Dimension d = getTileSize();
+		int w = d.width;
+		int h = d.height;
+		int edgeWidth = w;
+		int edgeHeight = h;
+		ResolutionLevel rl = resolutionMap.get(getSelectedResolutionLevel());
+		int px = rl.getPowerAlongX();
+		int py = rl.getPowerAlongY();
+		rl = resolutionMap.get(getResolutionLevels()-1);
+		int mx = rl.getPowerAlongX();
+		int my = rl.getPowerAlongY();
+		int size = (int) (getMaxX()/Math.pow(2, mx-px));
+		edgeWidth = w;
+		int n = size/w;
+		tiledImageSizeX = n*w;
+		if (n*w < size) {
+			edgeWidth = size-n*w;
+			tiledImageSizeX += edgeWidth;
+			n++;
+		}
+		numberOfColumns = n;
+		size = (int) (getMaxY()/Math.pow(2, my-py));
+		edgeHeight = h;
+		n = size/h;
+		tiledImageSizeY = n*h;
+		if (n*h < size) {
+			edgeHeight = size-n*h;
+			tiledImageSizeY += edgeHeight;
+			n++;
+		}
+		numberOfRows = n;
+		int index = 0;
+		Tile tile;
+		Region region;
+		int x = 0;
+		int y = 0;
+		int ww;
+		int hh;
+		for (int i = 0; i < numberOfRows; i++) {
+			if (i == (numberOfRows-1)) hh = edgeHeight;
+			else hh = h;
+			for (int j = 0; j < numberOfColumns; j++) {
+				if (j == (numberOfColumns-1)) ww = edgeWidth;
+				else ww = w;
+				index = i*numberOfColumns+j;
+				tile = new Tile(index, i, j);
+				region = new Region(x, y, ww, hh);
+				tile.setRegion(region);
+				x += d.width;
+				tiles.put(index, tile);
+			}
+			y += d.height;
+			x = 0;
+		}
+	}
+
+    /**
+     * Sorts the tiles by index.
+     * 
+     * @param tiles The tiles to sort.
+     */
+    private void sortTilesByIndex(List<Tile> tiles)
+    {
+    	 if (tiles == null || tiles.size() == 0) return;
+         Comparator c = new Comparator() {
+             public int compare(Object o1, Object o2)
+             {
+                 int n1 = ((Tile) o1).getIndex(), n2 = ((Tile) o2).getIndex();
+                 int v = 0;
+                 if (n1 < n2) v = -1;
+                 else if (n1 > n2) v = 1;
+                 return v;
+             }
+         };
+         Collections.sort(tiles, c);
+    }
     
     /**
 	 * Transforms 3D coordinates into linear coordinates.
@@ -339,8 +458,8 @@ class ImViewerModel
 	private void initialize(Rectangle bounds, boolean separateWindow)
 	{
 		this.separateWindow = separateWindow;
+		tiles = new HashMap<Integer, Tile>();
 		originalRatio = 1;
-		asynchronousCall = null;
 		overlayTableID = -1;
 		requesterBounds = bounds;
 		state = ImViewer.NEW;
@@ -367,18 +486,6 @@ class ImViewerModel
 	}
 	
 	/**
-	 * Returns the image to view.
-	 * 
-	 * @return See above.
-	 */
-	private ImageData getImage()
-	{
-		if (image instanceof WellSampleData)
-			return ((WellSampleData) image).getImage();
-		return (ImageData) image;
-	}
-	
-	/**
 	 * Creates a new instance.
 	 * 
 	 * @param imageID 	The id of the image.
@@ -394,6 +501,18 @@ class ImViewerModel
 	}
 	
 	/**
+	 * Returns the image to view.
+	 * 
+	 * @return See above.
+	 */
+	ImageData getImage()
+	{
+		if (image instanceof WellSampleData)
+			return ((WellSampleData) image).getImage();
+		return (ImageData) image;
+	}
+	
+	/**
 	 * Creates a new object and sets its state to {@link ImViewer#NEW}.
 	 * 
 	 * @param image  	The image or well sample to view.
@@ -406,6 +525,8 @@ class ImViewerModel
 	{
 		this.image = image;
 		initialize(bounds, separateWindow);
+		numberOfRows = 1;
+		numberOfColumns = 1;
 		initializeMetadataViewer();
 		if (getImage().getDefaultPixels() != null) {
 			currentPixelsID = getImage().getDefaultPixels().getId();
@@ -557,7 +678,7 @@ class ImViewerModel
 	{ 
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return 0;
-		return rnd.getPixelsDimensionsX(); 
+		return rnd.getPixelsDimensionsX();
 	}
 
 	/**
@@ -569,7 +690,7 @@ class ImViewerModel
 	{ 
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return 0;
-		return rnd.getPixelsDimensionsY();
+		return rnd.getPixelsDimensionsY(); 
 	}
 
 	/**
@@ -702,32 +823,17 @@ class ImViewerModel
 		PlaneInfoLoader loader = new PlaneInfoLoader(component, getPixelsID());
 		loader.load();
 	}
-	
+
 	/** Fires an asynchronous retrieval of the rendered image. */
 	void fireImageRetrieval()
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		PlaneDef pDef = new PlaneDef();
-		pDef.t = getDefaultT();
-		pDef.z = getDefaultZ();
-		pDef.slice = omero.romio.XY.value;
+		PlaneDef pDef = createPlaneDef();
 		state = ImViewer.LOADING_IMAGE;
-		if (asynchronousCall == null) {
-			asynchronousCall = (getMaxX() >= RenderingControl.MAX_SIZE || 
-					getMaxY() >= RenderingControl.MAX_SIZE);
-		}
-		if (asynchronousCall) {
-			pDef.x = computedSize.width;
-			pDef.y = computedSize.height;
-			ImageLoader loader = new ImageLoader(component, getPixelsID(), 
-					pDef, isBigImage());
-			loader.load();
-		} else {
-			if (ImViewerAgent.hasOpenGLSupport()) 
-				component.setImageAsTexture(rnd.renderPlaneAsTexture(pDef));
-			else component.setImage(rnd.renderPlane(pDef));
-		}
+		if (ImViewerAgent.hasOpenGLSupport()) 
+			component.setImage(rnd.renderPlaneAsTexture(pDef));
+		else component.setImage(rnd.renderPlane(pDef));
 	}
 
 	/**
@@ -768,18 +874,36 @@ class ImViewerModel
 	void onRndLoaded()
 	{
 		state = ImViewer.READY;
+		Renderer rnd = metadataViewer.getRenderer();
+		resolutionMap = new HashMap<Integer, ResolutionLevel>();
+		if (rnd != null) {
+			tileSize = rnd.getTileSize();
+			int levels = getResolutionLevels();
+			int powerX = (int) (Math.log(tileSize.width)/Math.log(2));
+			int powerY = (int) (Math.log(tileSize.height)/Math.log(2));
+			int index = 0;
+			int vx = 0, vy = 0;
+			for (int i = levels-1; i >= 0; i--) {
+				vx = powerX-index;
+				vy = powerY-index;
+				resolutionMap.put(i, new ResolutionLevel(i, vx, vy));
+				index++;
+			}
+		}
+		if (isBigImage())
+			initializeTiles();
+		//
 		double f = initZoomFactor();
 		if (f > 0)
 			browser.initializeMagnificationFactor(f);
 		try {
-			Renderer rnd = metadataViewer.getRenderer();
 			if (alternativeSettings != null && rnd != null)
 				rnd.resetSettings(alternativeSettings, false);
 			alternativeSettings = null;
 			if (rnd != null) originalDef = rnd.getRndSettingsCopy();
 		} catch (Exception e) {}
 	}
-
+	
 	/**
 	 * Returns the {@link Browser}.
 	 * 
@@ -956,6 +1080,7 @@ class ImViewerModel
 	 */
 	boolean allowSplitView()
 	{
+		if (isBigImage()) return false;
 		if (getMaxC() <= 1) return false;
 		if (isNumerousChannel()) return false;
 		//if (getMaxX() >= 2*IMAGE_MAX_WIDTH) return false;
@@ -971,8 +1096,9 @@ class ImViewerModel
 	 */
 	boolean isBigImage()
 	{
-		return (getMaxX() > RenderingControl.MAX_SIZE_THREE ||
-				getMaxY() > RenderingControl.MAX_SIZE_THREE);
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return false;
+		return rnd.isBigImage();
 	}
 	
 	/**
@@ -1324,13 +1450,23 @@ class ImViewerModel
 		return m;
 	}
 	
-	/** Sets the settings before turning on/off channels in the grid view. */
-	void setLastSettingsRef()
+	/** 
+	 * Sets the settings before turning on/off channels in the grid view. 
+	 * 
+	 * @param index The index specified.
+	 */
+	void setLastSettingsRef(int index)
 	{
-		if (getTabbedIndex() != ImViewer.GRID_INDEX) return;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		lastMainDef = rnd.getRndSettingsCopy();
+		switch (index) {
+			case ImViewer.GRID_INDEX:
+			case ImViewer.PROJECTION_INDEX:
+				lastMainDef = rnd.getRndSettingsCopy();
+				break;
+			case ImViewer.VIEW_INDEX:
+				lastProjDef = rnd.getRndSettingsCopy();	
+		}
 	}
 	
 	/** 
@@ -1715,8 +1851,8 @@ class ImViewerModel
 	void fireImageProjection(int startZ, int endZ, int stepping, int type, 
 							String typeName, ProjectionRef ref)
 	{
-		startZ = ref.getStartZ();
-		endZ = ref.getEndZ();
+		if (startZ < 0) startZ = ref.getStartZ();
+		if (endZ < startZ) endZ = ref.getEndZ();
 		state = ImViewer.PROJECTING;
 		StringBuffer buf = new StringBuffer();
 		buf.append("Original Image: "+getImageName());
@@ -1860,9 +1996,9 @@ class ImViewerModel
     /** Loads the image before doing anything else. */
 	void fireImageLoading()
 	{
+		state = ImViewer.LOADING_IMAGE_DATA;
 		ImageDataLoader loader = new ImageDataLoader(component, getImageID());
 		loader.load();
-		state = ImViewer.LOADING_IMAGE_DATA;
 	}
 	
 	/** 
@@ -2239,6 +2375,9 @@ class ImViewerModel
 	 */
 	Dimension computeSize()
 	{
+		computedSize = new Dimension(getMaxX(), getMaxY());
+		return computedSize;
+		/*
 		if (!isBigImage()) {
 			computedSize = new Dimension(getMaxX(), getMaxY());
 			return computedSize;
@@ -2252,6 +2391,7 @@ class ImViewerModel
 			computedSize = new Dimension(RenderingControl.MAX_SIZE,
 					RenderingControl.MAX_SIZE);
 		return computedSize;
+		*/
 	}
 	
 	/** Refreshes the renderer. */
@@ -2313,6 +2453,233 @@ class ImViewerModel
 	boolean isHCSImage()
 	{
 		return (image instanceof WellSampleData);
+	}
+
+	/**
+	 * Loads the bird eye view image for big image.
+	 */
+	void fireBirdEyeViewRetrieval()
+	{
+		// use the lowest resolution
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		int level = getSelectedResolutionLevel();
+		PlaneDef pDef = createPlaneDef();
+		Dimension d = getTileSize();
+		int w = d.width;
+		int h = d.height;
+		int edgeWidth = w;
+		int edgeHeight = h;
+		ResolutionLevel rl = resolutionMap.get(0);
+		int px = rl.getPowerAlongX();
+		int py = rl.getPowerAlongY();
+		rl = resolutionMap.get(getResolutionLevels()-1);
+		int mx = rl.getPowerAlongX();
+		int my = rl.getPowerAlongY();
+		int size = (int) (getMaxX()/Math.pow(2, mx-px));
+		edgeWidth = w;
+		int n = size/w;
+		int tiledImageSizeX = n*w;
+		if (n*w < size) {
+			edgeWidth = size-n*w;
+			tiledImageSizeX += edgeWidth;
+			n++;
+		}
+		size = (int) (getMaxY()/Math.pow(2, my-py));
+		edgeHeight = h;
+		n = size/h;
+		int tiledImageSizeY = n*h;
+		if (n*h < size) {
+			edgeHeight = size-n*h;
+			tiledImageSizeY += edgeHeight;
+			n++;
+		}
+		pDef.region = new RegionDef(0, 0, tiledImageSizeX, tiledImageSizeY);
+		rnd.setSelectedResolutionLevel(0);
+		BufferedImage image = rnd.renderPlane(pDef);
+		double ratio = 1;
+		w = tiledImageSizeX;
+		h = tiledImageSizeY;
+		if (w < BirdEyeLoader.BIRD_EYE_SIZE || h < BirdEyeLoader.BIRD_EYE_SIZE)
+			ratio = 1;
+		else {
+			if (w >= h) ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/w;
+			else ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/h;
+		}
+		if (image != null) {
+			BufferedImage newImage;
+			if (ratio != 1) newImage = Factory.magnifyImage(ratio, image);
+			else newImage = image;
+			component.setBirdEyeView(newImage);
+		} else {
+			BirdEyeLoader loader = new BirdEyeLoader(component, getImage());
+			loader.load();
+		}
+		rnd.setSelectedResolutionLevel(level);
+	}
+
+	/**
+	 * Returns the size of the tile.
+	 * 
+	 * @return See above.
+	 */
+	Dimension getTileSize()
+	{
+		if (tileSize != null) return tileSize;
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return null;
+		ResolutionLevel r = resolutionMap.get(getSelectedResolutionLevel());
+		if (r == null) {
+			tileSize = rnd.getTileSize();
+			return tileSize; 
+		}
+		tileSize = new Dimension((int) Math.pow(2, r.getPowerAlongX()), 
+				(int) Math.pow(2, r.getPowerAlongY()));
+		return tileSize; 
+	}
+
+    /**
+     * Returns the number of rows, default is <code>1</code>.
+     * 
+     * @return See above.
+     */
+    int getRows() { return numberOfRows; }
+    
+    /**
+     * Returns the number of columns, default is <code>1</code>.
+     * 
+     * @return See above.
+     */
+    int getColumns() { return numberOfColumns; }
+    
+    /**
+     * Returns the tiles to display.
+     * 
+     * @return See above.
+     */
+    Map<Integer, Tile> getTiles() { return tiles; }
+
+    /** 
+     * Fires an asynchronous call to load the tiles.
+     * 
+     * @param selection The collection of tiles to load.
+     */
+    void fireTileLoading(List<Tile> selection)
+    {
+    	Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null || selection == null) return;
+		PlaneDef pDef = new PlaneDef();
+		pDef.t = getDefaultT();
+		pDef.z = getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
+		List<Tile> list;
+		list = selection;
+		sortTilesByIndex(list);
+		state = ImViewer.LOADING_TILES;
+		TileLoader loader = new TileLoader(component, currentPixelsID, pDef, 
+				list);
+		loader.load();
+    }
+    
+    /** Resets the tiles.*/
+    void resetTiles()
+    {
+    	Iterator<Tile> i = tiles.values().iterator();
+		while (i.hasNext())
+			i.next().setImage(null);
+    }
+
+	/**
+	 * Returns the possible resolution levels. This method should only be used
+	 * when dealing with large images.
+	 * 
+	 * @return See above.
+	 */
+	int getResolutionLevels()
+	{ 
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return 1; 
+		return rnd.getResolutionLevels();
+	}
+	
+	/**
+	 * Returns the currently selected resolution level. This method should only 
+	 * be used when dealing with large images.
+	 * 
+	 * @return See above.
+	 */
+	int getSelectedResolutionLevel()
+	{
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return 0; 
+		return rnd.getSelectedResolutionLevel();
+	}
+	
+	/**
+	 * Sets resolution level. This method should only be used when dealing with
+	 * large images.
+	 * 
+	 * @param level The value to set.
+	 */
+	void setSelectedResolutionLevel(int level)
+	{
+		if (level < 0) level = 0;
+		if (level >= getResolutionLevels())
+			level = getResolutionLevels()-1;
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		clearTileImages(tiles.values());
+		tiles.clear();
+		rnd.setSelectedResolutionLevel(level);
+		//tileSize = null;
+		initializeTiles();
+	}
+	
+	/**
+	 * Returns the size of the tiled image along the X-axis i.e.
+	 * the size of a tile along the X-axis multiplied by the number of columns.
+	 * 
+	 * @return See above.
+	 */
+	int getTiledImageSizeX() { return tiledImageSizeX; }
+	
+	/**
+	 * Returns the size of the tiled image along the Y-axis i.e.
+	 * the size of a tile along the Y-axis multiplied by the number of rows.
+	 * 
+	 * @return See above.
+	 */
+	int getTiledImageSizeY() { return tiledImageSizeY; }
+
+	/**
+	 * Clears the images hosted by the tile if not <code>null</code>.
+	 * 
+	 * @param toClear The collection to handle.
+	 */
+	 void clearTileImages(Collection<Tile> toClear)
+	 {
+		if (toClear == null || toClear.size() == 0) return;
+		Iterator<Tile> i = toClear.iterator();
+		Tile tile;
+		Object image;
+		BufferedImage bi;
+		TextureData data;
+		while (i.hasNext()) {
+			tile = i.next();
+			image = tile.getImage();
+			if (image != null) {
+				if (image instanceof BufferedImage) {
+					bi = (BufferedImage) image;
+					bi.getGraphics().dispose();
+					bi.flush();
+					tile.setImage(null);
+				} else {
+					data = (TextureData) image;
+					data.flush();
+					tile.setImage(null);
+				}
+			}
+		}
 	}
 	
 }

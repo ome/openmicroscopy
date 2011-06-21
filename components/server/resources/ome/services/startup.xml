@@ -56,9 +56,15 @@
      class="ome.services.util.DropBoxDirectoryCheck"
      init-method="run" lazy-init="false">
      <constructor-arg value="${omero.data.dir}"/>
-     <constructor-arg ref="isolatedSqlAction"/>
+     <constructor-arg ref="simpleSqlAction"/>
   </bean>
   -->
+
+  <bean id="serverDirectoryCheck"
+     class="ome.services.util.ServerDirectoryCheck"
+     init-method="run" lazy-init="false">
+     <constructor-arg value="${omero.data.dir}"/>
+  </bean>
 
   <bean id="serverVersionCheck"
      class="ome.services.util.ServerVersionCheck"

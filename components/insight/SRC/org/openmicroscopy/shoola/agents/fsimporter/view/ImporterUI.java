@@ -28,23 +28,35 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXLabel;
+import org.jdesktop.swingx.JXPanel;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -68,6 +80,13 @@ class ImporterUI
 	extends TopWindow
 {
 
+	/** The window's title. */
+	private static final String TITLE = "Import Data";
+	
+	/** The text displayed to notify the user to refresh. */
+	private static final String	REFRESH_TXT = "New containers added. " +
+			"Please Refresh";
+	
 	/** Reference to the model. */
 	private ImporterModel	model;
 	
@@ -89,6 +108,12 @@ class ImporterUI
 	/** Keeps track of the imports. */
 	private Map<Integer, ImporterUIElement> uiElements;
 	
+	/** The controls bar. */
+	private JComponent controlsBar;
+
+	/** The component indicating to refresh the containers view.*/
+	private JXLabel messageLabel;
+	
 	/**
 	 * Builds and lays out the controls.
 	 * 
@@ -97,8 +122,12 @@ class ImporterUI
 	private JPanel buildControls()
 	{
 		JPanel p = new JPanel();
-		p.add(new JButton(controller.getAction(ImporterControl.CLOSE_BUTTON)));
+		p.add(new JButton(controller.getAction(ImporterControl.CANCEL_BUTTON)));
 		p.add(Box.createHorizontalStrut(5));
+		//p.add(new JButton(controller.getAction(ImporterControl.CLOSE_BUTTON)));
+		//p.add(Box.createHorizontalStrut(5));
+		//p.add(new JButton(controller.getAction(ImporterControl.RETRY_BUTTON)));
+		//p.add(Box.createHorizontalStrut(5));
 		p.add(new JButton(controller.getAction(ImporterControl.SEND_BUTTON)));
 		return UIUtilities.buildComponentPanelRight(p);
 	}
@@ -108,12 +137,23 @@ class ImporterUI
 	{
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
+		
 		IconManager icons = IconManager.getInstance();
-		TitlePanel tp = new TitlePanel("Imports", "", "Displays " +
-				"the imports", icons.getIcon(IconManager.IMPORT_48));
-		container.add(tp, BorderLayout.NORTH);
+		TitlePanel tp = new TitlePanel(TITLE, "", "Select data to import " +
+				"and monitor imports.", 
+				icons.getIcon(IconManager.IMPORT_48));
+		JXPanel p = new JXPanel();
+		JXPanel lp = new JXPanel();
+		lp.setLayout(new FlowLayout(FlowLayout.LEFT));
+		lp.add(messageLabel);
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(tp);
+		p.add(lp);
+		p.setBackgroundPainter(tp.getBackgroundPainter());
+		lp.setBackgroundPainter(tp.getBackgroundPainter());
+		container.add(p, BorderLayout.NORTH);
 		container.add(tabs, BorderLayout.CENTER);
-		container.add(buildControls(), BorderLayout.SOUTH);
+		container.add(controlsBar, BorderLayout.SOUTH);
 	}
 	
 	/** Displays the window. */
@@ -122,24 +162,50 @@ class ImporterUI
 		if (initialized) return;
 		initialized = true;
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setSize(8*(screenSize.width/10), 8*(screenSize.height/10));
+        setSize(6*(screenSize.width/10), 8*(screenSize.height/10));
 	}
 	
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		messageLabel = new JXLabel();
+		//IconManager icons = IconManager.getInstance();
+		//messageLabel.setIcon(icons.getIcon(IconManager.REFRESH));
+		messageLabel.setText(REFRESH_TXT);
+		messageLabel.setVisible(false);
+		messageLabel.setFont(messageLabel.getFont().deriveFont(Font.BOLD));
+		controlsBar = buildControls();
+		controlsBar.setVisible(false);
 		uiElementID = 0;
 		uiElements = new LinkedHashMap<Integer, ImporterUIElement>();
 		tabs = new ClosableTabbedPane(JTabbedPane.TOP, 
 				JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		tabs.addPropertyChangeListener(controller);
+		tabs.addChangeListener(new ChangeListener() {
+			
+			public void stateChanged(ChangeEvent e) {
+				controlsBar.setVisible(tabs.getSelectedIndex() != 0);
+			}
+		});
 	}
 	
+	/**
+     * Creates the menu bar.
+     * 
+     * @return The menu bar.
+     */
+    private JMenuBar createMenuBar()
+    {
+    	TaskBar tb = ImporterAgent.getRegistry().getTaskBar();
+    	JMenuBar bar = tb.getTaskBarMenuBar();
+    	return bar;
+    }
+    
 	/** Creates a new instance. */
 	ImporterUI()
 	{
-		super("");
+		super(TITLE);
 	}
 
 	/**
@@ -152,11 +218,33 @@ class ImporterUI
 	{
 		this.model = model;
 		this.controller = controller;
-		total = 0;
+		total = 1;
 		initComponents();
+		setJMenuBar(createMenuBar());
 		buildGUI();
 	}
+	
+	/**
+	 * Displays or hides the message indicating to refresh the location view.
+	 * 
+	 * @param show Pass <code>true</code> to show, <code>false</code> to hide.
+	 */
+	void showRefreshMessage(boolean show) { messageLabel.setVisible(show); }
 
+	/** 
+	 * Adds the chooser to the tab.
+	 * 
+	 * @param chooser The component to add.
+	 */
+	void addComponent(JComponent chooser)
+	{
+		if (chooser == null) return;
+		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
+	}
+	
+	/** Indicates to the select the import chooser. */
+	void selectChooser() { tabs.setSelectedIndex(0); }
+	
 	/**
 	 * Returns the collection of files that could not be imported.
 	 * 
@@ -168,7 +256,11 @@ class ImporterUI
 		if (comps == null || comps.length == 0) return null;
 		List<FileImportComponent> list = new ArrayList<FileImportComponent>();
 		List<FileImportComponent> l;
-		ImporterUIElement element;
+		ImporterUIElement element = getSelectedPane();
+		l = element.getMarkedFiles();
+		if (l != null && l.size() > 0)
+			list.addAll(l);
+		/*
 		for (int i = 0; i < comps.length; i++) {
 			if (comps[i] instanceof ImporterUIElement) {
 				element = (ImporterUIElement) comps[i];
@@ -177,6 +269,7 @@ class ImporterUI
 					list.addAll(l);
 			}
 		}
+		*/
 		return list;
 	}
 	
@@ -189,12 +282,11 @@ class ImporterUI
 	{
 		if (object == null) return null;
 		int n = tabs.getComponentCount();
-		String title = "Import #"+(total+1);
+		String title = "Import #"+total;
 		ImporterUIElement element = new ImporterUIElement(controller,
 				uiElementID, n, title, object);
-		IconManager icons = IconManager.getInstance();
-		tabs.insertTab(title, icons.getIcon(IconManager.IMPORT), 
-				element, "", total);
+		//IconManager icons = IconManager.getInstance();
+		tabs.insertTab(title, element.getImportIcon(), element, "", total);
 		total++;
 		uiElements.put(uiElementID, element);
 		uiElementID++;
@@ -203,6 +295,70 @@ class ImporterUI
 			display();
 		}
 		return element;
+	}
+	
+	/**
+	 * Modifies the icon corresponding to the specified component when 
+	 * the import has ended.
+	 * 
+	 * @param element The element to handle.
+	 */
+	void onImportEnded(ImporterUIElement element)
+	{
+		if (element == null) return;
+		element.onImportEnded();
+		if (tabs.getSelectedComponent() == element) {
+			tabs.setIconAt(tabs.getSelectedIndex(), element.getImportIcon());
+		} else {
+			Component[] components = tabs.getComponents();
+			int index = -1;
+			for (int i = 0; i < components.length; i++) {
+				if (components[i] == element) {
+					index = i;
+				}
+			}
+			if (index >= 0) 
+				tabs.setIconAt(index, element.getImportIcon());
+			
+		}
+	}
+	
+	/**
+	 * Sets the selected pane when the import start.
+	 * 
+	 * @param element The element to select.
+	 * @param startImport Pass <code>true</code> to start the import, 
+	 * 					  <code>false</code> otherwise.
+	 */
+	void setSelectedPane(ImporterUIElement element, boolean startImport)
+	{
+		int n = tabs.getComponentCount();
+		if (n == 0 || element == null) return;
+		if (tabs.getSelectedComponent() == element) return;
+		Component[] components = tabs.getComponents();
+		int index = -1;
+		for (int i = 0; i < components.length; i++) {
+			if (components[i] == element) {
+				index = i;
+				tabs.setSelectedComponent(element);
+			}
+		}
+		if (startImport) {
+			//tabs.setIconAt(index, busyIcon);
+			element.startImport();
+		}
+	}
+	
+	/**
+	 * Returns the selected pane.
+	 * 
+	 * @return See above.
+	 */
+	ImporterUIElement getSelectedPane()
+	{
+		if (tabs.getSelectedIndex() > 0)
+			return (ImporterUIElement) tabs.getSelectedComponent();
+		return null;
 	}
 	
 	/**
@@ -217,7 +373,8 @@ class ImporterUI
 	}
 
 	/**
-	 * Returns the first element with data to import
+	 * Returns the first element with data to import.
+	 * 
 	 * @return See above.
 	 */
 	ImporterUIElement getElementToStartImportFor()
@@ -236,23 +393,33 @@ class ImporterUI
 	/**
 	 * Removes the specified element. Returns the element or <code>null</code>.
 	 * 
-	 * @param index The index of the import view.
+	 * @param object The object to remove.
 	 * @return See above.
 	 */
-	ImporterUIElement removeImportElement(int index)
+	ImporterUIElement removeImportElement(Object object)
 	{
 		Iterator<ImporterUIElement> i = uiElements.values().iterator();
 		ImporterUIElement element;
 		ImporterUIElement found = null;
 		while (i.hasNext()) {
 			element = i.next();
-			if (element.getIndex() == index) {
+			if (element == object) {
 				found = element;
 				break;
 			}
 		}
-		if (found != null) uiElements.remove(found);
+		if (found != null) uiElements.remove(found.getID());
 		return found;
+	}
+
+	/**
+	 * Returns the elements with data to import.
+	 * 
+	 * @return See above.
+	 */
+	Collection<ImporterUIElement> getImportElements()
+	{
+		return uiElements.values();
 	}
 	
 	/**
@@ -264,7 +431,6 @@ class ImporterUI
 	boolean hasFailuresToSend()
 	{
 		Iterator<ImporterUIElement> i = uiElements.values().iterator();
-		ImporterUIElement element;
 		while (i.hasNext()) {
 			if (i.next().hasFailuresToSend())
 				return true;

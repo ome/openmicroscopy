@@ -23,10 +23,6 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
 
 //Third-party libraries
 
@@ -71,6 +67,7 @@ public class SwitchUserGroupLoader
 			context.getAdminService().changeExperimenterGroup(experimenter, 
 					groupID);
 		} catch (Exception e) {
+			e.printStackTrace();
 			context.getLogger().error(this, 
         			"Cannot switch user's group: "+e.getMessage());
 		}
@@ -109,7 +106,7 @@ public class SwitchUserGroupLoader
      * Creates a new instance.
      * 
      * @param experimenter The experimenter to handle.
-     * @param groupID The identifier of the group
+     * @param groupID The identifier of the group.
      */
     public SwitchUserGroupLoader(ExperimenterData experimenter, long groupID)
     {

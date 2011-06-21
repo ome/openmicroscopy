@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Image_SchemasSPW200809'>
+ <area
+  shape='rect'
+  alt='element_DatasetRef'
+  coords='430,371,774,430'
+  href='SPW.xsd.html#element_DatasetRef'/>
+
+ <area
+  shape='rect'
+  alt='element_Region'
+  coords='430,440,774,499'
+  href='SPW.xsd.html#element_Region'/>
+
+ <area
+  shape='rect'
+  alt='element_CustomAttributes'
+  coords='430,509,774,568'
+  href='SPW.xsd.html#element_CustomAttributes'/>
+
+</map>

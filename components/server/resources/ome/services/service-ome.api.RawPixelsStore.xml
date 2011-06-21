@@ -23,6 +23,7 @@
         id="internal-ome.api.RawPixelsStore" 
      class="ome.services.RawPixelsBean">
      <constructor-arg><value>true</value></constructor-arg>
+     <constructor-arg value="${omero.data.dir}"/>
     <!--  
       Copied from id="binary" parent (no multiple inheritance). This is needed
       so long there isn't a wrapper instance around the RawPixelsStore as in
@@ -31,6 +32,7 @@
     <property name="pixelsMetadata" ref="internal-ome.api.IPixels"/>
     <property name="pixelsData"     ref="/OMERO/Pixels"/>
     <property name="IRepositoryInfo" ref="internal-ome.api.IRepositoryInfo"/>
+    <property name="sqlAction" ref="simpleSqlAction"/>
   </bean>
 
   <bean id="managed-ome.api.RawPixelsStore" parent="managedStatefulService" singleton="false">

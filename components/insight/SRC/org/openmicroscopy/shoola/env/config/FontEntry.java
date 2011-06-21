@@ -63,9 +63,9 @@ class FontEntry
 	private static Map<String, Integer> 		FONT_STYLES;
 	static {
 		FONT_STYLES = new HashMap<String, Integer>();
-		FONT_STYLES.put("plain", new Integer(Font.PLAIN));
-		FONT_STYLES.put("italic", new Integer(Font.ITALIC));
-		FONT_STYLES.put("bold", new Integer(Font.BOLD));	
+		FONT_STYLES.put("plain", Integer.valueOf(Font.PLAIN));
+		FONT_STYLES.put("italic", Integer.valueOf(Font.ITALIC));
+		FONT_STYLES.put("bold", Integer.valueOf(Font.BOLD));	
 	}
 	
 	/** 

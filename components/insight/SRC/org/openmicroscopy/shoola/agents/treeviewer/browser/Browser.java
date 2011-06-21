@@ -36,7 +36,6 @@ import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -178,7 +177,7 @@ public interface Browser
     /** 
      * The browser's title corresponding to {@link #PROJECTS_EXPLORER} type.
      */
-    public static final String     HIERARCHY_TITLE = "Hierarchies";//"Projects";
+    public static final String     HIERARCHY_TITLE = "Projects";
 
     /** 
      * The browser's title corresponding to {@link #IMAGES_EXPLORER} type.
@@ -301,12 +300,27 @@ public interface Browser
      */
     public TreeImageDisplay[] getSelectedDisplays();
     
+    /**
+     * Returns the nodes linked to the specified user.
+     * 
+     * @param userID The identifier of the user.
+     * @return See above.
+     */
+    public List<TreeImageDisplay> getNodesForUser(long userID);
+    
     /** 
      * Collapses the specified node. 
      * 
      * @param node The node to collapse.
      */
     public void collapse(TreeImageDisplay node);
+    
+    /** 
+     * Expands the specified node. 
+     * 
+     * @param node The node to expand.
+     */
+    public void expand(TreeImageDisplay node);
     
     /** Removes the {@link Browser} from the display. */
     public void close();
@@ -770,5 +784,5 @@ public interface Browser
 	 * @return See above.
 	 */
 	public TreeImageDisplay getLoggedExperimenterNode();
-	
+
 }

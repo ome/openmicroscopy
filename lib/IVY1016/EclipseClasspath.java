@@ -71,6 +71,7 @@ public class EclipseClasspath extends IvyCacheTask {
 
     private String sourceType = "sources";
     private String classpathFile = ".classpath";
+    private boolean filter = false;
 
     public void doExecute() throws BuildException {
         prepareAndCheck();
@@ -86,7 +87,7 @@ public class EclipseClasspath extends IvyCacheTask {
                 org.apache.ivy.core.module.id.ModuleId mid = aid.getModuleId();
                 String modOrg = mid.getOrganisation();
                 String modName = mid.getName();
-                if ("omero".equals(modOrg)) {
+                if (filter && "omero".equals(modOrg)) {
                     for (String prefix : IGNORE) {
                         if (modName.startsWith(prefix)) {
                             continue OUTER;
@@ -206,5 +207,12 @@ public class EclipseClasspath extends IvyCacheTask {
      */
     public void setClasspathFile(String classpathFile) {
         this.classpathFile = classpathFile;
+    }
+
+    /**
+     * @param whether or not to filter out OMERO items.
+     */
+    public void setFilter(boolean filter) {
+        this.filter = filter;
     }
 }

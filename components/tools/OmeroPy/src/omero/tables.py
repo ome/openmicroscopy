@@ -101,7 +101,10 @@ class HdfList(object):
             self.__locks[hdfpath] = lock
         except portalocker.LockException, le:
             lock.close()
-            raise omero.LockTimeout(None, None, "Cannot acquire exclusive lock on: %s" % self.__hdf_path, 0)
+            raise omero.LockTimeout(None, None, "Cannot acquire exclusive lock on: %s" % hdfpath, 0)
+        except:
+            lock.close()
+            raise
 
         hdffile = hdfstorage.openfile("a")
         fileno = hdffile.fileno()
@@ -234,10 +237,11 @@ class HdfStorage(object):
     #
 
     @locked
-    def initialize(self, cols, metadata = {}):
+    def initialize(self, cols, metadata = None):
         """
 
         """
+        if metadata is None: metadata = {}
 
         if self.__initialized:
             raise omero.ValidationException(None, None, "Already initialized.")
@@ -275,7 +279,7 @@ class HdfStorage(object):
         self.logger.info("Size: %s - Attaching %s to %s" % (sz, table, self.__hdf_path))
         if table in self.__tables:
             self.logger.warn("Already added")
-            raise omero.ApiUsageException(None, Non, "Already added")
+            raise omero.ApiUsageException(None, None, "Already added")
         self.__tables.append(table)
         return sz + 1
 
@@ -378,9 +382,9 @@ class HdfStorage(object):
     @stamped
     def update(self, stamp, data):
         if data:
-            for rn in data.rowNumbers:
+            for i, rn in enumerate(data.rowNumbers):
                 for col in data.columns:
-                    getattr(self.__mea.cols, col.name)[rn] = col.values[rn]
+                    getattr(self.__mea.cols, col.name)[rn] = col.values[i]
         self.__mea.flush()
 
     @stamped
@@ -766,8 +770,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         start = time.time()
         while not self.repo_cfg.exists() and wait < (time.time() - start):
             self.logger.info("%s doesn't exist; waiting 5 seconds..." % self.repo_cfg)
-            time.sleep(5)
-            count -= 1
+            self.stop_event.wait(5)
         if not self.repo_cfg.exists():
             msg = "No repository found: %s" % self.repo_cfg
             self.logger.error(msg)

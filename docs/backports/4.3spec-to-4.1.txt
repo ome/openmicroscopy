@@ -1,0 +1,15 @@
+Synchronization record for develop --> dev_4_1_custom
+for the specification directory only.
+=====================================================
+
+*** 2011-02-22  ***
+
+Backporting the following commits (all of those to specification alone)
+in order to make git checkouts work on Windows.
+
+5277d15e016432ca765b6cdaf044ee134f8c0aeb  Move over final changes from my SVN folder that did not end up in the Git version.
+e3246bc13baeca8b75db208f0e2aa5430f2afce2  Creating transform file for 2007-06 to 2008-02 upgrade (close #3812 )
+cfd7c240801b1454945f0b774875abe020f2de91  Fixes: #4381 Path name problem on Windows have shortened the names of the map and png files, fixed the map files, and modified the html file that uses them.
+f5e9152e4ceb56ea539cfddd04710b8045c2fdc5  Shorten path rename schemaDiagrams > img see #4428
+0bfbdb22421f2013cdce7fd88747a9d0ed9cc517  Large rename to strip web url from filenames
+1e418003c47867e6dafe311cc242755433846113  Update html & map files for new paths (fix #4428)

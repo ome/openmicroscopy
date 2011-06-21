@@ -7,9 +7,14 @@
 
 package ome.io.nio;
 
+import java.awt.Dimension;
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.util.List;
+
+import ome.util.PixelData;
 
 /**
  * 
@@ -22,7 +27,7 @@ import java.nio.ByteBuffer;
  * @since 3.0
  * 
  */
-public interface PixelBuffer
+public interface PixelBuffer extends Closeable
 {
     /**
      * Closes the buffer, cleaning up file state.
@@ -35,6 +40,8 @@ public interface PixelBuffer
      * Checks to ensure that no one particular axis has an offset out of bounds.
      * <code>null</code> may be passed as the argument to any one of the offsets
      * to ignore it for the purposes of bounds checking.
+     * 
+     * @param x offset across the X-axis of the pixel buffer to check.
      * @param y offset across the Y-axis of the pixel buffer to check.
      * @param z offset across the Z-axis of the pixel buffer to check.
      * @param c offset across the C-axis of the pixel buffer to check.
@@ -42,7 +49,8 @@ public interface PixelBuffer
      * @throws DimensionsOutOfBoundsException if <code>y</code>,
      * <code>z</code>, <code>c</code> or <code>t</code> is out of bounds.
      */
-    public void checkBounds(Integer y, Integer z, Integer c, Integer t)
+    public void checkBounds(Integer x, Integer y, Integer z, Integer c, 
+    		Integer t)
     	throws DimensionsOutOfBoundsException;
     
     /**
@@ -140,6 +148,30 @@ public interface PixelBuffer
             throws DimensionsOutOfBoundsException;
     
     /**
+     * Retrieves a hypercube from this pixel buffer.
+     * @param offset The offset of each dimension of the pixel buffer.
+     * @param size The number of pixels to retrieve along each dimension .
+     * @param step The step size across each dimension .
+     * @return buffer containing the data. 
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     */
+    public PixelData getHypercube(List<Integer> offset, List<Integer> size, 
+            List<Integer> step) throws IOException, DimensionsOutOfBoundsException; 
+                
+    /**
+     * Retrieves a hypercube from the given pixels directly.
+     * @param offset The offset of each dimension of the pixel buffer.
+     * @param size The number of pixels to retrieve along each dimension .
+     * @param step The step size across each dimension .
+     * @param buffer pre-allocated buffer, <code>count</code> in size.
+     * @return buffer containing the data. 
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     */
+    public byte[] getHypercubeDirect(List<Integer> offset, List<Integer> size, 
+            List<Integer> step, byte[] buffer) 
+            throws IOException, DimensionsOutOfBoundsException; 
+                
+    /**
      * Retrieves a region from a given plane directly.
      * @param z offset across the Z-axis of the pixel buffer.
      * @param c offset across the C-axis of the pixel buffer.
@@ -156,6 +188,45 @@ public interface PixelBuffer
     public byte[] getPlaneRegionDirect(Integer z, Integer c, Integer t, 
     		Integer count, Integer offset, byte[] buffer)
     	throws IOException, DimensionsOutOfBoundsException;
+
+    /**
+     * Retrieves a tile from this pixel buffer.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @param x Top left corner of the tile, X offset.
+     * @param y Top left corner of the tile, Y offset.
+     * @param w Width of the tile.
+     * @param h Height of the tile.
+     * @return buffer containing the data which comprises the region of the
+     * given 2D image plane. It is guaranteed that this buffer will have been
+     * byte swapped.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @see getTileDirect()
+     */
+    public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
+                             Integer y, Integer w, Integer h)
+            throws IOException;
+
+    /**
+     * Retrieves a tile from this pixel buffer.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @param x Top left corner of the tile, X offset.
+     * @param y Top left corner of the tile, Y offset.
+     * @param w Width of the tile.
+     * @param h Height of the tile.
+     * @param buffer Pre-allocated buffer of the tile's size.
+     * @return <code>buffer</code> containing the data which comprises this
+     * region. It is guaranteed that this buffer will have been byte
+     * swapped. <b>The buffer is essentially directly from disk.</b>
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @see getTile()
+     */
+    public byte[] getTileDirect(Integer z, Integer c, Integer t, Integer x,
+                                Integer y, Integer w, Integer h, byte[] buffer)
+            throws IOException;
 
     /**
      * Retrieves a region from this pixel buffer.
@@ -257,7 +328,7 @@ public interface PixelBuffer
     public byte[] getColDirect(Integer x, Integer z, Integer c, 
                                Integer t, byte[] buffer)
             throws IOException, DimensionsOutOfBoundsException;
-
+    
     /**
      * Retrieves a particular 2D image plane from this pixel buffer.
      * @param z offset across the Z-axis of the pixel buffer.
@@ -272,6 +343,29 @@ public interface PixelBuffer
      * after checking with {@link checkBounds()}.
      */
     public PixelData getPlane(Integer z, Integer c, Integer t)
+            throws IOException, DimensionsOutOfBoundsException;
+    
+    /**
+     * Retrieves a particular region of a 2D image plane from this pixel buffer.
+     * 
+     * @param x offset across the X-axis of the pixel buffer.
+     * @param y offset across the Y-axis of the pixel buffer.
+     * @param width The number of pixels to retrieve along the X-axis.
+     * @param height The number of pixels to retrieve along the Y-axis.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @param stride The step size.
+     * @return buffer containing the data which comprises this 2D image plane.
+     * It is guaranteed that this buffer will have its <code>order</code> set 
+     * correctly but <b>not</b> that the backing buffer will have been byte 
+     * swapped.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     */
+    public PixelData getPlaneRegion(Integer x, Integer y, Integer width, Integer
+    		height, Integer z, Integer c, Integer t, Integer stride)
             throws IOException, DimensionsOutOfBoundsException;
     
     /**
@@ -348,6 +442,24 @@ public interface PixelBuffer
      */
     public byte[] getTimepointDirect(Integer t, byte[] buffer) 
     	throws IOException, DimensionsOutOfBoundsException;
+
+    /**
+     * Sets a tile in this pixel buffer.
+     * @param buffer A byte array of the data.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @param x Top left corner of the tile, X offset.
+     * @param y Top left corner of the tile, Y offset.
+     * @param w Width of the tile.
+     * @param h Height of the tile.
+     * @throws IOException if there is a problem writing to the pixel buffer.
+     * @throws BufferOverflowException if an attempt is made to write off the
+     * end of the file.
+     */
+    public void setTile(byte[] buffer, Integer z, Integer c, Integer t,
+                        Integer x, Integer y, Integer w, Integer h)
+            throws IOException, BufferOverflowException;
 
     /**
      * Sets a region in this pixel buffer.
@@ -541,4 +653,33 @@ public interface PixelBuffer
 	 * Delegates to {@link Pixels.getSizeT()}.
 	 */
 	public int getSizeT();
+
+    /**
+     * Retrieves the number of resolution levels that the backing
+     * pixels pyramid contains.
+     * @return The number of resolution levels. This value does not
+     * necessarily indicate either the presence or absence of a
+     * pixels pyramid.
+     **/
+    public int getResolutionLevels();
+
+    /**
+     * Retrieves the active resolution level.
+     * @return The active resolution level.
+     **/
+    public int getResolutionLevel();
+
+    /**
+     * Sets the active resolution level.
+     * @param resolutionLevel The resolution level to be used by
+     * the pixel buffer.
+     **/
+    public void setResolutionLevel(int resolutionLevel);
+
+    /**
+     * Retrieves the tile size for the pixel store.
+     * @return The dimension of the tile or <code>null</code> if the pixel
+     * buffer is not tiled.
+     **/
+    public Dimension getTileSize();
 }

@@ -34,11 +34,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RString;
 import omero.api.delete.DeleteCommand;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
@@ -51,18 +51,13 @@ import omero.model.FileAnnotation;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
-import omero.model.LongAnnotation;
 import omero.model.Pixels;
-import omero.model.PlateAnnotationLink;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectDatasetLink;
 import omero.model.Screen;
-import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
-import omero.model.WellAnnotationLink;
-import omero.model.WellSampleAnnotationLink;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -83,11 +78,9 @@ import pojos.ImageData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
-import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellData;
-import pojos.WellSampleData;
 
 /** 
  * Implementation of the {@link OmeroDataService} I/F.
@@ -126,75 +119,22 @@ class OmeroDataServiceImpl
 		Iterator i = children.iterator();
 		List<Long> ids = new ArrayList<Long>(children.size());
 		while (i.hasNext()) {  
-			ids.add(new Long(((DataObject) i.next()).getId())); 
+			ids.add(Long.valueOf(((DataObject) i.next()).getId())); 
 		}
 		List links = gateway.findLinks(mParent, ids);
 		if (links != null) 
 			gateway.deleteObjects(links);
 	}
-
-	/**
-	 * Returns the list of objects owned by other users.
-	 * 
-	 * @param objects The list to manipulate.
-	 * @return See above
-	 */
-	private List<IObject> isRelatedToOther(List<IObject> objects)
-	{
-		List<IObject> others = new ArrayList<IObject>();
-		if (objects == null) return others;
-		ExperimenterData exp = 
-			(ExperimenterData) context.lookup(LookupNames.CURRENT_USER_DETAILS);
-		long id = exp.getId();
-		Iterator i = objects.iterator();
-		IObject obj;
-		long ownerID;
-		while (i.hasNext()) {
-			obj = (IObject) i.next();
-			ownerID = obj.getDetails().getOwner().getId().getValue();
-			if (ownerID != id)
-				others.add(obj);
-		}
-		return others;
-	}
 	
 	/**
-	 * Removed the annotations links.
+	 * Deletes the tag set.
 	 * 
-	 * @param object
+	 * @param id The identifier of the set.
 	 * @return See above.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMEDS service. 
 	 */
-	private List<DeletableObject> deleteTagLinks(IObject object)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		//Delete the Tag-DataObject links
-		long id = object.getId().getValue();
-		List<Long> ids = new ArrayList<Long>();
-		ids.add(id);
-		List l = gateway.findAnnotationLinks(ImageData.class.getName(), -1, 
-				ids);
-		List links = new ArrayList();
-		//remove the links.
-		if (l != null && l.size() > 0) links.addAll(l);
-		l = gateway.findAnnotationLinks(DatasetData.class.getName(), -1, 
-				ids);
-		if (l != null && l.size() > 0) links.addAll(l);
-		l = gateway.findAnnotationLinks(ProjectData.class.getName(), -1, 
-				ids);
-		if (l != null && l.size() > 0) links.addAll(l);
-		l = gateway.findAnnotationLinks(TagAnnotationData.class.getName(), -1, 
-				ids);
-		if (l != null && l.size() > 0) links.addAll(l);
-		
-		if (links.size() > 0)
-			gateway.deleteObjects(links);
-		context.getMetadataService().clearAnnotation(TagAnnotationData.class, 
-									id, null);
-		return null;
-	}
-	
 	private List<DataObject> deleteTagSet(long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -218,84 +158,7 @@ class OmeroDataServiceImpl
 		gateway.deleteObjects(l);
 		return tags;
 	}
-	
-	/**
-	 * Returns the collection of annotations to delete before deleting
-	 * the object.
-	 * 
-	 * @param types The type of annotations to delete.
-	 * @param annotations
-	 * @param parentType
-	 * @return See above.
-	 */
-	private List<IObject> annotationsLinkToDelete(List<Class> types, 
-								List<IObject> annotations, Class parentType)
-	{
-		List<IObject> toDelete = new ArrayList<IObject>();
-		if (types == null || types.size() == 0) return toDelete;
-		List<Class> annoTypes = convert(types);
-		
-		if (annoTypes.size() == 0) return toDelete;
-		Iterator k = annotations.iterator();
-		IObject ann;
-		IObject child = null;
-		while (k.hasNext()) {
-			ann = (IObject) k.next();
-			if (ImageData.class.equals(parentType)) 
-				child = ((ImageAnnotationLink) ann).getChild();
-			else if (DatasetData.class.equals(parentType)) 
-				child = ((DatasetAnnotationLink) ann).getChild();
-			else if (ProjectData.class.equals(parentType))
-				child = ((ProjectAnnotationLink) ann).getChild();
-			else if (ScreenData.class.equals(parentType))
-				child = ((ScreenAnnotationLink) ann).getChild();
-			else if (PlateData.class.equals(parentType))
-				child = ((PlateAnnotationLink) ann).getChild();
-			else if (WellData.class.equals(parentType))
-				child = ((WellAnnotationLink) ann).getChild();
-			else if (WellSampleData.class.equals(parentType))
-				child = ((WellSampleAnnotationLink) ann).getChild();
-			if (child != null) {
-				if (child instanceof LongAnnotation) {
-					LongAnnotation longA = (LongAnnotation) child;
-					RString name = longA.getNs();
-					if (name != null) {
-						if (name.getValue().equals(
-						RatingAnnotationData.INSIGHT_RATING_NS) &&
-							!annoTypes.contains(child.getClass())){
-							toDelete.add(ann);
-						}
-					}
-				} else {
-					if (!annoTypes.contains(child.getClass())) {
-						toDelete.add(ann);
-					}
-				}
-			}
-		}
-		return toDelete;
-	}
-	
-	/**
-	 * Converts the list of pojos into the corresponding class.
-	 * 
-	 * @param list The list to handle.
-	 * @return See above.
-	 */
-	private List<Class> convert(List<Class> list)
-	{
-		List<Class> newList = new ArrayList<Class>();
-		Iterator<Class> i = list.iterator();
-		Class klass, convertedClass;
-		while (i.hasNext()) {
-			klass = i.next();
-			convertedClass = gateway.convertPojos(klass);
-			if (convertedClass != null)
-				newList.add(convertedClass);
-		}
-		return newList;
-	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -328,7 +191,6 @@ class OmeroDataServiceImpl
 				(ExperimenterData) context.lookup(
 						LookupNames.CURRENT_USER_DETAILS);
 			if (userID < 0) userID = exp.getId();
-			if (groupID < 0) groupID = exp.getDefaultGroup().getId();
 			param.exp(omero.rtypes.rlong(userID));
 		}
 		if (withLeaves) param.leaves();
@@ -338,9 +200,8 @@ class OmeroDataServiceImpl
 					ScreenData.class.equals(rootNodeType))
 				param.orphan();
 		}
-		Set parents = gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
+		return gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
 				param); 
-		return parents;                            
 	}
 
 	/** 
@@ -503,6 +364,13 @@ class OmeroDataServiceImpl
 				throw new IllegalArgumentException(
 						"items can only be datasets.");
 			}
+		} else if (parent instanceof GroupData) {
+			try {
+				children.toArray(new ExperimenterData[] {});
+			} catch (ArrayStoreException ase) {
+				throw new IllegalArgumentException(
+						"items can only be experimenters.");
+			}
 		} else if (parent instanceof DatasetData) {
 			try {
 				children.toArray(new ImageData[] {});
@@ -564,20 +432,23 @@ class OmeroDataServiceImpl
 		if (toCut == null) toCut = new HashMap();
 		Iterator i;
 		Object parent;
-		i = toCut.keySet().iterator();
+		i = toCut.entrySet().iterator();
+		Entry entry;
 		while (i.hasNext()) {
-			parent = i.next();
+			entry = (Entry) i.next();
+			parent = entry.getKey();
 			if (parent instanceof DataObject) //b/c of orphaned container
-				cut((DataObject) parent, (Set) toCut.get(parent));
+				cut((DataObject) parent, (Set) entry.getValue());
 		}
 
-		i = toPaste.keySet().iterator();
+		i = toPaste.entrySet().iterator();
 
 		while (i.hasNext()) {
-			parent = i.next();
+			entry = (Entry) i.next();
+			parent = entry.getKey();
 			if (parent instanceof DataObject)
-				addExistingObjects((DataObject) parent, 
-						(Set) toPaste.get(parent));
+				addExistingObjects((DataObject) parent,
+						(Set) entry.getValue());
 		}
 	}
 
@@ -601,7 +472,6 @@ class OmeroDataServiceImpl
 		}
 		return m;
 	}
-
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
@@ -649,7 +519,6 @@ class OmeroDataServiceImpl
 		return data;
 	}
 
-	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getImagesPeriod(Timestamp, Timestamp, long, boolean)
@@ -709,7 +578,6 @@ class OmeroDataServiceImpl
 		Map<Integer, Object> results = new HashMap<Integer, Object>();
 		
 		if (!context.hasTextToSearch()) {
-			List<ExperimenterData> l = context.getOwners();
 			results.put(SearchDataContext.TIME, gateway.searchByTime(context));
 			return results;
 		}
@@ -717,7 +585,7 @@ class OmeroDataServiceImpl
 		//Should returns a search context for the moment.
 		//collection of images only.
 		Map m = (Map) result;
-		Iterator i = m.keySet().iterator();
+		
 		Integer key;
 		List value;
 		Iterator k;
@@ -733,10 +601,12 @@ class OmeroDataServiceImpl
 		
 		Set<DataObject> nodes;
 		Object v;
-		
+		Iterator i = m.entrySet().iterator();
+		Entry entry;
 		while (i.hasNext()) {
-			key = (Integer) i.next();
-			v =  m.get(key);
+			entry = (Entry) i.next();
+			key = (Integer) entry.getKey();
+			v =  entry.getValue();
 			if (v instanceof Integer) {
 				results.put(key, v);
 			} else {
@@ -762,7 +632,6 @@ class OmeroDataServiceImpl
 									nodes.add(img);
 								}
 							}
-							break;
 					}
 				}
 			}

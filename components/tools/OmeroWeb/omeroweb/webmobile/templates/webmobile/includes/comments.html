@@ -1,6 +1,6 @@
 <!-- used by project_details, dataset_details etc to display Comments and allow adding Comments-->
 
-{% if object.canWrite %}
+{% if object.isEditable %}
 <form action="{% url webmobile_add_comment obj_type object.id %}" method="POST">
     <textarea rows='1' style="width: 95%" name='comment'></textarea> <br />
     <input type="submit" value="add comment" />

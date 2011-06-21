@@ -9,6 +9,7 @@ package ome.util;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -16,11 +17,15 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.conditions.InternalException;
+import ome.model.core.Channel;
+import ome.model.internal.Details;
+import ome.model.stats.StatsInfo;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -51,14 +56,26 @@ public interface SqlAction {
         final private static Log log = LogFactory.getLog(SqlAction.class);
 
         public Object invoke(MethodInvocation arg0) throws Throwable {
-            log.info(String.format("%s.%s(%s)",
-                    arg0.getThis(),
-                    arg0.getMethod().getName(),
-                    Arrays.deepToString(arg0.getArguments())));
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("%s.%s(%s)",
+                        arg0.getThis(),
+                        arg0.getMethod().getName(),
+                        Arrays.deepToString(arg0.getArguments())));
+            }
             return arg0.proceed();
         }
 
     }
+    
+    /**
+     * Stores the current event context information in a temporary table
+     * so that triggers can make use of them.
+     *
+     * @param eventId
+     * @param userId
+     * @param groupId
+     */
+    void prepareSession(long eventId, long userId, long groupId);
 
     /**
      * Returns true if the given string is the UUID of a session that is
@@ -74,7 +91,7 @@ public interface SqlAction {
 
     /**
      * Similar to {@link #fileRepo(long)}, but only returns values for files
-     * which are also scripts.
+     * which are also scripts. Null may be returned
      *
      * @param fileId
      * @return
@@ -86,6 +103,12 @@ public interface SqlAction {
     Long findRepoFile(String uuid, String dirname, String basename,
             String string);
 
+    String findRepoFilePath(String uuid, long id);
+
+    List<Long> findRepoPixels(String uuid, String dirname, String basename);
+
+    Long findRepoImageFromPixels(long id);
+
     int repoScriptCount(String uuid);
 
     Long nextSessionId();
@@ -93,6 +116,15 @@ public interface SqlAction {
     List<Long> fileIdsInDb(String uuid);
 
     Map<String, Object> repoFile(long value);
+
+    /**
+     * Returns an array of longs for the following SQL return values:
+     * <code>experimenter, eventlog, entityid as pixels</code>
+     *
+     * The oldest eventlog with action = "PIXELDATA" and entitytype = "ome.model.core.Pixels"
+     * is found <em>per user</em> and returned.
+     */
+    List<long[]> nextPixelsDataLogForRepo(String repo, long lastEventId);
 
     long countFormat(String name);
 
@@ -130,6 +162,19 @@ public interface SqlAction {
 
     void delCurrentEventLog(String key);
 
+    /**
+     * The implementation of this method guarantees that even if the current
+     * transaction fails that the value found will not be used by another
+     * transaction. Database implementations can choose whether to do this
+     * at the procedure level or by using transaction PROPAGATION settings
+     * in Java.
+     *
+     * @param segmentName
+     * @param incrementSize
+     * @return
+     * @see ticket:3697
+     * @see ticket:3253
+     */
     long nextValue(String segmentName, int incrementSize);
 
     long currValue(String segmentName);
@@ -160,6 +205,8 @@ public interface SqlAction {
     void setPixelsNamePathRepo(long pixId, String name, String path,
             String repoId);
 
+    long setStatsInfo(Channel ch, StatsInfo si);
+
     // TODO this should probably return an iterator.
     List<Long> getDeletedIds(String entityType);
 
@@ -187,6 +234,12 @@ public interface SqlAction {
      * id is not found, null is returned.
      */
     Map<String, String> getPixelsParams(final long id) throws InternalException;
+
+    /**
+     * Retrieves the name, path and repo for the given pixels set. If the
+     * id is not found, null is returned.
+     */
+    List<String> getPixelsNamePathRepo(final long id) throws InternalException;
 
     /**
      * Resets the entire original file "params" field.
@@ -282,6 +335,32 @@ public interface SqlAction {
         // FILES
         //
 
+        public List<long[]> nextPixelsDataLogForRepo(String repo, long lastEventId) {
+            final RowMapper<long[]> rm = new RowMapper<long[]>() {
+                public long[] mapRow(ResultSet arg0, int arg1)
+                        throws SQLException {
+                    long[] rv = new long[3];
+                    rv[0] = arg0.getLong(1);
+                    rv[1] = arg0.getLong(2);
+                    rv[2] = arg0.getLong(3);
+                    return rv;
+                }};
+            try {
+                if (repo == null) {
+                    return _jdbc().query(
+                            _lookup("find_next_pixels_data_per_user_for_null_repo"), // $NON-NLS-1$
+                            rm, lastEventId);
+                } else {
+                    return _jdbc().query(
+                            _lookup("find_next_pixels_data__per_user_for_repo"), // $NON-NLS-1$
+                            rm, lastEventId, repo);
+                }
+            } catch (EmptyResultDataAccessException erdae) {
+                return null;
+            }
+        }
+        
+        
         public String fileRepo(long fileId) {
             return _jdbc().queryForObject(
                     _lookup("file_repo"), String.class, //$NON-NLS-1$
@@ -289,14 +368,45 @@ public interface SqlAction {
         }
 
         public String scriptRepo(long fileId) {
-            return _jdbc().queryForObject(
+            try {
+                return _jdbc().queryForObject(
                     _lookup("file_repo_of_script"), String.class, //$NON-NLS-1$
                     fileId);
+            } catch (EmptyResultDataAccessException erdae) {
+                return null;
+            }
         }
+
+        //
+        // PIXELS
+        //
+
+        public long setStatsInfo(Channel ch, StatsInfo si) {
+            final Details d = ch.getDetails();
+            final long id = nextValue("seq_statsinfo", 1);
+            _jdbc().update(_lookup("stats_info_creation"), //$NON-NLS-1$
+                    id, Utils.internalForm(d.getPermissions()),
+                    si.getGlobalMax(), si.getGlobalMin(),
+                    d.getCreationEvent().getId(), d.getGroup().getId(),
+                    d.getOwner().getId(), d.getUpdateEvent().getId());
+            _jdbc().update(_lookup("stats_info_set_on_channel"), //$NON-NLS-1$
+                    id, ch.getId());
+            return id;
+        }
+
 
         //
         // CONFIGURATION
         //
+
+        public String configValue(String key) {
+            try {
+                return _jdbc().queryForObject(_lookup("config_value"), //$NON-NLS-1$
+                        String.class, key);
+            } catch (EmptyResultDataAccessException erdae) {
+                return null;
+            }
+        }
 
         public long selectCurrentEventLog(String key) {
             String value = _jdbc().queryForObject(
@@ -320,6 +430,54 @@ public interface SqlAction {
         public void delCurrentEventLog(String key) {
             _jdbc().update(
                 _lookup("log_loader_delete"), key); //$NON-NLS-1$
+
+        }
+
+        //
+        // DISTINGUISHED NAME (DN)
+        // These methods guarantee that an empty or whitespace only string
+        // will be treated as a null DN. See #4833. For maximum protection,
+        // we are performing checks here in code as well as in the SQL.
+        //
+
+        public String dnForUser(Long id) {
+            String dn;
+            try {
+                dn = _jdbc().queryForObject(
+                        _lookup("dn_for_user"), String.class, id); //$NON-NLS-1$
+            } catch (EmptyResultDataAccessException e) {
+                dn = null; // This means there's not one.
+            }
+
+            if (dn == null || dn.trim().length() == 0) {
+                return null;
+            }
+            return dn;
+        }
+
+        public List<Map<String, Object>> dnExperimenterMaps() {
+            List<Map<String, Object>> maps = _jdbc().queryForList(_lookup("dn_exp_maps")); //$NON-NLS-1$
+            List<Map<String, Object>> copy = new ArrayList<Map<String, Object>>();
+            for (Map<String, Object> map : maps) {
+                if (map.keySet().iterator().next().trim().length() > 0) {
+                    copy.add(map);
+                }
+            }
+            return copy;
+        }
+
+        public void setUserDn(Long experimenterID, String dn) {
+
+            if (dn != null && dn.trim().length() == 0) {
+                dn = null; // #4833
+            }
+
+            int results = _jdbc().update(_lookup("set_user_dn"), //$NON-NLS-1$
+                    dn, experimenterID);
+            if (results < 1) {
+                results = _jdbc().update(_lookup("insert_password"), //$NON-NLS-1$
+                        experimenterID, null, dn);
+            }
 
         }
     }

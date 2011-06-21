@@ -121,5 +121,80 @@ class TestAdmin(lib.ITest):
             joined_client.__del__()
         admin.changePassword(rstring("ome")) # could be an admin
 
+    def testGetEventContext4011(self):
+        """
+        Tests the "freshness" of the iAdmin.getEventContext() call.
+        """
+        client = self.new_client()
+        group = self.new_group()
+        admin = client.sf.getAdminService()
+        root_admin = self.root.sf.getAdminService()
+
+        ec1 = admin.getEventContext()
+        exp = omero.model.ExperimenterI(ec1.userId, False)
+        grps1 = root_admin.getMemberOfGroupIds(exp)
+
+        # Now add the user to a group and see if the
+        # event context is updated.
+        root_admin.addGroups(exp, [group])
+        ec2 = admin.getEventContext()
+        grps2 = root_admin.getMemberOfGroupIds(exp)
+
+        # Check via the groups
+        self.assertEquals(len(grps1)+1, len(grps2))
+        self.assertTrue(group.id.val in grps2)
+
+        # Check again via the contexts
+        self.assertEquals(len(ec1.memberOfGroups)+1, len(ec2.memberOfGroups))
+        self.assertTrue(group.id.val in ec2.memberOfGroups)
+
+    def testUserRoles4056(self):
+        """
+        Tests for optimistic lock exception when modifying roles.
+        """
+        client = self.new_client()
+        admin = client.sf.getAdminService()
+        ec = admin.getEventContext()
+        roles = admin.getSecurityRoles()
+
+        exp = omero.model.ExperimenterI(ec.userId, False)
+        grp = omero.model.ExperimenterGroupI(roles.userGroupId, False)
+
+        root_admin = self.root.sf.getAdminService()
+        root_admin.removeGroups(exp, [grp])
+        root_admin.addGroups(exp, [grp])
+        root_admin.removeGroups(exp, [grp])
+        root_admin.addGroups(exp, [grp])
+
+    def testSetSecurityPassword(self):
+        """
+        Several methods require the user to have authenticated with a password.
+        In 4.3, a method was added to the ServiceFactoryPrx to allow late
+        password-based authentication.
+
+        See #3202
+        See @RolesAllow("HasPassword")
+        """
+        experimenter = self.new_user() # To have password changed
+
+        password = self.root.getProperty("omero.rootpass")
+        new_client = self.root.createClient(True) # Secure, but not password-auth'd
+
+        admin = new_client.sf.getAdminService()
+        new_password = omero.rtypes.rstring("FOO")
+
+        # Initially, the test should fail.
+        try:
+            admin.changeUserPassword(experimenter.omeName.val, new_password)
+            self.fail("Should not pass!")
+        except omero.SecurityViolation, sv:
+            pass # Good!
+
+        # Now set the password
+        new_client.sf.setSecurityPassword(password)
+
+        # And then it should succeed
+        admin.changeUserPassword(experimenter.omeName.val, new_password)
+
 if __name__ == '__main__':
     unittest.main()

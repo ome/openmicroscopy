@@ -106,8 +106,11 @@ public class SaveAction
 					"Save the thumbnails", filterList);
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.SAVE_AS_48));
-		File f = UIUtilities.getDefaultFolder();
-		if (f != null) chooser.setCurrentDirectory(f);
+		try {
+			File f = UIUtilities.getDefaultFolder();
+			if (f != null) chooser.setCurrentDirectory(f);
+		} catch (Exception ex) {}
+		
 		int option = chooser.centerDialog();
 		if (option != JFileChooser.APPROVE_OPTION) return;
 		File  file = chooser.getFormattedSelectedFile();

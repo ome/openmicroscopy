@@ -44,11 +44,12 @@ import static org.jhotdraw.draw.AttributeKeys.FONT_ITALIC;
 import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_CAP;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
+import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
-
-//Application-internal dependencies
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
@@ -67,6 +68,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointFigure;
 
 import pojos.EllipseData;
 import pojos.LineData;
@@ -113,16 +115,15 @@ class InputServerStrategy
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.STROKE_COLOR,
 			ShapeSettingsData.DEFAULT_STROKE_COLOUR);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.TEXT_COLOR,
-			IOConstants.DEFAULT_TEXT_COLOUR);
+				ShapeSettingsData.DEFAULT_FILL_COLOUR);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.FONT_SIZE, 
 				ShapeSettingsData.DEFAULT_FONT_SIZE);
-		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.FONT_BOLD, 
-				ShapeSettingsData.DEFAULT_FONT_STYLE);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.STROKE_WIDTH, 
 				ShapeSettingsData.DEFAULT_STROKE_WIDTH);
-		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.TEXT, "Text");
+		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.TEXT, 
+				ROIFigure.DEFAULT_TEXT);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
-			IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
+				ShapeSettingsData.DEFAULT_FILL_COLOUR);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.SHOWMEASUREMENT, 
 				Boolean.valueOf(false));
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.SHOWTEXT, 
@@ -295,14 +296,14 @@ class InputServerStrategy
 				x, y, width, height, data.isReadOnly(), 
 					data.isClientObject());
 		fig.setEllipse(x, y, width, height);
+		fig.setText(data.getText());
+		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			
-		}
+		} catch (IOException e) {}
 		
 		return fig;
 	}
@@ -315,23 +316,19 @@ class InputServerStrategy
 	 */
 	private MeasurePointFigure createPointFigure(PointData data)
 	{
-		double r = 5;
-		double x = data.getX()-r;
-		double y = data.getY()-r;
+		double r = PointFigure.FIGURE_SIZE/2;
+		double x = Math.abs(data.getX()-r);
+		double y = Math.abs(data.getY()-r);
 		
 		MeasurePointFigure fig = new MeasurePointFigure(data.getText(), x, y, 
 				2*r, 2*r, data.isReadOnly(), data.isClientObject());
-
+		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-		}
-		
+		} catch (IOException e) {}	
 		return fig;
 	}
 	
@@ -349,15 +346,13 @@ class InputServerStrategy
 		MeasureTextFigure fig = new MeasureTextFigure(x, y, 
 					data.isReadOnly(), data.isClientObject());
 		fig.setText(data.getText());
+		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-		}
+		} catch (IOException e) {}
 		
 		return fig;
 	}
@@ -379,6 +374,7 @@ class InputServerStrategy
 				height, data.isReadOnly(), data.isClientObject());
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
+		fig.setVisible(data.isVisible());
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
@@ -396,7 +392,6 @@ class InputServerStrategy
 	 */
 	private MeasureMaskFigure createMaskFigure(MaskData data)
 	{
-		
 		double x = data.getX();
 		double y = data.getY();
 		double width = data.getWidth();
@@ -404,6 +399,7 @@ class InputServerStrategy
 		BufferedImage mask = data.getMaskAsBufferedImage();
 		MeasureMaskFigure fig = new MeasureMaskFigure(x, y, width, 
 				height, mask, data.isReadOnly(), data.isClientObject());
+		fig.setVisible(data.isVisible());
 		fig.setVisible(true);
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
@@ -411,10 +407,7 @@ class InputServerStrategy
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-		}
+		} catch (IOException e) {}
 		return fig;
 	}
 	
@@ -427,7 +420,6 @@ class InputServerStrategy
 	 */
 	private MeasureLineFigure createLineFigure(LineData data)
 	{
-		
 		double x1 = data.getX1();
 		double y1 = data.getY1();
 		double x2 = data.getX2();
@@ -436,8 +428,9 @@ class InputServerStrategy
 		MeasureLineFigure fig = new MeasureLineFigure(data.isReadOnly(), 
 				data.isClientObject());
 		fig.removeAllNodes();
-		fig.addNode(new Node(new Double(x1), new Double(y1)));
-		fig.addNode(new Node(new Double(x2), new Double(y2)));
+		fig.setVisible(data.isVisible());
+		fig.addNode(new Node(x1, y1));
+		fig.addNode(new Node(x2, y2));
 		
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
@@ -445,10 +438,7 @@ class InputServerStrategy
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-		}
+		} catch (IOException e) {}
 		
 		return fig;
 	}
@@ -462,9 +452,9 @@ class InputServerStrategy
 	 */
 	private MeasureBezierFigure createPolygonFigure(PolygonData data)
 	{
-		
-		MeasureBezierFigure fig = new MeasureBezierFigure(false, data.isReadOnly(),
-				data.isClientObject());
+		MeasureBezierFigure fig = new MeasureBezierFigure(false, 
+				data.isReadOnly(), data.isClientObject());
+		fig.setVisible(data.isVisible());
 		List<Point2D.Double> points = data.getPoints();
 		List<Point2D.Double> points1 = data.getPoints1();
 		List<Point2D.Double> points2 = data.getPoints2();
@@ -476,15 +466,15 @@ class InputServerStrategy
 		}
 		
 		addShapeSettings(fig, data.getShapeSettings());
-		fig.setText(data.getText());
+		String text = data.getText();
+		if (text == null || text.trim().length() == 0)
+			text = ROIFigure.DEFAULT_TEXT;
+		fig.setText(text);
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-		}
+		} catch (IOException e) {}
 		fig.setClosed(true);		
 		return fig;
 	}
@@ -508,7 +498,7 @@ class InputServerStrategy
 		}
 		
 		if (line) return createLineFromPolylineFigure(data);
-		else return createPolylineFromPolylineFigure(data);
+		return createPolylineFromPolylineFigure(data);
 	}	
 		
 	/**
@@ -524,7 +514,7 @@ class InputServerStrategy
 		MeasureLineFigure fig = new MeasureLineFigure(data.isReadOnly(), 
 				data.isClientObject());
 		fig.removeAllNodes();
-		
+		fig.setVisible(data.isVisible());
 		for (int i = 0; i < points.size(); i++)
 			fig.addNode(new Node(points.get(i)));
 		
@@ -534,10 +524,7 @@ class InputServerStrategy
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-		}	
+		} catch (IOException e) {}	
 		return fig;
 	}
 	
@@ -555,16 +542,16 @@ class InputServerStrategy
 		List<Integer> mask = data.getMaskPoints();
 		MeasureBezierFigure fig = new MeasureBezierFigure(false, 
 				data.isReadOnly(), data.isClientObject());
-	
-		for (int i=0; i<points.size(); i++)
-		{
-			Node newNode = new Node(mask.get(i), points.get(i), 
-					points1.get(i), points2.get(i));
-			fig.addNode(newNode);
-		}
+		fig.setVisible(data.isVisible());
+		for (int i = 0; i < points.size(); i++)
+			fig.addNode(new Node(mask.get(i), points.get(i), 
+					points1.get(i), points2.get(i)));
 		
 		addShapeSettings(fig, data.getShapeSettings());
-		fig.setText(data.getText());
+		String text = data.getText();
+		if (text == null || text.trim().length() == 0)
+			text = ROIFigure.DEFAULT_TEXT;
+		fig.setText(text);
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
@@ -583,13 +570,14 @@ class InputServerStrategy
 	private void addShapeSettings(ROIFigure figure, ShapeSettingsData data)
 	{
 		STROKE_WIDTH.set(figure, data.getStrokeWidth());
-		STROKE_COLOR.set(figure, data.getStrokeColor());
-		FILL_COLOR.set(figure, data.getFillColor());
+		STROKE_COLOR.set(figure, data.getStroke());
+		FILL_COLOR.set(figure, data.getFill());
 		FONT_FACE.set(figure, data.getFont());
 		FONT_SIZE.set(figure, new Double(data.getFontSize()));
 		FONT_ITALIC.set(figure, data.isFontItalic());
 		FONT_BOLD.set(figure, data.isFontBold());
 		STROKE_CAP.set(figure, data.getLineCap());
+		TEXT_COLOR.set(figure, data.getStroke());
 	}
 	
 	/** Creates a new instance. */

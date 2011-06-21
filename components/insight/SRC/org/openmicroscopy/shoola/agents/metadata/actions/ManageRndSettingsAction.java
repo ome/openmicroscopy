@@ -73,6 +73,15 @@ public class ManageRndSettingsAction
 	/** Indicates to set the minimum and maximum for all channels. */
 	public static final int ABSOLUTE_MIN_MAX = 5;
 	
+	/** Indicates to save the rendering settings. */
+	public static final int SAVE = 6;
+	
+	/** The description of the action if {@link #SET_OWNER_SETTING}. */
+	public static final String NAME_OWNER = "Viewed by";
+
+	/** The description of the action if {@link #SAVE}. */
+	public static final String NAME_SAVE = "Apply";
+
 	/** The description of the action if {@link #APPLY_TO_ALL}. */
 	private static final String NAME_APPLY_TO_ALL = "Apply to All";
 	
@@ -88,9 +97,6 @@ public class ManageRndSettingsAction
 	/** The description of the action if {@link #RESET}. */
 	private static final String NAME_RESET = "Reset";
 	
-	/** The description of the action if {@link #SET_OWNER_SETTING}. */
-	public static final String NAME_OWNER = "Viewed by";
-
 	/** The description of the action if {@link #MIN_MAX}. */
 	private static final String DESCRIPTION_MIN_MAX = 
 		"Set the Pixels Intensity interval to min/max for all channels.";
@@ -117,6 +123,10 @@ public class ManageRndSettingsAction
     			"View the image using the rendering settings used by" +
     			" other users.";
     
+    /** The description of the action if {@link #SAVE}. */
+	private static final String DESCRIPTION_SAVE = 
+		"Save the current settings.";
+	
 	/** One of the constants defined by this class. */
 	private int index;
 	
@@ -178,6 +188,12 @@ public class ManageRndSettingsAction
 				putValue(Action.SMALL_ICON, 
 						icons.getIcon(IconManager.RND_OWNER));
 				break;
+			case SAVE:
+				putValue(Action.SHORT_DESCRIPTION, 
+						UIUtilities.formatToolTipText(DESCRIPTION_SAVE));
+				putValue(Action.SMALL_ICON, 
+						icons.getIcon(IconManager.SAVE));
+				break;
 			default:
 				throw new IllegalArgumentException("Index not valid.");
 		}
@@ -219,6 +235,8 @@ public class ManageRndSettingsAction
 			case APPLY_TO_ALL:
 				model.applyToAll();
 				break;
+			case SAVE:
+				model.saveSettings();
 		}
 	}
 

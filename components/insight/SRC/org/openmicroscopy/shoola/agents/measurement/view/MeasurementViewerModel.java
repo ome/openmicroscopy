@@ -492,6 +492,16 @@ class MeasurementViewerModel
 		getDrawingView().repaint();
 	}
 	
+	/**
+	 * Sets the state.
+	 * 
+	 * @param state The value to set.
+	 */
+	void setState(int state)
+	{
+		this.state = state;
+	}
+	
 	/** 
 	 * Sets the ROI for the pixels set. Returns <code>true</code>
 	 * if the ROI are compatible with the image, <code>false</code> otherwise.
@@ -836,31 +846,6 @@ class MeasurementViewerModel
 	 * the passed figure.
 	 * 
 	 * @param figure The figure to create the <code>ROI</code> from.
-	 * @return Returns the created <code>ROI</code>.
-	 * @throws ROICreationException If the ROI cannot be created.
-	 * @throws NoSuchROIException If the ROI does not exist.
-	 */
-	ROI createROI(ROIFigure figure)
-		throws ROICreationException, NoSuchROIException
-	{
-		ROI roi = roiComponent.addROI(figure, getCurrentView());
-		roi.setAnnotation(AnnotationKeys.NAMESPACE, this.workflowNamespace);
-		String keywordString = "";
-		for(int i = 0 ; i < keyword.size() ; i++)
-		{
-			keywordString = keywordString + keyword.get(i);
-			if(i<keyword.size()-1)
-				keywordString = keywordString + ",";
-		}
-		roi.setAnnotation(AnnotationKeys.KEYWORDS, keywordString);		
-		return roi;
-	}
-
-	/**
-	 * Returns the ROIComponent to create a <code>ROI</code> from 
-	 * the passed figure.
-	 * 
-	 * @param figure The figure to create the <code>ROI</code> from.
 	 * @param addAttribs add attributes to figure
 	 * @return Returns the created <code>ROI</code>.
 	 * @throws ROICreationException If the ROI cannot be created.
@@ -869,16 +854,16 @@ class MeasurementViewerModel
 	ROI createROI(ROIFigure figure, boolean addAttribs)
 		throws ROICreationException, NoSuchROIException
 	{
-		ROI roi = roiComponent.addROI(figure, getCurrentView(),addAttribs);
+		ROI roi = roiComponent.addROI(figure, getCurrentView(), addAttribs);
 		roi.setAnnotation(AnnotationKeys.NAMESPACE, this.workflowNamespace);
-		String keywordString = "";
-		for(int i = 0 ; i < keyword.size() ; i++)
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0 ; i < keyword.size() ; i++)
 		{
-			keywordString = keywordString + keyword.get(i);
-			if(i<keyword.size()-1)
-				keywordString = keywordString + ",";
+			buffer.append(keyword.get(i));
+			if (i < keyword.size()-1)
+				buffer.append(",");
 		}
-		roi.setAnnotation(AnnotationKeys.KEYWORDS, keywordString);		
+		roi.setAnnotation(AnnotationKeys.KEYWORDS, buffer.toString());		
 		return roi;
 	}
 	
@@ -1533,7 +1518,7 @@ class MeasurementViewerModel
 	 */
 	WorkflowData getWorkflow()
 	{
-		if (workflowNamespace != WorkflowData.DEFAULTWORKFLOW)
+		if (!WorkflowData.DEFAULTWORKFLOW.equals(workflowNamespace))
 			return workflows.get(workflowNamespace);
 		return null;
 	}

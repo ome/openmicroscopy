@@ -96,7 +96,7 @@ public class ContainerCounterLoader
 		        	long userID = exp.getId();
 		        	while (i.hasNext()) {
 						id = i.next();
-						m.put(id, new Long(
+						m.put(id, Long.valueOf(
 								ms.loadROIMeasurements(
 										type, id, userID).size()));
 					}

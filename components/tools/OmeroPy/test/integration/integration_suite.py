@@ -39,6 +39,7 @@ def additional_tests():
     suite.addTest(load("integration.metadatastore"))
     suite.addTest(load("integration.model42"))
     suite.addTest(load("integration.rawfilestore"))
+    suite.addTest(load("integration.rawpixelsstore"))
     suite.addTest(load("integration.scripts"))
     suite.addTest(load("integration.search"))
     suite.addTest(load("integration.files"))
@@ -47,6 +48,7 @@ def additional_tests():
     suite.addTest(load("integration.tickets3000"))
     suite.addTest(load("integration.tickets4000"))
     suite.addTest(load("integration.figureExportScripts"))
+    suite.addTest(load("integration.thumbs"))
     suite.addTest(load("integration.thumbnailPerms"))
 
     suite.addTest(load("clitest.integration_suite._additional_tests"))

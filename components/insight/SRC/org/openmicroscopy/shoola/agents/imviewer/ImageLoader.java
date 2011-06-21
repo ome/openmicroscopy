@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 
 //Java imports
-import java.awt.image.BufferedImage;
 
 //Third-party libraries
 
@@ -34,8 +33,6 @@ import java.awt.image.BufferedImage;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
-import com.sun.opengl.util.texture.TextureData;
 
 /** 
  * Renders the specified plane. This class calls the <code>render</code> in the
@@ -111,11 +108,7 @@ public class ImageLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-    	if ((ImViewerAgent.hasOpenGLSupport())) {
-    		viewer.setImageAsTexture((TextureData) result);
-    	} else {
-    		viewer.setImage((BufferedImage) result);
-    	}
+        viewer.setImage(result);
     }
 
 }

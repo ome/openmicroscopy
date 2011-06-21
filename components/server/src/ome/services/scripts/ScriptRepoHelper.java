@@ -249,7 +249,8 @@ public class ScriptRepoHelper {
      */
     public Long findInDb(SqlAction sql, RepoFile repoFile, boolean scriptsOnly) {
         try {
-            return sql.findRepoFile(uuid, repoFile.dirname(), repoFile.basename(), "text/x-python");
+            return sql.findRepoFile(uuid, repoFile.dirname(), repoFile.basename(),
+                    scriptsOnly ? "text/x-python" : null);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }

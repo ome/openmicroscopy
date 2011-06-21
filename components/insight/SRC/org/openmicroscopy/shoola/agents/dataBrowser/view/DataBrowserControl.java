@@ -446,6 +446,10 @@ class DataBrowserControl
 		} else if (ImageTableView.TABLE_SELECTION_VIEW_PROPERTY.equals(name)) {
 			Boolean b = (Boolean) evt.getNewValue();
 			if (b) view.viewSelectedNode();
+		} else if (ImageTableView.TABLE_SELECTION_ROLL_OVER_PROPERTY.equals(
+				name)) {
+			RollOverNode node = (RollOverNode) evt.getNewValue();
+			model.getBrowser().setRollOverNode(node);
 		} else if (Browser.CELL_SELECTION_PROPERTY.equals(name)) {
 			CellDisplay cell = (CellDisplay) evt.getNewValue();
 			model.setSelectedCell(cell);

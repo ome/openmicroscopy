@@ -40,6 +40,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.Icon;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -143,8 +145,6 @@ public class TaskBarManager
     /** Flag indicating if the connection was successful or not. */
     private boolean					success;
     
-	private Map<Agent, Integer> 	exitResponses;
-	
 	/** 
 	 * Parses the passed file to determine the value of the URL.
 	 * 
@@ -255,6 +255,7 @@ public class TaskBarManager
 	private void handleSaveEventResponse(SaveEventResponse e)
 	{
 		if (e == null) return;
+		/*
 		Agent a = e.getAgent();
 		Integer r = exitResponses.get(a);
 		if (r != null) {
@@ -263,6 +264,7 @@ public class TaskBarManager
 			//else exitResponses.put(a, v);
 		}
 		if (exitResponses.size() == 0) container.exit();
+		*/
 	}
 
 	/**
@@ -333,12 +335,20 @@ public class TaskBarManager
 				container.getRegistry().getUserNotifier();
 			List<Object> nodes = new ArrayList<Object>();
 			if (map != null) {
-				Iterator i = map.values().iterator();
-				while (i.hasNext())
-					nodes.add(i.next());
+				Iterator i = map.entrySet().iterator();
+				Entry entry;
+				Agent agent;
+				AgentSaveInfo info;
+				while (i.hasNext()) {
+					entry = (Entry) i.next();
+					agent = (Agent) entry.getKey();
+					info = (AgentSaveInfo) entry.getValue();
+					agent.save(info.getInstances());
+					nodes.add(info);
+				}
 			}
-			nodes.add(evt.getExperimenterData());
-			un.notifySaving(nodes, null);
+			//nodes.add(evt.getExperimenterData());
+			//un.notifySaving(nodes, null);
 			Registry reg = container.getRegistry();
 			UserNotifierLoader loader = new SwitchUserLoader(
 					reg.getUserNotifier(), reg, evt.getExperimenterData(), 
@@ -374,13 +384,21 @@ public class TaskBarManager
 					exitApplication();
 				} else {
 					List<Object> nodes = new ArrayList<Object>();
-					Iterator i = map.values().iterator();
+					Iterator i = map.entrySet().iterator();
+					Entry entry;
+					Agent agent;
+					AgentSaveInfo info;
 					while (i.hasNext()) {
-						nodes.add(i.next());
+						entry = (Entry) i.next();
+						agent = (Agent) entry.getKey();
+						info = (AgentSaveInfo) entry.getValue();
+						agent.save(info.getInstances());
+						nodes.add(info);
 					}
-					UserNotifierImpl un = (UserNotifierImpl) 
-					container.getRegistry().getUserNotifier();
-					un.notifySaving(nodes, this);
+					exitApplication();
+					//UserNotifierImpl un = (UserNotifierImpl) 
+					//container.getRegistry().getUserNotifier();
+					//un.notifySaving(nodes, this);
 					/*
 					Registry reg = container.getRegistry();
 					UserNotifierLoader loader = new SwitchUserLoader(
@@ -642,9 +660,28 @@ public class TaskBarManager
 	void openURL(String url)
 	{
 		BrowserLauncher launcher = new BrowserLauncher(
-				AbstractIconManager.getOMEIcon());
+				AbstractIconManager.getOMEImageIcon());
 		launcher.openURL(url);
 		if (suDialog != null) suDialog.close();
+	}
+	
+	/**
+	 * Notifies that the connection is lost or the server is out of service.
+	 * @param index
+	 */
+	void sessionExpired(int index)
+	{
+		switch (index) {
+			case DataServicesFactory.LOST_CONNECTION:
+			case DataServicesFactory.SERVER_OUT_OF_SERVICE:
+			try {
+				DataServicesFactory factory = 
+					DataServicesFactory.getInstance(container);
+				factory.sessionExpiredExit(index);
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+		}
 	}
 	
 	/**

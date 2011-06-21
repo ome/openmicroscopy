@@ -343,7 +343,14 @@ public class AnnotationGraphSpec extends BaseGraphSpec {
         and = new QueryBuilder();
         and.skipFrom();
         and.skipWhere();
-        and.append(alias + ".class = " + klass);
+        if ("Annotation".equals(klass)) {
+            // ticket:5793 - ROOT.class = Annotation will never
+            // return true since it is an abstract type. We should
+            // really check for any abstract type here and produce
+            // a query including all of the subtypes.
+        } else {
+            and.append(alias + ".class = " + klass);
+        }
 
         // If we have excludes and this is a KEEP, we only want
         // to query for those annotations which match the excludes value.
@@ -361,6 +368,10 @@ public class AnnotationGraphSpec extends BaseGraphSpec {
                 return new long[0][0]; // EARLY EXIT!
             }
         }
+        if ("".equals(and.queryString())) {
+            and = null;
+        }
+
         return super.queryBackupIds(session, step, copy, and);
     }
 
@@ -397,7 +408,7 @@ public class AnnotationGraphSpec extends BaseGraphSpec {
 
                 Query q = qb.query(session);
                 int count = q.executeUpdate();
-                log.info("Graphd " + count + " annotation links");
+                log.info("Graphed " + count + " annotation links");
             }
         }
     }

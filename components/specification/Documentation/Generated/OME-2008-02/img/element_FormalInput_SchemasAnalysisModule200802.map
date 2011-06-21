@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_FormalInput_SchemasAnalysisModule200802'>
+ <area
+  shape='rect'
+  alt='element_LookupTable'
+  coords='291,0,452,42'
+  href='AnalysisModule.xsd.html#element_LookupTable'/>
+
+ <area
+  shape='rect'
+  alt='element_Description'
+  coords='291,52,452,94'
+  href='ome.xsd.html#element_Description'/>
+
+</map>

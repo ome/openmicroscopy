@@ -336,7 +336,9 @@ class MockMonitor(MonitorClientI):
             i.stop()
     static_stop = staticmethod(static_stop)
 
-    def __init__(self, dir=None, pre = [], post = []):
+    def __init__(self, dir=None, pre = None, post = None):
+        if pre is None: pre = []
+        if post is None: post = []
         self.root = None
         ic = mock_communicator()
         MonitorClientI.__init__(self, dir, ic, getUsedFiles = self.used_files, ctx = MockServerContext(ic, self.get_root), worker_wait = 0.1)

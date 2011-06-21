@@ -69,5 +69,5 @@ class RootDisplay
          setTitleBarType(STATIC_BAR);
          setListenToBorder(false);
     }
-    
+
 }

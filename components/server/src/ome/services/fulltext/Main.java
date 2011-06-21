@@ -16,6 +16,7 @@ import ome.api.IQuery;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
+import ome.services.eventlogs.*;
 
 import org.apache.log4j.xml.DOMConfigurator;
 import org.hibernate.SessionFactory;

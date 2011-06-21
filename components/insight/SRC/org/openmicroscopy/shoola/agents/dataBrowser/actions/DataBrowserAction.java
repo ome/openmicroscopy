@@ -87,6 +87,8 @@ public class DataBrowserAction
         this.model = model;
         model.addChangeListener(this);
         model.addPropertyChangeListener(this);
+        Browser browser = model.getBrowser();
+        browser.addPropertyChangeListener(this);
     }
     
 	/** 
@@ -106,6 +108,7 @@ public class DataBrowserAction
     	String name = evt.getPropertyName();
     	if (Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY.equals(name)) {
     		Object node = evt.getNewValue();
+    		
     		if (node instanceof ImageDisplay)
     			onDisplayChange((ImageDisplay) node);
     		else onDisplayChange(null);

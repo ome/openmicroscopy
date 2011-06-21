@@ -49,7 +49,7 @@ def __mkdoc__(name):
     return "(DELEGATES to uuid.%s) %s" % (name, getattr(__uuid__, name).__doc__)
 
 
-def getnode():
+def getnode(*args, **kwargs):
     return __uuid__.getnode(*args, **kwargs)
 getnode.__doc__ = __mkdoc__("getnode")
 

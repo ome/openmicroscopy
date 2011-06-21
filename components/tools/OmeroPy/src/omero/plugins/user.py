@@ -10,16 +10,21 @@
 import os
 import sys
 
-from omero.cli import BaseControl, CLI
+from omero.cli import BaseControl, CLI, ExceptionHandler
+from omero.rtypes import unwrap as _
 
 HELP = "Support for adding and managing users"
 
 class UserControl(BaseControl):
 
     def _configure(self, parser):
+
+        self.exc = ExceptionHandler()
+
         sub = parser.sub()
 
         add = parser.add(sub, self.add, help = "Add users")
+        add.add_argument("--ignore-existing", action="store_true", default=False, help="Do not fail if user already exists")
         add.add_argument("-m", "--middlename", help = "Middle name, if available")
         add.add_argument("-e", "--email")
         add.add_argument("-i", "--institution")
@@ -36,10 +41,77 @@ class UserControl(BaseControl):
         password = parser.add(sub, self.password, help = "Set user's password")
         password.add_argument("username", nargs="?", help = "Username if not the current user")
 
+        email = parser.add(sub, self.email, help = "List users' email addresses")
+        email.add_argument("-n", "--names", action="store_true", default=False, help = "Print user names along with email addresses")
+        email.add_argument("-1", "--one", action="store_true", default=False, help = "Print one user per line")
+        email.add_argument("-i", "--ignore", action="store_true", default=False, help = "Ignore users without email addresses")
+
+    def format_name(self, exp):
+        record = ""
+        fn = _(exp.firstName)
+        mn = " "
+        if _(exp.middleName):
+            mn = " %s " % _(exp.middleName)
+        ln = _(exp.lastName)
+        record += "%s%s%s" % (fn, mn, ln)
+        return record
+
+    def email(self, args):
+        c = self.ctx.conn(args)
+        a = c.sf.getAdminService()
+
+        skipped = []
+        records = []
+        for exp in a.lookupExperimenters():
+
+            # Handle users without email
+            if not _(exp.email):
+                if not args.ignore:
+                    skipped.append(exp)
+                continue
+
+            record = ""
+            if args.names:
+                record += '"%s"' % self.format_name(exp)
+                record += " <%s>" % _(exp.email)
+            else:
+                record += _(exp.email)
+
+            records.append(record)
+
+        if args.one:
+            for record in records:
+                self.ctx.out(record)
+        else:
+            self.ctx.out(", ".join(records))
+
+        if skipped:
+            self.ctx.err("Missing email addresses:")
+            for s in skipped:
+                self.ctx.err(self.format_name(s))
+
     def password(self, args):
+        import omero
         from omero.rtypes import rstring
         client = self.ctx.conn(args)
+        own_name = self.ctx._event_context.userName
         admin = client.sf.getAdminService()
+
+        # tickets 3202, 5841
+        own_pw = self._ask_for_password(" for your user (%s)" % own_name, strict = False)
+        try:
+            client.sf.setSecurityPassword(own_pw)
+            self.ctx.out("Verified password.\n")
+        except omero.SecurityViolation, sv:
+            import traceback
+            self.ctx.die(456, "SecurityViolation: Bad credentials")
+            self.ctx.dbg(traceback.format_exc(sv))
+
+        if args.username:
+            self.ctx.out("Changing password for %s" % args.username)
+        else:
+            self.ctx.out("Changing password for %s" % own_name)
+
         pw = self._ask_for_password(" to be set")
         pw = rstring(pw)
         if args.username:
@@ -95,6 +167,17 @@ class UserControl(BaseControl):
         admin = c.getSession().getAdminService()
 
         try:
+            usr = admin.lookupExperimenter(login)
+            if usr:
+                if args.ignore_existing:
+                    self.ctx.out("User exists: %s (id=%s)" % (login, usr.id.val))
+                    return
+                else:
+                    self.ctx.die(3, "User exists: %s (id=%s)" % (login, usr.id.val))
+        except omero.ApiUsageException, aue:
+            pass # Apparently no such user exists
+
+        try:
             groups = [admin.lookupGroup(group) for group in args.member_of]
         except omero.ApiUsageException, aue:
             self.ctx.die(68, aue.message)
@@ -114,10 +197,13 @@ class UserControl(BaseControl):
                 id = admin.createExperimenterWithPassword(e, rstring(pasw), group, groups)
                 self.ctx.out("Added user %s with password" % id)
         except omero.ValidationException, ve:
-            if "org.hibernate.exception.ConstraintViolationException: could not insert" in str(ve):
+            # Possible, though unlikely after previous check
+            if self.exc.is_constraint_violation(ve):
                 self.ctx.die(66, "User already exists: %s" % login)
             else:
                 self.ctx.die(67, "Unknown ValidationException: %s" % ve.message)
+        except omero.SecurityViolation, se:
+            self.ctx.die(68, "Security violation: %s" % se.message)
 
 try:
     register("user", UserControl, HELP)

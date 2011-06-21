@@ -157,13 +157,13 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#addExistingObjects(Map, 
+	 * @see DataManagerView#addExistingObjects(Map, Map
 	 *                                          AgentEventListener)
 	 */
-	public CallHandle addExistingObjects(Map toPaste, 
+	public CallHandle addExistingObjects(Map toPaste, Map toRemove,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ExistingObjectsSaver(toPaste, null, false);
+		BatchCallTree cmd = new ExistingObjectsSaver(toPaste, toRemove, false);
 		return cmd.exec(observer);
 	}
 

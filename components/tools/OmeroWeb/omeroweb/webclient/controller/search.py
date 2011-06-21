@@ -2,7 +2,7 @@
 # 
 # 
 # 
-# Copyright (c) 2008 University of Dundee. 
+# Copyright (c) 2008-2011 University of Dundee.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -90,7 +90,7 @@ class BaseSearch(BaseController):
         pl_list_with_counters = list()
         for ot in onlyTypes:
             if ot == 'images':
-                im_list = list(self.conn.searchImages(query, created))
+                im_list = list(self.conn.searchObjects(["image"], query, created))
                 
                 im_ids = [im.id for im in im_list]
                 im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
@@ -100,7 +100,7 @@ class BaseSearch(BaseController):
                     im.annotation_counter = im_annotation_counter.get(im.id)
                     im_list_with_counters.append(im)
             elif ot == 'datasets':
-                ds_list = list(self.conn.searchDatasets(query, created))
+                ds_list = list(self.conn.searchObjects(["Dataset"], query, created))
                 
                 ds_ids = [ds.id for ds in ds_list]
                 ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
@@ -110,7 +110,7 @@ class BaseSearch(BaseController):
                     ds.annotation_counter = ds_annotation_counter.get(ds.id)
                     ds_list_with_counters.append(ds)
             elif ot == 'projects':
-                pr_list = list(self.conn.searchProjects(query, created))
+                pr_list = list(self.conn.searchObjects(["Project"], query, created))
                 
                 pr_ids = [pr.id for pr in pr_list]
                 pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
@@ -120,7 +120,7 @@ class BaseSearch(BaseController):
                     pr.annotation_counter = pr_annotation_counter.get(pr.id)
                     pr_list_with_counters.append(pr)
             elif ot == 'plates':
-                pl_list = list(self.conn.searchPlates(query, created))
+                pl_list = list(self.conn.searchObjects(["Plate"], query, created))
                 pl_ids = [pl.id for pl in pl_list]
                 pl_annotation_counter = self.conn.getCollectionCount("Plate", "annotationLinks", pl_ids)
 
@@ -129,7 +129,7 @@ class BaseSearch(BaseController):
                     pl.annotation_counter = pl_annotation_counter.get(pl.id)
                     pl_list_with_counters.append(pl)
             elif ot == 'screens':
-                sc_list = list(self.conn.searchScreens(query, created))
+                sc_list = list(self.conn.searchObjects(["Screen"], query, created))
                 
                 sc_ids = [sc.id for sc in sc_list]
                 sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)

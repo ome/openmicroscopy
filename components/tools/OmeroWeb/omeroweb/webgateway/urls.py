@@ -29,6 +29,17 @@ Params in render_image/<iid>/<z>/<t>/ are:
     - t:    T index
 """
 
+render_image_region = (r'^render_image_region/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', 'webgateway.views.render_image_region')
+"""
+Returns a jpeg of the OMERO image, rendering only a region specified in query string as
+region=x,y,width,height. E.g. region=0,512,256,256 See L{views.render_image_region}. 
+Rendering settings can be specified in the request parameters.
+Params in render_image/<iid>/<z>/<t>/ are:
+    - iid:  Image ID
+    - z:    Z index
+    - t:    T index
+"""
+
 render_split_channel = (r'^render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', 'webgateway.views.render_split_channel')
 """
 Returns a jpeg of OMERO Image with channels split into different panes in a grid. See L{views.render_split_channel}.
@@ -100,6 +111,8 @@ test = (r'^test/$', 'webgateway.views.test')
 Test method: returns a blank template of the image-viewer
 """
 
+# json methods...
+
 listProjects_json = (r'^proj/list/$', 'webgateway.views.listProjects_json')
 """
 json method: returning list of all projects available to current user. See L{views.listProjects_json} .
@@ -152,6 +165,12 @@ webgateway_search_json = url(r'^search/$', 'webgateway.views.search_json', name=
 json method: returns search results. All parameters in request. See L{views.search_json}
 """
 
+get_rois_json = url( r'^get_rois_json/(?P<imageId>[0-9]+)$', 'webgateway.views.get_rois_json', name='webgateway_get_rois_json' )
+"""
+gets all the ROIs for an Image as json. Image-ID is request: imageId=123
+[{'id':123, 'shapes':[{'type':'Rectangle', 'theZ':5, 'theT':0, 'x':250, 'y':100, 'width':10 'height':45} ]
+"""
+
 full_viewer = (r'^img_detail/(?P<iid>[0-9]+)/$', "webgateway.views.full_viewer")
 """
 Returns html page displaying full image viewer and image details, rendering settings etc. 
@@ -201,6 +220,7 @@ Returns 'true' if switch went OK.
 urlpatterns = patterns('',
     appmedia,
     render_image,
+    render_image_region,
     render_split_channel,
     render_row_plot,
     render_col_plot,
@@ -217,6 +237,7 @@ urlpatterns = patterns('',
     webgateway_listimages_json,
     imageData_json,
     webgateway_search_json,
+    get_rois_json,
     # image viewer
     full_viewer,
     # rendering def methods

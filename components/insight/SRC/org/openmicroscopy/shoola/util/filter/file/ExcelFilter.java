@@ -60,14 +60,15 @@ public class ExcelFilter
 	static {
 		extensions = new String[1];
 		extensions[0] = EXCEL;
-		String s = "Microsoft Excel (";
+		StringBuffer s = new StringBuffer();
+		s.append("Microsoft Excel (");
 		for (int i = 0; i < extensions.length; i++) {
-			s += "*."+extensions[i];
+			s.append("*."+extensions[i]);
 			if (i < extensions.length-1)
-				s += ", ";
+				s.append(", ");
 		}
-		s += ")";
-		description = s;
+		s.append(")");
+		description = s.toString();
 	}
 	
 	/**

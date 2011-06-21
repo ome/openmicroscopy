@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Experiment_SchemasSA200809'>
+ <area
+  shape='rect'
+  alt='element_Description'
+  coords='436,89,786,148'
+  href='SA.xsd.html#element_Description'/>
+
+ <area
+  shape='rect'
+  alt='element_ExperimenterRef'
+  coords='436,158,786,217'
+  href='SA.xsd.html#element_ExperimenterRef'/>
+
+ <area
+  shape='rect'
+  alt='element_MicrobeamManipulationRef'
+  coords='436,227,786,286'
+  href='SA.xsd.html#element_MicrobeamManipulationRef'/>
+
+</map>

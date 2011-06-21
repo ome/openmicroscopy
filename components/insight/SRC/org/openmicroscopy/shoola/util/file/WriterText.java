@@ -30,6 +30,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -69,26 +71,29 @@ public class WriterText
         if (table == null)
             throw new Exception("Table cannot be null.");
         BufferedWriter output = new BufferedWriter(new FileWriter(f));
-        String s = "", tail = "";
+        String tail = "";
         int col = table.getColumnCount();
+        StringBuffer buffer = new StringBuffer();
         for (int k = 0; k < col; k++) {
             if (k < col-1) tail = ",";
-            s += table.getColumnName(k)+tail;
+            buffer.append(table.getColumnName(k));
+            buffer.append(tail);
             tail = "";
         }
-        output.write(s);
+        output.write(buffer.toString());
         output.newLine();
-        s = "";
+       
         int i, j;
         for (i = 0; i < table.getRowCount(); i++) {
-            for (j = 0; j < col; j++) {
-                if (j < col-1) tail = ",";
-                s += table.getValueAt(i, j)+tail;
-                tail = "";
-            }
-            output.write(s);
+        	buffer = new StringBuffer();
+        	for (j = 0; j < col; j++) {
+        		if (j < col-1) tail = ",";
+        		buffer.append(table.getValueAt(i, j));
+        		buffer.append(tail);
+        		tail = "";
+        	}
+            output.write(buffer.toString());
             output.newLine();
-            s = "";
         } 
         output.close();
     }
@@ -115,7 +120,7 @@ public class WriterText
                                     AbstractTableModel table)
         throws Exception
     {
-        HashMap rowAttributes = new HashMap(), 
+        Map rowAttributes = new HashMap(), 
                 columnAttributes = new HashMap();
         String key = VALUE;
         int i, j;
@@ -138,16 +143,18 @@ public class WriterText
     }
     
     /** Follow basic methods to write the tag. NOT A XML editor. */
-    private static String writeOpenTag(String tagName, HashMap attributes, 
+    private static String writeOpenTag(String tagName, Map attributes, 
                                         boolean emptyTag)
     {
         String tag = "<"+tagName;
         if (attributes != null) {
-            Iterator i = attributes.keySet().iterator();
+        	Entry entry;
+            Iterator i = attributes.entrySet().iterator();
             String key, value;
             while (i.hasNext()) {
-                key = (String) i.next();
-                value = (String) attributes.get(key);
+            	entry = (Entry) i.next();
+                key = (String) entry.getKey();
+                value = (String)entry.getValue();
                 tag+= " "+key+"=\""+value+"\"";
             }
         }

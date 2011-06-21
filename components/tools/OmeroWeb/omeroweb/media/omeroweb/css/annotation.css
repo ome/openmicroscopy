@@ -11,6 +11,13 @@ select.existing {
     width: 300px;
 }
 
+div.description {
+    min-height:60px;
+    overflow: auto;
+    border: 1px solid #bbb;
+    padding: 5px;
+    background-color: #fff;
+}
 div.comment {
     float: left;
 }
@@ -67,12 +74,11 @@ div.lnfiles{
 #annotation_tabs ul {
     position:relative;
     float:left;
-    width:350px;
+/*    width:350px;*/
     padding:0;
     margin: 4px 0 ;
     list-style:none;
 }
-
 
 /* comment display page */
 #comment_wrapper {
@@ -159,18 +165,16 @@ div.lnfiles{
 	padding: 0px 20px;
 }
 
-#ann_comment_wrapper {
+.ann_comment_wrapper {
     width: 100%;
 
 }
-#ann_comment_wrapper div.avatar {
+.ann_comment_wrapper div.avatar {
     float: left;
-    width:50px;
+    width:25px; 
 }
-#ann_comment_wrapper div.ann_comment{
-    width: 100%;
-}
-#ann_comment_wrapper .ann_comment_header{
+
+.ann_comment_wrapper .ann_comment_header{
     font-weight: bold;
 }
 
@@ -179,6 +183,12 @@ table.metadata_details {
 }
 table.metadata_details td{
     border-bottom: 1px dotted #bbb;
+}
+
+#exposure_times div{
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    padding: 1px 4px
 }
 
 .can-collapse {
@@ -192,4 +202,9 @@ table.metadata_details td{
 .defclosed,.closed{
     background:transparent url(/appmedia/omeroweb/images/table/asc-big.gif) no-repeat scroll top right;
     background-color: #fff;
+}
+
+.show_xml {
+    color: #1B7BC7;
+    cursor: pointer;
 }

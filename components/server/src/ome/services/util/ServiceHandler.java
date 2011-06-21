@@ -20,10 +20,12 @@ import ome.annotations.AnnotationUtils;
 import ome.annotations.ApiConstraintChecker;
 import ome.annotations.Hidden;
 import ome.conditions.ApiUsageException;
+import ome.conditions.ConcurrencyException;
 import ome.conditions.DatabaseBusyException;
 import ome.conditions.InternalException;
 import ome.conditions.OptimisticLockException;
 import ome.conditions.RootException;
+import ome.conditions.TryAgain;
 import ome.conditions.ValidationException;
 import ome.security.basic.CurrentDetails;
 import ome.services.messages.RegisterServiceCleanupMessage;
@@ -37,9 +39,12 @@ import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DeadlockLoserDataAccessException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.dao.TransientDataAccessResourceException;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 import org.springframework.orm.hibernate3.HibernateSystemException;
 import org.springframework.transaction.CannotCreateTransactionException;
@@ -159,18 +164,51 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
             String msg = " Wrapped Exception: (" + t.getClass().getName()
                     + "):\n" + t.getMessage();
 
+            // Base type of the hierarchy that we are converting to.
+            // Just rethrow.
             if (RootException.class.isAssignableFrom(t.getClass())) {
                 return t;
+            }
+
+            //
+            // Spring's transient exception hierarchy
+            //
+            if (DeadlockLoserDataAccessException.class.isAssignableFrom(
+                    t.getClass())) {
+
+                DeadlockLoserDataAccessException dldae = (DeadlockLoserDataAccessException) t;
+                TryAgain ta = new TryAgain(dldae.getMessage(), 500L); // ticket:5639
+                ta.setStackTrace(t.getStackTrace());
+                printException("Deadlock exception thrown.", t);
+                return ta;
+
             } else if (OptimisticLockingFailureException.class
                     .isAssignableFrom(t.getClass())) {
+
                 OptimisticLockException ole = new OptimisticLockException(t
                         .getMessage());
                 ole.setStackTrace(t.getStackTrace());
                 printException("OptimisticLockingFailureException thrown.", t);
                 return ole;
-            }
 
-            else if (IllegalArgumentException.class.isAssignableFrom(t
+            } else if (ConcurrencyFailureException.class.isAssignableFrom(t.getClass())) {
+
+                ConcurrencyFailureException cfe = (ConcurrencyFailureException) t;
+                ConcurrencyException ce = new ConcurrencyException(cfe.getMessage(), 500);
+                ce.setStackTrace(t.getStackTrace());
+                printException("Unknown concurrency failure", t);
+                return ce;
+
+            } else if (TransientDataAccessResourceException.class.isAssignableFrom(t.getClass())) {
+
+                ConcurrencyFailureException cfe = (ConcurrencyFailureException) t;
+                ConcurrencyException ce = new ConcurrencyException(cfe.getMessage(), 500);
+                ce.setStackTrace(t.getStackTrace());
+                printException("Unknown transient failure", t);
+                return ce;
+
+
+            } else if (IllegalArgumentException.class.isAssignableFrom(t
                     .getClass())) {
                 ApiUsageException aue = new ApiUsageException(t.getMessage());
                 aue.setStackTrace(t.getStackTrace());
@@ -230,9 +268,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
                 }
             }
 
-            else {
-                return wrapUnknown(t, msg);
-            }
+            return wrapUnknown(t, msg);
 
         }
 

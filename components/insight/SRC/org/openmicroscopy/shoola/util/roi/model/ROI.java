@@ -48,7 +48,7 @@ import org.openmicroscopy.shoola.util.roi.model.attachment.AttachmentMap;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
- * 
+ * The ROI object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,7 +69,7 @@ public class ROI
 	/** The id of the ROI. */
 	private long							id;
 	
-	/** Is the object a serverside or clientside object. */
+	/** Is the object a server-side or client-side object. */
 	private boolean clientSide;
 	
 	/** The TreeMap containing the ROI shapes of the ROI. */ 
@@ -94,9 +94,23 @@ public class ROI
 	/** The keyword of the namespace. */
 	private String keyword;
 	
-
 	/** The identifier of the owner. */
 	private long ownerID;
+
+	/** 
+	 * Initializes the ROI with id and construct the TreeMap to contain 
+	 * the ROIShapes of the ROI and there mapping the coord3D they exist on.
+	 * 
+	 * @param id id of the ROI.
+	 */
+	private void init(long id, boolean clientSide)
+	{
+		ownerID = -1;
+		this.id = id;
+		this.clientSide = clientSide;
+		roiShapes = new TreeMap<Coord3D, ROIShape>(new Coord3D());
+		attachments = new AttachmentMap();
+	}
 	
     /**
      * Construct the ROI with id.
@@ -137,29 +151,17 @@ public class ROI
 	}
 	
 	/**
-	 * Construct the ROI with id on coord and initial ROIShape shape.
-	 * @param id the ID of the ROI.
-	 * @param coord the coord of the ROIShape being constructed with the ROI. 
-	 * @param shape the ROIShape being constructed with the ROI. 
+	 * Constructs the ROI with id on coordinate and initial ROIShape shape.
+	 * 
+	 * @param id The ID of the ROI.
+	 * @param coord The coordinate of the ROIShape being constructed with the 
+	 * ROI. 
+	 * @param shape The ROIShape being constructed with the ROI. 
 	 */
 	public ROI(long id, boolean clientSide, Coord3D coord, ROIShape shape)
 	{
 		init(id, clientSide);
 		roiShapes.put(coord, shape);
-	}
-	
-	/** 
-	 * Initializes the ROI with id and construct the TreeMap to contain 
-	 * the ROIShapes of the ROI and there mapping the coord3D they exist on.
-	 * 
-	 * @param id id of the ROI.
-	 */
-	private void init(long id, boolean clientSide)
-	{
-		ownerID = -1;
-		this.id = id;
-		this.clientSide = clientSide;
-		roiShapes = new TreeMap<Coord3D, ROIShape>(new Coord3D());
 	}
 	
 	/**
@@ -207,7 +209,6 @@ public class ROI
 	 */
 	public String getShapeTypes()
 	{
-		String shapes = "";
 		HashMap<String,Integer> shapeTypes = new HashMap<String, Integer>();
 		Iterator<ROIShape> shapeIterator = roiShapes.values().iterator();
 		ROIShape shape;
@@ -227,19 +228,18 @@ public class ROI
 		
 		Iterator<String> typeIterator = shapeTypes.keySet().iterator();
 		boolean first = true;
-		
+		StringBuffer buffer = new StringBuffer();
 		while (typeIterator.hasNext())
 		{
 			type = typeIterator.next();
 			if (!first)
 			{
-				shapes = shapes + ",";
+				buffer.append(",");
 				first = false;
 			}
-			shapes = shapes+type;
+			buffer.append(type);
 		}
-		shapes = shapes + "";
-		return shapes;
+		return buffer.toString();
 	}
 
 	/**

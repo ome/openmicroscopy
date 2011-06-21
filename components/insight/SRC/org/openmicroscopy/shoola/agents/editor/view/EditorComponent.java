@@ -30,10 +30,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+import org.openmicroscopy.shoola.agents.editor.actions.ActionCmd;
+import org.openmicroscopy.shoola.agents.editor.actions.SaveLocallyCmd;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveNewCmd;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -169,7 +174,46 @@ class EditorComponent
 	 */
 	public void close()
 	{
-		// if the file has been edited, ask the user if they want to save...
+		if (!EditorAgent.isServerAvailable()) {
+			//ask to save
+			MessageBox msg = new MessageBox(view, "Exit Application", 
+					"Do you really want to close the Editor?");
+			JCheckBox box = null;
+			if (model.hasDataToSave()) {
+				box = new JCheckBox("Save Data");
+				box.setSelected(true);
+				msg.addBodyComponent(box);
+			}
+			
+			if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
+				if (box != null && box.isSelected()) {
+					ActionCmd save = new SaveLocallyCmd(this);
+					save.execute();
+				}
+				discard();
+			}
+		} else {
+			if (model.hasDataToSave() && isUserOwner()) {
+				MessageBox msg = new MessageBox(view, "Save Data", 
+				"Before closing the Editor, do you want to save?");
+				msg.addCancelButton();
+				int option = msg.centerMsgBox();
+				if (option == MessageBox.YES_OPTION) {
+					// if Save, need to try save current file. 
+					boolean saved = saveCurrentFile();
+					if (saved) discard();
+					else {
+						SaveNewCmd save = new SaveNewCmd(this);
+						save.execute();
+						return;
+					}
+				} else if (option == MessageBox.NO_OPTION) {
+					discard();
+				}
+			} else discard();
+		}
+		
+		/*
 		if (model.hasDataToSave() && isUserOwner()) {
 			
 			MessageBox msg = new MessageBox(view, "Save Data", 
@@ -195,6 +239,7 @@ class EditorComponent
 		} else {
 			discard();
 		}
+		*/
 	}
 	
 	/** 
@@ -536,6 +581,12 @@ class EditorComponent
 	{
 		return model.isUserOwner();
 	}
+	
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#getUI()
+	 */
+	public JFrame getUI() { return view; }
 	
 	/** 
 	 * Overridden to return the name of the instance to save. 

@@ -20,11 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.view;
-
-
-
 
 //Java imports
 import java.awt.Color;
@@ -154,6 +150,10 @@ class ToolBar
         bar.add(b);
         b = new JButton(controller.getAction(
         		TreeViewerControl.EDITOR_NO_SELECTION));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
+        b = new JButton(controller.getAction(
+        		TreeViewerControl.IMPORT_NO_SELECTION));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
         bar.add(new JSeparator(JSeparator.VERTICAL));

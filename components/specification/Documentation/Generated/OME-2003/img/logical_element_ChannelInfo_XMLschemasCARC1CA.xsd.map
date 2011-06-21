@@ -1,0 +1,38 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_ChannelInfo_XMLschemasCARC1CA.xsd'>
+ <area
+  shape='rect'
+  alt='element_LightSourceRef'
+  coords='472,568,858,627'
+  href='CA.xsd.html#element_LightSourceRef'/>
+
+ <area
+  shape='rect'
+  alt='element_AuxLightSourceRef'
+  coords='472,637,858,696'
+  href='CA.xsd.html#element_AuxLightSourceRef'/>
+
+ <area
+  shape='rect'
+  alt='element_OTFRef'
+  coords='472,706,858,765'
+  href='CA.xsd.html#element_OTFRef'/>
+
+ <area
+  shape='rect'
+  alt='element_DetectorRef'
+  coords='472,775,858,834'
+  href='CA.xsd.html#element_DetectorRef'/>
+
+ <area
+  shape='rect'
+  alt='element_FilterRef'
+  coords='472,844,858,903'
+  href='CA.xsd.html#element_FilterRef'/>
+
+ <area
+  shape='rect'
+  alt='element_ChannelComponent'
+  coords='472,913,858,972'
+  href='CA.xsd.html#element_ChannelComponent'/>
+
+</map>

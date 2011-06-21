@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_BinaryFile_SchemasSPW200809'>
+ <area
+  shape='rect'
+  alt='element_External'
+  coords='464,89,856,132'
+  href='SPW.xsd.html#element_External'/>
+
+ <area
+  shape='rect'
+  alt='element_BinData'
+  coords='464,142,856,185'
+  href='SPW.xsd.html#element_BinData'/>
+
+</map>

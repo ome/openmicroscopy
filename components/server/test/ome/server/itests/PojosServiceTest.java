@@ -34,6 +34,7 @@ import ome.testing.OMEData;
 import ome.testing.ObjectFactory;
 import ome.util.CBlock;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -46,9 +47,8 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 
     protected OMEData data;
 
-    @Override
-    protected void onSetUp() throws Exception {
-        super.onSetUp();
+    @BeforeClass
+    protected void setup() throws Exception {
         DataSource dataSource = (DataSource) applicationContext
                 .getBean("dataSource");
         data = new OMEData();

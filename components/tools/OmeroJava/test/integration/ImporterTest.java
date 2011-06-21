@@ -30,8 +30,13 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 import org.testng.annotations.AfterClass;
@@ -39,9 +44,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
-import ome.formats.OMEROMetadataStoreClient;
 import ome.xml.model.OME;
-import omero.ServerError;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
@@ -79,6 +82,7 @@ import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.Reagent;
 import omero.model.Roi;
+import omero.model.Screen;
 import omero.model.Shape;
 import omero.model.StageLabel;
 import omero.model.TagAnnotation;
@@ -148,6 +152,8 @@ public class ImporterTest
 				xml.getModel());
 		assertEquals(objective.getSerialNumber().getValue(), 
 				xml.getSerialNumber());
+		assertEquals(objective.getLotNumber().getValue(), 
+				xml.getLotNumber());
 		assertEquals(objective.getCalibratedMagnification().getValue(), 
 				xml.getCalibratedMagnification().doubleValue());
 		assertTrue(objective.getCorrection().getValue().getValue().equals( 
@@ -179,6 +185,8 @@ public class ImporterTest
 				xml.getModel());
 		assertEquals(detector.getSerialNumber().getValue(), 
 				xml.getSerialNumber());
+		assertEquals(detector.getLotNumber().getValue(), 
+				xml.getLotNumber());
 		assertEquals(detector.getAmplificationGain().getValue(), 
 				xml.getAmplificationGain().doubleValue());
 		assertEquals(detector.getGain().getValue(), 
@@ -199,6 +207,8 @@ public class ImporterTest
 				xml.getModel());
 		assertEquals(arc.getSerialNumber().getValue(), 
 				xml.getSerialNumber());
+		assertEquals(arc.getLotNumber().getValue(), 
+				xml.getLotNumber());
 		assertEquals(arc.getPower().getValue(), xml.getPower());
 		assertTrue(arc.getType().getValue().getValue().equals(
 				XMLMockObjects.ARC_TYPE.getValue()));
@@ -214,10 +224,10 @@ public class ImporterTest
 	{
 		assertEquals(laser.getManufacturer().getValue(), 
 				xml.getManufacturer());
-		assertEquals(laser.getModel().getValue(), 
-				xml.getModel());
+		assertEquals(laser.getModel().getValue(), xml.getModel());
 		assertEquals(laser.getSerialNumber().getValue(), 
 				xml.getSerialNumber());
+		assertEquals(laser.getLotNumber().getValue(), xml.getLotNumber());
 		assertEquals(laser.getPower().getValue(), xml.getPower());
 		assertTrue(laser.getType().getValue().getValue().equals(
 				XMLMockObjects.LASER_TYPE.getValue()));
@@ -237,6 +247,8 @@ public class ImporterTest
 				xml.getModel());
 		assertEquals(filament.getSerialNumber().getValue(), 
 				xml.getSerialNumber());
+		assertEquals(filament.getLotNumber().getValue(), 
+				xml.getLotNumber());
 		assertEquals(filament.getPower().getValue(), xml.getPower());
 		assertTrue(filament.getType().getValue().getValue().equals(
 				XMLMockObjects.FILAMENT_TYPE.getValue()));
@@ -257,6 +269,8 @@ public class ImporterTest
 				xml.getModel());
 		assertEquals(filter.getLotNumber().getValue(), 
 				xml.getLotNumber());
+		assertEquals(filter.getSerialNumber().getValue(), 
+				xml.getSerialNumber());
 		assertTrue(filter.getType().getValue().getValue().equals( 
 				xml.getType().getValue()));
 		TransmittanceRange tr = filter.getTransmittanceRange();
@@ -286,6 +300,8 @@ public class ImporterTest
 				xml.getModel());
 		assertEquals(dichroic.getLotNumber().getValue(), 
 				xml.getLotNumber());
+		assertEquals(dichroic.getSerialNumber().getValue(), 
+				xml.getSerialNumber());
 	}
 	
 	/**
@@ -301,6 +317,10 @@ public class ImporterTest
 				xml.getManufacturer());
 		assertEquals(diode.getModel().getValue(), 
 				xml.getModel());
+		assertEquals(diode.getSerialNumber().getValue(), 
+				xml.getSerialNumber());
+		assertEquals(diode.getLotNumber().getValue(), 
+				xml.getLotNumber());
 		assertEquals(diode.getPower().getValue(), xml.getPower());
 	}
 	
@@ -404,6 +424,8 @@ public class ImporterTest
 				xml.getModel());
 		assertEquals(microscope.getSerialNumber().getValue(), 
 				xml.getSerialNumber());
+		assertEquals(microscope.getLotNumber().getValue(), 
+				xml.getLotNumber());
 		assertEquals(microscope.getType().getValue().getValue(), 
 				xml.getType().getValue());
 	}
@@ -450,7 +472,7 @@ public class ImporterTest
 				xml.getColumnNamingConvention().getValue());
 		assertEquals(plate.getRows().getValue(), 
 				xml.getRows().getValue().intValue());
-		assertEquals(plate.getCols().getValue(), 
+		assertEquals(plate.getColumns().getValue(), 
 				xml.getColumns().getValue().intValue());
 		assertEquals(plate.getExternalIdentifier().getValue(),
 				xml.getExternalIdentifier());
@@ -461,6 +483,18 @@ public class ImporterTest
 		assertEquals(plate.getStatus().getValue(), xml.getStatus());
 	}
 
+	/**
+	 * Validates if the inserted object corresponds to the XML object.
+	 * 
+	 * @param screen The screen to check.
+	 * @param xml The XML version.
+	 */
+	private void validateScreen(Screen screen, ome.xml.model.Screen xml)
+	{
+		assertEquals(screen.getName().getValue(), xml.getName());
+		assertEquals(screen.getDescription().getValue(), xml.getDescription());
+	}
+	
 	/**
 	 * Validates if the inserted object corresponds to the XML object.
 	 * 
@@ -735,7 +769,7 @@ public class ImporterTest
      * Tests the import of an OME-XML file with one image w/o binary data.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled = false)
+	@Test(enabled = true)
 	public void testImportSimpleImageMetadataOnlyNoBinaryInFile()
 		throws Exception
 	{
@@ -804,7 +838,7 @@ public class ImporterTest
      * Tests the import of an OME-XML file with an image with acquisition data.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test
+	@Test(enabled = true)
 	public void testImportImageWithAcquisitionData()
 		throws Exception
 	{
@@ -925,16 +959,22 @@ public class ImporterTest
     	ids.clear();
     	
     	ome.xml.model.Channel xmlChannel = xml.createChannel(0);
-    	Color xmlColor = new Color(xmlChannel.getColor());
     	Channel channel;
     	List<Channel> channels = p.copyChannels();
     	Iterator<Channel> i = channels.iterator();
+    	//assertTrue(xmlChannel.getColor().intValue() == 
+    	//	XMLMockObjects.DEFAULT_COLOR.getRGB());
+    	Color c;
     	while (i.hasNext()) {
 			channel = i.next();
-			assertEquals(channel.getAlpha().getValue(), xmlColor.getAlpha());
-			assertEquals(channel.getRed().getValue(), xmlColor.getRed());
-			assertEquals(channel.getGreen().getValue(), xmlColor.getGreen());
-			assertEquals(channel.getBlue().getValue(), xmlColor.getBlue());
+			assertEquals(channel.getAlpha().getValue(), 
+					XMLMockObjects.DEFAULT_COLOR.getAlpha());
+			assertEquals(channel.getRed().getValue(), 
+					XMLMockObjects.DEFAULT_COLOR.getRed());
+			assertEquals(channel.getGreen().getValue(), 
+					XMLMockObjects.DEFAULT_COLOR.getGreen());
+			assertEquals(channel.getBlue().getValue(), 
+					XMLMockObjects.DEFAULT_COLOR.getBlue());
 			ids.add(channel.getLogicalChannel().getId().getValue());
 		}
     	List<LogicalChannel> l = 
@@ -1064,6 +1104,199 @@ public class ImporterTest
 		Plate plate = ws.getWell().getPlate();
 		assertNotNull(plate);
 		validatePlate(plate, ome.getPlate(0));
+	}
+	
+	/**
+     * Tests the import of an OME-XML file with a screen and 
+     * a fully populated plate.
+     * @throws Exception Thrown if an error occurred.
+     */
+	@Test
+	public void testImportScreenWithOnePlate()
+		throws Exception
+	{
+		File f = File.createTempFile("testImportScreenWithOnePlate", 
+				"."+OME_FORMAT);
+		files.add(f);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		int rows = 2;
+		int columns = 2;
+		int fields = 2;
+		int acquisition = 3;
+		int plates = 1;
+		OME ome = xml.createPopulatedScreen(plates, rows, columns, fields,
+				acquisition);
+		writer.writeFile(f, ome, true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import the plate", e);
+		}
+        Pixels pp = pixels.get(0);
+        WellSample ws = getWellSample(pp);
+		validateWellSample(ws, ome.getPlate(0).getWell(0).getWellSample(0));
+		Well well = ws.getWell();
+		assertNotNull(well);
+		validateWell(well, ome.getPlate(0).getWell(0));
+		Plate plate = ws.getWell().getPlate();
+		assertNotNull(plate);
+		validatePlate(plate, ome.getPlate(0));
+		validateScreen(plate.copyScreenLinks().get(0).getParent(), 
+				ome.getScreen(0));
+		PlateAcquisition pa;
+		Map<Long, Set<Long>> ppaMap = new HashMap<Long, Set<Long>>();
+		Map<Long, Set<Long>> pawsMap = new HashMap<Long, Set<Long>>();
+		Set<Long> wsIds;
+		Set<Long> paIds;
+		for (Pixels p : pixels) {
+			ws = getWellSample(p);
+			assertNotNull(ws);
+			well = ws.getWell();
+			assertNotNull(well);
+			plate = ws.getWell().getPlate();
+			pa = ws.getPlateAcquisition();
+			wsIds = pawsMap.get(pa.getId().getValue());
+			if (wsIds == null) {
+				wsIds = new HashSet<Long>();
+				pawsMap.put(pa.getId().getValue(), wsIds);
+			}
+			wsIds.add(ws.getId().getValue());
+			paIds = ppaMap.get(plate.getId().getValue());
+			if (paIds == null) {
+				paIds = new HashSet<Long>();
+				ppaMap.put(plate.getId().getValue(), paIds);
+			}
+			paIds.add(pa.getId().getValue());
+			assertNotNull(plate);
+			validateScreen(plate.copyScreenLinks().get(0).getParent(), 
+					ome.getScreen(0));
+		}
+		assertEquals(plates, ppaMap.size());
+		assertEquals(plates*acquisition, pawsMap.size());
+		Entry entry;
+		Iterator i = ppaMap.entrySet().iterator();
+		Long id, idw;
+		Set<Long> l;
+		Set<Long> wsList;
+		Iterator<Long> j, k;
+		List<Long> plateIds = new ArrayList<Long>();
+		List<Long> wsListIds = new ArrayList<Long>();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			l = (Set<Long>) entry.getValue();
+			assertEquals(acquisition, l.size());
+			j = l.iterator();
+			while (j.hasNext()) {
+				id = j.next();
+				assertFalse(plateIds.contains(id));
+				plateIds.add(id);
+				wsList = pawsMap.get(id);
+				assertEquals(rows*columns*fields, wsList.size());
+				k = wsList.iterator();
+				while (k.hasNext()) {
+					idw = k.next();
+					assertFalse(wsListIds.contains(idw));
+					wsListIds.add(idw);
+				}
+			}
+		}
+		assertEquals(rows*columns*fields*plates*acquisition, wsListIds.size());
+	}
+	
+	/**
+     * Tests the import of an OME-XML file with a screen and 
+     * two fully populated plates.
+     * @throws Exception Thrown if an error occurred.
+     */
+	@Test(enabled=true)
+	public void testImportScreenWithTwoPlates()
+		throws Exception
+	{
+		File f = File.createTempFile("testImportScreenWithTwoPlates", 
+				"."+OME_FORMAT);
+		files.add(f);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		int rows = 2;
+		int columns = 2;
+		int fields = 2;
+		int acquisition = 2;
+		int plates = 2;
+		OME ome = xml.createPopulatedScreen(plates, rows, columns, fields,
+				acquisition);
+		//We should have 2 plates
+		//each plate will have 2 plate acquisitions
+		//2x2x2 fields
+		writer.writeFile(f, ome, true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import the plate", e);
+		}
+		WellSample ws;
+		Well well;
+		Plate plate;
+		PlateAcquisition pa;
+		Map<Long, Set<Long>> ppaMap = new HashMap<Long, Set<Long>>();
+		Map<Long, Set<Long>> pawsMap = new HashMap<Long, Set<Long>>();
+		Set<Long> wsIds;
+		Set<Long> paIds;
+		for (Pixels p : pixels) {
+			ws = getWellSample(p);
+			assertNotNull(ws);
+			well = ws.getWell();
+			assertNotNull(well);
+			plate = ws.getWell().getPlate();
+			pa = ws.getPlateAcquisition();
+			wsIds = pawsMap.get(pa.getId().getValue());
+			if (wsIds == null) {
+				wsIds = new HashSet<Long>();
+				pawsMap.put(pa.getId().getValue(), wsIds);
+			}
+			wsIds.add(ws.getId().getValue());
+			paIds = ppaMap.get(plate.getId().getValue());
+			if (paIds == null) {
+				paIds = new HashSet<Long>();
+				ppaMap.put(plate.getId().getValue(), paIds);
+			}
+			paIds.add(pa.getId().getValue());
+			assertNotNull(plate);
+			validateScreen(plate.copyScreenLinks().get(0).getParent(), 
+					ome.getScreen(0));
+		}
+		assertEquals(plates, ppaMap.size());
+		assertEquals(plates*acquisition, pawsMap.size());
+		Entry entry;
+		Iterator i = ppaMap.entrySet().iterator();
+		Long id, idw;
+		Set<Long> l;
+		Set<Long> wsList;
+		Iterator<Long> j, k;
+		List<Long> plateIds = new ArrayList<Long>();
+		List<Long> wsListIds = new ArrayList<Long>();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			l = (Set<Long>) entry.getValue();
+			assertEquals(acquisition, l.size());
+			j = l.iterator();
+			while (j.hasNext()) {
+				id = j.next();
+				assertFalse(plateIds.contains(id));
+				plateIds.add(id);
+				wsList = pawsMap.get(id);
+				assertEquals(rows*columns*fields, wsList.size());
+				k = wsList.iterator();
+				while (k.hasNext()) {
+					idw = k.next();
+					assertFalse(wsListIds.contains(idw));
+					wsListIds.add(idw);
+				}
+			}
+		}
+		assertEquals(rows*columns*fields*plates*acquisition, wsListIds.size());
 	}
 	
 	/**
@@ -1224,16 +1457,16 @@ public class ImporterTest
 		validateReagent(wr.getChild(), ome.getScreen(0).getReagent(0));
 		id = wr.getChild().getId().getValue();
 		sql = "select s from Screen as s ";
-		sql += "join fetch s.reagent as r ";
+		sql += "join fetch s.reagents as r ";
 		sql += "where r.id = :id";
 		param = new ParametersI();
 		param.addId(id);
 		omero.model.Screen screen = 
 			(omero.model.Screen) iQuery.findByQuery(sql, param);
 		assertNotNull(screen);
-		assertEquals(1, screen.sizeOfReagent());
+		assertEquals(1, screen.sizeOfReagents());
 		assertEquals(wr.getChild().getId().getValue(),
-				screen.copyReagent().get(0).getId().getValue());
+				screen.copyReagents().get(0).getId().getValue());
 	}
 	
 }

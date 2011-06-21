@@ -21,4 +21,20 @@ public class Options {
     public boolean leaves;
     public boolean orphan;
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("O[");
+        if (acquisitionData) {
+            sb.append("A");
+        }
+        if (leaves) {
+            sb.append("L");
+        }
+        if (orphan) {
+            sb.append("O");
+        }
+        sb.append("]");
+        return sb.toString();
+    }
 }

@@ -24,12 +24,10 @@ package org.openmicroscopy.shoola.util.ui.drawingtools;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.ActionMap;
-
 //Third-party libraries
-import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.DefaultDrawing;
 import org.jhotdraw.draw.DefaultDrawingEditor;
 import org.jhotdraw.draw.DrawingEditor;
@@ -90,6 +88,7 @@ public class DrawingComponent
 		drawingView.setDrawing(drawing);
 		drawingEditor.add(drawingView);
 		createListeners = false;
+		figureListeners = new ArrayList<FigureListener>();
 	}
 	
 	/**
@@ -170,29 +169,20 @@ public class DrawingComponent
 	 * Remove the figure from the drawing.
 	 * @param f figure to remove. 
 	 */
-	public void removeFigure(Figure f)
-	{
-		drawing.remove(f);
-	}
+	public void removeFigure(Figure f) { drawing.remove(f); }
 	
 	/**
 	 * Remove the figure from the drawing.
 	 * @param f figure to remove. 
 	 */
-	public void addFigure(Figure f)
-	{
-		drawing.add(f);
-	}
+	public void addFigure(Figure f) { drawing.add(f); }
 	
 	/** 
 	 * Return true if drawing contains figure.
 	 * @param f figure, see above.
 	 * @return see above.
 	 */
-	public boolean contains(Figure f)
-	{
-		return drawing.contains(f);
-	}
+	public boolean contains(Figure f) { return drawing.contains(f); }
 	
 	/**
 	 * Notifies all figure listeners.
@@ -212,11 +202,7 @@ public class DrawingComponent
 	{
 		List<Figure> figures = drawing.getFigures();
 		for(int i = 0 ; i < figures.size() ; i++)
-		{
-			Figure fig = figures.get(i);
-			drawing.remove(fig);
-		}
-		
+			drawing.remove(figures.get(i));
 	}
 	
 	/**
@@ -234,5 +220,3 @@ public class DrawingComponent
 	public void areaInvalidated(DrawingEvent e) {}
 
 }
-
-

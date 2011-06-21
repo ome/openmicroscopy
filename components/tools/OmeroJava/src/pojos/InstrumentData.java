@@ -143,7 +143,7 @@ public class InstrumentData
 	{
 		Microscope m = ((Instrument) asIObject()).getMicroscope();
 		if (m == null) return null;
-		RString v = m.getSerialNumber();
+		RString v = null;//m.getLotNumber();
 		if (v == null) return "";
 		return v.getValue();
 	}

@@ -31,6 +31,7 @@ import java.util.StringTokenizer;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RBool;
 import omero.rtypes;
 import omero.RInt;
 import omero.RString;
@@ -224,7 +225,9 @@ public abstract class ShapeData
 	}
 	
 	/**
-	 * Is the object a read-only object.
+	 * Returns <code>true</code> if the object a read-only object,
+	 * <code>false</code> otherwise.
+	 * 
 	 * @return See above.
 	 */
 	public boolean isReadOnly()
@@ -236,8 +239,10 @@ public abstract class ShapeData
 	}
 	
 	/**
-	 * Set the Shape object to be readOnly
-	 * @param readOnly See above.
+	 * Sets to <code>true</code> if the object is a read-only object,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param readOnly The value to set.
 	 */
 	public void setReadOnly(boolean readOnly)
 	{
@@ -248,23 +253,22 @@ public abstract class ShapeData
 	}
 	
 	/**
-	 * Is the object one that has been created client side. If so the id will
-	 * be null, or invalid.
+	 * Returns <code>true</code> if the object one that has been created client 
+	 * side. If so the id will be <code></code>null, or invalid.
+	 * 
 	 * @return See above.
 	 */
-	public boolean isClientObject()
-	{
-		return clientObject;
-	}
+	public boolean isClientObject() { return clientObject; }
 	
 	/**
-	 * Set the object to be a client side object. If so the id will be null
-	 * or invalid.
-	 * @param clientSideObject See above.
+	 * Sets to <code>true</code> if the object one that has been created client 
+	 * side, <code>false</code> otherwise.
+	 * 
+	 * @param clientObject The value to set..
 	 */
-	public void setClientObject(boolean clientSideObject)
+	public void setClientObject(boolean clientObject)
 	{
-		clientObject = clientSideObject;
+		this.clientObject = clientObject;
 	}
 	
 	/**
@@ -278,21 +282,22 @@ public abstract class ShapeData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		RInt value = shape.getTheZ();
-		if (value == null)
-			return -1;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 
 	/**
-	 * Set the z-section.
-	 * @param See above.
+	 * Sets the z-section.
+	 * 
+	 * @param z The value to set.
 	 */
-	public void setZ(int theZ)
+	public void setZ(int z)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setTheZ(rtypes.rint(theZ));
+		if (z < 0) z = 0;
+		shape.setTheZ(rtypes.rint(z));
 		setDirty(true);
 	}
 
@@ -313,21 +318,23 @@ public abstract class ShapeData
 	}
 
 	/**
-	 * Set the channel
-	 * @param See above.
+	 * Sets the channel.
+	 * 
+	 * @param c The value to set.
 	 */
-	public void setC(int theC)
+	public void setC(int c)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setTheC(rtypes.rint(theC));
+		if (c < 0) c = 0;
+		shape.setTheC(rtypes.rint(c));
 		setDirty(true);
 	}
 
 	
 	/**
-	 * Returns the timepoint.
+	 * Returns the time-point.
 	 * 
 	 * @return See above.
 	 */
@@ -337,40 +344,45 @@ public abstract class ShapeData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		RInt value = shape.getTheT();
-		if (value == null) 
-			return -1;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 
 	/**
-	 * Set the timepoint.
-	 * @param See above.
+	 * Sets the time-point.
+	 * 
+	 * @param t The value to set.
 	 */
-	public void setT(int theT)
+	public void setT(int t)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setTheT(rtypes.rint(theT));
+		if (t < 0) t = 0;
+		shape.setTheT(rtypes.rint(t));
 		setDirty(true);
 	}
 	
 	/** 
-	 * Set the ROICoordinate for the ShapeData 
-	 * @param roiCoordinate See above.
+	 * Sets the ROICoordinate for the ShapeData 
+	 * 
+	 * @param roiCoordinate The value to set.
 	 */
 	public void setROICoordinate(ROICoordinate coord)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
+		if (coord == null)
+			throw new IllegalArgumentException("No Coordinate specified.");
 		setZ(coord.getZSection());
 		setT(coord.getTimePoint());
 		setDirty(true);
 	}
 	
 	/** 
-	 * Get the ROICoordinate for the ShapeData 
+	 * Returns the ROICoordinate for the ShapeData.
+	 * 
 	 * @return See above.
 	 */
 	public ROICoordinate getROICoordinate()
@@ -378,10 +390,12 @@ public abstract class ShapeData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		return new ROICoordinate(getZ(), getT());
+		int z = getZ();
+		int t = getT();
+		if (z < 0 || t < 0) return null;
+		return new ROICoordinate(z, t);
 	}
-	
-	
+
 	/**
 	 * Returns the transformation.
 	 * 
@@ -407,17 +421,50 @@ public abstract class ShapeData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
+		if (transform == null) return;
 		shape.setTransform(rtypes.rstring(transform));
 		setDirty(true);
 	}
 
 	/**
-	 * Has the figure been changed from the server side version.
-	 * @param dirty See above. 
+	 * Sets to <code>true</code> if the figure been changed from the server
+	 * side version, <code>false</code> otherwise.
+	 * 
+	 * @param dirty The value to set.
 	 */
 	public void setDirty(boolean dirty)
 	{
 		super.setDirty(dirty);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the shape is visible, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isVisible()
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) return false;
+		RBool b = shape.getVisibility();
+		if (b == null) return true;
+		return b.getValue();
+	}
+	
+	/**
+	 * Sets to <code>true</code> if the shape is visible, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param visible The value to set.
+	 */
+	public void setVisible(boolean visible)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setVisibility(rtypes.rbool(visible));
+		setDirty(true);
 	}
 	
 }

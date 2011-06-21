@@ -25,15 +25,29 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.MultilineLabel;
-import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import pojos.TextualAnnotationData;
 
 /** 
@@ -51,36 +65,120 @@ import pojos.TextualAnnotationData;
  */
 class TextualAnnotationComponent 
 	extends JPanel
+	implements ActionListener
 {
 
+	/** Action id to edit the comment.*/
+	private static final int EDIT = 0;
+	
+	/** Action id to edit the comment.*/
+	private static final int DELETE = 1;
+	
 	/** Area displaying the textual annotation. */
-	private MultilineLabel 			area;
+	private OMEWikiComponent 		area;
 	
 	/** The annotation to handle. */
 	private TextualAnnotationData	data;
 	
 	/** Reference to the model.	*/
-	private EditorModel				model;
+	private EditorModel	model;
 
+	/** Button to edit the annotation. */
+	private JMenuItem	editButton;
+	
+	/** Button to delete the file annotation. */
+	private JMenuItem	deleteButton;
+	
+	/** The Button used to display the managing option. */
+	private JButton		menuButton;
+	
+	/** The pop-up menu. */
+	private JPopupMenu	popMenu;
+	
+	/** The bar displaying the controls.*/
+	private JPanel		controlsBar;
+	
+	/** Edits the comment.*/
+	private void editComment()
+	{
+		
+	}
+	
 	/** Initializes the UI components. */
 	private void initialize()
 	{
-		area = new MultilineLabel();
-        area.setEditable(false);
+		area = new OMEWikiComponent(false);
+        area.setEnabled(false);
         area.setOpaque(true);
+		area.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
         area.setText(data.getText());
-    	String owner = model.formatOwner(data);
+		IconManager icons = IconManager.getInstance();
+		if (model.isUserOwner(data)) {
+			menuButton = new JButton(icons.getIcon(IconManager.UP_DOWN_9_12));
+			UIUtilities.unifiedButtonLookAndFeel(menuButton);
+			menuButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+			menuButton.addMouseListener(new MouseAdapter() {
+				
+				public void mousePressed(MouseEvent e)
+				{
+					showMenu(menuButton, e.getPoint());
+				}
+			});
+			deleteButton = new JMenuItem(icons.getIcon(IconManager.DELETE_12));
+			deleteButton.setText("Delete");
+			deleteButton.addActionListener(this);
+			deleteButton.setActionCommand(""+DELETE);
+			editButton = new JMenuItem(icons.getIcon(IconManager.EDIT_12));
+			editButton.setText("Edit");
+			editButton.setActionCommand(""+EDIT);
+			editButton.addActionListener(this);
+		}
+	}
+	
+	/** 
+	 * Brings up the menu. 
+	 * 
+	 * @param invoker The component where the clicks occurred.
+	 * @param p The location of the mouse pressed.
+	 */
+	private void showMenu(JComponent invoker, Point p)
+	{
+		if (popMenu == null) {
+			popMenu = new JPopupMenu();
+			//if (editButton != null) popMenu.add(editButton);
+			if (deleteButton != null) popMenu.add(deleteButton);
+		}
+		popMenu.show(invoker, p.x, p.y);
+	}
+	
+	/**
+	 * Builds the tool bar.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildToolBar()
+	{
+		controlsBar = new JPanel();
+		controlsBar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		String owner = model.formatOwner(data);
 		String date = model.formatDate(data);
-		TitledLineBorder border = new TitledLineBorder(owner+" "+date);
-		border.setTitleFont(area.getFont().deriveFont(Font.BOLD));
-		setBorder(border);
+		JLabel l = new JLabel(owner+" "+date);
+		l.setFont(l.getFont().deriveFont(Font.BOLD));
+		if (menuButton != null) controlsBar.add(menuButton);
+		controlsBar.add(l);
+		return controlsBar;
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		add(area);
+		//if (menuButton != null) add(menuButton);
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(buildToolBar());
+		p.add(area);
+		add(p);
 	}
 	
 	/**
@@ -101,6 +199,13 @@ class TextualAnnotationComponent
 	}
 	
 	/**
+	 * Returns the annotation hosted by this component.
+	 * 
+	 * @return See above.
+	 */
+	TextualAnnotationData getData() { return data; }
+	
+	/**
 	 * Sets the background of the area, the background color
 	 * will change when the user clicks on the node.
 	 * 
@@ -108,9 +213,34 @@ class TextualAnnotationComponent
 	 */
 	void setAreaColor(Color color)
 	{
-		area.setOriginalBackground(color);
+		//area.setOriginalBackground(color);
 		setBackground(color);
-		((TitledLineBorder) getBorder()).setLineColor(color);
+		Component[] components = getComponents();
+		for (int i = 0; i < components.length; i++) {
+			components[i].setBackground(color);
+		}
+		controlsBar.setBackground(color);
+		if (menuButton != null)
+			menuButton.setBackground(color);
+		//Color.white
+		area.setBackground(color);//UIUtilities.BACKGROUND_COLOR);
+	}
+
+	/** 
+	 * Deletes or edits the annotation.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case DELETE:
+				firePropertyChange(AnnotationUI.DELETE_ANNOTATION_PROPERTY,
+						null, this);
+				break;
+			case EDIT:
+				editComment();
+		}
 	}
 	
 }

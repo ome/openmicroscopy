@@ -1,0 +1,114 @@
+Synchronization record for develop --> dev_4_1_custom
+omero.gateway and omeroweb.webgateway
+=====================================================
+
+List of latest commits merged from develop into dev_4_1_custom
+
+*** 2011-05-03 ***
+
+-- omeroweb.webgateway (d1db7c051f477fff3b1873c25101f991d2c53ef7)
+53db00c Changing all instances of listParents into either getParents or getParent, as appropriate (close #3802)
+3f1a7c9 Updating imageWrapper.getHeight() and getWidth() to getSizeY() and getSizeZ() in webgateway. See #4928
+cf81745 Replacing z_count() t_count() and c_count() with getSizeZ() etc in webgateway. See #4928
+8f10cca Replacing z_count() t_count() and c_count() with getSizeZ() etc in webclient. See #4928
+
+-- omero.gateway (6d710d63926d6a30e615d40a4dee080d860d1a1d)
+5b10de8 Splitting listParents into 2 new methods; getParents and getParent (see #3802)
+6319e36 Getting softclose on BlitzGateway.seppuku working again (see #3478)
+13e642a Blitz pixelWrapper.getPlanes() takes zctList parameter. See 4979
+c1881db Adding getPlane() short-cut to blitz gateway PixelsWrapper. See 4979
+1dc1ab9 Adding getPlanes() to blitz gateway PixelsWrapper. See 4979
+98c5a02 ImageWrapper.getPrimaryPixels() returns PixelsWrapper. See #4820
+1be9e6f Blitz getObject() throws exception if >1 result returned. See 4908
+ab27a87 Removing deleteAnnotation() and simpleDelete() from blitz gateway. See 4773
+c656fd2 Removing deleteScreen() deletePlate() deleteProject() deleteDataset() from blitz gateway. See 4773
+4eb3d02 Removing deleteImages() and deleteImage() from blitz gateway. See 4773
+9f91d2c Adding FileAnnotationWrapper.fromLocalFile() method: uploads file to create file annotation. See #4638
+0e5dd7d Renaming blitz imageWrapper.getHeight() and getWidth() to getSizeY() and getSizeZ(). See #4928
+91bd0f1 Adding getDefaultT() and getDefaultZ() to blitz imageWrapper. See #4928
+1231595 Renaming blitz imagewrapper.z_count() t_count() and c_count() to getSizeZ() etc. See #4928
+
+
+*** 2011-04-19 ***
+
+-- omeroweb.webgateway (497a12db4eed69303ff13e058b1899a4d1c11c59)
+4d33232 this fix unexpected keyword argument 'level'
+59ff985 PanoJS update to ver. 3, big image support, this fix #4279 and #4281 and #4805 and #4499
+a97ba20 Removing use of conn.simpleSearch() from webgateway. See #4773
+b335454 Removing use of conn.searchImages() from webgateway. See #4773
+5c86308 Removing use of conn.getImage() from webgateway. See #4681
+5ee390d Removing use of conn.getDataset() from webgateway. See #4681
+707fbe2 Removing use of conn.getProject() from webgateway. See #4681
+86c71b3 Fixing shape.transform in web image viewer with latest Raphael.js (2.0.0). Fixes #4556
+382cc24 Updating uses of channelWrapper.getEmissionWave() to .getName() and getLabel()  in webgateway. See #4686
+d1d01fd Birdeye prototype, still #4244:1h
+808325d Fixed bug in previous render_image_region commit. See #4665
+79335f7 render_image_region handles tile=level,col,row and region=x,y,w,h. Closes #4665
+18a8f0f Show ROIs updates ROI zoom. Closes #4629
+
+-- omero.gateway (14955882b95f3b23d87d08bd436a07f4c6d838f9)
+a142957 this fix #4988
+9a38cb4 Renaming getQueryString() to _getQueryString() on blitz objects. See #4673
+d182ca7 Removing simpleSearch() from blitz gateway. See #4773
+334f71b Removing searchScreens() and searchPlates() from blitz gateway. See #4773
+b60d563 Removing searchDatasets() and searchProjects() from blitz gateway. See #4773
+6cdd78b Removing searchImages() from blitz. Improving searchObjects() err msg. See #4773
+16ab815 Blitz _loadAnnotations() and getAnnotationLinks() loads creationEvent for links and anns. See #4844
+6eb4c97 Removing lookupTagAnnotation(name) from blitz gateway. See #4815
+a579411 Removing use of getAnnotation(id) and getExperimenterGroups() from gatewaytest. See #4815
+1d66e48 Removing findProject() from blitz gateway. See #4815
+18e1293 Removing listImages() method from blitz gateway. See #4815
+cac1f1e Default param oid=None for blitz getObject() method. See #4815
+38bfa55 Updating listProjects() in blitz gateway to handle eid OR only_owned. See #4815
+cfe0f53 Blitz getObjects() allows filtering by expId on all types except Experimenter and Group. See #4815
+13aea2b Removing listAnnotations() from blitz gateway. See #4815
+bca3994 Adding all annotation wrappers to KNOWN_WRAPPERS. See #4815
+815e35c Removing listGroups() from blitz gateway. See #4815
+9858104 Removing getExperimenterGroups() from blitz gateway. See #4681
+1dfecf2 Blitz getObjects() has default ids=None, allowing getObjects(Project) etc. See #4681
+999ad14 Removing getExperimenters() from blitz gateway. See #4681
+d89a2a6 Removing getGroup() from blitz gateway. See #4681
+5aef070 Removing getAnnotation() from blitz gateway. See #4681
+b20f6ef Removing getAnnotations() from blitz gateway. See #4681
+d6b0789 Removing getPlate() from blitz gateway. See #4681
+622079a Removing getScreen() from blitz gateaway. See #4681
+dd7f517 Removing getImage() from blitz gateway. See #4681
+407eb6e Removing getDataset() from blitz gateway. See #4681
+8f65f7f Removing getProject() from blitz gateway. See #4681
+0067dc6 Adding findByAttribute functionality to blitz getObjects method. See #4677
+4258542 Adding deleteObjects(Project, ids) to blitz gateway. See #4678
+60e4bc7 Adding getAnnotationLinks method to blitz gateway. See #4680
+b49ac47 Blitz searchObjects() uses KNOWN_WRAPPERS. See #4758, #4679
+de05d86 Blitz getObjects() gets query string from wrappers themselves. See #4758
+a78aa80 Use KNOWN_WRAPPERS for wrapping in getObjects(). See #4758
+5d1e90e Updating uses of channelWrapper.getEmissionWave() to .getName() in blitz gateway. See #4686
+a74e974 getEmissionWave() now returns int or None. Fixes gatewaytest/rdefs.py RDefsTest. See #4686
+b81a6b4 Fixed import command in dbhelpers.py See #4686
+74118f9 Adding generic searchObjects(Project, text) method to blitz gateway. See #4679
+fe53b25 Modifying getObjects() to handle listObjects() with tests for Projects, Exp and Groups. Closes #4676
+a951074 Blitz gateway getObjects() handles ExperimenterGroups. See #4675
+660ea6e Updated blitz gateway getObjects() and getObject() to handle more obj_types. See #4675
+1efea90 Removed getValue(self) from blitz gateway. Closes #4609
+68c7baf Add BinningWrapper to blitz gateway to lazy load value. See #4609
+a47798e Fix bug in blitz gateway listOrphanedAnnotations(). Closes #4663. See #3649
+4768428 this fixes minor issue related to getChannels, close #4642
+64406db Removing duplicate self._proxies['thumbs'] line in blitz gateway. See #3649
+
+
+*** 2011-03-07 ***
+
+-- omeroweb.webgateway
+9ef1e8b455b9d00beaa6206ce58791cd894a4014 automated initial if image > 1024, see #4499
+(dev_4_1_custom: 34d3a33e200f5184baf563718cea6674fe6cc15d)
+-- omero.gateway
+f0e2fe8dab128001726f7f55bd0cbc9bf3214079 Fixed docs typo in gateway init.py See #3649
+(dev_4_1_custom: ca71bc04aea152057f25ea5ce66cb42f13524401)
+
+*** 2011-02-23  ***
+
+-- omeroweb.webgateway
+8cf7ea3cf0e9a43d27496d24b5808936fe0f2839 this solved the problem with saving rendering settings fixes #4408
+(dev_4_1_custom: ba7dc9a9b76a80c7cf44c0d1e473755122293873)
+-- omero.gateway
+779b2b5d6a5ae1a49c5bcd2f1d5e6f2c9307556d Fixing delete default options in blitz gateway to keep child & annotations by default. See #3649
+(dev_4_1_custom: 3eef1a9c59069101374694afecbcc6da814771b2)

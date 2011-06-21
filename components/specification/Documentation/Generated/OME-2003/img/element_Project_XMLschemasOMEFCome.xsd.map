@@ -1,0 +1,26 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Project_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_Description'
+  coords='263,0,396,42'
+  href='ome.xsd.html#element_Description'/>
+
+ <area
+  shape='rect'
+  alt='element_ExperimenterRef'
+  coords='263,52,424,78'
+  href='ome.xsd.html#element_ExperimenterRef'/>
+
+ <area
+  shape='rect'
+  alt='element_GroupRef'
+  coords='263,88,375,130'
+  href='ome.xsd.html#element_GroupRef'/>
+
+ <area
+  shape='rect'
+  alt='type_ProjectID'
+  coords='177,176,271,202'
+  href='ome.xsd.html#type_ProjectID'/>
+
+</map>

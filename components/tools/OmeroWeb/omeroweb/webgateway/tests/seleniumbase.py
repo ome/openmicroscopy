@@ -68,7 +68,7 @@ class SeleniumTestServer (object):
                     pass
             self.selenium = selenium(self.host, self.port, self.browser, self.url)
         self.selenium.start()
-        self.selenium.open("/%s/" % self.base)
+        self.selenium.open("/%s" % self.base)
         script = urllib2.urlopen("%s/appmedia/webgateway/js/3rdparty/jquery-1.3.2.js" % (self.url))
         r = script.read()
         self.selenium.run_script(r)

@@ -71,18 +71,6 @@ class LightSourceComponent
 	extends JPanel
 	implements PropertyChangeListener
 {
-
-	/** Identifies the Laser type. */
-	private static final String LASER_TYPE = "Laser";
-	
-	/** Identifies the Arc type. */
-	private static final String ARC_TYPE = "Arc";
-	
-	/** Identifies the Filament type. */
-	private static final String FILAMENT_TYPE = "Filament";
-	
-	/** Identifies the Emitting Diode type. */
-	private static final String EMITTING_DIODE_TYPE = "Light Emitting Diode";
 	
 	/** The fields displaying the metadata. */
 	private Map<String, DataComponent> 			fieldsLight;
@@ -138,22 +126,14 @@ class LightSourceComponent
 	}
 	
 	/**
-	 * Transforms the light metadata.
+	 * Transforms the light source.
 	 * 
 	 * @param kind 		The kind of light source.
 	 * @param details 	The value to transform.
 	 */
 	private void transformLightSource(String kind, Map<String, Object> details)
 	{
-		String title = "Light Source";
-		if (LightSourceData.LASER.equals(kind))
-			title = LASER_TYPE;
-		else if (LightSourceData.ARC.equals(kind))
-			title = ARC_TYPE;
-		else if (LightSourceData.FILAMENT.equals(kind))
-			title = FILAMENT_TYPE;
-		else if (LightSourceData.LIGHT_EMITTING_DIODE.equals(kind))
-			title = EMITTING_DIODE_TYPE;
+		String title = EditorUtil.getLightSourceType(kind);
 		setBorder(BorderFactory.createTitledBorder(title));
 		
 		DataComponent comp;
@@ -175,6 +155,7 @@ class LightSourceComponent
 		Set entrySet = details.entrySet();
 		Entry entry;
 		boolean set;
+		String v;
 		Iterator i = entrySet.iterator();
         while (i.hasNext()) {
         	entry = (Entry) i.next();
@@ -295,25 +276,24 @@ class LightSourceComponent
             if (value instanceof Number) {
             	area = UIUtilities.createComponent(NumericalTextField.class, 
             			null);
-            	if (value instanceof Double) 
+            	if (value instanceof Double) {
+            		v = ""+UIUtilities.roundTwoDecimals(
+            				((Number) value).doubleValue());
             		((NumericalTextField) area).setNumberType(Double.class);
-            	else if (value instanceof Float) 
+            	} else if (value instanceof Float) {
+            		v = ""+UIUtilities.roundTwoDecimals(
+            				((Number) value).doubleValue());
             		((NumericalTextField) area).setNumberType(Float.class);
-            	((NumericalTextField) area).setText(""+value);
+            	} else v = ""+value;
+            	((NumericalTextField) area).setText(v);
             	((NumericalTextField) area).setEditedColor(
             			UIUtilities.EDITED_COLOR);
             } else if (EditorUtil.PUMP.equals(key)) {
-            	boolean b = (Boolean) value;
             	area = UIUtilities.createComponent(OMETextArea.class, null);
-            	/*
-            	area = UIUtilities.createComponent(OMETextArea.class, null);
-            	if (value == null || value.equals("")) 
-                	value = AnnotationUI.DEFAULT_TEXT;
-            	 ((OMETextArea) area).setEditable(false);
-            	 ((OMETextArea) area).setText((String) value);
-            	 ((OMETextArea) area).setEditedColor(
-            			 UIUtilities.EDITED_COLOR);
-            			 */
+            	((OMETextArea) area).setEditable(false);
+            	((OMETextArea) area).setText((String) value);
+            	((OMETextArea) area).setEditedColor(
+            			UIUtilities.EDITED_COLOR);
             } else if (EditorUtil.MODEL.equals(key) || 
             		EditorUtil.MANUFACTURER.equals(key) ||
             		EditorUtil.SERIAL_NUMBER.equals(key) ||
@@ -323,10 +303,10 @@ class LightSourceComponent
             		set = false;
             		value = AnnotationUI.DEFAULT_TEXT;
             	}
-            	 ((OMETextArea) area).setEditable(false);
-            	 ((OMETextArea) area).setText((String) value);
-            	 ((OMETextArea) area).setEditedColor(
-            			 UIUtilities.EDITED_COLOR);
+            	((OMETextArea) area).setEditable(false);
+            	((OMETextArea) area).setText((String) value);
+            	((OMETextArea) area).setEditedColor(
+            			UIUtilities.EDITED_COLOR);
             }
             if (area != null) {
             	area.setEnabled(!set);
@@ -372,13 +352,13 @@ class LightSourceComponent
 
 		String selected = (String) lightTypeBox.getSelectedItem();
 		String kind = "";
-		if (LASER_TYPE.equals(selected))
+		if (EditorUtil.LASER_TYPE.equals(selected))
 			kind = LightSourceData.LASER;
-		else if (FILAMENT_TYPE.equals(selected))
+		else if (EditorUtil.FILAMENT_TYPE.equals(selected))
 			kind = LightSourceData.FILAMENT;
-		else if (ARC_TYPE.equals(selected))
+		else if (EditorUtil.ARC_TYPE.equals(selected))
 			kind = LightSourceData.ARC;
-		else if (EMITTING_DIODE_TYPE.equals(selected))
+		else if (EditorUtil.EMITTING_DIODE_TYPE.equals(selected))
 			kind = LightSourceData.LIGHT_EMITTING_DIODE;
 		
 		fieldsLight.clear();
@@ -407,10 +387,10 @@ class LightSourceComponent
 		laserPockelCellBox = EditorUtil.createComboBox(values);
 		
 		values = new String[5];
-		values[0] = ARC_TYPE;
-		values[1] = EMITTING_DIODE_TYPE;
-		values[2] = FILAMENT_TYPE;
-		values[3] = LASER_TYPE;
+		values[0] = EditorUtil.ARC_TYPE;
+		values[1] = EditorUtil.EMITTING_DIODE_TYPE;
+		values[2] = EditorUtil.FILAMENT_TYPE;
+		values[3] = EditorUtil.LASER_TYPE;
 		values[4] = AnnotationDataUI.NO_SET_TEXT;
 		lightTypeBox = EditorUtil.createComboBox(values);
 		/*

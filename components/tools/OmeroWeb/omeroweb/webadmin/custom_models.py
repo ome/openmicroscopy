@@ -68,6 +68,12 @@ class ServerObjects(object):
                     return b
         return None
     
+    def find(self, server_host):
+        for b in self.blitz_list:
+            if b.host == server_host:
+                return b
+        return None
+    
     def all(self):
         return self.blitz_list
 

@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -248,9 +249,11 @@ public class ManageRndSettingsAction
 				}
 				if (!(ho instanceof ImageData || ho instanceof DatasetData || 
 						ho instanceof PlateData || ho instanceof ScreenData ||
-						ho instanceof ProjectData))
+						ho instanceof ProjectData || 
+						ho instanceof PlateAcquisitionData))
 					setEnabled(false);
 				else {
+					
 					for (int i = 0; i < selected.length; i++) {
 						//if (model.isUserOwner(selected[i].getUserObject()))
 						if (model.isObjectWritable(selected[i].getUserObject()))
@@ -266,7 +269,8 @@ public class ManageRndSettingsAction
 					return;
 				}
 				if (!(ho instanceof ImageData || ho instanceof DatasetData ||
-						ho instanceof PlateData))
+						ho instanceof PlateData || 
+						ho instanceof PlateAcquisitionData))
 					setEnabled(false);
 				else {
 					for (int i = 0; i < selected.length; i++) {
@@ -283,7 +287,8 @@ public class ManageRndSettingsAction
 					return;
 				}
 				if (!(ho instanceof ImageData || ho instanceof DatasetData ||
-						ho instanceof PlateData))
+						ho instanceof PlateData || 
+						ho instanceof PlateAcquisitionData))
 					setEnabled(false);
 				else {
 					Object object;

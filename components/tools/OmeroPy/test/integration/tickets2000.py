@@ -11,6 +11,7 @@
 import unittest, time
 import integration.library as lib
 import omero
+from omero.rtypes import rstring, rtime, rlong, rint
 import omero_Constants_ice
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
@@ -413,6 +414,7 @@ class TestTickets2000(lib.ITest):
                 # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyGroupExperimenterMap()[0].parent), m.copyGroupExperimenterMap()[0].parent.id.val
 
     def test1163(self):
+        uuid = self.uuid()
         new_gr1 = self.new_group(perms="rw----")
         client_share1, new_exp_obj = self.new_client_and_user(new_gr1)
         update1 = client_share1.sf.getUpdateService()

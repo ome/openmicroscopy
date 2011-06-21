@@ -26,9 +26,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.Font;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -44,6 +47,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewOtherAction;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import pojos.ExperimenterData;
 
 
 /** 
@@ -178,6 +183,9 @@ class PopupMenu
 	/** The menu to open the file with third party. */
 	private JMenu				openWithMenu;
 	
+	/** Button to activate or not user. */
+    private JCheckBoxMenuItem   activatedUser;
+    
 	/**
 	 * Sets the defaults of the specified menu item.
 	 * 
@@ -352,6 +360,31 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.RESET_PASSWORD);
 				resetPassword = new JMenuItem(a);
 				initMenuItem(resetPassword, a.getActionName());
+				a = controller.getAction(TreeViewerControl.USER_ACTIVATED);
+				activatedUser = new JCheckBoxMenuItem();
+				TreeImageDisplay node = controller.getLastSelectedDisplay();
+				if (node != null) {
+					Object o = node.getUserObject();
+					if (o instanceof ExperimenterData) {
+						ExperimenterData exp = (ExperimenterData) o;
+						activatedUser.setSelected(exp.isActive());
+						if (exp.isActive()) {
+							activatedUser.setIcon(
+									icons.getIcon(IconManager.OWNER));
+						} else {
+							activatedUser.setIcon(
+								icons.getIcon(IconManager.OWNER_NOT_ACTIVE));
+						}
+					}
+					activatedUser.addItemListener(new ItemListener() {
+						
+						public void itemStateChanged(ItemEvent e) {
+							controller.activateUser();
+						}
+					});
+				}
+				activatedUser.setAction(a);
+				initMenuItem(activatedUser, a.getActionName());
 		}
 	}
 
@@ -415,6 +448,7 @@ class PopupMenu
 				add(addExistingElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(resetPassword);
+				add(activatedUser);
 				add(cutElement);
 				add(copyElement);
 				add(pasteElement);

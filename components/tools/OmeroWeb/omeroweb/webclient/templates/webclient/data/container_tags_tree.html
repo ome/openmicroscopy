@@ -2,33 +2,50 @@
 {% load markup %}
 {% load custom_tags %}
     
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
 
-{% if manager.t_size %}
-<ul class="simpleTree">
-    <li class="root" id='0'><img class="icon" src="{% url webstatic "images/tree/root.gif" %}" alt="root"/><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<ul>
+    <li id="experimenter-0" rel="experimenter"><a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</a>
+        {% if manager.t_size %}
         <ul>
             {% for t in manager.tags %}
             {% if t.ns %}
-            
-            <li id="tset-{{ t.id }}"><span {% if not t.isOwned %}{% if eContext.isLeader %}id="editonly"{% else %}id="readonly"{% endif %}{% else %}id="editonly"{% endif %}>{{ t.textValue|truncateafter:"35" }}</span>{% if not t.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ t.getOwner.getNameWithInitial }}"/>{% endif %}
-                <ul class="ajax">
-                    <li id='{{ t.id }}'>{url:{% url load_data_by_tag "tag" t.id %}?view=tree}</li>
+            <li id='tagset-{{ t.id }}' rel="tagset{% if not t.isOwned %}-locked{% endif %}" {% if t.countTagsInTagset %}class="jstree-closed"{% endif %}><a href="#">{{ t.textValue|truncatebefor:"35" }}</a>
+                {% if t.countTagsInTagset %}
+                <ul>    
+                    {% for d in t.listTagsInTagset %}
+                        <li id='tag-{{ d.id }}' rel="tag{% if not d.isOwned %}-locked{% endif %}" class="jstree-closed"><a href="#">{{ d.textValue|truncatebefor:"35" }}</a></li>
+                    {% endfor %}
                 </ul>
+                {% endif %}
             </li>
-            
             {% else %}
-            <li id="tag-{{ t.id }}"><span {% if not t.isOwned %}{% if eContext.isLeader %}id="editonly"{% else %}id="readonly"{% endif %}{% else %}id="editonly"{% endif %}>{{ t.textValue|truncateafter:"35" }}</span>{% if not t.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ t.getOwner.getNameWithInitial }}"/>{% endif %}
-                <ul class="ajax">
-                    <li id='{{ t.id }}'>{url:{% url load_data_by_tag "tag" t.id %}?view=tree}</li>
-                </ul>
-            </li>
+            <li id='tag-{{ t.id }}' rel="tag{% if not t.isOwned %}-locked{% endif %}" class="jstree-closed"><a href="#">{{ t.textValue|truncatebefor:"35" }}</a></li>
             {% endif %}
-            {% endfor %}
+            {% endfor %}            
         </ul>
+        {% endif %}
     </li>
 </ul>
-{% else %}
-    {% trans "No data." %}
-{% endif %}
-
-

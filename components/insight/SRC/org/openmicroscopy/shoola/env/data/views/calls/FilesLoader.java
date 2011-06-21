@@ -111,11 +111,9 @@ public class FilesLoader
                 OmeroMetadataService service = context.getMetadataService();
                 FileAnnotationData fa = (FileAnnotationData) 
                 	service.loadAnnotation(id);
-                Map<FileAnnotationData, File> m = 
-                	new HashMap<FileAnnotationData, File>();
                 File f = service.downloadFile(new File(fa.getFileName()), 
                 		fa.getFileID(), fa.getFileSize());
- 
+
                 result = f;
             }
         };
@@ -144,39 +142,7 @@ public class FilesLoader
             }
         };
     }
-    
-    /**
-     * Creates a {@link BatchCall} to download files previously loaded.
-     * 
-	 * @param files	The files to download.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall makeBatchCall(final Map<FileAnnotationData, File> files)
-    {
-        return new BatchCall("Downloading files.") {
-            public void doCall() throws Exception
-            {
-                OmeroMetadataService service = context.getMetadataService();
-                Map<FileAnnotationData, File> m = 
-                	new HashMap<FileAnnotationData, File>();
-                Entry entry;
-                FileAnnotationData fa;
-                File f ;
-                OriginalFile of;
-                Iterator i = files.entrySet().iterator();
-                while (i.hasNext()) {
-                	entry = (Entry) i.next();
-					fa = (FileAnnotationData) entry.getKey();
-					f = (File) entry.getValue();
-					of = ((FileAnnotation) fa.asAnnotation()).getFile();
-					service.downloadFile(f, of.getId().getValue(), 
-							of.getSize().getValue());
-				}
-                result = files;
-            }
-        };
-    }
-    
+
     /** 
      * Loads the specified file.
      * 
@@ -229,7 +195,7 @@ public class FilesLoader
     protected void buildTree()
     { 
     	if (files == null && loadCall != null) add(loadCall);
-    	else {
+    	else if (files != null) {
     		result = null;
     		Iterator i = files.entrySet().iterator();
     		Entry entry;

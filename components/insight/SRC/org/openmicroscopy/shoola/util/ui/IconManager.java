@@ -515,11 +515,20 @@ public class IconManager
     /** The <code>Ontology</code> icon. */
     public static final int	ONTOLOGY = 149;
     
+    /** The 32x32 <code>Error</code> icon. */
+    public static final int	ERROR_32 = 150;
+    
+    /** The 48x48 <code>Upload Script</code> icon. */
+    public static final int	 UPLOAD_SCRIPT_48 = 151;
+    
+    /** The <code>Upload Script</code> icon. */
+    public static final int	 UPLOAD_SCRIPT = 152;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 149;
+    private static int      MAX_ID = 152;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -664,7 +673,7 @@ public class IconManager
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[TAG_SET_OTHER_OWNER] = "nuvola_knotesRed_group16.png";
-        relPaths[GROUP] = "nuvola_personal16.png";
+        relPaths[GROUP] = "nuvola_kdmconfig16.png";//"nuvola_personal16.png";
         relPaths[ENCRYPTED_24] = "nuvola_encrypted_grey24.png";
         relPaths[DECRYPTED_24] = "nuvola_decrypted_grey24.png";
         relPaths[PERSONAL_96] ="nuvola_personal96.png";
@@ -672,12 +681,15 @@ public class IconManager
         relPaths[READ_GROUP] = "nuvola_ledorange_readOnly16.png";
         relPaths[READ_LINK_GROUP] = "nuvola_ledorange16.png";//"nuvola_ledorange_readLink16.png";
         relPaths[PUBLIC_GROUP] = "nuvola_ledgreen16.png";
-        
         relPaths[PRIVATE_GROUP_DD_12] = "nuvola_permission_private_dd12.png";
         relPaths[READ_GROUP_DD_12] = "nuvola_permission_readOnly_dd12.png";
         relPaths[READ_LINK_GROUP_DD_12] = "nuvola_permission_read_dd12.png";
         relPaths[PUBLIC_GROUP_DD_12] = "nuvola_permission_public_dd12.png";
         relPaths[ONTOLOGY] = "nuvola_ledorange_readOnly16.png";
+        relPaths[ERROR_32] = "nuvola_no32.png";
+        relPaths[UPLOAD_SCRIPT_48] = "nuvola_script_add48.png";
+        relPaths[UPLOAD_SCRIPT] = "nuvola_script_add16.png";
+
     }
 	
 	/**

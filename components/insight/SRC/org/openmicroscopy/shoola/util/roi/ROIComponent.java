@@ -24,12 +24,10 @@ package org.openmicroscopy.shoola.util.roi;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,9 +41,7 @@ import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
-import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.roi.io.ServerROIStrategy;
 import org.openmicroscopy.shoola.util.roi.io.XMLFileIOStrategy;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -56,13 +52,13 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationship;
 import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipList;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import pojos.ImageData;
 import pojos.ROIData;
+import pojos.ShapeSettingsData;
 
 /** 
  * The ROI Component is the main interface to the object which control the 
@@ -84,37 +80,6 @@ import pojos.ROIData;
 public class ROIComponent 
 	extends Component 
 {
-		
-	/** The default color of the text. */
-	private static final Color	TEXT_COLOR = IOConstants.DEFAULT_TEXT_COLOUR;
-
-	
-	/** The default color of the measurement text. */
-	private static final Color	MEASUREMENT_COLOR = 
-									IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR;
-	
-	/** The default color used to fill area. */
-	private static final Color	FILL_COLOR = IOConstants.DEFAULT_FILL_COLOUR;
-
-	/** The default color used to fill area alpha'ed. */
-	private static final Color	FILL_COLOR_ALPHA = 
-									IOConstants.DEFAULT_FILL_COLOUR_ALPHA;
-	
-	/** The default color of the text. */
-	private static final double	FONT_SIZE = IOConstants.DEFAULT_FONT_SIZE;
-
-	
-	/** The default width of the stroke. */
-	private static final double	STROKE_WIDTH = IOConstants.DEFAULT_STROKE_WIDTH;
-
-	/** The default color of the stroke. */
-	private static final Color	STROKE_COLOR = 
-		IOConstants.DEFAULT_STROKE_COLOUR;
-
-	
-	/** The default color of the stroke alpha'ed  to transparent. */
-	private static final Color	STROKE_COLOR_ALPHA = 
-										IOConstants.DEFAULT_STROKE_COLOUR_ALPHA;
 
 	/** The main object for storing and manipulating ROIs. */
 	private ROICollection				roiCollection;
@@ -138,23 +103,22 @@ public class ROIComponent
      */
     private void setFigureAttributes(ROIFigure fig)
     {
-    	AttributeKeys.FONT_SIZE.set(fig, FONT_SIZE);
-		AttributeKeys.TEXT_COLOR.set(fig, TEXT_COLOR);
-		AttributeKeys.STROKE_WIDTH.set(fig, STROKE_WIDTH);
-		MeasurementAttributes.SHOWID.set(fig, false);
-		if(fig instanceof MeasureLineFigure)
-			MeasurementAttributes.SHOWMEASUREMENT.set(fig, true);
-		else
-			MeasurementAttributes.SHOWMEASUREMENT.set(fig, false);
-		MeasurementAttributes.MEASUREMENTTEXT_COLOUR.set(fig, MEASUREMENT_COLOR);
-		DrawingAttributes.SHOWTEXT.set(fig, false);
-    	if (fig instanceof MeasurePointFigure) {
-    		AttributeKeys.FILL_COLOR.set(fig, FILL_COLOR_ALPHA);
-    		AttributeKeys.STROKE_COLOR.set(fig, STROKE_COLOR_ALPHA);
-    	} else {
-    		AttributeKeys.FILL_COLOR.set(fig, FILL_COLOR);
-    		AttributeKeys.STROKE_COLOR.set(fig, STROKE_COLOR);
-    	}
+    	AttributeKeys.FONT_SIZE.set(fig, new Double(
+    			ShapeSettingsData.DEFAULT_FONT_SIZE));
+		AttributeKeys.TEXT_COLOR.set(fig, 
+				ShapeSettingsData.DEFAULT_STROKE_COLOUR);
+		AttributeKeys.STROKE_WIDTH.set(fig, 
+				ShapeSettingsData.DEFAULT_STROKE_WIDTH);
+		MeasurementAttributes.SHOWID.set(fig, Boolean.valueOf(false));
+		MeasurementAttributes.SHOWMEASUREMENT.set(fig, 
+				Boolean.valueOf(fig instanceof MeasureLineFigure));
+		MeasurementAttributes.MEASUREMENTTEXT_COLOUR.set(fig, 
+				ShapeSettingsData.DEFAULT_STROKE_COLOUR);
+		DrawingAttributes.SHOWTEXT.set(fig, Boolean.valueOf(false));
+		AttributeKeys.FILL_COLOR.set(fig, 
+				ShapeSettingsData.DEFAULT_FILL_COLOUR);
+		AttributeKeys.STROKE_COLOR.set(fig, 
+				ShapeSettingsData.DEFAULT_STROKE_COLOUR);
     }
         
     /**
@@ -258,30 +222,6 @@ public class ROIComponent
 	 * @return See above.
 	 */
 	public double getMicronsPixelZ() { return units.getMicronsPixelZ(); }
-
-    /**
-     * Adds the specified figure to the display.
-     * 
-     * @param figure The figure to add.
-     * @param currentPlane The plane to add figure to.
-     * @return returns the newly created ROI. 
-     * @throws NoSuchROIException 
-     * @throws ROICreationException 
-     */
-    public ROI addROI(ROIFigure figure, Coord3D currentPlane)
-    	throws ROICreationException, NoSuchROIException
-    {
-    	if (figure == null) 
-    		throw new NullPointerException("Figure param null.");
-    	setFigureAttributes(figure);
-    	ROI roi = null;
-    	roi = createROI(figure, currentPlane);
-		if (roi == null) 
-			throw new ROICreationException("Unable to create ROI.");
-    	ROIShape shape = figure.getROIShape();
-    	setShapeAnnotations(shape);
-    	return roi;
-    }
     
     /**
      * Adds the specified figure to the display.
@@ -294,7 +234,8 @@ public class ROIComponent
      * @throws NoSuchROIException 
      * @throws ROICreationException 
      */
-    public ROI addROI(ROIFigure figure, Coord3D currentPlane, boolean addAttribs)
+    public ROI addROI(ROIFigure figure, Coord3D currentPlane, 
+    		boolean addAttribs)
     	throws ROICreationException, NoSuchROIException
     {
     	if (figure == null) 
@@ -491,12 +432,6 @@ public class ROIComponent
 		throws 	ROICreationException, NoSuchROIException
 	{
 		ROI newROI = roiCollection.createROI();
-		Map m = roiCollection.getROI(id).getAnnotation();
-		Iterator i = m.keySet().iterator();
-		while (i.hasNext()) {
-			AnnotationKey key = (AnnotationKey) i.next();
-			System.err.println(key.toString()+" "+m.get(key));
-		}
 		newROI.setAnnotations(roiCollection.getROI(id).getAnnotation());
 		return newROI;
 	}

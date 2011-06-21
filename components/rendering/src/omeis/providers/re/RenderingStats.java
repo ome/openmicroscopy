@@ -9,7 +9,6 @@ package omeis.providers.re;
 
 // Java imports
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 // Third-party libraries

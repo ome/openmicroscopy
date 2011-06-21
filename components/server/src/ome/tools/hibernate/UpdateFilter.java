@@ -130,6 +130,20 @@ public class UpdateFilter extends ContextFilter {
 
     }
 
+    /**
+     * Prevents CountPerOwner from being loaded unnecessarily.
+     * @see ticket:3978
+     */
+    @Override
+    public Map filter(String fieldId, Map m) {
+        if (fieldId != null && fieldId.endsWith("CountPerOwner")) {
+            beforeFilter(fieldId, m);
+            afterFilter(fieldId, m);
+            return m;
+        }
+        return super.filter(fieldId, m);
+    }
+
     // Helpers
     // =======================================================
 

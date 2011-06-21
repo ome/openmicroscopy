@@ -28,6 +28,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -76,7 +77,7 @@ public class EnumTemplate
 	private AttributeEditLine 			unitsEditor;
 	
 	/**
-	 * Initialises the UI components. 
+	 * Initializes the UI components. 
 	 */
 	private void initialise() {
 		
@@ -136,25 +137,26 @@ public class EnumTemplate
 	 * @param options	A comma-delimited list 
 	 * @return			The same list with duplicates removed. 
 	 */
-	private String removeDuplicates(String options) {
+	private String removeDuplicates(String options)
+	{
 		
 		if (options == null) return null;
 		
 		ArrayList<String> optionList = new ArrayList<String>();
 		
 		String[] ops = options.split(",");
-		String optionString = "";
 		String item;
-		for (int i=0; i<ops.length; i++) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0; i < ops.length; i++) {
 			item = ops[i].trim();
 			if (!optionList.contains(item)) {
 				optionList.add(item);	// simply to keep track of what we have
 				// build the string we will return...
-				if (optionString.length() > 0) optionString += ", ";
-				optionString = optionString + item;
+				if (buffer.length() > 0) buffer.append(", ");
+				buffer.append(item);
 			}
 		}
-		
+		String optionString = buffer.toString();
 		return optionString;
 	}
 	/**
@@ -203,7 +205,7 @@ public class EnumTemplate
 					
 				// have to change the default value, as well as
 				// the new options. 
-				HashMap<String,String> newAttributes = 
+				Map<String,String> newAttributes = 
 					new HashMap<String,String>();
 				newAttributes.put(TextParam.DEFAULT_VALUE, defaultValue);
 				newAttributes.put(TextParam.PARAM_VALUE, paramValue);
@@ -219,7 +221,7 @@ public class EnumTemplate
 				// simply change the new value of default attribute
 				attributeEdited(NumberParam.PARAM_UNITS, newUnits);
 			}
-			
 		}
 	}
+	
 }

@@ -1,0 +1,74 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_OME_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_Project'
+  coords='235,0,340,42'
+  href='ome.xsd.html#element_Project'/>
+
+ <area
+  shape='rect'
+  alt='element_Dataset'
+  coords='235,52,340,94'
+  href='ome.xsd.html#element_Dataset'/>
+
+ <area
+  shape='rect'
+  alt='element_Experiment'
+  coords='235,104,361,146'
+  href='ome.xsd.html#element_Experiment'/>
+
+ <area
+  shape='rect'
+  alt='element_Plate'
+  coords='235,156,326,198'
+  href='ome.xsd.html#element_Plate'/>
+
+ <area
+  shape='rect'
+  alt='element_Screen'
+  coords='235,208,333,250'
+  href='ome.xsd.html#element_Screen'/>
+
+ <area
+  shape='rect'
+  alt='element_Experimenter'
+  coords='235,260,375,302'
+  href='ome.xsd.html#element_Experimenter'/>
+
+ <area
+  shape='rect'
+  alt='element_Group'
+  coords='235,312,326,354'
+  href='ome.xsd.html#element_Group'/>
+
+ <area
+  shape='rect'
+  alt='element_Instrument'
+  coords='235,364,361,406'
+  href='ome.xsd.html#element_Instrument'/>
+
+ <area
+  shape='rect'
+  alt='element_Image'
+  coords='235,416,326,458'
+  href='ome.xsd.html#element_Image'/>
+
+ <area
+  shape='rect'
+  alt='element_SemanticTypeDefinitions'
+  coords='235,468,480,510'
+  href='STD.xsd.html#element_SemanticTypeDefinitions'/>
+
+ <area
+  shape='rect'
+  alt='element_AnalysisModuleLibrary'
+  coords='235,520,466,562'
+  href='AnalysisModule.xsd.html#element_AnalysisModuleLibrary'/>
+
+ <area
+  shape='rect'
+  alt='element_CustomAttributes'
+  coords='235,572,424,614'
+  href='CA.xsd.html#element_CustomAttributes'/>
+
+</map>

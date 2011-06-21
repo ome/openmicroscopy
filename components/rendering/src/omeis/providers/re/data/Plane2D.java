@@ -14,10 +14,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
-import ome.io.nio.PixelData;
+import ome.util.PixelData;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
-import omeis.providers.re.Renderer;
 
 /**
  * Allows to extract pixels intensity values from a given plane within a pixels
@@ -56,7 +55,7 @@ import omeis.providers.re.Renderer;
 public class Plane2D {
 
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(Renderer.class);
+    private static Log log = LogFactory.getLog(Plane2D.class);
 
     /** Contains the plane data. */
     private PixelData data;
@@ -94,8 +93,19 @@ public class Plane2D {
      */
     public Plane2D(PlaneDef pDef, Pixels pixels, PixelData data) {
         this.planeDef = pDef;
-        this.sizeX = pixels.getSizeX();
-        this.sizeY = pixels.getSizeY();
+        RegionDef region = pDef.getRegion();
+        if (region != null) {
+        	sizeX = region.getWidth();
+        	sizeY = region.getHeight();
+        } else {
+        	sizeX = pixels.getSizeX();
+            sizeY = pixels.getSizeY();
+        }
+        int stride = pDef.getStride();
+        if (stride < 0) stride = 0;
+        stride++;
+        sizeX = sizeX/stride;
+        sizeY = sizeY/stride;
         this.data = data;
 
         // Grab the pixel type from the pixels set
@@ -106,7 +116,7 @@ public class Plane2D {
         this.signed = PlaneFactory.isTypeSigned(type);
         this.slice = pDef.getSlice();
 
-        log.info("Created Plane2D with dimensions " + sizeX + "x" + sizeY + "x"
+        log.debug("Created Plane2D with dimensions " + sizeX + "x" + sizeY + "x"
                 + bytesPerPixel);
     }
 
@@ -167,7 +177,7 @@ public class Plane2D {
     {
     	return (slice == PlaneDef.XY);
     }
-    
+
     /**
      * Returns the pixel data that is used to back this Plane.
      * 

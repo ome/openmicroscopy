@@ -46,7 +46,6 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
@@ -1231,21 +1230,6 @@ class RendererModel
 	 * Renders the specified plane.
 	 * 
 	 * @param pDef The plane to render.
-	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
-	 */
-	BufferedImage renderPlane(PlaneDef pDef)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		return renderRegion(pDef, null);
-	}
-
-	/**
-	 * Renders the specified plane.
-	 * 
-	 * @param pDef The plane to render.
 	 * @param region The region to render, If <code>null</code> the plane 
 	 * 				 is rendered.
 	 * @return See above.
@@ -1253,11 +1237,11 @@ class RendererModel
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	BufferedImage renderRegion(PlaneDef pDef, Region region)
+	BufferedImage render(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndControl == null) return null;
-		return rndControl.renderRegion(pDef, region);
+		return rndControl.render(pDef);
 	}
 	
 	/**
@@ -1272,25 +1256,8 @@ class RendererModel
 	TextureData renderPlaneAsTexture(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		return renderRegionAsTexture(pDef, null);
-	}
-	
-	/**
-	 * Renders the specified plane.
-	 * 
-	 * @param pDef The plane to render.
-	 * @param region The region to render, If <code>null</code> the plane 
-	 * 				 is rendered.
-	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
-	 */
-	TextureData renderRegionAsTexture(PlaneDef pDef, Region region)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
 		if (rndControl == null) return null;
-		return rndControl.renderRegionAsTexture(pDef, region);
+		return rndControl.renderAsTexture(pDef);
 	}
 	
 	/**
@@ -1346,7 +1313,7 @@ class RendererModel
     	plane.z = getDefaultZ();
     	try {
     		if (rndControl == null) return null;
-    		return rndControl.renderRegion(plane, null, RenderingControl.LOW);
+    		return rndControl.render(plane, RenderingControl.LOW);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
@@ -1387,8 +1354,8 @@ class RendererModel
 	 */
 	boolean isBigImage()
 	{
-		return (getMaxX() > RenderingControl.MAX_SIZE/2 ||
-				getMaxY() > RenderingControl.MAX_SIZE/2);
+		if (rndControl == null) return false;
+		return rndControl.isBigImage();
 	}
 	
 	/**
@@ -1444,6 +1411,55 @@ class RendererModel
 			index = channel.getIndex();
 			setActive(index, index == bin);
 		}
+	}
+	
+	/**
+	 * Returns the dimension of a tile.
+	 * 
+	 * @return See above.
+	 */
+	Dimension getTileSize()
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (rndControl == null) return null;
+		return rndControl.getTileSize();
+	}
+	
+	/**
+	 * Returns the possible resolution levels. This method should only be used
+	 * when dealing with large images.
+	 * 
+	 * @return See above.
+	 */
+	int getResolutionLevels()
+	{
+		if (rndControl == null) return 1;
+		return rndControl.getResolutionLevels();
+	}
+	
+	/**
+	 * Returns the currently selected resolution level. This method should only 
+	 * be used when dealing with large images.
+	 * 
+	 * @return See above.
+	 */
+	int getSelectedResolutionLevel()
+	{
+		if (rndControl == null) return 0;
+		return rndControl.getSelectedResolutionLevel();
+	}
+	
+	/**
+	 * Sets resolution level. This method should only be used when dealing with
+	 * large images.
+	 * 
+	 * @param level The value to set.
+	 */
+	void setSelectedResolutionLevel(int level)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (rndControl == null) return;
+		rndControl.setSelectedResolutionLevel(level);
 	}
 	
 }

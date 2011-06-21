@@ -2,98 +2,175 @@
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
-	
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.selectable.js" %}"></script>
+
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/jquery.ui.selectable.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function(){
+
+            var datatree = $.jstree._focused();
+            
+            // double-click handler on image - launches image viewer
+            $("#dataIcons img").dblclick(function(event) {
+                openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id') )));
+            });
+
+            // single click handler on image (container). Selection then update toolbar & metadata pane
+            $("#dataIcons li").click(function(event) {
+                handleClickSelection(event);
+            });
+
+            // handles selection for 'clicks' (not drags) including multi-select for shift and meta keys
+            var handleClickSelection = function(event) {
+                
+                var $clickedImage = $(event.target);
+                //var thumbs = $("#dataIcons img");
+                //var selIndex = thumbs.index(event.target);
+                
+                var thumbs = $("#dataIcons img");
+                var primaryIndex = -1;
+                var lastSelected = datatree.data.ui.last_selected;
+                if (lastSelected) {
+                    primaryIndex = thumbs.index($('#'+lastSelected.attr('id').split('-')[1]).children().get(1));
+                }
+                var selIndex = thumbs.index(event.target);
+
+                if ( event.shiftKey ) {
+                    // user tried to select a range, but we don't have a first selection yet...
+                    //if ( primaryIndex == -1 ) {
+                    //    primaryIndex = selIndex;
+                    //    $clickedImage.parent().addClass("ui-selected");
+                    //    return;
+                    //}
+                    // select range
+                    //var start = Math.min(primaryIndex,selIndex);
+                    //var end = Math.max(primaryIndex,selIndex);
+                    //thumbs.slice(start, end+1).parent().addClass("ui-selected");
+                    
+                    var branch = datatree._get_children('#'+$('#content_details').attr('rel'));
+                    
+                    if ( primaryIndex == -1 ) {
+                        primaryIndex = selIndex;
+                        var selectee = $(branch[selIndex]);
+                        if(!datatree.is_selected(selectee)) {
+                            $clickedImage.parent().addClass("ui-selected");
+                            datatree.select_node(selectee);
+                        }
+                        return;
+                    }
+                        
+                    // select range
+                    var start = Math.min(primaryIndex,selIndex);
+                    var end = Math.max(primaryIndex,selIndex);
+                    
+                    thumbs.slice(start, end+1).parent().addClass("ui-selected");
+                    for (var i = start; i< end+1; i++) {
+                        var selectee = $(branch[i]);
+                        if(!datatree.is_selected(selectee)) datatree.select_node(selectee);
+                    }
+                    
+                }
+                else if (event.metaKey) {
+                    // user wants to add a single image to selection
+                    //if ( primaryIndex == -1 ) {
+                    //    primaryIndex = selIndex;
+                    //}
+                    //$clickedImage.parent().addClass("ui-selected");
+                    
+                    // user wants to add a single image to selection
+                    if ( primaryIndex == -1 ) {
+                        primaryIndex = selIndex;
+                    }
+                    
+                    var branch = datatree._get_children('#'+$('#content_details').attr('rel'))
+                    var selectee = $(branch[selIndex]);
+                    
+                    if(!datatree.is_selected(selectee)) {
+                        $clickedImage.parent().addClass("ui-selected");
+                        datatree.select_node(selectee);
+                    } else {
+                        $clickedImage.parent().removeClass("ui-selected");
+                        datatree.deselect_node(selectee);
+                    }
+                }
+                else {
+                    // regular click - remove selection
+                    //thumbs.parent().removeClass("ui-selected");
+                    //$("#dataIcons li input").each(function(){
+                    //    this.checked = false;
+                    //});
+                    // and select a single image
+                    //$clickedImage.parent().addClass("ui-selected");
+                    //primaryIndex = selIndex;
+                    datatree.deselect_all();
+                    thumbs.parent().removeClass("ui-selected");
+                    
+                    var branch = datatree._get_children('#'+$('#content_details').attr('rel'))
+                    var selectee = $(branch[selIndex]);
+                    $clickedImage.parent().addClass("ui-selected");
+                    if(!datatree.is_selected(selectee)) datatree.select_node(selectee);
+                    primaryIndex = selIndex;
+                    
+                }
+            }
+
+            // plugin to handle drag-select of images
             $("ul#dataIcons").selectable({
                 filter: 'li',
-            	stop: function(){
-            		var l = $('li.ui-selected img', this).length;
-            		var ro = 0;
-            		var eo = 0;
-            		$("li.ui-selected input", this).each(function(){
-            		    if($(this).parents('li:first').attr('class').indexOf("readonly") == 0) {
-                            ro++;
-                		} else if($(this).parents('li:first').attr('class').indexOf("editonly") == 0) {
-                            eo++;
-                   		}
-                   		this.checked = true;
-            		});
-            		if (l == 1) { 
-            		    var rel = $("div#content_details").attr('rel');
-            		    if(ro > 0) {
-            		        $("#toolbar").html('<input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-            		    } else if(eo > 0) {
-                            $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-                		} else {
-            		        if(rel=='orphaned') {
-                                $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-                            } else {
-                                $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink(\'dataset-{{ manager.dataset.id }}\');"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-                		    }
-            		    }
-            		    
-            		    $("#right_panel").show();
-                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-            		    $('li.ui-selected img', this).each(function(){  
-            		        var h = $(window).height()-169;
-                		    $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/metadata_details/image/'+this.id+'/" id="metadata_details" name="metadata_details"></iframe>');
-                            $('iframe#metadata_details').load();
-                        });
-            		} else {
-            		    var rel = $("div#content_details").attr('rel');
-            		    
-            		    if(ro > 0) {
-                            $("#toolbar").html('<input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-                            $("#right_panel").show();
-                            {% if not eContext.isReadOnly %}
-                                manyToAnnotation();
-                            {% else %}
-                                $("div#metadata_details").html('<p>{% trans "This is read-only group." %}</p>');
-                            {% endif %}
-                        } else if (eo > 0){
-                            $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-                            $("#right_panel").show();
-                            {% if not eContext.isReadOnly %}
-                                manyToAnnotation();
-                            {% else %}
-                                $("div#metadata_details").html('<p>{% trans "This is read-only group." %}</p>');
-                            {% endif %}
-                        } else {
-                            if(rel=='orphaned') {
-                                $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-                            } else {
-                                $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink(\'dataset-{{ manager.dataset.id }}\');"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-                            }
-                            $("#right_panel").show();
-                            manyToAnnotation();
-                        }
-            		}
-            	},
-            	start: function(){
-            		$("li input", this).each(function(){
-            			this.checked = false;
-            		});
-            	}
-            });            
+                distance: 2,
+                stop: function(){  
+                    var toSelect = new Array();
+                    $("li.ui-selected", this).each(function(i){
+                        toSelect[i] = "image-"+$(this).attr('id');
+                    });
+                    
+                    datatree.deselect_all();
+                    datatree._get_children('#'+$('#content_details').attr('rel')).each(function(){
+                        if($.inArray($(this).attr('id'),toSelect)!=-1) {
+                            if(!datatree.is_selected(this)) datatree.select_node(this);
+                        } 
+                    });
+                },
+                start: function(){
+                }
+            });
+            
+            
+
         });
-        
+
     </script>
 
 {% if manager.containers.images %}
 
     <div id="toolbar" class="toolbar_noborder">
-        <input onclick="changeView('table');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">
-    </div>
+        <input onclick="changeView('table');" class="button" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table"></div>
     <div class="clear"> </div>
         
     <ul id="dataIcons">
         {% for c in manager.containers.images %}
-        <li id="{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}><em>{{ c.name }}</em>
+        <li id="{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
             <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
-            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
         </li>
         {% endfor %}
     </ul>
@@ -101,7 +178,7 @@
     {% include "webclient/data/container_paging.html" %}
     
 {% else %}
-    <p>{% trans "No data." %}</p>
+    <p>{% trans "No images." %}</p>
 {% endif %}
 
 

@@ -81,15 +81,16 @@ public class TIFFFilter
 		extensions[2] = TF_2;
 		extensions[3] = TF_8;
 		extensions[4] = BTF;
-		
-		String s = "Tagged Image File Format (";
+
+		StringBuffer s = new StringBuffer();
+		s.append("Tagged Image File Format (");
 		for (int i = 0; i < extensions.length; i++) {
-			s += "*."+extensions[i];
+			s.append("*."+extensions[i]);
 			if (i < extensions.length-1)
-				s += ", ";
+				s.append(", ");
 		}
-		s += ")";
-		description = s;
+		s.append(")");
+		description = s.toString();
 	}
 	
 	/**

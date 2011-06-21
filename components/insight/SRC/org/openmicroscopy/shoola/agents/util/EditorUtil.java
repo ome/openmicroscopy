@@ -47,7 +47,6 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import omero.RDouble;
 import omero.model.PlaneInfo;
-
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.util.filter.file.CppFilter;
@@ -59,6 +58,8 @@ import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMEComboBoxUI;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.DataObject;
@@ -75,10 +76,12 @@ import pojos.LightSourceData;
 import pojos.ObjectiveData;
 import pojos.PermissionData;
 import pojos.PixelsData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.WellData;
+import pojos.WellSampleData;
 
 /** 
  * Collection of helper methods to format data objects.
@@ -95,6 +98,18 @@ import pojos.WellData;
  */
 public class EditorUtil 
 {
+	
+	/** Identifies the Laser type. */
+	public static final String LASER_TYPE = "Laser";
+	
+	/** Identifies the Arc type. */
+	public static final String ARC_TYPE = "Arc";
+	
+	/** Identifies the Filament type. */
+	public static final String FILAMENT_TYPE = "Filament";
+	
+	/** Identifies the Emitting Diode type. */
+	public static final String EMITTING_DIODE_TYPE = "Light Emitting Diode";
 	
 	/** The default value for the scale bar. */
 	public static final int		DEFAULT_SCALE = 5;
@@ -207,6 +222,9 @@ public class EditorUtil
     /** Identifies the <code>Timepoints</code> field. */
     public static final String 	TIMEPOINTS = "Number of timepoints";
 
+    /** Identifies the <code>Timepoints</code> field. */
+    public static final String 	CHANNELS = "Channels";
+    
     /** Identifies the <code>PixelType</code> field. */
     public static final String 	PIXEL_TYPE = "Pixel Type";
 
@@ -214,7 +232,16 @@ public class EditorUtil
     public static final String  NAME = "Name";
     
     /** Identifies the <code>Acquisition date</code> field. */
-    public static final String  ACQUISITION_DATE = "Acquisition date";
+    public static final String  ACQUISITION_DATE = "Acquired";
+    
+    /** Identifies the <code>Imported date</code> field. */
+    public static final String  IMPORTED_DATE = "Imported";
+    
+    /** Identifies the <code>XY Dimension</code> field. */
+    public static final String  XY_DIMENSION = "Dimensions (XY)";
+    
+    /** Identifies the <code>Z-sections/Timepoints</code> field. */
+    public static final String  Z_T_FIELDS = "z-sections/timepoints";
     
     /** Identifies the <code>Emission</code> field. */
     public static final String  EMISSION = "Emission";
@@ -370,6 +397,15 @@ public class EditorUtil
 	/** Identifies the unset fields. */
 	public static final String	NOT_SET = "NotSet";
 	
+    /** The text for the external identifier. */
+    public static final String	EXTERNAL_IDENTIFIER = "External Identifier";
+    
+    /** The text for the external description.*/
+    public static final String	EXTERNAL_DESCRIPTION = "External Description";
+    
+    /** The text for the external description.*/
+    public static final String	STATUS = "Status";
+    
 	/** The map identifying the pixels value and its description. */
 	public static final Map<String, String> PIXELS_TYPE_DESCRIPTION;
 	
@@ -416,7 +452,7 @@ public class EditorUtil
 	public static final int		MAX_FIELDS_OBJECTIVE = 11;
 	
 	/** The maximum number of fields for a laser. */
-	public static final int		MAX_FIELDS_LASER = 14;
+	public static final int		MAX_FIELDS_LASER = 15;
 	
 	/** The maximum number of fields for a filament and arc. */
 	public static final int		MAX_FIELDS_LIGHT = 7;
@@ -515,6 +551,57 @@ public class EditorUtil
 	private static final EditorFileFilter editorFilter = new EditorFileFilter();
 	
 	/**
+     * Returns the pixels size as a string.
+     * 
+     * @param details The map to convert.
+     * @return See above.
+     */
+    private static String formatPixelsSize(Map details)
+    {
+    	String x = (String) details.get(PIXEL_SIZE_X);
+    	String y = (String) details.get(PIXEL_SIZE_Y);
+    	String z = (String) details.get(PIXEL_SIZE_Z);
+    	Double dx = null, dy = null, dz = null;
+    	boolean number = true;
+    	NumberFormat nf = NumberFormat.getInstance();
+    	try {
+			dx = Double.parseDouble(x);
+		} catch (Exception e) {
+			number = false;
+		}
+		try {
+			dy = Double.parseDouble(y);
+		} catch (Exception e) {
+			number = false;
+		}
+		try {
+			dz = Double.parseDouble(z);
+		} catch (Exception e) {
+			number = false;
+		}
+		
+    	String label = "<b>Pixels Size (";
+    	String value = "";
+    	if (dx != null && dx.doubleValue() > 0) {
+    		value += nf.format(dx);
+    		label += "X";
+    	}
+    	if (dy != null && dy.doubleValue() > 0) {
+    		if (value.length() == 0) value += nf.format(dy);
+    		else value +="x"+nf.format(dy);
+    		label += "Y";
+    	}
+    	if (dz != null && dz.doubleValue() > 0) {
+    		if (value.length() == 0) value += nf.format(dz);
+    		else value +="x"+nf.format(dz);
+    		label += "Z";
+    	}
+    	label += ") ";
+    	if (value.length() == 0) return null;
+    	return label+MICRONS+": </b>"+value;
+    }
+    
+	/**
      * Rounds the value.
      * 
      * @param v The value to handle.
@@ -576,12 +663,14 @@ public class EditorUtil
             details.put(PIXEL_SIZE_X, "");
             details.put(PIXEL_SIZE_Y, "");
             details.put(PIXEL_SIZE_Z, "");
-            details.put(PIXEL_TYPE, "");  
+            details.put(PIXEL_TYPE, "");
+            details.put(CHANNELS, "");
         } else {
             details.put(SIZE_X, ""+data.getSizeX());
             details.put(SIZE_Y, ""+data.getSizeY());
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
+            details.put(CHANNELS, ""+data.getSizeC());
             try {
                 details.put(PIXEL_SIZE_X, ""+data.getPixelSizeX());
                 details.put(PIXEL_SIZE_Y, ""+data.getPixelSizeY());
@@ -755,10 +844,11 @@ public class EditorUtil
 		else if (object instanceof ProjectData)
 			counts = ((ProjectData) object).getAnnotationsCounts();
 		else if (object instanceof ImageData) {
-			counts = ((ImageData) object).getAnnotationsCounts();	
+			counts = ((ImageData) object).getAnnotationsCounts();
 			//tmp solution
 			if (counts == null || counts.size() <= 0) return false;
 			//if (counts.size() >= 1) return true;
+			/*
 			Iterator i = counts.entrySet().iterator();
 			long value = 0;
 			Entry entry;
@@ -768,12 +858,16 @@ public class EditorUtil
 			}
 			value = value-2;
 			return value > 0;
+			*/
+			return false;
 		} else if (object instanceof ScreenData)
-			counts = ((ScreenData) object).getAnnotationsCounts();	
+			counts = ((ScreenData) object).getAnnotationsCounts();
 		else if (object instanceof PlateData)
-			counts = ((PlateData) object).getAnnotationsCounts();	
+			counts = ((PlateData) object).getAnnotationsCounts();
 		else if (object instanceof WellData)
-			counts = ((WellData) object).getAnnotationsCounts();	
+			counts = ((WellData) object).getAnnotationsCounts();
+		else if (object instanceof PlateAcquisitionData)
+			counts = ((PlateAcquisitionData) object).getAnnotationsCounts();
 		if (counts == null || counts.size() <= 0) return false;
 		return true;
 	}
@@ -802,6 +896,8 @@ public class EditorUtil
 			counts = ((PlateData) object).getAnnotationsCounts();	
 		else if (object instanceof WellData)
 			counts = ((WellData) object).getAnnotationsCounts();
+		else if (object instanceof PlateAcquisitionData)
+			counts = ((PlateAcquisitionData) object).getAnnotationsCounts();
 		if (counts == null || counts.size() == 0) return false;
 		return counts.keySet().contains(userID);
 	}
@@ -830,6 +926,8 @@ public class EditorUtil
 			counts = ((PlateData) object).getAnnotationsCounts();	
 		else if (object instanceof WellData)
 			counts = ((WellData) object).getAnnotationsCounts();
+		else if (object instanceof PlateAcquisitionData)
+			counts = ((PlateAcquisitionData) object).getAnnotationsCounts();
 		if (counts == null || counts.size() == 0) return false;
 		Set set = counts.keySet();
 		if (set.size() > 1) return true;
@@ -902,10 +1000,9 @@ public class EditorUtil
     		return false;
     	if (!(ho instanceof DataObject)) return false;
     	DataObject data = (DataObject) ho;
-        PermissionData permissions = data.getPermissions();
         try {
         	if (userID == data.getOwner().getId())
-                return true; //permissions.isUserWrite();
+                return true; // data.getPermissions().isUserWrite();
 		} catch (Exception e) { //owner not loaded
 			return false;
 		}
@@ -975,7 +1072,7 @@ public class EditorUtil
     	if (f < 0) {
     		f = 0;
         	notSet.add(PIN_HOLE_SIZE);
-    	} else f = UIUtilities.roundTwoDecimals(f);
+    	};
         details.put(PIN_HOLE_SIZE, f);
         s = data.getFluor();
 		if (s == null || s.trim().length() == 0) 
@@ -1509,7 +1606,7 @@ public class EditorUtil
 		details.putAll(m);
 		details.put(ATTENUATION, new Double(0));
 		if (data == null) {
-			details.put(WAVELENGTH, new Integer(0));
+			details.put(WAVELENGTH, Integer.valueOf(0));
 			notSet.add(ATTENUATION);
         	notSet.add(WAVELENGTH);
         	details.put(NOT_SET, notSet);
@@ -1555,7 +1652,6 @@ public class EditorUtil
     	details.put(LIGHT_TYPE, "");
     	details.put(POWER, new Double(0));
     	details.put(TYPE, "");
-
     	if (data == null) {
     		notSet.add(MODEL);
     		notSet.add(MANUFACTURER);
@@ -1598,6 +1694,23 @@ public class EditorUtil
         details.put(TYPE, s); 
         s = data.getKind();
         if (LightSourceData.LASER.equals(s)) {
+        	LightSourceData pump = data.getLaserPump();
+        	if (pump != null) {
+        		String value = getLightSourceType(pump.getKind());
+        		s = pump.getLightSourceModel();
+        		if (s == null || s.trim().length() == 0) {
+        			s = pump.getManufacturer();
+        			if (s == null || s.trim().length() == 0) {
+        				s = pump.getSerialNumber();
+        				if (s == null || s.trim().length() == 0) {
+            				s = pump.getLotNumber();
+            			}
+        				if (s == null || s.trim().length() == 0)
+        					s = ""+pump.getId();
+        			}
+        		}
+        		details.put(PUMP, value+": "+s);
+        	} else notSet.add(PUMP);
         	s = data.getLaserMedium();
         	if (s == null || s.trim().length() == 0) 
     			notSet.add(MEDIUM);
@@ -1698,31 +1811,31 @@ public class EditorUtil
 		Double f = data.getGain();
 		double v = 0;
 		if (f == null) notSet.add(GAIN);
-		else v = UIUtilities.roundTwoDecimals(f);
+		else v = f.doubleValue();
 		details.put(GAIN, v);
     	f = data.getVoltage();
     	if (f == null) {
     		v = 0;
     		notSet.add(VOLTAGE);
-    	} else v = UIUtilities.roundTwoDecimals(f);
+    	} else v = f.doubleValue();
 		details.put(VOLTAGE, v);
 		f = data.getOffset();
 		if (f == null) {
 			v = 0;
 			notSet.add(OFFSET);
-		} else v = UIUtilities.roundTwoDecimals(f);
+		} else v = f.doubleValue();
 		details.put(OFFSET, v);
         f = data.getZoom();
         if (f == null) {
         	v = 0;
         	notSet.add(ZOOM);
-        } else v = UIUtilities.roundTwoDecimals(f);
+        } else v = f.doubleValue();
         details.put(ZOOM, v);
         f = data.getAmplificationGain();
         if (f == null) {
         	v = 0;
         	notSet.add(AMPLIFICATION);
-        } else v = UIUtilities.roundTwoDecimals(f);
+        } else v = f.doubleValue();
         details.put(AMPLIFICATION, v);
         s = data.getType();
         if (s == null || s.trim().length() == 0) 
@@ -1762,7 +1875,7 @@ public class EditorUtil
         Double f = data.getDetectorSettingsGain();
         
     	if (f != null)  {
-    		details.put(GAIN, UIUtilities.roundTwoDecimals(f));
+    		details.put(GAIN, f);
     		notSet.remove(GAIN);
     	}
     	
@@ -2011,4 +2124,150 @@ public class EditorUtil
     	return exp.getFirstName()+" "+exp.getLastName();
     }
     
+	/**
+	 * Returns the date.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	public static String formatDate(DataObject object)
+	{
+		String date = "";
+		Timestamp time = null;
+		if (object == null) return date;
+		if (object instanceof AnnotationData)
+			time = ((AnnotationData) object).getLastModified();
+		else if (object instanceof ImageData) 
+			time = getAcquisitionTime((ImageData) object);
+		else time = object.getCreated();
+		if (time != null) date = UIUtilities.formatShortDateTime(time);
+		return date;
+	}
+	
+    /**
+     * Formats the tooltip for an image.
+     * 
+     * @param object The object to handle.
+     * @return See above.
+     */
+    public static List<String> formatObjectTooltip(DataObject object)
+    {
+    	if (object == null) return null;
+    	if (!(object instanceof ImageData || object instanceof WellSampleData
+    		|| object instanceof PlateData || object instanceof WellData))
+    		return null;
+    	
+		List<String> l = new ArrayList<String>();
+		String v;
+		ImageData img = null;
+    	if (object instanceof ImageData) img = (ImageData) object;
+    	else if (object instanceof WellSampleData) {
+    		WellSampleData wsd = (WellSampleData) object;
+    		img = ((WellSampleData) object).getImage();
+    	} else if (object instanceof PlateData) {
+    		PlateData plate = (PlateData) object;
+    		v = plate.getPlateType();
+    		if (v != null && v.trim().length() > 0) {
+    			v = "<b>"+TYPE+": </b>"+v;
+    			l.add(v);
+    		}
+    		v = plate.getExternalIdentifier();
+    		if (v != null && v.trim().length() > 0) {
+    			v = "<b>"+EXTERNAL_IDENTIFIER+": </b>"+v;
+    			l.add(v);
+    		}
+    		v = plate.getStatus();
+    		if (v != null && v.trim().length() > 0) {
+    			v = "<b>"+STATUS+": </b>"+v;
+    			l.add(v);
+    		}
+    	} else if (object instanceof WellData) {
+    		WellData well = (WellData) object;
+    		/*
+    		PlateData plate = well.getPlate();
+    		if (plate != null) {
+    			v = plate.getPlateType();
+        		if (v != null && v.trim().length() > 0) {
+        			v = "<b>"+TYPE+": </b>"+v;
+        			l.add(v);
+        		}
+        		v = plate.getExternalIdentifier();
+        		if (v != null && v.trim().length() > 0) {
+        			v = "<b>"+EXTERNAL_IDENTIFIER+": </b>"+v;
+        			l.add(v);
+        		}
+        		v = plate.getStatus();
+        		if (v != null && v.trim().length() > 0) {
+        			v = "<b>"+STATUS+": </b>"+v;
+        			l.add(v);
+        		}
+    		}
+    		*/
+    		v = well.getWellType();
+    		if (v != null && v.trim().length() > 0) {
+    			v = "<b>"+TYPE+": </b>"+v;
+    			l.add(v);
+    		}
+    		v = well.getExternalDescription();
+    		if (v != null && v.trim().length() > 0) {
+    			v = "<b>"+EXTERNAL_IDENTIFIER+": </b>"+v;
+    			l.add(v);
+    		}
+    		v = well.getStatus();
+    		if (v != null && v.trim().length() > 0) {
+    			v = "<b>"+STATUS+": </b>"+v;
+    			l.add(v);
+    		}
+    	}
+    	if (img == null) return l;
+		v = "<b>"+ACQUISITION_DATE+": </b>"+formatDate(img);
+		l.add(v);
+		try {
+			v = "<b>"+IMPORTED_DATE+": </b>"+
+			UIUtilities.formatShortDateTime(img.getInserted());
+			l.add(v);
+		} catch (Exception e) {}
+		PixelsData data = null;
+    	try {
+			data = img.getDefaultPixels();
+		} catch (Exception e) {}
+		if (data == null) return l;
+		Map details = transformPixelsData(data);
+		v = "<b>"+XY_DIMENSION+": </b>";;
+		v += (String) details.get(SIZE_X);
+    	v += " x ";
+    	v += (String) details.get(SIZE_Y);
+    	l.add(v);
+    	v = "<b>"+PIXEL_TYPE+": </b>"+details.get(PIXEL_TYPE);
+    	l.add(v);
+    	v = formatPixelsSize(details);
+    	if (v != null) l.add(v);
+    	v = "<b>ZxTxC: </b>";
+    	v += (String) details.get(SECTIONS);
+    	v += " x ";
+    	v += (String) details.get(TIMEPOINTS);
+    	v += " x ";
+    	v += (String) details.get(CHANNELS);
+    	l.add(v);
+    	return l;
+    }
+    
+	/**
+	 * Returns the type of light source to handle.
+	 * 
+	 * @param kind The type of light source.
+	 * @return See above.
+	 */
+	public static String getLightSourceType(String kind)
+	{
+		if (LightSourceData.LASER.equals(kind))
+			return LASER_TYPE;
+		else if (LightSourceData.ARC.equals(kind))
+			return ARC_TYPE;
+		else if (LightSourceData.FILAMENT.equals(kind))
+			return FILAMENT_TYPE;
+		else if (LightSourceData.LIGHT_EMITTING_DIODE.equals(kind))
+			return EMITTING_DIODE_TYPE;
+		return "Light Source";
+	}
 }

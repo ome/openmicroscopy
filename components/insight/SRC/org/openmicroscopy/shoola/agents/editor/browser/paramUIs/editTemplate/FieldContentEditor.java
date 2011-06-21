@@ -44,7 +44,7 @@ import org.openmicroscopy.shoola.agents.editor.model.IField;
  * The Panel for editing the "Template" of each field.
  * This includes the Name, Description etc.
  * Also, this panel contains the components for template editing of 0, 1 or more 
- * parameters of the field. eg Default values, units etc. 
+ * parameters of the field e.g. Default values, units etc. 
  * This class extends {@link FieldParamEditor}, which allows editing of the 
  * Field Name and Parameters. This class adds the ability to edit the textual
  * content of the field, by adding a modified {@link FieldTextArea};
@@ -66,6 +66,14 @@ public class FieldContentEditor
 	 */
 	private JPanel 		descriptionPanel;
 	
+	/** Initializes the components. */
+	private void initialize()
+	{
+		descriptionPanel = new JPanel();
+		descriptionPanel.setBackground(null);
+		descriptionPanel.setLayout(new BorderLayout());
+	}
+	
 	/**
 	 * Creates an instance. 
 	 * Delegates to super-class, then adds a UI component for editing the
@@ -77,13 +85,16 @@ public class FieldContentEditor
 	 * @param controller	The BrowserControl for handling edits 
 	 */
 	public FieldContentEditor(IField field, JTree tree,
-			DefaultMutableTreeNode treeNode, BrowserControl controller) {
+			DefaultMutableTreeNode treeNode, BrowserControl controller)
+	{
 		super(field, tree, treeNode, controller);
 		
 		// This UI for description editing is created in constructor where 
 		// we have access to all required fields. 
 		// Then added to panel inserted by addParameters() (see below).
-		JPanel desc = new DescriptionTextArea(field, tree, treeNode, controller);
+		JPanel desc = new DescriptionTextArea(field, tree, treeNode, 
+				controller);
+		initialize();
 		descriptionPanel.add(desc, BorderLayout.CENTER);
 	}
 	
@@ -97,11 +108,8 @@ public class FieldContentEditor
 	 */
 	protected void addParameters() 
 	{
-		descriptionPanel = new JPanel();
-		descriptionPanel.setBackground(null);
-		descriptionPanel.setLayout(new BorderLayout());
+		initialize();
 		attributeFieldsPanel.add(descriptionPanel);
-		
 		super.addParameters();
 	}
 	
@@ -117,6 +125,16 @@ public class FieldContentEditor
 		extends FieldTextArea
 	{
 
+		/**
+		 * Creates an instance. 
+		 * Delegates to super-class, then adds a UI component for editing the
+		 * description content of this field. 
+		 * 
+		 * @param field		The Field to edit
+		 * @param tree		The JTree in which the field is displayed
+		 * @param treeNode	The node of the Tree which contains the field
+		 * @param controller	The BrowserControl for handling edits 
+		 */
 		public DescriptionTextArea(IField field, JTree tree,
 				DefaultMutableTreeNode treeNode, BrowserControl controller) {
 			super(field, tree, treeNode, controller);

@@ -320,18 +320,21 @@ public class CPEimport {
 				List<IXMLElement> enums = enumList.getChildrenNamed(ENUM);
 				// if enumeration options are "true" and "false", need a boolean...
 				if (enumsAreBoolean(enums)) {
-					param = FieldParamsFactory.getFieldParam(BooleanParam.BOOLEAN_PARAM);
+					param = FieldParamsFactory.getFieldParam(
+							BooleanParam.BOOLEAN_PARAM);
 					setNameValueDefault(cpeParam, param);
 				} else {
 					setNameValueDefault(cpeParam, param);
 					// enumerations
-					String enumOptions = "";
+					StringBuffer buffer = new StringBuffer();
 					for (IXMLElement e : enums) {
-						if (enumOptions.length() > 0)  enumOptions = enumOptions + ", ";
-						enumOptions = enumOptions + e.getContent();
+						if (buffer.length() > 0)  
+							buffer.append(", ");
+						buffer.append(e.getContent());
 					}
 					if (enums.size() > 0) {
-						param.setAttribute(EnumParam.ENUM_OPTIONS, enumOptions);
+						param.setAttribute(EnumParam.ENUM_OPTIONS, 
+								buffer.toString());
 					}
 					// units
 					String units = getChildContent(cpeParam, UNITS);

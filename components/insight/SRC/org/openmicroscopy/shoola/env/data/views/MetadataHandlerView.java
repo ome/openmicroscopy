@@ -33,7 +33,9 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.TabularDataLoader;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
@@ -408,5 +410,15 @@ public interface MetadataHandlerView
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadScript(long scriptID, AgentEventListener observer);
+
+	/**
+	 * Loads the specified tabular data.
+	 * 
+	 * @param parameters The parameters indicating the data to load.
+	 * @param userID The id of the experimenter or <code>-1</code>.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadTabularData(TableParameters parameters, long userID,
+			AgentEventListener observer);
 	
 }

@@ -1,4 +1,5 @@
 import omero
+import omero.clients
 import omero_Tables_ice
 import omero_api_IRoi_ice
 import omero_SharedResources_ice

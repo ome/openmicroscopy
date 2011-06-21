@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_IterateRange_SchemasCLI200809'>
+ <area
+  shape='rect'
+  alt='element_Start'
+  coords='298,0,417,26'
+  href='CLI.xsd.html#element_Start'/>
+
+ <area
+  shape='rect'
+  alt='element_End'
+  coords='298,36,403,62'
+  href='CLI.xsd.html#element_End'/>
+
+ <area
+  shape='rect'
+  alt='element_OutputTo'
+  coords='298,72,438,114'
+  href='CLI.xsd.html#element_OutputTo'/>
+
+</map>

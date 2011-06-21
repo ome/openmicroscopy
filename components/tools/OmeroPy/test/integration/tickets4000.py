@@ -16,7 +16,7 @@ from omero.rtypes import *
 
 class TestTickets4000(lib.ITest):
 
-    def test3138(self):
+    def Xtest3138(self):
         """
         Try multiple logins to see if they slow down
         """
@@ -180,6 +180,17 @@ class TestTickets4000(lib.ITest):
         admin.changePasswordWithOldPassword(rstring("ome"), rstring("ccc"))
         
         testLogin(omeName, "ccc")
+
+    def test3131(self):
+        _ = omero.rtypes.rstring
+        la = omero.model.LongAnnotationI()
+        la.ns = _(self.uuid())
+        la = self.update.saveAndReturnObject(la)
+        la.ns = _(self.uuid())
+        la = self.update.saveAndReturnObject(la)
+        la.ns = _(self.uuid())
+        la = self.update.saveAndReturnObject(la)
+        self.assertEquals(-1, la.details.updateEvent.session.sizeOfEvents())
 
 if __name__ == '__main__':
     unittest.main()

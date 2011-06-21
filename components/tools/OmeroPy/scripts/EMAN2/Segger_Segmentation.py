@@ -42,7 +42,6 @@ import os
 import numpy
 
 import omero
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.scripts as scripts
 from omero.rtypes import *
 import omero.util.script_utils as scriptUtil
@@ -191,7 +190,6 @@ def runSegger(session, parameterMap):
     """
     
     # create services we need 
-    gateway = session.createGateway()
     queryService = session.getQueryService()
     rawPixelStore = session.createRawPixelsStore()
     rawFileStore = session.createRawFileStore()
@@ -199,7 +197,7 @@ def runSegger(session, parameterMap):
     
     # required parameters
     imageId = long(parameterMap["Image_ID"])
-    image = gateway.getImage(imageId)
+    image = queryService.get("Image", imageId)
     threshold = parameterMap["Threshold"]
     
     # optional parameters

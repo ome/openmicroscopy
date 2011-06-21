@@ -44,9 +44,9 @@ import javax.swing.JSeparator;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
@@ -124,6 +124,9 @@ class GraphicsPane
     /** The Tasks pane, only visible if already viewed by others. */
     private JXTaskPane				viewedBy;
    
+    /** The preview tool bar. */
+    private PreviewToolBar			previewToolBar;
+    
     /**
 	 * Formats the specified value.
 	 * 
@@ -212,6 +215,7 @@ class GraphicsPane
         		j.next().setColumns(columns);
 			}
         }
+        previewToolBar = new PreviewToolBar(controller, model);
     }
     
     /** Builds and lays out the GUI. */
@@ -240,20 +244,22 @@ class GraphicsPane
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	content.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     	content.setLayout(new GridBagLayout());
-    	content.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     	GridBagConstraints c = new GridBagConstraints();
  		c.anchor = GridBagConstraints.WEST;
  		c.insets = new Insets(0, 2, 2, 0);
  		c.gridy = 0;
  		c.gridx = 0;
     	if (model.isGeneralIndex()) {
+    		content.add(previewToolBar, c);
+    		c.gridy++;
+    		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+    		c.fill = GridBagConstraints.HORIZONTAL;
     		content.add(new JSeparator(), c);
     		c.gridy++;
     	}
-   	 
    	 	content.add(controlsBar, c);
    	 	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-   	 	c.fill = GridBagConstraints.NONE;      //reset to default
+   	 	c.fill = GridBagConstraints.NONE;//reset to default
    	 	c.weightx = 0.0;  
    	 	
     	Iterator<ChannelSlider> i = sliders.iterator();
@@ -269,33 +275,7 @@ class GraphicsPane
 	 	content.add(viewedBy, c);
     	return content;
     }
-    
-    /** 
-     * Builds the UI component hosting the controls used to determine the
-     * input and output windows, and the histogram.
-     * 
-     * @return See above.
-     */
-    private JPanel buildGraphicsPane()
-    {
-    	 JPanel p = new JPanel();
-    	 p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	 int knobWidth = domainSlider.getSlider().getKnobWidth();
-    	 int knobHeight = domainSlider.getSlider().getKnobHeight();
-    	 int width = codomainSlider.getPreferredSize().width;
-    	 double size[][] =
-         {{width, (double) knobWidth/2, TableLayout.FILL, (double) knobWidth/2},  // Columns
-          {(double) knobHeight/2, TableLayout.FILL, (double) knobHeight/2, 
-        	 (double) knobHeight+2, TableLayout.PREFERRED, 5}}; // Rows
-    	 p.setLayout(new TableLayout(size));
-    	 p.add(codomainSlider, "0, 0, 0, 2");
-    	 p.add(uiDelegate, "2, 1");
-    	 p.add(domainSlider.getSlider(), "1, 3, 3, 3");
-    	 //if (!model.isGeneralIndex())
-    	 p.add(controlsBar, "0, 4, 3, 4");
-         return p;
-    }
- 
+
     /** 
      * Builds and lays out the slider.
      * 
@@ -310,64 +290,6 @@ class GraphicsPane
     	 return p;
     }
 
-    /**
-     * Builds and lays out the UI component hosting the text fields.
-     * 
-     * @return See above.
-     */
-    private JPanel buildFieldsControls()
-    {
-        JPanel p = new JPanel();
-        p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        double size[][] =
-        {{TableLayout.PREFERRED, 10, TableLayout.FILL},  // Columns
-         {TableLayout.PREFERRED, 5}}; // Rows
-   	 	p.setLayout(new TableLayout(size));
-   	 	JPanel panel = buildFieldsPanel("Min", minLabel, "Start", 
-   	 			domainSlider.getFieldComponent(TextualTwoKnobsSlider.START));
-   	 	p.add(panel, "0, 0");
-   	 	panel = buildFieldsPanel("Max", maxLabel, "End", 
-   	 		domainSlider.getFieldComponent(TextualTwoKnobsSlider.END));
-   	 	p.add(panel, "2, 0");
-   	 	
-   	 	JPanel content = new JPanel();
-   	 	content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-   	 	content.setBackground(UIUtilities.BACKGROUND_COLOR);
-   	 	content.add(p);
-        return content;
-    }
-    
-    /**
-     * Builds panel used to display the min/start pair or max/end pair.
-     * 
-     * @param txt1  The text associated to the global value.
-     * @param l     The label displaying the global value.
-     * @param txt2  The text associated to the interval bound.
-     * @param f     The component displaying the interval bound.
-     * @return  See above.
-     */
-    private JPanel buildFieldsPanel(String txt1, JLabel l, String txt2, 
-                                JComponent f)
-    {
-        JPanel p = new JPanel();
-        p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        double size[][] =
-        {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED},  // Columns
-         {TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; // Rows
-   	 	p.setLayout(new TableLayout(size));
-   	 	JLabel label =  new JLabel();
-   	 	label.setBackground(UIUtilities.BACKGROUND_COLOR);
-   	 	label.setText(txt1);
-   	 	p.add(label, "0, 0");
-   	 	p.add(l, "2, 0");
-   	 	label = new JLabel();
-   	 	label.setBackground(UIUtilities.BACKGROUND_COLOR);
-   	 	label.setText(txt2);
-   	 	p.add(label, "0, 2");
-   	 	p.add(f, "2, 2");
-        return p;
-    }
-    
     /**
      * Creates a new instance.
      * 
@@ -387,6 +309,12 @@ class GraphicsPane
         buildGUI();
     }
 
+    /** Sets the value of the selected plane.*/
+    void setSelectedPlane()
+    {
+    	if (previewToolBar != null) previewToolBar.setSelectedPlane();
+    }
+    
     /** Updates the controls when a new channel is selected. */
     void setSelectedChannel()
     {

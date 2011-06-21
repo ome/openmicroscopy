@@ -1,0 +1,14 @@
+#kc {
+	width: 1200px;
+	height: 600px;
+	border: 1px solid black;
+	background: black;
+}
+
+.kasuari {
+	overflow: hidden;
+}
+
+.kasuari .img {
+	position: absolute;
+}

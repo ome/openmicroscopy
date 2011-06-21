@@ -141,7 +141,8 @@ class TestParse(unittest.TestCase):
         inputs = {
             "Merged_Colours": wrap(['Red', 'Green']),
             "Image_Labels": wrap("Datasets"),
-            "Image_IDs": wrap([long(1)])
+            "Data_Type": wrap("Image"),
+            "IDs": wrap([long(1)])
         }
         errors = validate_inputs(params, inputs)
         self.assertEquals("", errors, errors)

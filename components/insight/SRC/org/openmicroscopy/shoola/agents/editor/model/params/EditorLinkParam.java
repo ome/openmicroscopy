@@ -73,8 +73,7 @@ public class EditorLinkParam
 	public static boolean isLinkValidId(String link) {
 		
 		try {
-			int integer = Integer.valueOf(link);
-			return true;
+			return Integer.valueOf(link) > 0;
 		} catch (NumberFormatException ex) {
 			
 			return false;

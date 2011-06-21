@@ -9,9 +9,13 @@
 """
 
 import unittest
+import traceback
 import integration.library as lib
 import omero
 import omero.callbacks
+import Ice
+import sys
+import os
 
 class TestDelete(lib.ITest):
 
@@ -242,7 +246,6 @@ class TestDelete(lib.ITest):
         update = self.client.sf.getUpdateService()
         store = self.client.sf.createRawFileStore()
         
-        from integration.helpers import createTestImage
         
         def _formatReport(delete_handle):
             """
@@ -259,8 +262,8 @@ class TestDelete(lib.ITest):
             
         images = list()
         for i in range(0,10):
-            iid = createTestImage(self.client.sf)
-            img = query.find('Image', iid)
+            img = self.createTestImage(session = self.client.sf)
+            iid = img.getId().getValue()
             
             oFile = omero.model.OriginalFileI()
             oFile.setName(omero.rtypes.rstring('companion_file.txt'));
@@ -284,7 +287,7 @@ class TestDelete(lib.ITest):
             l_ia = omero.model.ImageAnnotationLinkI()
             l_ia.setParent(img)
             l_ia.setChild(fa)
-            l_ia = update.saveAndReturnObject(l_ia);
+            l_ia = update.saveAndReturnObject(l_ia)
 
             images.append(iid)
             
@@ -313,5 +316,158 @@ class TestDelete(lib.ITest):
             print _formatReport(handle)
             callback.close()
 
+    def test3639(self):
+        uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
+        group = self.client.sf.getAdminService().getGroup(self.client.sf.getAdminService().getEventContext().groupId)
+        query = self.client.sf.getQueryService()
+        update = self.client.sf.getUpdateService()
+        
+        images = list()
+        for i in range(0,5):
+            img = self.createTestImage(session=self.client.sf)
+            images.append(img.id.val)
+        
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oids"] = omero.rtypes.rlist([omero.rtypes.rlong(s) for s in images])
+            
+        # create dataset
+        dataset = omero.model.DatasetI()
+        dataset.name = omero.rtypes.rstring('DS-test-2936-%s' % (uuid))
+        dataset = update.saveAndReturnObject(dataset)
+        
+        # put image in dataset
+        for iid in images:
+            dlink = omero.model.DatasetImageLinkI()
+            dlink.parent = omero.model.DatasetI(dataset.id.val, False)
+            dlink.child = omero.model.ImageI(iid, False)
+            update.saveAndReturnObject(dlink)
+        
+        
+        #log in as group owner:
+        client_o, owner = self.new_client_and_user(group=group,admin=True)
+        delete_o = client_o.sf.getDeleteService()
+        query_o = client_o.sf.getQueryService()
+        
+        
+        handlers = list()        
+        op = dict()
+        op["/Image"] = "KEEP"
+        dc = omero.api.delete.DeleteCommand('/Dataset', long(dataset.id.val), op)
+        handlers.append(str(delete_o.queueDelete([dc])))
+        
+        imageToDelete = images[2]
+        images.remove(imageToDelete)
+        dc2 = omero.api.delete.DeleteCommand('/Image', long(imageToDelete), {})
+        handlers.append(str(delete_o.queueDelete([dc2])))
+        
+        def _formatReport(delete_handle):
+            """
+            Added as workaround to the changes made in #3006.
+            """
+            delete_reports = delete_handle.report()
+            rv = []
+            for report in delete_reports:
+                if report.error:
+                    rv.append(report.error)
+                elif report.warning:
+                    rv.append(report.warning)
+            if len(rv) > 0:
+                return "; ".join(rv)
+            return None
+
+        failure = list();
+        in_progress = 0
+
+        while(len(handlers)>0):
+            for cbString in handlers:
+                try:
+                    handle = omero.api.delete.DeleteHandlePrx.checkedCast(client_o.ic.stringToProxy(cbString))
+                    cb = omero.callbacks.DeleteCallbackI(client_o, handle)
+                    if cb.block(500) is None: # ms.
+                        err = handle.errors()
+                        if err > 0:
+                            r = _formatReport(handle)
+                            if r is not None:
+                                failure.append(r)
+                            else:
+                                failure.append("No report!!!")
+                        else:
+                            print "in progress", _formatReport(handle)
+                            in_progress+=1
+
+                    else:
+                        err = handle.errors()
+                        if err > 0:
+                            r = _formatReport(handle)
+                            if r is not None:
+                                failure.append(r)
+                            else:
+                                failure.append("No report!!!")
+
+                        else:
+                            r = _formatReport(handle)
+                            if r is not None:
+                                failure.append(r)
+                            cb.close()
+                        handlers.remove(cbString)
+                except Ice.ObjectNotExistException:
+                    pass
+                except Exception, x:
+                    if r is not None:
+                        failure.append(traceback.format_exc())
+
+        if len(failure) > 0:
+            self.fail(";".join(failure))
+        self.assertEquals(None, query_o.find('Dataset', dataset.id.val))
+
+    def test5793(self):
+        uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
+        query = self.client.sf.getQueryService()
+        update = self.client.sf.getUpdateService()
+
+        img = omero.model.ImageI()
+        img.name = omero.rtypes.rstring("delete tagset test")
+        img.acquisitionDate = omero.rtypes.rtime(0)
+
+        tag = omero.model.TagAnnotationI()
+        tag.textValue = omero.rtypes.rstring("tag %s" % uuid)
+        tag = self.client.sf.getUpdateService().saveAndReturnObject( tag )
+
+        img.linkAnnotation( tag )
+        img = self.client.sf.getUpdateService().saveAndReturnObject( img )
+
+        tagset = omero.model.TagAnnotationI()
+        tagset.textValue = omero.rtypes.rstring("tagset %s" % uuid)
+        tagset.linkAnnotation(tag)
+        tagset = self.client.sf.getUpdateService().saveAndReturnObject( tagset )
+
+        tag = tagset.linkedAnnotationList()[0]
+
+        command = omero.api.delete.DeleteCommand("/Annotation", tagset.id.val, None)
+        handle = self.client.sf.getDeleteService().queueDelete([command])
+        callback = omero.callbacks.DeleteCallbackI(self.client, handle)
+        errors = None
+        count = 10
+
+        errs = []
+        while callback.block(500) is None: # ms.
+            delete_reports = handle.report()
+            for report in delete_reports:
+                if report.error:
+                    errs.append(report.error)
+                if report.warning:
+                    print report.warning
+
+        self.assertEquals([], errs)
+        self.assertEquals(None, query.find("TagAnnotation", tagset.id.val))
+        self.assertEquals(tag.id.val, query.find("TagAnnotation", tag.id.val).id.val)
+
+
 if __name__ == '__main__':
-    unittest.main()
+    if "TRACE" in os.environ:
+        import trace
+        tracer = trace.Trace(ignoredirs=[sys.prefix, sys.exec_prefix], trace=1)
+        tracer.runfunc(unittest.main)
+    else:
+        unittest.main()

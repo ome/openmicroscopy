@@ -34,6 +34,8 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -71,15 +73,14 @@ public interface AdminService
 	 * 
 	 * @param oldPassword	The password used to log in.
 	 * @param newPassword	The new password.
-	 * @return 	<code>Boolean.TRUE</code> if successfully modified,
-	 * 			<code>Boolean.FALSE</code> otherwise.
+	 * @return <code>true</code> if successfully modified,
+	 * 			<code>false</code> otherwise.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Boolean changePassword(String oldPassword, String newPassword)
 		throws DSOutOfServiceException, DSAccessException;
-	
 
 	/**
 	 * Updates the specified experimenter.
@@ -166,25 +167,6 @@ public interface AdminService
 	 */
 	public String getLoggingName();
 
-	/**
-	 * Returns the free or available space (in Kilobytes) if the passed
-	 * parameter is <code>FREE</code>, returns the used space (in Kilobytes) 
-	 * if the passed parameter is <code>USED</code> on the file system
-	 * including nested sub-directories. Returns <code>-1</code> 
-	 * otherwise.
-	 * 
-	 * @param index One of the following constants: {@link #USED} or 
-	 * 				{@link #FREE}.
-	 * @param id The identifier of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public long getSpace(int index, long id)
-		throws DSOutOfServiceException, DSAccessException;
-	
 	/**
 	 * Loads the group specified by the passed identifier or all available
 	 * groups if <code>-1</code>.
@@ -328,6 +310,19 @@ public interface AdminService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Activates or not the specified experimenters.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	public List<ExperimenterData> activateExperimenters(AdminObject object)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	
+	/**
 	 * Reloads the groups and experimenters for a group owners.
 	 * 
 	 * @param exp The owner of a group.
@@ -379,6 +374,20 @@ public interface AdminService
 	 */
 	public Object uploadUserPhoto(File f, String format, 
 			ExperimenterData experimenter)
+		throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Returns the disk space.
+	 * 
+	 * @param f The file to upload.
+	 * @param format The format of the file.
+	 * @param experimenter The experimenter to handle.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	public DiskQuota getQuota(Class type, long id)
 		throws DSOutOfServiceException, DSAccessException;
 
 }

@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_XYPlane_SchemasAnalysisModule200809'>
+ <area
+  shape='rect'
+  alt='element_theZ'
+  coords='436,214,786,257'
+  href='AnalysisModule.xsd.html#element_theZ'/>
+
+ <area
+  shape='rect'
+  alt='element_theT'
+  coords='436,267,786,310'
+  href='AnalysisModule.xsd.html#element_theT'/>
+
+ <area
+  shape='rect'
+  alt='element_theW'
+  coords='436,320,786,363'
+  href='AnalysisModule.xsd.html#element_theW'/>
+
+</map>

@@ -201,7 +201,8 @@ public class Entry {
                 // that doesn't need to add servants. Here "Indexer" could
                 // be replaced by omero.name or similar.
                 ic = Ice.Util.initialize(id);
-                Ice.ObjectAdapter oa = ic.createObjectAdapter("IndexerAdapter");
+                String adapterName = ctx.getBean("adapterName", String.class);
+                Ice.ObjectAdapter oa = ic.createObjectAdapter(adapterName);
                 oa.activate();
             }
             log.info(name + " now accepting connections.");

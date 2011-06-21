@@ -37,7 +37,6 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Displays the script.
@@ -93,6 +92,18 @@ public class ScriptMenuItem
 	
 	/** Flag indicating if the script has a built-in UI. */
 	private boolean		scriptWithUI;
+	
+	/**
+	 * Returns <code>true</code> if the script has a UI, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param path The path to check.
+	 * @return See above.
+	 */
+	public static boolean isScriptWithUI(String path)
+	{
+		return SCRIPTS_UI_AVAILABLE.contains(path);
+	}
 	
 	/**
 	 * Creates a new instance.

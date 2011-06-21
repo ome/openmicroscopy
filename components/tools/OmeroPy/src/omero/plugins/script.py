@@ -257,7 +257,7 @@ class ScriptControl(BaseControl):
 
         client = self.ctx.conn(args)
         admin = client.sf.getAdminService()
-        current_user = admin.getEventContext().userId
+        current_user = self.ctx._event_context.userId
         query = "select o from OriginalFile o where o.sha1 = '%s' and o.details.owner.id = %s" % (sha1, current_user)
         files = client.sf.getQueryService().findAllByQuery(query, None)
         if len(files) == 0:
@@ -388,8 +388,9 @@ class ScriptControl(BaseControl):
         client = self.ctx.conn(args)
         sf = client.sf
         svc = sf.getScriptService()
+        ec = self.ctx._event_context
         if args.who:
-            who = [self._parse_who(sf, w) for w in args.who]
+            who = [self._parse_who(w) for w in args.who]
             scripts = svc.getUserScripts(who)
             banner = "Scripts for %s" % ", ".join(args.who)
         else:
@@ -404,9 +405,15 @@ class ScriptControl(BaseControl):
     def params(self, args):
         client = self.ctx.conn(args)
         script_id, ofile = self._file(args, client)
+        import omero
         import omero_api_IScript_ice
         svc = client.sf.getScriptService()
-        job_params = svc.getParams(script_id)
+
+        try:
+            job_params = svc.getParams(script_id)
+        except omero.ResourceError, re:
+            self.ctx.die(455, "Could not get params: %s" % re.message)
+
         if job_params:
             self.ctx.out("")
             self.ctx.out("id:  %s" % script_id)
@@ -426,9 +433,19 @@ class ScriptControl(BaseControl):
                     self.ctx.out("    Optional: %s" % v.optional)
                     self.ctx.out("    Type: %s" % v.prototype.ice_staticId())
                     if isinstance(v.prototype, omero.RCollection):
-                        self.ctx.out("    Subtype: %s" % v.prototype.val[0].ice_staticId())
+                        coll = v.prototype.val
+                        if len(coll) == 0:
+                            self.ctx.out("    Subtype: (empty)")
+                        else:
+                            self.ctx.out("    Subtype: %s" % coll[0].ice_staticId())
+
                     elif isinstance(v.prototype, omero.RMap):
-                        self.ctx.out("    Subtype: %s" % v.prototype.val.values[0].ice_staticId())
+                        try:
+                            proto_value = v.prototype.val.values[0].ice_staticId()
+                        except:
+                            proto_value = None
+
+                        self.ctx.out("    Subtype: %s" % proto_value)
                     self.ctx.out("    Min: %s" % (v.min and v.min.val or ""))
                     self.ctx.out("    Max: %s" % (v.max and v.max.val or ""))
                     values = omero.rtypes.unwrap(v.values)
@@ -447,7 +464,7 @@ class ScriptControl(BaseControl):
         timeout = args.timeout
         client = self.ctx.conn(args)
         sf = client.sf
-        who = [self._parse_who(sf, w) for w in args.who]
+        who = [self._parse_who(w) for w in args.who]
         if not who:
             who = [] # Official scripts only
 
@@ -641,20 +658,20 @@ omero.pass=%(omero.sess)s
 
         return script_id, ofile
 
-    def _parse_who(self, sf, who):
+    def _parse_who(self, who):
         """
         Parses who items of the form: "user", "group", "user=1", "group=6"
         """
 
         import omero
         WHO_FACTORY  = {"user":omero.model.ExperimenterI, "group":omero.model.ExperimenterGroupI}
-        WHO_CURRENT = { "user":lambda sf: sf.getAdminService().getEventContext().userId,
-                        "group":lambda sf: sf.getAdminService().getEventContext().groupId}
+        WHO_CURRENT = { "user":lambda ec: ec.userId,
+                        "group":lambda ec: ec.groupId}
 
         for key, factory in WHO_FACTORY.items():
             if who.startswith(key):
                 if who == key:
-                    id = WHO_CURRENT[key](sf)
+                    id = WHO_CURRENT[key](self.ctx._event_context)
                     return factory(id, False)
                 else:
                     parts = who.split("=")

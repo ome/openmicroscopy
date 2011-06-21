@@ -1,0 +1,32 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Dataset_XMLschemasCARC1CA.xsd'>
+ <area
+  shape='rect'
+  alt='element_ProjectRef'
+  coords='263,0,389,42'
+  href='CA.xsd.html#element_ProjectRef'/>
+
+ <area
+  shape='rect'
+  alt='element_CustomAttributes'
+  coords='263,52,431,94'
+  href='CA.xsd.html#element_CustomAttributes'/>
+
+ <area
+  shape='rect'
+  alt='type_DatasetID'
+  coords='177,104,271,130'
+  href='ome.xsd.html#type_DatasetID'/>
+
+ <area
+  shape='rect'
+  alt='type_ExperimenterID'
+  coords='177,248,335,274'
+  href='ome.xsd.html#type_ExperimenterID'/>
+
+ <area
+  shape='rect'
+  alt='type_GroupID'
+  coords='177,284,286,310'
+  href='ome.xsd.html#type_GroupID'/>
+
+</map>

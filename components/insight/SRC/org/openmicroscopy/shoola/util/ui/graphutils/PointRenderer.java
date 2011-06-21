@@ -149,7 +149,7 @@ class PointRenderer
 	
 	/**
 	 * Returns the paint for an item. 
-	 * Overrides the default behaviou inherited from AbstractSeriesRenderer.
+	 * Overrides the default behavior inherited from AbstractSeriesRenderer.
 	 *
 	 * @param row  the series.
 	 * @param column  the category.
@@ -161,5 +161,3 @@ class PointRenderer
 	}
 	
 }
-
-

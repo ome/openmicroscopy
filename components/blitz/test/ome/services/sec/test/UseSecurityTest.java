@@ -41,7 +41,7 @@ import omero.util.IceMapper;
 
 import org.testng.annotations.Test;
 
-@Test(groups = { "ticket:337", "security", "integration" })
+@Test(enabled=false, groups = { "broken", "ticket:337", "security", "integration" })
 public class UseSecurityTest extends AbstractPermissionsTest {
 
     // unlike READ and WRITE tests, we don't need to repeat the tests for each
@@ -404,7 +404,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     }
 
     // TODO add to abstract class.
-    @Test(groups = "ticket:553")
+    @Test(enabled=false, groups = "ticket:553")
     public void test_U_Projects_O_Datasets_O_Link() throws Exception {
         ownsfA = u;
         ownerA = user;
@@ -505,7 +505,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     // ~ Other
     // ========================================================================
 
-    @Test
+    @Test(enabled=false)
     public void testNoLoadOnNonReadableProxy() throws Exception {
 
         Permissions USER_PRIVATE = new PermissionsI(ome.model.internal.Permissions.USER_PRIVATE.toString());
@@ -530,7 +530,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         }
     }
 
-    @Test(groups = "ticket:339")
+    @Test(enabled=false, groups = "ticket:339")
     public void test_HandlesExplicitPermissionReduction() throws Exception {
 
         prj = new ProjectI();

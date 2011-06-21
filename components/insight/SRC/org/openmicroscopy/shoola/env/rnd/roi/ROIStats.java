@@ -88,7 +88,7 @@ public class ROIStats
         if (t < 0 || dims.getSizeT().getValue() <= t) 
             throw new IllegalArgumentException(
                     "t out of range [0, "+dims.getSizeT()+"): "+t+".");
-        return new Integer(sizeZ*sizeC*t + sizeZ*w + z);
+        return Integer.valueOf(sizeZ*sizeC*t + sizeZ*w + z);
     }
     
     /**

@@ -54,6 +54,7 @@ public class TestCompositeTaskDone2
     
     protected void setUp()
     {
+    	super.setUp();
         target = new CompositeTask();  //In ADDING state.
         target.add(new NullMultiStepTask());  //Its isDone always returns TRUE.
         target.add(new NullMultiStepTask());

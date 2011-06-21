@@ -8,9 +8,9 @@
 {% block content %}
 <div class='bottom-header'>
     <!-- TODO: handle multiple parents -->
-    {% if dataset.listParents %}
+    {% if dataset.getParent %}
     <div id='bottom-header-left'> 
-        <a href="{% url webmobile_project dataset.listParents.id %}">Project: {{ dataset.listParents.getName }}</a>
+        <a href="{% url webmobile_project dataset.getParent.id %}">Back to Project: {{ dataset.getParent.getName }}</a>
     </div>
     {% endif %}
     <div id='bottom-header-right'>

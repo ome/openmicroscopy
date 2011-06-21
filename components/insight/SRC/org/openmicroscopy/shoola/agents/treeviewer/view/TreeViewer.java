@@ -32,7 +32,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -269,12 +268,22 @@ public interface TreeViewer
 	Browser getSelectedBrowser();
 
 	/**
+	 * Returns the {@link Browser} displayed when the application is first
+	 * launched. This should not be <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	Browser getDefaultBrowser();
+	
+	/**
 	 * Sets the currently selected {@link Browser} or <code>null</code>
 	 * if no {@link Browser} is selected.
 	 * 
-	 * @param browser The currently selected {@link Browser}.
+	 * @param browser 	The selected {@link Browser}.
+	 * @param activate 	Passed <code>true</code> to activate the browser,
+	 * 					<code>false</code> otherwise.
 	 */
-	void setSelectedBrowser(Browser browser);
+	void setSelectedBrowser(Browser browser, boolean activate);
 
 	/**
 	 * Queries the current state.
@@ -879,19 +888,6 @@ public interface TreeViewer
 	 */
 	void setUserGroup(GroupData group);
 
-	/**
-	 * Displays the passed viewer in the working area.
-	 * 
-	 * @param viewer	The viewer to display.
-	 * @param controls 	Reference to the controls.
-	 * @param toAdd  	Pass <code>true</code> to add the component, 
-	 * 				 	<code>false</code> otherwise.
-	 * @param toDetach 	Pass <code>true</code> to detach the viewer, 
-	 * 					<code>false</code> otherwise.
-	 */
-	void displayViewer(JComponent viewer, JComponent controls, boolean toAdd,
-			boolean toDetach);
-
 	/** Opens the image in a separate window or in the main viewer. */
 	void setFullScreen();
 
@@ -907,12 +903,20 @@ public interface TreeViewer
 
 	/**
 	 * Returns <code>true</code> if the currently logged in user is 
-	 * a leader of the selected group, <code>false</code>.
+	 * a leader of the selected group, <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
 	public boolean isLeaderOfSelectedGroup();
 
+	/**
+	 * Returns <code>true</code> if the currently logged in user is 
+	 * a leader of the specified group, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isLeaderOfGroup(GroupData group);
+	
 	/** 
 	 * Manages the passed object.
 	 * 
@@ -981,11 +985,21 @@ public interface TreeViewer
 	 * 
 	 * @param importing The value to set.
 	 * @param containers The containers that need to be refreshed.
-	 * @param refreshTree Flag to indicate that the tree has to be refreshed.
+	 * @param refresh Pass <code>true</code> to mark the node to refresh,
+	 * <code>false</code> otherwise.
 	 */
 	void setImporting(boolean importing, List<DataObject> containers, boolean
-			refreshTree);
+			refresh);
 
+	/**
+	 * Marks the passed nodes.
+	 * 
+	 * @param containers The containers that need to be refreshed.
+	 * @param refresh Pass <code>true</code> to mark the node to refresh,
+	 * <code>false</code> otherwise.
+	 */
+	void indicateToRefresh(List<DataObject> containers, boolean refresh);
+	
 	/**
 	 * Browses the specified container.
 	 * 
@@ -993,5 +1007,12 @@ public interface TreeViewer
 	 * @param node The node hosting the object to browse or <code>null</code>.
 	 */
 	void browseContainer(Object data, Object node);
+
+	/**
+	 * Activates the user or de-activates the user.
+	 * 
+	 * @param exp The experimenter to handle.
+	 */
+	void activateUser(ExperimenterData exp);
 	
 }

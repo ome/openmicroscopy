@@ -22,14 +22,8 @@ import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
 
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-
 /**
  * Responsible for holding onto {@link Session} instances for optimized login.
- * 
- * Receives notifications as an {@link ApplicationListener}, which should be
- * used to keep the {@link Session} instances up-to-date.
  * 
  * {@link SessionManager} implementations should strive to be only in-memory
  * representations of the database used as a performance optimization. When
@@ -39,7 +33,7 @@ import org.springframework.context.ApplicationListener;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public interface SessionManager extends ApplicationListener {
+public interface SessionManager {
 
     /**
      * 
@@ -174,9 +168,20 @@ public interface SessionManager extends ApplicationListener {
     EventContext getEventContext(Principal principal)
             throws RemovedSessionException;
 
-    java.util.List<String> getUserRoles(String uuid);
+    /**
+     * Similar to {@link #getEventContext(Principal)} but uses the internal
+     * reload logic to get a fresh representation of the context. This queries
+     * all of the user management tables (experimenter, experimentergroup, etc)
+     * and so should not be used anywhere in a critical path.
+     *
+     * @param uuid non null.
+     * @return
+     * @throws RemovedSessionException If the uuid does not exist.
+     */
+    EventContext reload(String uuid)
+            throws RemovedSessionException;
 
-    void onApplicationEvent(ApplicationEvent event);
+    java.util.List<String> getUserRoles(String uuid);
 
     /**
      * Executes a password check using the {@link Executor} framework. Also

@@ -123,7 +123,7 @@ class BrowserUI
     /**
      * An alternative way of viewing the treeModel, resembling a text document.
      * Contains text-components corresponding to each node of the tree, but
-     * not organised hierarchically. 
+     * not organized hierarchically. 
      */
     private TextAreasView 			textView;
     
@@ -131,7 +131,7 @@ class BrowserUI
     private MetadataUI 				metadataUI;
 
     /**
-     * Initialises the JTrees for this UI.
+     * Initializes the JTrees for this UI.
      */
     private void createTrees() 
     {
@@ -142,8 +142,6 @@ class BrowserUI
     	textView = new TextAreasView(navTree, controller, browser);
     	
     	metadataUI = new MetadataUI(this, model.getTreeModel(), controller);
-    	
-    	
 		ToolTipManager.sharedInstance().registerComponent(treeDisplay);
 		ToolTipManager.sharedInstance().registerComponent(navTree);
     }
@@ -221,22 +219,7 @@ class BrowserUI
         
         add(leftSplitPane, BorderLayout.CENTER);
     }
-    
-    /**
-     * Sets the visibility of the {@link #editorPanel} and the properties of
-     * the {@link rightSplitPane}, in which it is displayed. 
-     * 
-     * @param visible		True if the editorPanel should be visible.
-     */
-    private void showFieldEditor(boolean visible) 
-    {
-    	if (editorPanel != null) {
-    		editorPanel.setVisible(visible);
-    	}
-    	rightSplitPane.setDividerSize(visible ? 9 : 0);
-    	rightSplitPane.setDividerLocation(visible ? 0.7 : 1.0);
-    }
-    
+
     /**
      * Sets the viewing mode in the controller, according to the currently 
      * displayed tab in the tabbed pane. 

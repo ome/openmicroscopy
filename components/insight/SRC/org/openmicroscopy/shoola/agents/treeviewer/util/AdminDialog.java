@@ -258,7 +258,6 @@ public class AdminDialog
 		if (GroupData.class.equals(type)) setTitle(TITLE_GROUP);
 		else if (ExperimenterData.class.equals(type)) 
 			setTitle(TITLE_EXPERIMENTER);
-		else new IllegalArgumentException("Type not supported/");
 	}
 	
 	/** 
@@ -272,12 +271,14 @@ public class AdminDialog
 		TitlePanel tp = null;
 		if (GroupData.class.equals(type)) {
 			tp = new TitlePanel(getTitle(), TEXT_GROUP, 
-					icons.getIcon(IconManager.PERSONAL_48));
+					icons.getIcon(IconManager.OWNER_GROUP_48));
 		} else if (ExperimenterData.class.equals(type)) {
 			String text = TEXT_EXPERIMENTER;
+			/*
 			if (parent instanceof GroupData) {
 				text += ((GroupData) parent).getName();
 			}
+			*/
 			tp = new TitlePanel(getTitle(), text, 
 					icons.getIcon(IconManager.OWNER_48));
 		}
@@ -377,8 +378,11 @@ public class AdminDialog
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		if (ENABLE_SAVE_PROPERTY.equals(name)) {
+		if (ExperimenterPane.EXPERIMENTER_ENABLE_SAVE_PROPERTY.equals(name)) {
 			save.setEnabled((Boolean) evt.getNewValue());
+		} else if (ENABLE_SAVE_PROPERTY.equals(name)) {
+			if (body instanceof GroupPane)
+				save.setEnabled((Boolean) evt.getNewValue());
 		}
 	}
 	

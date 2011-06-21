@@ -314,15 +314,17 @@ public class ImViewerFactory
 			Iterator i = instances.iterator();
 			ImViewerComponent comp;
 			Object o;
+			List<Long> ids = new ArrayList<Long>();
 			while (i.hasNext()) {
 				o = i.next();
 				if (o instanceof ImViewerComponent) {
 					comp = (ImViewerComponent) o;
 					comp.close(false);
 					singleton.viewers.remove(comp);
-					singleton.recentViewers.remove(comp);
+					ids.add(comp.getModel().getImageID());
 				}
 			}
+			removeRecentViewers(ids);
 		}
 	}
 	
@@ -373,6 +375,26 @@ public class ImViewerFactory
 		if (value != null && value.trim().length() > 0) 
 			return Integer.parseInt(value);
 		return -1;
+	}
+	
+	/**
+	 * Removes the viewers from the list of viewers recently opened.
+	 * 
+	 * @param ids The identifiers of the viewers.
+	 */
+	private static void removeRecentViewers(List<Long> ids)
+	{
+		if (ids == null || ids.size() == 0) return;
+		Iterator<ImViewerRecentObject> j = singleton.recentViewers.iterator();
+		ImViewerRecentObject recent;
+		List<ImViewerRecentObject> 
+			toRemove = new ArrayList<ImViewerRecentObject>();
+		while (j.hasNext()) {
+			recent = j.next();	
+			if (ids.contains(recent.getImageID()))
+				toRemove.add(recent);
+		}
+		singleton.recentViewers.removeAll(toRemove);
 	}
 	
 	/** All the tracked components. */
@@ -481,7 +503,9 @@ public class ImViewerFactory
 		ImViewerComponent comp = (ImViewerComponent) ce.getSource(); 
 		if (comp.getState() == ImViewer.DISCARDED) {
 			viewers.remove(comp);
-			recentViewers.remove(comp);
+			List<Long> ids = new ArrayList<Long>();
+			ids.add(comp.getModel().getImageID());
+			removeRecentViewers(ids);
 		}
 	}
 

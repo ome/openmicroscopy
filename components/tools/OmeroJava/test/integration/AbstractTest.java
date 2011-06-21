@@ -7,13 +7,22 @@
 package integration;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
@@ -54,6 +63,7 @@ import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.w3c.dom.Document;
 
 
 /**
@@ -66,8 +76,23 @@ public class AbstractTest
 	extends TestCase
 {
 
+	/** Path the schema language. */
+	public static final String JAXP_SCHEMA_LANGUAGE = 
+		"http://java.sun.com/xml/jaxp/properties/schemaLanguage";
+
+	/** W3C. */
+	public static final String W3C_XML_SCHEMA = 
+		"http://www.w3.org/2001/XMLSchema";
+
+	/** The source. */
+	public static final String JAXP_SCHEMA_SOURCE = 
+		"http://java.sun.com/xml/jaxp/properties/schemaSource";
+
     /** The OME-XML format. */
     public static final String OME_FORMAT = "ome";
+    
+    /** The OME-XML format. */
+    public static final String OME_XML_FORMAT = "ome.xml";
 
     /** Identifies the <code>system</code> group. */
 	public String SYSTEM_GROUP = "system";
@@ -330,7 +355,9 @@ public class AbstractTest
         e.setOmeName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("integeration"));
         e.setLastName(omero.rtypes.rstring("tester"));
-        rootAdmin.createUser(e, group.getName().getValue());
+        long id = rootAdmin.createUser(e, group.getName().getValue());
+        e = rootAdmin.getExperimenter(id);
+        rootAdmin.addGroups(e, Arrays.asList(group));
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
         return init(client);
@@ -376,6 +403,9 @@ public class AbstractTest
         IAdminPrx rootAdmin = root.getSession().getAdminService();
         rootAdmin.setGroupOwner(new ExperimenterGroupI(ec.groupId, false),
                 new ExperimenterI(ec.userId, false));
+
+        disconnect();
+        init(ec); // Create new session with the added privileges
     }
 
     /**
@@ -405,6 +435,14 @@ public class AbstractTest
         iDelete = null;
         mmFactory = null;
         importer = null;
+    }
+
+    /**
+     */
+    protected EventContext init(EventContext ec) throws Exception {
+        omero.client c = newOmeroClient();
+        c.createSession(ec.userName, "");
+        return init(c);
     }
 
     /**
@@ -511,6 +549,7 @@ public class AbstractTest
 		sb.append("select well from Well as well ");
 		sb.append("left outer join fetch well.plate as pt ");
 		sb.append("left outer join fetch well.wellSamples as ws ");
+		sb.append("left outer join fetch ws.plateAcquisition as pa ");
 		sb.append("left outer join fetch ws.image as img ");
 		if (pixels) {
 			sb.append("left outer join fetch img.pixels as pix ");
@@ -532,6 +571,7 @@ public class AbstractTest
         long id = p.getImage().getId().getValue();
         String sql = "select ws from WellSample as ws ";
         sql += "join fetch ws.well as w ";
+        sql += "left outer join fetch ws.plateAcquisition as pa ";
         sql += "join fetch w.plate as p ";
         sql += "left outer join fetch p.screenLinks sl ";
         sql += "left outer join fetch sl.parent s ";
@@ -635,7 +675,7 @@ public class AbstractTest
      * @param file The file to import.
      * @param format The format of the file to import.
      * @return The collection of imported pixels set.
-     * @throws Exception Thrown if an error occurred while encoding the image.
+     * @throws Throwable Thrown if an error occurred while encoding the image.
      */
     protected List<Pixels> importFile(File file, String format, boolean metadata)
         throws Throwable
@@ -651,7 +691,7 @@ public class AbstractTest
 	 * @param file The file to import.
 	 * @param format The format of the file to import.
 	 * @return The collection of imported pixels set.
-	 * @throws Exception Thrown if an error occurred while encoding the image.
+	 * @throws Throwable Thrown if an error occurred while encoding the image.
 	 */
 	protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
 			File file, String format)
@@ -670,7 +710,7 @@ public class AbstractTest
 	 * @param metadata Pass <code>true</code> to only import the metadata,
 	 *                 <code>false</code> otherwise.
 	 * @return The collection of imported pixels set.
-	 * @throws Exception Thrown if an error occurred while encoding the image.
+	 * @throws Throwable Thrown if an error occurred while encoding the image.
 	 */
 	protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
 			File file, String format, boolean metadata)
@@ -779,7 +819,8 @@ public class AbstractTest
      * @throws ServerError
      * @throws InterruptedException
      */
-    private DeleteReport[] deleteWithReports(IDeletePrx proxy, omero.client c, DeleteCommand...dc)
+    private DeleteReport[] deleteWithReports(IDeletePrx proxy, omero.client c, 
+    		DeleteCommand...dc)
     throws ApiUsageException, ServerError,
     InterruptedException
     {
@@ -809,4 +850,54 @@ public class AbstractTest
         }
         return handle.report();
     }
+    
+    /**
+     * Transforms the input file using the specified stylesheet.
+     * 
+     * @param input  The file to transform.
+     * @param output The destination file.
+     * @param xslt   The stylesheet to use.
+     * @throws Exception Thrown if an error occurred while encoding the image.
+     */
+    protected void transformFile(File input, File output, File xslt)
+    	throws Exception
+    {
+    	if (input == null) 
+    		throw new IllegalArgumentException("No file to transform.");
+    	if (output == null) 
+    		throw new IllegalArgumentException("No destination file.");
+    	if (xslt == null) 
+    		throw new IllegalArgumentException("No stylesheet provided.");
+    	TransformerFactory factory = TransformerFactory.newInstance();
+		Transformer transformer = factory.newTransformer(
+				new StreamSource(xslt));
+		StreamResult result = new StreamResult(new FileOutputStream(output));
+		transformer.transform(new StreamSource(input), result);
+    }
+    
+    /**
+     * Parses the specified file and returns the document.
+     * 
+     * @param file The file to parse.
+     * @param schema The schema used to validate the specified file.
+     * @return
+     * @throws Exception Thrown if an error occurred while encoding the image.
+     */
+    protected Document parseFile(File file, File schema)
+    	throws Exception
+    {
+    	if (file == null) 
+    		throw new IllegalArgumentException("No file to parse.");
+    	DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    	if (schema != null) {
+    		dbf.setValidating(true);   
+			dbf.setNamespaceAware(true);
+			dbf.setAttribute(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
+	        // Set the schema file
+	        dbf.setAttribute(JAXP_SCHEMA_SOURCE, schema);
+    	}
+		DocumentBuilder builder = dbf.newDocumentBuilder();
+		return builder.parse(file);
+    }
+    
 }

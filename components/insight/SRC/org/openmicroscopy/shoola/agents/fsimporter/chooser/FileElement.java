@@ -29,8 +29,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 //Third-party libraries
+import org.apache.commons.io.FileUtils;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
  * Hosts information about the file to import.
@@ -47,19 +50,125 @@ import java.util.List;
  */
 class FileElement
 {
-
+	
 	/** The file to host. */
 	private File file;
 	
 	/** The name of the imported file. */
 	private String name;
 	
-	/** Creates a new instance. */
-	FileElement(File file)
+	/** The size of the file. */
+	private long length;
+	
+	/** 
+	 * Flag indicating that it is allowed to modify the container location.
+	 * The value will only be taken into account if the object is a file.
+	 */
+	private boolean toggleContainer;
+	
+	/** The type when the file was added.*/
+	private int type;
+	
+	/**
+	 * Determines the length of the directory depending on the actual
+	 * level reached and the scanning depth.
+	 * 
+	 * @param file	The directory to scan.
+	 * @param depth The scanning depth set in configuration.
+	 * @param level The level reached. 
+	 */
+	private void determineLength(File file, int depth, int level)
+	{
+		if (file.isFile()) length += file.length();
+		else {
+			if (level == depth) return;
+			level++;
+			File[] files = file.listFiles();
+			if (files != null) {
+				for (int i = 0; i < files.length; i++) {
+					determineLength(files[i], depth, level);
+				}
+			}
+			
+		}
+	}
+	
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param file The file to import.
+	 * @param type The type of container when the file was added.
+	 */
+	FileElement(File file, int type)
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file set");
 		this.file = file;
+		length = -1;
+		this.type = type;
+		if (type == Importer.SCREEN_TYPE)
+			this.toggleContainer = false;
+	}
+	
+	/**
+	 * Sets to <code>true</code> if the container can be modified, 
+	 * <code>false</code> otherwise. The value will only be taken into account
+	 * if the object is a file.
+	 * 
+	 * @param toggleContainer The value to set.
+	 */
+	void setToggleContainer(boolean toggleContainer)
+	{
+		this.toggleContainer = toggleContainer;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the container can be modified, 
+	 * <code>false</code> otherwise. The value will only be taken into account
+	 * if the object is a file.
+	 * 
+	 * @return See above.
+	 */
+	boolean isToggleContainer()
+	{ 
+		if (type == Importer.SCREEN_TYPE) return false;
+		return toggleContainer; 
+	}
+	
+	/**
+	 * Returns the type associated to that element.
+	 * 
+	 * @return See above.
+	 */
+	int getType() { return type; }
+	
+	/**
+	 * Returns the length of the file
+	 * 
+	 * @return See above.
+	 */
+	long getFileLength()
+	{
+		if (length > 0) return length;
+		if (file.isFile()) {
+			length = file.length();
+		} else { 
+			length = FileUtils.sizeOfDirectory(file);
+			//determineLength(file, ImporterAgent.getScanningDepth(), 0);
+		}
+		return length;
+	}
+	
+	/**
+	 * Returns the length of the file in as a formatted string.
+	 * 
+	 * @return See above.
+	 */
+	String getFileLengthAsString()
+	{
+		long l = getFileLength();
+		if (l <= 0) return "--";
+		return UIUtilities.formatFileSize(l);
 	}
 	
 	/**

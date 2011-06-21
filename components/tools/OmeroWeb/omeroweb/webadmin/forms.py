@@ -28,16 +28,19 @@ from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.forms.widgets import HiddenInput
 
+from omeroweb.custom_forms import NonASCIIForm
+
 from custom_forms import ServerModelChoiceField, \
         GroupModelChoiceField, GroupModelMultipleChoiceField, \
         ExperimenterModelChoiceField, ExperimenterModelMultipleChoiceField, \
         DefaultGroupField, OmeNameField
+from custom_widgets import DefaultGroupRadioSelect
 
 
 #################################################################
 # Non-model Form
 
-class LoginForm(forms.Form):
+class LoginForm(NonASCIIForm):
     
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
@@ -52,17 +55,17 @@ class LoginForm(forms.Form):
         
         self.fields.keyOrder = ['server', 'username', 'password', 'ssl']
             
-    username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22, 'autocomplete': 'off'}))
+    username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22, 'autocomplete': 'off'}))
     ssl = forms.BooleanField(required=False, label="SSL")  
 
-class ForgottonPasswordForm(forms.Form):
+class ForgottonPasswordForm(NonASCIIForm):
     
     server = ServerModelChoiceField(settings.SERVER_LIST.all(), empty_label=u"---------")
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':28, 'autocomplete': 'off'}))
     email = forms.EmailField(widget=forms.TextInput(attrs={'size':28, 'autocomplete': 'off'}))
 
-class ExperimenterForm(forms.Form):
+class ExperimenterForm(NonASCIIForm):
 
     def __init__(self, name_check=False, email_check=False, *args, **kwargs):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
@@ -70,7 +73,7 @@ class ExperimenterForm(forms.Form):
         self.email_check=email_check 
         
         try:
-            self.fields['default_group'] = DefaultGroupField(choices=kwargs['initial']['default'], widget=forms.RadioSelect(), required=True, label="Groups")
+            self.fields['default_group'] = DefaultGroupField(choices=kwargs['initial']['default'], widget=DefaultGroupRadioSelect(), required=True, label="Groups")
             self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['others'], initial=kwargs['initial']['others'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
         except:
             self.fields['default_group'] = forms.ChoiceField(choices=list(), widget=forms.RadioSelect(), required=True, label="Groups")
@@ -114,7 +117,7 @@ class ExperimenterForm(forms.Form):
             raise forms.ValidationError('This email already exist.')
         return self.cleaned_data.get('email')
 
-class GroupForm(forms.Form):
+class GroupForm(NonASCIIForm):
     
     PERMISSION_CHOICES = (
         ('0', 'Private'),
@@ -153,7 +156,7 @@ class GroupOwnerForm(forms.Form):
     permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group. That action might increase the time of upgrading group and break the server.</div>")
     readonly = forms.BooleanField(required=False, label="(read-only)")  
 
-class MyAccountForm(forms.Form):
+class MyAccountForm(NonASCIIForm):
         
     def __init__(self, email_check=False, *args, **kwargs):
         super(MyAccountForm, self).__init__(*args, **kwargs)
@@ -178,7 +181,7 @@ class MyAccountForm(forms.Form):
         return self.cleaned_data.get('email')
 
 
-class ContainedExperimentersForm(forms.Form):
+class ContainedExperimentersForm(NonASCIIForm):
 
     def __init__(self, *args, **kwargs):
         super(ContainedExperimentersForm, self).__init__(*args, **kwargs)
@@ -200,10 +203,11 @@ class UploadPhotoForm(forms.Form):
             raise forms.ValidationError('Photo size file cannot be greater them 200KB.')
         return self.cleaned_data.get('photo') 
 
-class ChangeUserPassword(forms.Form):
+class ChangePassword(NonASCIIForm):
     
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
     confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
+    old_password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
     
     def clean_confirmation(self):
         if self.cleaned_data.get('password') or self.cleaned_data.get('confirmation'):
@@ -212,23 +216,14 @@ class ChangeUserPassword(forms.Form):
             if self.cleaned_data.get('password') != self.cleaned_data.get('confirmation'):
                 raise forms.ValidationError('Passwords do not match')
             else:
-                return self.cleaned_data.get('password')
-
-
-class ChangeMyPassword(ChangeUserPassword):
+                return self.cleaned_data.get('password')    
     
-    def __init__(self, *args, **kwargs):
-        super(ChangeMyPassword, self).__init__(*args, **kwargs)
-        self.fields.keyOrder = ['old_password', 'password', 'confirmation']
-        
-    old_password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
-    
-class EnumerationEntry(forms.Form):
+class EnumerationEntry(NonASCIIForm):
     
     new_entry = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
 
 
-class EnumerationEntries(forms.Form):
+class EnumerationEntries(NonASCIIForm):
     
     def __init__(self, entries, *args, **kwargs):
         super(EnumerationEntries, self).__init__(*args, **kwargs)        

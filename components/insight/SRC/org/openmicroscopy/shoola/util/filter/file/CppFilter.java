@@ -64,14 +64,15 @@ public class CppFilter
 		extensions = new String[2];
 		extensions[0] = CPP;
 		extensions[01] = CC;
-		String s = "C++ (";
+		StringBuffer s = new StringBuffer();
+		s.append("C++ (");
 		for (int i = 0; i < extensions.length; i++) {
-			s += "*."+extensions[i];
+			s.append("*."+extensions[i]);
 			if (i < extensions.length-1)
-				s += ", ";
+				s.append(", ");
 		}
-		s += ")";
-		description = s;
+		s.append(")");
+		description = s.toString();
 	}
 	
 	/**

@@ -409,8 +409,8 @@ class AcquisitionDataUI
 	Boolean convertToBoolean(String value)
 	{
 		if (value == null) return null;
-		if (BOOLEAN_YES.equals(value)) return Boolean.TRUE;
-		else if (BOOLEAN_NO.equals(value)) return Boolean.FALSE;
+		if (BOOLEAN_YES.equals(value)) return Boolean.valueOf(true);
+		else if (BOOLEAN_NO.equals(value)) return Boolean.valueOf(false);
 		return null;
 	}
 	
@@ -422,13 +422,15 @@ class AcquisitionDataUI
 		channelComps.clear();
 		if (channels != null) {
 			ChannelData channel;
-			Iterator i = channels.keySet().iterator();
+			Iterator i = channels.entrySet().iterator();
 			ChannelAcquisitionComponent comp;
 			JXTaskPane p;
+			Entry entry;
 			while (i.hasNext()) {
-				channel = (ChannelData) i.next();
+				entry = (Entry) i.next();
+				channel = (ChannelData) entry.getKey();
 				comp = new ChannelAcquisitionComponent(this, model, channel);
-				comp.setChannelColor((Color) channels.get(channel)); 
+				comp.setChannelColor((Color) entry.getValue()); 
 				p = EditorUtil.createTaskPane(DEFAULT_CHANNEL_TEXT+
 						channel.getChannelLabeling());
 				p.setIcon(comp.getIcon());
@@ -581,6 +583,11 @@ class AcquisitionDataUI
 	/** Lays out the companion files if any. */
 	void layoutCompanionFiles()
 	{
+		boolean b = model.getOriginalMetadata() == null ||
+			!MetadataViewerAgent.isBinaryAvailable();
+		originalMetadataPane.setVisible(!b);
+		if (b) 
+			originalMetadataPane.setCollapsed(true);
 		Collection list = model.getCompanionFiles();
 		if (list == null || list.size() == 0) {
 			companionFilesPane.setVisible(false);

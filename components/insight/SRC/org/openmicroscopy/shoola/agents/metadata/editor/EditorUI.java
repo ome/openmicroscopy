@@ -50,9 +50,11 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -65,6 +67,7 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.TextualAnnotationData;
 import pojos.WellSampleData;
 
 /** 
@@ -243,12 +246,11 @@ class EditorUI
     	setDataToSave(false);
     	boolean add = true;
     	if (uo instanceof ExperimenterData)  {
-    		
 			//if (current.getId() == exp.getId()) {
-				toolBar.buildUI();
-	    		userUI.buildUI();
-	    		userUI.repaint();
-	    		component = userTabbedPane; 
+    		toolBar.buildUI();
+    		userUI.buildUI();
+    		userUI.repaint();
+    		component = userTabbedPane; 
 			//} else add = false;
     	} else if (uo instanceof GroupData) {
     		toolBar.buildUI();
@@ -274,6 +276,7 @@ class EditorUI
     void setParentRootObject()
     {
     	generalPane.setParentRootObject();
+    	userUI.setParentRootObject();
     }
     
     /** Updates display when the new root node is set. */
@@ -387,6 +390,12 @@ class EditorUI
 			return;
 		} else if  (model.getRefObject() instanceof GroupData) {
 			AdminObject o = groupUI.getAdminObject();
+			if (o == null) {
+				saved = false;
+				setCursor(Cursor.getDefaultCursor());
+				toolBar.setDataToSave(true);
+				return;
+			}
 			model.fireAdminSaving(o, async);
 			return;
 		}
@@ -474,9 +483,9 @@ class EditorUI
 	/**
 	 * Sets the disk space information.
 	 * 
-	 * @param space The value to set.
+	 * @param quota The value to set.
 	 */
-	void setDiskSpace(List space) { userUI.setDiskSpace(space); }
+	void setDiskSpace(DiskQuota quota) { userUI.setDiskSpace(quota); }
 
 	/**
 	 * Handles the expansion or collapsing of the passed component.
@@ -530,18 +539,21 @@ class EditorUI
 		generalPane.attachFiles(files);
 		saveData(true);
 	}
-
+	
 	/**
-	 * Removes a tag from the view.
+	 * Removes the object.
 	 * 
-	 * @param tag The tag to remove.
+	 * @param data The data to remove.
 	 */
-	void removeTag(TagAnnotationData tag)
+	void removeObject(DataObject data)
 	{
-		if (tag == null) return;
-		generalPane.removeTag(tag);
-		if (tag.getId() >= 0)
-			saveData(true);
+		if (data == null) return;
+		if (data instanceof TagAnnotationData || 
+			data instanceof TextualAnnotationData) {
+			generalPane.removeObject(data);
+			if (data.getId() >= 0)
+				saveData(true);
+		}
 	}
 	
 	/** Removes the tags. */
@@ -815,7 +827,7 @@ class EditorUI
 	 */
 	void discardRenderer(Object ref)
 	{
-		if (ref != model.getRefObject());
+		if (ref != model.getRefObject()) return;
 		model.discardRenderer();
 		clearData();
 	}

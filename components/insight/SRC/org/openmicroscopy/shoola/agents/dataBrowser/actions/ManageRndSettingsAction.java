@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.WellSampleData;
 
@@ -211,11 +212,13 @@ public class ManageRndSettingsAction
 					return;
 				}
 				if (!(ho instanceof ImageData || ho instanceof DatasetData ||
-						ho instanceof PlateData))
+						ho instanceof PlateData || 
+						ho instanceof PlateAcquisitionData))
 					setEnabled(false);
 				else {
 					if (ho instanceof PlateData || 
-						ho instanceof ImageData) {
+						ho instanceof ImageData || ho instanceof DatasetData ||
+						ho instanceof PlateAcquisitionData) {
 						i = selected.iterator();
 						while (i.hasNext()) {
 							obj = i.next();
@@ -229,7 +232,8 @@ public class ManageRndSettingsAction
 			case RESET:
 			case SET_MIN_MAX:
 				if (!(ho instanceof ImageData || ho instanceof DatasetData ||
-						ho instanceof PlateData))
+						ho instanceof PlateData || 
+						ho instanceof PlateAcquisitionData))
 					setEnabled(false);
 				else {
 					i = selected.iterator();
@@ -242,7 +246,8 @@ public class ManageRndSettingsAction
 				break;
 			case SET_OWNER:
 				if (!(ho instanceof ImageData || ho instanceof DatasetData ||
-						ho instanceof PlateData))
+						ho instanceof PlateData ||
+						ho instanceof PlateAcquisitionData))
 					setEnabled(false);
 				else {
 					i = selected.iterator();

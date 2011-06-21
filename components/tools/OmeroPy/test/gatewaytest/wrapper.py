@@ -14,6 +14,40 @@ import omero
 import gatewaytest.library as lib
 
 class WrapperTest (lib.GTest):
+    
+    def setUp (self):
+        super(WrapperTest, self).setUp()
+        self.loginAsAuthor()
+        self.TESTIMG = self.getTestImage()
+
+    def testAllObjectsWrapped (self):
+        """ Blitz object wrapper should ensure that all values returned are also wrapped (or are primative values) """
+
+        image = self.TESTIMG
+        pixels = image.getPrimaryPixels()
+        instrument = image.getInstrument()
+        self.assertTrue(isinstance(instrument, omero.gateway.BlitzObjectWrapper))
+        self.assertFalse(hasattr(image.getArchived(), 'val'), "Shouldn't return rtype")
+        self.assertFalse(hasattr(image.getAcquisitionDate(), 'val'), "Shouldn't return rtype")
+        self.assertFalse(hasattr(image.sizeOfPixels(), 'val'), "Non 'get' methods shouldn't return rtype either")
+        self.assertTrue(isinstance(image.getInstrument(), omero.gateway.InstrumentWrapper), "Should return InstrumentWrapper")
+        self.assertTrue(isinstance(pixels, omero.gateway.BlitzObjectWrapper), "Should return a BlitzObjectWrapper")
+
+        # 'get' methods should wrap model objects in BlitzObjectWrapper - allowing lazy loading
+        self.assertTrue(isinstance(image.getFormat(), omero.gateway.BlitzObjectWrapper), "Should return a BlitzObjectWrapper")
+        format = image.getFormat()
+        self.assertEqual(format.value, "Deltavision", "BlitzObjectWrapper should lazy-load the value")
+        self.assertFalse(hasattr(format.value, 'val'), "Shouldn't return rtype")
+        self.assertFalse(hasattr(format.getValue(), 'val'), "Shouldn't return rtype")
+        # direct access of the same model object shouldn't wrap
+        self.assertTrue(isinstance(image.format, omero.model.FormatI), "Shouldn't wrap directly-accessed objects")
+        self.assertTrue(hasattr(image.format.id, 'val'), "Model object access")
+        # 'get' methods where there isn't a similarly-named attribute also shouldn't wrap
+        self.assertTrue(isinstance(image.getPixels(0), omero.model.PixelsI), "Shouldn't wrap: No 'pixels' attribute")
+        # Don't accidentally wrap data structures
+        self.assertTrue(isinstance(image.copyPixels(), list), "Shouldn't wrap lists")
+
+
     def testProjectWrapper (self):
         self.loginAsAuthor()
         p = self.getTestProject()
@@ -37,7 +71,7 @@ class WrapperTest (lib.GTest):
         self.assert_('parents' not in m)
         self.assertEqual(m['child_count'], p.countChildren_cached())
         # Verify canOwnerWrite
-        self.loginAsAdmin()
+        # self.loginAsAdmin()
         p = self.getTestProject()
         self.assertEqual(p.canOwnerWrite(), True)
         p.getDetails().permissions.setUserWrite(False)
@@ -51,7 +85,7 @@ class WrapperTest (lib.GTest):
         d = self.getTestDataset()
         # first call to count_cached should calculate and store
         self.assertEqual(d.countChildren_cached(), 4)
-        pm = d.listParents(single=True).simpleMarshal()
+        pm = d.getParent().simpleMarshal()
         m = d.simpleMarshal()
         self.assertEqual(m['name'], d.getName())
         self.assertEqual(m['description'], d.getDescription())
@@ -72,12 +106,12 @@ class WrapperTest (lib.GTest):
         self.assert_('parents' not in m)
         self.assertEqual(m['child_count'], d.countChildren_cached())
         # Do an extra check on listParents
-        pm_multi = d.listParents(single=False)
-        self.assertEqual([d.listParents(single=True)], pm_multi)
+        pm_multi = d.getParent()
+        self.assertEqual(d.listParents()[0], pm_multi)
 
     def testExperimenterWrapper (self):
         self.loginAsAdmin()
-        e = self.gateway.lookupExperimenter(self.USER.name)
+        e = self.gateway.findExperimenter(self.USER.name)
         self.assertEqual(e.getDetails().getOwner().omeName, self.USER.name)
 
     def testDetailsWrapper (self):

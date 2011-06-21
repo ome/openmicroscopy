@@ -2,7 +2,7 @@
 # 
 # 
 # 
-# Copyright (c) 2008 University of Dundee. 
+# Copyright (c) 2008-2011 University of Dundee.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -72,8 +72,9 @@ class BaseController(object):
     
     def __init__(self, conn, **kw):
         self.conn = conn
+        self.eContext['image_limit'] = PAGE
         self.eContext['context'] = self.conn.getEventContext()
-        gr = self.conn.getGroup(self.conn.getEventContext().groupId)
+        gr = self.conn.getObject("ExperimenterGroup", self.conn.getEventContext().groupId)
         self.eContext['isReadOnly'] = gr.isReadOnly()
         self.eContext['isLeader'] = gr.isLeader()
         if not gr.isPrivate() and not gr.isReadOnly():
@@ -117,5 +118,6 @@ class BaseController(object):
         prev = None
         if page > 1:
             prev = page - 1
-        
-        return {'page': page, 'total':total, 'next':next, "prev":prev}
+        if len(total)>1:
+            return {'page': page, 'total':total, 'next':next, "prev":prev}
+        return None

@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivatedUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
@@ -134,7 +135,6 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
-import pojos.ProjectData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
@@ -335,6 +335,12 @@ class TreeViewerControl
 	/** Identifies the <code>Send comment action</code>. */
 	static final Integer    SEND_COMMENT = Integer.valueOf(65);
 	
+	/** Identifies the <code>Activated action</code>. */
+	static final Integer    USER_ACTIVATED = Integer.valueOf(66);
+	
+	/** Identifies the <code>Import</code> in the menu. */
+	static final Integer    IMPORT_NO_SELECTION = Integer.valueOf(67);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -403,18 +409,18 @@ class TreeViewerControl
 		if (state == TreeViewer.READY || state == TreeViewer.NEW) {
 			model.clearFoundResults();
 			if (!container.hasTaskPaneExpanded())
-				model.setSelectedBrowser(null);
+				model.setSelectedBrowser(null, true);
 			else {
 				if (pane instanceof TaskPaneBrowser) {
 					TaskPaneBrowser p = (TaskPaneBrowser) pane;
 					if (p.getBrowser() != null)
-						model.setSelectedBrowser(p.getBrowser());
+						model.setSelectedBrowser(p.getBrowser(), true);
 					else {
-						model.setSelectedBrowser(null);
+						model.setSelectedBrowser(null, true);
 						model.showSearch();
 					}
 				} else {
-					model.setSelectedBrowser(null);
+					model.setSelectedBrowser(null, true);
 				}
 			}
 		} else pane.setCollapsed(true);
@@ -499,7 +505,7 @@ class TreeViewerControl
 		actionsMap.put(EDITOR_NEW_WITH_SELECTION, new EditorAction(model, 
 				EditorAction.NEW_WITH_SELECTION));
 		actionsMap.put(INSPECTOR, new InspectorVisibilityAction(model));
-		actionsMap.put(IMPORT, new ImportAction(model));
+		actionsMap.put(IMPORT, new ImportAction(model, false));
 		actionsMap.put(DOWNLOAD, new DownloadAction(model));
 		actionsMap.put(VIEWER_WITH_OTHER, new ViewOtherAction(model, null));
 		actionsMap.put(PERSONAL, new PersonalManagementAction(model));
@@ -514,7 +520,9 @@ class TreeViewerControl
 				new CreateTopContainerAction(model, 
 						CreateTopContainerAction.EXPERIMENTER));
 		actionsMap.put(RESET_PASSWORD,  new PasswordResetAction(model));
+		actionsMap.put(USER_ACTIVATED,  new ActivatedUserAction(model));
 		actionsMap.put(SEND_COMMENT,  new SendFeedbackAction(model));
+		actionsMap.put(IMPORT_NO_SELECTION, new ImportAction(model, true));
 	}
 
 	/** 
@@ -688,7 +696,7 @@ class TreeViewerControl
 					model.clearFoundResults();
 					Component c = pane.getSelectedComponent();
 					if (c == null) {
-						model.setSelectedBrowser(null);
+						model.setSelectedBrowser(null, true);
 						return;
 					}
 					Map browsers = model.getBrowsers();
@@ -698,12 +706,12 @@ class TreeViewerControl
 					while (i.hasNext()) {
 						browser = (Browser) i.next();
 						if (c.equals(browser.getUI())) {
-							model.setSelectedBrowser(browser);
+							model.setSelectedBrowser(browser, true);
 							selected = true;
 							break;
 						}
 					}
-					if (!selected) model.setSelectedBrowser(null);
+					if (!selected) model.setSelectedBrowser(null, true);
 				}
 			};
 		}
@@ -753,6 +761,26 @@ class TreeViewerControl
 			l.add(new GroupSelectionAction(model, group));
 		}
 		return l;
+	}
+	
+	/**
+	 * Returns the last node selected.
+	 * 
+	 * @return See above.
+	 */
+	TreeImageDisplay getLastSelectedDisplay()
+	{
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return null;
+		return browser.getLastSelectedDisplay();
+	}
+	
+	/** Activates or not the user. */
+	void activateUser()
+	{
+		TreeImageDisplay node = getLastSelectedDisplay();
+		if (node != null && node.getUserObject() instanceof ExperimenterData)
+			model.activateUser((ExperimenterData) node.getUserObject());
 	}
 	
 	/** Forwards call to the {@link TreeViewer}. */
@@ -867,7 +895,8 @@ class TreeViewerControl
 									TreeViewer.CREATE_OBJECT);
 			}
 		} else if (DataBrowser.ADDED_TO_DATA_OBJECT_PROPERTY.equals(name)) {
-			 model.getSelectedBrowser().refreshLoggedExperimenterData();
+			Browser browser =  model.getSelectedBrowser();
+			if (browser != null) browser.refreshLoggedExperimenterData();
 		} else if (DataBrowser.COPY_RND_SETTINGS_PROPERTY.equals(name)) {
 			Object data = pce.getNewValue();
 			if (data != null) model.copyRndSettings((ImageData) data);
@@ -961,7 +990,12 @@ class TreeViewerControl
 		} else if (MetadataViewer.APPLY_SETTINGS_PROPERTY.equals(name)) {
 			Object object = pce.getNewValue();
 			if (object instanceof ImageData) {
+				ImageData img = (ImageData) object;
 				model.copyRndSettings((ImageData) object);
+				List<Long> ids = new ArrayList<Long>(1);
+				ids.add(img.getId());
+				view.reloadThumbnails(ids);
+				
 				//improve code to speed it up
 				List l = model.getSelectedBrowser().getSelectedDataObjects();
 				Collection toUpdate;
@@ -976,8 +1010,12 @@ class TreeViewerControl
 				Object[] objects = (Object[]) object;
 				WellSampleData wsd = (WellSampleData) objects[0];
 				WellData well = (WellData) objects[1];
-				model.copyRndSettings(wsd.getImage());
+				ImageData img = wsd.getImage();
+				model.copyRndSettings(img);
 				List<Long> ids = new ArrayList<Long>(1);
+				ids.add(img.getId());
+				view.reloadThumbnails(ids);
+				ids = new ArrayList<Long>(1);
 				ids.add(well.getPlate().getId());
 				model.pasteRndSettings(ids, PlateData.class);
 			}
@@ -997,7 +1035,9 @@ class TreeViewerControl
 			FigureParam param = (FigureParam) object;
 			Collection l;
 			if (param.isSelectedObjects()) {
-				l = model.getSelectedBrowser().getSelectedDataObjects();
+				Browser b = model.getSelectedBrowser();
+				if (b != null) l = b.getSelectedDataObjects();
+				else l = model.getDisplayedImages();
 			} else {
 				l = model.getDisplayedImages();
 			}
@@ -1013,12 +1053,15 @@ class TreeViewerControl
 					TreeImageDisplay pNode;
 
 					if (ho instanceof DatasetData) {
+						/*
 						klass = ho.getClass();
 						pNode = node.getParentDisplay();
 						if (pNode != null) {
 							p = pNode.getUserObject();
 							if (!(p instanceof ProjectData)) p = null;
 						}
+						*/
+						p = ho;
 					} else if (ho instanceof ImageData) {
 						klass = ho.getClass();
 						pNode = node.getParentDisplay();
@@ -1118,6 +1161,10 @@ class TreeViewerControl
 					}
 				}
 			}
+		} else if (DataBrowser.SET__OWNER_RND_SETTINGS_PROPERTY.equals(name)) {
+			PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model, 
+					PasteRndSettingsCmd.SET_OWNER);
+			cmd.execute();
 		}
 	}
 	

@@ -743,7 +743,9 @@ class BrowserModel
 		//}
 		if (object instanceof ImageData) parent.browse(node, null, true);
 		else if (object instanceof PlateData) {
-			if (!node.hasChildrenDisplay()) parent.browse(node, null, true);
+			if (!node.hasChildrenDisplay() || 
+				node.getChildrenDisplay().size() == 1)
+				parent.browse(node, null, true);
 		} else if (object instanceof PlateAcquisitionData)
 			parent.browse(node, null, true);
 	}

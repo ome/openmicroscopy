@@ -106,6 +106,38 @@ class StreamRedirect(object):
     def __getattr__(self, name):
         self.internal.warn("No attribute: %s" % name)
 
+class Dependency(object):
+    """
+    Centralized logic for declaring and logging a service
+    dependency on a non-shipped library. This is called
+    lazily from the run method of the application to give
+    logging time to be initialized.
+
+    See #4566
+    """
+
+    def __init__(self, key):
+        self.key = key
+
+    def get_version(self, target):
+        """
+        Get version method which returns a string
+        representing. Should be overwritten by
+        subclasses for packages/modules with no
+        __version__ field.
+        """
+        return target.__version__
+
+    def check(self, logger):
+        try:
+            target = __import__(self.key)
+            version = self.get_version(target)
+            logger.info("Loaded dependency %s (%s)" % (self.key, version))
+            return True
+        except ImportError:
+            logger.error("Failed to load: '%s'" % self.key)
+            return False
+
 def internal_service_factory(communicator, user="root", group=None, retries=6, interval=10, client_uuid=None, stop_event = None):
     """
     Try to return a ServiceFactory from the grid.
@@ -133,6 +165,7 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
 
     import omero_Constants_ice
     implicit_ctx = communicator.getImplicitContext()
+    implicit_ctx.put(omero.constants.AGENT, "Python service")
     if client_uuid is not None:
         implicit_ctx.put(omero.constants.CLIENTUUID, client_uuid)
     else:
@@ -156,7 +189,8 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
             stop_event.wait(interval)
 
     log.warn("Reason: %s", str(excpt))
-    raise excpt
+    if excpt:
+        raise excpt
 
 def create_admin_session(communicator):
     """
@@ -344,13 +378,14 @@ class Server(Ice.Application):
 
     """
 
-    def __init__(self, impl_class, adapter_name, identity, logdir = LOGDIR):
+    def __init__(self, impl_class, adapter_name, identity, logdir = LOGDIR, dependencies = ()):
 
         self.impl_class = impl_class
         self.adapter_name = adapter_name
         self.identity = identity
         self.logdir = logdir
         self.stop_event = omero.util.concurrency.get_event(name="Server")
+        self.dependencies = dependencies
 
     def run(self,args):
 
@@ -363,6 +398,14 @@ class Server(Ice.Application):
         self.logger = logging.getLogger("omero.util.Server")
         self.logger.info("*"*80)
         self.logger.info("Starting")
+
+        failures = 0
+        for x in self.dependencies:
+            if not x.check(self.logger):
+                failures += 1
+        if failures:
+            self.logger.error("Missing dependencies: %s" % failures)
+            sys.exit(50)
 
         self.shutdownOnInterrupt()
 
@@ -386,7 +429,8 @@ class Server(Ice.Application):
                 self.adapter = self.communicator().createObjectAdapter(self.adapter_name)
                 self.adapter.activate()
                 ctx.add_servant(self.adapter, self.impl, self.identity) # calls setProxy
-                add_grid_object(self.communicator(), self.impl.prx)     # This must happen _after_ activation
+                prx = self.adapter.createDirectProxy(self.identity) # ticket:1978 for non-collocated registries
+                add_grid_object(self.communicator(), prx)     # This must happen _after_ activation
             except:
                 self.logger.error("Failed activation", exc_info=1)
                 sys.exit(200)
@@ -669,6 +713,10 @@ def get_user_dir():
         homeprop = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
     except exceptions_to_handle:
         homeprop = os.path.expanduser("~")
+
+    if "~" == homeprop:
+        raise exceptions.Exception("Unexpanded '~' from expanduser: see ticket:5583") # ticket:5583
+
     return homeprop
 
 def edit_path(path_or_obj, start_text):
@@ -680,8 +728,17 @@ def edit_path(path_or_obj, start_text):
         else:
             editor = "vi"
     f.write_text(start_text)
-    from which import which
-    editor_path = which(editor)
+
+    # If absolute, then use the path
+    # as is (ticket:4246). Otherwise,
+    # use which.py to find it.
+    editor_obj = path.path(editor)
+    if editor_obj.isabs():
+        editor_path = editor
+    else:
+        from which import which
+        editor_path = which(editor)
+
     pid = os.spawnl(os.P_WAIT, editor_path, editor_path, f)
     if pid:
         re = RuntimeError("Couldn't spawn editor: %s" % editor)

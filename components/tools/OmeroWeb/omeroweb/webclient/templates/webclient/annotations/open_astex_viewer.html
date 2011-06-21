@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<body>
+<applet
+      width="100%" height="100%" name="av"
+      code="MoleculeViewerApplet.class"
+      archive="{% url webstatic 'applet/OpenAstexViewer.jar' %} ">
+         
+         <param name="script" value="
+         {% ifequal mapType 'bit' %}
+         map load mapA '{% url open_astex_bit fileAnnId %}'; 
+         {% else %}
+         map load mapA '{% url open_astex_map fileAnnId %}'; 
+         {% endifequal %}
+         center map mapA;
+         map mapA contour 0 on;
+         background '0xDDDDDD';
+         map mapA contour 0 'solid';
+         map mapA contour 0 'green';
+         ">
+</applet>
+
+</body>

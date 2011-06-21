@@ -52,7 +52,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.RectangleTextFigure;
 
 /**
- * 
+ * Rectangle figure with measurement.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -104,7 +104,9 @@ public class MeasureRectangleFigure
         this(DEFAULT_TEXT, 0, 0, 0, 0, false, true);
     }
 
-    /** Creates a new instance. 
+    /** 
+     * Creates a new instance.
+     *  
 	 * @param readOnly The figure is read only.
 	 */
     public MeasureRectangleFigure(boolean readOnly, boolean clientObject) 
@@ -114,6 +116,7 @@ public class MeasureRectangleFigure
 
     /** 
      * Creates a new instance.
+     * 
      * @param text text of the ellipse. 
      * */
     public MeasureRectangleFigure(String text) 
@@ -123,8 +126,9 @@ public class MeasureRectangleFigure
  
     /** 
      * Creates a new instance.
-     * @param x    coord of the figure. 
-     * @param y    coord of the figure. 
+     * 
+     * @param x    coordinate of the figure. 
+     * @param y    coordinate of the figure. 
      * @param width of the figure. 
      * @param height of the figure. 
       * */
@@ -136,8 +140,9 @@ public class MeasureRectangleFigure
 
     /** 
      * Creates a new instance.
-     * @param x    coord of the figure. 
-     * @param y    coord of the figure. 
+     * 
+     * @param x    coordinate of the figure. 
+     * @param y    coordinate of the figure. 
      * @param width of the figure. 
      * @param height of the figure. 
  	 * @param readOnly The figure is read only.
@@ -150,9 +155,10 @@ public class MeasureRectangleFigure
     
     /** 
      * Creates a new instance.
+     * 
      * @param text text of the ellipse. 
-     * @param x    coord of the figure. 
-     * @param y    coord of the figure. 
+     * @param x    coordinate of the figure. 
+     * @param y    coordinate of the figure. 
      * @param width of the figure. 
      * @param height of the figure. 
  	 * @param readOnly The figure is read only.
@@ -165,6 +171,8 @@ public class MeasureRectangleFigure
 		setAttributeEnabled(MeasurementAttributes.WIDTH, true);
 		setAttribute(MeasurementAttributes.WIDTH, width);
 		setAttribute(MeasurementAttributes.HEIGHT, height);
+		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
         shape = null;
 		roi = null;
 		status = IDLE;
@@ -173,7 +181,7 @@ public class MeasureRectangleFigure
     }
     
     /** 
-     * Get the X Coord of the figure, convert to microns if isInMicrons set. 
+     * Get the X coordinate of the figure, convert to microns if isInMicrons set. 
      * 
      * @return see above.
      */
@@ -184,7 +192,7 @@ public class MeasureRectangleFigure
     }
     
     /** 
-     * Get the Y Coord of the figure, convert to microns if isInMicrons set. 
+     * Get the Y coordinate of the figure, convert to microns if isInMicrons set. 
      * 
      * @return see above.
      */
@@ -218,25 +226,29 @@ public class MeasureRectangleFigure
     }
     
     /** 
-     * Get the x coord of the figure. 
+     * Get the x coordinate of the figure.
+     *  
      * @return see above.
      */
     public double getX() { return rectangle.getX(); }
     
     /** 
-     * Get the y coord of the figure. 
+     * Get the y coordinate of the figure. 
+     * 
      * @return see above.
      */
     public double getY() { return rectangle.getY(); }
     
     /** 
-     * Get the width coord of the figure. 
+     * Get the width of the figure. 
+     * 
      * @return see above.
      */
     public double getWidth() { return rectangle.getWidth(); }
     
     /** 
-     * Get the height coord of the figure. 
+     * Get the height of the figure. 
+     * 
      * @return see above.
      */
     public double getHeight() { return rectangle.getHeight(); }
@@ -252,28 +264,31 @@ public class MeasureRectangleFigure
 		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
 				MeasurementAttributes.SHOWID.get(this))
 		{
-			NumberFormat formatter = new DecimalFormat("###.#");
+			NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 			String rectangleArea = formatter.format(getArea());
 			rectangleArea = addUnits(rectangleArea);
-			double sz = ((Double)this.getAttribute(
-					MeasurementAttributes.FONT_SIZE));
-			g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
+			//double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
+			Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
+			if (font != null) 
+				g.setFont(font);
 			bounds = g.getFontMetrics().getStringBounds(rectangleArea, g);
 			bounds = new Rectangle2D.Double(
 						getBounds().getCenterX()-bounds.getWidth()/2,
 						getBounds().getCenterY()+bounds.getHeight()/2,
 					bounds.getWidth(), bounds.getHeight());
 		
-			if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
+			if (MeasurementAttributes.SHOWMEASUREMENT.get(this))
 			{
-				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(
+						this));
 				g.drawString(rectangleArea, (int) bounds.getX(), (int) 
 							bounds.getY()); 
 			}
-			if(MeasurementAttributes.SHOWID.get(this))
+			if (MeasurementAttributes.SHOWID.get(this))
 			{
 				g.setColor(this.getTextColor());
-				bounds = g.getFontMetrics().getStringBounds(getROI().getID()+"", g);
+				bounds = g.getFontMetrics().getStringBounds(getROI().getID()+"", 
+						g);
 				bounds = new Rectangle2D.Double(
 							getBounds().getCenterX()-bounds.getWidth()/2,
 							getBounds().getCenterY()+bounds.getHeight()/2,
@@ -281,7 +296,6 @@ public class MeasureRectangleFigure
 				g.drawString(getROI().getID()+"", (int) bounds.getX(), (int) 
 							bounds.getY()); 
 			}
-			
 		}
 	}
 	
@@ -291,7 +305,7 @@ public class MeasureRectangleFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if(!readOnly)
+		if (!readOnly)
 		{
 			super.transform(tx);
 			this.setObjectDirty(true);
@@ -304,7 +318,7 @@ public class MeasureRectangleFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if(!readOnly)
+		if (!readOnly)
 		{
 			super.setBounds(anchor, lead);
 			this.setObjectDirty(true);
@@ -366,7 +380,6 @@ public class MeasureRectangleFigure
 		}
 		return newBounds;
 	}
-	 
 
 	/**
 	 * Add units to the string 
@@ -536,25 +549,17 @@ public class MeasureRectangleFigure
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#isDirty()
 	 */
-	public boolean isDirty() 
-	{
-		return dirty;
-	}
+	public boolean isDirty() { return dirty; }
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#setObjectDirty(boolean)
 	 */
-	public void setObjectDirty(boolean dirty) 
-	{
-		this.dirty = dirty;
-	}
-	
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasureRectangleFigure#clone()
+	public void setObjectDirty(boolean dirty) { this.dirty = dirty; }
+
+	/**
+	 * Clones the figure.
+	 * @see MeasureRectangleFigure#clone()
 	 */
 	public MeasureRectangleFigure clone()
 	{
@@ -565,10 +570,9 @@ public class MeasureRectangleFigure
 		return that;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasureRectangleFigure#setText(String)
+	/**
+	 * Marks the figure as dirty.
+	 * @see MeasureRectangleFigure#setText(String)
 	 */
 	public void setText(String text)
 	{
@@ -585,11 +589,9 @@ public class MeasureRectangleFigure
 		List<FigureListener> figListeners = new ArrayList<FigureListener>();
 		Object[] listeners = listenerList.getListenerList();
 		for (Object listener : listeners)
-			if(listener instanceof FigureListener)
+			if (listener instanceof FigureListener)
 				figListeners.add((FigureListener)listener);
 		return figListeners;
 	}
 	
 }
-
-

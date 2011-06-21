@@ -71,6 +71,9 @@ public abstract class Reply
 	            StringBuilder str = new StringBuilder();
 	            for (int n; (n = reader.read(buf)) != -1;)
 	                str.append(buf, 0, n);
+				try {
+					if (reader != null) reader.close();
+				} catch (Exception ex) {}
 	            return str.toString();
 			} catch (Exception e) {
 				try {

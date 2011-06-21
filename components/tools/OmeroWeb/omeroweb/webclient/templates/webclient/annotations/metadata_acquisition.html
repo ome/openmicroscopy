@@ -1,0 +1,351 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+{% block link %}
+    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/autocomplete.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.autocomplete.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.editinplace.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.form.js" %}"></script>
+  
+{% endblock %}
+
+{% block script %}
+    
+    <script type="text/javascript">
+        var acquisition_loaded = function() 
+            {
+                // hide any unset fields. 
+                var invalidRows = $(".metadata_details input:not([value])").parent().parent();
+                invalidRows.hide();
+                var naRows = $(".metadata_details input[value='N/A']").parent().parent();
+                naRows.hide();
+                var invalidSelects = $(".metadata_details select option[selected][value='']").parent().parent().parent();
+                invalidSelects.hide();
+                // set up toggling... add click button
+                var show_text = "Show unset fields";
+                var hide_text = "Hide unset fields";
+                var show_hide_html = "<a href='#' class='show_hide_invalid'>"+ show_text +"</a>";
+                $(".metadata_details").append($(show_hide_html));
+                var toggleInvalidRows = function(event) {
+                    var $target = $(event.target);
+                    if ($target.attr('class') == "show_hide_invalid") {
+                        // toggle text
+                        if ($target.text() == show_text) $target.text(hide_text);
+                        else $target.text(show_text);
+                        // toggle fields
+                        var invalidRows = $(this).find("input:not([value])").parent().parent();
+                        invalidRows.toggle();
+                        var naRows = $(this).find("input[value='N/A']").parent().parent();
+                        naRows.toggle();
+                        var invalidSelects = $(this).find("select option[selected][value='']").parent().parent().parent();
+                        invalidSelects.toggle();
+                        return false;
+                    };
+                };
+                $(".metadata_details").click(toggleInvalidRows);
+                                
+                $('input#search_global').quicksearch('table#global_metadata tbody tr', {
+                	'delay': 300,
+                    'loader': 'span.loading_global'
+                });
+                $('input#search_series').quicksearch('table#series_metadata tbody tr', {
+                	'delay': 300,
+                    'loader': 'span.loading_series'
+                });
+                
+                $("#annotation_tabs").tabs();
+
+                
+                $('.can-collapse').click(function () {
+                  $(this).toggleClass('closed').next().slideToggle();
+                });
+
+                $('.can-collapse.defclose').each(function () {
+                  $(this).removeClass('defclose').toggleClass('closed').next().hide();
+                });
+
+            }
+
+    </script>
+    
+{% endblock %}
+
+{% block content %}
+
+    <!-- METADATA "Acquisition" TAB -->
+    <div id="metadata_tab">
+            
+        {% if manager.well or manager.image%}
+            
+            {% if manager.companion_files %}
+            <h1 class="can-collapse defclose">{% trans "Companion Files" %}</h1>                
+                <div>
+                    {% for fileann in manager.companion_files %}
+                    <p>
+                        <a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';">
+                            {{ fileann.getFileName|shortening:40 }}
+                        </a>
+                        ({{ fileann.getFileSize|default_if_none:0|filesizeformat }})
+                    </p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% if manager.global_metadata or manager.series_metadata %}
+            <h1 class="can-collapse defclose">{% trans "Original Metadata" %}</h1>
+                <div>
+                    <input type="button" value="Download" style="padding: 1px 15px; position:absolute; right:3px"
+                        onClick="document.location.href='{% url download_annotation "download" manager.original_metadata.id %}';"/>
+                    {% if manager.global_metadata %}
+                    <h1>Global Metadata</h1>
+                    <div style="height:250px; overflow:auto">
+                        <form class="quicksearch" id="quicksearch_global" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_global" value="search"> <span class="loading_global"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
+                        <table id="global_metadata" class="metadata_details"><tbody>
+                            {% for gm in manager.global_metadata %}
+                            <tr><td><label>{{ gm.0|warphtml:"22" }}</label></td><td>{{ gm.1|warphtml:"22" }}</td></tr>
+                            {% endfor %}
+                        <tr><th colspan="2"><br/></th></tr>
+                        </tbody></table>
+                    </div>
+                    {% endif %}
+            
+                    {% if manager.series_metadata %}
+                    <hr />
+                    <h1>Series Metadata</h1>
+                    <div style="height:250px; overflow:auto">
+                        <form class="quicksearch" id="quicksearch_series" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_series" value="search"> <span class="loading_series"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
+                        <table id="series_metadata" class="metadata_details"><tbody>
+                            {% for sm in manager.series_metadata %}
+                            <tr><td><label>{{ sm.0|warphtml:"22" }}</label></td><td>{{ sm.1|warphtml:"22" }}</td></tr>
+                            {% endfor %}
+                            <tr><th colspan="2"><br/></th></tr>
+                        </tbody></table>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+                        
+            <!-- Microscope -->
+            {% if form_objective or form_filters or form_detectors %}
+            <h1 class="can-collapse defclose">{% trans "Microscope" %}</h1>
+            <div>
+                {% if form_microscope %}
+                <table class="metadata_details">
+                    {% for field in form_microscope %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% endif %}
+                {% for form_objective in form_instrument_objectives %}
+                <table class="metadata_details">
+                <tr><th><br/>{% trans "Objective" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form_objective %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% endfor %}
+                {% for form in form_filters %}
+                <table class="metadata_details">
+                    <tr><th><br/>{% trans "Filter" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% endfor %}
+                {% for form in form_dichroics %}
+                <table class="metadata_details">
+                    <tr><th><br/>{% trans "Dichroic" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% endfor %}
+                {% for form in form_detectors %}
+                <table class="metadata_details">
+                    <tr><th><br/>{% trans "Detector" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% endfor %}
+                {% for form in form_lasers %}
+                <table class="metadata_details">
+                    <tr><th><br/>{% trans "Laser" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Image -->
+            {% if form_objective or form_environment or form_stageLabel %}
+            <h1 class="can-collapse defclose">{% trans "Image" %}</h1>
+            <div><table class="metadata_details">
+                {% if form_objective %}
+                <tr><th><br/>{% trans "Objective" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form_objective %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+                {% if form_environment %}
+                <tr><th><br/>{% trans "Environment" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form_environment %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+                {% if form_stageLabel %}
+                <tr><th><br/>{% trans "Stage label" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form_stageLabel %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            </table></div>
+            {% endif %}
+            
+            <!-- Channels -->
+            {% for ch in form_channels %}
+            <h1 class="can-collapse defclose">
+                {% if ch.color %}
+                    <span style="padding:0 3px; color:#000; border:1px solid #000; background-color: #{{ ch.color }};">&nbsp&nbsp</span>
+                {% endif %}
+                {{ ch.label }}
+            </h1>
+            <div id="channel_{{ forloop.counter }}">
+                <table class="metadata_details">
+                    {% for field in ch.form %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if ch.form_emission_filter or ch.form_excitation_filter %}
+                    {% for f in ch.form_emission_filter %}
+                    <tr><th><br/>{% trans "Filter" %}:</th><th colspan="2"></th></tr>
+                    {% for field in f %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% endfor %}
+                    {% for f in ch.form_excitation_filter %}
+                    {% for field in f %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% endfor %}
+                    {% endif %}
+                </table>
+                {% if ch.form_detector_settings or ch.form_light_source %}
+                <table class="metadata_details">
+                    {% if ch.form_detector_settings %}
+                    <tr><th><br/>{% trans "Detector" %}:</th><th colspan="2"></th></tr>
+                    {% for field in ch.form_detector_settings %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}                
+                    {% if ch.form_light_source %}
+                    <tr><th><br/>{% trans "Laser" %}:</th><th colspan="2"></th></tr>
+                    {% for field in ch.form_light_source %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+                </table>
+                {% endif %}
+                <!-- Light Path... -->
+                {% if ch.form_excitation_filters %}
+                    {% for form in ch.form_excitation_filters %}
+                    <table class="metadata_details">
+                        <tr><th><br/>{% trans "Excitation Filter" %}:</th><th colspan="2"></th></tr>
+                        {% for field in form %}
+                        <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                            <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    {% endfor %}
+                {% endif %}
+
+                {% if ch.form_dichroic %}
+                <table class="metadata_details">
+                    <tr><th><br/>{% trans "Dichroic" %}:</th><th colspan="2"></th></tr>
+                    {% for field in ch.form_dichroic %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% endif %}
+
+                {% if ch.form_emission_filters %}
+                    {% for form in ch.form_emission_filters %}
+                    <table class="metadata_details">
+                        <tr><th><br/>{% trans "Emission Filter" %}:</th><th colspan="2"></th></tr>
+                        {% for field in form %}
+                        <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                            <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            {% endfor %}
+
+        {% endif %}
+    </div>
+
+{% endblock %}

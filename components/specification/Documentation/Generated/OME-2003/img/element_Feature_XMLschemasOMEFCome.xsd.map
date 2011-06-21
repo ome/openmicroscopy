@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Feature_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_CustomAttributes'
+  coords='263,52,452,94'
+  href='CA.xsd.html#element_CustomAttributes'/>
+
+ <area
+  shape='rect'
+  alt='type_FeatureID'
+  coords='177,176,271,202'
+  href='ome.xsd.html#type_FeatureID'/>
+
+</map>

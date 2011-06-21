@@ -97,7 +97,7 @@ public class MockExecMonitor
     //thrown in verification mode.
     public void update(int step, RuntimeException re)
     {
-        Integer stepArg = new Integer(step);
+        Integer stepArg = Integer.valueOf(step);
         MockedCall mc = new MockedCall(update, new Object[] {stepArg});
         if (re != null) mc.setException(re);
         mockSupport.add(mc);
@@ -106,7 +106,7 @@ public class MockExecMonitor
     //Used in verification mode.
     public void update(int step)
     {
-        Integer stepArg = new Integer(step);
+        Integer stepArg = Integer.valueOf(step);
         MockedCall mc = new MockedCall(update, new Object[] {stepArg});
         mc = mockSupport.verifyCall(mc);
         if (mc.hasException())

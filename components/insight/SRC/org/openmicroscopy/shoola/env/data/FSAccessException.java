@@ -46,6 +46,18 @@ public class FSAccessException
 	extends Exception
 {
 
+	/** Indicates that the pyramid is not ready.*/
+	public static final int PYRAMID = 1;
+	
+	/** Indicates that the pyramid is not ready file is locked.*/
+	public static final int LOCKED = 0;
+	
+	/** One of the constants defined by this class.*/
+	private int index;
+	
+	/** The time to wait before the pyramid is ready.*/
+	private Long backOffTime;
+	
 	/**
 	 * Constructs a new exception with the specified detail message.
 	 * 
@@ -54,6 +66,7 @@ public class FSAccessException
 	public FSAccessException(String message)
 	{
 		super(message);
+		index = LOCKED;
 	}
 	
 	/**
@@ -67,4 +80,36 @@ public class FSAccessException
 		super(message, cause);
 	}
 	
+	/**
+	 * Sets the index, one of the constants defined by this class.
+	 * 
+	 * @param index The value to set.
+	 */
+	public void setIndex(int index) { this.index = index; }
+	
+	/**
+	 * Returns the index, one of the constants defined by this class.
+	 * 
+	 * @return See above.
+	 */
+	public int getIndex() { return index; }
+	
+	/**
+	 * Sets the time to wait before the pyramid is ready.
+	 * 
+	 * @param backOfftime The value to set.
+	 */
+	public void setBackOffTime(Long backOfftime)
+	{ 
+		this.backOffTime = backOfftime;
+	}
+	
+	/**
+	 * Returns the time to wait before the pyramid is ready.
+	 * 
+	 * @return See above.
+	 */
+	public Long getBackOffTime() { return backOffTime; }
+	
+
 }

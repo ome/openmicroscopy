@@ -52,16 +52,19 @@ public class ActivateAction
 	extends ImporterAction
 {
 	
-	/** The description of the action. */
-    private static final String NAME = "Imports";
+	/** The name of the action. */
+    private static final String NAME = "Importer";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Bring up the Importer.";
-    
+    private static final String DESCRIPTION = "Display the import.";
+
     /**
      * Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param name The name associated to the import.
+     * @param icon The icon associated to the node.
+     * @param importID The id of the import.
      */
     public ActivateAction(Importer model)
     {
@@ -78,9 +81,5 @@ public class ActivateAction
      * Brings up on screen the {@link Importer}.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    { 
-    	model.getView().setVisible(true); 
-    }
-    
+    public void actionPerformed(ActionEvent e) { model.moveToFront(); }
 }

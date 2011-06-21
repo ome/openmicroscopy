@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -103,6 +104,9 @@ class DataBrowserComponent
 	implements DataBrowser
 {
 
+	/** The maximum number of entries before switching to the table view. */
+	private static final String MAX_ENTRIES = "/views/MAX_ENTRIES";
+	
 	/** The Model sub-component. */
 	private DataBrowserModel     model;
 
@@ -182,12 +186,19 @@ class DataBrowserComponent
 	 */
 	public void activate()
 	{
-		//Determine the view depending on the 
+		//Determine the view depending on the number of image.
 		Integer max = (Integer) DataBrowserAgent.getRegistry().lookup(
-				          "/views/MAX_ENTRIES");
-		if (model.getNumberOfImages() <= max.intValue())
+				MAX_ENTRIES);
+		if (model.getNumberOfImages() <= max.intValue() ||
+				model.getType() == DataBrowserModel.WELLS) {
 			model.loadData(false, null); 
-		else view.setSelectedView(DataBrowserUI.COLUMNS_VIEW);
+			if (model.getType() == DataBrowserModel.WELLS) {
+				model.fireTabularDataLoading(null);
+			}
+			view.setSelectedView(DataBrowserUI.THUMB_VIEW);
+		} else {
+			view.setSelectedView(DataBrowserUI.COLUMNS_VIEW);
+		}
 		if (model.getBrowser() != null) {
 			Browser browser = model.getBrowser();
 	    	ResetNodesVisitor visitor = new ResetNodesVisitor(null, false);
@@ -515,7 +526,8 @@ class DataBrowserComponent
 	 */
 	public void loadExistingTags()
 	{
-		if (model.getExistingTags() == null)
+		//Do not cache the tags
+		//if (model.getExistingTags() == null)
 			model.fireTagsLoading();
 		//else view.setFilterStatus(false);
 	}
@@ -870,6 +882,7 @@ class DataBrowserComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalArgumentException("This method cannot be " +
 					"invoked in the DISCARDED state.");
+		/*
 		if (model.getType() == DataBrowserModel.SEARCH) {
 			firePropertyChange(SET__OWNER_RND_SETTINGS_PROPERTY, null, 
 					getBrowser().getSelectedDataObjects());
@@ -882,6 +895,9 @@ class DataBrowserComponent
 				firePropertyChange(SET__OWNER_RND_SETTINGS_PROPERTY, 
 						Boolean.valueOf(false), Boolean.valueOf(true));
 		}
+		*/
+		firePropertyChange(SET__OWNER_RND_SETTINGS_PROPERTY,
+				Boolean.valueOf(false), Boolean.valueOf(true));
 	}
 
 	/**
@@ -1434,6 +1450,26 @@ class DataBrowserComponent
 	 * @see DataBrowser#getParentOfNodes()
 	 */
 	public Object getParentOfNodes() { return model.getParent(); }
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setTabularData(List)
+	 */
+	public void setTabularData(List<TableResult> data)
+	{
+		if (data == null) return;
+		model.setTabularData(data);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#layoutDisplay()
+	 */
+	public void layoutDisplay()
+	{
+		if (model instanceof WellsModel) return;
+		model.layoutBrowser(model.getLayoutIndex());
+	}
 	
 	/** 
 	 * Overridden to return the name of the instance to save. 

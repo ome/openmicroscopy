@@ -24,6 +24,7 @@
     <dependency org="geronimo-spec" name="geronimo-spec-jta" rev="1.0.1B-rc4"/>
     <dependency org="btm" name="btm" rev="${versions.btm}"/>
     <!-- Public -->
+    <dependency org="batik" name="batik-all" rev="${versions.batik}"/>
     <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}"/>
     <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}"/>
     <dependency org="commons-codec" name="commons-codec" rev="${versions.commons-codec}"/>
@@ -35,6 +36,7 @@
     <dependency org="quartz" name="quartz" rev="${versions.quartz}"/>
     <dependency org="xerces" name="xercesImpl" rev="${versions.xercesImpl}"/>
     <dependency org="xml-apis" name="xml-apis" rev="${versions.xml-apis}"/>
+    <dependency org="xml-apis" name="xml-apis-ext" rev="${versions.xml-apis}"/>
     <dependency org="mail" name="mail" rev="${versions.mail}"/>
     <dependency org="activation" name="activation" rev="${versions.activation}"/>
     <dependency org="PDFBox" name="PDFBox" rev="${versions.PDFBox}"/>

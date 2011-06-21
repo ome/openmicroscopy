@@ -1,0 +1,110 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Image_SchemasOME200802'>
+ <area
+  shape='rect'
+  alt='element_CreationDate'
+  coords='436,212,786,272'
+  href='ome.xsd.html#element_CreationDate'/>
+
+ <area
+  shape='rect'
+  alt='element_ExperimenterRef'
+  coords='436,282,786,341'
+  href='ome.xsd.html#element_ExperimenterRef'/>
+
+ <area
+  shape='rect'
+  alt='element_Description'
+  coords='436,351,786,410'
+  href='ome.xsd.html#element_Description'/>
+
+ <area
+  shape='rect'
+  alt='element_ExperimentRef'
+  coords='436,420,786,479'
+  href='ome.xsd.html#element_ExperimentRef'/>
+
+ <area
+  shape='rect'
+  alt='element_GroupRef'
+  coords='436,489,786,548'
+  href='ome.xsd.html#element_GroupRef'/>
+
+ <area
+  shape='rect'
+  alt='element_DatasetRef'
+  coords='436,558,786,617'
+  href='ome.xsd.html#element_DatasetRef'/>
+
+ <area
+  shape='rect'
+  alt='element_InstrumentRef'
+  coords='436,627,786,686'
+  href='ome.xsd.html#element_InstrumentRef'/>
+
+ <area
+  shape='rect'
+  alt='element_ObjectiveRef'
+  coords='436,696,786,755'
+  href='ome.xsd.html#element_ObjectiveRef'/>
+
+ <area
+  shape='rect'
+  alt='element_ImagingEnvironment'
+  coords='436,765,786,824'
+  href='ome.xsd.html#element_ImagingEnvironment'/>
+
+ <area
+  shape='rect'
+  alt='element_Thumbnail'
+  coords='436,834,786,893'
+  href='ome.xsd.html#element_Thumbnail'/>
+
+ <area
+  shape='rect'
+  alt='element_LogicalChannel'
+  coords='436,903,786,962'
+  href='ome.xsd.html#element_LogicalChannel'/>
+
+ <area
+  shape='rect'
+  alt='element_DisplayOptions'
+  coords='436,972,786,1031'
+  href='ome.xsd.html#element_DisplayOptions'/>
+
+ <area
+  shape='rect'
+  alt='element_StageLabel'
+  coords='436,1041,786,1100'
+  href='ome.xsd.html#element_StageLabel'/>
+
+ <area
+  shape='rect'
+  alt='element_Pixels'
+  coords='436,1110,786,1169'
+  href='ome.xsd.html#element_Pixels'/>
+
+ <area
+  shape='rect'
+  alt='element_Region'
+  coords='436,1179,786,1238'
+  href='ome.xsd.html#element_Region'/>
+
+ <area
+  shape='rect'
+  alt='element_CustomAttributes'
+  coords='436,1248,780,1307'
+  href='ome.xsd.html#element_CustomAttributes'/>
+
+ <area
+  shape='rect'
+  alt='element_ROI'
+  coords='436,1317,786,1376'
+  href='ome.xsd.html#element_ROI'/>
+
+ <area
+  shape='rect'
+  alt='element_MicrobeamManipulation'
+  coords='436,1386,786,1445'
+  href='ome.xsd.html#element_MicrobeamManipulation'/>
+
+</map>

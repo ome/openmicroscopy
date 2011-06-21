@@ -389,8 +389,6 @@ public abstract class ActivityComponent
 		toolBar.add(Box.createHorizontalStrut(5));
 		toolBar.add(infoButton);
 		toolBar.add(Box.createHorizontalStrut(5));
-		//toolBar.add(infoButton);
-		//toolBar.add(Box.createHorizontalStrut(5));
 		buttonIndex = 12;
 		//}
 		toolBar.add(cancelButton);
@@ -474,7 +472,6 @@ public abstract class ActivityComponent
 	{
 		if (exception == null) return;
 		viewer.notifyError(type.getText(), messageLabel.getText(), exception);
-		
 	}
 	
 	/**
@@ -486,13 +483,22 @@ public abstract class ActivityComponent
      * @param text		The text of the activity.
      * @param icon		The icon to display then done.
      */
-	ActivityComponent(UserNotifier viewer, Registry registry, String 
-			text, Icon icon)
+	ActivityComponent(UserNotifier viewer, Registry registry)
 	{
 		if (viewer == null) throw new NullPointerException("No viewer.");
     	if (registry == null) throw new NullPointerException("No registry.");
     	this.viewer = viewer;
     	this.registry = registry;
+	}
+	
+	/**
+	 * Initializes the components.
+	 * 
+	 * @param text		The text of the activity.
+     * @param icon		The icon to display then done.
+	 */
+	void initialize(String text, Icon icon)
+	{
 		initComponents(text, icon);
 		buildGUI();
 	}
@@ -514,14 +520,9 @@ public abstract class ActivityComponent
      */
     JButton createButton(String text, int actionID, ActionListener l)
     {
-    	JButton b = new JButton(text);
-    	Font f = b.getFont();
-    	b.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+    	JButton b = UIUtilities.createHyperLinkButton(text);
 		b.setActionCommand(""+actionID);
 		b.addActionListener(l);
-		b.setOpaque(false);
-		b.setForeground(UIUtilities.HYPERLINK_COLOR);
-		UIUtilities.unifiedButtonLookAndFeel(b);
 		return b;
     }
 
@@ -608,6 +609,24 @@ public abstract class ActivityComponent
 	}
 	
 	/**
+	 * Returns the text of the viewable object.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	String getViewTooltip(Object object)
+	{
+		String tp = "View Object";
+		if (!isViewable(object)) return tp;
+		if (object instanceof DatasetData) 
+			return "Browse Dataset: "+((DatasetData) object).getName();
+		else if (object instanceof ProjectData) 
+			return "Browse Project: "+((ProjectData) object).getName();
+		return tp;
+	}
+	
+	
+	/**
 	 * Returns <code>true</code> if the object can be viewed, 
 	 * <code>false</code> otherwise.
 	 * 
@@ -683,6 +702,8 @@ public abstract class ActivityComponent
 	{
 		if (!(object instanceof FileAnnotationData || 
 				object instanceof OriginalFile)) return;
+		if (downloadButton != null)
+			downloadButton.setEnabled(false);
 		int index = -1;
 		if (text == null) text = "";
 		String name = "";
@@ -762,6 +783,7 @@ public abstract class ActivityComponent
 	 */
 	void view(Object object)
 	{
+		if (viewButton != null) viewButton.setEnabled(false);
 		if (object instanceof FileAnnotationData || 
 				object instanceof OriginalFile) {
 			open(object, new ApplicationData(""));
@@ -791,11 +813,17 @@ public abstract class ActivityComponent
 	public void notifyError(String text, String message, Throwable ex)
 	{
 		reset();
-		if (text != null) type.setText(text);
-		if (message != null) messageLabel.setText(message);
+		if (text != null) {
+			type.setText(text);
+			if (message != null)
+				type.setToolTipText(message);
+		}
+		//if (message != null) messageLabel.setText(message);
 		exception = ex;
 		if (exception != null) {
 			exceptionButton.setVisible(true);
+			exceptionButton.setToolTipText(
+					UIUtilities.formatExceptionForToolTip(ex));
 		}
 		notifyActivityError();
 		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
@@ -823,11 +851,12 @@ public abstract class ActivityComponent
 					entry = (Entry) i.next();
 					this.result = entry.getValue();
 				}
-			} else this.result = m;
+			} else this.result = m; //can be an empty map
 		}
 		downloadButton.setVisible(isDownloadable(this.result));
 		if (isViewable(this.result)) {
 			viewButton.setText(getViewText(this.result));
+			viewButton.setToolTipText(getViewTooltip(this.result));
 			viewButton.setVisible(true);
 		} else viewButton.setVisible(false);
 		
@@ -889,6 +918,7 @@ public abstract class ActivityComponent
 				download("", result);
 				break;
 			case CANCEL:
+				if (cancelButton != null) cancelButton.setEnabled(false);
 				if (loader != null) loader.cancel();
 				break;
 			case VIEW:

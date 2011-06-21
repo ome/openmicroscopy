@@ -150,7 +150,7 @@ public class OneKnobSliderUI
 
 	/** The height of the thumb. */
 	private int					thumbHeight;
-
+	
 	/** Load the thumb and arrow images. */
 	private void loadThumbArrowImage()
 	{
@@ -311,7 +311,7 @@ public class OneKnobSliderUI
 	{
 		super(slider);
 		showArrows = true;
-		loadThumbArrowImage();    
+		loadThumbArrowImage();
 		showEndLabel = false;
 		endLabelRect = new Rectangle();
 	}
@@ -367,16 +367,42 @@ public class OneKnobSliderUI
 	 */
 	void setArrowsImageIcon(ImageIcon up, ImageIcon down)
 	{
+		setArrowsImageIcon(up, down, null, null);
+	}
+
+	/**
+	 * Replaces the arrows icons by the specified one.
+	 * 
+	 * @param up	The icon displayed at the top of the slider if
+	 * 				vertical, at the right of the slider if horizontal.
+	 * @param down  The icon displayed at the bottom of the slider if
+	 * 				vertical, at the left of the slider if horizontal.
+	 * @param disabledUp The disabled icon displayed at the top of the slider if
+	 * 				vertical, at the right of the slider if horizontal.
+	 * @param disabledDown The disabled icon displayed at the bottom of the 
+	 * 				slider if vertical, at the left of the slider if horizontal.
+	 */
+	void setArrowsImageIcon(ImageIcon up, ImageIcon down, 
+			ImageIcon disabledUp, ImageIcon disabledDown)
+	{
 		if (slider.getOrientation() == JSlider.HORIZONTAL) {
 			rightArrowImage = up.getImage();
-			rightArrowDisabledImage = up.getImage();
+			if (disabledUp != null)
+				rightArrowDisabledImage = disabledUp.getImage();
+			else rightArrowDisabledImage = up.getImage();
 			leftArrowImage = down.getImage();
-			leftArrowDisabledImage = down.getImage();
+			if (disabledDown != null)
+				leftArrowDisabledImage = disabledDown.getImage();
+			else leftArrowDisabledImage = down.getImage();
 		} else {
 			upArrowImage = up.getImage();
-			upArrowDisabledImage = up.getImage();
+			if (disabledUp != null)
+				upArrowDisabledImage = disabledUp.getImage();
+			else upArrowDisabledImage = up.getImage();
 			downArrowImage = down.getImage();
-			downArrowDisabledImage = down.getImage();
+			if (disabledDown != null)
+				downArrowDisabledImage = disabledDown.getImage();
+			else downArrowDisabledImage = down.getImage();
 		}
 		arrowWidth = up.getIconWidth();
 		arrowHeight = up.getIconHeight();
@@ -384,7 +410,7 @@ public class OneKnobSliderUI
 		minArrowHeight = down.getIconHeight();
 		this.calculateGeometry();
 	}
-
+	
 	/**
 	 * Returns <code>true</code> if the  arrows on the track, 
 	 * <code>false</code> otherwise.
@@ -545,6 +571,11 @@ public class OneKnobSliderUI
 		public void mouseReleased(MouseEvent event)
 		{
 			super.mouseReleased(event);
+			if (isDragging && slider instanceof OneKnobSlider) {
+				isDragging = false;
+				((OneKnobSlider) slider).onMouseReleased();
+			}
+			
 			/*
           if (showTipLabel && tipDialog != null)
 			{
@@ -569,7 +600,7 @@ public class OneKnobSliderUI
 			// Check to see that the slider is enabled before proceeeding.
 			if (!slider.isEnabled())
 				return;
-
+			isDragging = true;
 			// Get mouse x, y positions.
 			currentMouseX = event.getX();
 			currentMouseY = event.getY();
@@ -582,23 +613,23 @@ public class OneKnobSliderUI
 				if (minArrowRect.contains(currentMouseX, currentMouseY))
 				{
 					value = slider.getValue();
+					isDragging = false;
 					if (value > slider.getMinimum())
 					{
 						slider.setValue(value-1);
 						slider.repaint();
 					}
-					isDragging = false;
-					return;     
+					return;
 				}
 				if (maxArrowRect.contains(currentMouseX, currentMouseY))
 				{
 					value = slider.getValue();
+					isDragging = false;
 					if (value < slider.getMaximum())
 					{
 						slider.setValue(value+1);
 						slider.repaint();
 					}
-					isDragging = false;
 					return;
 				}
 			}
@@ -628,7 +659,7 @@ public class OneKnobSliderUI
 			// Check to see that the slider is enabled before proceeeding. 
 			if (!slider.isEnabled())
 				return;
-
+			isDragging = true;
 			// Get mouse x, y positions.
 			currentMouseX = event.getX();
 			currentMouseY = event.getY();
@@ -642,36 +673,37 @@ public class OneKnobSliderUI
 			if (thumbRect.contains(currentMouseX, currentMouseY)) 
 				super.mousePressed(event);
 
+			
 			if (showArrows)
 			{
 				if (minArrowRect.contains(currentMouseX, currentMouseY))
 				{
 					int value = slider.getValue();
+					isDragging = false;
 					if (value > slider.getMinimum())
 					{
-						scrollTimer.stop();
+						//scrollTimer.stop();
 						scrollListener.setScrollByBlock(false);
 						scrollListener.setDirection(
 								OneKnobSliderUI.NEGATIVE_SCROLL);
-						scrollTimer.start();
+						//scrollTimer.start();
 						slider.repaint();
 					}
-					isDragging = false;
-					return;     
+					return;
 				}
 				if (maxArrowRect.contains(currentMouseX, currentMouseY))
 				{
 					int value = slider.getValue();
+					isDragging = false;
 					if (value < slider.getMaximum())
 					{
-						scrollTimer.stop();
+						//scrollTimer.stop();
 						scrollListener.setScrollByBlock(false);
 						scrollListener.setDirection(
 								OneKnobSliderUI.POSITIVE_SCROLL);
-						scrollTimer.start();
+						//scrollTimer.start();
 						slider.repaint();
 					}
-					isDragging = false;
 					return;
 				}
 			}
@@ -689,6 +721,7 @@ public class OneKnobSliderUI
 		public void mouseDragged(MouseEvent event) 
 		{
 			super.mouseDragged(event);
+			isDragging = true;
 			/*
 			if (showTipLabel && tipDialog != null && endLabel != null &&
 				slider.isVisible())

@@ -88,6 +88,11 @@ p {
 	padding-left: 20px;
 }
 
+p.Deprecated {
+	border-left: 3em solid red;
+	color: #c50038;
+}
+
 pre {
 	padding-left: 40px;
 	font-weight: bold;

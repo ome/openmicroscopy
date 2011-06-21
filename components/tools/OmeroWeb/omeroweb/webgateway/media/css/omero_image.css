@@ -379,6 +379,13 @@ INPUT.changed {
   /* max-width: 600px; */
 }
 
+#roi_table_postit {
+    width:175px;
+}
+#roi_table_postit table {
+    width: 100%;
+}
+
 .thumbslider {
   position: absolute;
   left: 165px;
@@ -616,4 +623,20 @@ input.spin-button {
 
 #rdef-postit .even {
   background-color: #C4CFD5;   
+}
+
+/* Styles for the ROI table */
+#roi_small_table th {
+    background-color: #ccc; 
+    padding: 1px;
+}
+#roi_small_table td {
+    background-color: #fff; 
+    text-align: center;
+}
+#roi_small_table .shape_cell {
+    cursor: pointer;
+}
+#roi_small_table .roi_row th {
+    cursor: pointer;
 }

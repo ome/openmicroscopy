@@ -13,7 +13,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 // Application-internal dependencies
-import ome.io.nio.PixelData;
+import ome.util.PixelData;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.quantum.BinaryMaskQuantizer;
@@ -237,6 +237,7 @@ class RenderHSBRegionTask implements RenderingTask {
                     else
                     	discreteValue = 
                     		qs.quantize(plane.getPixelValue(x1, x2));
+                    
                     // Right now we have no transforms being used so it's safe to
                     // comment this out for the time being.
                     //discreteValue = cc.transform(discreteValue);

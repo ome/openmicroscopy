@@ -28,6 +28,8 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Map;
@@ -64,8 +66,10 @@ public class DrawingObjectCreationTool
 	extends AbstractTool
 	implements DrawingCreationTool
 {	
+	
 	/** Reset the tool to the select tool. */
-	private boolean resetToSelect = false;
+	private boolean resetToSelect;
+	
 	 /**
      * Attributes to be applied to the created ConnectionFigure.
      * These attributes override the default attributes of the
@@ -78,56 +82,87 @@ public class DrawingObjectCreationTool
      * UndoableEdit.
      */
     private String presentationName;
+    
     /**
-     * Treshold for which we create a larger shape of a minimal size.
+     * Threshold for which we create a larger shape of a minimal size.
      */
-    private Dimension minimalSizeTreshold = new Dimension(2,2);
+    private Dimension minimalSizeTreshold = new Dimension(2, 2);
+    
     /**
      * We set the figure to this minimal size, if it is smaller than the
-     * minimal size treshold.
+     * minimal size threshold.
      */
-    private Dimension minimalSize = new Dimension(10,10);
-    /**
-     * The prototype for new figures.
-     */
+    private Dimension minimalSize = new Dimension(10, 10);
+    
+    /** The prototype for new figures. */
     private Figure prototype;
-    /**
-     * The created figure.
-     */
+    
+    /** The created figure. */
     protected Figure createdFigure;
     
-    /** Creates a new instance. */
-    public DrawingObjectCreationTool(String prototypeClassName) {
+    /**
+     * Creates a new instance.
+     * 
+     * @param prototypeClassName The type of prototype to create.
+     */
+    public DrawingObjectCreationTool(String prototypeClassName)
+    {
         this(prototypeClassName, null, null);
     }
-    public DrawingObjectCreationTool(String prototypeClassName, Map<AttributeKey, Object> attributes) {
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param prototypeClassName The type of prototype to create.
+     * @param attributes The attributes to add.
+     */
+    public DrawingObjectCreationTool(String prototypeClassName, 
+    		Map<AttributeKey, Object> attributes)
+    {
         this(prototypeClassName, attributes, null);
     }
-    public DrawingObjectCreationTool(String prototypeClassName, Map<AttributeKey, Object> attributes, String name) {
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param prototypeClassName The type of prototype to create.
+     * @param attributes The attributes to add.
+     * @param name The name to display.
+     */
+    public DrawingObjectCreationTool(String prototypeClassName, 
+    		Map<AttributeKey, Object> attributes, String name)
+    {
         try {
-            this.prototype = (Figure) Class.forName(prototypeClassName).newInstance();
+            this.prototype = 
+            	(Figure) Class.forName(prototypeClassName).newInstance();
         } catch (Exception e) {
-            InternalError error = new InternalError("Unable to create Figure from "+prototypeClassName);
+            InternalError error = new InternalError(
+            		"Unable to create Figure from "+prototypeClassName);
             error.initCause(e);
             throw error;
         }
         this.prototypeAttributes = attributes;
         if (name == null) {
-            ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.draw.Labels");
+            ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle(
+            		"org.jhotdraw.draw.Labels");
             name = labels.getString("createFigure");
         }
         this.presentationName = name;
     }
-    /** Creates a new instance with the specified prototype but without an
+    
+    /** 
+     * Creates a new instance with the specified prototype but without an
      * attribute set. The CreationTool clones this prototype each time a new
      *  Figure needs to be created. When a new Figure is created, the
      * CreationTool applies the default attributes from the DrawingEditor to it.
      *
      * @param prototype The prototype used to create a new Figure.
      */
-    public DrawingObjectCreationTool(Figure prototype) {
+    public DrawingObjectCreationTool(Figure prototype)
+    {
         this(prototype, null, null);
     }
+    
     /** Creates a new instance with the specified prototype but without an
      * attribute set. The CreationTool clones this prototype each time a new
      * Figure needs to be created. When a new Figure is created, the
@@ -139,9 +174,12 @@ public class DrawingObjectCreationTool
      * @param attributes The CreationTool applies these attributes to the
      * prototype after having applied the default attributes from the DrawingEditor.
      */
-    public DrawingObjectCreationTool(Figure prototype, Map<AttributeKey, Object> attributes) {
+    public DrawingObjectCreationTool(Figure prototype, 
+    		Map<AttributeKey, Object> attributes)
+    {
         this(prototype, attributes, null);
     }
+    
     /**
      * Creates a new instance with the specified prototype and attribute set.
      *
@@ -150,27 +188,43 @@ public class DrawingObjectCreationTool
      * prototype after having applied the default attributes from the DrawingEditor.
      * @param presentationName The presentationName parameter is currently not used.
      */
-    public DrawingObjectCreationTool(Figure prototype, Map<AttributeKey, Object> attributes, String name) {
+    public DrawingObjectCreationTool(Figure prototype, 
+    		Map<AttributeKey, Object> attributes, String name)
+    {
         this.prototype = prototype;
         this.prototypeAttributes = attributes;
         if (name == null) {
-            ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.draw.Labels");
+            ResourceBundleUtil labels = 
+            	ResourceBundleUtil.getLAFBundle("org.jhotdraw.draw.Labels");
             name = labels.getString("createFigure");
         }
         this.presentationName = name;
     }
     
-    public Figure getPrototype() {
-        return prototype;
-    }
+    /**
+     * Returns the prototype.
+     * 
+     * @return See above.
+     */
+    public Figure getPrototype() { return prototype; }
     
-    public void activate(DrawingEditor editor) {
+    /**
+     * Overridden to set the cursor and reset the figure.
+     * @see AbstractTool#activate(DrawingEditor)
+     */
+    public void activate(DrawingEditor editor)
+    {
         super.activate(editor);
         //getView().clearSelection();
         //getView().setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
     }
     
-    public void deactivate(DrawingEditor editor) {
+    /**
+     * Overridden to set the cursor and reset the figure.
+     * @see AbstractTool#deactivate(DrawingEditor)
+     */
+    public void deactivate(DrawingEditor editor)
+    {
         super.deactivate(editor);
         if (getView() != null) {
             getView().setCursor(Cursor.getDefaultCursor());
@@ -183,8 +237,12 @@ public class DrawingObjectCreationTool
         }
     }
     
-    
-    public void mousePressed(MouseEvent evt) {
+    /**
+     * Handles the figure is not <code>null</code>.
+     * @see MouseListener#mousePressed(MouseEvent)
+     */
+    public void mousePressed(MouseEvent evt)
+    {
         super.mousePressed(evt);
         getView().clearSelection();
         createdFigure = createFigure();
@@ -195,32 +253,46 @@ public class DrawingObjectCreationTool
         getDrawing().add(createdFigure);
     }
     
-    public void mouseDragged(MouseEvent evt) {
+    /**
+     * Handles the figure is not <code>null</code>.
+     * @see MouseMotionListener#mouseDragged(MouseEvent)
+     */
+    public void mouseDragged(MouseEvent evt)
+    {
         if (createdFigure != null) {
             Point2D.Double p = constrainPoint(new Point(evt.getX(), evt.getY()));
             createdFigure.willChange();
+            
             createdFigure.setBounds(
-                    constrainPoint(new Point(anchor.x, anchor.y)),
-                    p
-                    );
+                    constrainPoint(new Point(anchor.x, anchor.y)), p );
             createdFigure.changed();
         }
     }
-    public void mouseReleased(MouseEvent evt) {
+    
+    /**
+     * Handles the figure is not <code>null</code>.
+     * @see MouseListener#mouseReleased(MouseEvent)
+     */
+    public void mouseReleased(MouseEvent evt)
+    {
         if (createdFigure != null) {
             Rectangle2D.Double bounds = createdFigure.getBounds();
             if (bounds.width == 0 && bounds.height == 0) {
                 getDrawing().remove(createdFigure);
                 fireToolDone();
             } else {
-                if (Math.abs(anchor.x - evt.getX()) < minimalSizeTreshold.width &&
-                        Math.abs(anchor.y - evt.getY()) < minimalSizeTreshold.height) {
+                if (Math.abs(anchor.x - evt.getX()) < 
+                		minimalSizeTreshold.width &&
+                        Math.abs(anchor.y - evt.getY()) < 
+                        minimalSizeTreshold.height) {
                     createdFigure.willChange();
                     createdFigure.setBounds(
                             constrainPoint(new Point(anchor.x, anchor.y)),
                             constrainPoint(new Point(
-                            anchor.x + (int) Math.max(bounds.width, minimalSize.width),
-                            anchor.y + (int) Math.max(bounds.height, minimalSize.height)
+                            anchor.x + (int) Math.max(bounds.width, 
+                            		minimalSize.width),
+                            anchor.y + (int) Math.max(bounds.height, 
+                            		minimalSize.height)
                             ))
                             );
                     createdFigure.changed();
@@ -231,7 +303,8 @@ public class DrawingObjectCreationTool
                 }
                 final Figure addedFigure = createdFigure;
                 final Drawing addedDrawing = getDrawing();
-                getDrawing().fireUndoableEditHappened(new AbstractUndoableEdit() {
+                getDrawing().fireUndoableEditHappened(
+                		new AbstractUndoableEdit() {
                     public String getPresentationName() {
                         return presentationName;
                     }
@@ -250,26 +323,41 @@ public class DrawingObjectCreationTool
             fireToolDone();
         }
     }
-    protected Figure createFigure() {
+    
+    /**
+     * Creates a figure.
+     * 
+     * @return See above.
+     */
+    protected Figure createFigure()
+    {
         Figure f = (Figure) prototype.clone();
         getEditor().applyDefaultAttributesTo(f);
         if (prototypeAttributes != null) {
-            for (Map.Entry<AttributeKey, Object> entry : prototypeAttributes.entrySet()) {
+            for (Map.Entry<AttributeKey, Object> 
+            entry : prototypeAttributes.entrySet()) {
                 f.setAttribute(entry.getKey(), entry.getValue());
             }
         }
         return f;
     }
     
-    protected Figure getCreatedFigure() {
-        return createdFigure;
-    }
-    protected Figure getAddedFigure() {
-        return createdFigure;
-    }
+    /**
+     * Returns the created figure.
+     * 
+     * @return See above.
+     */
+    protected Figure getCreatedFigure() { return createdFigure; }
     
     /**
-     * This method allows subclasses to do perform additonal user interactions
+     * Returns the added figure.
+     * 
+     * @return See above.
+     */
+    protected Figure getAddedFigure() { return createdFigure; }
+    
+    /**
+     * This method allows subclasses to do perform additional user interactions
      * after the new figure has been created.
      * The implementation of this class just invokes fireToolDone.
      * 

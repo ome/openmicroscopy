@@ -25,12 +25,10 @@ package org.openmicroscopy.shoola.util.ui.login;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -42,6 +40,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -160,8 +159,11 @@ public class ScreenLogin
 	/** The number of column of the text field. */
 	private static final int		TEXT_COLUMN = 12;
 	
+	/** The maximum number of characters.*/
+	private static final int 		MAX_CHAR = 50;
+	
 	/** Text field to enter the login user name. */
-	private JTextField          user;
+	private static JTextField          user;
 
 	/** Password field to enter login password. */
 	private JPasswordField      pass;
@@ -179,7 +181,7 @@ public class ScreenLogin
 	private String				serverName;
 
 	/** Field hosting the server text. */
-	private JTextPane 			serverText;
+	private static JTextPane 	serverText;
 	
 	/** The UI component hosting the server text. */
 	private JPanel 				serverTextPane;
@@ -240,6 +242,9 @@ public class ScreenLogin
 	/** Flag indicating that the transfer of data is secured or not. */
 	private boolean				encrypted;
 	
+	/** The map hosting the real group names.*/
+	private Map<Integer, String> groupNames;
+	
 	/** Quits the application. */
 	private void quit()
 	{
@@ -247,8 +252,8 @@ public class ScreenLogin
 		String server = serverText.getText();
 		if (usr == null) usr = "";
 		if (server == null) server = "";
-		if (!server.equals(originalServerName) || !usr.equals(originalName))
-			registerGroup(null);
+		//if (!server.equals(originalServerName) || !usr.equals(originalName))
+			//registerGroup(null);
 	
 		firePropertyChange(QUIT_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));
@@ -282,7 +287,7 @@ public class ScreenLogin
 			long id = -1L;
 			if (hasGroupOption() && groupsBox.isVisible()) 
 				//id = getGroupId(groupsBox.getText());
-				id = getGroupId((String) groupsBox.getSelectedItem());
+				id = getGroupId(groupNames.get(groupsBox.getSelectedIndex()));
 			
 			lc = new LoginCredentials(usr, psw, s, speedIndex, 
 					selectedPort, id, encrypted);
@@ -311,42 +316,6 @@ public class ScreenLogin
 		return -1L;
 	}
 	
-	/**
-	 * Displays the menu with the available groups.
-	 * 
-	 * @param invoker The component invoking the menu.
-	 * @param p		  The location of the mouse pressed.
-	 */
-	private void groupSelection(Component invoker, Point p)
-	{
-		/*
-		JPopupMenu menu = new JPopupMenu();
-		String selected = groupsBox.getText();
-		String value;
-		JCheckBoxMenuItem item;
-		ButtonGroup group = new ButtonGroup();
-		for (int i = 0; i < groupValues.length; i++) {
-			value = groupValues[i];
-			item = new JCheckBoxMenuItem(value);
-			item.setSelected(value.equals(selected));
-			item.setActionCommand(""+getGroupId(value));
-			item.addActionListener(new ActionListener() {
-				
-				public void actionPerformed(ActionEvent e) {
-					Object src = e.getSource();
-					if (src instanceof JCheckBoxMenuItem) {
-						JCheckBoxMenuItem item = (JCheckBoxMenuItem) src;
-						groupsBox.setText(item.getText());
-					}
-				}
-			});
-			group.add(item);
-			menu.add(item);
-		}
-		menu.show(invoker, p.x, p.y);
-		*/
-	}
-	
 	/** 
 	 * Returns <code>true</code> if the group option can be displayed if
 	 * available, <code>false</code> otherwise.
@@ -357,9 +326,7 @@ public class ScreenLogin
 	{
 		String usr = user.getText().trim();
 		String s = serverText.getText().trim();
-		if (usr.equals(originalName) && s.equals(originalServerName)) 
-			return true;
-		return false;
+		return (usr.equals(originalName) && s.equals(originalServerName));
 	}
 	
 	/** 
@@ -466,12 +433,58 @@ public class ScreenLogin
 		button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	}
 	
+	/** Initializes the groups.*/
+	private void initializeGroups()
+	{
+		groups = getGroups();
+		if (groups != null && groups.size() > 1) {
+			groupNames = new HashMap<Integer, String>();
+			groupValues = new String[groups.size()];
+			Entry entry;
+			Iterator i = groups.entrySet().iterator();
+			int index = 0;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				groupValues[index] = (String) entry.getValue();
+				index++;
+			}
+			String selectedGroup = groupValues[groupValues.length-1];
+			
+			//Review the groups
+			Arrays.sort(groupValues, new StringComparator());
+			String[] sorted = new String[groupValues.length];
+			String v;
+			String value;
+			for (int j = 0; j < groupValues.length; j++) {
+				v = groupValues[j];
+				value = v;
+				if (v.length() > MAX_CHAR) {
+					value = v.substring(0, MAX_CHAR)+"...";
+				}
+				groupNames.put(j, v);
+				sorted[j] = value;
+				if (selectedGroup.equals(v)) {
+					selectedGroup = value;
+				}
+			}
+			
+			
+			
+			groupsBox = new JComboBox(sorted);
+			groupsBox.setSelectedItem(selectedGroup);
+		} else {
+			if (groupNames != null) groupNames.clear();
+			groupsBox = null;
+		}
+	}
+	
 	/** 
 	 * Creates and initializes the components
 	 * 
 	 * @param userName The name of the user.
+	 * @param hostName The default hostName.
 	 */
-	private void initialize(String userName)
+	private void initialize(String userName, String hostName)
 	{
 		originalName = userName;
 		user = new JTextField();
@@ -482,26 +495,53 @@ public class ScreenLogin
 		pass.setToolTipText("Enter your password.");
 		pass.setColumns(TEXT_COLUMN);
 		Map<String, String> servers = editor.getServers();
-		if (servers == null || servers.size() == 0) 
-			serverName = DEFAULT_SERVER;
-		else {
-			int n = servers.size()-1;
-			Iterator<String> i = servers.keySet().iterator();
-			int k = 0;
-			String value;
-			while (i.hasNext()) {
-				serverName = i.next();
-				if (k == n) {
-					value = servers.get(serverName);
-					if (value != null) {
-						try {
-							selectedPort = Integer.parseInt(value);
-						} catch (Exception e) {}
+		if (hostName != null && hostName.trim().length() > 0) {
+			serverName = hostName;
+			//if user did point to another server
+			if (servers != null && servers.size() > 0) {
+				int n = servers.size()-1;
+				Iterator<String> i = servers.keySet().iterator();
+				int k = 0;
+				String value;
+				while (i.hasNext()) {
+					serverName = i.next();
+					if (k == n) {
+						value = servers.get(serverName);
+						if (value != null) {
+							try {
+								selectedPort = Integer.parseInt(value);
+							} catch (Exception e) {}
+						}
 					}
+					k++;
 				}
-				k++;
+			} else {
+				editor.removeLastRow();
+				editor.addRow(hostName);
+			}
+		} else {
+			if (servers == null || servers.size() == 0) 
+				serverName = DEFAULT_SERVER;
+			else {
+				int n = servers.size()-1;
+				Iterator<String> i = servers.keySet().iterator();
+				int k = 0;
+				String value;
+				while (i.hasNext()) {
+					serverName = i.next();
+					if (k == n) {
+						value = servers.get(serverName);
+						if (value != null) {
+							try {
+								selectedPort = Integer.parseInt(value);
+							} catch (Exception e) {}
+						}
+					}
+					k++;
+				}
 			}
 		}
+		
 		if (!DEFAULT_SERVER.equals(serverName))
 			originalServerName = serverName;
 		connectionSpeedText = new JLabel(getConnectionSpeed());
@@ -513,42 +553,7 @@ public class ScreenLogin
 				false);
 		serverTextPane.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
 		
-		groups = getGroups();
-		if (groups != null && groups.size() > 1) {
-			groupValues = new String[groups.size()];
-			Entry entry;
-			Iterator i = groups.entrySet().iterator();
-			int index = 0;
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				groupValues[index] = (String) entry.getValue();
-				index++;
-			}
-
-			String selectedGroup = groupValues[groupValues.length-1];
-			Arrays.sort(groupValues, new StringComparator());
-			
-			groupsBox = new JComboBox(groupValues);
-			groupsBox.setSelectedItem(selectedGroup);
-		}
-		
-		
-		
-		/*
-		IconManager icons = IconManager.getInstance();
-		groupsBox = new JButton(icons.getIcon(IconManager.UP_DOWN_9_12));
-		groupsBox.setText(selectedGroup);
-		groupsBox.addMouseListener(new MouseAdapter() {
-			
-
-			public void mouseReleased(MouseEvent e) {
-				Object src = e.getSource();
-				if (src instanceof Component)
-					groupSelection((Component) src, e.getPoint());
-			}
-		});
-		*/
-		
+		initializeGroups();
 		ref = new ArrayList<JComponent>();
 		login = new JButton("Login");
 		defaultForeground = login.getForeground();
@@ -559,7 +564,7 @@ public class ScreenLogin
 		UIUtilities.opacityCheck(login);
 		cancel = new JButton("Quit");
 		cancel.setMnemonic('Q');
-		cancel.setToolTipText("Quit the Application.");
+		cancel.setToolTipText("Cancel Login.");
 		setButtonDefault(cancel);
 		UIUtilities.opacityCheck(cancel);
 		configButton = new JButton();
@@ -735,8 +740,8 @@ public class ScreenLogin
 		background.setBounds(0, 0, width, height);
 		p.setBounds(0, 0, width, height);
 
-		layers.add(background, new Integer(0));
-		layers.add(p, new Integer(1));
+		layers.add(background, Integer.valueOf(0));
+		layers.add(p, Integer.valueOf(1));
 		getContentPane().add(layers); 
 	}
 
@@ -787,6 +792,8 @@ public class ScreenLogin
 		//serverText.repaint();
 		serverTextPane.validate();
 		serverTextPane.repaint();
+		initializeGroups();
+		layout(groupsBox != null);
 		enableControls();
 	}
 
@@ -933,11 +940,15 @@ public class ScreenLogin
         String name;
         long id;
         String[] values;
+        String userName;
+        String serverName;
+        String selectedName = user.getText();
+        String selectedServer = serverText.getText();
         for (index = 0; index < l.length; index++) {
         	group = l[index].trim();
         	if (group.length() > 0) {
         		values = group.split(ServerEditor.SERVER_PORT_SEPARATOR, 0);
-        		if (values.length > 1) {
+        		if (values.length == 2) {
         			name = values[1];
         			try {
 						id = Long.parseLong(values[0]);
@@ -945,6 +956,19 @@ public class ScreenLogin
 					} catch (Exception e) {
 						//ignore: not possible to read the group
 					}
+        		} else if (values.length == 4) {
+        			userName = values[0];
+        			serverName = values[1];
+        			name = values[3];
+        			if (userName.equals(selectedName) &&
+        					serverName.equals(selectedServer)) {
+        				try {
+    						id = Long.parseLong(values[2]);
+    						groups.put(id, name);
+    					} catch (Exception e) {
+    						//ignore: not possible to read the group
+    					}
+        			}
         		}
         	}
         }	
@@ -975,9 +999,10 @@ public class ScreenLogin
 	 * @param frameIcon  The image icon for the window.
 	 * @param version	 The version of the software.
 	 * @param defaultPort The default port.
+	 * @param hostName   The default host name.
 	 */
 	public ScreenLogin(String title, Icon logo, Image frameIcon, String version,
-			String defaultPort)
+			String defaultPort, String hostName)
 	{
 		super();
 		selectedPort = -1;
@@ -991,7 +1016,7 @@ public class ScreenLogin
 		editor = new ServerEditor(defaultPort);
 		editor.addPropertyChangeListener(ServerEditor.REMOVE_PROPERTY, this);
 		speedIndex = retrieveConnectionSpeed();
-		initialize(getUserName());
+		initialize(getUserName(), hostName);
 		initListeners();
 		buildGUI(logo, version);
 		encrypt();
@@ -1010,6 +1035,22 @@ public class ScreenLogin
 				requestFocusOnField();
 			}
 		});
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param title		 The frame's title.
+	 * @param logo		 The frame's background logo. 
+	 * 					 Mustn't be <code>null</code>.
+	 * @param frameIcon  The image icon for the window.
+	 * @param version	 The version of the software.
+	 * @param defaultPort The default port.
+	 */
+	public ScreenLogin(String title, Icon logo, Image frameIcon, String version,
+			String defaultPort)
+	{
+		this(title, logo, frameIcon, version, defaultPort, null);
 	}
 
 	/**
@@ -1173,7 +1214,7 @@ public class ScreenLogin
 	{
 		cancel.setMnemonic(mnemonic);
 	}
-	
+
 	/**
 	 * Registers the passed groups.
 	 * 
@@ -1194,18 +1235,23 @@ public class ScreenLogin
 		int n = groups.size()-1;
 		int index = 0;
 		String list = "";
-		String value;
 		Long id;
+		StringBuffer buffer = new StringBuffer();
+		//need to get the 
+		String value = user.getText()+ServerEditor.SERVER_PORT_SEPARATOR+
+		serverText.getText()+ServerEditor.SERVER_PORT_SEPARATOR;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			id = (Long) entry.getKey();
-			list += ""+id;
-			list += ServerEditor.SERVER_PORT_SEPARATOR;
+			buffer.append(value);
+			buffer.append(""+id);
+			buffer.append(ServerEditor.SERVER_PORT_SEPARATOR);
 			if (entry.getValue() != null)
-				list += (String) entry.getValue();
-			if (index != n)  list += ServerEditor.SERVER_NAME_SEPARATOR;
+				buffer.append((String) entry.getValue());
+			if (index != n) buffer.append(ServerEditor.SERVER_NAME_SEPARATOR);
 			index++;
 		}
+		list = buffer.toString();
 		if (list.length() != 0) {
 			prefs.put(OMERO_USER_GROUP, "");
 			prefs.put(OMERO_USER_GROUP, list);

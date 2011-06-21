@@ -25,8 +25,10 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.Icon;
@@ -39,7 +41,12 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import omero.RType;
 import omero.grid.JobParams;
 import omero.grid.Param;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.ImageData;
+import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Hosts the information about a given script.
@@ -102,6 +109,36 @@ public class ScriptObject
 	/** Indicates that the script is a <code>Region</code> script. */
 	public static final int OTHER = 4;
 	
+	/** The default version. */
+	private static final String VERSION = "1.0";
+	
+	/** Tag identifying the data types.*/
+	private static final String DATA_TYPE = "Data_Type";
+	
+	/** Identifies the <code>Image</code> type.*/
+	private static final String IMAGE_TYPE = "image";
+	
+	/** Identifies the <code>Dataset</code> type.*/
+	private static final String DATASET_TYPE = "dataset";
+	
+	/** Identifies the <code>Project</code> type.*/
+	private static final String PROJECT_TYPE = "project";
+	
+	/** Identifies the <code>Screen</code> type.*/
+	private static final String SCREEN_TYPE = "screen";
+	
+	/** Identifies the <code>Plate</code> type.*/
+	private static final String PLATE_TYPE = "plate";
+
+	/** The possible keys to identify the object's identifiers.*/
+	private static final List<String> IDENTIFIER_KEYS;
+	
+	static {
+		IDENTIFIER_KEYS = new ArrayList<String>();
+		IDENTIFIER_KEYS.add("id");
+		IDENTIFIER_KEYS.add("ids");
+	}
+	
 	/** The id of the script. */
 	private long scriptID;
 	
@@ -123,12 +160,6 @@ public class ScriptObject
 	/** The version of the script. */
 	private String version;
 
-	/** The parameters of the script. */
-	private Map<String, Class> parameterTypes;
-	
-	/** The values to pass to the script. */
-	private Map<String, Object> parameterValues;
-	
 	/** The input parameters. */
 	private Map<String, ParamData> inputs;
 	
@@ -151,13 +182,38 @@ public class ScriptObject
 	private int 	  category;
 	
 	/** The folder. */
-	private String 	  folder;
+	private String	folder;
 	
 	/** 
 	 * Flag indicating if the script is an official script i.e.
 	 * release by the team or not.
 	 */
-	private boolean   official;
+	private boolean	official;
+	
+	/** The specified data types if set e.g. image.*/
+	private List<Class> dataTypes;
+	
+	/**
+	 * Converts the specified values to the corresponding class.
+	 * 
+	 * @param values The values to handle.
+	 */
+	private void populateDataTypes(List<Object> values)
+	{
+		if (values == null || values.size() == 0) return;
+		dataTypes = new ArrayList<Class>();
+		Iterator<Object> i = values.iterator();
+		Object object;
+		String value;
+		while (i.hasNext()) {
+			object = i.next();
+			if (object instanceof String) {
+				value = (String) object;
+				value = value.toLowerCase();
+				dataTypes.add(convertDataType(value));
+			}
+		}
+	}
 	
 	/** Converts the parameters. */
 	private void convertJobParameters()
@@ -181,10 +237,18 @@ public class ScriptObject
 		inputs = new HashMap<String, ParamData>();
 		if (map != null) {
 			i = map.entrySet().iterator();
+			String key;
+			ParamData param;
+			List<Object> values;
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				p = (Param) entry.getValue();
-				inputs.put((String) entry.getKey(), new ParamData(p));
+				key = (String) entry.getKey();
+				param = new ParamData(p);
+				inputs.put(key, param);
+				if (DATA_TYPE.equals(key)) {
+					populateDataTypes(param.getValues());
+				}
 			}
 		}
 		map = parameters.outputs;
@@ -424,6 +488,7 @@ public class ScriptObject
 	public String getVersion()
 	{ 
 		if (parameters != null) return parameters.version;
+		version = VERSION;
 		return version; 
 	}
 
@@ -492,6 +557,63 @@ public class ScriptObject
 	 * @return See above.
 	 */
 	public JobParams getParameters() { return parameters; }
+	
+	/**
+	 * Returns the data types supported if specified.
+	 * 
+	 * @return See above
+	 */
+	public List<Class> getDataTypes() { return dataTypes; }
+	
+	/**
+	 * Returns the Class corresponding to the passed value.
+	 * 
+	 * @param value The value to handle.
+	 * @return See above.
+	 */
+	public Class convertDataType(String value)
+	{
+		if (value == null) return null;
+		value = value.toLowerCase();
+		if (IMAGE_TYPE.equals(value)) {
+			return ImageData.class;
+		} else if (DATASET_TYPE.equals(value)) {
+			return DatasetData.class;
+		} else if (PROJECT_TYPE.equals(value)) {
+			return ProjectData.class;
+		} else if (SCREEN_TYPE.equals(value)) {
+			return ScreenData.class;
+		} else if (PLATE_TYPE.equals(value)) {
+			return PlateData.class;
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the specified key used to collect 
+	 * object's ID, <code>false</code> otherwise.
+	 * 
+	 * @param key The key to handle.
+	 * @return See above.
+	 */
+	public boolean isIdentifier(String key)
+	{
+		if (key == null) return false;
+		key = key.trim().toLowerCase();
+		return IDENTIFIER_KEYS.contains(key);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the specified key is a data type,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param key The key to handle.
+	 * @return See above.
+	 */
+	public boolean isDataType(String key)
+	{
+		return DATA_TYPE.equals(key);
+	}
 	
 	/**
 	 * Overridden to return the name of the script.

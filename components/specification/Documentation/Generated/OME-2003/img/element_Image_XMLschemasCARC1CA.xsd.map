@@ -1,0 +1,44 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Image_XMLschemasCARC1CA.xsd'>
+ <area
+  shape='rect'
+  alt='element_DatasetRef'
+  coords='249,0,375,42'
+  href='CA.xsd.html#element_DatasetRef'/>
+
+ <area
+  shape='rect'
+  alt='element_Feature'
+  coords='249,52,354,94'
+  href='CA.xsd.html#element_Feature'/>
+
+ <area
+  shape='rect'
+  alt='element_CustomAttributes'
+  coords='249,104,417,146'
+  href='CA.xsd.html#element_CustomAttributes'/>
+
+ <area
+  shape='rect'
+  alt='type_ImageID'
+  coords='163,156,257,182'
+  href='ome.xsd.html#type_ImageID'/>
+
+ <area
+  shape='rect'
+  alt='type_ExperimenterID'
+  coords='163,300,321,326'
+  href='ome.xsd.html#type_ExperimenterID'/>
+
+ <area
+  shape='rect'
+  alt='type_GroupID'
+  coords='163,336,272,362'
+  href='ome.xsd.html#type_GroupID'/>
+
+ <area
+  shape='rect'
+  alt='type_PixelsID'
+  coords='163,372,328,398'
+  href='ome.xsd.html#type_PixelsID'/>
+
+</map>

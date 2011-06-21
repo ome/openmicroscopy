@@ -99,7 +99,13 @@ class BaseClient(object):
         if not args:
             args = []
         else:
-            args = list(args)
+            # See ticket:5516 To prevent issues on systems where the base
+            # class of path.path is unicode, we will encode all unicode
+            # strings here.
+            for idx, arg in enumerate(args):
+                if isinstance(arg, unicode):
+                    arg = arg.encode("utf-8")
+                args[idx] = arg
 
         # Equiv to multiple constructors. #######################
         if id == None:
@@ -238,6 +244,11 @@ class BaseClient(object):
             if not ctx:
                 raise ClientError("Ice.ImplicitContext not set to Shared")
             ctx.put(omero.constants.CLIENTUUID, self.__uuid)
+
+            # ticket:2951 - sending user group
+            group = id.properties.getPropertyWithDefault("omero.group", "")
+            if group:
+                ctx.put("omero.group", group)
 
             # Register the default client callback
             self.__oa = self.__ic.createObjectAdapter("omero.ClientCallback")
@@ -789,7 +800,7 @@ class BaseClient(object):
         if not session:
             raise ClientError("No session active")
         a = session.getAdminService()
-        u = a.getEventContext().sessionUuid
+        u = self.getSessionId()
         s = session.getSessionService()
         m = getattr(s, method)
         rv = apply(m, (u,)+args)

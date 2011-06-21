@@ -1,4 +1,6 @@
 import omero
+import omero.clients
+
 ImageI = omero.model.ImageI
 DatasetI = omero.model.DatasetI
 EventI = omero.model.EventI

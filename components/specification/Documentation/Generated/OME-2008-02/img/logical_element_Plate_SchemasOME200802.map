@@ -1,0 +1,14 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_Plate_SchemasOME200802'>
+ <area
+  shape='rect'
+  alt='element_ScreenRef'
+  coords='436,265,786,324'
+  href='ome.xsd.html#element_ScreenRef'/>
+
+ <area
+  shape='rect'
+  alt='element_Well'
+  coords='436,334,786,393'
+  href='ome.xsd.html#element_Well'/>
+
+</map>

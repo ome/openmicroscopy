@@ -28,6 +28,8 @@ import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -74,7 +76,7 @@ class ThumbnailLabel
 							BorderFactory.createLineBorder(Color.black, 1);
 	
 	/** The text displayed in the tool tip when the image has been imported. */
-	static final String	IMAGE_LABEL_TOOLTIP = "Double-Click to view the image.";
+	static final String	IMAGE_LABEL_TOOLTIP = "Click to view the image.";
 	
 	/** The text displayed in the tool tip when the plate has been imported. */
 	static final String	PLATE_LABEL_TOOLTIP = 
@@ -89,8 +91,9 @@ class ThumbnailLabel
 		EventBus bus = ImporterAgent.getRegistry().getEventBus();
 		if (data instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) data;
-			bus.post(new ViewImage(new ViewImageObject(
-					thumbnail.getImage()), null));
+			if (thumbnail.getImage() != null)
+				bus.post(new ViewImage(new ViewImageObject(
+						thumbnail.getImage()), null));
 		} else if (data instanceof ImageData) {
 			ImageData image = (ImageData) data;
 			bus.post(new ViewImage(new ViewImageObject(image), null));
@@ -107,6 +110,53 @@ class ThumbnailLabel
 			RollOverThumbnailManager.rollOverDisplay(thumbnail.getThumbnail(), 
 		   			 getBounds(), getLocationOnScreen(), toString());
 		} 
+	}
+	
+
+	/** 
+	 * Sets the thumbnail to view. 
+	 * 
+	 * @param data The value to set.
+	 */
+	private void setThumbnail(ThumbnailData data)
+	{
+		if (data == null) return;
+		BufferedImage img  = Factory.magnifyImage(0.25, data.getThumbnail());
+		ImageIcon icon = null;
+		if (img != null) icon = new ImageIcon(img);
+		this.data = data;
+		setToolTipText(IMAGE_LABEL_TOOLTIP);
+		setBorder(LABEL_BORDER);
+		if (icon != null) {
+			setIcon(icon);
+		}
+		addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Views the image.
+			 * @see MouseListener#mousePressed(MouseEvent)
+			 */
+			public void mousePressed(MouseEvent e)
+			{
+				if (e.getClickCount() == 1)
+					view(); 
+			}
+
+			/**
+			 * Removes the zooming window from the display.
+			 * @see MouseListener#mouseExited(MouseEvent)
+			 */
+			public void mouseExited(MouseEvent e)
+			{
+				RollOverThumbnailManager.stopOverDisplay();
+			}
+			
+			/**
+			 * Zooms the thumbnail.
+			 * @see MouseListener#mouseEntered(MouseEvent)
+			 */
+			public void mouseEntered(MouseEvent e) { rollOver(); }
+		});
 	}
 	
 	/** Creates a default new instance. */
@@ -127,7 +177,7 @@ class ThumbnailLabel
 	 * 
 	 * @param data The imported image.
 	 */
-	void setData(DataObject data)
+	void setData(Object data)
 	{
 		if (data == null) return;
 		this.data = data;
@@ -137,6 +187,9 @@ class ThumbnailLabel
 			setToolTipText(PLATE_LABEL_TOOLTIP);
 			IconManager icons = IconManager.getInstance();
 			setIcon(icons.getIcon(IconManager.PLATE));
+		} else if (data instanceof ThumbnailData) {
+			setThumbnail((ThumbnailData) data);
+			return;
 		}
 		addMouseListener(new MouseAdapter() {
 			
@@ -146,54 +199,9 @@ class ThumbnailLabel
 			 */
 			public void mousePressed(MouseEvent e)
 			{
-				if (e.getClickCount() == 2)
+				if (e.getClickCount() == 1)
 					view(); 
 			}
-		});
-	}
-
-	/** 
-	 * Sets the thumbnail to view. 
-	 * 
-	 * @param data The value to set.
-	 */
-	void setThumbnail(ThumbnailData data)
-	{
-		if (data == null) return;
-		ImageIcon icon = new ImageIcon(Factory.magnifyImage(0.25, 
-				data.getThumbnail()));
-		this.data = data;
-		setToolTipText(IMAGE_LABEL_TOOLTIP);
-		setBorder(LABEL_BORDER);
-		if (icon != null) {
-			setIcon(icon);
-		}
-		addMouseListener(new MouseAdapter() {
-			
-			/**
-			 * Views the image.
-			 * @see MouseListener#mousePressed(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e)
-			{
-				if (e.getClickCount() == 2)
-					view(); 
-			}
-
-			/**
-			 * Removes the zooming window from the display.
-			 * @see MouseListener#mouseExited(MouseEvent)
-			 */
-			public void mouseExited(MouseEvent e)
-			{
-				RollOverThumbnailManager.stopOverDisplay();
-			}
-			
-			/**
-			 * Zooms the thumbnail.
-			 * @see MouseListener#mouseEntered(MouseEvent)
-			 */
-			public void mouseEntered(MouseEvent e) { rollOver(); }
 		});
 	}
 	

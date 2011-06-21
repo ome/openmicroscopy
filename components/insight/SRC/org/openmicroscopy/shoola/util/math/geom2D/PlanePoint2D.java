@@ -240,12 +240,9 @@ public class PlanePoint2D
      */
     public boolean equals(Object o)
     {
-        boolean isEqual = false;
-        if (o != null && o instanceof PlanePoint) {
-            PlanePoint other = (PlanePoint) o;
-            isEqual = (x1 == other.x1 && x2 == other.x2);         
-        }
-        return isEqual;
+    	if (o == null || (!(o instanceof PlanePoint))) return false;
+    	 PlanePoint other = (PlanePoint) o;
+         return (x1 == other.x1 && x2 == other.x2);  
     }
     
 	/** 

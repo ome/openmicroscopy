@@ -1,5 +1,10 @@
 {% extends "webmobile/base/base_header.html" %}
 
+{% block jscript %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+{% endblock %}
+
 {% block header-title %}
     {{ object.getName }}
 {% endblock %}
@@ -9,20 +14,28 @@
 
 <div class='bottom-header'>
     <!-- TODO: handle multiple parents -->
-    {% if object.listParents %}
+    {% if object.getParent %}
     <div id='bottom-header-left'> 
-        <a href="{% url webmobile_dataset object.listParents.id %}">Dataset: {{ object.listParents.getName }}</a>
+        <a href="{% url webmobile_dataset object.getParent.id %}">Back to Dataset: {{ object.getParent.getName }}</a>
     </div>
     {% endif %}
+    
+    {% if object.isOwned %}
     <div id='bottom-header-right'>
-        <a href="{% url webmobile_edit_object obj_type object.id %}">edit</a>
+        <a id='img_viewer_link' href="{% url webmobile_viewer object.id %}">Image Viewer</a>
     </div>
+    {% endif %}
+    
     <div style="clear:both"></div>
 </div>
 
 <div class='page-content-underline'>
     <img class="preview" src="{% url webgateway.views.render_thumbnail object.id 200 %}" /> <br />
     
+    <div>
+        {{ object.getName }} 
+        <a style='font-size:85%' href="{% url webmobile_edit_object obj_type object.id %}">edit</a>
+    </div>
     <div>ID: {{ object.id }} </div>
     <div>Owned by: {{ object.getOwnerFullName }}</div>
         
@@ -32,8 +45,8 @@
     
     <!-- Table of image dimensions -->
     <table class="small">
-        <tr><td>Dimensions (XY)</td><td class='gray'>{{ object.getWidth }} x {{ object.getHeight }}</td></tr>
-        <tr><td>Z sections, timepoints</td><td class='gray'>{{ object.z_count }}, {{ object.t_count }}</td></tr>
+        <tr><td>Dimensions (XY)</td><td class='gray'>{{ object.getSizeX }} x {{ object.getSizeY }}</td></tr>
+        <tr><td>Z sections, timepoints</td><td class='gray'>{{ object.getSizeZ }}, {{ object.getSizeT }}</td></tr>
         {% if object.getPixelSizeX %}
             <tr><td>Pixel Size (XY{% if object.getPixelSizeZ %}Z{% endif %}) (um)</td>
                 <td class='gray'>

@@ -29,9 +29,9 @@ import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IRenderingSettings;
 import ome.api.ServiceInterface;
+import ome.conditions.ConcurrencyException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
-import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
@@ -49,17 +49,19 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
+import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
+import ome.model.screen.PlateAcquisition;
 import ome.model.screen.Screen;
 import ome.model.screen.Plate;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
-import ome.services.OmeroOriginalFileMetadataProvider;
 import omeis.providers.re.ColorsFactory;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.metadata.StatsFactory;
 import omeis.providers.re.quantum.QuantumFactory;
+import omeis.providers.re.quantum.QuantumStrategy;
 
 /**
  * Implementation of the {@link IRenderingSettings} I/F.
@@ -81,6 +83,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private static final long serialVersionUID = -4383698215540637039L;
     
+    /** The value used to compare double and float. */
+	public final static double EPSILON = 0.00001;
+	
     /** The logger for this class. */
     private transient static Log log = 
         LogFactory.getLog(RenderingSettingsImpl.class);
@@ -113,11 +118,13 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             && !Image.class.equals(klass)
             && !Plate.class.equals(klass)
             && !Pixels.class.equals(klass) 
-            && !Screen.class.equals(klass))
+            && !Screen.class.equals(klass)
+            && !PlateAcquisition.class.equals(klass))
         	{
         		throw new IllegalArgumentException(
         			"Class parameter for resetDefaultsInSet() must be in " +
-        			"{Project, Dataset, Image, Plate, Screen, Pixels}, not " + 
+        			"{Project, Dataset, Image, Plate, Screen, PlateAcquisition, " +
+        			"Pixels}, not " + 
         				klass);
         	}	
     }
@@ -146,6 +153,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	else if (Plate.class.equals(klass))
     	{
     		pixels.addAll(loadPlatePixels(nodeIds));
+    	}
+    	else if (PlateAcquisition.class.equals(klass))
+    	{
+    		pixels.addAll(loadPlateAcquisitionPixels(nodeIds));
     	}
     	else if (Screen.class.equals(klass))
     	{
@@ -224,6 +235,30 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			"left outer join i.wellSamples as s " +
 			"left outer join s.well as w " +
 			"left outer join w.plate as p " +
+			"where p.id in (:ids)";
+		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
+		s1.stop();
+		return pixels;
+    }
+    
+    /**
+     * Retrieves all Pixels associated with the specified <code>Plate</code>s.
+     * 
+     * @param ids The identifiers of the plate acquisition to retrieve Pixels for.
+     * @return List of Pixels associated with the Plate.
+     */
+    private List<Pixels> loadPlateAcquisitionPixels(Set<Long> ids)
+    {
+		StopWatch s1 = new CommonsLogStopWatch("omero.loadPlatePixels");
+		Parameters p = new Parameters();
+		p.addIds(ids);
+		String sql = "select pix from Pixels as pix " +
+			"join fetch pix.image as i " +
+			"join fetch pix.pixelsType " +
+			"join fetch pix.channels as c " +
+			"join fetch c.logicalChannel " +
+			"left outer join i.wellSamples as s " +
+			"left outer join s.plateAcquisition as p " +
 			"where p.id in (:ids)";
 		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
 		s1.stop();
@@ -446,16 +481,19 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         	PixelBuffer buffer = null;
         	if (computeStats)
         	{
-        		OriginalFileMetadataProvider metadataProvider =
-        			new OmeroOriginalFileMetadataProvider(iQuery);
-        		buffer = 
-        			pixelsData.getPixelBuffer(pixels, metadataProvider, false);
+	        buffer = pixelsData.getPixelBuffer(pixels, false);
         	}
-            resetDefaults(settings, pixels, quantumFactory,
-                    renderingModels, buffer, computeStats);
-            if (buffer != null)
+
+            try
             {
-            	buffer.close();
+                resetDefaults(settings, pixels, quantumFactory,
+                        renderingModels, buffer, computeStats);
+            }
+            finally
+            {
+                if (buffer != null) {
+                    buffer.close();
+                }
             }
             
             // Increment the version of the rendering settings so that we 
@@ -571,12 +609,22 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			settings = createNewRenderingDef(p);
     		}
     		try {
-    			 toSave.add(resetDefaults(settings, p, false, computeStats,
-    					 		families, renderingModels));
+			 RenderingDef newSettings =
+			     resetDefaults(settings, p, false, computeStats,
+							families, renderingModels);
+			 if (newSettings != null) {
+			     toSave.add(newSettings);
+			 }
     			 imageIds.add(p.getImage().getId());
-			} catch (Exception e) {
+			} catch (ResourceError e) {
 				//Exception has already been written to log file.
-			}
+            } catch (ConcurrencyException e) {
+                log.warn(e.getClass().getSimpleName() + ", not resetting settings for Image:"
+                         + p.getImage().getId());
+            } catch (Exception e) {
+                log.warn("Exception while resetting settings for Image:"
+                         + p.getImage().getId(), e);
+            }
     	}
         StopWatch s2 = new CommonsLogStopWatch(
 			"omero.resetDefaultsInSet.saveAndReturn");
@@ -695,10 +743,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         boolean v;
         int count = 0;
         List<LogicalChannel> toUpdate = new ArrayList<LogicalChannel>();
-        
         for (Channel channel : pixels.<Channel>collectChannels(null)) {
             family = quantumFactory.getFamily(QuantumFactory.LINEAR);
-    
+            
             channelBinding = channelBindings.get(i);
             channelBinding.setFamily(family);
             channelBinding.setCoefficient(new Double(1));
@@ -760,12 +807,17 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			}
     		}
         }
+        QuantumDef qDef = def.getQuantization();
         // Set the input start and input end for each channel binding based upon
         // the computation of the pixels set's location statistics.
         if (computeStats)
-        	computeLocationStats(pixels, channelBindings, planeDef, buffer);
+        	computeLocationStats(pixels, channelBindings, planeDef, buffer,
+        			quantumFactory, qDef);
         else {
         	StatsInfo stats;
+        	double min, max;
+            QuantumStrategy qs;
+            PixelsType pt = pixels.getPixelsType();
             for (int w = 0; w < pixels.sizeOfChannels(); w++) {
                 // FIXME: This is where we need to have the ChannelBinding -->
                 // Channel linkage. Without it, we have to assume that the order in
@@ -777,8 +829,16 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             		throw new ResourceError("Pixels set is missing statistics" +
             				" for channel '"+ w +"'. This suggests an image " +
             		"import error, import in progress or failed image import.");
-            	channelBinding.setInputStart(stats.getGlobalMin().doubleValue());
-            	channelBinding.setInputEnd(stats.getGlobalMax().doubleValue());
+            	
+            	min = stats.getGlobalMin().doubleValue();
+            	max = stats.getGlobalMax().doubleValue();
+            	if (Math.abs(min-max) < EPSILON) { //to be on the save side
+            		qs = quantumFactory.getStrategy(qDef, pt);
+            		min = qs.getPixelsTypeMin();
+            		max = qs.getPixelsTypeMax();
+            	}
+            	channelBinding.setInputStart(min);
+            	channelBinding.setInputEnd(max);
             }
         }
         
@@ -792,7 +852,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      	    s1.stop();
         }
     }
-   
     /**
      * Computes the location statistics for a set of rendering settings.
      * 
@@ -800,24 +859,38 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @param cbs		The collection of settings corresponding to channel.
      * @param planeDef	The 2D-plane. Mustn't be <code>null</code>
      * @param buf		The buffer.
+     * @param quantumFactory A populated quantum factory.
+     * @param qDef		The object hosting information about how to map data.
      */
     private void computeLocationStats(Pixels pixels,
-            List<ChannelBinding> cbs, PlaneDef planeDef, PixelBuffer buf) {
+            List<ChannelBinding> cbs, PlaneDef planeDef, PixelBuffer buf,
+            QuantumFactory quantumFactory, QuantumDef qDef) {
         if (planeDef == null) {
             throw new NullPointerException("No plane definition.");
         }
         StatsFactory sf = new StatsFactory();
         ChannelBinding cb;
+        double min, max;
+        QuantumStrategy qs;
+        PixelsType pt = pixels.getPixelsType();
         for (int w = 0; w < pixels.sizeOfChannels(); w++) {
             // FIXME: This is where we need to have the ChannelBinding -->
             // Channel linkage. Without it, we have to assume that the order in
             // which the channel bindings was created matches up with the order
             // of the channels linked to the pixels set.
+        	
             cb = cbs.get(w);
             sf.computeLocationStats(pixels, buf, planeDef, w);
             cb.setNoiseReduction(sf.isNoiseReduction());
-            cb.setInputStart(new Double(sf.getInputStart()));
-            cb.setInputEnd(new Double(sf.getInputEnd()));
+            min = sf.getInputStart();
+            max = sf.getInputEnd();
+        	if (Math.abs(min-max) < EPSILON) {
+        		qs = quantumFactory.getStrategy(qDef, pt);
+        		min = qs.getPixelsTypeMin();
+        		max = qs.getPixelsTypeMax();
+        	}
+            cb.setInputStart(new Double(min));
+            cb.setInputEnd(new Double(max));
         }
     }
     

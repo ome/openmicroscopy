@@ -34,6 +34,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.model.FieldNode;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -93,15 +94,15 @@ public class FieldRenderer
 	{	
 		String toolTipText;
 		if (value instanceof DefaultMutableTreeNode) {
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
 			Object object = node.getUserObject();
-			if (object instanceof IField) {
+			if (object instanceof IField && node instanceof FieldNode) {
 				IField field = (IField)object;
 				
 				toolTipText = field.getToolTipText();
 				
 				FieldPanel fieldPanel = new FieldPanel(field, tree, 
-						node, controller);
+						(FieldNode) node, controller);
 				
 				fieldPanel.setSelected(selected);
 				

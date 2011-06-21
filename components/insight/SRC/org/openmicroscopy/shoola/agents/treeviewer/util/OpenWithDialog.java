@@ -66,10 +66,11 @@ public class OpenWithDialog
 	public static final String OPEN_DOCUMENT_PROPERTY = "openDocument";
 	
 	/** The default title. */
-	private final String TITLE = "Choose Application";
+	private static final String TITLE = "Choose Application";
 	
 	/** The default text. */
-	private final String TEXT = "Choose an application to open the document ";
+	private static final String TEXT = 
+		"Choose an application to open the document ";
 	
 	/** The chooser. */
 	private JFileChooser chooser;

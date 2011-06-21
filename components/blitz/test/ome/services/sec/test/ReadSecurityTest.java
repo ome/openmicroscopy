@@ -31,7 +31,7 @@ import static omero.rtypes.rstring;
 
 import org.testng.annotations.Test;
 
-@Test(groups = { "ticket:200", "security", "integration" })
+@Test(enabled=false, groups = { "broken", "ticket:200", "security", "integration" })
 public class ReadSecurityTest extends AbstractPermissionsTest {
     /**
      * due to permission restrictions, certain user combinations will not be
@@ -841,7 +841,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
     // =========================================================================
 
     @Override
-    @Test
+    @Test(enabled=false)
     public void test_U_Image_U_Pixels() throws Exception {
         ownsfA = ownsfB = u;
         ownerA = ownerB = user;

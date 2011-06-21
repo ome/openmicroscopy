@@ -139,7 +139,7 @@ public class RndProxyDef
 	 */
 	void setChannel(int index, ChannelBindingsProxy c) 
 	{
-		channels.put(new Integer(index), c);
+		channels.put(Integer.valueOf(index), c);
 	}
 
 	/**
@@ -150,7 +150,7 @@ public class RndProxyDef
 	 */
 	ChannelBindingsProxy getChannel(int index)
 	{
-		return channels.get(new Integer(index));
+		return channels.get(Integer.valueOf(index));
 	}
 
 	/**

@@ -242,6 +242,10 @@ public class QuickFiltering
 				} else  {
 					onNodeSelection();
 				}
+				break;
+			case QuickSearch.FULL_TEXT:
+			case QuickSearch.COMMENTS:
+				onNodeSelection();
 		}
 	}
 	

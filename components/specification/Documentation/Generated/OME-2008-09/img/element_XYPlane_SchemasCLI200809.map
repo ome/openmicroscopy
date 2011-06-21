@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_XYPlane_SchemasCLI200809'>
+ <area
+  shape='rect'
+  alt='element_theZ'
+  coords='263,0,375,26'
+  href='CLI.xsd.html#element_theZ'/>
+
+ <area
+  shape='rect'
+  alt='element_theT'
+  coords='263,36,375,62'
+  href='CLI.xsd.html#element_theT'/>
+
+ <area
+  shape='rect'
+  alt='element_theW'
+  coords='263,72,375,98'
+  href='CLI.xsd.html#element_theW'/>
+
+</map>

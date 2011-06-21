@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_OTF_SchemasAnalysisModule200809'>
+ <area
+  shape='rect'
+  alt='element_ObjectiveRef'
+  coords='436,265,786,308'
+  href='AnalysisModule.xsd.html#element_ObjectiveRef'/>
+
+ <area
+  shape='rect'
+  alt='element_FilterSetRef'
+  coords='436,318,786,377'
+  href='AnalysisModule.xsd.html#element_FilterSetRef'/>
+
+ <area
+  shape='rect'
+  alt='element_BinaryFile'
+  coords='436,387,828,430'
+  href='AnalysisModule.xsd.html#element_BinaryFile'/>
+
+</map>

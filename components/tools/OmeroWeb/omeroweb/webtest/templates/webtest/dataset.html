@@ -1,0 +1,14 @@
+<!-- 'Hello World' example from tutorial on http://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb -->
+<html><body>
+
+<h1>{{ dataset.getName }}</h1>
+
+{% for i in dataset.listChildren %}
+    <div style="float:left; padding:10px">
+        <img src="{% url webgateway.views.render_thumbnail i.id %}" />
+        <br />
+        {{ i.getName }}
+    </div>
+{% endfor %}
+
+</body></html>

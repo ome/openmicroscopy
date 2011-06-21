@@ -27,10 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import javax.swing.Icon;
 import javax.swing.JPanel;
 
@@ -39,7 +36,6 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
-import org.openmicroscopy.shoola.agents.measurement.util.analysis.AnalysisFunction;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.graphutils.LinePlot;
 
@@ -60,12 +56,6 @@ public class CalculationWizard
 	extends JPanel 
 	implements TabPaneInterface
 {
-	
-	private static Map<String, AnalysisFunction> fnMap;
-	static 
-	{
-		fnMap = new HashMap<String, AnalysisFunction>();
-	}
 	
 	/** Index to identify tab */
 	public final static int		INDEX = MeasurementViewerUI.CALCWIZARD_INDEX;

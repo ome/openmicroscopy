@@ -1,0 +1,44 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='logical_element_DisplayOptions_XMLschemasOMEFCome.xsd'>
+ <area
+  shape='rect'
+  alt='element_RedChannel'
+  coords='472,142,858,202'
+  href='ome.xsd.html#element_RedChannel'/>
+
+ <area
+  shape='rect'
+  alt='element_GreenChannel'
+  coords='472,212,858,272'
+  href='ome.xsd.html#element_GreenChannel'/>
+
+ <area
+  shape='rect'
+  alt='element_BlueChannel'
+  coords='472,282,858,342'
+  href='ome.xsd.html#element_BlueChannel'/>
+
+ <area
+  shape='rect'
+  alt='element_GreyChannel'
+  coords='472,352,858,395'
+  href='ome.xsd.html#element_GreyChannel'/>
+
+ <area
+  shape='rect'
+  alt='element_Projection'
+  coords='472,405,858,464'
+  href='ome.xsd.html#element_Projection'/>
+
+ <area
+  shape='rect'
+  alt='element_Time'
+  coords='472,474,858,533'
+  href='ome.xsd.html#element_Time'/>
+
+ <area
+  shape='rect'
+  alt='element_ROI'
+  coords='472,543,858,602'
+  href='ome.xsd.html#element_ROI'/>
+
+</map>

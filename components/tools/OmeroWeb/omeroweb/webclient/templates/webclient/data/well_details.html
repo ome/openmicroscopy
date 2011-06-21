@@ -2,6 +2,26 @@
 {% load markup %}
 {% load custom_tags %}
 
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
 <script>
 
     $(document).ready(function(){
@@ -23,10 +43,10 @@
             <table class="forms">
                 <tr><td><label>{% trans "Image name" %} </label></td><td>{{ manager.well.selectedWellSample.image.name }}</td></tr>
                 <tr><td><label>{% trans "Image date" %} </label></td><td>{{ manager.well.selectedWellSample.image.getDate|date:"Y-m-d H:i:s" }}</td></tr>
-                <tr><td><label>{% trans "Dimensions" %} (XY) [px] </label></td><td>{{ manager.well.selectedWellSample.image.getWidth }} x {{ manager.well.selectedWellSample.image.getHeight }}</td></tr>
+                <tr><td><label>{% trans "Dimensions" %} (XY) [px] </label></td><td>{{ manager.well.selectedWellSample.image.getSizeX }} x {{ manager.well.selectedWellSample.image.getSizeY }}</td></tr>
                 <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m] </label></td><td>{{ manager.well.selectedWellSample.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.well.selectedWellSample.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.well.selectedWellSample.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
-                <tr><td><label>{% trans "Z-sections" %} </label></td><td>{{ manager.well.selectedWellSample.image.z_count }}</td></tr>
-                <tr><td><label>{% trans "Timepoints" %} </label></td><td>{{ manager.well.selectedWellSample.image.t_count }}</td></tr>
+                <tr><td><label>{% trans "Z-sections" %} </label></td><td>{{ manager.well.selectedWellSample.image.getSizeZ }}</td></tr>
+                <tr><td><label>{% trans "Timepoints" %} </label></td><td>{{ manager.well.selectedWellSample.image.getSizeT }}</td></tr>
             </table>
         </div>
     </li>

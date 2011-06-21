@@ -53,9 +53,18 @@ class ProjectionBICanvas
 	extends ImageCanvas
 {
 
+	/** The background color. */
+	static final Color BACKGROUND_COLOR = Color.BLACK;
+	
+	/** The Text color. */
+	static final Color TEXT_COLOR = Color.WHITE;
+	
 	/** The default text. */
-	private static final String DEFAULT_TEXT = "Click here to preview\n" +
-			" a projection of all the z-sections.";
+	static final String DEFAULT_TEXT = "Click here to create\n" +
+			" a projection preview.";
+	
+	/** The text indicating that the preview is on-going. */
+	static final String CREATION_TEXT = "Creating preview";
 	
     /** The mouse listener. */
     private MouseAdapter	listener;
@@ -63,12 +72,8 @@ class ProjectionBICanvas
     /** Reference to the UI hosting this canvas. */
     private ProjectionUI	ui;
     
-    /** Does a preview of the projected image. */
-    private void projectionPreview()
-    {
-    	//model.projectionPreview();
-    	//removeMouseListener(listener);
-    }
+    /** The text displayed when no projection preview. */
+    private String          text;
     
     /** Attaches the listener. */
     private void attachListener()
@@ -76,7 +81,10 @@ class ProjectionBICanvas
     	if (listener != null) return;
     	listener = new MouseAdapter() {
 			public void mouseReleased(MouseEvent e) {
-				projectionPreview();
+				model.projectionPreview();
+				text = CREATION_TEXT;
+		    	removeMouseListener(listener);
+		    	repaint();
 			}
 		};
 		addMouseListener(listener);
@@ -95,6 +103,7 @@ class ProjectionBICanvas
 		if (ui == null)
 			throw new IllegalArgumentException("No UI specified.");
 		this.ui = ui;
+		text = DEFAULT_TEXT;
 	}
 	
 	/**
@@ -110,19 +119,18 @@ class ProjectionBICanvas
         if (img == null) {
         	img = model.getDisplayedImage();
         	if (img != null) {
-        		//attachListener();
+        		attachListener();
         		int w = img.getWidth()-1;
         		int h = img.getHeight()-1;
-        		g2D.setColor(Color.black);
+        		g2D.setColor(BACKGROUND_COLOR);
         		g2D.fillRect(0, 0, w, h);
         		FontMetrics fm = g2D.getFontMetrics();
-        		g2D.setColor(Color.white);
-        		//int width = fm.stringWidth(DEFAULT_TEXT);
-        		//g2D.drawString(DEFAULT_TEXT, (w-width)/2, h/2);
+        		g2D.setColor(TEXT_COLOR);
+        		int width = fm.stringWidth(DEFAULT_TEXT);
+        		g2D.drawString(text, (w-width)/2, h/2);
         	}
         	return;
         }
-       
         g2D.drawImage(img, null, 0, 0); 
         paintScaleBar(g2D, img.getWidth(), img.getHeight(), ui.getViewport());
         g2D.dispose();

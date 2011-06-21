@@ -70,14 +70,15 @@ public class DVFilter
 		extensions[0] = DV;
 		extensions[1] = R3D;
 		extensions[2] = R3D_D3D;
-		String s = "Deltavision (";
+		StringBuffer s = new StringBuffer();
+		s.append("Deltavision (");
 		for (int i = 0; i < extensions.length; i++) {
-			s += "*."+extensions[i];
+			s.append("*."+extensions[i]);
 			if (i < extensions.length-1)
-				s += ", ";
+				s.append(", ");
 		}
-		s += ")";
-		description = s;
+		s.append(")");
+		description = s.toString();
 	}
 	
 	/**

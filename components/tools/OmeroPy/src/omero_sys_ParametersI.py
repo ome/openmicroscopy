@@ -25,7 +25,7 @@ class ParametersI(omero.sys.Parameters):
     parameter creation.
     """
 
-    def __init__(self, parammap = {}):
+    def __init__(self, parammap = None):
         """
         If no argument is provided, creates an instance to prevent later
         NoneType exceptions. To save memory, it is possible to pass None
@@ -40,7 +40,7 @@ class ParametersI(omero.sys.Parameters):
         or if this instance is being used in a multi-threaded environment.
         No synchronization takes place.
         """
-        if len(parammap) == 0:
+        if parammap is None or len(parammap) == 0:
             self.map = {}
         else:
             self.map = parammap

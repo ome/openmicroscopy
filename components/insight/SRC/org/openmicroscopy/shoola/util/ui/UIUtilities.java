@@ -43,7 +43,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -77,9 +76,12 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.TabSet;
+import javax.swing.text.TabStop;
 
 
 //Third-party libraries
+import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
 
@@ -103,6 +105,24 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 public class UIUtilities
 {
 
+	/** Indicates that the image is predominantly <code>red</code>.*/
+	public static final int RED_COLOR = 0;
+	
+	/** Indicates that the image is predominantly <code>green</code>.*/
+	public static final int GREEN_COLOR = 1;
+	
+	/** Indicates that the image is predominantly <code>blue</code>.*/
+	public static final int BLUE_COLOR = 2;
+	
+	/** The maximum number read at once. */
+	public static final int	BYTES = 1024;
+	
+	/** The value used to compare double and float. */
+	public final static double EPSILON = 0.00001;
+	
+	/** The number of lines displayed for error. */
+	public static final int MAX_LINES_EXCEPTION = 20;
+	
 	/** 
      * The size of the invisible components used to separate buttons
      * horizontally.
@@ -274,6 +294,9 @@ public class UIUtilities
 	/** The maximum width of the text when wrapping up text. */
 	private static final int		WRAP_UP_MAX_WIDTH = 50;
 
+	/** The fonts used for ROI.*/
+	private static final Map<String, String> FONTS;
+
 	static {
 		LETTERS = new HashMap<Integer, String>();
 		LETTERS.put(1, "A");
@@ -354,6 +377,111 @@ public class UIUtilities
 		LETTERS.put(76, "BX");
 		LETTERS.put(77, "BY");
 		LETTERS.put(78, "BZ");
+		
+		FONTS = new HashMap<String, String>();
+		FONTS.put("Arial", "sans-serif");
+		FONTS.put("Arial Black", "sans-serif");
+		FONTS.put("Book Antiqua", "serif");
+		FONTS.put("Charcoal", "sans-serif");
+		FONTS.put("Comic Sans",	"cursive");
+		FONTS.put("Comic Sans MS",	"cursive");
+		FONTS.put("Courier", "monospace");
+		FONTS.put("Courier New", "monospace");
+		FONTS.put("Gadget",	"sans-serif");
+		FONTS.put("Geneva",	"sans-serif");
+		FONTS.put("Georgia", "serif");
+		FONTS.put("Helvetica",	"sans-serif");
+		FONTS.put("Impact",	"sans-serif");
+		FONTS.put("Lucida Console", "monospace");
+		FONTS.put("Lucida Grande", "sans-serif");
+		FONTS.put("Lucida Sans Unicode", "sans-serif");
+		FONTS.put("Monaco", "monospace");
+		FONTS.put("MS Sans Serif", "sans-serif");
+		FONTS.put("MS Serif", "serif");
+		FONTS.put("New York", "serif");
+		FONTS.put("Palatino", "serif");
+		FONTS.put("Palatino Linotype", "serif");
+		FONTS.put("Tahoma", "sans-serif");
+		FONTS.put("Times", "serif");
+		FONTS.put("Times New Roman", "serif");
+		FONTS.put("Trebuchet MS", "sans-serif");
+		FONTS.put("Verdana", "sans-serif");
+		FONTS.put("Roman", "serif");
+		FONTS.put("Swis", "sans-serif");
+		FONTS.put("Script", "cursive");
+		FONTS.put("Decorative", "fantasy");
+		FONTS.put("serif", "serif");
+		FONTS.put("sans-serif", "sans-serif");
+		FONTS.put("cursive", "cursive");
+		FONTS.put("fantasy", "fantasy");
+		FONTS.put("monospace", "monospace");
+		FONTS.put("Andale Mono", "sans-serif");
+		FONTS.put("Antiqua", "serif");
+		FONTS.put("Avqest", "serif");
+		FONTS.put("Blackletter", "serif");
+		FONTS.put("Calibri", "sans-serif");
+		FONTS.put("Fraktur", "serif");
+		FONTS.put("Frosty", "serif");
+		FONTS.put("Garamond", "serif");
+		FONTS.put("Minion", "serif");
+		FONTS.put("Monotype.com", "sans-serif");
+		FONTS.put("Bitstream Vera Sans", "sans-serif");
+		FONTS.put("Bitstream Vera Sans Mono", "monospace");
+		FONTS.put("Bitstream Vera Serif", "serif");
+		FONTS.put("Caslon Roman", "serif");
+		FONTS.put("Charis SIL", "serif");
+		FONTS.put("DejaVu Sans", "sans-serif");
+		FONTS.put("DejaVu Sans Mono", "monospace");
+		FONTS.put("DejaVu Serif", "serif");
+		FONTS.put("Doulos SIL", "serif");
+		FONTS.put("Droid Sans", "sans-serif");
+		FONTS.put("Droid Sans Mono", "monospace");
+		FONTS.put("Droid Serif", "serif");
+		FONTS.put("FreeMono", "monospace");
+		FONTS.put("FreeSans", "sans-serif");
+		FONTS.put("FreeSerif", "serif");
+		FONTS.put("Gentium", "serif");
+		FONTS.put("GNU Unifont", "monospace");
+		FONTS.put("Junicode", "serif");
+		FONTS.put("Liberation Mono", "monospace");
+		FONTS.put("Liberation Sans", "sans-serif");
+		FONTS.put("Liberation Sans Narrow", "sans-serif");
+		FONTS.put("Liberation Serif", "serif");
+		FONTS.put("Linux Biolinum", "sans-serif");
+		FONTS.put("Linux Libertine", "serif");
+		FONTS.put("Luxi Mono", "monospace");
+		FONTS.put("Luxi Sans", "sans-serif");
+		FONTS.put("Luxi Serif", "serif");
+		FONTS.put("American Typewriter", "serif");
+		FONTS.put("Apple Casual", "cursive");
+		FONTS.put("Apple Chancery", "cursive");
+		FONTS.put("Apple Garamond", "serif");
+		FONTS.put("Baskerville", "serif");
+		FONTS.put("Big Caslon", "serif");
+		FONTS.put("Brush Script", "cursive");
+		FONTS.put("Chalkboard", "sans-serif");
+		FONTS.put("Chicago", "sans-serif");
+		FONTS.put("Cochin", "serif");
+		FONTS.put("Cooper", "serif");
+		FONTS.put("Copperplate", "serif");
+		FONTS.put("Didot", "serif");
+		FONTS.put("Futura", "sans-serif");
+		FONTS.put("Gill Sans", "sans-serif");
+		FONTS.put("Helvetica Neue", "sans-serif");
+		FONTS.put("Herculanum", "cursive");
+		FONTS.put("Hoefler Text", "serif");
+		FONTS.put("LiSong Pro", "serif");
+		FONTS.put("Marker Felt", "cursive");
+		FONTS.put("Menlo", "sans-serif");
+		FONTS.put("New York", "sans-serif");
+		FONTS.put("Optima", "sans-serif");
+		FONTS.put("Papyrus", "sans-serif");
+		FONTS.put("Sand", "cursive");
+		FONTS.put("Skia", "sans-serif");
+		FONTS.put("Techno", "sans-serif");
+		FONTS.put("Textile", "cursive");
+		FONTS.put("Zapf Chancery", "cursive");
+		FONTS.put("Zapfino", "cursive");
 	}
 	
 	/**
@@ -963,12 +1091,12 @@ public class UIUtilities
      */
     public static void unifiedButtonLookAndFeel(AbstractButton b)
     {
+    	if (b == null) return;
         //b.setMargin(new Insets(0, 2, 0, 3));
         //b.setBorderPainted(false);
         //b.setFocusPainted(false);
     	b.setOpaque(false);
-    	if (b != null)
-    		b.setBorder(new EmptyBorder(2, 2, 2, 2));
+    	b.setBorder(new EmptyBorder(2, 2, 2, 2));
     }
 
     /**
@@ -1292,6 +1420,17 @@ public class UIUtilities
     /**
      * Converts the time in seconds into hours, minutes and seconds.
      * 
+     * @param timeInMilliSeconds The time in milliseconds to convert.
+     * @return See above.
+     */
+    public static String calculateHMSFromMilliseconds(long timeInMilliSeconds)
+    {
+    	return calculateHMS((int) (timeInMilliSeconds/1000));
+    }
+    
+    /**
+     * Converts the time in seconds into hours, minutes and seconds.
+     * 
      * @param timeInSeconds The time in seconds to convert.
      * @return See above.
      */
@@ -1503,18 +1642,17 @@ public class UIUtilities
 	 */
 	public static String formatFileSize(long v)
 	{
-		if (v < 0) return "";
-
-		//if (v < 1000) 
-		//	return NumberFormat.getInstance().format(v)+" b";
-		long value = v;///1000;
-		if (value <= 1000) 
-			return NumberFormat.getInstance().format(value)+" Kb";
-		value = value/1000;
-		if (value <= 1000)
-			return NumberFormat.getInstance().format(value)+" Mb";
-		value = value/1000;
-		return NumberFormat.getInstance().format(value)+" Gb";
+		if (v <= 0) return "";
+		String s = "";
+		if (v < FileUtils.ONE_KB) 
+			s = String.format("%.1f", (double) v)+" bytes";
+		else if (v >= FileUtils.ONE_KB && v < FileUtils.ONE_MB)
+			s = String.format("%.1f", ((double) v/FileUtils.ONE_KB))+" Kb";
+		else if (v >= FileUtils.ONE_MB && v < FileUtils.ONE_GB) 
+			s = String.format("%.1f", ((double) v/FileUtils.ONE_MB))+" Mb";
+		else if (v >= FileUtils.ONE_GB)
+			s = String.format("%.1f", ((double) v/FileUtils.ONE_GB))+" Gb";
+		return s;
 	}
 	
 	/**
@@ -1737,6 +1875,7 @@ public class UIUtilities
     {
     	String name = originalName;
     	String[] l = UIUtilities.splitString(originalName);
+    	StringBuffer buffer;
     	if (l != null) {
     		 int n = l.length;
              if (n >= 1) name = l[n-1]; 
@@ -1746,10 +1885,12 @@ public class UIUtilities
         		if (l.length >= 1) {
         			name = "";
         			int n = l.length-1;
+        			buffer = new StringBuffer();
             		for (int i = 0; i < n; i++) {
-        				name += l[i];
-        				if (i < (n-1)) name += ".";
+            			buffer.append(l[i]);
+        				if (i < (n-1)) buffer.append(".");
         			}
+            		name = buffer.toString();
         		}
         	}
     		if (name.length() == 0) name = originalName;
@@ -1761,10 +1902,12 @@ public class UIUtilities
     		if (l.length >= 1) {
     			name = "";
     			int n = l.length-1;
+    			buffer = new StringBuffer();
         		for (int i = 0; i < n; i++) {
-    				name += l[i];
-    				if (i < (n-1)) name += ".";
+        			buffer.append(l[i]);
+    				if (i < (n-1)) buffer.append(".");
     			}
+        		name = buffer.toString();
     		}
     	}
     	if (name.length() == 0) name = originalName;
@@ -1932,13 +2075,13 @@ public class UIUtilities
 	*/
 	public static String listToCSV(List<String> list)
 	{
-		String str = "";
+		StringBuffer buffer = new StringBuffer();
 		for (int i = 0 ; i < list.size() ; i++) {
-			str = str + list.get(i);
+			buffer.append(list.get(i));
 			if (i < list.size()-1)
-				str = str + ",";
+				buffer.append(",");
 		}
-		return str;
+		return buffer.toString();
 	}
 	
 	/**
@@ -1996,4 +2139,194 @@ public class UIUtilities
 		e.printStackTrace(pw);
 		return sw.toString();
 	}
+    
+    /**
+     * Formats the exception to display in tool tip. Displays the first
+     * {@link #MAX_LINES_EXCEPTION} lines.
+     * 
+     * @param ex The exception to handle.
+     * @return See above.
+     */
+    public static String formatExceptionForToolTip(Throwable ex)
+    {
+    	return formatExceptionForToolTip(ex, MAX_LINES_EXCEPTION);
+    }
+    
+    /**
+     * Formats the exception to display in tool tip. Displays the specified
+     * number of lines.
+     * 
+     * @param ex The exception to handle.
+     * @param n  The number of lines to display.
+     * @return See above.
+     */
+    public static String formatExceptionForToolTip(Throwable ex, int n)
+    {
+    	if (ex == null) return "";
+    	if (n <= 0) n = MAX_LINES_EXCEPTION;
+    	ex.printStackTrace();
+   		String s = UIUtilities.printErrorText(ex.getCause());
+   		String[] values = s.split("\n");
+   		//Display the first 20 lines
+   		String[] lines = values;
+   		if (values.length > MAX_LINES_EXCEPTION) {
+   			lines = new String[MAX_LINES_EXCEPTION+1];
+   			for (int i = 0; i < lines.length-1; i++) {
+   				lines[i] = values[i];
+   			}
+   			lines[lines.length-1] = 
+   				"... "+(values.length-MAX_LINES_EXCEPTION)+" more";
+   		}
+   		return formatToolTipText(lines);
+    }
+    
+    /**
+     * Returns <code>true</code> if the passed colors are the same, 
+     * <code>false</code> otherwise.
+     * 
+     * @param c1 One of the colors to check.
+     * @param c2 One of the colors to check.
+     * @return See above.
+     */
+    public static boolean isSameColors(Color c1, Color c2)
+    {
+    	if (c1 == null || c2 == null) return false;
+    	if (c1.getRed() != c2.getRed()) return false;
+    	if (c1.getGreen() != c2.getGreen()) return false;
+    	if (c1.getBlue() != c2.getBlue()) return false;
+    	if (c1.getAlpha() != c2.getAlpha()) return false;
+    	return true;
+    }
+    
+    /**
+     * Creates a button looking like an hyper-link.
+     * 
+     * @param text The text to display
+     * @return See above.
+     */
+    public static JButton createHyperLinkButton(String text)
+    {
+    	if (text == null || text.trim().length() == 0)
+    		text = "hyperlink";
+    	JButton b = new JButton(text);
+    	Font f = b.getFont();
+    	b.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+		b.setOpaque(false);
+		b.setForeground(UIUtilities.HYPERLINK_COLOR);
+		unifiedButtonLookAndFeel(b);
+		return b;
+    }
+    
+    /**
+     * Converts the font.
+     * 
+     * @param family The value to convert.
+     * @return See above.
+     */
+    public static String convertFont(String family)
+    {
+    	if (family == null) return "";
+    	String value = FONTS.get(family);
+    	if (value == null || value.trim().length() == 0)
+    		return "";
+    	return value;
+    }
+    
+	/** Builds the UI component displaying the exception.*/
+	public static JTextPane buildExceptionArea()
+	{
+		StyleContext context = new StyleContext();
+        StyledDocument document = new DefaultStyledDocument(context);
+
+        JTextPane textPane = new JTextPane(document);
+        textPane.setOpaque(false);
+        textPane.setEditable(false);
+
+        // Create one of each type of tab stop
+        List<TabStop> list = new ArrayList<TabStop>();
+        
+        // Create a left-aligned tab stop at 100 pixels from the left margin
+        float pos = 15;
+        int align = TabStop.ALIGN_LEFT;
+        int leader = TabStop.LEAD_NONE;
+        TabStop tstop = new TabStop(pos, align, leader);
+        list.add(tstop);
+        
+        // Create a right-aligned tab stop at 200 pixels from the left margin
+        pos = 15;
+        align = TabStop.ALIGN_RIGHT;
+        leader = TabStop.LEAD_NONE;
+        tstop = new TabStop(pos, align, leader);
+        list.add(tstop);
+        
+        // Create a center-aligned tab stop at 300 pixels from the left margin
+        pos = 15;
+        align = TabStop.ALIGN_CENTER;
+        leader = TabStop.LEAD_NONE;
+        tstop = new TabStop(pos, align, leader);
+        list.add(tstop);
+        
+        // Create a decimal-aligned tab stop at 400 pixels from the left margin
+        pos = 15;
+        align = TabStop.ALIGN_DECIMAL;
+        leader = TabStop.LEAD_NONE;
+        tstop = new TabStop(pos, align, leader);
+        list.add(tstop);
+        
+        // Create a tab set from the tab stops
+        TabSet tabs = new TabSet(list.toArray(new TabStop[0]));
+        
+        // Add the tab set to the logical style;
+        // the logical style is inherited by all paragraphs
+        Style style = textPane.getLogicalStyle();
+        StyleConstants.setTabSet(style, tabs);
+        textPane.setLogicalStyle(style);
+        Style debugStyle = document.addStyle("StyleName", null);
+        StyleConstants.setForeground(debugStyle, Color.BLACK);
+        StyleConstants.setFontFamily(debugStyle, "SansSerif");
+        StyleConstants.setFontSize(debugStyle, 12);
+        StyleConstants.setBold(debugStyle, false);
+        return textPane;
+	}
+
+	/**
+	 * Returns the converted value.
+	 * 
+	 * @param rgba The RGBA value to convert.
+	 * @return See above.
+	 */
+	public static int convertRgbaToArgb(int rgba)
+	{
+		return (rgba >>> 8) | (rgba << (32-8));
+	}
+	
+	/**
+	 * Returns the converted value.
+	 * 
+	 * @param argb The ARGB value to convert.
+	 * @return See above.
+	 */
+	public static int convertArgbToRgba(int argb)
+	{
+		return (argb << 8) | (argb >>> (32-8));
+	}
+	
+	/**
+	 * Returns {@link #RED}, {@link #RED} or {@link #RED} to indicate the
+	 * range of the color.
+	 * 
+	 * @param color The color to handle.
+	 * @return See above
+	 */
+	public static int getColorRange(Color color)
+	{
+		if (color == null) return -1;
+		int r = color.getRed();
+		int g = color.getGreen();
+		int b = color.getBlue();
+		if (g < r/2 && b < r/2) return RED_COLOR;
+		if (r < g/2 && b < g/2) return GREEN_COLOR;
+		return BLUE_COLOR;
+	}
+	
 }

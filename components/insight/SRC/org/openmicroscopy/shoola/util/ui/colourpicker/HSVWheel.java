@@ -33,7 +33,6 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -297,6 +296,7 @@ class HSVWheel
 	{
         if (c == null) throw new NullPointerException("No control.");
 		control = c;
+		radius = 1f;
 		puck = new PlanePoint(radius, radius);
 		mouselistener = new HSVWheelListener(this);
 		this.addMouseListener(mouselistener);

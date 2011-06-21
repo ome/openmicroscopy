@@ -76,8 +76,7 @@ class BrowserModel
     
     /** The type of browser. */
     private int 				type;
-    
-    
+
     /**
      * Creates an instance. 
      * 
@@ -159,7 +158,6 @@ class BrowserModel
      */
     void setEdited(boolean edited)
     {
-    	
     	if (edited)  savedState = Browser.TREE_EDITED;
     	else savedState = Browser.TREE_SAVED;
     	
@@ -250,4 +248,12 @@ class BrowserModel
      * @return		see above. 
      */
     long getId() {	return id; }
+    
+    /**
+     * Returns the type of the browser.
+     * 
+     * @return See above.
+     */
+    int getType() { return type; }
+    
 }

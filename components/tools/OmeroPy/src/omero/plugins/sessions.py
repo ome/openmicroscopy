@@ -92,7 +92,9 @@ class SessionsControl(BaseControl):
         group = parser.add(sub, self.group, "Set the group of the current session by id or name")
         group.add_argument("target", help="Id or name of the group to switch this session to")
         list = parser.add(sub, self.list, "List all locally stored sessions")
-        list.add_argument("--purge", action="store_true", help="Remove inactive sessions")
+        purge = list.add_mutually_exclusive_group()
+        purge.add_argument("--purge", action="store_true", default = True, help="Remove inactive sessions")
+        purge.add_argument("--no-purge", dest="purge", action="store_false", help="Do not remove inactive sessions")
         keepalive = parser.add(sub, self.keepalive, "Keeps the current session alive")
         keepalive.add_argument("-f", "--frequency", type=int, default=60, help="Time in seconds between keep alive calls", metavar="SECS")
         clear = parser.add(sub, self.clear, "Close and remove locally stored sessions")
@@ -128,6 +130,11 @@ class SessionsControl(BaseControl):
         create = getattr(args, "create", None)
         store = self.store(args)
         previous = store.get_current()
+        try:
+            previous_props = store.get(*previous)
+            previous_port = previous_props.get("omero.port", str(omero.constants.GLACIER2PORT))
+        except:
+            previous_port = str(omero.constants.GLACIER2PORT)
 
         # Basic props, don't get fiddled with
         props = {}
@@ -184,17 +191,26 @@ class SessionsControl(BaseControl):
 
                 if not create and not server_differs and not name_differs:
                     try:
-                        conflicts = store.conflicts(previous[0], previous[1], previous[2], props, True)
-                        if conflicts:
-                            self.ctx.dbg("Not attaching because of conflicts: %s" % conflicts)
-                        else:
-                            rv = store.attach(*previous)
-                            return self.handle(rv, "Using")
+                        if previous[2] is not None: # Missing session uuid file. Deleted? See #4199
+                            conflicts = store.conflicts(previous[0], previous[1], previous[2], props, True)
+                            if conflicts:
+                                self.ctx.dbg("Not attaching because of conflicts: %s" % conflicts)
+                            else:
+                                rv = store.attach(*previous)
+                                return self.handle(rv, "Using")
+                        self.ctx.out("Previously logged in to %s:%s as %s" % (previous[0], previous_port, previous[1]))
                     except exceptions.Exception, e:
+                        self.ctx.out("Previous session expired for %s on %s:%s" % (previous[1], previous[0], previous_port))
                         self.ctx.dbg("Exception on attach: %s" % traceback.format_exc(e))
-                        self.ctx.dbg("Exception on attach: %s" % e)
+                        try:
+                            store.remove(*previous)
+                        except OSError, ose:
+                            self.ctx.dbg("Session file missing: %s" % ose)
+                        except:
+                            self.ctx.dbg("Exception on remove: %s" % traceback.format_exc(e))
+                            # Could tell user to manually clear here and then self.ctx.die()
+                            self.ctx.err("Failed to remove session: %s" % e)
 
-                    self.ctx.out("Previously logged in to %s as %s" % (previous[0], previous[1]))
 
         #
         # If we've reached here, then the user either does not have
@@ -202,28 +218,32 @@ class SessionsControl(BaseControl):
         # If they've omitted some required value, we must ask for it.
         #
         if not server: server, name = self._get_server(store)
-        if not name: name = self._get_username()
+        if not name: name = self._get_username(previous[1])
 
         props["omero.host"] = server
         props["omero.user"] = name
 
         rv = None
-        if not create:
+        #
+        # For session key access, we now need to lookup the stored_name
+        # since otherwise, all access to the directory under ~/omero/sessions
+        # will fail. Then, if no session can be found, we exit immediately
+        # rather than asking for a password. See #4223
+        #
+        if args.key:
+            stored_name = store.find_name_by_key(server, args.key)
+            if not stored_name:
+                self.ctx.dbg("No name found for %s." % args.key)
+                stored_name = args.key
+            rv = self.check_and_attach(store, server, stored_name, args.key, props)
+            action = "Joined"
+            if not rv:
+                self.ctx.die(523, "Bad session key")
+        elif not create:
             available = store.available(server, name)
             for uuid in available:
-                conflicts = store.conflicts(server, name, uuid, props)
-                if conflicts:
-                    self.ctx.dbg("Skipping %s due to conflicts: %s" % (uuid, conflicts))
-                    continue
-                try:
-                    rv = store.attach(server, name, uuid)
-                    store.set_current(server, name, uuid)
-                    action = "Reconnected to"
-                    break
-                except:
-                    self.ctx.dbg("Removing %s" % uuid)
-                    store.clear(server, name, uuid)
-                    continue
+                rv = self.check_and_attach(store, server, name, uuid, props)
+                action = "Reconnected to"
 
         if not rv:
             tries = 3
@@ -252,6 +272,33 @@ class SessionsControl(BaseControl):
 
         return self.handle(rv, action)
 
+    def check_and_attach(self, store, server, name, uuid, props):
+        """
+        Checks for conflicts in the settings for this session,
+        and if there are none, then attempts an "attach()". If
+        that fails, the session is removed.
+        """
+
+        exists = store.exists(server, name, uuid)
+
+        if exists:
+            conflicts = store.conflicts(server, name, uuid, props)
+            if conflicts:
+                self.ctx.dbg("Skipping %s due to conflicts: %s" % (uuid, conflicts))
+                return None
+
+        rv = None
+        try:
+            if exists:
+                rv = store.attach(server, name, uuid)
+            else:
+                rv = store.create(name, name, props)
+            store.set_current(server, name, uuid)
+        except exceptions.Exception, e:
+            self.ctx.dbg("Removing %s: %s" % (uuid, e))
+            store.clear(server, name, uuid)
+        return rv
+
     def handle(self, rv, action):
         """
         Handles a new connection
@@ -265,13 +312,16 @@ class SessionsControl(BaseControl):
         self.ctx._event_context = ec
         self.ctx._client = client
 
-        msg = "%s session %s (%s@%s)." % (action, uuid, ec.userName, client.getProperty("omero.host"))
+        host = client.getProperty("omero.host")
+        port = client.getProperty("omero.port")
+
+        msg = "%s session %s (%s@%s:%s)." % (action, uuid, ec.userName, host, port)
         if idle:
             msg = msg + " Idle timeout: %s min." % (float(idle)/60/1000)
         if live:
             msg = msg + " Expires in %s min." % (float(live)/60/1000)
 
-        msg += (" Current group: %s" % sf.getAdminService().getEventContext().groupName)
+        msg += (" Current group: %s" % ec.groupName)
 
         self.ctx.err(msg)
 
@@ -300,7 +350,7 @@ class SessionsControl(BaseControl):
             group_name = args.target
             group_id = admin.lookupGroup(group_name).id.val
 
-        ec = admin.getEventContext()
+        ec = self.ctx._event_context # 5711
         old_id = ec.groupId
         old_name = ec.groupName
         if old_id == group_id:
@@ -327,7 +377,9 @@ class SessionsControl(BaseControl):
                     msg = "True"
                     grp = "Unknown"
                     started = "Unknown"
+                    port = None
                     try:
+                        if props: port = props.get("omero.port", port)
                         rv = store.attach(server, name, uuid)
                         grp = rv[0].sf.getAdminService().getEventContext().groupName
                         started = rv[0].sf.getSessionService().getSession(uuid).started.val
@@ -338,6 +390,7 @@ class SessionsControl(BaseControl):
                     except exceptions.Exception, e:
                         self.ctx.dbg("Exception on attach: %s" % e)
                         msg = "Unknown exception"
+
                     if rv is None and args.purge:
                         self.ctx.dbg("Purging %s / %s / %s" % (server, name, uuid))
                         store.remove(server, name, uuid)
@@ -345,7 +398,11 @@ class SessionsControl(BaseControl):
                     if server == previous[0] and name == previous[1] and uuid == previous[2]:
                             msg = "Logged in"
 
-                    results["Server"].append(server)
+                    if port:
+                        results["Server"].append("%s:%s" % (server, port))
+                    else:
+                        results["Server"].append(server)
+
                     results["User"].append(name)
                     results["Group"].append(grp)
                     results["Session"].append(uuid)
@@ -391,11 +448,13 @@ class SessionsControl(BaseControl):
         if srv and usr and uuid:
             self.ctx.out(str(store.dir / srv / usr / uuid))
 
-    def conn(self, properties={}, profile=None, args=None):
+    def conn(self, properties=None, profile=None, args=None):
         """
         Either creates or returns the exiting omero.client instance.
         Uses the comm() method with the same signature.
         """
+
+        if properties is None: properties = {}
 
         if self._client:
             return self._client
@@ -407,7 +466,7 @@ class SessionsControl(BaseControl):
             self._client.setAgent("OMERO.cli")
             self._client.createSession()
             return self._client
-        except Exc, exc:
+        except exceptions.Exception, exc:
             self._client = None
             raise
 
@@ -430,8 +489,9 @@ class SessionsControl(BaseControl):
         else:
             return self._parse_conn(rv)
 
-    def _get_username(self):
-        defuser = getpass.getuser()
+    def _get_username(self, defuser):
+        if defuser is None:
+            defuser = getpass.getuser()
         rv = self.ctx.input("Username: [%s]" % defuser)
         if not rv:
             return defuser

@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_InputRecord_SchemasCLI200809'>
+ <area
+  shape='rect'
+  alt='element_Index'
+  coords='291,0,410,42'
+  href='CLI.xsd.html#element_Index'/>
+
+ <area
+  shape='rect'
+  alt='element_DelimitedRecord'
+  coords='363,52,552,78'
+  href='CLI.xsd.html#element_DelimitedRecord'/>
+
+ <area
+  shape='rect'
+  alt='element_CustomRecord'
+  coords='363,88,531,114'
+  href='CLI.xsd.html#element_CustomRecord'/>
+
+</map>

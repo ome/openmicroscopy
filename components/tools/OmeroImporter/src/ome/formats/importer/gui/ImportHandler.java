@@ -213,12 +213,15 @@ public class ImportHandler implements IObservable
 
 
                 try {
+                	library.importImage(container, j, numOfDone, numOfPendings);
+                	/*
                     library.importImage(importContainer[j].getFile(), j, numOfDone,
                             numOfPendings, importContainer[j]
                                     .getCustomImageName(), null, // Description
                             container.getArchive(), config.companionFile.get(), // Metadata file creation
                             // (TODO: Enable in container and UI)
                             container.getUserPixels(), container.getTarget());
+                            */
                     this.library.clear();
                     
                     updateHistoryWithDoneImport(importKey, j);
@@ -265,9 +268,12 @@ public class ImportHandler implements IObservable
                     updateHistoryWithFailedImport(importKey, j);
                 } catch (ResourceError e) {
                     log.error("Resource error while importing image.", e);
-                    JOptionPane
-                            .showMessageDialog(viewer,
-                                    "The server is out of space and imports cannot continue.\n");
+                	JOptionPane.showMessageDialog(viewer,
+                            "Your file import has failed because the server has reported a\n" +
+                            "resource error (and may be out of space).\n\n" +
+                            "Please contact your server administrator or try your import\n" +
+                            "again. Further details about this error can be found under the\n" +
+                            "the debug tab.");
                     qTable.setProgressFailed(j);
                     if (importStatus < 0)
                         importStatus = -3;

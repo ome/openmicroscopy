@@ -3,6 +3,26 @@
 {% load custom_tags %}
 {% load wikitags %}
 
+<!--
+
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
 <div>
 {% if manager.project or manager.dataset or manager.screen or manager.plate %}
     {% if manager.project %}
@@ -13,7 +33,7 @@
             <li id="pr-{{ manager.project.id }}" class="folder-close-last-static" style="position: static;">
                 <span>{{ manager.project.name }}</span> 
                 {% if not manager.project.isOwned %}
-                    <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>
+                    <img src="{% url webstatic "images/kgpg12.gif" %}" alt="locked" title="locked"/>
                 {% endif %}
             </li>
             <li class="line-last"/>
@@ -29,7 +49,7 @@
             <li id="pr-{{ manager.screen.id }}" class="folder-close-last-static" style="position: static;">
                 <span>{{ manager.screen.name }}</span> 
                 {% if not manager.screen.isOwned %}
-                    <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>
+                    <img src="{% url webstatic "images/kgpg12.gif" %}" alt="locked" title="locked"/>
                 {% endif %}
             </li>
             <li class="line-last"/>
@@ -48,14 +68,14 @@
             <li id="pr-{{ c.parent.id.val }}" class="folder-open-last-static" style="position: static;">
                 <span><a href="{% url load_data "project" c.parent.id.val %}?view={{ nav.view }}">{{ c.parent.name.val }}</a></span> 
                 {% if not manager.dataset.isOwned %}
-                    <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>
+                    <img src="{% url webstatic "images/kgpg12.gif" %}" alt="locked" title="locked"/>
                 {% endif %}
                 <ul style="overflow: visible; display: block;">
                     <li class="line"> </li>
                     <li id="ds-{{ manager.dataset.id }}" class="subfolder-close-last-static" style="position: static;">
                         <span>{{ manager.dataset.name }}</span> 
                         {% if not manager.dataset.isOwned %}
-                            <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>
+                            <img src="{% url webstatic "images/kgpg12.gif" %}" alt="locked" title="locked"/>
                         {% endif %}
                     </li>
                     <li class="line-last"/>
@@ -66,7 +86,7 @@
             <li id="ds-{{ manager.dataset.id }}" class="subfolder-close-last-static" style="position: static;">
                 <span>{{ manager.dataset.name }}</span> 
                 {% if not manager.dataset.isOwned %}
-                    <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>
+                    <img src="{% url webstatic "images/kgpg12.gif" %}" alt="locked" title="locked"/>
                 {% endif %}
             </li>
             {% endif %}
@@ -86,14 +106,14 @@
             <li id="pr-{{ c.parent.id.val }}" class="folder-open-last-static" style="position: static;">
                 <span><a href="{% url load_data "screen" c.parent.id.val %}?view={{ nav.view }}">{{ c.parent.name.val }}</a></span> 
                 {% if not manager.plate.isOwned %}
-                    <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>
+                    <img src="{% url webstatic "images/kgpg12.gif" %}" alt="locked" title="locked"/>
                 {% endif %}
                 <ul style="overflow: visible; display: block;">
                     <li class="line"> </li>
                     <li id="ds-{{ manager.plate.id }}" class="subfolder-close-last-static" style="position: static;">
                         <span>{{ manager.plate.name }}</span> 
                         {% if not manager.plate.isOwned %}
-                            <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>
+                            <img src="{% url webstatic "images/kgpg12.gif" %}" alt="locked" title="locked"/>
                         {% endif %}
                     </li>
                     <li class="line-last"/>
@@ -104,7 +124,7 @@
             <li id="ds-{{ manager.plate.id }}" class="subfolder-close-last-static" style="position: static;">
                 <span>{{ manager.plate.name }}</span> 
                 {% if not manager.plate.isOwned %}
-                    <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>
+                    <img src="{% url webstatic "images/kgpg12.gif" %}" alt="locked" title="locked"/>
                 {% endif %}
             </li>
             {% endif %}
@@ -125,19 +145,19 @@
                 {% if c.copyDatasetLinks %}
                 <li id="pr-{{ c.id }}" class="folder-open-last-static" style="position: static;">
                     <span><a href="{% url load_data "project" c.id %}?view={{ nav.view }}">{{ c.name }}</a></span> 
-                    {% if not c.isOwned %}<img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
+                    {% if not c.isOwned %}<img src="{% url webstatic "images/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
                     <ul style="overflow: visible; display: block;">
                         {% if c.copyDatasetLinks %}
                         {% for d in c.listChildren %}
                         <li class="line"> </li>
                         <li id="ds-{{ d.id }}" class="subfolder-open-last-static" style="position: static;">
                             <span><a href="{% url load_data "project" c.id "dataset" d.id %}?view={{ nav.view }}"> {{ d.name }}</a></span>
-                            {% if not d.isOwned %}<img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
+                            {% if not d.isOwned %}<img src="{% url webstatic "images/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
                             <ul style="overflow: visible; display: block;">
                                 <li class="line"> </li>
                                 <li id='img-{{ manager.image.id }}' class="doc-last">
                                     <span>{{ manager.image.name|truncatebefor:"35" }}</span>
-                                    {% if not manager.image.isOwned %}<img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
+                                    {% if not manager.image.isOwned %}<img src="{% url webstatic "images/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
                                 </li>
                                 <li class="line-last"/>
                             </ul>
@@ -154,12 +174,12 @@
                 {% for c in manager.hierarchy.datasets %}
                 <li id="ds-{{ c.id }}" class="subfolder-open-last-static" style="position: static;">
                     <span><a href="{% url load_data "dataset" c.id %}?view={{ nav.view }}">{{ c.name }}</a></span> 
-                    {% if not c.isOwned %}<img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
+                    {% if not c.isOwned %}<img src="{% url webstatic "images/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
                     <ul style="overflow: visible; display: block;">
                         <li class="line"> </li>
                         <li id='img-{{ manager.image.id }}' class="doc-last">
                             <span>{{ manager.image.name|truncatebefor:"35" }}</span> 
-                            {% if not manager.image.isOwned %}<img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
+                            {% if not manager.image.isOwned %}<img src="{% url webstatic "images/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
                         </li>
                         <li class="line-last"/>
                     </ul>
@@ -170,7 +190,7 @@
                 <li class="line"> </li>
                 <li id='img-{{ manager.image.id }}' class="doc-last">
                     <span>{{ manager.image.name|truncatebefor:"35" }}</span> 
-                    {% if not manager.image.isOwned %}<img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
+                    {% if not manager.image.isOwned %}<img src="{% url webstatic "images/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
                 </li>
             {% endif %}
             <li class="line-last"/>
