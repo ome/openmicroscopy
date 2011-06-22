@@ -376,8 +376,10 @@ class ImporterComponent
 		}
 		Iterator<ImporterUIElement> i = list.iterator();
 		ImporterUIElement element;
+		ImporterUIElement started = null;
 		while (i.hasNext()) {
 			element = i.next();
+			if (element.hasStarted()) started = element;
 			if (!element.isDone())
 				toImport.add(element);
 		}
@@ -395,6 +397,9 @@ class ImporterComponent
 				element.cancelLoading();
 				//if (!element.hasStarted())
 				model.cancel(element.getID());
+			}
+			if (started != null && started.isDone()) {
+				markToclose = false;
 			}
 		} else markToclose = false;
 		if (!markToclose) view.setVisible(false);
@@ -474,15 +479,6 @@ class ImporterComponent
 		}
 	}
 
-	/**
-	 * Cancels all-going imports, displays the di
-	 * @param closeOption
-	 */
-	private void cancellAll(boolean windowOption)
-	{
-		
-	}
-	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#cancelAllImports()
