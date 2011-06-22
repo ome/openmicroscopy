@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -181,6 +180,10 @@ class BrowserUI
 		Dimension d = layeredPane.getPreferredSize();
 		int xLoc = ((r.width-d.width)/2);
 		int yLoc = ((r.height-d.height)/2);
+		JScrollBar hBar = getHorizontalScrollBar();
+		JScrollBar vBar = getVerticalScrollBar();
+		if (hBar.isVisible()) xLoc = layeredPane.getX();
+		if (vBar.isVisible()) yLoc = layeredPane.getY();
 		JComponent sibling = siblings.get(model.getSelectedIndex());
 		if (sibling != null) 
 			sibling.setBounds(sibling.getBounds());
@@ -625,13 +628,13 @@ class BrowserUI
 	 */
 	public void adjustmentValueChanged(AdjustmentEvent e)
 	{
-        if (e.getValueIsAdjusting()) {
+		if (e.getValueIsAdjusting()) {
         	adjusting = true;
         	setBirdEyeViewLocation();
         	setSelectionRegion();
         	return;
         }
-        //adjusting = false;
+        adjusting = false;
         //setSelectionRegion();
         setBirdEyeViewLocation();
         setSelectionRegion();
@@ -664,7 +667,9 @@ class BrowserUI
 		}
 		if (!scrollbarsVisible() && adjusting) adjusting = false;
 		if (adjusting) return;
-		center();
+		JScrollBar hBar = getHorizontalScrollBar();
+		JScrollBar vBar = getVerticalScrollBar();
+		if (!(hBar.isVisible() && vBar.isVisible())) center();
 	}
 	
 }
