@@ -490,7 +490,7 @@ java component.
             failonerror="true"
             Verbose="false"
             maxmemory="${javadoc.maxmem}"
-            destdir="dist/docs/api"
+            destdir="${dist.dir}/docs/api"
             author="true"
             version="true"
             use="true"
@@ -561,7 +561,7 @@ java component.
             <link href="http://lucene.apache.org/java/2_2_0/api"/>
 
         </javadoc>
-        <replace dir="dist/docs/api">
+        <replace dir="${dist.dir}/docs/api">
             <replacetoken><![CDATA[<HEAD>]]></replacetoken>
             <replacevalue><![CDATA[<HEAD profile="http://www.w3.org/2005/10/profile">
 <link rel="icon"

@@ -37,9 +37,9 @@
 		<mkdir dir="target/lib/server"/>
 		<jar update="true" destfile="target/lib/server/services.jar" basedir="${tools.classes}" includes="**/*"/>
 		<mkdir dir="${dist.dir}/bin/"/>
-		<copy todir="../../dist">
+		<copy todir="${dist.dir}">
 			<fileset dir="target" includes="*.war,var/**/*,bin/**/*,etc/**/*,lib/**/*,include/**/*" followsymlinks="false">
-				<depend targetdir="../../dist"/>
+				<depend targetdir="${dist.dir}"/>
 			</fileset>
 		</copy>
                 <chmod perm="a+x">
