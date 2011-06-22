@@ -2239,7 +2239,17 @@ class ImViewerUI
 			}
 		});
 		channelDialog.pack();
-		Point p = new Point(0, 2*statusBar.getPreferredSize().height);
+		Point p;
+		JPanel glass = (JPanel) getGlassPane();
+		if (glass.getLayout() == null) {
+			Dimension d = channelDialog.getPreferredSize();
+			d = new Dimension(d.width+20, d.height);
+			channelDialog.setSize(d);
+			channelDialog.setPreferredSize(d);
+			p = new Point(0, statusBar.getPreferredSize().height);
+		} else {
+			p = new Point(0, 2*statusBar.getPreferredSize().height);
+		}
 		//setCloseAfter(true);
 		showJDialogAsSheet(channelDialog, p, UP_MIDDLE);
 	}
@@ -2276,7 +2286,18 @@ class ImViewerUI
 			}
 		});
 		infoDialog.pack();
-		Point p = new Point(0, 2*statusBar.getPreferredSize().height);
+		Point p;
+		JPanel glass = (JPanel) getGlassPane();
+		if (glass.getLayout() == null) {
+			Dimension d = infoDialog.getPreferredSize();
+			d = new Dimension(d.width, d.height+20);
+			infoDialog.setSize(d);
+			infoDialog.setPreferredSize(d);
+			p = new Point(0, statusBar.getPreferredSize().height);
+		} else {
+			p = new Point(0, 2*statusBar.getPreferredSize().height);
+			
+		}
 		//setCloseAfter(true);
 		showJDialogAsSheet(infoDialog, p, UP_LEFT);
 	}
@@ -2605,6 +2626,15 @@ class ImViewerUI
 			packWindow();
 			UIUtilities.incrementRelativeToAndShow(null, this);
 		}
+	}
+	
+	/** 
+	 * Overridden to show or hide the glass pane.
+	 */
+	public void hideAnimation()
+	{
+		JPanel glass = (JPanel) getGlassPane();
+		hideAnimation(glass.getLayout() == null);
 	}
 
 }
