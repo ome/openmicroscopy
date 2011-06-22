@@ -83,13 +83,22 @@ class BirdEyeViewComponent
 	private static final Color SELECTION_COLOR = new Color(255, 0, 0, 100);
 	
 	/** The default selection color. */
+	private static final Color SELECTION_COLOR_BORDER = Color.red;
+	
+	/** The default selection color. */
 	private static final Color SELECTION_BLUE_COLOR = new Color(0, 0, 255, 100);
+	
+	/** The default selection color. */
+	private static final Color SELECTION_BLUE_COLOR_BORDER = Color.blue;
 	
 	/** The processing image. */
 	private BufferedImage pImage;
 	
 	/** Color of the selection rectangle. */
 	private Color color;
+	
+	/** Color of the border of the selection rectangle. */
+	private Color	colorBorder;
 	
 	/** The width of the rectangle. */
 	private int w = 30; //to change
@@ -102,6 +111,15 @@ class BirdEyeViewComponent
 	
 	/** The Y-coordinate of the top-left corner. */
 	private int by;
+	
+	/** The X-coordinate of the top-left corner. */
+	private int ax;
+	
+	/** The Y-coordinate of the top-left corner. */
+	private int ay;
+	
+	/** Flag indicating the mouse is over the image. */
+	private boolean release;
 	
 	/** Flag indicating the mouse is over the image. */
 	private boolean bover;
@@ -326,7 +344,12 @@ class BirdEyeViewComponent
 	 */
 	void setSelectionColor(Color color)
 	{
-		if (color != null) this.color = color;
+		if (color != null) {
+			this.color = color;
+			if (color.equals(SELECTION_COLOR))
+				colorBorder = SELECTION_COLOR_BORDER;
+			else colorBorder = SELECTION_BLUE_COLOR_BORDER;
+		}
 	}
 	
 	/** 
@@ -342,7 +365,7 @@ class BirdEyeViewComponent
 	public void setup()
 	{
 		//setCanvasSize(0, 0);
-		color = SELECTION_COLOR; 
+		setSelectionColor(SELECTION_COLOR); 
 		//noStroke();
 		bx = 0;
 		by = 0;
@@ -414,12 +437,18 @@ class BirdEyeViewComponent
 				g2D.drawLine(xArrow, yArrow, xArrow, yArrow+v);
 				g2D.drawLine(xArrow, yArrow, BORDER_5, BORDER_5);
 		}
-		g2D.setColor(color);
+		
 		//stroke(color);	
 		// Test if the cursor is over the box 
 		bover = (mouseX > bx-w && mouseX < bx+w && 
 				mouseY > by-h && mouseY < by+h);
+		g2D.setColor(color);
 		g2D.fillRect(bx, by, w, h);
+		if (colorBorder != null) {
+			g2D.setColor(colorBorder);
+			g2D.drawRect(bx, by, w, h);
+			if (!release) g2D.drawRect(ax, ay, w, h);
+		}
 		g2D.setColor(BORDER_COLOR);
 		g2D.drawRect(0, 0, canvasWidth, canvasHeight);
 		//noFill();
@@ -445,6 +474,9 @@ class BirdEyeViewComponent
 		locked = bover;
 		bdifx = mouseX-bx;
 		bdify = mouseY-by;
+		ax = bx;
+		ay = by;
+		release = false;
 	}
 
     /**
@@ -457,7 +489,8 @@ class BirdEyeViewComponent
 			locked = false;
 			firePropertyChange(DISPLAY_REGION_PROPERTY, null, 
 					new Rectangle(bx, by, w, h));
-		} 
+		}
+		release = true;
 	}
 
     /**
