@@ -155,12 +155,12 @@ class AnimatedPane
 			switch (parent.getOrientation()) {
 				case AnimatedJFrame.UP_MIDDLE:
 				case AnimatedJFrame.UP_RIGHT:
+				case AnimatedJFrame.UP_LEFT:
 					img = image.getSubimage(0, 0, source.getWidth(), 
 							animatedSize.height);
 					g.drawImage(img, 0, 
 							source.getHeight()-animatedSize.height, this);
 					break;
-	
 				default:
 					img = image.getSubimage(0, 
 							image.getHeight()-animatedSize.height, 

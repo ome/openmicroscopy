@@ -28,6 +28,9 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -40,7 +43,10 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ImageData;
 
 /** 
  * Displays plane information.
@@ -76,18 +82,35 @@ class StatusBar
     /** Reference to the model. */
     private ImViewerModel		model;
     
+    /** Reference to the model.*/
+    private ImViewerUI			view;
+    
     /** Initializes the components. */
     private void initComponents()
     {
         IconManager icons = IconManager.getInstance();
         statusButton = new JButton(icons.getIcon(IconManager.STATUS_INFO));
-        statusButton.setToolTipText("Load the planes information.");
+        
         statusButton.setContentAreaFilled(false);
         statusButton.setBorder(null);
+        statusButton.setToolTipText("Load the planes information.");
+        ImageData image = model.getImage();
+        List<String> l = null;
+        String s = "";
+        l = EditorUtil.formatObjectTooltip(image);
+    	s = UIUtilities.formatString(image.getName(), -1);
+    	List<String> ll = new ArrayList<String>();
+    	ll.add(s);
+    	if (l != null) ll.addAll(l);
+    	statusButton.setToolTipText(UIUtilities.formatToolTipText(ll));
+    	
         statusButton.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
-				model.firePlaneInfoRetrieval();
+				//model.firePlaneInfoRetrieval();
+				JLabel label = new JLabel();
+				label.setText(statusButton.getToolTipText());
+				view.showImageInfo(label);
 			}
 		});
         UIUtilities.unifiedButtonLookAndFeel(statusButton);
@@ -113,13 +136,17 @@ class StatusBar
     /** 
      * Creates a new instance. 
      * 
-     * @param model Reference to the model.
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param view Reference to the view. Mustn't be <code>null</code>.
      */
-    StatusBar(ImViewerModel model)
+    StatusBar(ImViewerModel model, ImViewerUI view)
     {
     	if (model == null)
     		throw new IllegalArgumentException("No model.");
+    	if (view == null)
+    		throw new IllegalArgumentException("No view.");
     	this.model = model;
+    	this.view = view;
         initComponents();
         buildUI();
     }

@@ -77,6 +77,9 @@ public class TinyDialog
     /** Indicates to only show the size button. */
     public final static int		SIZE_ONLY = 2;
     
+    /** Indicates to only show the size button. */
+    public final static int		NO_BUTTON = 3;
+    
     /** The minimum magnification value. */
     final static int		MINIMUM_ZOOM = 1;
     
