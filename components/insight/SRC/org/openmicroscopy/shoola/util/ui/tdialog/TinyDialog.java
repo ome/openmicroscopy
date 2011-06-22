@@ -278,6 +278,13 @@ public class TinyDialog
         setProperties();
     }
     
+    /**
+     * Returns the canvas.
+     * 
+     * @return See above.
+     */
+    public JComponent getCanvas() { return uiDelegate.getCanvas(); }
+    
     /** Moves the window to the Front. */
     public void moveToFront() { setVisible(true); }
     

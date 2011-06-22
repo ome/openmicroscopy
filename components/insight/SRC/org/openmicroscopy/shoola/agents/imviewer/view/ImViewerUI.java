@@ -2215,10 +2215,11 @@ class ImViewerUI
 	{
 		if (comp == null) return;
 		if (channelDialog != null) {
+			JComponent c = channelDialog.getCanvas();
 			channelDialog.closeWindow();
 			hideAnimation();
 			channelDialog = null;
-			return;
+			if (c == comp.getContent()) return;
 		}
 		if (infoDialog != null) {
 			infoDialog.closeWindow();
