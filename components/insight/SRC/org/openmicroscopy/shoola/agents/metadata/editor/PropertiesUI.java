@@ -1083,7 +1083,7 @@ class PropertiesUI
 	{
 		if (!hasDataToSave()) return;
 		Object object =  model.getRefObject();
-		String name = namePane.getText().trim();
+		String name = modifiedName;//namePane.getText().trim();
 		String desc = descriptionPane.getText().trim();
 		if (name != null) {
 			if (name.equals(originalName) || name.equals(originalDisplayedName))
