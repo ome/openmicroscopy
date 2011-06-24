@@ -229,11 +229,13 @@ public class DownloadActivity
 	 */
 	protected void notifyActivityEnd()
 	{ 
-		type.setText(DESCRIPTION); 
+		type.setText(DESCRIPTION);
 		if (parameters.getApplicationData() != null) {
 			viewer.openApplication(
 					(ApplicationData) parameters.getApplicationData(), 
 					file.getAbsolutePath());
+			if (parameters.getSource() != null)
+				parameters.getSource().setEnabled(true);
 			return;
 		}
 		String name = null;

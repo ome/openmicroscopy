@@ -28,6 +28,8 @@ import java.awt.Rectangle;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.JComponent;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -294,6 +296,8 @@ public class ImViewerAgent
     				((ImageData) o).getId(), null, true);
     		if (view != null) {
     			view.activate(null, getUserDetails().getId());
+    			JComponent src = evt.getSource();
+    			if (src != null) src.setEnabled(true);
     		}
     	}
     }

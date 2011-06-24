@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import javax.swing.JComponent;
 
 //Third-party libraries
 
@@ -50,15 +51,27 @@ public class ViewObjectEvent
 	/** The object to view. */
 	private Object object;
 	
+	/** The UI component used to trigger the event.*/
+	private JComponent source;
+
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param object The object to view.
+	 * @param source The component triggering the event.
 	 */
-	public ViewObjectEvent(Object object)
+	public ViewObjectEvent(Object object, JComponent source)
 	{
 		this.object = object;
+		this.source = source;
 	}
+	
+	/**
+	 * Returns the object to view.
+	 * 
+	 * @return See above.
+	 */
+	public JComponent getSource() { return source; }
 	
 	/**
 	 * Returns the object to view.

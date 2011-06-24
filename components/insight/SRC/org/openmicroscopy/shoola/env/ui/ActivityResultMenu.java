@@ -126,7 +126,7 @@ class ActivityResultMenu
 				break;
 			case VIEW:
 				viewItem.setEnabled(false);
-				activity.view(row);
+				activity.view(row, viewItem);
 		}
 	}
 	

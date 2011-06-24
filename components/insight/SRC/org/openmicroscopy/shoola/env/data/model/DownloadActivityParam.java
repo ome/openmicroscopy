@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.model;
 //Java imports
 import java.io.File;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 
 
 //Third-party libraries
@@ -83,6 +84,9 @@ public class DownloadActivityParam
     
     /** The third party application. */
     private ApplicationData data;
+    
+    /** The source triggering the operation.*/
+    private JComponent source;
     
     /** 
      * Checks if the index is valid.
@@ -246,5 +250,19 @@ public class DownloadActivityParam
 	 * @return See above.
 	 */
 	public int getIndex() { return index; }
+	
+	/**
+	 * Sets the source.
+	 * 
+	 * @param source The source triggering the operation.
+	 */
+	public void setSource(JComponent source) { this.source = source; }
+	
+	/**
+	 * Returns the source triggering the operation.
+	 * 
+	 * @return See above.
+	 */
+	public JComponent getSource() { return source; }
 	
 }

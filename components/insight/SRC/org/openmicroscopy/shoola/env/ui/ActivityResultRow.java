@@ -207,8 +207,8 @@ class ActivityResultRow
 				viewButton.setEnabled(false);
 				firePropertyChange(ACTION_PROPERTY, Boolean.valueOf(false), 
 						Boolean.valueOf(true));
-				activity.view(row);
+				activity.view(row, viewButton);
 		}
 	}
-	
+
 }
