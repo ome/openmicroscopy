@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2009-2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -91,6 +91,7 @@ public class ImportConfig {
     // are committed to disk.
     //
 
+    public final StrValue agent;
     public final StrValue hostname;
     public final StrValue username;
     public final StrValue password;
@@ -196,6 +197,7 @@ public class ImportConfig {
         log.info(String.format("Bioformats version: %s revision: %s date: %s",
              FormatTools.VERSION, FormatTools.VCS_REVISION, FormatTools.DATE));
 
+        agent        = new StrValue("agent", this, "importer");
         hostname     = new StrValue("hostname", this, "omero.host");
         username     = new StrValue("username", this, "omero.name");
         password     = new StrValue("password", this, "omero.pass");
@@ -285,6 +287,22 @@ public class ImportConfig {
             client.initialize(hostname.get(), port.get(), sessionKey.get(), encryptedConnection.get());
         }
         return client;
+    }
+
+
+    /**
+     * Check online to see if this is the current version
+     */
+    public boolean isUpgradeNeeded() {
+
+        if (getStaticDisableUpgradeCheck()) {
+            log.debug("UpgradeCheck disabled.");
+        }
+        ResourceBundle bundle = ResourceBundle.getBundle("omero");
+        String url = bundle.getString("omero.upgrades.url");
+        UpgradeCheck check = new UpgradeCheck(url, getVersionNumber(), agent.get());
+        check.run();
+        return check.isUpgradeNeeded();
     }
 
     /**
