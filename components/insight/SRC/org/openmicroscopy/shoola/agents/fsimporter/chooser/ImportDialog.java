@@ -388,6 +388,11 @@ public class ImportDialog
 	/** Indicates to pop-up the location.*/
 	private boolean popUpLocation;
 	
+	/** The selected container if screen view.*/
+	private TreeImageDisplay selectedScreen;
+	
+	/** The selected container if project view.*/
+	private TreeImageDisplay selectedProject;
 	/** 
 	 * Creates the dataset.
 	 * 
@@ -755,18 +760,22 @@ public class ImportDialog
 	{
 		int t = Importer.PROJECT_TYPE;
 		Collection<TreeImageDisplay> nodes = null;
+		TreeImageDisplay display = null;
 		if (getType() == Importer.PROJECT_TYPE) {
 			t = Importer.SCREEN_TYPE;
 			nodes = screenNodes;
-		} else nodes = pdNodes;
+			display = selectedScreen;
+		} else {
+			nodes = pdNodes;
+			display = selectedProject;
+		}
 			
 		formatSwitchButton(t);
 		if (nodes == null || nodes.size() == 0) //load the missing nodes
 			firePropertyChange(REFRESH_LOCATION_PROPERTY, getType(), t);
 		else {
-			TreeImageDisplay display = null;
-			Iterator<TreeImageDisplay> i = nodes.iterator();
-			if (i.hasNext()) display = i.next();
+			//Iterator<TreeImageDisplay> i = nodes.iterator();
+			//if (i.hasNext()) display = i.next();
 			reset(display, nodes, t);
 		}
 	}
@@ -1927,8 +1936,13 @@ public class ImportDialog
     	setClosable(false);
     	setCloseVisible(false);
     	this.objects = objects;
-    	if (type == Importer.PROJECT_TYPE) pdNodes = objects;
-    	else screenNodes = objects;
+    	if (type == Importer.PROJECT_TYPE) {
+    		pdNodes = objects;
+    		selectedProject = selectedContainer;
+    	} else {
+    		screenNodes = objects;
+    		selectedScreen = selectedContainer;
+    	}
     	this.type = type;
     	this.selectedContainer = selectedContainer;
     	popUpLocation = selectedContainer == null;
@@ -2046,14 +2060,18 @@ public class ImportDialog
 	public void reset(TreeImageDisplay selectedContainer, 
 			Collection<TreeImageDisplay> objects, int type)
 	{
-		canvas.setVisible(false);
+		canvas.setVisible(true);
 		this.selectedContainer = selectedContainer;
 		this.objects = objects;
 		int oldType = this.type;
 		this.type = type;
 		if (type == Importer.PROJECT_TYPE) {
 			pdNodes = objects;
-		} else screenNodes = objects;
+			selectedProject = selectedContainer;
+		} else {
+			screenNodes = objects;
+			selectedScreen = selectedContainer;
+		}
 		formatSwitchButton(type);
 		if (oldType != this.type) { 
 			//change filters.
@@ -2090,7 +2108,7 @@ public class ImportDialog
 		initializeLocationBoxes();
 		buildLocationPane();
 		boolean b = popUpLocation;
-		popUpLocation = selectedContainer == null;
+		popUpLocation = this.selectedContainer == null;
 		if (b != popUpLocation) {
 			if (b) container.add(locationPane, "3, 0");
 			else container.remove(locationPane);
