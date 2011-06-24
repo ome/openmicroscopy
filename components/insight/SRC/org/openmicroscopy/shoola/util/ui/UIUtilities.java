@@ -105,6 +105,9 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 public class UIUtilities
 {
 
+	/** The default number of characters for the partial name.*/
+	public static final int DEFAULT_NUMBER_OF_CHARACTERS = 30;
+	
 	/** Indicates that the image is predominantly <code>red</code>.*/
 	public static final int RED_COLOR = 0;
 	
@@ -294,10 +297,16 @@ public class UIUtilities
 	/** The maximum width of the text when wrapping up text. */
 	private static final int		WRAP_UP_MAX_WIDTH = 50;
 
+	private static final List<String> CHARACTERS;
+	
 	/** The fonts used for ROI.*/
 	private static final Map<String, String> FONTS;
 
 	static {
+		CHARACTERS = new ArrayList<String>();
+		CHARACTERS.add("[");
+		CHARACTERS.add("]");
+		CHARACTERS.add("\"");
 		LETTERS = new HashMap<Integer, String>();
 		LETTERS.put(1, "A");
 		LETTERS.put(2, "B");
@@ -484,6 +493,23 @@ public class UIUtilities
 		FONTS.put("Zapfino", "cursive");
 	}
 	
+	/**
+     * Returns <code>true</code> if the passed value is textual,
+     * <code>false</code> otherwise.
+     * 
+     * @param value See above.
+     * @return See above.
+     */
+    private static boolean isTextOnly(String value)
+    {
+    	Iterator<String> i = CHARACTERS.iterator();
+    	while (i.hasNext()) {
+    		if (value.contains(i.next()))
+    			return false;
+		}
+    	return true;
+    }
+    
 	/**
 	 * Centers the specified component on the screen.
 	 * The location of the specified component is set so that it will appear
@@ -2042,7 +2068,12 @@ public class UIUtilities
 					if (extension != null) 
 						return l[n-2]+sep+l[n-1]+extension;
 					return l[n-2]+sep+l[n-1];
-				default: 
+				default:
+					//Check of this is actually a path.
+					for (int i = 0; i < l.length; i++) {
+						if (!isTextOnly(l[i]))
+							return originalName;
+					}
 					if (extension != null) 
 						return UIUtilities.DOTS+l[n-2]+sep+l[n-1]+extension;
 					return UIUtilities.DOTS+l[n-2]+sep+l[n-1]; 
@@ -2050,7 +2081,7 @@ public class UIUtilities
     	}
         return originalName;
     }
-    
+
 	/**
 	 * Converts the passed color.
 	 * 
@@ -2327,6 +2358,36 @@ public class UIUtilities
 		if (g < r/2 && b < r/2) return RED_COLOR;
 		if (r < g/2 && b < g/2) return GREEN_COLOR;
 		return BLUE_COLOR;
+	}
+	
+	/**
+	 * Displays the end of the name if the name is longer that the number
+	 * of specified characters.
+	 * 
+	 * @param name The name of handle.
+	 * @param numberOfCharacters The number of characters.
+	 * @return See above.
+	 */
+	public static String formatPartialName(String name, int numberOfCharacters)
+	{
+		if (name == null) return null;
+		int n = DOTS.length()+numberOfCharacters;
+		int m = name.length();
+		if (m <= n) return name;
+		return DOTS+name.substring(m-n, m);
+	}
+	
+	/**
+	 * Displays the end of the name if the name is longer that the number
+	 * of specified characters.
+	 * 
+	 * @param name The name of handle.
+	 * @param numberOfCharacters The number of characters.
+	 * @return See above.
+	 */
+	public static String formatPartialName(String name)
+	{
+		return formatPartialName(name, DEFAULT_NUMBER_OF_CHARACTERS);
 	}
 	
 }

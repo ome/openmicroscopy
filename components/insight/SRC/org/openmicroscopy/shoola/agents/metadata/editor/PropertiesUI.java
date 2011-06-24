@@ -870,7 +870,7 @@ class PropertiesUI
 			String text = namePane.getText();
 			if (text != null) text = text.trim();
 			if (editable) namePane.setText(modifiedName);
-			else namePane.setText(EditorUtil.getPartialName(text));
+			else namePane.setText(UIUtilities.formatPartialName(text));
 			namePane.getDocument().addDocumentListener(this);
 			namePane.select(0, 0);
 			namePane.setCaretPosition(0);
@@ -987,7 +987,7 @@ class PropertiesUI
 		descriptionPane.removeDocumentListener(this);
 		originalName = model.getRefObjectName();
 		modifiedName = model.getRefObjectName();
-		originalDisplayedName = EditorUtil.getPartialName(originalName);
+		originalDisplayedName = UIUtilities.formatPartialName(originalName);
 		namePane.setText(originalDisplayedName);
 		namePane.setToolTipText(originalName);
 		Object refObject = model.getRefObject();
