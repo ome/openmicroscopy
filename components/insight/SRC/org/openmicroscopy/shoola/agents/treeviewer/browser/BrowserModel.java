@@ -874,8 +874,17 @@ class BrowserModel
 	/** Creates a {@link DeleteCmd} command to execute the action. */
 	void delete()
 	{
-		DeleteCmd c = new DeleteCmd(component);
-		c.execute();
+		TreeImageDisplay[] selected = getSelectedDisplays();
+    	int count = 0;
+    	boolean b = false;
+		for (int i = 0; i < selected.length; i++) {
+			b = parent.canDeleteObject(selected[i].getUserObject());
+			if (b) count++;
+		}
+		if (count == selected.length) {
+			DeleteCmd c = new DeleteCmd(component);
+			c.execute();
+		}
 	}
 	
 	/**
