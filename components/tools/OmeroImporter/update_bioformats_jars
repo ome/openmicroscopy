@@ -60,7 +60,7 @@ Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
 def download(simple=False):
     # JARs to ignore from download
     ignore = ["loci_tools.jar", "ome_tools.jar", "ome-io.jar"]
-    url = urllib.urlopen("http://hudson.openmicroscopy.org.uk/job/BIOFORMATS-trunk/lastBuild/api/xml")
+    url = urllib.urlopen("http://hudson.openmicroscopy.org.uk/job/BIOFORMATS-Beta4.3/lastBuild/api/xml")
     hudson_xml = url.read()
     hudson_xml = hudson_xml.replace('origin/', 'origin_')
     url.close()
@@ -69,7 +69,7 @@ def download(simple=False):
     revision = root.findtext("./action/lastBuiltRevision/SHA1")
     artifacts = root.findall("./artifact")
     print "Updating Bio-Formats JARs from revision: %s" % revision
-    base_url = "http://hudson.openmicroscopy.org.uk/job/BIOFORMATS-trunk/lastBuild/artifact/"
+    base_url = "http://hudson.openmicroscopy.org.uk/job/BIOFORMATS-Beta4.3/lastBuild/artifact/"
     new_jars = list()
     for artifact in artifacts:
         filename = artifact.find("fileName").text
