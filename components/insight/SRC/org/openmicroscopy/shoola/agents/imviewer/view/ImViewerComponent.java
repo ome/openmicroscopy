@@ -2545,7 +2545,7 @@ class ImViewerComponent
 		if (data == null)
 			throw new IllegalArgumentException("No image to set.");
 		model.setImageData(data);
-		view.setTitle(model.getImageTitle());
+		view.setImageData();
 		
 		if (model.getMetadataViewer() != null)
 			model.getMetadataViewer().addPropertyChangeListener(controller);

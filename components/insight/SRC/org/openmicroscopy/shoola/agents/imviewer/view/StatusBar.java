@@ -90,20 +90,10 @@ class StatusBar
     {
         IconManager icons = IconManager.getInstance();
         statusButton = new JButton(icons.getIcon(IconManager.STATUS_INFO));
-        
         statusButton.setContentAreaFilled(false);
         statusButton.setBorder(null);
         statusButton.setToolTipText("Load the planes information.");
-        ImageData image = model.getImage();
-        List<String> l = null;
-        String s = "";
-        l = EditorUtil.formatObjectTooltip(image);
-    	s = UIUtilities.formatString(image.getName(), -1);
-    	List<String> ll = new ArrayList<String>();
-    	ll.add(s);
-    	if (l != null) ll.addAll(l);
-    	statusButton.setToolTipText(UIUtilities.formatToolTipText(ll));
-    	
+        formatToolTip();
         statusButton.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
@@ -149,6 +139,21 @@ class StatusBar
     	this.view = view;
         initComponents();
         buildUI();
+    }
+    
+    /** Formats the tool tip of the button.*/
+    void formatToolTip()
+    {
+    	ImageData image = model.getImage();
+        if (image == null) return;
+        List<String> l = null;
+        String s = "";
+        l = EditorUtil.formatObjectTooltip(image);
+    	s = UIUtilities.formatString(image.getName(), -1);
+    	List<String> ll = new ArrayList<String>();
+    	ll.add(s);
+    	if (l != null) ll.addAll(l);
+    	statusButton.setToolTipText(UIUtilities.formatToolTipText(ll));
     }
     
     /** 

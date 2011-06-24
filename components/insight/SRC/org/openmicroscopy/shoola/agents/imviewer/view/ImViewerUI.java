@@ -2593,6 +2593,13 @@ class ImViewerUI
 		controlPane.resetZoomValues();
 	}
 	
+	/** Sets the image data.*/
+	void setImageData()
+	{
+		setTitle(model.getImageTitle());
+		statusBar.formatToolTip();
+	}
+	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 
