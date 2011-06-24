@@ -47,7 +47,6 @@ import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PlateData;
 
