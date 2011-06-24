@@ -37,8 +37,8 @@ import javax.swing.JPopupMenu;
 import org.openmicroscopy.shoola.util.ui.ColorMenuItem;
 
 /** 
-* LensMenu is a singleton class which creates both the popupmenus and menubars
-* used in the lensUI and zoomWindowUI.
+* LensMenu is a singleton class which creates both the pop-up menus and
+* menu bars used in the lensUI and zoomWindowUI.
 *
 * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
 * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

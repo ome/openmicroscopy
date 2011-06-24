@@ -33,7 +33,6 @@ import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.FileAnnotationData;
 
 /** 
  * Analyzes the passed objects.

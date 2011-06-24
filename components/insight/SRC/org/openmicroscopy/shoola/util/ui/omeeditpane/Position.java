@@ -23,8 +23,6 @@
 package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
 
-
-
 //Java imports
 import java.io.Serializable;
 import java.util.Comparator;

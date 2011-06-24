@@ -23,12 +23,6 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -36,11 +30,10 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.DataObject;
 
 
 /** 
- * 
+ * Loads tags.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

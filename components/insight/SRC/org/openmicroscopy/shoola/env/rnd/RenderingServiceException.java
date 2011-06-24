@@ -35,7 +35,7 @@ import java.io.StringWriter;
 //Application-internal dependencies
 
 /** 
- * Reports an error occured while trying to render a plane.
+ * Reports an error occurred while trying to render a plane.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

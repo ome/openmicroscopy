@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
 
-
-
 //Third-party libraries
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;

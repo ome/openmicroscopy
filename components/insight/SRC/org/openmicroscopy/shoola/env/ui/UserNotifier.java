@@ -32,7 +32,6 @@ import javax.swing.Icon;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
-import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 
 /** 
  * Acts as a centralized place where user notifications are collected and 

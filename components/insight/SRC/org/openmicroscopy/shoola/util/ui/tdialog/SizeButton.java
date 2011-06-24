@@ -20,10 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.util.ui.tdialog;
-
-
 
 
 //Java imports

@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Image;
 import java.lang.reflect.Method;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 

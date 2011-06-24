@@ -54,7 +54,6 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 
 /** 
  * Hosts the UI components displaying the rendered image.

@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.svc;
 //Application-internal dependencies
 
 /** 
- * Reports an error occured while activating a service.
+ * Reports an error occurred while activating a service.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

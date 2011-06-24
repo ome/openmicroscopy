@@ -34,20 +34,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+//Third-party libraries
 import loci.formats.FormatReader;
 import loci.formats.in.BDReader;
 import loci.formats.in.CellWorxReader;
 import loci.formats.in.CellomicsReader;
 import loci.formats.in.FlexReader;
-import loci.formats.in.InCell3000Reader;
 import loci.formats.in.InCellReader;
 import loci.formats.in.MIASReader;
 import loci.formats.in.MetamorphTiffReader;
 import loci.formats.in.ScanrReader;
 import loci.formats.in.ScreenReader;
-
-
-//Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;

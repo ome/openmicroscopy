@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 
 /** 
  * Component hosting a slider and the text field displaying the 
- * values. The synchronisation between the components is handled by this class.
+ * values. The synchronization between the components is handled by this class.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

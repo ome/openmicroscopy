@@ -31,7 +31,7 @@ package org.openmicroscopy.shoola.util.image.io;
 //Application-internal dependencies
 
 /** 
- * The exception thrown during the encoding process if an error occured. 
+ * The exception thrown during the encoding process if an error occurred. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

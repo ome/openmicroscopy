@@ -40,8 +40,6 @@ import java.util.concurrent.TimeUnit;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.api.RenderingEnginePrx;
-
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;

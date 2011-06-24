@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.env.cache;
 
 
 //Java imports
-import java.io.FileInputStream;
 import java.io.InputStream;
 
 //Third-party libraries

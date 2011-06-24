@@ -22,12 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 //Java imports
 

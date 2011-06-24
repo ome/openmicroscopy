@@ -22,16 +22,13 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-import javax.swing.JCheckBox;
-
-import org.openmicroscopy.shoola.env.event.RequestEvent;
-
-
 //Java imports
+import javax.swing.JCheckBox;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
  * Utility class used to save the data before closing the application.

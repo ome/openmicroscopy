@@ -24,29 +24,19 @@
 package org.openmicroscopy.shoola.util.ui.checkboxlist;
 
 //Java imports
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
-import java.util.List;
-
-import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.ListCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
  *

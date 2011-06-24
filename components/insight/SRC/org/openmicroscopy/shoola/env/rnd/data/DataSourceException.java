@@ -36,7 +36,7 @@ package org.openmicroscopy.shoola.env.rnd.data;
 //Application-internal dependencies
 
 /** 
- * Reports an error occured while trying to pull out data from the pixels data
+ * Reports an error occurred while trying to pull out data from the pixels data
  * repository.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
