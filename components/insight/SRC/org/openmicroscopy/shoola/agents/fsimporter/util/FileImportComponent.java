@@ -830,6 +830,14 @@ public class FileImportComponent
 		} else if (image instanceof Boolean) {
 			if (!statusLabel.isMarkedAsCancel()) {
 				cancelButton.setVisible(false);
+				if (statusLabel.isMarkedAsDuplicate()) {
+					statusLabel.setVisible(false);
+					setStatusText(StatusLabel.DUPLICATE);
+				} else {
+					statusLabel.setVisible(false);
+					setStatusText(FILE_NOT_VALID_TEXT);
+				}
+				/*
 				if (file.isDirectory()) {
 					statusLabel.setVisible(false);
 					setStatusText(FILE_NOT_VALID_TEXT);
@@ -837,7 +845,7 @@ public class FileImportComponent
 				else {
 					statusLabel.setVisible(false);
 					setStatusText(FILE_NOT_VALID_TEXT);
-				}
+				}*/
 			} else resultLabel.setText("");
 		} else {
 			if (!status) {

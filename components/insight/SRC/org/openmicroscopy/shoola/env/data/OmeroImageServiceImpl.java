@@ -1040,6 +1040,19 @@ class OmeroImageServiceImpl
 		if (file.isFile()) {
 			hcsFile = ImportableObject.isHCSFile(file);
 			//Create the container if required.
+			boolean b = ImportableObject.isArbitraryFile(file);
+			if (b) { //check if it is actually a HCS file.
+				candidates = gateway.getImportCandidates(object, file, status);
+				if (candidates.size() == 1) { 
+					String value = candidates.get(0);
+					if (object.isFileinQueue(value)) {
+						gateway.closeImport();
+						status.markedAsDuplicate();
+						return Boolean.valueOf(true);
+					}
+					hcsFile = ImportableObject.isHCSFile(value);
+				}
+			}
 			if (hcsFile) {
 				dataset = null;
 				if (!(container instanceof ScreenData))
@@ -1096,7 +1109,13 @@ class OmeroImageServiceImpl
 				int size = candidates.size();
 				if (size == 0) return Boolean.valueOf(false);
 				else if (size == 1) {
-					File f = new File(candidates.get(0));
+					String value = candidates.get(0);
+					if (object.isFileinQueue(value)) {
+						gateway.closeImport();
+						status.markedAsDuplicate();
+						return Boolean.valueOf(true);
+					}
+					File f = new File(value);
 					status.resetFile(f);
 					result = gateway.importImage(object, ioContainer, f,
 							status, importable.isArchived(), close);

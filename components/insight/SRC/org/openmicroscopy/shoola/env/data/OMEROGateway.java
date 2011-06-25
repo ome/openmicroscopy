@@ -6364,7 +6364,6 @@ class OMEROGateway
 					paths, status);
 			return new ArrayList<String>(candidates.getPaths());
 		} catch (Throwable e) {
-			e.printStackTrace();
 			throw new ImportException(getImportFailureMessage(e), e);
 		}
 	}

@@ -134,6 +134,7 @@ public class ImportableObject
 		//
 		ARBITRARY_FILES_EXTENSION = new ArrayList<String>();
 		ARBITRARY_FILES_EXTENSION.add("text");
+		ARBITRARY_FILES_EXTENSION.add("txt");
 		ARBITRARY_FILES_EXTENSION.add("xml");
 		ARBITRARY_FILES_EXTENSION.add("exp");
 		ARBITRARY_FILES_EXTENSION.add("log");
@@ -582,6 +583,25 @@ public class ImportableObject
 			projectDatasetMap.put(projectID, datasets);
 		}
 		datasets.add(dataset);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the file is already in the list of files
+	 * to import e.g. the file and the companion file are selected, 
+	 * <code></code> otherwise.
+	 * @param value The path to the file.
+	 * @return See above.
+	 */
+	public boolean isFileinQueue(String value)
+	{
+		Iterator<ImportableFile> i = files.iterator();
+		ImportableFile f;
+		while (i.hasNext()) {
+			f = i.next();
+			if (f.getFile().getAbsolutePath().equals(value))
+				return true;
+		}
+		return false;
 	}
 
 }
