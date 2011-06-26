@@ -324,6 +324,7 @@ class BrowserUI
                 						SwingUtilities.isLeftMouseButton(me)
                 						&& me.isControlDown())) { //(me.isPopupTrigger()) {
                 	if (!(me.isShiftDown() || ctrl)) {
+                		/*
                 		TreePath path = treeDisplay.getPathForLocation(p.x, 
                 				p.y);
                     	treeDisplay.removeTreeSelectionListener(
@@ -336,6 +337,7 @@ class BrowserUI
                     			instanceof TreeImageDisplay)
                     		controller.onRightClick((TreeImageDisplay) 
                     				path.getLastPathComponent());
+                    	*/
                 	}
                 	
                 	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) 
@@ -627,12 +629,12 @@ class BrowserUI
         	   ctrl = e.isControlDown();
         	   if (UIUtilities.isMacOS()) ctrl = e.isMetaDown();
         	   leftMouseButton = SwingUtilities.isLeftMouseButton(e);
-        	   onClick(e, false); 
+        	   if (UIUtilities.isMacOS()) onClick(e, false); 
            }
            public void mouseReleased(MouseEvent e)
            { 
         	   leftMouseButton = SwingUtilities.isLeftMouseButton(e);
-        	   onClick(e, true);
+        	   if (!UIUtilities.isMacOS()) onClick(e, true);
            }
            
           // public void mouseMoved(MouseEvent e) { rollOver(e); }
