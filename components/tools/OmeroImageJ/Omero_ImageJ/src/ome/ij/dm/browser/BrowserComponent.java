@@ -275,7 +275,8 @@ class  BrowserComponent
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
-			IJ.showMessage("An error occurred while loading data.", sw.toString());
+			IJ.log(sw.toString());
+			IJ.showMessage("An error occurred while loading data.");
 			view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			firePropertyChange(ERROR_EXIT_PROPERTY, Boolean.valueOf(false), 
 					Boolean.valueOf(true));
