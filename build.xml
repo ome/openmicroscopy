@@ -130,7 +130,6 @@ java component.
         <iterate buildpathref="OmeroImporter.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroMatlab.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
-        <iterate buildpathref="OmeroImageJ.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
         <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
