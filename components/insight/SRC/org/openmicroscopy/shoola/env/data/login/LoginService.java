@@ -234,6 +234,9 @@ public interface LoginService
     /** Flag indicating that the connection's attempt's has time out. */
     public static final int		TIMEOUT = 2;
     
+    /** Flag indicating that the client and server are not compatible.*/
+    public static final int		INCOMPATIBLE = 3;
+    
     /**
      * Returns the current state of the Login Service.
      * 

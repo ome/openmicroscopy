@@ -136,6 +136,8 @@ public class LoginServiceImpl
             	timer.schedule(new LoginTask(), config.getTimeout());
             }
             factory.connect(uc);
+            if (!factory.isCompatible()) 
+            	return INCOMPATIBLE;
             if (factory.isConnected() && connAttempt) {
 				//Log success.
                 LogMessage msg = new LogMessage();

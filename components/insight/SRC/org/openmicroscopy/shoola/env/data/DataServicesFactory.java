@@ -93,6 +93,9 @@ public class DataServicesFactory
 	/** The dialog indicating that the connection is lost.*/
 	private MessageBox connectionDialog;
 	
+	/** Flag indicating that the client and server are not compatible.*/
+	private boolean compatible;
+	
 	/**
 	 * Creates a new instance. This can't be called outside of container 
 	 * b/c agents have no references to the singleton container.
@@ -275,7 +278,7 @@ public class DataServicesFactory
     	int c1 = Integer.parseInt(valuesClient[0]);
     	int c2 = Integer.parseInt(valuesClient[1]);
     	if (s1 < c1) return false;
-    	if (c2 < s2) return false;
+    	if (s2 < c2) return false;
     	return true;
     }
     
@@ -283,16 +286,21 @@ public class DataServicesFactory
      * Notifies the user that the client and the server are not compatible.
      * 
      * @param clientVersion The version of the client.
+     * @param serverVersion The version of the server.
      * @param hostname The name of the server.
      */
-    private void notifyIncompatibility(String clientVersion, String hostname)
+    private void notifyIncompatibility(String clientVersion,
+    		String serverVersion, String hostname)
     {
     	UserNotifier un = registry.getUserNotifier();
     	String message = "The client version ("+clientVersion+") is not " +
-    			"compatible with the following server:\n"+hostname+
-    			".\nThe application will exit. ";
+    			"compatible with the following server:"+hostname;
+    	if (serverVersion != null) {
+    		message += " version:"+serverVersion;
+    	}
+    	message += ".";//\nThe application will now exit. ";
     	un.notifyInfo("Client Server not compatible", message);
-		exitApplication();
+		//exitApplication();
     }
     
 	/** 
@@ -407,7 +415,7 @@ public class DataServicesFactory
 	 * 
      * @param uc The user's credentials for logging onto <i>OMERO</i> server.
 	 * @throws DSOutOfServiceException If the connection can't be established
-     *                                 or the credentials are invalid.							
+     *                                 or the credentials are invalid.
 	 */
 	public void connect(UserCredentials uc)
 		throws DSOutOfServiceException
@@ -419,6 +427,7 @@ public class DataServicesFactory
                 				uc.getPassword(), uc.getHostName(),
                                  determineCompression(uc.getSpeedLevel()),
                                 uc.getGroup(), uc.isEncrypted());
+        compatible = true;
         //Register into log file.
         Object v = container.getRegistry().lookup(LookupNames.VERSION);
     	String clientVersion = "";
@@ -428,12 +437,16 @@ public class DataServicesFactory
         //Check if client and server are compatible.
         String version = omeroGateway.getServerVersion();
         if (version == null) { //not able to determine the version we exit
-        	notifyIncompatibility(clientVersion, uc.getHostName());
+        	compatible = false;
+        	notifyIncompatibility(clientVersion, null, uc.getHostName());
+        	omeroGateway.logout();
         	return;
         } 
        
         if (!checkClientServerCompatibility(version, clientVersion)) {
-        	notifyIncompatibility(clientVersion, uc.getHostName());
+        	compatible = false;
+        	notifyIncompatibility(clientVersion, version, uc.getHostName());
+        	omeroGateway.logout();
         	return;
         }
         
@@ -547,6 +560,14 @@ public class DataServicesFactory
 	 * @return	<code>true</code> if connected, <code>false</code> otherwise.
 	 */
 	public boolean isConnected() { return omeroGateway.isConnected(); }
+	
+	/**
+	 * Returns <code>true</code> if the client and server are compatible, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isCompatible() { return compatible; }
 	
     /** Shuts down the connection. */
 	public void shutdown()
