@@ -112,7 +112,7 @@ public class LightSourceData
 	{
 		LightSource light = (LightSource) asIObject();
 		if (light == null) return "";
-		RString value = null;//light.getLotNumber();
+		RString value = light.getLotNumber();
 		if (value == null) return "";
 		return value.getValue();
 	}
