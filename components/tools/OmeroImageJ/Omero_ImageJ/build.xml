@@ -25,6 +25,7 @@
 	<target name="compress" depends="package"
 		description="generate the distribution from Eclipse bin/ directory">
 		<!-- copy jars without "_" -->
+		<delete><fileset dir="${basedir}" includes="*.jar"/></delete>
 		<copy flatten="true" todir="${pluginsDir}/OmeroImageJ">
 		  <fileset dir="${target.dir}">
 		    <patternset refid="ex1"/>
