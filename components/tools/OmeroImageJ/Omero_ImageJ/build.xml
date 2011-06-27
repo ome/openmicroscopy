@@ -29,6 +29,7 @@
 		  <fileset dir="${target.dir}">
 		    <patternset refid="ex1"/>
 		    <include name="libs/*.jar"/>
+		    <exclude name="libs/ij.jar"/>
 		  </fileset>
 		</copy>
 		<!-- include plugin -->
