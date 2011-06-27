@@ -20,6 +20,7 @@
 	-->
 	<patternset id="ex1">
 	  <exclude name="libs/*_*.jar"/>
+	  <exclude name="libs/ij.jar"/>
 	</patternset>
 
 	<target name="compress" depends="package"
@@ -30,7 +31,6 @@
 		  <fileset dir="${target.dir}">
 		    <patternset refid="ex1"/>
 		    <include name="libs/*.jar"/>
-		    <exclude name="libs/ij.jar"/>
 		  </fileset>
 		</copy>
 		<!-- include plugin -->
