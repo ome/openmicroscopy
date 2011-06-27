@@ -51,7 +51,7 @@
                 var primaryIndex = -1;
                 var lastSelected = datatree.data.ui.last_selected;
                 if (lastSelected) {
-                    primaryIndex = thumbs.index($('#'+lastSelected.attr('id').split('-')[1]).children().get(1));
+                    primaryIndex = thumbs.index($('#'+lastSelected.attr('id').split('-')[1]).children().get(0));
                 }
                 var selIndex = thumbs.index(event.target);
 
