@@ -10,7 +10,7 @@ set -u
 set -x
 
 source docs/hudson/functions.sh
-export OMERO_BUILD=`git_short_rev`
+export OMERO_BUILD=`git_short_rev`-b$BUILD_NUMBER
 echo Building $OMERO_BRANCH
 
 ./build.py clean
