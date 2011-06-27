@@ -5,6 +5,15 @@
 
 """
 
+import glob
+import sys
+import os
+
+for tools in glob.glob("setuptools*.egg"):
+    if tools.find(".".join(map(str, sys.version_info[0:2]))) > 0:
+       sys.path.insert(0, tools)
+
+
 from ez_setup import use_setuptools
 use_setuptools()
 from setuptools import setup
