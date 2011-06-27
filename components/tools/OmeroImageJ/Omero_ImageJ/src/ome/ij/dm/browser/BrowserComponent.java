@@ -27,6 +27,8 @@ package ome.ij.dm.browser;
 import ij.IJ;
 
 import java.awt.Cursor;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
@@ -270,7 +272,10 @@ class  BrowserComponent
 				
 			}
 		} catch (DSAccessException e) {
-			IJ.showMessage("An error occured while loading data.");
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			e.printStackTrace(pw);
+			IJ.showMessage("An error occurred while loading data.", sw.toString());
 			view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			firePropertyChange(ERROR_EXIT_PROPERTY, Boolean.valueOf(false), 
 					Boolean.valueOf(true));
