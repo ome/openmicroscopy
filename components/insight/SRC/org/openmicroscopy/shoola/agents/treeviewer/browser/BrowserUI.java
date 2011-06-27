@@ -169,6 +169,18 @@ class BrowserUI
     /** The component displayed at the bottom of the UI. */
     private JComponent				bottomComponent;
 
+    /** 
+     * The selection event. The sequence is as follow: selection event sent, 
+     * then mouse event.
+     */
+    private TreeSelectionEvent event;
+    
+    /** Flag indicating if it is a right-click.*/
+    private boolean rightClickButton;
+    
+    /** Flag indicating if it is a right-click.*/
+    private boolean rightClickPad;
+    
     /**
      * Builds the tool bar.
      * 
@@ -316,36 +328,34 @@ class BrowserUI
         if (row != -1) {
             if (me.getClickCount() == 1) {
                 model.setClickPoint(p);
+                handleTreeSelection();
                //if (released) {
                 if ((me.isPopupTrigger() && !released) || 
                 		(me.isPopupTrigger() && released && 
                 				!UIUtilities.isMacOS()) ||
                 				(UIUtilities.isMacOS() && 
                 						SwingUtilities.isLeftMouseButton(me)
-                						&& me.isControlDown())) { //(me.isPopupTrigger()) {
-                	if (!(me.isShiftDown() || ctrl)) {
-                		/*
+                						&& me.isControlDown())) {
+                	if (rightClickButton) { //(!(me.isShiftDown() || ctrl))
+                		
                 		TreePath path = treeDisplay.getPathForLocation(p.x, 
                 				p.y);
-                    	treeDisplay.removeTreeSelectionListener(
-                    			selectionListener);
+                    	//treeDisplay.removeTreeSelectionListener(
+                    	//		selectionListener);
                 		if (path != null) 
                 			treeDisplay.setSelectionPath(path);
-                		treeDisplay.addTreeSelectionListener(selectionListener);
+                		//treeDisplay.addTreeSelectionListener(selectionListener);
                     	if (path != null && 
                     			path.getLastPathComponent()
                     			instanceof TreeImageDisplay)
                     		controller.onRightClick((TreeImageDisplay) 
                     				path.getLastPathComponent());
-                    	*/
                 	}
-                	
                 	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) 
                 		controller.showPopupMenu(TreeViewer.ADMIN_MENU);
                 	else 
                 		controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
-                } 
-               // }
+                }
             } else if (me.getClickCount() == 2 && released && !(me.isMetaDown()
             		|| me.isControlDown() || me.isShiftDown())) {
             	//controller.cancel();
@@ -600,6 +610,53 @@ class BrowserUI
     	return results;
     }
     
+    /** Handles the selection of the nodes in the tree.*/
+    private void handleTreeSelection()
+    {
+    	TreeImageDisplay[] nodes = model.getSelectedDisplays();
+    	if ((rightClickButton || rightClickPad)
+    		&& nodes != null && nodes.length > 1) {
+    		setFoundNode(nodes);
+    		return;
+    	}
+    	if (ctrl && leftMouseButton) {
+    		TreePath[] paths = treeDisplay.getSelectionPaths();
+    		List<TreePath> added = new ArrayList<TreePath>();
+    		TreePath[] all = null;
+    		if (paths != null) {
+    			all = new TreePath[paths.length];
+        		for (int i = 0; i < paths.length; i++) {
+        			all[i] = new TreePath(paths[i].getPath());
+				}
+    		}
+    		//treeDisplay.removeTreeSelectionListener(selectionListener);
+    		if (all != null) treeDisplay.setSelectionPaths(all);
+    		//treeDisplay.addTreeSelectionListener(selectionListener);
+    		if (all != null) {
+    			for (int i = 0; i < all.length; i++)
+            		added.add(all[i]);
+    		}
+        	controller.onClick(added);
+    		return;
+    	}
+    	if (event == null) return;
+    	TreePath[] paths = event.getPaths();
+    	List<TreePath> added = new ArrayList<TreePath>();
+    	for (int i = 0; i < paths.length; i++) {
+    		if (rightClickPad) {
+    			if (!event.isAddedPath(paths[i])) {
+        			added.add(paths[i]);
+        		}
+    		} else {
+    			if (event.isAddedPath(paths[i])) {
+        			added.add(paths[i]);
+        		}
+    		}
+		}
+    	//if (!ctrl) 
+    	controller.onClick(added);
+    }
+    
     /** 
      * Helper method to create the trees hosting the display. 
      * 
@@ -626,6 +683,9 @@ class BrowserUI
         treeDisplay.addMouseListener(new MouseAdapter() {
            public void mousePressed(MouseEvent e)
            { 
+        	   rightClickPad = UIUtilities.isMacOS() && 
+				SwingUtilities.isLeftMouseButton(e) && e.isControlDown();
+        	   rightClickButton = SwingUtilities.isRightMouseButton(e);
         	   ctrl = e.isControlDown();
         	   if (UIUtilities.isMacOS()) ctrl = e.isMetaDown();
         	   leftMouseButton = SwingUtilities.isLeftMouseButton(e);
@@ -648,6 +708,8 @@ class BrowserUI
         
             public void valueChanged(TreeSelectionEvent e)
             {
+            	event = e;
+            	/*
             	if (ctrl && leftMouseButton) {
             		TreePath[] paths = treeDisplay.getSelectionPaths();
             		List<TreePath> added = new ArrayList<TreePath>();
@@ -676,6 +738,7 @@ class BrowserUI
 				}
             	//if (!ctrl) 
             	controller.onClick(added);
+            	*/
             }
         };
         treeDisplay.addTreeSelectionListener(selectionListener);
@@ -1405,12 +1468,12 @@ class BrowserUI
      */
     void removeTreePaths(List paths)
     {
-    	treeDisplay.removeTreeSelectionListener(selectionListener);
+    	//treeDisplay.removeTreeSelectionListener(selectionListener);
     	Iterator j = paths.iterator();
         while (j.hasNext()) 
         	treeDisplay.removeSelectionPath((TreePath) j.next());
 
-        treeDisplay.addTreeSelectionListener(selectionListener);
+        //treeDisplay.addTreeSelectionListener(selectionListener);
     }
 
     /**
@@ -1705,7 +1768,7 @@ class BrowserUI
 	 */
 	void setFoundNode(TreeImageDisplay[] newSelection)
 	{
-		treeDisplay.removeTreeSelectionListener(selectionListener);
+		//treeDisplay.removeTreeSelectionListener(selectionListener);
 		treeDisplay.clearSelection();
 		if (newSelection != null) {
 			TreePath[] paths = new TreePath[newSelection.length];
@@ -1717,7 +1780,7 @@ class BrowserUI
 		}
 		
 		treeDisplay.repaint();
-		treeDisplay.addTreeSelectionListener(selectionListener);
+		//treeDisplay.addTreeSelectionListener(selectionListener);
 	}
     
 	/**

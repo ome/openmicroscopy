@@ -501,7 +501,13 @@ public class EditorUtil
 	/** Collection of filters to select the supported type of scripts. */
 	public static final List<CustomizedFileFilter> SCRIPTS_FILTERS;
 	
+	/** List of files format with companion files.*/
+	public static final List<String> FORMATS_WITH_COMPANION;
+	
 	static {
+		FORMATS_WITH_COMPANION = new ArrayList<String>();
+		FORMATS_WITH_COMPANION.add("deltavision");
+		
 		SCRIPTS_FILTERS = new ArrayList<CustomizedFileFilter>();
 		SCRIPTS_FILTERS.add(new CppFilter());
 		SCRIPTS_FILTERS.add(new JavaFilter());
@@ -844,22 +850,25 @@ public class EditorUtil
 		else if (object instanceof ProjectData)
 			counts = ((ProjectData) object).getAnnotationsCounts();
 		else if (object instanceof ImageData) {
-			counts = ((ImageData) object).getAnnotationsCounts();
-			//tmp solution
+			ImageData image = (ImageData) object;
+			counts = image.getAnnotationsCounts();
 			if (counts == null || counts.size() <= 0) return false;
-			return (counts.size() > 1);
-			/*
-			Iterator i = counts.entrySet().iterator();
-			long value = 0;
-			Entry entry;
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				value = (Long) entry.getValue();
+			int n = 1;
+			try {
+				String format = image.getFormat();
+				if (format != null && 
+						FORMATS_WITH_COMPANION.contains(format.toLowerCase()))
+					n = 2;
+			} catch (Exception e) {
 			}
-			value = value-2;
-			return value > 0;
-			*/
-			//return false;
+			Iterator<Entry<Long, Long>> i = counts.entrySet().iterator();
+			long value = 0;
+			Entry<Long, Long> entry;
+			while (i.hasNext()) {
+				entry = i.next();
+				value += (Long) entry.getValue();
+			}
+			return value > n;
 		} else if (object instanceof ScreenData)
 			counts = ((ScreenData) object).getAnnotationsCounts();
 		else if (object instanceof PlateData)
