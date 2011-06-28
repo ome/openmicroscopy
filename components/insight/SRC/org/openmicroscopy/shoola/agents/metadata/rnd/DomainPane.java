@@ -54,7 +54,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
@@ -93,7 +92,7 @@ import pojos.ChannelData;
  * </small>
  * @since 3.0-Beta4
  */
-public class DomainPane      
+public class DomainPane
 	extends ControlPane
     implements ActionListener, ChangeListener, MouseWheelListener
 {
@@ -565,6 +564,10 @@ public class DomainPane
     		return content;
     	} 
     	p.add(graphicsPane, BorderLayout.CENTER);
+    	taskPane.add(buildControlsPane());
+    	p.add(taskPane, BorderLayout.SOUTH);
+    	JPanel content = UIUtilities.buildComponentPanel(p);
+    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	return p;
     }
     
@@ -710,16 +713,8 @@ public class DomainPane
     private void buildGUI()
     {
     	setBackground(UIUtilities.BACKGROUND_COLOR);
-    	JPanel p = new JPanel();
-    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-    	p.add(buildChannelGraphicsPanel());
-    	if (!model.isGeneralIndex()) {
-    		taskPane.add(buildControlsPane());
-    		p.add(taskPane);
-    	}
     	setLayout(new BorderLayout());
-    	add(p, BorderLayout.NORTH);
+    	add(buildChannelGraphicsPanel(), BorderLayout.NORTH);
     }
     
     /**
@@ -1043,7 +1038,7 @@ public class DomainPane
 		BufferedImage img = model.renderImage();
 		if (img == null) return;
 		Dimension d = model.getPreviewDimension();
-		img = Factory.scaleBufferedImage(img, d.width,  d.height);
+		img = Factory.scaleBufferedImage(img, d.width, d.height);
 		canvas.setPreferredSize(d);
 		canvas.setSize(d);
 		canvas.setImage(img);

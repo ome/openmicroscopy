@@ -230,7 +230,7 @@ public class TextualTwoKnobsSlider
 		int maxValue = Math.max(Math.abs(min), Math.abs(max));
 		if (min < 0 || max < 0) minus = "-";
 		int length = (minus+((double) maxValue/roundingFactor)).length(); 
-		length = length/2+1;
+		length = length/2;
 		double minR = ((double) absMin)/roundingFactor;
 		double maxR = ((double) absMax)/roundingFactor;
 		
@@ -557,12 +557,13 @@ public class TextualTwoKnobsSlider
 			case LAYOUT_SLIDER_FIELDS_X_AXIS:
 				//setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 				double tableSize[][] =
-		          {{0.1,0.8,0.1},
-		           {TableLayout.PREFERRED, TableLayout.PREFERRED,TableLayout.PREFERRED}};
+		          {{0.18, 0.64, 0.18},
+		           {TableLayout.PREFERRED, TableLayout.PREFERRED,
+		        	  TableLayout.PREFERRED}};
 				setLayout(new TableLayout(tableSize));
-				add(startField,"0,0,0,1");
-				add(slider,"1,0,1,1");
-				add(endField,"2,0,2,1");
+				add(startField,"0, 0, 0, 1");
+				add(slider,"1, 0, 1, 1");
+				add(endField,"2 , 0, 2, 1");
 				break;
 			case LAYOUT_SLIDER_FIELDS_LABELS_X_AXIS:
 				setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -655,7 +656,7 @@ public class TextualTwoKnobsSlider
 		int maxValue = Math.max(Math.abs(min), Math.abs(max));
 		if (min < 0 || max < 0) minus = "-";
 		int length = (minus+((double) maxValue/roundingFactor)).length(); 
-		length = length/2+2;
+		length = length/2+6;
 		if (roundingFactor > 1) {
 			startField.setNumberType(Double.class);
 			endField.setNumberType(Double.class);
@@ -740,6 +741,16 @@ public class TextualTwoKnobsSlider
 		start = s;
 		end = e;
 		attachListeners();
+	}
+	
+	public void setPreferredSize(Dimension d)
+	{
+		super.setPreferredSize(d);
+		Dimension dim = endField.getPreferredSize();
+		int w = dim.width;
+		dim = startField.getPreferredSize();
+		w += dim.width;
+		slider.setPreferredSize(new Dimension(d.width-w, d.height));
 	}
 	
 	/**
