@@ -26,7 +26,7 @@
 	<target name="compress" depends="package"
 		description="generate the distribution from Eclipse bin/ directory">
 		<!-- copy jars without "_" -->
-		<delete><fileset dir="$basedir/../../IJ/plugins/" includes="*.jar"/></delete>
+		<!--<delete><fileset dir="$basedir/../../IJ/plugins/" includes="*.jar"/></delete>-->
 		<copy flatten="true" todir="${pluginsDir}/OmeroImageJ">
 		  <fileset dir="${target.dir}">
 		    <patternset refid="ex1"/>
@@ -55,7 +55,10 @@
              <zipfileset dir="${pluginsDir}/OmeroImageJ" prefix="OmeroImageJ" includes="**/*"/>
         </zip>
     </target>
-    <target name="tools-clean" depends="clean"/>
+    <target name="tools-clean" depends="clean">
+    <delete dir="${pluginsDir}"/>
+    <delete dir="${target.dir}"/>
+</target>
     <target name="test-compile"/>
     <target name="test"/>
     <target name="integration"/>
