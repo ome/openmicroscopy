@@ -92,8 +92,13 @@
  
  <property name="base.src.util.dir" location="SRC/org/openmicroscopy/shoola/util"/>
  <property name="base.src.svc.dir" location="SRC/org/openmicroscopy/shoola/svc"/> 
- 
-	
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * Include the OMERO properties so that we may use them. We're loading these
+   * these here so that the below child tasks can use them.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <property file="${base.build.dir}/../../../etc/omero.properties"/>
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Include the tasks lib and all children. 
    * The inclusion order is important because some child files depend on 

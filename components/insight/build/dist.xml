@@ -51,11 +51,11 @@
    *   + dist.osx.installfile: The install instructions to include in the 
    *           Mac OS X bundle.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <property environment="dist.environment"/>
   <property name="dist.name" value="OMERO.insight"/>
   <property name="dist.dir" location="${build.dir}/dist"/>
   <property name="dist.jar.file" value="omero.insight.jar"/>
   <property name="dist.bundle.name" value="omero.insight"/> 
-  <property name="dist.bundle.version" value="Beta-4.1.0-DEV"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 
@@ -95,6 +95,16 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist-init" depends="app.clean,test.clean,test">
     <mkdir dir="${dist.dir}"/>
+    <condition property="dist.bundle.version"
+               value="${omero.version}-${dist.environment.OMERO_BUILD}">
+      <isset property="dist.environment.OMERO_BUILD"/>
+    </condition>
+    <condition property="dist.bundle.version"
+               value="${omero.version}">
+      <not>
+        <isset property="dist.bundle.version"/>
+      </not>
+    </condition>
   </target>
   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
