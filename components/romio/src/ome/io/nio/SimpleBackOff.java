@@ -43,14 +43,17 @@ public class SimpleBackOff implements BackOff {
 
     protected final double warmUpFactor;
 
-    protected final int sizeX, sizeY;
-
     protected final int count;
 
+    protected final TileSizes sizes;
+
     public SimpleBackOff() {
-        sizeX = 256;
-        sizeY = 256;
-        count = 10;
+        this(new ConfiguredTileSizes());
+    }
+
+    public SimpleBackOff(TileSizes sizes) {
+        this.sizes = sizes;
+        this.count = 10;
         try {
             ServiceFactory sf = new ServiceFactory();
             service = sf.getInstance(JAIIIOService.class);
@@ -92,13 +95,14 @@ public class SimpleBackOff implements BackOff {
                 count[0]++;
             }
         }, pixels.getSizeX(), pixels.getSizeY(), pixels.getSizeZ(),
-           pixels.getSizeC(), pixels.getSizeT(), sizeX, sizeY);
+           pixels.getSizeC(), pixels.getSizeT(),
+           sizes.getTileWidth(), sizes.getTileHeight());
         return count[0];
     }
 
     protected double calculate() throws Exception {
         final String key = String.format("%s.%sX%s", getClass().getName(),
-                sizeX, sizeY);
+                sizes.getTileWidth(), sizes.getTileHeight());
 
         StopWatch sw;
         BufferedImage image;
@@ -107,7 +111,7 @@ public class SimpleBackOff implements BackOff {
 
         for (int i = 0; i < count; i++) {
             sw = new CommonsLogStopWatch(key);
-            image = new BufferedImage(sizeX, sizeY, IMAGE_TYPE);
+            image = new BufferedImage(sizes.getTileWidth(), sizes.getTileHeight(), IMAGE_TYPE);
             stream = new ByteArrayOutputStream();
             service.writeImage(stream, image, false, CODE_BLOCK, 1.0);
             sw.stop();
@@ -117,4 +121,9 @@ public class SimpleBackOff implements BackOff {
         return ((double) elapsed) / count;
     }
 
+    @Override
+    public String toString() {
+        return String.format("%s(factor=%s)",
+                getClass().getName(), scalingFactor);
+    }
 }

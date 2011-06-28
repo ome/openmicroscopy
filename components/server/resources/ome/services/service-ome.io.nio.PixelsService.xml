@@ -28,8 +28,20 @@
         parent="filesystem">
     <constructor-arg ref="omeroFilePathResolver"/>
     <constructor-arg ref="backOff"/>
+    <constructor-arg ref="tileSizes"/>
   </bean>
 
-  <bean id="backOff" class="${omero.pixeldata.backoff}"/>
+  <bean id="backOff" class="${omero.pixeldata.backoff}">
+    <constructor-arg ref="tileSizes"/>
+  </bean>
+
+  <bean id="configuredTileSizes" class="ome.io.nio.ConfiguredTileSizes">
+    <constructor-arg index="0" value="${omero.pixeldata.tile_width}"/>
+    <constructor-arg index="1" value="${omero.pixeldata.tile_height}"/>
+    <constructor-arg index="2" value="${omero.pixeldata.max_plane_width}"/>
+    <constructor-arg index="3" value="${omero.pixeldata.max_plane_height}"/>
+  </bean>
+
+  <alias name="${omero.pixeldata.tile_sizes_bean}" alias="tileSizes"/>
 
 </beans>

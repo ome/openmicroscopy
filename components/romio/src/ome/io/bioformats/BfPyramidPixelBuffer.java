@@ -27,11 +27,12 @@ import loci.formats.tiff.IFDList;
 import loci.formats.tiff.TiffCompression;
 import ome.conditions.ApiUsageException;
 import ome.conditions.LockTimeout;
+import ome.io.nio.ConfiguredTileSizes;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
+import ome.io.nio.TileSizes;
 import ome.model.core.Pixels;
 import ome.util.PixelData;
-import ome.util.Utils;
 import ome.xml.model.enums.DimensionOrder;
 import ome.xml.model.enums.EnumerationException;
 import ome.xml.model.primitives.PositiveInteger;
@@ -67,6 +68,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      * @see {@link #writePath}
      */
     private final File readerFile;
+
+    /** Description of tile sizes */
+    private final TileSizes sizes;
 
     /** The OMERO pixels set we're backing. */
     private final Pixels pixels;
@@ -128,8 +132,26 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      * @see ticket:5083
      */
     public BfPyramidPixelBuffer(Pixels pixels, String filePath, boolean write)
-        throws IOException, FormatException
+    throws IOException, FormatException
     {
+        this(new ConfiguredTileSizes(), pixels, filePath, write);
+    }
+
+    /**
+     * Full constructor taking a {@link TileSizes} implementation which defines
+     * how large the pyramid tiles will be.
+     *
+     * @param sizes
+     * @param pixels
+     * @param filePath
+     * @param write
+     * @throws IOException
+     * @throws FormatException
+     */
+    public BfPyramidPixelBuffer(TileSizes sizes, Pixels pixels, String filePath, boolean write)
+    throws IOException, FormatException
+    {
+        this.sizes = sizes;
         this.readerFile = new File(filePath);
         this.pixels = pixels;
 
@@ -1164,9 +1186,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     {
         if (isWrite())
         {
-            // FIXME: This should be configuration or service driven
-            // FIXME: Also implemented in RenderingBean.getTileSize()
-            return new Dimension(256, 256);
+            return new Dimension(sizes.getTileWidth(), sizes.getTileHeight());
         }
         return delegate().getTileSize();
     }

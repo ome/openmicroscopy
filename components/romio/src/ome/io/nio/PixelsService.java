@@ -69,6 +69,9 @@ public class PixelsService extends AbstractFileSystemService
 	/** BackOff implementation for calculating MissingPyramidExceptions */
 	protected BackOff backOff;
 
+	/** TileSizes implementation for default values */
+	protected TileSizes sizes;
+
 	/** Null plane byte array. */
 	public static final byte[] nullPlane = new byte[] { -128, 127, -128, 127,
 			-128, 127, -128, 127, -128, 127, // 10
@@ -86,7 +89,7 @@ public class PixelsService extends AbstractFileSystemService
      */
     public PixelsService(String path)
     {
-        this(path, null, new SimpleBackOff());
+        this(path, null, new SimpleBackOff(), new ConfiguredTileSizes());
     }
 
     /**
@@ -96,7 +99,7 @@ public class PixelsService extends AbstractFileSystemService
      */
     public PixelsService(String path, FilePathResolver resolver)
     {
-        this(path, resolver, new SimpleBackOff());
+        this(path, resolver, new SimpleBackOff(), new ConfiguredTileSizes());
     }
 
     /**
@@ -105,15 +108,17 @@ public class PixelsService extends AbstractFileSystemService
      * <code>/OMERO/Pixels</code>).
      * @param resolver Original file path resolver for pixels sets.
      */
-    public PixelsService(String path, FilePathResolver resolver, BackOff backOff)
+    public PixelsService(String path, FilePathResolver resolver, BackOff backOff, TileSizes sizes)
     {
         super(path);
         this.resolver = resolver;
         this.backOff = backOff;
+        this.sizes = sizes;
         if (log.isInfoEnabled())
         {
-            log.info("Constructed pixel service with path: " +
-                     path + " resolver: " + resolver + " backoff: " + backOff);
+            log.info("PixelsService(path=" +
+                     path + ", resolver=" + resolver + ", backoff=" + backOff +
+                     ", sizes=" + sizes + ")");
         }
     }
 
@@ -226,8 +231,8 @@ public class PixelsService extends AbstractFileSystemService
             source = createRomioPixelBuffer(pixelsFilePath, pixels, false);
             // FIXME: This should be configuration or service driven
             // FIXME: Also implemented in RenderingBean.getTileSize()
-            tileSize = new Dimension(Math.min(pixels.getSizeX(), 256),
-                                     Math.min(pixels.getSizeY(), 256));
+            tileSize = new Dimension(Math.min(pixels.getSizeX(), sizes.getTileWidth()),
+                                     Math.min(pixels.getSizeY(), sizes.getTileHeight()));
         }
         else
         {
@@ -236,7 +241,7 @@ public class PixelsService extends AbstractFileSystemService
             source = createMinMaxBfPixelBuffer(
                     originalFilePath, series, minMaxStore);
             // If the tile sizes we've been given are completely ridiculous
-            // then reset them to 256x256. Currently these conditions are:
+            // then reset them to WIDTHxHEIGHT. Currently these conditions are:
             //  * TileWidth == ImageWidth
             //  * TileHeight == ImageHeight
             //  * Smallest tile dimension divided by the largest resolution
@@ -260,8 +265,8 @@ public class PixelsService extends AbstractFileSystemService
                 || tileHeight == source.getSizeY()
                 || tileDimensionTooSmall)
             {
-                tileSize = new Dimension(Math.min(pixels.getSizeX(), 256),
-                                         Math.min(pixels.getSizeY(), 256));
+                tileSize = new Dimension(Math.min(pixels.getSizeX(), sizes.getTileWidth()),
+                                         Math.min(pixels.getSizeY(), sizes.getTileHeight()));
             }
             else
             {
@@ -447,7 +452,7 @@ public class PixelsService extends AbstractFileSystemService
     public boolean requiresPixelsPyramid(Pixels pixels) {
         final int sizeX = pixels.getSizeX();
         final int sizeY = pixels.getSizeY();
-        final boolean requirePyramid = (sizeX * sizeY) > (3192*3192); // TODO
+        final boolean requirePyramid = (sizeX * sizeY) > (sizes.getMaxPlaneWidth()*sizes.getMaxPlaneHeight());
         return requirePyramid;
     }
 
