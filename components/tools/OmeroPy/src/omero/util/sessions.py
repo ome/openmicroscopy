@@ -289,13 +289,14 @@ class SessionsStore(object):
         client = omero.client(props)
         client.setAgent("OMERO.sessions")
         sf = client.createSession(name, pasw)
+        ec = sf.getAdminService().getEventContext()
         uuid = sf.ice_getIdentity().name
         sf.detachOnDestroy()
         sess = sf.getSessionService().getSession(uuid)
         timeToIdle = sess.getTimeToIdle().getValue()
         timeToLive = sess.getTimeToLive().getValue()
         if new:
-            self.add(props["omero.host"], name, uuid, props)
+            self.add(props["omero.host"], ec.userName, uuid, props)
         return client, uuid, timeToIdle, timeToLive
 
     def clear(self, host = None, name = None, sess = None):
