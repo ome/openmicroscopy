@@ -1040,17 +1040,20 @@ class OmeroImageServiceImpl
 		if (file.isFile()) {
 			hcsFile = ImportableObject.isHCSFile(file);
 			//Create the container if required.
-			boolean b = ImportableObject.isArbitraryFile(file);
-			if (b) { //check if it is actually a HCS file.
-				candidates = gateway.getImportCandidates(object, file, status);
-				if (candidates.size() == 1) { 
-					String value = candidates.get(0);
-					if (object.isFileinQueue(value)) {
-						gateway.closeImport();
-						status.markedAsDuplicate();
-						return Boolean.valueOf(true);
+			if (hcsFile) {
+				boolean b = ImportableObject.isArbitraryFile(file);
+				if (b) { //check if it is actually a HCS file.
+					candidates = gateway.getImportCandidates(object, file, status);
+					if (candidates.size() == 1) { 
+						String value = candidates.get(0);
+						if (!file.getAbsolutePath().equals(value) && 
+							object.isFileinQueue(value)) {
+							gateway.closeImport();
+							status.markedAsDuplicate();
+							return Boolean.valueOf(true);
+						}
+						hcsFile = ImportableObject.isHCSFile(value);
 					}
-					hcsFile = ImportableObject.isHCSFile(value);
 				}
 			}
 			if (hcsFile) {
@@ -1110,7 +1113,8 @@ class OmeroImageServiceImpl
 				if (size == 0) return Boolean.valueOf(false);
 				else if (size == 1) {
 					String value = candidates.get(0);
-					if (object.isFileinQueue(value)) {
+					if (!file.getAbsolutePath().equals(value) && 
+						object.isFileinQueue(value)) {
 						gateway.closeImport();
 						status.markedAsDuplicate();
 						return Boolean.valueOf(true);
