@@ -464,7 +464,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
      */
     public void logout()
     {
-    	store.logout();
+    	if (store != null) store.logout();
     	if (viewer != null)
     		viewer.setLoggedIn(false);
     }
