@@ -119,7 +119,7 @@ public class FilterSetData
 	public String getSerialNumber()
 	{
 		FilterSet f = (FilterSet) asIObject();
-		RString value = f.getLotNumber();
+		RString value = f.getSerialNumber();
 		if (value == null) return "";
 		return value.getValue();
 	}

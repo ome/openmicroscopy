@@ -45,7 +45,7 @@ import omero.model.LightSource;
 import omero.model.Pulse;
 
 /** 
- * Object hosting a light source: filament, arc, laser or light emiting diode
+ * Object hosting a light source: filament, arc, laser or light emitting diode
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

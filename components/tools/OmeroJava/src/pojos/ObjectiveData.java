@@ -203,7 +203,7 @@ public class ObjectiveData
 	public String getLotNumber()
 	{
 		Objective obj = ((Objective) asIObject());
-		RString value = null;//obj.getLotNumber();
+		RString value = obj.getLotNumber();
 		if (value == null) return "";
 		return value.getValue();
 	}
