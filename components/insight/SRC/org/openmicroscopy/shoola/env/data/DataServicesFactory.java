@@ -263,6 +263,7 @@ public class DataServicesFactory
      */
     private boolean checkClientServerCompatibility(String server, String client)
     {
+    	if (server == null || client == null) return false;
     	if (server.contains("-"))
     		server = server.split("-")[0];
     	if (client.contains("-"))
@@ -436,13 +437,6 @@ public class DataServicesFactory
     	
         //Check if client and server are compatible.
         String version = omeroGateway.getServerVersion();
-        if (version == null) { //not able to determine the version we exit
-        	compatible = false;
-        	notifyIncompatibility(clientVersion, null, uc.getHostName());
-        	omeroGateway.logout();
-        	return;
-        } 
-       
         if (!checkClientServerCompatibility(version, clientVersion)) {
         	compatible = false;
         	notifyIncompatibility(clientVersion, version, uc.getHostName());
