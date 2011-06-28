@@ -31,13 +31,34 @@ public class Utils
                                   int tileWidth, int tileHeight)
 
     {
-        int tileCount = 0;
-        int x, y, w, h;
         int sizeX = pixelBuffer.getSizeX();
         int sizeY = pixelBuffer.getSizeY();
         int sizeZ = pixelBuffer.getSizeZ();
         int sizeC = pixelBuffer.getSizeC();
         int sizeT = pixelBuffer.getSizeT();
+        return forEachTile(iteration, sizeX, sizeY, sizeZ, sizeC, sizeT,
+                tileWidth, tileHeight);
+    }
+
+    /**
+     * Iterates over every tile in a given pixel buffer based on the
+     * over arching dimensions and a requested maximum tile width and height.
+     * @param iteration Invoker to call for each tile.
+     * @param pixelBuffer Pixel buffer which is backing the pixel data.
+     * @param tileWidth <b>Maximum</b> width of the tile requested. The tile
+     * request itself will be smaller than the original tile width requested if
+     * <code>x + tileWidth > sizeX</code>.
+     * @param tileHeight <b>Maximum</b> height of the tile requested. The tile
+     * request itself will be smaller if <code>y + tileHeight > sizeY</code>.
+     * @return The total number of tiles iterated over.
+     */
+    public static int forEachTile(TileLoopIteration iteration,
+                                  int sizeX, int sizeY, int sizeZ,
+                                  int sizeC, int sizeT,
+                                  int tileWidth, int tileHeight)
+    {
+        int tileCount = 0;
+        int x, y, w, h;
         for (int t = 0; t < sizeT; t++)
         {
             for (int c = 0; c < sizeC; c++)
@@ -55,14 +76,14 @@ public class Utils
                             x = tileOffsetX * tileWidth;
                             y = tileOffsetY * tileHeight;
                             w = tileWidth;
-                            if (w + x > pixelBuffer.getSizeX())
+                            if (w + x > sizeX)
                             {
-                                w = pixelBuffer.getSizeX() - x;
+                                w = sizeX - x;
                             }
                             h = tileHeight;
-                            if (h + y > pixelBuffer.getSizeY())
+                            if (h + y > sizeY)
                             {
-                                h = pixelBuffer.getSizeY() - y;
+                                h = sizeY - y;
                             }
                             iteration.run(z, c, t, x, y, w, h, tileCount);
                             tileCount++;

@@ -27,6 +27,9 @@
   <bean name="/OMERO/Pixels" class="ome.io.nio.PixelsService"
         parent="filesystem">
     <constructor-arg ref="omeroFilePathResolver"/>
+    <constructor-arg ref="backOff"/>
   </bean>
+
+  <bean id="backOff" class="${omero.pixeldata.backoff}"/>
 
 </beans>

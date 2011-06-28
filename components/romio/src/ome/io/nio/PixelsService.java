@@ -49,7 +49,7 @@ public class PixelsService extends AbstractFileSystemService
 
 	/** The logger for this class. */
 	private transient static Log log = LogFactory.getLog(PixelsService.class);
-	
+
 	/** Publisher interface used to publish messages concerning missing
 	 * data and similar. */
 	private transient ApplicationEventPublisher pub;
@@ -57,14 +57,17 @@ public class PixelsService extends AbstractFileSystemService
 	/** The DeltaVision file format enumeration value */
 	public static final String DV_FORMAT = "DV";
 
-    /** Suffix for an the image pyramid of a given pixels set. */
-    public static final String PYRAMID_SUFFIX = "_pyramid";
+	/** Suffix for an the image pyramid of a given pixels set. */
+	public static final String PYRAMID_SUFFIX = "_pyramid";
 
 	/** Null plane size constant. */
 	public static final int NULL_PLANE_SIZE = 64;
 
-    /** Resolver of archived original file paths for pixels sets. */
-    protected FilePathResolver resolver;
+	/** Resolver of archived original file paths for pixels sets. */
+	protected FilePathResolver resolver;
+
+	/** BackOff implementation for calculating MissingPyramidExceptions */
+	protected BackOff backOff;
 
 	/** Null plane byte array. */
 	public static final byte[] nullPlane = new byte[] { -128, 127, -128, 127,
@@ -83,13 +86,17 @@ public class PixelsService extends AbstractFileSystemService
      */
     public PixelsService(String path)
     {
-        super(path);
-        this.resolver = null;
-        if (log.isInfoEnabled())
-        {
-            log.info("Constructed pixel buffer with path: " + path);
-        }
+        this(path, null, new SimpleBackOff());
+    }
 
+    /**
+     * Constructor.
+     * @param path The root of the ROMIO proprietary pixels store. (usually
+     * <code>/OMERO/Pixels</code>).
+     */
+    public PixelsService(String path, FilePathResolver resolver)
+    {
+        this(path, resolver, new SimpleBackOff());
     }
 
     /**
@@ -98,14 +105,15 @@ public class PixelsService extends AbstractFileSystemService
      * <code>/OMERO/Pixels</code>).
      * @param resolver Original file path resolver for pixels sets.
      */
-    public PixelsService(String path, FilePathResolver resolver)
+    public PixelsService(String path, FilePathResolver resolver, BackOff backOff)
     {
         super(path);
         this.resolver = resolver;
+        this.backOff = backOff;
         if (log.isInfoEnabled())
         {
-            log.info("Constructed pixel buffer with path: " +
-                     path + " resolver: " + resolver);
+            log.info("Constructed pixel service with path: " +
+                     path + " resolver: " + resolver + " backoff: " + backOff);
         }
     }
 
@@ -534,8 +542,7 @@ public class PixelsService extends AbstractFileSystemService
         String msg = "Missing pyramid:" + pixelsPyramidFilePath;
         log.info(msg);
 
-        // FIXME make backoff configurable
-        throw new MissingPyramidException(msg, 15*1000, pixels.getId());
+        backOff.throwMissingPyramidException(msg, pixels);
     }
 
     /**
