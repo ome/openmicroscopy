@@ -131,7 +131,7 @@ class BaseShare(BaseController):
     def getShares(self):
         sh_list = list(self.conn.getOwnShares())
         sh_list.extend(list(self.conn.getMemberShares()))
-        sh_list = self.sortByAttr(sh_list, 'id', True)
+        sh_list.sort(key=lambda x: x.id, reverse=True)
         sh_list_with_counters = list()
         
         sh_ids = [sh.id for sh in sh_list]
@@ -146,7 +146,8 @@ class BaseShare(BaseController):
             self.shSize = len(self.shares)
 
     def getComments(self, share_id):
-        self.comments = self.sortByAttr(list(self.conn.getComments(share_id)), 'details.creationEvent.time')
+        self.comments = list(self.conn.getComments(share_id))
+        self.comments.sort(key=lambda x: x.creationEventDate())
         self.cmSize = len(self.comments)
 
     def removeImage(self, image_id):

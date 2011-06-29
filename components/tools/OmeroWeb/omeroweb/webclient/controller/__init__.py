@@ -22,46 +22,6 @@
 # Version: 1.0
 #
 
-import operator
-
-def sortByAttr(seq, attr, reverse=False):
-    # Use the "Schwartzian transform".
-    # Wrapped object only.
-    #intermed = map(None, map(getattr, seq, (attr,)*len(seq)), xrange(len(seq)), seq)
-    #intermed.sort()
-    #if reverse:
-    #    intermed.reverse()
-    #return map(operator.getitem, intermed, (-1,) * len(intermed))
-    
-    intermed = list()
-    for i in xrange(len(seq)):
-        val = getAttribute(seq[i],attr)
-        intermed.append((val, i, seq[i]))
-    
-    intermed.sort()
-    if reverse:
-        intermed.reverse()
-    return [ tup[-1] for tup in intermed ]
-
-def getAttribute(o,a):
-    attr = a.split(".")
-    if len(attr) > 1:
-        for i in xrange(len(attr)):
-            if hasattr(o,attr[i]):
-                rv = getattr(o,attr[i])
-                if hasattr(rv,'val'):
-                    return getattr(rv,'val')
-                else:
-                    attr.remove(attr[i])
-                    return getAttribute(rv, ".".join(attr))
-    else:
-        if hasattr(o,attr[0]):
-            rv = getattr(o,attr[0])
-            if hasattr(rv,'val'):
-                return getattr(rv,'val')
-            else:
-                return rv
-
 from django.conf import settings
 PAGE = settings.PAGE
 
@@ -83,12 +43,10 @@ class BaseController(object):
             self.eContext['isEditable'] = False
         self.eContext['user'] = self.conn.getUser()        
         grs = list(self.conn.getGroupsMemberOf())
-        self.eContext['memberOfGroups'] = self.sortByAttr(grs, "name")        
-        self.eContext['allGroups'] = self.sortByAttr(grs, "name")
+        grs.sort(key=lambda x: x.getName().lower())
+        self.eContext['memberOfGroups'] = grs
+        self.eContext['allGroups'] = grs
         self.eContext['advice'] = None
-    
-    def sortByAttr(self, seq, attr, reverse=False):
-        return sortByAttr(seq, attr, reverse)
     
     def getShareId(self):
         return self.conn._shareId

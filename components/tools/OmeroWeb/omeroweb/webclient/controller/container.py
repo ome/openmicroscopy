@@ -444,10 +444,10 @@ class BaseContainer(BaseController):
                 else:
                     annTypes[annClass].append(ann)
 
-        self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time", True)
-        self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time")
-        self.rating_annotations = self.sortByAttr(self.rating_annotations, "details.creationEvent.time")
-        self.tag_annotations = self.sortByAttr(self.tag_annotations, "textValue")
+        self.text_annotations.sort(key=lambda x: x.creationEventDate())
+        self.file_annotations.sort(key=lambda x: x.creationEventDate())
+        self.rating_annotations.sort(key=lambda x: x.creationEventDate())
+        self.tag_annotations.sort(key=lambda x: x.textValue)
         
         self.txannSize = len(self.text_annotations)
         self.fileannSize = len(self.file_annotations)

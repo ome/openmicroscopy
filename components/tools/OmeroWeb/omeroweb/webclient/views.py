@@ -73,7 +73,7 @@ from forms import ShareForm, BasketShareForm, ShareCommentForm, \
                     MultiAnnotationForm, \
                     WellIndexForm
 
-from controller import sortByAttr, BaseController
+from controller import BaseController
 from controller.index import BaseIndex
 from controller.basket import BaseBasket
 from controller.container import BaseContainer
@@ -2028,10 +2028,13 @@ def manage_myaccount(request, action=None, **kwargs):
     controller.getMyDetails()
     controller.getOwnedGroups()
     
+    groups = list(conn.getGroupsMemberOf())
+    groups.sort(key=lambda x: x.getName().lower())
+    
     eContext = dict()
     eContext['context'] = conn.getEventContext()
     eContext['user'] = conn.getUser()
-    eContext['allGroups']  = controller.sortByAttr(list(conn.getGroupsMemberOf()), "name")
+    eContext['allGroups']  = groups
     
     form = MyAccountForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
                                 'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,

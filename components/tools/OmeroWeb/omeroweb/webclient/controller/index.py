@@ -30,25 +30,18 @@ class BaseIndex(BaseController):
         BaseController.__init__(self, conn)
         self.eContext['breadcrumb'] = ["Home"]
 
-    #def loadData(self):
-    #    self.supervisor = self.conn.getCurrentSupervisor()
-    #    self.leaderOfGroups = self.sortByAttr(list(self.conn.getGroupsLeaderOf()), "name")
-    #    self.colleagues = self.sortByAttr(list(self.conn.listColleagues()), "omeName")
-    #    self.staffs = self.sortByAttr(list(self.conn.listStaffs()), "omeName")
-    #    self.default_group = self.conn.getDefaultGroup(self.eContext['context'].userId)
-    
     def loadMostRecent(self):
-        #shc.extend(list(self.conn.listMostRecentComments()))
-        self.mostRecentSharesComments = self.sortByAttr(list(self.conn.listMostRecentShareCommentLinks()), 'child.details.creationEvent.time', True)
-        shares = list()
+        self.mostRecentSharesComments = list(self.conn.listMostRecentShareCommentLinks())
+        self.mostRecentSharesComments.sort(key=lambda x: x.child.creationEventDate(), reverse=True)
+        self.mostRecentShares = list()
         for sh in list(self.conn.listMostRecentShares()):
             flag = True
-            for s in shares:
+            for s in self.mostRecentShares:
                 if sh.parent.id.val == s.id:
                     flag = False 
             if flag:
-                shares.append(sh.getShare())
-        self.mostRecentShares = self.sortByAttr(shares, 'started', True)
+                self.mostRecentShares.append(sh.getShare())
+        self.mostRecentShares.sort(key=lambda x: x.started, reverse=True)
     
     def loadTagCloud(self):
         tags = dict()
