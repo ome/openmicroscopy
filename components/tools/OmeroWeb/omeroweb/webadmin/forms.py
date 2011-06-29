@@ -204,10 +204,10 @@ class UploadPhotoForm(forms.Form):
         return self.cleaned_data.get('photo') 
 
 class ChangePassword(NonASCIIForm):
-    
-    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
-    confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
-    old_password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
+
+    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), label="New password")
+    confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), label="Confirm new password")
+    old_password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), label="Your current password")
     
     def clean_confirmation(self):
         if self.cleaned_data.get('password') or self.cleaned_data.get('confirmation'):
