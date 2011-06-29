@@ -184,7 +184,10 @@ class OmeroEnvironment(SConsEnvironment):
             # self.Append(CPPFLAGS=self.Split("-pedantic -ansi")) Ice fails pedantic due to extra ";"
             self.Append(CPPFLAGS=self.Split("-Wno-long-long -Wnon-virtual-dtor"))
             # self.Append(CPPFLAGS=self.Split("-Wno-long-long -Wctor-dtor-privacy -Wnon-virtual-dtor")) Ice fails the ctor check.
-            self.Append(CPPFLAGS=self.Split("-Wno-unused-parameter -Wno-unused-function -Wunused-variable -Wunused-value -Werror"))
+            # ICE_DEPRECATED_API fails on later versions of GCC (See #6009)
+            # Chris Allan <callan@blackcat.ca> Wed 29 Jun 2011 22:02:58 BST
+            # self.Append(CPPFLAGS=self.Split("-Wno-unused-parameter -Wno-unused-function -Wunused-variable -Wunused-value -Werror"))
+            self.Append(CPPFLAGS=self.Split("-Wno-unused-parameter -Wno-unused-function -Wunused-variable -Wunused-value"))
             if self.isdebug():
                 self.Append(CPPFLAGS=self.Split("-O0 -g"))
             else:
