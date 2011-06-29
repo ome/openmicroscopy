@@ -71,6 +71,9 @@ class LoginScreenManager
 	/** The version the plugin. */
 	private static final String VERSION = "v1.0";
 	
+	/** This should not be there.*/
+	private static final String version = "4.3.1";
+	
 	/** The default port value. */
 	private static final String PORT = ""+4064;
 	
@@ -96,7 +99,36 @@ class LoginScreenManager
 		f.setState(state);
 		f.addWindowStateListener(this);
 	}
-	
+    /**
+     * Returns <code>true</code> if the server and the client are compatible,
+     * <code>false</code> otherwise.
+     * 
+     * @param server The version of the server.
+     * @param client The version of the client.
+     * @return See above.
+     */
+    private boolean checkClientServerCompatibility(String server, String client)
+    {
+    	if (server == null || client == null) return false;
+    	if (server.contains("-"))
+    		server = server.split("-")[0];
+    	if (client.contains("-"))
+    		client = client.split("-")[0];
+    	if (client.startsWith("Beta"))
+    		client = client.substring(4);
+    	String[] values = server.split("\\.");
+    	String[] valuesClient = client.split("\\.");
+    	//Integer.parseInt(values[0]);
+    	if (values.length < 2 || valuesClient.length < 2) return false;
+    	int s1 = Integer.parseInt(values[0]);
+    	int s2 = Integer.parseInt(values[1]);
+    	int c1 = Integer.parseInt(valuesClient[0]);
+    	int c2 = Integer.parseInt(valuesClient[1]);
+    	if (s1 < c1) return false;
+    	if (s2 < c2) return false;
+    	return true;
+    }
+    
 	/** 
 	 * Attempts to log in.
 	 *  
@@ -145,6 +177,16 @@ class LoginScreenManager
 				login.requestFocusOnField();
 				return;
 			case ServicesFactory.SUCCESS_INDEX:
+				//check version
+				String v = ServicesFactory.getInstance().getServerVersion();
+				if (!checkClientServerCompatibility(v, version)) {
+					IJ.showMessage(CONNECTION, "The client and server " +
+							"versions are not compatible\nserver version:"+v);
+					login.setControlsEnabled(true);
+					login.requestFocusOnField();
+					ServicesFactory.getInstance().logout();
+					return;
+				}
 				close(false);
 				TreeViewer viewer = TreeViewerFactory.getTreeViewer();
 				if (viewer != null) viewer.activate();

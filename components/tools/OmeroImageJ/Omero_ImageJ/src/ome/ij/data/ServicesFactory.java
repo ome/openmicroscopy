@@ -203,6 +203,15 @@ public class ServicesFactory
 			return PERMISSION_INDEX;
 		}
 	}
+	/**
+	 * Returns the version of the server.
+	 * 
+	 * @return See above.
+	 */
+	public String getServerVersion()
+	{
+		return gateway.getServerVersion();
+	}
 	
 	/** 
 	 * Brings up a dialog indicating that the session has expired and
@@ -231,5 +240,8 @@ public class ServicesFactory
 		executor = null;
 		gateway.logout();
 	}
+	
+	/** Logs out.*/
+	public void logout() { gateway.logout(); }
 	
 }
