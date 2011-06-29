@@ -94,6 +94,7 @@ import omero.client;
 import omero.rtypes;
 import omero.api.ExporterPrx;
 import omero.api.IAdminPrx;
+import omero.api.IConfigPrx;
 import omero.api.IContainerPrx;
 import omero.api.IDeletePrx;
 import omero.api.IMetadataPrx;
@@ -1507,6 +1508,27 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Returns the {@link IConfigPrx} service.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private IConfigPrx getConfigService()
+		throws DSAccessException, DSOutOfServiceException
+	{
+		try {
+			if (entryUnencrypted != null)
+				return entryUnencrypted.getConfigService();
+			return entryEncrypted.getConfigService(); 
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Configuration service.");
+		}
+		return null;
+	}
+	
+	/**
 	 * Returns the {@link IDeletePrx} service.
 	 * 
 	 * @return See above.
@@ -2372,9 +2394,8 @@ class OMEROGateway
 	String getServerVersion()
 		throws DSOutOfServiceException
 	{
-		if (entryEncrypted == null) return null;
 		try {
-			return entryEncrypted.getConfigService().getVersion();
+			return getConfigService().getVersion();
 		} catch (Exception e) {
 			String s = "Can't retrieve the server version.\n\n";
 			s += printErrorText(e);
