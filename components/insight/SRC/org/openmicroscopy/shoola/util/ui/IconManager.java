@@ -580,7 +580,7 @@ public class IconManager
         relPaths[BACKWARD_NAV] = "eclipse_backward_nav16.png";
         relPaths[TRASH_CAN] = "nuvola_trashcan_full16.png";
         relPaths[SAVE] = "nuvola_filesaveas16.png";
-        relPaths[OWNER] = "nuvola_kdmconfig16.png";
+        relPaths[OWNER] = "nuvola_kdmconfig_modified16.png";//"nuvola_kdmconfig16.png";
         relPaths[CALENDAR] = "nuvola_date16.png";
         relPaths[DATASET] = "nuvola_folder_image16.png";
         relPaths[IMAGE] = "nuvola_image16.png";
@@ -608,7 +608,7 @@ public class IconManager
         relPaths[TAG_USED] = "tag_used16.png";
         relPaths[BROWSE] = "zoom16.png";
         relPaths[TRANSPARENT] = "zoom16.png";
-        relPaths[OWNER_48] ="nuvola_kdmconfig48.png";
+        relPaths[OWNER_48] = "nuvola_kdmconfig_modified48.png";//"nuvola_kdmconfig48.png";
         relPaths[SEARCH_TAG_SET] ="search_tag_folder16.png";
         relPaths[EDIT_REMOVE_12] = "remove12.png";
         relPaths[ADD_12] = "add12.png";
