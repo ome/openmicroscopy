@@ -7836,6 +7836,7 @@ class OMEROGateway
 	DeleteCallback deleteObject(DeleteCommand[] commands)
 		throws ProcessException
 	{
+		isSessionAlive();
 		DeleteCallback cb = null;
 		shutDownServices(false);
 		try {
@@ -7865,6 +7866,7 @@ class OMEROGateway
 	Boolean isLargeImage(Pixels pixels)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		try {	
 			RawPixelsStorePrx store = getPixelsStore();
 			if (store == null) store = getPixelsStore();
@@ -7884,6 +7886,37 @@ class OMEROGateway
 		if (importStore != null) {
 			importStore.closeServices();
 			importStore = null;
+		}
+	}
+	
+	/**
+	 * Adds the experimenters to the specified group.
+	 * 
+	 * @param group The group to add the experimenters to.
+	 * @param experimenters The experimenters to add.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	void addExperimenters(GroupData group, List<ExperimenterData>
+	experimenters)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		IAdminPrx svc = getAdminService();
+		if (svc == null) svc = getAdminService();
+		Iterator<ExperimenterData> i = experimenters.iterator();
+		try {
+			ExperimenterData exp;
+			List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+			groups.add(group.asGroup());
+			while (i.hasNext()) {
+				exp = i.next();
+				svc.addGroups(exp.asExperimenter(), groups);
+			}
+		} catch (Exception e) {
+			handleException(e, "Cannot add the experimenters.");
 		}
 	}
 

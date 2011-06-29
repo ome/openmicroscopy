@@ -366,7 +366,16 @@ class OmeroDataServiceImpl
 			}
 		} else if (parent instanceof GroupData) {
 			try {
-				children.toArray(new ExperimenterData[] {});
+				ExperimenterData[] exp = 
+					(ExperimenterData[]) 
+					children.toArray(new ExperimenterData[] {});
+				List<ExperimenterData> list = new ArrayList<ExperimenterData>();
+				for (int i = 0; i < exp.length; i++) {
+					list.add(exp[i]);
+				}
+				context.getAdminService().addExperimenters(
+						(GroupData) parent, list);
+				return;
 			} catch (ArrayStoreException ase) {
 				throw new IllegalArgumentException(
 						"items can only be experimenters.");
