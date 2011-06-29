@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
@@ -54,6 +55,7 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.file.IOUtil;
@@ -326,7 +328,7 @@ public class DataServicesFactory
 				int v = connectionDialog.centerMsgBox();
 				if (v == MessageBox.NO_OPTION) {
 					connectionDialog = null;
-					exitApplication();
+					exitApplication(true);
 				} else if (v == MessageBox.YES_OPTION) {
 					UserCredentials uc = (UserCredentials) 
 					registry.lookup(LookupNames.USER_CREDENTIALS);
@@ -359,7 +361,7 @@ public class DataServicesFactory
 						message = "A failure occurred while attempting to " +
 								"reconnect.\nThe application will now exit.";
 						un.notifyInfo("Reconnection Failure", message);
-						exitApplication();
+						exitApplication(true);
 					}
 				}
 				break;
@@ -368,7 +370,7 @@ public class DataServicesFactory
 				"running. \nPlease contact your system administrator." +
 				"\nThe application will now exit.";
 				un.notifyInfo("Connection Refused", message);
-				exitApplication();
+				exitApplication(true);
 				break;	
 		}
 	}
@@ -594,9 +596,56 @@ public class DataServicesFactory
         executor = null;
     }
 	
-	/** Shuts the services down and exits the application. */
-	public void exitApplication()
+	/** Shuts the services down and exits the application.
+	 * 
+	 * @param forceQuit Pass <code>true</code> to force i.e. do not check if
+	 * 					the application can terminate,
+	 * 					<code>false</code> otherwise.
+	 */
+	public void exitApplication(boolean forceQuit)
 	{
+		if (!forceQuit) {
+			List<AgentInfo> agents = (List<AgentInfo>)
+			registry.lookup(LookupNames.AGENTS);
+			Iterator<AgentInfo> i = agents.iterator();
+			AgentInfo agentInfo;
+			Agent a;
+			//Agents termination phase.
+			i = agents.iterator();
+			List<AgentInfo> notTerminated = new ArrayList<AgentInfo>();
+			while (i.hasNext()) {
+				agentInfo = i.next();
+				if (agentInfo.isActive()) {
+					a = agentInfo.getAgent();
+					if (a.canTerminate()) {
+						a.terminate();
+					} else notTerminated.add(agentInfo);
+				}
+			}
+			if (notTerminated.size() > 0) {
+				i = notTerminated.iterator();
+				StringBuffer buffer = new StringBuffer();
+				while (i.hasNext()) {
+					agentInfo = i.next();
+					buffer.append(agentInfo.getName());
+					buffer.append("\n");
+				}
+				String message = "The following components " +
+				"could not be closed safely:\n"+buffer.toString()+"\n" +
+				"Please check.";
+
+				MessageBox box = new MessageBox(
+						singleton.registry.getTaskBar().getFrame(),
+						"Exit Application", message,
+						IconManager.getInstance().getIcon(
+								IconManager.INFORMATION_MESSAGE_48));
+				box.setNoText("OK");
+				box.setYesText("Force Quit");
+				box.setSize(400, 250);
+				if (box.centerMsgBox() == MessageBox.NO_OPTION)
+					return;
+			}
+		}
 		shutdown();
 		container.exit();
 	}

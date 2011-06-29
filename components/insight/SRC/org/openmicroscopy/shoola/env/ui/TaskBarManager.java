@@ -416,7 +416,7 @@ public class TaskBarManager
 		try {
 			DataServicesFactory f = 
 				DataServicesFactory.getInstance(container);
-			f.exitApplication();
+			f.exitApplication(false);
 		} catch (Exception e) {} //ignore
 	}
 	

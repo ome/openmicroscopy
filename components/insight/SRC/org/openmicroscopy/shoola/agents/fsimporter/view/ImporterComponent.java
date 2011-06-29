@@ -431,6 +431,26 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#hasOnGoingImport()
+	 */
+	public boolean hasOnGoingImport()
+	{
+		if (model.getState() != DISCARDED) {
+			Collection<ImporterUIElement> list = view.getImportElements();
+			if (list == null || list.size() == 0) return false;
+			Iterator<ImporterUIElement> i = list.iterator();
+			ImporterUIElement element;
+			while (i.hasNext()) {
+				element = i.next();
+				if (!element.isDone())
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#refreshContainers(int)
 	 */
 	public void refreshContainers(int type)
