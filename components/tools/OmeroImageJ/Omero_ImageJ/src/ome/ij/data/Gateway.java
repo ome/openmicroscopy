@@ -231,7 +231,10 @@ class Gateway
 	{ 
 		try {
 			if (pojosService == null) {
-				pojosService = entryEncrypted.getContainerService();
+				if (entryUnencrypted != null) {
+					pojosService = entryUnencrypted.getContainerService();
+				} else
+					pojosService = entryEncrypted.getContainerService();
 				services.add(pojosService);
 			}
 			return pojosService; 
@@ -298,7 +301,9 @@ class Gateway
 	{ 
 		try {
 			if (pixelsService == null) {
-				pixelsService = entryEncrypted.getPixelsService(); 
+				if (entryUnencrypted != null)
+					pixelsService = entryUnencrypted.getPixelsService(); 
+				else pixelsService = entryEncrypted.getPixelsService(); 
 				services.add(pixelsService);
 			}
 			return pixelsService;
