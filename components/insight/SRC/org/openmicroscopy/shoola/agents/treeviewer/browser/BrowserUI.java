@@ -356,7 +356,7 @@ class BrowserUI
                 	else 
                 		controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
                 }
-            } else if (me.getClickCount() == 2 && released && !(me.isMetaDown()
+            } else if (me.getClickCount() == 2 && !(me.isMetaDown()
             		|| me.isControlDown() || me.isShiftDown())) {
             	//controller.cancel();
                 //model.viewDataObject();
@@ -368,7 +368,6 @@ class BrowserUI
                 } else if (o instanceof FileAnnotationData) {
                 	model.openFile(d);
                 } else if (o instanceof PlateData) {
-                	
                 	if (!d.hasChildrenDisplay() || 
                 			d.getChildrenDisplay().size() == 1) 
                 		model.browser(d);
