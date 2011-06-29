@@ -27,6 +27,8 @@ import cStringIO
 import traceback
 import logging
 
+logger = logging.getLogger('webclient_gateway')
+
 try:
     from PIL import Image, ImageDraw # see ticket:2597
 except ImportError:
@@ -69,8 +71,6 @@ try:
     PAGE = settings.PAGE
 except:
     PAGE = 24
-
-logger = logging.getLogger('webclient_gateway')
 
 class OmeroWebGateway (omero.gateway.BlitzGateway):
 
