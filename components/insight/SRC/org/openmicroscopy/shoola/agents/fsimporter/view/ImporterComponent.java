@@ -228,7 +228,7 @@ class ImporterComponent
 			if (element.isDone()) {
 				model.importCompleted(element.getID());
 				view.onImportEnded(element);
-				boolean b = element.getData().hasNewObjects();
+				boolean b = chooser.reloadHierarchies();//element.getData().hasNewObjects();
 				if (markToclose) {
 					view.setVisible(false);
 					fireStateChange();
@@ -239,14 +239,12 @@ class ImporterComponent
 					if (element != null) 
 						importData(element);
 				} else {
-					//reload the data
-					/*
+					//reload the hierarchies.
 					Class rootType = ProjectData.class;
 					if (chooser != null && 
 							chooser.getType() == Importer.SCREEN_TYPE)
 						rootType = ScreenData.class;
 					model.fireContainerLoading(rootType, true);
-					*/
 				}
 			}	
 			fireStateChange();

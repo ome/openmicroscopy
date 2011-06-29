@@ -393,6 +393,10 @@ public class ImportDialog
 	
 	/** The selected container if project view.*/
 	private TreeImageDisplay selectedProject;
+	
+	/** Indicates to reload the hierarchies when the import is completed.*/
+	private boolean reload;
+	
 	/** 
 	 * Creates the dataset.
 	 * 
@@ -1714,12 +1718,24 @@ public class ImportDialog
     			overrideName.isSelected());
     	Iterator<ImportableFile> i = files.iterator();
     	ImportableFile file;
+
+    	if (!reload) {
+    		while (i.hasNext()) {
+    			file = i.next();
+    			if (file.isFolderAsContainer() && 
+    					!ImportableObject.isHCSFile(file.getFile())) {
+    				//going to check if the dataset has been created.
+    				reload = true;
+    				break;
+    			}
+    		}
+    	}
+    	
+    	/*
     	ProjectData project;
     	DataObject parent;
     	DatasetData dataset, folder;
-    	//TODO asynchronous save.
     	OmeroDataService svc = ImporterAgent.getRegistry().getDataService();
-    	boolean reload = false;
     	Logger log = ImporterAgent.getRegistry().getLogger();
     	while (i.hasNext()) {
 			file = i.next();
@@ -1766,7 +1782,7 @@ public class ImportDialog
 				}
 			}
 		}
-    	if (reload) {
+		if (reload) {
     		Class klass = ProjectData.class;
     		if (type == Importer.SCREEN_TYPE)
     			klass = ScreenData.class;
@@ -1821,6 +1837,8 @@ public class ImportDialog
 				log.error(this, msg);
 			}
     	}
+    	*/
+    	
     	
     	
     	object.setScanningDepth(ImporterAgent.getScanningDepth());
@@ -2202,6 +2220,14 @@ public class ImportDialog
 			createDataset((DatasetData) d);
 		}
 	}
+	
+	/**
+	 * Returns <code>true</code> if need to reload the hierarchies,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean reloadHierarchies() { return reload; }
 	
 	/**
 	 * Reacts to property fired by the table.

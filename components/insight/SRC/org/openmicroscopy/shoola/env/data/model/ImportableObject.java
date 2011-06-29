@@ -348,13 +348,29 @@ public class ImportableObject
 	 */
 	public DataObject createFolderAsContainer(ImportableFile file)
 	{
+		return createFolderAsContainer(file, false);
+	}
+	
+	/**
+	 * Returns the <code>DataObject</code> corresponding to the folder 
+	 * be saved as a container.
+	 * 
+	 * @param file The file to handle.
+	 * @param hcs Pass <code>true</code> to indicate that the folder 
+	 * to create is for HCS data, <code>false</code> otherwise.
+	 * @return See above.
+	 */
+	public DataObject createFolderAsContainer(ImportableFile file, boolean hcs)
+	{
 		if (file == null) return null;
+		Class klass = type;
+		if (hcs) klass = ScreenData.class;
 		File f = file.getFile();
 		//if (f.isFile()) return null;
 		boolean b = file.isFolderAsContainer();
 		if (!b) return null;
 		File parentFile;
-		if (DatasetData.class.equals(type)) {
+		if (DatasetData.class.equals(klass)) {
 			DatasetData dataset = new DatasetData();
 			if (f.isFile()) {
 				parentFile = f.getParentFile();
@@ -363,7 +379,7 @@ public class ImportableObject
 				dataset.setName(parentFile.getName());
 			} else dataset.setName(f.getName());
 			return dataset;
-		} else if (ScreenData.class.equals(type)) {
+		} else if (ScreenData.class.equals(klass)) {
 			ScreenData screen = new ScreenData();
 			if (f.isFile()) {
 				parentFile = f.getParentFile();

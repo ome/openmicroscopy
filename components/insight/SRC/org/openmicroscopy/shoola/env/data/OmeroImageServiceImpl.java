@@ -967,6 +967,24 @@ class OmeroImageServiceImpl
 					} else ioContainer = createdData.asIObject();
 				}
 			} else ioContainer = dataset.asIObject();
+		} else { //check on the container.
+			if (container != null) {
+				if (container.getId() <= 0) { 
+					//container needs to be created to.
+					createdData = object.hasObjectBeenCreated(
+							container);
+					if (createdData == null) {
+						ioContainer = gateway.saveAndReturnObject(
+								container.asIObject(), parameters);
+						//register
+						object.addNewDataObject(
+								PojoMapper.asDataObject(
+								project));
+					} else {
+						ioContainer = createdData.asIObject();
+					}
+				} else ioContainer = container.asIObject();
+			}
 		}
 		return ioContainer;
 	}
@@ -1061,10 +1079,11 @@ class OmeroImageServiceImpl
 				if (!(container instanceof ScreenData))
 					container = null;
 			}
-			if (!hcsFile && importable.isFolderAsContainer()) {
+			//remove hcs check if we want to create screen from folder.
+			if (!hcsFile && importable.isFolderAsContainer()) { 
 				//we have to import the image in this container.
-				folder = object.createFolderAsContainer(importable);
-				if (folder != null && folder instanceof DatasetData) {
+				folder = object.createFolderAsContainer(importable, hcsFile);
+				if (folder instanceof DatasetData) {
 					try {
 						ioContainer = determineContainer((DatasetData) folder, 
 								container, object);
@@ -1074,7 +1093,16 @@ class OmeroImageServiceImpl
 						context.getLogger().error(this, "Cannot create " +
 								"the container hosting the images.");
 					}
-				} 
+				} else if (folder instanceof ScreenData) {
+					try {
+						ioContainer = determineContainer(null, folder, object);
+						status.setContainerFromFolder(PojoMapper.asDataObject(
+								ioContainer));
+					} catch (Exception e) {
+						context.getLogger().error(this, "Cannot create " +
+								"the container hosting the plate.");
+					}
+				}
 			}
 			if (folder == null && dataset != null) { //dataset
 				try {
@@ -1196,6 +1224,9 @@ class OmeroImageServiceImpl
 		status.setFiles(files);
 		//check candidates and see if we are dealing with HCS data
 		if (hcsFiles.size() > 0) {
+			//remove comment if we want screen from folder.
+			//if (container == null && importable.isFolderAsContainer())
+			//	container = object.createFolderAsContainer(importable, true);
 			if (container != null && container instanceof ScreenData) {
 				if (container.getId() <= 0) {
 					//project needs to be created to.
