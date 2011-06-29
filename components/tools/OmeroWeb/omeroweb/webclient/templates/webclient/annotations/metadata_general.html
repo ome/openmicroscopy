@@ -433,7 +433,7 @@
             {% if manager.well %}            
             {% if manager.well.selectedWellSample.image.isOwned %}<div id="wellname-{{ manager.well.selectedWellSample.image.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="wellname-{{ manager.well.selectedWellSample.image.id }}-name">{{ manager.well.selectedWellSample.image.name|warphtml:"30" }}</span></h1></div>{% else %}<h1>{{ manager.well.selectedWellSample.image.name|warphtml:"30" }}</h1>{% endif %}
                    
-            <h2 id='well_id'>Well ID: {{ manager.well.selectedWellSample.image.id }}</h2>
+            <h2 id='well_id'>Image ID: {{ manager.well.selectedWellSample.image.id }} Well ID: {{ manager.well.id }}</h2>
             <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.selectedWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
             <div class="description">
                 {% if manager.well.selectedWellSample.image.isOwned %}<div id="welldescription-{{ manager.well.selectedWellSample.image.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="welldescription-{{ manager.well.selectedWellSample.image.id }}-description">{{ manager.well.selectedWellSample.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='well_desc'>{{ manager.well.selectedWellSample.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
@@ -479,7 +479,13 @@
                 <tr>
                     <th>Channels:</th>
                     <td id='channel_names'>
-                    {% if manager.well.selectedWellSample.image.getChannels %}{% for c in manager.well.selectedWellSample.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLogicalChannel.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
+                    {% if manager.well.selectedWellSample.image.getChannels %}{% for c in manager.well.selectedWellSample.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Status:</th>
+                    <td id='well_status'>
+                        {{ manager.well.status|default_if_none:"None" }}
                     </td>
                 </tr>
             </table>
