@@ -1173,37 +1173,6 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
-
-@isUserConnected
-def load_hierarchies(request, o_type=None, o_id=None, **kwargs):
-    template = "webclient/hierarchy.html"
-    conn = None
-    try:
-        conn = kwargs["conn"]
-        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    whos = request.session['nav']['whos']
-    
-    kw = dict()
-    if o_type is not None and o_id > 0:
-        kw[str(o_type)] = long(o_id)
-    
-    try:
-        manager = BaseContainer(conn, **kw)
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return handlerInternalError(x)
-    manager.loadHierarchies()
-    
-    context = {'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager}
-
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
     
 
 ###########################################################################

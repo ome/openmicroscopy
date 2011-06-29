@@ -65,7 +65,6 @@ urlpatterns = patterns('django.views.generic.simple',
     # load history
     url( r'^load_calendar/(?:(\d{4})/(\d{1,2})/)?$', views.load_calendar, name="load_calendar"),
     url( r'^load_history/(\d{4})/(\d{1,2})/(\d{1,2})/$', views.load_history, name="load_history"),
-    url( r'^hierarchy/(?:(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/)?$', views.load_hierarchies, name="load_hierarchies" ),
     
     # load search
     url( r'^load_searching/(?:(?P<form>((?i)form))/)?$', views.load_searching, name="load_searching"),
