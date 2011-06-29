@@ -742,7 +742,7 @@ class PropertiesUI
          JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
          l.setBackground(UIUtilities.BACKGROUND_COLOR);
          int w = editName.getIcon().getIconWidth()+4;
-         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
+         p.add(layoutEditablefield(null, l));
          l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
          l.setBackground(UIUtilities.BACKGROUND_COLOR);
          p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
@@ -1027,6 +1027,10 @@ class PropertiesUI
         String t = text;
         if (model.getRefObjectID() > 0)
         	t += " "+ID_TEXT+model.getRefObjectID();
+        if (refObject instanceof WellSampleData) {
+        	WellSampleData wsd = (WellSampleData) refObject;
+        	t += " (Image ID: "+wsd.getImage().getId()+")";
+        }
 		idLabel.setText(t);
 		String ownerName = model.getOwnerName();
 		if (ownerName != null && ownerName.length() > 0)
