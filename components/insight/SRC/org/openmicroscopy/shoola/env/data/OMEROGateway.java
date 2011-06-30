@@ -2271,6 +2271,7 @@ class OMEROGateway
 	FSFileSystemView getFSRepositories(long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		if (fsViews == null) fsViews = new HashMap<Long, FSFileSystemView>();
 		if (fsViews.containsKey(userID)) return fsViews.get(userID);
 		//Review that code
@@ -2414,6 +2415,7 @@ class OMEROGateway
 	String lookupLdapAuthExperimenter(long userID)
 		throws DSOutOfServiceException
 	{
+		isSessionAlive();
 		try {
 			IAdminPrx svc = getAdminService();
 			if (svc == null) svc = getAdminService();
@@ -5262,6 +5264,7 @@ class OMEROGateway
 						List<Integer> channels, String name, String pixType)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		try {
 			IProjectionPrx service = getProjectionService();
 			if (service == null) service = getProjectionService();
@@ -5306,6 +5309,7 @@ class OMEROGateway
 	ImageData getImage(long imageID, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		try {
 			List<Long> ids = new ArrayList<Long>(1);
 			ids.add(imageID);
@@ -5336,6 +5340,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		//TODO: add method to server so that we don't have to make 2 calls.
+		isSessionAlive();
 		try {
 			IPixelsPrx svc = getPixelsService();
 			if (svc == null) svc = getPixelsService();
@@ -5591,7 +5596,6 @@ class OMEROGateway
 	Collection loadTags(Long id, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		
 		isSessionAlive();
 		try {
 			IMetadataPrx service = getMetadataService();
@@ -6291,6 +6295,7 @@ class OMEROGateway
 			File file, StatusLabel status, boolean archived, boolean close)
 		throws ImportException
 	{
+		isSessionAlive();
 		OMEROMetadataStoreClient omsc = null;
 		try {
 			omsc = getImportStore();
@@ -6376,6 +6381,7 @@ class OMEROGateway
 			StatusLabel status)
 		throws ImportException
 	{
+		isSessionAlive();
 		try {
 			ImportConfig config = new ImportConfig();
 			OMEROWrapper reader = new OMEROWrapper(config);
