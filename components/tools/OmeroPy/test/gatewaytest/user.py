@@ -22,7 +22,7 @@ class UserTest (lib.GTest):
         self.loginAsAuthor()
         self.loginAsAdmin()
 
-    def XtestSaveAs (self):
+    def testSaveAs (self):
         for u in (self.AUTHOR, self.ADMIN):
             if u == self.ADMIN:
                 print "loginAsAdmin"
