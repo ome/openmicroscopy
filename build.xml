@@ -612,6 +612,9 @@ java component.
     -->
     <target name="build-dist" depends="init" description="Copy all components to dist/; called at the end of build-* targets">
             <copy file="${omero.home}/LICENSE.txt" todir="${dist.dir}/"/>
+            <copy todir="${dist.dir}">
+                <fileset dir="${omero.home}/lib/" includes="licenses/**"/>
+            </copy>
             <copy todir="${dist.dir}/etc">
                 <fileset dir="${omero.home}/etc">
                     <exclude name="local.properties"/>
