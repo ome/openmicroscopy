@@ -38,7 +38,7 @@
    *           file as <name>-<version>.zip.  (The extension name is dictated 
    *           by the compression algorithm used.)  Other platform-specific
    *           bundles follow the same naming convention, except they add a
-   *           platform-specific postfix, like <name>-<version>-OSX.zip for
+   *           platform-specific postfix, like <name>-<version>-mac.zip for
    *           the Mac OS X bundle.
    *   + dist.launch.scripts: All launch scripts to go in the default bundle.
    *   + dist.installfile: The install instructions to include in the
@@ -225,22 +225,22 @@
     </replace>
     <available property="hcs-preview-main-available"  
     	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}.zip"/>
-    <available property="hcs-preview-OSX-available"   
-    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX-openGL.zip"/>
+    <available property="hcs-preview-mac-available"
+        file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-mac-openGL.zip"/>
     <available property="hcs-preview-win-available"   
     	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win-openGL.zip"/>
     <available property="hcs-preview-win64-available" 
     	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win64-openGL.zip"/>
     <antcall target="hcs-preview-main"  inheritAll="true" inheritRefs="true"/>
-    <antcall target="hcs-preview-OSX"   inheritAll="true" inheritRefs="true"/>
+    <antcall target="hcs-preview-mac"   inheritAll="true" inheritRefs="true"/>
     <antcall target="hcs-preview-win"   inheritAll="true" inheritRefs="true"/>
     <antcall target="hcs-preview-win64" inheritAll="true" inheritRefs="true"/>
   </target>
   <target name="hcs-preview-main" if="hcs-preview-main-available">
     <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}"/>
   </target>
-  <target name="hcs-preview-OSX" if="hcs-preview-OSX-available">
-    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-OSX-openGL"/>
+  <target name="hcs-preview-mac" if="hcs-preview-mac-available">
+    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-mac-openGL"/>
   </target>
   <target name="hcs-preview-win" if="hcs-preview-win-available">
     <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-win-openGL"/>
@@ -404,7 +404,7 @@
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Creates the Mac OS X distribution bundle under ${dist.dir}.
    * This is a zip file whose name is set to 
-   * ${dist.bundle.name}-${dist.bundle.version}-OSX.zip 
+   * ${dist.bundle.name}-${dist.bundle.version}-mac.zip
    * and whose contents are:
    *   + A config dir, containing all the app.config files.  The dir name is
    *     set to the name of the ${app.config.dir}.
@@ -432,7 +432,7 @@
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
     </jarbundler>
     <property name="dist.zip.prefix.osx"
-              value="${dist.bundle.name}-${dist.bundle.version}-OSX"/>
+              value="${dist.bundle.name}-${dist.bundle.version}-mac"/>
     <zip destfile="${dist.dir}/${dist.zip.prefix.osx}.zip">
       <zipfileset prefix="${dist.zip.prefix.osx}/${dist.app.config.dir.name}"
                   refid="app.config"/>
@@ -476,7 +476,7 @@
     </replace>
 
     <property name="dist.zip.prefix.osx.openGL"
-              value="${dist.bundle.name}-${dist.bundle.version}-OSX-openGL"/>
+              value="${dist.bundle.name}-${dist.bundle.version}-mac-openGL"/>
     <zip destfile="${dist.dir}/${dist.zip.prefix.osx.openGL}.zip">
       <zipfileset prefix="${dist.zip.prefix.osx.openGL}/${dist.app.config.dir.name}"
                   dir="${base.config.dir}"
@@ -545,7 +545,7 @@
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
   * Creates the Mac OS X distribution bundle under ${dist.dir}.
   * This is a zip file whose name is set to 
-  * ${dist.bundle.name}-${dist.bundle.version}-OSX.zip 
+  * ${dist.bundle.name}-${dist.bundle.version}-mac.zip
   * and whose contents are:
   *   + A config dir, containing all the app.config files.  The dir name is
   *     set to the name of the ${app.config.dir}.
@@ -573,7 +573,7 @@
 	  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
   </jarbundler>  
   <property name="dist.zip.prefix.editor.osx"
-            value="${distEditor.bundle.name}-${dist.bundle.version}-OSX"/>
+            value="${distEditor.bundle.name}-${dist.bundle.version}-mac"/>
 	  <zip destfile="${dist.dir}/${dist.zip.prefix.editor.osx}.zip">
 	     <zipfileset prefix="${dist.zip.prefix.editor.osx}/${dist.app.config.dir.name}"
 	                 refid="app.config" />

@@ -181,7 +181,7 @@ compress('%s.zip' % target, target)
 # Create the composite Mac OS X client build
 #
 target_artifacts = list()
-revision, artifacts = download(INSIGHT_JOB_NAME, re.compile(r'.*OSX.zip'))
+revision, artifacts = download(INSIGHT_JOB_NAME, re.compile(r'.*mac.zip'))
 target_artifacts += artifacts
 revision, artifacts = download(IMPORTER_JOB_NAME, re.compile(r'.*mac.zip'))
 target_artifacts += artifacts
