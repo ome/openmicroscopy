@@ -10,9 +10,14 @@ urlpatterns = patterns('django.views.generic.simple',
     # tell django where to find media files for webtest. From 'here' they are in /media/
     url(r'^statictest/(?P<path>.*)$', serve, {'document_root': os.path.join(os.path.dirname(__file__), 'media')}, name="statictest"),
 
+    # index 'home page' of the webtest app
     url( r'^$', views.index, name='webtest_index' ),
+
+    # login and logout: preference is to use webclient functionality for this, but these can be used as examples if needed
     url( r'^login/$', views.login, name='webtest_login' ),
     url( r'^logout/$', views.logout, name='webtest_logout' ),
+
+    # some of this functionality is duplicated from webclient or gateway as a stand-alone example
     url( r'^metadata/(?P<iid>[0-9]+)/$', views.metadata, name='webtest_metadata' ),
     url( r'^img_detail/(?P<iid>[0-9]+)/$', views.image_viewer, name="image_viewer"),
     url( r'^viewport/$', 'direct_to_template', {'template': 'webtest/viewport.html'}, name="viewport" ),
