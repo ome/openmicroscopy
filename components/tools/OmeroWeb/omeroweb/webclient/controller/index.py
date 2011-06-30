@@ -28,19 +28,20 @@ class BaseIndex(BaseController):
 
     def __init__(self, conn):
         BaseController.__init__(self, conn)
-        self.eContext['breadcrumb'] = ["Home"]
 
     def loadMostRecent(self):
-        self.mostRecentSharesComments = list(self.conn.listMostRecentShareCommentLinks())
-        self.mostRecentSharesComments.sort(key=lambda x: x.child.creationEventDate(), reverse=True)
+        self.mostRecentSharesComments = list(self.conn.listMostRecentShareComments())
+        for a in self.mostRecentSharesComments:
+            print a.link.id
+        self.mostRecentSharesComments.sort(key=lambda x: x.creationEventDate(), reverse=True)
         self.mostRecentShares = list()
         for sh in list(self.conn.listMostRecentShares()):
             flag = True
             for s in self.mostRecentShares:
-                if sh.parent.id.val == s.id:
+                if sh.id == s.id:
                     flag = False 
             if flag:
-                self.mostRecentShares.append(sh.getShare())
+                self.mostRecentShares.append(sh)
         self.mostRecentShares.sort(key=lambda x: x.started, reverse=True)
     
     def loadTagCloud(self):
