@@ -1057,11 +1057,19 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public void reportForgottenPassword(final String name, final String email)
             throws AuthenticationException {
 
+        if (name == null) {
+            throw new IllegalArgumentException("Unexpected null username.");
+        }
+        if (email == null) {
+            throw new IllegalArgumentException("Unexpected null e-mail.");
+        }
         sec.runAsAdmin(new AdminAction() {
             public void runAsAdmin() {
                 Experimenter e = iQuery.findByString(Experimenter.class,
                         "omeName", name);
-                if (e.getEmail() == null) {
+                if (e == null) {
+                    throw new AuthenticationException("Unknown user.");
+                } else if (e.getEmail() == null) {
                     throw new AuthenticationException(
                             "User has no email address.");
                 } else if (!e.getEmail().equals(email)) {
