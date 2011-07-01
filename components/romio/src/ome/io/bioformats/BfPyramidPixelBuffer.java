@@ -597,7 +597,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         {
             throw new IOException(String.format(
                     "Tile Y offset %d not a multiple of tile width %d",
-                    x, tileWidth));
+                    y, tileWidth));
         }
         if (w > tileWidth)
         {
@@ -609,7 +609,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         {
             throw new IOException(String.format(
                     "Requested tile height %d larger than tile height %d",
-                    w, tileHeight));
+                    h, tileHeight));
         }
     }
 
