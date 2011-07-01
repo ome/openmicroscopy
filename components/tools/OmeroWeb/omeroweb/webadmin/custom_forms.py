@@ -110,10 +110,19 @@ class GroupQuerySetIterator(object):
         if self.empty_label is not None:
             yield (u"", self.empty_label)
         for obj in self.queryset:
-            if hasattr(obj.id, 'val'):
-                yield (smart_unicode(obj.id.val), smart_unicode(obj.name.val))
+            if hasattr(obj.name, 'val'):
+                name = obj.name.val
             else:
-                yield (smart_unicode(obj.id), smart_unicode(obj.name))
+                name = obj.name
+            l = len(name)
+            if l > 35:
+                name = name[:35] + "..."
+            
+            if hasattr(obj.id, 'val'):
+                oid = obj.id.val
+            else:
+                oid = obj.id
+            yield (smart_unicode(oid), smart_unicode(name))
 
 class GroupModelChoiceField(ModelChoiceField):
 
