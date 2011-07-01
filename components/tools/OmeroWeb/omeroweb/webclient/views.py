@@ -190,17 +190,16 @@ def sessionHelper(request):
         request.session['nav']={"blitz": blitz, "menu": "mydata", "view": "tree", "basket": 0, "experimenter":None}
         changes = True
     if changes:
-        request.session.modified = True        
+        request.session.modified = True
         
 ################################################################################
 # views controll
 
 def login(request):
-    request.session.modified = True    
+    request.session.modified = True
     
-    if request.REQUEST.get('server'):      
-        
-        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
+    if request.REQUEST.get('server'):
+        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server'))
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
@@ -216,10 +215,12 @@ def login(request):
     error = request.REQUEST.get('error')
     
     conn = None
-    try:
-        conn = getBlitzConnection(request, useragent="OMERO.web")
-    except Exception, x:
-        error = x.__class__.__name__
+    # TODO: version check should be done on the low level, see #5983
+    if _checkVersion(request.session.get('host'), request.session.get('port')):
+        try:
+            conn = getBlitzConnection(request, useragent="OMERO.web")
+        except Exception, x:
+            error = x.__class__.__name__
     
     if conn is not None:
         upgradeCheck()

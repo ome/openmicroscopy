@@ -281,11 +281,13 @@ def login(request):
     error = request.REQUEST.get('error')
     
     conn = None
-    try:
-        conn = getBlitzConnection(request, useragent="OMERO.webadmin")
-    except Exception, x:
-        logger.error(traceback.format_exc())
-        error = str(x)
+    # TODO: version check should be done on the low level, see #5983
+    if _checkVersion(request.session.get('host'), request.session.get('port')):
+        try:
+            conn = getBlitzConnection(request, useragent="OMERO.webadmin")
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            error = str(x)
     
     if conn is not None:
         upgradeCheck()
