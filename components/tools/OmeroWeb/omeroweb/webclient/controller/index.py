@@ -31,8 +31,6 @@ class BaseIndex(BaseController):
 
     def loadMostRecent(self):
         self.mostRecentSharesComments = list(self.conn.listMostRecentShareComments())
-        for a in self.mostRecentSharesComments:
-            print a.link.id
         self.mostRecentSharesComments.sort(key=lambda x: x.creationEventDate(), reverse=True)
         self.mostRecentShares = list()
         for sh in list(self.conn.listMostRecentShares()):
