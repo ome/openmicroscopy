@@ -145,19 +145,32 @@ class ProjectionUI
     /** Displays the zoomed image. */
     void zoomImage()
     {
+    	int w, h;
     	if (canvas instanceof ProjectionCanvas) {
     		TextureData img = model.getRenderedImageAsTexture();
         	if (img == null) return;
         	double zoom = model.getZoomFactor();
-        	int w = (int) (img.getWidth()*zoom);
-        	int h = (int) (img.getHeight()*zoom);
+        	w = (int) (img.getWidth()*zoom);
+        	h = (int) (img.getHeight()*zoom);
         	setComponentsSize(w, h);
     	} else {
-    		 if (model.getProjectedImage() == null) return;
-    		 model.createDisplayedProjectedImage();
-    		 BufferedImage img = model.getDisplayedProjectedImage();
-    		 if (img == null) return;
-    		 setComponentsSize(img.getWidth(), img.getHeight());
+    		if (model.getProjectedImage() == null) {
+    			double f = model.getZoomFactor();
+    			w = (int) (model.getMaxX()*f);
+    			h =	(int) (model.getMaxY()*f);
+    		} else {
+    			model.createDisplayedProjectedImage();
+    			BufferedImage img = model.getDisplayedProjectedImage();
+    			if (img == null) {
+    				double f = model.getZoomFactor();
+        			w = (int) (model.getMaxX()*f);
+        			h =	(int) (model.getMaxY()*f);
+    			} else {
+    				w = img.getWidth();
+    				h = img.getHeight();
+    			}
+    		}
+    		setComponentsSize(w, h);
     	}
     	getViewport().setViewPosition(new Point(-1, -1));
     	canvas.repaint();
@@ -178,6 +191,7 @@ class ProjectionUI
         layeredPane.setSize(d);
         canvas.setPreferredSize(d);
         canvas.setSize(d);
+        repaint();
 	}
 	
 	/**

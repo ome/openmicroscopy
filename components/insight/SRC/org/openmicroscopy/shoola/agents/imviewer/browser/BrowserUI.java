@@ -665,7 +665,6 @@ class BrowserUI
 				return;
 		}
 		if (!scrollbarsVisible() && adjusting) adjusting = false;
-		if (adjusting) return;
 		JScrollBar hBar = getHorizontalScrollBar();
 		JScrollBar vBar = getVerticalScrollBar();
 		if (!(hBar.isVisible() && vBar.isVisible())) center();

@@ -275,7 +275,8 @@ class BrowserComponent
         		if (!reset) {
         			if (index == ImViewer.VIEW_INDEX || 
         					index == ImViewer.PROJECTION_INDEX) {
-        				view.zoomImage();  
+        				view.zoomImage();
+        				
         				projectionView.zoomImage();
         			}
         		}
@@ -599,6 +600,7 @@ class BrowserComponent
 		} else if (image instanceof TextureData) {
 			model.setProjectedImageAsTexture((TextureData) image);
 		}
+		projectionView.zoomImage();
         //canvasListener.setAreaSize(img.getWidth(), img.getHeight());
         projectionView.repaint();
 	}
