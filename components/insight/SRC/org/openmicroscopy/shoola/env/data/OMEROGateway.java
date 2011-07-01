@@ -291,7 +291,7 @@ class OMEROGateway
 	 * The maximum number of thumbnails retrieved before restarting the
 	 * thumbnails service.
 	 */
-	private static final int				MAX_RETRIEVAL = 100;
+	static final int						MAX_RETRIEVAL = 50;//100;
 
 	/** Maximum number of rows to retrieve at one time from a table. */
 	private static final int				MAX_TABLE_ROW_RETRIEVAL = 100000;
@@ -1606,7 +1606,6 @@ class OMEROGateway
 					thumbnailService = entryEncrypted.createThumbnailStore();
 				services.add(thumbnailService);
 			}
-			thumbRetrieval++;
 			return thumbnailService; 
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Thumbnail service.");
@@ -3184,6 +3183,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			if (reset) thumbRetrieval = MAX_RETRIEVAL;
+			else thumbRetrieval += pixelsID.size();
 			ThumbnailStorePrx service = getThumbService();
 			if (service == null) service = getThumbService();
 			return service.getThumbnailByLongestSideSet(

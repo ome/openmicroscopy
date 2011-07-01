@@ -518,41 +518,31 @@ class OmeroImageServiceImpl
 				}
 				return r;
 			}
-			//First check if we have a renderer for the pixel
-			BufferedImage img;
-			RenderingControl rnd;
-			PlaneDef pDef = new PlaneDef();
-			pDef.slice = omero.romio.XY.value;
-			
-			Dimension d;
-			int level;
-			ids.addAll(pixelsID);
-			/*
+			List blocks = new ArrayList();
+			int index = 0;
+			List l = null;
 			while (j.hasNext()) {
-				id = (Long) j.next();
-				rnd = PixelsServicesFactory.getRenderingControl(context, id, 
-						false);
-				if (rnd == null) ids.add(id);
-				else {
-					pDef.t = rnd.getDefaultT();
-					pDef.z = rnd.getDefaultZ();
-					//Bug here
-					d = Factory.computeThumbnailSize(max, max, 
-	        				rnd.getPixelsDimensionsX(), 
-	        				rnd.getPixelsDimensionsY());
-					try {
-						img = Factory.scaleBufferedImage(rnd.renderPlane(pDef),
-								d.width, d.height);
-						r.put(id, img);
-					} catch (Exception e) {//failed to get it that way
-						ids.add(id);
-						context.getLogger().error(this, e.getMessage());
-					}
+				if (index == 0) {
+					l = new ArrayList();
+				}
+				l.add(j.next());
+				index++;
+				if (index == OMEROGateway.MAX_RETRIEVAL) {
+					blocks.add(l);
+					index = 0;
 				}
 			}
-			if (ids.size() == 0) return r;
-			*/
-			Map m = gateway.getThumbnailSet(pixelsID, max, false);
+			if (l != null && l.size() > 0)
+				blocks.add(l);
+			ids.addAll(pixelsID);
+			j = blocks.iterator();
+			Map m = new HashMap();
+			Map map;
+			while (j.hasNext()) {
+				map = gateway.getThumbnailSet((List) j.next(), max, false);
+				m.putAll(map);
+			}
+			//m = gateway.getThumbnailSet(pixelsID, max, false);
 			if (m == null || m.size() == 0) {
 				i = ids.iterator();
 				while (i.hasNext()) 
@@ -570,7 +560,6 @@ class OmeroImageServiceImpl
 					r.put(id, null);
 				else {
 					try {
-						img = createImage(values);
 						r.put(id, createImage(values));
 					} catch (Exception e) {
 						r.put(id, null);
