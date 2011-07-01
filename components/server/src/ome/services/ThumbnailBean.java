@@ -584,15 +584,15 @@ public class ThumbnailBean extends AbstractLevel2Service
         PixelBuffer pixelBuffer = renderer.getPixels();
         int originalSizeX = pixels.getSizeX();
         int originalSizeY = pixels.getSizeY();
+        int pixelBufferSizeX = pixelBuffer.getSizeX();
+        int pixelBufferSizeY = pixelBuffer.getSizeY();
         if (pixelBuffer.getResolutionLevels() > 1)
         {
             int resolutionLevel = pixelBuffer.getResolutionLevels();
-            int pixelBufferSizeX = pixelBuffer.getSizeX();
-            int pixelBufferSizeY = pixelBuffer.getSizeY();
             while (resolutionLevel > 0)
             {
                 resolutionLevel--;
-                pixelBuffer.setResolutionLevel(resolutionLevel);
+                renderer.setResolutionLevel(resolutionLevel);
                 pixelBufferSizeX = pixelBuffer.getSizeX();
                 pixelBufferSizeY = pixelBuffer.getSizeY();
                 if (pixelBufferSizeX <= thumbnailMetadata.getSizeX()
@@ -601,26 +601,30 @@ public class ThumbnailBean extends AbstractLevel2Service
                     break;
                 }
             }
-            log.info(String.format("Using resolution level %d -- %dx%d",
+            log.debug(String.format("Using resolution level %d -- %dx%d",
                     resolutionLevel, pixelBufferSizeX, pixelBufferSizeY));
             renderer.setResolutionLevel(resolutionLevel);
-            pixels.setSizeX(pixelBufferSizeX);
-            pixels.setSizeY(pixelBufferSizeY);
         }
 
         // Render the planes and translate to a buffered image
-        BufferedImage image;
+        Pixels rendererPixels = renderer.getMetadata();
         try
         {
+            log.debug(String.format("Setting renderer Pixel sizeX:%d sizeY:%d",
+                    pixelBufferSizeX, pixelBufferSizeY));
+            rendererPixels.setSizeX(pixelBufferSizeX);
+            rendererPixels.setSizeY(pixelBufferSizeY);
             int[] buf = renderer.renderAsPackedInt(pd, null);
-            image = ImageUtil.createBufferedImage(
-                    buf, pixels.getSizeX(), pixels.getSizeY());
+            BufferedImage image = ImageUtil.createBufferedImage(
+                    buf, pixelBufferSizeX, pixelBufferSizeY);
 
             // Finally, scale our image using scaling factors (percentage).
             float xScale = (float)
-                    thumbnailMetadata.getSizeX() / pixels.getSizeX();
+                    thumbnailMetadata.getSizeX() / pixelBufferSizeX;
             float yScale = (float)
-                    thumbnailMetadata.getSizeY() / pixels.getSizeY();
+                    thumbnailMetadata.getSizeY() / pixelBufferSizeY;
+            log.debug(String.format("Using scaling factors x:%f y:%f",
+                    xScale, yScale));
             return iScale.scaleBufferedImage(image, xScale, yScale);
         } 
         catch (IOException e)
@@ -640,9 +644,13 @@ public class ThumbnailBean extends AbstractLevel2Service
         finally
         {
             // Reset to our original dimensions (#5075)
-            pixels.setSizeX(originalSizeX);
-            pixels.setSizeY(originalSizeY);
+            log.debug(String.format(
+                    "Setting original renderer Pixel sizeX:%d sizeY:%d",
+                    originalSizeX, originalSizeY));
+            rendererPixels.setSizeX(originalSizeX);
+            rendererPixels.setSizeY(originalSizeY);
         }
+
     }
 
     /**
