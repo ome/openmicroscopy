@@ -1855,8 +1855,7 @@ def basket_action (request, action=None, **kwargs):
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
     elif action == "createshare":
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, oid]))
-        
+            return HttpResponseRedirect(reverse("basket_action"))
         basket = BaseBasket(conn)
         basket.load_basket(request)
         experimenters = list(conn.getExperimenters())
@@ -1888,8 +1887,7 @@ def basket_action (request, action=None, **kwargs):
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
     elif action == "createdisc":
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, oid]))
-        
+            return HttpResponseRedirect(reverse("basket_action"))
         basket = BaseBasket(conn)
         experimenters = list(conn.getExperimenters())
         experimenters.sort(key=lambda x: x.getOmeName().lower())

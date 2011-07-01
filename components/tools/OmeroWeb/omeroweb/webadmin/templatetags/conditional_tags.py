@@ -1,27 +1,18 @@
 #!/usr/bin/env python
 # 
 # 
-# 
-# Copyright (c) 2008 University of Dundee. 
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-# 
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
-# Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
-# 
-# Version: 1.0
-#
 
+"""
+source: http://djangosnippets.org/snippets/1350/
+
+A smarter {% if %} tag for django templates.
+
+While retaining current Django functionality, it also handles equality,
+greater than and less than operators. Some common case examples::
+
+    {% if articles|length >= 5 %}...{% endif %}
+    {% if "ifnotequal tag" != "beautiful" %}...{% endif %}
+"""
 
 import traceback
 import logging
@@ -238,3 +229,20 @@ def smart_if(parser, token):
     else:
         nodelist_false = None
     return SmartIfNode(var, nodelist_true, nodelist_false)
+
+
+#==============================================================================
+# Tests
+#==============================================================================
+
+class TestVar(object):
+    """
+    A basic self-resolvable object similar to a Django template variable. Used
+    to assist with tests.
+    """
+    def __init__(self, value):
+        self.value = value
+
+    def resolve(self, context):
+        return self.value
+

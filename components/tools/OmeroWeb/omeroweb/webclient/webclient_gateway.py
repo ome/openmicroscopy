@@ -1669,6 +1669,8 @@ omero.gateway.BlitzGateway = OmeroWebGateway
 
 class OmeroWebObjectWrapper (object):
     
+    annotation_counter = None
+    
     def countParents (self):
         l = self.listParents()
         if l is not None:
