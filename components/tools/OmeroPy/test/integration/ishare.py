@@ -328,21 +328,18 @@ class TestIShare(lib.ITest):
         self.assert_(res2.id.val == img.id.val)
 
     def test1179(self):
+        createTestImage(self.root.sf)
+        rdefs = self.root.sf.getQueryService().findAll("RenderingDef", None)
+        if len(rdefs) == 0:
+            raise "Must have at least one rendering def"
+        share = self.root.sf.getShareService()
+        sid = share.createShare("", None, [], [], [], True)
+        share.activate(sid)
+        tb = self.root.sf.createThumbnailStore()
         try:
-            createTestImage(self.root.sf)
-            rdefs = self.root.sf.getQueryService().findAll("RenderingDef", None)
-            if len(rdefs) == 0:
-                raise "Must have at least one rendering def"
-            share = self.root.sf.getShareService()
-            sid = share.createShare("", None, [], [], [], True)
-            share.activate(sid)
-            tb = self.root.sf.createThumbnailStore()
-            try:
-                tb.setPixelsId(rdefs[0].pixels.id.val)
-            except omero.SecurityViolation:
-                self.fail("Pixels was not in share")
-        except omero.ValidationException, ve:
-            print " test1179 - createTestImage has failed. This fixture method needs to be fixed."
+            tb.setPixelsId(rdefs[0].pixels.id.val)
+        except omero.SecurityViolation:
+            self.fail("Pixels was not in share")
 
     def test1201(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
