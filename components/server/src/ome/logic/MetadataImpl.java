@@ -720,15 +720,14 @@ public class MetadataImpl
 		sb.append("left outer join fetch child.details.owner as ownerChild ");
 		sb.append("left outer join fetch parent.details.owner as ownerParent ");
 		sb.append("left outer join fetch tag.details.owner as tagOwner ");
-		sb.append("where child member of "+TAG_TYPE+" and " +
-				"tag.ns is not null and tag.ns = :include");
-
+		sb.append("where tag.ns is not null and tag.ns = :include ");
+		sb.append("and (l is null or child member of "+TAG_TYPE+")");
 		if (po.isExperimenter()) {
 			sb.append(" and tagOwner.id = :userID");
 			param.addLong("userID", po.getExperimenter());
 		}
 		
-		//All the tag
+		//All the tags
     	List l = iQuery.findAllByQuery(sb.toString(), param);
     	if (l != null) result.addAll(l);
     	//retrieve the orphan tags.
