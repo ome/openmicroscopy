@@ -467,6 +467,7 @@ public class FileImportComponent
 		statusLabel = new StatusLabel();
 		statusLabel.addPropertyChangeListener(this);
 		deleteButton = new JButton(icons.getIcon(IconManager.DELETE));
+		deleteButton.setActionCommand(""+DELETE_ID);
 		deleteButton.setToolTipText("Delete the image");
 		UIUtilities.unifiedButtonLookAndFeel(deleteButton);
 		deleteButton.setVisible(false);
@@ -1187,10 +1188,7 @@ public class FileImportComponent
 				deleteImage(); 
 				break;
 			case CANCEL_ID:
-				cancel(true); 
-				break;
-			case BROWSE_ID:
-				browse();
+				cancel(true);
 		}
 	}
 	
