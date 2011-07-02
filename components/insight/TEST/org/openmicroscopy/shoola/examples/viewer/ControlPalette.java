@@ -26,14 +26,10 @@ package org.openmicroscopy.shoola.examples.viewer;
 //Java imports
 
 //Third-party libraries
-import java.awt.image.BufferedImage;
-
 import processing.core.PApplet;
 import controlP5.CColor;
-import controlP5.ColorPicker;
 import controlP5.ControlGroup;
 import controlP5.ControlP5;
-import controlP5.Radio;
 import controlP5.Slider;
 import controlP5.Toggle;
 

@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.examples.viewer;
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
@@ -34,7 +33,6 @@ import java.awt.image.BufferedImage;
 
 //Third-party libraries
 import processing.core.PApplet;
-import processing.core.PConstants;
 import processing.core.PImage;
 import processing.core.PVector;
 
