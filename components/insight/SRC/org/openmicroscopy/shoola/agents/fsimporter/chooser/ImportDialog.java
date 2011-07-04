@@ -999,12 +999,25 @@ public class ImportDialog
 				filter = filters[i];
 				if (filter instanceof ComboFileFilter) {
 					combinedFilter = filter;
+					ComboFileFilter cff = (ComboFileFilter) filter;
+					FileFilter[] extensionFilters = cff.getFilters();
+					for (int j = 0; j < extensionFilters.length; j++) {
+						FileFilter ff = extensionFilters[j];
+						if (ImportableObject.isHCSFormat(ff.toString())) {
+							hcsFilters.add(ff);
+						} else {
+							generalFilters.add(ff);
+						}
+					}
+					break;
 				} else {
+					/*
 					if (ImportableObject.isHCSFormat(filter.toString())) {
 						hcsFilters.add(filter);
 					} else {
 						generalFilters.add(filter);
 					}
+					*/
 				}
 			}
 			Iterator<FileFilter> j;
