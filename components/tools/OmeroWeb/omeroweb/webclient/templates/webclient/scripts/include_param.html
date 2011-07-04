@@ -1,0 +1,48 @@
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+<div class="param">
+
+{{ i.name }}:
+
+{% if i.required %}<span style='color:red'>*</span>{% endif %}
+
+{% if i.options %}
+
+    <select name="{{ i.key }}">
+        {% for v in i.options %}
+            <option value="{{ v }}" {% ifequal i.prototype v %} selected="True" {% endifequal %} >{{ v }}</option>
+        {% endfor %}
+    </select>
+{% else %}
+
+    {% if i.boolean %}
+        <input type="checkbox" name="{{ i.key }}" {% if i.default %} checked="True" {% endif %} />
+    {% else %}
+        {% if i.number %}
+            <input type="text" name="{{ i.key }}" class="{{ i.number }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
+        {% else %}
+            <input type="text" name="{{ i.key }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
+        {% endif %}
+    {% endif %}
+
+{% endif %}
+
+</div>

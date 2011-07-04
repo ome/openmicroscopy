@@ -44,6 +44,7 @@ from thread import start_new_thread
 
 from omero_version import omero_version
 import omero, omero.scripts 
+from omero.rtypes import *
 
 from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
@@ -2638,7 +2639,6 @@ def script_ui(request, scriptId, **kwargs):
     Generates an html form for the parameters of a defined script.
     """
 
-    from omero.rtypes import *
     conn = kwargs['conn']
     scriptService = conn.getScriptService()
 
@@ -2670,12 +2670,15 @@ def script_ui(request, scriptId, **kwargs):
             i["max"] = param.max.getValue()
         if param.values:
             i["options"] = [v.getValue() for v in param.values.getValue()]
+        if request.REQUEST.get(key, None) is not None:
+            i["default"] = request.REQUEST.get(key, None)
+        elif param.useDefault:
+            i["default"] = unwrap(param.prototype)
         pt = unwrap(param.prototype)
         #print key, pt.__class__
         if pt.__class__ == type(True):
             i["boolean"] = True
         elif pt.__class__ == type(0) or pt.__class__ == type(long(0)):
-            print "Number!"
             i["number"] = "number"  # will stop the user entering anything other than numbers.
         elif pt.__class__ == type(float(0.0)):
             #print "Float!"
@@ -2684,6 +2687,24 @@ def script_ui(request, scriptId, **kwargs):
         i["grouping"] = param.grouping
         inputs.append(i)
     inputs.sort(key=lambda i: i["grouping"])
+
+    # try to determine hierarchies in the groupings - ONLY handle 1 hierarchy level now (not recursive!)
+    for i in range(len(inputs)):
+        if len(inputs) <= i:    # we may remove items from inputs as we go - need to check
+            break
+        param = inputs[i]
+        grouping = param["grouping"]    # E.g  03
+        param['children'] = list()
+        c = 1
+        while len(inputs) > i+1:
+            nextParam = inputs[i+1]
+            nextGrp = inputs[i+1]["grouping"]  # E.g. 03.1
+            if nextGrp.split(".")[0] == grouping:
+                param['children'].append(inputs[i+1])
+                inputs.pop(i+1)
+            else:
+                break
+
     paramData["inputs"] = inputs
 
     return render_to_response('webclient/scripts/script_ui.html', {'paramData': paramData})
@@ -2707,7 +2728,6 @@ def script_run(request, scriptId, **kwargs):
         if key in request.POST:
             value = request.POST[key]
             if len(value) == 0: continue
-            print key, value
             prototype = param.prototype
             pclass = prototype.__class__
             if pclass == omero.rtypes.RListI:
@@ -2745,20 +2765,26 @@ def script_run(request, scriptId, **kwargs):
                     # print "Invalid entry for '%s' : %s" % (key, value)
                     continue
 
-    print inputMap
-
     proc = scriptService.runScript(sId, inputMap, None)
 
     # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154
-    request.session.modified = True     # allows us to modify session...
-    i = 0
-    while str(i) in request.session['processors']:
-        i += 1
-    key = str(i)
-    request.session['processors'][key] = str(proc)
+    #request.session.modified = True     # allows us to modify session...
+    #i = 0
+    #while str(i) in request.session['processors']:
+    #    i += 1
+    #key = str(i)
+    #request.session['processors'][key] = str(proc)
+    jobId = str(proc)
+
+    # make a list of the input values for display on the 'running' page
+    displayMap = []
+    for key, val in inputMap.items():
+        grouping = params.inputs[key].grouping
+        displayMap.append({'key':key, 'grouping':grouping, 'value':unwrap(val)})
+    displayMap.sort(key=lambda i: i["grouping"])
 
     # TODO - return the input map, to display what the user entered.
-    return render_to_response('webclient/scripts/script_running.html', {'scriptName': scriptName, 'jobId': key})
+    return render_to_response('webclient/scripts/script_running.html', {'scriptName': scriptName, 'jobId': jobId, 'inputs': displayMap})
 
 
 ####################################################################################

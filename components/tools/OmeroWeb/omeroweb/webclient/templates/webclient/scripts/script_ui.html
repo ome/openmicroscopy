@@ -52,13 +52,28 @@
 
     $(document).ready(function() {
 
-        $('form').submit(function() {
-              $(this).runScript();  // method provided above opens new window to display script results.
-              $(this).hide();
-              return false;
-          });
+        //$('form').submit(function() {
+              //$(this).runScript();  // method provided above opens new window to display script results.
+              //$(this).hide();
+              //return false;
+         // });
     });
     </script>
+
+    <style type="text/css">
+        div.param {
+            margin: 2px;
+            font-size: 90%;
+            font-family: Arial;
+        }
+        div.parent {
+            border: 1px solid gray;
+        }
+        input {
+            padding: 0px;
+            margin: 0px;
+        }
+    </style>
 </head>
 
 <body>
@@ -68,32 +83,18 @@
         <p>{{ paramData.description|linebreaks }}</p>
 
         {% for i in paramData.inputs %}
-            <dir {% if i.required %}class="required"{% endif %}>
-            {{ i.name }}:
+            <div class="param{% if i.required %} required{% endif %}{% if i.children %} parent{% endif %}">
 
-            {% if i.required %}<span style='color:red'>*</span>{% endif %}
+            {% include "webclient/scripts/include_param.html" %}
 
-            {% if i.options %}
-
-                <select name="{{ i.key }}">
-                    {% for v in i.options %}
-                        <option value="{{ v }}" {% ifequal i.prototype v %} selected="True" {% endifequal %} >{{ v }}</option>
+            {% if i.children %}
+                <div style="margin-left: 20px">
+                    {% for i in i.children %}
+                        {% include "webclient/scripts/include_param.html" %}
                     {% endfor %}
-                </select>
-            {% else %}
-
-                {% if i.boolean %}
-                    <input type="checkbox" name="{{ i.key }}" {% if i.prototype %} checked="True" {% endif %} />
-                {% else %}
-                    {% if i.number %}
-                        <input type="text" name="{{ i.key }}" class="{{ i.number }}" {% if i.prototype %} value="{{ i.prototype }}" {% endif %} />
-                    {% else %}
-                        <input type="text" name="{{ i.key }}" {% if i.prototype %} value="{{ i.prototype }}" {% endif %} />
-                    {% endif %}
-                {% endif %}
-
+                </div>
             {% endif %}
-            </dir>
+            </div>
         {% endfor %}
         <input type="submit" value="Run Script" />
     </form>
