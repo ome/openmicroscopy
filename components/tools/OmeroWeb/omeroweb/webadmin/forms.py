@@ -196,11 +196,11 @@ class UploadPhotoForm(forms.Form):
 
     def clean_photo(self):
         if self.cleaned_data.get('photo') is None:
-            raise forms.ValidationError('This field is required.')
+            raise forms.ValidationError('No image selected. Supported image formats (file extensions allowed): jpeg, jpg, gif, png. The maximum image size allowed is 200KB.')
         if not self.cleaned_data.get('photo').content_type.startswith("image"):
-            raise forms.ValidationError('Only images (JPEG, GIF, PNG) acepted.')
+            raise forms.ValidationError('Supported image formats (file extensions allowed): jpeg, jpg, gif, png.')
         if self.cleaned_data.get('photo').size > 204800:
-            raise forms.ValidationError('Photo size file cannot be greater them 200KB.')
+            raise forms.ValidationError('The maximum image size allowed is 200KB.')
         return self.cleaned_data.get('photo') 
 
 class ChangePassword(NonASCIIForm):
