@@ -85,23 +85,18 @@ import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.ExperimenterData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -1430,13 +1425,13 @@ public class ImportDialog
 				}
 			}
 		}
-		
 		List sortedList = new ArrayList();
 		if (topList.size() > 0) {
 			sortedList = sorter.sort(topList);
 		}
 		int size;
 		List finalList = new ArrayList();
+		int index = 0;
 		if (type == Importer.PROJECT_TYPE) {
 			//sort the node
 			List<DataNode> l = getOrphanedNewDatasetNode();
@@ -1473,7 +1468,6 @@ public class ImportDialog
 				}
 				if (p != null) {
 					long id = p.getId();
-					int index = 0;
 					for (int i = 0; i < size; i++) {
 						n = (DataNode) parentsBox.getItemAt(i);
 						if (n.getDataObject().getId() == id) {
@@ -1481,20 +1475,17 @@ public class ImportDialog
 							break;
 						}
 					}
-					parentsBox.setSelectedIndex(index);
-				} else { //orphaned dataset
-					parentsBox.setSelectedIndex(0);
 				}
-			} else { //nothing selected so we will select the first item
-				parentsBox.setSelectedIndex(0);
-			}
+			} 
+			parentsBox.setSelectedIndex(index);
 		} else if (type == Importer.SCREEN_TYPE) {
 			finalList.add(new DataNode(DataNode.createDefaultScreen()));
 			finalList.addAll(sortedList);
 			parentsBox.removeActionListener(parentsBoxListener);
 			parentsBox.setModel(new DefaultComboBoxModel(finalList.toArray()));
 			parentsBox.addActionListener(parentsBoxListener);
-			size = sortedList.size();
+			size = parentsBox.getItemCount();
+			index = 0;
 			if (selectedContainer != null) {
 				ho = selectedContainer.getUserObject();
 				if (ho instanceof ScreenData) {
@@ -1502,12 +1493,14 @@ public class ImportDialog
 					for (int i = 0; i < size; i++) {
 						n = (DataNode) parentsBox.getItemAt(i);
 						if (n.getDataObject().getId() == id) {
-							parentsBox.setSelectedIndex(i);
+							index = i;
 							break;
 						}
 					}
+					
 				}
 			}
+			parentsBox.setSelectedIndex(index);
 		}
 	}
 	
