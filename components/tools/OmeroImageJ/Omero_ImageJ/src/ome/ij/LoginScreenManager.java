@@ -67,12 +67,12 @@ class LoginScreenManager
 
 	/** The title of the splash screens. */
 	static final String	TITLE = "Open Microscopy Environment";
-	 
-	/** The version the plugin. */
-	private static final String VERSION = "v1.0";
-	
+
 	/** This should not be there.*/
 	private static final String version = "4.3.1";
+	
+	/** The version the plugin. */
+	private static final String VERSION = "v1.0 (for server version: "+version+")";
 	
 	/** The default port value. */
 	private static final String PORT = ""+4064;
@@ -180,8 +180,8 @@ class LoginScreenManager
 				//check version
 				String v = ServicesFactory.getInstance().getServerVersion();
 				if (!checkClientServerCompatibility(v, version)) {
-					IJ.showMessage(CONNECTION, "The client and server " +
-							"versions are not compatible\nserver version:"+v);
+					IJ.showMessage(CONNECTION, "The plugin is not " +
+							"compatible with \nserver version:"+v);
 					login.setControlsEnabled(true);
 					login.requestFocusOnField();
 					ServicesFactory.getInstance().logout();
