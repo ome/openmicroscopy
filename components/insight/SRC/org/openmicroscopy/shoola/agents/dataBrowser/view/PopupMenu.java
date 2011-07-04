@@ -144,7 +144,7 @@ class PopupMenu
 		if (model.getType() == DataBrowserModel.SEARCH) {
 			copyElement.setEnabled(false);
 			pasteElement.setEnabled(false);
-			removeElement.setEnabled(false);
+			//removeElement.setEnabled(false);
 			cutElement.setEnabled(false);
 		}
 	}

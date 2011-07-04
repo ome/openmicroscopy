@@ -203,8 +203,7 @@ public class ManageObjectAction
 				    ho instanceof PlateData) {
 					i = selected.iterator();
 					while (i.hasNext()) {
-						obj = i.next();
-						if (model.isUserOwner(obj)) count++;
+						if (model.isUserOwner(i.next())) count++;
 					}
 					setEnabled(count == selected.size());
 				} else setEnabled(false);
@@ -218,8 +217,7 @@ public class ManageObjectAction
 		        	if (DatasetData.class.equals(klass)) {
 		        		i = selected.iterator();
 						while (i.hasNext()) {
-							obj = i.next();
-							if (model.isUserOwner(obj)) count++;
+							if (model.isUserOwner(i.next())) count++;
 						}
 						setEnabled(count == selected.size());
 		        	} else setEnabled(false);
@@ -227,8 +225,7 @@ public class ManageObjectAction
 		        	if (PlateData.class.equals(klass)) {
 		        		i = selected.iterator();
 						while (i.hasNext()) {
-							obj = i.next();
-							if (model.isUserOwner(obj)) count++;
+							if (model.isUserOwner(i.next())) count++;
 						}
 						setEnabled(count == selected.size());
 		        	} else setEnabled(false);
@@ -236,8 +233,7 @@ public class ManageObjectAction
 		        	if (ImageData.class.equals(klass)) {
 		        		i = selected.iterator();
 						while (i.hasNext()) {
-							obj = i.next();
-							if (model.isUserOwner(obj)) count++;
+							if (model.isUserOwner(i.next())) count++;
 						}
 						setEnabled(count == selected.size());
 		        	} else setEnabled(false);
@@ -252,14 +248,13 @@ public class ManageObjectAction
 					) {//|| ho instanceof PlateData) {
 					i = selected.iterator();
 					while (i.hasNext()) {
-						obj = i.next();
-						if (canDeleteObject(obj)) count++;
+						if (canDeleteObject(i.next())) count++;
 					}
 					setEnabled(count == selected.size());
 				} else setEnabled(false);
 				break;
 			case CUT:
-		        Object parent = model.getParentOfNodes();
+				Object parent = model.getParentOfNodes();
 				if ((ho instanceof DatasetData && parent instanceof ProjectData)
 					|| (ho instanceof ImageData && 
 							(parent instanceof DatasetData || 
@@ -268,8 +263,7 @@ public class ManageObjectAction
 							parent instanceof ScreenData)) {
 					i = selected.iterator();
 					while (i.hasNext()) {
-						obj = i.next();
-						if (model.isUserOwner(obj)) count++;
+						if (model.isUserOwner(i.next())) count++;
 					}
 					setEnabled(count == selected.size());
 				} else setEnabled(false);
