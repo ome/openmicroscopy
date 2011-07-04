@@ -2594,6 +2594,173 @@ def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
 
     return webgateway_views.render_split_channel(request, iid, z, t, _conn=conn, **kwargs)
 
+
+# scripting service....
+@isUserConnected
+def list_scripts (request, **kwargs):
+    """ List the available scripts - Just officical scripts for now """
+
+    conn = kwargs['conn']
+
+    scriptService = conn.getScriptService()
+    scripts = scriptService.getScripts()
+
+    # group scripts into 'folders' (path), named by parent folder name
+    scriptMenu = {}
+    for s in scripts:
+        scriptId = s.id.val
+        path = s.path.val
+        name = s.name.val
+        displayName = name.replace("_", " ")
+
+        if path not in scriptMenu:
+            folder, name = os.path.split(path)
+            if len(name) == 0:      # path was /path/to/folderName/  - we want 'folderName'
+                folderName = os.path.basename(folder)
+            else:                   # path was /path/to/folderName  - we want 'folderName'
+                folderName = name
+            folderName = folderName.title().replace("_", " ")
+            scriptMenu[path] = {'name': folderName, 'scripts': []}
+
+        scriptMenu[path]['scripts'].append((scriptId, displayName))
+
+    # convert map into list
+    scriptList = []
+    for path, sData in scriptMenu.items():
+        sData['path'] = path    # sData map has 'name', 'path', 'scripts'
+        scriptList.append(sData)
+
+    return render_to_response("webclient/scripts/list_scripts.html", {'scriptMenu': scriptList})
+
+@isUserConnected
+def script_ui(request, scriptId, **kwargs):
+    """
+    Generates an html form for the parameters of a defined script.
+    """
+
+    from omero.rtypes import *
+    conn = kwargs['conn']
+    scriptService = conn.getScriptService()
+
+    params = scriptService.getParams(long(scriptId))
+    if params == None:
+        return HttpResponse()
+
+    paramData = {}
+
+    paramData["id"] = long(scriptId)
+    paramData["name"] = params.name.replace("_", " ")
+    paramData["description"] = params.description
+    paramData["authors"] = ", ".join([a for a in params.authors])
+    paramData["contact"] = params.contact
+    paramData["version"] = params.version
+    paramData["institutions"] = ", ".join([i for i in params.institutions])
+
+    inputs = []     # use a list so we can sort by 'grouping'
+    for key, param in params.inputs.items():
+        i = {}
+        i["name"] = key.replace("_", " ")
+        i["key"] = key
+        if not param.optional:
+            i["required"] = True
+        i["description"] = param.description
+        if param.min:
+            i["min"] = param.min.getValue()
+        if param.max:
+            i["max"] = param.max.getValue()
+        if param.values:
+            i["options"] = [v.getValue() for v in param.values.getValue()]
+        pt = unwrap(param.prototype)
+        #print key, pt.__class__
+        if pt.__class__ == type(True):
+            i["boolean"] = True
+        elif pt.__class__ == type(0) or pt.__class__ == type(long(0)):
+            print "Number!"
+            i["number"] = "number"  # will stop the user entering anything other than numbers.
+        elif pt.__class__ == type(float(0.0)):
+            #print "Float!"
+            i["number"] = "float"
+        i["prototype"] = unwrap(param.prototype)    # E.g  ""  (string) or [0] (int list) or 0.0 (float)
+        i["grouping"] = param.grouping
+        inputs.append(i)
+    inputs.sort(key=lambda i: i["grouping"])
+    paramData["inputs"] = inputs
+
+    return render_to_response('webclient/scripts/script_ui.html', {'paramData': paramData})
+
+@isUserConnected
+def script_run(request, scriptId, **kwargs):
+    """
+    Runs a script using values in a POST
+    """
+    conn = kwargs['conn']
+    scriptService = conn.getScriptService()
+
+    inputMap = {}
+
+    sId = long(scriptId)
+
+    params = scriptService.getParams(sId)
+    scriptName = params.name.replace("_", " ")
+
+    for key, param in params.inputs.items():
+        if key in request.POST:
+            value = request.POST[key]
+            if len(value) == 0: continue
+            print key, value
+            prototype = param.prototype
+            pclass = prototype.__class__
+            if pclass == omero.rtypes.RListI:
+                valueList = []
+                listClass = omero.rtypes.rstring
+                l = prototype.val     # list
+                if len(l) > 0:       # check if a value type has been set (first item of prototype list)
+                    listClass = l[0].getValue().__class__
+                    if listClass == int(1).__class__:
+                        listClass = omero.rtypes.rint
+                    if listClass == long(1).__class__:
+                        listClass = omero.rtypes.rlong
+
+                for v in value.split(","):
+                    try:
+                        obj = listClass(str(v.strip())) # seem to need the str() for some reason
+                    except:
+                        # print "Invalid entry for '%s' : %s" % (key, v)
+                        continue
+                    if isinstance(obj, omero.model.IObject):
+                        valueList.append(omero.rtypes.robject(obj))
+                    else:
+                        valueList.append(obj)
+                inputMap[key] = omero.rtypes.rlist(valueList)
+
+            elif pclass == omero.rtypes.RMapI:
+                # TODO: Handle maps same way as lists.
+                valueMap = {}
+                m = prototype.val   # check if a value type has been set for the map
+
+            else:
+                try:
+                    inputMap[key] = pclass(value)
+                except:
+                    # print "Invalid entry for '%s' : %s" % (key, value)
+                    continue
+
+    print inputMap
+
+    proc = scriptService.runScript(sId, inputMap, None)
+
+    # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154
+    request.session.modified = True     # allows us to modify session...
+    i = 0
+    while str(i) in request.session['processors']:
+        i += 1
+    key = str(i)
+    request.session['processors'][key] = str(proc)
+
+    # TODO - return the input map, to display what the user entered.
+    return render_to_response('webclient/scripts/script_running.html', {'scriptName': scriptName, 'jobId': key})
+
+
 ####################################################################################
 # utils
 

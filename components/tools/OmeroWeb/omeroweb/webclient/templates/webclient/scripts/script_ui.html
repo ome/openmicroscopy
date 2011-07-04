@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+<head>
+
+    <title>Run Script</title>
+
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+
+    <script type="text/javascript">
+    jQuery.fn.runScript = function() {
+        var $form = $(this);
+        var scriptName = $("#scriptForm .scriptName").text();
+        var newWindow=window.open('','','height=250,width=700,right=50');
+        newWindow.document.write('<html><title>Results</title>');
+        newWindow.document.write('<h3>Running ' + scriptName + '</h3>');
+        newWindow.document.write('<p>Waiting for results...</p>');
+        newWindow.document.write('</html>');
+        newWindow.document.close();
+        newWindow.opener = self.opener;
+        if (window.focus) {newWindow.focus()}
+
+        var postData = $form.serialize();
+        var actionUrl = $form.attr('action');
+        $.post(actionUrl, postData, function(resultsUrl) {
+            // set the url of the results window - will only update when script completes
+            newWindow.location = resultsUrl;
+        });
+        return false;
+    };
+
+    $(document).ready(function() {
+
+        $('form').submit(function() {
+              $(this).runScript();  // method provided above opens new window to display script results.
+              $(this).hide();
+              return false;
+          });
+    });
+    </script>
+</head>
+
+<body>
+
+    <form method="post" action="{% url script_run paramData.id %}">
+        <h3 class="scriptName">{{ paramData.name }}</h3>
+        <p>{{ paramData.description|linebreaks }}</p>
+
+        {% for i in paramData.inputs %}
+            <dir {% if i.required %}class="required"{% endif %}>
+            {{ i.name }}:
+
+            {% if i.required %}<span style='color:red'>*</span>{% endif %}
+
+            {% if i.options %}
+
+                <select name="{{ i.key }}">
+                    {% for v in i.options %}
+                        <option value="{{ v }}" {% ifequal i.prototype v %} selected="True" {% endifequal %} >{{ v }}</option>
+                    {% endfor %}
+                </select>
+            {% else %}
+
+                {% if i.boolean %}
+                    <input type="checkbox" name="{{ i.key }}" {% if i.prototype %} checked="True" {% endif %} />
+                {% else %}
+                    {% if i.number %}
+                        <input type="text" name="{{ i.key }}" class="{{ i.number }}" {% if i.prototype %} value="{{ i.prototype }}" {% endif %} />
+                    {% else %}
+                        <input type="text" name="{{ i.key }}" {% if i.prototype %} value="{{ i.prototype }}" {% endif %} />
+                    {% endif %}
+                {% endif %}
+
+            {% endif %}
+            </dir>
+        {% endfor %}
+        <input type="submit" value="Run Script" />
+    </form>
+</body>
+
+</html>
