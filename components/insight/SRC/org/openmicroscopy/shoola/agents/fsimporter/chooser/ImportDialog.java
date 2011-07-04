@@ -95,6 +95,8 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.GeneralFileChooser;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
@@ -223,7 +225,7 @@ public class ImportDialog
 	private FileSelectionTable  table;
 	
 	/** The file chooser. */
-	private JFileChooser	    chooser;
+	private GeneralFileChooser	chooser;
 	
 	/** Button to close the dialog. */
 	private JButton				cancelButton;
@@ -954,7 +956,7 @@ public class ImportDialog
 		partialName.setSelected(true);
 		group.add(partialName);
 
-		chooser = new JFileChooser();
+		chooser = new GeneralFileChooser();
 		JList list = (JList) UIUtilities.findComponent(chooser, JList.class);
 		KeyAdapter ka = new KeyAdapter() {
 			
