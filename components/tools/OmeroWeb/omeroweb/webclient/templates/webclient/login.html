@@ -48,7 +48,7 @@
             <tr>
                 <th>{% trans form.server.label_tag %}{% if form.server.field.required %}*{% endif %}</th>
                 <td>{{ form.server }} {{ form.server.errors }}</td>
-                <th>{% trans form.ssl.label_tag %}{% if form.ssl.field.required %}*{% endif %}</th>
+                <th>{{ form.ssl.help_text|safe }}{% if form.ssl.field.required %}*{% endif %}</th>
                 <td>{{ form.ssl }} {{ form.ssl.errors }}</td>
             </tr>
         </tbody></table>

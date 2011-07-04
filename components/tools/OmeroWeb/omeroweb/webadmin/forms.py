@@ -57,7 +57,7 @@ class LoginForm(NonASCIIForm):
             
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22, 'autocomplete': 'off'}))
-    ssl = forms.BooleanField(required=False, label="SSL")  
+    ssl = forms.BooleanField(required=False, help_text='<img src="/appmedia/omeroweb/images/nuvola_encrypted_grey16.png" title="Real-time encrypted data transfer can be turned on by checking the box, but it will slow down the data access. Turning it off does not affect the connection to the server which is always secure." alt="SSL"')
 
 class ForgottonPasswordForm(NonASCIIForm):
     
