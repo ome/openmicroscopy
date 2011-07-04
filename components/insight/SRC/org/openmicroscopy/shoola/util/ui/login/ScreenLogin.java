@@ -583,7 +583,7 @@ public class ScreenLogin
 		encrypted = !isEncrypted();
 		encryptedButton = new JButton();
 		List<String> tips = new ArrayList<String>();
-		tips.add("The connexion to the server is always encrypted.");
+		tips.add("The connection to the server is always encrypted.");
 		tips.add("If selected, the data transfer (e.g. annotations, images) " +
 				"will also be encrypted.");
 		tips.add("But the transfer will be much slower.");
