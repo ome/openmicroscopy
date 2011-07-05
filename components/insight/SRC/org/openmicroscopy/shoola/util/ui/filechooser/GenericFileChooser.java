@@ -71,8 +71,8 @@ public class GenericFileChooser
 		if (box == null || f == null) return;
 		if ((f instanceof ShellFolder && ((ShellFolder) f).isLink()) ||
 				f.getName().endsWith(".lnk")) {
-			JOptionPane.showMessageDialog(null, "Cannot set directory " +
-					"using shortcut from selection box.");
+			JOptionPane.showMessageDialog(null, "Cannot use shortcut " +
+					"from selection box.");
 			box.setSelectedItem(f.getParentFile());
 		}
 	}
