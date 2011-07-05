@@ -1477,7 +1477,8 @@ public class ImportDialog
 					p = (ProjectData) ho;
 				} else if (ho instanceof DatasetData) {
 					node = selectedContainer.getParentDisplay();
-					if (node.getUserObject() instanceof ProjectData) {
+					if (node != null && 
+						node.getUserObject() instanceof ProjectData) {
 						p = (ProjectData) node.getUserObject();
 					}
 				}
@@ -2092,6 +2093,56 @@ public class ImportDialog
 	 */
 	public boolean isRefreshLocation() { return refreshLocation; }
 	
+	/**
+     * Resets the text and remove all the files to import.
+     * 
+     * @param objects	The possible objects.
+     * @param type		One of the constants used to identify the type of 
+     * 					import.
+     */
+	public void reset(Collection<TreeImageDisplay> objects, int type)
+	{
+		TreeImageDisplay selected = null;
+		if (this.selectedContainer != null) {
+			if (objects != null) {
+				Iterator<TreeImageDisplay> i = objects.iterator();
+				Object ho = this.selectedContainer.getUserObject();
+				TreeImageDisplay node, child;
+				Object nho, cho;
+				long id = -1;
+				if (ho instanceof DataObject) 
+					id = ((DataObject) ho).getId();
+				List l;
+				Iterator j;
+				while (i.hasNext()) {
+					node = i.next();
+					nho = node.getUserObject();
+					if (nho.getClass().equals(ho.getClass()) &&
+						nho instanceof DataObject) {
+						if (((DataObject) nho).getId() == id) {
+							selected = node;
+							break;
+						}
+					}
+					l = node.getChildrenDisplay();
+					j = l.iterator();
+					while (j.hasNext()) {
+						child = (TreeImageDisplay) j.next();
+						cho = child.getUserObject();
+						if (cho.getClass().equals(ho.getClass()) &&
+							cho instanceof DataObject) {
+							if (((DataObject) cho).getId() == id) {
+								selected = child;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		reset(selected, objects, type);
+	}
+	
     /**
      * Resets the text and remove all the files to import.
      * 
@@ -2253,7 +2304,7 @@ public class ImportDialog
 	 * @return See above.
 	 */
 	public boolean reloadHierarchies() { return reload; }
-	
+
 	/**
 	 * Reacts to property fired by the table.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

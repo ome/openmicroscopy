@@ -479,7 +479,7 @@ class ImporterComponent
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		Set nodes = TreeViewerTranslator.transformHierarchy(result, exp.getId(),
 				-1);
-		chooser.reset(null, nodes, type);
+		chooser.reset(nodes, type);
 		if (refreshImport) {
 			Collection<ImporterUIElement> l = view.getImportElements();
 			Iterator<ImporterUIElement> i = l.iterator();
