@@ -25,12 +25,15 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -72,6 +75,7 @@ import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
@@ -411,6 +415,30 @@ class DocComponent
 		}
 	}
 	
+	/**
+	 * Confirms with the user that he/she wants to delete the attachment.
+	 * 
+	 * @param location The location of the mouse pressed.
+	 */
+	private void deleteDocument(Point location)
+	{
+		JFrame f = 
+			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+		MessageBox box = new MessageBox(f, "Delete attachment",
+				"Are you sure you want to delete the attachment?");
+		Dimension d = box.getSize();
+		if (location != null) {
+			Point p = new Point(location.x-d.width, location.y);
+			if (box.showMsgBox(p) == MessageBox.YES_OPTION)
+				firePropertyChange(AnnotationUI.DELETE_ANNOTATION_PROPERTY,
+					null, this);
+		} else {
+			if (box.centerMsgBox() == MessageBox.YES_OPTION)
+				firePropertyChange(AnnotationUI.DELETE_ANNOTATION_PROPERTY,
+					null, this);
+		}
+	}
+	
 	/** Initializes the various buttons. */
 	private void initButtons()
 	{
@@ -451,8 +479,17 @@ class DocComponent
 					deleteButton = new JMenuItem(icons.getIcon(
 							IconManager.DELETE_12));
 					deleteButton.setText("Delete");
-					deleteButton.addActionListener(this);
-					deleteButton.setActionCommand(""+DELETE);
+					//deleteButton.addActionListener(this);
+					//deleteButton.setActionCommand(""+DELETE);
+					deleteButton.addMouseListener(new MouseAdapter() {
+						
+						public void mousePressed(MouseEvent e) {
+							Point p = e.getPoint();
+							SwingUtilities.convertPointToScreen(p, 
+									menuButton);
+							deleteDocument(p);
+						}
+					});
 				}
 				downloadButton = new JMenuItem(icons.getIcon(
 						IconManager.DOWNLOAD_12));
@@ -775,7 +812,12 @@ class DocComponent
 						null, this);
 				break;
 			case DELETE:
-				firePropertyChange(AnnotationUI.DELETE_ANNOTATION_PROPERTY,
+				JFrame f = 
+					MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+				MessageBox box = new MessageBox(f, "Delete attachment",
+						"Are you sure you want to delete the attachment?");
+				if (box.centerMsgBox() == MessageBox.YES_OPTION)
+					firePropertyChange(AnnotationUI.DELETE_ANNOTATION_PROPERTY,
 						null, this);
 				break;
 			case EDIT:
