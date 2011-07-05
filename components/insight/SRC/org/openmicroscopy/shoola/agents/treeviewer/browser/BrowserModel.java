@@ -935,4 +935,17 @@ class BrowserModel
 		return files;
 	}
 
+	/** 
+	 * Returns <code>true</code> if several nodes are selected,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isMultiSelection()
+	{
+		TreeImageDisplay[] nodes = getSelectedDisplays();
+		if (nodes == null || nodes.length <= 1) return false;
+		return true;
+	}
+	
 }

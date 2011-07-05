@@ -336,7 +336,7 @@ class BrowserUI
                 				(UIUtilities.isMacOS() && 
                 						SwingUtilities.isLeftMouseButton(me)
                 						&& me.isControlDown())) {
-                	if (rightClickButton) { //(!(me.isShiftDown() || ctrl))
+                	if (rightClickButton && !model.isMultiSelection()) { //(!(me.isShiftDown() || ctrl))
                 		
                 		TreePath path = treeDisplay.getPathForLocation(p.x, 
                 				p.y);
@@ -613,8 +613,8 @@ class BrowserUI
     private void handleTreeSelection()
     {
     	TreeImageDisplay[] nodes = model.getSelectedDisplays();
-    	if ((rightClickButton || rightClickPad)
-    		&& nodes != null && nodes.length > 1) {
+    	if (((rightClickButton && !ctrl) || rightClickPad)
+    		&& model.isMultiSelection()) {
     		setFoundNode(nodes);
     		return;
     	}
