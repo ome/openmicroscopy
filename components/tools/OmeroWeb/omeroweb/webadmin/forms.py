@@ -137,7 +137,7 @@ class GroupForm(NonASCIIForm):
 
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}))
     description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}), required=False)
-    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group, it means. That action might increase the time of upgrading group and break the server.</div>")
+    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group. That action might increase the time of upgrading group and break the server.</div>")
     readonly = forms.BooleanField(required=False, label="(read-only)")  
     
     def clean_name(self):

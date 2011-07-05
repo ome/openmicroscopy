@@ -85,7 +85,7 @@
     <li>{% trans "<strong>Collaborative</strong>: Users in a collaborative group can view and annotate the data belonging to other users. You can tag another user's images or use their tags to annotate your own images. You can add comments to their images and save your own rendering settings for each image. However, you cannot edit the names of their images, projects, datasets or tags etc." %}</li>
 </ul>
 
-{% if permissions or not gid %}<p><div class="error">{% trans "<strong>WARNING</strong>: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative (or Collaborative - Read-only)</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only permissions. " %}</div></p>{% endif %}
+{% if permissions or not gid %}<p><div class="error">{% trans "<strong>WARNING</strong>: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative (or Collaborative - Read-only)</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group. " %}</div></p>{% endif %}
 
 <br/>
 
@@ -95,7 +95,7 @@
     <form action="{% url wamanagegroupid "create" %}" method="POST">
 {% endif %}
 
-<p>{% trans "Fields marked with an * are mandatory." %}</p>
+<p>{% trans "Fields marked with and asterisk (*) are mandatory." %}</p>
 
 <table>
   <tbody>
