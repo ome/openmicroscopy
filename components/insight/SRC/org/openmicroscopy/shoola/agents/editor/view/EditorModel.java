@@ -469,21 +469,23 @@ class EditorModel
 		
 		saveFile(file);
 		FileAnnotationData data = null;
+		DataObject linkTo = parent;
 		if (fileAnnotation != null) data = fileAnnotation;
 		else data = new FileAnnotationData(file);
+		if (data.getId() > 0) linkTo = null;
 		String description = CPEsummaryExport.export(browser.getTreeModel());
 		if (description != null) data.setDescription(description);
 		
 		if (asynch) {
 			currentLoader = new FileSaver(component, file, data, fileType, 
-						parent);
+					linkTo);
 			currentLoader.load();
 			state = Editor.SAVING;
 		} else {
 			OmeroMetadataService svc = 
 				EditorAgent.getRegistry().getMetadataService();
 			try {
-				svc.archivedFile(fileAnnotation, file, fileType, parent);
+				svc.archivedFile(fileAnnotation, file, fileType, linkTo);
 			} catch (Exception e) {
 				LogMessage msg = new LogMessage();
 				msg.print("State: "+state);
