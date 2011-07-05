@@ -8,9 +8,12 @@ package integration.schema;
 
 //Java imports
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.xml.transform.stream.StreamSource;
 
 //Third-party libraries
 import org.testng.annotations.AfterClass;
@@ -27,19 +30,6 @@ import integration.AbstractTest;
 import integration.XMLMockObjects;
 import integration.XMLWriter;
 
-
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import java.io.InputStream;
-import javax.xml.validation.SchemaFactory;
-import java.io.FileOutputStream;
-import javax.xml.XMLConstants;
-import javax.xml.validation.Schema;
 
 /** 
  * Collections of tests.
@@ -58,7 +48,7 @@ import javax.xml.validation.Schema;
  * @since 3.0-Beta4
  */
 public class Schema2011_06_TO_2010_06_Test 
-	extends AbstractTest 
+	extends AbstractTest
 {
 
 	/** The collection of files that have to be deleted. */
@@ -344,7 +334,6 @@ public class Schema2011_06_TO_2010_06_Test
 
 		transformFileWithStream(f, output, STYLESHEET);
 		Document doc = parseFileWithStreamArray(output, schemaArray);
-		System.out.println("----- RETURN OF PARSE    -----");
 		assertNotNull(doc);
 		
 		//Should only have one root node i.e. OME node
@@ -382,34 +371,41 @@ public class Schema2011_06_TO_2010_06_Test
 	
 	
 	/**
-     */
+
     private Document parseFileWithStreamArray(File file, StreamSource[] schemaStreamArray)
     	throws Exception
     {
-		System.out.println("-----  START OF PARSE    -----");
     	if (file == null) 
     		throw new IllegalArgumentException("No file to parse.");
 
-		System.out.println("new DocumentBuilderFactory");
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		System.out.println("new SchemaFactory");
-		SchemaFactory sFact = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		System.out.println("new Schema");
-		Schema theSchema = sFact.newSchema( schemaStreamArray ); // SLOW line
-		System.out.println("SetSchema");
-		dbf.setSchema(theSchema); // Setting Schema causes ERROR
-		System.out.println("newBuilder");
+		dbf.setNamespaceAware(true); // This must be set to avoid error : cvc-elt.1: Cannot find the declaration of element 'OME'.
+		SchemaFactory sFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		
+		System.out.println("-----  START OF SCHEMA BUILD    -----");
+		Schema theSchema = sFactory.newSchema( schemaStreamArray ); // SLOW line
+		System.out.println("-----    END OF SCHEMA BUILD    -----");
+
+		
+		// // Version - one step parse and validate (print error to stdErr)
+		// dbf.setSchema(theSchema);
+		// DocumentBuilder builder = dbf.newDocumentBuilder();
+		// Document theDoc = builder.parse(file);
+		//
+
+		// Version - two step parse then validate (throws error as exception)
 		DocumentBuilder builder = dbf.newDocumentBuilder();
-		System.out.println("Parse with builder");
-		return builder.parse(file); // Error generated during parse
+		Document theDoc = builder.parse(file);
+		Validator validator=theSchema.newValidator();
+		validator.validate(new DOMSource(theDoc));
+		return theDoc;
 	}
 	
-	/**
-     */
+
 	protected void transformFileWithStream(File input, File output, InputStream xslt)
     	throws Exception
     {
-		System.out.println("-----  START OF TRANSFORM    -----");
+		//System.out.println("-----  START OF TRANSFORM    -----");
     	if (input == null) 
     		throw new IllegalArgumentException("No file to transform.");
     	if (output == null) 
@@ -417,14 +413,14 @@ public class Schema2011_06_TO_2010_06_Test
     	if (xslt == null) 
     		throw new IllegalArgumentException("No stylesheet provided.");
 
-		System.out.println(input.getAbsolutePath());
-		System.out.println("File last modified:" + input.lastModified());
-		System.out.println("File size:" + input.length() + " Bytes");
-		System.out.println(output.getAbsolutePath());
-		System.out.println("File last modified:" + output.lastModified());
-		System.out.println("File size:" + output.length() + " Bytes");
+		//System.out.println(input.getAbsolutePath());
+		//System.out.println("File last modified:" + input.lastModified());
+		//System.out.println("File size:" + input.length() + " Bytes");
+		//System.out.println(output.getAbsolutePath());
+		//System.out.println("File last modified:" + output.lastModified());
+		//System.out.println("File size:" + output.length() + " Bytes");
 
-		System.out.println("XSLT Stream available:" + xslt.available() + " Bytes");
+		//System.out.println("XSLT Stream available:" + xslt.available() + " Bytes");
 	
     	TransformerFactory factory = TransformerFactory.newInstance();
 		Transformer transformer = factory.newTransformer(
@@ -432,9 +428,10 @@ public class Schema2011_06_TO_2010_06_Test
 		StreamResult result = new StreamResult(new FileOutputStream(output));
 		transformer.transform(new StreamSource(input), result);
 
-		System.out.println(output.getAbsolutePath());
-		System.out.println("File last modified:" + output.lastModified());
-		System.out.println("File size:" + output.length() + " Bytes");
-		System.out.println("-----    END OF TRANSFORM    -----");
+		//System.out.println(output.getAbsolutePath());
+		//System.out.println("File last modified:" + output.lastModified());
+		//System.out.println("File size:" + output.length() + " Bytes");
+		//System.out.println("-----    END OF TRANSFORM    -----");
     }
+     */
 }
