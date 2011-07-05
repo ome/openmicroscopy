@@ -1257,6 +1257,7 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
                 if i:
                     t = i.simpleMarshal(xtra=xtra)
                     t['wellId'] = e.getId()
+                    t['field'] = field
                     tr.append(t)
                     continue
             tr.append(None)
