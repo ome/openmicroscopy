@@ -197,7 +197,6 @@
       <zipfileset file="${dist.installfile}" prefix="${main-dist-prefix}"/>
       <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
     </zip>
-    <antcall target="hcs-preview" inheritAll="true" inheritRefs="true"/>
   </target>
  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Creates a distribution for HCS preview
