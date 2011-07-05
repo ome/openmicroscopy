@@ -1943,6 +1943,22 @@ public class ImportDialog
 		return true;
 	}
 
+	/**
+	 * Checks if the passed container is hosting the desired object.
+	 * 
+	 * @param container The container to handle.
+	 * @return See above.
+	 */
+	private TreeImageDisplay checkContainer(TreeImageDisplay container)
+	{
+		if (container == null) return null;
+		Object ho = container.getUserObject();
+		if (ho instanceof DatasetData || ho instanceof ProjectData ||
+			ho instanceof ScreenData)
+			return container;
+		return null;
+	}
+	
 	/** 
      * Creates a new instance.
      * 
@@ -1958,6 +1974,7 @@ public class ImportDialog
     {
     	//super(owner);
     	super(0, TITLE, TITLE);
+    	selectedContainer = checkContainer(selectedContainer);
     	this.owner = owner;
     	setClosable(false);
     	setCloseVisible(false);
@@ -2087,7 +2104,7 @@ public class ImportDialog
 			Collection<TreeImageDisplay> objects, int type)
 	{
 		canvas.setVisible(true);
-		this.selectedContainer = selectedContainer;
+		this.selectedContainer = checkContainer(selectedContainer);
 		this.objects = objects;
 		int oldType = this.type;
 		this.type = type;
