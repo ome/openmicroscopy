@@ -27,13 +27,13 @@
 
 
 function openHelp() {
-        owindow = window.open('/webadmin/help/index.htm', 'window', config='height=650,width=600,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
+        owindow = window.open('/webadmin/help/index.htm', '', config='height=650,width=600,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
         if(!owindow.closed) owindow.focus();
 }
 
 function openPopup(url) {
-    // use url for window name to give a new window for each new url
-    owindow = window.open(url, url, config='height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
+    // IE8 doesn't support arbitrary text for 'name' 2nd arg.  #6118
+    var owindow = window.open(url, '', config='height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
     if(!owindow.closed) owindow.focus();
     return false;
 }

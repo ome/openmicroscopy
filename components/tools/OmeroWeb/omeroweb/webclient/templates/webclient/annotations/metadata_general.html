@@ -157,7 +157,7 @@
                 // display in a new window      
                 $(".show_xml").click(function() {
                     var xml = $(this).next().html();
-                    var newWindow=window.open('','name','height=500,width=500,scrollbars=yes, top=50, left=100');
+                    var newWindow=window.open('','','height=500,width=500,scrollbars=yes, top=50, left=100');
                     newWindow.document.write(xml);
                     newWindow.document.close();
                     return false;
