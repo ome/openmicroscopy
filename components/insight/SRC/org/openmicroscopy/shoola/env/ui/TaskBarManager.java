@@ -45,6 +45,7 @@ import java.util.Map.Entry;
 import javax.swing.Icon;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -68,7 +69,6 @@ import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
-import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -462,8 +462,16 @@ public class TaskBarManager
 		String name = (String) container.getRegistry().lookup(
 				LookupNames.USER_HOME_OMERO);
     	String path = name+File.separator+logDirName;
-    	container.getRegistry().getUserNotifier().openApplication(
-    			new ApplicationData(""), path);
+    	String url = path;
+    	try
+        {
+            url = new File(path).toURI().toURL().toString();
+            url = url.replaceAll("^file:/", "file:///");
+            openURL(url);
+        } catch (Exception e) {
+        	container.getRegistry().getLogger().error(this, 
+        			"Unable to open log directory.");
+        }
     }
 
 	/**
