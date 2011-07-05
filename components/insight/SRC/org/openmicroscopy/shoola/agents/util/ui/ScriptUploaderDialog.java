@@ -72,6 +72,8 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.GenericFileChooser;
+
 import pojos.ExperimenterData;
 
 
@@ -129,7 +131,7 @@ public class ScriptUploaderDialog
 	}
 	
 	/** Chooser used to select the file. */
-	private JFileChooser chooser;
+	private GenericFileChooser chooser;
 	
     /** 
      * Replaces the <code>ApproveButton</code> provided by the 
@@ -210,7 +212,7 @@ public class ScriptUploaderDialog
 				}
 			}
 		}
-		chooser = new JFileChooser();
+		chooser = new GenericFileChooser();
 		chooser.setAcceptAllFileFilterUsed(false);
 		chooser.setDialogType(JFileChooser.SAVE_DIALOG);
 		Iterator<CustomizedFileFilter> i = FILTERS.iterator();

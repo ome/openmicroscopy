@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.filechooser.GeneralFileChooser 
+ * org.openmicroscopy.shoola.util.ui.filechooser.GenericFileChooser 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
@@ -51,7 +51,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-public class GeneralFileChooser 
+public class GenericFileChooser 
 	extends JFileChooser
 {
 
@@ -72,8 +72,8 @@ public class GeneralFileChooser
 		if ((f instanceof ShellFolder && ((ShellFolder) f).isLink()) ||
 				f.getName().endsWith(".lnk")) {
 			JOptionPane.showMessageDialog(null, "Cannot set directory " +
-					"using shortcut.");
-			setCurrentDirectory(f.getParentFile());
+					"using shortcut from selection box.");
+			box.setSelectedItem(f.getParentFile());
 		}
 	}
 
@@ -98,7 +98,7 @@ public class GeneralFileChooser
 	}
 
 	/** Creates a new instance.*/
-	public GeneralFileChooser()
+	public GenericFileChooser()
 	{
 		super();
 		initialize();
@@ -110,9 +110,13 @@ public class GeneralFileChooser
 	 */
 	public void setCurrentDirectory(File directory)
 	{
-		if (box != null) box.removeActionListener(listener);
-		super.setCurrentDirectory(directory);
-		if (box != null) box.addActionListener(listener);
+		try {
+			if (box != null) box.removeActionListener(listener);
+			super.setCurrentDirectory(directory);
+			if (box != null) box.addActionListener(listener);
+		} catch (Exception e) {
+			setCurrentDirectory(directory.getParentFile());
+		}
 	}
 
 }

@@ -89,8 +89,7 @@ public class SaveLocallyCmd
 	 */
 	public void execute()
 	{
-		
-		FileChooser chooser = new FileChooser(null, FileChooser.SAVE, 
+		FileChooser chooser = new FileChooser(model.getUI(), FileChooser.SAVE, 
 				"Save File", "Choose a location and name to save the file", 
 				filters);
 		try {

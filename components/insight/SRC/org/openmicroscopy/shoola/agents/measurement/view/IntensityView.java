@@ -359,7 +359,7 @@ class IntensityView
 		
 		this.setLayout(new BorderLayout());
 		this.add(scrollPanel, BorderLayout.CENTER);
-		intensityDialog = new IntensityValuesDialog(tableModel);	
+		intensityDialog = new IntensityValuesDialog(view, tableModel);	
 	}
 	
 	/**

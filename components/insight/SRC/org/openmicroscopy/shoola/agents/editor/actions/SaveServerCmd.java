@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.editor.actions;
 
 //Java imports
-import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -68,8 +67,7 @@ class SaveServerCmd
 	 */
 	public void execute()
 	{
-		JFrame f = model.getUI();
-		InputDialog dialog = new InputDialog(f, 
+		InputDialog dialog = new InputDialog(model.getUI(), 
 				"Save to server: Enter file name", "");
 		String text = model.getEditorTitle();
 		if (model.isExperiment()) text += Editor.EXPERIMENT_EXTENSION;

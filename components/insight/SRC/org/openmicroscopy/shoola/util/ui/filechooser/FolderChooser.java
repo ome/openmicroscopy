@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME3.0
  */
 class FolderChooser 	
-	extends JFileChooser
+	extends GenericFileChooser
 {
 
 	/** Reference to the Model. */

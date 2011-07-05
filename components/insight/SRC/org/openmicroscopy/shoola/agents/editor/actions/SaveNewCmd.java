@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.editor.actions;
 
 //Java imports
-import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -77,9 +76,7 @@ public class SaveNewCmd
 		// if server available, ask where to save
 		if (EditorAgent.isServerAvailable()) {
 			//Custom button text
-			
-			JFrame f = model.getUI();
-			MessageBox msg = new MessageBox(f, "Save As...", 
+			MessageBox msg = new MessageBox(model.getUI(), "Save As...", 
 					"Would you like to save this file locally, or save it to " +
 				    "the OMERO.server?");
 			msg.setYesText("Save to Server");

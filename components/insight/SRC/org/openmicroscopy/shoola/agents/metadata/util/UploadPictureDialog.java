@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.GenericFileChooser;
 
 /** 
  * Dialog to select the picture to upload.
@@ -114,7 +115,7 @@ public class UploadPictureDialog
 	}
 
 	/** Chooser used to select the file. */
-	private JFileChooser chooser;
+	private GenericFileChooser chooser;
 	
     /** 
      * Replaces the <code>ApproveButton</code> provided by the 
@@ -141,7 +142,7 @@ public class UploadPictureDialog
     /** Initializes the components. */
 	private void initComponents()
 	{
-		chooser = new JFileChooser();
+		chooser = new GenericFileChooser();
 		chooser.setAcceptAllFileFilterUsed(false);
 		chooser.setDialogType(JFileChooser.SAVE_DIALOG);
 		Iterator<CustomizedFileFilter> i = FILTERS.iterator();
