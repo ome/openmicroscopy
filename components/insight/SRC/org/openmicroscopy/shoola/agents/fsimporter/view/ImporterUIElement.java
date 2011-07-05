@@ -915,8 +915,8 @@ class ImporterUIElement
 					return IMPORT_PARTIAL;
 				if (v == FileImportComponent.FAILURE) failure++;
 			}
-			if (failure == totalToImport)
-				return IMPORT_FAIL;
+			if (failure == totalToImport) return IMPORT_FAIL;
+			else if (failure != 0) return IMPORT_PARTIAL;
 			return IMPORT_SUCCESS;
 		}
 		return busyLabel.getIcon(); 

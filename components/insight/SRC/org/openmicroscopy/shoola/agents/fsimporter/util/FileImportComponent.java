@@ -947,7 +947,9 @@ public class FileImportComponent
 				return errorBox.isEnabled() && errorBox.isSelected();
 			return false;
 		}
-		if (components == null) return false;
+		if (components == null) {
+			return false;
+		}
 		Iterator<FileImportComponent> i = components.values().iterator();
 		while (i.hasNext()) {
 			if (i.next().hasFailuresToSend()) 
@@ -968,8 +970,14 @@ public class FileImportComponent
 			if (errorBox.isVisible()) return FAILURE;
 			return SUCCESS;
 		}
-		if (components == null || components.size() == 0)
+		if (components == null || components.size() == 0) {
+			if (image instanceof Boolean) {
+				if (!StatusLabel.DUPLICATE.equals(resultLabel.getText()))
+					return FAILURE;
+			}
 			return SUCCESS;
+		}
+			
 		Iterator<FileImportComponent> i = components.values().iterator();
 		int n = components.size();
 		int count = 0;
