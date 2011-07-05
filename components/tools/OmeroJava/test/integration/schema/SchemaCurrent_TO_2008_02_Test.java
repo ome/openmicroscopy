@@ -8,9 +8,12 @@ package integration.schema;
 
 //Java imports
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.xml.transform.stream.StreamSource;
 
 //Third-party libraries
 import org.testng.annotations.AfterClass;
@@ -20,6 +23,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.springframework.util.ResourceUtils;
 
 //Application-internal dependencies
 import integration.AbstractTest;
@@ -49,13 +53,12 @@ public class SchemaCurrent_TO_2008_02_Test
 	/** The collection of files that have to be deleted. */
 	private List<File> files;
 	
-	/** The transform file */
-	private File STYLESHEET = new File("components/specification/Xslt/2010-06-TO-2008-02.xsl");
-	//components/specification/Xslt/
+	/** The transforms */
+	private InputStream STYLESHEET_A;
+	private InputStream STYLESHEET_B;
 	
-	/** The target schema file */
-	private File SCHEMA_2008_02 = new File("components/specification/Released-Schema/2008-02/V2/ome.xsd");
-	//components/specification/Released-Schema/2008-02/V2/ome.xsd 
+	/** The target schema */
+	private StreamSource[] schemaArray;
 	
 	/**
 	 * Checks if the <code>Image</code> tag was correctly transformed.
@@ -287,6 +290,20 @@ public class SchemaCurrent_TO_2008_02_Test
     	throws Exception
     {
     	super.setUp();
+
+		/** The target schema file */
+//		SCHEMA_2008_02 = ResourceUtils.getFile("classpath:2008-02/V2/ome.xsd");
+		//components/specification/Released-Schema/2008-02/V2/ome.xsd 
+
+		schemaArray = new StreamSource[1];
+
+		schemaArray[0] = new StreamSource(this.getClass().getResourceAsStream("/2008-02/V2/ome.xsd"));
+
+		/** The transforms */
+		STYLESHEET_A = this.getClass().getResourceAsStream("/2011-06-to-2010-06.xsl");
+		STYLESHEET_B = this.getClass().getResourceAsStream("/2010-06-to-2008-02.xsl");
+		//components/specification/Xslt/
+
     	files = new ArrayList<File>();
     }
     
@@ -315,19 +332,26 @@ public class SchemaCurrent_TO_2008_02_Test
 	public void testDowngradeTo200802ImageNoMetadata()
 		throws Exception
 	{
-		File f = File.createTempFile("testDowngradeTo200802ImageNoMetadata",
+		File inFile = File.createTempFile("testDowngradeTo200802ImageNoMetadata",
 				"."+OME_XML_FORMAT);
-		files.add(f);
-		File output = File.createTempFile(
+		files.add(inFile);
+		File middleFile = File.createTempFile("testDowngradeTo200802ImageNoMetadataMiddle",
+				"."+OME_XML_FORMAT);
+		files.add(middleFile);
+		File outputFile = File.createTempFile(
 				"testDowngradeTo200802ImageNoMetadataOutput",
 				"."+OME_XML_FORMAT);
-		files.add(output);
+		files.add(outputFile);
 		XMLMockObjects xml = new  XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
-		writer.writeFile(f, xml.createImage(), true);
-		transformFile(f, output, STYLESHEET);
-		Document doc = parseFile(output, SCHEMA_2008_02);
+		writer.writeFile(inFile, xml.createImage(), true);
+
+		transformFileWithStream(inFile, middleFile, STYLESHEET_A);
+		transformFileWithStream(middleFile, outputFile, STYLESHEET_B);
+		
+		Document doc = parseFileWithStreamArray(outputFile, schemaArray);
 		assertNotNull(doc);
+		
 		//Should only have one root node i.e. OME node
 		NodeList list = doc.getChildNodes();
 		assertEquals(list.getLength(), 1);
@@ -337,7 +361,7 @@ public class SchemaCurrent_TO_2008_02_Test
 		list = root.getChildNodes();
 		String name;
 		Node n;
-		Document docSrc = parseFile(f, null);
+		Document docSrc = parseFile(inFile, null);
 		Node rootSrc = docSrc.getChildNodes().item(0);
 		Node imageNode = null;
 		NodeList listSrc = rootSrc.getChildNodes();
@@ -360,5 +384,4 @@ public class SchemaCurrent_TO_2008_02_Test
 			}
 		}
 	}
-	
 }

@@ -54,11 +54,10 @@ public class Schema2011_06_TO_2010_06_Test
 	/** The collection of files that have to be deleted. */
 	private List<File> files;
 	
-	/** The transform file */
+	/** The transform */
 	private InputStream STYLESHEET;
 	
-	/** The target schema file */
-//	private InputStream SCHEMA_2010_06;
+	/** The target schema */
 	private StreamSource[] schemaArray;
 	
 	/**
@@ -367,71 +366,5 @@ public class Schema2011_06_TO_2010_06_Test
 					checkImageNode(n, imageNode);
 			}
 		}
-	}
-	
-	
-	/**
-
-    private Document parseFileWithStreamArray(File file, StreamSource[] schemaStreamArray)
-    	throws Exception
-    {
-    	if (file == null) 
-    		throw new IllegalArgumentException("No file to parse.");
-
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		dbf.setNamespaceAware(true); // This must be set to avoid error : cvc-elt.1: Cannot find the declaration of element 'OME'.
-		SchemaFactory sFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		
-		System.out.println("-----  START OF SCHEMA BUILD    -----");
-		Schema theSchema = sFactory.newSchema( schemaStreamArray ); // SLOW line
-		System.out.println("-----    END OF SCHEMA BUILD    -----");
-
-		
-		// // Version - one step parse and validate (print error to stdErr)
-		// dbf.setSchema(theSchema);
-		// DocumentBuilder builder = dbf.newDocumentBuilder();
-		// Document theDoc = builder.parse(file);
-		//
-
-		// Version - two step parse then validate (throws error as exception)
-		DocumentBuilder builder = dbf.newDocumentBuilder();
-		Document theDoc = builder.parse(file);
-		Validator validator=theSchema.newValidator();
-		validator.validate(new DOMSource(theDoc));
-		return theDoc;
-	}
-	
-
-	protected void transformFileWithStream(File input, File output, InputStream xslt)
-    	throws Exception
-    {
-		//System.out.println("-----  START OF TRANSFORM    -----");
-    	if (input == null) 
-    		throw new IllegalArgumentException("No file to transform.");
-    	if (output == null) 
-    		throw new IllegalArgumentException("No destination file.");
-    	if (xslt == null) 
-    		throw new IllegalArgumentException("No stylesheet provided.");
-
-		//System.out.println(input.getAbsolutePath());
-		//System.out.println("File last modified:" + input.lastModified());
-		//System.out.println("File size:" + input.length() + " Bytes");
-		//System.out.println(output.getAbsolutePath());
-		//System.out.println("File last modified:" + output.lastModified());
-		//System.out.println("File size:" + output.length() + " Bytes");
-
-		//System.out.println("XSLT Stream available:" + xslt.available() + " Bytes");
-	
-    	TransformerFactory factory = TransformerFactory.newInstance();
-		Transformer transformer = factory.newTransformer(
-				new StreamSource(xslt));
-		StreamResult result = new StreamResult(new FileOutputStream(output));
-		transformer.transform(new StreamSource(input), result);
-
-		//System.out.println(output.getAbsolutePath());
-		//System.out.println("File last modified:" + output.lastModified());
-		//System.out.println("File size:" + output.length() + " Bytes");
-		//System.out.println("-----    END OF TRANSFORM    -----");
-    }
-     */
+	}	
 }
