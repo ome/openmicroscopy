@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -440,8 +441,7 @@ class BirdEyeViewComponent
 		
 		//stroke(color);	
 		// Test if the cursor is over the box 
-		bover = (mouseX > bx-w && mouseX < bx+w && 
-				mouseY > by-h && mouseY < by+h);
+		
 		g2D.setColor(color);
 		g2D.fillRect(bx, by, w, h);
 		if (colorBorder != null) {
@@ -490,7 +490,14 @@ class BirdEyeViewComponent
 			firePropertyChange(DISPLAY_REGION_PROPERTY, null, 
 					new Rectangle(bx, by, w, h));
 		}
+		mouseX = e.getX();
+		mouseY = e.getY();
+		bdifx = mouseX-bx;
+		bdify = mouseY-by;
+		ax = bx;
+		ay = by;
 		release = true;
+		locked = false;
 	}
 
     /**
@@ -515,7 +522,24 @@ class BirdEyeViewComponent
      * implementation in our case.
      * @see MouseMotionListener#mouseMoved(MouseEvent)
      */
-	public void mouseMoved(MouseEvent e) {}
+	public void mouseMoved(MouseEvent e)
+	{
+		int x = e.getX();
+		int y = e.getY();
+		boolean b = (x > bx-w && x < bx+w && y > by-h && y < by+h);
+		if (b) {
+			bover = true;
+			mouseX = x;
+			mouseY = y;
+			bdifx = mouseX-bx;
+			bdify = mouseY-by;
+			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		} else {
+			bover = false;
+			setCursor(Cursor.getDefaultCursor());
+		}
+		
+	}
 	
     /**
      * Required by the {@link MouseListener} I/F but no-operation implementation
