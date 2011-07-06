@@ -496,8 +496,8 @@
           						}
           						else {
           						    $(data.rslt.oc).attr("id", data.rslt.o.attr('id'));
-          							if(data.rslt.cy && $(data.rslt.oc).children("UL").length) {
-          								data.inst.refresh(data.inst._get_parent(data.rslt.oc));
+          						    if(data.rslt.cy && $(data.rslt.oc).children("UL").length) {
+          								data.inst.refresh(data.inst._get_node(data.rslt.oc));
           							}
           							//data.inst.refresh(data.inst._get_node(data.rslt.cr));
           							//refreshCenterPanel();
