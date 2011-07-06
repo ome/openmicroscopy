@@ -39,9 +39,6 @@ from webadmin.custom_models import ServerObjects
 from django.utils import simplejson as json
 from portalocker import LockException
 
-# TODO: In order to run utests we must set it
-DATABASE_ENGINE = 'sqlite3'
-
 # LOGS
 # NEVER DEPLOY a site into production with DEBUG turned on.
 # Debuging mode.
