@@ -2387,15 +2387,17 @@ def render_thumbnail (request, iid, share_id=None, **kwargs):
          
     if conn is None:
         raise Exception("Connection not available")
-    img = conn.getObject("Image", iid)
-    
-    if img is None:
-        jpeg_data = conn.defaultThumbnail(80)
-        logger.error("Image %s not found..." % (str(iid)))
-        #return handlerInternalError("Image %s not found..." % (str(iid)))
-    else:
-        jpeg_data = img.getThumbnailOrDefault(size=80)
-    return HttpResponse(jpeg_data, mimetype='image/jpeg')
+
+    return webgateway_views.render_thumbnail(request, iid, w=80, _conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
+#    img = conn.getObject("Image", iid)
+#    
+#    if img is None:
+#        jpeg_data = conn.defaultThumbnail(80)
+#        logger.error("Image %s not found..." % (str(iid)))
+#        #return handlerInternalError("Image %s not found..." % (str(iid)))
+#    else:
+#        jpeg_data = img.getThumbnailOrDefault(size=80)
+#    return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 @isUserConnected
 def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):

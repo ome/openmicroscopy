@@ -862,6 +862,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     def defaultThumbnail(self, size=(120,120)):
         if isinstance(size, int):
             size = (size,size)
+        if len(size) == 1:
+            size = (size[0],size[0])
         img = Image.open(settings.DEFAULT_IMG)
         img.thumbnail(size, Image.ANTIALIAS)
         draw = ImageDraw.Draw(img)
