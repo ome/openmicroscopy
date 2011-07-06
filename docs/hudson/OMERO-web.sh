@@ -32,6 +32,7 @@ python dist/bin/omero group add web_group --perms=rwrw-- || echo "Web Group alre
 python dist/bin/omero user add web_user Web User web_group --userpassword abc || echo "Web User already exists?"
 python dist/bin/omero logout
 
+python dist/bin/omero config set omero.web.database_engine 'sqlite3'
 python dist/bin/omero config set omero.web.server_list '[["'$OMERO_HOST'", '$ROUTER', "omero"]]'
 python dist/bin/omero config set omero.web.debug True
 python dist/bin/omero web unittest --config=$ICE_CONFIG --test=webadmin

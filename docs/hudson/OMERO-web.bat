@@ -23,6 +23,8 @@ if errorlevel 1 goto ERROR
 python dist\bin\omero logout
 if errorlevel 1 goto ERROR
 
+python dist\bin\omero config set omero.web.database_engine sqlite3
+if errorlevel 1 goto ERROR
 python dist\bin\omero config set omero.web.server_list "[[""%OMERO_HOST%"", %webport%, ""omero""]]"
 if errorlevel 1 goto ERROR
 python dist\bin\omero config set omero.web.debug True
