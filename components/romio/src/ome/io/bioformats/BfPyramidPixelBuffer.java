@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.List;
@@ -118,6 +119,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     private FileLock fileLock;
 
+    /** The byte order of the compressed pyramid. */
+    private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+
     public static final String PYR_LOCK_EXT = ".pyr_lock";
 
     /**
@@ -185,6 +189,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
         reader = new OmeroPixelsPyramidReader();
         delegate = new BfPixelBuffer(readerFile.getAbsolutePath(), reader);
+        byteOrder = delegate.isLittleEndian()? ByteOrder.LITTLE_ENDIAN
+                : ByteOrder.BIG_ENDIAN;
     }
 
     /**
@@ -243,7 +249,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     {
         metadata.setImageID("Image:" + series, series);
         metadata.setPixelsID("Pixels: " + series, series);
-        metadata.setPixelsBinDataBigEndian(true, series, 0);
+        metadata.setPixelsBinDataBigEndian(
+                byteOrder == ByteOrder.BIG_ENDIAN? true : false, series, 0);
         metadata.setPixelsDimensionOrder(DimensionOrder.XYZCT, series);
         metadata.setPixelsType(ome.xml.model.enums.PixelType.fromString(
                 pixels.getPixelsType().getValue()), series);
@@ -613,6 +620,24 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
     }
 
+    /**
+     * Returns the current pixel byte order.
+     * @return See above.
+     */
+    public ByteOrder getByteOrder()
+    {
+        return byteOrder;
+    }
+
+    /**
+     * Sets the pixel byte order.
+     * @param byteOrder The pixel byte order to set.
+     */
+    public void setByteOrder(ByteOrder byteOrder)
+    {
+        this.byteOrder = byteOrder;
+    }
+
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#calculateMessageDigest()
      */
@@ -683,7 +708,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate().getCol(x, z, c, t);
+        PixelData data = delegate().getCol(x, z, c, t);
+        data.setOrder(byteOrder);
+        return data;
     }
 
     /* (non-Javadoc)
@@ -752,7 +779,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate().getPlane(z, c, t);
+        PixelData data = delegate().getPlane(z, c, t);
+        data.setOrder(byteOrder);
+        return data;
     }
 
     /* (non-Javadoc)
@@ -791,7 +820,10 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate().getPlaneRegion(x, y, width, height, z, c, t, stride);
+        PixelData data =
+            delegate().getPlaneRegion(x, y, width, height, z, c, t, stride);
+        data.setOrder(byteOrder);
+        return data;
     }
 
     /* (non-Javadoc)
@@ -842,7 +874,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate().getRow(y, z, c, t);
+        PixelData data = delegate().getRow(y, z, c, t);
+        data.setOrder(byteOrder);
+        return data;
     }
 
     /* (non-Javadoc)
@@ -984,7 +1018,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate().getTile(z, c, t, x, y, w, h);
+        PixelData data = delegate().getTile(z, c, t, x, y, w, h);
+        data.setOrder(ByteOrder.LITTLE_ENDIAN);
+        return data;
     }
 
     /* (non-Javadoc)

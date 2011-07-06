@@ -10,6 +10,7 @@ import java.awt.Dimension;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -172,7 +173,7 @@ public class PixelsService extends AbstractFileSystemService
             return null; // EARLY EXIT!
         }
 
-        final PixelBuffer pixelsPyramid = createPyramidPixelBuffer(
+        final BfPyramidPixelBuffer pixelsPyramid = createPyramidPixelBuffer(
                 pixels, pixelsPyramidFilePath, true);
 
         try
@@ -218,7 +219,7 @@ public class PixelsService extends AbstractFileSystemService
 
     private PixelsPyramidMinMaxStore performWrite(
             final Pixels pixels,final File pixelsPyramidFile,
-            final PixelBuffer pixelsPyramid, final File pixelsFile,
+            final BfPyramidPixelBuffer pixelsPyramid, final File pixelsFile,
             final String pixelsFilePath, final String originalFilePath) {
 
         final PixelBuffer source;
@@ -238,8 +239,12 @@ public class PixelsService extends AbstractFileSystemService
         {
             minMaxStore = new PixelsPyramidMinMaxStore(pixels.getSizeC());
             int series = getSeries(pixels);
-            source = createMinMaxBfPixelBuffer(
+            BfPixelBuffer bfPixelBuffer = createMinMaxBfPixelBuffer(
                     originalFilePath, series, minMaxStore);
+            pixelsPyramid.setByteOrder(
+                    bfPixelBuffer.isLittleEndian()? ByteOrder.LITTLE_ENDIAN
+                            : ByteOrder.BIG_ENDIAN);
+            source = bfPixelBuffer;
             // If the tile sizes we've been given are completely ridiculous
             // then reset them to WIDTHxHEIGHT. Currently these conditions are:
             //  * TileWidth == ImageWidth
@@ -559,9 +564,10 @@ public class PixelsService extends AbstractFileSystemService
      * @param reader passed to {@link BfPixelBuffer}
      * @return
      */
-    protected PixelBuffer createMinMaxBfPixelBuffer(final String filePath,
-                                                    final int series,
-                                                    final IMinMaxStore store) {
+    protected BfPixelBuffer createMinMaxBfPixelBuffer(final String filePath,
+                                                      final int series,
+                                                      final IMinMaxStore store)
+    {
         try
         {
             IFormatReader reader = new ImageReader();
@@ -617,7 +623,7 @@ public class PixelsService extends AbstractFileSystemService
      * @param reader passed to {@link BfPixelBuffer}
      * @return
      */
-    protected PixelBuffer createPyramidPixelBuffer(final Pixels pixels,
+    protected BfPyramidPixelBuffer createPyramidPixelBuffer(final Pixels pixels,
             final String filePath, boolean write) {
 
         try

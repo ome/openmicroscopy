@@ -82,6 +82,17 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     }
 
     /**
+     * Delegates to {@link IFormatReader#isLittleEndian()}.
+     * @return See above.
+     */
+    public boolean isLittleEndian()
+    {
+        // Ensure the reader has been initialized
+        reader();
+        return bfReader.isLittleEndian();
+    }
+
+    /**
      * Sets the current series in the underlying Bio-Formats reader.
      * @param series The series to set.
      */
