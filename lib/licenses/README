@@ -571,6 +571,13 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   License File: which.txt
 
 
+  Artifacts:    components/tools/OmeroPy/src/tiltpicker
+  Project:      TiltPicker: Particle picker for image tilt pairs.
+  Web Site:     http://ami.scripps.edu/software/tiltpicker/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    components/tools/OmeroPy/src/xmlrunner
   Project:      unittest-xml-reporting - PyUnit-based TestRunner
   Web Site:     http://github.com/danielfm/unittest-xml-reporting
