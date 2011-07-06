@@ -397,7 +397,18 @@
             
             <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>    
             <!-- open-image link -->
-            <div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
+            <div style="padding-bottom:6px">
+                {% trans "Launch full viewer" %} 
+                <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')">
+                    <img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/>
+                </a>
+                {% if manager.openAstexViewerCompatible %}
+                | Volume viewer
+                <a href="#" onclick="return openPopup('{% url open_astex_viewer 'image' manager.image.id %}')">
+                    <img src="{% url webstatic "images/oav_16.png" %}" alt="Open Astex Viewer" title="Open Astex Viewer"/>
+                </a>
+                {% endif %}
+            </div>
                     
             <div class="description">
                 {% if manager.image.isOwned %}<div id="imagedescription-{{ manager.image.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='image_desc'>{{ manager.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
@@ -720,10 +731,10 @@
                             {% endif %}
                             <!-- if we have 'volume' data attached - link for viewing in Open-Astex Viewer -->
                             {% ifequal fileann.getFileName|slice:"-3:" 'map' %}
-                                <a href="#" onclick="return openPopup('{% url open_astex_viewer fileann.id %}')">Volume viewer</a>
+                                <a href="#" onclick="return openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
                             {% endifequal %}
                             {% ifequal fileann.getFileName|slice:"-3:" 'bit' %}
-                                <a href="#" onclick="return openPopup('{% url open_astex_viewer fileann.id %}')">Volume viewer</a>
+                                <a href="#" onclick="return openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
                             {% endifequal %}
                         </div>
                         {% endif %}

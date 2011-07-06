@@ -22,7 +22,9 @@
 {% endcomment %}
 
 <html xmlns="http://www.w3.org/1999/xhtml">
-
+<head>
+    <title>{{ imageName }}</title>
+</head>
 <body>
 <applet
       width="100%" height="100%" name="av"
@@ -30,11 +32,7 @@
       archive="{% url webstatic 'applet/OpenAstexViewer.jar' %} ">
          
          <param name="script" value="
-         {% ifequal mapType 'bit' %}
-         map load mapA '{% url open_astex_bit fileAnnId %}'; 
-         {% else %}
-         map load mapA '{% url open_astex_map fileAnnId %}'; 
-         {% endifequal %}
+         map load mapA '{{ data_url }}';
          center map mapA;
          map mapA contour 0 on;
          background '0xDDDDDD';

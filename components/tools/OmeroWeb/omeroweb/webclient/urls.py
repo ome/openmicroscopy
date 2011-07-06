@@ -87,9 +87,11 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^autocompletetags/$', views.autocomplete_tags, name="autocomplete_tags" ),
     
     # Open Astex Viewer will try to show file as volume, e.g. mrc.map file. 
-    url( r'^open_astex_viewer/file/(?P<fileAnnId>[0-9]+)/$', views.open_astex_viewer, name='open_astex_viewer' ),  # html page
+    url( r'^open_astex_viewer/(?P<obj_type>((?i)image|image_8bit|file))/(?P<obj_id>[0-9]+)/$', views.open_astex_viewer, name='open_astex_viewer' ),  # 'data_url' to load in REQUEST
     url( r'^file/(?P<iid>[0-9]+)\.map$', views.download_annotation, {'action':'download'}, name='open_astex_map' ),# download file
     url( r'^file/(?P<iid>[0-9]+)\.bit$', views.download_annotation, {'action':'download'}, name='open_astex_bit' ),# download file
+    url( r'^image_as_map/(?P<imageId>[0-9]+)\.map$', views.image_as_map, name='webclient_image_as_map' ), # convert image to map
+    url( r'^image_as_map/8bit/(?P<imageId>[0-9]+)\.map$', views.image_as_map, {'8bit':True}, name='webclient_image_as_map_8bit' ), # convert image to map
     
     # render thumbnails
     url( r'^render_thumbnail/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail, name="render_thumbnail" ),

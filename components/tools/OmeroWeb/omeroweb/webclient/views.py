@@ -839,7 +839,7 @@ def autocomplete_tags(request, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @isUserConnected
-def open_astex_viewer(request, fileAnnId, **kwargs):
+def open_astex_viewer(request, obj_type, obj_id, **kwargs):
     conn = None
     try:
         conn = kwargs["conn"]        
@@ -847,15 +847,28 @@ def open_astex_viewer(request, fileAnnId, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    ann = conn.getObject("Annotation", long(fileAnnId))
-    # determine mapType by name
-    mapType = "map"
-    if ann:
-        fileName = ann.getFileName()
-        if fileName.endswith(".bit"):
-            mapType = "bit"
+    if obj_type == 'file':
+        ann = conn.getObject("Annotation", obj_id)
+        if ann is None:
+            return handlerInternalError("Can't find file Annotation ID %s as data source for Open Astex Viewer." % obj_id)
+        # determine mapType by name
+        imageName = ann.getFileName()
+        if imageName.endswith(".bit"):
+            data_url = reverse("open_astex_bit", args=[obj_id])
+        else:
+            data_url = reverse("open_astex_map", args=[obj_id])
     
-    return render_to_response('webclient/annotations/open_astex_viewer.html', {'fileAnnId': fileAnnId, 'mapType': mapType})
+    elif obj_type in ('image', 'image_8bit'):
+        image = conn.getObject("Image", obj_id)     # just check the image exists
+        if image is None:
+            return handlerInternalError("Can't find image ID %s as data source for Open Astex Viewer." % obj_id)
+        imageName = image.getName()
+        if obj_type == 'image_8bit':
+            data_url = reverse("webclient_image_as_map_8bit", args=[obj_id])
+        else:
+            data_url = reverse("webclient_image_as_map", args=[obj_id])
+        
+    return render_to_response('webclient/annotations/open_astex_viewer.html', {'data_url': data_url, "imageName":imageName})
     
     
 @isUserConnected
@@ -1726,6 +1739,20 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
 
 @isUserConnected
 def original_file_text(request, fileId, **kwargs):
+    orig_file = conn.getObject("OriginalFile", fileId)
+    chunks = [str(piece) for piece in orig_file.getFileInChunks()]
+    text = "".join(chunks)
+
+    return render_to_response("webclient/scripts/original_file_text.html", {'text': text, 'orig_file':orig_file })
+
+
+@isUserConnected
+def image_as_map(request, imageId, **kwargs):
+    """ Converts OMERO image into mrc.map file (using tiltpicker utils) and returns the file """
+
+    from tiltpicker.pyami import mrc
+    from numpy import dstack, zeros, uint8
+
     conn = None
     try:
         conn = kwargs["conn"]
@@ -1733,11 +1760,42 @@ def original_file_text(request, fileId, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
 
-    orig_file = conn.getObject("OriginalFile", fileId)
-    chunks = [str(piece) for piece in orig_file.getFileInChunks()]
-    text = "".join(chunks)
+    image = conn.getObject("Image", imageId)
+    if image is None:
+        message = "Image ID %s not found in image_as_map" % imageId
+        logger.error(message)
+        return handlerInternalError(message)
 
-    return render_to_response("webclient/scripts/original_file_text.html", {'text': text, 'orig_file':orig_file })
+    imageName = image.getName()
+    downloadName = imageName.endswith(".map") and imageName or "%s.map" % imageName
+
+    # get a list of numpy planes and make stack
+    zctList = [(z,0,0) for z in range(image.getSizeZ())]
+    npList = list(image.getPrimaryPixels().getPlanes(zctList))
+    npStack = dstack(npList)
+
+    if '8bit' in kwargs and kwargs['8bit']:
+        #scale from 0 - 255 and conver to 8 bit integer
+        npStack = npStack - npStack.min()  # start at 0
+        npStack = (npStack / npStack.max()) * 256  # range 0 - 255
+        a = zeros(npStack.shape, dtype=uint8)
+        npStack = npStack.round(out=a)
+
+    # write mrc.map to temp file
+    from django.conf import settings 
+    tempdir = settings.FILE_UPLOAD_TEMP_DIR
+    temp = os.path.join(tempdir, ('%d-%s.map' % (image.getId(), conn._sessionUuid))).replace('\\','/')
+    mrc.write(npStack, temp)
+    logger.info("image_as_map temp path: %s with size: %s kb" % (str(temp), os.path.getsize(temp) / 1000) )
+            
+    from django.core.servers.basehttp import FileWrapper
+    originalFile_data = FileWrapper(file(temp))
+
+    rsp = HttpResponse(originalFile_data)
+    rsp['Content-Type'] = 'application/force-download'
+    rsp['Content-Length'] = os.path.getsize(temp)
+    rsp['Content-Disposition'] = 'attachment; filename=%s' % downloadName
+    return rsp
 
 
 @isUserConnected

@@ -136,7 +136,24 @@ class BaseContainer(BaseController):
                 raise AttributeError("We are sorry, but that annotation (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(annotation))
         elif orphaned:
             self.orphaned = True
-    
+
+    def openAstexViewerCompatible(self):
+        """
+        Is the image suitable to be viewed with the Volume viewer 'Open Astex Viewer' applet?
+        Image must be a 'volume' of suitable dimensions and not too big.
+        """
+        MIN_Z = 20
+        MAX_VOL = (150 * 150 * 150)
+
+        if self.image is None:
+            return False
+        sizeZ = self.image.getSizeZ()
+        if sizeZ < MIN_Z: return False
+        sizeX = self.image.getSizeX()
+        sizeY = self.image.getSizeY()
+        if ((sizeX * sizeY * sizeZ) > MAX_VOL): return False
+        return True
+
     def formatMetadataLine(self, l):
         if len(l) < 1:
             return None
