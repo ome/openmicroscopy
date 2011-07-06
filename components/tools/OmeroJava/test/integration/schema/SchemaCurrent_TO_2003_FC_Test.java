@@ -30,7 +30,6 @@ import integration.AbstractTest;
 import integration.XMLMockObjects;
 import integration.XMLWriter;
 
-
 /** 
  * Collections of tests.
  * Checks if the downgrade from current schema to 2003-FC schema works.
@@ -332,7 +331,7 @@ public class SchemaCurrent_TO_2003_FC_Test
 
 		transformFileWithStream(inFile, middleFile, STYLESHEET_A);
 		transformFileWithStream(middleFile, outputFile, STYLESHEET_B);
-		
+
 		Document doc = parseFileWithStreamArray(outputFile, schemaArray);
 		assertNotNull(doc);
 		
@@ -357,7 +356,7 @@ public class SchemaCurrent_TO_2003_FC_Test
 					imageNode = n;
 			}
 		}
-		
+
 		for (int i = 0; i < list.getLength(); i++) {
 			n = list.item(i);
 			name = n.getNodeName();
