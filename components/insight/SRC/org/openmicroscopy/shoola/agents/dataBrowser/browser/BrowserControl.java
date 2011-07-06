@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -81,6 +82,106 @@ class BrowserControl
     /** The selected cell, only used when displaying Plate. */
     private CellDisplay		selectedCell;
 
+    /** Flag indicating if it is a right-click.*/
+    private boolean			rightClickButton;
+    
+    /** Flag indicating if it is a right-click.*/
+    private boolean			rightClickPad;
+    
+    /** Indicates if the <code>control</code> key is down. */
+    private boolean			ctrl;
+    
+    /** Flag indicating if the left mouse button is pressed. */
+    private boolean			leftMouseButton;
+    
+    /**
+     * Reacts to mouse pressed and mouse release event.
+     * 
+     * @param me        The event to handle.
+     * @param released  Pass <code>true</code> if the method is invoked when
+     *                  the mouse is released, <code>false</code> otherwise.
+     */
+    private void onClick(MouseEvent me, boolean released)
+    {
+    	if (me.getClickCount() == 1) {
+    		ImageDisplay d = findParentDisplay(me.getSource());
+        	d.moveToFront();
+        	handleSelection(d, me.isShiftDown(), me.getPoint());
+        	me = SwingUtilities.convertMouseEvent((Component) me.getSource(),
+        			me, view);
+        	Point p = me.getPoint();
+        	model.setPopupPoint(p, false);
+    		if ((me.isPopupTrigger() && !released) ||
+            		(me.isPopupTrigger() && released &&
+            				!UIUtilities.isMacOS()) ||
+            				(UIUtilities.isMacOS() &&
+            						SwingUtilities.isLeftMouseButton(me)
+            						&& me.isControlDown())) {
+    			model.setPopupPoint(p, true);
+    		}
+    	} else if (me.getClickCount() == 2 && !(me.isMetaDown()
+        		|| me.isControlDown() || me.isShiftDown())) {
+    		Object src = me.getSource();
+            ImageDisplay d = findParentDisplay(src);
+            if (d instanceof ImageNode && !(d.getTitleBar() == src)
+                && isSelectionValid(d)) {
+            	model.viewDisplay(d);
+            }
+    	}
+    }
+    
+    /**
+     * Handles the selection.
+     * 
+     * @param d The selected node.
+     * @param shiftDown Passed <code>true</code> if <code>shift</code> button is
+     * 					down, <code>false</code> otherwise.
+     * @param p The point where the mouse is clicked.
+     */
+    private void handleSelection(ImageDisplay d, boolean shiftDown, Point p)
+    {
+    	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
+    	if (((rightClickButton && !ctrl) || rightClickPad)
+        		&& model.isMultiSelection()) {
+        		//setFoundNode(nodes);
+        		return;
+        }
+    	if ((ctrl || shiftDown)) { //multi selection
+    		ImageDisplay previous = model.getLastSelectedDisplay();
+    		if (previous == null) {
+    			model.setSelectedDisplay(d, true, true);
+    			return;
+    		}
+    		Object object = previous.getHierarchyObject();
+    		Class ref = object.getClass();
+    		if (!ref.equals(d.getHierarchyObject().getClass())) return;
+    		
+    		Collection nodes = model.getSelectedDisplays();
+    		Iterator i = nodes.iterator();
+    		ImageDisplay node;
+    		boolean remove = false;
+    		while (i.hasNext()) {
+    			node = (ImageDisplay) i.next();
+				if (node.equals(d)) {
+					remove = true;
+					break;
+				}
+			}
+    		if (remove) model.removeSelectedDisplay(d);
+    		else model.setSelectedDisplay(d, true, true);
+    	} else {
+    		if (isSelectionValid(d)) {
+    			if (d instanceof CellDisplay && !(d.equals(previousDisplay))) {
+    				setSelectedCell(p, (CellDisplay) d);
+    			} else {
+    				boolean b = model.isMultiSelection();
+    				if (b || !(d.equals(previousDisplay)))
+    					model.setSelectedDisplay(d, false, true);
+    			}
+    		}
+    	}
+    }
+    
     /**
      * Handles the selection.
      * 
@@ -89,6 +190,7 @@ class BrowserControl
      * 						 on, <code>false</code> otherwise.
      * @param p The point where the mouse is clicked.
      */
+    /*
     private void handleSelection(ImageDisplay d, 
     		boolean multiSelection, Point p)
     {
@@ -117,7 +219,6 @@ class BrowserControl
     		if (remove) model.removeSelectedDisplay(d);
     		else model.setSelectedDisplay(d, true, true);
     	} else {
-    		//if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
     		if (isSelectionValid(d)) {
     			if (d instanceof CellDisplay && !(d.equals(previousDisplay))) {
     				setSelectedCell(p, (CellDisplay) d);
@@ -129,6 +230,7 @@ class BrowserControl
     		}
     	}
     }
+    */
     
     /**
      * Brings up the color picker to set the color of the node.
@@ -319,6 +421,7 @@ class BrowserControl
      */
     public void mousePressed(MouseEvent me)
     {
+    	/*
     	ImageDisplay d = findParentDisplay(me.getSource());
     	d.moveToFront();
     	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
@@ -340,13 +443,19 @@ class BrowserControl
 			model.setPopupPoint(p, true);
 			return;
     	}
-    	if (me.isPopupTrigger() && b) { //&& //me.isPopupTrigger()
-    			//previousDisplay != null && 
-    			//previousDisplay.getBounds().contains(p)) {
+    	if (me.isPopupTrigger() && b) {
     		model.setPopupPoint(p, true);
     		return;
     	}
     	if (macOS) handleSelection(d, b, me.getPoint());
+    	*/
+    	rightClickPad = UIUtilities.isMacOS() && 
+    	SwingUtilities.isLeftMouseButton(me) && me.isControlDown();
+    	rightClickButton = SwingUtilities.isRightMouseButton(me);
+    	ctrl = me.isControlDown();
+    	if (UIUtilities.isMacOS()) ctrl = me.isMetaDown();
+    	leftMouseButton = SwingUtilities.isLeftMouseButton(me);
+    	if (UIUtilities.isMacOS()) onClick(me, false); 
     }
     
     /**
@@ -356,6 +465,9 @@ class BrowserControl
      */
     public void mouseReleased(MouseEvent me) 
     {
+    	leftMouseButton = SwingUtilities.isLeftMouseButton(me);
+    	if (!UIUtilities.isMacOS()) onClick(me, true);
+    	/*
     	int count = me.getClickCount();
     	if (count == 2 && !(me.isShiftDown() 
     			|| me.isControlDown() || me.isMetaDown())) {
@@ -389,7 +501,8 @@ class BrowserControl
     		ImageDisplay d = findParentDisplay(me.getSource());
     		d.moveToFront();
     		handleSelection(d, b, me.getPoint());
-    	}	
+    	}
+    	*/	
     }
 
     /**
