@@ -292,14 +292,14 @@ public class TextualOneKnobSlider
 
 	/**
 	 * Required by the {@link DocumentListener} I/F but not actually needed in
-     * our case, no op implementation.
+     * our case, no-operation implementation.
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
 	
 	/** 
      * Required by {@link FocusListener} I/F but not actually needed in
-     * our case, no op implementation.
+     * our case, no-operation implementation.
      * @see FocusListener#focusGained(FocusEvent)
      */ 
     public void focusGained(FocusEvent e) {}
