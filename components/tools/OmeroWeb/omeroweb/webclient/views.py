@@ -1773,13 +1773,28 @@ def image_as_map(request, imageId, **kwargs):
     zctList = [(z,0,0) for z in range(image.getSizeZ())]
     npList = list(image.getPrimaryPixels().getPlanes(zctList))
     npStack = dstack(npList)
+    logger.info("Numpy stack for image_as_map: dtype: %s, range %s-%s" % (npStack.dtype.name, npStack.min(), npStack.max()) )
 
-    if '8bit' in kwargs and kwargs['8bit']:
+    if npStack.dtype.name == 'uint16' or ('8bit' in kwargs and kwargs['8bit']):
         #scale from 0 - 255 and conver to 8 bit integer
         npStack = npStack - npStack.min()  # start at 0
         npStack = (npStack / npStack.max()) * 256  # range 0 - 255
         a = zeros(npStack.shape, dtype=uint8)
         npStack = npStack.round(out=a)
+
+    # if available, use scipy.ndimage to resize
+    targetSize = 120*120*120
+    if npStack.size > targetSize:
+        try:
+            import scipy.ndimage
+            from numpy import round
+            factor = float(targetSize)/ npStack.size
+            factor = pow(factor,1.0/3)
+            logger.info("Resizing numpy stack %s by factor of %s" % (npStack.shape, factor))
+            npStack = round(scipy.ndimage.interpolation.zoom(npStack, factor), 1)
+        except ImportError:
+            logger.info("Failed to import scipy.ndimage for interpolation of 'image_as_map'")
+            pass
 
     # write mrc.map to temp file
     from django.conf import settings 

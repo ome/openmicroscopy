@@ -143,7 +143,11 @@ class BaseContainer(BaseController):
         Image must be a 'volume' of suitable dimensions and not too big.
         """
         MIN_Z = 20
-        MAX_VOL = (150 * 150 * 150)
+        try:    # if scipy ndimage is available for interpolation, we can handle bigger images
+            import scipy.ndimage
+            MAX_VOL = (300 * 300 * 300)
+        except ImportError:
+            MAX_VOL = (140 * 140 * 140)
 
         if self.image is None:
             return False
