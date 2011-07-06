@@ -167,6 +167,7 @@ class ImporterComponent
 		//load available disk space
 		model.fireDiskSpaceLoading();
 		view.setOnScreen();
+		view.toFront();
 		//view.setVisible(false);
 		//UIUtilities.centerAndShow(chooser);
 	}
