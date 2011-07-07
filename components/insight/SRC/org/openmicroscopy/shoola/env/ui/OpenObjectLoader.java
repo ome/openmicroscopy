@@ -98,7 +98,7 @@ public class OpenObjectLoader
     		ImageData image = (ImageData) object;
     		path += image.getName();
     		path += image.getId();
-    		path += "."+OMETIFFFilter.OME_TIF;
+    		path += "."+OMETIFFFilter.OME_TIFF;
     		f = new File(path);
     		f.deleteOnExit();
     		handle = ivView.exportImageAsOMETiff(image.getId(), f, this);
