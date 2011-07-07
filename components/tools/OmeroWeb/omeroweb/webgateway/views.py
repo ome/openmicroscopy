@@ -1598,7 +1598,12 @@ def get_rois_json(request, imageId, server_id=None):
         E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503, 190,491] points2[309,427, 366,503, 190,491]"
         To: M 309 427 L 366 503 L 190 491 z
         """
-        firstList = string.strip().split("points")[1]
+        pointLists = string.strip().split("points")
+        if len(pointLists) < 2:
+            print "Unrecognised ROI shape 'points' string: %s" % string
+            logger.error("Unrecognised ROI shape 'points' string: %s" % string)
+            return ""
+        firstList = pointLists[1]
         nums = firstList.strip("[]").replace(", ", " L").replace(",", " ")
         return "M" + nums
 
