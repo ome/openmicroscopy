@@ -1600,7 +1600,6 @@ def get_rois_json(request, imageId, server_id=None):
         """
         pointLists = string.strip().split("points")
         if len(pointLists) < 2:
-            print "Unrecognised ROI shape 'points' string: %s" % string
             logger.error("Unrecognised ROI shape 'points' string: %s" % string)
             return ""
         firstList = pointLists[1]
