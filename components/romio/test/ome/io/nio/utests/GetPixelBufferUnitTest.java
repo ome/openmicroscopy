@@ -417,8 +417,8 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
         }
 
         @Override
-        protected PixelBuffer createPyramidPixelBuffer(Pixels pixels, String filePath, boolean write) {
-            return get("createPyramid", pyramid, write);
+        protected BfPyramidPixelBuffer createPyramidPixelBuffer(Pixels pixels, String filePath, boolean write) {
+            return (BfPyramidPixelBuffer) get("createPyramid", pyramid, write);
         }
 
         @Override
