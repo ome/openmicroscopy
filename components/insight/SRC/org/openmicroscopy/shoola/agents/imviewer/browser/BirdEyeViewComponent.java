@@ -244,6 +244,7 @@ class BirdEyeViewComponent
 	{
 		fullDisplay = true;
 		pImage = null;
+		release = true;
 		switch (locationIndex) {
 			case ImageCanvas.TOP_LEFT:
 			case ImageCanvas.BOTTOM_RIGHT:
