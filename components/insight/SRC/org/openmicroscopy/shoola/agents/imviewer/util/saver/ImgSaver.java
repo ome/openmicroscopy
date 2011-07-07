@@ -148,9 +148,6 @@ public class ImgSaver
     
     /** The UI delegate. */
     private ImgSaverUI      uiDelegate;
-
-    /** The name of the file to save. */
-    private String          name;
     
     /** The file's format. */
     private String          format;
@@ -320,7 +317,7 @@ public class ImgSaver
     	try {
     		BufferedImage img = model.createImageFromTexture(
     				uiDelegate.getSavingType(), uiDelegate.includeROI());
-    		writeSingleImage(img, false, name);
+    		writeSingleImage(img, false, uiDelegate.getSelectedFilePath());
     	} catch (Exception e) {
     		un.notifyInfo("Saving Image", "An error occurred while saving " +
     		"the image.");
@@ -403,13 +400,6 @@ public class ImgSaver
     int getType() { return type; }
     
     /**
-     * Sets the name of the file to save.
-     * 
-     * @param name The name to set.
-     */
-    void setFileName(String name) { this.name = name; }
-    
-    /**
      * Sets the format of the file.
      * 
      * @param format The file's format.
@@ -486,6 +476,7 @@ public class ImgSaver
         int s = (int) getUnitBarSize();
         boolean constrain;
         try {
+        	String name = uiDelegate.getSelectedFilePath();
             if (imageComponents == null) {
             	constrain = unitBar && v != null && s < mainImage.getWidth() 
             				&& type == ImgSaverUI.IMAGE;
@@ -509,7 +500,6 @@ public class ImgSaver
             							name+"_"+j);
             			j++;
                     }
-            		
             	} else {
             		int width = mainImage.getWidth();
                     h = mainImage.getHeight();

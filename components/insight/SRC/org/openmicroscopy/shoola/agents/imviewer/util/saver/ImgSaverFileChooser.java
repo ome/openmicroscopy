@@ -161,7 +161,7 @@ class ImgSaverFileChooser
     	 String format = getFormat(getFileFilter());
          String fileName = f.getAbsolutePath();
          String message = MSG_DIR+""+getCurrentDirectory();
-         model.setFileName(fileName);
+         //model.setFileName(fileName);
          model.setFileFormat(format);
          model.setFileMessage(message);
          File[] l = getCurrentDirectory().listFiles();
