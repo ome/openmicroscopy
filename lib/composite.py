@@ -90,7 +90,7 @@ def download(job, regex):
     revision = root.findtext("./changeSet/revision/revision")
     artifacts = root.findall("./artifact")
     print "Retrieving %s job artifacts from revision: %s" % (job, revision)
-    base_url = "/".join([HUDSON_ROOT, job, 'lastBuild/artifact'])
+    base_url = "/".join([HUDSON_ROOT, job, 'lastSuccessfulBuild/artifact'])
     new_artifacts = list()
     for artifact in artifacts:
         filename = artifact.findtext("fileName")
@@ -198,7 +198,7 @@ target_artifacts = list()
 regex = re.compile(r'.*b\d+.zip')
 revision, artifacts = download(INSIGHT_JOB_NAME, regex)
 target_artifacts += artifacts
-regex = re.compile(r'.*importer.*-\w{8}.zip')
+regex = re.compile(r'.*importer.*-b\d+.zip')
 revision, artifacts = download(IMPORTER_JOB_NAME, regex)
 target_artifacts += artifacts
 target = '%s.linux' % TARGET_PREFIX
