@@ -1059,7 +1059,10 @@ class OmeroImageServiceImpl
 							status.markedAsDuplicate();
 							return Boolean.valueOf(true);
 						}
-						hcsFile = ImportableObject.isHCSFile(value);
+						if (!file.getName().endsWith(
+								ImportableObject.DAT_EXTENSION))
+							hcsFile = ImportableObject.isHCSFile(value);
+						else hcsFile = false;
 					}
 				}
 			}

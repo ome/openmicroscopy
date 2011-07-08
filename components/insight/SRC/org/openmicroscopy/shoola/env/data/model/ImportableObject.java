@@ -94,6 +94,9 @@ public class ImportableObject
 	/** The filter used to exclude extensions.*/
 	public static final TIFFFilter	FILTER;
 	
+	/** The <code>dat</code> extension.*/
+	public static final String DAT_EXTENSION = "dat";
+	
 	static {
 		FILTER = new TIFFFilter();
 		DEFAULT_DATASET_NAME = UIUtilities.formatDate(null, 
