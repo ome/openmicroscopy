@@ -70,10 +70,6 @@ from omero.util.concurrency import get_event
 CONFIG_XML = os.path.join(OMERO_HOME, 'etc', 'grid', 'config.xml')
 count = 10
 event = get_event("websettings")
-try:
-    lockexceptions = (LockException, WindowsError)
-except NameError:
-    lockexceptions = LockException
 
 while True:
     try:
@@ -81,7 +77,7 @@ while True:
         CUSTOM_SETTINGS = CONFIG_XML.as_map()
         CONFIG_XML.close()
         break
-    except lockexceptions:
+    except LockException:
         logger.error("Exception while loading configuration retrying...", exc_info=True)
         count -= 1
         if not count:
