@@ -37,6 +37,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -226,16 +227,20 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
         {
 	        originalFF = loci.formats.gui.GUITools.buildFileFilters(scanReader.getImageReader());
 	        FileFilter filter;
-	        FileFilter[] extensionFilters = null;
+	        List<FileFilter> extensionFilters = new ArrayList<FileFilter>();
 	        for (int i = 0; i < originalFF.length; i++) {
 	        	filter = originalFF[i];
 				if (filter instanceof ComboFileFilter) {
 					ComboFileFilter cff = (ComboFileFilter) filter;
-					extensionFilters = cff.getFilters();
+					extensionFilters.add(cff);
+					extensionFilters.addAll(Arrays.asList(cff.getFilters()));
 					break;
 				}
 			}
-	        if (extensionFilters != null) originalFF = extensionFilters;
+	        if (extensionFilters != null) {
+	            originalFF =extensionFilters.toArray(
+	                    new FileFilter[extensionFilters.size()]);
+	        }
 	        readerFFSize = originalFF.length;
         }
 
