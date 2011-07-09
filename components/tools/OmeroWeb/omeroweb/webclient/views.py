@@ -847,6 +847,7 @@ def open_astex_viewer(request, obj_type, obj_id, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
+    pixelRange = None  # can only populate this for 'image'
     if obj_type == 'file':
         ann = conn.getObject("Annotation", obj_id)
         if ann is None:
@@ -857,18 +858,21 @@ def open_astex_viewer(request, obj_type, obj_id, **kwargs):
             data_url = reverse("open_astex_bit", args=[obj_id])
         else:
             data_url = reverse("open_astex_map", args=[obj_id])
-    
+
     elif obj_type in ('image', 'image_8bit'):
         image = conn.getObject("Image", obj_id)     # just check the image exists
         if image is None:
             return handlerInternalError("Can't find image ID %s as data source for Open Astex Viewer." % obj_id)
         imageName = image.getName()
+        c = image.getChannels()[0]
+        pixelRange = (c.getWindowMin(), c.getWindowMax())
         if obj_type == 'image_8bit':
             data_url = reverse("webclient_image_as_map_8bit", args=[obj_id])
         else:
             data_url = reverse("webclient_image_as_map", args=[obj_id])
-        
-    return render_to_response('webclient/annotations/open_astex_viewer.html', {'data_url': data_url, "imageName":imageName})
+
+    return render_to_response('webclient/annotations/open_astex_viewer.html', 
+            {'data_url': data_url, 'pixelRange':pixelRange, "imageName":imageName})
     
     
 @isUserConnected

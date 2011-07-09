@@ -24,8 +24,84 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>{{ imageName }}</title>
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+    <script type="text/javascript">
+        // pass javascript commands to the open astex viewer applet. 
+        var execute_oav_command = function(command) {
+            document.av.execute(command);
+            window.status = command;
+        };
+        
+        $(document).ready(function() {
+            
+            // when we click button, run OAV command
+            $("#runOavCmd").click(function() {
+                var oavCmd = $("#oavCommandInput").attr('value');
+                execute_oav_command(oavCmd);
+                return false;
+            });
+            
+            $("#updateOavCotour").click(function() {
+                var oavContourVal = $("#oavCotourInput").attr('value');
+                var command = "map mapA contour 0 "+ oavContourVal +";"; 
+                execute_oav_command(command);
+                return false;
+            });
+            
+            $("#toggleMap").click(function(event) {
+                var on = $(this).attr('checked');
+                var onOff = "on"
+                if (!on) {
+                    onOff = "off"
+                }
+                var command = "map mapA contour 0 "+ onOff + ";";
+                execute_oav_command(command);
+            });
+            $("#toggleSolid").click(function(event) {
+                var on = $(this).attr('checked');
+                var onOff = "solid"
+                if (!on) {
+                    onOff = "wire"
+                }
+                var command = "map mapA contour 0 '"+ onOff + "';";
+                execute_oav_command(command);
+            });
+        });
+        
+    </script>
+    
+    <style type="text/css">
+        #controls {
+            position:absolute;
+            left: 10px;
+            top: 10px;
+            z-index:1;
+            background: green;
+        }
+        #applet {
+            position:absolute;
+            left: 0px;
+            top: 0px;
+            z-index:0;
+            background: red;
+        }
+    </style>
 </head>
 <body>
+    <div>
+    <form>
+        <input id="oavCommandInput" type="text" value="map mapA contour 0 'wire';"/>
+        <input id="runOavCmd" type="submit" value="Go" /> |
+        <input id="oavCotourInput" type="text" />
+        <input id="updateOavCotour" type="submit" value="Contour" />
+        {% if pixelRange %} ({{ pixelRange.0 }} - {{ pixelRange.1 }}) {% endif %}
+        <input type="checkbox" id="toggleMap" value="map" checked="true" /> Map |
+        <input type="checkbox" id="toggleSolid" value="solid" checked="true" /> Solid
+    </form>
+    </div>
+    
+
 <applet
       width="100%" height="100%" name="av"
       code="MoleculeViewerApplet.class"
