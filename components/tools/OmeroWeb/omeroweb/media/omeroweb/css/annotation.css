@@ -208,3 +208,19 @@ table.metadata_details td{
     color: #1B7BC7;
     cursor: pointer;
 }
+
+/* Styles for Drop-down menu - based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/ */
+.dropdown                   { font-weight: bold; float: left; zoom: 1; position: relative; }
+.dropdown li a              { display: block; padding: 4px 8px; border-right: 1px solid #333; color: #222; }
+.dropdown li:last-child a   { border-right: none; } /* Doesn't work in IE */
+.dropdown li.hover,
+.dropdown li:hover          { background: #ddf; color: black; position: relative; }
+.dropdown li.hover a        { color: black; }
+
+.dropdown ul                { width: 170px; visibility: hidden; position: absolute; top: 100%; left: 0; z-index:50;
+                                margin: 0; padding: 0; list-style:none; border:solid black 1px;}
+.dropdown ul li             { font-weight: normal; background: #fff; color: #000; border-bottom: 1px solid #eee; float: none; }
+.dropdown ul li a           { border-right: none; width: 100%; display: inline-block; } /* IE 6 & 7 Needs Inline Block */
+
+ul.sub_menu li ul           { left: 100%; top: 0;}
+ul.sub_menu li:hover > ul   { visibility: visible;}

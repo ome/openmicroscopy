@@ -216,9 +216,42 @@
                 $(".removeFile").click(function(event) {
                     removeItem(event, "file_ann_wrapper");
                 });
-            
+
+                // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
+                $("#scriptButton").click(function(e){
+                    if ($("#scriptList li").length == 0){  // if none loaded yet...
+                        var script_list_url = $(this).attr('href');
+                        $("#scriptList").load(script_list_url, function(){
+                            // Now show the menu and add ">>" to any <li> with child <ul>
+                            $('ul.sub_menu').css('visibility', 'visible');
+                            $("ul.sub_menu li:has(ul)").find("a:first").append(" &raquo; ");
+                            // bind links to openPopup
+                            $("ul.sub_menu a").click(openScriptWindow);
+                        });
+                    } else {
+                        $('ul.sub_menu').css('visibility', 'visible');
+                    }
+                    e.preventDefault();
+                    return false;
+                });
+                // on hover-out, hide drop-down menus
+                $(".dropdown").hover(function(){}, function(){
+                    $(this).removeClass("hover");
+                    $('ul.sub_menu',this).css('visibility', 'hidden');
+                });
+
             });
             
+            function openScriptWindow(event) {
+                // open script url, providing Data_Type and IDs params in request
+                var script_url = $(this).attr('href');
+                var Data_Type = $("#Data_Type").text();
+                var IDs = $("#obj_IDs").text();
+                script_url += "?Data_Type="+ Data_Type +"&IDs="+ IDs
+                openPopup(script_url);
+                return false;
+            }
+
             function deleteItem(productType, productId) {
                 if ((productType == 'file' || productType == 'tag' || productType == 'comment') && productId > 0){
                     if (confirm('Delete '+productType+'?')) {
@@ -255,7 +288,38 @@
     {% include "webtest/webtest-toolbar-include.html" %}
 {% endcomment %}
 
-<a id="scriptButton" href="#">Scripts</a>
+<!-- These elements provide info for the script launcher on the current selection -->
+<div style="display:none">
+    {% if manager.dataset %}
+    <div id='Data_Type'>Dataset</div>
+    <div id='obj_IDs'>{{ manager.dataset.id }}</div>
+    {% else %}
+        {% if manager.image %}
+        <div id='Data_Type'>Image</div>
+        <div id='obj_IDs'>{{ manager.image.id }}</div>
+        {% else %}
+            {% if manager.project %}
+            <div id='Data_Type'>Project</div>
+            <div id='obj_IDs'>{{ manager.project.id }}</div>
+            {% else %}
+                {% if count.images %}
+                <div id='Data_Type'>Image</div>
+                <div id='obj_IDs'>{% for o in oids.image %}{{ o }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
+</div>
+
+<div class="dropdown">
+    <!-- Script launcher -->
+    <a id="scriptButton" href="{% url list_scripts %}">Scripts</a>
+    <ul id="scriptList" class="sub_menu">
+        <!-- script list-items loaded here by AJAX -->
+    </ul>
+</div>
+
+<div style="clear:both"></div>
 
 <div id="annotation_form" >
     <div id="annotation_tabs" class="ui-tabs">

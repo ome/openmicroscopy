@@ -1,5 +1,3 @@
-{% extends "webclient/base/base_main.html" %}
-
 {% comment %}
 <!--
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
@@ -20,20 +18,13 @@
 -->
 {% endcomment %}
 
-
-{% block content %}
-
 {% for folder in scriptMenu %}
-    <div>
-        <h3>{{ folder.name }}</h3>
-        {{ folder.path }}
-
+    <li>
+        <a href="#">{{ folder.name }}</a>
         <ul>
             {% for script in folder.scripts %}
             <li><a href="{% url script_ui script.0 %}">{{ script.1 }}</a></li>
             {% endfor %}
         </ul>
-    </div>
+    </li>
 {% endfor %}
-
-{% endblock %}
