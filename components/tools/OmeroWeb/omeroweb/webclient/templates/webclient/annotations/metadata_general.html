@@ -220,6 +220,8 @@
                 // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
                 $("#scriptButton").click(function(e){
                     if ($("#scriptList li").length == 0){  // if none loaded yet...
+                        var $scriptLink = $(this).hide();
+                        var $scriptSpinner = $("#scriptSpinner").show();
                         var script_list_url = $(this).attr('href');
                         $("#scriptList").load(script_list_url, function(){
                             // Now show the menu and add ">>" to any <li> with child <ul>
@@ -227,6 +229,8 @@
                             $("ul.sub_menu li:has(ul)").find("a:first").append(" &raquo; ");
                             // bind links to openPopup
                             $("ul.sub_menu a").click(openScriptWindow);
+                            $scriptLink.show();
+                            $scriptSpinner.hide();
                         });
                     } else {
                         $('ul.sub_menu').css('visibility', 'visible');
@@ -311,9 +315,12 @@
     {% endif %}
 </div>
 
-<div class="dropdown">
+<div class="dropdown" style="padding-top: 7px">
     <!-- Script launcher -->
-    <a id="scriptButton" href="{% url list_scripts %}">Scripts</a>
+    <a id="scriptButton" href="{% url list_scripts %}">
+        <img src="{% url webstatic 'images/nuvola_script-run16.png' %}" />
+    </a>
+    <img id="scriptSpinner" style="display:none" src="{% url webstatic 'images/spinner.gif' %}" />
     <ul id="scriptList" class="sub_menu">
         <!-- script list-items loaded here by AJAX -->
     </ul>
