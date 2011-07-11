@@ -27,9 +27,28 @@
     <title>Run Script</title>
 
     <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+
+    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
 
     <script type="text/javascript">
+        $(document).ready(function() {
 
+            $(".param").tooltip({
+                bodyHandler: function() {
+                        return $(this).children(".description").html();
+                    },
+                track: true,
+                delay: 1000,
+                showURL: false,
+                fixPNG: true,
+                showBody: " - ",
+                top: 10,
+                left: 10
+            });
+            $(".param").children(".description").hide(); // hide tool tip source
+
+        });
     </script>
 
     <style type="text/css">
