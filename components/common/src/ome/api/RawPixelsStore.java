@@ -9,6 +9,7 @@ package ome.api;
 
 import java.io.IOException;
 import java.nio.BufferOverflowException;
+import java.util.List;
 import java.util.Set;
 
 import ome.annotations.Validate;
@@ -86,6 +87,8 @@ public interface RawPixelsStore extends StatefulServiceInterface {
     public byte[] getRow(int y, int z, int c, int t);
     
     public byte[] getCol(int x, int z, int c, int t);
+
+    public byte[] getHypercube(@Validate(Integer.class) List<Integer> offset, @Validate(Integer.class) List<Integer> size, @Validate(Integer.class) List<Integer> step);
 
     public byte[] getPlaneRegion(int z, int c, int t, int count, int offset);
 

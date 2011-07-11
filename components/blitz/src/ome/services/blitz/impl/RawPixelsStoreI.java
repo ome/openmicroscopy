@@ -105,7 +105,7 @@ public class RawPixelsStoreI extends AbstractPyramidServant implements
     public void getHypercube_async(AMD_RawPixelsStore_getHypercube __cb,
             List<Integer> offset, List<Integer> size, List<Integer> step, 
             Current __current) throws ServerError {
-        throw new UnsupportedOperationException("NYI");
+        callInvokerOnRawArgs(__cb, __current, offset, size, step);
     }
     
     public void getRegion_async(AMD_RawPixelsStore_getRegion __cb, int size,

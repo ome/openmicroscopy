@@ -68,10 +68,13 @@ class TestBfPixelsStore(lib.ITest):
         self.allTests()
         self.tidyUp()
         
-    def testJPG(self):
-        self.setUpTestFile("test.jpg")
-        self.allTests()
-        self.tidyUp()
+    # jpg files now generate pyramids. Could use backOff to
+    # get around setId MPE exceptions but other methods in
+    # the rps interface are not implemented, offset getters, etc.
+    #    def testJPG(self):
+    #        self.setUpTestFile("test.jpg")
+    #        self.allTests()
+    #        self.tidyUp()
         
     def allTests(self):
         self.xtestOtherGetters()
@@ -81,9 +84,11 @@ class TestBfPixelsStore(lib.ITest):
         self.xtestGetStack()
         self.xtestGetTimepoint()
         self.xtestGetHypercube()
-    
+        self.xtestGetHypercubeAgainstRPSGetHypercube()
+        
     # In this test below the middlish hypercube is got.
-    # The rps method is not implemented so extract the cube manually.
+    # This was written when the rps method was not implemented 
+    # so extract the cube manually by repeated calls to other rps methods.
     def xtestGetHypercube(self):
         x1 = self.sizeX/3; x2 = (2*self.sizeX)/3 + 1 - x1
         y1 = self.sizeY/3; y2 = (2*self.sizeY)/3 + 1 - y1
@@ -107,6 +112,35 @@ class TestBfPixelsStore(lib.ITest):
 
         bf_data = self.bf.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[6,5,4,3,2])
         rp_data = self.getHypercubeFromRPS([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[6,5,4,3,2])
+        self.assert_(len(rp_data) == len(bf_data))
+        bf_md5 = hashlib.md5(bf_data)
+        rp_md5 = hashlib.md5(rp_data)
+        self.assert_(bf_md5.digest() == rp_md5.digest())
+
+    # Again, the middlish hypercube is got.
+    def xtestGetHypercubeAgainstRPSGetHypercube(self):
+        x1 = self.sizeX/3; x2 = (2*self.sizeX)/3 + 1 - x1
+        y1 = self.sizeY/3; y2 = (2*self.sizeY)/3 + 1 - y1
+        z1 = self.sizeZ/3; z2 = (2*self.sizeZ)/3 + 1 - z1
+        c1 = self.sizeC/3; c2 = (2*self.sizeC)/3 + 1 - c1
+        t1 = self.sizeT/3; t2 = (2*self.sizeT)/3 + 1 - t1
+        
+        bf_data = self.bf.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[1,1,1,1,1])
+        rp_data = self.rp.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[1,1,1,1,1])
+        self.assert_(len(rp_data) == len(bf_data))
+        bf_md5 = hashlib.md5(bf_data)
+        rp_md5 = hashlib.md5(rp_data)
+        self.assert_(bf_md5.digest() == rp_md5.digest())
+        
+        bf_data = self.bf.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[2,2,1,1,1])
+        rp_data = self.rp.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[2,2,1,1,1])
+        self.assert_(len(rp_data) == len(bf_data))
+        bf_md5 = hashlib.md5(bf_data)
+        rp_md5 = hashlib.md5(rp_data)
+        self.assert_(bf_md5.digest() == rp_md5.digest())
+
+        bf_data = self.bf.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[6,5,4,3,2])
+        rp_data = self.rp.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[6,5,4,3,2])
         self.assert_(len(rp_data) == len(bf_data))
         bf_md5 = hashlib.md5(bf_data)
         rp_md5 = hashlib.md5(rp_data)
@@ -224,7 +258,10 @@ class TestBfPixelsStore(lib.ITest):
         bf_width = self.bf.getByteWidth()
         rp_width = self.rp.getByteWidth()
         self.assert_(bf_width == rp_width)
-        
+
+        """
+        # The offset getters are implemented in the bf classes but not in the pyramid variants.
+        # The getters are not really necessary in the bf classes so disabling these tests.
         bf_offset = self.bf.getRowOffset(0,0,0,0)
         self.assert_(bf_offset == 0)
         bf_offset = self.bf.getPlaneOffset(0,0,0)
@@ -253,6 +290,7 @@ class TestBfPixelsStore(lib.ITest):
         bf_offset = self.bf.getTimepointOffset(t)
         rp_offset = self.rp.getTimepointOffset(t)
         self.assert_(bf_offset == rp_offset)
-
+        """
+        
 if __name__ == '__main__':
     unittest.main()

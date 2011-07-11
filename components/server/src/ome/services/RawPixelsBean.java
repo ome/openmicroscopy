@@ -337,6 +337,23 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
+    public byte[] getHypercube(List<Integer> offset, List<Integer> size, List<Integer> step) {
+        errorIfNotLoaded();
+
+        int cubeSize = buffer.getCubeSize(offset, size, step);
+        if (readBuffer == null || readBuffer.length != cubeSize) {
+            readBuffer = new byte[cubeSize];
+        }
+        try {
+            readBuffer = buffer.getHypercubeDirect(offset, size, step,
+                    readBuffer);
+        } catch (Exception e) {
+            handleException(e);
+        }
+        return readBuffer;
+    }
+
+    @RolesAllowed("user")
     public byte[] getPlaneRegion(int z, int c, int t, int count, int offset) {
         errorIfNotLoaded();
 

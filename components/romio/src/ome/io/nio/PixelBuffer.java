@@ -96,6 +96,17 @@ public interface PixelBuffer extends Closeable
     public Integer getTotalSize();
 
     /**
+     * Retrieves a the size of a hypercube from this pixel buffer.
+     * @param offset The offset of each dimension of the pixel buffer.
+     * @param size The number of pixels to retrieve along each dimension .
+     * @param step The step size across each dimension .
+     * @return the size. 
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     */
+    public Integer getCubeSize(List<Integer> offset, List<Integer> size, 
+            List<Integer> step) throws DimensionsOutOfBoundsException;
+
+    /**
      * Retrieves the offset for a particular row or scanline in this pixel 
      * buffer.
      * @param y offset across the Y-axis of the pixel buffer.

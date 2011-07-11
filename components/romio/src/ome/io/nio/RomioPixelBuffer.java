@@ -973,8 +973,8 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         return cube;
     }
     
-    private Integer getCubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
-            throws IOException, DimensionsOutOfBoundsException {
+    public Integer getCubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
+            throws DimensionsOutOfBoundsException {
         // only works for 5d at present
         int tStripes = (size.get(4) + step.get(4) - 1) / step.get(4);
         int cStripes = (size.get(3) + step.get(3) - 1) / step.get(3);
