@@ -40,8 +40,8 @@
     <img src="{% url webstatic "images/logo-admin.png" %}" />
 </div>
 <div id="login">
-	<form action="{% url walogin %}" method="post">
-		<table><tbody>
+    <form action="{% url walogin %}" method="post">
+        <table><tbody>
             {% if error %}<tr><th colspan="2"><ul class="errorlist"><li>{% trans "Error:" %} {{ error }}</li></ul></th><tr>{% endif %}
         </tbody></table>
         <table><tbody>
@@ -52,28 +52,28 @@
                 <td>{{ form.ssl }} {{ form.ssl.errors }}</td>
             </tr>
         </tbody></table>
-		<table><tbody>
-		    <tr>
-		        <th></th>
-				<td>{{ form.username.errors }}</td>
-				<th></th>
-    			<td>{{ form.password.errors }}</td>
-			</tr>
-		    <tr>
-		        <th>{% trans form.username.label_tag %}{% if form.username.field.required %}*{% endif %}</th>
-				<td>{{ form.username }}</td>
-				<th>{% trans form.password.label_tag %}{% if form.password.field.required %}*{% endif %}</th>
-    			<td>{{ form.password }}</td>
-			</tr>
-		</tbody></table>
-		<!-- <tr><td>{% if form.user_name.errors %}{{ form.user_name.errors }}{% endif %}{{ form.user_name.help_text|safe }}</td> -->
-		<center><input type="submit" value="Connect" /></center>
-	</form>
+        <table><tbody>
+            <tr>
+                <th></th>
+                <td>{{ form.username.errors }}</td>
+                <th></th>
+                <td>{{ form.password.errors }}</td>
+            </tr>
+            <tr>
+                <th>{% trans form.username.label_tag %}{% if form.username.field.required %}*{% endif %}</th>
+                <td>{{ form.username }}</td>
+                <th>{% trans form.password.label_tag %}{% if form.password.field.required %}*{% endif %}</th>
+                <td>{{ form.password }}</td>
+            </tr>
+        </tbody></table>
+        <!-- <tr><td>{% if form.user_name.errors %}{{ form.user_name.errors }}{% endif %}{{ form.user_name.help_text|safe }}</td> -->
+        <center><input type="submit" value="Connect" /></center>
+    </form>
 </div>
 
 <div id="bottom">
     <center><a href="{% url waforgottenpassword %}">Forgotten password</a></center>
-	<p>OMERO.web {{ version }}.<br/>&copy; 2007-2011 University of Dundee & Open Microscopy Environment</p>
+    <p>OMERO.web {{ version }}.<br/>&copy; 2007-2011 University of Dundee & Open Microscopy Environment</p>
 </div>
 
 </body>

@@ -1409,7 +1409,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                     logger.error("Email was sent")
                 except:
                     logger.error(traceback.format_exc())
-			
+            
         if len(rm_members) > 0:
             try:
                 recipients = self.prepareRecipients(rm_members)
@@ -1749,9 +1749,9 @@ class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper):
     def __prepare__ (self, **kwargs):
         if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
- 	 
+      
 omero.gateway.ProjectWrapper = ProjectWrapper 
- 	 
+      
 class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper): 
     """
     omero_model_DatasetI class wrapper overwrite omero.gateway.DatasetWrapper
@@ -1765,7 +1765,7 @@ class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper):
             self.annotation_counter = kwargs['annotation_counter']
         if kwargs.has_key('link'):
             self.link = kwargs.has_key('link') and kwargs['link'] or None    
-	 
+     
 omero.gateway.DatasetWrapper = DatasetWrapper
 
 class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):

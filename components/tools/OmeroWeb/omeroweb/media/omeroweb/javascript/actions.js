@@ -6,12 +6,12 @@ var multi_key = function() {
 var loadOtherPanels = function(data, prefix) {
     if(data.rslt.obj.length > 0) {
         var cm_var = new Object();
-	    cm_var['content_details'] = {'url': null, 'rel': null, 'empty':false };
-	    cm_var['metadata_details']= {'iframe': null, 'html': null};
+        cm_var['content_details'] = {'url': null, 'rel': null, 'empty':false };
+        cm_var['metadata_details']= {'iframe': null, 'html': null};
 
-	    var oid = data.rslt.obj.attr('id');
-	    var orel = data.rslt.obj.attr('rel').replace("-locked", "");
-	    var crel = $("div#content_details").attr('rel');
+        var oid = data.rslt.obj.attr('id');
+        var orel = data.rslt.obj.attr('rel').replace("-locked", "");
+        var crel = $("div#content_details").attr('rel');
         if (typeof oid!=="undefined" && oid!==false) {
             if (oid.indexOf("orphaned")>=0) {
                 if(oid!==crel) {

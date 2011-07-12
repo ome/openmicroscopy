@@ -32,8 +32,8 @@
 {% block jscript %}
 
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.cookie.js" %}"></script>
-	<script type="text/javascript" src="{% url webstatic "javascript/jquery.hotkeys.js" %}"></script>
-	<script type="text/javascript" src="{% url webstatic "javascript/jquery.jstree.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.hotkeys.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.jstree.js" %}"></script>
 
 {% endblock %}
 
@@ -53,7 +53,7 @@
                     var toolbar_config = new Object();
                     
                     if(selected.length > 0) {
-                        if(selected.attr("rel").indexOf("locked")>=0) {            	            
+                        if(selected.attr("rel").indexOf("locked")>=0) {                            
                             toolbar_config = {'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}};
                         } else {
                             if(selected.attr("id").indexOf("experimenter")>=0) {
@@ -79,268 +79,268 @@
                 }
                 
                 $("#dataTree").jstree({ 
-            			// the list of plugins to include
-            			"plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
-            			// Plugin configuration
+                        // the list of plugins to include
+                        "plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
+                        // Plugin configuration
 
-            			// I usually configure the plugin that handles the data first - in this case JSON as it is most common
-            			"html_data" : { 
-            				// I chose an ajax enabled tree - again - as this is most common, and maybe a bit more complex
-            				// All the options are the same as jQuery's except for `data` which CAN (not should) be a function
-            				"ajax" : {
-            					// the URL to fetch the data
-            					"url" : function(n) {
-            					    if (n.attr) {
-            					        var parent = this._get_parent(n);
-            					        if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["project", "screen"]) > -1) {
+                        // I usually configure the plugin that handles the data first - in this case JSON as it is most common
+                        "html_data" : { 
+                            // I chose an ajax enabled tree - again - as this is most common, and maybe a bit more complex
+                            // All the options are the same as jQuery's except for `data` which CAN (not should) be a function
+                            "ajax" : {
+                                // the URL to fetch the data
+                                "url" : function(n) {
+                                    if (n.attr) {
+                                        var parent = this._get_parent(n);
+                                        if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["project", "screen"]) > -1) {
                                             url = "{% url load_data %}"+$(parent).attr("rel").replace("-locked", "")+"/"+$(parent).attr("id").split("-")[1]+"/"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
-                					    } else if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["image"]) > -1){
-                					        url = "{% url load_data %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
-                					    } else {
-                					        url = "{% url load_data_by_tag %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
-                					    }
-            					    } else {
-            					        url = "{% url load_data_by_tag %}";
-            					    }
-            					    return url;
-            					},
-            					// this function is executed in the instance's scope (this refers to the tree instance)
-            					// the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
-            					"data" : function (n) {
-            					    if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset"]) > -1) {
-            					        var r = { "view" : "tree" };
-            					        if($("div#content_details").has("#page").length > 0) {
-            					            r["page"] = parseInt($("div#content_details").find("#page").attr("rel"));
-            					        }
-            					        return r;
-            					    } else {
-            					        return { "view" : "tree" };
-            					    }
+                                        } else if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["image"]) > -1){
+                                            url = "{% url load_data %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
+                                        } else {
+                                            url = "{% url load_data_by_tag %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
+                                        }
+                                    } else {
+                                        url = "{% url load_data_by_tag %}";
+                                    }
+                                    return url;
+                                },
+                                // this function is executed in the instance's scope (this refers to the tree instance)
+                                // the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
+                                "data" : function (n) {
+                                    if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset"]) > -1) {
+                                        var r = { "view" : "tree" };
+                                        if($("div#content_details").has("#page").length > 0) {
+                                            r["page"] = parseInt($("div#content_details").find("#page").attr("rel"));
+                                        }
+                                        return r;
+                                    } else {
+                                        return { "view" : "tree" };
+                                    }
                                 }
-            				}
-            			},
-            			// Using types - most of the time this is an overkill
-            			// Still meny people use them - here is how
-            			"types" : {
-            				// I want only `drive` nodes to be root nodes 
-            				// This will prevent moving or creating any other type as a root node
-            				"select_limit" : -1,
-            				"max_depth" : -1,
-            				"max_children" : -1,
-            				"valid_children" : [ "experimenter" ],
-            				"types" : {
-            					"experimenter" : {
-            						"valid_children" : [ "tagset", "tagset-locked", "tag", "tag-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/personal16.png" %}'
-            						},
-            						"create_node" : true,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"tagset" : {
-            						"valid_children" : [ "tag", "tag-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/knotesred16.png" %}'
-            						},
-            						"create_node" : true,
+                            }
+                        },
+                        // Using types - most of the time this is an overkill
+                        // Still meny people use them - here is how
+                        "types" : {
+                            // I want only `drive` nodes to be root nodes 
+                            // This will prevent moving or creating any other type as a root node
+                            "select_limit" : -1,
+                            "max_depth" : -1,
+                            "max_children" : -1,
+                            "valid_children" : [ "experimenter" ],
+                            "types" : {
+                                "experimenter" : {
+                                    "valid_children" : [ "tagset", "tagset-locked", "tag", "tag-locked" ],
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/personal16.png" %}'
+                                    },
+                                    "create_node" : true,
                                     "start_drag" : false,
-            						"move_node" : false,
-            						"remove" : true
-            					},
-            					"tagset-locked" : {
-            						"valid_children" : [ "tag", "tag-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/knotesred_locked16.png" %}'
-            						},
-            						"create_node" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "tagset" : {
+                                    "valid_children" : [ "tag", "tag-locked" ],
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/knotesred16.png" %}'
+                                    },
+                                    "create_node" : true,
                                     "start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},            					
-            					"tag" : {
-            						"valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/knotes16.png" %}'
-            						},
-            						"create_node" : true,
-            						"start_drag" : true,
-            						"move_node" : true,
-            						"delete_node" : true,
-            						"remove" : true
-            					},
-            					"tag-locked" : {
-            						"valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/knotes_locked16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"project" : {
-            						"valid_children" : [ "dataset", "dataset-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder16.png" %}'
-            						},
-            						"create_node" : false,
+                                    "move_node" : false,
+                                    "remove" : true
+                                },
+                                "tagset-locked" : {
+                                    "valid_children" : [ "tag", "tag-locked" ],
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/knotesred_locked16.png" %}'
+                                    },
+                                    "create_node" : false,
                                     "start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"project-locked" : {
-            						"valid_children" : [ "dataset", "dataset-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_locked16.png" %}'
-            						},
-            						"create_node" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },                                
+                                "tag" : {
+                                    "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/knotes16.png" %}'
+                                    },
+                                    "create_node" : true,
+                                    "start_drag" : true,
+                                    "move_node" : true,
+                                    "delete_node" : true,
+                                    "remove" : true
+                                },
+                                "tag-locked" : {
+                                    "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/knotes_locked16.png" %}'
+                                    },
+                                    "create_node" : false,
                                     "start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"dataset" : {
-            						"valid_children" : [ "image", "image-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_image16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"dataset-locked" : {
-            						"valid_children" : [ "image", "image-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_image_locked16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"image" : {
-            						"valid_children" : "none",
-            						"icon" : {
-            							"image" : '{% url webstatic "images/image16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"image-locked" : {
-            						"valid_children" : "none",
-            						"icon" : {
-            							"image" : '{% url webstatic "images/image_locked16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"screen" : {
-            						"valid_children" : [ "plate", "plate-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_screen16.png" %}'
-            						},
-            						"create_node" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "project" : {
+                                    "valid_children" : [ "dataset", "dataset-locked" ],
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/folder16.png" %}'
+                                    },
+                                    "create_node" : false,
                                     "start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"screen-locked" : {
-            						"valid_children" : [ "plate", "plate-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_screen_locked16.png" %}'
-            						},
-            						"create_node" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "project-locked" : {
+                                    "valid_children" : [ "dataset", "dataset-locked" ],
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/folder_locked16.png" %}'
+                                    },
+                                    "create_node" : false,
                                     "start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"plate" : {
-            						"valid_children" : "none",
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_plate16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"plate-locked" : {
-            						"valid_children" : "none",
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_plate_locked16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					}
-            				}
-            			},
-            			// For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
-            			// the UI plugin - it handles selecting/deselecting/hovering nodes
-            			"ui" : {
-            				"initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ]
-            			},
-            			// the core plugin - not many options here
-            			"core" : { 
-            				// just open those two nodes up
-            				// as this is an AJAX enabled tree, both will be downloaded from the server
-            			    "initially_open" : [ {% for p in init.initially_open %}"{{ p }}",{% endfor %} "experimenter-0" ]
-            			},
-            			"contextmenu" : {
-            			    "select_node":true,
-            			    "items" : function(obj){
-            			        var config = {};        
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "dataset" : {
+                                    "valid_children" : [ "image", "image-locked" ],
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/folder_image16.png" %}'
+                                    },
+                                    "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "dataset-locked" : {
+                                    "valid_children" : [ "image", "image-locked" ],
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/folder_image_locked16.png" %}'
+                                    },
+                                    "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "image" : {
+                                    "valid_children" : "none",
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/image16.png" %}'
+                                    },
+                                    "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "image-locked" : {
+                                    "valid_children" : "none",
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/image_locked16.png" %}'
+                                    },
+                                    "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "screen" : {
+                                    "valid_children" : [ "plate", "plate-locked" ],
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/folder_screen16.png" %}'
+                                    },
+                                    "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "screen-locked" : {
+                                    "valid_children" : [ "plate", "plate-locked" ],
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/folder_screen_locked16.png" %}'
+                                    },
+                                    "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "plate" : {
+                                    "valid_children" : "none",
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/folder_plate16.png" %}'
+                                    },
+                                    "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "plate-locked" : {
+                                    "valid_children" : "none",
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/folder_plate_locked16.png" %}'
+                                    },
+                                    "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                }
+                            }
+                        },
+                        // For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
+                        // the UI plugin - it handles selecting/deselecting/hovering nodes
+                        "ui" : {
+                            "initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ]
+                        },
+                        // the core plugin - not many options here
+                        "core" : { 
+                            // just open those two nodes up
+                            // as this is an AJAX enabled tree, both will be downloaded from the server
+                            "initially_open" : [ {% for p in init.initially_open %}"{{ p }}",{% endfor %} "experimenter-0" ]
+                        },
+                        "contextmenu" : {
+                            "select_node":true,
+                            "items" : function(obj){
+                                var config = {};        
                                 
                                 return config;
                             }
                         }
-            			
-            	})
-            	.delegate("a", "click.jstree", function (event) {
-					var data = $.jstree._focused();
-					if(!data.is_open() && data.get_selected().length < 2) {
-                	    data.open_node(data.get_selected());
-                	}
-				})
-				.delegate("a", "dblclick", function(e, data) {
-        		    if ($(this).parent().attr('rel')=='image') {
-        		        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
-        		    }
-        		    $("#dataTree").jstree("open_node", this);
-        		})
-        		.bind("select_node.jstree", function (e, data) {
-            	    var selected = data.inst.get_selected();
-            	    buttonsShowHide(selected);
-            	    if (data.rslt.obj.attr("id").indexOf("tag")<0) {
-            	        loadOtherPanels(data, '{% url load_data %}');
-            	    } else {
-            	        loadOtherPanels(data, '{% url load_data_by_tag %}');
-            	    }
-            	    syncPanels(selected);
-        		})
-            	.bind("remove.jstree", function (e, data) {
-            	    data.args[0].each(function (i) {
-        		        url = '{% url manage_action_containers "delete" %}'+$(this).attr("rel").replace("locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
+                        
+                })
+                .delegate("a", "click.jstree", function (event) {
+                    var data = $.jstree._focused();
+                    if(!data.is_open() && data.get_selected().length < 2) {
+                        data.open_node(data.get_selected());
+                    }
+                })
+                .delegate("a", "dblclick", function(e, data) {
+                    if ($(this).parent().attr('rel')=='image') {
+                        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                    }
+                    $("#dataTree").jstree("open_node", this);
+                })
+                .bind("select_node.jstree", function (e, data) {
+                    var selected = data.inst.get_selected();
+                    buttonsShowHide(selected);
+                    if (data.rslt.obj.attr("id").indexOf("tag")<0) {
+                        loadOtherPanels(data, '{% url load_data %}');
+                    } else {
+                        loadOtherPanels(data, '{% url load_data_by_tag %}');
+                    }
+                    syncPanels(selected);
+                })
+                .bind("remove.jstree", function (e, data) {
+                    data.args[0].each(function (i) {
+                        url = '{% url manage_action_containers "delete" %}'+$(this).attr("rel").replace("locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
 
                         $.ajax({
-            		        async : false,
+                            async : false,
                             url: url,
                             dataType: "json",
                             type: "POST",
                             success: function(r){
                                 if(eval(r.bad)) {
-          							$.jstree.rollback(data.rlbk);
-          							alert(r.errs);
-          						} else {
-          						    refreshCenterPanel();
-          						    var i = setInterval(function (){
+                                      $.jstree.rollback(data.rlbk);
+                                      alert(r.errs);
+                                  } else {
+                                      refreshCenterPanel();
+                                      var i = setInterval(function (){
                                         $.getJSON("/webclient/progress/", function(data) {
                                             if (data.inprogress== 0) {
                                                 clearInterval(i);
@@ -357,36 +357,36 @@
                                             $("#jobstatus").html(data.inprogress + ' job(s) in progress');
                                         });
                                     }, 10000);
-          						}
+                                  }
                             },
                             error: function(response) {
                                 $.jstree.rollback(data.rlbk);
                                 alert("Internal server error. Cannot remove object.");
                             }
                         });
-        		    });
-        		});            	
-        	});
+                    });
+                });                
+            });
         
     </script>
     
     <script type="text/javascript">
     $(function () {
-    	$("#buttons input").click(function () {
-    		switch(this.id) {
-    			case "deleteButton":
-    			    if (confirm("Delete permanently selected object(-s)? You will NOT be able to access this object any more.")) {
+        $("#buttons input").click(function () {
+            switch(this.id) {
+                case "deleteButton":
+                    if (confirm("Delete permanently selected object(-s)? You will NOT be able to access this object any more.")) {
                         $("#dataTree").jstree('remove', $.jstree._focused().get_selected());
-                    }    			    
-    				break;
+                    }                    
+                    break;
                 case "refreshButton":
                     $("#dataTree").jstree("refresh");
                     refreshCenterPanel();
                     break;
                 default:
-    			    break;
-    		}
-    	});
+                    break;
+            }
+        });
     });
     </script>
 {% endblock %}

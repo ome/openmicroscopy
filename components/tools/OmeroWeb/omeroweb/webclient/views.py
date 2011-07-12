@@ -713,7 +713,7 @@ def load_searching(request, form=None, **kwargs):
     batch_query = request.REQUEST.get('batch_query')
     if batch_query is not None:
         delimiter = request.REQUEST.get('delimiter')
-    	delimiter = delimiter.decode("string_escape")
+        delimiter = delimiter.decode("string_escape")
         batch_query = batch_query.split("\n")
         batch_query = [query.split(delimiter) for query in batch_query]
         template = "webclient/search/search_details.html"

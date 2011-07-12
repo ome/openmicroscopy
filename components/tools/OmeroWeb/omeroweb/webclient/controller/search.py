@@ -44,7 +44,7 @@ class BaseSearch(BaseController):
         self.eContext['breadcrumb'] = ['Search']
 
     def batch_search(self, query_list):
-       	im_list = list()
+        im_list = list()
         well_list = list()
         for (plate_name, row, column) in query_list:
             row = int(row)

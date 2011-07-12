@@ -50,8 +50,8 @@
                 url: "{% url autocomplete_tags %}",  
                 contentType: "application/json; charset=utf-8",  
                 cache:false,
-				async: false,
-				dataType: "json",  
+                async: false,
+                dataType: "json",  
                 success: function(json){  
                     prepareAutocomplite(json);
                     $("div#tagloader").remove();
