@@ -547,7 +547,7 @@
                                   var i = setInterval(function (){
                                     $.getJSON("/webclient/progress/", function(data) {
                                         if (data.inprogress== 0) {
-                                            cl    earInterval(i);
+                                            clearInterval(i);
                                             $("#progress").hide();
                                             if(data.failure>0) {
                                                 $("#jobstatus").html(data.failure + ' job(s) failed');
