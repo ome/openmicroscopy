@@ -103,7 +103,7 @@ public interface PixelBuffer extends Closeable
      * @return the size. 
      * @throws IOException if there is a problem reading from the pixel buffer.
      */
-    public Integer getCubeSize(List<Integer> offset, List<Integer> size, 
+    public Integer getHypercubeSize(List<Integer> offset, List<Integer> size, 
             List<Integer> step) throws DimensionsOutOfBoundsException;
 
     /**

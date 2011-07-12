@@ -422,7 +422,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             List<Integer> step) throws IOException, DimensionsOutOfBoundsException 
     {
         PixelData d;
-        byte[] buffer = new byte[getCubeSize(offset,size,step)];
+        byte[] buffer = new byte[getHypercubeSize(offset,size,step)];
         getHypercubeDirect(offset,size,step,buffer);
         d = new PixelData(pixels.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
         return d;
@@ -437,7 +437,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             throws IOException, DimensionsOutOfBoundsException 
     {
         checkCubeBounds(offset, size, step);
-        if (buffer.length != getCubeSize(offset, size, step))
+        if (buffer.length != getHypercubeSize(offset, size, step))
             throw new RuntimeException("Buffer size incorrect.");
         getWholeHypercube(offset,size,step,buffer);
         return buffer;
@@ -973,7 +973,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         return cube;
     }
     
-    public Integer getCubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
+    public Integer getHypercubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
             throws DimensionsOutOfBoundsException {
         // only works for 5d at present
         int tStripes = (size.get(4) + step.get(4) - 1) / step.get(4);

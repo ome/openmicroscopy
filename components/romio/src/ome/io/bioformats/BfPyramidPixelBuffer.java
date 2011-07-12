@@ -755,9 +755,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     }
 
     /* (non-Javadoc)
-     * @see ome.io.nio.PixelBuffer#getCubeSize(java.util.List, java.util.List, java.util.List)
+     * @see ome.io.nio.PixelBuffer#getHypercubeSize(java.util.List, java.util.List, java.util.List)
      */
-    public synchronized Integer getCubeSize(List<Integer> offset,
+    public synchronized Integer getHypercubeSize(List<Integer> offset,
             List<Integer> size, List<Integer> step)
         throws DimensionsOutOfBoundsException
     {

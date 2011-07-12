@@ -340,7 +340,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     public byte[] getHypercube(List<Integer> offset, List<Integer> size, List<Integer> step) {
         errorIfNotLoaded();
 
-        int cubeSize = buffer.getCubeSize(offset, size, step);
+        int cubeSize = buffer.getHypercubeSize(offset, size, step);
         if (readBuffer == null || readBuffer.length != cubeSize) {
             readBuffer = new byte[cubeSize];
         }

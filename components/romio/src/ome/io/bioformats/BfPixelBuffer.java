@@ -391,11 +391,11 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
 
     }
 
-    public Integer getCubeSize(List<Integer> offset, List<Integer> size,
+    public Integer getHypercubeSize(List<Integer> offset, List<Integer> size,
             List<Integer> step) throws DimensionsOutOfBoundsException
     {
         final BfPixelsWrapper reader = reader();
-        return reader.getCubeSize(offset,size,step);
+        return reader.getHypercubeSize(offset,size,step);
     }
 
     public PixelData getHypercube(List<Integer> offset, List<Integer> size,
@@ -403,7 +403,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     {
         final BfPixelsWrapper reader = reader();
         PixelData d;
-        byte[] buffer = new byte[getCubeSize(offset,size,step)];
+        byte[] buffer = new byte[getHypercubeSize(offset,size,step)];
         reader.getHypercube(offset,size,step,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
         return d;

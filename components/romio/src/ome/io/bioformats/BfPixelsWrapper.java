@@ -203,7 +203,7 @@ public class BfPixelsWrapper {
         return getSizeT() * getTimepointSize();
     }
 
-    public Integer getCubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
+    public Integer getHypercubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
             throws DimensionsOutOfBoundsException {
         // only works for 5d at present
         int tStripes = (size.get(4) + step.get(4) - 1) / step.get(4);
@@ -340,7 +340,7 @@ public class BfPixelsWrapper {
     {
         checkCubeBounds(offset, size, step);
         try {
-            if (buffer.length != getCubeSize(offset, size, step))
+            if (buffer.length != getHypercubeSize(offset, size, step))
                 throw new RuntimeException("Buffer size incorrect.");
             getWholeHypercube(offset,size,step,buffer);
         } catch (FormatException e) {
