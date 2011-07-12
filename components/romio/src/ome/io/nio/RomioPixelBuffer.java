@@ -436,7 +436,6 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             List<Integer> step, byte[] buffer) 
             throws IOException, DimensionsOutOfBoundsException 
     {
-        checkCubeBounds(offset, size, step);
         if (buffer.length != getHypercubeSize(offset, size, step))
             throw new RuntimeException("Buffer size incorrect.");
         getWholeHypercube(offset,size,step,buffer);
@@ -924,8 +923,24 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
                 "Cannot set resolution levels on a ROMIO pixel buffer.");
     }
     
+    public Integer getHypercubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
+            throws DimensionsOutOfBoundsException {
+        // only works for 5d at present
+        checkCubeBounds(offset, size, step);
+        int tStripes = (size.get(4) + step.get(4) - 1) / step.get(4);
+        int cStripes = (size.get(3) + step.get(3) - 1) / step.get(3);
+        int zStripes = (size.get(2) + step.get(2) - 1) / step.get(2);
+        int yStripes = (size.get(1) + step.get(1) - 1) / step.get(1);
+        int xStripes = (size.get(0) + step.get(0) - 1) / step.get(0);
+        int tileRowSize = getByteWidth() * xStripes;
+        int cubeSize = tileRowSize * yStripes * zStripes * cStripes * tStripes;
+
+        return cubeSize;
+    }
+
     /*
      * Temporary helpers. May be factored out.
+     * This code is repeated in bfPixelWrapper and so needs refactoring.
      */
     private byte[] getWholeHypercube(List<Integer> offset, List<Integer> size,
             List<Integer> step, byte[] cube) throws IOException {
@@ -973,20 +988,6 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         return cube;
     }
     
-    public Integer getHypercubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
-            throws DimensionsOutOfBoundsException {
-        // only works for 5d at present
-        int tStripes = (size.get(4) + step.get(4) - 1) / step.get(4);
-        int cStripes = (size.get(3) + step.get(3) - 1) / step.get(3);
-        int zStripes = (size.get(2) + step.get(2) - 1) / step.get(2);
-        int yStripes = (size.get(1) + step.get(1) - 1) / step.get(1);
-        int xStripes = (size.get(0) + step.get(0) - 1) / step.get(0);
-        int tileRowSize = getByteWidth() * xStripes;
-        int cubeSize = tileRowSize * yStripes * zStripes * cStripes * tStripes;
-
-        return cubeSize;
-    }
-
     private void checkCubeBounds(List<Integer> offset, List<Integer> size, List<Integer> step)
             throws DimensionsOutOfBoundsException {
         // At the moment the array must contain 5 values

@@ -206,6 +206,7 @@ public class BfPixelsWrapper {
     public Integer getHypercubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
             throws DimensionsOutOfBoundsException {
         // only works for 5d at present
+        checkCubeBounds(offset, size, step);
         int tStripes = (size.get(4) + step.get(4) - 1) / step.get(4);
         int cStripes = (size.get(3) + step.get(3) - 1) / step.get(3);
         int zStripes = (size.get(2) + step.get(2) - 1) / step.get(2);
@@ -338,10 +339,9 @@ public class BfPixelsWrapper {
             List<Integer> step, byte[] buffer)
             throws IOException, DimensionsOutOfBoundsException
     {
-        checkCubeBounds(offset, size, step);
+        if (buffer.length != getHypercubeSize(offset, size, step))
+            throw new RuntimeException("Buffer size incorrect.");
         try {
-            if (buffer.length != getHypercubeSize(offset, size, step))
-                throw new RuntimeException("Buffer size incorrect.");
             getWholeHypercube(offset,size,step,buffer);
         } catch (FormatException e) {
             throw new RuntimeException(e);
