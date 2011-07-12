@@ -28,11 +28,29 @@
 
     <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+       <script type="text/javascript" src="{% url webstatic "javascript/popup.js" %}"></script>
 
     <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
 
     <script type="text/javascript">
+        jQuery.fn.runScript = function() {
+            var $form = $(this);
+            var postData = $form.serialize();
+            var actionUrl = $form.attr('action');
+            $.post(actionUrl, postData, function(data) {
+                popupActivites('{% url status %}');
+                self.close();
+            });
+            return false;
+        };
+
         $(document).ready(function() {
+
+            $('form').submit(function() {
+                  $(this).runScript();
+                  return false;
+              });
+
 
             $(".param").tooltip({
                 bodyHandler: function() {

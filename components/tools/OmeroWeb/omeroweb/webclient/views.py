@@ -40,6 +40,7 @@ import logging
 import traceback
 
 from time import time
+from datetime import datetime
 from thread import start_new_thread
 
 from omero_version import omero_version
@@ -1681,7 +1682,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         anns = toBoolean(request.REQUEST.get('anns'))
         try:
             handle = manager.deleteItem(child, anns)
-            request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
+            request.session['callback'][str(handle)] = {'job_type': 'delete', 'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'in progress',
+                'derror':handle.errors(), 'dreport':_formatReport(handle), 'start_time': datetime.now()}
             request.session.modified = True            
         except Exception, x:
             logger.error('Failed to delete: %r' % {'did':o_id, 'dtype':o_type}, exc_info=True)
@@ -1698,10 +1700,15 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             for key,ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
                     handle = manager.deleteObjects(key, ids, child, anns)
+                    dMap = {'job_type': 'delete', 'start_time': datetime.now(),'dstatus':'in progress', 'derrors':handle.errors(),
+                        'dreport':_formatReport(handle), 'dtype':key}
                     if len(ids) > 1:
-                        request.session['callback'][str(handle)] = {'delmany':len(ids), 'did':ids, 'dtype':key, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
+                        dMap['delmany'] = len(ids)
+                        dMap['did'] = ids
                     else:
-                        request.session['callback'][str(handle)] = {'delmany':False, 'did':ids[0], 'dtype':key, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
+                        dMap['delmany'] = False
+                        dMap['did'] = ids[0]
+                    request.session['callback'][str(handle)] = dMap
             request.session.modified = True
         except Exception, x:
             logger.error('Failed to delete: %r' % {'did':ids, 'dtype':key}, exc_info=True)
@@ -2284,7 +2291,7 @@ def progress(request, **kwargs):
                         in_progress+=1
                 else:
                     err = handle.errors()
-                    request.session['callback'][cbString]['derror'] = err
+                    request.session['callback'][cbString]['error'] = err
                     if err > 0:
                         request.session['callback'][cbString]['dstatus'] = "failed"
                         request.session['callback'][cbString]['dreport'] = _formatReport(handle)
@@ -2309,8 +2316,108 @@ def progress(request, **kwargs):
     rv = {'inprogress':in_progress, 'failure':failure, 'jobs':len(request.session['callback'])}
     return HttpResponse(simplejson.dumps(rv),mimetype='application/json')
 
+
+######################
+# refresh callbacks (delete, scripts etc) and provide json to update Activities window
 @isUserConnected
-def status_action (request, action=None, **kwargs):
+def activities_status(request, **kwargs):
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    _purgeCallback(request)
+
+    rv = {}
+    # test each callback for failure, errors, completion, results etc
+    for cbString in request.session.get('callback').keys():
+        job_type = request.session['callback'][cbString]['job_type']
+
+        # update delete
+        if job_type == 'delete':
+            dstatus = request.session['callback'][cbString]['dstatus']
+            if dstatus == "failed":
+                failure+=1
+            elif dstatus != "failed" or dstatus != "finished":
+                try:
+                    handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                    cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
+                    if cb.block(500) is None: # ms.
+                        err = handle.errors()
+                        request.session['callback'][cbString]['derror'] = err
+                        if err > 0:
+                            logger.error("Status job '%s'error:" % cbString)
+                            logger.error(err)
+                            request.session['callback'][cbString]['dstatus'] = "failed"
+                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                            #failure+=1
+                        else:
+                            request.session['callback'][cbString]['dstatus'] = "in progress"
+                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                            #in_progress+=1
+                    else:
+                        err = handle.errors()
+                        request.session['callback'][cbString]['error'] = err
+                        if err > 0:
+                            request.session['callback'][cbString]['dstatus'] = "failed"
+                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                            #failure+=1
+                        else:
+                            request.session['callback'][cbString]['dstatus'] = "finished"
+                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                            cb.close()
+                except Ice.ObjectNotExistException:
+                    request.session['callback'][cbString]['derror'] = 0
+                    request.session['callback'][cbString]['dstatus'] = "finished"
+                    request.session['callback'][cbString]['dreport'] = None
+                except Exception, x:
+                    logger.error(traceback.format_exc())
+                    logger.error("Status job '%s'error:" % cbString)
+                    request.session['callback'][cbString]['derror'] = 1
+                    request.session['callback'][cbString]['dstatus'] = "failed"
+                    request.session['callback'][cbString]['dreport'] = str(x)
+                    #failure+=1
+                request.session.modified = True
+            rv[cbString] = request.session['callback'][cbString]
+            rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
+
+        # update scripts
+        elif job_type == 'script':
+            if request.session['callback'][cbString]['status'] != "finished":
+                logger.info("Check callback on script: %s" % cbString)
+                proc = omero.grid.ScriptProcessPrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                cb = omero.scripts.ProcessCallbackI(conn.c, proc)
+                if cb.block(100): # ms.
+                    cb.close()
+                    results = proc.getResults(0)
+                    request.session['callback'][cbString]['status'] = "finished"
+                    print "\nresults:"
+                    # value could be rstring, rlong, robject
+                    for key, value in results.items():
+                        v = value.getValue()
+                        if hasattr(v, "id"):    # do we have an object (ImageI, FileAnnotationI etc)
+                            if key in ('stderr', 'stdout'):
+                                v = v.id.val
+                            else:
+                                v = {'id': v.id.val, 'type': str(type(v))}
+                        #else:
+                        #    v = value.getValue()
+                        print key, v
+                        request.session['callback'][cbString][key] = v
+                    request.session.modified = True
+
+            rv[cbString] = request.session['callback'][cbString]
+            rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
+
+        print "\nactivities status:"
+        print rv
+    return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript') # json
+
+
+@isUserConnected
+def status_action2 (request, action=None, **kwargs):
     request.session.modified = True
     
     request.session['nav']['menu'] = 'status'
@@ -2334,6 +2441,44 @@ def status_action (request, action=None, **kwargs):
     form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
         
     context = {'nav':request.session['nav'], 'eContext':controller.eContext, 'sizeOfJobs':len(request.session['callback']), 'jobs':request.session['callback'], 'form_active_group':form_active_group }
+
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
+
+
+@isUserConnected
+def status_action (request, action=None, **kwargs):
+    request.session.modified = True
+
+    request.session['nav']['menu'] = 'status'
+
+    if action == "clean":
+        request.session['callback'] = dict()
+        return HttpResponseRedirect(reverse("status"))
+
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    template = "webclient/status/statusWindow.html"
+
+    _purgeCallback(request)
+
+    jobs = []
+    for key, data in request.session['callback'].items():
+        print "data", data
+        data['id'] = key
+        jobs.append(data)
+
+    jobs.sort(key=lambda x:x['start_time'])
+    context = {'sizeOfJobs':len(request.session['callback']), 'jobs':jobs }
+
+    print context
 
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -2765,7 +2910,7 @@ def script_run(request, scriptId, **kwargs):
                     # print "Invalid entry for '%s' : %s" % (key, value)
                     continue
 
-    proc = scriptService.runScript(sId, inputMap, None)
+    handle = scriptService.runScript(sId, inputMap, None)
 
     # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154
     #request.session.modified = True     # allows us to modify session...
@@ -2774,7 +2919,14 @@ def script_run(request, scriptId, **kwargs):
     #    i += 1
     #key = str(i)
     #request.session['processors'][key] = str(proc)
-    jobId = str(proc)
+    jobId = str(handle)
+
+    request.session['callback'][jobId] = {
+        'job_type': "script",
+        'job_name':'Running %s' % scriptName,
+        'start_time': datetime.now(),
+        'status':'in progress'}
+    request.session.modified = True
 
     # make a list of the input values for display on the 'running' page
     displayMap = []

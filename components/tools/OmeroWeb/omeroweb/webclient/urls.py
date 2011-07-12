@@ -52,8 +52,10 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^basket/update/$', views.update_basket, name="update_basket"),
     url( r'^basket/(?:(?P<action>[a-zA-Z]+)/)?$', views.basket_action, name="basket_action"),
     
+    # update, display processes, E.g. delete queues, scripts etc.
     url( r'^progress/', views.progress, name="progress"),
     url( r'^status/(?:(?P<action>[a-zA-Z]+)/)?$', views.status_action, name="status"),
+    url( r'^activities_status/', views.activities_status, name="activities_status"),
     
     # loading data    
     url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|image|screen|plate|well|orphaned))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    
