@@ -1,0 +1,131 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+<html>
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+<head>
+    <title>Activities</title>
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            var i = setInterval(function (){
+                $(".script").each(function() {
+
+                    var $scriptRow = $(this);
+                    var status = $scriptRow.children(".status").text();
+                    if (status == "in progress") {
+                        var jobId = $scriptRow.children(".jobId").text();
+                        $.ajax({
+                            type: "POST",
+                            url: "{% url activities_status %}",
+                            //data: {'jobId':jobId},
+                            contentType:'json',
+                            success: function(result){
+                                alert('OK');
+                            },
+                            error: function(response) {
+                                alert("Internal server error. Cannot remove object.");
+                            }
+                        });
+                    }
+                });
+            }, 3000);
+
+        });
+    </script>
+</head>
+
+<body style="margin:0px; padding:0px; font-family:arial">
+
+<div id="content_details">
+    {% if sizeOfJobs %}
+
+        <div id="toolbar" style="background:#ddd; padding: 4px">
+            <input style="float:right" class="button" type="submit" value="Clear List" alt="Clean" title="Clean" onclick="document.location.href='{% url status "clean" %}';">
+            <div style="clear:both"> </div>
+        </div>
+
+        <table id="dataTable" class="tablesorter" bgcolor="#99f" cellpadding="4" cellspacing="1" border=0>
+
+            <tbody>
+                {% for j in jobs %}
+
+                    {% ifequal j.job_type "delete" %}
+                        <tr>
+                            <td> job </td>
+                            <td class="action" bgcolor="#fff">
+                                {% if j.delmany %}
+                                    <h4>Delete {{ j.delmany }} {{ j.dtype }}(s):</h4>
+                                    {% for iid in j.did %}
+                                        {% ifequal j.dstatus "failed" %}
+                                            <a onclick="loadMetadata('{% url load_metadata_details j.dtype iid %}');">{{ j.dtype }} {{ iid }}</a>,
+                                        {% else %}
+                                            {{ j.dtype }} {{ iid }},
+                                        {% endifequal %}
+                                    {% endfor %}
+                                {% else %}
+                                    <h4>Delete {{ j.dtype }}</h4>
+                                    {% ifequal j.dstatus "failed" %}
+                                        <a onclick="loadMetadata('{% url load_metadata_details j.dtype j.did %}');">{{ j.dtype }} {{ j.did }}</a>
+                                    {% else %}
+                                        {{ j.dtype }} {{ j.did }}
+                                    {% endifequal %}
+                                {% endif %}
+
+                            </td>
+                            <td bgcolor="#fff" class="action">
+                                    {{ j.dstatus|capfirst }}
+                                    {% ifequal j.dstatus "in progress" %}<img src="{% url webstatic "images/spinner.gif" %}"/>{% endifequal %}
+                                    {% if j.dreport %}{{ j.derror }} error(s) ({{ j.dreport }}){% endif %}
+                            </td>
+                            <td bgcolor="#fff">{{ j.start_time|date:"H:i:s" }}</td>
+                        </tr>
+                    {% endifequal %}
+
+
+                    <!-- Scripts -->
+                    {% ifequal j.job_type "script" %}
+                        <tr class="script">
+                            <td bgcolor="#fff">
+                                <h4>{{ j.job_name }}</h4>
+                                <div class="jobId">{{ j.id }}</div>
+                            </td>
+                            <td bgcolor="#fff" class="status">{{ j.status }}</td>
+                            <td bgcolor="#fff">{{ j.start_time|date:"H:i:s" }}</td>
+                        </tr>
+                    {% endifequal %}
+                {% endfor %}
+            </tbody>
+        </table>
+
+        </div>
+
+
+    {% else %}
+        <p>{% trans "There are no jobs" %}</p>
+    {% endif %}
+</div>
+
+</body>
+</html>
