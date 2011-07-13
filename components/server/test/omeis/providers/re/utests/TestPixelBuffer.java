@@ -295,6 +295,13 @@ public class TestPixelBuffer implements PixelBuffer {
 		return null;
 	}
 
+    public Integer getHypercubeSize(List<Integer> arg0, List<Integer> arg1,
+            List<Integer> arg2) throws DimensionsOutOfBoundsException
+    {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
     public PixelData getHypercube(List<Integer> arg0, List<Integer> arg1, 
             List<Integer> arg2) throws IOException, DimensionsOutOfBoundsException 
     {
