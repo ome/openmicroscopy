@@ -54,7 +54,7 @@
 
             $(".param").tooltip({
                 bodyHandler: function() {
-                        return $(this).children(".description").html();
+                        return $(this).find(".description").html();
                     },
                 track: true,
                 delay: 1000,
@@ -64,7 +64,7 @@
                 top: 10,
                 left: 10
             });
-            $(".param").children(".description").hide(); // hide tool tip source
+            $(".param").find(".description").hide(); // hide tool tip source
 
         });
     </script>
@@ -92,7 +92,7 @@
         <p>{{ paramData.description|linebreaks }}</p>
 
         {% for i in paramData.inputs %}
-            <div class="param{% if i.required %} required{% endif %}{% if i.children %} parent{% endif %}">
+            <div class="{% if i.required %}required{% endif %}{% if i.children %} parent{% endif %}">
 
             {% include "webclient/scripts/include_param.html" %}
 

@@ -56,6 +56,7 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^progress/', views.progress, name="progress"),
     url( r'^status/(?:(?P<action>[a-zA-Z]+)/)?$', views.status_action, name="status"),
     url( r'^activities_status/', views.activities_status, name="activities_status"),
+    url( r'^original_file_text/(?:(?P<fileId>[0-9]+)/)?$', views.original_file_text, name="original_file_text"),
     
     # loading data    
     url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|image|screen|plate|well|orphaned))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    

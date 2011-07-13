@@ -28,6 +28,7 @@ or a redirect, or the 404 and 500 error, or an XML document, or an image...
 or anything.'''
 
 import sys
+import copy
 import re
 import os
 import calendar
@@ -1682,9 +1683,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         anns = toBoolean(request.REQUEST.get('anns'))
         try:
             handle = manager.deleteItem(child, anns)
-            request.session['callback'][str(handle)] = {'job_type': 'delete', 'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'in progress',
+            request.session['callback'][str(handle)] = {'job_type': 'delete', 'delmany':False,'did':o_id, 'dtype':o_type, 'status':'in progress',
                 'derror':handle.errors(), 'dreport':_formatReport(handle), 'start_time': datetime.now()}
-            request.session.modified = True            
+            request.session.modified = True
         except Exception, x:
             logger.error('Failed to delete: %r' % {'did':o_id, 'dtype':o_type}, exc_info=True)
             rdict = {'bad':'true','errs': str(x) }
@@ -1700,7 +1701,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             for key,ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
                     handle = manager.deleteObjects(key, ids, child, anns)
-                    dMap = {'job_type': 'delete', 'start_time': datetime.now(),'dstatus':'in progress', 'derrors':handle.errors(),
+                    dMap = {'job_type': 'delete', 'start_time': datetime.now(),'status':'in progress', 'derrors':handle.errors(),
                         'dreport':_formatReport(handle), 'dtype':key}
                     if len(ids) > 1:
                         dMap['delmany'] = len(ids)
@@ -1722,6 +1723,23 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
+
+@isUserConnected
+def original_file_text(request, fileId, **kwargs):
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    orig_file = conn.getObject("OriginalFile", fileId)
+    print "orig_file", orig_file
+    chunks = [str(piece) for piece in orig_file.getFileInChunks()]
+    text = "".join(chunks)
+
+    return render_to_response("webclient/scripts/original_file_text.html", {'text': text, 'orig_file':orig_file })
+
 
 @isUserConnected
 def download_annotation(request, action, iid, **kwargs):
@@ -2269,10 +2287,14 @@ def progress(request, **kwargs):
     _purgeCallback(request)
     
     for cbString in request.session.get('callback').keys():
-        dstatus = request.session['callback'][cbString]['dstatus']
-        if dstatus == "failed":
+        print "\nprogress"
+        print request.session['callback'][cbString]['job_type']
+        if request.session['callback'][cbString]['job_type'] is not "delete":
+            continue
+        status = request.session['callback'][cbString]['status']
+        if status == "failed":
             failure+=1
-        elif dstatus != "failed" or dstatus != "finished":
+        elif status != "failed" or status != "finished":
             try:
                 handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                 cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
@@ -2282,33 +2304,33 @@ def progress(request, **kwargs):
                     if err > 0:
                         logger.error("Status job '%s'error:" % cbString)
                         logger.error(err)
-                        request.session['callback'][cbString]['dstatus'] = "failed"
+                        request.session['callback'][cbString]['status'] = "failed"
                         request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                         failure+=1
                     else:
-                        request.session['callback'][cbString]['dstatus'] = "in progress"
+                        request.session['callback'][cbString]['status'] = "in progress"
                         request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                         in_progress+=1
                 else:
                     err = handle.errors()
                     request.session['callback'][cbString]['error'] = err
                     if err > 0:
-                        request.session['callback'][cbString]['dstatus'] = "failed"
+                        request.session['callback'][cbString]['status'] = "failed"
                         request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                         failure+=1
                     else:
-                        request.session['callback'][cbString]['dstatus'] = "finished"
+                        request.session['callback'][cbString]['status'] = "finished"
                         request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                         cb.close()
             except Ice.ObjectNotExistException:
                 request.session['callback'][cbString]['derror'] = 0
-                request.session['callback'][cbString]['dstatus'] = "finished"
+                request.session['callback'][cbString]['status'] = "finished"
                 request.session['callback'][cbString]['dreport'] = None
             except Exception, x:
                 logger.error(traceback.format_exc())
                 logger.error("Status job '%s'error:" % cbString)
                 request.session['callback'][cbString]['derror'] = 1
-                request.session['callback'][cbString]['dstatus'] = "failed"
+                request.session['callback'][cbString]['status'] = "failed"
                 request.session['callback'][cbString]['dreport'] = str(x)
                 failure+=1
             request.session.modified = True        
@@ -2337,10 +2359,10 @@ def activities_status(request, **kwargs):
 
         # update delete
         if job_type == 'delete':
-            dstatus = request.session['callback'][cbString]['dstatus']
-            if dstatus == "failed":
+            status = request.session['callback'][cbString]['status']
+            if status == "failed":
                 failure+=1
-            elif dstatus != "failed" or dstatus != "finished":
+            elif status != "failed" or status != "finished":
                 try:
                     handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                     cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
@@ -2350,37 +2372,38 @@ def activities_status(request, **kwargs):
                         if err > 0:
                             logger.error("Status job '%s'error:" % cbString)
                             logger.error(err)
-                            request.session['callback'][cbString]['dstatus'] = "failed"
+                            request.session['callback'][cbString]['status'] = "failed"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                             #failure+=1
                         else:
-                            request.session['callback'][cbString]['dstatus'] = "in progress"
+                            request.session['callback'][cbString]['status'] = "in progress"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                             #in_progress+=1
                     else:
                         err = handle.errors()
                         request.session['callback'][cbString]['error'] = err
                         if err > 0:
-                            request.session['callback'][cbString]['dstatus'] = "failed"
+                            request.session['callback'][cbString]['status'] = "failed"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                             #failure+=1
                         else:
-                            request.session['callback'][cbString]['dstatus'] = "finished"
+                            request.session['callback'][cbString]['status'] = "finished"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                             cb.close()
                 except Ice.ObjectNotExistException:
                     request.session['callback'][cbString]['derror'] = 0
-                    request.session['callback'][cbString]['dstatus'] = "finished"
+                    request.session['callback'][cbString]['status'] = "finished"
                     request.session['callback'][cbString]['dreport'] = None
                 except Exception, x:
                     logger.error(traceback.format_exc())
                     logger.error("Status job '%s'error:" % cbString)
                     request.session['callback'][cbString]['derror'] = 1
-                    request.session['callback'][cbString]['dstatus'] = "failed"
+                    request.session['callback'][cbString]['status'] = "failed"
                     request.session['callback'][cbString]['dreport'] = str(x)
                     #failure+=1
                 request.session.modified = True
-            rv[cbString] = request.session['callback'][cbString]
+            # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
+            rv[cbString] = copy.copy(request.session['callback'][cbString])
             rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
 
         # update scripts
@@ -2391,24 +2414,30 @@ def activities_status(request, **kwargs):
                 cb = omero.scripts.ProcessCallbackI(conn.c, proc)
                 if cb.block(100): # ms.
                     cb.close()
-                    results = proc.getResults(0)
-                    request.session['callback'][cbString]['status'] = "finished"
-                    print "\nresults:"
+                    try:
+                        results = proc.getResults(0)
+                        request.session['callback'][cbString]['status'] = "finished"
+                    except Exception, x:
+                        # seem to get this failure if delete job is run after script.
+                        logger.error(traceback.format_exc())
+                        continue
                     # value could be rstring, rlong, robject
+                    rMap = {}
                     for key, value in results.items():
                         v = value.getValue()
-                        if hasattr(v, "id"):    # do we have an object (ImageI, FileAnnotationI etc)
+                        if key in ("stdout", "stderr", "Message"):
                             if key in ('stderr', 'stdout'):
-                                v = v.id.val
-                            else:
-                                v = {'id': v.id.val, 'type': str(type(v))}
-                        #else:
-                        #    v = value.getValue()
-                        print key, v
-                        request.session['callback'][cbString][key] = v
+                                v = v.id.val    # just save the id of original file
+                            request.session['callback'][cbString][key] = v
+                        else:
+                            if hasattr(v, "id"):    # do we have an object (ImageI, FileAnnotationI etc)
+                                v = {'id': v.id.val, 'type': v.__class__.__name__}
+                            rMap[key] = v
+                    request.session['callback'][cbString]['results'] = rMap
                     request.session.modified = True
 
-            rv[cbString] = request.session['callback'][cbString]
+            # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
+            rv[cbString] = copy.copy(request.session['callback'][cbString])
             rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
 
         print "\nactivities status:"
@@ -2471,11 +2500,13 @@ def status_action (request, action=None, **kwargs):
 
     jobs = []
     for key, data in request.session['callback'].items():
-        print "data", data
-        data['id'] = key
+        # E.g. key: ProcessCallback/39f77932-c447-40d8-8f99-910b5a531a25 -t:tcp -h 10.211.55.2 -p 54727:tcp -h 10.37.129.2 -p 54727:tcp -h 10.12.2.21 -p 54727
+        # create id we can use as html id, E.g. 39f77932-c447-40d8-8f99-910b5a531a25
+        data['id'] =  key.split(" ")[0].split("/")[1]
         jobs.append(data)
 
     jobs.sort(key=lambda x:x['start_time'])
+    print "jobs", jobs
     context = {'sizeOfJobs':len(request.session['callback']), 'jobs':jobs }
 
     print context
@@ -2775,6 +2806,7 @@ def list_scripts (request, **kwargs):
     for path, sData in scriptMenu.items():
         sData['path'] = path    # sData map has 'name', 'path', 'scripts'
         scriptList.append(sData)
+    scriptList.sort(key=lambda x:x['name'])
 
     return render_to_response("webclient/scripts/list_scripts.html", {'scriptMenu': scriptList})
 
@@ -2867,7 +2899,7 @@ def script_run(request, scriptId, **kwargs):
     sId = long(scriptId)
 
     params = scriptService.getParams(sId)
-    scriptName = params.name.replace("_", " ")
+    scriptName = params.name.replace("_", " ").replace(".py", "")
 
     for key, param in params.inputs.items():
         if key in request.POST:
@@ -2923,7 +2955,7 @@ def script_run(request, scriptId, **kwargs):
 
     request.session['callback'][jobId] = {
         'job_type': "script",
-        'job_name':'Running %s' % scriptName,
+        'job_name': scriptName,
         'start_time': datetime.now(),
         'status':'in progress'}
     request.session.modified = True
