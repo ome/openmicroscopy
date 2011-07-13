@@ -124,21 +124,28 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
         throw new NullPointerException("In memory planar buffers have no path.");
     }
 
-    public PixelData getHypercube(List<Integer> offset, List<Integer> size, 
-            List<Integer> step) throws IOException, DimensionsOutOfBoundsException 
+    public Integer getHypercubeSize(List<Integer> offset, List<Integer> size,
+            List<Integer> step) throws DimensionsOutOfBoundsException
     {
         throw new UnsupportedOperationException(
             "Not supported with in memory planar buffers.");
-	}
+    }
                 
-    public byte[] getHypercubeDirect(List<Integer> offset, List<Integer> size, 
-            List<Integer> step, byte[] buffer) 
-            throws IOException, DimensionsOutOfBoundsException 
+    public PixelData getHypercube(List<Integer> offset, List<Integer> size,
+            List<Integer> step) throws IOException, DimensionsOutOfBoundsException
     {
         throw new UnsupportedOperationException(
             "Not supported with in memory planar buffers.");
-	}
-                
+    }
+
+    public byte[] getHypercubeDirect(List<Integer> offset, List<Integer> size,
+            List<Integer> step, byte[] buffer)
+            throws IOException, DimensionsOutOfBoundsException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
     public PixelData getPlane(Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException
     {
