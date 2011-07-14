@@ -51,8 +51,7 @@
         {% endifnotequal %}
         {% ifnotequal nav.menu "status" %}
         <div id="queue">
-            <a href="#" onClick="popupActivites('{% url status %}');">Activities</a>
-            <a href="{% url status %}" class="align_left">STATUS:</a>
+            <a href="#" onClick="popupActivites('{% url status %}');" class="align_left">STATUS:</a>
             <div id="jobstatus">0 job(s)</div>
             <img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none;"/>
         </div>

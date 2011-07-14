@@ -32,6 +32,9 @@
 
         var update_ui = function(data) {
             for (var cbString in data) {
+                if ((cbString == "in_progress") || (cbString == "failure") || (cbString == "jobs")) {
+                    continue;   // ignore extra json data that is not callbacks
+                }
                 cbMap = data[cbString];
                 // only update jobs that were "in progress" (don't edit others that were already done)
                 var $jobRow = $("#"+cbMap['id']);
@@ -97,7 +100,7 @@
 
             // make an AJAX call to update all 'in progress' callbacks in the web session and return current status
             var i = setInterval(function (){
-                $.getJSON("{% url activities_status %}", function(data) {
+                $.getJSON("{% url progress %}", function(data) {
                     var in_progress = 0;
                     for (var cbString in data) {
                         cbMap = data[cbString];

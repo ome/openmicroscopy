@@ -1734,7 +1734,6 @@ def original_file_text(request, fileId, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     orig_file = conn.getObject("OriginalFile", fileId)
-    print "orig_file", orig_file
     chunks = [str(piece) for piece in orig_file.getFileInChunks()]
     text = "".join(chunks)
 
@@ -2270,79 +2269,16 @@ def load_history(request, year, month, day, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-########################################
-# Progressbar
-
-@isUserConnected
-def progress(request, **kwargs):
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    in_progress = 0
-    failure = 0
-    _purgeCallback(request)
-    
-    for cbString in request.session.get('callback').keys():
-        print "\nprogress"
-        print request.session['callback'][cbString]['job_type']
-        if request.session['callback'][cbString]['job_type'] is not "delete":
-            continue
-        status = request.session['callback'][cbString]['status']
-        if status == "failed":
-            failure+=1
-        elif status != "failed" or status != "finished":
-            try:
-                handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
-                cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
-                if cb.block(500) is None: # ms.
-                    err = handle.errors()
-                    request.session['callback'][cbString]['derror'] = err
-                    if err > 0:
-                        logger.error("Status job '%s'error:" % cbString)
-                        logger.error(err)
-                        request.session['callback'][cbString]['status'] = "failed"
-                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                        failure+=1
-                    else:
-                        request.session['callback'][cbString]['status'] = "in progress"
-                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                        in_progress+=1
-                else:
-                    err = handle.errors()
-                    request.session['callback'][cbString]['error'] = err
-                    if err > 0:
-                        request.session['callback'][cbString]['status'] = "failed"
-                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                        failure+=1
-                    else:
-                        request.session['callback'][cbString]['status'] = "finished"
-                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                        cb.close()
-            except Ice.ObjectNotExistException:
-                request.session['callback'][cbString]['derror'] = 0
-                request.session['callback'][cbString]['status'] = "finished"
-                request.session['callback'][cbString]['dreport'] = None
-            except Exception, x:
-                logger.error(traceback.format_exc())
-                logger.error("Status job '%s'error:" % cbString)
-                request.session['callback'][cbString]['derror'] = 1
-                request.session['callback'][cbString]['status'] = "failed"
-                request.session['callback'][cbString]['dreport'] = str(x)
-                failure+=1
-            request.session.modified = True        
-        
-    rv = {'inprogress':in_progress, 'failure':failure, 'jobs':len(request.session['callback'])}
-    return HttpResponse(simplejson.dumps(rv),mimetype='application/json')
-
 
 ######################
-# refresh callbacks (delete, scripts etc) and provide json to update Activities window
+# Activities window & Progressbar
 @isUserConnected
-def activities_status(request, **kwargs):
+def progress(request, **kwargs):
+    """
+    Refresh callbacks (delete, scripts etc) and provide json to update Activities window & Progressbar.
+    The returned json contains details for ALL callbacks in web session, regardless of their status.
+    We also add counts of jobs, failures and 'in progress' to update status bar.
+    """
     conn = None
     try:
         conn = kwargs["conn"]
@@ -2350,6 +2286,8 @@ def activities_status(request, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
 
+    in_progress = 0
+    failure = 0
     _purgeCallback(request)
 
     rv = {}
@@ -2357,16 +2295,17 @@ def activities_status(request, **kwargs):
     for cbString in request.session.get('callback').keys():
         job_type = request.session['callback'][cbString]['job_type']
 
+        status = request.session['callback'][cbString]['status']
+        if status == "failed":
+            failure+=1
+
         # update delete
         if job_type == 'delete':
-            status = request.session['callback'][cbString]['status']
-            if status == "failed":
-                failure+=1
-            elif status != "failed" or status != "finished":
+            if status != "failed" or status != "finished":
                 try:
                     handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                     cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
-                    if cb.block(500) is None: # ms.
+                    if cb.block(0) is None: # ms #500
                         err = handle.errors()
                         request.session['callback'][cbString]['derror'] = err
                         if err > 0:
@@ -2374,18 +2313,18 @@ def activities_status(request, **kwargs):
                             logger.error(err)
                             request.session['callback'][cbString]['status'] = "failed"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                            #failure+=1
+                            failure+=1
                         else:
                             request.session['callback'][cbString]['status'] = "in progress"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                            #in_progress+=1
+                            in_progress+=1
                     else:
                         err = handle.errors()
-                        request.session['callback'][cbString]['error'] = err
+                        request.session['callback'][cbString]['derror'] = err
                         if err > 0:
                             request.session['callback'][cbString]['status'] = "failed"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                            #failure+=1
+                            failure+=1
                         else:
                             request.session['callback'][cbString]['status'] = "finished"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
@@ -2400,7 +2339,7 @@ def activities_status(request, **kwargs):
                     request.session['callback'][cbString]['derror'] = 1
                     request.session['callback'][cbString]['status'] = "failed"
                     request.session['callback'][cbString]['dreport'] = str(x)
-                    #failure+=1
+                    failure+=1
                 request.session.modified = True
             # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
             rv[cbString] = copy.copy(request.session['callback'][cbString])
@@ -2408,11 +2347,11 @@ def activities_status(request, **kwargs):
 
         # update scripts
         elif job_type == 'script':
-            if request.session['callback'][cbString]['status'] != "finished":
+            if status != "failed" or status != "finished":
                 logger.info("Check callback on script: %s" % cbString)
                 proc = omero.grid.ScriptProcessPrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                 cb = omero.scripts.ProcessCallbackI(conn.c, proc)
-                if cb.block(100): # ms.
+                if cb.block(0): # ms.
                     cb.close()
                     try:
                         results = proc.getResults(0)
@@ -2440,41 +2379,11 @@ def activities_status(request, **kwargs):
             rv[cbString] = copy.copy(request.session['callback'][cbString])
             rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
 
-        print "\nactivities status:"
-        print rv
+    rv['inprogress'] = in_progress
+    rv['failure'] = failure
+    rv['jobs'] = len(request.session['callback'])
+
     return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript') # json
-
-
-@isUserConnected
-def status_action2 (request, action=None, **kwargs):
-    request.session.modified = True
-    
-    request.session['nav']['menu'] = 'status'
-    
-    if action == "clean":
-        request.session['callback'] = dict()
-        return HttpResponseRedirect(reverse("status"))
-        
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    template = "webclient/status/status.html"
-
-    _purgeCallback(request)
-            
-    controller = BaseController(conn)    
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
-        
-    context = {'nav':request.session['nav'], 'eContext':controller.eContext, 'sizeOfJobs':len(request.session['callback']), 'jobs':request.session['callback'], 'form_active_group':form_active_group }
-
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
 
 
 @isUserConnected
@@ -2506,10 +2415,7 @@ def status_action (request, action=None, **kwargs):
         jobs.append(data)
 
     jobs.sort(key=lambda x:x['start_time'])
-    print "jobs", jobs
     context = {'sizeOfJobs':len(request.session['callback']), 'jobs':jobs }
-
-    print context
 
     t = template_loader.get_template(template)
     c = Context(request,context)
