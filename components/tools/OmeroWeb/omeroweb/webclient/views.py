@@ -2848,33 +2848,21 @@ def script_run(request, scriptId, **kwargs):
                     # print "Invalid entry for '%s' : %s" % (key, value)
                     continue
 
-    handle = scriptService.runScript(sId, inputMap, None)
+    try:
+        handle = scriptService.runScript(sId, inputMap, None)
+        # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154
+        jobId = str(handle)
+        request.session['callback'][jobId] = {
+            'job_type': "script",
+            'job_name': scriptName,
+            'start_time': datetime.now(),
+            'status':'in progress'}
+        request.session.modified = True
+    except Exception, x:
+        logger.error(traceback.format_exc())
+        return HttpResponse(simplejson.dumps({'error': traceback.format_exc()}), mimetype='json')
 
-    # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154
-    #request.session.modified = True     # allows us to modify session...
-    #i = 0
-    #while str(i) in request.session['processors']:
-    #    i += 1
-    #key = str(i)
-    #request.session['processors'][key] = str(proc)
-    jobId = str(handle)
-
-    request.session['callback'][jobId] = {
-        'job_type': "script",
-        'job_name': scriptName,
-        'start_time': datetime.now(),
-        'status':'in progress'}
-    request.session.modified = True
-
-    # make a list of the input values for display on the 'running' page
-    displayMap = []
-    for key, val in inputMap.items():
-        grouping = params.inputs[key].grouping
-        displayMap.append({'key':key, 'grouping':grouping, 'value':unwrap(val)})
-    displayMap.sort(key=lambda i: i["grouping"])
-
-    # TODO - return the input map, to display what the user entered.
-    return render_to_response('webclient/scripts/script_running.html', {'scriptName': scriptName, 'jobId': jobId, 'inputs': displayMap})
+    return HttpResponse(simplejson.dumps({'jobId': jobId, 'status':'in progress'}), mimetype='json')
 
 
 ####################################################################################

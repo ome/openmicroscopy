@@ -218,6 +218,7 @@
                 });
 
                 // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
+                // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
                 $("#scriptButton").click(function(e){
                     if ($("#scriptList li").length == 0){  // if none loaded yet...
                         var $scriptLink = $(this).hide();

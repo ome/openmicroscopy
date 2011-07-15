@@ -22,6 +22,13 @@
 -->
 {% endcomment %}
 
+{% comment %}
+<!--
+    This page displays a UI generated from parameters of an OMERO script.
+    On form submission, the 'Activities' window is opened to display currently running scripts.
+-->
+{% endcomment %}
+
 <head>
 
     <title>Run Script</title>
@@ -37,9 +44,27 @@
             var $form = $(this);
             var postData = $form.serialize();
             var actionUrl = $form.attr('action');
-            $.post(actionUrl, postData, function(data) {
-                popupActivites('{% url status %}');
-                self.close();
+            $.ajax({
+                type: "POST",
+                url: actionUrl,
+                data: postData,
+                contentType:'json',
+                success: function(data){
+                    if(data.status == 'in progress') {
+                        popupActivites('{% url status %}');
+                        self.close();
+                    }
+                    // exception in 'scriptService.runScript()' should be handled here
+                    if(data.error) {
+                        alert("Script failed to run");
+                        $form.hide();
+                        $("body").append("<p>"+ data.error +"</p>");
+                    }
+                },
+                error: function(data) {
+                    alert("Script failed to run");
+                    $form.hide(); // no message to display?
+                }
             });
             return false;
         };
