@@ -27,6 +27,7 @@
     <title>Activities</title>
 
     <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic 'javascript/popup.js' %}"></script>
 
     <script type="text/javascript">
 
@@ -54,12 +55,12 @@
                         }
                         if (cbMap["stderr"]) {
                             var err_url = $("#original_file_link").text().replace("0", cbMap["stderr"]);
-                            var errHtml = "<a href='"+ err_url + "'>Error</a>";
+                            var errHtml = "<a href='#' onClick=\"return openPopup('" + err_url + "');\">Error</a>";
                             $jobRow.find(".error").html(errHtml);
                         }
                         if (cbMap["stdout"]) {
                             var info_url = $("#original_file_link").text().replace("0", cbMap["stdout"]);
-                            var infoHtml = "<a href='"+ info_url + "'>Info</a>";
+                            var infoHtml = "<a href='#' onClick=\"return openPopup('" + info_url + "');\">Info</a>";
                             $jobRow.find(".info").html(infoHtml);
                         }
                         var resultsHtml = "";
@@ -72,7 +73,7 @@
                                 rHtml += "<a href='"+ dl_url +"'>Download</a>";
                             } else if (type == "ImageI"){
                                 var img_url = $("#full_viewer_link").text().replace("0", oid);
-                                rHtml += "<a href='"+ img_url +"'>View</a>";
+                                rHtml += "<a href='#' onClick=\"return openPopup('" + img_url + "');\">View</a>";
                             } else {
                                 rHtml += type + " ID: " + oid;
                             }
@@ -236,7 +237,7 @@
                                                     <a href="{% url download_annotation 'download' v.id %}">Download</a>
                                                 {% else %}
                                                     {% ifequal v.type "ImageI" %}
-                                                        <a href="{% url webgateway.views.full_viewer v.id %}">View</a>
+                                                        <a href="#" onClick="return openPopup('{% url webgateway.views.full_viewer v.id %}');">View</a>
                                                     {% else %}
                                                         {{ v.type }} ID: {{ v.id }}
                                                     {% endifequal %}
@@ -245,10 +246,10 @@
                                         {% endfor %}
                                     </td>
                                     <td class="error">
-                                        {% if j.stderr %}<a href="{% url original_file_text j.stderr %}">Error</a>{% endif %}
+                                        {% if j.stderr %}<a href="#" onClick="return openPopup('{% url original_file_text j.stderr %}');">Error</a>{% endif %}
                                     </td>
                                     <td class="info">
-                                        {% if j.stdout %}<a href="{% url original_file_text j.stdout %}">Info</a>{% endif %}
+                                        {% if j.stdout %}<a href="#" onClick="return openPopup('{% url original_file_text j.stdout %}');">Info</a>{% endif %}
                                     </td>
                                 </tr></table>
                             </td>
