@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% comment %}
+<!--
+    This page displays a UI generated from parameters of an OMERO script.
+    On form submission, the 'Activities' window is opened to display currently running scripts.
+-->
+{% endcomment %}
+
+<head>
+
+    <title>Run Script</title>
+
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+       <script type="text/javascript" src="{% url webstatic "javascript/popup.js" %}"></script>
+
+    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
+
+    <script type="text/javascript">
+        jQuery.fn.runScript = function() {
+            var $form = $(this);
+            var postData = $form.serialize();
+            var actionUrl = $form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: actionUrl,
+                data: postData,
+                contentType:'json',
+                success: function(data){
+                    if(data.status == 'in progress') {
+                        popupActivites('{% url status %}');
+                        self.close();
+                    }
+                    // exception in 'scriptService.runScript()' should be handled here
+                    if(data.error) {
+                        alert("Script failed to run");
+                        $form.hide();
+                        $("body").append("<p>"+ data.error +"</p>");
+                    }
+                },
+                error: function(data) {
+                    alert("Script failed to run");
+                    $form.hide(); // no message to display?
+                }
+            });
+            return false;
+        };
+
+        $(document).ready(function() {
+
+            $('form').submit(function() {
+                  $(this).runScript();
+                  return false;
+              });
+
+
+            $(".param").tooltip({
+                bodyHandler: function() {
+                        return $(this).find(".description").html();
+                    },
+                track: true,
+                delay: 1000,
+                showURL: false,
+                fixPNG: true,
+                showBody: " - ",
+                top: 10,
+                left: 10
+            });
+            $(".param").find(".description").hide(); // hide tool tip source
+
+        });
+    </script>
+
+    <style type="text/css">
+        div.param {
+            margin: 2px;
+            font-size: 90%;
+            font-family: Arial;
+        }
+        div.parent {
+            border: 1px solid gray;
+        }
+        input {
+            padding: 0px;
+            margin: 0px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <form method="post" action="{% url script_run paramData.id %}">
+        <h3 class="scriptName">{{ paramData.name }}</h3>
+        <p>{{ paramData.description|linebreaks }}</p>
+
+        {% for i in paramData.inputs %}
+            <div class="{% if i.required %}required{% endif %}{% if i.children %} parent{% endif %}">
+
+            {% include "webclient/scripts/include_param.html" %}
+
+            {% if i.children %}
+                <div style="margin-left: 20px">
+                    {% for i in i.children %}
+                        {% include "webclient/scripts/include_param.html" %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            </div>
+        {% endfor %}
+        <input type="submit" value="Run Script" />
+    </form>
+</body>
+
+</html>

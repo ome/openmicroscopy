@@ -28,6 +28,7 @@ or a redirect, or the 404 and 500 error, or an XML document, or an image...
 or anything.'''
 
 import sys
+import copy
 import re
 import os
 import calendar
@@ -40,10 +41,12 @@ import logging
 import traceback
 
 from time import time
+from datetime import datetime
 from thread import start_new_thread
 
 from omero_version import omero_version
 import omero, omero.scripts 
+from omero.rtypes import *
 
 from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
@@ -1680,8 +1683,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         anns = toBoolean(request.REQUEST.get('anns'))
         try:
             handle = manager.deleteItem(child, anns)
-            request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
-            request.session.modified = True            
+            request.session['callback'][str(handle)] = {'job_type': 'delete', 'delmany':False,'did':o_id, 'dtype':o_type, 'status':'in progress',
+                'derror':handle.errors(), 'dreport':_formatReport(handle), 'start_time': datetime.now()}
+            request.session.modified = True
         except Exception, x:
             logger.error('Failed to delete: %r' % {'did':o_id, 'dtype':o_type}, exc_info=True)
             rdict = {'bad':'true','errs': str(x) }
@@ -1697,10 +1701,15 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             for key,ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
                     handle = manager.deleteObjects(key, ids, child, anns)
+                    dMap = {'job_type': 'delete', 'start_time': datetime.now(),'status':'in progress', 'derrors':handle.errors(),
+                        'dreport':_formatReport(handle), 'dtype':key}
                     if len(ids) > 1:
-                        request.session['callback'][str(handle)] = {'delmany':len(ids), 'did':ids, 'dtype':key, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
+                        dMap['delmany'] = len(ids)
+                        dMap['did'] = ids
                     else:
-                        request.session['callback'][str(handle)] = {'delmany':False, 'did':ids[0], 'dtype':key, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
+                        dMap['delmany'] = False
+                        dMap['did'] = ids[0]
+                    request.session['callback'][str(handle)] = dMap
             request.session.modified = True
         except Exception, x:
             logger.error('Failed to delete: %r' % {'did':ids, 'dtype':key}, exc_info=True)
@@ -1714,6 +1723,22 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
+
+@isUserConnected
+def original_file_text(request, fileId, **kwargs):
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    orig_file = conn.getObject("OriginalFile", fileId)
+    chunks = [str(piece) for piece in orig_file.getFileInChunks()]
+    text = "".join(chunks)
+
+    return render_to_response("webclient/scripts/original_file_text.html", {'text': text, 'orig_file':orig_file })
+
 
 @isUserConnected
 def download_annotation(request, action, iid, **kwargs):
@@ -2244,95 +2269,153 @@ def load_history(request, year, month, day, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-########################################
-# Progressbar
 
+######################
+# Activities window & Progressbar
 @isUserConnected
 def progress(request, **kwargs):
+    """
+    Refresh callbacks (delete, scripts etc) and provide json to update Activities window & Progressbar.
+    The returned json contains details for ALL callbacks in web session, regardless of their status.
+    We also add counts of jobs, failures and 'in progress' to update status bar.
+    """
     conn = None
     try:
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
+
     in_progress = 0
     failure = 0
     _purgeCallback(request)
-    
+
+    rv = {}
+    # test each callback for failure, errors, completion, results etc
     for cbString in request.session.get('callback').keys():
-        dstatus = request.session['callback'][cbString]['dstatus']
-        if dstatus == "failed":
+        job_type = request.session['callback'][cbString]['job_type']
+
+        status = request.session['callback'][cbString]['status']
+        if status == "failed":
             failure+=1
-        elif dstatus != "failed" or dstatus != "finished":
-            try:
-                handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
-                cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
-                if cb.block(500) is None: # ms.
-                    err = handle.errors()
-                    request.session['callback'][cbString]['derror'] = err
-                    if err > 0:
-                        logger.error("Status job '%s'error:" % cbString)
-                        logger.error(err)
-                        request.session['callback'][cbString]['dstatus'] = "failed"
-                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                        failure+=1
+
+        # update delete
+        if job_type == 'delete':
+            if status != "failed" or status != "finished":
+                try:
+                    handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                    cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
+                    if cb.block(0) is None: # ms #500
+                        err = handle.errors()
+                        request.session['callback'][cbString]['derror'] = err
+                        if err > 0:
+                            logger.error("Status job '%s'error:" % cbString)
+                            logger.error(err)
+                            request.session['callback'][cbString]['status'] = "failed"
+                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                            failure+=1
+                        else:
+                            request.session['callback'][cbString]['status'] = "in progress"
+                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                            in_progress+=1
                     else:
-                        request.session['callback'][cbString]['dstatus'] = "in progress"
-                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                        in_progress+=1
-                else:
-                    err = handle.errors()
-                    request.session['callback'][cbString]['derror'] = err
-                    if err > 0:
-                        request.session['callback'][cbString]['dstatus'] = "failed"
-                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                        failure+=1
-                    else:
-                        request.session['callback'][cbString]['dstatus'] = "finished"
-                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                        cb.close()
-            except Ice.ObjectNotExistException:
-                request.session['callback'][cbString]['derror'] = 0
-                request.session['callback'][cbString]['dstatus'] = "finished"
-                request.session['callback'][cbString]['dreport'] = None
-            except Exception, x:
-                logger.error(traceback.format_exc())
-                logger.error("Status job '%s'error:" % cbString)
-                request.session['callback'][cbString]['derror'] = 1
-                request.session['callback'][cbString]['dstatus'] = "failed"
-                request.session['callback'][cbString]['dreport'] = str(x)
-                failure+=1
-            request.session.modified = True        
-        
-    rv = {'inprogress':in_progress, 'failure':failure, 'jobs':len(request.session['callback'])}
-    return HttpResponse(simplejson.dumps(rv),mimetype='application/json')
+                        err = handle.errors()
+                        request.session['callback'][cbString]['derror'] = err
+                        if err > 0:
+                            request.session['callback'][cbString]['status'] = "failed"
+                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                            failure+=1
+                        else:
+                            request.session['callback'][cbString]['status'] = "finished"
+                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                            cb.close()
+                except Ice.ObjectNotExistException:
+                    request.session['callback'][cbString]['derror'] = 0
+                    request.session['callback'][cbString]['status'] = "finished"
+                    request.session['callback'][cbString]['dreport'] = None
+                except Exception, x:
+                    logger.error(traceback.format_exc())
+                    logger.error("Status job '%s'error:" % cbString)
+                    request.session['callback'][cbString]['derror'] = 1
+                    request.session['callback'][cbString]['status'] = "failed"
+                    request.session['callback'][cbString]['dreport'] = str(x)
+                    failure+=1
+                request.session.modified = True
+            # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
+            rv[cbString] = copy.copy(request.session['callback'][cbString])
+            rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
+
+        # update scripts
+        elif job_type == 'script':
+            if status != "failed" or status != "finished":
+                logger.info("Check callback on script: %s" % cbString)
+                proc = omero.grid.ScriptProcessPrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                cb = omero.scripts.ProcessCallbackI(conn.c, proc)
+                if cb.block(0): # ms.
+                    cb.close()
+                    try:
+                        results = proc.getResults(0)
+                        request.session['callback'][cbString]['status'] = "finished"
+                    except Exception, x:
+                        # seem to get this failure if delete job is run after script.
+                        logger.error(traceback.format_exc())
+                        continue
+                    # value could be rstring, rlong, robject
+                    rMap = {}
+                    for key, value in results.items():
+                        v = value.getValue()
+                        if key in ("stdout", "stderr", "Message"):
+                            if key in ('stderr', 'stdout'):
+                                v = v.id.val    # just save the id of original file
+                            request.session['callback'][cbString][key] = v
+                        else:
+                            if hasattr(v, "id"):    # do we have an object (ImageI, FileAnnotationI etc)
+                                v = {'id': v.id.val, 'type': v.__class__.__name__}
+                            rMap[key] = v
+                    request.session['callback'][cbString]['results'] = rMap
+                    request.session.modified = True
+
+            # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
+            rv[cbString] = copy.copy(request.session['callback'][cbString])
+            rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
+
+    rv['inprogress'] = in_progress
+    rv['failure'] = failure
+    rv['jobs'] = len(request.session['callback'])
+
+    return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript') # json
+
 
 @isUserConnected
 def status_action (request, action=None, **kwargs):
     request.session.modified = True
-    
+
     request.session['nav']['menu'] = 'status'
-    
+
     if action == "clean":
         request.session['callback'] = dict()
         return HttpResponseRedirect(reverse("status"))
-        
+
     conn = None
     try:
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    template = "webclient/status/status.html"
+
+    template = "webclient/status/statusWindow.html"
 
     _purgeCallback(request)
-            
-    controller = BaseController(conn)    
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
-        
-    context = {'nav':request.session['nav'], 'eContext':controller.eContext, 'sizeOfJobs':len(request.session['callback']), 'jobs':request.session['callback'], 'form_active_group':form_active_group }
+
+    jobs = []
+    for key, data in request.session['callback'].items():
+        # E.g. key: ProcessCallback/39f77932-c447-40d8-8f99-910b5a531a25 -t:tcp -h 10.211.55.2 -p 54727:tcp -h 10.37.129.2 -p 54727:tcp -h 10.12.2.21 -p 54727
+        # create id we can use as html id, E.g. 39f77932-c447-40d8-8f99-910b5a531a25
+        data['id'] =  key.split(" ")[0].split("/")[1]
+        jobs.append(data)
+
+    jobs.sort(key=lambda x:x['start_time'])
+    context = {'sizeOfJobs':len(request.session['callback']), 'jobs':jobs }
 
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -2593,6 +2676,194 @@ def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
     img = conn.getObject("Image", iid)
 
     return webgateway_views.render_split_channel(request, iid, z, t, _conn=conn, **kwargs)
+
+
+# scripting service....
+@isUserConnected
+def list_scripts (request, **kwargs):
+    """ List the available scripts - Just officical scripts for now """
+
+    conn = kwargs['conn']
+
+    scriptService = conn.getScriptService()
+    scripts = scriptService.getScripts()
+
+    # group scripts into 'folders' (path), named by parent folder name
+    scriptMenu = {}
+    for s in scripts:
+        scriptId = s.id.val
+        path = s.path.val
+        name = s.name.val
+        displayName = name.replace("_", " ")
+
+        if path not in scriptMenu:
+            folder, name = os.path.split(path)
+            if len(name) == 0:      # path was /path/to/folderName/  - we want 'folderName'
+                folderName = os.path.basename(folder)
+            else:                   # path was /path/to/folderName  - we want 'folderName'
+                folderName = name
+            folderName = folderName.title().replace("_", " ")
+            scriptMenu[path] = {'name': folderName, 'scripts': []}
+
+        scriptMenu[path]['scripts'].append((scriptId, displayName))
+
+    # convert map into list
+    scriptList = []
+    for path, sData in scriptMenu.items():
+        sData['path'] = path    # sData map has 'name', 'path', 'scripts'
+        scriptList.append(sData)
+    scriptList.sort(key=lambda x:x['name'])
+
+    return render_to_response("webclient/scripts/list_scripts.html", {'scriptMenu': scriptList})
+
+@isUserConnected
+def script_ui(request, scriptId, **kwargs):
+    """
+    Generates an html form for the parameters of a defined script.
+    """
+
+    conn = kwargs['conn']
+    scriptService = conn.getScriptService()
+
+    params = scriptService.getParams(long(scriptId))
+    if params == None:
+        return HttpResponse()
+
+    paramData = {}
+
+    paramData["id"] = long(scriptId)
+    paramData["name"] = params.name.replace("_", " ")
+    paramData["description"] = params.description
+    paramData["authors"] = ", ".join([a for a in params.authors])
+    paramData["contact"] = params.contact
+    paramData["version"] = params.version
+    paramData["institutions"] = ", ".join([i for i in params.institutions])
+
+    inputs = []     # use a list so we can sort by 'grouping'
+    for key, param in params.inputs.items():
+        i = {}
+        i["name"] = key.replace("_", " ")
+        i["key"] = key
+        if not param.optional:
+            i["required"] = True
+        i["description"] = param.description
+        if param.min:
+            i["min"] = param.min.getValue()
+        if param.max:
+            i["max"] = param.max.getValue()
+        if param.values:
+            i["options"] = [v.getValue() for v in param.values.getValue()]
+        if request.REQUEST.get(key, None) is not None:
+            i["default"] = request.REQUEST.get(key, None)
+        elif param.useDefault:
+            i["default"] = unwrap(param.prototype)
+        pt = unwrap(param.prototype)
+        #print key, pt.__class__
+        if pt.__class__ == type(True):
+            i["boolean"] = True
+        elif pt.__class__ == type(0) or pt.__class__ == type(long(0)):
+            i["number"] = "number"  # will stop the user entering anything other than numbers.
+        elif pt.__class__ == type(float(0.0)):
+            #print "Float!"
+            i["number"] = "float"
+        i["prototype"] = unwrap(param.prototype)    # E.g  ""  (string) or [0] (int list) or 0.0 (float)
+        i["grouping"] = param.grouping
+        inputs.append(i)
+    inputs.sort(key=lambda i: i["grouping"])
+
+    # try to determine hierarchies in the groupings - ONLY handle 1 hierarchy level now (not recursive!)
+    for i in range(len(inputs)):
+        if len(inputs) <= i:    # we may remove items from inputs as we go - need to check
+            break
+        param = inputs[i]
+        grouping = param["grouping"]    # E.g  03
+        param['children'] = list()
+        c = 1
+        while len(inputs) > i+1:
+            nextParam = inputs[i+1]
+            nextGrp = inputs[i+1]["grouping"]  # E.g. 03.1
+            if nextGrp.split(".")[0] == grouping:
+                param['children'].append(inputs[i+1])
+                inputs.pop(i+1)
+            else:
+                break
+
+    paramData["inputs"] = inputs
+
+    return render_to_response('webclient/scripts/script_ui.html', {'paramData': paramData})
+
+@isUserConnected
+def script_run(request, scriptId, **kwargs):
+    """
+    Runs a script using values in a POST
+    """
+    conn = kwargs['conn']
+    scriptService = conn.getScriptService()
+
+    inputMap = {}
+
+    sId = long(scriptId)
+
+    params = scriptService.getParams(sId)
+    scriptName = params.name.replace("_", " ").replace(".py", "")
+
+    for key, param in params.inputs.items():
+        if key in request.POST:
+            value = request.POST[key]
+            if len(value) == 0: continue
+            prototype = param.prototype
+            pclass = prototype.__class__
+            if pclass == omero.rtypes.RListI:
+                valueList = []
+                listClass = omero.rtypes.rstring
+                l = prototype.val     # list
+                if len(l) > 0:       # check if a value type has been set (first item of prototype list)
+                    listClass = l[0].getValue().__class__
+                    if listClass == int(1).__class__:
+                        listClass = omero.rtypes.rint
+                    if listClass == long(1).__class__:
+                        listClass = omero.rtypes.rlong
+
+                for v in value.split(","):
+                    try:
+                        obj = listClass(str(v.strip())) # seem to need the str() for some reason
+                    except:
+                        # print "Invalid entry for '%s' : %s" % (key, v)
+                        continue
+                    if isinstance(obj, omero.model.IObject):
+                        valueList.append(omero.rtypes.robject(obj))
+                    else:
+                        valueList.append(obj)
+                inputMap[key] = omero.rtypes.rlist(valueList)
+
+            elif pclass == omero.rtypes.RMapI:
+                # TODO: Handle maps same way as lists.
+                valueMap = {}
+                m = prototype.val   # check if a value type has been set for the map
+
+            else:
+                try:
+                    inputMap[key] = pclass(value)
+                except:
+                    # print "Invalid entry for '%s' : %s" % (key, value)
+                    continue
+
+    try:
+        handle = scriptService.runScript(sId, inputMap, None)
+        # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154
+        jobId = str(handle)
+        request.session['callback'][jobId] = {
+            'job_type': "script",
+            'job_name': scriptName,
+            'start_time': datetime.now(),
+            'status':'in progress'}
+        request.session.modified = True
+    except Exception, x:
+        logger.error(traceback.format_exc())
+        return HttpResponse(simplejson.dumps({'error': traceback.format_exc()}), mimetype='json')
+
+    return HttpResponse(simplejson.dumps({'jobId': jobId, 'status':'in progress'}), mimetype='json')
+
 
 ####################################################################################
 # utils

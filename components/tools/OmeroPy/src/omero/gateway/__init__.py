@@ -3441,6 +3441,43 @@ class FileAnnotationWrapper (AnnotationWrapper):
 
 AnnotationWrapper._register(FileAnnotationWrapper)
 
+
+class _OriginalFileWrapper (BlitzObjectWrapper):
+    """
+    omero_model_OriginalFileI class wrapper extends BlitzObjectWrapper.
+    """
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'OriginalFile'
+
+    def getFileInChunks(self):
+        """
+        Returns a generator yielding chunks of the file data.
+
+        @return:    Data from file in chunks
+        @rtype:     Generator
+        """
+
+        if not self._obj.isLoaded():
+            self._obj = self._conn.getQueryService().get(self.OMERO_CLASS, self._obj.id.val)
+        store = self._conn.createRawFileStore()
+        store.setFileId(self._obj.id.val)
+        size = self._obj.size.val
+        buf = 2621440
+        if size <= buf:
+            yield store.read(0,long(size))
+        else:
+            for pos in range(0,long(size),buf):
+                data = None
+                if size-pos < buf:
+                    data = store.read(pos, size-pos)
+                else:
+                    data = store.read(pos, buf)
+                yield data
+        store.close()
+
+OriginalFileWrapper = _OriginalFileWrapper
+
 from omero_model_TimestampAnnotationI import TimestampAnnotationI
 
 class TimestampAnnotationWrapper (AnnotationWrapper):
@@ -6929,6 +6966,7 @@ def refreshWrappers ():
                   "well":WellWrapper,
                   "experimenter":ExperimenterWrapper,
                   "experimentergroup":ExperimenterGroupWrapper,
+                  "originalfile":OriginalFileWrapper,
                   "commentannotation":CommentAnnotationWrapper,
                   "tagannotation":TagAnnotationWrapper,
                   "longannotation":LongAnnotationWrapper,

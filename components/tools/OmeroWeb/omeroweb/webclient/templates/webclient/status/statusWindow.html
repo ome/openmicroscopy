@@ -1,0 +1,271 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+<html>
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+<head>
+    <title>Activities</title>
+
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+
+    <script type="text/javascript">
+
+        var update_ui = function(data) {
+            for (var cbString in data) {
+                if ((cbString == "in_progress") || (cbString == "failure") || (cbString == "jobs")) {
+                    continue;   // ignore extra json data that is not callbacks
+                }
+                cbMap = data[cbString];
+                // only update jobs that were "in progress" (don't edit others that were already done)
+                var $jobRow = $("#"+cbMap['id']);
+                var $statusElement = $jobRow.find(".status");
+                var oldStatus = $statusElement.text();
+
+                if (oldStatus == "in progress" && cbMap["status"] == "finished") {
+                    $statusElement.text(cbMap["status"]);
+                    // display results
+                    results = cbMap["results"];
+                    // Handle Script results
+                    if (cbMap["job_type"] == "script") {
+                        var icon_src = $("#python_icon_src").text();
+                        $jobRow.find(".icon").attr('src', icon_src);
+                        if (cbMap["Message"]) {
+                            $jobRow.find(".message").text(cbMap["Message"]);
+                        }
+                        if (cbMap["stderr"]) {
+                            var err_url = $("#original_file_link").text().replace("0", cbMap["stderr"]);
+                            var errHtml = "<a href='"+ err_url + "'>Error</a>";
+                            $jobRow.find(".error").html(errHtml);
+                        }
+                        if (cbMap["stdout"]) {
+                            var info_url = $("#original_file_link").text().replace("0", cbMap["stdout"]);
+                            var infoHtml = "<a href='"+ info_url + "'>Info</a>";
+                            $jobRow.find(".info").html(infoHtml);
+                        }
+                        var resultsHtml = "";
+                        for (key in results) {
+                            type = results[key]["type"];
+                            oid = results[key]["id"];
+                            var rHtml = "<div>"+ key + ": ";
+                            if (type == "FileAnnotationI"){
+                                var dl_url = $("#download_annotation_link").text().replace("0", oid);
+                                rHtml += "<a href='"+ dl_url +"'>Download</a>";
+                            } else if (type == "ImageI"){
+                                var img_url = $("#full_viewer_link").text().replace("0", oid);
+                                rHtml += "<a href='"+ img_url +"'>View</a>";
+                            } else {
+                                rHtml += type + " ID: " + oid;
+                            }
+                            rHtml += "</div>";
+                            $jobRow.find(".results").append(rHtml);
+                        }
+                    } else if (cbMap["job_type"] == "delete") {
+                        var icon_src = $("#delete_icon_src").text();
+                        $jobRow.find(".icon").attr('src', icon_src);
+                    }
+                }
+            }
+        };
+
+        jQuery.fn.alternateRowColors = function() {
+            var $rows = $(this).children().children('tr');
+            $rows.not('.hidden').filter(':odd').removeClass('even').addClass('odd');
+            $rows.not('.hidden').filter(':even').removeClass('odd').addClass('even');
+          return this;
+        };
+
+        $(document).ready(function() {
+
+            $("#jobsTable").alternateRowColors();
+
+            // make an AJAX call to update all 'in progress' callbacks in the web session and return current status
+            var i = setInterval(function (){
+                $.getJSON("{% url progress %}", function(data) {
+                    var in_progress = 0;
+                    for (var cbString in data) {
+                        cbMap = data[cbString];
+                        if (cbMap["status"] == "in progress") {
+                            in_progress += 1;
+                        }
+                    }
+                    update_ui(data);
+                    if (in_progress == 0) {
+                        clearInterval(i);
+                    }
+                });
+            }, 3000);
+
+        });
+    </script>
+
+    <style type="text/css">
+
+        tr.hidden {
+            display: none;
+        }
+        tr.even {
+          background-color: #ddf;
+        }
+        tr.odd {
+          background-color: #fff;
+        }
+        h4 {
+            font-size: 120%;
+            padding: 0px;
+            margin: 0px;
+        }
+        td {
+            font-size: 80%;
+        }
+        td a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body style="margin:0px; padding:0px; font-family:arial">
+
+<!-- use Django to format a link template - javascript replaces '0' for ID where needed -->
+<div id="original_file_link" style="display:none">{% url original_file_text 0 %}</div>
+<div id="python_icon_src" style="display:none">{% url webstatic 'images/tango_text-x-python16.png' %}</div>
+<div id="delete_icon_src" style="display:none">{% url webstatic 'images/nuvola_apply22.png' %}</div>
+<div id="download_annotation_link" style="display:none">{% url download_annotation 'download' 0 %}</div>
+<div id="full_viewer_link" style="display:none">{% url webgateway.views.full_viewer 0 %}</div>
+
+<div id="content_details">
+    {% if sizeOfJobs %}
+
+        <div id="toolbar" style="background:#ddd; padding: 4px">
+            <input style="float:right" class="button" type="submit" value="Clear List" alt="Clean" title="Clean" onclick="document.location.href='{% url status "clean" %}';">
+            <div style="clear:both"> </div>
+        </div>
+
+        <table id="jobsTable" width="100%" cellpadding="6" cellspacing="0" border="0">
+
+            <tbody>
+                {% for j in jobs %}
+
+                    <!-- Delete jobs -->
+                    {% ifequal j.job_type "delete" %}
+                        <tr id="{{ j.id }}">
+                            <td>
+                                {% ifequal j.status "in progress" %}<img class="icon" src="{% url webstatic 'images/spinner.gif' %}" />
+                                {% else %} <img class="icon" src="{% url webstatic 'images/nuvola_apply22.png' %}" />
+                                {% endifequal %}
+                            </td>
+                            <td class="action">
+                                {% if j.delmany %}
+                                    <h4>
+                                        Delete {{ j.delmany }} {{ j.dtype }}s:
+                                        <span class="status">{{ j.status }}</span>
+                                    </h4>
+                                    <div class="message">
+                                    {% for iid in j.did %}
+                                        {% ifequal j.status "failed" %}
+                                            <a onclick="loadMetadata('{% url load_metadata_details j.dtype iid %}');">{{ j.dtype }} {{ iid }}</a>,
+                                        {% else %}
+                                            {{ j.dtype }} {{ iid }},
+                                        {% endifequal %}
+                                    {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <h4>
+                                        Delete {{ j.dtype }}:
+                                        <span class="status">{{ j.status }}</span>
+                                    </h4>
+                                    <div class="message">
+                                    {% ifequal j.status "failed" %}
+                                        <a onclick="loadMetadata('{% url load_metadata_details j.dtype j.did %}');">{{ j.dtype }} {{ j.did }}</a>
+                                    {% else %}
+                                        {{ j.dtype }} {{ j.did }}
+                                    {% endifequal %}
+                                    </div>
+                                {% endif %}
+
+                            </td>
+                            <td class="action">
+                                    {% if j.dreport %}{{ j.derror }} error(s) ({{ j.dreport }}){% endif %}
+                            </td>
+                            <td>{{ j.start_time|date:"H:i" }}</td>
+                        </tr>
+                    {% endifequal %}
+
+
+                    <!-- Scripts -->
+                    {% ifequal j.job_type "script" %}
+                        <tr class="script" id="{{ j.id }}">
+                            <td>
+                                {% ifequal j.status "in progress" %}<img class="icon" src="{% url webstatic 'images/spinner.gif' %}" />
+                                {% else %} <img class="icon" src="{% url webstatic 'images/tango_text-x-python16.png' %}" />
+                                {% endifequal %}
+                            </td>
+                            <td>
+                                <h4>
+                                    {{ j.job_name }}:
+                                    <span class="status">{{ j.status }}</span>
+                                </h4>
+                                <div class="message">{{ j.Message }}</div>
+                            </td>
+                            <td class="output">
+                                <table><tr>
+                                    <td class="results">
+                                        {% for k,v in j.results.iteritems %}
+                                            <div>
+                                                {{ k }}:
+                                                {% ifequal v.type "FileAnnotationI" %}
+                                                    <a href="{% url download_annotation 'download' v.id %}">Download</a>
+                                                {% else %}
+                                                    {% ifequal v.type "ImageI" %}
+                                                        <a href="{% url webgateway.views.full_viewer v.id %}">View</a>
+                                                    {% else %}
+                                                        {{ v.type }} ID: {{ v.id }}
+                                                    {% endifequal %}
+                                                {% endifequal %}
+                                            </div>
+                                        {% endfor %}
+                                    </td>
+                                    <td class="error">
+                                        {% if j.stderr %}<a href="{% url original_file_text j.stderr %}">Error</a>{% endif %}
+                                    </td>
+                                    <td class="info">
+                                        {% if j.stdout %}<a href="{% url original_file_text j.stdout %}">Info</a>{% endif %}
+                                    </td>
+                                </tr></table>
+                            </td>
+                            <td>{{ j.start_time|date:"H:i" }}</td>
+                        </tr>
+                    {% endifequal %}
+                {% endfor %}
+            </tbody>
+        </table>
+
+        </div>
+
+
+    {% else %}
+        <p>{% trans "There are no jobs" %}</p>
+    {% endif %}
+</div>
+
+</body>
+</html>
