@@ -34,7 +34,7 @@
 
     <select name="{{ i.key }}">
         {% for v in i.options %}
-            <option value="{{ v }}" {% ifequal i.prototype v %} selected="True" {% endifequal %} >{{ v }}</option>
+            <option value="{{ v }}" {% ifequal i.default v %} selected="True" {% endifequal %} >{{ v }}</option>
         {% endfor %}
     </select>
 {% else %}
