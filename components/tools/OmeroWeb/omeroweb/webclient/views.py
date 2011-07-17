@@ -2370,8 +2370,17 @@ def progress(request, **kwargs):
                             request.session['callback'][cbString][key] = v
                         else:
                             if hasattr(v, "id"):    # do we have an object (ImageI, FileAnnotationI etc)
-                                v = {'id': v.id.val, 'type': v.__class__.__name__}
-                            rMap[key] = v
+                                obj_data = {'id': v.id.val, 'type': v.__class__.__name__}
+                                if v.isLoaded() and hasattr(v, "file"):
+                                    try:
+                                        obj_data['name'] = v.file.name.val
+                                    except:
+                                        pass
+                                if v.isLoaded() and hasattr(v, "name"):  # E.g Image, OriginalFile etc
+                                    obj_data['name'] = v.name.val
+                                rMap[key] = obj_data
+                            else:
+                                rMap[key] = v
                     request.session['callback'][cbString]['results'] = rMap
                     request.session.modified = True
 
@@ -2753,6 +2762,7 @@ def script_ui(request, scriptId, **kwargs):
             i["max"] = param.max.getValue()
         if param.values:
             i["options"] = [v.getValue() for v in param.values.getValue()]
+        # if we got a value for this key in the page request, use this as default
         if request.REQUEST.get(key, None) is not None:
             i["default"] = request.REQUEST.get(key, None)
         elif param.useDefault:
@@ -2790,7 +2800,7 @@ def script_ui(request, scriptId, **kwargs):
 
     paramData["inputs"] = inputs
 
-    return render_to_response('webclient/scripts/script_ui.html', {'paramData': paramData})
+    return render_to_response('webclient/scripts/script_ui.html', {'paramData': paramData, 'scriptId': scriptId})
 
 @isUserConnected
 def script_run(request, scriptId, **kwargs):
@@ -2808,11 +2818,18 @@ def script_run(request, scriptId, **kwargs):
     scriptName = params.name.replace("_", " ").replace(".py", "")
 
     for key, param in params.inputs.items():
+        prototype = param.prototype
+        pclass = prototype.__class__
+        
+        # handle bool separately, since unchecked checkbox will not be in request.POST
+        if pclass == omero.rtypes.RBoolI:
+            value = key in request.POST
+            inputMap[key] = pclass(value)
+            continue
+        
         if key in request.POST:
             value = request.POST[key]
             if len(value) == 0: continue
-            prototype = param.prototype
-            pclass = prototype.__class__
             if pclass == omero.rtypes.RListI:
                 valueList = []
                 listClass = omero.rtypes.rstring

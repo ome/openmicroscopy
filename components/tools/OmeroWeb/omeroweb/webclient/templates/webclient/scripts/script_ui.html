@@ -31,10 +31,9 @@
 
 <head>
 
-    <title>Run Script</title>
+    <title>Run {{ paramData.name }}</title>
 
     <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
        <script type="text/javascript" src="{% url webstatic "javascript/popup.js" %}"></script>
 
     <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
@@ -70,67 +69,95 @@
         };
 
         $(document).ready(function() {
-
             $('form').submit(function() {
+                $("#submit").attr("disabled", true); // make sure we don't submit twice. 
                   $(this).runScript();
                   return false;
               });
-
-
-            $(".param").tooltip({
-                bodyHandler: function() {
-                        return $(this).find(".description").html();
-                    },
-                track: true,
-                delay: 1000,
-                showURL: false,
-                fixPNG: true,
-                showBody: " - ",
-                top: 10,
-                left: 10
-            });
-            $(".param").find(".description").hide(); // hide tool tip source
-
         });
     </script>
 
     <style type="text/css">
+        h3 {
+            margin: 0px;
+        }
         div.param {
-            margin: 2px;
-            font-size: 90%;
-            font-family: Arial;
+            margin: 3px;
+            font-size: 85%;
         }
         div.parent {
-            border: 1px solid gray;
+            border: 1px solid #aaa;
+            margin: 3px 0px;
+        }
+        div.parent > div:first-child {
+            background: #ddd;
+            border-bottom: 1px solid #ccc;
+            margin: 0px;
+            padding: 2px;
         }
         input {
             padding: 0px;
             margin: 0px;
         }
+        body {
+            font-family: Arial;
+            background: #eee;
+            margin: 0px;
+            padding: 0px;
+        }
+        #script_desc {
+            font-size: 90%;
+            margin: 8px 0px;
+            background: #ddd;
+            border: 1px solid #aaa;
+        }
+        #script_desc p {
+            margin: 2px;
+        }
+        div.footer {
+            background: #ddd; 
+            position:fixed; 
+            bottom:0px; left:0px; right:0px;
+            padding: 7px;
+            border-top: 1px solid #aaa;
+        }
+        div.footer a {
+            text-decoration: none;
+            font-size: 80%;
+        }
+
     </style>
 </head>
 
 <body>
 
     <form method="post" action="{% url script_run paramData.id %}">
-        <h3 class="scriptName">{{ paramData.name }}</h3>
-        <p>{{ paramData.description|linebreaks }}</p>
+        <div style="padding:10px; margin-bottom:40px">
+            <h3 class="scriptName">{{ paramData.name }}</h3>
+            <div id='script_desc'>{{ paramData.description|linebreaks }}</div>
 
-        {% for i in paramData.inputs %}
-            <div class="{% if i.required %}required{% endif %}{% if i.children %} parent{% endif %}">
+            {% for i in paramData.inputs %}
+                <div class="{% if i.required %}required{% endif %}{% if i.children %} parent{% endif %}">
 
-            {% include "webclient/scripts/include_param.html" %}
+                {% include "webclient/scripts/include_param.html" %}
 
-            {% if i.children %}
-                <div style="margin-left: 20px">
-                    {% for i in i.children %}
-                        {% include "webclient/scripts/include_param.html" %}
-                    {% endfor %}
+                {% if i.children %}
+                    <div style="margin-left: 20px">
+                        {% for i in i.children %}
+                            {% include "webclient/scripts/include_param.html" %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
                 </div>
-            {% endif %}
+            {% endfor %}
+        </div>
+        <div class="footer">
+            <div style="float:right">
+                <a href="#" onClick="self.close()">Cancel</a>
+                <input id="submit" type="submit" value="Run Script" />
             </div>
-        {% endfor %}
-        <input type="submit" value="Run Script" />
+            <a href="#" onClick="return openPopup('{% url original_file_text scriptId %}');">View Script</a>
+        </div>
     </form>
 </body>
 

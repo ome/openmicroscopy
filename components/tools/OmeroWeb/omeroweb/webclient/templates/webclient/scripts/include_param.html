@@ -24,7 +24,7 @@
 -->
 {% endcomment %}
 
-<div class="param">
+<div class="param" {% if i.description %}title="{{ i.description }}"{% endif %}>
 
 {{ i.name }}:
 
@@ -50,11 +50,4 @@
     {% endif %}
 
 {% endif %}
-
-{% if i.description %}
-    <div class="description">
-        {{ i.description }}
-    </div>
-{% endif %}
-
 </div>

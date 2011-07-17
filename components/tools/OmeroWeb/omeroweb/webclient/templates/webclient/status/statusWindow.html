@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
+{% load wikitags %}
 <html>
 
 {% comment %}
@@ -65,17 +66,27 @@
                         }
                         var resultsHtml = "";
                         for (key in results) {
-                            type = results[key]["type"];
-                            oid = results[key]["id"];
-                            var rHtml = "<div>"+ key + ": ";
-                            if (type == "FileAnnotationI"){
-                                var dl_url = $("#download_annotation_link").text().replace("0", oid);
-                                rHtml += "<a href='"+ dl_url +"'>Download</a>";
-                            } else if (type == "ImageI"){
-                                var img_url = $("#full_viewer_link").text().replace("0", oid);
-                                rHtml += "<a href='#' onClick=\"return openPopup('" + img_url + "');\">View</a>";
+                            var rHtml = "<div>";
+                            if (results[key]["type"] && results[key]["id"]) {     
+                                // handle result 'Objects' - E.g ImageI, FileAnnotationI
+                                type = results[key]["type"];
+                                oid = results[key]["id"];
+                                if (type == "FileAnnotationI"){
+                                    var txt = "Download";
+                                    if (results[key]["name"]) txt = results[key]["name"];
+                                    var dl_url = $("#download_annotation_link").text().replace("0", oid);
+                                    rHtml += "<a title='Result: "+ key +"' href='"+ dl_url +"'>"+ txt +"</a>";
+                                } else if (type == "ImageI"){
+                                    var txt = "Image"
+                                    if (results[key]["name"]) txt = results[key]["name"];
+                                    var img_url = $("#full_viewer_link").text().replace("0", oid);
+                                    rHtml += "<a title='Result: "+ key +"' href='#' onClick=\"return openPopup('" + img_url + "');\">"+ txt +"</a>";
+                                } else {
+                                    rHtml += "<span class='key'>"+ key +":</span> "+ type + " ID: " + oid;
+                                }
                             } else {
-                                rHtml += type + " ID: " + oid;
+                                // handle rtypes
+                                rHtml += "<span class='key'>"+ key +":</span> "+ results[key];
                             }
                             rHtml += "</div>";
                             $jobRow.find(".results").append(rHtml);
@@ -141,6 +152,9 @@
         td a {
             text-decoration: none;
         }
+        .key {
+            color: gray;
+        }
     </style>
 </head>
 
@@ -169,12 +183,12 @@
                     <!-- Delete jobs -->
                     {% ifequal j.job_type "delete" %}
                         <tr id="{{ j.id }}">
-                            <td>
+                            <td width="25px">
                                 {% ifequal j.status "in progress" %}<img class="icon" src="{% url webstatic 'images/spinner.gif' %}" />
                                 {% else %} <img class="icon" src="{% url webstatic 'images/nuvola_apply22.png' %}" />
                                 {% endifequal %}
                             </td>
-                            <td class="action">
+                            <td width="50%">
                                 {% if j.delmany %}
                                     <h4>
                                         Delete {{ j.delmany }} {{ j.dtype }}s:
@@ -204,10 +218,10 @@
                                 {% endif %}
 
                             </td>
-                            <td class="action">
+                            <td colspan="2" class="action">
                                     {% if j.dreport %}{{ j.derror }} error(s) ({{ j.dreport }}){% endif %}
                             </td>
-                            <td>{{ j.start_time|date:"H:i" }}</td>
+                            <td width="40px">{{ j.start_time|date:"H:i" }}</td>
                         </tr>
                     {% endifequal %}
 
@@ -215,45 +229,52 @@
                     <!-- Scripts -->
                     {% ifequal j.job_type "script" %}
                         <tr class="script" id="{{ j.id }}">
-                            <td>
+                            <td width="25px">
                                 {% ifequal j.status "in progress" %}<img class="icon" src="{% url webstatic 'images/spinner.gif' %}" />
                                 {% else %} <img class="icon" src="{% url webstatic 'images/tango_text-x-python16.png' %}" />
                                 {% endifequal %}
                             </td>
-                            <td>
+                            <td width="50%">
                                 <h4>
                                     {{ j.job_name }}:
                                     <span class="status">{{ j.status }}</span>
                                 </h4>
                                 <div class="message">{{ j.Message }}</div>
                             </td>
-                            <td class="output">
-                                <table><tr>
-                                    <td class="results">
-                                        {% for k,v in j.results.iteritems %}
-                                            <div>
-                                                {{ k }}:
-                                                {% ifequal v.type "FileAnnotationI" %}
-                                                    <a href="{% url download_annotation 'download' v.id %}">Download</a>
+                            <td class="results" align="middle">
+                                {% for k,v in j.results.iteritems %}
+                                    <div>
+                                        {% if v.type and v.id %}
+                                            <!-- Handle robjects, E.g. ImageI, FileAnnotation etc -->
+                                            {% ifequal v.type "FileAnnotationI" %}
+                                                <a href="{% url download_annotation 'download' v.id %}" title="Result: {{ k }}">
+                                                    {% if v.name %}{{ v.name }}{% else %}Download{% endif %}
+                                                </a>
+                                            {% else %}
+                                                {% ifequal v.type "ImageI" %}
+                                                    <a href="#" onClick="return openPopup('{% url webgateway.views.full_viewer v.id %}');" title="Result: {{ k }}">
+                                                        {% if v.name %}{{ v.name }}{% else %}Image{% endif %}
+                                                    </a>
                                                 {% else %}
-                                                    {% ifequal v.type "ImageI" %}
-                                                        <a href="#" onClick="return openPopup('{% url webgateway.views.full_viewer v.id %}');">View</a>
-                                                    {% else %}
-                                                        {{ v.type }} ID: {{ v.id }}
-                                                    {% endifequal %}
+                                                    <span class="key">{{ k }}:</span> {{ v.type }} ID: {{ v.id }}
                                                 {% endifequal %}
-                                            </div>
-                                        {% endfor %}
-                                    </td>
-                                    <td class="error">
-                                        {% if j.stderr %}<a href="#" onClick="return openPopup('{% url original_file_text j.stderr %}');">Error</a>{% endif %}
-                                    </td>
-                                    <td class="info">
-                                        {% if j.stdout %}<a href="#" onClick="return openPopup('{% url original_file_text j.stdout %}');">Info</a>{% endif %}
-                                    </td>
-                                </tr></table>
+                                            {% endifequal %}
+                                        {% else %}
+                                            <!-- Handle rtypes (already unwrapped) -->
+                                            <span class="key">{{ k }}:</span> {{ v }}
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
                             </td>
-                            <td>{{ j.start_time|date:"H:i" }}</td>
+                            <td width="50px" align="right">
+                                <div class="error">
+                                {% if j.stderr %}<a href="#" onClick="return openPopup('{% url original_file_text j.stderr %}');">Error</a>{% endif %}
+                                </div>
+                                <div class="info">
+                                {% if j.stdout %}<a href="#" onClick="return openPopup('{% url original_file_text j.stdout %}');">Info</a>{% endif %}
+                                </div>
+                            </td>
+                            <td width="40px">{{ j.start_time|date:"H:i" }}</td>
                         </tr>
                     {% endifequal %}
                 {% endfor %}

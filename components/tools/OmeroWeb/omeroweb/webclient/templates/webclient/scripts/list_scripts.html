@@ -26,7 +26,7 @@
 
 {% for folder in scriptMenu %}
     <li>
-        <a href="#">{{ folder.name }}</a>
+        <a href="#" title="{{ folder.path }}">{{ folder.name }}</a>
         <ul>
             {% for script in folder.scripts %}
             <li><a href="{% url script_ui script.0 %}">{{ script.1 }}</a></li>
