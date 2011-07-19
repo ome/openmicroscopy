@@ -1743,6 +1743,14 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
 
 @isUserConnected
 def original_file_text(request, fileId, **kwargs):
+
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
     orig_file = conn.getObject("OriginalFile", fileId)
     chunks = [str(piece) for piece in orig_file.getFileInChunks()]
     text = "".join(chunks)
