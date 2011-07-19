@@ -86,6 +86,16 @@
     <mkdir dir="${app.compiled.dir}"/>
     <mkdir dir="${app.config.dir}"/>
     <mkdir dir="${app.lib.dir}"/> 
+    <condition property="dist.bundle.version"
+               value="${omero.version}-${dist.environment.OMERO_BUILD}">
+      <isset property="dist.environment.OMERO_BUILD"/>
+    </condition>
+    <condition property="dist.bundle.version"
+               value="${omero.version}">
+      <not>
+        <isset property="dist.bundle.version"/>
+      </not>
+    </condition>
     <copy todir="${app.compiled.dir}">
       <fileset refid="app.resources"/>
     </copy> 

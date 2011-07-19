@@ -3,8 +3,8 @@
 {% load custom_tags %}
 {% load wikitags %}
 
+{% comment %}
 <!--
-
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
@@ -20,8 +20,8 @@
 
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 -->
+{% endcomment %}
 
     <script type="text/javascript" src="{% url webstatic "javascript/ui/jquery.ui.selectable.js" %}"></script>
     
@@ -51,7 +51,7 @@
                 var primaryIndex = -1;
                 var lastSelected = datatree.data.ui.last_selected;
                 if (lastSelected) {
-                    primaryIndex = thumbs.index($('#'+lastSelected.attr('id').split('-')[1]).children().get(1));
+                    primaryIndex = thumbs.index($('#'+lastSelected.attr('id').split('-')[1]).children().get(0));
                 }
                 var selIndex = thumbs.index(event.target);
 

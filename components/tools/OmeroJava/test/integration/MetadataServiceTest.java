@@ -1004,4 +1004,60 @@ public class MetadataServiceTest
 		}
     }
 
+    /**
+     * Tests the retrieval of tag sets. One with a tag, one without.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadEmptyTagSets() 
+    	throws Exception
+    {
+    	long self = iAdmin.getEventContext().userId;
+    	
+    	//Create a tag set.
+    	TagAnnotation tagSet = new TagAnnotationI();
+    	tagSet.setTextValue(omero.rtypes.rstring("tagSet"));
+    	tagSet.setNs(omero.rtypes.rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
+    	TagAnnotation tagSetReturned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tagSet);
+    	//create a tag and link it to the tag set
+    	TagAnnotation tag = new TagAnnotationI();
+    	tag.setTextValue(omero.rtypes.rstring("tag"));
+    	TagAnnotation tagReturned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tag);
+    	AnnotationAnnotationLinkI link = new AnnotationAnnotationLinkI();
+    	link.setChild(tagReturned);
+    	link.setParent(tagSetReturned);
+    	//save the link.
+    	iUpdate.saveAndReturnObject(link); 
+    	
+    	tagSet = new TagAnnotationI();
+    	tagSet.setTextValue(omero.rtypes.rstring("tagSet"));
+    	tagSet.setNs(omero.rtypes.rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
+    	TagAnnotation tagSetReturned_2 = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tagSet);
+    	
+    	ParametersI param = new ParametersI();
+    	param.exp(omero.rtypes.rlong(self));
+    	param.orphan(); //no tag loaded
+    	
+    	List<IObject> result = iMetadata.loadTagSets(param);
+    	assertNotNull(result);
+    	Iterator<IObject> i = result.iterator();
+    	TagAnnotationData data;
+    	String ns;
+    	int count = 0;
+    	while (i.hasNext()) {
+    		tag = (TagAnnotation) i.next();
+			data = new TagAnnotationData(tag);
+			ns = data.getNameSpace();
+			if (ns != null && TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+				if (data.getId() == tagSetReturned.getId().getValue()
+						|| data.getId() == tagSetReturned_2.getId().getValue())
+					count++;
+			}
+		}
+    	assertEquals(count, 2);
+    }
+    
 }

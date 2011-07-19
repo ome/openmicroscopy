@@ -110,10 +110,10 @@ public class PermissionsPane
     	label = new JLabel();
     	Font f = label.getFont();
     	label.setFont(f.deriveFont(Font.ITALIC, f.getSize()-2));
-    	readOnlyGroupBox = new JCheckBox("Read Only");
+    	readOnlyGroupBox = new JCheckBox("Read-Only");
     	//readOnlyGroupBox.setSelected(true);
     	readOnlyGroupBox.setEnabled(false);
-    	readOnlyPublicBox = new JCheckBox("Read Only");
+    	readOnlyPublicBox = new JCheckBox("Read-Only");
     	//readOnlyPublicBox.setSelected(true);
     	readOnlyPublicBox.setEnabled(false);
     	groupBox = new JRadioButton(EditorUtil.GROUP_VISIBLE);

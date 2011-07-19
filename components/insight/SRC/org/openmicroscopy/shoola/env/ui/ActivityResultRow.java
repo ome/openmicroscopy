@@ -33,7 +33,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -208,8 +207,8 @@ class ActivityResultRow
 				viewButton.setEnabled(false);
 				firePropertyChange(ACTION_PROPERTY, Boolean.valueOf(false), 
 						Boolean.valueOf(true));
-				activity.view(row);
+				activity.view(row, viewButton);
 		}
 	}
-	
+
 }

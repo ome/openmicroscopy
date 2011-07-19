@@ -40,7 +40,8 @@
     <property name="defaultFilterCondition" value="true"/>
   </bean>
 
-  <bean id="eventListeners" class="ome.security.basic.EventListenersFactoryBean">
+  <bean id="eventListeners" class="ome.security.basic.EventListenersFactoryBean"
+      depends-on="serverDirectoryCheck">
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="tokenHolder"/>
     <constructor-arg index="2"><null/></constructor-arg>

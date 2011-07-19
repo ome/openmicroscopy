@@ -4,8 +4,8 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+{% comment %}
 <!--
-
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
@@ -21,8 +21,8 @@
 
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 -->
+{% endcomment %}
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 
@@ -48,7 +48,7 @@
             <tr>
                 <th>{% trans form.server.label_tag %}{% if form.server.field.required %}*{% endif %}</th>
                 <td>{{ form.server }} {{ form.server.errors }}</td>
-                <th>{% trans form.ssl.label_tag %}{% if form.ssl.field.required %}*{% endif %}</th>
+                <th>{{ form.ssl.help_text|safe }}{% if form.ssl.field.required %}*{% endif %}</th>
                 <td>{{ form.ssl }} {{ form.ssl.errors }}</td>
             </tr>
         </tbody></table>

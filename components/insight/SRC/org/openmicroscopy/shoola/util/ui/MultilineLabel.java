@@ -35,7 +35,7 @@ import javax.swing.LookAndFeel;
 //Application-internal dependencies
 
 /** 
- * A multiline, text-only label.
+ * A multiple lines, text-only label.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

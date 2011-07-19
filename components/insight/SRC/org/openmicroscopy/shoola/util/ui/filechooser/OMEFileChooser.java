@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.util.ui.filechooser;
 
 //Java imports
 import java.io.File;
-import javax.swing.JFileChooser;
 
 //Third-party libraries
 
@@ -46,7 +45,7 @@ import javax.swing.JFileChooser;
  * @since 3.0-Beta4
  */
 public class OMEFileChooser 
-	extends JFileChooser
+	extends GenericFileChooser
 {
 
 	/** Identifies the windows platform. */

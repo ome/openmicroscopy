@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.svc.communicator;
 //Java imports
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 

@@ -25,17 +25,14 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 
 //Java imports
-import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
-import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import pojos.ExperimenterData;
 
 /** 

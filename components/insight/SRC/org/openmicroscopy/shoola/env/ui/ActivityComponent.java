@@ -222,8 +222,9 @@ public abstract class ActivityComponent
 	 * 
 	 * @param object The object to open.
 	 * @param parameters Either Analysis parameters or Application data.
+	 * @param source The source triggering the operation.
 	 */
-	private void open(Object object, Object parameters)
+	private void open(Object object, Object parameters, JComponent source)
 	{
 		if (!(object instanceof FileAnnotationData || 
 				object instanceof OriginalFile)) return;
@@ -279,7 +280,8 @@ public abstract class ActivityComponent
 			activity = new DownloadActivityParam(of, f, null);
 		if (parameters instanceof ApplicationData) {
 			activity.setApplicationData((ApplicationData) parameters);
-		} 
+		}
+		activity.setSource(source);
 		viewer.notifyActivity(activity);
 	}
 	
@@ -780,18 +782,19 @@ public abstract class ActivityComponent
 	 * Views the passed object if supported.
 	 * 
 	 * @param object The object to view.
+	 * @param source The UI component invoking the method.
 	 */
-	void view(Object object)
+	void view(Object object, JComponent source)
 	{
-		if (viewButton != null) viewButton.setEnabled(false);
 		if (object instanceof FileAnnotationData || 
 				object instanceof OriginalFile) {
-			open(object, new ApplicationData(""));
+			open(object, new ApplicationData(""), source);
 		} else if (object instanceof File) {
 			viewer.openApplication(null, ((File) object).getAbsolutePath());
+			if (source != null) source.setEnabled(true);
 		} else {
 			EventBus bus = registry.getEventBus();
-			bus.post(new ViewObjectEvent(object));
+			bus.post(new ViewObjectEvent(object, source));
 		}
 	}
 	
@@ -922,7 +925,8 @@ public abstract class ActivityComponent
 				if (loader != null) loader.cancel();
 				break;
 			case VIEW:
-				view(result);
+				if (viewButton != null) viewButton.setEnabled(false);
+				view(result, viewButton);
 				break;
 			case RESULT:
 				showResult();

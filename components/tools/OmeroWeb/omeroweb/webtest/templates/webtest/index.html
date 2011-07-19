@@ -7,7 +7,7 @@
 <h1>WebTest</h1>
 <hr>
 <ul>
-{% for proj in client.listProjects %}
+{% for proj in conn.listProjects %}
   <li>{{ proj.getName }}
     <ul>
       {% for ds in proj.listChildren %}

@@ -20,10 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.util.browser;
-
-
 
 
 //Java imports

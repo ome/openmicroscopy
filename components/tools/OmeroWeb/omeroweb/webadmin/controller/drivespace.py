@@ -47,8 +47,6 @@ def _bytes_per_pixel(pixel_type):
     elif pixel_type == "double":
         return 8;
     else:
-        logger.error("Error: Unknown pixel type: %s" % (pixel_type))
-        logger.error(traceback.format_exc())
         raise AttributeError("Unknown pixel type: %s" % (pixel_type))
     
 def _usage_map_helper(pixels_list,exps):

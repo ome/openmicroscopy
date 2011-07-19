@@ -8,6 +8,7 @@ package integration;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -19,10 +20,15 @@ import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+import javax.xml.XMLConstants;
 
 import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
@@ -65,6 +71,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
 
+//Application-internal dependencies
+import integration.SchemaResolver;
 
 /**
  * Base test for integration tests.
@@ -852,11 +860,11 @@ public class AbstractTest
     }
     
     /**
-     * Transforms the input file using the specified stylesheet.
+     * Transforms the input file using the specified stylesheet file.
      * 
      * @param input  The file to transform.
      * @param output The destination file.
-     * @param xslt   The stylesheet to use.
+     * @param xslt   The stylesheet file to use.
      * @throws Exception Thrown if an error occurred while encoding the image.
      */
     protected void transformFile(File input, File output, File xslt)
@@ -881,7 +889,7 @@ public class AbstractTest
      * @param file The file to parse.
      * @param schema The schema used to validate the specified file.
      * @return
-     * @throws Exception Thrown if an error occurred while encoding the image.
+     * @throws Exception Thrown if an error occurred.
      */
     protected Document parseFile(File file, File schema)
     	throws Exception
@@ -900,4 +908,67 @@ public class AbstractTest
 		return builder.parse(file);
     }
     
+
+    /**
+     * Parses the specified file and returns the document.
+     * 
+     * @param file The file to parse.
+     * @param schemaStreamArray The schema as array of stream sources used to validate the specified file.
+     * @return
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected Document parseFileWithStreamArray(File file, StreamSource[] schemaStreamArray)
+        throws Exception
+    {
+        if (file == null) 
+            throw new IllegalArgumentException("No file to parse.");
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true); // This must be set to avoid error : cvc-elt.1: Cannot find the declaration of element 'OME'.
+        SchemaFactory sFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        SchemaResolver theTestClassResolver = new SchemaResolver();
+        sFactory.setResourceResolver(theTestClassResolver);
+        
+        Schema theSchema = sFactory.newSchema( schemaStreamArray );
+
+        /*
+        // Version - one step parse and validate (print error to stdErr)
+        dbf.setSchema(theSchema);
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+        Document theDoc = builder.parse(file);
+        */
+
+        // Version - two step parse then validate (throws error as exception)
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+        Document theDoc = builder.parse(file);
+        Validator validator=theSchema.newValidator();
+        validator.validate(new DOMSource(theDoc));
+        return theDoc;
+    }
+    
+    /**
+     * Transforms the input file using the specified stylesheet stream.
+     * 
+     * @param input  The file to transform.
+     * @param output The destination file.
+     * @param xslt   The stylesheet InputStream to use.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected void transformFileWithStream(File input, File output, InputStream xslt)
+        throws Exception
+    {
+        if (input == null) 
+            throw new IllegalArgumentException("No file to transform.");
+        if (output == null) 
+            throw new IllegalArgumentException("No destination file.");
+        if (xslt == null) 
+            throw new IllegalArgumentException("No stylesheet provided.");
+
+        TransformerFactory factory = TransformerFactory.newInstance();
+        Transformer transformer = factory.newTransformer(
+                new StreamSource(xslt));
+        StreamResult result = new StreamResult(new FileOutputStream(output));
+        transformer.transform(new StreamSource(input), result);
+    }
+
 }

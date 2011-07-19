@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
@@ -112,7 +113,7 @@ class GeneralPaneUI
 	private List<AnnotationUI>			components;
 
 	/** The component hosting the various protocols. */
-	//private JXTaskPane					protocolTaskPane;
+	private JXTaskPane					protocolTaskPane;
 	
 	/** Collection of preview panels. */
 	private List<PreviewPanel>			previews;
@@ -152,7 +153,7 @@ class GeneralPaneUI
 			browserTaskPane.addPropertyChangeListener(controller);
 		}
 		
-		//protocolTaskPane = EditorUtil.createTaskPane(PROTOCOL);
+		protocolTaskPane = EditorUtil.createTaskPane(PROTOCOL);
 		
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
@@ -317,19 +318,19 @@ class GeneralPaneUI
 		}
 		browserTaskPane.setTitle(s);
 		container.remove(browserTaskPane);
-		
-
-		/*
-		container.remove(protocolTaskPane);
-		protocolTaskPane.removeAll();
+		if (protocolTaskPane != null) {
+			container.remove(protocolTaskPane);
+			protocolTaskPane.removeAll();
+		}
 		JComponent n = buildProtocolTaskPanes();
 		if (n != null) {
 			protocolTaskPane.add(n);
 			container.add(protocolTaskPane);
 		}
-		*/
+		
+		
 		if (h > 0) {
-			//container.add(browserTaskPane);
+			container.add(browserTaskPane);
 			if (!browserTaskPane.isCollapsed())
 				loadParents(true);
 		}
@@ -389,34 +390,19 @@ class GeneralPaneUI
     	Object uo = model.getRefObject();
     	
     	int annotation = 0;
-    	int browser = 0;
     	if (!(uo instanceof AnnotationData)) { //hide everything
     		annotation = 1;
-    		if (!model.isMultiSelection()) browser = 1;
-    	} 
-    	if (uo instanceof FileAnnotationData) {
-    		if (!model.isMultiSelection()) browser = 1;
-    	} else if (uo instanceof TagAnnotationData) {
-			TagAnnotationData tag = (TagAnnotationData) uo;
-			if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(
-					tag.getNameSpace())) {
-				if (!model.isMultiSelection()) browser = 1;
-			}
-		}
+    	}
 		container.remove(annotationTaskPane);
 		//container.remove(protocolTaskPane);
-		container.remove(browserTaskPane);
 		if (annotation > 0) 
 			container.add(annotationTaskPane);
 		/*
 		if (protocolTaskPane.getComponentCount() > 0)
 			container.add(protocolTaskPane);
 		*/
-		//if (browser > 0) 
-			container.add(browserTaskPane);
-			
 		revalidate();
-    	repaint();
+		repaint();
 	}
 	
 	/**

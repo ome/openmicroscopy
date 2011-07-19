@@ -39,9 +39,6 @@ from webadmin.custom_models import ServerObjects
 from django.utils import simplejson as json
 from portalocker import LockException
 
-# TODO: In order to run utests we must set it
-DATABASE_ENGINE = 'sqlite3'
-
 # LOGS
 # NEVER DEPLOY a site into production with DEBUG turned on.
 # Debuging mode.
@@ -73,10 +70,6 @@ from omero.util.concurrency import get_event
 CONFIG_XML = os.path.join(OMERO_HOME, 'etc', 'grid', 'config.xml')
 count = 10
 event = get_event("websettings")
-try:
-    lockexceptions = (LockException, WindowsError)
-except NameError:
-    lockexceptions = LockException
 
 while True:
     try:
@@ -84,7 +77,7 @@ while True:
         CUSTOM_SETTINGS = CONFIG_XML.as_map()
         CONFIG_XML.close()
         break
-    except lockexceptions:
+    except LockException:
         logger.error("Exception while loading configuration retrying...", exc_info=True)
         count -= 1
         if not count:
@@ -131,9 +124,10 @@ def check_session_engine(s):
 def identity(x):
     return x
 
-def append_slash(s):
-    if not s.endswith("/"):
-        s=s+"/"
+def remove_slash(s):
+    if s is not None and len(s) > 0:
+        if s.endswith("/"):
+            s = s[:-1]
     return s
 
 class LeaveUnset(exceptions.Exception):
@@ -154,7 +148,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.database_port": ["DATABASE_PORT", None, leave_none_unset],
     "omero.web.database_user": ["DATABASE_USER", None, leave_none_unset],
     "omero.web.admins": ["ADMINS", '[]', json.loads],
-    "omero.web.application_host": ["APPLICATION_HOST", "http://localhost:80", append_slash],
+    "omero.web.application_host": ["APPLICATION_HOST", "http://localhost:4080", remove_slash],
     "omero.web.application_server": ["APPLICATION_SERVER", DEFAULT_SERVER_TYPE, check_server_type],
     "omero.web.application_server.host": ["APPLICATION_SERVER_HOST", "0.0.0.0", str],
     "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
@@ -194,10 +188,6 @@ for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
         pass
 
 TEMPLATE_DEBUG = DEBUG
-
-if APPLICATION_HOST is not None and len(APPLICATION_HOST) > 0:
-    if APPLICATION_HOST.endswith("/"):
-        APPLICATION_HOST = APPLICATION_HOST[:-1]
 
 # Configure logging and set place to store logs.
 INTERNAL_IPS = ()

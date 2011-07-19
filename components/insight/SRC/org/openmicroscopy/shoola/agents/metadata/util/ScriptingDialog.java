@@ -387,8 +387,11 @@ public class ScriptingDialog
 		Map<String, List<ScriptComponent>> childrenMap = 
 			new HashMap<String, List<ScriptComponent>>();
 		List<ScriptComponent> l;
+		int length;
+		boolean columnsSet = false;
 		while (i.hasNext()) {
 			text = "";
+			columnsSet = false;
 			comp = null;
 			entry = (Entry) i.next();
 			param = (ParamData) entry.getValue();
@@ -452,8 +455,12 @@ public class ScriptingDialog
 			} else if (String.class.equals(type)) {
 				if (comp == null) {
 					comp = new JTextField();
-					if (defValue != null)
-						((JTextField) comp).setText(""+defValue);
+					if (defValue != null) {
+						length = defValue.toString().length();
+						((JTextField) comp).setColumns(length);
+						((JTextField) comp).setText(defValue.toString());
+						columnsSet = true;
+					}
 				}
 			} else if (Boolean.class.equals(type)) {
 				if (comp == null) {
@@ -483,7 +490,8 @@ public class ScriptingDialog
 			}
 			if (comp != null) {
 				if (comp instanceof JTextField) {
-					((JTextField) comp).setColumns(ScriptComponent.COLUMNS);
+					if (!columnsSet)
+						((JTextField) comp).setColumns(ScriptComponent.COLUMNS);
 					((JTextField) comp).getDocument().addDocumentListener(this);
 				}
 				if (comp instanceof ComplexParamPane)

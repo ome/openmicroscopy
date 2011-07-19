@@ -94,6 +94,7 @@ import omero.client;
 import omero.rtypes;
 import omero.api.ExporterPrx;
 import omero.api.IAdminPrx;
+import omero.api.IConfigPrx;
 import omero.api.IContainerPrx;
 import omero.api.IDeletePrx;
 import omero.api.IMetadataPrx;
@@ -290,7 +291,7 @@ class OMEROGateway
 	 * The maximum number of thumbnails retrieved before restarting the
 	 * thumbnails service.
 	 */
-	private static final int				MAX_RETRIEVAL = 100;
+	static final int						MAX_RETRIEVAL = 50;//100;
 
 	/** Maximum number of rows to retrieve at one time from a table. */
 	private static final int				MAX_TABLE_ROW_RETRIEVAL = 100000;
@@ -1507,6 +1508,27 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Returns the {@link IConfigPrx} service.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private IConfigPrx getConfigService()
+		throws DSAccessException, DSOutOfServiceException
+	{
+		try {
+			if (entryUnencrypted != null)
+				return entryUnencrypted.getConfigService();
+			return entryEncrypted.getConfigService(); 
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Configuration service.");
+		}
+		return null;
+	}
+	
+	/**
 	 * Returns the {@link IDeletePrx} service.
 	 * 
 	 * @return See above.
@@ -1584,7 +1606,6 @@ class OMEROGateway
 					thumbnailService = entryEncrypted.createThumbnailStore();
 				services.add(thumbnailService);
 			}
-			thumbRetrieval++;
 			return thumbnailService; 
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Thumbnail service.");
@@ -2249,6 +2270,7 @@ class OMEROGateway
 	FSFileSystemView getFSRepositories(long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		if (fsViews == null) fsViews = new HashMap<Long, FSFileSystemView>();
 		if (fsViews.containsKey(userID)) return fsViews.get(userID);
 		//Review that code
@@ -2372,9 +2394,8 @@ class OMEROGateway
 	String getServerVersion()
 		throws DSOutOfServiceException
 	{
-		if (entryEncrypted == null) return null;
 		try {
-			return entryEncrypted.getConfigService().getVersion();
+			return getConfigService().getVersion();
 		} catch (Exception e) {
 			String s = "Can't retrieve the server version.\n\n";
 			s += printErrorText(e);
@@ -2393,6 +2414,7 @@ class OMEROGateway
 	String lookupLdapAuthExperimenter(long userID)
 		throws DSOutOfServiceException
 	{
+		isSessionAlive();
 		try {
 			IAdminPrx svc = getAdminService();
 			if (svc == null) svc = getAdminService();
@@ -3161,6 +3183,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			if (reset) thumbRetrieval = MAX_RETRIEVAL;
+			else thumbRetrieval += pixelsID.size();
 			ThumbnailStorePrx service = getThumbService();
 			if (service == null) service = getThumbService();
 			return service.getThumbnailByLongestSideSet(
@@ -5241,6 +5264,7 @@ class OMEROGateway
 						List<Integer> channels, String name, String pixType)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		try {
 			IProjectionPrx service = getProjectionService();
 			if (service == null) service = getProjectionService();
@@ -5285,6 +5309,7 @@ class OMEROGateway
 	ImageData getImage(long imageID, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		try {
 			List<Long> ids = new ArrayList<Long>(1);
 			ids.add(imageID);
@@ -5315,6 +5340,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		//TODO: add method to server so that we don't have to make 2 calls.
+		isSessionAlive();
 		try {
 			IPixelsPrx svc = getPixelsService();
 			if (svc == null) svc = getPixelsService();
@@ -5570,7 +5596,6 @@ class OMEROGateway
 	Collection loadTags(Long id, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		
 		isSessionAlive();
 		try {
 			IMetadataPrx service = getMetadataService();
@@ -6270,6 +6295,7 @@ class OMEROGateway
 			File file, StatusLabel status, boolean archived, boolean close)
 		throws ImportException
 	{
+		isSessionAlive();
 		OMEROMetadataStoreClient omsc = null;
 		try {
 			omsc = getImportStore();
@@ -6355,6 +6381,7 @@ class OMEROGateway
 			StatusLabel status)
 		throws ImportException
 	{
+		isSessionAlive();
 		try {
 			ImportConfig config = new ImportConfig();
 			OMEROWrapper reader = new OMEROWrapper(config);
@@ -6364,7 +6391,6 @@ class OMEROGateway
 					paths, status);
 			return new ArrayList<String>(candidates.getPaths());
 		} catch (Throwable e) {
-			e.printStackTrace();
 			throw new ImportException(getImportFailureMessage(e), e);
 		}
 	}
@@ -7816,6 +7842,7 @@ class OMEROGateway
 	DeleteCallback deleteObject(DeleteCommand[] commands)
 		throws ProcessException
 	{
+		isSessionAlive();
 		DeleteCallback cb = null;
 		shutDownServices(false);
 		try {
@@ -7845,6 +7872,7 @@ class OMEROGateway
 	Boolean isLargeImage(Pixels pixels)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		try {	
 			RawPixelsStorePrx store = getPixelsStore();
 			if (store == null) store = getPixelsStore();
@@ -7864,6 +7892,37 @@ class OMEROGateway
 		if (importStore != null) {
 			importStore.closeServices();
 			importStore = null;
+		}
+	}
+	
+	/**
+	 * Adds the experimenters to the specified group.
+	 * 
+	 * @param group The group to add the experimenters to.
+	 * @param experimenters The experimenters to add.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	void addExperimenters(GroupData group, List<ExperimenterData>
+	experimenters)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		IAdminPrx svc = getAdminService();
+		if (svc == null) svc = getAdminService();
+		Iterator<ExperimenterData> i = experimenters.iterator();
+		try {
+			ExperimenterData exp;
+			List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+			groups.add(group.asGroup());
+			while (i.hasNext()) {
+				exp = i.next();
+				svc.addGroups(exp.asExperimenter(), groups);
+			}
+		} catch (Exception e) {
+			handleException(e, "Cannot add the experimenters.");
 		}
 	}
 

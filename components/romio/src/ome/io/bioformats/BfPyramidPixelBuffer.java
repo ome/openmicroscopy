@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.List;
@@ -27,11 +28,12 @@ import loci.formats.tiff.IFDList;
 import loci.formats.tiff.TiffCompression;
 import ome.conditions.ApiUsageException;
 import ome.conditions.LockTimeout;
+import ome.io.nio.ConfiguredTileSizes;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
+import ome.io.nio.TileSizes;
 import ome.model.core.Pixels;
 import ome.util.PixelData;
-import ome.util.Utils;
 import ome.xml.model.enums.DimensionOrder;
 import ome.xml.model.enums.EnumerationException;
 import ome.xml.model.primitives.PositiveInteger;
@@ -67,6 +69,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      * @see {@link #writePath}
      */
     private final File readerFile;
+
+    /** Description of tile sizes */
+    private final TileSizes sizes;
 
     /** The OMERO pixels set we're backing. */
     private final Pixels pixels;
@@ -114,6 +119,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     private FileLock fileLock;
 
+    /** The byte order of the compressed pyramid. */
+    private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+
     public static final String PYR_LOCK_EXT = ".pyr_lock";
 
     /**
@@ -128,8 +136,26 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      * @see ticket:5083
      */
     public BfPyramidPixelBuffer(Pixels pixels, String filePath, boolean write)
-        throws IOException, FormatException
+    throws IOException, FormatException
     {
+        this(new ConfiguredTileSizes(), pixels, filePath, write);
+    }
+
+    /**
+     * Full constructor taking a {@link TileSizes} implementation which defines
+     * how large the pyramid tiles will be.
+     *
+     * @param sizes
+     * @param pixels
+     * @param filePath
+     * @param write
+     * @throws IOException
+     * @throws FormatException
+     */
+    public BfPyramidPixelBuffer(TileSizes sizes, Pixels pixels, String filePath, boolean write)
+    throws IOException, FormatException
+    {
+        this.sizes = sizes;
         this.readerFile = new File(filePath);
         this.pixels = pixels;
 
@@ -163,6 +189,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
         reader = new OmeroPixelsPyramidReader();
         delegate = new BfPixelBuffer(readerFile.getAbsolutePath(), reader);
+        byteOrder = delegate.isLittleEndian()? ByteOrder.LITTLE_ENDIAN
+                : ByteOrder.BIG_ENDIAN;
     }
 
     /**
@@ -221,7 +249,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     {
         metadata.setImageID("Image:" + series, series);
         metadata.setPixelsID("Pixels: " + series, series);
-        metadata.setPixelsBinDataBigEndian(true, series, 0);
+        metadata.setPixelsBinDataBigEndian(
+                byteOrder == ByteOrder.BIG_ENDIAN? true : false, series, 0);
         metadata.setPixelsDimensionOrder(DimensionOrder.XYZCT, series);
         metadata.setPixelsType(ome.xml.model.enums.PixelType.fromString(
                 pixels.getPixelsType().getValue()), series);
@@ -575,7 +604,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         {
             throw new IOException(String.format(
                     "Tile Y offset %d not a multiple of tile width %d",
-                    x, tileWidth));
+                    y, tileWidth));
         }
         if (w > tileWidth)
         {
@@ -587,8 +616,26 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         {
             throw new IOException(String.format(
                     "Requested tile height %d larger than tile height %d",
-                    w, tileHeight));
+                    h, tileHeight));
         }
+    }
+
+    /**
+     * Returns the current pixel byte order.
+     * @return See above.
+     */
+    public ByteOrder getByteOrder()
+    {
+        return byteOrder;
+    }
+
+    /**
+     * Sets the pixel byte order.
+     * @param byteOrder The pixel byte order to set.
+     */
+    public void setByteOrder(ByteOrder byteOrder)
+    {
+        this.byteOrder = byteOrder;
     }
 
     /* (non-Javadoc)
@@ -661,7 +708,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate().getCol(x, z, c, t);
+        PixelData data = delegate().getCol(x, z, c, t);
+        data.setOrder(byteOrder);
+        return data;
     }
 
     /* (non-Javadoc)
@@ -730,7 +779,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate().getPlane(z, c, t);
+        PixelData data = delegate().getPlane(z, c, t);
+        data.setOrder(byteOrder);
+        return data;
     }
 
     /* (non-Javadoc)
@@ -769,7 +820,10 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate().getPlaneRegion(x, y, width, height, z, c, t, stride);
+        PixelData data =
+            delegate().getPlaneRegion(x, y, width, height, z, c, t, stride);
+        data.setOrder(byteOrder);
+        return data;
     }
 
     /* (non-Javadoc)
@@ -820,7 +874,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate().getRow(y, z, c, t);
+        PixelData data = delegate().getRow(y, z, c, t);
+        data.setOrder(byteOrder);
+        return data;
     }
 
     /* (non-Javadoc)
@@ -962,7 +1018,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
-        return delegate().getTile(z, c, t, x, y, w, h);
+        PixelData data = delegate().getTile(z, c, t, x, y, w, h);
+        data.setOrder(ByteOrder.LITTLE_ENDIAN);
+        return data;
     }
 
     /* (non-Javadoc)
@@ -1164,9 +1222,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     {
         if (isWrite())
         {
-            // FIXME: This should be configuration or service driven
-            // FIXME: Also implemented in RenderingBean.getTileSize()
-            return new Dimension(256, 256);
+            return new Dimension(sizes.getTileWidth(), sizes.getTileHeight());
         }
         return delegate().getTileSize();
     }

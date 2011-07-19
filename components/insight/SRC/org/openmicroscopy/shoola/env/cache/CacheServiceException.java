@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.env.cache;
 //Application-internal dependencies
 
 /** 
- * Reports an error occured while handling a cache.
+ * Reports an error occurred while handling a cache.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

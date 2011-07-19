@@ -3,8 +3,8 @@
 {% load markup %}
 {% load custom_tags %}
 
+{% comment %}
 <!--
-
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
@@ -20,8 +20,8 @@
 
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 -->
+{% endcomment %}
 
 {% block link %}
     <link rel="stylesheet" href='{% url webstatic "css/myaccount.css" %}' type="text/css" media="screen"/>
@@ -114,7 +114,7 @@
     		    <br/><a href="{% url upload_myphoto "editphoto" %}">Crop this picture.</a>
         		{% else %}
         		<img src="{% url myphoto %}" />
-        		<ul class="errorlist"><li>You have not upload photo for your profile yet.</li></ul>
+        		<ul class="errorlist"><li>Please attach a photo to your profile.</li></ul>
         		{% endif %}
     		</p>
 		{% endif %}
@@ -127,7 +127,8 @@
             <table>
               <tbody>
                 {% for field in form_file %}
-                <tr><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
+                <tr><td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td></tr>
+                <tr><td class="input">{{ field }}</td><td>{{ field.help_text|safe }}</td></tr>
                 {% endfor %}
               </tbody>
               <tr><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Upload' %}" /></td></tr>

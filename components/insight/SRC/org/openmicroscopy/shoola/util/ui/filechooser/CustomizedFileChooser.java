@@ -56,7 +56,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME3.0
  */
 class CustomizedFileChooser
-	extends JFileChooser 
+	extends GenericFileChooser 
 	implements DocumentListener, KeyListener
 {
 	

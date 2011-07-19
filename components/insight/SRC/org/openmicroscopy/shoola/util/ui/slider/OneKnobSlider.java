@@ -99,7 +99,7 @@ public class OneKnobSlider
 		minorTickSpacing = getMinorTickSpacing();
 	}
 	
-	/** Creates a default slider.  */
+	/** Creates a default slider.*/
 	public OneKnobSlider()
 	{
 		this(OneKnobSlider.HORIZONTAL, 0, 1, 0);
@@ -256,7 +256,7 @@ public class OneKnobSlider
 	}
 	
 	/**
-	 * Overridden to reset the space betwen minor ticks.
+	 * Overridden to reset the space between minor ticks.
 	 * @see JSlider#setMinorTickSpacing(int)
 	 */
 	public void setMinorTickSpacing(int s)

@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
-import java.util.List;
 
 //Third-party libraries
 
@@ -33,7 +32,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /**
- * Loads the serverside ROIs into the measurment tool. Also if there are no
+ * Loads the server side ROIs into the measurement tool. Also if there are no
  * ROI it will check to see if there is an ROI.xml file and try and load from
  * it.
  * 

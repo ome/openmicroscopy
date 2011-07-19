@@ -23,17 +23,16 @@
 
 package org.openmicroscopy.shoola.util.math.geom2D;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * An orientated line in the Euclidean space <b>R</b><sup>2</sup>.
+ * An oriented line in the Euclidean space <b>R</b><sup>2</sup>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

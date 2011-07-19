@@ -3,6 +3,26 @@
 {% load markup %}
 {% load custom_tags %}
 
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
 {% block title %}{% trans "My account" %}{% endblock %}
 
 {% block css %}
@@ -85,7 +105,7 @@
 <div>
 <h1>{% trans "My account" %}</h1>
 
-<p>{% trans "Fields marked with an * are mandatory." %}</p>
+<p>{% trans "Fields marked with and asterisk (*) are mandatory." %}</p>
 <br/>
 
 <div class="myform">
@@ -128,7 +148,7 @@
 		    <br/><a href="{% url wamyaccount "editphoto" %}">Crop this picture.</a>
     		{% else %}
     		<img src="{% url wamyphoto %}" />
-    		<ul class="errorlist"><li>You have not upload photo for your profile yet.</li></ul>
+    		<ul class="errorlist"><li>Please attach a photo to your profile.</li></ul>
     		{% endif %}
 		</center></p>
 	{% endif %}
@@ -140,7 +160,8 @@
             <table>
               <tbody>
                 {% for field in form_file %}
-                <tr><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
+                <tr><td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td></tr>
+                <tr><td class="input">{{ field }}</td><td>{{ field.help_text|safe }}</td></tr>
                 {% endfor %}
               </tbody>
               <tr><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Upload' %}" /></td></tr>

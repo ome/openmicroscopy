@@ -1,5 +1,8 @@
+{% extends "webclient/base/base_main.html" %}
+
 <!-- 'Hello World' example from tutorial on http://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb -->
-<html><body>
+
+{% block content %}
 
 <h1>{{ dataset.getName }}</h1>
 
@@ -11,4 +14,4 @@
     </div>
 {% endfor %}
 
-</body></html>
+{% endblock %}

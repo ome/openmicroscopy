@@ -47,7 +47,7 @@ import info.clearthought.layout.TableLayout;
 //Application-internal dependencies
 
 /** 
- * Basic popu-menu displaying collection of objects.
+ * Basic pop-up menu displaying collection of objects.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

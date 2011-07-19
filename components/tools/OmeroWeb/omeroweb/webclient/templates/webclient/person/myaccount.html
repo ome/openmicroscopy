@@ -3,8 +3,8 @@
 {% load markup %}
 {% load custom_tags %}
 
+{% comment %}
 <!--
-
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
@@ -20,8 +20,8 @@
 
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 -->
+{% endcomment %}
 
 {% block link %}
     <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
@@ -65,7 +65,7 @@
     <div>
     <h1>{% trans "My account" %}</h1>
 
-    <p>{% trans "Fields marked with an * are mandatory." %}</p>
+    <p>{% trans "Fields marked with and asterisk (*) are mandatory." %}</p>
 
     <form action="{% url myaccount "save" %}" method="POST">
     <table>

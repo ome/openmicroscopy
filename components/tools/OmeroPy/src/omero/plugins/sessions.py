@@ -335,6 +335,7 @@ class SessionsControl(BaseControl):
             rv[0].killSession()
         except exceptions.Exception, e:
             self.ctx.dbg("Exception on logout: %s" % e)
+        store.remove(*previous)
         store.set_current("", "", "")
 
     def group(self, args):

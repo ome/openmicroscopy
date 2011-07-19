@@ -81,6 +81,9 @@ public class AnimatedJFrame
 	/** Orientation of the animation .*/
 	public static final int		UP_RIGHT = 2;
 	
+	/** Orientation of the animation .*/
+	public static final int		UP_LEFT = 3;
+	
 	/** The color of the line's border. */
 	private static final Color	LINE_COLOR = Color.black;
 	
@@ -151,12 +154,15 @@ public class AnimatedJFrame
 	/** Starts the animation. */
 	private void startAnimation()
 	{
+		glass.remove(animatingPane);
+		glass.remove(sheet);
+		glass.validate();
 		glass.repaint();
-		glass.removeAll();
 		animatingPane.setSource(sheet);
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridy = 0;
-		int h;
+		int h, w;
+		Dimension d;
 		switch (orientation) {
 			case DOWN:
 				c.anchor = GridBagConstraints.NORTH;
@@ -166,11 +172,19 @@ public class AnimatedJFrame
 				glass.add(Box.createGlue(), c);
 				break;
 			case UP_MIDDLE:
-				c.anchor = GridBagConstraints.SOUTHEAST;
+				//c.anchor = GridBagConstraints.SOUTHWEST;
 				h = glass.getHeight()-sheet.getHeight()-location.y;
-				glass.add(Box.createVerticalStrut(h), c);
-				c.gridy++;
-				glass.add(animatingPane, c);
+				if (glass.getLayout() == null) {
+					d = getSize();
+					w = (d.width-sheet.getPreferredSize().width)/2;
+					animatingPane.setLocation(w, h);
+					glass.add(animatingPane);
+				} else {
+					glass.add(Box.createVerticalStrut(h), c);
+					c.weightx = 0.5;
+					c.gridy++;
+					glass.add(animatingPane, c);
+				}
 				break;
 			case UP_RIGHT:
 				c.anchor = GridBagConstraints.SOUTHEAST;
@@ -180,6 +194,18 @@ public class AnimatedJFrame
 				c.gridy++;
 				glass.add(animatingPane, c);
 				break;
+			case UP_LEFT:
+				h = glass.getHeight()-sheet.getHeight()-location.y;
+				if (glass.getLayout() == null) {
+					animatingPane.setLocation(0, h);
+					glass.add(animatingPane);
+				} else {
+					c.anchor = GridBagConstraints.SOUTHWEST;
+					glass.add(Box.createVerticalStrut(h), c);
+					c.weightx = 0.1;
+					c.gridy++;
+					glass.add(animatingPane, c);
+				}
 		}
 		glass.setVisible(true);
 		animationStart = System.currentTimeMillis();
@@ -199,12 +225,14 @@ public class AnimatedJFrame
 	/** Stops the display of the dialog. */
 	private void finish()
 	{
-		glass.removeAll();
+		glass.remove(animatingPane);
+		glass.remove(sheet);
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridy = 0;
 		c.gridx = 0;
-		int h;
+		int h, w;
 		c.anchor = GridBagConstraints.SOUTHWEST;
+		Dimension d;
 		switch (orientation) {
 			case DOWN:
 				c.anchor = GridBagConstraints.NORTH;
@@ -215,20 +243,40 @@ public class AnimatedJFrame
 				break;
 			case UP_MIDDLE:
 				h = glass.getHeight()-sheet.getHeight()-location.y;
-				glass.add(Box.createVerticalStrut(h), c);
-				c.gridy++;
-				glass.add(sheet, c);
+				if (glass.getLayout() == null) {
+					d = getSize();
+					w = (d.width-sheet.getPreferredSize().width)/2;
+					sheet.setLocation(w, h);
+					glass.add(sheet);
+				} else {
+					glass.add(Box.createVerticalStrut(h), c);
+					c.gridy++;
+					glass.add(sheet, c);
+				}
 				break;
 			case UP_RIGHT:
 				h = glass.getHeight()-sheet.getHeight()-location.y;
 				glass.add(Box.createVerticalStrut(h), c);
 				c.gridy++;
-				Dimension d = getSize();
-				int w = d.width-sheet.getPreferredSize().width;
+				d = getSize();
+				w = d.width-sheet.getPreferredSize().width;
 				glass.add(Box.createHorizontalStrut(w), c);
 				c.gridx++;
 				glass.add(sheet, c);
-				
+				break;
+			case UP_LEFT:
+				h = glass.getHeight()-sheet.getHeight()-location.y;
+				if (glass.getLayout() == null) {
+					sheet.setLocation(0, h);
+					glass.add(sheet);
+				} else {
+					glass.add(Box.createVerticalStrut(h), c);
+					c.gridy++;
+					c.weightx = 0.1;
+					//glass.add(Box.createHorizontalStrut(5), c);
+					c.gridx++;
+					glass.add(sheet, c);
+				}
 		}
 		glass.revalidate();
 		glass.repaint();
@@ -302,6 +350,7 @@ public class AnimatedJFrame
 		switch (orientation) {
 			case UP_MIDDLE:
 			case UP_RIGHT:
+			case UP_LEFT:
 				this.orientation = orientation;
 				border = new OneLineBorder(OneLineBorder.BOTTOM, LINE_COLOR);
 				break;
@@ -343,21 +392,44 @@ public class AnimatedJFrame
 		if (dialog == null) return null;
 		this.location = location;
 		sheet = (JComponent) dialog.getContentPane();
+		if (glass.getLayout() == null) {
+			animatingPane.setSize(dialog.getSize());
+			animatingPane.setPreferredSize(dialog.getPreferredSize());
+			sheet.setSize(dialog.getSize());
+			sheet.setPreferredSize(dialog.getPreferredSize());
+			glass.remove(animatingPane);
+			glass.remove(sheet);
+		} else {
+			glass.removeAll();
+		}
 		setOrientation(orientation);
-		glass.removeAll();
+		glass.validate();
+		glass.repaint();
 		animationDir = INCOMING;
 		startAnimation();
 		return sheet;
 	}
 	
-	/** Stops the animation and hides the components. */
-	public void hideAnimation()
+	/** Stops the animation and hides the components. 
+	 * 
+	 * @param visible 	Pass <code>true</code> to keep the glass pane visible, 
+	 * 					<code>false</code> otherwise.
+	 */
+	public void hideAnimation(boolean visible)
 	{
 		animationDir = OUTGOING;
+		//glass.removeAll();
+		glass.remove(animatingPane);
+		glass.remove(sheet);
+		glass.validate();
+		glass.repaint();
 		stopAnimation();
-		glass.setVisible(false);
+		glass.setVisible(visible);
 		if (timer != null && closeAfter) timer.stop();
 	}
+	
+	/** Stops the animation and hides the components. */
+	public void hideAnimation() { hideAnimation(false); }
 	
 	/**
 	 * Starts or ends the animation.

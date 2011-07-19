@@ -40,7 +40,7 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 //Application-internal dependencies
 
 /** 
- * 
+ * Close the component.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

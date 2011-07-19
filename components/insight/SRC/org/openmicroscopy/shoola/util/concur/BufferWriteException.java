@@ -30,7 +30,7 @@ package org.openmicroscopy.shoola.util.concur;
 //Application-internal dependencies
 
 /** 
- * Reports an error occured while trying to write data into a buffer.
+ * Reports an error occurred while trying to write data into a buffer.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -46,7 +46,6 @@ package org.openmicroscopy.shoola.util.concur;
 public class BufferWriteException
 	extends Exception
 {
-
 
 	/**
 	 * Constructs a new exception with the specified detail message.

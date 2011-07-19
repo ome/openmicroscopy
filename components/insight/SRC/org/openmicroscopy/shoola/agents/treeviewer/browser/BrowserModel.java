@@ -874,8 +874,17 @@ class BrowserModel
 	/** Creates a {@link DeleteCmd} command to execute the action. */
 	void delete()
 	{
-		DeleteCmd c = new DeleteCmd(component);
-		c.execute();
+		TreeImageDisplay[] selected = getSelectedDisplays();
+    	int count = 0;
+    	boolean b = false;
+		for (int i = 0; i < selected.length; i++) {
+			b = parent.canDeleteObject(selected[i].getUserObject());
+			if (b) count++;
+		}
+		if (count == selected.length) {
+			DeleteCmd c = new DeleteCmd(component);
+			c.execute();
+		}
 	}
 	
 	/**
@@ -926,4 +935,17 @@ class BrowserModel
 		return files;
 	}
 
+	/** 
+	 * Returns <code>true</code> if several nodes are selected,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isMultiSelection()
+	{
+		TreeImageDisplay[] nodes = getSelectedDisplays();
+		if (nodes == null || nodes.length <= 1) return false;
+		return true;
+	}
+	
 }

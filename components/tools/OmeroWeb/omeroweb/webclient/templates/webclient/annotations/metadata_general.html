@@ -4,8 +4,8 @@
 {% load custom_tags %}
 {% load wikitags %}
 
+{% comment %}
 <!--
-
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
@@ -21,8 +21,8 @@
 
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 -->
+{% endcomment %}
 
 {% block link %}
     <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
@@ -157,7 +157,7 @@
                 // display in a new window      
                 $(".show_xml").click(function() {
                     var xml = $(this).next().html();
-                    var newWindow=window.open('','name','height=500,width=500,scrollbars=yes, top=50, left=100');
+                    var newWindow=window.open('','','height=500,width=500,scrollbars=yes, top=50, left=100');
                     newWindow.document.write(xml);
                     newWindow.document.close();
                     return false;
@@ -433,7 +433,7 @@
             {% if manager.well %}            
             {% if manager.well.selectedWellSample.image.isOwned %}<div id="wellname-{{ manager.well.selectedWellSample.image.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="wellname-{{ manager.well.selectedWellSample.image.id }}-name">{{ manager.well.selectedWellSample.image.name|warphtml:"30" }}</span></h1></div>{% else %}<h1>{{ manager.well.selectedWellSample.image.name|warphtml:"30" }}</h1>{% endif %}
                    
-            <h2 id='well_id'>Well ID: {{ manager.well.selectedWellSample.image.id }}</h2>
+            <h2 id='well_id'>Image ID: {{ manager.well.selectedWellSample.image.id }} Well ID: {{ manager.well.id }}</h2>
             <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.selectedWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
             <div class="description">
                 {% if manager.well.selectedWellSample.image.isOwned %}<div id="welldescription-{{ manager.well.selectedWellSample.image.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="welldescription-{{ manager.well.selectedWellSample.image.id }}-description">{{ manager.well.selectedWellSample.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='well_desc'>{{ manager.well.selectedWellSample.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
@@ -479,7 +479,13 @@
                 <tr>
                     <th>Channels:</th>
                     <td id='channel_names'>
-                    {% if manager.well.selectedWellSample.image.getChannels %}{% for c in manager.well.selectedWellSample.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLogicalChannel.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
+                    {% if manager.well.selectedWellSample.image.getChannels %}{% for c in manager.well.selectedWellSample.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Status:</th>
+                    <td id='well_status'>
+                        {{ manager.well.status|default_if_none:"None" }}
                     </td>
                 </tr>
             </table>
@@ -729,7 +735,7 @@
             <tr>
                 <th colspan="3">                
                     {% trans "Comment:" %}
-                    {% if manager.project.isEditable or manager.dataset.isEditable or manager.image.isEditable %}
+                    {% if manager.project.isEditable or manager.dataset.isEditable or manager.image.isEditable or manager.screen.isEditable or manager.plate.isEditable or manager.well.isEditable %}
                     <form action="{% if manager.project %}{% url manage_action_containers "addcomment" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addcomment" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addcomment" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addcomment" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addcomment" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addcomment" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}" method="post">
                     <table>
                         {% for field in form_comment %}

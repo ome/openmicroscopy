@@ -33,14 +33,14 @@ import java.util.Stack;
 //Application-internal dependencies
 
 /** 
- * This is a matrix stack, it will save the current affline transformation of 
- * the graohic device when pushed onto the stack and return that context when 
+ * This is a matrix stack, it will save the current affine transformation of 
+ * the graphic device when pushed onto the stack and return that context when 
  * popped. 
  * <p>
  * I did think of saving the graphics context inside the matrix stack and using
  * simply push and pop to set the states of the graphics context itself. I 
  * decided that this had less utility (also a danger of dangling references) 
- * than passing the affinetransform.
+ * than passing the affine transform.
  * </p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;

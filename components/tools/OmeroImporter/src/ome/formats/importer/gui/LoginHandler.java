@@ -191,6 +191,24 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                 {
                     if (isValidLogin())
                     {
+                    	String serverVersion = 
+                    		store.getServiceFactory().getConfigService().getVersion();
+                    	if (!checkClientServerCompatibility(serverVersion,
+                    			config.getIniVersionNumber())) {
+                    		JOptionPane.showMessageDialog(viewer,
+                    				"Client and server are not compatible \n"+
+                    				"client version:"+config.getIniVersionNumber()+"\n"+
+                    				"server version:"+serverVersion+"\n"+
+                    				"try to log in again.");
+                    		viewer.appendToOutput("> Incompatible client-server. " +
+                    		"Try to relog.\n");
+                    		viewer.enableMenus(true);
+                    		viewer.setLoggedIn(false);
+                    		if (NEW_LOGIN)
+                    			refreshNewLogin();
+                    		logout();
+                    		return;
+                    	}
                         if (NEW_LOGIN)
                         {
                         	store.setCurrentGroup(lc.getGroup());
@@ -205,8 +223,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                             viewer.setVisible(true);
                         }
                         
-                        if (config.getStaticDisableUpgradeCheck() == false)
-                        	store.isUpgradeRequired(config.getVersionNumber(), "importer");
+                        config.isUpgradeNeeded();
                         store.logVersionInfo(config.getIniVersionNumber());
                         viewer.getStatusBar().setProgress(false, 0, "");
                         viewer.appendToOutput("> Login Successful.\n");
@@ -369,7 +386,36 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         return true;
     }
     
-
+    /**
+     * Returns <code>true</code> if the server and the client are compatible,
+     * <code>false</code> otherwise.
+     * 
+     * @param server The version of the server.
+     * @param client The version of the client.
+     * @return See above.
+     */
+    private boolean checkClientServerCompatibility(String server, String client)
+    {
+    	if (server == null || client == null) return false;
+    	if (server.contains("-"))
+    		server = server.split("-")[0];
+    	if (client.contains("-"))
+    		client = client.split("-")[0];
+    	if (client.startsWith("Beta"))
+    		client = client.substring(4);
+    	String[] values = server.split("\\.");
+    	String[] valuesClient = client.split("\\.");
+    	//Integer.parseInt(values[0]);
+    	if (values.length < 2 || valuesClient.length < 2) return false;
+    	int s1 = Integer.parseInt(values[0]);
+    	int s2 = Integer.parseInt(values[1]);
+    	int c1 = Integer.parseInt(valuesClient[0]);
+    	int c2 = Integer.parseInt(valuesClient[1]);
+    	if (s1 < c1) return false;
+    	if (s2 < c2) return false;
+    	return true;
+    }
+    
     
     /**
      * @return true if valid login
@@ -418,7 +464,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
      */
     public void logout()
     {
-    	store.logout();
+    	if (store != null) store.logout();
     	if (viewer != null)
     		viewer.setLoggedIn(false);
     }

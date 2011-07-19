@@ -167,6 +167,7 @@ class ImporterComponent
 		//load available disk space
 		model.fireDiskSpaceLoading();
 		view.setOnScreen();
+		view.toFront();
 		//view.setVisible(false);
 		//UIUtilities.centerAndShow(chooser);
 	}
@@ -228,7 +229,7 @@ class ImporterComponent
 			if (element.isDone()) {
 				model.importCompleted(element.getID());
 				view.onImportEnded(element);
-				boolean b = element.getData().hasNewObjects();
+				boolean b = chooser.reloadHierarchies();//element.getData().hasNewObjects();
 				if (markToclose) {
 					view.setVisible(false);
 					fireStateChange();
@@ -239,14 +240,12 @@ class ImporterComponent
 					if (element != null) 
 						importData(element);
 				} else {
-					//reload the data
-					/*
+					//reload the hierarchies.
 					Class rootType = ProjectData.class;
 					if (chooser != null && 
 							chooser.getType() == Importer.SCREEN_TYPE)
 						rootType = ScreenData.class;
 					model.fireContainerLoading(rootType, true);
-					*/
 				}
 			}	
 			fireStateChange();
@@ -376,8 +375,10 @@ class ImporterComponent
 		}
 		Iterator<ImporterUIElement> i = list.iterator();
 		ImporterUIElement element;
+		ImporterUIElement started = null;
 		while (i.hasNext()) {
 			element = i.next();
+			if (element.hasStarted()) started = element;
 			if (!element.isDone())
 				toImport.add(element);
 		}
@@ -395,6 +396,9 @@ class ImporterComponent
 				element.cancelLoading();
 				//if (!element.hasStarted())
 				model.cancel(element.getID());
+			}
+			if (started != null && started.isDone()) {
+				markToclose = false;
 			}
 		} else markToclose = false;
 		if (!markToclose) view.setVisible(false);
@@ -424,6 +428,26 @@ class ImporterComponent
 		return element.isLastImport();
 	}
 
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#hasOnGoingImport()
+	 */
+	public boolean hasOnGoingImport()
+	{
+		if (model.getState() != DISCARDED) {
+			Collection<ImporterUIElement> list = view.getImportElements();
+			if (list == null || list.size() == 0) return false;
+			Iterator<ImporterUIElement> i = list.iterator();
+			ImporterUIElement element;
+			while (i.hasNext()) {
+				element = i.next();
+				if (!element.isDone())
+					return true;
+			}
+		}
+		return false;
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#refreshContainers(int)
@@ -456,7 +480,7 @@ class ImporterComponent
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		Set nodes = TreeViewerTranslator.transformHierarchy(result, exp.getId(),
 				-1);
-		chooser.reset(null, nodes, type);
+		chooser.reset(nodes, type);
 		if (refreshImport) {
 			Collection<ImporterUIElement> l = view.getImportElements();
 			Iterator<ImporterUIElement> i = l.iterator();
@@ -474,15 +498,6 @@ class ImporterComponent
 		}
 	}
 
-	/**
-	 * Cancels all-going imports, displays the di
-	 * @param closeOption
-	 */
-	private void cancellAll(boolean windowOption)
-	{
-		
-	}
-	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#cancelAllImports()

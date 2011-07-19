@@ -34,13 +34,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
@@ -465,7 +466,26 @@ class ImgSaverUI
 		return (separateFiles.isSelected() && separateFiles.isVisible());
 	}
 	
-	/** 
+	/**
+	 * Returns the selected file.
+	 * 
+	 * @return See above.
+	 */
+	File getSelectedFile() { return chooser.getSelectedFile(); }
+	
+	/**
+	 * Returns the absolute path of the selected file.
+	 * 
+	 * @return See above.
+	 */
+	String getSelectedFilePath()
+	{
+		File f = getSelectedFile();
+		if (f == null) return "";
+		return f.getAbsolutePath();
+	}
+	
+ 	/** 
 	 * Reacts to click on the button replacing the ones usually provided by the
 	 * file chooser.
 	 * @see ActionListener#actionPerformed(ActionEvent)

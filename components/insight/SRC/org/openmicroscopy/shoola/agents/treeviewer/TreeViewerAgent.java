@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JComponent;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -333,6 +335,8 @@ public class TreeViewerAgent
 			TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
 			if (viewer != null && !(data instanceof ImageData))
 				viewer.browseContainer(data, null);
+			JComponent src = evt.getSource();
+			if (src != null) src.setEnabled(true);
 				//viewer.findDataObject(data.getClass(), data.getId(), false);
     	}
     }

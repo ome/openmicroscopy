@@ -742,7 +742,7 @@ class PropertiesUI
          JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
          l.setBackground(UIUtilities.BACKGROUND_COLOR);
          int w = editName.getIcon().getIconWidth()+4;
-         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
+         p.add(layoutEditablefield(null, l));
          l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
          l.setBackground(UIUtilities.BACKGROUND_COLOR);
          p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
@@ -870,7 +870,7 @@ class PropertiesUI
 			String text = namePane.getText();
 			if (text != null) text = text.trim();
 			if (editable) namePane.setText(modifiedName);
-			else namePane.setText(EditorUtil.getPartialName(text));
+			else namePane.setText(UIUtilities.formatPartialName(text));
 			namePane.getDocument().addDocumentListener(this);
 			namePane.select(0, 0);
 			namePane.setCaretPosition(0);
@@ -987,7 +987,7 @@ class PropertiesUI
 		descriptionPane.removeDocumentListener(this);
 		originalName = model.getRefObjectName();
 		modifiedName = model.getRefObjectName();
-		originalDisplayedName = EditorUtil.getPartialName(originalName);
+		originalDisplayedName = UIUtilities.formatPartialName(originalName);
 		namePane.setText(originalDisplayedName);
 		namePane.setToolTipText(originalName);
 		Object refObject = model.getRefObject();
@@ -1027,6 +1027,10 @@ class PropertiesUI
         String t = text;
         if (model.getRefObjectID() > 0)
         	t += " "+ID_TEXT+model.getRefObjectID();
+        if (refObject instanceof WellSampleData) {
+        	WellSampleData wsd = (WellSampleData) refObject;
+        	t += " (Image ID: "+wsd.getImage().getId()+")";
+        }
 		idLabel.setText(t);
 		String ownerName = model.getOwnerName();
 		if (ownerName != null && ownerName.length() > 0)
@@ -1083,7 +1087,7 @@ class PropertiesUI
 	{
 		if (!hasDataToSave()) return;
 		Object object =  model.getRefObject();
-		String name = namePane.getText().trim();
+		String name = modifiedName;//namePane.getText().trim();
 		String desc = descriptionPane.getText().trim();
 		if (name != null) {
 			if (name.equals(originalName) || name.equals(originalDisplayedName))

@@ -34,7 +34,7 @@ import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
- * Handles uncaught exeptions thrown in the AWT event-dispatch thread and in
+ * Handles uncaught exceptions thrown in the AWT event-dispatch thread and in
  * the main thread.
  * The handling policy is very easy for now: notify the user, log the exception,
  * and quit the application.

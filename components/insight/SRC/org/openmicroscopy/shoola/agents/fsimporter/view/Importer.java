@@ -247,4 +247,11 @@ public interface Importer
 	 */
 	public void createDataObject(DataObject child, DataObject parent);
 	
+	/**
+	 * Returns <code>true</code> if there are data to import,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasOnGoingImport();
 }

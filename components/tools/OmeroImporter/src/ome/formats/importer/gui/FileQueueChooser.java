@@ -37,6 +37,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -51,6 +54,8 @@ import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
+
+import loci.formats.gui.ComboFileFilter;
 
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
@@ -217,11 +222,25 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
         setAcceptAllFileFilterUsed(false);
         
         FileFilter[] originalFF = null;
-        
         int readerFFSize = 0;
         if (scanReader != null)
         {
 	        originalFF = loci.formats.gui.GUITools.buildFileFilters(scanReader.getImageReader());
+	        FileFilter filter;
+	        List<FileFilter> extensionFilters = new ArrayList<FileFilter>();
+	        for (int i = 0; i < originalFF.length; i++) {
+	        	filter = originalFF[i];
+				if (filter instanceof ComboFileFilter) {
+					ComboFileFilter cff = (ComboFileFilter) filter;
+					extensionFilters.add(cff);
+					extensionFilters.addAll(Arrays.asList(cff.getFilters()));
+					break;
+				}
+			}
+	        if (extensionFilters != null) {
+	            originalFF =extensionFilters.toArray(
+	                    new FileFilter[extensionFilters.size()]);
+	        }
 	        readerFFSize = originalFF.length;
         }
 

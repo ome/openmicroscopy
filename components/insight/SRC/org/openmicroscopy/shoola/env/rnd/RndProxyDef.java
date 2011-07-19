@@ -275,10 +275,10 @@ public class RndProxyDef
 		copy.setBitResolution(this.getBitResolution());
 		copy.setColorModel(this.getColorModel());
 		copy.setCodomain(this.getCdStart(), this.getCdEnd());
-		Iterator i = channels.keySet().iterator();
+		Iterator<Integer> i = channels.keySet().iterator();
 		int index;
 		while (i.hasNext()) {
-			index = (Integer) i.next();
+			index = i.next();
 			copy.setChannel(index, this.getChannel(index).copy());
 		}
 		return copy;

@@ -73,7 +73,7 @@ from forms import ShareForm, BasketShareForm, ShareCommentForm, \
                     MultiAnnotationForm, \
                     WellIndexForm
 
-from controller import sortByAttr, BaseController
+from controller import BaseController
 from controller.index import BaseIndex
 from controller.basket import BaseBasket
 from controller.container import BaseContainer
@@ -190,17 +190,16 @@ def sessionHelper(request):
         request.session['nav']={"blitz": blitz, "menu": "mydata", "view": "tree", "basket": 0, "experimenter":None}
         changes = True
     if changes:
-        request.session.modified = True        
+        request.session.modified = True
         
 ################################################################################
 # views controll
 
 def login(request):
-    request.session.modified = True    
+    request.session.modified = True
     
-    if request.REQUEST.get('server'):      
-        
-        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
+    if request.REQUEST.get('server'):
+        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server'))
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
@@ -216,10 +215,12 @@ def login(request):
     error = request.REQUEST.get('error')
     
     conn = None
-    try:
-        conn = getBlitzConnection(request, useragent="OMERO.web")
-    except Exception, x:
-        error = x.__class__.__name__
+    # TODO: version check should be done on the low level, see #5983
+    if _checkVersion(request.session.get('host'), request.session.get('port')):
+        try:
+            conn = getBlitzConnection(request, useragent="OMERO.web")
+        except Exception, x:
+            error = x.__class__.__name__
     
     if conn is not None:
         upgradeCheck()
@@ -1173,37 +1174,6 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
-
-@isUserConnected
-def load_hierarchies(request, o_type=None, o_id=None, **kwargs):
-    template = "webclient/hierarchy.html"
-    conn = None
-    try:
-        conn = kwargs["conn"]
-        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    whos = request.session['nav']['whos']
-    
-    kw = dict()
-    if o_type is not None and o_id > 0:
-        kw[str(o_type)] = long(o_id)
-    
-    try:
-        manager = BaseContainer(conn, **kw)
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return handlerInternalError(x)
-    manager.loadHierarchies()
-    
-    context = {'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager}
-
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
     
 
 ###########################################################################
@@ -1885,8 +1855,7 @@ def basket_action (request, action=None, **kwargs):
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
     elif action == "createshare":
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, oid]))
-        
+            return HttpResponseRedirect(reverse("basket_action"))
         basket = BaseBasket(conn)
         basket.load_basket(request)
         experimenters = list(conn.getExperimenters())
@@ -1918,8 +1887,7 @@ def basket_action (request, action=None, **kwargs):
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
     elif action == "createdisc":
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, oid]))
-        
+            return HttpResponseRedirect(reverse("basket_action"))
         basket = BaseBasket(conn)
         experimenters = list(conn.getExperimenters())
         experimenters.sort(key=lambda x: x.getOmeName().lower())
@@ -2059,10 +2027,13 @@ def manage_myaccount(request, action=None, **kwargs):
     controller.getMyDetails()
     controller.getOwnedGroups()
     
+    groups = list(conn.getGroupsMemberOf())
+    groups.sort(key=lambda x: x.getName().lower())
+    
     eContext = dict()
     eContext['context'] = conn.getEventContext()
     eContext['user'] = conn.getUser()
-    eContext['allGroups']  = controller.sortByAttr(list(conn.getGroupsMemberOf()), "name")
+    eContext['allGroups']  = groups
     
     form = MyAccountForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
                                 'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
@@ -2416,15 +2387,17 @@ def render_thumbnail (request, iid, share_id=None, **kwargs):
          
     if conn is None:
         raise Exception("Connection not available")
-    img = conn.getObject("Image", iid)
-    
-    if img is None:
-        jpeg_data = conn.defaultThumbnail(80)
-        logger.error("Image %s not found..." % (str(iid)))
-        #return handlerInternalError("Image %s not found..." % (str(iid)))
-    else:
-        jpeg_data = img.getThumbnailOrDefault(size=80)
-    return HttpResponse(jpeg_data, mimetype='image/jpeg')
+
+    return webgateway_views.render_thumbnail(request, iid, w=80, _conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
+#    img = conn.getObject("Image", iid)
+#    
+#    if img is None:
+#        jpeg_data = conn.defaultThumbnail(80)
+#        logger.error("Image %s not found..." % (str(iid)))
+#        #return handlerInternalError("Image %s not found..." % (str(iid)))
+#    else:
+#        jpeg_data = img.getThumbnailOrDefault(size=80)
+#    return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 @isUserConnected
 def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):

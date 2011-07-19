@@ -93,9 +93,7 @@ public class SaveAsProtocolAction
 	{
 		// if not an experiment 
 		if (!model.isExperiment())		return;
-		
-		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
-		MessageBox msg = new MessageBox(f, "Save As Protocol...", 
+		MessageBox msg = new MessageBox(model.getUI(), "Save As Protocol...", 
 				"This will remove the Experiment Info and any Step Notes\n" +
 				"and save the file as a new Protocol file.");
 		msg.setYesText("OK");

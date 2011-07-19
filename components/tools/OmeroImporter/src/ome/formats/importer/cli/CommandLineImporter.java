@@ -91,9 +91,9 @@ public class CommandLineImporter {
                 // config.requestFromUser(); // stdin if anything missing.
                 usage(); // EXITS TODO this should check for a "quiet" flag
             }
+
+            config.isUpgradeNeeded();
             store = config.createStore();
-            if (config.getStaticDisableUpgradeCheck() == false)
-            	store.isUpgradeRequired(config.getVersionNumber(), "importer-cli");
             store.logVersionInfo(config.getIniVersionNumber());
             reader.setMetadataOptions(
                     new DefaultMetadataOptions(MetadataLevel.ALL));
@@ -258,13 +258,18 @@ public class CommandLineImporter {
         LongOpt plateDescription = new LongOpt(
                 "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 7);
         LongOpt noThumbnails = new LongOpt(
-            "no_thumbnails", LongOpt.NO_ARGUMENT, null, 8);
+                "no_thumbnails", LongOpt.NO_ARGUMENT, null, 8);
+        LongOpt agent = new LongOpt(
+                "agent", LongOpt.REQUIRED_ARGUMENT, null, 9);
+
         Getopt g = new Getopt(APP_NAME, args, "acfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
-                                plateName, plateDescription, noThumbnails});
+                                plateName, plateDescription, noThumbnails,
+                                agent});
         int a;
 
         boolean getUsedFiles = false;
+        config.agent.set("importer-cli");
 
         while ((a = g.getopt()) != -1) {
             switch (a) {
@@ -299,6 +304,10 @@ public class CommandLineImporter {
             case 8: {
               config.doThumbnails.set(false);
               break;
+            }
+            case 9: {
+                config.agent.set(g.getOptarg());
+                break;
             }
             case 's': {
                 config.hostname.set(g.getOptarg());

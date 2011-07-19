@@ -32,7 +32,6 @@ import javax.swing.Icon;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.OriginalFile;
 import pojos.FileAnnotationData;
 
 /** 

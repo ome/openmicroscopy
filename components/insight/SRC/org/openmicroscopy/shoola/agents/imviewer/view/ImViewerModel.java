@@ -1465,7 +1465,7 @@ class ImViewerModel
 				lastMainDef = rnd.getRndSettingsCopy();
 				break;
 			case ImViewer.VIEW_INDEX:
-				lastProjDef = rnd.getRndSettingsCopy();	
+				//lastProjDef = rnd.getRndSettingsCopy();	
 		}
 	}
 	
@@ -1589,7 +1589,7 @@ class ImViewerModel
 	{
 		switch (getTabbedIndex()) {
 			case ImViewer.PROJECTION_INDEX:
-				lastProjDef = settings;
+				//lastProjDef = settings;
 				break;
 			case ImViewer.VIEW_INDEX:
 				lastMainDef = settings;
@@ -1833,6 +1833,7 @@ class ImViewerModel
 				startZ, endZ, stepping, type);
 		param.setChannels(getActiveChannels());
 		lastProjRef = param;
+		lastProjDef = metadataViewer.getRenderer().getRndSettingsCopy();
 		ProjectionSaver loader = new ProjectionSaver(component, param, 
 				                  ProjectionSaver.PREVIEW);
 		loader.load();

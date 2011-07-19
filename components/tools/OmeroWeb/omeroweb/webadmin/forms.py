@@ -57,7 +57,7 @@ class LoginForm(NonASCIIForm):
             
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22, 'autocomplete': 'off'}))
-    ssl = forms.BooleanField(required=False, label="SSL")  
+    ssl = forms.BooleanField(required=False, help_text='<img src="/appmedia/omeroweb/images/nuvola_encrypted_grey16.png" title="Real-time encrypted data transfer can be turned on by checking the box, but it will slow down the data access. Turning it off does not affect the connection to the server which is always secure." alt="SSL"')
 
 class ForgottonPasswordForm(NonASCIIForm):
     
@@ -89,7 +89,7 @@ class ExperimenterForm(NonASCIIForm):
         else:
             self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups', 'available_groups']
 
-    omename = OmeNameField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
+    omename = OmeNameField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), label="Username")
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
     middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
     last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
@@ -109,7 +109,7 @@ class ExperimenterForm(NonASCIIForm):
                 
     def clean_omename(self):
         if self.name_check:
-            raise forms.ValidationError('This omename already exist.')
+            raise forms.ValidationError('This username already exist.')
         return self.cleaned_data.get('omename')
 
     def clean_email(self):
@@ -137,7 +137,7 @@ class GroupForm(NonASCIIForm):
 
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}))
     description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}), required=False)
-    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group, it means. That action might increase the time of upgrading group and break the server.</div>")
+    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group. That action might increase the time of upgrading group and break the server.</div>")
     readonly = forms.BooleanField(required=False, label="(read-only)")  
     
     def clean_name(self):
@@ -168,7 +168,7 @@ class MyAccountForm(NonASCIIForm):
             self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], empty_label=None)
         self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'default_group']
 
-    omename = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'onfocus':'this.blur()', 'size':30, 'autocomplete': 'off'}))
+    omename = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'onfocus':'this.blur()', 'size':30, 'autocomplete': 'off'}), label="Username")
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
     middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
     last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
@@ -196,18 +196,18 @@ class UploadPhotoForm(forms.Form):
 
     def clean_photo(self):
         if self.cleaned_data.get('photo') is None:
-            raise forms.ValidationError('This field is required.')
+            raise forms.ValidationError('No image selected. Supported image formats (file extensions allowed): jpeg, jpg, gif, png. The maximum image size allowed is 200KB.')
         if not self.cleaned_data.get('photo').content_type.startswith("image"):
-            raise forms.ValidationError('Only images (JPEG, GIF, PNG) acepted.')
+            raise forms.ValidationError('Supported image formats (file extensions allowed): jpeg, jpg, gif, png.')
         if self.cleaned_data.get('photo').size > 204800:
-            raise forms.ValidationError('Photo size file cannot be greater them 200KB.')
+            raise forms.ValidationError('The maximum image size allowed is 200KB.')
         return self.cleaned_data.get('photo') 
 
 class ChangePassword(NonASCIIForm):
-    
-    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
-    confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
-    old_password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
+
+    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), label="New password")
+    confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), label="Confirm new password")
+    old_password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), label="Your current password")
     
     def clean_confirmation(self):
         if self.cleaned_data.get('password') or self.cleaned_data.get('confirmation'):

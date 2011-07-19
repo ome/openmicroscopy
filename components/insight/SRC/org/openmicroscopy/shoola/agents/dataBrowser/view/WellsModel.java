@@ -354,7 +354,8 @@ class WellsModel
 				cell.setHighlight(co.getColor());
 				cell.setDescription(co.getDescription());
 			}
-			if (!isMac) samples.add(cell);
+			//if (!isMac)
+			samples.add(cell);
 			cells.add(cell);
 		}
 		for (int k = 1; k <= rows; k++) {
@@ -370,7 +371,8 @@ class WellsModel
 				cell.setHighlight(co.getColor());
 				cell.setDescription(co.getDescription());
 			}
-			if (!isMac) samples.add(cell);
+			//if (!isMac)
+			samples.add(cell);
 			cells.add(cell);
 		}
 		browser = BrowserFactory.createBrowser(samples);

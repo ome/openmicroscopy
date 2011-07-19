@@ -12,7 +12,7 @@
     $(document).ready(function() {
         $("#info").click(function() {
             var html = $("#stdout").html();
-            var newWindow=window.open('','name','height=600,width=500,scrollbars=yes');
+            var newWindow=window.open('','','height=600,width=500,scrollbars=yes');
             newWindow.document.write('<html><title>Stdout</title>');
             newWindow.document.write('<p><a href="javascript:self.close()">Close window</a> </p>');
             newWindow.document.write(html + '</html>');
@@ -21,7 +21,7 @@
         });
         $("#error").click(function() {
             var html = $("#stderr").html();
-            var newWindow=window.open('','name','height=600,width=500,scrollbars=yes');
+            var newWindow=window.open('','','height=600,width=500,scrollbars=yes');
             newWindow.document.write('<html><title>Stderr</title>');
             newWindow.document.write('<p><a href="javascript:self.close()">Close window</a> </p>');
             newWindow.document.write(html + '</html>');

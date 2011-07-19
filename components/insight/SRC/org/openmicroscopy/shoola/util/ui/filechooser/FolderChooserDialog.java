@@ -23,8 +23,6 @@
 package org.openmicroscopy.shoola.util.ui.filechooser;
 
 
-
-
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;

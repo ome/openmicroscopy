@@ -31,6 +31,7 @@ import java.awt.Point;
 import java.util.Vector;
 import javax.swing.AbstractListModel;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -106,10 +107,12 @@ public class IntensityValuesDialog
 	/** 
 	 * Create the initial dialog.
 	 * 
+	 * @param owner The owner of the dialog.
 	 * @param model The table model of the first dialog.
 	 */
-	IntensityValuesDialog(IntensityModel model)
+	IntensityValuesDialog(JFrame owner, IntensityModel model)
 	{
+		super(owner);
 		table = new IntensityTable(model);
 		buildUI();
 	}

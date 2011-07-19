@@ -159,6 +159,16 @@ public class RefreshVisitor
         	}
         	l.add(Long.valueOf(id));
         } else if (userObject instanceof PlateData) {
+        	if (node.hasChildrenDisplay() && node.isExpanded()) {
+        		long id = ((DataObject) userObject).getId();
+                List l = expandedTopNodes.get(PlateData.class);
+                if (l == null) {
+                	l = new ArrayList<Long>();
+                	expandedTopNodes.put(PlateData.class, l);
+                }
+                l.add(id);
+        	}
+        	/*
         	parent = node.getParentDisplay();
     		if (!(parent.getUserObject() instanceof ScreenData)) {
     			long id = ((DataObject) userObject).getId();
@@ -178,7 +188,7 @@ public class RefreshVisitor
                     }
                     l.add(id);
     			}
-    		}
+    		}*/
         } else if (userObject instanceof GroupData) {
         	if (node.isExpanded()) {
         		long id = ((DataObject) userObject).getId();

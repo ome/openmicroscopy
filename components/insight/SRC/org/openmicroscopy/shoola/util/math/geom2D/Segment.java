@@ -20,17 +20,14 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.util.math.geom2D;
-
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * A segment in the Euclidean space <b>R</b><sup>2</sup>.

@@ -57,6 +57,9 @@ public class StatusLabel
 	implements IObserver
 {
 
+	/** The text displayed when the file is already selected.*/
+	public static final String DUPLICATE = "Duplicate, import cancel";
+	
 	/** The text displayed when loading the image to import. */
 	public static final String PREPPING_TEXT = "prepping";
 	
@@ -123,6 +126,12 @@ public class StatusLabel
 	/** Flag indicating that the import can or not be cancelled.*/
 	private boolean cancellable;
 	
+	/** 
+	 * Flag indicating that the file has already been imported or already
+	 * in the queue.
+	 */
+	private boolean markedAsDuplicate;
+	
 	/** Creates a new instance. */
 	public StatusLabel()
 	{
@@ -147,6 +156,17 @@ public class StatusLabel
 	 * @return See above.
 	 */
 	public boolean isMarkedAsCancel() { return markedAsCancel; }
+	
+	/** Marks the import has duplicate. */
+	public void markedAsDuplicate() { this.markedAsDuplicate = true; }
+	
+	/**
+	 * Returns <code>true</code> if the import is marked as duplicate, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isMarkedAsDuplicate() { return markedAsDuplicate; }
 	
 	/**
 	 * Returns the text if an error occurred.

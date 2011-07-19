@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -55,7 +54,6 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 
 /** 
  * Hosts the UI components displaying the rendered image.
@@ -181,6 +179,10 @@ class BrowserUI
 		Dimension d = layeredPane.getPreferredSize();
 		int xLoc = ((r.width-d.width)/2);
 		int yLoc = ((r.height-d.height)/2);
+		JScrollBar hBar = getHorizontalScrollBar();
+		JScrollBar vBar = getVerticalScrollBar();
+		if (hBar.isVisible()) xLoc = layeredPane.getX();
+		if (vBar.isVisible()) yLoc = layeredPane.getY();
 		JComponent sibling = siblings.get(model.getSelectedIndex());
 		if (sibling != null) 
 			sibling.setBounds(sibling.getBounds());
@@ -625,13 +627,13 @@ class BrowserUI
 	 */
 	public void adjustmentValueChanged(AdjustmentEvent e)
 	{
-        if (e.getValueIsAdjusting()) {
+		if (e.getValueIsAdjusting()) {
         	adjusting = true;
         	setBirdEyeViewLocation();
         	setSelectionRegion();
         	return;
         }
-        //adjusting = false;
+        adjusting = false;
         //setSelectionRegion();
         setBirdEyeViewLocation();
         setSelectionRegion();
@@ -663,8 +665,9 @@ class BrowserUI
 				return;
 		}
 		if (!scrollbarsVisible() && adjusting) adjusting = false;
-		if (adjusting) return;
-		center();
+		JScrollBar hBar = getHorizontalScrollBar();
+		JScrollBar vBar = getVerticalScrollBar();
+		if (!(hBar.isVisible() && vBar.isVisible())) center();
 	}
 	
 }

@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.GenericFileChooser;
 
 /** 
  * Chooser to select the name, format and type of images to save.
@@ -59,7 +60,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class ImgSaverFileChooser
-    extends JFileChooser
+    extends GenericFileChooser
     implements DocumentListener
 {
 
@@ -160,7 +161,7 @@ class ImgSaverFileChooser
     	 String format = getFormat(getFileFilter());
          String fileName = f.getAbsolutePath();
          String message = MSG_DIR+""+getCurrentDirectory();
-         model.setFileName(fileName);
+         //model.setFileName(fileName);
          model.setFileFormat(format);
          model.setFileMessage(message);
          File[] l = getCurrentDirectory().listFiles();

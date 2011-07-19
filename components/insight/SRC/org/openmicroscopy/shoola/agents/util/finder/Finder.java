@@ -22,9 +22,9 @@
  */
 package org.openmicroscopy.shoola.agents.util.finder;
 
-import java.util.Collection;
 
 //Java imports
+import java.util.Collection;
 
 //Third-party libraries
 

@@ -448,7 +448,6 @@ public class UserNotifierImpl
 			}
 			run.exec(values);
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 

@@ -40,8 +40,7 @@ import java.util.concurrent.TimeUnit;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.api.RenderingEnginePrx;
-
+import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
@@ -56,6 +55,7 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.file.IOUtil;
@@ -94,6 +94,9 @@ public class DataServicesFactory
 	
 	/** The dialog indicating that the connection is lost.*/
 	private MessageBox connectionDialog;
+	
+	/** Flag indicating that the client and server are not compatible.*/
+	private boolean compatible;
 	
 	/**
 	 * Creates a new instance. This can't be called outside of container 
@@ -262,6 +265,7 @@ public class DataServicesFactory
      */
     private boolean checkClientServerCompatibility(String server, String client)
     {
+    	if (server == null || client == null) return false;
     	if (server.contains("-"))
     		server = server.split("-")[0];
     	if (client.contains("-"))
@@ -277,7 +281,7 @@ public class DataServicesFactory
     	int c1 = Integer.parseInt(valuesClient[0]);
     	int c2 = Integer.parseInt(valuesClient[1]);
     	if (s1 < c1) return false;
-    	if (c2 < s2) return false;
+    	if (s2 < c2) return false;
     	return true;
     }
     
@@ -285,16 +289,21 @@ public class DataServicesFactory
      * Notifies the user that the client and the server are not compatible.
      * 
      * @param clientVersion The version of the client.
+     * @param serverVersion The version of the server.
      * @param hostname The name of the server.
      */
-    private void notifyIncompatibility(String clientVersion, String hostname)
+    private void notifyIncompatibility(String clientVersion,
+    		String serverVersion, String hostname)
     {
     	UserNotifier un = registry.getUserNotifier();
     	String message = "The client version ("+clientVersion+") is not " +
-    			"compatible with the following server:\n"+hostname+
-    			".\nThe application will exit. ";
+    			"compatible with the following server:"+hostname;
+    	if (serverVersion != null) {
+    		message += " version:"+serverVersion;
+    	}
+    	message += ".";//\nThe application will now exit. ";
     	un.notifyInfo("Client Server not compatible", message);
-		exitApplication();
+		//exitApplication();
     }
     
 	/** 
@@ -319,7 +328,7 @@ public class DataServicesFactory
 				int v = connectionDialog.centerMsgBox();
 				if (v == MessageBox.NO_OPTION) {
 					connectionDialog = null;
-					exitApplication();
+					exitApplication(true);
 				} else if (v == MessageBox.YES_OPTION) {
 					UserCredentials uc = (UserCredentials) 
 					registry.lookup(LookupNames.USER_CREDENTIALS);
@@ -352,7 +361,7 @@ public class DataServicesFactory
 						message = "A failure occurred while attempting to " +
 								"reconnect.\nThe application will now exit.";
 						un.notifyInfo("Reconnection Failure", message);
-						exitApplication();
+						exitApplication(true);
 					}
 				}
 				break;
@@ -361,7 +370,7 @@ public class DataServicesFactory
 				"running. \nPlease contact your system administrator." +
 				"\nThe application will now exit.";
 				un.notifyInfo("Connection Refused", message);
-				exitApplication();
+				exitApplication(true);
 				break;	
 		}
 	}
@@ -409,7 +418,7 @@ public class DataServicesFactory
 	 * 
      * @param uc The user's credentials for logging onto <i>OMERO</i> server.
 	 * @throws DSOutOfServiceException If the connection can't be established
-     *                                 or the credentials are invalid.							
+     *                                 or the credentials are invalid.
 	 */
 	public void connect(UserCredentials uc)
 		throws DSOutOfServiceException
@@ -421,6 +430,7 @@ public class DataServicesFactory
                 				uc.getPassword(), uc.getHostName(),
                                  determineCompression(uc.getSpeedLevel()),
                                 uc.getGroup(), uc.isEncrypted());
+        compatible = true;
         //Register into log file.
         Object v = container.getRegistry().lookup(LookupNames.VERSION);
     	String clientVersion = "";
@@ -429,13 +439,10 @@ public class DataServicesFactory
     	
         //Check if client and server are compatible.
         String version = omeroGateway.getServerVersion();
-        if (version == null) { //not able to determine the version we exit
-        	notifyIncompatibility(clientVersion, uc.getHostName());
-        	return;
-        } 
-       
         if (!checkClientServerCompatibility(version, clientVersion)) {
-        	notifyIncompatibility(clientVersion, uc.getHostName());
+        	compatible = false;
+        	notifyIncompatibility(clientVersion, version, uc.getHostName());
+        	omeroGateway.logout();
         	return;
         }
         
@@ -550,6 +557,14 @@ public class DataServicesFactory
 	 */
 	public boolean isConnected() { return omeroGateway.isConnected(); }
 	
+	/**
+	 * Returns <code>true</code> if the client and server are compatible, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isCompatible() { return compatible; }
+	
     /** Shuts down the connection. */
 	public void shutdown()
     { 
@@ -581,9 +596,56 @@ public class DataServicesFactory
         executor = null;
     }
 	
-	/** Shuts the services down and exits the application. */
-	public void exitApplication()
+	/** Shuts the services down and exits the application.
+	 * 
+	 * @param forceQuit Pass <code>true</code> to force i.e. do not check if
+	 * 					the application can terminate,
+	 * 					<code>false</code> otherwise.
+	 */
+	public void exitApplication(boolean forceQuit)
 	{
+		if (!forceQuit) {
+			List<AgentInfo> agents = (List<AgentInfo>)
+			registry.lookup(LookupNames.AGENTS);
+			Iterator<AgentInfo> i = agents.iterator();
+			AgentInfo agentInfo;
+			Agent a;
+			//Agents termination phase.
+			i = agents.iterator();
+			List<AgentInfo> notTerminated = new ArrayList<AgentInfo>();
+			while (i.hasNext()) {
+				agentInfo = i.next();
+				if (agentInfo.isActive()) {
+					a = agentInfo.getAgent();
+					if (a.canTerminate()) {
+						a.terminate();
+					} else notTerminated.add(agentInfo);
+				}
+			}
+			if (notTerminated.size() > 0) {
+				i = notTerminated.iterator();
+				StringBuffer buffer = new StringBuffer();
+				while (i.hasNext()) {
+					agentInfo = i.next();
+					buffer.append(agentInfo.getName());
+					buffer.append("\n");
+				}
+				String message = "The following components " +
+				"could not be closed safely:\n"+buffer.toString()+"\n" +
+				"Please check.";
+
+				MessageBox box = new MessageBox(
+						singleton.registry.getTaskBar().getFrame(),
+						"Exit Application", message,
+						IconManager.getInstance().getIcon(
+								IconManager.INFORMATION_MESSAGE_48));
+				box.setNoText("OK");
+				box.setYesText("Force Quit");
+				box.setSize(400, 250);
+				if (box.centerMsgBox() == MessageBox.NO_OPTION)
+					return;
+			}
+		}
 		shutdown();
 		container.exit();
 	}

@@ -281,11 +281,13 @@ def login(request):
     error = request.REQUEST.get('error')
     
     conn = None
-    try:
-        conn = getBlitzConnection(request, useragent="OMERO.webadmin")
-    except Exception, x:
-        logger.error(traceback.format_exc())
-        error = str(x)
+    # TODO: version check should be done on the low level, see #5983
+    if _checkVersion(request.session.get('host'), request.session.get('port')):
+        try:
+            conn = getBlitzConnection(request, useragent="OMERO.webadmin")
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            error = str(x)
     
     if conn is not None:
         upgradeCheck()
@@ -862,12 +864,12 @@ def my_account(request, action=None, **kwargs):
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
         
-        photo_size = conn.getExperimenterPhotoSize()        
+        photo_size = conn.getExperimenterPhotoSize()
         if photo_size is not None:
             edit_mode = True
-    else:
-        photo_size = conn.getExperimenterPhotoSize()        
-        form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
+    
+    photo_size = conn.getExperimenterPhotoSize()
+    form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
                                     'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})

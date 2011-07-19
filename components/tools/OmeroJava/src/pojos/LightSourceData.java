@@ -45,7 +45,7 @@ import omero.model.LightSource;
 import omero.model.Pulse;
 
 /** 
- * Object hosting a light source: filament, arc, laser or light emiting diode
+ * Object hosting a light source: filament, arc, laser or light emitting diode
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -112,7 +112,7 @@ public class LightSourceData
 	{
 		LightSource light = (LightSource) asIObject();
 		if (light == null) return "";
-		RString value = null;//light.getLotNumber();
+		RString value = light.getLotNumber();
 		if (value == null) return "";
 		return value.getValue();
 	}

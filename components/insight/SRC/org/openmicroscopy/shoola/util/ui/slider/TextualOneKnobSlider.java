@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 
 /** 
  * Component hosting a slider and the text field displaying the 
- * values. The synchronisation between the components is handled by this class.
+ * values. The synchronization between the components is handled by this class.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -292,14 +292,14 @@ public class TextualOneKnobSlider
 
 	/**
 	 * Required by the {@link DocumentListener} I/F but not actually needed in
-     * our case, no op implementation.
+     * our case, no-operation implementation.
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
 	
 	/** 
      * Required by {@link FocusListener} I/F but not actually needed in
-     * our case, no op implementation.
+     * our case, no-operation implementation.
      * @see FocusListener#focusGained(FocusEvent)
      */ 
     public void focusGained(FocusEvent e) {}

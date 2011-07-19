@@ -173,7 +173,7 @@ class TitleBar
     			add(sizeButton);
     		break;
 			case TinyDialog.BOTH:
-			default:
+			//default:
 				buttonAreaWidth = 2*SIZE_BUTTON_DIM+3*H_SPACING;
 			add(sizeButton);
 			add(closeButton);

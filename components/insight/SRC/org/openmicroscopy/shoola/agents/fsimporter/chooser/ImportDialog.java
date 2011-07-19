@@ -85,23 +85,20 @@ import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.GenericFileChooser;
+
 import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.ExperimenterData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -228,7 +225,7 @@ public class ImportDialog
 	private FileSelectionTable  table;
 	
 	/** The file chooser. */
-	private JFileChooser	    chooser;
+	private GenericFileChooser	chooser;
 	
 	/** Button to close the dialog. */
 	private JButton				cancelButton;
@@ -387,6 +384,15 @@ public class ImportDialog
 	
 	/** Indicates to pop-up the location.*/
 	private boolean popUpLocation;
+	
+	/** The selected container if screen view.*/
+	private TreeImageDisplay selectedScreen;
+	
+	/** The selected container if project view.*/
+	private TreeImageDisplay selectedProject;
+	
+	/** Indicates to reload the hierarchies when the import is completed.*/
+	private boolean reload;
 	
 	/** 
 	 * Creates the dataset.
@@ -755,18 +761,22 @@ public class ImportDialog
 	{
 		int t = Importer.PROJECT_TYPE;
 		Collection<TreeImageDisplay> nodes = null;
+		TreeImageDisplay display = null;
 		if (getType() == Importer.PROJECT_TYPE) {
 			t = Importer.SCREEN_TYPE;
 			nodes = screenNodes;
-		} else nodes = pdNodes;
+			display = selectedScreen;
+		} else {
+			nodes = pdNodes;
+			display = selectedProject;
+		}
 			
 		formatSwitchButton(t);
 		if (nodes == null || nodes.size() == 0) //load the missing nodes
 			firePropertyChange(REFRESH_LOCATION_PROPERTY, getType(), t);
 		else {
-			TreeImageDisplay display = null;
-			Iterator<TreeImageDisplay> i = nodes.iterator();
-			if (i.hasNext()) display = i.next();
+			//Iterator<TreeImageDisplay> i = nodes.iterator();
+			//if (i.hasNext()) display = i.next();
 			reset(display, nodes, t);
 		}
 	}
@@ -946,7 +956,7 @@ public class ImportDialog
 		partialName.setSelected(true);
 		group.add(partialName);
 
-		chooser = new JFileChooser();
+		chooser = new GenericFileChooser();
 		JList list = (JList) UIUtilities.findComponent(chooser, JList.class);
 		KeyAdapter ka = new KeyAdapter() {
 			
@@ -991,12 +1001,25 @@ public class ImportDialog
 				filter = filters[i];
 				if (filter instanceof ComboFileFilter) {
 					combinedFilter = filter;
+					ComboFileFilter cff = (ComboFileFilter) filter;
+					FileFilter[] extensionFilters = cff.getFilters();
+					for (int j = 0; j < extensionFilters.length; j++) {
+						FileFilter ff = extensionFilters[j];
+						if (ImportableObject.isHCSFormat(ff.toString())) {
+							hcsFilters.add(ff);
+						} else {
+							generalFilters.add(ff);
+						}
+					}
+					break;
 				} else {
+					/*
 					if (ImportableObject.isHCSFormat(filter.toString())) {
 						hcsFilters.add(filter);
 					} else {
 						generalFilters.add(filter);
 					}
+					*/
 				}
 			}
 			Iterator<FileFilter> j;
@@ -1417,13 +1440,13 @@ public class ImportDialog
 				}
 			}
 		}
-		
 		List sortedList = new ArrayList();
 		if (topList.size() > 0) {
 			sortedList = sorter.sort(topList);
 		}
 		int size;
 		List finalList = new ArrayList();
+		int index = 0;
 		if (type == Importer.PROJECT_TYPE) {
 			//sort the node
 			List<DataNode> l = getOrphanedNewDatasetNode();
@@ -1454,13 +1477,13 @@ public class ImportDialog
 					p = (ProjectData) ho;
 				} else if (ho instanceof DatasetData) {
 					node = selectedContainer.getParentDisplay();
-					if (node.getUserObject() instanceof ProjectData) {
+					if (node != null && 
+						node.getUserObject() instanceof ProjectData) {
 						p = (ProjectData) node.getUserObject();
 					}
 				}
 				if (p != null) {
 					long id = p.getId();
-					int index = 0;
 					for (int i = 0; i < size; i++) {
 						n = (DataNode) parentsBox.getItemAt(i);
 						if (n.getDataObject().getId() == id) {
@@ -1468,20 +1491,17 @@ public class ImportDialog
 							break;
 						}
 					}
-					parentsBox.setSelectedIndex(index);
-				} else { //orphaned dataset
-					parentsBox.setSelectedIndex(0);
 				}
-			} else { //nothing selected so we will select the first item
-				parentsBox.setSelectedIndex(0);
-			}
+			} 
+			parentsBox.setSelectedIndex(index);
 		} else if (type == Importer.SCREEN_TYPE) {
 			finalList.add(new DataNode(DataNode.createDefaultScreen()));
 			finalList.addAll(sortedList);
 			parentsBox.removeActionListener(parentsBoxListener);
 			parentsBox.setModel(new DefaultComboBoxModel(finalList.toArray()));
 			parentsBox.addActionListener(parentsBoxListener);
-			size = sortedList.size();
+			size = parentsBox.getItemCount();
+			index = 0;
 			if (selectedContainer != null) {
 				ho = selectedContainer.getUserObject();
 				if (ho instanceof ScreenData) {
@@ -1489,12 +1509,14 @@ public class ImportDialog
 					for (int i = 0; i < size; i++) {
 						n = (DataNode) parentsBox.getItemAt(i);
 						if (n.getDataObject().getId() == id) {
-							parentsBox.setSelectedIndex(i);
+							index = i;
 							break;
 						}
 					}
+					
 				}
 			}
+			parentsBox.setSelectedIndex(index);
 		}
 	}
 	
@@ -1705,12 +1727,24 @@ public class ImportDialog
     			overrideName.isSelected());
     	Iterator<ImportableFile> i = files.iterator();
     	ImportableFile file;
+
+    	if (!reload) {
+    		while (i.hasNext()) {
+    			file = i.next();
+    			if (file.isFolderAsContainer() && 
+    					!ImportableObject.isHCSFile(file.getFile())) {
+    				//going to check if the dataset has been created.
+    				reload = true;
+    				break;
+    			}
+    		}
+    	}
+    	
+    	/*
     	ProjectData project;
     	DataObject parent;
     	DatasetData dataset, folder;
-    	//TODO asynchronous save.
     	OmeroDataService svc = ImporterAgent.getRegistry().getDataService();
-    	boolean reload = false;
     	Logger log = ImporterAgent.getRegistry().getLogger();
     	while (i.hasNext()) {
 			file = i.next();
@@ -1757,7 +1791,7 @@ public class ImportDialog
 				}
 			}
 		}
-    	if (reload) {
+		if (reload) {
     		Class klass = ProjectData.class;
     		if (type == Importer.SCREEN_TYPE)
     			klass = ScreenData.class;
@@ -1812,6 +1846,8 @@ public class ImportDialog
 				log.error(this, msg);
 			}
     	}
+    	*/
+    	
     	
     	
     	object.setScanningDepth(ImporterAgent.getScanningDepth());
@@ -1908,6 +1944,22 @@ public class ImportDialog
 		return true;
 	}
 
+	/**
+	 * Checks if the passed container is hosting the desired object.
+	 * 
+	 * @param container The container to handle.
+	 * @return See above.
+	 */
+	private TreeImageDisplay checkContainer(TreeImageDisplay container)
+	{
+		if (container == null) return null;
+		Object ho = container.getUserObject();
+		if (ho instanceof DatasetData || ho instanceof ProjectData ||
+			ho instanceof ScreenData)
+			return container;
+		return null;
+	}
+	
 	/** 
      * Creates a new instance.
      * 
@@ -1923,12 +1975,18 @@ public class ImportDialog
     {
     	//super(owner);
     	super(0, TITLE, TITLE);
+    	selectedContainer = checkContainer(selectedContainer);
     	this.owner = owner;
     	setClosable(false);
     	setCloseVisible(false);
     	this.objects = objects;
-    	if (type == Importer.PROJECT_TYPE) pdNodes = objects;
-    	else screenNodes = objects;
+    	if (type == Importer.PROJECT_TYPE) {
+    		pdNodes = objects;
+    		selectedProject = selectedContainer;
+    	} else {
+    		screenNodes = objects;
+    		selectedScreen = selectedContainer;
+    	}
     	this.type = type;
     	this.selectedContainer = selectedContainer;
     	popUpLocation = selectedContainer == null;
@@ -2035,6 +2093,56 @@ public class ImportDialog
 	 */
 	public boolean isRefreshLocation() { return refreshLocation; }
 	
+	/**
+     * Resets the text and remove all the files to import.
+     * 
+     * @param objects	The possible objects.
+     * @param type		One of the constants used to identify the type of 
+     * 					import.
+     */
+	public void reset(Collection<TreeImageDisplay> objects, int type)
+	{
+		TreeImageDisplay selected = null;
+		if (this.selectedContainer != null) {
+			if (objects != null) {
+				Iterator<TreeImageDisplay> i = objects.iterator();
+				Object ho = this.selectedContainer.getUserObject();
+				TreeImageDisplay node, child;
+				Object nho, cho;
+				long id = -1;
+				if (ho instanceof DataObject) 
+					id = ((DataObject) ho).getId();
+				List l;
+				Iterator j;
+				while (i.hasNext()) {
+					node = i.next();
+					nho = node.getUserObject();
+					if (nho.getClass().equals(ho.getClass()) &&
+						nho instanceof DataObject) {
+						if (((DataObject) nho).getId() == id) {
+							selected = node;
+							break;
+						}
+					}
+					l = node.getChildrenDisplay();
+					j = l.iterator();
+					while (j.hasNext()) {
+						child = (TreeImageDisplay) j.next();
+						cho = child.getUserObject();
+						if (cho.getClass().equals(ho.getClass()) &&
+							cho instanceof DataObject) {
+							if (((DataObject) cho).getId() == id) {
+								selected = child;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		reset(selected, objects, type);
+	}
+	
     /**
      * Resets the text and remove all the files to import.
      * 
@@ -2046,14 +2154,18 @@ public class ImportDialog
 	public void reset(TreeImageDisplay selectedContainer, 
 			Collection<TreeImageDisplay> objects, int type)
 	{
-		canvas.setVisible(false);
-		this.selectedContainer = selectedContainer;
+		canvas.setVisible(true);
+		this.selectedContainer = checkContainer(selectedContainer);
 		this.objects = objects;
 		int oldType = this.type;
 		this.type = type;
 		if (type == Importer.PROJECT_TYPE) {
 			pdNodes = objects;
-		} else screenNodes = objects;
+			selectedProject = selectedContainer;
+		} else {
+			screenNodes = objects;
+			selectedScreen = selectedContainer;
+		}
 		formatSwitchButton(type);
 		if (oldType != this.type) { 
 			//change filters.
@@ -2090,7 +2202,7 @@ public class ImportDialog
 		initializeLocationBoxes();
 		buildLocationPane();
 		boolean b = popUpLocation;
-		popUpLocation = selectedContainer == null;
+		popUpLocation = this.selectedContainer == null;
 		if (b != popUpLocation) {
 			if (b) container.add(locationPane, "3, 0");
 			else container.remove(locationPane);
@@ -2185,6 +2297,14 @@ public class ImportDialog
 		}
 	}
 	
+	/**
+	 * Returns <code>true</code> if need to reload the hierarchies,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean reloadHierarchies() { return reload; }
+
 	/**
 	 * Reacts to property fired by the table.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

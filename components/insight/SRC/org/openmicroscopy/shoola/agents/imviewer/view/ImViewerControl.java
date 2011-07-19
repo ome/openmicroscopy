@@ -1013,7 +1013,7 @@ class ImViewerControl
 		} else if (PlaneInfoComponent.PLANE_INFO_PROPERTY.equals(pName)) {
 			view.showPlaneInfoDetails((PlaneInfoComponent) pce.getNewValue());
 		} else if (TinyDialog.CLOSED_PROPERTY.equals(pName)) {
-			view.hidePlaneInfoDetails();
+			view.hideAnimation();
 		} else if (ProjSavingDialog.LOAD_ALL_PROPERTY.equals(pName)) {
 			model.loadAllContainers();
 		} else if (MetadataViewer.SELECTED_CHANNEL_PROPERTY.equals(pName)) {

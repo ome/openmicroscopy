@@ -3,11 +3,5 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/IJ"/>
-	<classpathentry kind="lib" path="target/libs/ij.jar"/>
-	<classpathentry kind="lib" path="target/libs/Image_5D.jar"/>
-	<classpathentry kind="lib" path="target/libs/swingx.jar"/>
-	<classpathentry kind="lib" path="target/libs/TableLayout.jar"/>
-	<classpathentry kind="lib" path="target/libs/omero-clients-util.jar"/>
-	<classpathentry kind="lib" path="target/libs/omero_client.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

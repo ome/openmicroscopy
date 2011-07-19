@@ -353,17 +353,6 @@ public class OMEROMetadataStoreClient
         }
     }
 
-    /**
-     * Check online to see if this is the current version
-     */
-    public boolean isUpgradeRequired(String versionNumber, String client) {
-        ResourceBundle bundle = ResourceBundle.getBundle("omero");
-        String url = bundle.getString("omero.upgrades.url");
-        UpgradeCheck check = new UpgradeCheck(url, versionNumber, client);
-        check.run();
-        return check.isUpgradeNeeded();
-    }
-
     public void logVersionInfo(String clientVersion) throws ServerError {
     	if (serviceFactory != null)
     		log.info("Server: " + serviceFactory.getConfigService().getVersion());

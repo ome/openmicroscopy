@@ -390,4 +390,18 @@ public interface AdminService
 	public DiskQuota getQuota(Class type, long id)
 		throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * Adds the experimenters to the specified group.
+	 * 
+	 * @param group The group to add the experimenters to.
+	 * @param experimenters The experimenters to add.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	public void addExperimenters(GroupData group, List<ExperimenterData>
+	experimenters)
+		throws DSOutOfServiceException, DSAccessException;
+
 }

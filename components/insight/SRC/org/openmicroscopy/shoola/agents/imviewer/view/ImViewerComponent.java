@@ -2545,8 +2545,7 @@ class ImViewerComponent
 		if (data == null)
 			throw new IllegalArgumentException("No image to set.");
 		model.setImageData(data);
-		view.setTitle(model.getImageTitle());
-		
+		view.setImageData();
 		if (model.getMetadataViewer() != null)
 			model.getMetadataViewer().addPropertyChangeListener(controller);
 		fireStateChange();
@@ -2580,8 +2579,23 @@ class ImViewerComponent
 		} else if (index == ImViewer.PROJECTION_INDEX && 
 				oldIndex == ImViewer.VIEW_INDEX) {
 			//model.setLastSettingsRef(oldIndex);
+			double f = model.getZoomFactor();
 			if (model.getBrowser().hasProjectedPreview()) {
-				//renderXYPlane();
+				RndProxyDef def = model.getLastProjDef();
+				boolean b = true;
+				if (def != null) b = model.isSameSettings(def, false);
+				if (!b || !isSameProjectionParam())
+					renderXYPlane();
+				else {
+					BufferedImage image = model.getProjectedImage();
+					if (image != null) {
+						int x = (int) (model.getMaxX()*f);
+						if (x != image.getWidth())
+							model.setZoomFactor(f, false);
+					}
+				}
+			} else {
+				model.getBrowser().setZoomFactor(model.getZoomFactor(), false);
 			}
 		} else {
 			renderXYPlane();

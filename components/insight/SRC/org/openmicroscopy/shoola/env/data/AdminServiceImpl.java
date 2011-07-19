@@ -276,6 +276,22 @@ class AdminServiceImpl
 
 	/**
 	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#addExperimenters(GroupData, List)
+	 */
+	public void addExperimenters(GroupData group, List<ExperimenterData>
+		experimenters)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (group == null)
+			throw new IllegalArgumentException("No group to add " +
+					"the experimenters to.");
+		if (experimenters == null || experimenters.size() == 0)
+			throw new IllegalArgumentException("No experimenters to add.");
+		gateway.addExperimenters(group, experimenters);
+	}
+	
+	/**
+	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#createGroup(AdminObject)
 	 */
 	public GroupData createGroup(AdminObject object)

@@ -25,18 +25,16 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.List;
-
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import pojos.DataObject;
+
 /** 
  * Creates new data objects i.e. <code>Project</code>, <code>Screen</code>
  * or <code>Dataset</code>.

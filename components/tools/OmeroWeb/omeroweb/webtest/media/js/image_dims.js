@@ -19,7 +19,7 @@ $(document).ready(function() {
        var viewerUrl = '/webgateway/img_detail/' + parseInt(ids[0]) + "?z=" + z +"&t=" + t;
        
        if (image_viewer == null) {
-           image_viewer=window.open(viewerUrl,'image_viewer','height=550,width=600,right=50');
+           image_viewer=window.open(viewerUrl,'','height=550,width=600,right=50');
        }
        else {
            image_viewer.location.href = viewerUrl;

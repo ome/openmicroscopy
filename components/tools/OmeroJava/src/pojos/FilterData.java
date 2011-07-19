@@ -186,7 +186,7 @@ public class FilterData
 	public String getSerialNumber()
 	{
 		Filter f = (Filter) asIObject();
-		RString value = f.getLotNumber();
+		RString value = f.getSerialNumber();
 		if (value == null) return "";
 		return value.getValue();
 	}

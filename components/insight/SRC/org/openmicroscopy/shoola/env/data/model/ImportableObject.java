@@ -34,20 +34,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+//Third-party libraries
 import loci.formats.FormatReader;
 import loci.formats.in.BDReader;
 import loci.formats.in.CellWorxReader;
 import loci.formats.in.CellomicsReader;
 import loci.formats.in.FlexReader;
-import loci.formats.in.InCell3000Reader;
 import loci.formats.in.InCellReader;
 import loci.formats.in.MIASReader;
 import loci.formats.in.MetamorphTiffReader;
 import loci.formats.in.ScanrReader;
 import loci.formats.in.ScreenReader;
-
-
-//Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
@@ -137,10 +134,12 @@ public class ImportableObject
 		//
 		ARBITRARY_FILES_EXTENSION = new ArrayList<String>();
 		ARBITRARY_FILES_EXTENSION.add("text");
+		ARBITRARY_FILES_EXTENSION.add("txt");
 		ARBITRARY_FILES_EXTENSION.add("xml");
 		ARBITRARY_FILES_EXTENSION.add("exp");
 		ARBITRARY_FILES_EXTENSION.add("log");
 		ARBITRARY_FILES_EXTENSION.add("ini");
+		ARBITRARY_FILES_EXTENSION.add("dat");
 		ARBITRARY_FILES_EXTENSION.add(TIFFFilter.TIFF);
 		ARBITRARY_FILES_EXTENSION.add(TIFFFilter.TIF);
 	}
@@ -350,13 +349,29 @@ public class ImportableObject
 	 */
 	public DataObject createFolderAsContainer(ImportableFile file)
 	{
+		return createFolderAsContainer(file, false);
+	}
+	
+	/**
+	 * Returns the <code>DataObject</code> corresponding to the folder 
+	 * be saved as a container.
+	 * 
+	 * @param file The file to handle.
+	 * @param hcs Pass <code>true</code> to indicate that the folder 
+	 * to create is for HCS data, <code>false</code> otherwise.
+	 * @return See above.
+	 */
+	public DataObject createFolderAsContainer(ImportableFile file, boolean hcs)
+	{
 		if (file == null) return null;
+		Class klass = type;
+		if (hcs) klass = ScreenData.class;
 		File f = file.getFile();
 		//if (f.isFile()) return null;
 		boolean b = file.isFolderAsContainer();
 		if (!b) return null;
 		File parentFile;
-		if (DatasetData.class.equals(type)) {
+		if (DatasetData.class.equals(klass)) {
 			DatasetData dataset = new DatasetData();
 			if (f.isFile()) {
 				parentFile = f.getParentFile();
@@ -365,7 +380,7 @@ public class ImportableObject
 				dataset.setName(parentFile.getName());
 			} else dataset.setName(f.getName());
 			return dataset;
-		} else if (ScreenData.class.equals(type)) {
+		} else if (ScreenData.class.equals(klass)) {
 			ScreenData screen = new ScreenData();
 			if (f.isFile()) {
 				parentFile = f.getParentFile();
@@ -585,6 +600,25 @@ public class ImportableObject
 			projectDatasetMap.put(projectID, datasets);
 		}
 		datasets.add(dataset);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the file is already in the list of files
+	 * to import e.g. the file and the companion file are selected, 
+	 * <code></code> otherwise.
+	 * @param value The path to the file.
+	 * @return See above.
+	 */
+	public boolean isFileinQueue(String value)
+	{
+		Iterator<ImportableFile> i = files.iterator();
+		ImportableFile f;
+		while (i.hasNext()) {
+			f = i.next();
+			if (f.getFile().getAbsolutePath().equals(value))
+				return true;
+		}
+		return false;
 	}
 
 }

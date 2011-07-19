@@ -1134,4 +1134,78 @@ public class AdminServiceTest
         iAdmin.removeGroups(e, groups);
     }
 	
+	/**
+	 * Tests the addition of an existing experimenter to a group.
+	 * This test uses the <code>addGroups</code> method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+    public void testAddExistingUserToGroup() 
+    	throws Exception
+    {
+		String uuid = UUID.randomUUID().toString();
+        Experimenter e = new ExperimenterI();
+        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setFirstName(omero.rtypes.rstring("user"));
+        e.setLastName(omero.rtypes.rstring("user"));
+        IAdminPrx svc = root.getSession().getAdminService();
+        
+        //already tested
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(omero.rtypes.rstring(uuid));
+        g.getDetails().setPermissions(new PermissionsI("rw----"));
+        long groupId = svc.createGroup(g);
+        
+		long id = svc.createUser(e, uuid);
+		
+		
+		String uuid2 = UUID.randomUUID().toString();
+		g = new ExperimenterGroupI();
+		g.setName(omero.rtypes.rstring(uuid2));
+		g.getDetails().setPermissions(new PermissionsI("rw----"));
+		long id2 = svc.createGroup(g);
+		IQueryPrx query = root.getSession().getQueryService();
+		
+		//Check if we have a user
+		ParametersI p = new ParametersI();
+		p.addId(id);
+		e = (Experimenter) query.findByQuery(
+				"select distinct e from Experimenter e where e.id = :id", p);
+		
+		//load the group
+		p = new ParametersI();
+		p.addId(id2);
+		ExperimenterGroup eg = (ExperimenterGroup) query.findByQuery(
+				"select distinct g from ExperimenterGroup g where g.id = :id", 
+				p);
+		assertNotNull(eg);
+		assertNotNull(e);
+		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+		groups.add(eg);
+		svc.addGroups(e, groups);
+		//now check that there are linked
+		ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(groupId);
+		ids.add(id2);
+		ids.add(userGroup.getId().getValue());
+		p = new ParametersI();
+		p.addLongs("gids", ids);
+		List list = (List) query.findAllByQuery("select m " +
+				"from GroupExperimenterMap as m "
+				+ "left outer join fetch m.child "
+                + "left outer join fetch m.parent"
+                		+" where m.parent.id in (:gids)", p);
+		assertNotNull(list);
+		Iterator i = list.iterator();
+		GroupExperimenterMap geMap;
+		int count = 0;
+		while (i.hasNext()) {
+			geMap = (GroupExperimenterMap) i.next();
+			if (geMap.getChild().getId().getValue() == id)
+				count++;
+		}
+		assertTrue(count == 3);
+    }
+	
 }

@@ -473,7 +473,16 @@ def getImgDetailsFromReq (request, as_string=False):
         return "&".join(["%s=%s" % (x[0], x[1]) for x in rv.items()])
     return rv
 
-def render_thumbnail (request, iid, server_id=None, w=None, h=None, **kwargs):
+def serverid (func):
+    def handler (request, *args, **kwargs):
+        if not kwargs.has_key('server_id'):
+            kwargs['server_id'] = request.session.get('server', None)
+        return func(request, *args, **kwargs)
+    return handler
+
+
+@serverid
+def render_thumbnail (request, iid, server_id=None, w=None, h=None, _conn=None, _defcb=None, **kwargs):
     """ 
     Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image 'iid' 
     
@@ -484,7 +493,6 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, **kwargs):
     @param h:           Thumbnail max height
     @return:            http response containing jpeg
     """
-    
     if w is None:
         size = (64,)
     else:
@@ -494,19 +502,33 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, **kwargs):
             size = (int(w), int(h))
     jpeg_data = webgateway_cache.getThumb(request, server_id, iid, size)
     if jpeg_data is None:
-        blitzcon = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
+        if _conn is None:
+            blitzcon = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
+        else:
+            blitzcon = _conn
         if blitzcon is None or not blitzcon.isConnected():
             logger.debug("failed connect, HTTP404")
             raise Http404
+        prevent_cache = False
         img = blitzcon.getObject("Image", iid)
         if img is None:
             logger.debug("(b)Image %s not found..." % (str(iid)))
-            raise Http404
-        jpeg_data = img.getThumbnail(size=size)
-        if jpeg_data is None:
-            logger.debug("(c)Image %s not found..." % (str(iid)))
-            return HttpResponseServerError('Failed to render thumbnail')
-        webgateway_cache.setThumb(request, server_id, iid, jpeg_data, size)
+            if _defcb:
+                jpeg_data = _defcb(size=size)
+                prevent_cache = True
+            else:
+                raise Http404
+        else:
+            jpeg_data = img.getThumbnail(size=size)
+            if jpeg_data is None:
+                logger.debug("(c)Image %s not found..." % (str(iid)))
+                if _defcb:
+                    jpeg_data = _defcb(size=size)
+                    prevent_cache = True
+                else:
+                    return HttpResponseServerError('Failed to render thumbnail')
+        if not prevent_cache:
+            webgateway_cache.setThumb(request, server_id, iid, jpeg_data, size)
     else:
         pass
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
@@ -525,6 +547,7 @@ def _get_signature_from_request (request):
     rv = r.get('m','_') + r.get('p','_')+r.get('c','_')+r.get('q', '_')
     return rv
 
+@serverid
 def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=True, saveDefs=False, retry=True):
     """
     Fetches the Image object for image 'iid' and prepares it according to the request query, setting the channels,
@@ -578,7 +601,8 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
             else:
                 raise
     return (img, compress_quality)
-    
+
+@serverid
 def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs):
     """
     Returns a jpeg of the OMERO image, rendering only a region specified in query string as
@@ -651,6 +675,7 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp    
     
+@serverid
 def render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs):
     """ 
     Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
@@ -690,6 +715,7 @@ def render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs):
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
+@serverid
 def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
     """
     Renders the OME-TIFF representation of the image(s) with id cid in ctx (i)mage,
@@ -786,6 +812,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             raise
         return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
 
+@serverid
 def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs):
     """ 
     Renders a movie from the image with id iid
@@ -854,7 +881,7 @@ def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs)
         logger.debug(traceback.format_exc())
         raise
         
-    
+@serverid    
 def render_split_channel (request, iid, z, t, server_id=None, _conn=None, **kwargs):
     """
     Renders a split channel view of the image with id {{iid}} at {{z}} and {{t}} as jpeg.
@@ -918,6 +945,8 @@ def jsonp (f):
         logger.debug('jsonp')
         try:
             server_id = kwargs.get('server_id', None)
+            if server_id is None:
+                server_id = request.session.get('server', None)
             kwargs['server_id'] = server_id
             _conn = kwargs.get('_conn', None)
             if _conn is None:
@@ -956,6 +985,7 @@ def jsonp (f):
 #    return wrap
 
 @debug
+@serverid
 def render_row_plot (request, iid, z, t, y, server_id=None, _conn=None, w=1, **kwargs):
     """
     Renders the line plot for the image with id {{iid}} at {{z}} and {{t}} as gif with transparent background.
@@ -987,6 +1017,7 @@ def render_row_plot (request, iid, z, t, y, server_id=None, _conn=None, w=1, **k
     return rsp
 
 @debug
+@serverid
 def render_col_plot (request, iid, z, t, x, w=1, server_id=None, _conn=None, **kwargs):
     """ 
     Renders the line plot for the image with id {{iid}} at {{z}} and {{t}} as gif with transparent background.
@@ -1330,6 +1361,7 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     logger.debug(rv)
     return rv
 
+@serverid
 def save_image_rdef_json (request, iid, server_id=None, **kwargs):
     """
     Requests that the rendering defs passed in the request be set as the default for this image.
@@ -1353,7 +1385,8 @@ def save_image_rdef_json (request, iid, server_id=None, **kwargs):
     if r.get('callback', None):
         json_data = '%s(%s)' % (r['callback'], json_data)
     return HttpResponse(json_data, mimetype='application/javascript')
- 
+
+@serverid
 def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
     """
     Lists the images on the same project that would be viable targets for copying rendering settings.
@@ -1408,6 +1441,7 @@ def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
         json_data = '%s(%s)' % (r['callback'], json_data)
     return HttpResponse(json_data, mimetype='application/javascript')
 
+@serverid
 def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
     """
     Copy the rendering settings from one image to a list of images.
@@ -1469,6 +1503,7 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
         json_data = '%s(%s)' % (r['callback'], json_data)
     return HttpResponse(json_data, mimetype='application/javascript')
 
+@serverid
 def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
     """
     Try to remove all rendering defs the logged in user has for this image.
@@ -1509,6 +1544,7 @@ def dbg_connectors (request):
     rv = connectors.items()
     return HttpResponse(rv, mimetype='text/plain')
 
+@serverid
 def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
     """
     This view is responsible for showing the omero_image template
@@ -1546,7 +1582,7 @@ def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
         raise Http404
     return HttpResponse(rsp)
 
-
+@serverid
 def get_rois_json(request, imageId, server_id=None):
     """
     Returns json data of the ROIs in the specified image. 
@@ -1562,7 +1598,11 @@ def get_rois_json(request, imageId, server_id=None):
         E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503, 190,491] points2[309,427, 366,503, 190,491]"
         To: M 309 427 L 366 503 L 190 491 z
         """
-        firstList = string.strip().split("points")[1]
+        pointLists = string.strip().split("points")
+        if len(pointLists) < 2:
+            logger.error("Unrecognised ROI shape 'points' string: %s" % string)
+            return ""
+        firstList = pointLists[1]
         nums = firstList.strip("[]").replace(", ", " L").replace(",", " ")
         return "M" + nums
 

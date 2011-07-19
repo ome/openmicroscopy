@@ -157,7 +157,12 @@ public class ImporterAgent
      * Implemented as specified by {@link Agent}. 
      * @see Agent#canTerminate()
      */
-    public boolean canTerminate() { return true; }
+    public boolean canTerminate()
+    { 
+    	Importer importer = ImporterFactory.getImporter();
+    	if (importer == null) return true;
+    	return !importer.hasOnGoingImport();
+    }
 
     /**
      * Implemented as specified by {@link Agent}. 

@@ -120,14 +120,30 @@ class ProjectionBICanvas
         	img = model.getDisplayedImage();
         	if (img != null) {
         		attachListener();
+        		double f = model.getZoomFactor();
         		int w = img.getWidth()-1;
         		int h = img.getHeight()-1;
+        		w *= f;
+        		h *= f;
         		g2D.setColor(BACKGROUND_COLOR);
         		g2D.fillRect(0, 0, w, h);
         		FontMetrics fm = g2D.getFontMetrics();
         		g2D.setColor(TEXT_COLOR);
-        		int width = fm.stringWidth(DEFAULT_TEXT);
-        		g2D.drawString(text, (w-width)/2, h/2);
+        		int width = fm.stringWidth(text);
+        		if (width+(w-width*f)/2 > w) { //need to split the text
+        			int l = text.length();
+        			String s1 = text.substring(0, l/2);
+        			String s2 = text.substring(l/2+1, l);
+        			width = (int) (fm.stringWidth(s1));
+        			int x = (w-width)/2;
+        			g2D.drawString(s1, x, h/2);
+        			width = (int) (fm.stringWidth(s2));
+        			x = (w-width)/2;
+        			g2D.drawString(s2, x, (h+fm.getHeight()+10)/2);
+        		} else {
+        			g2D.drawString(text, (w-width)/2, h/2);
+        		}
+        		
         	}
         	return;
         }
@@ -135,5 +151,5 @@ class ProjectionBICanvas
         paintScaleBar(g2D, img.getWidth(), img.getHeight(), ui.getViewport());
         g2D.dispose();
     }
-    
+
 }

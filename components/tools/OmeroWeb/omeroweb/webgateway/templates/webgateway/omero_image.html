@@ -417,6 +417,15 @@
     $('#wblitz-z-curr').html(viewport.getZPos());
     $('#wblitz-t-count').html(viewport.getTCount());
     $('#wblitz-z-count').html(viewport.getZCount());
+
+    if(viewport.loadedImg.rdefs.invertAxis) {
+      $('#z-axis-legend').attr('src', '/appmedia/webgateway/img/t_axis_revert.gif');
+      $('#t-axis-legend').attr('src', '/appmedia/webgateway/img/z_axis_revert.gif');
+    } else {
+      $('#z-axis-legend').attr('src', '/appmedia/webgateway/img/z_axis.gif');
+      $('#t-axis-legend').attr('src', '/appmedia/webgateway/img/t_axis.gif');
+    };
+
     if (viewport.hasLinePlot() || $('#wblitz-lp-enable').attr('checked')) {
       viewport.refreshPlot();
     }

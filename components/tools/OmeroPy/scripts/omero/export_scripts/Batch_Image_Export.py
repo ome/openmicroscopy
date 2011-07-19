@@ -116,7 +116,7 @@ def savePlane(image, format, cName, zRange, t=0, channel=None, greyscale=False, 
     else:
         imgName = makeImageName(originalName, cName, zRange, t, "jpg", folder_name)
         log("Saving image: %s" % imgName)
-        image.save(imgName)
+        plane.save(imgName)
         
         
 def makeImageName(originalName, cName, zRange, t, extension, folder_name):
@@ -186,22 +186,25 @@ def savePlanesForImage(conn, image, sizeC, splitCs, mergedCs, channelNames=None,
     cName = 'merged'
     for c in channels:
         if c is not None:
+            gScale = greyscale
             if c < len(channelNames):
                 cName = channelNames[c].replace(" ", "_")
             else:
                 cName = "c%02d" % c
+        else:
+            gScale = False   # if we're rendering 'merged' image - don't want grey!
         for t in tIndexes:
             if zRange == None:
                 defaultZ = image.getDefaultZ()
-                savePlane(image, format, cName, (defaultZ,), t, c, greyscale, imgWidth, folder_name)
+                savePlane(image, format, cName, (defaultZ,), t, c, gScale, imgWidth, folder_name)
             elif projectZ:
-                savePlane(image, format, cName, zRange, t, c, greyscale, imgWidth, folder_name)
+                savePlane(image, format, cName, zRange, t, c, gScale, imgWidth, folder_name)
             else:
                 if len(zRange) > 1:
                     for z in range(zRange[0], zRange[1]+1):
-                        savePlane(image, format, cName, (z,), t, c, greyscale, imgWidth, folder_name)
+                        savePlane(image, format, cName, (z,), t, c, gScale, imgWidth, folder_name)
                 else:
-                    savePlane(image, format, cName, zRange, t, c, greyscale, imgWidth, folder_name)
+                    savePlane(image, format, cName, zRange, t, c, gScale, imgWidth, folder_name)
 
 
 def batchImageExport(conn, scriptParams):
@@ -213,6 +216,7 @@ def batchImageExport(conn, scriptParams):
     dataType = scriptParams["Data_Type"]
     ids = scriptParams["IDs"]
     folder_name = scriptParams["Folder_Name"]
+    format = scriptParams["Format"]
     
     if (not splitCs) and (not mergedCs):
         log("Not chosen to save Individual Channels OR Merged Image")
@@ -301,7 +305,7 @@ def batchImageExport(conn, scriptParams):
         if tRange is None:      log("  T-index: Last-viewed")
         elif len(tRange) == 1:  log("  T-index: %d" % tRange[0])
         else:                   log("  T-range: %s-%s" % ( tRange[0],tRange[1]) )
-        log("  Format: PNG")
+        log("  Format: %s" % format)
         if imgWidth is None:    log("  Image Width: no resize")
         else:                   log("  Image Width: %s" % imgWidth)
         log("  Greyscale: %s" % greyscale)
@@ -310,7 +314,7 @@ def batchImageExport(conn, scriptParams):
             log("  %s: %d-%d" % (ch.getLabel(), ch.getWindowStart(), ch.getWindowEnd()) )
         
         savePlanesForImage(conn, img, sizeC, splitCs, mergedCs, channelNames,
-            zRange, tRange, greyscale, imgWidth, projectZ=False, format="PNG", folder_name=folder_name)
+            zRange, tRange, greyscale, imgWidth, projectZ=False, format=format, folder_name=folder_name)
 
     # zip up image folder, including log as text file.
     logFile = open(os.path.join(exp_dir, 'Batch_Image_Export.txt'), 'w')
@@ -396,7 +400,7 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
         description="The max width of each image panel. Default is actual size", min=1),
 
     scripts.String("Format", grouping="8", 
-        description="Format to save image", values=formats, default='JPEG'),
+        description="Format to save image", values=formats, default='PNG'),
     
     scripts.String("Folder_Name", grouping="9",
         description="Name of folder (and zip file) to store images", default='Batch_Image_Export'),

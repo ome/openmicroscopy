@@ -95,7 +95,7 @@ public class OpenLocalFileAction
 	 */
 	public void actionPerformed(ActionEvent e) 
 	{
-		chooser = new FileChooser(null, FileChooser.LOAD, 
+		chooser = new FileChooser(model.getUI(), FileChooser.LOAD, 
 				"Open File", "Choose a file to open in the Editor", 
 				filters);
 		chooser.addPropertyChangeListener(

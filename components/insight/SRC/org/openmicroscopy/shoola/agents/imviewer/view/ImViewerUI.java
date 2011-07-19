@@ -42,6 +42,8 @@ import java.awt.event.HierarchyBoundsListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -286,6 +288,12 @@ class ImViewerUI
 	
 	/** The viewer as a component. */
 	private JComponent							component;
+	
+	/** The dialog displaying info about the image.*/
+	private TinyDialog							infoDialog;
+	
+	/** The dialog displaying info about the image.*/
+	private TinyDialog							channelDialog;
 	
 	/**
 	 * Finds the first {@link HistoryItem} in <code>x</code>'s containment
@@ -1110,7 +1118,7 @@ class ImViewerUI
 		this.model = model;
 		toolBar = new ToolBar(this, controller);
 		controlPane = new ControlPane(controller, model, this); 
-		statusBar = new StatusBar(model);
+		statusBar = new StatusBar(model, this);
 		initSplitPanes();
 		refInsets = rendererSplit.getInsets();
 		planes = new HashMap<Integer, PlaneInfoComponent>();
@@ -2206,19 +2214,94 @@ class ImViewerUI
 	void showPlaneInfoDetails(PlaneInfoComponent comp)
 	{
 		if (comp == null) return;
-		TinyDialog d = new TinyDialog(this, comp.getContent(), 
+		if (channelDialog != null) {
+			JComponent c = channelDialog.getCanvas();
+			channelDialog.closeWindow();
+			hideAnimation();
+			channelDialog = null;
+			if (c == comp.getContent()) return;
+		}
+		if (infoDialog != null) {
+			infoDialog.closeWindow();
+			hideAnimation();
+			infoDialog = null;
+		}
+		channelDialog = new TinyDialog(this, comp.getContent(), 
 						TinyDialog.CLOSE_ONLY);
-		d.addPropertyChangeListener(TinyDialog.CLOSED_PROPERTY, 
-				controller);
-		d.pack();
-		Point p = new Point(0, 2*statusBar.getPreferredSize().height);
-		setCloseAfter(true);
-		showJDialogAsSheet(d, p, UP_MIDDLE);
+		channelDialog.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (TinyDialog.CLOSED_PROPERTY.equals(evt.getPropertyName())) {
+					channelDialog.closeWindow();
+					hideAnimation();
+					channelDialog = null;
+				}
+			}
+		});
+		channelDialog.pack();
+		Point p;
+		JPanel glass = (JPanel) getGlassPane();
+		if (glass.getLayout() == null) {
+			Dimension d = channelDialog.getPreferredSize();
+			d = new Dimension(d.width+20, d.height);
+			channelDialog.setSize(d);
+			channelDialog.setPreferredSize(d);
+			p = new Point(0, statusBar.getPreferredSize().height);
+		} else {
+			p = new Point(0, 2*statusBar.getPreferredSize().height);
+		}
+		//setCloseAfter(true);
+		showJDialogAsSheet(channelDialog, p, UP_MIDDLE);
 	}
 	
-	/** Hides the plane information. */
-	void hidePlaneInfoDetails() { hideAnimation(); }
-	
+	/** 
+	 * Displays information about the image.
+	 * 
+	 * @param comp
+	 */
+	void showImageInfo(JComponent comp)
+	{
+		if (comp == null) return;
+		if (infoDialog != null) {
+			infoDialog.closeWindow();
+			hideAnimation();
+			infoDialog = null;
+			return;
+		}
+		if (channelDialog != null) {
+			channelDialog.closeWindow();
+			hideAnimation();
+			channelDialog = null;
+		}
+		infoDialog = new TinyDialog(this, comp, 
+						TinyDialog.CLOSE_ONLY);
+		infoDialog.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (TinyDialog.CLOSED_PROPERTY.equals(evt.getPropertyName())) {
+					infoDialog.closeWindow();
+					hideAnimation();
+					infoDialog = null;
+				}
+			}
+		});
+		infoDialog.pack();
+		Point p;
+		JPanel glass = (JPanel) getGlassPane();
+		if (glass.getLayout() == null) {
+			Dimension d = infoDialog.getPreferredSize();
+			d = new Dimension(d.width, d.height+20);
+			infoDialog.setSize(d);
+			infoDialog.setPreferredSize(d);
+			p = new Point(0, statusBar.getPreferredSize().height);
+		} else {
+			p = new Point(0, 2*statusBar.getPreferredSize().height);
+			
+		}
+		//setCloseAfter(true);
+		showJDialogAsSheet(infoDialog, p, UP_LEFT);
+	}
+
 	/**
 	 * Returns the maximum number of z-sections.
 	 * 
@@ -2510,6 +2593,13 @@ class ImViewerUI
 		controlPane.resetZoomValues();
 	}
 	
+	/** Sets the image data.*/
+	void setImageData()
+	{
+		setTitle(model.getImageTitle());
+		statusBar.formatToolTip();
+	}
+	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 
@@ -2543,6 +2633,15 @@ class ImViewerUI
 			packWindow();
 			UIUtilities.incrementRelativeToAndShow(null, this);
 		}
+	}
+	
+	/** 
+	 * Overridden to show or hide the glass pane.
+	 */
+	public void hideAnimation()
+	{
+		JPanel glass = (JPanel) getGlassPane();
+		hideAnimation(glass.getLayout() == null);
 	}
 
 }

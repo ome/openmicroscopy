@@ -47,6 +47,7 @@ import omero.client;
 import omero.api.ExporterPrx;
 import omero.api.GatewayPrx;
 import omero.api.IAdminPrx;
+import omero.api.IConfigPrx;
 import omero.api.IContainerPrx;
 import omero.api.IPixelsPrx;
 import omero.api.RawPixelsStorePrx;
@@ -230,12 +231,36 @@ class Gateway
 	{ 
 		try {
 			if (pojosService == null) {
-				pojosService = entryEncrypted.getContainerService();
+				if (entryUnencrypted != null) {
+					pojosService = entryUnencrypted.getContainerService();
+				} else
+					pojosService = entryEncrypted.getContainerService();
 				services.add(pojosService);
 			}
 			return pojosService; 
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Container service.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the {@link IConfigService} service.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private IConfigPrx getConfigService()
+		throws DSAccessException, DSOutOfServiceException
+	{
+		try {
+			if (entryUnencrypted != null)
+				return entryUnencrypted.getConfigService();
+			return entryEncrypted.getConfigService();
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
 		return null;
 	}
@@ -276,7 +301,9 @@ class Gateway
 	{ 
 		try {
 			if (pixelsService == null) {
-				pixelsService = entryEncrypted.getPixelsService(); 
+				if (entryUnencrypted != null)
+					pixelsService = entryUnencrypted.getPixelsService(); 
+				else pixelsService = entryEncrypted.getPixelsService(); 
 				services.add(pixelsService);
 			}
 			return pixelsService;
@@ -705,4 +732,17 @@ class Gateway
 		}
 	}
 	
+	/**
+	 * Returns the version of the server.
+	 * 
+	 * @return See above.
+	 */
+	public String getServerVersion()
+	{
+		try {
+			return getConfigService().getVersion();
+		} catch (Exception e) {
+			return null;
+		}
+	}
 }

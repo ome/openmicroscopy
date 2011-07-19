@@ -173,9 +173,9 @@ class DataBrowserControl
     								ManageObjectAction.COPY));
     	actionsMap.put(PASTE_OBJECT, new ManageObjectAction(model,
 									ManageObjectAction.PASTE));
-    	actionsMap.put(REMOVE_OBJECT,new ManageObjectAction(model,
+    	actionsMap.put(REMOVE_OBJECT, new ManageObjectAction(model,
 									ManageObjectAction.REMOVE));
-    	actionsMap.put(CUT_OBJECT,new ManageObjectAction(model,
+    	actionsMap.put(CUT_OBJECT, new ManageObjectAction(model,
 								ManageObjectAction.CUT));
     	actionsMap.put(PASTE_RND_SETTINGS, new ManageRndSettingsAction(model, 
     						ManageRndSettingsAction.PASTE));

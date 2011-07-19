@@ -504,14 +504,15 @@ class DataBrowserUI
     	Component comp = null;
     	switch (selectedView) {
 			case THUMB_VIEW:
-				comp = model.getBrowser().getLastSelectedDisplay();
+				if (model.getBrowser() != null)
+					comp = model.getBrowser().getUI();
 				break;
 			case COLUMNS_VIEW:
 				comp = model.getTableView();
 		}
     	if (comp != null) {
     		popupMenu.populateOpenWith();
-    		popupMenu.show(comp, p.x, p.y); 
+    		popupMenu.show(comp, p.x, p.y);
     	}
     }
     

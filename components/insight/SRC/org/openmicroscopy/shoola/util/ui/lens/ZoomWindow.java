@@ -41,8 +41,8 @@ import javax.swing.JMenuBar;
 //Application-internal dependencies
 
 /** 
-*	ZoomWindow is the component of the zoomWindowUI showing the zoomed verison
-*	of the lens.  
+*	ZoomWindow is the component of the zoomWindowUI showing the zoomed version
+*	of the lens.
 *
 * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
 * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

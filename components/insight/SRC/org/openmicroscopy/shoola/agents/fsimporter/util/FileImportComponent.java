@@ -467,6 +467,7 @@ public class FileImportComponent
 		statusLabel = new StatusLabel();
 		statusLabel.addPropertyChangeListener(this);
 		deleteButton = new JButton(icons.getIcon(IconManager.DELETE));
+		deleteButton.setActionCommand(""+DELETE_ID);
 		deleteButton.setToolTipText("Delete the image");
 		UIUtilities.unifiedButtonLookAndFeel(deleteButton);
 		deleteButton.setVisible(false);
@@ -830,6 +831,14 @@ public class FileImportComponent
 		} else if (image instanceof Boolean) {
 			if (!statusLabel.isMarkedAsCancel()) {
 				cancelButton.setVisible(false);
+				if (statusLabel.isMarkedAsDuplicate()) {
+					statusLabel.setVisible(false);
+					setStatusText(StatusLabel.DUPLICATE);
+				} else {
+					statusLabel.setVisible(false);
+					setStatusText(FILE_NOT_VALID_TEXT);
+				}
+				/*
 				if (file.isDirectory()) {
 					statusLabel.setVisible(false);
 					setStatusText(FILE_NOT_VALID_TEXT);
@@ -837,7 +846,7 @@ public class FileImportComponent
 				else {
 					statusLabel.setVisible(false);
 					setStatusText(FILE_NOT_VALID_TEXT);
-				}
+				}*/
 			} else resultLabel.setText("");
 		} else {
 			if (!status) {
@@ -938,7 +947,9 @@ public class FileImportComponent
 				return errorBox.isEnabled() && errorBox.isSelected();
 			return false;
 		}
-		if (components == null) return false;
+		if (components == null) {
+			return false;
+		}
 		Iterator<FileImportComponent> i = components.values().iterator();
 		while (i.hasNext()) {
 			if (i.next().hasFailuresToSend()) 
@@ -959,8 +970,14 @@ public class FileImportComponent
 			if (errorBox.isVisible()) return FAILURE;
 			return SUCCESS;
 		}
-		if (components == null || components.size() == 0)
+		if (components == null || components.size() == 0) {
+			if (image instanceof Boolean) {
+				if (!StatusLabel.DUPLICATE.equals(resultLabel.getText()))
+					return FAILURE;
+			}
 			return SUCCESS;
+		}
+			
 		Iterator<FileImportComponent> i = components.values().iterator();
 		int n = components.size();
 		int count = 0;
@@ -1179,10 +1196,7 @@ public class FileImportComponent
 				deleteImage(); 
 				break;
 			case CANCEL_ID:
-				cancel(true); 
-				break;
-			case BROWSE_ID:
-				browse();
+				cancel(true);
 		}
 	}
 	

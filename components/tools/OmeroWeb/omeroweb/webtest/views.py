@@ -15,6 +15,9 @@ import omero
 from omero.rtypes import rint, rstring
 import omero.gateway
 
+logger = logging.getLogger('webtest')    
+
+
 try:
     import Image
 except: #pragma: nocover
@@ -22,8 +25,6 @@ except: #pragma: nocover
         from PIL import Image
     except:
         logger.error('No PIL installed, line plots and split channel will fail!')
-
-logger = logging.getLogger('webtest')    
 
 
 @isUserConnected    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
@@ -68,13 +69,13 @@ def logout (request):
         logger.error(traceback.format_exc())
     
     #request.session.set_expiry(1)
-    return HttpResponseRedirect(reverse('webtest_login'))
+    return HttpResponseRedirect(reverse('webtest_index'))
 
 
 @isUserConnected    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
 def index(request, **kwargs):
     conn = kwargs['conn']
-    return render_to_response('webtest/index.html', {'client': conn})
+    return render_to_response('webtest/index.html', {'conn': conn})
 
 
 @isUserConnected

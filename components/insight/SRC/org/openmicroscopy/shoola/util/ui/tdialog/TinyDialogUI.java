@@ -367,6 +367,13 @@ public class TinyDialogUI
     }
     
     /**
+     * Returns the canvas.
+     * 
+     * @return See above.
+     */
+    JComponent getCanvas() { return canvas; }
+    
+    /**
      * Derives the default font of the title bar.
      * 
      * @param style The new style to set.

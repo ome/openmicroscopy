@@ -27,6 +27,8 @@ import cStringIO
 import traceback
 import logging
 
+logger = logging.getLogger('webclient_gateway')
+
 try:
     from PIL import Image, ImageDraw # see ticket:2597
 except ImportError:
@@ -55,7 +57,7 @@ from omero.model import FileAnnotationI, TagAnnotationI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, \
                         LaserI
 
-from omero.gateway import TagAnnotationWrapper, ExperimenterWrapper, WellWrapper
+from omero.gateway import TagAnnotationWrapper, ExperimenterWrapper, WellWrapper, AnnotationWrapper
 
 from omero.sys import ParametersI
 
@@ -69,8 +71,6 @@ try:
     PAGE = settings.PAGE
 except:
     PAGE = 24
-
-logger = logging.getLogger('webclient_gateway')
 
 class OmeroWebGateway (omero.gateway.BlitzGateway):
 
@@ -862,6 +862,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     def defaultThumbnail(self, size=(120,120)):
         if isinstance(size, int):
             size = (size,size)
+        if len(size) == 1:
+            size = (size[0],size[0])
         img = Image.open(settings.DEFAULT_IMG)
         img.thumbnail(size, Image.ANTIALIAS)
         draw = ImageDraw.Draw(img)
@@ -1210,15 +1212,15 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @param share_id:    share ID
         @type share_id:     Long
         @return:            Share contents
-        @rtype:             L{ShareContentWrapper} generator
+        @rtype:             L{omero.gateway.BlitzObjectWrapper} generator
         """
         
         sh = self.getShareService()
         for e in sh.getContents(long(share_id)):
             try:
-                obj = ShareContentWrapper(self, e)
+                obj = omero.gateway.BlitzObjectWrapper(self, e)
             except:
-                obj = ShareContentWrapper(self,None)
+                obj = omero.gateway.BlitzObjectWrapper(self,None)
                 obj._obj = e
             yield obj
                 
@@ -1229,12 +1231,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @param share_id:    share ID
         @type share_id:     Long
         @return:            Share comments
-        @rtype:             L{ShareCommentWrapper} generator
+        @rtype:             L{AnnotationWrapper} generator
         """
         
         sh = self.getShareService()
         for e in sh.getComments(long(share_id)):
-            yield ShareCommentWrapper(self, e)
+            yield AnnotationWrapper(self, e)
     
     def getAllMembers(self, share_id):
         """
@@ -1472,7 +1474,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         controlled by the security system.
         
         @return:    Generator yielding SessionAnnotationLink
-        @rtype:     L{SessionAnnotationLinkWrapper} generator
+        @rtype:     L{ShareWrapper} generator
         """
         
         tm = self.getTimelineService()
@@ -1483,15 +1485,15 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.limit = rint(10)
         p.theFilter = f
         for e in tm.getMostRecentShareCommentLinks(p):
-            yield SessionAnnotationLinkWrapper(self, e)
+            yield ShareWrapper(self, e.parent)
     
-    def listMostRecentShareCommentLinks (self):
+    def listMostRecentShareComments (self):
         """
         Retrieve most recent share comments 
         controlled by the security system.
         
         @return:    Generator yielding SessionAnnotationLink
-        @rtype:     L{SessionAnnotationLinkWrapper} generator
+        @rtype:     L{SessionCommentWrapper} generator
         """
         
         tm = self.getTimelineService()
@@ -1502,7 +1504,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.limit = rint(10)
         p.theFilter = f
         for e in tm.getMostRecentShareCommentLinks(p):
-            yield SessionAnnotationLinkWrapper(self, e)
+            yield AnnotationWrapper(self, e.child, link=ShareWrapper(self, e.parent))
     
     def listMostRecentComments (self):
         """
@@ -1669,6 +1671,8 @@ omero.gateway.BlitzGateway = OmeroWebGateway
 
 class OmeroWebObjectWrapper (object):
     
+    annotation_counter = None
+    
     def countParents (self):
         l = self.listParents()
         if l is not None:
@@ -1823,17 +1827,6 @@ omero.gateway.ScreenWrapper = ScreenWrapper
 
 # IMPORTANT to update the map of wrappers 'project', 'dataset', 'image' etc. returned by getObjects()
 omero.gateway.refreshWrappers()
-
-class SessionAnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):
-    """
-    omero_model_AnnotationLinkI class wrapper extends omero.gateway.BlitzObjectWrapper.
-    """
-    
-    def getComment(self):
-        return ShareCommentWrapper(self._conn, self.child)
-    
-    def getShare(self):
-        return ShareWrapper(self._conn, self.parent)
     
 class EventLogWrapper (omero.gateway.BlitzObjectWrapper):
     """
@@ -1940,15 +1933,3 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         """
         
         return omero.gateway.ExperimenterWrapper(self, self.owner)
-
-class ShareContentWrapper (omero.gateway.BlitzObjectWrapper):
-    """
-    wrapper for share content, extends BlitzObjectWrapper.
-    """
-    pass
-
-class ShareCommentWrapper (omero.gateway.AnnotationWrapper):
-    """
-    wrapper for share comment, extends BlitzObjectWrapper.
-    """
-    pass

@@ -52,7 +52,7 @@ def additional_tests():
     suite.addTest(load("integration.thumbnailPerms"))
 
     suite.addTest(load("clitest.integration_suite._additional_tests"))
-    #suite.addTest(load("gatewaytest.suite._additional_tests"))
+    suite.addTest(load("gatewaytest.suite._additional_tests"))
     suite.addTest(load("scriptstest.suite._additional_tests"))
     suite.addTest(load("scriptstest.integration_suite._additional_tests"))
     suite.addTest(load("tablestest.suite._additional_tests"))

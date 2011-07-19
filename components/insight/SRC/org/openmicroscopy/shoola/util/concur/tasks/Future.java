@@ -33,7 +33,7 @@ import org.openmicroscopy.shoola.util.concur.ControlFlowObserver;
 
 /** 
  * Extends {@link ExecHandle} to allow clients to retrieve the result of a
- * computation peformed by a service.
+ * computation performed by a service.
  * After triggering the asynchronous execution of a service that computes a
  * result, the invoker (client) is given back a <code>Future</code> object.
  * The client calls one of the <code>getResult</code> methods to retrieve the

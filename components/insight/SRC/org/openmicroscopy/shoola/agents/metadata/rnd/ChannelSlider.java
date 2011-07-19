@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -67,7 +69,7 @@ class ChannelSlider
 	static final Color		GRADIENT_COLOR = Color.BLACK;
 	
 	/** The default size of the button. */
-	static final Dimension	DEFAULT_SIZE = new Dimension(16, 16);
+	private static final Dimension	DEFAULT_SIZE = new Dimension(20, 20);
 	
 	/** Reference to the model. */
 	private RendererModel 			model;
@@ -139,11 +141,25 @@ class ChannelSlider
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		setBackground(UIUtilities.BACKGROUND_COLOR);
-		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		if (!model.isGeneralIndex())
+		int w = 320;
+		if (model.isGeneralIndex()) {
+			double size[][] = {{w},{TableLayout.PREFERRED}}; // Rows
+			setLayout(new TableLayout(size));
+			add(slider, "0, 0");
+		} else {
+			JPanel p = new JPanel();
+			p.setBorder(null);
+			double size[][] = {{w},  // Columns
+	    	{TableLayout.PREFERRED}}; // Rows
+			p.setLayout(new TableLayout(size));
+			p.add(slider, "0, 0");
+			Dimension d = slider.getPreferredSize();
+			channelSelection.setPreferredSize(new Dimension(d.height, d.height));
+			setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 			add(channelSelection);
-		add(slider);
+			add(p);
+			setBackground(p.getBackground());
+		}
 	}
 	
 	/**

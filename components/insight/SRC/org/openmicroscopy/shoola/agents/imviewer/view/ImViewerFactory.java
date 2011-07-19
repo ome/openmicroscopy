@@ -470,7 +470,8 @@ public class ImViewerFactory
 		ImViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (ImViewerComponent) v.next();
-			if (comp.getModel().getPixelsID() == model.getPixelsID())  
+			//if (comp.getModel().getPixelsID() == model.getPixelsID())
+			if (comp.getModel().getImageID() == model.getImageID())
 				return comp;
 			//if (model.isSameDisplay(comp.getModel())) return comp;
 		}
