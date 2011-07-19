@@ -179,7 +179,7 @@ def savePlanesForImage(conn, image, sizeC, splitCs, mergedCs, channelNames=None,
         tIndexes = [image.getDefaultT()]
     else:
         if len(tRange) > 1:
-            tIndexes = range(tRange[0], tRange[1]+1)
+            tIndexes = range(tRange[0], tRange[1])
         else:
             tIndexes = [tRange[0]]
     
@@ -201,7 +201,7 @@ def savePlanesForImage(conn, image, sizeC, splitCs, mergedCs, channelNames=None,
                 savePlane(image, format, cName, zRange, t, c, gScale, imgWidth, folder_name)
             else:
                 if len(zRange) > 1:
-                    for z in range(zRange[0], zRange[1]+1):
+                    for z in range(zRange[0], zRange[1]):
                         savePlane(image, format, cName, (z,), t, c, gScale, imgWidth, folder_name)
                 else:
                     savePlane(image, format, cName, zRange, t, c, gScale, imgWidth, folder_name)
