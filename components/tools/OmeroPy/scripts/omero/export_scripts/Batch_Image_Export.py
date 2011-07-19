@@ -247,7 +247,10 @@ def batchImageExport(conn, scriptParams):
                 end = scriptParams["...specify_Z_end"]
                 zStart = min(start, end)  # in case user got zStart and zEnd mixed up
                 zEnd = max(start, end)
-                zRange = (min(sizeZ-1,zStart), min(sizeZ-1,zEnd) )
+                if zStart == zEnd:
+                    zRange = (min(sizeZ-1,zStart),)
+                else:
+                    zRange = (min(sizeZ-1,zStart), min(sizeZ-1,zEnd) )
         return zRange
     
     def getTrange(sizeT, scriptParams):
@@ -265,7 +268,10 @@ def batchImageExport(conn, scriptParams):
                 end = scriptParams["...specify_T_end"]
                 tStart = min(start, end)  # in case user got zStart and zEnd mixed up
                 tEnd = max(start, end)
-                tRange = (min(sizeT-1,tStart), min(sizeT-1,tEnd) )
+                if tStart == tEnd:
+                    tRange = (min(sizeT-1,tStart),)
+                else:
+                    tRange = (min(sizeT-1,tStart), min(sizeT-1,tEnd) )
         return tRange
 
     # images to export
