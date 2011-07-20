@@ -136,8 +136,12 @@
     </style>
 
     <style type="text/css">
+        h3 {
+            text-align: center;
+        }
         div.footer {
             padding: 7px;
+            font-size: 110%;
             border-top: 1px solid #aaa;
         }
         body {
@@ -145,6 +149,24 @@
             font-family: Arial;
             padding: 0px;
             margin: 0px;
+            font-size: 80%;
+        }
+        .slider {
+            margin-left:auto;
+            margin-right:auto;
+        }
+        form {
+            text-align: center;
+        }
+        .controlsInfo {
+            padding: 5px;
+        }
+        ul {
+            padding-left: 17px;
+            margin-top: 3px;
+        }
+        .current {
+            background: red;
         }
     </style>
 
@@ -162,16 +184,23 @@
 
         // depending on whether the map is 'raw' data or '8bit' we have to convert slider value (raw) before applying
         function av_map_level(sliderVal){
-            var oavContourVal = (( (sliderVal - {{ dataOffset }}) * {{ mapPixelFactor }})) + {{ mapOffset }};
+            var oavContourVal = sliderVal;
+            if ($(".current").attr('id') == "loadCompressed") {
+                alert("loadCompressed");
+                dataOffset = {{ pixelRange.0 }};
+                mapPixelFactor = 255.0 / ({{ pixelRange.1 }} - {{ pixelRange.0 }});
+                mapOffset = -127;
+                oavContourVal = (( (sliderVal - dataOffset) * mapPixelFactor )) + mapOffset;
+            }
             var command = "map mapA -level " + oavContourVal + ";map mapA -reread true;";
             execute_oav_command(command);
         }
 
         var resizeOav = function() {
             $("#oavDiv").width($(window).width() - 200);
-            $("#oavDiv").height($(window).height() - 65);
+            $("#oavDiv").height($(window).height() - 60);
         }
-        
+
         $(document).ready(function() {
             
             resizeOav();
@@ -206,30 +235,25 @@
                           var solid = $(this).attr('value');    // wire or solid
                           var command = "map mapA contour 0 '"+ solid + "';";
                           execute_oav_command(command);
+                          return false;
                       }
                   })
               });
 
-            $("#toggleMap").click(function(event) {
-                var on = $(this).attr('checked');
-                var onOff = "on"
-                if (!on) {
-                    onOff = "off"
-                }
-                var command = "map mapA contour 0 "+ onOff + ";";
-                execute_oav_command(command);
-            });
-            $("#toggleSolid").click(function(event) {
-                var on = $(this).attr('checked');
-                var onOff = "solid"
-                if (!on) {
-                    onOff = "wire"
-                }
-                var command = "map mapA contour 0 '"+ onOff + "';";
-                execute_oav_command(command);
-            });
+              $("#reloadMap").click(function() {
+                    $("input[name='loadMap']").each(function() {
+                        $(".loadOption").removeClass("current");
+                        if (this.checked ) {
+                            var data_url = $(this).attr('value');    // raw or 8bit
+                            $(this).parent().addClass("current");
+                            var command = "map replace mapA '"+ data_url +"';map mapA contour 0 'solid';"
+                            execute_oav_command(command);
+                            return false;
+                        }
+                    })
+                });
         });
-        
+
     </script>
     
     <style type="text/css">
@@ -253,7 +277,7 @@
     
 <table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
     <tr>
-    <td valign="top" width="190px" bgcolor="#eee" align="center">
+    <td valign="top" width="190px" bgcolor="#eee">
         <h3>{{ imageName }}</h3>
         <form onsubmit="return false">
             <hr />
@@ -269,8 +293,32 @@
                 <div class="aligncenter" id="h-value-2"> </div>
                 <div class="alignright" id="h-max-2"></div>
             </div>
-        <!--    {% if pixelRange %} ({{ pixelRange.0|floatformat:4 }} - {{ pixelRange.1|floatformat:4 }}) {% endif %} -->
         </form>
+            <div style="clear:both"></div>
+        <!--    {% if pixelRange %} ({{ pixelRange.0|floatformat:4 }} - {{ pixelRange.1|floatformat:4 }}) {% endif %} -->
+            <hr />
+        <form onsubmit="return false">
+            <div>
+                Switch between 'compressed' data (256 levels) and raw data <br />
+                <span id="loadCompressed" class="loadOption current">
+                    <input type="radio" name="loadMap" value="{% url webclient_image_as_map_8bit imageId %}" checked="true" /> Compressed <br />
+                </span>
+                <span id="loadRaw" class="loadOption">
+                    <input type="radio" name="loadMap" value="{% url webclient_image_as_map imageId %}" /> Raw Data
+                </span>
+            </div>
+            <input type="submit" id="reloadMap" value="Reload"></input>
+        </form>
+        <div style="clear:both"></div>
+        <hr />
+
+        <div class="controlsInfo">
+        Controls:
+        <ul>
+            <li>Zoom: Shift and Drag up/down</li>
+            <li>Pan: Drag and hold down Ctrl</li>
+        </ul>
+        </div>
     </td>
 
     <td>
@@ -281,13 +329,13 @@
               archive="{% url webstatic 'applet/OpenAstexViewer.jar' %} ">
          
                  <param name="script" value="
-                 map load mapA '{{ data_url }}';
+                 map load mapA '{{ data_url }}' {{ data_storage_mode }};
                  center map mapA;
                  map mapA contour 0 on;
                  background '0xDDDDDD';
                  map mapA contour 0 'solid';
-                 map mapA contour 0 'green';
                  ">
+                 <!-- map mapA contour 0 'green'; -->
         </applet>
     </div>
     </td>
