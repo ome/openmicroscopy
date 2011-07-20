@@ -697,27 +697,28 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return RawPixelsStorePrxHelper.uncheckedCast(prx);
     }
 
-    public RawFileStorePrx file(long fileId, Current __current) throws ServerError {
-        Principal currentUser = currentUser(__current);
-        File file = getFile(fileId, currentUser);
-        if (file == null) {
-            return null;
-        }
-
-        // WORKAROUND: See the comment in RawFileStoreI.
-        // The most likely correction of this
-        // is to have PublicRepositories not be global objects, but be created
-        // on demand for each session via SharedResourcesI
+    public RawFileStorePrx file(String path, String mode, Current __current) throws ServerError {
+        // See comment below in RawFileStorePrx
         Ice.Current adjustedCurr = new Ice.Current();
         adjustedCurr.ctx = __current.ctx;
         adjustedCurr.operation = __current.operation;
         String sessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
         adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
 
-        // TODO: Refactor all this into a single helper method.
-        // If there is no listener available who will take responsibility
-        // for this servant, then we bail.
-        RepoRawFileStoreI rfs = new RepoRawFileStoreI(fileId, file);
+        RepoRawFileStoreI rfs;
+        try {
+            rfs = new RepoRawFileStoreI(path, mode);
+        } catch (Throwable t) {
+            if (t instanceof ServerError) {
+                throw (ServerError) t;
+            } else {
+                omero.InternalException ie = new omero.InternalException();
+                IceMapper.fillServerError(ie, t);
+                throw ie;
+            }
+        }
+
+        // See comment below in RawFileStorePrx
         _RawFileStoreTie tie = new _RawFileStoreTie(rfs);
         RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
         try {
@@ -736,12 +737,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
             throw new omero.InternalException(null, null, "No ServantHolder for proxy.");
         }
         return RawFileStorePrxHelper.uncheckedCast(prx);
-    }
-
-    public RawFileStorePrx read(String path, Current __current)
-            throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     public void rename(String path, Current __current) throws ServerError {
@@ -766,14 +761,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         // TODO Auto-generated method stub
 
     }
-
-    public RawFileStorePrx write(String path, Current __current)
-            throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-
 
     /**
      *
