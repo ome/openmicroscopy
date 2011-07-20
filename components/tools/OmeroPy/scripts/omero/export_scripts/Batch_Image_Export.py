@@ -68,7 +68,7 @@ def compress(target, base):
     finally:
         zip_file.close()
 
-def savePlane(image, format, cName, zRange, t=0, channel=None, greyscale=False, imgWidth=None, folder_name=None):
+def savePlane(image, format, cName, zRange, projectZ, t=0, channel=None, greyscale=False, imgWidth=None, folder_name=None):
     """
     Renders and saves an image to disk.
     
@@ -96,11 +96,11 @@ def savePlane(image, format, cName, zRange, t=0, channel=None, greyscale=False, 
     # if channel == None: use current rendering settings
     if channel != None:
         image.setActiveChannels([channel+1])    # use 1-based Channel indices
-    if greyscale:
-        image.setGreyscaleRenderingModel()
-    else:
-        image.setColorRenderingModel()
-    if len(zRange) > 1:     # current params don't allow users to choose this option
+        if greyscale:
+            image.setGreyscaleRenderingModel()
+        else:
+            image.setColorRenderingModel()
+    if projectZ:
         image.setProjection('intmax')   # imageWrapper only supports projection of full Z range (can't specify)
 
     plane = image.renderImage(zRange[0], t)
@@ -196,15 +196,15 @@ def savePlanesForImage(conn, image, sizeC, splitCs, mergedCs, channelNames=None,
         for t in tIndexes:
             if zRange == None:
                 defaultZ = image.getDefaultZ()
-                savePlane(image, format, cName, (defaultZ,), t, c, gScale, imgWidth, folder_name)
+                savePlane(image, format, cName, (defaultZ,), projectZ, t, c, gScale, imgWidth, folder_name)
             elif projectZ:
-                savePlane(image, format, cName, zRange, t, c, gScale, imgWidth, folder_name)
+                savePlane(image, format, cName, zRange, projectZ, t, c, gScale, imgWidth, folder_name)
             else:
                 if len(zRange) > 1:
                     for z in range(zRange[0], zRange[1]):
-                        savePlane(image, format, cName, (z,), t, c, gScale, imgWidth, folder_name)
+                        savePlane(image, format, cName, (z,), projectZ, t, c, gScale, imgWidth, folder_name)
                 else:
-                    savePlane(image, format, cName, zRange, t, c, gScale, imgWidth, folder_name)
+                    savePlane(image, format, cName, zRange, projectZ, t, c, gScale, imgWidth, folder_name)
 
 
 def batchImageExport(conn, scriptParams):
@@ -217,6 +217,7 @@ def batchImageExport(conn, scriptParams):
     ids = scriptParams["IDs"]
     folder_name = scriptParams["Folder_Name"]
     format = scriptParams["Format"]
+    projectZ = "Choose_Z_Section" in scriptParams and scriptParams["Choose_Z_Section"] == 'Max projection'
     
     if (not splitCs) and (not mergedCs):
         log("Not chosen to save Individual Channels OR Merged Image")
@@ -308,6 +309,7 @@ def batchImageExport(conn, scriptParams):
         if zRange is None:      log("  Z-index: Last-viewed")
         elif len(zRange) == 1:  log("  Z-index: %d" % zRange[0])
         else:                   log("  Z-range: %s-%s" % ( zRange[0],zRange[1]) )
+        if projectZ:            log("  Z-projection: ON")
         if tRange is None:      log("  T-index: Last-viewed")
         elif len(tRange) == 1:  log("  T-index: %d" % tRange[0])
         else:                   log("  T-range: %s-%s" % ( tRange[0],tRange[1]) )
@@ -320,7 +322,7 @@ def batchImageExport(conn, scriptParams):
             log("  %s: %d-%d" % (ch.getLabel(), ch.getWindowStart(), ch.getWindowEnd()) )
         
         savePlanesForImage(conn, img, sizeC, splitCs, mergedCs, channelNames,
-            zRange, tRange, greyscale, imgWidth, projectZ=False, format=format, folder_name=folder_name)
+            zRange, tRange, greyscale, imgWidth, projectZ=projectZ, format=format, folder_name=folder_name)
 
     # zip up image folder, including log as text file.
     logFile = open(os.path.join(exp_dir, 'Batch_Image_Export.txt'), 'w')
@@ -350,6 +352,7 @@ def runScript():
     defaultZoption = 'Default-Z (last-viewed)'
     zChoices = [rstring(defaultZoption),
         rstring('ALL Z planes'),
+        rstring('Max projection'),    # currently ImageWrapper only allows full Z-stack projection
         rstring('Other (see below)')]
     defaultToption = 'Default-T (last-viewed)'
     tChoices = [rstring(defaultToption),
