@@ -239,8 +239,14 @@ function gs_getResultLineLinks (data, baseurl, renderurl) {
   if (renderurl == null) {
     renderurl = baseurl;
   }
+    var figurl;
+    if (data.screenId && data.screenId != 0) {
+        figurl = baseurl+'browse/'+data.projectId+'/S'+data.screenId+'/'+data.datasetId+'/'
+    } else {
+        figurl = baseurl+'browse/'+data.projectId+'/'+data.datasetId+'/'
+    }
   return {
-    figure: baseurl+'browse/'+data.projectId+'/'+data.datasetId+'/',
+    figure: figurl,
     img: baseurl+'browse/'+data.projectId+'/'+data.datasetId+'/'+data.imageId+'/',
     thumb: renderurl+'render_thumbnail/'+data.imageId+'/',
     viewer: baseurl+'img_detail/'+data.imageId+'/'+data.datasetId+'/',
