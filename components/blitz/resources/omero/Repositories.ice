@@ -126,23 +126,17 @@ module omero {
             omero::model::OriginalFile load(string path) throws ServerError;
 
             /**
-             * Returns a special RawFileStore which permits only reading.
-             * Any call to a write or configuration method will throw an
-             * ApiUsageException.
-             **/
-            omero::api::RawFileStore* read(string path) throws ServerError;
-
-            /**
-             * Returns a special RawFileStore which permits only writing.
-             * Any call to a read or configuraiton method will throw an
+             * Returns a special RawFileStore which permits only the operations
+             * set out in the options string "wb", "a+", etc.
+             * FIXME: Initially only "r" and "rw" are supported as these are
+             * handled directly by RandomAccessFile and so don't break the current
+             * implementation.
+             * Any call to that tries to break the options will throw an
              * ApiUsageException. If a file exists at the given path, a
-             * ValidationException will be thrown. Once writing is complete,
-             * call close(), which will seal the file from all further writing.
-             * The SHA1 of the OriginalFile should be checked against the local
-             * value.
+             * ValidationException will be thrown.
              **/
-            omero::api::RawFileStore*    write(string path) throws ServerError;
-            omero::api::RawFileStore*    file(long id) throws ServerError;
+            omero::api::RawFileStore* file(string path, string mode) throws ServerError;
+
             omero::api::RawPixelsStore*  pixels(string path) throws ServerError;
             omero::api::RenderingEngine* render(string path) throws ServerError;
             omero::api::ThumbnailStore*  thumbs(string path) throws ServerError;
@@ -158,19 +152,20 @@ module omero {
             void transfer(string srcPath, Repository* target, string targetPath) 
                     throws ServerError;
 
-            /* TODO for both methods: return binary data rather than paths to jpgs ? */
+            /* TODO for both methods: These methods should both be removed
+              in favour of a full implementation of thumbs()*/
             /**
              * Return the full path of a jpg thumbnail of the image file
              * given in the path argument.
              **/
-            string getThumbnail(string path) throws ServerError;
+            ["deprecated:currently for testing only"] string getThumbnail(string path) throws ServerError;
             
             /**
              * Return the full path of a jpg thumbnail of the image 
              * at the imageIndex in the file set represented by
              * the file given in the path argument.
              **/
-            string getThumbnailByIndex(string path, int imageIndex) throws ServerError;
+            ["deprecated:currently for testing only"] string getThumbnailByIndex(string path, int imageIndex) throws ServerError;
             
         };
 
