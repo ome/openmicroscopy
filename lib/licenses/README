@@ -634,7 +634,14 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   License File: gpl.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.form.js
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/omeroweb/javascript/slider/
+  Project:      Slider 1.02 - javascript slider
+  Web Site:     http://webfx.eae.net/dhtml/slider/slider.html
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/omeroweb/javascript/jquery.form.js
   Project:      jQuery Form Plugin.
   Web Site:     http://malsup.com/jquery/form/
   License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.

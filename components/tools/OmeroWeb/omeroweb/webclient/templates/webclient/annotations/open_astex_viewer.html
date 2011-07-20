@@ -25,30 +25,191 @@
 <head>
     <title>{{ imageName }}</title>
     
+    <style type="text/css">
+        /*
+		back:	rgb(230,230,230)
+		dark:	rgb(90,97,90)
+		medium	rgb(189,190,189)
+		*/
+
+        .aligncenter {
+		float: left;
+		padding: 15px 0 0 0;
+		margin: 0;
+		width: 45px;
+		font-size:9px;
+		text-align:center;
+        }
+
+        .alignleft {
+		padding: 15px 0 0 0;
+		margin: 0;
+		float:left;
+		font-size:9px;
+		width: 45px;
+		text-align: left;
+        }
+
+        .alignright {
+		padding: 15px 0 0 0;
+		margin: 0;
+		float:left;
+		font-size:9px;
+		width: 45px;
+		text-align:right;
+        }
+
+        .dynamic-slider-control {
+		position:			relative;
+		/*background-color:	rgb(230,230,230);*/
+		-moz-user-focus:	normal;
+		-moz-user-select:	none;
+		cursor:				default;
+        }
+
+        .horizontal {
+		width:				135px;
+		height:				19px;
+        }
+
+        .vertical {
+		width:				29px;
+		height:				200px;
+        }
+
+        .dynamic-slider-control input {
+		display:	none;
+        }
+
+        .dynamic-slider-control .handle {
+		position:			absolute;
+		font-size:			1px;
+		overflow:			hidden;
+		-moz-user-select:	none;
+		cursor:				default;
+        }
+
+        .dynamic-slider-control.horizontal .handle {
+		width:				10px;
+		height:				19px;
+		background-image:	url("{% url webstatic "images/handle.horizontal.gif" %}");
+        }
+
+        .dynamic-slider-control.horizontal .handle div {}
+        .dynamic-slider-control.horizontal .handle.hover {}
+
+        .dynamic-slider-control.vertical .handle {
+		width:				15px;
+		height:				31px;
+		background-image:	url("handle.vertical.png");
+        }
+
+        .dynamic-slider-control.vertical .handle.hover {}
+
+        .dynamic-slider-control .line {
+		position:			absolute;
+		font-size:			0.01mm;
+		overflow:			hidden;
+		border:				1px solid rgb(90,97,90);
+		background:			rgb(189,190,189);
+		behavior:			url("boxsizing.htc"); /* ie path bug */
+		box-sizing:			content-box;
+		-moz-box-sizing:	content-box;
+        }
+        .dynamic-slider-control.vertical .line {
+		width:				3px;
+        }
+
+        .dynamic-slider-control.horizontal .line {
+		height:				3px;
+        }
+
+        .dynamic-slider-control .line div {
+		width:		1px;
+		height:		1px;
+
+		border:				1px solid;
+		border-color:		rgb(230,230,230) rgb(189,190,189)
+							rgb(189,190,189) rgb(230,230,230);
+        }
+
+    </style>
+
+    <style type="text/css">
+        div.footer {
+            padding: 7px;
+            border-top: 1px solid #aaa;
+        }
+        body {
+            background: #ddd;
+            font-family: Arial;
+            padding: 0px;
+            margin: 0px;
+        }
+    </style>
+
     <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/slider/range.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/slider/slider.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/slider/timer.js" %}"></script>
     <script type="text/javascript">
         // pass javascript commands to the open astex viewer applet. 
         var execute_oav_command = function(command) {
+            document.av.debugOn();
             document.av.execute(command);
             window.status = command;
         };
+
+        // depending on whether the map is 'raw' data or '8bit' we have to convert slider value (raw) before applying
+        function av_map_level(sliderVal){
+            var oavContourVal = (( (sliderVal - {{ dataOffset }}) * {{ mapPixelFactor }})) + {{ mapOffset }};
+            var command = "map mapA -level " + oavContourVal + ";map mapA -reread true;";
+            execute_oav_command(command);
+        }
+
+        var resizeOav = function() {
+            $("#oavDiv").width($(window).width() - 200);
+            $("#oavDiv").height($(window).height() - 65);
+        }
         
         $(document).ready(function() {
             
-            // when we click button, run OAV command
-            $("#runOavCmd").click(function() {
-                var oavCmd = $("#oavCommandInput").attr('value');
-                execute_oav_command(oavCmd);
-                return false;
-            });
+            resizeOav();
             
-            $("#updateOavCotour").click(function() {
-                var oavContourVal = $("#oavCotourInput").attr('value');
-                var command = "map mapA contour 0 "+ oavContourVal +";"; 
-                execute_oav_command(command);
+            $(window).resize(resizeOav);
+
+            var s2 = new Slider(document.getElementById("slider-2"), document.getElementById("slider-input-2"));
+
+              s2.setMinMax({{ pixelRange.0|floatformat:4 }},{{ pixelRange.1|floatformat:4 }});
+              s2.setValue(0); // TODO: find the right starting value
+              s2.setUnitIncrement(4);
+              s2.setBlockIncrement(4);
+              document.getElementById("h-min-2").innerHTML = s2.getMinimum();
+              document.getElementById("h-max-2").innerHTML = s2.getMaximum();
+              document.getElementById("h-value-2").innerHTML = "("+ s2.getValue() + ")";
+
+              // Update the slider values only on onchange
+              s2.onchange = function () {
+                document.getElementById("h-value-2").innerHTML = "("+ s2.getValue() + ")";
                 return false;
-            });
+              };
+
+              // Do functional update on doupdate - (onmouseup and onkeyup events)
+              s2.doupdate = function () {
+                av_map_level(s2.getValue());
+              };
             
+
+              $("input[name='solidWire']").click(function() {
+                  $("input[name='solidWire']").each(function() {
+                      if (this.checked ) {
+                          var solid = $(this).attr('value');    // wire or solid
+                          var command = "map mapA contour 0 '"+ solid + "';";
+                          execute_oav_command(command);
+                      }
+                  })
+              });
+
             $("#toggleMap").click(function(event) {
                 var on = $(this).attr('checked');
                 var onOff = "on"
@@ -89,32 +250,58 @@
     </style>
 </head>
 <body>
-    <div>
-    <form>
-        <input id="oavCommandInput" type="text" value="map mapA contour 0 'wire';"/>
-        <input id="runOavCmd" type="submit" value="Go" /> |
-        <input id="oavCotourInput" type="text" />
-        <input id="updateOavCotour" type="submit" value="Contour" />
-        {% if pixelRange %} ({{ pixelRange.0 }} - {{ pixelRange.1 }}) {% endif %}
-        <input type="checkbox" id="toggleMap" value="map" checked="true" /> Map |
-        <input type="checkbox" id="toggleSolid" value="solid" checked="true" /> Solid
-    </form>
-    </div>
     
+<table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
+    <tr>
+    <td valign="top" width="190px" bgcolor="#eee" align="center">
+        <h3>{{ imageName }}</h3>
+        <form onsubmit="return false">
+            <hr />
+            <div>
+                <input type="radio" name="solidWire" value="solid" checked="true" /> Solid |
+                <input type="radio" name="solidWire" value="wire" /> Wire Frame
+            </div>
+            <hr />
+            Contour Level:
+            <div class="slider" id="slider-2" tabIndex="1">
+                <input class="slider-input" id="slider-input-2"/>
+                <div class="alignleft" id="h-min-2"> </div>
+                <div class="aligncenter" id="h-value-2"> </div>
+                <div class="alignright" id="h-max-2"></div>
+            </div>
+        <!--    {% if pixelRange %} ({{ pixelRange.0|floatformat:4 }} - {{ pixelRange.1|floatformat:4 }}) {% endif %} -->
+        </form>
+    </td>
 
-<applet
-      width="100%" height="100%" name="av"
-      code="MoleculeViewerApplet.class"
-      archive="{% url webstatic 'applet/OpenAstexViewer.jar' %} ">
+    <td>
+    <div id="oavDiv" style="width:500px; height:500px">
+        <applet
+              width="100%" height="100%" name="av"
+              code="MoleculeViewerApplet.class"
+              archive="{% url webstatic 'applet/OpenAstexViewer.jar' %} ">
          
-         <param name="script" value="
-         map load mapA '{{ data_url }}';
-         center map mapA;
-         map mapA contour 0 on;
-         background '0xDDDDDD';
-         map mapA contour 0 'solid';
-         map mapA contour 0 'green';
-         ">
-</applet>
-
+                 <param name="script" value="
+                 map load mapA '{{ data_url }}';
+                 center map mapA;
+                 map mapA contour 0 on;
+                 background '0xDDDDDD';
+                 map mapA contour 0 'solid';
+                 map mapA contour 0 'green';
+                 ">
+        </applet>
+    </div>
+    </td>
+</tr>
+<tr>
+    <td colspan="2" bgcolor="#ddd" >
+        <div class="footer">
+        <small>
+        AstexViewer™ Copyright (C) 1999-2007 Astex Therapeutics Ltd.
+        OpenAstexViewer Copyright (C) 2007-2009 Mike Hartshorn <br />
+        Modifications to the OpenAstexViewer has been made by the EMDataBank.org team,
+        these include changes to allow map and models to be displayed with limited memory
+        </small>
+        </div>
+    </td>
+</tr></table>
 </body>
