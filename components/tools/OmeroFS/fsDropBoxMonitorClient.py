@@ -50,11 +50,32 @@ class MonitorState(object):
         def __str__(self):
             return "<Entry:%s>"%id(self)
 
-    def __init__(self):
+    def __init__(self, event):
         self.log = logging.getLogger("fsclient."+__name__)
         self._lock = threading.RLock()
         self.__entries = {}
         self.__timers = 0
+        self.__wait = time.time()
+        self.__event = event
+
+    def appropriateWait(self):
+        """
+        If the last call to appropriateWait
+        """
+        self.log.debug("Locking for appropriate wait...")
+        self._lock.acquire()
+        try:
+            try:
+                elapsed = time.time() - self.__wait
+                if elapsed < 2:
+                    self.log.info("Waiting 2 seconds...")
+                    self.__event.wait(2)
+                else:
+                    self.log.debug("Not waiting.")
+            finally:
+                self.__wait = time.time()
+        finally:
+            self._lock.release()
 
     def addTimer(self, wait, callback, argsList):
         self.__timers += 1
@@ -324,7 +345,7 @@ class MonitorClientI(monitors.MonitorClient):
         self.worker_batch = worker_batch
         self.event = get_event()
         self.queue = Queue.Queue(0)
-        self.state = MonitorState()
+        self.state = MonitorState(self.event)
         self.resources = Resources(stop_event = self.event)
         if ctx:
             # Primarily used for testing
@@ -571,6 +592,7 @@ class MonitorClientI(monitors.MonitorClient):
             return
 
         try:
+            self.state.appropriateWait() # See ticket:5739
             self.log.info("Importing %s (session=%s)", fileName, key)
 
             imageId = []
