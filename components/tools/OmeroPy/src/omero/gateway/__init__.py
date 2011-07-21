@@ -5281,7 +5281,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         
         if pos is None:
-            t = z = None
+            t = z = 0
         else:
             z, t = pos
         img = self.renderImage(z,t)
