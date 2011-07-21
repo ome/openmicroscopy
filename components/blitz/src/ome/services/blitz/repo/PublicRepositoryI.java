@@ -739,6 +739,25 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return RawFileStorePrxHelper.uncheckedCast(prx);
     }
 
+    /**
+     * Create a nested path in the repository. Creates each directory
+     * in the path is it doen't already exist. Silently returns if
+     * the directory already exists.
+     *
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     */
+    public void makeDir(String path, Current __current) throws ServerError {
+        File file = checkPath(path);
+        try {
+            FileUtils.forceMkdir(file);
+        } catch (Exception e) {
+            throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
+        }
+    }
+
     public void rename(String path, Current __current) throws ServerError {
         // TODO Auto-generated method stub
 

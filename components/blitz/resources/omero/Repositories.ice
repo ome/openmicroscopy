@@ -147,6 +147,7 @@ module omero {
             bool fileExists(string path) throws ServerError;
             
             ["deprecated:currently for testing only"] bool create(string path) throws ServerError;
+            void makeDir(string path) throws ServerError;
             void rename(string path) throws ServerError;
             void delete(string path) throws ServerError;
             void transfer(string srcPath, Repository* target, string targetPath) 
