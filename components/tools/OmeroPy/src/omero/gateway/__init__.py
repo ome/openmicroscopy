@@ -2892,85 +2892,12 @@ def safeCallWrap (self, attr, f): #pragma: no cover
     def inner (*args, **kwargs):
         try:
             return f(*args, **kwargs)
-        except (Ice.MemoryLimitException,\
-                omero.ApiUsageException,\
-                omero.InternalException,\
-                omero.ResourceError,\
-                omero.SecurityViolation,\
-                omero.ConcurrencyException), e:
+        except Exception, e:
             debug(e.__class__.__name__, args, kwargs)
             raise
-        except Ice.Exception, x:
-            # Failed
-            logger.debug( "Ice.Exception (1) on safe call %s(%s,%s)" % (attr, str(args), str(kwargs)))
-            logger.debug(traceback.format_exc())
-            # Recreate the proxy object
-            try:
-                self._obj = self._create_func()
-                func = getattr(self._obj, attr)
-                return func(*args, **kwargs)
-            except Ice.MemoryLimitException:
-                raise
-            except Ice.Exception, x:
-                # Still Failed
-                logger.debug("Ice.Exception (2) on safe call %s(%s,%s)" % (attr, str(args), str(kwargs)))
-                logger.debug(traceback.format_exc())
-                try:
-#                    if self._conn.c.sf.getSessionService().getReferenceCount(self._conn._sessionUuid) > 0:
-                    # Recreate connection
-                    self._connect(forcejoin=True)
-                    logger.debug('last try for %s' % attr)
-                    # Last try, don't catch exception
-                    func = getattr(self._obj, attr)
-                    return func(*args, **kwargs)
-#                    raise Ice.ConnectionLostException()
-                except Ice.ObjectNotExistException:
-                    raise Ice.ConnectionLostException()
-                except Ice.CommunicatorDestroyedException:
-                    raise Ice.ConnectionLostException()
-                except:
-                    raise
 
     def wrapped (*args, **kwargs): #pragma: no cover
-        try:
-            return inner(*args, **kwargs)
-        except Ice.MemoryLimitException:
-            logger.debug("MemoryLimitException! abort, abort...")
-            raise
-        except omero.SecurityViolation:
-            logger.debug("SecurityViolation, bailing out")
-            raise
-        except omero.ApiUsageException:
-            logger.debug("ApiUsageException, bailing out")
-            raise
-        except omero.ConcurrencyException:
-            logger.debug("ConcurrencyException, bailing out")
-            raise
-        except Ice.UnknownException:
-            logger.debug("UnknownException, bailing out")
-            raise
-        except Ice.ConnectionLostException:
-            logger.debug("ConnectionLostException, bailing out")
-            raise
-        except Ice.CommunicatorDestroyedException:
-            logger.debug("CommunicatorDestroyedException, bailing out")
-            raise
-        except Ice.Exception, x:
-            logger.debug('wrapped ' + f.func_name)
-            logger.debug(x.__dict__)
-            if hasattr(x, 'serverExceptionClass') and x.serverExceptionClass == 'ome.conditions.InternalException':
-                if x.message.find('java.lang.NullPointerException') > 0:
-                    logger.debug("NullPointerException, bailing out")
-                    raise
-                elif x.message.find('Session is dirty') >= 0:
-                    logger.debug("Session is dirty, bailing out")
-                    raise
-                else:
-                    logger.debug(x.message)
-            logger.debug("exception caught, first time we back off for 10 secs")
-            logger.debug(traceback.format_exc())
-            #time.sleep(10)
-            return inner(*args, **kwargs)
+        return inner(*args, **kwargs)
     return wrapped
 
 
