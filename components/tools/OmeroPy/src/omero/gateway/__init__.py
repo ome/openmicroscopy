@@ -2886,8 +2886,8 @@ def safeCallWrap (self, attr, f): #pragma: no cover
         __f__name = "unknown"
 
     def debug(exc_class, args, kwargs):
-        logger.debug( "%s on safeCallWrap to <%s> %s(%s,%s)", exc_class, __f__name, attr, args, kwargs)
-        logger.debug(traceback.format_exc())
+        logger.warn( "%s on safeCallWrap to <%s> %s(%s,%s)", exc_class, __f__name, attr, args, kwargs)
+        logger.warn(traceback.format_exc())
 
     def inner (*args, **kwargs):
         try:
