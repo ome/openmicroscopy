@@ -5286,6 +5286,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             if pos is not None:
                 args = list(pos) + args
             rv = thumb(*args)
+            tb.close()      # close every time to prevent stale state
             return rv
         except Exception: #pragma: no cover
             logger.error(traceback.format_exc())
