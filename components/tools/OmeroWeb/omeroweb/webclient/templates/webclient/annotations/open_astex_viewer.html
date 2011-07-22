@@ -156,7 +156,7 @@
             margin-right:auto;
         }
         form {
-            text-align: center;
+            padding: 4px;
         }
         .controlsInfo {
             padding: 5px;
@@ -209,49 +209,57 @@
 
             var s2 = new Slider(document.getElementById("slider-2"), document.getElementById("slider-input-2"));
 
-              s2.setMinMax({{ pixelRange.0|floatformat:4 }},{{ pixelRange.1|floatformat:4 }});
-              s2.setValue(0); // TODO: find the right starting value
-              s2.setUnitIncrement(4);
-              s2.setBlockIncrement(4);
-              document.getElementById("h-min-2").innerHTML = s2.getMinimum();
-              document.getElementById("h-max-2").innerHTML = s2.getMaximum();
-              document.getElementById("h-value-2").innerHTML = "("+ s2.getValue() + ")";
+            s2.setMinMax({{ pixelRange.0|floatformat:4 }},{{ pixelRange.1|floatformat:4 }});
+            s2.setValue(0); // TODO: find the right starting value
+            s2.setUnitIncrement(4);
+            s2.setBlockIncrement(4);
+            document.getElementById("h-min-2").innerHTML = s2.getMinimum();
+            document.getElementById("h-max-2").innerHTML = s2.getMaximum();
+            document.getElementById("h-value-2").innerHTML = "("+ s2.getValue() + ")";
 
-              // Update the slider values only on onchange
-              s2.onchange = function () {
+            // Update the slider values only on onchange
+            s2.onchange = function () {
                 document.getElementById("h-value-2").innerHTML = "("+ s2.getValue() + ")";
                 return false;
-              };
+            };
 
-              // Do functional update on doupdate - (onmouseup and onkeyup events)
-              s2.doupdate = function () {
+            // Do functional update on doupdate - (onmouseup and onkeyup events)
+            s2.doupdate = function () {
                 av_map_level(s2.getValue());
-              };
+            };
             
+            // toggle between solid and wire-frame
+            $("input[name='solidWire']").click(function() {
+                $("input[name='solidWire']").each(function() {
+                    if (this.checked ) {
+                        var solid = $(this).attr('value');    // wire or solid
+                        var command = "map mapA contour 0 '"+ solid + "';";
+                        execute_oav_command(command);
+                        return false;
+                    }
+                })
+            });
 
-              $("input[name='solidWire']").click(function() {
-                  $("input[name='solidWire']").each(function() {
-                      if (this.checked ) {
-                          var solid = $(this).attr('value');    // wire or solid
-                          var command = "map mapA contour 0 '"+ solid + "';";
-                          execute_oav_command(command);
-                          return false;
-                      }
-                  })
-              });
-
-              $("#reloadMap").click(function() {
-                    $("input[name='loadMap']").each(function() {
-                        $(".loadOption").removeClass("current");
-                        if (this.checked ) {
-                            var data_url = $(this).attr('value');    // raw or 8bit
-                            $(this).parent().addClass("current");
-                            var command = "map replace mapA '"+ data_url +"';map mapA contour 0 'solid';"
-                            execute_oav_command(command);
-                            return false;
-                        }
-                    })
+            // reload map with different size / data-type
+            $("#reloadMap").click(function() {
+                var dataType = 'compressed';
+                $(".loadOption").removeClass("current");
+                $("input[name='loadMap']").each(function() {
+                    if (this.checked ) {
+                        dataType = $(this).attr('value');    // 'raw' or 'compressed'
+                        $(this).parent().addClass("current");
+                    }
                 });
+                var size = 'small';
+                $("input[name='sizeMap']").each(function() {
+                    if (this.checked ) size = $(this).attr('value');    // 'small', 'medium' or 'full
+                });
+                var data_url = $("#"+size+"_"+dataType).attr('href');
+
+                var command = "map replace mapA '"+ data_url +"';map mapA contour 0 'solid';"
+                execute_oav_command(command);
+                return false;
+            });
         });
 
     </script>
@@ -298,16 +306,43 @@
         <!--    {% if pixelRange %} ({{ pixelRange.0|floatformat:4 }} - {{ pixelRange.1|floatformat:4 }}) {% endif %} -->
             <hr />
         <form onsubmit="return false">
+            Map Size:
+            <div id="data_urls">
+                {% if sizeOptions.small %}
+                <div>
+                    <input type="radio" name="sizeMap" checked="true" value="small" />
+                    {{ sizeOptions.small.x|floatformat:0 }} x {{ sizeOptions.small.y|floatformat:0 }} x {{ sizeOptions.small.z|floatformat:0 }}
+                    <a href="{% url webclient_image_as_map_8bit image.id sizeOptions.small.size %}" id="small_compressed"></a>
+                    <a href="{% url webclient_image_as_map image.id sizeOptions.small.size %}" id="small_raw"></a>
+                </div>
+                {% endif %}
+                {% if sizeOptions.medium %}
+                <div>
+                    <input type="radio" name="sizeMap" value="medium" />
+                    {{ sizeOptions.medium.x|floatformat:0 }} x {{ sizeOptions.medium.y|floatformat:0 }} x {{ sizeOptions.medium.z|floatformat:0 }}
+                    <a href="{% url webclient_image_as_map_8bit image.id sizeOptions.medium.size %}" id="medium_compressed"></a>
+                    <a href="{% url webclient_image_as_map image.id sizeOptions.medium.size %}" id="medium_raw"></a>
+                </div>
+                {% endif %}
+                <div {% if not sizeOptions.full %}title="Image too large to view in browser. Try downloading below"{% endif %}>
+                    <input type="radio" name="sizeMap" value="full" {% if not sizeOptions.full %}disabled="true"{% endif %} {% if not sizeOptions.small %}checked="true"{% endif %} />
+                    {{ image.getSizeX }} x {{ image.getSizeY }} x {{ image.getSizeZ }} (full size)
+                    <a href="{% url webclient_image_as_map_8bit image.id %}" id="full_compressed"></a>
+                    <a href="{% url webclient_image_as_map image.id %}" id="full_raw"></a>
+                </div>
+            </div>
             <div>
-                Switch between 'compressed' data (256 levels) and raw data <br />
+                Map Pixel Data: <br />
                 <span id="loadCompressed" class="loadOption current">
-                    <input type="radio" name="loadMap" value="{% url webclient_image_as_map_8bit imageId %}" checked="true" /> Compressed <br />
+                    <input type="radio" name="loadMap" value="compressed" checked="true" /> Compressed <br />
                 </span>
                 <span id="loadRaw" class="loadOption">
-                    <input type="radio" name="loadMap" value="{% url webclient_image_as_map imageId %}" /> Raw Data
+                    <input type="radio" name="loadMap" value="raw" /> Raw Data
                 </span>
             </div>
-            <input type="submit" id="reloadMap" value="Reload"></input>
+            <input style="float:right" type="submit" id="reloadMap" value="Reload"></input>
+            <div style="clear:both"></div>
+            <a href="{% url webclient_image_as_map image.id %}">Download full map</a>
         </form>
         <div style="clear:both"></div>
         <hr />

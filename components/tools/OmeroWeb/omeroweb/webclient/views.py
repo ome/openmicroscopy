@@ -848,7 +848,7 @@ def open_astex_viewer(request, obj_type, obj_id, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     # can only populate these for 'image'
-    imageId = None
+    image = None
     data_storage_mode = None
     pixelRange = None       # (min, max) values of the raw data
     # If we convert to 8bit map, subtract dataOffset, multiply by mapPixelFactor add mapOffset. (used for js contour controls)
@@ -867,19 +867,36 @@ def open_astex_viewer(request, obj_type, obj_id, **kwargs):
         image = conn.getObject("Image", obj_id)     # just check the image exists
         if image is None:
             return handlerInternalError("Can't find image ID %s as data source for Open Astex Viewer." % obj_id)
-        imageId = obj_id
         imageName = image.getName()
         c = image.getChannels()[0]
+        # By default, scale to 120 ^3. Also give option to load 'bigger' map or full sized
+        DEFAULTMAPSIZE = 120
+        BIGGERMAPSIZE = 160
+        targetSize = DEFAULTMAPSIZE * DEFAULTMAPSIZE * DEFAULTMAPSIZE
+        biggerSize = BIGGERMAPSIZE * BIGGERMAPSIZE * BIGGERMAPSIZE
+        imgSize = image.getSizeX() * image.getSizeY() * image.getSizeZ()
+        sizeOptions = None  # only give user choice if we need to scale down
+        if imgSize > targetSize:
+            sizeOptions = {}
+            factor = float(targetSize)/ imgSize
+            f = pow(factor,1.0/3)
+            sizeOptions["small"] = {'x':image.getSizeX() * f, 'y':image.getSizeY() * f, 'z':image.getSizeZ() * f, 'size':DEFAULTMAPSIZE}
+            if imgSize > biggerSize:
+                factor2 = float(biggerSize)/ imgSize
+                f2 = pow(factor2,1.0/3)
+                sizeOptions["medium"] = {'x':image.getSizeX() * f2, 'y':image.getSizeY() * f2, 'z':image.getSizeZ() * f2, 'size':BIGGERMAPSIZE}
+            else:
+                sizeOptions["full"] = {'x':image.getSizeX(), 'y':image.getSizeY(), 'z':image.getSizeZ()}
         pixelRange = (c.getWindowMin(), c.getWindowMax())
         if obj_type == 'image_8bit':
             data_storage_mode = 1
-            data_url = reverse("webclient_image_as_map_8bit", args=[obj_id])
+            data_url = reverse("webclient_image_as_map_8bit", args=[obj_id, DEFAULTMAPSIZE])
         else:
             data_storage_mode = 2
-            data_url = reverse("webclient_image_as_map", args=[obj_id])
+            data_url = reverse("webclient_image_as_map", args=[obj_id, DEFAULTMAPSIZE])
 
     return render_to_response('webclient/annotations/open_astex_viewer.html', {'data_url': data_url,
-        "imageName":imageName, "imageId": imageId, "data_storage_mode": data_storage_mode,'pixelRange':pixelRange})
+        "imageName":imageName, "image": image, "sizeOptions":sizeOptions, "data_storage_mode": data_storage_mode,'pixelRange':pixelRange})
 
 
 @isUserConnected
@@ -1801,19 +1818,21 @@ def image_as_map(request, imageId, **kwargs):
         a = zeros(npStack.shape, dtype=int8)
         npStack = npStack.round(out=a)
 
-    # if available, use scipy.ndimage to resize
-    targetSize = 120*120*120
-    if npStack.size > targetSize:
-        try:
-            import scipy.ndimage
-            from numpy import round
-            factor = float(targetSize)/ npStack.size
-            factor = pow(factor,1.0/3)
-            logger.info("Resizing numpy stack %s by factor of %s" % (npStack.shape, factor))
-            npStack = round(scipy.ndimage.interpolation.zoom(npStack, factor), 1)
-        except ImportError:
-            logger.info("Failed to import scipy.ndimage for interpolation of 'image_as_map'")
-            pass
+    if "maxSize" in kwargs:
+        sz = int(kwargs["maxSize"])
+        targetSize = sz * sz * sz
+        # if available, use scipy.ndimage to resize
+        if npStack.size > targetSize:
+            try:
+                import scipy.ndimage
+                from numpy import round
+                factor = float(targetSize)/ npStack.size
+                factor = pow(factor,1.0/3)
+                logger.info("Resizing numpy stack %s by factor of %s" % (npStack.shape, factor))
+                npStack = round(scipy.ndimage.interpolation.zoom(npStack, factor), 1)
+            except ImportError:
+                logger.info("Failed to import scipy.ndimage for interpolation of 'image_as_map'")
+                pass
 
     # write mrc.map to temp file
     from django.conf import settings 
