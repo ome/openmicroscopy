@@ -126,6 +126,32 @@
     <bean class="ome.system.Preference" id="omero.resetpassword.config">
         <property name="visibility" value="all"/>
     </bean>
+    <!--  PIXELDATA PROPERTIES -->
+    <bean class="ome.system.Preference" id="omero.pixeldata.backoff">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.pixeldata.tile_width">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.pixeldata.tile_height">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.pixeldata.max_plane_width">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.pixeldata.max_plane_height">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
 
     <!-- End preference list -->
             </list>
