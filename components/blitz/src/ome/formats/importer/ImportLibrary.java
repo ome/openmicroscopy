@@ -141,7 +141,7 @@ public class ImportLibrary implements IObservable
             fsLiteEnabled.add(loci.formats.in.JPEG2000Reader.class.getName());
             fsLiteEnabled.add(loci.formats.in.CellSensReader.class.getName());
             fsLiteEnabled.add(loci.formats.in.JPEGReader.class.getName());
-            fsLiteEnabled.add(loci.formats.in.TiffReader.class.getName());
+            fsLiteEnabled.add(loci.formats.in.TiffDelegateReader.class.getName());
         }
         try
         {
@@ -398,8 +398,9 @@ public class ImportLibrary implements IObservable
         String readerName = reader.getClass().getName();
         if (fsLiteEnabled.contains(readerName))
         {
-            if (readerName.equals(loci.formats.in.TiffReader.class.getName()))
+            if (readerName.equals(loci.formats.in.TiffDelegateReader.class.getName()))
             {
+                log.debug("Using TIFF reader FS lite handling.");
                 List<Pixels> pixelsList = store.getSourceObjects(Pixels.class);
                 int maxPlaneSize = maxPlaneWidth * maxPlaneHeight;
                 boolean doBigImage = false;
@@ -409,11 +410,13 @@ public class ImportLibrary implements IObservable
                          * pixels.getSizeY().getValue()) > maxPlaneSize)
                     {
                         doBigImage = true;
+                        log.debug("Enabling FS lite for TIFF.");
                         break;
                     }
                 }
                 if (!doBigImage)
                 {
+                    log.debug("Not enabling FS lite for TIFF.");
                     return;
                 }
             }
