@@ -41,6 +41,7 @@ import os
 
 import glob
 import zipfile
+from datetime import datetime
 
 # keep track of log strings. 
 logStrings = []
@@ -420,6 +421,7 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
     contact = "ome-users@lists.openmicroscopy.org.uk",
     ) 
     
+    startTime = datetime.now()
     session = client.getSession()
     scriptParams = {}
 
@@ -432,6 +434,10 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
     log(scriptParams)
     # call the main script - returns a file annotation wrapper
     result = batchImageExport(conn, scriptParams)
+
+    stopTime = datetime.now()
+    log("Duration: %s" % str(stopTime-startTime))
+
     # return this fileAnnotation to the client. 
     if result is not None:
         fileAnnWrapper, parentToAttachZip = result
