@@ -739,6 +739,47 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return RawFileStorePrxHelper.uncheckedCast(prx);
     }
 
+    public RawFileStorePrx fileById(long fileId, Current __current) throws ServerError {
+        Principal currentUser = currentUser(__current);
+        File file = getFile(fileId, currentUser);
+        if (file == null) {
+            return null;
+        }
+
+        // WORKAROUND: See the comment in RawFileStoreI.
+        // The most likely correction of this
+        // is to have PublicRepositories not be global objects, but be created
+        // on demand for each session via SharedResourcesI
+        Ice.Current adjustedCurr = new Ice.Current();
+        adjustedCurr.ctx = __current.ctx;
+        adjustedCurr.operation = __current.operation;
+        String sessionUuid = __current.ctx.get("omero.session");
+        adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
+
+        // TODO: Refactor all this into a single helper method.
+        // If there is no listener available who will take responsibility
+        // for this servant, then we bail.
+        RepoRawFileStoreI rfs = new RepoRawFileStoreI(fileId, file);
+        _RawFileStoreTie tie = new _RawFileStoreTie(rfs);
+        RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
+        try {
+            this.executor.getContext().publishMessage(msg);
+        } catch (Throwable t) {
+            if (t instanceof ServerError) {
+                throw (ServerError) t;
+            } else {
+                omero.InternalException ie = new omero.InternalException();
+                IceMapper.fillServerError(ie, t);
+                throw ie;
+            }
+        }
+        Ice.ObjectPrx prx = msg.getProxy();
+        if (prx == null) {
+            throw new omero.InternalException(null, null, "No ServantHolder for proxy.");
+        }
+        return RawFileStorePrxHelper.uncheckedCast(prx);
+    }
+
     /**
      * Create a nested path in the repository. Creates each directory
      * in the path is it doen't already exist. Silently returns if
