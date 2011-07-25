@@ -25,8 +25,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import loci.common.DataTools;
 import loci.formats.FormatException;
@@ -101,6 +103,15 @@ public class ImportLibrary implements IObservable
     /** Whether or not to import as metadata only. */
     private boolean isMetadataOnly = false;
 
+    /** List of readers for which we have FS lite enabled. */
+    private final Set<String> fsLiteReaders;
+
+    /** Maximum plane width. */
+    private int maxPlaneWidth;
+
+    /** Maximum plane height. */
+    private int maxPlaneHeight;
+
     /**
      * The library will not close the client instance. The reader will be closed
      * between calls to import.
@@ -118,6 +129,59 @@ public class ImportLibrary implements IObservable
 
         this.store = client;
         this.reader = reader;
+        String fsLiteReadersString =
+            store.getConfigValue("omero.pixeldata.fs_lite_readers");
+        if (fsLiteReadersString == null || fsLiteReadersString.length() == 0)
+        {
+            fsLiteReaders = new HashSet<String>();
+            log.warn("Pre 4.3.2 server or empty " +
+                     "omero.pixeldata.fs_lite_readers, using hard coded " +
+                     "readers!");
+            fsLiteReaders.add(loci.formats.in.SVSReader.class.getName());
+            fsLiteReaders.add(loci.formats.in.TrestleReader.class.getName());
+            fsLiteReaders.add(loci.formats.in.APNGReader.class.getName());
+            fsLiteReaders.add(loci.formats.in.JPEG2000Reader.class.getName());
+            fsLiteReaders.add(loci.formats.in.CellSensReader.class.getName());
+            fsLiteReaders.add(loci.formats.in.JPEGReader.class.getName());
+            fsLiteReaders.add(loci.formats.in.TiffDelegateReader.class.getName());
+        }
+        else
+        {
+            fsLiteReaders = new HashSet<String>(Arrays.asList(
+                    fsLiteReadersString.split(",")));
+        }
+        try
+        {
+            maxPlaneWidth = Integer.parseInt(store.getConfigValue(
+                    "omero.pixeldata.max_plane_width"));
+        }
+        catch (NumberFormatException e)
+        {
+            log.warn("Pre 4.3.2 server or empty missing " +
+                     "omero.pixeldata.max_plane_width, using hard coded " +
+                     "maximum plane width!");
+            maxPlaneWidth = 3192;
+        }
+        try
+        {
+            maxPlaneHeight = Integer.parseInt(store.getConfigValue(
+                    "omero.pixeldata.max_plane_height"));
+        }
+        catch (NumberFormatException e)
+        {
+            log.warn("Pre 4.3.2 server or empty missing " +
+                     "omero.pixeldata.max_plane_height, using hard coded " +
+                     "maximum plane height!");
+            maxPlaneHeight = 3192;
+        }
+        if (log.isDebugEnabled())
+        {
+            log.debug("FS lite enabled readers: " +
+                    Arrays.toString(fsLiteReaders.toArray(
+                            new String[fsLiteReaders.size()])));
+            log.debug("Maximum plane width: " + maxPlaneWidth);
+            log.debug("Maximum plane height: " + maxPlaneHeight);
+        }
     }
 
     /**
@@ -336,24 +400,44 @@ public class ImportLibrary implements IObservable
 
     /**
      * Perform various specific operations on big image formats.
-     * @param format The format as specified by
-     * <code>ImageReader.getFormat()</code>.
+     * @param reader The base reader currently being used.
+     * @param container The current import container we're to handle.
      */
-    private void handleBigImageFormats(String format, ImportContainer container)
+    private void handleBigImageFormats(IFormatReader reader,
+                                       ImportContainer container)
     {
-        if (format.equals("Aperio SVS")
-            || format.equals("Trestle")
-            || format.equals("Animated PNG")
-            || format.equals("JPEG-2000")
-            || format.equals("Hamamatsu VMS")
-            || format.equals("Hamamatsu NDPI")
-            || format.equals("CellSens VSI")
-            || format.equals("Tagged Image File Format")
-            || format.equals("JPEG"))
+        String readerName = reader.getClass().getName();
+        if (fsLiteReaders.contains(readerName))
         {
+            if (reader.getClass().equals(loci.formats.in.TiffDelegateReader.class))
+            {
+                log.debug("Using TIFF reader FS lite handling.");
+                List<Pixels> pixelsList = store.getSourceObjects(Pixels.class);
+                int maxPlaneSize = maxPlaneWidth * maxPlaneHeight;
+                boolean doBigImage = false;
+                for (Pixels pixels : pixelsList)
+                {
+                    if ((pixels.getSizeX().getValue()
+                         * pixels.getSizeY().getValue()) > maxPlaneSize)
+                    {
+                        doBigImage = true;
+                        log.debug("TIFF meets big image criteria.");
+                        break;
+                    }
+                }
+                if (!doBigImage)
+                {
+                    log.debug("TIFF does not meet big image criteria.");
+                    return;
+                }
+            }
             log.info("Big image, enabling metadata only and archiving.");
             container.setMetadataOnly(true);
             container.setArchive(true);
+        }
+        else
+        {
+            log.debug("FS lite disabled for: " + readerName);
         }
     }
 
@@ -414,7 +498,8 @@ public class ImportLibrary implements IObservable
                     break;
                 }
             }
-            handleBigImageFormats(format, container);
+            IFormatReader baseReader = reader.getImageReader().getReader();
+            handleBigImageFormats(baseReader, container);
             // Setting these two variables here because handleBigImageFormats()
             // above may modify the container.
             boolean archive = container.getArchive();
@@ -422,6 +507,7 @@ public class ImportLibrary implements IObservable
             if (log.isInfoEnabled())
             {
                 log.info("File format: " + format);
+                log.info("Base reader: " + baseReader.getClass().getName());
                 log.info("Metadata only import? " + isMetadataOnly);
                 log.info("Archiving enabled? " + archive);
                 log.info("Container metadata only import? " +
@@ -430,8 +516,7 @@ public class ImportLibrary implements IObservable
             notifyObservers(new ImportEvent.LOADED_IMAGE(
                     shortName, index, numDone, total));
 
-            String formatString =
-                reader.getImageReader().getReader().getClass().toString();
+            String formatString = baseReader.getClass().toString();
             formatString = formatString.replace("class loci.formats.in.", "");
             formatString = formatString.replace("Reader", "");
 
