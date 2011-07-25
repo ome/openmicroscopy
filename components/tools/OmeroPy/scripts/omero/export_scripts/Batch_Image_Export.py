@@ -142,6 +142,31 @@ def makeImageName(originalName, cName, zRange, t, extension, folder_name):
         i += 1
     return imgName
     
+
+def saveAsOmeTiff(conn, image, folder_name=None):
+    """
+    Saves the image as an ome.tif in the specified folder
+    """
+
+    extension = "ome.tif"
+    imgName = "%s.%s" % (image.getName(), extension)
+    if folder_name != None:
+        imgName = os.path.join(folder_name, imgName)
+    # check we don't overwrite existing file
+    i = 1
+    name = imgName[:-(len(extension)+1)]
+    while os.path.exists(imgName):
+        imgName = "%s_(%d).%s" % (name, i, extension)
+        i += 1
+
+    log("  Saving file as: %s" % imgName)
+    fileSize, block_gen = image.exportOmeTiff(bufsize=65536)
+    f = open(str(imgName),"wb")
+    for piece in block_gen:
+        f.write(piece)
+    #f.seek(0)
+    f.close()
+
     
 def savePlanesForImage(conn, image, sizeC, splitCs, mergedCs, channelNames=None,
         zRange=None, tRange=None, greyscale=False, imgWidth=None, projectZ=False, format="PNG", folder_name=None):
@@ -299,45 +324,58 @@ def batchImageExport(conn, scriptParams):
         pass
     
     # do the saving to disk
-    for img in images:
-        log("\n----------- Saving planes from image: '%s' ------------" % img.getName())
-        sizeC = img.getSizeC()
-        sizeZ = img.getSizeZ()
-        sizeT = img.getSizeT()
-        zRange = getZrange(sizeZ, scriptParams)
-        tRange = getTrange(sizeT, scriptParams)
-        log("Using:")
-        if zRange is None:      log("  Z-index: Last-viewed")
-        elif len(zRange) == 1:  log("  Z-index: %d" % zRange[0])
-        else:                   log("  Z-range: %s-%s" % ( zRange[0],zRange[1]) )
-        if projectZ:            log("  Z-projection: ON")
-        if tRange is None:      log("  T-index: Last-viewed")
-        elif len(tRange) == 1:  log("  T-index: %d" % tRange[0])
-        else:                   log("  T-range: %s-%s" % ( tRange[0],tRange[1]) )
-        log("  Format: %s" % format)
-        if imgWidth is None:    log("  Image Width: no resize")
-        else:                   log("  Image Width: %s" % imgWidth)
-        log("  Greyscale: %s" % greyscale)
-        log("Channel Rendering Settings:")
-        for ch in img.getChannels():
-            log("  %s: %d-%d" % (ch.getLabel(), ch.getWindowStart(), ch.getWindowEnd()) )
+    if format == 'OME-TIFF':
+        for img in images:
+            log("Exporting image as OME-TIFF: %s" % img.getName())
+            saveAsOmeTiff(conn, img, folder_name)
+
+    else:
+        for img in images:
+            log("\n----------- Saving planes from image: '%s' ------------" % img.getName())
+            sizeC = img.getSizeC()
+            sizeZ = img.getSizeZ()
+            sizeT = img.getSizeT()
+            zRange = getZrange(sizeZ, scriptParams)
+            tRange = getTrange(sizeT, scriptParams)
+            log("Using:")
+            if zRange is None:      log("  Z-index: Last-viewed")
+            elif len(zRange) == 1:  log("  Z-index: %d" % zRange[0])
+            else:                   log("  Z-range: %s-%s" % ( zRange[0],zRange[1]) )
+            if projectZ:            log("  Z-projection: ON")
+            if tRange is None:      log("  T-index: Last-viewed")
+            elif len(tRange) == 1:  log("  T-index: %d" % tRange[0])
+            else:                   log("  T-range: %s-%s" % ( tRange[0],tRange[1]) )
+            log("  Format: %s" % format)
+            if imgWidth is None:    log("  Image Width: no resize")
+            else:                   log("  Image Width: %s" % imgWidth)
+            log("  Greyscale: %s" % greyscale)
+            log("Channel Rendering Settings:")
+            for ch in img.getChannels():
+                log("  %s: %d-%d" % (ch.getLabel(), ch.getWindowStart(), ch.getWindowEnd()) )
         
-        savePlanesForImage(conn, img, sizeC, splitCs, mergedCs, channelNames,
-            zRange, tRange, greyscale, imgWidth, projectZ=projectZ, format=format, folder_name=folder_name)
+            savePlanesForImage(conn, img, sizeC, splitCs, mergedCs, channelNames,
+                zRange, tRange, greyscale, imgWidth, projectZ=projectZ, format=format, folder_name=folder_name)
 
-    # zip up image folder, including log as text file.
-    logFile = open(os.path.join(exp_dir, 'Batch_Image_Export.txt'), 'w')
-    try:
-        for s in logStrings:
-            logFile.write(s)
-            logFile.write("\n")
-    finally:
-        logFile.close()
-    zip_file_name = "%s.zip" % folder_name
-    compress(zip_file_name, folder_name)
+        # write log for exported images (not needed for ome-tiff)
+        logFile = open(os.path.join(exp_dir, 'Batch_Image_Export.txt'), 'w')
+        try:
+            for s in logStrings:
+                logFile.write(s)
+                logFile.write("\n")
+        finally:
+            logFile.close()
 
-    if os.path.exists(zip_file_name):
-        fileAnn = conn.createFileAnnfromLocalFile(zip_file_name, mimetype='zip', desc=None)
+    # zip everything up (unless we've only got a single ome-tiff)
+    if format == 'OME-TIFF' and len(os.listdir(exp_dir)) == 1:
+        export_file = os.path.join(folder_name, os.listdir(exp_dir)[0])
+        mimetype = 'TIFF'
+    else:
+        export_file = "%s.zip" % folder_name
+        compress(export_file, folder_name)
+        mimetype='zip'
+
+    if os.path.exists(export_file):
+        fileAnn = conn.createFileAnnfromLocalFile(export_file, mimetype=mimetype, desc=None)
         if parentToAttachZip is not None:
             log("Attaching zip to... %s %s %s" % (scriptParams['Data_Type'], parentToAttachZip.getName(), parentToAttachZip.getId()) )
             parentToAttachZip.linkAnnotation(fileAnn)
@@ -349,7 +387,9 @@ def runScript():
     """
        
     dataTypes = [rstring('Dataset'),rstring('Image')]
-    formats = [rstring('JPEG'),rstring('PNG')]
+    formats = [rstring('JPEG'),
+        rstring('PNG'),
+        rstring('OME-TIFF')]
     defaultZoption = 'Default-Z (last-viewed)'
     zChoices = [rstring(defaultZoption),
         rstring('ALL Z planes'),
