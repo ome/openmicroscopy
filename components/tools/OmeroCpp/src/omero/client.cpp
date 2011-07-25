@@ -129,7 +129,13 @@ namespace omero {
 	    throw ClientError(__FILE__, __LINE__, "Client already initialized.");
 	}
 
-	__ic = Ice::initialize(id);
+        try {
+            __ic = Ice::initialize(id);
+        } catch (const Ice::EndpointParseException& epe) {
+            throw ClientError(__FILE__, __LINE__,
+                    "No host specified. Use omero.client(HOSTNAME), ICE_CONFIG, or similar.");
+        }
+
 
 	if ( ! __ic ) {
 	    throw ClientError(__FILE__, __LINE__, "Improper initialization");

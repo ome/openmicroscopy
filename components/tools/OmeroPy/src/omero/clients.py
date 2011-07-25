@@ -227,7 +227,12 @@ class BaseClient(object):
             if self.__ic:
                 raise ClientError("Client already initialized")
 
-            self.__ic = Ice.initialize(id)
+            try:
+                self.__ic = Ice.initialize(id)
+            except Ice.EndpointParseException:
+                msg = "No host specified. "
+                msg += "Use omero.client(HOSTNAME), ICE_CONFIG, or similar."
+                raise ClientError(msg)
 
             if not self.__ic:
                 raise ClientError("Improper initialization")

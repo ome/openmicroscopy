@@ -336,7 +336,13 @@ public class client {
             throw new ClientError("Client already initialized.");
         }
 
-        __ic = Ice.Util.initialize(id);
+        try {
+            __ic = Ice.Util.initialize(id);
+        } catch (Ice.EndpointParseException epe) {
+            throw new ClientError("No host specified. " +
+                "Use omero.client(HOSTNAME), ICE_CONFIG, or similar.");
+        }
+
 
         if (__ic == null) {
             throw new ClientError("Improper initialization");
