@@ -141,6 +141,8 @@ module omero {
             omero::api::RenderingEngine* render(string path) throws ServerError;
             omero::api::ThumbnailStore*  thumbs(string path) throws ServerError;
             
+            omero::api::RawFileStore* fileById(long id) throws ServerError;
+            
             /**
              * Returns true if the file or path exists within the repository
              **/
