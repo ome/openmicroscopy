@@ -163,13 +163,13 @@ public class ImportLibrary implements IObservable
             log.warn("Pre 4.3.2 server using hard coded maximum plane height!");
             maxPlaneHeight = 3192;
         }
-        if (log.isInfoEnabled())
+        if (log.isDebugEnabled())
         {
-            log.info("FS lite enabled readers: " + 
+            log.debug("FS lite enabled readers: " +
                     Arrays.toString(fsLiteEnabled.toArray(
                             new String[fsLiteEnabled.size()])));
-            log.info("Maximum plane width: " + maxPlaneWidth);
-            log.info("Maximum plane height: " + maxPlaneHeight);
+            log.debug("Maximum plane width: " + maxPlaneWidth);
+            log.debug("Maximum plane height: " + maxPlaneHeight);
         }
     }
 
