@@ -188,7 +188,6 @@ def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=N
     @return:            The connection
     @rtype:             L{omero.gateway.BlitzGateway}
     """
-    
     try:
         blitzcon = client_wrapper(username, passwd, host=host, port=port, group=None, try_super=try_super, secure=secure, anonymous=anonymous, useragent=useragent)
         blitzcon.connect(sUuid=sUuid)
@@ -254,12 +253,11 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     if server_id is None:
         # If no server id is passed, the db entry will not be used and instead we'll depend on the
         # request.session and request.REQUEST values
-        try:
-            server_id = request.session['server']
-        except KeyError:
-            return None
         with_session = True
-#        skip_stored = True
+        server_id = request.session.get('server',None)
+        if server_id is None:
+            return None
+    
     browsersession_connection_key = 'cuuid#%s'%server_id
     browsersession_key = request.session.session_key
     blitz_session = None

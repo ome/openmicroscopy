@@ -148,8 +148,8 @@ def isUserConnected (f):
             if server is not None:
                 return HttpLoginRedirect(reverse("weblogin")+(("?url=%s&server=%s") % (url,server)))
             return HttpLoginRedirect(reverse("weblogin")+(("?url=%s") % url))
-            
-        conn_share = None     
+        
+        conn_share = None
         share_id = kwargs.get('share_id', None)
         if share_id is not None:
             sh = conn.getShare(share_id)
@@ -172,9 +172,6 @@ def sessionHelper(request):
     changes = False
     if request.session.get('callback') is None:
         request.session['callback'] = dict()
-        changes = True
-    if request.session.get('clipboard') is None:
-        request.session['clipboard'] = list()
         changes = True
     if request.session.get('shares') is None:
         request.session['shares'] = dict()
@@ -200,7 +197,6 @@ def sessionHelper(request):
 
 def login(request):
     request.session.modified = True
-    
     if request.REQUEST.get('server'):
         blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server'))
         request.session['server'] = blitz.id
@@ -209,7 +205,6 @@ def login(request):
         request.session['username'] = smart_str(request.REQUEST.get('username',None))
         request.session['password'] = smart_str(request.REQUEST.get('password',None))
         request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
-        request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
         request.session['shares'] = dict()
         request.session['imageInBasket'] = set()
         blitz_host = "%s:%s" % (blitz.host, blitz.port)
@@ -407,7 +402,6 @@ def change_active_group(request, **kwargs):
     request.session['username'] = username
     request.session['password'] = password
     request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
-    request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
     request.session['shares'] = dict()
     request.session['imageInBasket'] = set()
     blitz_host = "%s:%s" % (blitz.host, blitz.port)
@@ -607,7 +601,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     # load data & template
     template = None
     if kw.has_key('orphaned'):
-        manager.listOrphanedImages(filter_user_id)
+        manager.listOrphanedImages(filter_user_id, page)
         if view =='icon':
             template = "webclient/data/containers_icon.html"
         elif view =='table':
@@ -1629,11 +1623,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             json = simplejson.dumps(rdict, ensure_ascii=False)
             return HttpResponse( json, mimetype='application/javascript')
         
-        if o_type == "dataset" or o_type == "image" or o_type == "plate":
-            images = o_type=='image' and [o_id] or None
-            datasets = o_type == 'dataset' and [o_id] or None
-            plates = o_type == 'plate' and [o_id] or None        
-            request.session['clipboard'] = {'images': images, 'datasets': datasets, 'plates': plates}
         rdict = {'bad':'false' }
         json = simplejson.dumps(rdict, ensure_ascii=False)
         return HttpResponse( json, mimetype='application/javascript')

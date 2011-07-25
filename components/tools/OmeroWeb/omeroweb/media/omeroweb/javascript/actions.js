@@ -198,38 +198,50 @@ var loadMetadataPanel = function(src, html) {
 
 var refreshCenterPanel = function() {
     var rel = $("div#content_details").attr("rel");
+    var page = parseInt($("div#content_details").find("#page").attr("rel"));
+    var view = $("div#content_details").find("#toolbar").attr('rel');
+    
     if (typeof rel!=="undefined") {
         if (rel.indexOf("orphaned")>=0) {
             $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
-            $("div#content_details").attr('rel', rel);
-            $("div#content_details").load('/webclient/load_data/'+rel.split('-')[0]+'/?view=icon');
+            url = '/webclient/load_data/'+rel.split('-')[0]+'/';
         } else if (rel.indexOf("share")>=0) {
-                $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
-                $("div#content_details").attr('rel', rel);
-                $("div#content_details").load('/webclient/load_public/'+rel.split('-')[1]+'/?view=icon');
+            $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
+            url = '/webclient/load_public/'+rel.split('-')[1]+'/';
         } else if(rel.indexOf('tag')>=0) {
             $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
-            $("div#content_details").load('/webclient/load_tags/tag/'+rel.split('-')[1]+'/?view=icon');
+            url = '/webclient/load_tags/tag/'+rel.split('-')[1]+'/';
         } else {
             $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
-            $("div#content_details").attr('rel', rel);
-            $("div#content_details").load('/webclient/load_data/'+rel.replace('-', '/')+'/?view=icon');
+            url = '/webclient/load_data/'+rel.replace('-', '/')+'/';
+        }
+        
+        $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
+        url = url+'?view='+view
+        if (page!=null && page > 0) {
+            url = url+"&page="+page;
         }        
+        $("div#content_details").load(url);
+        if(rel.indexOf('tag')<0) $("div#content_details").attr('rel', rel);
     }
 };
 
-function changeView(view) { 
+function changeView(view, page) { 
     var rel = $("div#content_details").attr('rel').split("-");
     if(rel.indexOf('orphaned')>=0) {
-        $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
-        $("div#content_details").load('/webclient/load_data/orphaned/?view='+view);
+        url = '/webclient/load_data/orphaned/?view='+view;
     } else if(rel.indexOf('tag')>=0) {
         $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
-        $("div#content_details").load('/webclient/load_tags/tag/'+rel[1]+'/?view='+view);
+        url = '/webclient/load_tags/tag/'+rel[1]+'/?view='+view;
     } else {
         $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
-        $("div#content_details").load('/webclient/load_data/dataset/'+rel[1]+'/?view='+view);
+        url = '/webclient/load_data/dataset/'+rel[1]+'/?view='+view;
     }
+    if (page!=null && page > 0) {
+        url = url+"&page="+page;
+    }
+    $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
+    $("div#content_details").load(url);
     return false;
 };
 
@@ -258,10 +270,12 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
 function doPagination(view, page) {
     var rel = $("div#content_details").attr('rel').split("-");
     $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
-    $("div#content_details").load('/webclient/load_data/dataset/'+rel[1]+'/?view='+view+'&page='+page, function() {
-        $("#dataTree").jstree("refresh", $('#dataset-'+rel[1]));
-        src = '/webclient/metadata_details/dataset/'+rel[1]+'/';
-        loadMetadata(src);
+    $("div#content_details").load('/webclient/load_data/'+rel[0]+'/'+rel[1]+'/?view='+view+'&page='+page, function() {
+        $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
+        if(rel[0].indexOf("orphaned")<0) {
+            src = '/webclient/metadata_details/'+rel[0]+'/'+rel[1]+'/';
+            loadMetadata(src);
+        }
     });
     return false;
 }

@@ -70,7 +70,7 @@ from django.core.mail import EmailMultiAlternatives
 try:
     PAGE = settings.PAGE
 except:
-    PAGE = 24
+    PAGE = 200
 
 class OmeroWebGateway (omero.gateway.BlitzGateway):
 
@@ -382,6 +382,55 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for ann in q.findAllByQuery(sql, params):
             yield TagAnnotationWrapper(self, ann)
     
+    def countOrphans (self, obj_type, eid=None):
+        links = {'Dataset':('ProjectDatasetLink', DatasetWrapper), 
+                'Image':('DatasetImageLink', ImageWrapper),
+                'Plate':('ScreenPlateLink', PlateWrapper)}
+        
+        if obj_type not in links:
+            raise TypeError("'%s' is not valid object type. Must use one of %s" % (obj_type, links.keys()) )
+            
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        
+        links = {'Dataset':('ProjectDatasetLink', DatasetWrapper), 
+                'Image':('DatasetImageLink', ImageWrapper),
+                'Plate':('ScreenPlateLink', PlateWrapper)}
+        
+        if obj_type not in links:
+            raise TypeError("'%s' is not valid object type. Must use one of %s" % (obj_type, links.keys()) )
+            
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        
+        if eid is not None:
+            p.map["eid"] = rlong(long(eid))
+            eidFilter = "obj.details.owner.id=:eid and " 
+            eidWsFilter = " and ws.details.owner.id=:eid"
+        else:
+            eidFilter = ""
+            eidWsFilter = ""
+        
+        sql = "select count(obj.id) from %s as obj " \
+                "join obj.details.creationEvent "\
+                "join obj.details.owner join obj.details.group " \
+                "where %s" \
+                "not exists (select obl from %s as obl where " \
+                "obl.child=obj.id)" % (obj_type, eidFilter, links[obj_type][0])
+        if obj_type == 'Image':
+            sql += "and not exists ( "\
+                "select ws from WellSample as ws "\
+                "where ws.image=obj.id %s)" % eidWsFilter
+        
+        rslt = q.projection(sql, p)
+        if len(rslt) > 0:
+            if len(rslt[0]) > 0:
+                return rslt[0][0].val
+        return 0
+            
+    
     def listOrphans (self, obj_type, eid=None, page=None):
         """
         List orphaned Datasets, Images, Plates controlled by the security system, 
@@ -406,6 +455,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
+        
         if eid is not None:
             p.map["eid"] = rlong(long(eid))
             eidFilter = "obj.details.owner.id=:eid and " 
@@ -413,6 +463,13 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         else:
             eidFilter = ""
             eidWsFilter = ""
+        
+        if page is not None:
+            f = omero.sys.Filter()
+            f.limit = rint(PAGE)
+            f.offset = rint((int(page)-1)*PAGE)
+            p.theFilter = f
+        
         sql = "select obj from %s as obj " \
                 "join fetch obj.details.creationEvent "\
                 "join fetch obj.details.owner join fetch obj.details.group " \

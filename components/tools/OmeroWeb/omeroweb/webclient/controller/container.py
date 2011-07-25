@@ -387,16 +387,18 @@ class BaseContainer(BaseController):
         sc_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
         pl_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
 
+        self.orphans = self.conn.countOrphans("Image", eid)
+        
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'screens': sc_list_with_counters, 'plates': pl_list_with_counters}
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(sc_list_with_counters)+len(pl_list_with_counters)
     
-    def listOrphanedImages(self, eid=None):
+    def listOrphanedImages(self, eid=None, page=None):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
         else:
             eid = self.conn.getEventContext().userId
         
-        im_list = list(self.conn.listOrphans("Image", eid=eid))
+        im_list = list(self.conn.listOrphans("Image", eid=eid, page=page))
         # Not displaying annotation icons (same as Insight). #5514.
         #im_list_with_counters = list()
         
@@ -411,10 +413,10 @@ class BaseContainer(BaseController):
         im_list_with_counters = im_list
         im_list_with_counters.sort(key=lambda x: x.getName().lower())
         self.containers = {'orphaned': True, 'images': im_list_with_counters}
-        self.c_size = len(im_list_with_counters)
+        self.c_size = self.conn.countOrphans("Image", eid=eid)
         
-        #if page is not None:
-        #    self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
+        if page is not None:
+            self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
 
     # Annotation list
     def annotationList(self):

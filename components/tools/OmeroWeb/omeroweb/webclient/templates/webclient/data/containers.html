@@ -48,34 +48,49 @@
                 $("div#metadata_details iframe").attr('height', h+31);
                 $("div#content_details").css('height', h+31);
                 
-                var buttonsShowHide = function(selected) { 
+                var buttonsShowHide = function(selected, inst) { 
                     var toolbar_config = new Object();
-                    
                     if(selected.length > 0) {
-                        if(selected.attr("rel").indexOf("locked")>=0) {                            
-                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}, 'annotation':false, 'basket':false};
+                        if(selected.attr("rel").indexOf("locked")>=0) {
+                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}, 'annotation':false, 'basket':false};
                         } else {
-                            if(selected.attr("id").indexOf("orphaned")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
-                            } else if(selected.attr("id").indexOf("experimenter")>=0) {
-                                toolbar_config = {"addproject":true, 'adddataset':true, 'addscreen':true, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
+                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false};
+                            if(selected.attr("id").indexOf("experimenter")>=0) {
+                                toolbar_config['delete'] = false;
+                                toolbar_config["addproject"] = true;
+                                toolbar_config['adddataset'] = true;
+                                toolbar_config['addscreen'] = true;
+                                if ($.inArray(selected.attr('rel').replace("-locked", ""), ["dataset", "plate"]) > -1) {
+                                    toolbar_config['copy'] = true;
+                                }
                             } else if(selected.attr("id").indexOf("project")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':true, 'addscreen':false, 'copy':false, 'cut':false, 'paste':true, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false};
+                                toolbar_config['adddataset'] = true;
                             } else if(selected.attr("id").indexOf("dataset")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':true, 'cut':true, 'paste':true, 'unlink':true, 'delete':true, 'annotation':false, 'basket':false};
+                                toolbar_config['copy'] = true;
+                                if (selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
+                                    toolbar_config["cut"] = true;
+                                    toolbar_config["unlink"] = true;
+                                }
                             } else if(selected.attr("id").indexOf("image")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':true, 'cut':true, 'paste':false, 'unlink':true, 'delete':true, 'annotation':false, 'basket':true};
-                            } else if(selected.attr("id").indexOf("screen")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':true, 'addscreen':false, 'copy':false, 'cut':false, 'paste':true, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false};
+                                toolbar_config['basket'] = true;
+                                toolbar_config['copy'] = true;
+                                if (selected.parent().parent().attr('rel').replace("-locked", "").indexOf("orphaned") < 0) {
+                                    toolbar_config["cut"] = true;
+                                    toolbar_config["unlink"] = true;
+                                }
                             } else if(selected.attr("id").indexOf("plate")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':true, 'cut':true, 'paste':false, 'unlink':true, 'delete':true, 'annotation':false, 'basket':false};
-                            } else {
-                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
-                            }
+                                toolbar_config['copy'] = true;
+                                if (selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
+                                    toolbar_config["cut"] = true;
+                                    toolbar_config["unlink"] = true;
+                                }
+                            } 
                         }
+                        if (inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes) {
+                            toolbar_config['paste'] = true;
+                        }  else toolbar_config['paste'] = false;
                     }
                     
-                    if (selected.length > 1) toolbar_config['annotation'] = true;
                     for (var sIndex in toolbar_config) { 
                         if (toolbar_config[sIndex]){
                             $('input#'+sIndex+'Button').removeClass('button-disabled').removeAttr('disabled');
@@ -112,9 +127,9 @@
                             // this function is executed in the instance's scope (this refers to the tree instance)
                             // the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
                             "data" : function (n) {
-                                if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset"]) > -1) {
+                                if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) {
                                     var r = { "view" : "tree" };
-                                    if($("div#content_details").has("#page").length > 0) {
+                                    if($("div#content_details").attr("rel")===n.attr("id") && $("div#content_details").has("#page").length > 0) {
                                         r["page"] = parseInt($("div#content_details").find("#page").attr("rel"));
                                     }
                                     return r;
@@ -142,6 +157,7 @@
                                 "create_node" : true,
                                 "start_drag" : false,
                                 "move_node" : false,
+                                "delete_node" : false,
                                 "remove" : false
                             },
                             "project" : {
@@ -152,6 +168,7 @@
                                 "create_node" : true,
                                 "start_drag" : false,
                                 "move_node" : true,
+                                "delete_node" : true,
                                 "remove" : true
                             },
                             "project-locked" : {
@@ -162,6 +179,7 @@
                                 "create_node" : true,
                                 "start_drag" : false,
                                 "move_node" : false,
+                                "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
                                 "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
                             },
                             "dataset" : {
@@ -172,6 +190,7 @@
                                 "create_node" : false,
                                 "start_drag" : true,
                                 "move_node" : true,
+                                "delete_node" : true,
                                 "remove" : true
                             },
                             "dataset-locked" : {
@@ -182,6 +201,7 @@
                                 "create_node" : false,
                                 "start_drag" : false,
                                 "move_node" : false,
+                                "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
                                 "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
                             },
                             "image" : {
@@ -192,6 +212,7 @@
                                 "create_node" : false,
                                 "start_drag" : true,
                                 "move_node" : true,
+                                "delete_node" : true,
                                 "remove" : true
                             },
                             "image-locked" : {
@@ -202,6 +223,7 @@
                                 "create_node" : false,
                                 "start_drag" : false,
                                 "move_node" : false,
+                                "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
                                 "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
                             },
                             "screen" : {
@@ -212,6 +234,7 @@
                                 "create_node" : true,
                                 "start_drag" : false,
                                 "move_node" : true,
+                                "delete_node" : true,
                                 "remove" : true
                             },
                             "screen-locked" : {
@@ -222,6 +245,7 @@
                                 "create_node" : true,
                                 "start_drag" : false,
                                 "move_node" : false,
+                                "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
                                 "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
                             },
                             "plate" : {
@@ -243,6 +267,7 @@
                                 "create_node" : false,
                                 "start_drag" : false,
                                 "move_node" : false,
+                                "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
                                 "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
                             },
                             "orphaned" : {
@@ -253,6 +278,7 @@
                                 "create_node" : false,
                                 "start_drag" : false,
                                 "move_node" : false,
+                                "delete_node" : false,
                                 "remove" : false
                             }                              
                         }
@@ -322,7 +348,7 @@
                                         "action": function() {
                                             this.paste(this.get_selected());
                                         }
-                                    },                                      
+                                    },
                                     "unlink"    : {
                                         "label" : "Remove",
                                         "icon"  : '{% url webstatic "images/minus_15.png" %}',
@@ -330,14 +356,14 @@
                                             var tree = this;
                                             var selected = tree.get_selected();
                                             if (selected.length>0) {
+                                                var images = selected.filter('li[id|=image]');
+                                                var datasets = selected.filter('li[id|=dataset]')
                                                 if (confirm("Remove the "+selected.length+" object(-s) from its current context.")) {
-                                                    selected.each(function() {
-                                                        tree.cut($(this));
-                                                        if ($(this).attr('rel') == 'image') tree.paste($("li#orphaned-0"))
-                                                        else tree.paste($("li#experimenter-0"));
-                                                    });                                                        
+                                                    if (images.length > 0) tree.move_node(images,$("li#orphaned-0"))
+                                                    if (datasets.length > 0) tree.move_node(datasets, $("li#experimenter-0"));
                                                 }
-                                            } }
+                                            } 
+                                        }
                                     }
                                 }
                             };
@@ -380,13 +406,40 @@
                                     config["create"]["submenu"]["project"]["_disabled"] = true;
                                     config["create"]["submenu"]["screen"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
+                                    if (!this.data.crrm.cp_nodes && !this.data.crrm.ct_nodes) {
+                                        config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                    }
                                 } else if(obj.attr("id").indexOf("dataset")>=0) {
+                                    if (obj.parent().parent().attr('rel').indexOf('experimenter')>=0) {
+                                        config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                        config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
+                                    }
+                                    if (!this.data.crrm.cp_nodes && !this.data.crrm.ct_nodes) {
+                                        config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                    }
                                     config["create"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("image")>=0) {
+                                    if (obj.parent().parent().attr('rel').indexOf('orphaned')>=0) {
+                                        config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                        config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
+                                    }
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     config["create"]["_disabled"] = true;
+                                } else if(obj.attr("id").indexOf("screen")>=0) {
+                                    config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["copy"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
+                                    config["create"]["_disabled"] = true;
+                                    config["basket"]["_disabled"] = true;
+                                    if (!this.data.crrm.cp_nodes && !this.data.crrm.ct_nodes) {
+                                        config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                    }
                                 } else if(obj.attr("id").indexOf("plate")>=0) {
+                                    if (obj.parent().parent().attr('rel').indexOf('experimenter')>=0) {
+                                        config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                        config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
+                                    }
                                     config["create"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
@@ -397,13 +450,13 @@
                         }
                     }
                 })
-                .delegate("a", "click.jstree", function (event) {
+                .delegate("a", "click.jstree", function (e) {
                     var data = $.jstree._focused();
                     if(!data.is_open() && data.get_selected().length < 2) {
                         data.open_node(data.get_selected());
                     }
                 })
-                .delegate("a", "dblclick", function(e, data) {
+                .delegate("a", "dblclick", function(e) {
                     if ($(this).parent().attr('rel')=='image') {
                         openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
@@ -411,7 +464,7 @@
                 })
                 .bind("select_node.jstree", function (e, data) {
                     var selected = data.inst.get_selected();
-                    buttonsShowHide(selected);
+                    buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
                     if (selected.length > 1) {
                         loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% url webstatic "images/knotes16.png" %}"/> Batch Annotate</a></p>');
                         $("#batchAnnotate").click(function() {
@@ -424,12 +477,13 @@
                     syncPanels(selected);
                 })
                 .bind("deselect_node.jstree", function (e, data) {
-                    buttonsShowHide(data.inst.get_selected());
-                    if (data.inst.get_selected().length < 2) {
-                        data.rslt.obj = data.inst.get_selected()
+                    var selected = data.inst.get_selected();
+                    buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
+                    if (selected.length < 2) {
+                        data.rslt.obj = selected;
                         loadOtherPanels(data, '{% url load_data %}');                        
                     }
-                    syncPanels(data.inst.get_selected());
+                    syncPanels(selected);
                 })
                 .bind("create.jstree", function (e, data) {
                     if(data.rslt.parent.attr("rel") == "project") {
@@ -463,24 +517,26 @@
                 .bind("move_node.jstree", function (e, data) {
                     var refresh = false;
                     data.rslt.o.each(function (i) {
+                        var remove = false;
                         if (data.inst.data.crrm.cp_nodes) {
                             url = '{% url manage_action_containers "paste" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
                             d = {
-                                  "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
-                              }
+                                "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
+                            }
                         } else  {
                             if (data.rslt.cr.attr('rel')!="orphaned") {
                                 url = '{% url manage_action_containers "move" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/';
                                 d = {
-                                      "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1], 
-                                      "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
-                                  };
+                                    "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1], 
+                                    "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
+                                };
+                                if (data.inst.get_container().find('#'+this.id).length > 1 ) data.inst.delete_node(this);
                             } else {
                                 url = '{% url manage_action_containers "remove" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
                                 d = {
-                                      "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1]
-                                  };
-                              }
+                                    "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1]
+                                };
+                            }
                         }
                         $.ajax({
                             async : false,
@@ -494,13 +550,10 @@
                                       alert(r.errs);
                                   }
                                   else {
-                                      $(data.rslt.oc).attr("id", data.rslt.o.attr('id'));
+                                      refresh = true;
                                       if(data.rslt.cy && $(data.rslt.oc).children("UL").length) {
                                           data.inst.refresh(data.inst._get_node(data.rslt.oc));
                                       }
-                                      //data.inst.refresh(data.inst._get_node(data.rslt.cr));
-                                      //refreshCenterPanel();
-                                      refresh = true;
                                   }
                             },
                             error: function(response) {
@@ -509,7 +562,16 @@
                             }
                         });
                     });
-                    if (refresh) refreshCenterPanel();
+                    if (refresh) {
+                        //data.inst.refresh();
+                        if (refresh) {
+                            data.inst.deselect_all();
+                            if (!data.inst.is_leaf(data.rslt.op) && $.inArray(data.rslt.op.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) data.inst.refresh(data.inst._get_node('#'+data.rslt.op.attr('id')));
+                            data.inst.select_node(data.rslt.op);
+                            if (!data.inst.is_leaf(data.rslt.cr) && $.inArray(data.rslt.cr.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) data.inst.refresh(data.inst._get_node('#'+data.rslt.cr.attr('id')));
+                            if(!data.inst.data.crrm.cp_nodes && !data.inst.data.crrm.ct_nodes) refreshCenterPanel();
+                        }
+                    }
                 })
                 .bind("remove.jstree", function (e, data) {
                     data.inst.select_node("li#experimenter-0");
@@ -520,17 +582,17 @@
                         ajax_data[i] = $(this).attr('id').replace("-","=");
                         if (!q && $(this).attr('rel').indexOf('image')<0) q = true;
                     });
-                    
+
                     if (q){
                         if (confirm('Also delete content of selected object(-s)?')) {
                             ajax_data[ajax_data.length] = 'child=on';
                         }
-                    } 
-                
+                    }
+
                     if (confirm('Also delete linked annotations?')) {
                         ajax_data[ajax_data.length] = 'anns=on';
                     }
-                    
+
                     url = '{% url manage_action_containers "deletemany" %}'
                     $.ajax({
                         async : false,
@@ -543,6 +605,10 @@
                                   $.jstree.rollback(data.rlbk);
                                   alert(r.errs);
                               } else {
+                                  data.args[0].each(function (i) {
+                                      data.inst.get_container().find('#'+this.id).each(function() { data.inst.delete_node(this); });
+                                  });
+                                  
                                   refreshCenterPanel();
                                   var i = setInterval(function (){
                                     $.getJSON("/webclient/progress/", function(data) {
@@ -600,12 +666,11 @@
                     var jstree = $.jstree._focused();
                     var selected = jstree.get_selected();
                     if (selected.length>0) {
+                        var images = selected.filter('li[id|=image]');
+                        var datasets = selected.filter('li[id|=dataset]')
                         if (confirm("Remove the "+selected.length+" object(-s) from its current context.")) {
-                            selected.each(function() {
-                                jstree.cut($(this));
-                                if ($(this).attr('rel') == 'image') jstree.paste($("li#orphaned-0"))
-                                else jstree.paste($("li#experimenter-0"));
-                            });                                                        
+                            if (images.length > 0) jstree.move_node(images,$("li#orphaned-0"))
+                            if (datasets.length > 0) jstree.move_node(datasets,$("li#experimenter-0"));
                         }
                     }
                     break;
