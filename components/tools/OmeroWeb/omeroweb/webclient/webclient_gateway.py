@@ -57,7 +57,8 @@ from omero.model import FileAnnotationI, TagAnnotationI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, \
                         LaserI
 
-from omero.gateway import TagAnnotationWrapper, ExperimenterWrapper, WellWrapper, AnnotationWrapper
+from omero.gateway import TagAnnotationWrapper, ExperimenterWrapper, \
+                ExperimenterGroupWrapper, WellWrapper, AnnotationWrapper
 
 from omero.sys import ParametersI
 
@@ -126,7 +127,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             if self._ctx.userName!="guest":
                 self.removeGroupFromContext()
         return rv
-
+    
     def attachToShare (self, share_id):
         """
         Turns on the access control lists attached to the given share for the
@@ -1794,6 +1795,27 @@ class OmeroWebObjectWrapper (object):
             logger.info(traceback.format_exc()) 
             return self.name
 
+class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrapper): 
+    """
+    omero_model_ExperimenterI class wrapper overwrite omero.gateway.ExperimenterWrapper
+    and extend OmeroWebObjectWrapper.
+    """
+    
+    def isEditable(self):
+        return self.omeName.lower() not in ('guest')
+
+omero.gateway.ExperimenterWrapper = ExperimenterWrapper 
+
+class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterGroupWrapper): 
+    """
+    omero_model_ExperimenterGroupI class wrapper overwrite omero.gateway.ExperimenterGroupWrapper
+    and extend OmeroWebObjectWrapper.
+    """
+    
+    def isEditable(self):
+        return self.name.lower() not in ('guest', 'user')
+
+omero.gateway.ExperimenterGroupWrapper = ExperimenterGroupWrapper 
 
 class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper): 
     """

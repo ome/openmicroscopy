@@ -35,7 +35,7 @@ class BaseExperimenters(BaseController):
     
     def __init__(self, conn):
         BaseController.__init__(self, conn)
-        self.experimentersList = list(self.conn.listExperimenters())
+        self.experimentersList = list(self.conn.getObjects("Experimenter"))
         self.experimentersList.sort(key=lambda x: x.getOmeName().lower())
         self.auth = self.conn.listLdapAuthExperimenters()
         self.experimenters = list()

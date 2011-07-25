@@ -75,10 +75,10 @@
         <tr>
             <td class="action">
                 {{ dict.group.id }}
-                {% if not dict.locked %}
+                {% if dict.group.isEditable %}{% if not dict.locked %}
                     <a href="{% url wamanagegroupid "edit" dict.group.id %}"><img src="{% url webstatic "images/edit.png" %}" alt="edit" title="edit"></a>
                 {% endif %}
-                <a href="{% url wamanagegroupid "members" dict.group.id %}"><img src="{% url webstatic "images/editing.png" %}" alt="manage" title="manage members"></a>
+                <a href="{% url wamanagegroupid "members" dict.group.id %}"><img src="{% url webstatic "images/editing.png" %}" alt="manage" title="manage members"></a>{% endif %}
             </td>
             <td class="link">{{ dict.group.name }}</td>
             <td class="link">{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>

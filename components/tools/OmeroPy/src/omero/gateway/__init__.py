@@ -1987,6 +1987,19 @@ class _BlitzGateway (object):
     
     # GROUPS
     
+    def listGroups(self):
+        """ 
+        Look up all experimenters and related groups.
+        Groups are also loaded
+        
+        @return:    All experimenters
+        @rtype:     L{ExperimenterWrapper} generator
+        """
+        
+        admin_serv = self.getAdminService()
+        for exp in admin_serv.lookupGroups():
+            yield ExperimenterGroupWrapper(self, exp)
+    
     def findGroup(self, name):
         """ 
         Look up a Group and all contained users by group name.
@@ -3742,7 +3755,8 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         """ 
         Returns string for building queries, loading Experimenters only. 
         """
-        return "select distinct obj from Experimenter as obj"
+        return "select distinct obj from Experimenter as obj left outer join fetch obj.groupExperimenterMap " \
+            "as map left outer join fetch map.parent g"
 
     def getRawPreferences (self):
         """
