@@ -2276,6 +2276,27 @@ public class OMEROMetadataStoreClient
     }
 
     /**
+     * Retrieves a configuration value from the <code>IConfig</code> service.
+     * @param key Key for the string encoded value.
+     * @return String encoded configuration value.
+     */
+    public String getConfigValue(String key)
+    {
+        try
+        {
+            return serviceFactory.getConfigService().getConfigValue(key);
+        }
+        catch (omero.SecurityViolation sv)
+        {
+            return null;
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * @return
      */
     public List<Screen> getScreens()
