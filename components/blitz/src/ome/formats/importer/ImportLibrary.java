@@ -105,7 +105,7 @@ public class ImportLibrary implements IObservable
     private boolean isMetadataOnly = false;
 
     /** List of readers for which we have FS lite enabled. */
-    private final Set<String> fsLiteEnabled;
+    private final Set<String> fsLiteReaders;
 
     /** Maximum plane width. */
     private int maxPlaneWidth;
@@ -130,18 +130,26 @@ public class ImportLibrary implements IObservable
 
         this.store = client;
         this.reader = reader;
-        fsLiteEnabled = new HashSet<String>(Arrays.asList(store.getConfigValue(
-                "omero.pixeldata.fs_lite_readers").split(",")));
-        if (fsLiteEnabled == null)
+        String fsLiteReadersString =
+            store.getConfigValue("omero.pixeldata.fs_lite_readers");
+        if (fsLiteReadersString == null || fsLiteReadersString.length() == 0)
         {
-            log.warn("Pre 4.3.2 server, using hard coded readers!");
-            fsLiteEnabled.add(loci.formats.in.SVSReader.class.getName());
-            fsLiteEnabled.add(loci.formats.in.TrestleReader.class.getName());
-            fsLiteEnabled.add(loci.formats.in.APNGReader.class.getName());
-            fsLiteEnabled.add(loci.formats.in.JPEG2000Reader.class.getName());
-            fsLiteEnabled.add(loci.formats.in.CellSensReader.class.getName());
-            fsLiteEnabled.add(loci.formats.in.JPEGReader.class.getName());
-            fsLiteEnabled.add(loci.formats.in.TiffDelegateReader.class.getName());
+            fsLiteReaders = new HashSet<String>();
+            log.warn("Pre 4.3.2 server or empty " +
+                     "omero.pixeldata.fs_lite_readers, using hard coded " +
+                     "readers!");
+            fsLiteReaders.add(loci.formats.in.SVSReader.class.getName());
+            fsLiteReaders.add(loci.formats.in.TrestleReader.class.getName());
+            fsLiteReaders.add(loci.formats.in.APNGReader.class.getName());
+            fsLiteReaders.add(loci.formats.in.JPEG2000Reader.class.getName());
+            fsLiteReaders.add(loci.formats.in.CellSensReader.class.getName());
+            fsLiteReaders.add(loci.formats.in.JPEGReader.class.getName());
+            fsLiteReaders.add(loci.formats.in.TiffDelegateReader.class.getName());
+        }
+        else
+        {
+            fsLiteReaders = new HashSet<String>(Arrays.asList(
+                    fsLiteReadersString.split(",")));
         }
         try
         {
@@ -150,7 +158,9 @@ public class ImportLibrary implements IObservable
         }
         catch (NumberFormatException e)
         {
-            log.warn("Pre 4.3.2 server using hard coded maximum plane width!");
+            log.warn("Pre 4.3.2 server or empty missing " +
+                     "omero.pixeldata.max_plane_width, using hard coded " +
+                     "maximum plane width!");
             maxPlaneWidth = 3192;
         }
         try
@@ -160,14 +170,16 @@ public class ImportLibrary implements IObservable
         }
         catch (NumberFormatException e)
         {
-            log.warn("Pre 4.3.2 server using hard coded maximum plane height!");
+            log.warn("Pre 4.3.2 server or empty missing " +
+                     "omero.pixeldata.max_plane_height, using hard coded " +
+                     "maximum plane height!");
             maxPlaneHeight = 3192;
         }
         if (log.isDebugEnabled())
         {
             log.debug("FS lite enabled readers: " +
-                    Arrays.toString(fsLiteEnabled.toArray(
-                            new String[fsLiteEnabled.size()])));
+                    Arrays.toString(fsLiteReaders.toArray(
+                            new String[fsLiteReaders.size()])));
             log.debug("Maximum plane width: " + maxPlaneWidth);
             log.debug("Maximum plane height: " + maxPlaneHeight);
         }
@@ -396,7 +408,7 @@ public class ImportLibrary implements IObservable
                                        ImportContainer container)
     {
         String readerName = reader.getClass().getName();
-        if (fsLiteEnabled.contains(readerName))
+        if (fsLiteReaders.contains(readerName))
         {
             if (reader.getClass().equals(loci.formats.in.TiffDelegateReader.class))
             {
@@ -410,13 +422,13 @@ public class ImportLibrary implements IObservable
                          * pixels.getSizeY().getValue()) > maxPlaneSize)
                     {
                         doBigImage = true;
-                        log.debug("TIFF matches big image criteria.");
+                        log.debug("TIFF meets big image criteria.");
                         break;
                     }
                 }
                 if (!doBigImage)
                 {
-                    log.debug("TIFF does not match big image criteria.");
+                    log.debug("TIFF does not meet big image criteria.");
                     return;
                 }
             }
