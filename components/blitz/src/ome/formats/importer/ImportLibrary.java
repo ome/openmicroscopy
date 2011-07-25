@@ -131,7 +131,7 @@ public class ImportLibrary implements IObservable
         this.store = client;
         this.reader = reader;
         fsLiteEnabled = new HashSet<String>(Arrays.asList(store.getConfigValue(
-                "omero.pixeldata.fs_lite_enabled").split(",")));
+                "omero.pixeldata.fs_lite_readers").split(",")));
         if (fsLiteEnabled == null)
         {
             log.warn("Pre 4.3.2 server, using hard coded readers!");
@@ -398,7 +398,7 @@ public class ImportLibrary implements IObservable
         String readerName = reader.getClass().getName();
         if (fsLiteEnabled.contains(readerName))
         {
-            if (readerName.equals(loci.formats.in.TiffDelegateReader.class.getName()))
+            if (reader.getClass().equals(loci.formats.in.TiffDelegateReader.class))
             {
                 log.debug("Using TIFF reader FS lite handling.");
                 List<Pixels> pixelsList = store.getSourceObjects(Pixels.class);
@@ -410,19 +410,23 @@ public class ImportLibrary implements IObservable
                          * pixels.getSizeY().getValue()) > maxPlaneSize)
                     {
                         doBigImage = true;
-                        log.debug("Enabling FS lite for TIFF.");
+                        log.debug("TIFF matches big image criteria.");
                         break;
                     }
                 }
                 if (!doBigImage)
                 {
-                    log.debug("Not enabling FS lite for TIFF.");
+                    log.debug("TIFF does not match big image criteria.");
                     return;
                 }
             }
             log.info("Big image, enabling metadata only and archiving.");
             container.setMetadataOnly(true);
             container.setArchive(true);
+        }
+        else
+        {
+            log.debug("FS lite disabled for: " + readerName);
         }
     }
 
