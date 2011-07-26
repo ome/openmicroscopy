@@ -28,10 +28,6 @@ import ome.services.util.Executor;
 import ome.tools.hibernate.SessionFactory;
 import ome.util.Filterable;
 import ome.util.SqlAction;
-import ome.util.SqlAction.IdRowMapper;
-import omero.RBool;
-import omero.RInt;
-import omero.api.RoiOptions;
 import omero.api.RoiStats;
 import omero.api.ShapePoints;
 import omero.api.ShapeStats;
@@ -46,6 +42,7 @@ import omero.model.SmartPointI;
 import omero.model.SmartRectI;
 import omero.model.SmartShape;
 import omero.util.IceMapper;
+import omero.util.ObjectFactoryRegistry.ObjectFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -117,18 +114,18 @@ public class GeomTool {
             throw new RuntimeException("Count out of bounds: " + count);
         }
 
-        Map<Class, RoiTypes.ObjectFactory> map = RoiTypes.ObjectFactories;
-        List<Class> types = new ArrayList<Class>(map.keySet());
+        Map<String, ObjectFactory> map = new RoiTypes.RoiTypesObjectFactoryRegistry().createFactories();
+        List<String> types = new ArrayList<String>(map.keySet());
         List<Shape> shapes = new ArrayList<Shape>();
         Random r = new Random();
 
         try {
             while (shapes.size() < count) {
-                int which = r.nextInt(types.size());
-                Class type = types.get(which);
-                Method m = type.getMethod("randomize", Random.class);
-                RoiTypes.ObjectFactory of = map.get(type);
+                int which = r.nextInt(map.size());
+                String typeName = types.get(which);
+                ObjectFactory of = map.get(typeName);
                 SmartShape s = (SmartShape) of.create("");
+                Method m = s.getClass().getMethod("randomize", Random.class);
                 m.invoke(s, r);
                 shapes.add((Shape) s);
             }

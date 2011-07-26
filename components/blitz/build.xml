@@ -42,6 +42,7 @@
                     <include name="omero/model/**"/>
 		    <include name="ome/services/blitz/impl/CloseableServant.java"/>
 		    <include name="ome/services/blitz/util/ConvertToBlitzExceptionMessage.java"/>
+		    <include name="ome/services/blitz/util/ObjectFactoryRegistry.java"/>
 		</myjavac>
 		<myjavac>
 		    <src path="${src.dir}"/>
@@ -124,7 +125,7 @@
 		<dsl template="${resrc.dir}/templates/java_ice_map.vm" filepattern="${gen.dir}/omero/util/IceMap.java">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
-		<dsl template="${resrc.dir}/templates/java_obj_reg.vm" filepattern="${gen.dir}/omero/util/ObjectFactoryRegistrar.java">
+		<dsl template="${resrc.dir}/templates/java_obj_reg.vm" filepattern="${gen.dir}/omero/util/ModelObjectFactoryRegistry.java">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
 		<dsl template="${resrc.dir}/templates/cpp_obj_reg.vm" filepattern="${gen.dir}/omero/ObjectFactoryRegistrar.cpp">
