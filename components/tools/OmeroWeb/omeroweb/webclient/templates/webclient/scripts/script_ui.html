@@ -50,7 +50,7 @@
                 contentType:'json',
                 success: function(data){
                     if(data.status == 'in progress') {
-                        popupActivites('{% url status %}');
+                        window.opener.popupActivites('{% url status %}');
                         self.close();
                     }
                     // exception in 'scriptService.runScript()' should be handled here

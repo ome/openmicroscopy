@@ -186,7 +186,6 @@
         function av_map_level(sliderVal){
             var oavContourVal = sliderVal;
             if ($(".current").attr('id') == "loadCompressed") {
-                alert("loadCompressed");
                 dataOffset = {{ pixelRange.0 }};
                 mapPixelFactor = 255.0 / ({{ pixelRange.1 }} - {{ pixelRange.0 }});
                 mapOffset = -127;

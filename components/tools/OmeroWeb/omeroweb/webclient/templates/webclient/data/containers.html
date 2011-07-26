@@ -27,6 +27,15 @@
 -->
 {% endcomment %}
 
+{% comment %}
+<!--
+  This page is the 'home page' of the 3-column data layout for webclient.
+  It loads the tree in the left panel. This is then used to load data into the middle and right panels (via AJAX)
+  using functions in the actions.js file.
+  E.g. On selection change: loadOtherPanels() calls loadMetadataPanel()
+-->
+{% endcomment %}
+
 {% block jscript %}
 
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.cookie.js" %}"></script>
@@ -730,7 +739,102 @@
 
 {% block right %}
 
+<script type="text/javascript">
+
+    function openScriptWindow(event) {
+        // open script url, providing Data_Type and IDs params in request
+        var script_url = $(this).attr('href');
+
+        var datatree = $.jstree._focused();
+
+        var ids = new Array();
+        var Data_Type = null;
+        datatree.data.ui.selected.each(function() {
+            var dtype = this.id.split("-")[0];
+            if (Data_Type == undefined) {
+                Data_Type = dtype;
+                ids.push(this.id.split("-")[1]);
+            } else if (Data_Type == dtype) {
+                // need to be sure our IDs are all of the same dtype
+                ids.push(this.id.split("-")[1]);
+            }
+        });
+        Data_Type = Data_Type.charAt(0).toUpperCase() + Data_Type.slice(1); // capitalise
+        script_url += "?Data_Type="+ Data_Type +"&IDs="+ ids.join();
+        openCenteredWindow(script_url);
+        return false;
+    }
+
+    $(document).ready(function(){
+
+        window.addEventListener('message', function(event){
+            alert("Got message " + event.data);
+        }, false);
+
+        // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
+        // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
+        $("#scriptButton").click(function(e){
+            if ($("#scriptList li").length == 0){  // if none loaded yet...
+                var $scriptLink = $(this).hide();
+                var $scriptSpinner = $("#scriptSpinner").show();
+                var script_list_url = $(this).attr('href');
+                $("#scriptList").load(script_list_url, function(){
+                    // Now show the menu and add ">>" to any <li> with child <ul>
+                    $('ul.sub_menu').css('visibility', 'visible');
+                    $("ul.sub_menu li:has(ul)").find("a:first").append(" &raquo; ");
+                    // bind links to openPopup
+                    $("ul.sub_menu a").click(openScriptWindow);
+                    $scriptLink.show();
+                    $scriptSpinner.hide();
+                });
+            } else {
+                $('ul.sub_menu').css('visibility', 'visible');
+            }
+            e.preventDefault();
+            return false;
+        });
+        // on hover-out, hide drop-down menus
+        $(".dropdown").hover(function(){}, function(){
+            $(this).removeClass("hover");
+            $('ul.sub_menu',this).css('visibility', 'hidden');
+        });
+
+    });
+
+</script>
+
+<style type="text/css">
+    /* Styles for Drop-down menu - based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/ */
+    .dropdown                   { font-weight: bold; float: left; zoom: 1; position: relative; }
+    .dropdown li a              { display: block; padding: 4px 8px; border-right: 1px solid #333; color: #222; }
+    .dropdown li:last-child a   { border-right: none; } /* Doesn't work in IE */
+    .dropdown li.hover,
+    .dropdown li:hover          { background: #ddf; color: black; position: relative; }
+    .dropdown li.hover a        { color: black; }
+
+    .dropdown ul                { width: 170px; visibility: hidden; position: absolute; top: 100%; left: 0; z-index:50;
+                                    margin: 0; padding: 0; list-style:none; border:solid black 1px;}
+    .dropdown ul li             { font-weight: normal; background: #fff; color: #000; border-bottom: 1px solid #eee; float: none; }
+    .dropdown ul li a           { border-right: none; width: 100%; display: inline-block; } /* IE 6 & 7 Needs Inline Block */
+
+    ul.sub_menu li ul           { left: 100%; top: 0;}
+    ul.sub_menu li:hover > ul   { visibility: visible;}
+</style>
+
 <div id="metadata_details">
+
+    <div id="toolbar-right" class="dropdown" style="padding-top: 7px">
+        <!-- Script launcher -->
+        <a id="scriptButton" href="{% url list_scripts %}">
+            <img src="{% url webstatic 'images/nuvola_script-run16.png' %}" />
+        </a>
+        <img id="scriptSpinner" style="display:none" src="{% url webstatic 'images/spinner.gif' %}" />
+        <ul id="scriptList" class="sub_menu">
+            <!-- script list-items loaded here by AJAX -->
+        </ul>
+    </div>
+    <div style="clear:both"></div>
+
     <div id="metadata_description"></div>
     <iframe width="370" name="metadata_details"></iframe>
 </div>
