@@ -32,6 +32,11 @@
 
     <script type="text/javascript">
 
+        var browseParent = function(url) {
+            window.opener.location.href = url;
+            return false;
+        }
+
         var update_ui = function(data) {
             for (var cbString in data) {
                 if ((cbString == "in_progress") || (cbString == "failure") || (cbString == "jobs")) {
@@ -113,15 +118,8 @@
             // make an AJAX call to update all 'in progress' callbacks in the web session and return current status
             var i = setInterval(function (){
                 $.getJSON("{% url progress %}", function(data) {
-                    var in_progress = 0;
-                    for (var cbString in data) {
-                        cbMap = data[cbString];
-                        if (cbMap["status"] == "in progress") {
-                            in_progress += 1;
-                        }
-                    }
                     update_ui(data);
-                    if (in_progress == 0) {
+                    if (data.inprogress == 0) {
                         clearInterval(i);
                     }
                 });

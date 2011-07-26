@@ -2401,7 +2401,7 @@ def progress(request, **kwargs):
 
         # update delete
         if job_type == 'delete':
-            if status != "failed" or status != "finished":
+            if status not in ("failed", "finished"):
                 try:
                     handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                     cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
@@ -2447,14 +2447,15 @@ def progress(request, **kwargs):
 
         # update scripts
         elif job_type == 'script':
-            if status != "failed" or status != "finished":
+            if status not in ("failed", "finished"):
                 logger.info("Check callback on script: %s" % cbString)
                 proc = omero.grid.ScriptProcessPrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                 cb = omero.scripts.ProcessCallbackI(conn.c, proc)
+                # check if we get something back from the handle...
                 if cb.block(0): # ms.
                     cb.close()
                     try:
-                        results = proc.getResults(0)
+                        results = proc.getResults(0)        # we can only retrieve this ONCE - must save results
                         request.session['callback'][cbString]['status'] = "finished"
                     except Exception, x:
                         # seem to get this failure if delete job is run after script.
@@ -2483,6 +2484,8 @@ def progress(request, **kwargs):
                                 rMap[key] = v
                     request.session['callback'][cbString]['results'] = rMap
                     request.session.modified = True
+                else:
+                    in_progress+=1
 
             # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
             rv[cbString] = copy.copy(request.session['callback'][cbString])

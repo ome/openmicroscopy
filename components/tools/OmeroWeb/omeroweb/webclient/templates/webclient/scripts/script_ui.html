@@ -50,6 +50,9 @@
                 contentType:'json',
                 success: function(data){
                     if(data.status == 'in progress') {
+                        window.opener.refreshProgressBar();
+                        // if an "existing" window is opened by the window behind this one, we can't focus it...
+                        window.open("", 'Activities').close();    // make sure there is no existing 'Activities' window
                         window.opener.popupActivites('{% url status %}');
                         self.close();
                     }

@@ -24,7 +24,8 @@
 
 {% ifnotequal nav.menu "status" %}
 <script>
-    $(document).ready(function() {
+
+    var refreshProgressBar = function() {
         var i = setInterval(function (){
             $.getJSON("{% url progress %}", function(data) {
                 if (data.inprogress==0) {
@@ -36,12 +37,13 @@
                         $("#jobstatus").html(data.jobs + ' job(s)');
                     } return;
                 }
-
                 $("#progress").show();
                 $("#jobstatus").html(data.inprogress + ' job(s) in progress');
             });
         }, 10000);
-
+    }
+    $(document).ready(function() {
+        refreshProgressBar();
     });
 </script>
 {% endifnotequal %}

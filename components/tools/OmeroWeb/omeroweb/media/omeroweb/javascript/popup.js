@@ -51,5 +51,7 @@ function openCenteredWindow(url) {
     var left = parseInt((screen.availWidth/2) - (width/2));
     var top = 0 // parseInt((screen.availHeight/2) - (height/2));
     var windowFeatures = "width=" + width + ",height=" + height + ",status=no,resizable=yes,scrollbars=yes,menubar=no,toolbar=no,left=" + left + ",top=" + top + "screenX=" + left + ",screenY=" + top;
-    myWindow = window.open(url, "", windowFeatures);
+    var myWindow = window.open(url, "", windowFeatures);
+    if(!myWindow.closed) myWindow.focus();
+    return false;
 }
