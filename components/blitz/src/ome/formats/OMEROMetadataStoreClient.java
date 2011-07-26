@@ -112,6 +112,8 @@ import omero.api.ServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.METADATASTORE;
 import omero.grid.InteractiveProcessorPrx;
+import omero.grid.RepositoryMap;
+import omero.grid.RepositoryPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.AcquisitionMode;
 import omero.model.Annotation;
@@ -1825,6 +1827,18 @@ public class OMEROMetadataStoreClient
         // Lookup each source file in our hash map and write it to the
         // correct original file object server side.
         byte[] buf = new byte[1048576];  // 1 MB buffer
+        RepositoryPrx repo = getLegacyRepository();
+        File repositoryRoot;
+        try
+        {
+            OriginalFile ofRoot = repo.root();
+            repositoryRoot = new File(ofRoot.getPath().getValue(),
+                            ofRoot.getName().getValue());
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
         for (File file : files)
         {
             String path = file.getAbsolutePath();
@@ -1844,7 +1858,12 @@ public class OMEROMetadataStoreClient
             try
             {
                 stream = new FileInputStream(file);
-                rawFileStore.setFileId(originalFile.getId().getValue());
+                File directory =
+                    new File(repositoryRoot.getPath(), file.getParent());
+                repo.makeDir(directory.getAbsolutePath());
+                rawFileStore = repo.file(new File(
+                        repositoryRoot.getPath(),
+                        file.getPath()).getAbsolutePath(), "rw");
                 int rlen = 0;
                 int offset = 0;
                 while (stream.available() != 0)
@@ -1853,6 +1872,7 @@ public class OMEROMetadataStoreClient
                     rawFileStore.write(buf, offset, rlen);
                     offset += rlen;
                 }
+                rawFileStore.close();
             }
             catch (Exception e)
             {
@@ -2191,6 +2211,33 @@ public class OMEROMetadataStoreClient
         try
         {
             return (T) iQuery.get(klass.getName(), id);
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Retrieves the legacy repository (the one that is backed by the OMERO
+     * binary repository) from the list of current active repositories.
+     * @return Active proxy for the legacy repository.
+     */
+    public RepositoryPrx getLegacyRepository()
+    {
+        try
+        {
+            RepositoryMap map = serviceFactory.sharedResources().repositories();
+            for (int i = 0; i < map.proxies.size(); i++)
+            {
+                RepositoryPrx proxy = map.proxies.get(i);
+                String repo = proxy.toString();
+                if (!repo.startsWith("PublicRepository-ScriptRepo"))
+                {
+                    return proxy;
+                }
+            }
+            return null;
         }
         catch (ServerError e)
         {
