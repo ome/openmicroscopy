@@ -153,7 +153,15 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     public OriginalFile root(Current __current) throws ServerError {
-        return new OriginalFileI(this.id, false); // SHOULD BE LOADED.
+       final long repoId = this.id;
+       ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
+           .execute(principal, new Executor.SimpleWork(this, "root") {
+               @Transactional(readOnly = true)
+               public Object doWork(Session session, ServiceFactory sf) {
+                   return sf.getQueryService().find(ome.model.core.OriginalFile.class, repoId);
+               }
+           });
+       return (OriginalFileI) new IceMapper().map(oFile);
     }
 
     /**
