@@ -878,16 +878,18 @@ class ImViewerModel
 		resolutionMap = new HashMap<Integer, ResolutionLevel>();
 		if (rnd != null) {
 			tileSize = rnd.getTileSize();
-			int levels = getResolutionLevels();
-			int powerX = (int) (Math.log(tileSize.width)/Math.log(2));
-			int powerY = (int) (Math.log(tileSize.height)/Math.log(2));
-			int index = 0;
-			int vx = 0, vy = 0;
-			for (int i = levels-1; i >= 0; i--) {
-				vx = powerX-index;
-				vy = powerY-index;
-				resolutionMap.put(i, new ResolutionLevel(i, vx, vy));
-				index++;
+			if (tileSize != null) {
+				int levels = getResolutionLevels();
+				int powerX = (int) (Math.log(tileSize.width)/Math.log(2));
+				int powerY = (int) (Math.log(tileSize.height)/Math.log(2));
+				int index = 0;
+				int vx = 0, vy = 0;
+				for (int i = levels-1; i >= 0; i--) {
+					vx = powerX-index;
+					vy = powerY-index;
+					resolutionMap.put(i, new ResolutionLevel(i, vx, vy));
+					index++;
+				}
 			}
 		}
 		if (isBigImage())
