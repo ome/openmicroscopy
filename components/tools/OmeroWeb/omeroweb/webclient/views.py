@@ -2370,6 +2370,40 @@ def load_history(request, year, month, day, **kwargs):
     return HttpResponse(t.render(c))
 
 
+def getObjectUrl(conn, obj):
+    """
+    This provides a url to browse to the specified omero.model.ObjectI P/D/I, FileAnnotation etc.
+    used to display results from the scripting service
+    E.g webclient/userdata/?path=project=1|dataset=5|image=12601:selected
+    If the object is a file annotation, try to browse to the parent P/D/I
+    """
+    base_url = reverse(viewname="load_template", args=['userdata'])
+
+    if isinstance(obj, omero.model.FileAnnotationI):
+        fa = conn.getObject("Annotation", obj.id.val)
+        for ptype in ['project', 'dataset', 'image']:
+            links = fa.getParentLinks(ptype)
+            for l in links:
+                obj = l.parent
+    print obj
+    if isinstance(obj, omero.model.ImageI):
+        # return path from first Project we find, or None if no Projects
+        image = conn.getObject("Image", obj.id.val)
+        for d in image.listParents():
+            for p in d.listParents():
+                return "%s?path=project=%d|dataset=%d|image=%d:selected" % (base_url, p.id, d.id, image.id)
+        return None
+
+    if isinstance(obj, omero.model.DatasetI):
+        dataset = conn.getObject("Dataset", obj.id.val)
+        for p in dataset.listParents():
+            return "%s?path=project=%d|dataset=%d:selected" % (base_url, p.id, dataset.id)
+        return None
+
+    if isinstance(obj, omero.model.ProjectI):
+        return "%s?path=project=%d:selected" % (base_url, obj.id.val)
+
+
 ######################
 # Activities window & Progressbar
 @isUserConnected
@@ -2471,7 +2505,8 @@ def progress(request, **kwargs):
                             request.session['callback'][cbString][key] = v
                         else:
                             if hasattr(v, "id"):    # do we have an object (ImageI, FileAnnotationI etc)
-                                obj_data = {'id': v.id.val, 'type': v.__class__.__name__}
+                                obj_data = {'id': v.id.val, 'type': v.__class__.__name__[:-1]}
+                                obj_data['browse_url'] = getObjectUrl(conn, v)
                                 if v.isLoaded() and hasattr(v, "file"):
                                     try:
                                         obj_data['name'] = v.file.name.val

@@ -32,8 +32,22 @@
 
     <script type="text/javascript">
 
+        // this needs to be called when page has loaded AND after AJAX loads results
+        var setupResultOptions = function() {
+            $(".result").children('a').click(function(e){
+                $(this).parent().find('ul').css('visibility', 'visible');
+                e.preventDefault();
+                return false;
+            });
+            // on hover-out, hide drop-down menus
+            $(".result").hover(function(){}, function(){
+                $('ul',this).css('visibility', 'hidden');
+            });
+        }
+
         var browseParent = function(url) {
             window.opener.location.href = url;
+            if (!window.opener.closed) window.opener.focus();
             return false;
         }
 
@@ -76,25 +90,32 @@
                                 // handle result 'Objects' - E.g ImageI, FileAnnotationI
                                 type = results[key]["type"];
                                 oid = results[key]["id"];
-                                if (type == "FileAnnotationI"){
-                                    var txt = "Download";
-                                    if (results[key]["name"]) txt = results[key]["name"];
-                                    var dl_url = $("#download_annotation_link").text().replace("0", oid);
-                                    rHtml += "<a title='Result: "+ key +"' href='"+ dl_url +"'>"+ txt +"</a>";
-                                } else if (type == "ImageI"){
-                                    var txt = "Image"
-                                    if (results[key]["name"]) txt = results[key]["name"];
-                                    var img_url = $("#full_viewer_link").text().replace("0", oid);
-                                    rHtml += "<a title='Result: "+ key +"' href='#' onClick=\"return openPopup('" + img_url + "');\">"+ txt +"</a>";
-                                } else {
-                                    rHtml += "<span class='key'>"+ key +":</span> "+ type + " ID: " + oid;
+                                rHtml += "<span class='result'>"
+                                rHtml += "<a href='#' title=\"Script Result: '"+ key +"'\">";
+                                if (results[key]['name']) rHtml += results[key]['name'];
+                                else rHtml += type + " ID: " + oid;
+                                rHtml += "</a>";
+
+                                rHtml += "<ul class='resultOptions'>";
+                                if (results[key]['browse_url']) {
+                                    rHtml += "<li><a href='#' onClick=\"return browseParent('" + results[key]['browse_url'] + "');\" title='Browse to {{ v.type }}'>Browse</a></li>"
                                 }
+
+                                if (type == "FileAnnotation"){
+                                    var dl_url = $("#download_annotation_link").text().replace("0", oid);
+                                    rHtml += "<li><a href='"+ dl_url +"' title='Download File'>Download</a></li>";
+                                } else if (type == "Image"){
+                                    var img_url = $("#full_viewer_link").text().replace("0", oid);
+                                    rHtml += "<li><a href='#' onClick=\"return openPopup('"+ img_url +"');\" title='Open Image in Viewer'>View Image</a></li>";
+                                }
+                                rHtml += "</ul>";
                             } else {
                                 // handle rtypes
-                                rHtml += "<span class='key'>"+ key +":</span> "+ results[key];
+                                rHtml += "<span title='Script Result: "+ key + "'>" + results[key] + "</span>";
                             }
                             rHtml += "</div>";
                             $jobRow.find(".results").append(rHtml);
+                            setupResultOptions();
                         }
                     } else if (cbMap["job_type"] == "delete") {
                         var icon_src = $("#delete_icon_src").text();
@@ -125,6 +146,7 @@
                 });
             }, 3000);
 
+            setupResultOptions();
         });
     </script>
 
@@ -153,6 +175,20 @@
         .key {
             color: gray;
         }
+        .result {
+            position: relative;
+            list-style:none;
+        }
+        .resultOptions {
+            visibility: hidden;
+            position: absolute; top: 100%; left: 25%; z-index:50;
+            margin: 0; padding: 0; list-style:none; border:solid gray 1px;
+            background: white;
+        }
+        .resultOptions li {
+            padding: 3px 5px;
+        }
+        .resultOptions li:hover          { background: #ddf;}
     </style>
 </head>
 
@@ -243,23 +279,34 @@
                                 {% for k,v in j.results.iteritems %}
                                     <div>
                                         {% if v.type and v.id %}
+                                            <span class="result">
                                             <!-- Handle robjects, E.g. ImageI, FileAnnotation etc -->
-                                            {% ifequal v.type "FileAnnotationI" %}
-                                                <a href="{% url download_annotation 'download' v.id %}" title="Result: {{ k }}">
-                                                    {% if v.name %}{{ v.name }}{% else %}Download{% endif %}
-                                                </a>
-                                            {% else %}
-                                                {% ifequal v.type "ImageI" %}
-                                                    <a href="#" onClick="return openPopup('{% url webgateway.views.full_viewer v.id %}');" title="Result: {{ k }}">
-                                                        {% if v.name %}{{ v.name }}{% else %}Image{% endif %}
-                                                    </a>
-                                                {% else %}
-                                                    <span class="key">{{ k }}:</span> {{ v.type }} ID: {{ v.id }}
-                                                {% endifequal %}
-                                            {% endifequal %}
+                                            <a href="#" title="Script Result: '{{ k }}'">
+                                            {% if v.name %} {{ v.name }} {% else %} {{ v.type }} ID: {{ v.id }} {% endif %}
+                                            </a>
+                                                <ul class="resultOptions">
+                                                    {% if v.browse_url %}
+                                                        <li><a href='#' onClick="return browseParent('{{ v.browse_url}}');" title="Browse to {{ v.type }}">Browse</a></li>
+                                                    {% endif %}
+
+                                                    {% ifequal v.type "FileAnnotation" %}
+                                                        <li><a href="{% url download_annotation 'download' v.id %}" title="Download File">
+                                                            Download
+                                                        </a></li>
+                                                    {% else %}
+                                                        {% ifequal v.type "Image" %}
+                                                            <li><a href="#" onClick="return openPopup('{% url webgateway.views.full_viewer v.id %}');" title="Open Image in Viewer">
+                                                                View Image
+                                                            </a></li>
+                                                        {% endifequal %}
+                                                    {% endifequal %}
+                                                </ul>
+                                            </span>
                                         {% else %}
                                             <!-- Handle rtypes (already unwrapped) -->
-                                            <span class="key">{{ k }}:</span> {{ v }}
+                                            <span title="Script Result: '{{ k }}'">
+                                            {{ v }}
+                                            </span>
                                         {% endif %}
                                     </div>
                                 {% endfor %}

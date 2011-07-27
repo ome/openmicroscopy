@@ -728,6 +728,7 @@
     function openScriptWindow(event) {
         // open script url, providing Data_Type and IDs params in request
         var script_url = $(this).attr('href');
+        if (script_url == "#") return false;
 
         var datatree = $.jstree._focused();
 
@@ -750,10 +751,6 @@
     }
 
     $(document).ready(function(){
-
-        window.addEventListener('message', function(event){
-            alert("Got message " + event.data);
-        }, false);
 
         // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
         // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
