@@ -168,3 +168,11 @@ td {
 	text-decoration: none;
 	
 }
+
+#problem {
+	font-size: larger;
+	margin: 5px 10% 5px 10%;
+	border: 1px solid black;
+	padding: 20px;
+	border: 1px solid #aaa; 
+}
