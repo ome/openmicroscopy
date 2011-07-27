@@ -27,6 +27,7 @@ import ome.conditions.ResourceError;
 import ome.io.bioformats.BfPixelBuffer;
 import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.messages.MissingPyramidMessage;
+import ome.io.messages.MissingStatsInfoMessage;
 import ome.model.core.Pixels;
 import ome.model.stats.StatsInfo;
 import ome.util.PixelData;
@@ -164,6 +165,7 @@ public class PixelsService extends AbstractFileSystemService
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
         final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
         final String originalFilePath = getOriginalFilePath(pixels);
+        final boolean requirePyramid = requiresPixelsPyramid(pixels);
 
         // This was called perhaps while a pyramid was
         // being generated, and is no longer needed.
@@ -171,6 +173,35 @@ public class PixelsService extends AbstractFileSystemService
         {
             log.debug("Pyramid already exists: " + pixelsPyramidFilePath);
             return null; // EARLY EXIT!
+        }
+
+        if (!requirePyramid)
+        {
+            log.debug("Creating only StatsInfo.");
+            int series = getSeries(pixels);
+            final PixelsPyramidMinMaxStore minMaxStore =
+                new PixelsPyramidMinMaxStore(pixels.getSizeC());
+            BfPixelBuffer bfPixelBuffer = createMinMaxBfPixelBuffer(
+                    originalFilePath, series, minMaxStore);
+            try
+            {
+                for (int t = 0; t < pixels.getSizeT(); t++)
+                {
+                    for (int c = 0; c < pixels.getSizeC(); c++)
+                    {
+                        for (int z = 0; z < pixels.getSizeZ(); z++)
+                        {
+                            bfPixelBuffer.getPlane(z, c, t);
+                        }
+                    }
+                }
+                return minMaxStore.createStatsInfo();
+            }
+            catch (IOException e)
+            {
+                log.error("I/O exception while calculating min/max.", e);
+                return null;
+            }
         }
 
         final BfPyramidPixelBuffer pixelsPyramid = createPyramidPixelBuffer(
@@ -374,12 +405,12 @@ public class PixelsService extends AbstractFileSystemService
     public PixelBuffer getPixelBuffer(Pixels pixels, boolean write)
     {
         final String originalFilePath = getOriginalFilePath(pixels);
-        final boolean requirePyramid =
-            originalFilePath == null? requiresPixelsPyramid(pixels) : true;
+        final boolean requirePyramid = requiresPixelsPyramid(pixels);
         final String pixelsFilePath = getPixelsPath(pixels.getId());
         final File pixelsFile = new File(pixelsFilePath);
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
         final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
+        final boolean pixelsFileExists = pixelsFile.exists();
 
         //
         // 1. If the pixels file exists, then we know that this isn't
@@ -392,12 +423,18 @@ public class PixelsService extends AbstractFileSystemService
         // a pyramid, the existence of the ROMIO Pixels file implies
         // that this is legacy data.
         //
-        if ((pixelsFile.exists() || originalFilePath != null) && requirePyramid)
+        if ((pixelsFileExists || originalFilePath != null) && requirePyramid)
         {
             while (!pixelsPyramidFile.exists()) {
                 // throws if loop should exit!
                 handleMissingPyramid(pixels, pixelsPyramidFilePath);
             }
+        }
+        // Note: since the OMERO.fs work, a pixels pyramid is only required
+        // when the pixels set meets big image criteria.
+        if (!pixelsFileExists && originalFilePath != null)
+        {
+            handleMissingStatsInfo(pixels);
         }
 
         //
@@ -416,7 +453,7 @@ public class PixelsService extends AbstractFileSystemService
         // has been archived). If the relevant OriginalFile path can be
         // resolved use it with BfPixelBuffer, otherwise create a new
         // RomioPixelBuffer and return.
-        if (!pixelsFile.exists())
+        if (!pixelsFileExists)
         {
             if (requirePyramid) {
                 if (!write) {
@@ -428,12 +465,12 @@ public class PixelsService extends AbstractFileSystemService
                         pixelsPyramidFilePath);
                 return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath, write);
             } else {
-                if (!write) {
-                    throw new LockTimeout("Import in progress.", 15*1000, 0);
-                }
                 if (originalFilePath != null) {
                     int series = getSeries(pixels);
                     return createBfPixelBuffer(originalFilePath, series);
+                }
+                if (!write) {
+                    throw new LockTimeout("Import in progress.", 15*1000, 0);
                 }
                 log.info("Creating ROMIO Pixel buffer.");
                 createSubpath(pixelsFilePath);
@@ -531,6 +568,32 @@ public class PixelsService extends AbstractFileSystemService
         }
 	}
 
+
+    /**
+     * If the outer loop should continue, this method returns successfully;
+     * otherwise it throws a MissingPyramidException.
+     * @param pixels
+     */
+    protected void handleMissingStatsInfo(Pixels pixels) {
+        for (int channel = 0; channel < pixels.sizeOfChannels(); channel++)
+        {
+            if (pixels.getChannel(channel).getStatsInfo() != null)
+            {
+                return;
+            }
+        }
+        long pixelsId = pixels.getId();
+        MissingStatsInfoMessage m = new MissingStatsInfoMessage(this, pixelsId);
+        pub.publishEvent(m);
+        if (m.isRetry()) {
+            log.debug("Retrying stats info for Pixels:" + pixelsId);
+            return;
+        }
+        String msg = "Missing stats info for Pixels:" + pixelsId;
+        log.info(msg);
+
+        backOff.throwMissingPyramidException(msg, pixels);
+    }
 
 	/**
 	 * If the outer loop should continue, this method returns successfully;

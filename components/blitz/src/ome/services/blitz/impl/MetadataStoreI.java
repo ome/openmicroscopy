@@ -349,7 +349,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                         source = file;
                     }
                 }
-                File file = new File(filesService.getFilesPath(source.getId()));
+                File file = new File(source.getPath(), source.getName());
                 // We need to perform a case insensitive replacement due to the
                 // posibilitity that we're running on a case insensitive
                 // filesystem like NTFS. (See #5654)
