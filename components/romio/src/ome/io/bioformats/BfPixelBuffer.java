@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -138,6 +139,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         byte[] buffer = new byte[reader.getColSize()];
         reader.getCol(x,z,c,t,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d.setOrder(isLittleEndian()?
+                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
         return d;
     }
 
@@ -172,6 +175,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         byte[] buffer = new byte[reader.getPlaneSize()];
         reader.getPlane(z,c,t,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d.setOrder(isLittleEndian()?
+                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
         return d;
     }
 
@@ -221,6 +226,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         byte[] buffer = new byte[reader.getRowSize()];
         reader.getRow(y,z,c,t,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d.setOrder(isLittleEndian()?
+                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
         return d;
     }
 
@@ -272,6 +279,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         byte[] buffer = new byte[reader.getColSize()];
         reader.getStack(c,t,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d.setOrder(isLittleEndian()?
+                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
         return d;
     }
 
@@ -303,6 +312,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         byte[] buffer = new byte[reader.getTimepointSize()];
         reader.getTimepoint(t,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d.setOrder(isLittleEndian()?
+                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
         return d;
     }
 
@@ -406,6 +417,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         byte[] buffer = new byte[getHypercubeSize(offset,size,step)];
         reader.getHypercube(offset,size,step,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d.setOrder(isLittleEndian()?
+                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
         return d;
     }
 
@@ -442,7 +455,11 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         byte[] buffer = new byte[
                 w * h * FormatTools.getBytesPerPixel(reader.getPixelsType())];
         getTileDirect(z, c, t, x, y, w, h, buffer);
-        return new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        PixelData d = new PixelData(
+                reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d.setOrder(isLittleEndian()?
+                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
+        return d;
     }
 
     /* (non-Javadoc)
