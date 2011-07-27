@@ -104,6 +104,10 @@
                                 if (type == "FileAnnotation"){
                                     var dl_url = $("#download_annotation_link").text().replace("0", oid);
                                     rHtml += "<li><a href='"+ dl_url +"' title='Download File'>Download</a></li>";
+                                    if (results[key]["fileId"]){
+                                        var orig_file_link = $("#original_file_link").text().replace("0", results[key]["fileId"]);
+                                        rHtml += "<li><a href='#' onClick=\"return openPopup('"+ orig_file_link +"');\">View " +results[key]["fileType"] +"</a></li>";
+                                    }
                                 } else if (type == "Image"){
                                     var img_url = $("#full_viewer_link").text().replace("0", oid);
                                     rHtml += "<li><a href='#' onClick=\"return openPopup('"+ img_url +"');\" title='Open Image in Viewer'>View Image</a></li>";
@@ -195,7 +199,7 @@
 <body style="margin:0px; padding:0px; font-family:arial">
 
 <!-- use Django to format a link template - javascript replaces '0' for ID where needed -->
-<div id="original_file_link" style="display:none">{% url original_file_text 0 %}</div>
+<div id="original_file_link" style="display:none">{% url get_original_file 0 %}</div>
 <div id="python_icon_src" style="display:none">{% url webstatic 'images/tango_text-x-python16.png' %}</div>
 <div id="delete_icon_src" style="display:none">{% url webstatic 'images/nuvola_apply22.png' %}</div>
 <div id="download_annotation_link" style="display:none">{% url download_annotation 'download' 0 %}</div>
@@ -293,6 +297,9 @@
                                                         <li><a href="{% url download_annotation 'download' v.id %}" title="Download File">
                                                             Download
                                                         </a></li>
+                                                        {% if v.fileId %}
+                                                            <li><a href="#" onClick="return openPopup('{% url get_original_file v.fileId %}');">View {{ v.fileType }}</a></li>
+                                                        {% endif %}
                                                     {% else %}
                                                         {% ifequal v.type "Image" %}
                                                             <li><a href="#" onClick="return openPopup('{% url webgateway.views.full_viewer v.id %}');" title="Open Image in Viewer">
@@ -313,10 +320,10 @@
                             </td>
                             <td width="50px" align="right">
                                 <div class="error">
-                                {% if j.stderr %}<a href="#" onClick="return openPopup('{% url original_file_text j.stderr %}');">Error</a>{% endif %}
+                                {% if j.stderr %}<a href="#" onClick="return openPopup('{% url get_original_file j.stderr %}');">Error</a>{% endif %}
                                 </div>
                                 <div class="info">
-                                {% if j.stdout %}<a href="#" onClick="return openPopup('{% url original_file_text j.stdout %}');">Info</a>{% endif %}
+                                {% if j.stdout %}<a href="#" onClick="return openPopup('{% url get_original_file j.stdout %}');">Info</a>{% endif %}
                                 </div>
                             </td>
                             <td width="40px">{{ j.start_time|date:"H:i" }}</td>

@@ -1755,7 +1755,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def original_file_text(request, fileId, **kwargs):
+def get_original_file(request, fileId, **kwargs):
 
     conn = None
     try:
@@ -1765,10 +1765,31 @@ def original_file_text(request, fileId, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     orig_file = conn.getObject("OriginalFile", fileId)
-    chunks = [str(piece) for piece in orig_file.getFileInChunks()]
-    text = "".join(chunks)
 
-    return render_to_response("webclient/scripts/original_file_text.html", {'text': text, 'orig_file':orig_file })
+    try:
+        from django.conf import settings
+        tempdir = settings.FILE_UPLOAD_TEMP_DIR
+        temp = os.path.join(tempdir, ('%i-%s.download' % (orig_file.id, conn._sessionUuid))).replace('\\','/')
+        logger.info("temp path: %s" % str(temp))
+        f = open(str(temp),"wb")
+        for piece in orig_file.getFileInChunks():
+            f.write(piece)
+        f.seek(0)
+
+        from django.core.servers.basehttp import FileWrapper
+        originalFile_data = FileWrapper(file(temp))
+    except Exception, x:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Cannot download original file (id:%s)." % (fileId))
+    rsp = HttpResponse(originalFile_data)
+
+    mimetype = orig_file.mimetype
+    if mimetype == "text/x-python": mimetype = "text/plain" # allows display in browser
+    rsp['Content-Type'] =  mimetype
+    rsp['Content-Length'] = orig_file.size
+    #rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.name.replace(" ","_"))
+
+    return rsp
 
 
 @isUserConnected
@@ -2385,7 +2406,7 @@ def getObjectUrl(conn, obj):
             links = fa.getParentLinks(ptype)
             for l in links:
                 obj = l.parent
-    print obj
+
     if isinstance(obj, omero.model.ImageI):
         # return path from first Project we find, or None if no Projects
         image = conn.getObject("Image", obj.id.val)
@@ -2492,7 +2513,6 @@ def progress(request, **kwargs):
                         results = proc.getResults(0)        # we can only retrieve this ONCE - must save results
                         request.session['callback'][cbString]['status'] = "finished"
                     except Exception, x:
-                        # seem to get this failure if delete job is run after script.
                         logger.error(traceback.format_exc())
                         continue
                     # value could be rstring, rlong, robject
@@ -2508,10 +2528,14 @@ def progress(request, **kwargs):
                                 obj_data = {'id': v.id.val, 'type': v.__class__.__name__[:-1]}
                                 obj_data['browse_url'] = getObjectUrl(conn, v)
                                 if v.isLoaded() and hasattr(v, "file"):
-                                    try:
-                                        obj_data['name'] = v.file.name.val
-                                    except:
-                                        pass
+                                    #try:
+                                    mimetypes = {'image/png':'png', 'image/jpeg':'jpeg', 'image/tiff': 'tiff'}
+                                    if v.file.mimetype.val in mimetypes:
+                                        obj_data['fileType'] = mimetypes[v.file.mimetype.val]
+                                        obj_data['fileId'] = v.file.id.val
+                                    obj_data['name'] = v.file.name.val
+                                    #except:
+                                    #    pass
                                 if v.isLoaded() and hasattr(v, "name"):  # E.g Image, OriginalFile etc
                                     obj_data['name'] = v.name.val
                                 rMap[key] = obj_data

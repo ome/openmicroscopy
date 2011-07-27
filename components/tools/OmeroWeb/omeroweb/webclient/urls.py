@@ -123,6 +123,6 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^list_scripts/$', views.list_scripts, name="list_scripts"),  # returns html list of scripts - click to run
     url( r'^script_ui/(?P<scriptId>[0-9]+)/$', views.script_ui, name='script_ui' ), # shows a form for running a script
     url( r'^script_run/(?P<scriptId>[0-9]+)/$', views.script_run, name='script_run' ),  # runs the script - parameters in POST
-    url( r'^original_file_text/(?:(?P<fileId>[0-9]+)/)?$', views.original_file_text, name="original_file_text"), # for stderr, stdout etc
+    url( r'^get_original_file/(?:(?P<fileId>[0-9]+)/)?$', views.get_original_file, name="get_original_file"), # for stderr, stdout etc
 
 )
