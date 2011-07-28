@@ -1862,6 +1862,76 @@ def image_as_map(request, imageId, **kwargs):
 
 
 @isUserConnected
+def archived_files(request, iid, **kwargs):
+    """
+    Downloads the archived file(s) as a single file or as a zip (if more than one file)
+    """
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    image = conn.getObject("Image", iid)
+    files = list(image.getArchivedFiles())
+
+    if len(files) == 0:
+        logger.info("Tried downloading archived files from image with no files archived")
+        return handlerInternalError("This image has no Archived Files")
+
+    from django.conf import settings
+    tempdir = settings.FILE_UPLOAD_TEMP_DIR
+    # just download the file itself
+    if len(files) == 1:
+        orig_file = files[0]
+        temp = os.path.join(tempdir, ('%i-%s.archived' % (image.id, conn._sessionUuid))).replace('\\','/')
+        logger.info("temp path: %s" % str(temp))
+        f = open(str(temp),"wb")
+        for piece in orig_file.getFileInChunks():
+            f.write(piece)
+        f.seek(0)
+        f.close()
+        file_name = orig_file.name.replace(" ","_")
+
+    else:
+        # download each file into a zip file
+        temp_zip_dir = os.path.join(tempdir, ('%i-%s.archived2' % (image.id, conn._sessionUuid))).replace('\\','/')
+        logger.info("temp archived zip dir: %s" % str(temp_zip_dir))
+        os.mkdir(temp_zip_dir)
+
+        for a in files:
+            temp_f = os.path.join(temp_zip_dir, a.name)
+            f = open(str(temp_f),"wb")
+            for piece in a.getFileInChunks():
+                f.write(piece)
+            f.seek(0)
+            f.close()
+        # create zip
+        import zipfile
+        import glob
+        temp = "%s.zip" % temp_zip_dir
+        zip_file = zipfile.ZipFile(temp, 'w')
+        try:
+            a_files = os.path.join(temp_zip_dir, "*")
+            for name in glob.glob(a_files):
+                zip_file.write(name, os.path.basename(name), zipfile.ZIP_DEFLATED)
+        finally:
+            zip_file.close()
+        file_name = "%s.zip" % image.getName().replace(" ","_")
+
+    # return the zip or single file
+    from django.core.servers.basehttp import FileWrapper
+    archivedFile_data = FileWrapper(file(temp))
+    rsp = HttpResponse(archivedFile_data)
+    if archivedFile_data is None:
+        return handlerInternalError("Cannot download archived files for image (id:%s)." % (iid))
+    rsp['Content-Type'] = 'application/force-download'
+    rsp['Content-Length'] = os.path.getsize(temp)
+    rsp['Content-Disposition'] = 'attachment; filename=%s' % file_name
+    return rsp
+
+@isUserConnected
 def download_annotation(request, action, iid, **kwargs):
     conn = None
     try:
