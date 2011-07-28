@@ -86,6 +86,15 @@ Params in render_thumbnail/<iid>/<w>/<h> are:
     - h:    Optional max height
 """
 
+render_birds_eye_view = (r'^render_birds_eye_view/(?P<iid>[^/]+)/(?:(?P<size>[^/]+)/)?$', 'webgateway.views.render_birds_eye_view')
+"""
+Returns a bird's eye view JPEG of the OMERO Image.
+See L{views.render_birds_eye_view}. Uses current rendering settings.
+Params in render_birds_eye_view/<iid>/ are:
+    - iid:   Image ID
+    - size:  Maximum size of the longest side of the resulting bird's eye view.
+"""
+
 render_ome_tiff = (r'^render_ome_tiff/(?P<ctx>[^/]+)/(?P<cid>[^/]+)/$', 'webgateway.views.render_ome_tiff')
 """
 Generates an OME-TIFF of an Image (or zip for multiple OME-TIFFs) and returns the file or redirects 
@@ -225,6 +234,7 @@ urlpatterns = patterns('',
     render_row_plot,
     render_col_plot,
     render_thumbnail,
+    render_birds_eye_view,
     render_ome_tiff,
     render_movie,
     # Template views

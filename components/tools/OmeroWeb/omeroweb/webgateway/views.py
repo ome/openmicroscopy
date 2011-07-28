@@ -478,6 +478,31 @@ def serverid (func):
         return func(request, *args, **kwargs)
     return handler
 
+@serverid
+def render_birds_eye_view (request, iid, server_id=None, size=None,
+                           _conn=None, **kwargs):
+    """
+    Returns an HttpResponse wrapped jpeg with the rendered bird's eye view
+    for image 'iid'.
+
+    @param request:     http request
+    @param iid:         Image ID
+    @param size:        Maximum size of the longest side of the resulting bird's eye view.
+    @param server_id:   Optional, used for getting connection if needed etc
+    @return:            http response containing jpeg
+    """
+    if _conn is None:
+        blitzcon = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
+    else:
+        blitzcon = _conn
+    if blitzcon is None or not blitzcon.isConnected():
+        logger.debug("failed connect, HTTP404")
+        raise Http404
+    img = blitzcon.getObject("Image", iid)
+    if img is None:
+        logger.debug("(b)Image %s not found..." % (str(iid)))
+        raise Http404
+    return HttpResponse(img.renderBirdsEyeView(size), mimetype='image/jpeg')
 
 @serverid
 def render_thumbnail (request, iid, server_id=None, w=None, h=None, _conn=None, _defcb=None, **kwargs):

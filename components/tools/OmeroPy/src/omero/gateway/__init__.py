@@ -30,6 +30,7 @@ import Glacier2
 import traceback
 import time
 import array
+import math
 
 import logging
 logger = logging.getLogger('blitz_gateway')
@@ -5562,7 +5563,54 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         return self.getRenderingModel().value.lower() == 'greyscale'
 
-    
+    @assert_re
+    def renderBirdsEyeView (self, size):
+        """
+        Returns the data from rendering the bird's eye view of the image.
+
+        @param size:   Maximum size of the longest side of the resulting bird's eye view.
+        @return:       Data containing a bird's eye view jpeg
+        """
+        # Prepare the rendering engine parameters on the ImageWrapper.
+        re = self._prepareRE()
+        z = re.getDefaultZ()
+        t = re.getDefaultT()
+        x = 0
+        y = 0
+        size_x = self.getSizeX()
+        size_y = self.getSizeY()
+        tile_width, tile_height = re.getTileSize()
+        tiles_wide = math.ceil(float(size_x) / tile_width)
+        tiles_high = math.ceil(float(size_y) / tile_height)
+        # Since the JPEG 2000 algorithm is iterative and rounds pixel counts
+        # at each resolution level we're doing the resulting tile size
+        # calculations in a loop. Also, since the image is physically tiled
+        # the resulting size is a multiple of the tile size and not the iterative
+        # quotient of a 2**(resolutionLevels - 1).
+        for i in range(1, re.getResolutionLevels()):
+            tile_width = round(tile_width / 2.0)
+            tile_height = round(tile_height / 2.0)
+        width = int(tiles_wide * tile_width)
+        height = int(tiles_high * tile_height)
+        jpeg_data = self.renderJpegRegion(z, t, x, y, width, height, level=0)
+        if size is None:
+            return jpeg_data
+        # We've been asked to scale the image by its longest side so we'll
+        # perform that operation until the server has the capability of
+        # doing so.
+        ratio = float(size) / max(width, height)
+        if width > height:
+            size = (int(size), int(height * ratio))
+        else:
+            size = (int(width * ratio), int(size))
+        jpeg_data = Image.open(StringIO(jpeg_data))
+        jpeg_data.thumbnail(size, Image.ANTIALIAS)
+        ImageDraw.Draw(jpeg_data)
+        f = StringIO()
+        jpeg_data.save(f, "JPEG")
+        f.seek(0)
+        return f.read()
+
     @assert_re
     def renderJpegRegion (self, z, t, x, y, width, height, level=None, compression=0.9):
         """
