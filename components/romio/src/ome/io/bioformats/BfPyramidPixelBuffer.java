@@ -574,50 +574,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     private synchronized void checkTileParameters(int x, int y, int w, int h)
         throws IOException
     {
-        // Ensure the reader has been initialized
-        delegate().reader();
-        IFDList ifds = reader.getIFDs();
-        if (ifds.size() == 0)
-        {
-            throw new IOException("Backing reader has no IFDs!");
-        }
-        IFD firstIFD = ifds.get(0);
-        int tileWidth, tileHeight;
-        try
-        {
-            tileWidth = (int) firstIFD.getTileWidth();
-            tileHeight = (int) firstIFD.getTileLength();
-        }
-        catch (FormatException e)
-        {
-            String message = "Error retrieving tile width and height!";
-            log.error(message, e);
-            throw new IOException(message);
-        }
-        if (x % tileWidth != 0)
-        {
-            throw new IOException(String.format(
-                    "Tile X offset %d not a multiple of tile width %d",
-                    x, tileWidth));
-        }
-        if (y % tileHeight != 0)
-        {
-            throw new IOException(String.format(
-                    "Tile Y offset %d not a multiple of tile width %d",
-                    y, tileWidth));
-        }
-        if (w > tileWidth)
-        {
-            throw new IOException(String.format(
-                    "Requested tile width %d larger than tile width %d",
-                    w, tileWidth));
-        }
-        if (h > tileHeight)
-        {
-            throw new IOException(String.format(
-                    "Requested tile height %d larger than tile height %d",
-                    h, tileHeight));
-        }
+        // No-op.
     }
 
     /**
