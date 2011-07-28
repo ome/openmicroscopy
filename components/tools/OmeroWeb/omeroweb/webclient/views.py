@@ -2938,8 +2938,9 @@ def script_ui(request, scriptId, **kwargs):
         elif param.useDefault:
             i["default"] = unwrap(param.prototype)
         pt = unwrap(param.prototype)
-        #print key, pt.__class__
-        if pt.__class__ == type(True):
+        if pt.__class__.__name__ == 'dict':
+            i["map"] = True
+        elif pt.__class__ == type(True):
             i["boolean"] = True
         elif pt.__class__ == type(0) or pt.__class__ == type(long(0)):
             i["number"] = "number"  # will stop the user entering anything other than numbers.
@@ -2987,6 +2988,8 @@ def script_run(request, scriptId, **kwargs):
     params = scriptService.getParams(sId)
     scriptName = params.name.replace("_", " ").replace(".py", "")
 
+    logger.debug("Script: run with request.POST: %s" % request.POST)
+
     for key, param in params.inputs.items():
         prototype = param.prototype
         pclass = prototype.__class__
@@ -2997,6 +3000,24 @@ def script_run(request, scriptId, **kwargs):
             inputMap[key] = pclass(value)
             continue
         
+        if pclass.__name__ == 'RMapI':
+            keyName = "%s_key" % key
+            valueName = "%s_value" % key
+            row = 0
+            paramMap = {}
+            while keyName in request.POST:
+                # the key and value don't have any data-type defined by scripts - just use string
+                k = str(request.POST[keyName])
+                v = str(request.POST[valueName])
+                if len(k) > 0 and len(v) > 0:
+                    paramMap[str(k)] = str(v)
+                row +=1
+                keyName = "%s_key%d" % (key, row)
+                valueName = "%s_value%d" % (key, row)
+            if len(paramMap) > 0:
+                inputMap[key] = wrap(paramMap)
+            continue
+
         if key in request.POST:
             value = request.POST[key]
             if len(value) == 0: continue
@@ -3015,7 +3036,7 @@ def script_run(request, scriptId, **kwargs):
                     try:
                         obj = listClass(str(v.strip())) # seem to need the str() for some reason
                     except:
-                        # print "Invalid entry for '%s' : %s" % (key, v)
+                        logger.debug("Invalid entry for '%s' : %s" % (key, v))
                         continue
                     if isinstance(obj, omero.model.IObject):
                         valueList.append(omero.rtypes.robject(obj))
@@ -3035,6 +3056,7 @@ def script_run(request, scriptId, **kwargs):
                     # print "Invalid entry for '%s' : %s" % (key, value)
                     continue
 
+    logger.debug("Running script %s with params %s" % (scriptName, inputMap))
     try:
         handle = scriptService.runScript(sId, inputMap, None)
         # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154

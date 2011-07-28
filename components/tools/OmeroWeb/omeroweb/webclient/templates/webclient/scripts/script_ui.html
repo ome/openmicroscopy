@@ -77,6 +77,33 @@
                   $(this).runScript();
                   return false;
               });
+
+              // for any 'map' parameters in the UI, add controls to add key:value fields
+              $(".addKeyValue").click(function() {
+                  var $keyValueTable = $(this).parent().next().find(".map");
+                  var rowCount = $keyValueTable.find('tr').length;
+                  var $newRow = $("tr", $keyValueTable).first().clone();
+                  var $keyInput = $newRow.find('input:eq(0)');
+                  var $valueInput = $newRow.find('input:eq(1)');
+                  // give the new inputs unique names, based on number of key:value pairs
+                  $keyInput.attr('name', $keyInput.attr('name')+rowCount);
+                  $valueInput.attr('name', $valueInput.attr('name')+rowCount);
+                  $keyInput.attr('value', "");
+                  $valueInput.attr('value', "");
+                  $keyValueTable.append($newRow);
+
+                  return false;
+              });
+              $(".removeKeyValue").click(function(e) {
+                    var $keyValueTable = $(this).parent().next().find(".map");
+                    var rowCount = $keyValueTable.find('tr').length;
+                    if (rowCount > 1) {
+                        var $lastRow = $("tr", $keyValueTable).last();
+                        $lastRow.remove();
+                    }
+                    e.preventDefault();
+                    return false;
+                });
         });
     </script>
 
