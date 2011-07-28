@@ -6340,6 +6340,20 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._re.saveCurrentSettings()
         return True
 
+    def getArchivedFiles (self):
+        """
+        Returns a generator of L{OriginalFileWrapper}s corresponding to the archived files linked to primary pixels
+        """
+
+        pid = self.getPixelsId()
+        params = omero.sys.Parameters()
+        params.map = {"pid": rlong(pid)}
+        query = "select link from PixelsOriginalFileMap link join fetch link.parent as p where link.child.id=:pid"
+        links = self._conn.getQueryService().findAllByQuery(query, params)
+
+        for l in links:
+            yield OriginalFileWrapper(self._conn, l.parent)
+
 ImageWrapper = _ImageWrapper
 
 ## INSTRUMENT AND ACQUISITION ##
