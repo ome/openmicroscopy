@@ -41,7 +41,6 @@ import logging
 import traceback
 
 from time import time
-from datetime import datetime
 from thread import start_new_thread
 
 from omero_version import omero_version
@@ -86,11 +85,12 @@ from controller.impexp import BaseImpexp
 from controller.search import BaseSearch
 from controller.share import BaseShare
 
+from omeroweb.webclient.webclient_utils import string_to_dict
+
 from omeroweb.webadmin.forms import MyAccountForm, UploadPhotoForm, LoginForm, ChangePassword
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
 from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
-from omeroweb.webadmin.views import _checkVersion, _isServerOn
-from omeroweb.webclient.webclient_utils import toBoolean, string_to_dict, upgradeCheck
+from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck
 
 from omeroweb.webgateway.views import getBlitzConnection
 from omeroweb.webgateway import views as webgateway_views
@@ -1714,7 +1714,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         try:
             handle = manager.deleteItem(child, anns)
             request.session['callback'][str(handle)] = {'job_type': 'delete', 'delmany':False,'did':o_id, 'dtype':o_type, 'status':'in progress',
-                'derror':handle.errors(), 'dreport':_formatReport(handle), 'start_time': datetime.now()}
+                'derror':handle.errors(), 'dreport':_formatReport(handle), 'start_time': datetime.datetime.now()}
             request.session.modified = True
         except Exception, x:
             logger.error('Failed to delete: %r' % {'did':o_id, 'dtype':o_type}, exc_info=True)
@@ -1731,7 +1731,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             for key,ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
                     handle = manager.deleteObjects(key, ids, child, anns)
-                    dMap = {'job_type': 'delete', 'start_time': datetime.now(),'status':'in progress', 'derrors':handle.errors(),
+                    dMap = {'job_type': 'delete', 'start_time': datetime.datetime.now(),'status':'in progress', 'derrors':handle.errors(),
                         'dreport':_formatReport(handle), 'dtype':key}
                     if len(ids) > 1:
                         dMap['delmany'] = len(ids)
@@ -3034,7 +3034,7 @@ def script_run(request, scriptId, **kwargs):
         request.session['callback'][jobId] = {
             'job_type': "script",
             'job_name': scriptName,
-            'start_time': datetime.now(),
+            'start_time': datetime.datetime.now(),
             'status':'in progress'}
         request.session.modified = True
     except Exception, x:

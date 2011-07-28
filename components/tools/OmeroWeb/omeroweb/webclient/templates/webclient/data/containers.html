@@ -76,20 +76,20 @@
                                 toolbar_config['adddataset'] = true;
                             } else if(selected.attr("id").indexOf("dataset")>=0) {
                                 toolbar_config['copy'] = true;
-                                if (selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
+                                if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
                                     toolbar_config["cut"] = true;
                                     toolbar_config["unlink"] = true;
                                 }
                             } else if(selected.attr("id").indexOf("image")>=0) {
                                 toolbar_config['basket'] = true;
                                 toolbar_config['copy'] = true;
-                                if (selected.parent().parent().attr('rel').replace("-locked", "").indexOf("orphaned") < 0) {
+                                if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("orphaned") < 0) {
                                     toolbar_config["cut"] = true;
                                     toolbar_config["unlink"] = true;
                                 }
                             } else if(selected.attr("id").indexOf("plate")>=0) {
                                 toolbar_config['copy'] = true;
-                                if (selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
+                                if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
                                     toolbar_config["cut"] = true;
                                     toolbar_config["unlink"] = true;
                                 }
@@ -617,8 +617,6 @@
                                   data.args[0].each(function (i) {
                                       data.inst.get_container().find('#'+this.id).each(function() { data.inst.delete_node(this); });
                                   });
-                                  
-                                  refreshCenterPanel();
                                   refreshProgressBar();
                               }
                         },
