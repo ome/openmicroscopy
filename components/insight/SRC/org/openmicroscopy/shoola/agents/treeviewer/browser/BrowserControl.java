@@ -380,12 +380,13 @@ class BrowserControl
     	
     	//nodes = new TreeImageDisplay[paths.length];
     	List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();
-    	
-    	for (int j = 0; j < paths.length; j++) {
-    		if (paths[j].getLastPathComponent() instanceof TreeImageDisplay) {
-    			list.add((TreeImageDisplay) paths[j].getLastPathComponent());
+    	if (paths != null) {
+    		for (int j = 0; j < paths.length; j++) {
+        		if (paths[j].getLastPathComponent() instanceof TreeImageDisplay)
+        			list.add((TreeImageDisplay) paths[j].getLastPathComponent());
     		}
-		}
+    	}
+    	
     	if (list.size() > 0) {
     		model.setSelectedDisplays(list.toArray(
     				new TreeImageDisplay[list.size()]), false);
