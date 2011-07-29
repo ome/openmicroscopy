@@ -13,7 +13,7 @@
 
 import os
 import sys
-import Ice, Glacier2, IceImport
+import Ice, IceImport
 import time
 import traceback
 import exceptions
@@ -22,6 +22,8 @@ import getpass
 import omero.java
 
 IceImport.load("Glacier2_Router_ice")
+
+from Glacier2 import PermissionDeniedException
 
 from omero.util import get_user
 from omero.util.sessions import SessionsStore
@@ -261,7 +263,7 @@ class SessionsControl(BaseControl):
                         pasw = self.ctx.input("Password:", hidden = True, required = True)
                     rv = store.create(name, pasw, props)
                     break
-                except Glacier2.PermissionDeniedException, pde:
+                except PermissionDeniedException, pde:
                     tries -= 1
                     if not tries:
                         self.ctx.die(524, "3 incorrect password attempts")
@@ -339,7 +341,6 @@ class SessionsControl(BaseControl):
         store = self.store(args)
         previous = store.get_current()
 
-        import Glacier2
         try:
             rv = store.attach(*previous)
             rv[0].killSession()
@@ -372,7 +373,6 @@ class SessionsControl(BaseControl):
             self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)" % (old_name, old_id, group_name, group_id))
 
     def list(self, args):
-        import Glacier2
         store = self.store(args)
         s = store.contents()
         previous = store.get_current()
@@ -397,7 +397,7 @@ class SessionsControl(BaseControl):
                         started = rv[0].sf.getSessionService().getSession(uuid).started.val
                         started = time.ctime(started / 1000.0)
                         rv[0].closeSession()
-                    except Glacier2.PermissionDeniedException, pde:
+                    except PermissionDeniedException, pde:
                         msg = pde.reason
                     except exceptions.Exception, e:
                         self.ctx.dbg("Exception on attach: %s" % e)
