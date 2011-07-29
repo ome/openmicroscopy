@@ -3002,21 +3002,25 @@ def script_ui(request, scriptId, **kwargs):
             i["max"] = param.max.getValue()
         if param.values:
             i["options"] = [v.getValue() for v in param.values.getValue()]
-        # if we got a value for this key in the page request, use this as default
-        if request.REQUEST.get(key, None) is not None:
-            i["default"] = request.REQUEST.get(key, None)
-        elif param.useDefault:
+        if param.useDefault:
             i["default"] = unwrap(param.prototype)
         pt = unwrap(param.prototype)
         if pt.__class__.__name__ == 'dict':
             i["map"] = True
+        elif pt.__class__.__name__ == 'list':
+            i["list"] = True
+            if "default" in i: i["default"] = i["default"][0]
         elif pt.__class__ == type(True):
             i["boolean"] = True
         elif pt.__class__ == type(0) or pt.__class__ == type(long(0)):
             i["number"] = "number"  # will stop the user entering anything other than numbers.
         elif pt.__class__ == type(float(0.0)):
-            #print "Float!"
             i["number"] = "float"
+
+        # if we got a value for this key in the page request, use this as default
+        if request.REQUEST.get(key, None) is not None:
+            i["default"] = request.REQUEST.get(key, None)
+
         i["prototype"] = unwrap(param.prototype)    # E.g  ""  (string) or [0] (int list) or 0.0 (float)
         i["grouping"] = param.grouping
         inputs.append(i)
@@ -3089,22 +3093,28 @@ def script_run(request, scriptId, **kwargs):
             continue
 
         if key in request.POST:
-            value = request.POST[key]
-            if len(value) == 0: continue
             if pclass == omero.rtypes.RListI:
-                valueList = []
+                values = request.POST.getlist(key)
+                if len(values) == 0: continue
+                if len(values) == 1:     # process comma-separated list
+                    if len(values[0]) == 0: continue
+                    values = values[0].split(",")
+
+                # try to determine 'type' of values in our list
                 listClass = omero.rtypes.rstring
                 l = prototype.val     # list
                 if len(l) > 0:       # check if a value type has been set (first item of prototype list)
-                    listClass = l[0].getValue().__class__
+                    listClass = l[0].__class__
                     if listClass == int(1).__class__:
                         listClass = omero.rtypes.rint
                     if listClass == long(1).__class__:
                         listClass = omero.rtypes.rlong
 
-                for v in value.split(","):
+                # construct our list, using appropriate 'type'
+                valueList = []
+                for v in values:
                     try:
-                        obj = listClass(str(v.strip())) # seem to need the str() for some reason
+                        obj = listClass(str(v.strip())) # convert unicode -> string
                     except:
                         logger.debug("Invalid entry for '%s' : %s" % (key, v))
                         continue
@@ -3114,16 +3124,14 @@ def script_run(request, scriptId, **kwargs):
                         valueList.append(obj)
                 inputMap[key] = omero.rtypes.rlist(valueList)
 
-            elif pclass == omero.rtypes.RMapI:
-                # TODO: Handle maps same way as lists.
-                valueMap = {}
-                m = prototype.val   # check if a value type has been set for the map
-
+            # Handle other rtypes: String, Long, Int etc.
             else:
+                value = request.POST[key]
+                if len(value) == 0: continue
                 try:
                     inputMap[key] = pclass(value)
                 except:
-                    # print "Invalid entry for '%s' : %s" % (key, value)
+                    logger.debug("Invalid entry for '%s' : %s" % (key, value))
                     continue
 
     logger.debug("Running script %s with params %s" % (scriptName, inputMap))

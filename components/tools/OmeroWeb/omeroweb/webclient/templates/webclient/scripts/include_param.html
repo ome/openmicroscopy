@@ -33,39 +33,56 @@
 {% if i.required %}<span style='color:red'>*</span>{% endif %}
 </td>
 <td valign="top">
-{% if i.options %}
-<!-- drop-down list of enums -->
-    <select name="{{ i.key }}">
-        {% for v in i.options %}
-            <option value="{{ v }}" {% ifequal i.default v %} selected="True" {% endifequal %} >{{ v }}</option>
-        {% endfor %}
-    </select>
-{% else %}
-
-    {% if i.map %}
-    <!-- inputs for key:value pairs - use javascript to add input rows -->
-    <a href="#" class="addKeyValue" title="Add key:value fields">[+]</a>
-    <a href="#" class="removeKeyValue" title="Remove key:value fields">[-]</a>
-</td>
-<td>
-        <table class="map">
-            <tr>
-                <td><input type="text" name="{{ i.key }}_key"/></td>
-                <td><input type="text" name="{{ i.key }}_value"/></td>
-            </tr>
-        </table>
+<!-- List - Users should enter comma-separated values into field -->
+{% if i.list %}
+    {% if i.options %}
+    <!-- List has options -->
+        <img src="{% url webstatic 'images/info16.png' %}" title="Add items to list with [+]" />
+        <select name="{{ i.key }}">
+            {% for v in i.options %}
+                <option value="{{ v }}" {% ifequal i.default v %} selected="True" {% endifequal %} >{{ v }}</option>
+            {% endfor %}
+        </select>
+        <a href="#" class="removeListSelect">[-]</a> <a href="#" class="addListSelect">[+]</a>
+    <!-- Otherwise, Use comma-separated list -->
     {% else %}
-        {% if i.boolean %}
-            <input type="checkbox" name="{{ i.key }}" {% if i.default %} checked="True" {% endif %} />
+        <img src="{% url webstatic 'images/info16.png' %}" title="Add items to list, separated by ','" />
+        <input type="text" name="{{ i.key }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
+    {% endif %}
+{% else %}
+    {% if i.options %}
+    <!-- drop-down list of enums -->
+        <select name="{{ i.key }}">
+            {% for v in i.options %}
+                <option value="{{ v }}" {% ifequal i.default v %} selected="True" {% endifequal %} >{{ v }}</option>
+            {% endfor %}
+        </select>
+    {% else %}
+
+        {% if i.map %}
+        <!-- inputs for key:value pairs - use javascript to add input rows -->
+        <a href="#" class="addKeyValue" title="Add key:value fields">[+]</a>
+        <a href="#" class="removeKeyValue" title="Remove key:value fields">[-]</a>
+    </td>
+    <td valign="top">
+            <table class="map">
+                <tr>
+                    <td><input type="text" name="{{ i.key }}_key"/></td>
+                    <td><input type="text" name="{{ i.key }}_value"/></td>
+                </tr>
+            </table>
         {% else %}
-            {% if i.number %}
-                <input type="text" name="{{ i.key }}" class="{{ i.number }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
+            {% if i.boolean %}
+                <input type="checkbox" name="{{ i.key }}" {% if i.default %} checked="True" {% endif %} />
             {% else %}
-                <input type="text" name="{{ i.key }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
+                {% if i.number %}
+                    <input type="text" name="{{ i.key }}" class="{{ i.number }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
+                {% else %}
+                    <input type="text" name="{{ i.key }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
+                {% endif %}
             {% endif %}
         {% endif %}
     {% endif %}
-
 {% endif %}
 
 {% if i.min %}<span style="color: #666"> Min: {{ i.min }} </span>{% endif %}

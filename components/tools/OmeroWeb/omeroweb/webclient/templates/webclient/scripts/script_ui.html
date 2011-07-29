@@ -78,6 +78,24 @@
                   return false;
               });
 
+              // for any 'list' parameters with enum options, controls to add / remove
+              $(".addListSelect").click(function(e) {
+                  var $lastSelect = $(this).parent().children('select').last();
+                  $lastSelect.after($lastSelect.clone());
+                  $lastSelect.after(" ");
+                  e.preventDefault();
+                  return false;
+              });
+              $(".removeListSelect").click(function(e) {
+                  var selectCount = $(this).parent().find('select').length;
+                  if (selectCount > 1) {
+                      var $lastSelect = $(this).parent().children('select').last();
+                      $lastSelect.remove();
+                    }
+                    e.preventDefault();
+                    return false;
+                });
+
               // for any 'map' parameters in the UI, add controls to add key:value fields
               $(".addKeyValue").click(function() {
                   var $keyValueTable = $(this).parent().next().find(".map");
@@ -150,10 +168,10 @@
             bottom:0px; left:0px; right:0px;
             padding: 7px;
             border-top: 1px solid #aaa;
-        }
-        div.footer a {
-            text-decoration: none;
             font-size: 80%;
+        }
+        a {
+            text-decoration: none;
         }
 
     </style>
