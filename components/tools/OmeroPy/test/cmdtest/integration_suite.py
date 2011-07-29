@@ -20,6 +20,7 @@ def _additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
     suite.addTest(load("cmdtest.example"))
+    suite.addTest(load("cmdtest.chgrptest"))
     return suite
 
 if __name__ == "__main__":
