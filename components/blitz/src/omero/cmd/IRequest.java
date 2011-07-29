@@ -7,6 +7,11 @@
  */
 package omero.cmd;
 
+import ome.util.SqlAction;
+import omero.cmd.HandleI.Cancel;
+
+import org.hibernate.Session;
+
 /**
  * SPIOrthogonal interface hierarchy of types for working with the
  * {@link omero.cmd.Request} hierarchy.
@@ -21,10 +26,10 @@ public interface IRequest {
      *
      * @param status
      */
-    void init(Status status);
+    void init(Status status, Session session, SqlAction sql) throws Cancel;
 
-    void step(int i);
+    void step(int i) throws Cancel;
 
-    Response finish();
+    Response finish() throws Cancel;
 
 }

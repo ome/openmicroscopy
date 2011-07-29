@@ -9,6 +9,7 @@ package omero.cmd;
 import java.util.HashMap;
 import java.util.Map;
 
+import ome.services.chgrp.ChgrpStepFactory;
 import ome.system.OmeroContext;
 import omero.cmd.basic.ListRequestsI;
 import omero.cmd.graphs.ChgrpI;
@@ -16,6 +17,7 @@ import omero.cmd.graphs.ChgrpI;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * SPI type picked up from the Spring configuration and given a chance to
@@ -24,20 +26,20 @@ import org.springframework.context.ApplicationContextAware;
  *
  * @see ticket:6340
  */
-public class RequestObjectFactoryRegistry extends omero.util.ObjectFactoryRegistry implements ApplicationContextAware {
+public class RequestObjectFactoryRegistry extends
+        omero.util.ObjectFactoryRegistry implements ApplicationContextAware {
 
-    private /*final*/ OmeroContext ctx;
+    private/* final */OmeroContext ctx;
 
-    public void setApplicationContext(ApplicationContext arg0)
+    public void setApplicationContext(ApplicationContext ctx)
             throws BeansException {
-        this.ctx = (OmeroContext) arg0;
+        this.ctx = (OmeroContext) ctx;
     }
-
 
     public Map<String, ObjectFactory> createFactories() {
         Map<String, ObjectFactory> factories = new HashMap<String, ObjectFactory>();
-        factories.put(ListRequestsI.ice_staticId(),
-                new ObjectFactory(ListRequestsI.ice_staticId()) {
+        factories.put(ListRequestsI.ice_staticId(), new ObjectFactory(
+                ListRequestsI.ice_staticId()) {
             @Override
             public Ice.Object create(String name) {
                 return new ListRequestsI(ctx);
@@ -46,12 +48,16 @@ public class RequestObjectFactoryRegistry extends omero.util.ObjectFactoryRegist
         });
         factories.put(ChgrpI.ice_staticId(),
                 new ObjectFactory(ChgrpI.ice_staticId()) {
-            @Override
-            public Ice.Object create(String name) {
-                return new ChgrpI();
-            }
+                    @Override
+                    public Ice.Object create(String name) {
+                        ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
+                                new String[] { "classpath:ome/services/delete/spec.xml" },
+                                ctx);
+                        ChgrpStepFactory factory = new ChgrpStepFactory(ctx);
+                        return new ChgrpI(factory, specs);
+                    }
 
-        });
+                });
         return factories;
     }
 

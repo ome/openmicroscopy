@@ -284,7 +284,7 @@ public class HandleI extends _HandleDisp implements IHandle,
 
             // Initialize. Any exceptions should cancel the process
             StopWatch sw = new CommonsLogStopWatch();
-            req.init(status);
+            req.init(status, session, sql);
 
             for (int j = 0; j < status.steps; j++) {
                 sw = new CommonsLogStopWatch();
@@ -300,6 +300,8 @@ public class HandleI extends _HandleDisp implements IHandle,
                     state.compareAndSet(State.RUNNING, State.READY);
                 }
             }
+        } catch (Cancel cancel) {
+            throw cancel;
         } catch (Throwable t) {
             String msg = "Failure during Request.step:";
             log.error(msg, t);
@@ -312,7 +314,8 @@ public class HandleI extends _HandleDisp implements IHandle,
 
     /**
      * Signals that {@link HandleI#run()} has noticed that {@link HandleI#state}
-     * wants a cancellation.
+     * wants a cancellation or that the {@link Request} implementation wishes to
+     * stop execution.
      */
     public static class Cancel extends InternalException {
 

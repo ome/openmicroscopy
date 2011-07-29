@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import ome.system.OmeroContext;
+import ome.util.SqlAction;
 import omero.cmd.IRequest;
 import omero.cmd.ListRequests;
 import omero.cmd.ListRequestsRsp;
@@ -23,6 +24,7 @@ import omero.util.ObjectFactoryRegistry.ObjectFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
@@ -40,7 +42,7 @@ public class ListRequestsI extends ListRequests implements IRequest {
         this.ctx = ctx;
     }
 
-    public void init(Status status) {
+    public void init(Status status, Session session, SqlAction sql) {
         status.steps = 1;
     }
 
@@ -65,7 +67,7 @@ public class ListRequestsI extends ListRequests implements IRequest {
             }
         }
 
-        rsp.list = requestTypes.toArray(new Request[requestTypes.size()]);
+        rsp.list = requestTypes;
         return rsp;
     }
 }
