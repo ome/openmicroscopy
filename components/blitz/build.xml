@@ -107,8 +107,10 @@
 		<property name="gen.dir" value="${basedir}/generated"/>
 		<property name="comb.dir" value="${basedir}/target/combined"/>
 		<mkdir dir="${comb.dir}/omero/api"/>
+		<mkdir dir="${comb.dir}/omero/cmd"/>
 		<mkdir dir="${comb.dir}/omero/model"/>
 		<mkdir dir="${gen.dir}/omero/api"/>
+		<mkdir dir="${gen.dir}/omero/cmd"/>
 		<mkdir dir="${gen.dir}/omero/model"/>
 	</target>
 

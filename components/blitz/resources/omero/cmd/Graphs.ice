@@ -9,22 +9,31 @@
 #ifndef OMERO_CMD_GRAPHS_ICE
 #define OMERO_CMD_GRAPHS_ICE
 
-#include <omero/cmd/Commands.ice>
+#include <omero/cmd/API.ice>
 
 module omero {
 
     module cmd {
 
-        class ActionClass {
-        };
-
         /**
          *
          **/
-        class GraphCommand extends Command {
-            ActionClass action;
+        class GraphModify extends Request {
             string type;
             long id;
+            StringMap options;
+        };
+
+        class Chgrp extends GraphModify {
+        };
+
+        class ChgrpRsp extends Response {
+        };
+
+        class Delete extends GraphModify {
+        };
+
+        class DeleteRsp extends Response {
         };
 
     };
