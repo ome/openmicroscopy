@@ -326,6 +326,14 @@
             <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>    
             <!-- open-image link -->
             <div style="padding-bottom:6px">
+                {% if manager.image.countArchivedFiles %}
+                    <div style="float:right">
+                        <a href="{% url archived_files manager.image.id %}">
+                        <img src="{% url webstatic 'images/nuvola_download_manager16.png' %}"
+                            title="Download {{ manager.image.countArchivedFiles }} Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}"/>
+                        </a>
+                    </div>
+                {% endif %}
                 {% trans "Launch full viewer" %} 
                 <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')">
                     <img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/>
