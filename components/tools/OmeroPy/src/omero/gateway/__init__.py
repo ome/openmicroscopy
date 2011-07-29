@@ -4803,6 +4803,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     _pd = None
     _rm = {}
     _pixels = None
+    _archivedFileCount = None
 
     _pr = None # projection
 
@@ -6339,6 +6340,18 @@ class _ImageWrapper (BlitzObjectWrapper):
             self.linkAnnotation(ann)
         self._re.saveCurrentSettings()
         return True
+
+    def countArchivedFiles (self):
+        """ Returns the number of Original 'archived' Files linked to primary pixels. Value is cached """
+
+        if self._archivedFileCount is None:
+            pid = self.getPixelsId()
+            params = omero.sys.Parameters()
+            params.map = {"pid": rlong(pid)}
+            query = "select count(link.id) from PixelsOriginalFileMap as link where link.child.id=:pid"
+            count = self._conn.getQueryService().projection(query, params)
+            self._archivedFileCount = count[0][0]._val
+        return self._archivedFileCount
 
     def getArchivedFiles (self):
         """
