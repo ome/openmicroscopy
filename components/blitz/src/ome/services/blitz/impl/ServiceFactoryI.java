@@ -161,18 +161,18 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
     // ~ Initialization and context methods
     // =========================================================================
 
-    public ServiceFactoryI(Ice.Current current, Glacier2.SessionControlPrx control,
-            OmeroContext context,
+    public ServiceFactoryI(Ice.Current current,
+            Glacier2.SessionControlPrx control, OmeroContext context,
             SessionManager manager, Executor executor, Principal p,
-            List<HardWiredInterceptor> interceptors, TopicManager topicManager,
-            Registry registry) throws ApiUsageException {
+            List<HardWiredInterceptor> interceptors,
+            TopicManager topicManager, Registry registry)
+            throws ApiUsageException {
         this(false, current, control, context, manager, executor, p,
                 interceptors, topicManager, registry);
     }
 
-    public ServiceFactoryI(boolean reusedSession,
-            Ice.Current current, Glacier2.SessionControlPrx control,
-            OmeroContext context,
+    public ServiceFactoryI(boolean reusedSession, Ice.Current current,
+            Glacier2.SessionControlPrx control, OmeroContext context,
             SessionManager manager, Executor executor, Principal p,
             List<HardWiredInterceptor> interceptors,
             TopicManager topicManager, Registry registry)
@@ -186,8 +186,8 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
     }
 
     public ServiceFactoryPrx proxy() {
-        return ServiceFactoryPrxHelper.uncheckedCast(
-            adapter.createDirectProxy(sessionId()));
+        return ServiceFactoryPrxHelper.uncheckedCast(adapter
+                .createDirectProxy(sessionId()));
     }
 
     // ~ Security Context
@@ -198,32 +198,34 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
             throws ServerError {
 
         final EventContext ec = getEventContext();
-        List<?> objs = (List) executor.execute(principal, new Executor.SimpleWork(this, "getSecurityContext") {
-            @Transactional(readOnly = true)
-            public Object doWork(Session session, ServiceFactory sf) {
+        List<?> objs = (List) executor.execute(principal,
+                new Executor.SimpleWork(this, "getSecurityContext") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                final IAdmin admin = sf.getAdminService();
-                final IShare share = sf.getShareService();
-                final List<ome.model.IObject> objs = new ArrayList<ome.model.IObject>();
+                        final IAdmin admin = sf.getAdminService();
+                        final IShare share = sf.getShareService();
+                        final List<ome.model.IObject> objs = new ArrayList<ome.model.IObject>();
 
-                // Groups
-                final Set<Long> added = new HashSet<Long>();
-                for (Long id : ec.getMemberOfGroupsList()) {
-                    objs.add(admin.getGroup(id));
-                    added.add(id);
-                }
-                for (Long id : ec.getLeaderOfGroupsList()) {
-                    if (!added.contains(id)) {
-                        objs.add(admin.getGroup(id));
+                        // Groups
+                        final Set<Long> added = new HashSet<Long>();
+                        for (Long id : ec.getMemberOfGroupsList()) {
+                            objs.add(admin.getGroup(id));
+                            added.add(id);
+                        }
+                        for (Long id : ec.getLeaderOfGroupsList()) {
+                            if (!added.contains(id)) {
+                                objs.add(admin.getGroup(id));
+                            }
+                        }
+
+                        // Shares
+                        objs.addAll(share.getMemberShares(true));
+                        objs.addAll(share.getOwnShares(true));
+
+                        return objs;
                     }
-                }
-
-                // Shares
-                objs.addAll(share.getMemberShares(true));
-                objs.addAll(share.getOwnShares(true));
-
-                return objs;
-            }});
+                });
         IceMapper mapper = new IceMapper();
         return (List<IObject>) mapper.map(objs);
     }
@@ -234,7 +236,8 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
         IceMapper mapper = new IceMapper();
         try {
             ome.model.IObject iobj = (ome.model.IObject) mapper.reverse(obj);
-            ome.model.IObject old = sessionManager.setSecurityContext(principal, iobj);
+            ome.model.IObject old = sessionManager.setSecurityContext(
+                    principal, iobj);
             return (IObject) mapper.map(old);
         } catch (Exception e) {
             throw handleException(e);
@@ -269,8 +272,6 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
             return iu;
         }
     }
-
-
 
     // ~ Stateless
     // =========================================================================
@@ -423,7 +424,8 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
     // ~ Other interface methods
     // =========================================================================
 
-    public SharedResourcesPrx sharedResources(Current current) throws ServerError {
+    public SharedResourcesPrx sharedResources(Current current)
+            throws ServerError {
         return SharedResourcesPrxHelper.uncheckedCast(getByName(
                 SHAREDRESOURCES.value, current));
     }
@@ -437,14 +439,14 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
     }
 
     public ServiceInterfacePrx getByName(String blankname, Current dontUse)
-    throws ServerError {
+            throws ServerError {
 
         // First try to get the blankname as is in case a value from
         // activeServices is being passed back in.
         Ice.Identity immediateId = getIdentity(blankname);
         if (holder.get(immediateId) != null) {
-            return ServiceInterfacePrxHelper.uncheckedCast(
-                    adapter.createDirectProxy(immediateId));
+            return ServiceInterfacePrxHelper.uncheckedCast(adapter
+                    .createDirectProxy(immediateId));
         }
 
         // ticket:911 - in order to use a different initializer
@@ -497,8 +499,10 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
         log.info("Registered " + prx + " for " + topicName);
     }
 
-    public void setCallback(ClientCallbackPrx callback, Ice.Current current) throws ServerError {
-        if (false) { // ticket:2558, disabling because of long logins. See also #2485
+    public void setCallback(ClientCallbackPrx callback, Ice.Current current)
+            throws ServerError {
+        if (false) { // ticket:2558, disabling because of long logins. See also
+                     // #2485
             this.callback = callback;
             log.info(Ice.Util.identityToString(this.sessionId())
                     + " set callback to " + this.callback);
@@ -565,7 +569,8 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
         return sessionManager.getEventContext(this.principal);
     }
 
-    public long keepAllAlive(ServiceInterfacePrx[] proxies, Current __current) throws ServerError {
+    public long keepAllAlive(ServiceInterfacePrx[] proxies, Current __current)
+            throws ServerError {
 
         try {
             // First take measures to keep the session alive
@@ -598,7 +603,8 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
     /**
      * Currently ignoring the individual proxies
      */
-    public boolean keepAlive(ServiceInterfacePrx proxy, Current __current) throws ServerError {
+    public boolean keepAlive(ServiceInterfacePrx proxy, Current __current)
+            throws ServerError {
 
         try {
             // First take measures to keep the session alive
