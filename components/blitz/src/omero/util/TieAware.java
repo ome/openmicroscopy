@@ -6,7 +6,7 @@
  *
  */
 
-package ome.services.blitz.util;
+package omero.util;
 
 import omero.ServerError;
 

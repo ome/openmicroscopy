@@ -109,7 +109,7 @@ public class ScriptProcessI extends _ScriptProcessDisp {
     public String setMessage(String message, Current __current)
             throws ServerError {
 
-        JobHandlePrx jh = sf.createJobHandle();
+        JobHandlePrx jh = sf.createJobHandle(null);
         try {
             jh.attach(jobId);
             return jh.setMessage(message);
