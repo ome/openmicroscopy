@@ -3011,6 +3011,8 @@ def script_ui(request, scriptId, **kwargs):
     paramData["institutions"] = ", ".join([i for i in params.institutions])
 
     inputs = []     # use a list so we can sort by 'grouping'
+    Data_TypeParam = None
+    IDsParam = None
     for key, param in params.inputs.items():
         i = {}
         i["name"] = key.replace("_", " ")
@@ -3046,7 +3048,15 @@ def script_ui(request, scriptId, **kwargs):
         i["prototype"] = unwrap(param.prototype)    # E.g  ""  (string) or [0] (int list) or 0.0 (float)
         i["grouping"] = param.grouping
         inputs.append(i)
+
+        if key == "IDs": IDsParam = i           # remember these...
+        if key == "Data_Type": Data_TypeParam = i
     inputs.sort(key=lambda i: i["grouping"])
+
+    # if we have Data_Type param that has a "default" and "options" - check they match...
+    if Data_TypeParam is not None and "default" in Data_TypeParam and "options" in Data_TypeParam:
+        if Data_TypeParam["default"] not in Data_TypeParam["options"]:
+            IDsParam["default"] = ""        # ... if not, don't set IDs
 
     # try to determine hierarchies in the groupings - ONLY handle 1 hierarchy level now (not recursive!)
     for i in range(len(inputs)):
