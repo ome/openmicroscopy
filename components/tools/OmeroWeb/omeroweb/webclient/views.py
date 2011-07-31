@@ -2653,7 +2653,6 @@ def status_action (request, action=None, **kwargs):
             return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript')
         else:
             for key, data in request.session['callback'].items():
-                print data['status']
                 if data['status'] != "in progress":
                     del request.session['callback'][key]
         return HttpResponseRedirect(reverse("status"))
