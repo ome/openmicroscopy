@@ -2629,12 +2629,33 @@ def progress(request, **kwargs):
 
 @isUserConnected
 def status_action (request, action=None, **kwargs):
+    """
+    Opens the Activites window, using data from jobs in the request.session['callback'].
+    Once this window is open, AJAX calls are used to poll the request.session['callback'] and update the page
+
+    If the above 'action' == 'clean' then we clear jobs from request.session['callback']
+    either a single job (if 'jobKey' is specified in POST) or all jobs (apart from those in progress)
+    """
+
     request.session.modified = True
 
     request.session['nav']['menu'] = 'status'
 
     if action == "clean":
-        request.session['callback'] = dict()
+        if 'jobKey' in request.POST:
+            jobId = request.POST.get('jobKey')
+            rv = {}
+            if jobId in request.session['callback']:
+                del request.session['callback'][jobId]
+                rv['removed'] = True
+            else:
+                rv['removed'] = False
+            return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript')
+        else:
+            for key, data in request.session['callback'].items():
+                print data['status']
+                if data['status'] != "in progress":
+                    del request.session['callback'][key]
         return HttpResponseRedirect(reverse("status"))
 
     conn = None
@@ -2653,6 +2674,7 @@ def status_action (request, action=None, **kwargs):
         # E.g. key: ProcessCallback/39f77932-c447-40d8-8f99-910b5a531a25 -t:tcp -h 10.211.55.2 -p 54727:tcp -h 10.37.129.2 -p 54727:tcp -h 10.12.2.21 -p 54727
         # create id we can use as html id, E.g. 39f77932-c447-40d8-8f99-910b5a531a25
         data['id'] =  key.split(" ")[0].split("/")[1]
+        data['key'] = key
         jobs.append(data)
 
     jobs.sort(key=lambda x:x['start_time'])

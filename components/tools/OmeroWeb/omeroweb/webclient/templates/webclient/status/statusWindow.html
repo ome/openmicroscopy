@@ -150,7 +150,25 @@
                 });
             }, 3000);
 
+            // bind drop-down lists etc
             setupResultOptions();
+
+            $(".remove").click(function() {
+                var jobKey = this.id;
+                var $jobRow = $(this).parent().parent();
+                $.ajax({
+                    type: "POST",
+                    url: "{% url status 'clean' %}",
+                    data: {'jobKey':jobKey},
+                    contentType:'json',
+                    success: function(r){
+                         $jobRow.remove();
+                         $("#jobsTable").alternateRowColors();
+                    },
+                    error: function(r){}
+                });
+
+            })
         });
     </script>
 
@@ -191,6 +209,7 @@
         }
         .resultOptions li {
             padding: 3px 5px;
+            width: 100px;
         }
         .resultOptions li:hover          { background: #ddf;}
     </style>
@@ -259,6 +278,9 @@
                             <td colspan="2" class="action">
                                     {% if j.dreport %}{{ j.derror }} error(s) ({{ j.dreport }}){% endif %}
                             </td>
+                            <td width="16px">
+                                <img id="{{ j.key }}" title="Remove from list" src="{% url webstatic 'images/nuvola_cancel16.png' %}" class="remove" />
+                            </td>
                             <td width="40px">{{ j.start_time|date:"H:i" }}</td>
                         </tr>
                     {% endifequal %}
@@ -325,6 +347,9 @@
                                 <div class="info">
                                 {% if j.stdout %}<a href="#" onClick="return openPopup('{% url get_original_file j.stdout %}');">Info</a>{% endif %}
                                 </div>
+                            </td>
+                            <td width="16px">
+                                <img id="{{ j.key }}" title="Remove from list" src="{% url webstatic 'images/nuvola_cancel16.png' %}" class="remove" />
                             </td>
                             <td width="40px">{{ j.start_time|date:"H:i" }}</td>
                         </tr>
