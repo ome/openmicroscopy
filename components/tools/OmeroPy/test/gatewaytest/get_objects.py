@@ -327,8 +327,8 @@ class GetObjectTest (lib.GTest):
         self.assertEqual(exp.getDetails().getOwner().omeName, experimenter.getDetails().getOwner().omeName)
         
         # groupExperimenterMap not loaded for exp
-        #for groupExpMap in exp.copyGroupExperimenterMap():
-            #self.assertEqual(e.id, groupExpMap.child.id.val)
+        for groupExpMap in exp.copyGroupExperimenterMap():
+            self.assertEqual(e.id, groupExpMap.child.id.val)
         groupIds = []
         for groupExpMap in experimenter.copyGroupExperimenterMap():
             self.assertEqual(e.id, groupExpMap.child.id.val)
