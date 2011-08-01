@@ -273,7 +273,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
         href = server + '/render_image_region/' + _this.getRelUrl();
         // temporary solution for sharing. ShareId must me passed in a different way.
         var serverPrefix = server.split("/");
-        thref = "/" + serverPrefix[1] + '/render_thumbnail/' + _this.loadedImg.id + '/'
+        thref = "/" + serverPrefix[1] + '/render_birds_eye_view/' + _this.loadedImg.id + '/'
         if (serverPrefix.length > 2) thref += (serverPrefix[2] + "/");
       } else if (_this.loadedImg.rdefs.projection.toLowerCase() != 'split') {
         href = server + '/render_image/' + _this.getRelUrl();

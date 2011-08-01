@@ -420,7 +420,8 @@ $.fn.viewportImage = function(options) {
             //return MY_URL + '/' + MY_PREFIX + myPyramid.tile_filename( zoom, xIndex, yIndex );
         }
         myProvider.thumbnailUrl = function (thref) {
-            this.thumbnailUrl = thref;
+            var d = new Date();
+            this.thumbnailUrl = thref+'?_='+Math.ceil(parseInt(Math.floor(d.getTime()))); /* Pick random number */ 
         }
         myProvider.thumbnailUrl(thref);
         
@@ -434,8 +435,8 @@ $.fn.viewportImage = function(options) {
                 imageWidth      : myPyramid.width,
                 imageHeight     : myPyramid.height,
                 initialZoom     : init_zoom,
-                blankTile       : '/appmedia/webgateway/img/3rdparty/panojs/blank.gif'
-                //loadingTile     : '/appmedia/webgateway/img/3rdparty/panojs/progress.gif'
+                blankTile       : '/appmedia/webgateway/img/3rdparty/panojs/blank.gif',
+                loadingTile     : '/appmedia/webgateway/img/3rdparty/panojs/blank.gif'//'progress.gif'
             });
             
             // thumbnail url overwritten
@@ -445,11 +446,17 @@ $.fn.viewportImage = function(options) {
                 return this.tileUrlProvider.thumbnailUrl;
             }
             
+            viewerBean.update_url = function() {
+                if (this.thumbnail_control) {
+                    this.thumbnail_control.dom_image.src = this.thumbnailURL();
+                }
+                this.update();
+            }
+            
             PanoJS.MSG_BEYOND_MIN_ZOOM = null;
             PanoJS.MSG_BEYOND_MAX_ZOOM = null;
-            // cause conflict with channels, needs more investigation !!!
-            //Ext.EventManager.addListener( window, 'resize', callback(viewerBean, viewerBean.resize) );
             viewerBean.init();
+            if (this.thumbnail_control) this.thumbnail_control.update();
             
             // not supported elements
             jQuery('#wblitz-zoom').parent().hide();
@@ -461,7 +468,7 @@ $.fn.viewportImage = function(options) {
             viewerBean.tileUrlProvider = myProvider;
             viewerBean.update_url();
         }
-        cur_zoom = viewerBean.zoomLevel   
+        cur_zoom = viewerBean.zoomLevel;
     }
     
     

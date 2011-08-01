@@ -694,15 +694,7 @@ PanoJS.prototype.update = function() {
     this.blank();
     this.resetCache();
     this.positionTiles();
-    if (this.thumbnail_control) this.thumbnail_control.update();
 };
-
-PanoJS.prototype.update_url = function() {        
-    this.blank();
-    //this.resetCache();
-    this.positionTiles();
-    if (this.thumbnail_control) this.thumbnail_control.update();
-};    
     
 // Clear all the tiles from the well for a complete reinitialization of the
 // viewer. At this point the viewer is not considered to be initialized.
@@ -735,7 +727,7 @@ PanoJS.prototype.blank = function() {
       if (img.image) {
         img.image.onload = function() {};
       }
-            
+      
       if (img.parentNode != null) {
         this.well.removeChild(img);
       }
