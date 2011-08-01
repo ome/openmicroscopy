@@ -109,5 +109,29 @@ class TestRepRawFileStore(lib.ITest):
         path.remove(repo_filename)
         path.rmdir(self.tmp_dir)
 
+    def testClose(self):
+        self.setUpRepo()
+        repo_filename = self.tmp_dir / self.uuid() + ".txt"
+        rfs = self.repoPrx.file(repo_filename, "rw")
+        self.assert_(rfs.size() == 0)
+        wbytes = "0123456789"
+        rfs.write(wbytes,0,len(wbytes))
+        self.assert_(rfs.size() == len(wbytes))
+        rbytes = rfs.read(0,len(wbytes))
+        self.assert_(wbytes == rbytes)
+        try:
+            rfs.close()
+        except:
+            pass #FIXME: close throws an NPE but should close the filehandle...
+        try:
+            rbytes = rfs.read(0,len(wbytes))
+        except:
+            pass #FIXME: ... so an exception should be thrown here now.
+        rfs = self.repoPrx.file(repo_filename, "r")
+        self.assert_(rfs.size() == len(wbytes))
+        path.remove(repo_filename)
+        path.rmdir(self.tmp_dir)
+
+
 if __name__ == '__main__':
     unittest.main()

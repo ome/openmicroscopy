@@ -726,7 +726,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
             }
         }
 
-        // See comment below in RawFileStorePrx
+        // See comment below in fileById
         _RawFileStoreTie tie = new _RawFileStoreTie(rfs);
         RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
         try {
