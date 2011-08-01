@@ -882,15 +882,38 @@ def open_astex_viewer(request, obj_type, obj_id, **kwargs):
             else:
                 sizeOptions["full"] = {'x':image.getSizeX(), 'y':image.getSizeY(), 'z':image.getSizeZ()}
         pixelRange = (c.getWindowMin(), c.getWindowMax())
+        contourSliderInit = (pixelRange[0] + pixelRange[1])/2   # best guess as starting position for contour slider
+
+        def calcPrecision(range):
+            dec=0
+            if (range == 0):    dec = 0
+            elif (range < 0.0000001): dec = 10
+            elif (range < 0.000001): dec = 9
+            elif (range < 0.00001): dec = 8
+            elif (range < 0.0001): dec = 7
+            elif (range < 0.001): dec = 6
+            elif (range < 0.01): dec = 5
+            elif (range < 0.1): dec = 4
+            elif (range < 1.0): dec = 3
+            elif (range < 10.0): dec = 2
+            elif (range < 100.0): dec = 1
+            return dec
+        dec = calcPrecision(pixelRange[1]-pixelRange[0])
+        contourSliderIncr = "%.*f" % (dec,abs((pixelRange[1]-pixelRange[0])/128.0))
+
         if obj_type == 'image_8bit':
             data_storage_mode = 1
             data_url = reverse("webclient_image_as_map_8bit", args=[obj_id, DEFAULTMAPSIZE])
         else:
-            data_storage_mode = 2
+            if image.getPrimaryPixels().getPixelsType.value == 'float':
+                data_storage_mode = 2
+            else:
+                data_storage_mode = 1   # E.g. uint16 image will get served as 8bit map
             data_url = reverse("webclient_image_as_map", args=[obj_id, DEFAULTMAPSIZE])
 
-    return render_to_response('webclient/annotations/open_astex_viewer.html', {'data_url': data_url,
-        "imageName":imageName, "image": image, "sizeOptions":sizeOptions, "data_storage_mode": data_storage_mode,'pixelRange':pixelRange})
+    return render_to_response('webclient/annotations/open_astex_viewer.html', {'data_url': data_url, "image": image,
+        "sizeOptions":sizeOptions, "contourSliderInit":contourSliderInit, "contourSliderIncr":contourSliderIncr,
+        "data_storage_mode": data_storage_mode,'pixelRange':pixelRange})
 
 
 @isUserConnected
@@ -1821,10 +1844,11 @@ def image_as_map(request, imageId, **kwargs):
     npStack = dstack(npList)
     logger.info("Numpy stack for image_as_map: dtype: %s, range %s-%s" % (npStack.dtype.name, npStack.min(), npStack.max()) )
 
-    if npStack.dtype.name == 'uint16' or ('8bit' in kwargs and kwargs['8bit']):
-        #scale from 0 - 255 and conver to 8 bit integer
+    # OAV only supports 'float' and 'int8'. Convert anything else to int8
+    if image.getPrimaryPixels().getPixelsType().value != 'float' or ('8bit' in kwargs and kwargs['8bit']):
+        #scale from -127 -> 128 and conver to 8 bit integer
         npStack = npStack - npStack.min()  # start at 0
-        npStack = (npStack * 255 / npStack.max()) - 127 # range - 127 -> 128
+        npStack = (npStack * 255.0 / npStack.max()) - 127 # range - 127 -> 128
         a = zeros(npStack.shape, dtype=int8)
         npStack = npStack.round(out=a)
 

@@ -23,7 +23,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>{{ imageName }}</title>
+    <title>{{ image.getName }}</title>
     
     <style type="text/css">
         /*
@@ -209,9 +209,9 @@
             var s2 = new Slider(document.getElementById("slider-2"), document.getElementById("slider-input-2"));
 
             s2.setMinMax({{ pixelRange.0|floatformat:4 }},{{ pixelRange.1|floatformat:4 }});
-            s2.setValue(0); // TODO: find the right starting value
-            s2.setUnitIncrement(4);
-            s2.setBlockIncrement(4);
+            s2.setValue({{ contourSliderInit }}); // best guess is average of min & max
+            s2.setUnitIncrement({{ contourSliderIncr }});
+            s2.setBlockIncrement( {{ contourSliderIncr }});
             document.getElementById("h-min-2").innerHTML = s2.getMinimum();
             document.getElementById("h-max-2").innerHTML = s2.getMaximum();
             document.getElementById("h-value-2").innerHTML = "("+ s2.getValue() + ")";
@@ -285,7 +285,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
     <tr>
     <td valign="top" width="190px" bgcolor="#eee">
-        <h3>{{ imageName }}</h3>
+        <h3>{{ image.getName|slice:":20" }}</h3>
         <form onsubmit="return false">
             <hr />
             <div>
@@ -331,13 +331,15 @@
                 </div>
             </div>
             <div>
-                Map Pixel Data: <br />
+                Map Pixel Data: <b>{{ image.getPrimaryPixels.getPixelsType.value }}</b><br />
                 <span id="loadCompressed" class="loadOption current">
-                    <input type="radio" name="loadMap" value="compressed" checked="true" /> Compressed <br />
+                    <input type="radio" name="loadMap" value="compressed" checked="true" /> Compressed (int8) <br />
                 </span>
+                {% ifequal image.getPrimaryPixels.getPixelsType.value 'float' %}
                 <span id="loadRaw" class="loadOption">
-                    <input type="radio" name="loadMap" value="raw" /> Raw Data
+                    <input type="radio" name="loadMap" value="raw" /> Raw Data (float)
                 </span>
+                {% endifequal %}
             </div>
             <input style="float:right" type="submit" id="reloadMap" value="Reload"></input>
             <div style="clear:both"></div>
