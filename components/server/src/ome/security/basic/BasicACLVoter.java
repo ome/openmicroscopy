@@ -188,11 +188,13 @@ public class BasicACLVoter implements ACLVoter {
 
         boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
             sysTypes.isInSystemGroup(iObject.getDetails());
+        boolean sysTypeOrUsrGroup = sysType ||
+            sysTypes.isInUserGroup(iObject.getDetails());
 
         // needs no details info
         if (tokenHolder.hasPrivilegedToken(iObject)) {
             return true; // ticket:1794, allow move to "user
-        } else if (update && !sysType && currentUser.isGraphCritical()) { //ticket:1769
+        } else if (update && !sysTypeOrUsrGroup && currentUser.isGraphCritical()) { //ticket:1769
             return objectBelongsToUser(iObject, uid);
         } else if (c.isCurrentUserAdmin()) {
             return true;
