@@ -49,7 +49,7 @@ def _bytes_per_pixel(pixel_type):
     else:
         raise AttributeError("Unknown pixel type: %s" % (pixel_type))
     
-def _usage_map_helper(pixels_list,exps):
+def _usage_map_helper(pixels_list, pixels_originalFiles_list, exps):
     tt = dict()
     for p in pixels_list:
         oid = p.details.owner.id.val
@@ -61,6 +61,12 @@ def _usage_map_helper(pixels_list,exps):
             tt[oid] = dict()
             tt[oid]['label']=exps[oid]
             tt[oid]['data']=p_size
+    
+    for pof in pixels_originalFiles_list:
+        oid = pof.details.owner.id.val
+        p_size = pof.parent.size.val
+        if tt.has_key(oid):
+            tt[oid]['data']+=p_size
         
     return tt #sorted(tt.iteritems(), key=lambda (k,v):(v,k), reverse=True)
 
@@ -84,16 +90,23 @@ def usersData(conn, offset=0):
             "select p from Pixels as p join fetch p.pixelsType " \
             "order by p.id", p, ctx)
     
+    # archived files
+    pids = omero.rtypes.rlist([p.id for p in pixels_list])
+    p2 = omero.sys.ParametersI()
+    p2.add("pids", pids)
+    pixels_originalFiles_list = conn.getQueryService().findAllByQuery(
+        "select m from PixelsOriginalFileMap as m join fetch m.parent " \
+        "where m.child.id in (:pids)", p2, ctx)
+    
     count = len(pixels_list)
-    usage_map = _usage_map_helper(pixels_list,exps)
+    usage_map = _usage_map_helper(pixels_list, pixels_originalFiles_list, exps)
     
     count = len(pixels_list)
     offset += count
     
     if count != PAGE_SIZE:
         loading = False
-    else:        
+    else:
         loading = True
     
     return {'loading':loading, 'offset':offset, 'usage':usage_map}
-    
