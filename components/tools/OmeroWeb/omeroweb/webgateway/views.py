@@ -498,10 +498,13 @@ def render_birds_eye_view (request, iid, server_id=None, size=None,
     if blitzcon is None or not blitzcon.isConnected():
         logger.debug("failed connect, HTTP404")
         raise Http404
-    img = blitzcon.getObject("Image", iid)
+    USE_SESSION = False
+    img = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn,
+                              with_session=USE_SESSION)
     if img is None:
         logger.debug("(b)Image %s not found..." % (str(iid)))
         raise Http404
+    img, compress_quality = img
     return HttpResponse(img.renderBirdsEyeView(size), mimetype='image/jpeg')
 
 @serverid
