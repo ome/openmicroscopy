@@ -8,7 +8,6 @@
 package ome.services.graphs;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,33 +18,26 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.model.IObject;
-import ome.security.basic.CurrentDetails;
 import ome.services.messages.EventLogMessage;
-import ome.system.EventContext;
 import ome.system.OmeroContext;
-import ome.tools.hibernate.ExtendedMetadata;
-import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
-import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
 
 /**
- * Tree-structure containing all scheduled deletes which closely resembles the
+ * Tree-structure containing all scheduled actions which closely resembles the
  * tree structure of the {@link GraphSpec} itself. All ids of the intended
- * deletes will be collected in a preliminary phase. This is necessary since
- * intermediate deletes, may disconnect the graph, causing later deletes to fail
+ * actions will be collected in a preliminary phase. This is necessary since
+ * intermediate actions, may disconnect the graph, causing later actions to fail
  * if they were solely based on the id of the root element.
  *
  * The {@link GraphState} instance can only be initialized with a graph of
  * initialized {@GraphSpec}s.
  *
- * To handle SOFT requirements, each new attempt to delete either a node or a
+ * To handle SOFT requirements, each new attempt to process either a node or a
  * leaf in the subgraph is surrounded by a savepoint. Ids added during a
  * savepoint (or a sub-savepoint) or only valid until release is called, at
  * which time they are merged into the final view.
@@ -63,7 +55,7 @@ public class GraphState implements GraphStep.Callback {
     private final List<GraphStep> steps = new ArrayList<GraphStep>();
 
     /**
-     * List of Maps of db table names to the ids actually deleted from that
+     * List of Maps of db table names to the ids actually processed from that
      * table. The first entry of the list are the actual results. All later
      * elements are temporary views from some savepoint.
      *
@@ -72,7 +64,7 @@ public class GraphState implements GraphStep.Callback {
     private final LinkedList<Map<String, Set<Long>>> actualIds = new LinkedList<Map<String, Set<Long>>>();
 
     /**
-     * Map from table name to the {@link IObject} class which will be deleted
+     * Map from table name to the {@link IObject} class which will be processed
      * for raising the {@link EventLogMessage}.
      */
     private final Map<String, Class<IObject>> classes = new HashMap<String, Class<IObject>>();
@@ -90,8 +82,8 @@ public class GraphState implements GraphStep.Callback {
      *            Stored the {@link OmeroContext} instance for raising event
      *            during {@link #release(String)}
      * @param session
-     *            non-null, active Hibernate session that will be used to delete
-     *            all necessary items as well as lookup items for deletion.
+     *            non-null, active Hibernate session that will be used to process
+     *            all necessary items as well as lookup items for processing.
      */
     public GraphState(GraphStepFactory factory, SqlAction sql, Session session, GraphSpec spec)
             throws GraphException {
@@ -115,7 +107,7 @@ public class GraphState implements GraphStep.Callback {
 
     /**
      * Walk throw the sub-spec graph actually loading the ids which must be
-     * scheduled for delete.
+     * scheduled for processing.
      *
      * @param spec
      * @param paths
@@ -195,7 +187,7 @@ public class GraphState implements GraphStep.Callback {
     }
 
     //
-    // Found and deleted Ids
+    // Found and processed Ids
     //
 
     /**
@@ -232,16 +224,16 @@ public class GraphState implements GraphStep.Callback {
     }
 
     /**
-     * Add the actually deleted ids to the current savepoint.
+     * Add the actually processed ids to the current savepoint.
      *
-     * It is critical that these ids are actually deleted and that any failure
-     * for them to be removed will cause the entire transaction to fail (in
+     * It is critical that these ids are actually processed and that any failure
+     * for them to be handled will cause the entire transaction to fail (in
      * which case these ids will be ignored).
      *
      * @throws GraphException
      *             thrown if the {@link EventLogMessage} raised fails.
      */
-    void addGraphIds(GraphStep step) throws GraphException {
+    public void addGraphIds(GraphStep step) {
 
         classes.put(step.table, step.iObjectType);
         Set<Long> set = lookup(step.table);
@@ -250,7 +242,7 @@ public class GraphState implements GraphStep.Callback {
     }
 
     //
-    // Iteration methods, used for actual deletes
+    // Iteration methods, used for actual processing
     //
 
     /**
@@ -292,32 +284,9 @@ public class GraphState implements GraphStep.Callback {
             }
             step.savepoint(this);
 
-            final QueryBuilder nullOp = optionalNullBuilder(step);
-            final QueryBuilder qb = queryBuilder(step);
-
             try {
 
-                // Phase 1: top-levels
-                if (step.stack.size() <= 1) {
-                    StopWatch swTop = new CommonsLogStopWatch();
-                    step.spec.runTopLevel(session,
-                            Arrays.<Long> asList(step.id));
-                    swTop.stop("omero.delete.top." + step.id);
-                }
-
-                // Phase 2: NULL
-                optionallyNullField(session, nullOp, step.id);
-
-                // Phase 3: primary delete
-                StopWatch swStep = new CommonsLogStopWatch();
-                qb.param("id", step.id);
-                Query q = qb.query(session);
-                int count = q.executeUpdate();
-                if (count > 0) {
-                    addGraphIds(step);
-                }
-                logResults(step, count);
-                swStep.lap("omero.delete." + step.table + "." + step.id);
+                step.action(this, session, opts);
 
                 // Finalize.
                 step.release(this);
@@ -332,27 +301,9 @@ public class GraphState implements GraphStep.Callback {
         }
     }
 
-    private void logResults(final GraphStep step, final int count) {
-        if (count > 0) {
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Graphd %s from %s: root=%s", step.id,
-                        step.pathMsg, step.entry.getId()));
-            }
-        } else {
-            if (log.isWarnEnabled()) {
-                log.warn(String.format("Missing delete %s from %s: root=%s",
-                        step.id, step.pathMsg, step.entry.getId()));
-            }
-        }
-    }
-
     /**
-     * Method called when a {@link ConstraintViolationException} can be thrown.
-     * This is both during
-     * {@link #delete(Session, CurrentDetails, ExtendedMetadata, String, GraphState, List, GraphOpts)}
-     * and
-     * {@link #execute(Session, CurrentDetails, ExtendedMetadata, GraphState, List, GraphOpts)}
-     * .
+     * Method called when a {@link ConstraintViolationException} can be thrown,
+     * i.e. during {@link #execute(int)}.
      *
      * @param session
      * @param opts
@@ -367,14 +318,14 @@ public class GraphState implements GraphStep.Callback {
         step.rollback(this);
 
         String cause = "ConstraintViolation: " + cve.getConstraintName();
-        String msg = String.format("Could not delete softly %s: %s due to %s",
+        String msg = String.format("Could not process softly %s: %s due to %s",
                 step.pathMsg, step.id, cause);
 
         // If this entry is "SOFT" then there's nothing
         // special we need to do.
         if (step.entry.isSoft()) {
             log.debug(msg);
-            return "Skipping delete of " + step.table + ":" + step.id + "\n";
+            return "Skipping processing of " + step.table + ":" + step.id + "\n";
         }
 
         // Otherwise calculate if there is any "SOFT" setting about this
@@ -392,7 +343,7 @@ public class GraphState implements GraphStep.Callback {
             }
         }
 
-        log.info(String.format("Failed to delete %s: %s due to %s",
+        log.info(String.format("Failed to process %s: %s due to %s",
                 step.pathMsg, step.id, cause));
         throw cve;
 
@@ -410,66 +361,6 @@ public class GraphState implements GraphStep.Callback {
                 continue;
             } else if (step.stack.contains(parent)) {
                 step.rollbackOnly();
-            }
-        }
-    }
-
-    private QueryBuilder optionalNullBuilder(final GraphStep step) {
-        QueryBuilder nullOp = null;
-        if (step.entry.isNull()) { // WORKAROUND see #2776, #2966
-            // If this is a null operation, we don't want to delete the row,
-            // but just modify a value. NB: below we also prevent this from
-            // being raised as a delete event. TODO: refactor out to Op
-            nullOp = new QueryBuilder();
-            nullOp.update(step.table);
-            nullOp.append("set relatedTo = null ");
-            nullOp.where();
-            nullOp.and("relatedTo.id = :id");
-        }
-        return nullOp;
-    }
-
-    private void optionallyNullField(Session session,
-            final QueryBuilder nullOp, Long id) {
-        if (nullOp != null) {
-            nullOp.param("id", id);
-            Query q = nullOp.query(session);
-            int updated = q.executeUpdate();
-            if (log.isDebugEnabled()) {
-                log.debug("Nulled " + updated + " Pixels.relatedTo fields");
-            }
-        }
-    }
-
-    private QueryBuilder queryBuilder(GraphStep step) {
-        final QueryBuilder qb = new QueryBuilder();
-        qb.delete(step.table);
-        qb.where();
-        qb.and("id = :id");
-        if (!opts.isForce()) {
-            permissionsClause(step.ec, qb);
-        }
-        return qb;
-    }
-
-    /**
-     * Appends a clause to the {@link QueryBuilder} based on the current user.
-     *
-     * If the user is an admin like root, then nothing is appened, and any
-     * delete is permissible. If the user is a leader of the current group, then
-     * the object must be in the current group. Otherwise, the object must
-     * belong to the current user.
-     */
-    public static void permissionsClause(EventContext ec, QueryBuilder qb) {
-        if (!ec.isCurrentUserAdmin()) {
-            if (ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId())) {
-                qb.and("details.group.id = :gid");
-                qb.param("gid", ec.getCurrentGroupId());
-            } else {
-                // This is only a regular user, then the object must belong to
-                // him/her
-                qb.and("details.owner.id = :oid");
-                qb.param("oid", ec.getCurrentUserId());
             }
         }
     }

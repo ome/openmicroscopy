@@ -31,7 +31,7 @@ import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 /**
- * {@link GraphSpec} which takes the id of some id as the root of deletion.
+ * {@link GraphSpec} which takes the id of some id as the root of action.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2.1
@@ -46,9 +46,8 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
     //
 
     /**
-     * The paths which make up this delete specification. These count as the
-     * steps which will be performed by multiple calls to
-     * {@link #delete(Session, int)}
+     * The paths which make up this graph specification. These count as the
+     * steps which will be performed by multiple calls to {@link GraphState#execute(int)}
      */
     protected final List<GraphEntry> entries;
 
@@ -67,10 +66,10 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
     //
 
     /**
-     * The id of the root type which will be deleted. Note: if this delete comes
+     * The id of the root type which will be processed. Note: if this action comes
      * from a subspec, then the id points to the type of the supertype not the
      * type for this entry itself. For example, if this is "/Dataset" but it is
-     * being deleted as a part of "/Project" then the id refers to the project
+     * being processed as a part of "/Project" then the id refers to the project
      * and not the dataset.
      */
     protected long id = -1;
@@ -82,7 +81,7 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
 
     /**
      * Options passed to the {@link #initialize(long, Map)} method, which may be
-     * used during {@link #delete(Session, int)} to alter behavior.
+     * used during {@link GraphState#execute(int)} to alter behavior.
      */
     protected Map<String, String> options;
 
@@ -245,7 +244,7 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         Query q = qb.query(session);
         StopWatch sw = new CommonsLogStopWatch();
         List<List<Long>> results = q.list();
-        sw.stop("omero.delete.query." + StringUtils.join(sub, "."));
+        sw.stop("omero.graph.query." + StringUtils.join(sub, "."));
 
         if (results == null) {
             log.warn(logmsg(subpath, results));
@@ -351,7 +350,7 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         sub.and("ROOT0.id = :id");
 
         final QueryBuilder qb = new QueryBuilder();
-        qb.delete(path[path.length - 1]);
+        qb.delete(path[path.length - 1]); // FIXME
         qb.where();
         qb.and("id in ");
         qb.subselect(sub);

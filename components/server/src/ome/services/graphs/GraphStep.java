@@ -7,6 +7,7 @@
 
 package ome.services.graphs;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -16,10 +17,16 @@ import java.util.UUID;
 import ome.model.IObject;
 import ome.services.messages.EventLogMessage;
 import ome.system.EventContext;
+import ome.tools.hibernate.QueryBuilder;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
 
 /**
  * Single action performed by {@link GraphState}.
@@ -32,6 +39,8 @@ public abstract class GraphStep {
     public interface Callback {
 
         void add();
+
+        void addGraphIds(GraphStep step);
 
         void savepoint(String savepoint);
 
@@ -91,7 +100,7 @@ public abstract class GraphStep {
     private final long[] ids;
 
     /**
-     * The actual id to be deleted as opposed to {@link GraphEntry#getId()}
+     * The actual id to be processed as opposed to {@link GraphEntry#getId()}
      * which is the id of the root object.
      *
      * @see #ids
@@ -104,7 +113,7 @@ public abstract class GraphStep {
     public final String table;
 
     /**
-     * Type of object which is being deleted, using during
+     * Type of object which is being processed, using during
      * {@link GraphState#release(String)} to send an {@link EventLogMessage}.
      */
     public final Class<IObject> iObjectType;
@@ -155,6 +164,118 @@ public abstract class GraphStep {
             iObjectType = null;
         }
     }
+
+    //
+    // Main action
+    //
+
+    public void action(Callback cb, Session session, GraphOpts opts) throws GraphException {
+
+        final QueryBuilder nullOp = optionalNullBuilder();
+        final QueryBuilder qb = queryBuilder(opts);
+
+        // Phase 1: top-levels
+        if (stack.size() <= 1) {
+            StopWatch swTop = new CommonsLogStopWatch();
+            spec.runTopLevel(session,
+                    Arrays.<Long> asList(id));
+            swTop.stop("omero.graphstep.top." + id);
+        }
+
+        // Phase 2: NULL
+        optionallyNullField(session, nullOp, id);
+
+        // Phase 3: primary action
+        StopWatch swStep = new CommonsLogStopWatch();
+        qb.param("id", id);
+        Query q = qb.query(session);
+        int count = q.executeUpdate();
+        if (count > 0) {
+            cb.addGraphIds(this);
+        }
+        logResults(count);
+        swStep.lap("omero.graphstep." + table + "." + id);
+
+    }
+
+
+    private QueryBuilder optionalNullBuilder() {
+        QueryBuilder nullOp = null;
+        if (entry.isNull()) { // WORKAROUND see #2776, #2966
+            // If this is a null operation, we don't want to delete the row,
+            // but just modify a value. NB: below we also prevent this from
+            // being raised as a delete event. TODO: refactor out to Op
+            nullOp = new QueryBuilder();
+            nullOp.update(table);
+            nullOp.append("set relatedTo = null ");
+            nullOp.where();
+            nullOp.and("relatedTo.id = :id");
+        }
+        return nullOp;
+    }
+
+    private void optionallyNullField(Session session,
+            final QueryBuilder nullOp, Long id) {
+        if (nullOp != null) {
+            nullOp.param("id", id);
+            Query q = nullOp.query(session);
+            int updated = q.executeUpdate();
+            if (log.isDebugEnabled()) {
+                log.debug("Nulled " + updated + " Pixels.relatedTo fields");
+            }
+        }
+    }
+
+    private QueryBuilder queryBuilder(GraphOpts opts) {
+        final QueryBuilder qb = new QueryBuilder();
+        qb.delete(table);
+        qb.where();
+        qb.and("id = :id");
+        if (!opts.isForce()) {
+            permissionsClause(ec, qb);
+        }
+        return qb;
+    }
+
+    /**
+     * Appends a clause to the {@link QueryBuilder} based on the current user.
+     *
+     * If the user is an admin like root, then nothing is appended, and any
+     * action is permissible. If the user is a leader of the current group, then
+     * the object must be in the current group. Otherwise, the object must
+     * belong to the current user.
+     */
+    public static void permissionsClause(EventContext ec, QueryBuilder qb) {
+        if (!ec.isCurrentUserAdmin()) {
+            if (ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId())) {
+                qb.and("details.group.id = :gid");
+                qb.param("gid", ec.getCurrentGroupId());
+            } else {
+                // This is only a regular user, then the object must belong to
+                // him/her
+                qb.and("details.owner.id = :oid");
+                qb.param("oid", ec.getCurrentUserId());
+            }
+        }
+    }
+
+    private void logResults(final int count) {
+        if (count > 0) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Processed %s from %s: root=%s", id,
+                        pathMsg, entry.getId()));
+            }
+        } else {
+            if (log.isWarnEnabled()) {
+                log.warn(String.format("Missing object %s from %s: root=%s",
+                        id, pathMsg, entry.getId()));
+            }
+        }
+    }
+
+    //
+    // Stack
+    //
 
     public void push(GraphOpts opts) throws GraphException {
         for (GraphStep parent : stack) {
@@ -222,7 +343,7 @@ public abstract class GraphStep {
 
         int count = cb.collapse(true);
 
-        // If this is the last map, i.e. the truly deleted ones, then
+        // If this is the last map, i.e. the truly processed ones, then
         // raise the EventLogMessage
         if (cb.size() == 0) {
             for (Map.Entry<String, Set<Long>> entry : cb.entrySet()) {

@@ -398,13 +398,13 @@ public class AnnotationGraphSpec extends BaseGraphSpec {
         if (superspec == null || superspec.length() == 0) {
             if (ids != null && ids.size() > 0) {
                 QueryBuilder qb = new QueryBuilder();
-                qb.delete("ome.model.IAnnotationLink");
+                qb.delete("ome.model.IAnnotationLink"); // FIXME
                 qb.where();
                 qb.and("child.id in (:ids)");
                 qb.paramList("ids", ids);
                 // ticket:2962
                 EventContext ec = getCurrentDetails().getCurrentEventContext();
-                GraphState.permissionsClause(ec, qb);
+                GraphStep.permissionsClause(ec, qb);
 
                 Query q = qb.query(session);
                 int count = q.executeUpdate();
