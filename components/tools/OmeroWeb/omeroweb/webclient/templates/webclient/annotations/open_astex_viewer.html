@@ -166,7 +166,8 @@
             margin-top: 3px;
         }
         .current {
-            background: red;
+            background: white;
+            border: 1px solid #bbb;
         }
     </style>
 
@@ -333,8 +334,8 @@
             <div>
                 Map Pixel Data: <b>{{ image.getPrimaryPixels.getPixelsType.value }}</b><br />
                 <span id="loadCompressed" class="loadOption current">
-                    <input type="radio" name="loadMap" value="compressed" checked="true" /> Compressed (int8) <br />
-                </span>
+                    <input type="radio" name="loadMap" value="compressed" checked="true" /> Compressed (int8)
+                </span><br />
                 {% ifequal image.getPrimaryPixels.getPixelsType.value 'float' %}
                 <span id="loadRaw" class="loadOption">
                     <input type="radio" name="loadMap" value="raw" /> Raw Data (float)
