@@ -58,18 +58,22 @@ class MonitorState(object):
         self.__wait = time.time()
         self.__event = event
 
-    def appropriateWait(self):
+    def appropriateWait(self, throttleImport):
         """
-        If the last call to appropriateWait
+        If the last call to appropriateWait was longer than throttleImport
+        seconds ago, then wait long enough to make it so and return. The
+        __wait property will be set to the current time after this method
+        returns. Access to __wait is protected by the _lock lock.
         """
         self.log.debug("Locking for appropriate wait...")
         self._lock.acquire()
         try:
             try:
                 elapsed = time.time() - self.__wait
-                if elapsed < 2:
-                    self.log.info("Waiting 2 seconds...")
-                    self.__event.wait(2)
+                if elapsed < throttleImport:
+                    to_wait = throttleImport - elapsed
+                    self.log.info("Waiting %s seconds..." % to_wait)
+                    self.__event.wait(to_wait)
                 else:
                     self.log.debug("Not waiting.")
             finally:
@@ -329,6 +333,7 @@ class MonitorClientI(monitors.MonitorClient):
         self.host = ""
         self.port = 0
         self.dirImportWait = 0
+        self.throttleImport = 5
         self.timeToLive = 0
         self.timeToIdle = 0
         self.readers = ""
@@ -592,7 +597,7 @@ class MonitorClientI(monitors.MonitorClient):
             return
 
         try:
-            self.state.appropriateWait() # See ticket:5739
+            self.state.appropriateWait(self.throttleImport) # See ticket:5739
             self.log.info("Importing %s (session=%s)", fileName, key)
 
             imageId = []
@@ -722,6 +727,19 @@ class MonitorClientI(monitors.MonitorClient):
 
         """
         self.dirImportWait = dirImportWait
+
+    def setThrottleImport(self, throttleImport):
+        """
+            Setter for throttleImport
+
+            :Parameters:
+                throttleImport : int
+
+
+            :return: No explicit return value.
+
+        """
+        self.throttleImport = throttleImport
 
     def setTimeouts(self, timeToLive, timeToIdle):
         """
