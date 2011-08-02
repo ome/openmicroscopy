@@ -185,7 +185,14 @@ table.metadata_details td{
     border-bottom: 1px dotted #bbb;
 }
 
-#exposure_times div{
+div.plane_info {
+    width:100%;
+    overflow: auto;
+    background: white;
+    border: solid #ccc 1px;
+}
+
+div.plane_info table div {
     border-bottom: 1px solid #ddd;
     border-right: 1px solid #ddd;
     padding: 1px 4px
