@@ -3,7 +3,8 @@ import traceback
 import re
 from omero_version import omero_version
 
-from omeroweb.webgateway import views as webgateway_views
+from webclient.webclient_gateway import OmeroWebGateway
+from omeroweb.webgateway.views import _createConnection
 
 logger = logging.getLogger('admin-utils')
 
@@ -12,7 +13,7 @@ def getGuestConnection(host, port):
     guest = "guest"
     try:
         # do not store connection on connectors
-        conn = webgateway_views._createConnection('', host=host, port=port, username=guest, passwd=guest, secure=True, useragent="OMERO.web")
+        conn = _createConnection('', host=host, port=port, username=guest, passwd=guest, secure=True, useragent="OMERO.web")
         if conn is not None:
             logger.info("Have connection as Guest")
         else:
