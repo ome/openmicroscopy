@@ -21,6 +21,7 @@ import subprocess
 import getpass
 import omero.java
 
+from omero.util import get_user
 from omero.util.sessions import SessionsStore
 from omero.cli import BaseControl, CLI
 from path import path
@@ -492,7 +493,7 @@ class SessionsControl(BaseControl):
 
     def _get_username(self, defuser):
         if defuser is None:
-            defuser = getpass.getuser()
+            defuser = get_user("root")
         rv = self.ctx.input("Username: [%s]" % defuser)
         if not rv:
             return defuser

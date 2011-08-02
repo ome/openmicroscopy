@@ -28,7 +28,6 @@ Reconcile and cleanse where necessary an OMERO data directory of orphaned data.
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 
-import getpass
 import omero.clients
 import omero
 import sys
@@ -36,6 +35,7 @@ import os
 
 from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
+from omero.util import get_user
 from stat import *
 
 # The directories underneath an OMERO data directory to search for "dangling"
@@ -227,7 +227,7 @@ def main():
     except:
         usage('Expecting single OMERO data directory!')
 
-    username = getpass.getuser()
+    username = get_user("root")
     session_key = None
     dry_run = False
     for option, argument in options:

@@ -8,7 +8,7 @@
 
 """
 
-import unittest, os, subprocess, StringIO, getpass, exceptions
+import unittest, os, subprocess, StringIO, exceptions
 import Ice
 import Glacier2
 import omero
@@ -17,6 +17,7 @@ import omero_ext.uuid as uuid # see ticket:3774
 
 from path import path
 from omero.cli import Context, BaseControl, CLI, NonZeroReturnCode
+from omero.util import get_user
 from omero.util.sessions import SessionsStore
 from omero.util.temp_files import create_path
 from omero.plugins.sessions import SessionsControl
@@ -128,7 +129,7 @@ class MyCLI(CLI):
         self.REQRESP["Server: [localhost]"] = host
 
     def requests_user(self, user = 'testuser'):
-        self.REQRESP["Username: [%s]" % getpass.getuser()] = user
+        self.REQRESP["Username: [%s]" % get_user("Unknown")] = user
 
     def requests_pass(self, pasw = "pasw"):
         self.REQRESP["Password:"] = pasw

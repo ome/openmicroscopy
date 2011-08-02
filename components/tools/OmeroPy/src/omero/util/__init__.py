@@ -704,6 +704,35 @@ class Environment:
 # Miscellaneious utilities
 #
 
+def get_user(default = None):
+    """
+    Returns the username. For most purposes, this value
+    will be the same as getpass.getuser on *nix and
+    win32api.GetUserName on Windows, but in some situations
+    (when running without a terminal, etc) getuser may throw
+    a KeyError. In which case, or if the username resolves to
+    False, the default value be returned.
+
+    Any unexpected exceptions will be thrown.
+
+    See ticket:6307
+    """
+    rv = None
+    try:
+        import getpass
+        rv = getpass.getuser() # Uses environment variable or pwd
+    except KeyError: # 6307, probably system
+        pass
+    except ImportError: # No pwd on Windows
+        import win32api
+        rv = win32api.GetUserName()
+
+    if not rv:
+        return default
+    else:
+        return rv
+
+
 def get_user_dir():
     exceptions_to_handle = (ImportError)
     try:
