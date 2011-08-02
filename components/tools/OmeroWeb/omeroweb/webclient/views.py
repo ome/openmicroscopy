@@ -1837,15 +1837,16 @@ def image_as_map(request, imageId, **kwargs):
 
     imageName = image.getName()
     downloadName = imageName.endswith(".map") and imageName or "%s.map" % imageName
+    pixels = image.getPrimaryPixels()
 
     # get a list of numpy planes and make stack
     zctList = [(z,0,0) for z in range(image.getSizeZ())]
-    npList = list(image.getPrimaryPixels().getPlanes(zctList))
+    npList = list(pixels.getPlanes(zctList))
     npStack = dstack(npList)
     logger.info("Numpy stack for image_as_map: dtype: %s, range %s-%s" % (npStack.dtype.name, npStack.min(), npStack.max()) )
 
     # OAV only supports 'float' and 'int8'. Convert anything else to int8
-    if image.getPrimaryPixels().getPixelsType().value != 'float' or ('8bit' in kwargs and kwargs['8bit']):
+    if pixels.getPixelsType().value != 'float' or ('8bit' in kwargs and kwargs['8bit']):
         #scale from -127 -> 128 and conver to 8 bit integer
         npStack = npStack - npStack.min()  # start at 0
         npStack = (npStack * 255.0 / npStack.max()) - 127 # range - 127 -> 128
@@ -1868,11 +1869,18 @@ def image_as_map(request, imageId, **kwargs):
                 logger.info("Failed to import scipy.ndimage for interpolation of 'image_as_map'")
                 pass
 
+    header = {}
+    header["xlen"] = pixels.physicalSizeX
+    header["ylen"] = pixels.physicalSizeY
+    header["zlen"] = pixels.physicalSizeZ
+    if header["xlen"] == 0 or header["ylen"] == 0 or header["zlen"] == 0:
+        header = {}
+
     # write mrc.map to temp file
     from django.conf import settings 
     tempdir = settings.FILE_UPLOAD_TEMP_DIR
     temp = os.path.join(tempdir, ('%d-%s.map' % (image.getId(), conn._sessionUuid))).replace('\\','/')
-    mrc.write(npStack, temp)
+    mrc.write(npStack, temp, header)
     logger.info("image_as_map temp path: %s with size: %s kb" % (str(temp), os.path.getsize(temp) / 1000) )
             
     from django.core.servers.basehttp import FileWrapper
