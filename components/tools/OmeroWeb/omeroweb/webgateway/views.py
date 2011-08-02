@@ -483,7 +483,9 @@ def render_birds_eye_view (request, iid, server_id=None, size=None,
                            _conn=None, **kwargs):
     """
     Returns an HttpResponse wrapped jpeg with the rendered bird's eye view
-    for image 'iid'.
+    for image 'iid'. Rendering settings can be specified in the request
+    parameters as in L{render_image} and L{render_image_region}; see
+    L{getImgDetailsFromReq} for a complete list.
 
     @param request:     http request
     @param iid:         Image ID
