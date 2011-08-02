@@ -61,6 +61,9 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_str
 
+from webclient.webclient_gateway import OmeroWebGateway
+from omeroweb.webclient.webclient_utils import string_to_dict
+
 from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpLoginRedirect
 
 from webclient_utils import _formatReport, _purgeCallback
@@ -84,8 +87,6 @@ from controller.history import BaseCalendar
 from controller.impexp import BaseImpexp
 from controller.search import BaseSearch
 from controller.share import BaseShare
-
-from omeroweb.webclient.webclient_utils import string_to_dict
 
 from omeroweb.webadmin.forms import MyAccountForm, UploadPhotoForm, LoginForm, ChangePassword
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
