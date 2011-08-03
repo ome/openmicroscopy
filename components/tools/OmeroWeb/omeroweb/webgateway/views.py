@@ -1595,6 +1595,7 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @serverid
+@jsonp
 def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
     """
     Try to remove all rendering defs the logged in user has for this image.
@@ -1605,28 +1606,29 @@ def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
     @param _conn:       L{omero.gateway.BlitzGateway}
     @return:            json 'true', or 'false' if failed
     """
-    
-    if _conn is None:
-        blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
-    else:
-        blitzcon = _conn
-    r = request.REQUEST
-
-    if blitzcon is None or not blitzcon.isConnected():
-        img = None
-    else:
-        img = blitzcon.getObject("Image", iid)
+#    if _conn is None:
+#        blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
+#    else:
+#        blitzcon = _conn
+#    r = request.REQUEST
+#    tr
+#    if blitzcon is None or not blitzcon.isConnected():
+#        img = None
+#    else:
+    img = _conn.getObject("Image", iid)
 
     if img is not None and img.resetRDefs():
         webgateway_cache.invalidateObject(server_id, img)
+        return True
         json_data = 'true'
     else:
         json_data = 'false'
-    if _conn is not None:
-        return json_data == 'true'      # TODO: really return a boolean? (not json)
-    if r.get('callback', None):
-        json_data = '%s(%s)' % (r['callback'], json_data)
-    return HttpResponse(json_data, mimetype='application/javascript')
+        return False
+#    if _conn is not None:
+#        return json_data == 'true'      # TODO: really return a boolean? (not json)
+#    if r.get('callback', None):
+#        json_data = '%s(%s)' % (r['callback'], json_data)
+#    return HttpResponse(json_data, mimetype='application/javascript')
 
 def dbg_connectors (request):
     """
