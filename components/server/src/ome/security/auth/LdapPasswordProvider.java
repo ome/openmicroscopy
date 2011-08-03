@@ -10,6 +10,7 @@ package ome.security.auth;
 import java.security.Permissions;
 
 import ome.conditions.ApiUsageException;
+import ome.conditions.ValidationException;
 import ome.logic.LdapImpl;
 import ome.security.SecuritySystem;
 
@@ -101,15 +102,34 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
 
         // Known user
         else {
+            String dn1 = null, dn2 = null;
             try {
-                String dn = ldapUtil.lookupLdapAuthExperimenter(id);
-                if (dn != null) {
-                    return loginAttempt(user,
-                            ldapUtil.validatePassword(dn, password));
+                dn1 = ldapUtil.lookupLdapAuthExperimenter(id);
+                dn2 = ldapUtil.findDN(user);
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("lookupLdap(%s)=%s", id, dn1));
+                    log.debug(String.format("findDB(%s)=%s", user, dn2));
                 }
             } catch (ApiUsageException e) {
-                log.warn("Default choice on check ldap password: " + user, e);
+                log.info("Default choice on check ldap password: " + user, e);
             }
+
+            if ((dn1 != null && !dn1.equals(dn2)) ||
+                    (dn2 != null && !dn2.equals(dn1))) {
+                String msg = String.format("DNs don't match: '%s' and '%s'",
+                        dn1 == null ? "" : dn1, dn2 == null ? "" : dn2);
+                log.warn(msg);
+                loginAttempt(user, false);
+                // Throwing an exception so that the permissions verifier
+                // will state an "InternalException: Please contact your admin"
+                // We will need to find another way to handle this.
+                // Perhaps a hard-coded value in "password"."dn"
+                throw new ValidationException(msg);
+            } else if (dn1 != null) {
+                return loginAttempt(user,
+                        ldapUtil.validatePassword(dn1, password));
+            }
+
         }
 
         // If anything goes wrong, use the default (configurable) logic.
