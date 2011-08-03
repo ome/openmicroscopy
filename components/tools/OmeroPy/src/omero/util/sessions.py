@@ -88,7 +88,6 @@ class SessionsStore(object):
             dhn.makedirs()
 
         (dhn / id).write_lines(lines)
-        self.set_current(host, name, id)
 
     def conflicts(self, host, name, id, new_props, ignore_nulls = False):
         """
@@ -270,22 +269,23 @@ class SessionsStore(object):
     # Server-requiring methods
     #
 
-    def attach(self, server, name, sess):
+    def attach(self, server, name, sess, set_current = True):
         """
         Simple helper. Delegates to create() using the session
         as both the username and the password. This reproduces
         the logic of client.joinSession()
         """
         props = self.get(server, name, sess)
-        return self.create(sess, sess, props, new=False)
+        return self.create(sess, sess, props, new = False, set_current = set_current)
 
-    def create(self, name, pasw, props, new=True):
+    def create(self, name, pasw, props, new = True, set_current = True):
         """
         Creates a new omero.client object, and returns:
         (cilent, session_id, timeToIdle, timeToLive)
         """
         import omero.clients
         props = dict(props)
+        host = props["omero.host"]
         client = omero.client(props)
         client.setAgent("OMERO.sessions")
         sf = client.createSession(name, pasw)
@@ -296,7 +296,10 @@ class SessionsStore(object):
         timeToIdle = sess.getTimeToIdle().getValue()
         timeToLive = sess.getTimeToLive().getValue()
         if new:
-            self.add(props["omero.host"], ec.userName, uuid, props)
+            self.add(host, ec.userName, uuid, props)
+        if set_current:
+            self.set_current(host, ec.userName, uuid)
+
         return client, uuid, timeToIdle, timeToLive
 
     def clear(self, host = None, name = None, sess = None):

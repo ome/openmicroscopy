@@ -36,7 +36,7 @@ class MyStore(SessionsStore):
         self.clients = []
         self.exceptions = []
 
-    def create(self, name, pasw, props, new=True):
+    def create(self, name, pasw, props, new = True, set_current = True):
 
         if not isinstance(props, dict):
             raise exceptions.Exception("Bad type")
@@ -54,6 +54,10 @@ class MyStore(SessionsStore):
 
         if new:
             self.add(*add_tuple)
+
+        if set_current:
+            self.set_current(*add_tuple[0:3])
+
         return return_tuple
 
     def __del__(self):
@@ -362,6 +366,25 @@ class TestSessions(unittest.TestCase):
         cli.creates_client(sess=MOCKKEY, new=True)
         cli.invoke(key_login)
         cli._client = None # Forcing new instance
+
+    def assert5975(self, key, cli):
+        host, name, uuid = cli.STORE.get_current()
+        self.assert_(key != name)
+
+    def test5975(self):
+        """
+        Runs various tests which try to force the stored user name
+        to be a session uuid (which should never happen)
+        """
+        cli = MyCLI()
+        key = str(uuid.uuid4())
+        key_login = "-s testuser@testhost -k %s s login" % key
+        cli.creates_client(sess=key, new=True)
+        cli.invoke(key_login)
+        self.assert5975(key, cli)
+
+        cli.invoke("s logout")
+        self.assert5975(key, cli)
 
 if __name__ == '__main__':
     unittest.main()
