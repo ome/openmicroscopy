@@ -1557,8 +1557,9 @@ def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
         json_data = '%s(%s)' % (r['callback'], json_data)
     return HttpResponse(json_data, mimetype='application/javascript')
 
+@jsonp
 @serverid
-def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
+def copy_image_rdef_json (request, server_id=None, _conn=None, _internal=False, **kwargs):
     """
     Copy the rendering settings from one image to a list of images.
     Images are specified in request by 'fromid' and list of 'toids'
@@ -1571,7 +1572,7 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
     @return:            json dict of Boolean:[Image-IDs]
     """
     
-    json_data = 'false'
+    json_data = False
     r = request.REQUEST
     try:
         fromid = long(r.get('fromid', None))
@@ -1581,11 +1582,10 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
     except ValueError:
         fromid = None
     if fromid is not None and len(toids) > 0:
-        if _conn is None:
-            blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
-        else:
-            blitzcon = _conn
-
+#        if _conn is None:
+#            blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
+#        else:
+        blitzcon = _conn
             
         fromimg = blitzcon.getObject("Image", fromid)
         details = fromimg.getDetails()
@@ -1613,11 +1613,13 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
             for iid in json_data[True]:
                 img = newConn.getObject("Image", iid)
                 img is not None and webgateway_cache.invalidateObject(server_id, img)
-            json_data = simplejson.dumps(json_data)
-
-    if r.get('callback', None):
-        json_data = '%s(%s)' % (r['callback'], json_data)
-    return HttpResponse(json_data, mimetype='application/javascript')
+    return json_data
+#
+#            json_data = simplejson.dumps(json_data)
+#
+#    if r.get('callback', None):
+#        json_data = '%s(%s)' % (r['callback'], json_data)
+#    return HttpResponse(json_data, mimetype='application/javascript')
 
 @serverid
 @jsonp
