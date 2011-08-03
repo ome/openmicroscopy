@@ -4079,6 +4079,15 @@ class _ScreenWrapper (BlitzObjectWrapper):
 
 ScreenWrapper = _ScreenWrapper
 
+def _letterGridLabel (i):
+    r = chr(ord('A') + i%26)
+    i = i/26
+    while i > 0:
+        i -= 1
+        r = chr(ord('A') + i%26) + r
+        i = i/26
+    return r
+
 class _PlateWrapper (BlitzObjectWrapper):
     """
     omero_model_PlateI class wrapper extends BlitzObjectWrapper.
@@ -4151,6 +4160,26 @@ class _PlateWrapper (BlitzObjectWrapper):
         for child in self._listChildren():
             rv[child.row.val][child.column.val] = childw(self._conn, child, index=index)
         return rv
+
+    def getColumnLabels (self):
+        """
+        Returns a list of labels for the columns on this plate
+        """
+        if self.columnNamingConvention.lower()=='number':
+            return range(1, self.getGridSize()['columns']+1)
+        else:
+            # this should simply be precalculated!
+            return [_letterGridLabel(x) for x in range(self.getGridSize()['columns'])]
+
+    def getRowLabels (self):
+        """
+        Returns a list of labels for the rows on this plate
+        """
+        if self.rowNamingConvention.lower()=='number':
+            return range(1, self.getGridSize()['rows']+1)
+        else:
+            # this should simply be precalculated!
+            return [_letterGridLabel(x) for x in range(self.getGridSize()['rows'])]
 
     def getNumberOfFields (self):
         """
@@ -7068,7 +7097,6 @@ class _InstrumentWrapper (BlitzObjectWrapper):
 InstrumentWrapper = _InstrumentWrapper
 
 KNOWN_WRAPPERS = {}
-
 
 def refreshWrappers ():
     """
