@@ -3210,8 +3210,14 @@ def script_run(request, scriptId, **kwargs):
             'status':'in progress'}
         request.session.modified = True
     except Exception, x:
-        logger.error(traceback.format_exc())
-        return HttpResponse(simplejson.dumps({'error': traceback.format_exc()}), mimetype='json')
+        if x.message == "No processor available.": # omero.ResourceError
+            logger.info(traceback.format_exc())
+            error = traceback.format_exc()
+            return HttpResponse(simplejson.dumps({'status': 'no processor', 'error': error}), mimetype='json')
+        else:
+            logger.error(traceback.format_exc())
+            error = traceback.format_exc()
+            return HttpResponse(simplejson.dumps({'error': error}), mimetype='json')
 
     return HttpResponse(simplejson.dumps({'jobId': jobId, 'status':'in progress'}), mimetype='json')
 

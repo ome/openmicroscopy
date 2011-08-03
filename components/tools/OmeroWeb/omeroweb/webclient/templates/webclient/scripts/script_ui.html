@@ -56,11 +56,24 @@
                         window.opener.popupActivites('{% url status %}');
                         self.close();
                     }
+                    else if(data.status == 'no processor') {
+                        $("div.param").parent().hide();
+                        $("#script_desc").hide();
+                        $("#script_desc").after("<p><a href=\"javascript:window.close();\">Close Window</a></p>");
+                        $("#script_desc").after("<p>No Processor Currently Available, please try again later</p>");
+                        $('#scriptName').append(" could not be run");
+
+                    }
                     // exception in 'scriptService.runScript()' should be handled here
-                    if(data.error) {
-                        alert("Script failed to run");
-                        $form.hide();
-                        $("body").append("<p>"+ data.error +"</p>");
+                    else if(data.error) {
+                        $("div.param").parent().hide();
+                        $("#script_desc").hide();
+                        $("#script_desc").after("<p id='send_feedback'><a href='#' onClick='submitError();'>Send feedback</a></p>");
+                        $("#script_desc").after("<p><a href=\"javascript:window.close();\">Close Window</a></p>");
+                        $("#script_desc").after("<p id='error' style='background: #fcc'>"+ data.error +"</p>");
+
+                        $('#scriptName').append(" failed to run");
+
                     }
                 },
                 error: function(data) {
@@ -70,6 +83,15 @@
             });
             return false;
         };
+
+        var submitError = function() {
+            $("#send_feedback").text('...sending...');
+            var error = $("#error").text();
+            var data = {'error': error, 'comment': 'Running Script: Feedback auto-submitted from script UI' }
+            $.post( '{% url fsend %}', data, function() {
+                $("#send_feedback").text('Thankyou for sending feedback');
+            })
+        }
 
         $(document).ready(function() {
             $('form').submit(function() {
@@ -181,7 +203,7 @@
 
     <form method="post" action="{% url script_run paramData.id %}">
         <div style="padding:10px; margin-bottom:40px">
-            <h3 class="scriptName">{{ paramData.name }}</h3>
+            <h3 id="scriptName">{{ paramData.name }}</h3>
             <div id='script_desc'>{{ paramData.description|linebreaks }}</div>
 
             {% for i in paramData.inputs %}
