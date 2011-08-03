@@ -489,15 +489,13 @@ class BlitzObjectWrapper (object):
             return self.countChildren()
         return self._cached_countChildren
 
-    def listChildren (self, ns=None, val=None, params=None):
+    def _listChildren (self, ns=None, val=None, params=None):
         """
         Lists available child objects.
 
-        @rtype: generator of L{BlitzObjectWrapper} objs
+        @rtype: generator of Ice client proxy objects for the child nodes
         @return: child objects.
         """
-        childw = self._getChildWrapper()
-        klass = childw().OMERO_CLASS
         if not params:
             params = omero.sys.Parameters()
         if not params.map:
@@ -517,8 +515,18 @@ class BlitzObjectWrapper (object):
                     params.map["val"] = omero_type(val)
                     query +=" and a.textValue=:val"
         query += " order by c.child.name"
-        childnodes = [ x.child for x in self._conn.getQueryService().findAllByQuery(query, params)]
-        for child in childnodes:
+        for child in ( x.child for x in self._conn.getQueryService().findAllByQuery(query, params) ):
+            yield child
+
+    def listChildren (self, ns=None, val=None, params=None):
+        """
+        Lists available child objects.
+
+        @rtype: generator of L{BlitzObjectWrapper} objs
+        @return: child objects.
+        """
+        childw = self._getChildWrapper()
+        for child in self._listChildren(ns=ns, val=val, params=params):
             yield childw(self._conn, child, self._cache)
 
     def getParent (self, withlinks=False):
@@ -4087,9 +4095,75 @@ class _PlateWrapper (BlitzObjectWrapper):
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Plate'
         self.LINK_CLASS = None
-        self.CHILD_WRAPPER_CLASS = None
+        self.CHILD_WRAPPER_CLASS = 'WellWrapper'
         self.PARENT_WRAPPER_CLASS = 'ScreenWrapper'
+        
+    def __prepare__ (self):
+        self.__reset__()
 
+    def __reset__ (self):
+        """
+        Clears child cache, so next _listChildren will query the server
+        """
+        self._childcache = None
+
+    def _listChildren (self, **kwargs):
+        """
+        Lists available child objects.
+
+        @rtype: generator of L{BlitzObjectWrapper} objs
+        @return: child objects.
+        """
+        if self._childcache is None:
+            q = self._conn.getQueryService()
+            params = omero.sys.Parameters()
+            params.map = {}
+            params.map["oid"] = omero_type(self.getId())
+            query = "select well from Well as well "\
+                    "join fetch well.details.creationEvent "\
+                    "join fetch well.details.owner join fetch well.details.group " \
+                    "left outer join fetch well.plate as pt "\
+                    "left outer join fetch well.wellSamples as ws " \
+                    "left outer join fetch ws.image as img "\
+                    "where well.plate.id = :oid"
+
+            #index = index is None and 0 or index
+            kwargs = {'index': self.defaultSample or 0}
+            childw = self._getChildWrapper()
+            self._childcache = {}
+            for well in q.findAllByQuery(query, params):
+                self._childcache[(well.row.val, well.column.val)] = well
+        return self._childcache.values()
+
+    def getGridSize (self):
+        """
+        Iterates all wells on plate to retrieve grid size
+        """
+        r,c = 0,0
+        for child in self._listChildren():
+            r,c = max(child.row.val, r), max(child.column.val, c)
+        return {'rows': r+1, 'columns': c+1}
+
+    def getWellGrid (self, index=0):
+        """
+        Returns a grid of WellWrapper objects, indexed by row,col
+        """
+        grid = self.getGridSize()
+        childw = self._getChildWrapper()
+        rv = [[None]*grid['columns'] for x in range(grid['rows'])]
+        for child in self._listChildren():
+            rv[child.row.val][child.column.val] = childw(self._conn, child, index=index)
+        return rv
+
+    def getNumberOfFields (self):
+        """
+        Iterates all wells on plate and returns highest well sample count
+        """
+        f = 0
+        for child in self._listChildren():
+            f = max(len(child._wellSamplesSeq), f)
+        return f
+        
     def _getQueryString(self):
         """
         Returns a query string for constructing custom queries, loading the screen for each plate.
@@ -4109,16 +4183,29 @@ class _WellWrapper (BlitzObjectWrapper):
     
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Well'
-        self.LINK_CLASS = "WellSample"
-        self.CHILD_WRAPPER_CLASS = "ImageWrapper"
+        self.LINK_CLASS = None
+        self.CHILD_WRAPPER_CLASS = 'WellSampleWrapper'
         self.PARENT_WRAPPER_CLASS = 'PlateWrapper'
-    
+
     def __prepare__ (self, **kwargs):
         try:
             self.index = int(kwargs['index'])
         except:
             self.index = 0
-    
+        self.__reset__()
+
+    def __reset__ (self):
+        """
+        Clears child cache, so next _listChildren will query the server
+        """
+        self._childcache = None
+
+    def _listChildren (self, **kwargs):
+        if self._childcache is None:
+            if self.isWellSamplesLoaded():
+                self._childcache = self.copyWellSamples()
+        return self._childcache
+
     def isWellSample (self):
         """ 
         Return True if well samples exist (loaded)
@@ -4127,8 +4214,8 @@ class _WellWrapper (BlitzObjectWrapper):
         @rtype:     Boolean
         """
         
-        if getattr(self, 'isWellSamplesLoaded')():
-            childnodes = getattr(self, 'copyWellSamples')()
+        if self.isWellSamplesLoaded():
+            childnodes = self.copyWellSamples()
             logger.debug('listChildren for %s %d: already loaded, %d samples' % (self.OMERO_CLASS, self.getId(), len(childnodes)))
             if len(childnodes) > 0:
                 return True
@@ -4141,14 +4228,34 @@ class _WellWrapper (BlitzObjectWrapper):
         @return:    well sample count
         @rtype:     Int
         """
-        
-        if getattr(self, 'isWellSamplesLoaded')():
-            childnodes = getattr(self, 'copyWellSamples')()
-            logger.debug('countChildren for %s %d: already loaded, %d samples' % (self.OMERO_CLASS, self.getId(), len(childnodes)))
-            size = len(childnodes)
-            if size > 0:
-                return size
-        return 0
+        return len(self._listChildren())
+
+    def getWellSample (self, index=None):
+        """
+        Return the well sample at the specified index. If index is ommited,
+        the currently selected index is used instead (self.index) and if
+        that is not defined, the first one (index 0) is returned.
+
+        @param index: the well sample index
+        @type index: integer
+        @return:    The Well Sample
+        @rtype:     L{WellSampleWrapper}
+        """
+        if index is None:
+            index = self.index
+        if index is None:
+            index = 0
+        index = int(index)
+        childnodes = self._listChildren()
+        if len(childnodes) > index:
+            return self._getChildWrapper()(self._conn, childnodes[index])
+        return None
+
+    def getImage (self, index=None):
+        wellsample = self.getWellSample(index)
+        if wellsample:
+            return wellsample.getImage()
+        return None
     
     def selectedWellSample (self):
         """
@@ -4158,37 +4265,31 @@ class _WellWrapper (BlitzObjectWrapper):
         @rtype:     L{WellSampleWrapper}
         
         """
-        
-        if getattr(self, 'isWellSamplesLoaded')():
-            childnodes = getattr(self, 'copyWellSamples')()
-            logger.debug('listSelectedChildren for %s %d: already loaded, %d samples' % (self.OMERO_CLASS, self.getId(), len(childnodes)))
-            if len(childnodes) > 0:
-                return WellSampleWrapper(self._conn, childnodes[self.index])
-        return None
+        return self.getWellSample()
     
-    def loadWellSamples (self):
-        """
-        Return a generator yielding child objects
-        
-        @return:    Well Samples
-        @rtype:     L{WellSampleWrapper} generator
-        """
-        
-        if getattr(self, 'isWellSamplesLoaded')():
-            childnodes = getattr(self, 'copyWellSamples')()
-            logger.debug('listChildren for %s %d: already loaded, %d samples' % (self.OMERO_CLASS, self.getId(), len(childnodes)))
-            for ch in childnodes:
-                yield WellSampleWrapper(self._conn, ch)
-    
-    def plate(self):
-        """
-        Gets the Plate. 
-        
-        @return:    The Plate
-        @rtype:     L{PlateWrapper}
-        """
-        
-        return PlateWrapper(self._conn, self._obj.plate)
+#    def loadWellSamples (self):
+#        """
+#        Return a generator yielding child objects
+#        
+#        @return:    Well Samples
+#        @rtype:     L{WellSampleWrapper} generator
+#        """
+#        
+#        if getattr(self, 'isWellSamplesLoaded')():
+#            childnodes = getattr(self, 'copyWellSamples')()
+#            logger.debug('listChildren for %s %d: already loaded, %d samples' % (self.OMERO_CLASS, self.getId(), len(childnodes)))
+#            for ch in childnodes:
+#                yield WellSampleWrapper(self._conn, ch)
+#    
+#    def plate(self):
+#        """
+#        Gets the Plate. 
+#        
+#        @return:    The Plate
+#        @rtype:     L{PlateWrapper}
+#        """
+#        
+#        return PlateWrapper(self._conn, self._obj.plate)
 
 WellWrapper = _WellWrapper
 
@@ -4199,8 +4300,17 @@ class _WellSampleWrapper (BlitzObjectWrapper):
     
     def __bstrap__ (self):
         self.OMERO_CLASS = 'WellSample'
-        self.CHILD_WRAPPER_CLASS = "ImageWrapper"
+        self.CHILD_WRAPPER_CLASS = 'ImageWrapper'
         self.PARENT_WRAPPER_CLASS = 'WellWrapper'
+
+    def getImage (self):
+        """
+        Gets the Image for this well sample.
+        
+        @return:    The Image
+        @rtype:     L{ImageWrapper}
+        """
+        return self._getChildWrapper()(self._conn, self._obj.image)
         
     def image(self):
         """
@@ -4209,8 +4319,7 @@ class _WellSampleWrapper (BlitzObjectWrapper):
         @return:    The Image
         @rtype:     L{ImageWrapper}
         """
-        
-        return ImageWrapper(self._conn, self._obj.image)
+        return self.getImage()
 
 WellSampleWrapper = _WellSampleWrapper
 
