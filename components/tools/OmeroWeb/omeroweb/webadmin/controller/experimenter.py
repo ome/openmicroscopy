@@ -82,7 +82,7 @@ class BaseExperimenter(BaseController):
     def __init__(self, conn, eid=None):
         BaseController.__init__(self, conn)
         if eid is not None:
-            self.experimenter = self.conn.getExperimenter(eid)
+            self.experimenter = self.conn.getObject("Experimenter", eid)
             self.ldapAuth = self.conn.getLdapAuthExperimenter(eid)
             geMap = self.experimenter.copyGroupExperimenterMap()
             if self.experimenter.sizeOfGroupExperimenterMap() > 0:

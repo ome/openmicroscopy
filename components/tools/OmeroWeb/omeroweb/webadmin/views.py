@@ -479,7 +479,7 @@ def manage_password(request, eid, **kwargs):
             old_password = password_form.cleaned_data['old_password']
             password = password_form.cleaned_data['password']
             if conn.isAdmin():
-                exp = conn.getExperimenter(eid)
+                exp = conn.getObject("Experimenter", eid)
                 try:
                     conn.changeUserPassword(exp.omeName, password, old_password)
                 except Exception, x:

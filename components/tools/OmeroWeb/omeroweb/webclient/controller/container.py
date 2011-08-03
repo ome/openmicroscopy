@@ -191,7 +191,7 @@ class BaseContainer(BaseController):
         
     def loadTags(self, eid=None):
         if eid is not None:
-            self.experimenter = self.conn.getExperimenter(eid)
+            self.experimenter = self.conn.getObject("Experimenter", eid)
         else:            
             eid = self.conn.getEventContext().userId
         
@@ -256,7 +256,7 @@ class BaseContainer(BaseController):
         
     def listImagesInDataset(self, did, eid=None, page=None):
         if eid is not None:
-            self.experimenter = self.conn.getExperimenter(eid)  
+            self.experimenter = self.conn.getObject("Experimenter", eid)  
         
         im_list = list(self.conn.listImagesInDataset(oid=did, eid=eid, page=page))
         # Not displaying annotation icons (same as Insight). #5514.
@@ -334,7 +334,7 @@ class BaseContainer(BaseController):
     
     def listContainerHierarchy(self, eid=None):
         if eid is not None:
-            self.experimenter = self.conn.getExperimenter(eid)
+            self.experimenter = self.conn.getObject("Experimenter", eid)
         else:
             eid = self.conn.getEventContext().userId
         #obj_list = list(self.conn.listContainerHierarchy('Project', eid=eid))
@@ -394,7 +394,7 @@ class BaseContainer(BaseController):
     
     def listOrphanedImages(self, eid=None, page=None):
         if eid is not None:
-            self.experimenter = self.conn.getExperimenter(eid)
+            self.experimenter = self.conn.getObject("Experimenter", eid)
         else:
             eid = self.conn.getEventContext().userId
         

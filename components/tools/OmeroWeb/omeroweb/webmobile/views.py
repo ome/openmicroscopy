@@ -191,7 +191,7 @@ def projects (request, eid=None, **kwargs):
     #eId = request.REQUEST.get('experimenter', None)
     experimenter = None
     if eid is not None:
-        experimenter = conn.getExperimenter(eid)
+        experimenter = conn.getObject("Experimenter", eid)
     else:
         # show current user's projects by default
         eid = conn.getEventContext().userId
@@ -312,7 +312,7 @@ def screens(request, eid=None, **kwargs):
 
     experimenter = None
     if eid is not None:
-        experimenter = conn.getExperimenter(eid)
+        experimenter = conn.getObject("Experimenter", eid)
     else:
         # show current user's screens by default
         eid = conn.getEventContext().userId
@@ -519,7 +519,7 @@ def index (request, eid=None, **kwargs):
     
     experimenter = None
     if eid is not None:
-        experimenter = conn.getExperimenter(eid)
+        experimenter = conn.getObject("Experimenter", eid)
       
     return render_to_response('webmobile/index.html', {'client': conn, 'experimenter': experimenter})
 
@@ -535,7 +535,7 @@ def recent (request, obj_type, eid=None, **kwargs):
     
     experimenter = None
     if eid:
-        experimenter = conn.getExperimenter(eid)
+        experimenter = conn.getObject("Experimenter", eid)
         
     # By default, get 3 each of Projects, Datasets, Images, Ratings, Comments, Tags
     obj_count = 3   
@@ -572,7 +572,7 @@ def recent_full_page (request, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
     
-    exp = conn.getExperimenter(conn.getEventContext().userId)
+    exp = conn.getObject("Experimenter", conn.getEventContext().userId)
         
     return render_to_response('webmobile/timeline/recent_full_page.html', {'client':conn, 'exp':exp })
     

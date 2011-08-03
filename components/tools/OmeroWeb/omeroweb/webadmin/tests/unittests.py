@@ -785,7 +785,7 @@ def _changePassword(request, conn, eid=None):
         old_password = password_form.cleaned_data['old_password']
         password = password_form.cleaned_data['password']
         if conn.isAdmin():
-            exp = conn.getExperimenter(eid)
+            exp = conn.getObject("Experimenter", eid)
             conn.changeUserPassword(exp.omeName, password, old_password)
         else:
             conn.changeMyPassword(password, old_password)
