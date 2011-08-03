@@ -4982,20 +4982,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         @rtype:     Boolean
         """
         
-        try:
-            self._loadPixels()
-            if self._re is None:
-                if self._obj.sizeOfPixels() < 1:
-                    return False
-                if self._pd is None:
-                    self._pd = omero.romio.PlaneDef(self.PLANEDEF)
-                self._re = self._prepareRE()
-            return self._re is not None
-        # allow others to handle ConcurrencyException- display Message etc.
-        except omero.ConcurrencyException, ce:
-            raise ce
-        except:
-            return None
+        self._loadPixels()
+        if self._re is None:
+            if self._obj.sizeOfPixels() < 1:
+                return False
+            if self._pd is None:
+                self._pd = omero.romio.PlaneDef(self.PLANEDEF)
+            self._re = self._prepareRE()
+        return self._re is not None
 
     def resetRDefs (self):
         logger.debug('resetRDefs')
@@ -5350,7 +5344,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         return PixelsWrapper(self._conn, self._obj.getPrimaryPixels())
 
-    @assert_re()
+    @assert_re(ignoreExceptions=(omero.ConcurrencyException))
     def getChannels (self):
         """
         Returns a list of Channels, each initialised with rendering engine
