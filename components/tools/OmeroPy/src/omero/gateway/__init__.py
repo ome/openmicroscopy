@@ -1382,6 +1382,7 @@ class _BlitzGateway (object):
             self._proxies['search'] = ProxyObjectWrapper(self, 'createSearchService')
             self._proxies['session'] = ProxyObjectWrapper(self, 'getSessionService')
             self._proxies['share'] = ProxyObjectWrapper(self, 'getShareService')
+            self._proxies['sharedres'] = ProxyObjectWrapper(self, 'sharedResources')
             self._proxies['timeline'] = ProxyObjectWrapper(self, 'getTimelineService')
             self._proxies['types'] = ProxyObjectWrapper(self, 'getTypesService')
             self._proxies['update'] = ProxyObjectWrapper(self, 'getUpdateService')
@@ -1631,7 +1632,6 @@ class _BlitzGateway (object):
          
         @return:    omero.model.ExperimenterGroupI
         """
-        
         admin_service = self.getAdminService()
         group = admin_service.getGroup(self.getEventContext().groupId)
         return ExperimenterGroupWrapper(self, group)
@@ -1854,6 +1854,15 @@ class _BlitzGateway (object):
         """
         
         return self._proxies['share']
+
+    def getSharedResources(self):
+        """
+        Gets reference to the sharedresources from ProxyObjectWrapper.
+        
+        @return:    omero.gateway.ProxyObjectWrapper
+        """
+        
+        return self._proxies['sharedres']
 
     def getTimelineService (self):
         """
@@ -4277,6 +4286,20 @@ class _WellWrapper (BlitzObjectWrapper):
             if self.isWellSamplesLoaded():
                 self._childcache = self.copyWellSamples()
         return self._childcache
+
+    def getScreens (self):
+        """ returns the screens that link to plates that link to this well """
+        params = omero.sys.Parameters()
+        params.map = {'id': omero_type(self.getId())}
+        query = """select s from Well w
+        left outer join w.plate p
+        left outer join p.screenLinks spl
+        left outer join spl.parent s
+        where spl.parent.id=s.id and spl.child.id=p.id and w.plate.id=p.id
+        and w.id=:id"""
+        return [omero.gateway.ScreenWrapper(self._conn, x) for x in \
+                self._conn.getQueryService().findAllByQuery(query, params)]
+        
 
     def isWellSample (self):
         """ 
