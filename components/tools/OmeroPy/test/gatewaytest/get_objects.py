@@ -297,6 +297,8 @@ class GetObjectTest (lib.GTest):
         eIds = [e.getId() for e in experimenters]
         for e in exps:
             self.assertTrue(e.getId() in eIds)
+            for groupExpMap in e.copyGroupExperimenterMap():    # check iQuery has loaded groups
+                self.assertEqual(e.id, groupExpMap.child.id.val)
 
         # returns all experimenters except current user - now moved to webclient_gateway
         #allBarOne = list( self.gateway.getExperimenters() )
@@ -320,7 +322,17 @@ class GetObjectTest (lib.GTest):
 
     def testGetExperimenter(self):
         self.loginAsAdmin()
+
+        # check that findExperimenter can be replaced by getObject()
         e = self.gateway.findExperimenter(self.USER.name)
+        findExp = self.gateway.getObject("Experimenter", attributes={'omeName': self.USER.name})
+        self.assertEqual(e.id, findExp.id, "Finding experimenter via omeName - should return single exp")
+
+        noExp = self.gateway.getObject("Experimenter", attributes={'omeName': "Dummy Fake Name"})
+        self.assertEqual(noExp, None, "Should not find any matching experimenter")
+        noE = self.gateway.findExperimenter("Dummy Fake Name")
+        self.assertEqual(noE, None, "Should not find any matching experimenter")
+
         exp = self.gateway.getObject("Experimenter", e.id) # uses iQuery
         experimenter = self.gateway.getExperimenter(e.id)  # uses IAdmin
         
