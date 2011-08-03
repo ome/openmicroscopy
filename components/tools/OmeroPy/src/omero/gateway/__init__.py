@@ -4109,11 +4109,12 @@ class _PlateWrapper (BlitzObjectWrapper):
         Clears child cache, so next _listChildren will query the server
         """
         self._childcache = None
+        self._gridSize = None
 
     def _listChildren (self, **kwargs):
         """
         Lists available child objects.
-
+_
         @rtype: generator of L{BlitzObjectWrapper} objs
         @return: child objects.
         """
@@ -4141,14 +4142,28 @@ class _PlateWrapper (BlitzObjectWrapper):
     def countChildren (self):
         return len(self._listChildren())
 
+    def setGridSizeConstraints(self, row, col):
+        """
+        Makes sure the grid side count is the exact power of two of row and col arguments,
+        keeping their ratio, that fits the existing well count.
+        """
+        gs = self.getGridSize()
+        mul = 0
+        while gs['rows'] > (row*(2**mul)) or gs['columns'] > (col*(2**mul)):
+            mul += 1
+        self._gridSize['rows'] = row * (2**mul)
+        self._gridSize['columns'] = col * (2**mul)
+
     def getGridSize (self):
         """
         Iterates all wells on plate to retrieve grid size
         """
-        r,c = 0,0
-        for child in self._listChildren():
-            r,c = max(child.row.val, r), max(child.column.val, c)
-        return {'rows': r+1, 'columns': c+1}
+        if self._gridSize is None:
+            r,c = 0,0
+            for child in self._listChildren():
+                r,c = max(child.row.val, r), max(child.column.val, c)
+            self._gridSize = {'rows': r+1, 'columns': c+1}
+        return self._gridSize
 
     def getWellGrid (self, index=0):
         """
@@ -4200,6 +4215,13 @@ class _PlateWrapper (BlitzObjectWrapper):
               "left outer join fetch spl.parent sc"
         return query
 
+    def exportOmeTiff (self):
+        """
+        Make sure full project export doesn't pick up wellsample images
+        TODO: do we want to support this at all?
+        """
+        return None
+    
 PlateWrapper = _PlateWrapper
 
 class _WellWrapper (BlitzObjectWrapper):
