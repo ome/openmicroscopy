@@ -372,7 +372,14 @@ def getSplitView(session, imageIds, pixelIds, mergedIndexes,
     
     # establish dimensions and roiZoom for the primary image
     # getTheseValues from the server
-    x, y, roiWidth, roiHeight, timeShapeMap = getRectangle(roiService, imageIds[0], roiLabel)
+    for iid in imageIds:
+        rect = getRectangle(roiService, iid, roiLabel)
+        if rect is not None: break
+
+    if rect is None:
+        log("Found no images with rectangle ROIs")
+        return
+    x, y, roiWidth, roiHeight, timeShapeMap = rect
     
     roiOutline = ((max(width, height)) / 200 ) + 1
     
