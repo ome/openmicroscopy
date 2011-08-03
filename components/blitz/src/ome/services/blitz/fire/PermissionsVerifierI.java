@@ -7,14 +7,23 @@
 
 package ome.services.blitz.fire;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.api.IQuery;
 import ome.conditions.SessionException;
-import ome.model.meta.Session;
+import ome.model.meta.Experimenter;
 import ome.services.sessions.SessionManager;
+import ome.services.util.Executor;
+import ome.system.Principal;
+import ome.system.ServiceFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
 
 import Glacier2._PermissionsVerifierDisp;
 import Ice.Current;
@@ -35,13 +44,19 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
 
     private final SessionManager manager;
 
-    public PermissionsVerifierI(Ring ring, SessionManager manager) {
+    private final Executor ex;
+
+    private final Principal p;
+
+    public PermissionsVerifierI(Ring ring, SessionManager manager, Executor ex, String uuid) {
         this.ring = ring;
         this.manager = manager;
+        this.ex = ex;
+        this.p = new Principal(uuid);
     }
 
-    public boolean checkPermissions(String userId, String password,
-            StringHolder reason, Current __current) {
+    public boolean checkPermissions(final String userId, final String password,
+            final StringHolder reason, final Current __current) {
 
         try {
             // ticket:2212, ticket:3652
@@ -114,7 +129,38 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
             if (manager.executePasswordCheck(userId, password)) {
                 return true;
             } else {
-                reason.value = "Password check failed";
+                final List<String> data = new ArrayList<String>();
+                ex.execute(p, new Executor.SimpleWork("failedPassword", userId) {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        IQuery q = sf.getQueryService();
+                        ome.model.meta.Session s = q.findByString(
+                                ome.model.meta.Session.class, "uuid", userId);
+
+                        Experimenter e = null;
+                        if (s != null) {
+                            e = s.getOwner();
+                            data.add(String.format("user=%s", e.getOmeName()));
+                        } else {
+                            e = q.findByString(Experimenter.class,
+                                    "omeName", userId);
+                            if (e != null) {
+                                data.add(String.format("id=%s", e.getId()));
+                            }
+                        }
+
+                        if (s != null) {
+                            data.add(String.format("created=%s", s.getStarted()));
+                            data.add(String.format("closed=%s", s.getClosed()));
+                        }
+
+                        return null;
+                    }
+                });
+
+                reason.value = String.format("Password check failed for '%s': %s",
+                        userId, data);
+
                 return false;
             }
 

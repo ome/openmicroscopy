@@ -145,7 +145,7 @@ public class BlitzConfiguration {
             blitzAdapter = createAdapter();
             blitzManager = createAndRegisterManager(sessionManager,
                     securitySystem, executor);
-            blitzVerifier = createAndRegisterVerifier(sessionManager);
+            blitzVerifier = createAndRegisterVerifier(sessionManager, executor);
             managerDirectProxy = blitzAdapter.createDirectProxy(managerId());
 
             blitzAdapter.activate();
@@ -331,12 +331,13 @@ public class BlitzConfiguration {
     }
 
     protected PermissionsVerifier createAndRegisterVerifier(
-            ome.services.sessions.SessionManager sessionManager) {
+            ome.services.sessions.SessionManager sessionManager,
+            Executor executor) {
 
         throwIfInitialized(blitzVerifier);
 
         PermissionsVerifierI verifier = new PermissionsVerifierI(blitzRing,
-                sessionManager);
+                sessionManager, executor, blitzRing.uuid);
         this.blitzAdapter.add(verifier, Ice.Util
                 .stringToIdentity("BlitzVerifier"));
         return verifier;
