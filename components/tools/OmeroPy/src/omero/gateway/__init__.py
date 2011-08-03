@@ -2616,20 +2616,14 @@ class _BlitzGateway (object):
         @rtype:             L{BlitzObjectWrapper} generator
         """
         
-        wrappers = {"Project":ProjectWrapper,
-            "Dataset":DatasetWrapper,
-            "Image":ImageWrapper,
-            "Screen":ScreenWrapper,
-            "Plate":PlateWrapper,
-            "Well":WellWrapper}
-            
-        if not obj_type in wrappers:
-            raise AttributeError('It only retrieves: Project, Dataset, Image, Screen, Plate or Well')
+        wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
+        if not wrapper:
+            raise AttributeError("Don't know how to handle '%s'" % obj_type)
         
         sql = "select ob from %s ob " \
               "left outer join fetch ob.annotationLinks obal " \
               "left outer join fetch obal.child ann " \
-              "where ann.id in (:oids)" % obj_type
+              "where ann.id in (:oids)" % wrapper().OMERO_CLASS
             
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -2637,7 +2631,7 @@ class _BlitzGateway (object):
         p.map["oids"] = rlist([rlong(o) for o in set(annids)])
         for e in q.findAllByQuery(sql,p):
             kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
-            yield wrappers[obj_type](self, e)
+            yield wrapper(self, e)
 
 
     ################
@@ -4134,6 +4128,9 @@ class _PlateWrapper (BlitzObjectWrapper):
             for well in q.findAllByQuery(query, params):
                 self._childcache[(well.row.val, well.column.val)] = well
         return self._childcache.values()
+
+    def countChildren (self):
+        return len(self._listChildren())
 
     def getGridSize (self):
         """
