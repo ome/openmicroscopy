@@ -47,7 +47,7 @@ from math import sqrt
 
 import omero_Constants_ice  
 import omero_ROMIO_ice
-from omero.rtypes import rstring, rint, rlong, rbool, rtime, rlist, rdouble
+from omero.rtypes import rstring, rint, rlong, rbool, rtime, rlist, rdouble, unwrap
 
 def omero_type(val):
     """
@@ -4098,6 +4098,17 @@ class _ScreenWrapper (BlitzObjectWrapper):
         self.CHILD_WRAPPER_CLASS = 'PlateWrapper'
         self.PARENT_WRAPPER_CLASS = None
 
+    @timeit
+    def getNumberOfFields (self):
+        """
+        Iterates all wells on all plates for this screen and returns highest well sample count
+        """
+        q = self._conn.getQueryService()
+        query = "select p.id, maxindex(p.wells.wellSamples)+1"
+        query += " from ScreenPlateLink spl join spl.parent s join spl.child p"
+        query += " where s.id=%d group by p.id" % self.getId()
+        return dict(unwrap(q.projection(query, None)))
+
 ScreenWrapper = _ScreenWrapper
 
 def _letterGridLabel (i):
@@ -4222,22 +4233,35 @@ _
         """
         Iterates all wells on plate and returns highest well sample count
         """
-        if self._childcache is None:
-            q = self._conn.getQueryService()
-            params = omero.sys.Parameters()
-            params.map = {}
-            params.map["oid"] = omero_type(self.getId())
-            query = "select well from Well as well "\
-                    "left outer join fetch well.wellSamples as ws " \
-                    "where well.plate.id = :oid"
-            children = q.findAllByQuery(query, params)
-        else:
-            children = self._listChildren()
-        f = 0
-        for child in children:
-            f = max(len(child._wellSamplesSeq), f)
-        return f
-        
+        q = self._conn.getQueryService()
+        query = "select maxindex(p.wells.wellSamples)+1"
+        query += " from Plate p"
+        query += " where p.id=%d group by p.id" % self.getId()
+        return unwrap(q.projection(query, None))[0][0]
+
+#        if self._childcache is None:
+#            q = self._conn.getQueryService()
+#            params = omero.sys.Parameters()
+#            params.map = {}
+#            params.map["oid"] = omero_type(self.getId())
+#            query = "select well from Well as well "\
+#                    "left outer join fetch well.wellSamples as ws " \
+#                    "where well.plate.id = :oid"
+#            children = q.findAllByQuery(query, params)
+#        else:
+#            children = self._listChildren()
+#        f = 0
+#        for child in children:
+#            f = max(len(child._wellSamplesSeq), f)
+#        return f
+
+    def exportOmeTiff (self):
+        """
+        Make sure full project export doesn't pick up wellsample images
+        TODO: do we want to support this at all?
+        """
+        return None
+    
     def _getQueryString(self):
         """
         Returns a query string for constructing custom queries, loading the screen for each plate.
@@ -4298,6 +4322,14 @@ class _WellWrapper (BlitzObjectWrapper):
             if self.isWellSamplesLoaded():
                 self._childcache = self.copyWellSamples()
         return self._childcache
+
+    def simpleMarshal (self, xtra=None, parents=False):
+        rv = self.getImage().simpleMarshal(xtra=xtra)
+        plate = self.getParent()
+        rv['wellPos'] = "%s%s" % (plate.getRowLabels()[self.row],plate.getColumnLabels()[self.column])
+        rv['plateId'] = plate.getId()
+        rv['wellId'] = self.getId()
+        return rv
 
     def getParents (self, withlinks=False):
         """
