@@ -131,9 +131,14 @@ class BlitzObjectWrapper (object):
     
     OMERO_CLASS = None              # E.g. 'Project', 'Dataset', 'Experimenter' etc. 
     LINK_CLASS = None
+    LINK_CHILD = 'child'
     CHILD_WRAPPER_CLASS = None
     PARENT_WRAPPER_CLASS = None
-    
+
+    @staticmethod
+    def LINK_PARENT (x):
+        return x.parent
+
     def __init__ (self, conn=None, obj=None, cache=None, **kwargs):
         """
         Initialises the wrapper object, setting the various class variables etc
@@ -225,12 +230,26 @@ class BlitzObjectWrapper (object):
         """
         if self.PARENT_WRAPPER_CLASS is None:
             raise NotImplementedError
-        if type(self.PARENT_WRAPPER_CLASS) is type(''):
-            # resolve class
-            g = globals()
-            if not g.has_key(self.PARENT_WRAPPER_CLASS): #pragma: no cover
-                raise NotImplementedError
-            self.__class__.PARENT_WRAPPER_CLASS = self.PARENT_WRAPPER_CLASS = g[self.PARENT_WRAPPER_CLASS]
+        pwc = self.PARENT_WRAPPER_CLASS
+        if not isinstance(pwc, ListType):
+            pwc = [pwc,]
+        for i in range(len(pwc)):
+            if isinstance(pwc[i], StringTypes):
+                # resolve class
+                g = globals()
+                if not g.has_key(pwc[i]): #pragma: no cover
+                    raise NotImplementedError
+                pwc[i] = g[pwc[i]]
+                
+        #if type(self.PARENT_WRAPPER_CLASS) is type(''):
+        #    # resolve class
+        #    g = globals()
+        #    if not g.has_key(self.PARENT_WRAPPER_CLASS): #pragma: no cover
+        #        raise NotImplementedError
+        #    self.__class__.PARENT_WRAPPER_CLASS = self.PARENT_WRAPPER_CLASS = g[self.PARENT_WRAPPER_CLASS]
+        #return self.PARENT_WRAPPER_CLASS
+        if pwc != self.PARENT_WRAPPER_CLASS or pwc != self.__class__.PARENT_WRAPPER_CLASS:
+            self.__class__.PARENT_WRAPPER_CLASS = self.PARENT_WRAPPER_CLASS = pwc
         return self.PARENT_WRAPPER_CLASS
 
     def __loadedHotSwap__ (self):
@@ -559,10 +578,13 @@ class BlitzObjectWrapper (object):
             return ()
         parentw = self._getParentWrapper()
         param = omero.sys.Parameters() # TODO: What can I use this for?
-        if withlinks:
-            parentnodes = [ (parentw(self._conn, x.parent, self._cache), BlitzObjectWrapper(self._conn, x)) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.child.id=%i" % (parentw().LINK_CLASS, self._oid), param)]
-        else:
-            parentnodes = [ parentw(self._conn, x.parent, self._cache) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.child.id=%i" % (parentw().LINK_CLASS, self._oid), param)]
+        parentnodes = []
+        for pwc in parentw:
+            pwck = pwc()
+            if withlinks:
+                parentnodes.extend([(pwc(self._conn, pwck.LINK_PARENT(x), self._cache), BlitzObjectWrapper(self._conn, x)) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param)])
+            else:
+                parentnodes.extend([pwc(self._conn, pwck.LINK_PARENT(x), self._cache) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param)])
         return parentnodes
 
     def getAncestry (self):
@@ -4451,6 +4473,25 @@ class _WellSampleWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'WellSample'
         self.CHILD_WRAPPER_CLASS = 'ImageWrapper'
         self.PARENT_WRAPPER_CLASS = 'WellWrapper'
+        self.LINK_CLASS = 'WellSample'
+        self.LINK_PARENT = lambda x: x
+        self.LINK_CHILD = 'image'
+
+    def getParents (self, withlinks=False):
+        """
+        Because wellsamples are direct children of wells, with no links in between,
+        a special getParents is needed
+        """
+        rv = self._conn.getQueryService().findAllByQuery("""select w from Well w 
+            left outer join fetch w.wellSamples as ws
+            where ws.id=%d""" % self.getId(), None)
+        if not len(rv):
+            rv = [None]
+        #rv = self._conn.getObject('Plate', self.plate.id.val)
+        pwc = self._getParentWrapper()
+        if withlinks:
+            return [(pwc[0](self._conn, x), None) for x in rv]
+        return [pwc[0](self._conn, x) for x in rv]
 
     def getImage (self):
         """
@@ -5099,7 +5140,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'Image'
         self.LINK_CLASS = None
         self.CHILD_WRAPPER_CLASS = None
-        self.PARENT_WRAPPER_CLASS = 'DatasetWrapper'
+        self.PARENT_WRAPPER_CLASS = ['DatasetWrapper', 'WellSampleWrapper']
 
     def __del__ (self):
         self._re and self._re.untaint()
