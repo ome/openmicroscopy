@@ -2286,7 +2286,19 @@ class _BlitzGateway (object):
             raise RuntimeError("More than one result returned for getObject('%s', %s, %s)" % (obj_type, oid, attributes))
         return result[0]
 
-
+    def getWell (self, oid):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        sql = "select obj from Well obj join fetch obj.details.owner join fetch obj.details.group " \
+              "where obj.id=:oid "
+        obj = query_serv.findByQuery(sql,p)
+        if obj is not None:
+            return WellWrapper(self, obj)
+        else:
+            return None
+        
     def getObjects (self, obj_type, ids=None, params=None, attributes=None):
         """
         Retrieve Objects by type E.g. "Image". Not Ordered. 
@@ -4248,8 +4260,20 @@ class _WellWrapper (BlitzObjectWrapper):
         """
         self._childcache = None
 
+    def __loadedHotSwap__ (self):
+        query = "select well from Well as well "\
+                "join fetch well.details.creationEvent "\
+                "join fetch well.details.owner join fetch well.details.group " \
+                "left outer join fetch well.wellSamples as ws " \
+                "left outer join fetch ws.image as img "\
+                "where well.id = %d" % self.getId()
+        
+        self._obj = self._conn.getQueryService().findByQuery(query, None)
+
     def _listChildren (self, **kwargs):
         if self._childcache is None:
+            if not self.isWellSamplesLoaded():
+                self.__loadedHotSwap__()
             if self.isWellSamplesLoaded():
                 self._childcache = self.copyWellSamples()
         return self._childcache
