@@ -6097,6 +6097,9 @@ class _ImageWrapper (BlitzObjectWrapper):
               'gridy': y,}
         return rv
 
+    def _renderSplit_channelLabel (self, channel):
+        return str(channel.getEmissionWave())
+
     def renderSplitChannelImage (self, z, t, compression=0.9, border=2):
         """
         Prepares a PIL Image with a 2d grid holding a render of each channel, 
@@ -6148,7 +6151,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 img = self.renderImage(z,t, compression)
                 if fsize > 0:
                     draw = ImageDraw.ImageDraw(img)
-                    draw.text((2,2), "%s" % (str(self.getChannels()[i].getLabel())), font=font, fill="#fff")
+                    draw.text((2,2), "%s" % (self._renderSplit_channelLabel(self.getChannels()[i])), font=font, fill="#fff")
                 canvas.paste(img, (px, py))
             pxc += 1
             if pxc < dims['gridx']:
