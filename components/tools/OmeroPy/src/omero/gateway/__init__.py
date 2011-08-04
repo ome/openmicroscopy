@@ -4134,6 +4134,7 @@ class _ScreenWrapper (BlitzObjectWrapper):
 ScreenWrapper = _ScreenWrapper
 
 def _letterGridLabel (i):
+    """  Convert number to letter label. E.g. 0 -> 'A' and 100 -> 'CW'  """
     r = chr(ord('A') + i%26)
     i = i/26
     while i > 0:
@@ -4167,9 +4168,9 @@ class _PlateWrapper (BlitzObjectWrapper):
 
     def _listChildren (self, **kwargs):
         """
-        Lists available child objects.
+        Lists Wells in this plate, not sorted. Saves wells to _childcache map, where key is (row, column).
 _
-        @rtype: generator of L{BlitzObjectWrapper} objs
+        @rtype: list of omero.model.WellI objects
         @return: child objects.
         """
         if self._childcache is None:
@@ -4210,7 +4211,9 @@ _
 
     def getGridSize (self):
         """
-        Iterates all wells on plate to retrieve grid size
+        Iterates all wells on plate to retrieve grid size as {'rows': rSize, 'columns':cSize} dict.
+        
+        @rtype:     dict of {'rows': rSize, 'columns':cSize}
         """
         if self._gridSize is None:
             r,c = 0,0
@@ -4221,7 +4224,9 @@ _
 
     def getWellGrid (self, index=0):
         """
-        Returns a grid of WellWrapper objects, indexed by row,col
+        Returns a grid of WellWrapper objects, indexed by [row][col].
+        
+        @rtype:     2D array of L{WellWrapper}s. Empty well positions are None
         """
         grid = self.getGridSize()
         childw = self._getChildWrapper()
@@ -4232,7 +4237,7 @@ _
 
     def getColumnLabels (self):
         """
-        Returns a list of labels for the columns on this plate
+        Returns a list of labels for the columns on this plate. E.g. [1, 2, 3...] or ['A', 'B', 'C'...] etc
         """
         if self.columnNamingConvention.lower()=='number':
             return range(1, self.getGridSize()['columns']+1)
@@ -4242,7 +4247,7 @@ _
 
     def getRowLabels (self):
         """
-        Returns a list of labels for the rows on this plate
+        Returns a list of labels for the rows on this plate. E.g. [1, 2, 3...] or ['A', 'B', 'C'...] etc
         """
         if self.rowNamingConvention.lower()=='number':
             return range(1, self.getGridSize()['rows']+1)
@@ -4294,12 +4299,6 @@ _
               "left outer join fetch spl.parent sc"
         return query
 
-    def exportOmeTiff (self):
-        """
-        Make sure full project export doesn't pick up wellsample images
-        TODO: do we want to support this at all?
-        """
-        return None
     
 PlateWrapper = _PlateWrapper
 
@@ -4423,6 +4422,16 @@ class _WellWrapper (BlitzObjectWrapper):
         return None
 
     def getImage (self, index=None):
+        """
+        Return the image at the specified well sample index. If index is ommited,
+        the currently selected index is used instead (self.index) and if
+        that is not defined, the first one (index 0) is returned.
+
+        @param index: the well sample index
+        @type index: integer
+        @return:    The Image
+        @rtype:     L{ImageWrapper}
+        """
         wellsample = self.getWellSample(index)
         if wellsample:
             return wellsample.getImage()
