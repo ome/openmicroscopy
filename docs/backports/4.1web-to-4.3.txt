@@ -4,6 +4,40 @@ omero.gateway and omeroweb.webgateway
 
 List of latest commits merged from dev_4_1_custom into develop
 
+*** 2011-08-03 ***
+
+-- omeroweb.webgateway (056e215f390ea4f8b35a4ea4f523b2ae37b28c73)
+3c477ed webgateway javascript that unmarshalls search data made aware of screen based images
+f2087c7 Making webgateway.views.copy_image_rdef_json easier to extend
+fb8088f Adding 'field' to plateGrid_json returned dict
+5535ae0 Changing the image viewport metadata label to metalabel, avoiding confusion with the omero.gateway channel wrappe
+0bf7413 Adding wellData url and view
+5eb3e69 Adding id to well in plateview.js, adding thumbLoad event too
+98ef361 Adding jquery-ui-1.8.12
+00d523c Some tweaks.
+869c977 missed one getPlate call substitution to getObject
+63891bc small tweaks: reset_image_rdef_json using jsonp decorator and unittests not forcing omero.gateway wrapper classes
+a2fcae9 Fixing base url for full viewer ajax actions, again looking at server_id first and falling back to webgateway.
+0d53558 wrapping the ROI buttons on full viewer with a block to allow disabling them in inheriting templates
+02c51e7 Fixing the full viewer initial resize and zoom to fit
+669b804 weblitz-plateview.js: Adding well coords to the thumbnail element data
+bd0af69 webgateway improve well support (see #4649)
+2080ca0 weblitz-plateviewer now allows specifying plate field (see #4649)
+e6f4bf1 Prettier loading of well grids on the weblitz-plateview.js plugin and the json call now sets grid constraints to 
+6f02e2e Adding basic plate grid view javascript that uses new plateGrid_json view for data (see #4649)
+
+-- omero.gateway (f38a6f65559afdb8e63e562d278b623d6c80da47)
+bfa4646 Allow Wrapper classes to know about multiple parent classes, fix getParents for Images in WellSamples
+cbf0c62 WellWrapper specific simpleMarshal and faster screen/plate getNumberOfFields.
+0fd87c7 Faster implementation of PlateWrapper.getNumberOfFields
+df83232 Adding specific listChildren for plates.
+736787a Allowing searchObjects to search Well
+b90d614 Fixing attr type mismatch on ObjectiveWrapper
+c60a1d9 Also catching AttributeError on dbhelpers import so it runs even without OMERO_HOME on settings
+40b4804 Fixing omero.gateway dbhelpers image import to match new omero import semantics
+43ab210 Commenting out findObjects, should be completely super
+
+
 *** 2011-03-07 ***
 
 -- omeroweb.webgateway
