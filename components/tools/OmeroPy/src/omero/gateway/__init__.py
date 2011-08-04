@@ -5170,26 +5170,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         if i is None:
             return None
         if not i.loaded:
-            self._obj.instrument = self._conn.getQueryService().find('Instrument', i.id.val)
-            i = self._obj.instrument
             meta_serv = self._conn.getMetadataService()
-            instruments = meta_serv.loadInstrument(i.id.val)
-
-            if instruments._detectorLoaded:
-                i._detectorSeq.extend(instruments._detectorSeq)
-            if instruments._objectiveLoaded:
-                i._objectiveSeq.extend(instruments._objectiveSeq)
-            if instruments._lightSourceLoaded:
-                i._lightSourceSeq.extend(instruments._lightSourceSeq)
-            if instruments._filterLoaded:
-                i._filterSeq.extend(instruments._filterSeq)
-            if instruments._dichroicLoaded:
-                i._dichroicSeq.extend(instruments._dichroicSeq)
-            if instruments._filterSetLoaded:
-                i._filterSetSeq.extend(instruments._filterSetSeq)
-            if instruments._otfLoaded:
-                i._otfSeq.extend(instruments._otfSeq)
-                    
+            i = self._obj.instrument = meta_serv.loadInstrument(i.id.val)
         return InstrumentWrapper(self._conn, i)
 
     def _loadPixels (self):
