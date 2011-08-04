@@ -137,7 +137,7 @@
         <property name="omero.fs.ignoreSysFiles"  value="True"/>
         <property name="omero.fs.ignoreDirEvents"  value="True"/>
         <property name="omero.fs.dirImportWait"  value="60"/>
-        <property name="omero.fs.throttleImport"  value="5"/>
+        <property name="omero.fs.throttleImport"  value="10"/>
         <property name="omero.fs.readers"  value=""/>
         <property name="omero.fs.importArgs"  value=""/>
     </properties>
