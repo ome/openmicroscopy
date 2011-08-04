@@ -4788,11 +4788,11 @@ class assert_re (object):
                 if not self._prepareRenderingEngine() \
                    and ctx.onPrepareFailureReturnNone:
                     logger.debug('Preparation of rendering engine failed, ' \
-                                 'returning None!')
+                                 'returning None for %r!' % f)
                     return None
             except ctx.ignoreExceptions, e:
                 logger.debug('Ignoring exception thrown during preparation ' \
-                             'of rendering engine!', exc_info=True)
+                             'of rendering engine for %r!' % f, exc_info=True)
                 pass
             return f(self, *args, **kwargs)
         return wrapped
