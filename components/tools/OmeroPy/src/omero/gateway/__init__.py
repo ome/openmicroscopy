@@ -4353,10 +4353,10 @@ class _WellWrapper (BlitzObjectWrapper):
         rv['wellId'] = self.getId()
         return rv
 
-    def getParents (self, withlinks=False):
+    def listParents (self, withlinks=False):
         """
         Because wells are direct children of plates, with no links in between,
-        a special getParents is needed
+        a special listParents is needed
         """
         rv = self._conn.getObject('Plate', self.plate.id.val)
         if withlinks:
@@ -4477,10 +4477,10 @@ class _WellSampleWrapper (BlitzObjectWrapper):
         self.LINK_PARENT = lambda x: x
         self.LINK_CHILD = 'image'
 
-    def getParents (self, withlinks=False):
+    def listParents (self, withlinks=False):
         """
         Because wellsamples are direct children of wells, with no links in between,
-        a special getParents is needed
+        a special listParents is needed
         """
         rv = self._conn.getQueryService().findAllByQuery("""select w from Well w 
             left outer join fetch w.wellSamples as ws
