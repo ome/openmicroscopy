@@ -4758,16 +4758,23 @@ class assert_re (object):
     """
     Function decorator to make sure that rendering engine is prepared before
     call. Is configurable by various options.
-
-    @param func:    Function
-    @type func:     Function
-    @return:        Decorated function
-    @rtype:         Function
     """
 
-    _warning = 'Preparation of rendering engine failed, returning None!'
-
     def __init__(self, onPrepareFailureReturnNone=True, ignoreExceptions=None):
+        """
+        Initialises the decorator.
+
+        @param onPrepareFailureReturnNone: Whether or not on a failure to
+        prepare the rendering engine the decorator should return 'None' or
+        allow the execution of the decorated function or method. Defaults to
+        'True'.
+        @type onPrepareFailureReturnNone: Boolean
+        @param ignoreExceptions: A set of exceptions thrown during the
+        preparation of the rendering engine for whith the decorator should
+        ignore and allow the execution of the decorated function or method.
+        Defaults to 'None'.
+        @type ignoreExceptions: Set
+        """
         self.onPrepareFailureReturnNone = onPrepareFailureReturnNone
         self.ignoreExceptions = ignoreExceptions
 
