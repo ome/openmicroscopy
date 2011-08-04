@@ -4754,26 +4754,48 @@ class _ChannelWrapper (BlitzObjectWrapper):
 
 ChannelWrapper = _ChannelWrapper
 
-def assert_re (func):
+class assert_re (object):
     """
-    Function decorator to make sure that rendering engine is prepared before call
-    
-    @param func:    Function
-    @type func:     Function
-    @return:        Decorated function
-    @rtype:         Function
+    Function decorator to make sure that rendering engine is prepared before
+    call. Is configurable by various options.
     """
-    
-    def wrapped (self, *args, **kwargs):
-        """ Tries to prepare rendering engine, then call function and return the result"""
-        try:
-            if not self._prepareRenderingEngine():
-                return None
-        # _prepareRenderingEngine() may throw, but we ignore it
-        except omero.ConcurrencyException, ce:
-            pass
-        return func(self, *args, **kwargs)
-    return wrapped
+
+    def __init__(self, onPrepareFailureReturnNone=True, ignoreExceptions=None):
+        """
+        Initialises the decorator.
+
+        @param onPrepareFailureReturnNone: Whether or not on a failure to
+        prepare the rendering engine the decorator should return 'None' or
+        allow the execution of the decorated function or method. Defaults to
+        'True'.
+        @type onPrepareFailureReturnNone: Boolean
+        @param ignoreExceptions: A set of exceptions thrown during the
+        preparation of the rendering engine for whith the decorator should
+        ignore and allow the execution of the decorated function or method.
+        Defaults to 'None'.
+        @type ignoreExceptions: Set
+        """
+        self.onPrepareFailureReturnNone = onPrepareFailureReturnNone
+        self.ignoreExceptions = ignoreExceptions
+
+    def __call__(ctx, f):
+        """
+        Tries to prepare rendering engine, then calls function and return the
+        result.
+        """
+        def wrapped(self, *args, **kwargs):
+            try:
+                if not self._prepareRenderingEngine() \
+                   and ctx.onPrepareFailureReturnNone:
+                    logger.debug('Preparation of rendering engine failed, ' \
+                                 'returning None for %r!' % f)
+                    return None
+            except ctx.ignoreExceptions, e:
+                logger.debug('Ignoring exception thrown during preparation ' \
+                             'of rendering engine for %r!' % f, exc_info=True)
+                pass
+            return f(self, *args, **kwargs)
+        return wrapped
 
 def assert_pixels (func):
     """
@@ -4967,20 +4989,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         @rtype:     Boolean
         """
         
-        try:
-            self._loadPixels()
-            if self._re is None:
-                if self._obj.sizeOfPixels() < 1:
-                    return False
-                if self._pd is None:
-                    self._pd = omero.romio.PlaneDef(self.PLANEDEF)
-                self._re = self._prepareRE()
-            return self._re is not None
-        # allow others to handle ConcurrencyException- display Message etc.
-        except omero.ConcurrencyException, ce:
-            raise ce
-        except:
-            return None
+        self._loadPixels()
+        if self._re is None:
+            if self._obj.sizeOfPixels() < 1:
+                return False
+            if self._pd is None:
+                self._pd = omero.romio.PlaneDef(self.PLANEDEF)
+            self._re = self._prepareRE()
+        return self._re is not None
 
     def resetRDefs (self):
         logger.debug('resetRDefs')
@@ -5209,7 +5225,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                     return (a, (global_metadata), (series_metadata))
         return None
 
-    @assert_re
+    @assert_re()
     def _getProjectedThumbnail (self, size, pos):
         """
         Returns a string holding a rendered JPEG of the projected image, sized to mimic a thumbnail.
@@ -5335,7 +5351,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         return PixelsWrapper(self._conn, self._obj.getPrimaryPixels())
 
-    @assert_re
+    @assert_re(ignoreExceptions=(omero.ConcurrencyException))
     def getChannels (self):
         """
         Returns a list of Channels, each initialised with rendering engine
@@ -5514,7 +5530,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         return self.getPixelLine(z,t,x,'v',channels,range)
 
-    @assert_re
+    @assert_re()
     def getRenderingModels (self):
         """
         Gets a list of available rendering models.
@@ -5528,7 +5544,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 self._rm[m.value.lower()] = m
         return self._rm.values()
 
-    @assert_re
+    @assert_re()
     def getRenderingModel (self):
         """
         Get the current rendering model.
@@ -5564,7 +5580,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         return self.getRenderingModel().value.lower() == 'greyscale'
 
-    @assert_re
+    @assert_re()
     def renderBirdsEyeView (self, size):
         """
         Returns the data from rendering the bird's eye view of the image.
@@ -5612,7 +5628,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         f.seek(0)
         return f.read()
 
-    @assert_re
+    @assert_re()
     def renderJpegRegion (self, z, t, x, y, width, height, level=None, compression=0.9):
         """
         Return the data from rendering a region of an image plane.
@@ -5662,7 +5678,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             raise
 
 
-    @assert_re
+    @assert_re()
     def renderJpeg (self, z, t, compression=0.9):
         """
         Return the data from rendering image, compressed (and projected).
@@ -5753,7 +5769,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         logger.debug(rv)
         return rv
 
-    @assert_re
+    @assert_re()
     def createMovie (self, outpath, zstart, zend, tstart, tend, opts=None):
         """
         Creates a movie file from this image.
@@ -6034,7 +6050,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return im, width, height
 
 
-    @assert_re
+    @assert_re()
     def renderRowLinePlotGif (self, z, t, y, linewidth=1):
         """
         Draws the Row plot as a gif file. Returns gif data.  
@@ -6073,7 +6089,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         im.save(out, format="gif", transparency=0)
         return out.getvalue()
 
-    @assert_re
+    @assert_re()
     def renderColLinePlotGif (self, z, t, x, linewidth=1):
         """
         Draws the Column plot as a gif file. Returns gif data.  
@@ -6111,7 +6127,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         im.save(out, format="gif", transparency=0)
         return out.getvalue()
 
-    @assert_re
+    @assert_re()
     def getZ (self):
         """
         Returns the last used value of Z (E.g. for renderingJpeg or line plot)
@@ -6124,7 +6140,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         return self._pd.z
 
-    @assert_re
+    @assert_re()
     def getT (self):
         """
         Returns the last used value of T (E.g. for renderingJpeg or line plot)
@@ -6137,14 +6153,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         return self._pd.t
 
-    @assert_re
+    @assert_re()
     def getDefaultZ(self):
         """
         Gets the default Z index from the rendering engine
         """
         return self._re.getDefaultZ()
 
-    @assert_re
+    @assert_re()
     def getDefaultT(self):
         """
         Gets the default T index from the rendering engine
@@ -6319,7 +6335,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         self.setInvertedAxis(opts.get('ia', "0") == "1")
         return True
 
-    @assert_re
+    @assert_re()
     def saveDefaults (self):
         """
         Limited support for saving the current prepared image rendering defs.
