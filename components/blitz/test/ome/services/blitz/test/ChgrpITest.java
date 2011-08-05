@@ -1,5 +1,5 @@
 /*
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ome.io.nio.AbstractFileSystemService;
-import ome.services.blitz.impl.DeleteHandleI;
 import ome.services.delete.DeleteStepFactory;
 import ome.services.graphs.BaseGraphSpec;
 import ome.services.graphs.GraphEntry;
@@ -26,7 +24,11 @@ import omero.api.AMD_IDelete_queueDelete;
 import omero.api.IDeletePrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
-import omero.api.delete.DeleteReport;
+import omero.cmd.Chgrp;
+import omero.cmd.HandleI;
+import omero.cmd.RequestObjectFactoryRegistry;
+import omero.cmd.State;
+import omero.cmd.graphs.ChgrpI;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Dataset;
@@ -57,9 +59,7 @@ import omero.sys.ParametersI;
 
 import org.hibernate.Session;
 import org.jmock.Mock;
-import org.jmock.core.Invocation;
 import org.jmock.core.InvocationMatcher;
-import org.jmock.core.Stub;
 import org.jmock.core.matcher.InvokeOnceMatcher;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,11 +71,14 @@ import org.testng.annotations.Test;
  * {@link IDeletePrx#queueDelete(omero.api.delete.DeleteCommand[]) since it is
  * not available from {@link ome.api.IDelete}
  */
-@Test(groups = { "integration", "delete" })
-public class DeleteITest extends AbstractServantTest {
+@Test(groups = { "integration", "chgrp" })
+public class ChgrpITest extends AbstractServantTest {
 
     Mock adapterMock;
-    AbstractFileSystemService afs;
+
+    Ice.Communicator ic;
+
+    long newGroupId = 0L;
 
     @Override
     @BeforeClass
@@ -83,29 +86,54 @@ public class DeleteITest extends AbstractServantTest {
         super.setUp();
         adapterMock = (Mock) user.ctx.getBean("adapterMock");
         adapterMock.setDefaultStub(new FakeAdapter());
-        afs = new AbstractFileSystemService(user.ctx.getProperty("omero.data.dir"));
+        ic = ctx.getBean("Ice.Communicator", Ice.Communicator.class);
+
+        // Register ChgrpI, etc. This happens automatically on the server.
+        new RequestObjectFactoryRegistry().setIceCommunicator(ic);
+
+    }
+
+    ChgrpI newChgrp(String type, long id, long grp) {
+        return newChgrp(type, id, grp, null);
+    }
+
+    ChgrpI newChgrp(String type, long id, long grp,
+            Map<String, String> options) {
+        ChgrpI chgrp = (ChgrpI) ic.findObjectFactory(Chgrp.ice_staticId()).create("");
+        chgrp.type = type;
+        chgrp.id = id;
+        chgrp.options = options;
+        chgrp.grp = grp;
+        return chgrp;
     }
 
     /**
      * Demonstrates a simple usage. No intention of showing validity, but can be
      * given as an example to people.
      */
-    public void testBasicUsageOfQueueDelete() throws Exception {
+    public void testBasicUsageOfChgrp() throws Exception {
+
+        // Setup data
         long imageId = makeImage();
-        DeleteCommand dc = new DeleteCommand("/Image", imageId, null);
-        DeleteHandleI handle = doDelete(dc);
-        assertEquals(dc, handle.commands()[0]);
-        assertEquals(0, handle.errors());
+
+        // Do chgrp and wait on completion.
+        ChgrpI chgrp = newChgrp("/Image", imageId, newGroupId);
+        HandleI handle = doChgrp(chgrp);
         block(handle, 5, 1000);
+
+        // Non-null response signals completion.
+        assertNotNull(handle.getResponse());
+
+        // Cancelling is not possible after completion.
         assertFalse(handle.cancel());
     }
 
     /**
-     * Uses the /Image/Pixels/Channel delete specification to remove the
-     * channels added during {@link #makeImage()} and tests that the channels
-     * are gone afterwards.
+     * Attempts to use the /Image/Pixels/Channel specification to chgrp the
+     * channels added during {@link #makeImage()}. This should fail the group
+     * validity tests.
      */
-    public void testDeleteChannels() throws Exception {
+    public void testChgrpChannels() throws Exception {
 
         // Create test data
         long imageId = makeImage();
@@ -114,10 +142,9 @@ public class DeleteITest extends AbstractServantTest {
                         + imageId, null);
         assertTrue(channelIds.size() > 0);
 
-        // Perform delete
-        DeleteCommand dc = new DeleteCommand("/Image/Pixels/Channel", imageId,
-                null);
-        doDelete(dc);
+        // Perform chgrp
+        ChgrpI chgrp = newChgrp("/Image/Pixels/Channel", imageId, newGroupId);
+        doChgrp(chgrp);
 
         // Check that data is gone
         channelIds = assertProjection(
@@ -127,11 +154,11 @@ public class DeleteITest extends AbstractServantTest {
     }
 
     /**
-     * Uses the /Image/Pixels/Channel delete specification to remove the
-     * channels added during {@link #makeImage()} and tests that the channels
-     * are gone afterwards.
+     * Like {@link #testChgrpChannels()} this should fail since it's not really
+     * possible for the rdef to exist alone. This should somehow be detectable
+     * by clients.
      */
-    public void testDeleteRenderingDef() throws Exception {
+    public void testChgrpRenderingDef() throws Exception {
 
         // Create test data
         long imageId = makeImage();
@@ -140,10 +167,10 @@ public class DeleteITest extends AbstractServantTest {
         List<List<RType>> ids = assertProjection(check, null);
         assertTrue(ids.size() > 0);
 
-        // Perform delete
-        DeleteCommand dc = new DeleteCommand("/Image/Pixels/RenderingDef",
-                imageId, null);
-        doDelete(dc);
+        // Perform chgrp
+        ChgrpI chgrp = newChgrp("/Image/Pixels/RenderingDef", imageId,
+                newGroupId);
+        doChgrp(chgrp);
 
         // Check that data is gone
         ids = assertProjection(check, null);
@@ -157,9 +184,9 @@ public class DeleteITest extends AbstractServantTest {
     @SuppressWarnings("rawtypes")
     public void testImage() throws Exception {
         long imageId = makeImage();
-        DeleteCommand dc = new DeleteCommand("/Image", imageId, null);
+        ChgrpI chgrp = newChgrp("/Image", imageId, newGroupId);
 
-        doDelete(dc);
+        doChgrp(chgrp);
 
         List l = assertProjection("select i.id from Image i where i.id = "
                 + imageId, null);
@@ -181,8 +208,8 @@ public class DeleteITest extends AbstractServantTest {
         long annId = link.getChild().getId().getValue();
 
         // Perform delete
-        DeleteCommand dc = new DeleteCommand("/Image", imageId, null);
-        doDelete(dc);
+        ChgrpI chgrp = newChgrp("/Image", imageId, newGroupId);
+        doChgrp(chgrp);
 
         // Check that data is gone
         List<List<RType>> ids = assertProjection(
@@ -197,7 +224,7 @@ public class DeleteITest extends AbstractServantTest {
      * remove its annotations. If those annotations are multiply linked,
      * however, the attempted delete is rolled back (via a savepoint)
      */
-    @Test(groups = {"ticket:2769", "ticket:2780"})
+    @Test(groups = { "ticket:2769", "ticket:2780" })
     public void testImageWithSharedAnnotations() throws Exception {
 
         // Create test data
@@ -216,8 +243,10 @@ public class DeleteITest extends AbstractServantTest {
         link2 = assertSaveAndReturn(link2);
 
         // Perform delete
-        DeleteCommand dc = new DeleteCommand("/Image", imageId1, null);
-        DeleteHandleI handle = doDelete(dc);
+        ChgrpI chgrp = newChgrp("/Image", imageId1, newGroupId);
+        HandleI handle = doChgrp(chgrp);
+        fail("NYI");
+        /*
         DeleteReport[] reports = handle.report();
         boolean found = false;
         for (DeleteReport report : reports) {
@@ -237,6 +266,7 @@ public class DeleteITest extends AbstractServantTest {
                 new ParametersI().addId(tag.getId().getValue()));
 
         assertEquals(1, ids.size());
+        */
     }
 
     /**
@@ -256,8 +286,8 @@ public class DeleteITest extends AbstractServantTest {
         long id = p.getId().getValue();
 
         // Do Delete
-        DeleteCommand dc = new DeleteCommand("/Project", id, null);
-        doDelete(dc);
+        ChgrpI chgrp = newChgrp("/Project", id, newGroupId);
+        doChgrp(chgrp);
 
         // Make sure its come
         List l;
@@ -291,8 +321,8 @@ public class DeleteITest extends AbstractServantTest {
         long did = d.getId().getValue();
 
         // Do Delete
-        DeleteCommand dc = new DeleteCommand("/Project", pid, null);
-        doDelete(dc);
+        ChgrpI chgrp = newChgrp("/Project", pid, newGroupId);
+        doChgrp(chgrp);
 
         // Make sure its come
         List l;
@@ -330,8 +360,8 @@ public class DeleteITest extends AbstractServantTest {
         long wsid = ws.getId().getValue();
 
         // Do Delete
-        DeleteCommand dc = new DeleteCommand("/Plate", pid, null);
-        doDelete(dc);
+        ChgrpI chgrp = newChgrp("/Plate", pid, newGroupId);
+        doChgrp(chgrp);
 
         // Make sure its deleted
         List l;
@@ -351,8 +381,8 @@ public class DeleteITest extends AbstractServantTest {
     }
 
     /**
-     * Deletes a very simple image/annotation graph, to guarantee that the
-     * basic options are working
+     * Deletes a very simple image/annotation graph, to guarantee that the basic
+     * options are working
      */
     @SuppressWarnings("rawtypes")
     public void testSimpleImageWithAnnotation() throws Exception {
@@ -368,15 +398,16 @@ public class DeleteITest extends AbstractServantTest {
         long aid = link.getChild().getId().getValue();
 
         // Do Delete
-        DeleteCommand dc = new DeleteCommand("/Image", iid, null);
-        doDelete(dc);
+        ChgrpI chgrp = newChgrp("/Image", iid, newGroupId);
+        doChgrp(chgrp);
 
         // Make sure its deleted
         List l;
         l = assertProjection("select i.id from Image i where i.id = " + iid,
                 null);
         assertEquals(0, l.size());
-        l = assertProjection("select l.id from ImageAnnotationLink l where l.id = " + lid,
+        l = assertProjection(
+                "select l.id from ImageAnnotationLink l where l.id = " + lid,
                 null);
         assertEquals(0, l.size());
         l = assertProjection("select a.id from Annotation a where a.id = "
@@ -386,8 +417,8 @@ public class DeleteITest extends AbstractServantTest {
     }
 
     /**
-     * Attempts to use the ILink type for deleting all links which point
-     * at an annotation.
+     * Attempts to use the ILink type for deleting all links which point at an
+     * annotation.
      */
     @SuppressWarnings("rawtypes")
     public void testDeleteAllAnnotationLinks() throws Exception {
@@ -402,17 +433,18 @@ public class DeleteITest extends AbstractServantTest {
         long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        DeleteCommand dc = new DeleteCommand("/Annotation", cid, null);
-        doDelete(dc);
+        ChgrpI chgrp = newChgrp("/Annotation", cid, newGroupId);
+        doChgrp(chgrp);
 
         // Make sure the parent annotation still exists, but both the annotation
         // link and the annotation that was linked to (the child) are gone.
         List l;
-        l = assertProjection("select p.id from Annotation p where p.id = " + pid,
-                null);
+        l = assertProjection("select p.id from Annotation p where p.id = "
+                + pid, null);
         assertEquals(1, l.size());
-        l = assertProjection("select l.id from AnnotationAnnotationLink l where l.id = " + lid,
-                null);
+        l = assertProjection(
+                "select l.id from AnnotationAnnotationLink l where l.id = "
+                        + lid, null);
         assertEquals(0, l.size());
         l = assertProjection("select c.id from Annotation c where c.id = "
                 + cid, null);
@@ -421,8 +453,8 @@ public class DeleteITest extends AbstractServantTest {
     }
 
     /**
-     * Uses the {@link GraphEntry.Op#KEEP} setting to prevent a delete
-     * from happening.
+     * Uses the {@link GraphEntry.Op#KEEP} setting to prevent a delete from
+     * happening.
      */
     @SuppressWarnings("rawtypes")
     public void testKeepAnnotation() throws Exception {
@@ -439,17 +471,18 @@ public class DeleteITest extends AbstractServantTest {
         // Do Delete
         Map<String, String> options = new HashMap<String, String>();
         options.put("/TagAnnotation", "KEEP");
-        DeleteCommand dc = new DeleteCommand("/Annotation", cid, options);
-        doDelete(dc);
+        ChgrpI chgrp = newChgrp("/Annotation", cid, newGroupId, options);
+        doChgrp(chgrp);
 
         // Make sure the parent annotation still exists, but both the annotation
         // link and the annotation that was linked to (the child) are gone.
         List l;
-        l = assertProjection("select p.id from Annotation p where p.id = " + pid,
-                null);
+        l = assertProjection("select p.id from Annotation p where p.id = "
+                + pid, null);
         assertEquals(1, l.size());
-        l = assertProjection("select l.id from AnnotationAnnotationLink l where l.id = " + lid,
-                null);
+        l = assertProjection(
+                "select l.id from AnnotationAnnotationLink l where l.id = "
+                        + lid, null);
         assertEquals(1, l.size());
         l = assertProjection("select c.id from Annotation c where c.id = "
                 + cid, null);
@@ -458,8 +491,8 @@ public class DeleteITest extends AbstractServantTest {
     }
 
     /**
-     * Uses the {@link GraphEntry.Op#KEEP} setting to prevent a delete
-     * from happening.
+     * Uses the {@link GraphEntry.Op#KEEP} setting to prevent a delete from
+     * happening.
      */
     @SuppressWarnings("rawtypes")
     public void testKeepImageAnnotation() throws Exception {
@@ -477,8 +510,8 @@ public class DeleteITest extends AbstractServantTest {
         // Do Delete
         Map<String, String> options = new HashMap<String, String>();
         options.put("/TagAnnotation", "KEEP");
-        DeleteCommand dc = new DeleteCommand("/Image", pid, options);
-        doDelete(dc);
+        ChgrpI chgrp = newChgrp("/Image", pid, newGroupId, options);
+        doChgrp(chgrp);
 
         // Make sure the parent annotation still exists, but both the annotation
         // link and the annotation that was linked to (the child) are gone.
@@ -486,7 +519,8 @@ public class DeleteITest extends AbstractServantTest {
         l = assertProjection("select p.id from Image p where p.id = " + pid,
                 null);
         assertEquals(0, l.size());
-        l = assertProjection("select l.id from ImageAnnotationLink l where l.id = " + lid,
+        l = assertProjection(
+                "select l.id from ImageAnnotationLink l where l.id = " + lid,
                 null);
         assertEquals(0, l.size());
         l = assertProjection("select c.id from Annotation c where c.id = "
@@ -497,15 +531,16 @@ public class DeleteITest extends AbstractServantTest {
 
     /**
      * Tests overriding the {@link GraphEntry.Op#KEEP} setting by a hard-code
-     * value in spec.xml. These are well-known "unshared" annotations, that should
-     * be deleted, regardless of KEEP.
+     * value in spec.xml. These are well-known "unshared" annotations, that
+     * should be deleted, regardless of KEEP.
      */
     @SuppressWarnings("rawtypes")
     public void testDontKeepImageAnnotationIfUnsharedNS() throws Exception {
 
         // Create test data
         FileAnnotation file = new FileAnnotationI();
-        file.setNs(omero.rtypes.rstring("openmicroscopy.org/omero/import/companionFile"));
+        file.setNs(omero.rtypes
+                .rstring("openmicroscopy.org/omero/import/companionFile"));
 
         long iid = makeImage();
         ImageAnnotationLink link = new ImageAnnotationLinkI();
@@ -519,8 +554,8 @@ public class DeleteITest extends AbstractServantTest {
         // Do Delete
         Map<String, String> options = new HashMap<String, String>();
         options.put("/FileAnnotation", "KEEP");
-        DeleteCommand dc = new DeleteCommand("/Image", pid, options);
-        doDelete(dc);
+        ChgrpI chgrp = newChgrp("/Image", pid, newGroupId, options);
+        doChgrp(chgrp);
 
         // Make sure the parent annotation still exists, but both the annotation
         // link and the annotation that was linked to (the child) are gone.
@@ -528,7 +563,8 @@ public class DeleteITest extends AbstractServantTest {
         l = assertProjection("select p.id from Image p where p.id = " + pid,
                 null);
         assertEquals(0, l.size());
-        l = assertProjection("select l.id from ImageAnnotationLink l where l.id = " + lid,
+        l = assertProjection(
+                "select l.id from ImageAnnotationLink l where l.id = " + lid,
                 null);
         assertEquals(0, l.size());
         l = assertProjection("select c.id from Annotation c where c.id = "
@@ -538,8 +574,8 @@ public class DeleteITest extends AbstractServantTest {
     }
 
     /**
-     * Tests overriding the {@link GraphEntry.Op#KEEP} setting by setting
-     * a namespace which should always be deleted (an "unshared" annotation).
+     * Tests overriding the {@link GraphEntry.Op#KEEP} setting by setting a
+     * namespace which should always be deleted (an "unshared" annotation).
      */
     @SuppressWarnings("rawtypes")
     public void testDontKeepImageAnnotationIfRequestedNS() throws Exception {
@@ -560,8 +596,8 @@ public class DeleteITest extends AbstractServantTest {
         // Do Delete
         Map<String, String> options = new HashMap<String, String>();
         options.put("/FileAnnotation", "KEEP;excludes=keepme");
-        DeleteCommand dc = new DeleteCommand("/Image", pid, options);
-        doDelete(dc);
+        ChgrpI chgrp = newChgrp("/Image", pid, newGroupId, options);
+        doChgrp(chgrp);
 
         // Make sure the parent annotation still exists, but both the annotation
         // link and the annotation that was linked to (the child) are gone.
@@ -569,7 +605,8 @@ public class DeleteITest extends AbstractServantTest {
         l = assertProjection("select p.id from Image p where p.id = " + pid,
                 null);
         assertEquals(0, l.size());
-        l = assertProjection("select l.id from ImageAnnotationLink l where l.id = " + lid,
+        l = assertProjection(
+                "select l.id from ImageAnnotationLink l where l.id = " + lid,
                 null);
         assertEquals(0, l.size());
         l = assertProjection("select c.id from Annotation c where c.id = "
@@ -579,13 +616,11 @@ public class DeleteITest extends AbstractServantTest {
     }
 
     /**
-     * This method is copied from DeleteServiceTest to reproduce an issue
-     * in which KEEP;excludes= is not being taken into acount.
+     * This method is copied from DeleteServiceTest to reproduce an issue in
+     * which KEEP;excludes= is not being taken into acount.
      */
     @Test
-    public void testDeleteObjectWithAnnotationWithoutNS()
-        throws Exception
-    {
+    public void testDeleteObjectWithAnnotationWithoutNS() throws Exception {
         Screen obj = new ScreenI();
         obj.setName(omero.rtypes.rstring("testDelete"));
         obj = assertSaveAndReturn(obj);
@@ -597,7 +632,7 @@ public class DeleteITest extends AbstractServantTest {
 
         Map<String, String> options = new HashMap<String, String>();
         options.put("/Annotation", "KEEP;excludes=TEST");
-        doDelete(new DeleteCommand(type, id, options));
+        doChgrp(newChgrp(type, id, newGroupId, options));
 
         ParametersI param = new ParametersI();
         param.addId(obj.getId().getValue());
@@ -619,7 +654,8 @@ public class DeleteITest extends AbstractServantTest {
 
     }
 
-    List<Long> createNonSharableAnnotation(Screen obj, String ns) throws Exception {
+    List<Long> createNonSharableAnnotation(Screen obj, String ns)
+            throws Exception {
         TermAnnotation ta = new TermAnnotationI();
         if (ns != null) {
             ta.setNs(omero.rtypes.rstring(ns));
@@ -663,8 +699,8 @@ public class DeleteITest extends AbstractServantTest {
 
         // Run test
         final ApplicationContext dsf = user_delete.loadSpecs();
-        final BaseGraphSpec spec = dsf
-                .getBean("/Image/Pixels/Channel", BaseGraphSpec.class);
+        final BaseGraphSpec spec = dsf.getBean("/Image/Pixels/Channel",
+                BaseGraphSpec.class);
         spec.initialize(imageId, null, null);
 
         List<List<Long>> backupIds = (List<List<Long>>) user_sf.getExecutor()
@@ -675,14 +711,16 @@ public class DeleteITest extends AbstractServantTest {
                                     ServiceFactory sf) {
 
                                 try {
-                                    GraphState ids = new GraphState(new DeleteStepFactory(ctx), null, session, spec);
+                                    GraphState ids = new GraphState(
+                                            new DeleteStepFactory(ctx), null,
+                                            session, spec);
                                     List<List<Long>> rv = new ArrayList<List<Long>>();
                                     fail("NYI");
                                     /*
-                                    rv.add(ids.getFoundIds(spec, 0));
-                                    rv.add(ids.getFoundIds(spec, 1));
-                                    rv.add(ids.getFoundIds(spec, 2));
-                                    */
+                                     * rv.add(ids.getFoundIds(spec, 0));
+                                     * rv.add(ids.getFoundIds(spec, 1));
+                                     * rv.add(ids.getFoundIds(spec, 2));
+                                     */
                                     return rv;
                                 } catch (Exception e) {
                                     throw new RuntimeException(e);
@@ -708,22 +746,24 @@ public class DeleteITest extends AbstractServantTest {
     // Helpers
     //
 
-    private void block(DeleteHandleI handle, int loops, long pause)
+    private void block(HandleI handle, int loops, long pause)
             throws ServerError, InterruptedException {
-        for (int i = 0; i < loops && !handle.finished(); i++) {
+        for (int i = 0; i < loops && null != handle.getResponse(); i++) {
             Thread.sleep(pause);
-            if (handle.finished()) {
-                return;
-            }
         }
     }
 
-    private DeleteHandleI doDelete(DeleteCommand... dc) throws Exception {
-        Ice.Identity id = new Ice.Identity("handle", "delete");
-        //DeleteSpecFactory factory = specFactory();
-        DeleteHandleI handle = new DeleteHandleI(user_delete.loadSpecs(), id, user_sf, afs, dc, 1000);
-        handle.run();
-        assertEquals(handle.report().toString(), 0, handle.errors());
+    private HandleI doChgrp(ChgrpI chgrp) throws Exception {
+        Ice.Identity id = new Ice.Identity("handle", "chgrp");
+        HandleI handle = new HandleI(1000);
+        handle.setSession(user_sf);
+        try {
+            handle.initialize(id, chgrp);
+            handle.run();
+            assertFalse(handle.getStatus().flags.contains(State.FAILURE));
+        } finally {
+            handle.close();
+        }
         return handle;
     }
 

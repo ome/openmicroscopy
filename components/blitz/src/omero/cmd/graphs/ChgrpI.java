@@ -61,6 +61,7 @@ public class ChgrpI extends Chgrp implements IRequest {
     }
 
     public void init(Status status, Session session, SqlAction sql) {
+        this.factory.setGroup(grp);
         this.spec = specs.getBean(type, GraphSpec.class);
         this.status = status;
         synchronized (status) {
@@ -75,15 +76,15 @@ public class ChgrpI extends Chgrp implements IRequest {
             rsp.set(new ERR(ice_id(), "NO SPEC", null));
         } else {
             try {
-                status.steps = this.spec.initialize(id, "", options);
+                this.spec.initialize(id, "", options);
 
                 StopWatch sw = new CommonsLogStopWatch();
                 state = new GraphState(factory, sql, session, spec);
-                if (state.getTotalFoundCount() == 0) {
-                    status.steps = 0;
+                status.steps = state.getTotalFoundCount();
+                if (status.steps == 0) {
                     rsp.set(new OK()); // TODO: Subclass?
                 } else {
-                    sw.stop("omero.chgrp.ids." + state.getTotalFoundCount());
+                    sw.stop("omero.chgrp.ids." + status.steps);
                 }
 
                 // SUCCESS

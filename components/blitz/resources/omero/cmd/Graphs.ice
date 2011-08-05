@@ -25,6 +25,7 @@ module omero {
         };
 
         class Chgrp extends GraphModify {
+            long grp;
         };
 
         class ChgrpRsp extends Response {

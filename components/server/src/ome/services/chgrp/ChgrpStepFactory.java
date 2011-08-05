@@ -25,13 +25,25 @@ public class ChgrpStepFactory implements GraphStepFactory {
 
     private final OmeroContext ctx;
 
+    private long grp;
+
     public ChgrpStepFactory(OmeroContext ctx) {
         this.ctx = ctx;
     }
 
     public GraphStep create(int idx, List<GraphStep> stack, GraphSpec spec,
             GraphEntry entry, long[] ids) throws GraphException {
-        return new ChgrpStep(ctx, idx, stack, spec, entry, ids);
+        return new ChgrpStep(ctx, idx, stack, spec, entry, ids, grp);
     }
 
+    /**
+     * Set the group id which will be passed to all new {@link ChgrpStep}
+     * instances. Since a new {@link ChgrpStepFactory} is created for every
+     * chgrp action, this is thread safe.
+     *
+     * @param grp
+     */
+    public void setGroup(long grp) {
+        this.grp = grp;
+    }
 }

@@ -79,7 +79,7 @@ public class DeleteStep extends GraphStep {
 
     }
 
-    /**
+    /*
      * Workaround for refactoring to {@link GraphState}.
      *
      * If more logic is needed by subclasses, then

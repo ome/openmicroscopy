@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ome.conditions.OverUsageException;
 import ome.model.IObject;
 import ome.services.messages.EventLogMessage;
 import ome.system.OmeroContext;
@@ -193,7 +194,7 @@ public class GraphState implements GraphStep.Callback {
     /**
      * Return the total number of ids loaded into this instance.
      */
-    public long getTotalFoundCount() {
+    public int getTotalFoundCount() {
         return steps.size();
     }
 
@@ -201,13 +202,16 @@ public class GraphState implements GraphStep.Callback {
      * Return the total number of ids which were processed. This is calculated by
      * taking the only the completed savepoints into account.
      */
-    public long getTotalProcessedCount() {
-        int count = 0;
+    public int getTotalProcessedCount() {
+        long count = 0;
         for (Map.Entry<String, Set<Long>> entry : actualIds.getFirst()
                 .entrySet()) {
             count += entry.getValue().size();
         }
-        return count;
+        if (count > Integer.MAX_VALUE) {
+            throw new OverUsageException("total processed count: " + count);
+        }
+        return (int) count;
     }
 
     /**
@@ -406,7 +410,7 @@ public class GraphState implements GraphStep.Callback {
     }
 
     public int collapse(boolean keep) {
-        int count = 0;
+        long count = 0;
         final Map<String, Set<Long>> ids = actualIds.removeLast();
         if (keep) {
             // Update the next map up with the current values
@@ -428,7 +432,10 @@ public class GraphState implements GraphStep.Callback {
                 count += old.size();
             }
         }
-        return count;
+        if (count > Integer.MAX_VALUE) {
+            throw new OverUsageException("collapsed count: " + count);
+        }
+        return (int) count;
     }
 
     public void savepoint(String savepoint) {

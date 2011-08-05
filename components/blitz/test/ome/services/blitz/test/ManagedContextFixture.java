@@ -6,10 +6,12 @@
  */
 package ome.services.blitz.test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
 import ome.api.IAdmin;
+import ome.logic.HardWiredInterceptor;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
@@ -75,7 +77,7 @@ public class ManagedContextFixture {
         current.ctx = new HashMap<String, String>();
         current.ctx.put(omero.constants.CLIENTUUID.value, "my-client-uuid");
         ServiceFactoryI factory = new ServiceFactoryI(current, null, ctx, mgr, ex,
-                getPrincipal(), null, null, null);
+                getPrincipal(), new ArrayList<HardWiredInterceptor>(), null, null);
         return factory;
     }
 
