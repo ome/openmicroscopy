@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export VMNAME=${VMNAME:-"$1"}
-export VMNAME=${VMNAME:-"omero-vm"}
+export VMNAME=${VMNAME:-"omerovm"}
 
 export SSH_PF=${SSH_PF:-"$2"}
 export SSH_PF=${SSH_PF:-"2222"}

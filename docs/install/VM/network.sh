@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export VMNAME=${VMNAME:-"$1"}
-export VMNAME=${VMNAME:-"omero-vm"}
+export VMNAME=${VMNAME:-"omerovm"}
 
 VBOX="VBoxManage --nologo"
 
