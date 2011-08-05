@@ -15,7 +15,7 @@ set -u
 set -x
 
 VBOX="VBoxManage --nologo"
-
+OS=`uname -s`
 
 if test -e $HOME/Library/VirtualBox; then
     export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks/"}
@@ -35,6 +35,27 @@ $VBOX list vms | grep "$VMNAME" && {
 	VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium none
 	VBoxManage unregistervm "$VMNAME" --delete
 	VBoxManage closemedium disk $HARDDISKS"$VMNAME".vdi --delete
+}
+
+
+ps aux | grep [V]Box && {
+
+	if [ "$OS" == "Darwin" ]; then
+		killall -m [V]Box
+	else [ "$OS" == "Linux" ];
+		killall -r [V]Box
+	fi
+
+}
+
+ps aux | grep [V]irtualBox && {
+
+	if [ "$OS" == "Darwin" ]; then
+		killall -m [V]irtualBox
+	else [ "$OS" == "Linux" ];
+		killall -r [V]irtualBox
+	fi
+
 }
 
 
