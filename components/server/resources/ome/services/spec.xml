@@ -39,12 +39,12 @@
 
     <bean parent="delSpec" name="/Annotation" class="ome.services.graphs.AnnotationGraphSpec">
         <description>
-        Lists all abstract and concrete annotation types as steps with their 
+        Lists all abstract and concrete annotation types as steps with their
         default operations.
 
-        This list is checked at startup to make sure that no values have been 
+        This list is checked at startup to make sure that no values have been
         omitted.
-        In the implementation, the type hierarchy is used to apply user options 
+        In the implementation, the type hierarchy is used to apply user options
         to the given type and all sub-types.
 
         For example, if /BasicAnnotation=KEEP is applied,
@@ -149,7 +149,7 @@
                 <value>/Instrument/LightSource</value>
                 <value>/Instrument/OTF</value> <!--  related to filterSet and Objective -->
                 <value>/Instrument/Objective</value>
-                <value>/Instrument/FilterSet</value> 
+                <value>/Instrument/FilterSet</value>
                 <value>/Instrument</value>
                 <value>/Instrument/Microscope</value>
             </list>
@@ -297,7 +297,7 @@
             </list>
         </constructor-arg>
     </bean>
-    
+
     <bean parent="delSpec" name="/Screen">
         <constructor-arg>
             <list>

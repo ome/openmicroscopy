@@ -95,7 +95,7 @@ public abstract class AbstractServantTest extends TestCase {
         ctx = new OmeroContext(new String[] { "classpath:omero/test2.xml",
                 "classpath:ome/services/blitz-servantDefinitions.xml", // geomTool
                 "classpath:ome/services/messaging.xml", // Notify geomTool
-                "classpath:ome/services/delete/spec.xml", // for DeleteI
+                "classpath:ome/services/spec.xml", // for DeleteI
                 "classpath:ome/config.xml", // for ${} in servantDefs.
                 "classpath:ome/services/throttling/throttling.xml"
         }, false);

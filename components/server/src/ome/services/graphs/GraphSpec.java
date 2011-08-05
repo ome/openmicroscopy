@@ -20,7 +20,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 
 /**
  * Specification of a graph operation. These instances are defined in
- * Spring XML files (e.g. ome/services/delete/spec.xml) as non-singletons,
+ * Spring XML files (e.g. ome/services/spec.xml) as non-singletons,
  * i.e each time a request is
  * made for a new {@link GraphSpecFactory} one of each {@link GraphSpec} is
  * initialized and gathered into the factory. A single thread, then, can

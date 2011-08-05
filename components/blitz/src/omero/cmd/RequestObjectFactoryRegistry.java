@@ -51,7 +51,7 @@ public class RequestObjectFactoryRegistry extends
                     @Override
                     public Ice.Object create(String name) {
                         ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
-                                new String[] { "classpath:ome/services/delete/spec.xml" },
+                                new String[] { "classpath:ome/services/spec.xml" },
                                 ctx);
                         ChgrpStepFactory factory = new ChgrpStepFactory(ctx);
                         return new ChgrpI(factory, specs);
