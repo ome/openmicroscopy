@@ -61,27 +61,18 @@ ps aux | grep [V]irtualBox && {
 
 
 $VBOX list vms | grep "$VMNAME" || {
-	VBoxManage clonehd "$HARDDISKS"omero-base-image-debian-6.vdi"" "$HARDDISKS$VMNAME.vdi"
+	VBoxManage clonehd "$HARDDISKS"omero-base-img_2011-08-04.vdi"" "$HARDDISKS$VMNAME.vdi"
 	VBoxManage createvm --name "$VMNAME" --register --ostype "Debian"
-	VBoxManage storagectl "$VMNAME" --name "IDE CONTROLLER" --add ide
 	VBoxManage storagectl "$VMNAME" --name "SATA CONTROLLER" --add sata
 	VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium $HARDDISKS$VMNAME.vdi
 		
-	VBoxManage modifyvm "$VMNAME" --nic1 nat --nictype1 "82540EM"
-	
+	VBoxManage modifyvm "$VMNAME" --nic1 nat --nictype1 "82545EM"
 	VBoxManage modifyvm "$VMNAME" --memory $MEMORY --acpi on
-	
-	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/ssh/HostPort" $SSH_PF
-	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/ssh/GuestPort" 22
-	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/ssh/Protocol" TCP
-	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroserver/HostPort" $OMERO_PF
-	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroserver/GuestPort" $OMERO_PORT
-	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroservers/Protocol" TCP
-	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroservers/HostPort" $OMEROS_PF
-	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroservers/GuestPort" $OMEROS_PORT
-	VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/e1000/0/LUN#0/Config/omeroserver/Protocol" TCP
-	
-	sleep 5
+
+	VBoxManage modifyvm "$VMNAME" --natpf1 "ssh,tcp,127.0.0.1,2222,10.0.2.15,22"
+	VBoxManage modifyvm "$VMNAME" --natpf1 "omero-unsec,tcp,127.0.0.1,4063,10.0.2.15,4063"
+	VBoxManage modifyvm "$VMNAME" --natpf1 "omero-ssl,tcp,127.0.0.1,4064,10.0.2.15,4064"
+	VBoxManage modifyvm "$VMNAME" --natpf1 "omero-web,tcp,127.0.0.1,4080,10.0.2.15,4080"
 }
 
 $VBOX list runningvms | grep "$VMNAME" || {
