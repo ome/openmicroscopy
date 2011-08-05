@@ -309,7 +309,8 @@ class GetObjectTest (lib.GTest):
         # groups
         #groups = list( self.gateway.listGroups() )     # now removed from blitz gateway.
         gps = list( self.gateway.getObjects("ExperimenterGroup") )
-        
+        for grp in gps:
+            grpExpMap = grp.copyGroupExperimenterMap()
         #self.assertEqual(len(gps), len(groups))  # check unordered lists are the same length & ids
         #gIds = [g.getId() for g in gps]
         #for g in groups:
@@ -319,6 +320,14 @@ class GetObjectTest (lib.GTest):
         colleagues = self.gateway.listColleagues()
         for e in colleagues:
             cName = e.getOmeName()
+
+        # check we can find some groups
+        exp = self.gateway.getObject("Experimenter", attributes={'omeName': self.USER.name})
+        for groupExpMap in exp.copyGroupExperimenterMap():
+            gName = groupExpMap.parent.name.val
+            gId = groupExpMap.parent.id.val
+            findG = self.gateway.getObject("ExperimenterGroup", attributes={'name': gName})
+            self.assertEqual(gId, findG.id, "Check we found the same group")
 
     def testGetExperimenter(self):
         self.loginAsAdmin()

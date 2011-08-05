@@ -2265,33 +2265,59 @@ class _BlitzGateway (object):
     ###########################
     # Specific Object Getters #
 
-
     def getObject (self, obj_type, oid=None, params=None, attributes=None):
         """
-        Convenience method for L{getObjects}. Returns a single wrapped object or None. 
-        """
-        oids = (oid!=None) and [oid] or None
-        result = list(self.getObjects(obj_type, oids, params=params, attributes=attributes))
-        if len(result) == 0:
-            return None
-        elif len(result) > 1:
-            raise RuntimeError("More than one result returned for getObject('%s', %s, %s)" % (obj_type, oid, attributes))
-        return result[0]
+        Retrieve single Object by type E.g. "Image" or None if not found.
+        If more than one object found, raises ome.conditions.ApiUsageException
+        See L{getObjects} for more info.
 
-
-    def getObjects (self, obj_type, ids=None, params=None, attributes=None):
-        """
-        Retrieve Objects by type E.g. "Image". Not Ordered. 
-        Returns generator of appropriate L{BlitzObjectWrapper} type. E.g. L{ImageWrapper}.
-        If ids is None, all available objects will be returned. i.e. listObjects()
-        
         @param obj_type:    Object type. E.g. "Project" see above
         @type obj_type:     String
         @param ids:         object IDs
         @type ids:          List of Long
         @param params:      omero.sys.Parameters, can be used for pagination, filtering etc.
         @param attributes:  Map of key-value pairs to filter results by. Key must be attribute of obj_type. E.g. 'name', 'ns'
-        @return:            Generator yielding wrapped objects.
+        @return:
+        """
+        oids = (oid!=None) and [oid] or None
+        query, params, wrapper = self.buildQuery(obj_type, oids, params, attributes)
+        result = self.getQueryService().findByQuery(query, params)
+        if result is not None:
+            return wrapper(self, result)
+
+    def getObjects (self, obj_type, ids=None, params=None, attributes=None):
+        """
+        Retrieve Objects by type E.g. "Image"
+        Returns generator of appropriate L{BlitzObjectWrapper} type. E.g. L{ImageWrapper}.
+        If ids is None, all available objects will be returned. i.e. listObjects()
+        Filter objects by attributes. E.g. attributes={'name':name}
+
+        @param obj_type:    Object type. E.g. "Project" see above
+        @type obj_type:     String
+        @param ids:         object IDs
+        @type ids:          List of Long
+        @param params:      omero.sys.Parameters, can be used for pagination, filtering etc.
+        @param attributes:  Map of key-value pairs to filter results by. Key must be attribute of obj_type. E.g. 'name', 'ns'
+        @return:            Generator of L{BlitzObjectWrapper} subclasses
+        """
+        query, params, wrapper = self.buildQuery(obj_type, ids, params, attributes)
+        result = self.getQueryService().findAllByQuery(query, params)
+        for r in result:
+            yield wrapper(self, r)
+
+    def buildQuery (self, obj_type, ids=None, params=None, attributes=None):
+        """
+        Prepares a query for iQuery. Also prepares params and determines appropriate wrapper for result
+        Returns (query, params, wrapper) which can be used with the appropriate query method.
+        Used by L{getObjects} and L{getObject} above.
+
+        @param obj_type:    Object type. E.g. "Project" see above
+        @type obj_type:     String
+        @param ids:         object IDs
+        @type ids:          List of Long
+        @param params:      omero.sys.Parameters, can be used for pagination, filtering etc.
+        @param attributes:  Map of key-value pairs to filter results by. Key must be attribute of obj_type. E.g. 'name', 'ns'
+        @return:            (query, params, wrapper)
         """
 
         if type(obj_type) is type(''):
@@ -2330,9 +2356,7 @@ class _BlitzGateway (object):
         if clauses:
             query += " where " + (" and ".join(clauses))
 
-        result = q.findAllByQuery(query, params)
-        for r in result:
-            yield wrapper(self, r)
+        return (query, params, wrapper)
 
 
     def listFileAnnotations (self, eid=None, toInclude=[], toExclude=[]):
