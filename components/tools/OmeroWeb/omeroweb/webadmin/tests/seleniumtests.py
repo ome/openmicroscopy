@@ -91,9 +91,7 @@ class WebAdminTestBase (SeleniumTestBase):
     def login (self, u, p, sid):
         sel = self.selenium
         if self.selenium.is_element_present('link=Log out'):
-            print "logging out..."
             self.logout()
-        print "logging in..."
         sel.open("/webadmin/login")
         sel.type("id_username", u)
         sel.type("id_password", p)
@@ -128,7 +126,6 @@ class AdminTests (WebAdminTestBase):
         Visits each page in turn. Starts at experimenters and clicks links to each other main page '
         """
         # login done already in setUp()
-        print "testPages"
         
         sel = self.selenium
         sel.open("/webadmin/experimenters")
@@ -148,7 +145,7 @@ class AdminTests (WebAdminTestBase):
         in 'ome-name' gives a correct message to user.
         Checks that the new user is displayed in the table of experimenters.
         """
-        print "testCreateExperimenter"
+        #print "testCreateExperimenter"  #print
         
         groupName = "Selenium-testCreateExp%s" % random()
         
@@ -197,7 +194,7 @@ class AdminTests (WebAdminTestBase):
         """
         This needs to run before testCreateExperimenter()
         """
-        print "testCreateGroup"
+        #print "testCreateGroup"
         groupName = "Selenium-testCreateGroup%s" % random()
         
         sel = self.selenium
@@ -208,7 +205,7 @@ class AdminTests (WebAdminTestBase):
     
     def testRemoveExpFromGroup(self):
         
-        print "testRemoveExpFromGroup"
+        #print "testRemoveExpFromGroup"
         
         groupName1 = "Sel-test1%s" % random()
         groupName2 = "Sel-test2%s" % random()
@@ -227,11 +224,9 @@ class AdminTests (WebAdminTestBase):
         self.assertTrue(group2Id > 0)
         group3Id = createGroup(sel, groupName3)
         self.assertTrue(group2Id > 0)
-        print "group IDs", group1Id, group2Id, group3Id
         
         # create the experimenter in 2 groups
         eId = createExperimenter(sel, omeName, [groupName1, groupName2])
-        print "eId", eId
         self.assertTrue(eId > 0)
         sel.open("/webadmin/experimenter/edit/%d" % eId)
         sel.wait_for_page_to_load("30000")
@@ -246,7 +241,6 @@ class AdminTests (WebAdminTestBase):
         
         # try remove one of the original groups
         sel.click("default_group_%d" % group1Id)
-        print "clicked:", "default_group_%d" % group1Id
         #self.waitForElementVisibility('id_default_group_%d' % group1Id, False)
         self.waitForElementVisibility('default_group_%d' % group1Id, False)     # BUG: this is not working at the moment. 
         

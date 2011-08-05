@@ -130,7 +130,6 @@ def change_active_group(request, groupId, **kwargs):
     blitz_host = "%s:%s" % (blitz.host, blitz.port)
     request.session['nav']={"error": None, "blitz": blitz_host, "menu": "start", "view": "icon", "basket": 0, "experimenter":None, 'callback':dict()}
     
-    print "conn", conn
     #conn = getBlitzConnection(request, useragent="OMERO.webmobile")
 
     if conn.changeActiveGroup(groupId):
@@ -171,7 +170,6 @@ def viewer_big(request, imageId, **kwargs):
     w = image.getWidth() 
     h = image.getHeight() 
     z = image.z_count() /2
-    print z
     
     return render_to_response('webmobile/viewers/big_iphone.html', {'image':image, 'w':w, 'h': h, 'z':z})
     
@@ -246,7 +244,6 @@ def object_details(request, obj_type, id, **kwargs):
     anns = getAnnotations(obj)
     
     parent = obj.getParent()
-    print "parent", parent
     
     return render_to_response('webmobile/browse/object_details.html', {'client': conn, 'object': obj, 'title': title, 
         'annotations':anns, 'obj_type': obj_type})

@@ -207,7 +207,6 @@ def render_channel_overlay (request, **kwargs):
             y = int(planeInfo['y'])
 
         if x or y:
-            print 'translating ', x, y
             r = translate(r, x, y)
         return r
 
@@ -587,7 +586,6 @@ def dataset_split_view (request, datasetId, **kwargs):
             render_all = (None != request.REQUEST.get('cRenderAll%s' % i, None) )
             channels.append({"name": name, "index": i, "active_left": active_left, "active_right": active_right, 
                 "colour": colour, "start": start, "end": end, "render_all": render_all})
-        print channels
         return channels
         
     images = []
@@ -694,8 +692,6 @@ def image_dimensions (request, imageId, **kwargs):
                 
             grid[y].append( (iid, theZ, theC is not None and theC+1 or None, theT) )
     
-    for y in yRange:
-        print ":".join( [str(d) for d in grid[y] ] )
         
     size = {"height": 125, "width": 125}
     
