@@ -53,6 +53,7 @@ else:
 LOGFILE = ('OMEROweb.log')
 LOGLEVEL = logging.INFO
 LOGDIR = os.path.join(OMERO_HOME, 'var', 'log').replace('\\','/')
+DEFAULT_CACHE_DIR = os.path.join(OMERO_HOME, 'var', 'cache', 'webgateway').replace('\\','/')
 
 if not os.path.isdir(LOGDIR):
     try:
@@ -153,7 +154,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.application_server.host": ["APPLICATION_SERVER_HOST", "0.0.0.0", str],
     "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
     "omero.web.cache_backend": ["CACHE_BACKEND", None, leave_none_unset],
-    "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
+    "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", DEFAULT_CACHE_DIR, leave_none_unset],
     "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
     "omero.web.debug": ["DEBUG", "false", parse_boolean],
     "omero.web.email_host": ["EMAIL_HOST", None, identity],
