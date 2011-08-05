@@ -327,32 +327,6 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         qb.join(fromAlias + "." + rel, toAlias, false, false);
     }
 
-    /**
-     * Assuming an entry of the form "/A/B/C" is passed, this method generates
-     * the query:
-     *
-     * <pre>
-     * delete ROOT2 where id in (select ROOT2.id from C join C.b ROOT1 join b.a ROOT0 where ROOT0.id = :id)
-     * </pre>
-     */
-    private QueryBuilder buildQuery(GraphEntry entry) throws GraphException {
-        final QueryBuilder sub = new QueryBuilder();
-
-        String[] path = entry.path(superspec);
-        String target = "ROOT" + (path.length - 1);
-        sub.select(target + ".id");
-        walk(sub, entry);
-        sub.where();
-        sub.and("ROOT0.id = :id");
-
-        final QueryBuilder qb = new QueryBuilder();
-        qb.delete(path[path.length - 1]); // FIXME
-        qb.where();
-        qb.and("id in ");
-        qb.subselect(sub);
-        return qb;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
