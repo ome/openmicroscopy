@@ -14,6 +14,9 @@ set -e
 set -u
 set -x
 
+VBOX="VBoxManage --nologo"
+
+
 if test -e $HOME/Library/VirtualBox; then
     export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks/"}
 elif test -e $HOME/.VirtualBox; then
@@ -23,7 +26,18 @@ else
     exit 3
 fi
 
-VBOX="VBoxManage --nologo"
+$VBOX list vms | grep "$VMNAME" && {
+	if VBoxManage showvminfo "$VMNAME" | grep -q "running"
+	then
+	VBoxManage controlvm "$VMNAME" poweroff
+	sleep 10
+	fi
+	VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium none
+	VBoxManage unregistervm "$VMNAME" --delete
+	VBoxManage closemedium disk $HARDDISKS"$VMNAME".vdi --delete
+}
+
+
 
 $VBOX list vms | grep "$VMNAME" || {
 	VBoxManage clonehd "$HARDDISKS"omero-base-image-debian-6.vdi"" "$HARDDISKS$VMNAME.vdi"
