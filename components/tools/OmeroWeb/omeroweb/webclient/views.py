@@ -2496,7 +2496,7 @@ def load_history(request, year, month, day, **kwargs):
 
 def getObjectUrl(conn, obj):
     """
-    This provides a url to browse to the specified omero.model.ObjectI P/D/I, FileAnnotation etc.
+    This provides a url to browse to the specified omero.model.ObjectI P/D/I, S/P, FileAnnotation etc.
     used to display results from the scripting service
     E.g webclient/userdata/?path=project=1|dataset=5|image=12601:selected
     If the object is a file annotation, try to browse to the parent P/D/I
@@ -2526,6 +2526,16 @@ def getObjectUrl(conn, obj):
 
     if isinstance(obj, omero.model.ProjectI):
         return "%s?path=project=%d:selected" % (base_url, obj.id.val)
+
+    if isinstance(obj, omero.model.PlateI):
+        plate = conn.getObject("Plate", obj.id.val)
+        screen = plate.getParent()
+        if screen is not None:
+            return "%s?path=screen=%d|plate=%d:selected" % (base_url, screen.id, plate.id)
+        return "%s?path=plate=%d:selected" % (base_url, obj.id.val)
+
+    if isinstance(obj, omero.model.ScreenI):
+        return "%s?path=screen=%d:selected" % (base_url, obj.id.val)
 
 
 ######################
