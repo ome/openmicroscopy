@@ -220,12 +220,12 @@ class BlitzObjectWrapper (object):
                 raise NotImplementedError
         return self.CHILD_WRAPPER_CLASS
 
-    def _getParentWrapper (self):
+    def _getParentWrappers (self):
         """
-        Returns the wrapper class of the parent of this object. 
+        Returns the wrapper classes of the parent of this object. 
         This is used internally by the L{listParents} method.
         
-        @return:    The parent wrapper class. E.g. omero.gateway.DatasetWrapper.__class__
+        @return:    List of parent wrapper classes. E.g. omero.gateway.DatasetWrapper.__class__
         @rtype:     class
         """
         if self.PARENT_WRAPPER_CLASS is None:
@@ -576,7 +576,7 @@ class BlitzObjectWrapper (object):
         """
         if self.PARENT_WRAPPER_CLASS is None:
             return ()
-        parentw = self._getParentWrapper()
+        parentw = self._getParentWrappers()
         param = omero.sys.Parameters() # TODO: What can I use this for?
         parentnodes = []
         for pwc in parentw:
@@ -614,7 +614,8 @@ class BlitzObjectWrapper (object):
         
         if self.PARENT_WRAPPER_CLASS is None:
             raise AttributeError("This object has no parent objects")
-        parentw = self._getParentWrapper()
+        parentwrappers = self._getParentWrappers()
+        parentw = parentwrappers[0]
         query_serv = self._conn.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -4497,7 +4498,7 @@ class _WellSampleWrapper (BlitzObjectWrapper):
         if not len(rv):
             rv = [None]
         #rv = self._conn.getObject('Plate', self.plate.id.val)
-        pwc = self._getParentWrapper()
+        pwc = self._getParentWrappers()
         if withlinks:
             return [(pwc[0](self._conn, x), None) for x in rv]
         return [pwc[0](self._conn, x) for x in rv]
