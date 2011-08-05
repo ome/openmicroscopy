@@ -472,6 +472,7 @@
                     $("#dataTree").jstree("open_node", this);
                 })
                 .bind("select_node.jstree", function (e, data) {
+                    
                     var selected = data.inst.get_selected();
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
                     if (selected.length > 1) {
