@@ -1861,15 +1861,16 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
         if kwargs.has_key('link'):
             self.link = kwargs.has_key('link') and kwargs['link'] or None
     
-    def getThumbnailOrDefault (self, size=(120,120)):
-        rv = super(ImageWrapper, self).getThumbnail(size=size)
-        if rv is None:
-            try:
-                rv = self._conn.defaultThumbnail(size)
-            except Exception, e:
-                logger.info(traceback.format_exc())
-                raise e
-        return rv
+    """
+    This override standard omero.gateway.ImageWrapper.getChannels 
+    and catch exceptions.
+    """
+    def getChannels (self):
+        try:
+            super(getChannels, self).__init__(*args, **kwargs)
+        except:
+            return None
+
 
 omero.gateway.ImageWrapper = ImageWrapper
 
