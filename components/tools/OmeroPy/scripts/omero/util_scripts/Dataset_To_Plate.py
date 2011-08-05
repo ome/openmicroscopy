@@ -36,7 +36,7 @@ from omero.gateway import BlitzGateway
 import omero
 from omero.rtypes import *
 
-def addImageToPlate(conn, imageId, plateId, column, row):
+def addImageToPlate(conn, image, plateId, column, row, removeFrom=None):
     """
     Add the Image to a Plate, creating a new well at the specified column and row
     NB - This will fail if there is already a well at that point
@@ -49,11 +49,23 @@ def addImageToPlate(conn, imageId, plateId, column, row):
     well.row = rint(row)
     well = updateService.saveAndReturnObject(well)
 
-    ws = omero.model.WellSampleI()
-    ws.image = omero.model.ImageI(imageId, False)
-    ws.well = well
-    well.addWellSample(ws)
-    updateService.saveObject(ws)
+    try:
+        ws = omero.model.WellSampleI()
+        ws.image = omero.model.ImageI(image.id, False)
+        ws.well = well
+        well.addWellSample(ws)
+        updateService.saveObject(ws)
+    except:
+        print "Failed to add image to well sample"
+        return False
+
+    # remove from Datast
+    if removeFrom is not None:
+        links = list( image.getParentLinks(removeFrom.id) )
+        print "     Removing image from %d Dataset: %s" % (len(links), removeFrom.name)
+        for l in links:
+            conn.deleteObjectDirect(l._obj)
+    return True
 
 
 def dataset_to_plate(conn, scriptParams, datasetId, screen):
@@ -88,11 +100,22 @@ def dataset_to_plate(conn, scriptParams, datasetId, screen):
 
     # sort images by name
     images = list(dataset.listChildren())
+    datasetImgCount = len(images)
+    if "Filter_Names" in scriptParams:
+        filterBy = scriptParams["Filter_Names"]
+        print "Filtering images for names containing: %s" % filterBy
+        images = [i for i in images if (i.getName().find(filterBy) >=0)]
     images.sort(key = lambda x: x.name.lower())
 
+    # Do we try to remove images from Dataset and Delte Datset when/if empty?
+    removeFrom = None
+    removeDataset = "Remove_From_Dataset" in scriptParams and scriptParams["Remove_From_Dataset"]
+    if removeDataset:
+        removeFrom = dataset
+
     for image in images:
-        print "   moving image: %d %s to row: %d, column: %d" % (image.id, image.name, row, col)
-        addImageToPlate(conn, image.id, plate.id.val, col, row)
+        print "    moving image: %d %s to row: %d, column: %d" % (image.id, image.name, row, col)
+        added = addImageToPlate(conn, image, plate.id.val, col, row, removeFrom)
         # update row and column index
         if firstAxisIsRow:
             row += 1
@@ -105,7 +128,17 @@ def dataset_to_plate(conn, scriptParams, datasetId, screen):
                 col = 0
                 row += 1
 
-    return plate
+    # if user wanted to delete dataset, AND it's empty we can delete dataset
+    deleteDataset = False   # Turning this functionality off for now.
+    deleteHandle = None
+    if deleteDataset:
+        if datasetImgCount == addedCount:
+            dcs = list()
+            print 'Deleting Dataset %d %s' % (dataset.id, dataset.name)
+            options = None # {'/Image': 'KEEP'}    # don't delete the images!
+            dcs.append(omero.api.delete.DeleteCommand("/Dataset", dataset.id, options))
+            deleteHandle = conn.getDeleteService().queueDelete(dcs)
+    return plate, deleteHandle
 
 def datasets_to_plates(conn, scriptParams):
 
@@ -131,12 +164,32 @@ def datasets_to_plates(conn, scriptParams):
             screen = updateService.saveAndReturnObject(screen)
 
     plates = []
+    deletes = []
     for datasetId in IDs:
-        plate = dataset_to_plate(conn, scriptParams, datasetId, screen)
+        plate, deleteHandle = dataset_to_plate(conn, scriptParams, datasetId, screen)
         if plate is not None:
             plates.append(plate)
+        if deleteHandle is not None:
+            deletes.append(deleteHandle)
 
-    return plates
+    # wait for any deletes to finish
+    for handle in deletes:
+        cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
+        while True: # ms
+            if cb.block(100) is None:
+                print "Waiting for delete"
+            else:
+                break
+        err = handle.errors()
+        if err > 0:
+            print "Delete error", err
+        else:
+            print "Delete OK"
+
+    if screen is not None:
+        return [screen]
+    else:
+        return plates
 
 
 def runAsScript():
@@ -163,7 +216,7 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
         description="Filter the images by names that contain this value"),
 
     scripts.String("First_Axis", grouping="3", optional=False, default='column', values=firstAxis,
-        description="""Arrange images accross 'row' first or down 'column'"""),
+        description="""Arrange images accross 'column' first or down 'row'"""),
 
     scripts.Int("First_Axis_Count", grouping="3.1", optional=False, default=12,
         description="Number of Rows or Columns in the 'First Axis'", min=1),
@@ -177,8 +230,8 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
     scripts.String("Screen", grouping="6",
         description="""Option: put Plate(s) in a Screen. Enter Name of new screen or ID of existing screen"""),
 
-    scripts.Bool("Delete_Datasets", grouping="7", default=False,
-        description="""After placing Images in Plates, delete the Dataset"""),
+    scripts.Bool("Remove_From_Dataset", grouping="7", default=True,
+        description="""Remove Images from Dataset as they are added to Plate"""),
 
     version = "4.3.2",
     authors = ["William Moore", "OME Team"],
@@ -199,14 +252,17 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
         # wrap client to use the Blitz Gateway
         conn = BlitzGateway(client_obj=client)
 
-        # convert Dataset(s) to Plate(s)
-        plates = datasets_to_plates(conn, scriptParams)
+        # convert Dataset(s) to Plate(s). Returns new plates or screen
+        newObjs = datasets_to_plates(conn, scriptParams)
 
-        if len(plates) == 1:
-            client.setOutput("Message", rstring("Script Ran OK. New Plate created ID: %s" % plates[0].id.val))
-            client.setOutput("New_Plate",robject(plates[0]))
-        elif len(plates) > 1:
-            client.setOutput("Message", rstring("Script Ran OK. %d plates created" % len(plates) ))
+        if len(newObjs) == 1:
+            name = newObjs[0].name.val
+            dType = newObjs[0].__class__.__name__[:-1]
+            client.setOutput("Message", rstring("Script Ran OK. New %s created: %s" % (dType, name)))
+            client.setOutput("New_Object",robject(newObjs[0]))
+        elif len(newObjs) > 1:
+            client.setOutput("Message", rstring("Script Ran OK. %d Plates created" % len(newObjs) ))
+            client.setOutput("New_Object",robject(newObjs[0]))  # return the first one
         else:
             client.setOutput("Message", rstring("No plates created. See 'Error' or 'Info' for details"))
     finally:
