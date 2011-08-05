@@ -169,73 +169,7 @@ public abstract class GraphStep {
     // Main action
     //
 
-    public void action(Callback cb, Session session, GraphOpts opts) throws GraphException {
-
-        final QueryBuilder nullOp = optionalNullBuilder();
-        final QueryBuilder qb = queryBuilder(opts);
-
-        // Phase 1: top-levels
-        if (stack.size() <= 1) {
-            StopWatch swTop = new CommonsLogStopWatch();
-            spec.runTopLevel(session,
-                    Arrays.<Long> asList(id));
-            swTop.stop("omero.graphstep.top." + id);
-        }
-
-        // Phase 2: NULL
-        optionallyNullField(session, nullOp, id);
-
-        // Phase 3: primary action
-        StopWatch swStep = new CommonsLogStopWatch();
-        qb.param("id", id);
-        Query q = qb.query(session);
-        int count = q.executeUpdate();
-        if (count > 0) {
-            cb.addGraphIds(this);
-        }
-        logResults(count);
-        swStep.lap("omero.graphstep." + table + "." + id);
-
-    }
-
-
-    private QueryBuilder optionalNullBuilder() {
-        QueryBuilder nullOp = null;
-        if (entry.isNull()) { // WORKAROUND see #2776, #2966
-            // If this is a null operation, we don't want to delete the row,
-            // but just modify a value. NB: below we also prevent this from
-            // being raised as a delete event. TODO: refactor out to Op
-            nullOp = new QueryBuilder();
-            nullOp.update(table);
-            nullOp.append("set relatedTo = null ");
-            nullOp.where();
-            nullOp.and("relatedTo.id = :id");
-        }
-        return nullOp;
-    }
-
-    private void optionallyNullField(Session session,
-            final QueryBuilder nullOp, Long id) {
-        if (nullOp != null) {
-            nullOp.param("id", id);
-            Query q = nullOp.query(session);
-            int updated = q.executeUpdate();
-            if (log.isDebugEnabled()) {
-                log.debug("Nulled " + updated + " Pixels.relatedTo fields");
-            }
-        }
-    }
-
-    private QueryBuilder queryBuilder(GraphOpts opts) {
-        final QueryBuilder qb = new QueryBuilder();
-        qb.delete(table);
-        qb.where();
-        qb.and("id = :id");
-        if (!opts.isForce()) {
-            permissionsClause(ec, qb);
-        }
-        return qb;
-    }
+    public abstract void action(Callback cb, Session session, GraphOpts opts) throws GraphException;
 
     /**
      * Appends a clause to the {@link QueryBuilder} based on the current user.
@@ -259,7 +193,7 @@ public abstract class GraphStep {
         }
     }
 
-    private void logResults(final int count) {
+    protected void logResults(final int count) {
         if (count > 0) {
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Processed %s from %s: root=%s", id,

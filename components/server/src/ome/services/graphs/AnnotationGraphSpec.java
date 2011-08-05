@@ -391,26 +391,4 @@ public class AnnotationGraphSpec extends BaseGraphSpec {
         return false;
     }
 
-    @Override
-    public void runTopLevel(Session session, List<Long> ids) {
-        // If this is a top-level annotation delete then the first thing we
-        // do is delete all the links to it.
-        if (superspec == null || superspec.length() == 0) {
-            if (ids != null && ids.size() > 0) {
-                QueryBuilder qb = new QueryBuilder();
-                qb.delete("ome.model.IAnnotationLink"); // FIXME
-                qb.where();
-                qb.and("child.id in (:ids)");
-                qb.paramList("ids", ids);
-                // ticket:2962
-                EventContext ec = getCurrentDetails().getCurrentEventContext();
-                GraphStep.permissionsClause(ec, qb);
-
-                Query q = qb.query(session);
-                int count = q.executeUpdate();
-                log.info("Graphed " + count + " annotation links");
-            }
-        }
-    }
-
 }

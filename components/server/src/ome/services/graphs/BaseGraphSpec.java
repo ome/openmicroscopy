@@ -282,10 +282,6 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
 
     }
 
-    public void runTopLevel(Session session, List<Long> ids) {
-        // no-op
-    }
-
     private String logmsg(GraphEntry subpath, List<List<Long>> results) {
         String msg = String.format("Found %s id(s) for %s",
                 (results == null ? "null" : results.size()),

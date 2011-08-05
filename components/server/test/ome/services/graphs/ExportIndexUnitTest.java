@@ -12,6 +12,7 @@ import java.util.Set;
 import ome.model.IObject;
 import ome.services.export.ExporterIndex;
 
+import org.hibernate.Session;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -28,6 +29,12 @@ public class ExportIndexUnitTest extends MockGraphTest {
         public Step(int idx, List<GraphStep> stack, GraphSpec spec,
                 GraphEntry entry, long[] ids) {
             super(idx, stack, spec, entry, ids);
+        }
+
+        @Override
+        public void action(Callback cb, Session session, GraphOpts opts)
+                throws GraphException {
+            // No-op
         }
 
         @Override

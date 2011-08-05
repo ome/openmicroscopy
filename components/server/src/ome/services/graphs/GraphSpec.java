@@ -172,16 +172,6 @@ public interface GraphSpec {
             throws GraphException;
 
     /**
-     * Workaround for the removal of GraphSpec#delete when refactoring to
-     * {@link GraphState}. If more logic is needed by subclasses, then
-     * {@link #queryBackupIds(Session, int, GraphEntry, QueryBuilder)}
-     * should no longer return list of ids, but rather a "Action" class
-     * so that it can inject its own logic as needed, though it would be necessary
-     * to give that method its place in the graph to detect "top-ness".
-     */
-    void runTopLevel(Session session, List<Long> ids) throws GraphException;
-
-    /**
      * Returns an iterator over all subspecs and their subspecs, depth-first.
      */
     Iterator<GraphSpec> walk();

@@ -358,6 +358,12 @@ public class GraphSpecUnitTest extends MockGraphTest {
                 spec, spec.entries.get(0), new long[0]) {
 
                     @Override
+                    public void action(Callback cb, Session session,
+                            GraphOpts opts) throws GraphException {
+                        // no-op
+                    }
+
+                    @Override
                     public void onRelease(Class<IObject> k, Set<Long> ids)
                             throws GraphException {
 

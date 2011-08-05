@@ -505,6 +505,13 @@ public class GraphStateUnitTest extends MockGraphTest {
                     count.incrementAndGet();
                 }
                 return new GraphStep(idx, stack, spec, entry, ids) {
+
+                    @Override
+                    public void action(Callback cb, Session session,
+                            GraphOpts opts) throws GraphException {
+                        // no-op
+                    }
+
                     @Override
                     public void onRelease(Class<IObject> k, Set<Long> ids)
                             throws GraphException {

@@ -59,7 +59,9 @@ public class GraphOpts {
         ORPHAN(false),
 
         /**
-         * Nulls a particular field of the target rather than deleting it.
+         * Nulls a particular field of the target rather than performing the
+         * standard action on it.
+         *
          * This is useful for situations where one user has generated data
          * from another user, as with projections.
          *
