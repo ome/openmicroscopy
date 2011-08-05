@@ -161,7 +161,7 @@
 {% if manager.containers.images %}
 
     <div id="toolbar" class="toolbar_noborder" rel="icon">
-        <input onclick="changeView('table',{{ manager.paging.page|default_if_none:"null" }});" class="button" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table"></div>
+        <input onclick="changeView('table',{{ manager.paging.page|default:"1" }});" class="button" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table"></div>
     <div class="clear"> </div>
         
     <ul id="dataIcons">
