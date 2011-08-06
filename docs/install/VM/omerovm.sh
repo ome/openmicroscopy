@@ -99,8 +99,14 @@ $VBOX guestproperty enumerate $VMNAME | grep "10.0.2.15" && {
 
 [ -f omerokey.pub ] && {
 	echo "Copying my DSA key"
-	expect -c "spawn $SCP_K omerokey.pub omero@localhost:~/; expect \"*?assword:*\"; send \"omero\n\r\"; interact"
-	expect -c "spawn $SCP_K setup_keys.sh omero@localhost:~/; expect \"*?assword:*\"; send \"omero\n\r\"; interact"
+	
+#	The following two lines work on Bash under Debian, Ubuntu & Mac OS X under normal Shell usage
+#	expect -c "spawn $SCP_K omerokey.pub omero@localhost:~/; expect \"*?assword:*\"; send \"omero\n\r\"; interact"
+#	expect -c "spawn $SCP_K setup_keys.sh omero@localhost:~/; expect \"*?assword:*\"; send \"omero\n\r\"; interact"
+
+#	The	following two lines work on Bash under Debian, Ubuntu & Mac OS X when built using Hudons/Jenkins
+	expect -c "spawn $SCP_K omerokey.pub omero@localhost:~/; expect \"assword:\"; send \"omero\n\"; interact"
+	expect -c "spawn $SCP_K setup_keys.sh omero@localhost:~/; expect \"assword:\"; send \"omero\n\"; interact"
 
 	echo "Setup key"
 	expect -c "spawn $SSH_K omero@localhost sh /home/omero/setup_keys.sh; expect \"*?assword:*\"; send \"omero\n\r\"; interact"
