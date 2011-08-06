@@ -107,19 +107,22 @@ $VBOX guestproperty enumerate $VMNAME | grep "10.0.2.15" && {
 #	The	following two lines work on Bash under Debian, Ubuntu & Mac OS X when built using Hudons/Jenkins
 	expect -c "
 		spawn $SCP_K omerokey.pub omero@localhost:~/; 
-		expect \"assword:\"; 
-		send \"omero\r\"; "
-		
+		expect { \"*?assword:*\"; { send \"omero\r\n\"; interact }
+		eof { exit }
+		} exit"
+				
 	expect -c "
 		spawn $SCP_K setup_keys.sh omero@localhost:~/; 
-		expect \"assword:\"; 
-		send \"omero\r\"; "
+		expect { \"*?assword:*\"; { send \"omero\r\n\"; interact }
+		eof { exit }
+		} exit"
 
 	echo "Setup key"
 	expect -c "
 		spawn $SSH_K omero@localhost sh /home/omero/setup_keys.sh; 
-		expect \"*?assword:*\"; 
-		send \"omero\r\"; "
+		expect { \"*?assword:*\"; { send \"omero\r\n\"; interact }
+		eof { exit }
+		} exit"
 
 	} || echo "Local DSAAuthentication key was not found. Use: $ ssh-keygen -t dsa"
 
