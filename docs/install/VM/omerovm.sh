@@ -108,18 +108,18 @@ $VBOX guestproperty enumerate $VMNAME | grep "10.0.2.15" && {
 	expect -c "
 		spawn $SCP_K omerokey.pub omero@localhost:~/; 
 		expect \"assword:\"; 
-		send \"omero\n\"; "
+		send \"omero\r\"; "
 		
 	expect -c "
 		spawn $SCP_K setup_keys.sh omero@localhost:~/; 
 		expect \"assword:\"; 
-		send \"omero\n\"; "
+		send \"omero\r\"; "
 
 	echo "Setup key"
 	expect -c "
 		spawn $SSH_K omero@localhost sh /home/omero/setup_keys.sh; 
 		expect \"*?assword:*\"; 
-		send \"omero\n\r\"; "
+		send \"omero\r\"; "
 
 	} || echo "Local DSAAuthentication key was not found. Use: $ ssh-keygen -t dsa"
 
