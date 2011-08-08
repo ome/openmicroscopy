@@ -7,7 +7,9 @@
 package ome.io.nio;
 
 import java.io.File;
+import java.text.DateFormatSymbols;
 import java.util.Formatter;
+import java.util.Calendar;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
@@ -28,6 +30,9 @@ public class AbstractFileSystemService {
     public final static String PIXELS_PATH = "Pixels" + File.separator;
 
     public final static String FILES_PATH = "Files" + File.separator;
+
+    // FIXME: This should ultimately come from somewhere else
+    public final static String MANAGED_REPO_PATH = "ManagedRepository" + File.separator;
 
     public final static String THUMBNAILS_PATH = "Thumbnails" + File.separator;
 
@@ -79,6 +84,41 @@ public class AbstractFileSystemService {
      */
     public /*protected*/ String getPixelsPath(Long id) {
         return getPath(PIXELS_PATH, id);
+    }
+
+    /**
+     * Returns a numbered path relative to the root of this service
+     * using FS template. For example, given an id of 123456 this
+     * may return "ROOT/ManagedRepository/myGroup/me/2011/01/01/123456"
+     *
+     * @param id
+     * @param template
+     * @param user
+     * @param group
+     * @return
+     */
+    public  String getFilesPath(Long id, String template, String user, String group) {
+        Calendar now = Calendar.getInstance();
+        DateFormatSymbols dfs = new DateFormatSymbols();
+        String path = FilenameUtils.concat(root, MANAGED_REPO_PATH);
+        String[] elements = template.split("/");
+        for(String part : elements) {
+            if (part.equals("%groupname%")) path = FilenameUtils.concat(path, group);
+            else if (part.equals("%username%")) path = FilenameUtils.concat(path, user);
+            else if (part.equals("%year%")) path = FilenameUtils.concat(path, 
+                    Integer.toString(now.get(Calendar.YEAR)));
+            else if (part.equals("%month%")) path = FilenameUtils.concat(path, 
+                    Integer.toString(now.get(Calendar.MONTH)+1));
+            else if (part.equals("%monthname%")) path = FilenameUtils.concat(path, 
+                    dfs.getMonths()[now.get(Calendar.MONTH)]);
+            else if (part.equals("%date%")) path = FilenameUtils.concat(path, 
+                    Integer.toString(now.get(Calendar.DAY_OF_MONTH)));
+            else if (!part.endsWith("%") && !part.startsWith("%")) path = FilenameUtils.concat(path,
+                    part);
+            else ; // FIXME: ignore, add some null element, log, raise an exception?
+        }
+        path = FilenameUtils.concat(path, id.toString());
+        return path;
     }
 
     /**

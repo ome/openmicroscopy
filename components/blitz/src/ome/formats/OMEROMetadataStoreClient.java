@@ -74,6 +74,7 @@ import ome.formats.model.ReferenceProcessor;
 import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
+import ome.io.nio.OriginalFilesService;
 import ome.system.UpgradeCheck;
 import ome.util.LSID;
 import ome.xml.model.AffineTransform;
@@ -1875,12 +1876,24 @@ public class OMEROMetadataStoreClient
             try
             {
                 stream = new FileInputStream(file);
-                File directory =
-                    new File(repositoryRoot.getPath(), file.getParent());
+                
+                // FIXME: This relies on the legacy repo being the omero data dir
+                //        With a different repository this will have to change.
+                OriginalFilesService ofs = new OriginalFilesService(repositoryRoot.getAbsolutePath());
+                // FIXME: Hard-coded example - should come from config, in two parts (admin + user)?
+                String template = "%groupname%/%username%" + "/%year%/%monthname%/%date%/NewStuff";
+                String user = iAdmin.getExperimenter(eventContext.userId).getOmeName().getValue();
+                String group = iAdmin.getDefaultGroup(eventContext.userId).getName().getValue();
+                // FIXME: The OriginalFileStore is pretty dumb, should it be passed a context
+                //        or simply strings? Should it get hold of the template directly?
+                //        Or, better, should the getPath be a (managed) repository service?
+                String filePath = ofs.getFilesPath(
+                        originalFile.getId().getValue(), template, user, group);
+                
+                File directory = new File(filePath);
                 repo.makeDir(directory.getAbsolutePath());
                 rawFileStore = repo.file(new File(
-                        repositoryRoot.getPath(),
-                        file.getPath()).getAbsolutePath(), "rw");
+                        directory, file.getName()).getAbsolutePath(), "rw");
                 int rlen = 0;
                 long offset = 0;
                 while (stream.available() != 0)
