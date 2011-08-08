@@ -37,6 +37,7 @@ $VBOX list vms | grep "$VMNAME" && {
 	VBoxManage closemedium disk $HARDDISKS"$VMNAME".vdi --delete
 }
 
+set +e
 
 ps aux | grep [V]Box && {
 
@@ -58,10 +59,11 @@ ps aux | grep [V]irtualBox && {
 
 }
 
+set -e
 
 
 $VBOX list vms | grep "$VMNAME" || {
-	VBoxManage clonehd "$HARDDISKS"omero-base-img_2011-08-04.vdi"" "$HARDDISKS$VMNAME.vdi"
+	VBoxManage clonehd "$HARDDISKS"omero-base-img_2011-08-08.vdi"" "$HARDDISKS$VMNAME.vdi"
 	VBoxManage createvm --name "$VMNAME" --register --ostype "Debian"
 	VBoxManage storagectl "$VMNAME" --name "SATA CONTROLLER" --add sata
 	VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium $HARDDISKS$VMNAME.vdi
@@ -83,48 +85,48 @@ $VBOX list runningvms | grep "$VMNAME" || {
 $VBOX guestproperty enumerate $VMNAME | grep "10.0.2.15" && {
 	
 	ssh-keygen -R [localhost]:2222 -f ~/.ssh/known_hosts
-	rm -f omerokey omerokey.pub
-	ssh-keygen -t dsa -f omerokey -N ''
+#	rm -f omerokey omerokey.pub
+#	ssh-keygen -t dsa -f omerokey -N ''
 
-	echo "Setting omerokey permissions"
-	chmod 600 ./omerokey
+#	echo "Setting omerokey permissions"
+	chmod 600 ./omerovmkey
 
-	SCP="scp -2 -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i omerokey -P $SSH_PF"
+	SCP="scp -2 -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i omerovmkey -P $SSH_PF"
 
-	SSH="ssh -2 -o StrictHostKeyChecking=no -i omerokey -p $SSH_PF -t"
+	SSH="ssh -2 -o StrictHostKeyChecking=no -i omerovmkey -p $SSH_PF -t"
 
-	SCP_K="scp -o StrictHostKeyChecking=no -o NoHostAuthenticationForLocalhost=yes -P $SSH_PF"
-	SSH_K="ssh -o StrictHostKeyChecking=no -p $SSH_PF -t"
+#	SCP_K="scp -o StrictHostKeyChecking=no -o NoHostAuthenticationForLocalhost=yes -P $SSH_PF"
+#	SSH_K="ssh -o StrictHostKeyChecking=no -p $SSH_PF -t"
 
 
-[ -f omerokey.pub ] && {
-	echo "Copying my DSA key"
+#[ -f omerokey.pub ] && {
+#	echo "Copying my DSA key"
 	
 #	The following two lines work on Bash under Debian, Ubuntu & Mac OS X under normal Shell usage
 #	expect -c "spawn $SCP_K omerokey.pub omero@localhost:~/; expect \"*?assword:*\"; send \"omero\n\r\"; interact"
 #	expect -c "spawn $SCP_K setup_keys.sh omero@localhost:~/; expect \"*?assword:*\"; send \"omero\n\r\"; interact"
 
 #	The	following two lines work on Bash under Debian, Ubuntu & Mac OS X when built using Hudons/Jenkins
-	expect -c "
-		spawn $SCP_K omerokey.pub omero@localhost:~/; 
-		expect { \"*?assword:*\"; { send \"omero\r\n\"; interact }
-		eof { exit }
-		} exit"
-				
-	expect -c "
-		spawn $SCP_K setup_keys.sh omero@localhost:~/; 
-		expect { \"*?assword:*\"; { send \"omero\r\n\"; interact }
-		eof { exit }
-		} exit"
-
-	echo "Setup key"
-	expect -c "
-		spawn $SSH_K omero@localhost sh /home/omero/setup_keys.sh; 
-		expect { \"*?assword:*\"; { send \"omero\r\n\"; interact }
-		eof { exit }
-		} exit"
-
-	} || echo "Local DSAAuthentication key was not found. Use: $ ssh-keygen -t dsa"
+#	expect -c "
+#		spawn $SCP_K omerokey.pub omero@localhost:~/; 
+#		expect { \"*?assword:*\"; { send \"omero\r\n\"; interact }
+#		eof { exit }
+#		} exit"
+#				
+#	expect -c "
+#		spawn $SCP_K setup_keys.sh omero@localhost:~/; 
+#		expect { \"*?assword:*\"; { send \"omero\r\n\"; interact }
+#		eof { exit }
+#		} exit"
+#
+#	echo "Setup key"
+#	expect -c "
+#		spawn $SSH_K omero@localhost sh /home/omero/setup_keys.sh; 
+#		expect { \"*?assword:*\"; { send \"omero\r\n\"; interact }
+#		eof { exit }
+#		} exit"
+#
+#	} || echo "Local DSAAuthentication key was not found. Use: $ ssh-keygen -t dsa"
 
 
 	echo "Copying scripts to VM"
