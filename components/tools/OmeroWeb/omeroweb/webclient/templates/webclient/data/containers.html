@@ -774,9 +774,8 @@
             return false;
         });
         // on hover-out, hide drop-down menus
-        $(".dropdown").hover(function(){}, function(){
-            $(this).removeClass("hover");
-            $('ul.sub_menu',this).css('visibility', 'hidden');
+        $("#scriptList").hover(function(){}, function(){
+            $(this).css('visibility', 'hidden');
         });
 
     });
