@@ -63,7 +63,7 @@
                         if(selected.attr("rel").indexOf("locked")>=0) {
                             toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}, 'annotation':false, 'basket':false};
                         } else {
-                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false};
+                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false};
                             if(selected.attr("id").indexOf("experimenter")>=0) {
                                 toolbar_config['delete'] = false;
                                 toolbar_config["addproject"] = true;
@@ -95,9 +95,9 @@
                                 }
                             } 
                         }
-                        if (inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes) {
+                        if ((inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes) && ($.inArray(selected.attr('rel').replace("-locked", ""), ["project", "dataset", "screen"]) > -1)) {
                             toolbar_config['paste'] = true;
-                        }  else toolbar_config['paste'] = false;
+                        }
                     }
                     
                     for (var sIndex in toolbar_config) { 
@@ -361,8 +361,11 @@
                                     "unlink"    : {
                                         "label" : "Remove",
                                         "icon"  : '{% url webstatic "images/minus_15.png" %}',
-                                        "action": function(){ 
+                                        "action": function(){
                                             var tree = this;
+                                            //empty clipboard
+                                            tree.data.crrm.ct_nodes = false;
+                                            tree.data.crrm.cp_nodes = false;
                                             var selected = tree.get_selected();
                                             if (selected.length>0) {
                                                 var images = selected.filter('li[id|=image]');
@@ -656,6 +659,8 @@
                     break;
                 case "unlinkButton":
                     var jstree = $.jstree._focused();
+                    jstree.data.crrm.ct_nodes = false;
+                    jstree.data.crrm.cp_nodes = false;
                     var selected = jstree.get_selected();
                     if (selected.length>0) {
                         var images = selected.filter('li[id|=image]');
