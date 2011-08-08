@@ -43,11 +43,29 @@
             $(".result").hover(function(){}, function(){
                 $('ul',this).css('visibility', 'hidden');
             });
+
+            $(".script_error input[type='submit']").click(submitError);
         }
 
         var browseParent = function(url) {
             window.opener.location.href = url;
             if (!window.opener.closed) window.opener.focus();
+            return false;
+        }
+
+        var submitError = function() {
+            var submitBtn = $(this);
+            var jobKey = submitBtn.attr('jobKey');
+            submitBtn.attr("disabled", true);
+            submitBtn.attr('value', '...sending...');
+            var error = $(this).parent().attr('title');
+            var data = {'error': error, 'comment': 'Running Script: Feedback auto-submitted from activities window' }
+            $.post( '{% url fsend %}', data, function() {
+                submitBtn.attr('value', 'Thank you');
+            });
+            // update the callback session data, changes above can be maintained when we refresh page
+            var jobUpdate = {'jobKey':jobKey, 'attribute':'error_sent','new_value': true}
+            $.post( "{% url status 'update' %}", jobUpdate, function() {});
             return false;
         }
 
@@ -212,6 +230,9 @@
             width: 100px;
         }
         .resultOptions li:hover          { background: #ddf;}
+        .script_error {
+            color: red;
+        }
     </style>
 </head>
 
@@ -302,6 +323,20 @@
                                 <div class="message">{{ j.Message }}</div>
                             </td>
                             <td class="results" align="middle">
+                                {% if j.error %}
+                                    <div class='script_error' title="{{ j.error }}">
+                                        Error
+                                        <img src="{% url webstatic 'images/info16.png' %}"/>
+                                        <input type='submit' title="Send Error as Feeback to the OME team" jobKey="{{ j.key }}"
+                                        {% if j.error_sent %}
+                                            value='Thank you' disabled='true'
+                                        {% else %}
+                                            value='Submit Feedback'
+                                        {% endif %}
+                                        />
+                                    </div>
+                                {% endif %}
+
                                 {% for k,v in j.results.iteritems %}
                                     <div>
                                         {% if v.type and v.id %}

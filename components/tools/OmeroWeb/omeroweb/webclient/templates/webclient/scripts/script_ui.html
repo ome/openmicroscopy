@@ -50,100 +50,76 @@
                 contentType:'json',
                 success: function(data){
                     if(data.status == 'in progress') {
+                        // we don't try to open 'Activities' window here, since it triggers popup blockers
                         window.opener.refreshProgressBar();
-                        // if an "existing" window is opened by the window behind this one, we can't focus it...
-                        window.open("", 'Activities').close();    // make sure there is no existing 'Activities' window
-                        window.opener.popupActivites('{% url status %}');
                         self.close();
                     }
-                    else if(data.status == 'no processor') {
-                        $("div.param").parent().hide();
-                        $("#script_desc").hide();
-                        $("#script_desc").after("<p><a href=\"javascript:window.close();\">Close Window</a></p>");
-                        $("#script_desc").after("<p>No Processor Currently Available, please try again later</p>");
-                        $('#scriptName').append(" could not be run");
-
-                    }
-                    // exception in 'scriptService.runScript()' should be handled here
-                    else if(data.error) {
-                        $("div.param").parent().hide();
-                        $("#script_desc").hide();
-                        $("#script_desc").after("<p id='send_feedback'><a href='#' onClick='submitError();'>Send feedback</a></p>");
-                        $("#script_desc").after("<p><a href=\"javascript:window.close();\">Close Window</a></p>");
-                        $("#script_desc").after("<p id='error' style='background: #fcc'>"+ data.error +"</p>");
-
-                        $('#scriptName').append(" failed to run");
-
+                    else {
+                        // error is stored in http session - displayed in 'Activities' window.
+                        self.close();
                     }
                 },
                 error: function(data) {
-                    alert("Script failed to run");
-                    $form.hide(); // no message to display?
+                    self.close();
                 }
             });
             return false;
         };
 
-        var submitError = function() {
-            $("#send_feedback").text('...sending...');
-            var error = $("#error").text();
-            var data = {'error': error, 'comment': 'Running Script: Feedback auto-submitted from script UI' }
-            $.post( '{% url fsend %}', data, function() {
-                $("#send_feedback").text('Thank you for sending feedback');
-            })
-        }
-
         $(document).ready(function() {
             $('form').submit(function() {
-                $("#submit").attr("disabled", true); // make sure we don't submit twice. 
-                  $(this).runScript();
-                  return false;
-              });
+                $("#submit").attr("disabled", true); // make sure we don't submit twice.
+                $(this).runScript();
 
-              // for any 'list' parameters with enum options, controls to add / remove
-              $(".addListSelect").click(function(e) {
-                  var $lastSelect = $(this).parent().children('select').last();
-                  $lastSelect.after($lastSelect.clone());
-                  $lastSelect.after(" ");
-                  e.preventDefault();
-                  return false;
-              });
-              $(".removeListSelect").click(function(e) {
-                  var selectCount = $(this).parent().find('select').length;
-                  if (selectCount > 1) {
-                      var $lastSelect = $(this).parent().children('select').last();
-                      $lastSelect.remove();
-                    }
-                    e.preventDefault();
-                    return false;
-                });
+                // if an "existing" window is opened by the window behind this one, we can't focus it...
+                window.open("", 'Activities').close();    // make sure there is no existing 'Activities' window
+                window.opener.popupActivites('{% url status %}');
+                return false;
+            });
 
-              // for any 'map' parameters in the UI, add controls to add key:value fields
-              $(".addKeyValue").click(function() {
-                  var $keyValueTable = $(this).parent().next().find(".map");
-                  var rowCount = $keyValueTable.find('tr').length;
-                  var $newRow = $("tr", $keyValueTable).first().clone();
-                  var $keyInput = $newRow.find('input:eq(0)');
-                  var $valueInput = $newRow.find('input:eq(1)');
-                  // give the new inputs unique names, based on number of key:value pairs
-                  $keyInput.attr('name', $keyInput.attr('name')+rowCount);
-                  $valueInput.attr('name', $valueInput.attr('name')+rowCount);
-                  $keyInput.attr('value', "");
-                  $valueInput.attr('value', "");
-                  $keyValueTable.append($newRow);
+            // for any 'list' parameters with enum options, controls to add / remove
+            $(".addListSelect").click(function(e) {
+                var $lastSelect = $(this).parent().children('select').last();
+                $lastSelect.after($lastSelect.clone());
+                $lastSelect.after(" ");
+                e.preventDefault();
+                return false;
+            });
+            $(".removeListSelect").click(function(e) {
+                var selectCount = $(this).parent().find('select').length;
+                if (selectCount > 1) {
+                    var $lastSelect = $(this).parent().children('select').last();
+                    $lastSelect.remove();
+                }
+                e.preventDefault();
+                return false;
+            });
 
-                  return false;
-              });
-              $(".removeKeyValue").click(function(e) {
-                    var $keyValueTable = $(this).parent().next().find(".map");
-                    var rowCount = $keyValueTable.find('tr').length;
-                    if (rowCount > 1) {
-                        var $lastRow = $("tr", $keyValueTable).last();
-                        $lastRow.remove();
-                    }
-                    e.preventDefault();
-                    return false;
-                });
+            // for any 'map' parameters in the UI, add controls to add key:value fields
+            $(".addKeyValue").click(function() {
+                var $keyValueTable = $(this).parent().next().find(".map");
+                var rowCount = $keyValueTable.find('tr').length;
+                var $newRow = $("tr", $keyValueTable).first().clone();
+                var $keyInput = $newRow.find('input:eq(0)');
+                var $valueInput = $newRow.find('input:eq(1)');
+                // give the new inputs unique names, based on number of key:value pairs
+                $keyInput.attr('name', $keyInput.attr('name')+rowCount);
+                $valueInput.attr('name', $valueInput.attr('name')+rowCount);
+                $keyInput.attr('value', "");
+                $valueInput.attr('value', "");
+                $keyValueTable.append($newRow);
+                return false;
+            });
+            $(".removeKeyValue").click(function(e) {
+                var $keyValueTable = $(this).parent().next().find(".map");
+                var rowCount = $keyValueTable.find('tr').length;
+                if (rowCount > 1) {
+                    var $lastRow = $("tr", $keyValueTable).last();
+                    $lastRow.remove();
+                }
+                e.preventDefault();
+                return false;
+            });
         });
     </script>
 

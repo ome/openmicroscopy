@@ -2615,6 +2615,8 @@ def progress(request, **kwargs):
 
         # update scripts
         elif job_type == 'script':
+            # if error on runScript, the cbString is not a ProcessCallback...
+            if not cbString.startswith('ProcessCallback'): continue  # ignore
             if status not in ("failed", "finished"):
                 logger.info("Check callback on script: %s" % cbString)
                 proc = omero.grid.ScriptProcessPrx.checkedCast(conn.c.ic.stringToProxy(cbString))
@@ -2690,6 +2692,7 @@ def status_action (request, action=None, **kwargs):
             rv = {}
             if jobId in request.session['callback']:
                 del request.session['callback'][jobId]
+                request.session.modified = True
                 rv['removed'] = True
             else:
                 rv['removed'] = False
@@ -2699,6 +2702,20 @@ def status_action (request, action=None, **kwargs):
                 if data['status'] != "in progress":
                     del request.session['callback'][key]
         return HttpResponseRedirect(reverse("status"))
+
+    elif action == "update":
+        # try to update the 'attribute' of the job with 'new_value' (or None)
+        if 'jobKey' in request.POST:
+            jobId = request.POST.get('jobKey')
+            rv = {'updated':False}
+            if jobId in request.session['callback']:
+                if 'attribute' in request.POST:
+                    attribute = request.POST.get('attribute')
+                    new_value = request.POST.get('new_value', None)
+                    request.session['callback'][jobId][attribute] = new_value
+                    request.session.modified = True
+                    rv['updated'] = True
+            return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript')
 
     conn = None
     try:
@@ -2715,7 +2732,11 @@ def status_action (request, action=None, **kwargs):
     for key, data in request.session['callback'].items():
         # E.g. key: ProcessCallback/39f77932-c447-40d8-8f99-910b5a531a25 -t:tcp -h 10.211.55.2 -p 54727:tcp -h 10.37.129.2 -p 54727:tcp -h 10.12.2.21 -p 54727
         # create id we can use as html id, E.g. 39f77932-c447-40d8-8f99-910b5a531a25
-        data['id'] =  key.split(" ")[0].split("/")[1]
+        data['id'] = key
+        if len(key.split(" ")) > 0:
+            data['id'] = key.split(" ")[0]
+            if len(data['id'].split("/")) > 1:
+                data['id'] = data['id'].split("/")[1]
         data['key'] = key
         jobs.append(data)
 
@@ -3220,14 +3241,28 @@ def script_run(request, scriptId, **kwargs):
             'status':'in progress'}
         request.session.modified = True
     except Exception, x:
+        jobId = str(time())      # E.g. 1312803670.6076391
         if x.message == "No processor available.": # omero.ResourceError
             logger.info(traceback.format_exc())
-            error = traceback.format_exc()
-            return HttpResponse(simplejson.dumps({'status': 'no processor', 'error': error}), mimetype='json')
+            error = None
+            status = 'no processor available'
+            message = 'No Processor Available: Please try again later'
         else:
             logger.error(traceback.format_exc())
             error = traceback.format_exc()
-            return HttpResponse(simplejson.dumps({'error': error}), mimetype='json')
+            status = 'failed'
+            message = x.message
+        # save the error to http session, for display in 'Activities' window
+        request.session['callback'][jobId] = {
+            'job_type': "script",
+            'job_name': scriptName,
+            'start_time': datetime.datetime.now(),
+            'status':status,
+            'Message': message,
+            'error':error}
+        request.session.modified = True
+        # we return this, although it is now ignored (script window closes)
+        return HttpResponse(simplejson.dumps({'status': status, 'error': error}), mimetype='json')
 
     return HttpResponse(simplejson.dumps({'jobId': jobId, 'status':'in progress'}), mimetype='json')
 
