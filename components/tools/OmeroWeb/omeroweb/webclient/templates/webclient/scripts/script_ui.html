@@ -89,7 +89,7 @@
             var error = $("#error").text();
             var data = {'error': error, 'comment': 'Running Script: Feedback auto-submitted from script UI' }
             $.post( '{% url fsend %}', data, function() {
-                $("#send_feedback").text('Thankyou for sending feedback');
+                $("#send_feedback").text('Thank you for sending feedback');
             })
         }
 
