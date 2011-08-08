@@ -615,7 +615,14 @@ class BlitzObjectWrapper (object):
         if self.PARENT_WRAPPER_CLASS is None:
             raise AttributeError("This object has no parent objects")
         parentwrappers = self._getParentWrappers()
-        parentw = parentwrappers[0]
+        link_class = None
+        for v in parentwrappers:
+            link_class = v().LINK_CLASS
+            if link_class is not None:
+                break
+        if link_class is None:
+            raise AttributeError(
+                    "This object has no parent objects with a link class!")
         query_serv = self._conn.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -623,7 +630,7 @@ class BlitzObjectWrapper (object):
         sql = "select pchl from %s as pchl " \
                 "left outer join fetch pchl.parent as parent " \
                 "left outer join fetch pchl.child as child " \
-                "where child.id=:child" % parentw().LINK_CLASS
+                "where child.id=:child" % link_class
         if isinstance(pids, list) and len(pids) > 0:
             p.map["parent"] = rlist([rlong(pa) for pa in pids])
             sql+=" and parent.id in (:parent)"
