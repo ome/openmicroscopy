@@ -1451,7 +1451,10 @@ class _BlitzGateway (object):
         Also tries to setAgent for the client
         """
         if self.host is not None:
-            self.c = omero.client(host=str(self.host), port=int(self.port))#, pmap=['--Ice.Config='+','.join(self.ice_config)])
+            if self.port is not None:
+                self.c = omero.client(host=str(self.host), port=int(self.port))#, pmap=['--Ice.Config='+','.join(self.ice_config)])
+            else:
+                self.c = omero.client(host=str(self.host))
         else:
             self.c = omero.client(pmap=['--Ice.Config='+','.join(self.ice_config)])
 
