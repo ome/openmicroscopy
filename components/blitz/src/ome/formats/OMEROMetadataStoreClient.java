@@ -1840,7 +1840,7 @@ public class OMEROMetadataStoreClient
      * objects that we are to populate.
      */
     public void writeFilesToFileStore(
-		List<File> files, Map<String, OriginalFile> originalFileMap)
+		List<File> files, Map<String, OriginalFile> originalFileMap, String primaryFileName)
     {
         // Lookup each source file in our hash map and write it to the
         // correct original file object server side.
@@ -1848,6 +1848,7 @@ public class OMEROMetadataStoreClient
         RepositoryPrx repo = getLegacyRepository();
         File repositoryRoot;
         File directory;
+        String parent;
         try
         {
             OriginalFile ofRoot = repo.root();
@@ -1855,7 +1856,7 @@ public class OMEROMetadataStoreClient
                             ofRoot.getName().getValue());
 
             // FIXME: for now just grab the first id but need a specific one. Which?
-            Long defaultId = originalFileMap.get(files.get(0).getAbsolutePath()).getId().getValue();
+            Long defaultId = originalFileMap.get(primaryFileName).getId().getValue();
             // FIXME: This relies on the legacy repo being the omero data dir
             //        With a different repository this will have to change.
             OriginalFilesService ofs = new OriginalFilesService(repositoryRoot.getAbsolutePath());
@@ -1866,11 +1867,11 @@ public class OMEROMetadataStoreClient
             // FIXME: The OriginalFileStore is pretty dumb, should it be passed a context
             //        or simply strings? Should it get hold of the template directly?
             //        Or, better, should the getPath be a (managed) repository service?
-            String filePath = ofs.getFilesPath(
-                    defaultId, template, user, group);
+            String filePath = ofs.getFilesPath(defaultId, template, user, group);
 
             directory = new File(filePath);
             repo.makeDir(directory.getAbsolutePath());
+            parent = new File(primaryFileName).getParentFile().getAbsolutePath();
 
         }
         catch (ServerError e)
@@ -1897,8 +1898,20 @@ public class OMEROMetadataStoreClient
             try
             {
                 stream = new FileInputStream(file);
+                // FIXME: This is a shaky way of getting a relative path
+                //         - is there a nifty util I could be using?.
+                String nested = file.getParentFile().getAbsolutePath();
+                String diff = "";
+                if (!nested.equals(parent)) {
+                    if (nested.startsWith(parent)) {
+                        diff = nested.substring(parent.length());
+                        repo.makeDir(new File(directory, diff).getAbsolutePath());
+                    } 
+                    // FIXME: the else here is likely to be original metadata
+                    //        files - should these go in some structure??
+                }
                 rawFileStore = repo.file(new File(
-                        directory, file.getName()).getAbsolutePath(), "rw");
+                        new File(directory,diff), file.getName()).getAbsolutePath(), "rw");
                 int rlen = 0;
                 long offset = 0;
                 while (stream.available() != 0)
