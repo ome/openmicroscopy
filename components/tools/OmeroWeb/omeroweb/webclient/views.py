@@ -1751,6 +1751,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         object_ids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate'), 'well':request.REQUEST.getlist('well')}
         child = toBoolean(request.REQUEST.get('child'))
         anns = toBoolean(request.REQUEST.get('anns'))
+        logger.debug("Delete many: child? %s anns? %s object_ids %s" % (child, anns, object_ids))
         try:
             for key,ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
