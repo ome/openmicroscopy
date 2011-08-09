@@ -26,6 +26,7 @@
 <script>
 
     var refreshProgressBar = function() {
+        refreshActivitiesWindow('{% url status %}');
         var i = setInterval(function (){
             $.getJSON("{% url progress %}", function(data) {
                 if (data.inprogress==0) {

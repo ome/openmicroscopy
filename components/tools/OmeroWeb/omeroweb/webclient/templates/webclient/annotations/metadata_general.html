@@ -232,6 +232,7 @@
                                 if(responce.match(/(Error: ([A-z]+))/gi)) {
                                     alert(responce)
                                 } else {  
+                                    window.parent.refreshProgressBar();
                                     window.location = "{{ url }}";
                                 }
                             },

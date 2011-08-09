@@ -246,12 +246,19 @@
 <div id="full_viewer_link" style="display:none">{% url webgateway.views.full_viewer 0 %}</div>
 
 <div id="content_details">
-    {% if sizeOfJobs %}
 
-        <div id="toolbar" style="background:#ddd; padding: 4px">
-            <input style="float:right" class="button" type="submit" value="Clear List" alt="Clean" title="Clean" onclick="document.location.href='{% url status "clean" %}';">
-            <div style="clear:both"> </div>
+    <div id="toolbar" style="background:#ddd; padding: 4px">
+        <input style="float:right" class="button" type="submit" value="Clear List" alt="Clean" title="Clean" onclick="document.location.href='{% url status "clean" %}';">
+        <div>
+            <a href="{% url status %}" style="text-decoration:none; position:absolute; top:3px; left:3px; font-size: 90%; color:#666" title="Refresh the Activities list">
+            <img src="{% url webstatic 'images/reload16.png' %}" style="position:relative; top:3px; left:0px; float:left" />
+            <div style="margin: 3px; position:absolute; top:0px; left:17px">Refresh</div>
+        </a>
         </div>
+        <div style="clear:both"> </div>
+    </div>
+
+    {% if sizeOfJobs %}
 
         <table id="jobsTable" width="100%" cellpadding="6" cellspacing="0" border="0">
 
