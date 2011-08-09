@@ -2840,7 +2840,7 @@ class _BlitzGateway (object):
                 'Dataset':['/Image'],
                 'Image':[],
                 'Screen':['/Plate'],
-                'Plate':[],
+                'Plate':['/Image'],
                 'Well':[],
                 'Annotation':[] }
     
@@ -2854,7 +2854,7 @@ class _BlitzGateway (object):
 
         #return self.simpleDelete(obj_type, obj_ids, op)
         dcs = list()
-        logger.debug('Deleting %s [%s]. Children: %s' % (obj_type, str(obj_ids), deleteChildren))
+        logger.debug('Deleting %s [%s]. Options: %s' % (obj_type, str(obj_ids), op))
         for oid in obj_ids:
             dcs.append(omero.api.delete.DeleteCommand("/%s" % obj_type, long(oid), op))
         handle = self.getDeleteService().queueDelete(dcs)
