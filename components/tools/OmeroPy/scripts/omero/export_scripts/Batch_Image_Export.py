@@ -149,14 +149,15 @@ def saveAsOmeTiff(conn, image, folder_name=None):
     """
 
     extension = "ome.tif"
-    imgName = "%s.%s" % (image.getName(), extension)
+    name = os.path.basename(image.getName())
+    imgName = "%s.%s" % (name, extension)
     if folder_name != None:
         imgName = os.path.join(folder_name, imgName)
     # check we don't overwrite existing file
     i = 1
-    name = imgName[:-(len(extension)+1)]
+    pathName = imgName[:-(len(extension)+1)]
     while os.path.exists(imgName):
-        imgName = "%s_(%d).%s" % (name, i, extension)
+        imgName = "%s_(%d).%s" % (pathName, i, extension)
         i += 1
 
     log("  Saving file as: %s" % imgName)
