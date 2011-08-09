@@ -1847,16 +1847,37 @@ public class OMEROMetadataStoreClient
         byte[] buf = new byte[1048576];  // 1 MB buffer
         RepositoryPrx repo = getLegacyRepository();
         File repositoryRoot;
+        File directory;
         try
         {
             OriginalFile ofRoot = repo.root();
             repositoryRoot = new File(ofRoot.getPath().getValue(),
                             ofRoot.getName().getValue());
+
+            // FIXME: for now just grab the first id but need a specific one. Which?
+            Long defaultId = originalFileMap.get(files.get(0).getAbsolutePath()).getId().getValue();
+            // FIXME: This relies on the legacy repo being the omero data dir
+            //        With a different repository this will have to change.
+            OriginalFilesService ofs = new OriginalFilesService(repositoryRoot.getAbsolutePath());
+            // FIXME: Hard-coded example - should come from config, in two parts (admin + user)?
+            String template = "%groupname%/%username%" + "/%year%/%monthname%/%date%/NewStuff";
+            String user = iAdmin.getExperimenter(eventContext.userId).getOmeName().getValue();
+            String group = iAdmin.getDefaultGroup(eventContext.userId).getName().getValue();
+            // FIXME: The OriginalFileStore is pretty dumb, should it be passed a context
+            //        or simply strings? Should it get hold of the template directly?
+            //        Or, better, should the getPath be a (managed) repository service?
+            String filePath = ofs.getFilesPath(
+                    defaultId, template, user, group);
+
+            directory = new File(filePath);
+            repo.makeDir(directory.getAbsolutePath());
+
         }
         catch (ServerError e)
         {
             throw new RuntimeException(e);
         }
+
         for (File file : files)
         {
             String path = file.getAbsolutePath();
@@ -1876,22 +1897,6 @@ public class OMEROMetadataStoreClient
             try
             {
                 stream = new FileInputStream(file);
-                
-                // FIXME: This relies on the legacy repo being the omero data dir
-                //        With a different repository this will have to change.
-                OriginalFilesService ofs = new OriginalFilesService(repositoryRoot.getAbsolutePath());
-                // FIXME: Hard-coded example - should come from config, in two parts (admin + user)?
-                String template = "%groupname%/%username%" + "/%year%/%monthname%/%date%/NewStuff";
-                String user = iAdmin.getExperimenter(eventContext.userId).getOmeName().getValue();
-                String group = iAdmin.getDefaultGroup(eventContext.userId).getName().getValue();
-                // FIXME: The OriginalFileStore is pretty dumb, should it be passed a context
-                //        or simply strings? Should it get hold of the template directly?
-                //        Or, better, should the getPath be a (managed) repository service?
-                String filePath = ofs.getFilesPath(
-                        originalFile.getId().getValue(), template, user, group);
-                
-                File directory = new File(filePath);
-                repo.makeDir(directory.getAbsolutePath());
                 rawFileStore = repo.file(new File(
                         directory, file.getName()).getAbsolutePath(), "rw");
                 int rlen = 0;
@@ -1902,7 +1907,15 @@ public class OMEROMetadataStoreClient
                     rawFileStore.write(buf, offset, rlen);
                     offset += rlen;
                 }
-                rawFileStore.close();
+                // FIXME: This is for testing only. See #6349
+                try 
+                {
+                    rawFileStore.close();
+                } 
+                catch (Exception npe)
+                {
+                    log.error("Ignoring NPE due to rawFileStore.close() bug, see #6349");
+                }
             }
             catch (Exception e)
             {
