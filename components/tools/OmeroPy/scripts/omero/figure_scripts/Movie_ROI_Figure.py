@@ -174,11 +174,11 @@ def getROImovieView    (re, queryService, pixels, timeShapeMap, mergedIndexes, m
             
     # turn on channels in mergedIndexes. 
     for i in mergedIndexes: 
-        if i >= sizeC:
+        if i >= sizeC or i < 0:
             channelMismatch = True
         else:
-            re.setActive(i, True)
             print "Turning on channel:", i
+            re.setActive(i, True)
             if i in mergedColours:
                 rgba = mergedColours[i]
                 print "Setting rgba", rgba
@@ -288,7 +288,6 @@ def getRectangle(roiService, imageId, roiLabel):
     
     for roi in result.rois:
         timeShapeMap = {} # map of tIndex: (x,y,zMin,zMax) for a single roi
-        roiCount += 1
         for shape in roi.copyShapes():
             if type(shape) == omero.model.RectI:
                 t = shape.getTheT().getValue()
@@ -319,6 +318,8 @@ def getRectangle(roiService, imageId, roiLabel):
         if foundLabelledRoi:
             return (int(x1), int(y1), int(width), int(height), timeShapeMap)
         else:
+            if rectCount > 0:
+                roiCount += 1
             rectCount = 0    # try another ROI
     
     # if we got here without finding an ROI that matched, simply return any ROI we have (last one)
@@ -659,8 +660,8 @@ def roiFigure(session, commandArgs):
         maxColumns = commandArgs["Max_Columns"]
         
     showRoiDuration = False
-    if "Show_Roi_Duration" in commandArgs:
-        showRoiDuration = commandArgs["Show_Roi_Duration"]
+    if "Show_ROI_Duration" in commandArgs:
+        showRoiDuration = commandArgs["Show_ROI_Duration"]
     
     roiLabel = "FigureROI"
     if "Roi_Selection_Label" in commandArgs:
@@ -668,13 +669,16 @@ def roiFigure(session, commandArgs):
                 
     spacer = (width/50) + 2
     
+    print "showRoiDuration", showRoiDuration
     fig = getSplitView(session, imageIds, pixelIds, mergedIndexes, 
             mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, overlayColour, roiZoom, 
             maxColumns, showRoiDuration, roiLabel)
                                                     
     #fig.show()        # bug-fixing only
-    
-    log("")
+
+    if fig is None:
+        log("\nNo Figure produced - probably due to NO rectangle ROIs being found for the specified images")
+        return
     figLegend = "\n".join(logStrings)
     
     #print figLegend    # bug fixing only
@@ -730,7 +734,7 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/e
     #    description="A list of colours to apply to merged channels.", values=cOptions),
          
     scripts.List("Merged_Channels", grouping="03",
-        description="A list of channel indexes to display. E.g. 1, 2, 3").ofType(rint(0)),
+        description="A list of channel indexes to display, starting at 1. E.g. 1, 2, 3").ofType(rint(0)),
         
     scripts.Float("Roi_Zoom", grouping="04", default=1,
         description="How much to zoom the ROI. E.g. x 2. If 0 then ROI panel will zoom to same size as main image"),
@@ -789,12 +793,14 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/e
         print commandArgs
         # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
         result = roiFigure(session, commandArgs)
-        if result:
+        if result is not None:
             fileAnnotation, image = result
             # return this fileAnnotation to the client. 
             if fileAnnotation:
                 client.setOutput("Message", rstring("ROI Movie Figure Attached to Image: %s" % image.name.val))
                 client.setOutput("File_Annotation", robject(fileAnnotation))
+        else:
+            client.setOutput("Message", rstring("No Figure Produced. See Error or Info for details"))
 
     finally: client.closeSession()
 
