@@ -329,7 +329,7 @@ class BrowserModel
     	if (originalGridImages == null)
     		originalGridImages = new ArrayList<BufferedImage>();
     	gridImages.clear();
-    	if (parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
+    	if (ImViewer.GREY_SCALE_MODEL.equals(parent.getColorModel())) {
     		createGridImagesForGreyScale();
     		return;
     	}
@@ -903,9 +903,8 @@ class BrowserModel
     { 
     	if (splitImages == null) splitImages = new ArrayList<SplitImage>();
     	else splitImages.clear();
-    	BufferedImage combined;
     	String n;
-    	combined = combinedImage;
+    	splitImages = new ArrayList<SplitImage>();
     	List<ChannelData> list = parent.getSortedChannelData();
     	Iterator<ChannelData> i = list.iterator();
     	ChannelData channel;
@@ -919,7 +918,7 @@ class BrowserModel
     		else splitImages.add(new SplitImage(gridImages.get(j), n));
     		j++;
 		}
-    	splitImages.add(new SplitImage(combined, COMBINED));
+    	splitImages.add(new SplitImage(combinedImage, COMBINED));
     	return splitImages;
     }
     

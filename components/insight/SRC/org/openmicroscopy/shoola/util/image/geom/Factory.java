@@ -375,13 +375,11 @@ public class Factory
     		type = BufferedImage.TYPE_INT_ARGB;
     	Rectangle bounds = img.getRaster().getBounds();
     	bounds = at.createTransformedShape(bounds).getBounds();
-
-
-    	BufferedImage rescaleBuff = img;//
+    	BufferedImage rescaleBuff;
     	rescaleBuff = new BufferedImage(bounds.width, 
     			bounds.height, type); //img.getType()
     	Graphics2D g2 = rescaleBuff.createGraphics();
-    	g2.drawImage(img, at,null);
+    	g2.drawImage(img, at, null);
     	g2.dispose();
 
     	return rescaleBuff;

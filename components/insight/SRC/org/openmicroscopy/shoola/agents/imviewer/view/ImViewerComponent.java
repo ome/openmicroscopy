@@ -1419,8 +1419,7 @@ class ImViewerComponent
 			" state.");
 		}
 		//view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		if (!model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
-		int index;
+		if (!GREY_SCALE_MODEL.equals(model.getColorModel())) return null;
 		List active = view.getActiveChannelsInGrid();
 		BufferedImage image = null;
 		Iterator i = active.iterator();
@@ -1428,20 +1427,19 @@ class ImViewerComponent
 			model.setChannelActive(k, false);
 		}
 		while (i.hasNext()) { //reset values.
-			index = ((Integer) i.next()).intValue();
-			model.setChannelActive(index, true);
+			model.setChannelActive(((Integer) i.next()).intValue(), true);
 		}
 		if (active.size() != 0) {
 			model.setColorModel(RGB_MODEL, false);
 			image = model.getSplitComponentImage();
 			model.setColorModel(GREY_SCALE_MODEL, false);
 		}
+
 		
 		active = model.getActiveChannels();
 		i = active.iterator();
 		while (i.hasNext()) { //reset values.
-			index = ((Integer) i.next()).intValue();
-			model.setChannelActive(index, true);
+			model.setChannelActive(((Integer) i.next()).intValue(), true);
 		}
 		return image;
 	}

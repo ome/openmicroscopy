@@ -511,6 +511,13 @@ class RendererComponent
 			Iterator i;
 			int j;
 			model.setColorModel(index);
+			if (!update) {
+				view.setColorModelChanged();
+				//if (model.isGeneralIndex()) model.saveRndSettings();
+				firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
+						Boolean.valueOf(true));
+				return;
+			}
 			if (GREY_SCALE_MODEL.equals(index)) {
 				historyActiveChannels = model.getActiveChannels();
 				if (active != null && active.size() >= 1) {

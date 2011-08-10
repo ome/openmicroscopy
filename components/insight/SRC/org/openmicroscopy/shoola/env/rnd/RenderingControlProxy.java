@@ -542,7 +542,7 @@ class RenderingControlProxy
         BufferedImage img = (BufferedImage) getFromCache(pDef);
         //if (img != null) return img;
         try {
-            int[] buf = servant.renderAsPackedInt(pDef);
+        	int[] buf = servant.renderAsPackedInt(pDef);
             Point p = getSize(pDef);
             imageSize = 3*buf.length;
             initializeCache(pDef);
