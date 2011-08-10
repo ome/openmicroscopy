@@ -116,6 +116,24 @@ def processImage(conn, imageId, parameterMap, dataset=None):
     physicalSizeY = pixels.getPhysicalSizeY()
 
     rois = getRectangles(conn, imageId)     # x, y, w, h, zStart, zEnd, tStart, tEnd
+
+    imgW = image.getSizeX()
+    imgH = image.getSizeY()
+
+    for index, r in enumerate(rois):
+        x,y,w,h, z1,z2,t1,t2 = r
+        # Bounding box
+        X = max(x, 0)
+        Y = max(y, 0)
+        X2 = min(x + w, imgW)
+        Y2 = min(y + h, imgH)
+
+        W = X2 - X
+        H = Y2 - Y
+        if (x, y, w, h) != (X, Y, W, H):
+            print "\nCropping ROI (x, y, w, h) %s to be within image. New ROI: %s" % ((x, y, w, h), (X, Y, W, H))
+            rois[index] = (X, Y, W, H, z1,z2,t1,t2)
+
     print "rois"
     print rois
 
