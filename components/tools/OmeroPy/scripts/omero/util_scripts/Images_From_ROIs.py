@@ -89,7 +89,7 @@ def getRectangles(conn, imageId):
 
     return rois
 
-def processImage(conn, imageId, parameterMap, dataset=None):
+def processImage(conn, imageId, parameterMap):
     """
     Process an image.
     If imageStack is True, we make a Z-stack using one tile from each ROI (c=0)
@@ -98,10 +98,10 @@ def processImage(conn, imageId, parameterMap, dataset=None):
     """
 
     imageStack = parameterMap['Make_Image_Stack']
-    containerName = parameterMap['Container_Name']
 
     image = conn.getObject("Image", imageId)
     if image is None:
+        print "No image found for ID: %s" % imageId
         return
 
     parentDataset = image.getParent()
@@ -114,6 +114,7 @@ def processImage(conn, imageId, parameterMap, dataset=None):
     # note pixel sizes (if available) to set for the new images
     physicalSizeX = pixels.getPhysicalSizeX()
     physicalSizeY = pixels.getPhysicalSizeY()
+    physicalSizeZ = pixels.getPhysicalSizeZ()
 
     rois = getRectangles(conn, imageId)     # x, y, w, h, zStart, zEnd, tStart, tEnd
 
@@ -137,8 +138,15 @@ def processImage(conn, imageId, parameterMap, dataset=None):
     print "rois"
     print rois
 
+    if len(rois) == 0:
+        print "No rectangular ROIs found for image ID: %s" % imageId
+        return
+
     # if making a single stack image...
     if imageStack:
+        if parentDataset is not None:
+            dataset = parentDataset._obj
+        else: dataset = None
         print "\nMaking Image stack from ROIs of Image:", imageId
         print "physicalSize X, Y:  %s, %s" % (physicalSizeX, physicalSizeY)
         plane2Dlist = []
@@ -156,17 +164,21 @@ def processImage(conn, imageId, parameterMap, dataset=None):
             for t in pixels.getTiles(zctTileList):
                 yield t
 
-        newImageName = "%s_%s" % (os.path.basename(imageName), containerName)
-
+        if 'Container_Name' in parameterMap:
+            newImageName = "%s_%s" % (os.path.basename(imageName), parameterMap['Container_Name'])
+        else:
+            newImageName = os.path.basename(imageName)
         description = "Image from ROIS on parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
         print description
         image = conn.createImageFromNumpySeq(tileGen(), newImageName,
             sizeZ=len(rois), sizeC=1, sizeT=1, description=description, dataset=dataset)
 
-        return image
+        return image._obj
 
     # ...otherwise, we're going to make a new 5D image per ROI
     else:
+        colors = [c.getColor().getRGB() for c in image.getChannels()]
+        cNames = [c.getLabel() for c in image.getChannels()]
         iIds = []
         for r in rois:
             x,y,w,h, z1,z2,t1,t2 = r
@@ -190,17 +202,40 @@ def processImage(conn, imageId, parameterMap, dataset=None):
             print "sizeZ, sizeC, sizeT", sizeZ, sizeC, sizeT
             description = "Created from image:\n  Name: %s\n  Image ID: %d \n x: %d y: %d" % (imageName, imageId, x, y)
             serviceFactory = conn.c.sf  # make sure that script_utils creates a NEW rawPixelsStore
-            newI = conn.createImageFromNumpySeq(tileGen(), imageName,
+            newImg = conn.createImageFromNumpySeq(tileGen(), imageName,
                 sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, description=description)
-            #pixels = image.getPrimaryPixels()
-            #pixels.setPhysicalSizeX(rdouble(physicalSizeX))
-            #pixels.setPhysicalSizeY(rdouble(physicalSizeY))
-            #updateService.saveObject(pixels)
-            iIds.append(newI.getId())
 
-        if len(iIds) > 0:
+            print "New Image Id = %s" % newImg.getId()
+
+            # Apply colors from the original image to the new one
+            for i, c in enumerate(newImg.getChannels()):
+                lc = c.getLogicalChannel()
+                lc.setName(cNames[i])
+                lc.save()
+                r,g,b = colors[i]
+                c._re.setRGBA(i, r, g, b, 255)
+
+            newImg._re.saveCurrentSettings()
+            newImg._re.close()
+
+            px = conn.getQueryService().get("Pixels", newImg.getPixelsId())
+            if physicalSizeX is not None:
+                px.setPhysicalSizeX(rdouble(physicalSizeX))
+            if physicalSizeY is not None:
+                px.setPhysicalSizeY(rdouble(physicalSizeY))
+            if physicalSizeZ is not None:
+                px.setPhysicalSizeZ(rdouble(physicalSizeZ))
+            conn.getUpdateService().saveObject(px)
+
+            iIds.append(newImg.getId())
+
+        if len(iIds) == 0:
+            print "No new images created."
+            return
+
+        if 'Container_Name' in parameterMap and len(parameterMap['Container_Name'].strip()) > 0:
             # create a new dataset for new images
-            datasetName = containerName
+            datasetName = parameterMap['Container_Name']
             print "\nMaking Dataset '%s' of Images from ROIs of Image: %s" % (datasetName, imageId)
             print "physicalSize X, Y:  %s, %s" % (physicalSizeX, physicalSizeY)
             dataset = omero.model.DatasetI()
@@ -208,17 +243,27 @@ def processImage(conn, imageId, parameterMap, dataset=None):
             desc = "Images in this Dataset are from ROIs of parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
             dataset.description = rstring(desc)
             dataset = updateService.saveAndReturnObject(dataset)
-            for iid in iIds:
-                link = omero.model.DatasetImageLinkI()
-                link.parent = omero.model.DatasetI(dataset.id.val, False)
-                link.child = omero.model.ImageI(iid, False)
-                updateService.saveObject(link)
-            if parentProject:        # and put it in the current project
-                link = omero.model.ProjectDatasetLinkI()
-                link.parent = omero.model.ProjectI(parentProject.getId(), False)
-                link.child = omero.model.DatasetI(dataset.id.val, False)
-                updateService.saveAndReturnObject(link)
-            return dataset
+        else:
+            # put new images in existing dataset
+            if parentDataset is not None:
+                dataset = parentDataset._obj
+            else: dataset = None
+            parentProject = None    # don't add Dataset to parent.
+
+        if dataset is None:
+            print "No dataset created or found for new images. Images will be orphans."
+            return
+        for iid in iIds:
+            link = omero.model.DatasetImageLinkI()
+            link.parent = omero.model.DatasetI(dataset.id.val, False)
+            link.child = omero.model.ImageI(iid, False)
+            updateService.saveObject(link)
+        if parentProject:        # and put it in the current project
+            link = omero.model.ProjectDatasetLinkI()
+            link.parent = omero.model.ProjectI(parentProject.getId(), False)
+            link.child = omero.model.DatasetI(dataset.id.val, False)
+            updateService.saveAndReturnObject(link)
+        return dataset
 
 def makeImagesFromRois(conn, parameterMap):
     """
@@ -231,27 +276,29 @@ def makeImagesFromRois(conn, parameterMap):
     ids = parameterMap["IDs"]
     imageStack = parameterMap['Make_Image_Stack']
     
-    newIds = []
+    newObjs = []
     if dataType == 'Image':
         for iId in ids:
-            new = processImage(conn, iId, parameterMap, dataset=None)
+            new = processImage(conn, iId, parameterMap)
             if new is not None:
-                newIds.append(new.getId())
-            
+                newObjs.append(new)
+
     else:
         for dsId in ids:
             ds = conn.getObject("Dataset", dsId)
             for i in ds.listChildren():
-                new = processImage(conn, i.getId(), parameterMap, dataset=None)
+                new = processImage(conn, i.getId(), parameterMap)
                 if new is not None:
-                    newIds.append(new.getId())
+                    newObjs.append(new)
 
-    plural = (len(newIds) == 1) and "." or "s."
+    plural = (len(newObjs) == 1) and "." or "s."
     if imageStack:
-        message = "Created %s new Image%s Refresh Dataset to view" % (len(newIds), plural)
+        message = "Created %s new Image%s" % (len(newObjs), plural)
+        robj = (len(newObjs) > 0) and newObjs[0] or None
     else:
-        message = "Created %s new Dataset%s Refresh Project to view" % (len(newIds), plural)
-    return message
+        message = "Created %s new Dataset%s" % (len(newObjs), plural)
+        robj = (len(newObjs) > 0) and newObjs[0] or None
+    return message, robj
 
 def runAsScript():
     """
@@ -271,8 +318,8 @@ assumes that all the ROIs on each Image are the same size.""",
     scripts.List("IDs", optional=False, grouping="2",
         description="List of Dataset IDs or Image IDs to process.").ofType(rlong(0)),
         
-    scripts.String("Container_Name", optional=False, grouping="3",
-        description="New Dataset name or Image name (if 'Make_Image_Stack')", default="From_ROIs"),
+    scripts.String("Container_Name", grouping="3",
+        description="Option: put Images in new Dataset with this name OR use this name for new Image stacks, if 'Make_Image_Stack')", default="From_ROIs"),
         
     scripts.Bool("Make_Image_Stack", grouping="4", default=False,
         description="If true, make a single Image (stack) from all the ROIs of each parent Image"),
@@ -296,10 +343,13 @@ assumes that all the ROIs on each Image are the same size.""",
         # create a wrapper so we can use the Blitz Gateway.
         conn = BlitzGateway(client_obj=client)
 
-        message = makeImagesFromRois(conn, parameterMap)
+        result = makeImagesFromRois(conn, parameterMap)
 
-        if message:
+        if result:
+            message, robj = result
             client.setOutput("Message", rstring(message))
+            if robj is not None:
+                client.setOutput("Result", robject(robj))
         else:
             client.setOutput("Message", rstring("Script Failed. See 'error' or 'info'"))
 
