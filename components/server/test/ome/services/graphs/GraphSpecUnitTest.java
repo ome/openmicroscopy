@@ -5,7 +5,8 @@
 
 package ome.services.graphs;
 
-import static ome.services.graphs.GraphOpts.Op.*;
+import static ome.services.graphs.GraphOpts.Op.REAP;
+import static ome.services.graphs.GraphOpts.Op.SOFT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +23,7 @@ import ome.model.annotations.LongAnnotation;
 import ome.services.graphs.GraphOpts.Op;
 import ome.system.EventContext;
 import ome.tools.hibernate.ExtendedMetadata;
+import ome.util.SqlAction;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -359,7 +361,7 @@ public class GraphSpecUnitTest extends MockGraphTest {
 
                     @Override
                     public void action(Callback cb, Session session,
-                            GraphOpts opts) throws GraphException {
+                            SqlAction sql, GraphOpts opts) throws GraphException {
                         // no-op
                     }
 

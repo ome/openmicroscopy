@@ -9,13 +9,14 @@ package ome.services.chgrp;
 
 import java.util.List;
 
-import ome.api.IDelete;
 import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphStep;
 import ome.services.graphs.GraphStepFactory;
 import ome.system.OmeroContext;
+import ome.system.Roles;
+import ome.tools.hibernate.ExtendedMetadata;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
@@ -25,15 +26,21 @@ public class ChgrpStepFactory implements GraphStepFactory {
 
     private final OmeroContext ctx;
 
+    private final ExtendedMetadata em;
+
+    private final Roles roles;
+
     private long grp;
 
-    public ChgrpStepFactory(OmeroContext ctx) {
+    public ChgrpStepFactory(OmeroContext ctx, ExtendedMetadata em, Roles roles) {
         this.ctx = ctx;
+        this.em = em;
+        this.roles = roles;
     }
 
     public GraphStep create(int idx, List<GraphStep> stack, GraphSpec spec,
             GraphEntry entry, long[] ids) throws GraphException {
-        return new ChgrpStep(ctx, idx, stack, spec, entry, ids, grp);
+        return new ChgrpStep(ctx, em, roles, idx, stack, spec, entry, ids, grp);
     }
 
     /**

@@ -290,7 +290,7 @@ public class GraphState implements GraphStep.Callback {
 
             try {
 
-                step.action(this, session, opts);
+                step.action(this, session, sql, opts);
 
                 // Finalize.
                 step.release(this);

@@ -18,12 +18,12 @@ import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphOpts;
 import ome.services.graphs.GraphSpec;
-import ome.services.graphs.GraphState;
 import ome.services.graphs.GraphStep;
 import ome.services.messages.EventLogMessage;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.QueryBuilder;
+import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,7 +50,7 @@ public class DeleteStep extends GraphStep {
         this.ctx = ctx;
     }
 
-    public void action(Callback cb, Session session, GraphOpts opts)
+    public void action(Callback cb, Session session, SqlAction sql, GraphOpts opts)
             throws GraphException {
 
         // Phase 1: top-levels

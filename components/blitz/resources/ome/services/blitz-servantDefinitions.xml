@@ -337,6 +337,8 @@
   </bean>
 
   <bean class="omero.cmd.RequestObjectFactoryRegistry">
+      <constructor-arg ref="extendedMetadata"/>
+      <constructor-arg ref="roles"/>
       <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 

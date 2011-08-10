@@ -18,8 +18,13 @@ import ome.services.graphs.GraphOpts;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphStep;
 import ome.services.messages.EventLogMessage;
+import ome.services.sharing.ShareBean;
 import ome.system.OmeroContext;
+import ome.system.Roles;
+import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
+import ome.tools.spring.InternalServiceFactory;
+import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,17 +43,27 @@ public class ChgrpStep extends GraphStep {
 
     final private OmeroContext ctx;
 
+    final private ExtendedMetadata em;
+
+    final private long userGroup;
+
     final private long grp;
 
-    public ChgrpStep(OmeroContext ctx, int idx, List<GraphStep> stack,
+    final private ShareBean share;
+
+    public ChgrpStep(OmeroContext ctx, ExtendedMetadata em, Roles roles,
+            int idx, List<GraphStep> stack,
             GraphSpec spec, GraphEntry entry, long[] ids, long grp) {
         super(idx, stack, spec, entry, ids);
         this.ctx = ctx;
+        this.em = em;
         this.grp = grp;
+        this.userGroup = roles.getUserGroupId();
+        this.share = (ShareBean) new InternalServiceFactory(ctx).getShareService();
     }
 
     @Override
-    public void action(Callback cb, Session session, GraphOpts opts)
+    public void action(Callback cb, Session session, SqlAction sql, GraphOpts opts)
             throws GraphException {
 
         final QueryBuilder qb = queryBuilder(opts);
@@ -56,10 +71,43 @@ public class ChgrpStep extends GraphStep {
         qb.param("grp", grp);
         Query q = qb.query(session);
         int count = q.executeUpdate();
+
+        // ticket:6422 - validation of graph
+        // =====================================================================
+        // Immediately we check that an object moved from GroupA to GroupB
+        // is no longer pointed at by any objects in GroupA via foreign key
+        // constraints. This is what the DB does for us inherently on delete.
+        //
+        //
+        // NB: After all objects are moved, we need to perform the reverse
+        // check, which is that no object in GroupB points at any objects in
+        // GroupA, i.e. all necessary objects were moved.
+        final String[][] locks = em.getLockChecks(iObjectType);
+
+        int total = 0;
+        for (String[] lock : locks) {
+            Long bad = findImproperLinks(session, lock);
+            if (bad != null && bad > 0) {
+                log.warn(String.format("%s:%s improperly linked by %s.%s: %s",
+                        iObjectType.getSimpleName(), id, lock[2], lock[1],
+                        bad));
+                total += bad;
+            }
+        }
+        if (total > 0) {
+            throw new GraphException(String.format("%s:%s improperly linked by %s objects",
+                    iObjectType.getSimpleName(), id, total));
+        }
+
+
         if (count > 0) {
             cb.addGraphIds(this);
         }
         logResults(count);
+    }
+
+    public void validate() {
+
     }
 
     private QueryBuilder queryBuilder(GraphOpts opts) {
@@ -72,6 +120,23 @@ public class ChgrpStep extends GraphStep {
             permissionsClause(ec, qb);
         }
         return qb;
+    }
+
+    private Long findImproperLinks(Session session, String[] lock) {
+        Long old = share.setShareId(-1L);
+        try {
+            Query q = session.createQuery(String.format(
+                    "select count(*) from %s source where source.%s.id = ? and " +
+                    "(source.details.group.id = ? OR source.details.group.id = ?)",
+                    lock[0], lock[1]));
+            q.setLong(0, id);
+            q.setLong(1, grp);
+            q.setLong(2, userGroup);
+
+            return (Long) q.list().get(0);
+        } finally {
+            share.setShareId(old);
+        }
     }
 
     @Override

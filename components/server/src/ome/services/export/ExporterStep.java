@@ -16,6 +16,7 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphOpts;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphStep;
+import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,7 +38,7 @@ public class ExporterStep extends GraphStep {
     }
 
     @Override
-    public void action(Callback cb, Session session, GraphOpts opts)
+    public void action(Callback cb, Session session, SqlAction sql, GraphOpts opts)
             throws GraphException {
         throw new UnsupportedOperationException("NYI");
     }

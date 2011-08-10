@@ -11,6 +11,7 @@ import java.util.Set;
 
 import ome.model.IObject;
 import ome.services.export.ExporterIndex;
+import ome.util.SqlAction;
 
 import org.hibernate.Session;
 import org.testng.annotations.BeforeMethod;
@@ -32,7 +33,7 @@ public class ExportIndexUnitTest extends MockGraphTest {
         }
 
         @Override
-        public void action(Callback cb, Session session, GraphOpts opts)
+        public void action(Callback cb, Session session, SqlAction sql, GraphOpts opts)
                 throws GraphException {
             // No-op
         }

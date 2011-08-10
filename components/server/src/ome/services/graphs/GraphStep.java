@@ -7,7 +7,6 @@
 
 package ome.services.graphs;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -18,15 +17,12 @@ import ome.model.IObject;
 import ome.services.messages.EventLogMessage;
 import ome.system.EventContext;
 import ome.tools.hibernate.QueryBuilder;
+import ome.util.SqlAction;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.exception.ConstraintViolationException;
-import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
 
 /**
  * Single action performed by {@link GraphState}.
@@ -169,7 +165,7 @@ public abstract class GraphStep {
     // Main action
     //
 
-    public abstract void action(Callback cb, Session session, GraphOpts opts) throws GraphException;
+    public abstract void action(Callback cb, Session session, SqlAction sql, GraphOpts opts) throws GraphException;
 
     /**
      * Appends a clause to the {@link QueryBuilder} based on the current user.

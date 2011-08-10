@@ -11,6 +11,8 @@ import java.util.Map;
 
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.system.OmeroContext;
+import ome.system.Roles;
+import ome.tools.hibernate.ExtendedMetadata;
 import omero.cmd.basic.ListRequestsI;
 import omero.cmd.graphs.ChgrpI;
 
@@ -29,7 +31,16 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class RequestObjectFactoryRegistry extends
         omero.util.ObjectFactoryRegistry implements ApplicationContextAware {
 
+    private final ExtendedMetadata em;
+
+    private final Roles roles;
+
     private/* final */OmeroContext ctx;
+
+    public RequestObjectFactoryRegistry(ExtendedMetadata em, Roles roles) {
+        this.em = em;
+        this.roles = roles;
+    }
 
     public void setApplicationContext(ApplicationContext ctx)
             throws BeansException {
@@ -53,7 +64,7 @@ public class RequestObjectFactoryRegistry extends
                         ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
                                 new String[] { "classpath:ome/services/spec.xml" },
                                 ctx);
-                        ChgrpStepFactory factory = new ChgrpStepFactory(ctx);
+                        ChgrpStepFactory factory = new ChgrpStepFactory(ctx, em, roles);
                         return new ChgrpI(factory, specs);
                     }
 

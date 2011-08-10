@@ -16,7 +16,9 @@ import ome.services.graphs.BaseGraphSpec;
 import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphState;
 import ome.services.util.Executor;
+import ome.system.Roles;
 import ome.system.ServiceFactory;
+import ome.tools.hibernate.ExtendedMetadata;
 import omero.RLong;
 import omero.RType;
 import omero.ServerError;
@@ -90,7 +92,10 @@ public class ChgrpITest extends AbstractServantTest {
         ic = ctx.getBean("Ice.Communicator", Ice.Communicator.class);
 
         // Register ChgrpI, etc. This happens automatically on the server.
-        new RequestObjectFactoryRegistry().setIceCommunicator(ic);
+        new RequestObjectFactoryRegistry(
+                user.ctx.getBean(ExtendedMetadata.class),
+                user.ctx.getBean(Roles.class)
+                ).setIceCommunicator(ic);
 
     }
 
