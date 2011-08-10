@@ -440,6 +440,20 @@ public class ImportLibrary implements IObservable
         {
             log.debug("FS lite disabled for: " + readerName);
         }
+        //if (format.equals("Aperio SVS")
+        //    || format.equals("Trestle")
+        //    || format.equals("Animated PNG")
+        //    || format.equals("JPEG-2000")
+        //    || format.equals("Hamamatsu VMS")
+        //    || format.equals("Hamamatsu NDPI")
+        //    || format.equals("CellSens VSI")
+        //    || format.equals("Tagged Image File Format")
+        //    || format.equals("JPEG"))
+        //{
+            log.info("Big image, enabling metadata only and archiving.");
+            container.setMetadataOnly(true);
+            container.setArchive(true);
+        //}
     }
 
     /**
