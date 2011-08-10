@@ -1738,7 +1738,7 @@ class OmeroWebSafeCallWrapper(OmeroGatewaySafeCallWrapper): #pragma: no cover
         if e.__class__ is Ice.ObjectNotExistException:
             # Restored proxy object re-creation logic from the pre-#5835
             # version of # _safeCallWrap() from omero.gateway. (See #6365)
-            logger.warn('Attempting to recreate object for proxy %s' % self)
+            logger.warn('Attempting to re-create proxy and re-call method.')
             try:
                 self.proxyObjectWrapper._obj = \
                         self.proxyObjectWrapper._create_func()
