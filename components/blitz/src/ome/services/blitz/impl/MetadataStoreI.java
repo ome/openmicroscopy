@@ -334,37 +334,42 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             "Pixels:%d has no linked original files!",
                             pixelsId));
                 }
-                OriginalFile source = null;
+                File source = null;
                 for (OriginalFile file : files)
                 {
-                    if (file.getMimetype().equals(format.getValue()))
+                    File potentialSource =
+                        new File(file.getPath(), file.getName());
+                    String path = potentialSource.getAbsolutePath();
+                    if (file.getMimetype().equals(format.getValue())
+                        && path.equals(params.get("target")))
                     {
                         if (source != null)
                         {
                             throw new ResourceError(String.format(
                                     "Pixels:%d has at least two source " +
-                                    "original files %d and %d", pixelsId,
-                                    source.getId(), file.getId()));
+                                    "original files with path %s and %d",
+                                    pixelsId, path));
                         }
-                        source = file;
+                        source = new File(params.get("prefix"), path);
                     }
                 }
-                File file = new File(source.getPath(), source.getName());
+                params.remove("target");
+                params.remove("prefix");
                 // We need to perform a case insensitive replacement due to the
                 // posibilitity that we're running on a case insensitive
                 // filesystem like NTFS. (See #5654)
                 Pattern p = Pattern.compile(
                         Pattern.quote(omeroDataDir), Pattern.CASE_INSENSITIVE);
-                String parent = file.getParent();
+                String parent = source.getParent();
                 if (log.isDebugEnabled())
                 {
                     log.debug(String.format(
                             "omero.data.dir: '%s' file.absolutePath: '%s' " +
                             "parent: '%s'", omeroDataDir,
-                            file.getAbsolutePath(), parent));
+                            source.getAbsolutePath(), parent));
                 }
                 String path = p.matcher(parent).replaceFirst("");
-                sql.setPixelsNamePathRepo(pixelsId, file.getName(),
+                sql.setPixelsNamePathRepo(pixelsId, source.getName(),
                                           path, null);
                 return null;
             }

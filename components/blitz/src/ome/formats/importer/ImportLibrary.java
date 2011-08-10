@@ -678,7 +678,8 @@ public class ImportLibrary implements IObservable
                 notifyObservers(new ImportEvent.IMPORT_ARCHIVING(
                         index, null, userSpecifiedTarget, null, 0, null));
             }
-            store.writeFilesToFileStore(fileNameList, originalFileMap);
+            String prefix = store.writeFilesToFileStore(
+                    fileNameList, originalFileMap, container.getFile());
             // If we're in metadata only mode and archiving is on we need to
             // tell the server which Pixels set matches up to which series.
             if ((isMetadataOnly || container.getMetadataOnly()) && archive)
@@ -686,7 +687,8 @@ public class ImportLibrary implements IObservable
                 int series = 0;
                 for (Long pixelsId : pixelsIds)
                 {
-                    store.setPixelsParams(pixelsId, series);
+                    store.setPixelsParams(pixelsId, series,
+                                          container.getFile(), prefix);
                     series++;
                 }
             }
