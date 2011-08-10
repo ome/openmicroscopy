@@ -896,8 +896,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         // Detect group mismatch
         // What would need to be changed?
-        Map<String, Long> locks = getLockingIds(copy, group.getId());
-        if (locks.size() > 0) {
+        @SuppressWarnings("unchecked")
+        Map<String, Long> locks = getLockingIds(
+                (Class<IObject>) copy.getClass(), copy.getId(), group.getId());
+
+        Long total = locks.get("*");
+        if (total != null && total > 0) {
             throw new SecurityViolation("Locks: " + locks);
         }
         
@@ -1005,12 +1009,13 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         getBeanHelper().getLogger().info("Moved object to common space: " + obj);
     }
 
+    @SuppressWarnings("unchecked")
     public Map<String, Long> getLockingIds(IObject object) {
-        return getLockingIds(object, null);
+        return getLockingIds((Class<IObject>) object.getClass(), object.getId(), null);
     }
     
-    
-    public Map<String, Long> getLockingIds(IObject object, Long groupId) {
+    public Map<String, Long> getLockingIds(final Class<IObject> type,
+            final long id, final Long groupId) {
 
         String groupClause = "";
         if (groupId != null) {
@@ -1020,10 +1025,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         // since it's a managed entity it's class.getName() might
         // contain
         // some byte-code generation string
-        final Class<? extends IObject> klass = Utils.trueClass(object
-                .getClass());
-
-        final long id = object.getId().longValue();
+        final Class<? extends IObject> klass = Utils.trueClass(type);
 
         // the values that could possibly link to this instance.
         final String[][] checks = metadata.getLockChecks(klass);
@@ -1060,13 +1062,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                         total[0] += count;
                         counts.put(check[0], count);
                     }
-                    counts.put("*", total[0]);
                     return null;
                 }
 
             });
         }
-
+        counts.put("*", total[0]);
         return counts;
 
     }

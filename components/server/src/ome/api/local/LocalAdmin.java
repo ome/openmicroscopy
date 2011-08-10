@@ -85,5 +85,5 @@ public interface LocalAdmin extends ome.api.IAdmin {
      * 
      * TODO This will eventually return a list of ids
      */
-    Map<String, Long> getLockingIds(IObject object);
+    Map<String, Long> getLockingIds(Class<IObject> klass, long id, Long groupId);
 }
