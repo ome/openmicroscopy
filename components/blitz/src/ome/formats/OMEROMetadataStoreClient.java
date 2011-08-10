@@ -1851,7 +1851,6 @@ public class OMEROMetadataStoreClient
         RepositoryPrx repo = getLegacyRepository();
         File repositoryRoot;
         File directory;
-        String parent;
         String filePath = null;
         try
         {
@@ -1874,11 +1873,8 @@ public class OMEROMetadataStoreClient
             //        or simply strings? Should it get hold of the template directly?
             //        Or, better, should the getPath be a (managed) repository service?
             filePath = ofs.getFilesPath(defaultId, template, user, group);
-
             directory = new File(filePath);
             repo.makeDir(directory.getAbsolutePath());
-            parent = files.get(0).getParentFile().getAbsolutePath();
-
         }
         catch (ServerError e)
         {
@@ -1904,20 +1900,9 @@ public class OMEROMetadataStoreClient
             try
             {
                 stream = new FileInputStream(file);
-                // FIXME: This is a shaky way of getting a relative path
-                //         - is there a nifty util I could be using?.
-                String nested = file.getParentFile().getAbsolutePath();
-                String diff = "";
-                if (!nested.equals(parent)) {
-                    if (nested.startsWith(parent)) {
-                        diff = nested.substring(parent.length());
-                        repo.makeDir(new File(directory, diff).getAbsolutePath());
-                    } 
-                    // FIXME: the else here is likely to be original metadata
-                    //        files - should these go in some structure??
-                }
-                rawFileStore = repo.file(new File(
-                        new File(directory,diff), file.getName()).getAbsolutePath(), "rw");
+                file = new File(directory, file.getAbsolutePath());
+                repo.makeDir(file.getParent());
+                rawFileStore = repo.file(file.getAbsolutePath(), "rw");
                 int rlen = 0;
                 long offset = 0;
                 while (stream.available() != 0)
