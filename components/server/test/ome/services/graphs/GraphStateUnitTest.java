@@ -519,6 +519,10 @@ public class GraphStateUnitTest extends MockGraphTest {
                     }
                 };
             }
+
+            public List<GraphStep> postProcess(List<GraphStep> steps) {
+                return steps;
+            }
         };
 
         GraphState state = new GraphState(gsf, null, session, spec);

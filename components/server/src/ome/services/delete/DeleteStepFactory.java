@@ -37,4 +37,7 @@ public class DeleteStepFactory implements GraphStepFactory {
         return new DeleteStep(ctx, idx, stack, spec, entry, ids);
     }
 
+    public List<GraphStep> postProcess(List<GraphStep> steps) {
+        return steps;
+    }
 }

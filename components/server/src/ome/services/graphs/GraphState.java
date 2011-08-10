@@ -51,9 +51,16 @@ public class GraphState implements GraphStep.Callback {
     private final static Log log = LogFactory.getLog(GraphState.class);
     /**
      * List of each individual {@link GraphStep} which this instance will
-     * perform.
+     * perform. These are generated during
+     * {@link GraphState#GraphState(GraphStepFactory, SqlAction, Session, GraphSpec)}
+     * first by making calls to
+     * {@link GraphStepFactory#create(int, List, GraphSpec, GraphEntry, long[])}
+     * and then by giving the factory a chance to insert elements via
+     * {@link GraphStepFactory#postProcess(List)}.
+     *
+     *  The instance once set is {@link Collections#unmodifiableList(List) unmodifiable}.
      */
-    private final List<GraphStep> steps = new ArrayList<GraphStep>();
+    private final List<GraphStep> steps;
 
     /**
      * List of Maps of db table names to the ids actually processed from that
@@ -74,8 +81,6 @@ public class GraphState implements GraphStep.Callback {
 
     private final Session session;
 
-    private final GraphStepFactory factory;
-
     private final SqlAction sql;
 
     /**
@@ -90,16 +95,19 @@ public class GraphState implements GraphStep.Callback {
             throws GraphException {
         this.sql = sql;
         this.session = session;
-        this.factory = factory;
 
         add(); // Set the actualIds size==1
 
+        final List<GraphStep> steps = new ArrayList<GraphStep>();
         final GraphTables tables = new GraphTables();
-        descend(spec, tables);
+        descend(session, steps, spec, tables);
 
         final LinkedList<GraphStep> stack = new LinkedList<GraphStep>();
-        parse(spec, tables, stack, null);
+        parse(factory, steps, spec, tables, stack, null);
 
+        // Post-process and lock.
+        this.steps = Collections.unmodifiableList(
+                factory.postProcess(steps));
     }
 
     //
@@ -114,7 +122,7 @@ public class GraphState implements GraphStep.Callback {
      * @param paths
      * @throws GraphException
      */
-    private void descend(GraphSpec spec, GraphTables tables) throws GraphException {
+    private static void descend(Session session, List<GraphStep> steps, GraphSpec spec, GraphTables tables) throws GraphException {
 
         final List<GraphEntry> entries = spec.entries();
 
@@ -133,7 +141,7 @@ public class GraphState implements GraphStep.Callback {
             tables.add(entry, results);
             if (subSpec != null) {
                 if (results.length != 0) { // ticket:2823
-                    descend(subSpec, tables);
+                    descend(session, steps, subSpec, tables);
                 }
             }
         }
@@ -143,7 +151,7 @@ public class GraphState implements GraphStep.Callback {
      * Walk throw the sub-spec graph again, using the results provided to build
      * up a graph of {@link GraphStep} instances.
      */
-    private void parse(GraphSpec spec, GraphTables tables,
+    private static void parse(GraphStepFactory factory, List<GraphStep> steps, GraphSpec spec, GraphTables tables,
             LinkedList<GraphStep> stack, long[] match)
             throws GraphException {
 
@@ -168,9 +176,9 @@ public class GraphState implements GraphStep.Callback {
                             entry, null);
 
                     stack.add(step);
-                    parse(subSpec, tables, stack, columnSet.get(0));
+                    parse(factory, steps, subSpec, tables, stack, columnSet.get(0));
                     stack.removeLast();
-                    this.steps.add(step);
+                    steps.add(step);
                 } else {
 
                     // But for the actual entries, we create a step per
@@ -178,7 +186,7 @@ public class GraphState implements GraphStep.Callback {
                     for (long[] cols : columnSet) {
                         GraphStep step = factory.create(steps.size(), stack,
                                 spec, entry, cols);
-                        this.steps.add(step);
+                        steps.add(step);
                     }
 
                 }
@@ -484,21 +492,23 @@ public class GraphState implements GraphStep.Callback {
         StringBuilder sb = new StringBuilder();
         sb.append(super.toString());
         sb.append("\n");
-        for (int i = 0; i < steps.size(); i++) {
-            GraphStep step = steps.get(i);
-            sb.append(i);
-            sb.append(":");
-            if (step == null) {
-                sb.append("null");
-            } else {
-                sb.append(step.pathMsg);
-                sb.append("==>");
-                sb.append(step.id);
-                sb.append(" ");
-                sb.append("[");
-                sb.append(step.stack);
-                sb.append("]");
-                sb.append("\n");
+        if (steps != null) { // null during ctor
+            for (int i = 0; i < steps.size(); i++) {
+                GraphStep step = steps.get(i);
+                sb.append(i);
+                sb.append(":");
+                if (step == null) {
+                    sb.append("null");
+                } else {
+                    sb.append(step.pathMsg);
+                    sb.append("==>");
+                    sb.append(step.id);
+                    sb.append(" ");
+                    sb.append("[");
+                    sb.append(step.stack);
+                    sb.append("]");
+                    sb.append("\n");
+                }
             }
         }
         return sb.toString();

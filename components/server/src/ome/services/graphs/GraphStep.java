@@ -165,7 +165,12 @@ public abstract class GraphStep {
     // Main action
     //
 
-    public abstract void action(Callback cb, Session session, SqlAction sql, GraphOpts opts) throws GraphException;
+    /**
+     * Primary action which should perform the main modifications required by
+     * the step.
+     */
+    public abstract void action(Callback cb, Session session, SqlAction sql,
+            GraphOpts opts) throws GraphException;
 
     /**
      * Appends a clause to the {@link QueryBuilder} based on the current user.

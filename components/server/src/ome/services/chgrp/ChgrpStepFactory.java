@@ -43,6 +43,15 @@ public class ChgrpStepFactory implements GraphStepFactory {
         return new ChgrpStep(ctx, em, roles, idx, stack, spec, entry, ids, grp);
     }
 
+    public List<GraphStep> postProcess(List<GraphStep> steps) {
+        int originalSize = steps.size();
+        for (int i = 0; i < originalSize; i++) {
+            GraphStep step = steps.get(i);
+            steps.add(new ChgrpValidation(step));
+        }
+        return steps;
+    }
+
     /**
      * Set the group id which will be passed to all new {@link ChgrpStep}
      * instances. Since a new {@link ChgrpStepFactory} is created for every

@@ -32,14 +32,17 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 
 /**
- * Single action produced by {@link ChgrpStepFactory}
+ * Post-processing action produced by {@link ChgrpStepFactory},
+ * one for each {@link ChgrpStep} in order to check group permission
+ * constraints.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.3.2
+ * @see ticket:6422
  */
-public class ChgrpStep extends GraphStep {
+public class ChgrpValidation extends GraphStep {
 
-    final private static Log log = LogFactory.getLog(ChgrpStep.class);
+    final private static Log log = LogFactory.getLog(ChgrpValidation.class);
 
     final private OmeroContext ctx;
 
@@ -51,7 +54,7 @@ public class ChgrpStep extends GraphStep {
 
     final private ShareBean share;
 
-    public ChgrpStep(OmeroContext ctx, ExtendedMetadata em, Roles roles,
+    public ChgrpValidation(OmeroContext ctx, ExtendedMetadata em, Roles roles,
             int idx, List<GraphStep> stack,
             GraphSpec spec, GraphEntry entry, long[] ids, long grp) {
         super(idx, stack, spec, entry, ids);
@@ -64,7 +67,7 @@ public class ChgrpStep extends GraphStep {
 
     @Override
     public void action(Callback cb, Session session, SqlAction sql, GraphOpts opts)
-            throws GraphException {
+    throws GraphException {
 
         final QueryBuilder qb = queryBuilder(opts);
         qb.param("id", id);
@@ -104,6 +107,11 @@ public class ChgrpStep extends GraphStep {
             cb.addGraphIds(this);
         }
         logResults(count);
+    }
+
+    public void validate(Callback cb, Session session, SqlAction sql, GraphOpts opts)
+        throws GraphException {
+
     }
 
     private QueryBuilder queryBuilder(GraphOpts opts) {
