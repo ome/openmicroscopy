@@ -58,7 +58,8 @@ from omero.model import FileAnnotationI, TagAnnotationI, \
                         LaserI
 
 from omero.gateway import TagAnnotationWrapper, ExperimenterWrapper, \
-                ExperimenterGroupWrapper, WellWrapper, AnnotationWrapper
+                ExperimenterGroupWrapper, WellWrapper, AnnotationWrapper, \
+                OmeroGatewaySafeCallWrapper
 
 from omero.sys import ParametersI
 
@@ -1726,6 +1727,31 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         #yield EventLogWrapper(self, e)    
 
 omero.gateway.BlitzGateway = OmeroWebGateway
+
+class OmeroWebSafeCallWrapper(OmeroGatewaySafeCallWrapper): #pragma: no cover
+    """
+    Function or method wrapper that handles L{Ice.ObjectNotExistException}
+    by re-creating the server side proxy.
+    """
+
+    def handle_exception(self, e, *args, **kwargs):
+        if e.__class__ is Ice.ObjectNotExistException:
+            # Restored proxy object re-creation logic from the pre-#5835
+            # version of # _safeCallWrap() from omero.gateway. (See #6365)
+            logger.warn('Attempting to recreate object for proxy %s' % self)
+            try:
+                self.proxyObjectWrapper._obj = \
+                        self.proxyObjectWrapper._create_func()
+                func = getattr(self.proxyObjectWrapper._obj, self.attr)
+                return func(*args, **kwargs)
+            except Exception, e:
+                self.debug(e.__class__.__name__, args, kwargs)
+                raise
+        else:
+            super(OmeroWebSafeCallWrapper, self).handle_exception()
+
+
+omero.gateway.SafeCallWrapper = OmeroWebSafeCallWrapper
 
 class OmeroWebObjectWrapper (object):
     

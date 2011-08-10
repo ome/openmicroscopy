@@ -2962,39 +2962,60 @@ class _BlitzGateway (object):
         return rv
 
 
-def safeCallWrap (self, attr, f): #pragma: no cover
+class OmeroGatewaySafeCallWrapper(object): #pragma: no cover
     """
-    Wraps a function call. Does not call the function. Throws an exception.
-    
-    @param self:    Wrapped object
-    @param attr:    Function name
-    @type attr:     String
-    @param f:       Function to wrap
-    @type f:        Function
-    @return:        Wrapped function
-    @rtype:         Function
+    Function or method wrapper that handles certain types of server side
+    exceptions and debugging of errors.
     """
 
-    try:
-        __f__name = f.im_self.ice_getIdentity().name
-    except:
-        __f__name = "unknown"
+    def __init__(self, proxyObjectWrapper, attr, f):
+        """
+        Initialises the function call wrapper.
 
-    def debug(exc_class, args, kwargs):
-        logger.warn( "%s on safeCallWrap to <%s> %s(%s,%s)", exc_class, __f__name, attr, args, kwargs)
-        logger.warn(traceback.format_exc())
-
-    def inner (*args, **kwargs):
+        @param attr:    Function name
+        @type attr:     String
+        @param f:       Function to wrap
+        @type f:        Function
+        """
+        self.proxyObjectWrapper = proxyObjectWrapper
+        self.attr = attr
+        self.f = f
         try:
-            return f(*args, **kwargs)
+            self.__f__name = f.im_self.ice_getIdentity().name
+        except:
+            self.__f__name = "unknown"
+
+    def debug(self, exc_class, args, kwargs):
+        logger.warn("%s on %s to <%s> %s(%r, %r)",
+                    exc_class, self.__class__, self.__f__name, self.attr,
+                    args, kwargs, exc_info=True)
+
+    def handle_exception(self, e, *args, **kwargs):
+        """
+        Exception handler that is expected to be overridden by sub-classes.
+        The expected behaviour is either to handle a type of exception and
+        return the server side result or to raise the already thrown
+        exception. The calling context is an except block and the original
+        *args and **kwargs from the wrapped function or method are provided
+        to allow re-execution of the original.
+
+        @param e:    The exception that has already been raised.
+        @type e:     Exception
+        """
+        raise
+
+    def __call__(self, *args, **kwargs):
+        try:
+            return self.f(*args, **kwargs)
         except Exception, e:
-            debug(e.__class__.__name__, args, kwargs)
-            raise
+            self.debug(e.__class__.__name__, args, kwargs)
+            return self.handle_exception(e, *args, **kwargs)
 
-    def wrapped (*args, **kwargs): #pragma: no cover
-        return inner(*args, **kwargs)
-    return wrapped
-
+# Extension point for API users who want to customise the semantics of
+# safe call wrap. (See #6365)
+#
+#  Since: OMERO Beta-4.3.2 (Tue  2 Aug 2011 09:59:47 BST)
+SafeCallWrapper = OmeroGatewaySafeCallWrapper
 
 BlitzGateway = _BlitzGateway
 
@@ -3202,7 +3223,7 @@ class ProxyObjectWrapper (object):
         obj = self._obj or self._getObj()
         rv = getattr(obj, attr)
         if callable(rv):
-            rv = safeCallWrap(self, attr, rv)
+            rv = SafeCallWrapper(self, attr, rv)
         #self._conn.updateTimeout()
         return rv
 
