@@ -1823,7 +1823,7 @@ public class OMEROMetadataStoreClient
      * objects that we are to populate.
      */
     public void writeFilesToFileStore(
-		List<File> files, Map<String, OriginalFile> originalFileMap, String primaryFileName)
+		List<File> files, Map<String, OriginalFile> originalFileMap)
     {
         // Lookup each source file in our hash map and write it to the
         // correct original file object server side.
@@ -1838,8 +1838,8 @@ public class OMEROMetadataStoreClient
             repositoryRoot = new File(ofRoot.getPath().getValue(),
                             ofRoot.getName().getValue());
 
-            // FIXME: for now just grab the first id but need a specific one. Which?
-            Long defaultId = originalFileMap.get(primaryFileName).getId().getValue();
+            // FIXME: Is the first id guaranteed to be the key one?
+            Long defaultId = originalFileMap.get(files.get(0).getAbsolutePath()).getId().getValue();
             // FIXME: This relies on the legacy repo being the omero data dir
             //        With a different repository this will have to change.
             OriginalFilesService ofs = new OriginalFilesService(repositoryRoot.getAbsolutePath());
@@ -1854,7 +1854,7 @@ public class OMEROMetadataStoreClient
 
             directory = new File(filePath);
             repo.makeDir(directory.getAbsolutePath());
-            parent = new File(primaryFileName).getParentFile().getAbsolutePath();
+            parent = files.get(0).getParentFile().getAbsolutePath();
 
         }
         catch (ServerError e)
