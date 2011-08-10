@@ -826,6 +826,8 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
                 tiff_data = webgateway_cache.getOmeTiffImage(request, server_id, obj)
                 if tiff_data is None:
                     tiff_data = obj.exportOmeTiff()
+                    if tiff_data is None:
+                        continue
                     webgateway_cache.setOmeTiffImage(request, server_id, obj, tiff_data)
                 zobj.writestr(str(obj.getId()) + '-'+obj.getName() + '.ome.tiff', tiff_data)
             zobj.close()
@@ -984,6 +986,8 @@ def jsonp (f):
                 return HttpResponseServerError('"failed connection"', mimetype='application/javascript')
             rv = f(request, *args, **kwargs)
             if _conn is not None and kwargs.get('_internal', False):
+                return rv
+            if isinstance(rv, HttpResponseServerError):
                 return rv
             rv = simplejson.dumps(rv)
             c = request.REQUEST.get('callback', None)
@@ -1203,6 +1207,67 @@ def imageData_json (request, server_id=None, _conn=None, _internal=False, **kwar
     return rv
 
 @jsonp
+def wellData_json (request, server_id=None, _conn=None, _internal=False, **kwargs):
+    """
+    Get a dict with image information
+    TODO: cache
+    
+    @param request:     http request
+    @param server_id:
+    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param _internal:   TODO: ? 
+    @return:            Dict
+    """
+    
+    wid = kwargs['wid']
+    blitzcon = _conn
+    well = blitzcon.getObject("Well", wid)
+    if well is None:
+        return HttpResponseServerError('""', mimetype='application/javascript')
+    prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
+    def urlprefix(iid):
+        return reverse(prefix, args=(iid,))
+    xtra = {'thumbUrlPrefix': urlprefix}
+    rv = well.simpleMarshal(xtra=xtra)
+    return rv
+
+@jsonp
+def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs):
+    """
+    """
+    plate = _conn.getObject('plate', long(pid))
+    try:
+        field = int(field)
+    except ValueError:
+        field = 0
+    if plate is None:
+        return plate
+        return HttpResponseServerError('""', mimetype='application/javascript')
+    grid = []
+    prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
+    def urlprefix(iid):
+        return reverse(prefix, args=(iid,64))
+    xtra = {'thumbUrlPrefix': urlprefix}
+    plate.setGridSizeConstraints(8,12)
+    for row in plate.getWellGrid(field):
+        tr = []
+        for e in row:
+            if e:
+                i = e.getImage()
+                if i:
+                    t = i.simpleMarshal(xtra=xtra)
+                    t['wellId'] = e.getId()
+                    t['field'] = field
+                    tr.append(t)
+                    continue
+            tr.append(None)
+        grid.append(tr)
+        #grid.append(map(lambda x: x is not None and x.simpleMarshal(xtra=xtra) or None, [( x and x.getImage() ) for x in row]))
+    return {'grid': grid,
+            'collabels': plate.getColumnLabels(),
+            'rowlabels': plate.getRowLabels()}
+
+@jsonp
 def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
     """
     lists all Images in a Dataset, as json
@@ -1224,6 +1289,29 @@ def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
         return reverse(prefix, args=(iid,))
     xtra = {'thumbUrlPrefix': urlprefix}
     return map(lambda x: x.simpleMarshal(xtra=xtra), dataset.listChildren())
+
+@jsonp
+def listWellImages_json (request, did, server_id=None, _conn=None, **kwargs):
+    """
+    lists all Images in a Well, as json
+    TODO: cache
+    
+    @param request:     http request
+    @param did:         Well ID
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway}
+    @return:            list of image json. 
+    """
+    
+    blitzcon = _conn
+    well = blitzcon.getWell(did)
+    if well is None:
+        return HttpResponseServerError('""', mimetype='application/javascript')
+    prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
+    def urlprefix(iid):
+        return reverse(prefix, args=(iid,))
+    xtra = {'thumbUrlPrefix': urlprefix}
+    return map(lambda x: x.getImage() and x.getImage().simpleMarshal(xtra=xtra), well.listChildren())
 
 @jsonp
 def listDatasets_json (request, pid, server_id=None, _conn=None, **kwargs):
@@ -1469,8 +1557,9 @@ def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
         json_data = '%s(%s)' % (r['callback'], json_data)
     return HttpResponse(json_data, mimetype='application/javascript')
 
+@jsonp
 @serverid
-def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
+def copy_image_rdef_json (request, server_id=None, _conn=None, _internal=False, **kwargs):
     """
     Copy the rendering settings from one image to a list of images.
     Images are specified in request by 'fromid' and list of 'toids'
@@ -1483,7 +1572,7 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
     @return:            json dict of Boolean:[Image-IDs]
     """
     
-    json_data = 'false'
+    json_data = False
     r = request.REQUEST
     try:
         fromid = long(r.get('fromid', None))
@@ -1493,11 +1582,10 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
     except ValueError:
         fromid = None
     if fromid is not None and len(toids) > 0:
-        if _conn is None:
-            blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
-        else:
-            blitzcon = _conn
-
+#        if _conn is None:
+#            blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
+#        else:
+        blitzcon = _conn
             
         fromimg = blitzcon.getObject("Image", fromid)
         details = fromimg.getDetails()
@@ -1525,13 +1613,16 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
             for iid in json_data[True]:
                 img = newConn.getObject("Image", iid)
                 img is not None and webgateway_cache.invalidateObject(server_id, img)
-            json_data = simplejson.dumps(json_data)
-
-    if r.get('callback', None):
-        json_data = '%s(%s)' % (r['callback'], json_data)
-    return HttpResponse(json_data, mimetype='application/javascript')
+    return json_data
+#
+#            json_data = simplejson.dumps(json_data)
+#
+#    if r.get('callback', None):
+#        json_data = '%s(%s)' % (r['callback'], json_data)
+#    return HttpResponse(json_data, mimetype='application/javascript')
 
 @serverid
+@jsonp
 def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
     """
     Try to remove all rendering defs the logged in user has for this image.
@@ -1542,28 +1633,29 @@ def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
     @param _conn:       L{omero.gateway.BlitzGateway}
     @return:            json 'true', or 'false' if failed
     """
-    
-    if _conn is None:
-        blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
-    else:
-        blitzcon = _conn
-    r = request.REQUEST
-
-    if blitzcon is None or not blitzcon.isConnected():
-        img = None
-    else:
-        img = blitzcon.getObject("Image", iid)
+#    if _conn is None:
+#        blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
+#    else:
+#        blitzcon = _conn
+#    r = request.REQUEST
+#    tr
+#    if blitzcon is None or not blitzcon.isConnected():
+#        img = None
+#    else:
+    img = _conn.getObject("Image", iid)
 
     if img is not None and img.resetRDefs():
         webgateway_cache.invalidateObject(server_id, img)
+        return True
         json_data = 'true'
     else:
         json_data = 'false'
-    if _conn is not None:
-        return json_data == 'true'      # TODO: really return a boolean? (not json)
-    if r.get('callback', None):
-        json_data = '%s(%s)' % (r['callback'], json_data)
-    return HttpResponse(json_data, mimetype='application/javascript')
+        return False
+#    if _conn is not None:
+#        return json_data == 'true'      # TODO: really return a boolean? (not json)
+#    if r.get('callback', None):
+#        json_data = '%s(%s)' % (r['callback'], json_data)
+#    return HttpResponse(json_data, mimetype='application/javascript')
 
 def dbg_connectors (request):
     """

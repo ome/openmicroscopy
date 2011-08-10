@@ -12,10 +12,10 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.conf import settings
 from django.http import QueryDict
 
-omero.gateway.BlitzGateway = omero.gateway._BlitzGateway
-omero.gateway.ProjectWrapper = omero.gateway._ProjectWrapper
-omero.gateway.DatasetWrapper = omero.gateway._DatasetWrapper
-omero.gateway.ImageWrapper = omero.gateway._ImageWrapper
+#omero.gateway.BlitzGateway = omero.gateway._BlitzGateway
+#omero.gateway.ProjectWrapper = omero.gateway._ProjectWrapper
+#omero.gateway.DatasetWrapper = omero.gateway._DatasetWrapper
+#omero.gateway.ImageWrapper = omero.gateway._ImageWrapper
 
 
 CLIENT_BASE='test'

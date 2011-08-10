@@ -160,6 +160,18 @@ json method: returns list of Images belonging to specified Dataset. See L{views.
     - did:  Dataset ID
 """
 
+webgateway_listwellimages_json = url(r'^well/(?P<did>[^/]+)/children/$', 'webgateway.views.listWellImages_json', name="webgateway_listwellimages_json")
+"""
+json method: returns list of Images belonging to specified Well. See L{views.listWellImages_json}. Returns E.g list of 
+{"description": "", "author": "Will Moore", "date": 1291325060.0, "thumb_url": "/webgateway/render_thumbnail/4701/", "type": "Image", "id": 4701, "name": "spim.png"}
+    - webgateway/well/<did>/children params are:
+    - did:  Well ID
+"""
+
+webgateway_plategrid_json = url(r'^plate/(?P<pid>[^/]+)/(?:(?P<field>[^/]+)/)?$', 'webgateway.views.plateGrid_json', name="webgateway_plategrid_json")
+"""
+"""
+
 imageData_json = (r'^imgData/(?P<iid>[^/]+)/(?:(?P<key>[^/]+)/)?$', 'webgateway.views.imageData_json')
 """
 json method: returns details of specified Image. See L{views.imageData_json}. Returns E.g
@@ -167,6 +179,13 @@ json method: returns details of specified Image. See L{views.imageData_json}. Re
     - webgateway/imgData/<iid>/<key> params are:
     - did:  Dataset ID
     - key:  Optional key of selected attributes to return. E.g. meta, pixel_range, rdefs, split_channel, size etc
+"""
+
+wellData_json = (r'^wellData/(?P<wid>[^/]+)/$', 'webgateway.views.wellData_json')
+"""
+json method: returns details of specified Well. See L{views.wellData_json}.
+    - webgateway/wellData/<wid>/ params are:
+    - wid:  Well ID
 """
 
 webgateway_search_json = url(r'^search/$', 'webgateway.views.search_json', name="webgateway_search_json")
@@ -245,7 +264,10 @@ urlpatterns = patterns('',
     listDatasets_json,
     datasetDetail_json,
     webgateway_listimages_json,
+    webgateway_listwellimages_json,
+    webgateway_plategrid_json,
     imageData_json,
+    wellData_json,
     webgateway_search_json,
     get_rois_json,
     # image viewer

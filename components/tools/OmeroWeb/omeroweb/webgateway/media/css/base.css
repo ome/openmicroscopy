@@ -363,3 +363,16 @@ tr.image-thumb td p {
   color: #555;
 }
 
+.ui-autocomplete-loading {
+  background: white url('3rdparty/images/ui-anim_basic_16x16.gif') right center no-repeat;
+}
+
+.ui-autocomplete {
+  font-size: 0.7em;
+  max-height: 200px;
+  max-width: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 20px;
+  text-align: left;
+}

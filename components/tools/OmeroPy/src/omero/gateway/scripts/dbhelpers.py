@@ -22,6 +22,8 @@ if not omero.gateway.BlitzGateway.ICE_CONFIG:
         omero.gateway.BlitzGateway.ICE_CONFIG = os.path.join(settings.OMERO_HOME, 'etc', 'ice.config')
     except ImportError:
         pass
+    except AttributeError:
+        pass
 
 #Gateway = omero.gateway.BlitzGateway
 
