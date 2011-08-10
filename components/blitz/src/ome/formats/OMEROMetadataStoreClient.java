@@ -1838,9 +1838,12 @@ public class OMEROMetadataStoreClient
      * @param files Files to populate against an original file list.
      * @param originalFileMap Map of absolute path against original file
      * objects that we are to populate.
+     * @param target The <code>setId()</code> target.
+     * @returns The prefix file path that was calculated by the server.
      */
-    public void writeFilesToFileStore(
-		List<File> files, Map<String, OriginalFile> originalFileMap)
+    public String writeFilesToFileStore(
+		List<File> files, Map<String, OriginalFile> originalFileMap,
+		File target)
     {
         // Lookup each source file in our hash map and write it to the
         // correct original file object server side.
@@ -1849,6 +1852,7 @@ public class OMEROMetadataStoreClient
         File repositoryRoot;
         File directory;
         String parent;
+        String filePath = null;
         try
         {
             OriginalFile ofRoot = repo.root();
@@ -1856,7 +1860,9 @@ public class OMEROMetadataStoreClient
                             ofRoot.getName().getValue());
 
             // FIXME: Is the first id guaranteed to be the key one?
-            Long defaultId = originalFileMap.get(files.get(0).getAbsolutePath()).getId().getValue();
+            log.debug("Target: " + target.getAbsolutePath());
+            log.debug("Keys: " + Arrays.toString(originalFileMap.keySet().toArray()));
+            Long defaultId = originalFileMap.get(target.getAbsolutePath()).getId().getValue();
             // FIXME: This relies on the legacy repo being the omero data dir
             //        With a different repository this will have to change.
             OriginalFilesService ofs = new OriginalFilesService(repositoryRoot.getAbsolutePath());
@@ -1867,7 +1873,7 @@ public class OMEROMetadataStoreClient
             // FIXME: The OriginalFileStore is pretty dumb, should it be passed a context
             //        or simply strings? Should it get hold of the template directly?
             //        Or, better, should the getPath be a (managed) repository service?
-            String filePath = ofs.getFilesPath(defaultId, template, user, group);
+            filePath = ofs.getFilesPath(defaultId, template, user, group);
 
             directory = new File(filePath);
             repo.makeDir(directory.getAbsolutePath());
@@ -1950,19 +1956,25 @@ public class OMEROMetadataStoreClient
                 }
             }
         }
+        return filePath;
     }
 
     /**
      * Sets extended the properties on a pixel set.
      * @param pixelsId The pixels set identifier.
      * @param series The series number to populate.
+     * @param target The <code>setId()</code> target.
+     * @param prefix Prefix within the binary repository for all files.
      */
-    public void setPixelsParams(long pixelsId, int series)
+    public void setPixelsParams(long pixelsId, int series, File target,
+                                String prefix)
     {
         try
         {
             Map<String, String> params = new HashMap<String, String>();
             params.put("image_no", Integer.toString(series));
+            params.put("target", target.getAbsolutePath());
+            params.put("prefix",prefix);
             delegate.setPixelsParams(pixelsId, true, params);
         }
         catch (Exception e)
