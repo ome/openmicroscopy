@@ -64,6 +64,7 @@ import org.jmock.core.matcher.InvokeOnceMatcher;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -91,6 +92,14 @@ public class ChgrpITest extends AbstractServantTest {
         // Register ChgrpI, etc. This happens automatically on the server.
         new RequestObjectFactoryRegistry().setIceCommunicator(ic);
 
+    }
+
+    @BeforeMethod
+    protected void setupNewGroup() throws Exception {
+        newGroupId = root.newGroup();
+        root.addUserToGroup(
+                user.getCurrentEventContext().getCurrentUserId(), newGroupId);
+        user.getCurrentEventContext(); // RELOAD.
     }
 
     ChgrpI newChgrp(String type, long id, long grp) {

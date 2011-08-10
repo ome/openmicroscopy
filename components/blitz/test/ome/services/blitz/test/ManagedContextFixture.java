@@ -20,6 +20,7 @@ import ome.security.basic.PrincipalHolder;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -96,6 +97,20 @@ public class ManagedContextFixture {
     // LOGIN / PERMISSIONS
     // =========================================================================
 
+    public long newGroup() {
+        IAdmin admin = managedSf.getAdminService();
+        String groupName = uuid();
+        ExperimenterGroup g = new ExperimenterGroup();
+        g.setName(groupName);
+        return admin.createGroup(g);
+    }
+
+    public void addUserToGroup(long user, long group) {
+        managedSf.getAdminService().addGroups(
+                new Experimenter(user, false),
+                new ExperimenterGroup(group, false));
+    }
+
     /**
      * Create a new user in the given group
      */
@@ -130,6 +145,10 @@ public class ManagedContextFixture {
     public String getCurrentUser() {
         return managedSf.getAdminService().getEventContext()
                 .getCurrentUserName();
+    }
+
+    public EventContext getCurrentEventContext() {
+        return managedSf.getAdminService().getEventContext();
     }
 
     public void setCurrentUser(String user) {
