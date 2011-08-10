@@ -923,11 +923,14 @@ class BrowserComponent
         int n = nodes.length;
         TreeImageDisplay parent = null;
         for (int i = 0; i < n; i++) {
-        	parent = nodes[i].getParentDisplay();
-        	if (parent.getUserObject() instanceof ExperimenterData)
-    			parent = nodes[i];
-        	if (i == 0) model.setSelectedDisplay(nodes[i], flush);
-        	else model.setSelectedDisplay(nodes[i], false);
+        	if (nodes[i] != null) {
+        		parent = nodes[i].getParentDisplay();
+        		if (parent != null && 
+        			parent.getUserObject() instanceof ExperimenterData)
+        			parent = nodes[i];
+            	if (i == 0) model.setSelectedDisplay(nodes[i], flush);
+            	else model.setSelectedDisplay(nodes[i], false);
+        	}
 		}
         if (parent != null && expandParent) {
         	view.setFoundNode(nodes);
