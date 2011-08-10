@@ -679,9 +679,7 @@ public class ImportLibrary implements IObservable
                 notifyObservers(new ImportEvent.IMPORT_ARCHIVING(
                         index, null, userSpecifiedTarget, null, 0, null));
             }
-            // FIXME: passing in the main file name - though maybe better to have 
-            //        fileNameList ordered??
-            store.writeFilesToFileStore(fileNameList, originalFileMap, fileName);
+            store.writeFilesToFileStore(fileNameList, originalFileMap);
             // If we're in metadata only mode and archiving is on we need to
             // tell the server which Pixels set matches up to which series.
             if ((isMetadataOnly || container.getMetadataOnly()) && archive)
