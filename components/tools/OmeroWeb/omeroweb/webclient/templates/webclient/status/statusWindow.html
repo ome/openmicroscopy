@@ -39,9 +39,9 @@
                 e.preventDefault();
                 return false;
             });
-            // on hover-out, hide drop-down menus
-            $(".result").hover(function(){}, function(){
-                $('ul',this).css('visibility', 'hidden');
+            // on hover-out of the menu itself, hide drop-down menus
+            $(".resultOptions").hover(function(){}, function(){
+                $(this).css('visibility', 'hidden');
             });
 
             $(".script_error input[type='submit']").click(submitError);
@@ -85,6 +85,7 @@
                     // display results
                     results = cbMap["results"];
                     // Handle Script results
+                    // Here we attempt to build result html exactly the same as built by Django for existing results (see below)
                     if (cbMap["job_type"] == "script") {
                         var icon_src = $("#python_icon_src").text();
                         $jobRow.find(".icon").attr('src', icon_src);
@@ -136,7 +137,7 @@
                                 rHtml += "<span title='Script Result: "+ key + "'>" + results[key] + "</span>";
                             }
                             rHtml += "</div>";
-                            $jobRow.find(".results").append(rHtml);
+                            $jobRow.find(".results").html(rHtml);
                             setupResultOptions();
                         }
                     } else if (cbMap["job_type"] == "delete") {
@@ -251,7 +252,7 @@
         <input style="float:right" class="button" type="submit" value="Clear List" alt="Clean" title="Clean" onclick="document.location.href='{% url status "clean" %}';">
         <div>
             <a href="{% url status %}" style="text-decoration:none; position:absolute; top:3px; left:3px; font-size: 90%; color:#666" title="Refresh the Activities list">
-            <img src="{% url webstatic 'images/reload16.png' %}" style="position:relative; top:3px; left:0px; float:left" />
+            <img src="{% url webstatic 'images/reload16.png' %}" style="position:relative; top:3px; left:0px; float:left" border='0' />
             <div style="margin: 3px; position:absolute; top:0px; left:17px">Refresh</div>
         </a>
         </div>
