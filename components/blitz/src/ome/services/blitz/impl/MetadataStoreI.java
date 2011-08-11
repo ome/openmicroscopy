@@ -340,8 +340,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     File potentialSource =
                         new File(file.getPath(), file.getName());
                     String path = potentialSource.getAbsolutePath();
-                    if (file.getMimetype().equals(format.getValue())
-                        && path.equals(params.get("target")))
+                    if (path.equals(params.get("target")))
                     {
                         if (source != null)
                         {
