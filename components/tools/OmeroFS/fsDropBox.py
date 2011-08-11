@@ -176,6 +176,7 @@ class DropBox(Ice.Application):
                     mClient[user].setServerProxy(fsServer)
                     mClient[user].setSelfProxy(mClientProxy)
                     mClient[user].setDirImportWait(monitorParameters[user]['dirImportWait'])
+                    mClient[user].setThrottleImport(monitorParameters[user]['throttleImport'])
                     mClient[user].setTimeouts(monitorParameters[user]['timeToLive'],monitorParameters[user]['timeToIdle'])
                     mClient[user].setReaders(monitorParameters[user]['readers'])
                     mClient[user].setImportArgs(monitorParameters[user]['importArgs'])
@@ -365,6 +366,7 @@ class DropBox(Ice.Application):
             ignoreSysFiles = list(props.getPropertyWithDefault("omero.fs.ignoreSysFiles","True").split(';'))
             ignoreDirEvents = list(props.getPropertyWithDefault("omero.fs.ignoreDirEvents","True").split(';'))
             dirImportWait = list(props.getPropertyWithDefault("omero.fs.dirImportWait","60").split(';'))
+            throttleImport = list(props.getPropertyWithDefault("omero.fs.throttleImport","5").split(';'))
             timeToLive = list(props.getPropertyWithDefault("omero.fs.timeToLive","0").split(';'))
             timeToIdle = list(props.getPropertyWithDefault("omero.fs.timeToIdle","600").split(';'))
             readers = list(props.getPropertyWithDefault("omero.fs.readers","").split(';'))
@@ -425,6 +427,11 @@ class DropBox(Ice.Application):
                         monitorParams[importUser[i]]['dirImportWait'] = int(dirImportWait[i].strip(string.whitespace))
                     except:
                         monitorParams[importUser[i]]['dirImportWait'] = 60 # seconds
+
+                    try:
+                        monitorParams[importUser[i]]['throttleImport'] = int(throttleImport[i].strip(string.whitespace))
+                    except:
+                        monitorParams[importUser[i]]['throttleImport'] = 5 # seconds
 
                     try:
                         monitorParams[importUser[i]]['timeToLive'] = long(timeToLive[i].strip(string.whitespace))*1000
