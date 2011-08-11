@@ -213,10 +213,15 @@ def processImage(conn, imageId, parameterMap):
                 lc.setName(cNames[i])
                 lc.save()
                 r,g,b = colors[i]
-                c._re.setRGBA(i, r, g, b, 255)
+                # need to reload channels to avoid optimistic lock on update
+                cObj = conn.getQueryService().get("Channel", c.id)
+                cObj.red = rint(r)
+                cObj.green = rint(g)
+                cObj.blue = rint(b)
+                cObj.alpha = rint(255)
+                conn.getUpdateService().saveObject(cObj)
 
-            newImg._re.saveCurrentSettings()
-            newImg._re.close()
+            newImg.resetRDefs() # reset based on colors above
 
             px = conn.getQueryService().get("Pixels", newImg.getPixelsId())
             if physicalSizeX is not None:
