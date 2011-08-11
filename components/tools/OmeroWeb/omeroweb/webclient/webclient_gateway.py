@@ -1748,7 +1748,8 @@ class OmeroWebSafeCallWrapper(OmeroGatewaySafeCallWrapper): #pragma: no cover
                 self.debug(e.__class__.__name__, args, kwargs)
                 raise
         else:
-            super(OmeroWebSafeCallWrapper, self).handle_exception()
+            super(OmeroWebSafeCallWrapper, self).handle_exception(
+                    e, *args, **kwargs)
 
 
 omero.gateway.SafeCallWrapper = OmeroWebSafeCallWrapper
