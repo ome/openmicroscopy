@@ -26,6 +26,9 @@ import omero
 from omero.rtypes import *
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
+import logging
+
+logger = logging.getLogger('web-container')
 
 from webclient.controller import BaseController
 
@@ -143,19 +146,24 @@ class BaseContainer(BaseController):
         Image must be a 'volume' of suitable dimensions and not too big.
         """
         MIN_Z = 20
-        try:    # if scipy ndimage is available for interpolation, we can handle bigger images
-            import scipy.ndimage
-            MAX_VOL = (300 * 300 * 300)
-        except ImportError:
-            MAX_VOL = (140 * 140 * 140)
 
+        MAX_VOL = (300 * 300 * 300)
         if self.image is None:
             return False
         sizeZ = self.image.getSizeZ()
         if sizeZ < MIN_Z: return False
         sizeX = self.image.getSizeX()
         sizeY = self.image.getSizeY()
-        if ((sizeX * sizeY * sizeZ) > MAX_VOL): return False
+        voxelCount = (sizeX * sizeY * sizeZ)
+        if voxelCount > MAX_VOL: return False
+
+        try:    # if scipy ndimage is not available for interpolation, can only handle smaller images
+            import scipy.ndimage
+        except ImportError:
+            logger.debug("Failed to import scipy.ndimage - Open Astex Viewer limited to display of smaller images.")
+            MAX_VOL = (160 * 160 * 160)
+            if voxelCount > MAX_VOL: return False
+
         return True
 
     def formatMetadataLine(self, l):

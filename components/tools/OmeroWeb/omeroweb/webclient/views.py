@@ -870,18 +870,23 @@ def open_astex_viewer(request, obj_type, obj_id, **kwargs):
         targetSize = DEFAULTMAPSIZE * DEFAULTMAPSIZE * DEFAULTMAPSIZE
         biggerSize = BIGGERMAPSIZE * BIGGERMAPSIZE * BIGGERMAPSIZE
         imgSize = image.getSizeX() * image.getSizeY() * image.getSizeZ()
-        sizeOptions = None  # only give user choice if we need to scale down
+        sizeOptions = None  # only give user choice if we need to scale down (and we CAN scale with scipy)
         if imgSize > targetSize:
-            sizeOptions = {}
-            factor = float(targetSize)/ imgSize
-            f = pow(factor,1.0/3)
-            sizeOptions["small"] = {'x':image.getSizeX() * f, 'y':image.getSizeY() * f, 'z':image.getSizeZ() * f, 'size':DEFAULTMAPSIZE}
-            if imgSize > biggerSize:
-                factor2 = float(biggerSize)/ imgSize
-                f2 = pow(factor2,1.0/3)
-                sizeOptions["medium"] = {'x':image.getSizeX() * f2, 'y':image.getSizeY() * f2, 'z':image.getSizeZ() * f2, 'size':BIGGERMAPSIZE}
-            else:
-                sizeOptions["full"] = {'x':image.getSizeX(), 'y':image.getSizeY(), 'z':image.getSizeZ()}
+            try:
+                import scipy.ndimage
+                sizeOptions = {}
+                factor = float(targetSize)/ imgSize
+                f = pow(factor,1.0/3)
+                sizeOptions["small"] = {'x':image.getSizeX() * f, 'y':image.getSizeY() * f, 'z':image.getSizeZ() * f, 'size':DEFAULTMAPSIZE}
+                if imgSize > biggerSize:
+                    factor2 = float(biggerSize)/ imgSize
+                    f2 = pow(factor2,1.0/3)
+                    sizeOptions["medium"] = {'x':image.getSizeX() * f2, 'y':image.getSizeY() * f2, 'z':image.getSizeZ() * f2, 'size':BIGGERMAPSIZE}
+                else:
+                    sizeOptions["full"] = {'x':image.getSizeX(), 'y':image.getSizeY(), 'z':image.getSizeZ()}
+            except ImportError:
+                DEFAULTMAPSIZE = 0  # don't try to resize the map (see image_as_map)
+                pass
         pixelRange = (c.getWindowMin(), c.getWindowMax())
         contourSliderInit = (pixelRange[0] + pixelRange[1])/2   # best guess as starting position for contour slider
 
@@ -1855,7 +1860,7 @@ def image_as_map(request, imageId, **kwargs):
         a = zeros(npStack.shape, dtype=int8)
         npStack = npStack.round(out=a)
 
-    if "maxSize" in kwargs:
+    if "maxSize" in kwargs and int(kwargs["maxSize"]) > 0:
         sz = int(kwargs["maxSize"])
         targetSize = sz * sz * sz
         # if available, use scipy.ndimage to resize
@@ -1868,7 +1873,7 @@ def image_as_map(request, imageId, **kwargs):
                 logger.info("Resizing numpy stack %s by factor of %s" % (npStack.shape, factor))
                 npStack = round(scipy.ndimage.interpolation.zoom(npStack, factor), 1)
             except ImportError:
-                logger.info("Failed to import scipy.ndimage for interpolation of 'image_as_map'")
+                logger.info("Failed to import scipy.ndimage for interpolation of 'image_as_map'. Full size: %s" % str(npStack.shape))
                 pass
 
     header = {}
