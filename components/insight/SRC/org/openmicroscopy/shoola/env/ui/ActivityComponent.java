@@ -817,14 +817,18 @@ public abstract class ActivityComponent
 	public void notifyError(String text, String message, Throwable ex)
 	{
 		reset();
-		Throwable cause = ex.getCause();
+		
 		int status = -1;
-		if (cause instanceof ProcessException) {
-			status = ((ProcessException) cause).getStatus();
-			if (status == ProcessException.NO_PROCESSOR)
-				messageLabel.setText("No processor available. " +
-						"Please try later.");
+		if (ex != null) {
+			Throwable cause = ex.getCause();
+			if (cause instanceof ProcessException) {
+				status = ((ProcessException) cause).getStatus();
+				if (status == ProcessException.NO_PROCESSOR)
+					messageLabel.setText("No processor available. " +
+							"Please try later.");
+			}
 		}
+		
 		if (text != null) {
 			type.setText(text);
 			if (message != null)

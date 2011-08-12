@@ -81,7 +81,7 @@ public class ProcessException
 		Throwable cause = getCause();
 		if (cause instanceof ResourceError) {
 			ResourceError error = (ResourceError) cause;
-			String message = error.getMessage();
+			String message = error.message;
 			if (message != null && message.toLowerCase().contains(
 					"no processor available"))
 				return NO_PROCESSOR;
