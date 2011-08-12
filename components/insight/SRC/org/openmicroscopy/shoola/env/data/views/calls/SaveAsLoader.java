@@ -84,6 +84,13 @@ public class SaveAsLoader
     }
     
     /**
+     * Returns the server call-handle to the computation.
+     * 
+     * @return See above.
+     */
+    protected Object getPartialResult() { return callBack; }
+    
+    /**
      * Adds the {@link #loadCall} to the computation tree.
      * 
      * @see BatchCallTree#buildTree()

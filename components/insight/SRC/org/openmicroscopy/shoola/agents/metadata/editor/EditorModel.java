@@ -2762,7 +2762,7 @@ class EditorModel
 		if (objects.size() > 0) {
 			IconManager icons = IconManager.getInstance();
 			SaveAsParam p = new SaveAsParam(folder, objects);
-			p.setIcon(icons.getIcon(IconManager.SAVE_AS_48));
+			p.setIcon(icons.getIcon(IconManager.SAVE_AS_22));
 			UserNotifier un =
 				MetadataViewerAgent.getRegistry().getUserNotifier();
 			un.notifyActivity(p);
