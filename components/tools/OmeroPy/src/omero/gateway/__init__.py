@@ -1287,7 +1287,7 @@ class _BlitzGateway (object):
         """
         if self.isAdmin():
             if group is None:
-                e = self.findExperimenter(username)
+                e = self.getObject("Experimenter", attributes={'omeName': username})
                 if e is None:
                     return
                 group = e._obj._groupExperimenterMapSeq[0].parent.name.val
@@ -2155,23 +2155,6 @@ class _BlitzGateway (object):
         rv.sort(lambda x,y: cmp(x.omeName.val,y.omeName.val))
         for e in rv:
             yield ExperimenterWrapper(self, e)
-
-    def findExperimenter(self, name):
-        """
-        Return an Experimenter for the given username.
-        
-        @param name:    Username. 
-        @type:          String
-        @return:        Experimenter or None
-        @rtype:         L{ExperimenterWrapper}
-        """
-        
-        admin_serv = self.getAdminService()
-        try:
-            exp = admin_serv.lookupExperimenter(str(name))
-            return ExperimenterWrapper(self, exp)
-        except omero.ApiUsageException:
-            return None
 
     def containedExperimenters(self, gid):
         """ 
