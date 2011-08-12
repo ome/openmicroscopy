@@ -490,7 +490,31 @@ class OMEROGateway
 			dsFactory.sessionExpiredExit(index);
 		}
 	}
-	
+
+	/**
+	 * Returns the identifier of the specified script.
+	 * 
+	 * @param name The name of the script.
+	 * @param message The error message.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException       If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	private long getScriptID(String name, String message)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			IScriptPrx svc = getScriptService();
+			if (svc == null) svc = getScriptService();
+			return svc.getScriptID(name);
+		} catch (Exception e) {
+			handleException(e, message);
+		}
+		return -1;
+	}
+
 	/**
 	 * Returns the specified script.
 	 * 
@@ -5815,38 +5839,32 @@ class OMEROGateway
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws ProcessException If an error occurred while running the script.
 	 */
 	ScriptCallback saveAs(long userID, SaveAsParam param)
-		throws DSOutOfServiceException, DSAccessException
+		throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
-		try {
-			IScriptPrx svc = getScriptService();
-			if (svc == null) svc = getScriptService();
-			long id = svc.getScriptID(SaveAsParam.SAVE_AS_SCRIPT);
-			if (id <= 0) return null;
-			List<DataObject> objects = param.getObjects();
-			List<RType> ids = new ArrayList<RType>();
-			Iterator<DataObject> i = objects.iterator();
-			String type = "Image";
-			DataObject data;
-			while (i.hasNext()) {
-				data = i.next();
-				if (data instanceof DatasetData) {
-					type = "Dataset";
-				}
-				ids.add(omero.rtypes.rlong(data.getId()));
+		long id = getScriptID(SaveAsParam.SAVE_AS_SCRIPT,
+				"Cannot start "+SaveAsParam.SAVE_AS_SCRIPT);
+		if (id <= 0) return null;
+		List<DataObject> objects = param.getObjects();
+		List<RType> ids = new ArrayList<RType>();
+		Iterator<DataObject> i = objects.iterator();
+		String type = "Image";
+		DataObject data;
+		while (i.hasNext()) {
+			data = i.next();
+			if (data instanceof DatasetData) {
+				type = "Dataset";
 			}
-			Map<String, RType> map = new HashMap<String, RType>();
-			map.put("IDs", omero.rtypes.rlist(ids));
-			map.put("Data_Type", omero.rtypes.rstring(type));
-			map.put("Format", omero.rtypes.rstring(param.getIndexAsString()));
-			return runScript(id, map);
-		} catch (Exception e) {
-			handleException(e, "Cannot saves the mage in: "+
-					param.getFolder().getName());
+			ids.add(omero.rtypes.rlong(data.getId()));
 		}
-		return null;
+		Map<String, RType> map = new HashMap<String, RType>();
+		map.put("IDs", omero.rtypes.rlist(ids));
+		map.put("Data_Type", omero.rtypes.rstring(type));
+		map.put("Format", omero.rtypes.rstring(param.getIndexAsString()));
+		return runScript(id, map);
 	}
 	
 	/**
@@ -5862,60 +5880,57 @@ class OMEROGateway
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws ProcessException If an error occurred while running the script.
 	 */
 	ScriptCallback createMovie(long imageID, long pixelsID, long userID, 
 			List<Integer> channels, MovieExportParam param)
-		throws DSOutOfServiceException, DSAccessException
+		throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
-		try {
-			IScriptPrx svc = getScriptService();
-			List<RType> set = new ArrayList<RType>(channels.size());
-			Iterator<Integer> i = channels.iterator();
-			while (i.hasNext()) 
-				set.add(omero.rtypes.rlong(i.next()));
-			long id = svc.getScriptID(param.getScriptName());
-			if (id <= 0) return null;
-			RenderingDef def = null;
-			int startZ = param.getStartZ();
-			int endZ = param.getEndZ();
-			if (!param.isZSectionSet()) {
-				def = getRenderingDef(pixelsID, userID);
-				startZ = def.getDefaultZ().getValue();
-				endZ = def.getDefaultZ().getValue();
-			}
-			int startT = param.getStartT();
-			int endT = param.getEndT();
-			if (!param.isTimeIntervalSet()) {
-				if (def == null) def = getRenderingDef(pixelsID, userID);
-				startT = def.getDefaultT().getValue();
-				endT = def.getDefaultT().getValue();
-			}
-			
-			Map<String, RType> map = new HashMap<String, RType>();
-			map.put("Image_ID", omero.rtypes.rlong(imageID));
-			map.put("Movie_Name", omero.rtypes.rstring(param.getName()));
-			map.put("Z_Start", omero.rtypes.rint(startZ));
-			map.put("Z_End", omero.rtypes.rint(endZ));
-			map.put("T_Start", omero.rtypes.rint(startT));
-			map.put("T_End", omero.rtypes.rint(endT));
-			map.put("Channels", omero.rtypes.rlist(set));
-			map.put("FPS", omero.rtypes.rint(param.getFps()));
-			map.put("Show_Plane_Info", 
-					omero.rtypes.rbool(param.isLabelVisible()));
-			map.put("Show_Time", 
-					omero.rtypes.rbool(param.isLabelVisible()));
-			map.put("Split_View", omero.rtypes.rbool(false));
-			map.put("Scalebar", omero.rtypes.rint(param.getScaleBar()));
-			map.put("Format", omero.rtypes.rstring(param.getFormatAsString()));
-			if (param.getColor() != null)
-				map.put("Overlay_Colour", omero.rtypes.rstring(
-						param.getColor()));
-			return runScript(id, map);
-		} catch (Exception e) {
-			handleException(e, "Cannot create a movie for image: "+imageID);
+		long id = getScriptID(param.getScriptName(), 
+				"Cannot start "+param.getScriptName());
+		if (id <= 0) return null;
+		List<RType> set = new ArrayList<RType>(channels.size());
+		Iterator<Integer> i = channels.iterator();
+		while (i.hasNext()) 
+			set.add(omero.rtypes.rlong(i.next()));
+
+		RenderingDef def = null;
+		int startZ = param.getStartZ();
+		int endZ = param.getEndZ();
+		if (!param.isZSectionSet()) {
+			def = getRenderingDef(pixelsID, userID);
+			startZ = def.getDefaultZ().getValue();
+			endZ = def.getDefaultZ().getValue();
 		}
-		return null;
+		int startT = param.getStartT();
+		int endT = param.getEndT();
+		if (!param.isTimeIntervalSet()) {
+			if (def == null) def = getRenderingDef(pixelsID, userID);
+			startT = def.getDefaultT().getValue();
+			endT = def.getDefaultT().getValue();
+		}
+
+		Map<String, RType> map = new HashMap<String, RType>();
+		map.put("Image_ID", omero.rtypes.rlong(imageID));
+		map.put("Movie_Name", omero.rtypes.rstring(param.getName()));
+		map.put("Z_Start", omero.rtypes.rint(startZ));
+		map.put("Z_End", omero.rtypes.rint(endZ));
+		map.put("T_Start", omero.rtypes.rint(startT));
+		map.put("T_End", omero.rtypes.rint(endT));
+		map.put("Channels", omero.rtypes.rlist(set));
+		map.put("FPS", omero.rtypes.rint(param.getFps()));
+		map.put("Show_Plane_Info", 
+				omero.rtypes.rbool(param.isLabelVisible()));
+		map.put("Show_Time", 
+				omero.rtypes.rbool(param.isLabelVisible()));
+		map.put("Split_View", omero.rtypes.rbool(false));
+		map.put("Scalebar", omero.rtypes.rint(param.getScaleBar()));
+		map.put("Format", omero.rtypes.rstring(param.getFormatAsString()));
+		if (param.getColor() != null)
+			map.put("Overlay_Colour", omero.rtypes.rstring(
+					param.getColor()));
+		return runScript(id, map);
 	}
 	
 	/**
@@ -6141,141 +6156,134 @@ class OMEROGateway
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws ProcessException If an error occurred while running the script.
 	 */
 	ScriptCallback createFigure(List<Long> objectIDs, Class type,
 			FigureParam param, long userID)
-		throws DSOutOfServiceException, DSAccessException
+		throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
-		try {
-			IScriptPrx svc = getScriptService();
-			if (svc == null) svc = getScriptService();
-			String scriptName = param.getScriptName();
-			int scriptIndex = param.getIndex();
-			long id = svc.getScriptID(scriptName);
-			if (id <= 0) return null;
-			List<RType> ids = new ArrayList<RType>(objectIDs.size());
-			Iterator<Long> i = objectIDs.iterator();
-			while (i.hasNext())
-				ids.add(omero.rtypes.rlong(i.next()));
-				
-			Map<String, RType>  map = new HashMap<String, RType>();
-			RString dataType;
-			dataType = omero.rtypes.rstring("Image");
-			map.put("Data_Type", dataType);
-			if (scriptIndex == FigureParam.THUMBNAILS) {
-				DataObject d = (DataObject) param.getAnchor();
-				long parentID = -1;
-				if (d instanceof DatasetData ||
-						d instanceof ProjectData) parentID = d.getId();
-				if (DatasetData.class.equals(type)) {
-					dataType = omero.rtypes.rstring("Dataset");
-				} 
-				map.put("Data_Type", dataType);
-				map.put("IDs", omero.rtypes.rlist(ids));
-				List<Long> tags = param.getTags();
-				if (tags != null && tags.size() > 0) {
-					ids = new ArrayList<RType>(tags.size());
-					i = tags.iterator();
-					while (i.hasNext()) 
-						ids.add(omero.rtypes.rlong(i.next()));
-					map.put("Tag_IDs", omero.rtypes.rlist(ids));
-				}
-					
-				if (parentID > 0)
-					map.put("Parent_ID", omero.rtypes.rlong(parentID));
-				map.put("Show_Untagged_Images", 
-						omero.rtypes.rbool(param.isIncludeUntagged()));
-				
-				map.put("Thumbnail_Size", omero.rtypes.rint(param.getWidth()));
-				map.put("Max_Columns", omero.rtypes.rint(param.getHeight()));
-				map.put("Format", 
-						omero.rtypes.rstring(param.getFormatAsString()));
-				map.put("Figure_Name", 
-						omero.rtypes.rstring(param.getName()));
-				return runScript(id, map);	
+		long id = getScriptID(param.getScriptName(), 
+				"Cannot start "+param.getScriptName());
+		if (id <= 0) return null;
+		int scriptIndex = param.getIndex();
+		List<RType> ids = new ArrayList<RType>(objectIDs.size());
+		Iterator<Long> i = objectIDs.iterator();
+		while (i.hasNext())
+			ids.add(omero.rtypes.rlong(i.next()));
+
+		Map<String, RType>  map = new HashMap<String, RType>();
+		RString dataType;
+		dataType = omero.rtypes.rstring("Image");
+		map.put("Data_Type", dataType);
+		if (scriptIndex == FigureParam.THUMBNAILS) {
+			DataObject d = (DataObject) param.getAnchor();
+			long parentID = -1;
+			if (d instanceof DatasetData ||
+					d instanceof ProjectData) parentID = d.getId();
+			if (DatasetData.class.equals(type)) {
+				dataType = omero.rtypes.rstring("Dataset");
 			} 
-			//merge channels
-			Iterator j;
-			Map<String, RType> merge = new LinkedHashMap<String, RType>();
-			Entry entry;
-			Map<Integer, Integer> mergeChannels = param.getMergeChannels();
-			if (mergeChannels != null) {
-				j = mergeChannels.entrySet().iterator();
-				while (j.hasNext()) {
-					entry = (Entry) j.next();
-					merge.put(""+(Integer) entry.getKey(), 
-							omero.rtypes.rlong((Integer) entry.getValue()));
-				}
-			}
-			
-			//split
-			Map<String, RType> split = new LinkedHashMap<String, RType>();
-			
-			Map<Integer, String> splitChannels = param.getSplitChannels();
-			if (splitChannels != null) {
-				j = splitChannels.entrySet().iterator();
-				while (j.hasNext()) {
-					entry = (Entry) j.next();
-					split.put(""+(Integer) entry.getKey(), 
-							omero.rtypes.rstring((String) entry.getValue()));
-				}
-			}
-			List<Integer> splitActive = param.getSplitActive();
-			if (splitActive != null && splitActive.size() > 0) {
-				List<RType> sa = new ArrayList<RType>(splitActive.size());
-				Iterator<Integer> k = splitActive.iterator();
-				while (k.hasNext()) {
-					sa.add(omero.rtypes.rint(k.next()));
-				}
-				map.put("Split_Indexes", omero.rtypes.rlist(sa));
-			}
-			map.put("Merged_Names", omero.rtypes.rbool(
-					param.getMergedLabel()));
+			map.put("Data_Type", dataType);
 			map.put("IDs", omero.rtypes.rlist(ids));
-			if (param.getStartZ() >= 0)
-				map.put("Z_Start", omero.rtypes.rint(param.getStartZ()));
-			if (param.getEndZ() >= 0)
-				map.put("Z_End", omero.rtypes.rint(param.getEndZ()));
-			if (split.size() > 0) 
-				map.put("Channel_Names", omero.rtypes.rmap(split));
-			if (merge.size() > 0)
-				map.put("Merged_Colours", omero.rtypes.rmap(merge));
-			if (scriptIndex == FigureParam.MOVIE) {
-				List<Integer> times = param.getTimepoints();
-				List<RType> ts = new ArrayList<RType>(objectIDs.size());
-				Iterator<Integer> k = times.iterator();
-				while (k.hasNext()) 
-					ts.add(omero.rtypes.rint(k.next()));
-				map.put("T_Indexes", omero.rtypes.rlist(ts));
-				map.put("Time_Units", 
-						omero.rtypes.rstring(param.getTimeAsString()));
-			} else 
-				map.put("Split_Panels_Grey", 
-					omero.rtypes.rbool(param.isSplitGrey()));
-			if (param.getScaleBar() > 0)
-				map.put("Scalebar", omero.rtypes.rint(param.getScaleBar()));
-			map.put("Overlay_Colour", omero.rtypes.rstring(param.getColor()));
-			map.put("Width", omero.rtypes.rint(param.getWidth()));
-			map.put("Height", omero.rtypes.rint(param.getHeight()));
-			map.put("Stepping", omero.rtypes.rint(param.getStepping()));
-			map.put("Format", omero.rtypes.rstring(param.getFormatAsString()));
-			map.put("Algorithm", 
-					omero.rtypes.rstring(param.getProjectionTypeAsString()));
+			List<Long> tags = param.getTags();
+			if (tags != null && tags.size() > 0) {
+				ids = new ArrayList<RType>(tags.size());
+				i = tags.iterator();
+				while (i.hasNext()) 
+					ids.add(omero.rtypes.rlong(i.next()));
+				map.put("Tag_IDs", omero.rtypes.rlist(ids));
+			}
+
+			if (parentID > 0)
+				map.put("Parent_ID", omero.rtypes.rlong(parentID));
+			map.put("Show_Untagged_Images", 
+					omero.rtypes.rbool(param.isIncludeUntagged()));
+
+			map.put("Thumbnail_Size", omero.rtypes.rint(param.getWidth()));
+			map.put("Max_Columns", omero.rtypes.rint(param.getHeight()));
+			map.put("Format", 
+					omero.rtypes.rstring(param.getFormatAsString()));
 			map.put("Figure_Name", 
 					omero.rtypes.rstring(param.getName()));
-			map.put("Image_Labels", 
-					omero.rtypes.rstring(param.getLabelAsString()));
-			if (scriptIndex == FigureParam.SPLIT_VIEW_ROI) {
-				map.put("ROI_Zoom", omero.rtypes.rfloat((float)
-								param.getMagnificationFactor()));
+			return runScript(id, map);	
+		} 
+		//merge channels
+		Iterator j;
+		Map<String, RType> merge = new LinkedHashMap<String, RType>();
+		Entry entry;
+		Map<Integer, Integer> mergeChannels = param.getMergeChannels();
+		if (mergeChannels != null) {
+			j = mergeChannels.entrySet().iterator();
+			while (j.hasNext()) {
+				entry = (Entry) j.next();
+				merge.put(""+(Integer) entry.getKey(), 
+						omero.rtypes.rlong((Integer) entry.getValue()));
 			}
-			return runScript(id, map);
-		} catch (Exception e) {
-			handleException(e, "Cannot create a figure " +
-					"for the specified images.");
 		}
-		return null;
+
+		//split
+		Map<String, RType> split = new LinkedHashMap<String, RType>();
+
+		Map<Integer, String> splitChannels = param.getSplitChannels();
+		if (splitChannels != null) {
+			j = splitChannels.entrySet().iterator();
+			while (j.hasNext()) {
+				entry = (Entry) j.next();
+				split.put(""+(Integer) entry.getKey(), 
+						omero.rtypes.rstring((String) entry.getValue()));
+			}
+		}
+		List<Integer> splitActive = param.getSplitActive();
+		if (splitActive != null && splitActive.size() > 0) {
+			List<RType> sa = new ArrayList<RType>(splitActive.size());
+			Iterator<Integer> k = splitActive.iterator();
+			while (k.hasNext()) {
+				sa.add(omero.rtypes.rint(k.next()));
+			}
+			map.put("Split_Indexes", omero.rtypes.rlist(sa));
+		}
+		map.put("Merged_Names", omero.rtypes.rbool(
+				param.getMergedLabel()));
+		map.put("IDs", omero.rtypes.rlist(ids));
+		if (param.getStartZ() >= 0)
+			map.put("Z_Start", omero.rtypes.rint(param.getStartZ()));
+		if (param.getEndZ() >= 0)
+			map.put("Z_End", omero.rtypes.rint(param.getEndZ()));
+		if (split.size() > 0) 
+			map.put("Channel_Names", omero.rtypes.rmap(split));
+		if (merge.size() > 0)
+			map.put("Merged_Colours", omero.rtypes.rmap(merge));
+		if (scriptIndex == FigureParam.MOVIE) {
+			List<Integer> times = param.getTimepoints();
+			List<RType> ts = new ArrayList<RType>(objectIDs.size());
+			Iterator<Integer> k = times.iterator();
+			while (k.hasNext()) 
+				ts.add(omero.rtypes.rint(k.next()));
+			map.put("T_Indexes", omero.rtypes.rlist(ts));
+			map.put("Time_Units", 
+					omero.rtypes.rstring(param.getTimeAsString()));
+		} else 
+			map.put("Split_Panels_Grey", 
+					omero.rtypes.rbool(param.isSplitGrey()));
+		if (param.getScaleBar() > 0)
+			map.put("Scalebar", omero.rtypes.rint(param.getScaleBar()));
+		map.put("Overlay_Colour", omero.rtypes.rstring(param.getColor()));
+		map.put("Width", omero.rtypes.rint(param.getWidth()));
+		map.put("Height", omero.rtypes.rint(param.getHeight()));
+		map.put("Stepping", omero.rtypes.rint(param.getStepping()));
+		map.put("Format", omero.rtypes.rstring(param.getFormatAsString()));
+		map.put("Algorithm", 
+				omero.rtypes.rstring(param.getProjectionTypeAsString()));
+		map.put("Figure_Name", 
+				omero.rtypes.rstring(param.getName()));
+		map.put("Image_Labels", 
+				omero.rtypes.rstring(param.getLabelAsString()));
+		if (scriptIndex == FigureParam.SPLIT_VIEW_ROI) {
+			map.put("ROI_Zoom", omero.rtypes.rfloat((float)
+					param.getMagnificationFactor()));
+		}
+		return runScript(id, map);
 	}
 	
 	/**
@@ -6998,19 +7006,20 @@ class OMEROGateway
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws ProcessException If an error occurred while running the script.
 	 */
 	ScriptCallback runScript(ScriptObject script)
-		throws DSOutOfServiceException, DSAccessException
+		throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
+		long id = -1;
 		try {
-			long id = script.getScriptID();
+			id = script.getScriptID();
 			if (id < 0) return null;
-			return runScript(id, script.getValueToPass());
 		} catch (Exception e) {
 			handleException(e, "Cannot run the script.");
 		}
-		return null;
+		return runScript(id, script.getValueToPass());
 	}
 	
 	/**

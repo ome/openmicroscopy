@@ -1344,7 +1344,7 @@ class OmeroImageServiceImpl
 	 */
 	public ScriptCallback createMovie(long imageID, long pixelsID, 
 			List<Integer> channels, MovieExportParam param)
-		throws DSOutOfServiceException, DSAccessException
+		throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		if (imageID <= 0)
 			throw new IllegalArgumentException("Image ID not valid.");
@@ -1404,7 +1404,7 @@ class OmeroImageServiceImpl
 	 */
 	public ScriptCallback createFigure(List<Long> ids, Class type, 
 			Object parameters)
-			throws DSOutOfServiceException, DSAccessException
+			throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		if (parameters == null)
 			throw new IllegalArgumentException("No parameters");
@@ -1466,7 +1466,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#runScript(ScriptObject)
 	 */
 	public ScriptCallback runScript(ScriptObject script)
-			throws DSOutOfServiceException, DSAccessException
+			throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		if (script == null) 
 			throw new IllegalArgumentException("No script to run.");
@@ -1721,7 +1721,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#saveAs(SaveAsParam)
 	 */
 	public ScriptCallback saveAs(SaveAsParam param)
-		throws DSAccessException, DSOutOfServiceException
+		throws ProcessException, DSAccessException, DSOutOfServiceException
 	{
 		if (param == null)
 			throw new IllegalArgumentException("No parameters specified.");
@@ -1733,5 +1733,5 @@ class OmeroImageServiceImpl
 
 		return gateway.saveAs(exp.getId(), param);
 	}
-	
+
 }

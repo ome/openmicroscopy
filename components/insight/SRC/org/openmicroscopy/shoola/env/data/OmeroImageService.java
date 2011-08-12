@@ -489,10 +489,11 @@ public interface OmeroImageService
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws ProcessException If an error occurred while running the script.
 	 */
 	public ScriptCallback createMovie(long imageID, long pixelsID, 
 			List<Integer> channels, MovieExportParam param)
-		throws DSOutOfServiceException, DSAccessException;
+		throws ProcessException, DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Loads the ROI related to the specified image and the file.
@@ -564,10 +565,11 @@ public interface OmeroImageService
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws ProcessException If an error occurred while running the script.
 	 */
 	public ScriptCallback createFigure(List<Long> ids, Class type, 
 			Object parameters)
-		throws DSOutOfServiceException, DSAccessException;
+		throws ProcessException, DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Renders the passed plane with or without overlays depending on the 
@@ -678,9 +680,10 @@ public interface OmeroImageService
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws ProcessException If an error occurred while running the script.
 	 */
 	public ScriptCallback runScript(ScriptObject script)
-		throws DSOutOfServiceException, DSAccessException;
+		throws ProcessException, DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Uploads the passed script.
@@ -766,8 +769,9 @@ public interface OmeroImageService
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws ProcessException If an error occurred while running the script.
 	 */
 	public ScriptCallback saveAs(SaveAsParam param)
-		throws DSAccessException, DSOutOfServiceException;
+		throws ProcessException, DSAccessException, DSOutOfServiceException;
 	
 }
