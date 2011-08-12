@@ -312,7 +312,7 @@ class EditorControl
 	private void saveAsJPEG()
 	{
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
 				"Save As", "Select where to save locally the images as JPEG.",
 				saveAsFilters);
 		String s = UIUtilities.removeFileExtension(view.getRefObjectName());
@@ -325,16 +325,17 @@ class EditorControl
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-					File[] files = (File[]) evt.getNewValue();
-					File folder = files[0];
-					if (folder == null)
+					//File[] files = (File[]) evt.getNewValue();
+					String value = (String) evt.getNewValue();
+					File folder = null;//files[0];
+					if (value == null || value.trim().length() == 0)
 						folder = UIUtilities.getDefaultFolder();
+					else folder = new File(value);
 					Object src = evt.getSource();
 					if (src instanceof FileChooser) {
 						((FileChooser) src).setVisible(false);
 						((FileChooser) src).dispose();
 					}
-				
 					model.saveAs(folder);
 				}
 			}

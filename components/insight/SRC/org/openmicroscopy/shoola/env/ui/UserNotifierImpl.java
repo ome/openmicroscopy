@@ -393,7 +393,12 @@ public class UserNotifierImpl
 			comp = new DownloadAndZipActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof SaveAsParam) {
 			SaveAsParam p = (SaveAsParam) activity;
-			if (!canWriteInFolder(p.getFolder()))
+			File folder = p.getFolder();
+			if (folder != null) {
+				if (folder.isFile() || !folder.exists())
+					folder = folder.getParentFile();
+			}
+			if (!canWriteInFolder(folder))
 				return;
 			comp = new SaveAsActivity(this, manager.getRegistry(), p);
 		}
