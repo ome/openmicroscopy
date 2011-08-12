@@ -147,7 +147,7 @@ class BaseContainer(BaseController):
         """
         MIN_Z = 20
 
-        MAX_VOL = (300 * 300 * 300)
+        MAX_VOL = (400 * 400 * 400)
         if self.image is None:
             return False
         sizeZ = self.image.getSizeZ()
