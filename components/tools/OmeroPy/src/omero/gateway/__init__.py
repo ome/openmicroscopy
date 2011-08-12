@@ -2050,21 +2050,7 @@ class _BlitzGateway (object):
         admin_serv = self.getAdminService()
         for exp in admin_serv.lookupGroups():
             yield ExperimenterGroupWrapper(self, exp)
-    
-    def findGroup(self, name):
-        """ 
-        Look up a Group and all contained users by group name.
-        
-        @param name:    Group name
-        @type name:     String
-        @return:        The named group
-        @rtype:         L{ExperimenterGroupWrapper}
-        """
-        
-        admin_service = self.getAdminService()
-        group = admin_service.lookupGroup(str(name))
-        return ExperimenterGroupWrapper(self, group)
-    
+
     def getDefaultGroup(self, eid):
         """
         Retrieve the default group for the given user id.
