@@ -1420,7 +1420,7 @@ class _BlitzGateway (object):
         if self._ctx is not None:
             self._userid = self._ctx.userId
             # "guest" user has no access that method.
-            self._user = self._ctx.userName!="guest" and self.getExperimenter(self._userid) or None
+            self._user = self._ctx.userName!="guest" and self.getObject("Experimenter", self._userid) or None
         else:
             self._userid = None
             self._user = None
@@ -2168,23 +2168,6 @@ class _BlitzGateway (object):
         rv.sort(lambda x,y: cmp(x.omeName.val,y.omeName.val))
         for e in rv:
             yield ExperimenterWrapper(self, e)
-
-    def getExperimenter(self, eid):
-        """
-        Return an Experimenter for the given ID.
-        
-        @param eid:     User ID.
-        @type:          Long
-        @return:        Experimenter or None
-        @rtype:         L{ExperimenterWrapper}
-        """
-        
-        admin_serv = self.getAdminService()
-        try:
-            exp = admin_serv.getExperimenter(long(eid))
-            return ExperimenterWrapper(self, exp)
-        except omero.ApiUsageException:
-            return None
 
     def findExperimenter(self, name):
         """
