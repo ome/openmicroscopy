@@ -2134,19 +2134,6 @@ class _BlitzGateway (object):
                 yield ExperimenterGroupWrapper(self, e)
  
     # EXPERIMENTERS
-        
-    def listExperimenters(self):
-        """ 
-        Look up all experimenters and related groups.
-        Groups are also loaded
-        
-        @return:    All experimenters
-        @rtype:     L{ExperimenterWrapper} generator
-        """
-        
-        admin_serv = self.getAdminService()
-        for exp in admin_serv.lookupExperimenters():
-            yield ExperimenterWrapper(self, exp)
 
     def findExperimenters (self, start=''):
         """
