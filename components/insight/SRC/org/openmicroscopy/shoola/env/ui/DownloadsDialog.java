@@ -34,6 +34,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -179,8 +180,19 @@ class DownloadsDialog
 		layout.setColumn(COLUMNS);
 		entries.setLayout(layout);
 		int index = 0;
-		Iterator i = components.iterator();
+		ListIterator<JComponent> i = components.listIterator(components.size());
 		JComponent c;
+		while (i.hasPrevious()) {
+			layout.insertRow(index, TableLayout.PREFERRED);
+			c = (JComponent) i.previous();
+			entries.add(c, "0, "+index+", FULL, CENTER");
+			if (index%2 == 0)
+				c.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
+			else 
+				c.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
+			index++;
+		}
+		/*
 		while (i.hasNext()) {
 			layout.insertRow(index, TableLayout.PREFERRED);
 			c = (JComponent) i.next();
@@ -190,7 +202,7 @@ class DownloadsDialog
 			else 
 				c.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
 			index++;
-		}
+		}*/
 		entries.revalidate();
 		repaint();
 	}
