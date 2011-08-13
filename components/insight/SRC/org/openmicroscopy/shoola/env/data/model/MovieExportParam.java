@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
@@ -87,8 +88,8 @@ public class MovieExportParam
 	
 	static {
 		FORMATS = new LinkedHashMap<Integer, String>(3);
-		FORMATS.put(WMV, "WindowsMediaPlayer");
-		FORMATS.put(QT, "QuickTime");
+		FORMATS.put(WMV, "Windows Media Player");
+		FORMATS.put(QT, "Quick Time");
 		FORMATS.put(MPEG, "MPEG");
 	}
 	
@@ -124,6 +125,9 @@ public class MovieExportParam
 	
 	/** The color of the scale bar. */
 	private String	color;
+	
+	/** The collection of selected channels.*/
+	private List<Integer> channels;
 	
 	/** 
 	 * Controls if the passed type is supported.
@@ -210,6 +214,23 @@ public class MovieExportParam
 		color = null;//Color.LIGHT_GRAY.getRGB();
 		initialize();
 	}
+	
+	/** 
+	 * Sets the channels to user for the movie.
+	 * 
+	 * @param channels The channels to use.
+	 */
+	public void setChannels(List<Integer> channels)
+	{
+		this.channels = channels;
+	}
+	
+	/**
+	 * Returns the collection of channels.
+	 * 
+	 * @return See above.
+	 */
+	public List<Integer> getChannels() { return channels; }
 	
 	/**
 	 * Sets the time interval.

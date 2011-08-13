@@ -147,8 +147,7 @@ class MetadataViewerComponent
 		}
 		if (img == null) return;
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		MovieActivityParam activity = new MovieActivityParam(parameters, null,
-				img);
+		MovieActivityParam activity = new MovieActivityParam(parameters, img);
 		IconManager icons = IconManager.getInstance();
 		activity.setIcon(icons.getIcon(IconManager.MOVIE_22));
 		un.notifyActivity(activity);
@@ -725,10 +724,14 @@ class MetadataViewerComponent
     	int maxZ = data.getSizeZ();
     	int defaultZ = maxZ;
     	int defaultT = maxT;
+    	
+    	Object value = data.getSizeC();
+    	if (model.getEditor().getChannelData() != null)
+    		value = model.getEditor().getChannelData();
     	String name = EditorUtil.getPartialName(img.getName());
     	JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
     	MovieExportDialog dialog = new MovieExportDialog(f, name, 
-    			maxT, maxZ, defaultZ, defaultT);
+    			maxT, maxZ, defaultZ, defaultT, value);
     	dialog.setBinaryAvailable(MetadataViewerAgent.isBinaryAvailable());
     	dialog.setScaleBarDefault(scaleBar, overlayColor);
     	dialog.addPropertyChangeListener(new PropertyChangeListener() {
