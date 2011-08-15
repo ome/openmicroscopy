@@ -111,7 +111,7 @@ class WrapperTest (lib.GTest):
 
     def testExperimenterWrapper (self):
         self.loginAsAdmin()
-        e = self.gateway.findExperimenter(self.USER.name)
+        e = self.gateway.getObject("Experimenter", attributes={'omeName': self.USER.name})
         self.assertEqual(e.getDetails().getOwner().omeName, self.USER.name)
 
     def testDetailsWrapper (self):
