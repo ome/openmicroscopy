@@ -5,6 +5,9 @@
 
 package ome.services.blitz.test;
 
+import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,6 +41,7 @@ import omero.model.DatasetI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
+import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
@@ -68,6 +72,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
 
 /**
  * Tests call to {@link IDeletePrx}, especially important for testing the
@@ -140,6 +145,33 @@ public class ChgrpITest extends AbstractServantTest {
 
         // Cancelling is not possible after completion.
         assertFalse(handle.cancel());
+
+        // Make sure that the FAILURE flag is not set.
+        assertFalse(handle.getStatus().flags.contains(State.FAILURE));
+    }
+
+    /**
+     * Simple test showing that if a link is found between two non-user groups
+     * that the chmod will fail.
+     */
+    @Test(groups = "ticket:6422")
+    public void testDatasetImageLinkage() throws Exception {
+
+        // Create data
+        Image i = new ImageI();
+        i.setAcquisitionDate(rtime(0));
+        i.setName(rstring("ticket:6422"));
+        Dataset d = new DatasetI();
+        d.setName(rstring("ticket:6422"));
+        i.linkDataset(d);
+        i = assertSaveAndReturn(i);
+
+        ChgrpI chgrp = newChgrp("/Image", i.getId().getValue(), newGroupId);
+        HandleI handle = doChgrp(chgrp);
+        block(handle, 5, 1000);
+
+        assertNotNull(handle.getResponse());
+        assertFalse(handle.getStatus().flags.contains(State.FAILURE));
     }
 
     /**

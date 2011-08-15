@@ -69,30 +69,16 @@ public class ChgrpValidation extends GraphStep {
     public void action(Callback cb, Session session, SqlAction sql, GraphOpts opts)
     throws GraphException {
 
-        final QueryBuilder qb = queryBuilder(opts);
-        qb.param("id", id);
-        qb.param("grp", grp);
-        Query q = qb.query(session);
-        int count = q.executeUpdate();
-
-        // ticket:6422 - validation of graph
+        // ticket:6422 - validation of graph, phase 2
         // =====================================================================
-        // Immediately we check that an object moved from GroupA to GroupB
-        // is no longer pointed at by any objects in GroupA via foreign key
-        // constraints. This is what the DB does for us inherently on delete.
-        //
-        //
-        // NB: After all objects are moved, we need to perform the reverse
-        // check, which is that no object in GroupB points at any objects in
-        // GroupA, i.e. all necessary objects were moved.
-        final String[][] locks = em.getLockChecks(iObjectType);
+        final String[][] locks = em.getLockCandidateChecks(iObjectType, true);
 
         int total = 0;
         for (String[] lock : locks) {
-            Long bad = findImproperLinks(session, lock);
+            Long bad = findImproperOutgoingLinks(session, lock);
             if (bad != null && bad > 0) {
-                log.warn(String.format("%s:%s improperly linked by %s.%s: %s",
-                        iObjectType.getSimpleName(), id, lock[2], lock[1],
+                log.warn(String.format("%s:%s improperly links to %s.%s: %s",
+                        iObjectType.getSimpleName(), id, lock[0], lock[1],
                         bad));
                 total += bad;
             }
@@ -102,42 +88,27 @@ public class ChgrpValidation extends GraphStep {
                     iObjectType.getSimpleName(), id, total));
         }
 
-
-        if (count > 0) {
-            cb.addGraphIds(this);
-        }
-        logResults(count);
     }
 
-    public void validate(Callback cb, Session session, SqlAction sql, GraphOpts opts)
-        throws GraphException {
-
-    }
-
-    private QueryBuilder queryBuilder(GraphOpts opts) {
-        final QueryBuilder qb = new QueryBuilder();
-        qb.update(table);
-        qb.append("set group_id = :grp ");
-        qb.where();
-        qb.and("id = :id");
-        if (!opts.isForce()) {
-            permissionsClause(ec, qb);
-        }
-        return qb;
-    }
-
-    private Long findImproperLinks(Session session, String[] lock) {
+    private Long findImproperOutgoingLinks(Session session, String[] lock) {
         Long old = share.setShareId(-1L);
+        share.resetReadFilter(session);
         try {
-            Query q = session.createQuery(String.format(
-                    "select count(*) from %s source where source.%s.id = ? and " +
-                    "(source.details.group.id = ? OR source.details.group.id = ?)",
-                    lock[0], lock[1]));
+
+            String str = String.format(
+                    "select count(*) from %s target, %s source " +
+                    "where target.id = source.%s.id and source.id = ? " +
+                    "and not (target.details.group.id = ? " +
+                    "  or target.details.group.id = ?)",
+                    lock[0], iObjectType.getName(), lock[1]);
+
+            Query q = session.createQuery(str);
             q.setLong(0, id);
             q.setLong(1, grp);
             q.setLong(2, userGroup);
 
             return (Long) q.list().get(0);
+
         } finally {
             share.setShareId(old);
         }
@@ -146,7 +117,7 @@ public class ChgrpValidation extends GraphStep {
     @Override
     public void onRelease(Class<IObject> k, Set<Long> ids)
             throws GraphException {
-        EventLogMessage elm = new EventLogMessage(this, "CHGRP", k,
+        EventLogMessage elm = new EventLogMessage(this, "CHGRP-VALIDATION", k,
                 new ArrayList<Long>(ids));
 
         try {

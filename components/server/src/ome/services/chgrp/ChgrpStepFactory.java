@@ -47,7 +47,8 @@ public class ChgrpStepFactory implements GraphStepFactory {
         int originalSize = steps.size();
         for (int i = 0; i < originalSize; i++) {
             GraphStep step = steps.get(i);
-            steps.add(new ChgrpValidation(step));
+            steps.add(new ChgrpValidation(ctx, em, roles, step.idx, step.stack,
+                    step.spec, step.entry, step.getIds(), grp));
         }
         return steps;
     }

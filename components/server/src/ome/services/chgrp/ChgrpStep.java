@@ -86,7 +86,7 @@ public class ChgrpStep extends GraphStep {
 
         int total = 0;
         for (String[] lock : locks) {
-            Long bad = findImproperLinks(session, lock);
+            Long bad = findImproperIncomingLinks(session, lock);
             if (bad != null && bad > 0) {
                 log.warn(String.format("%s:%s improperly linked by %s.%s: %s",
                         iObjectType.getSimpleName(), id, lock[2], lock[1],
@@ -118,7 +118,7 @@ public class ChgrpStep extends GraphStep {
         return qb;
     }
 
-    private Long findImproperLinks(Session session, String[] lock) {
+    private Long findImproperIncomingLinks(Session session, String[] lock) {
         Long old = share.setShareId(-1L);
         try {
             Query q = session.createQuery(String.format(

@@ -161,6 +161,17 @@ public abstract class GraphStep {
         }
     }
 
+
+    public long[] getIds() {
+        if (this.ids == null) {
+            return null;
+        }
+
+        long[] copy = new long[ids.length];
+        System.arraycopy(ids, 0, copy, 0, copy.length);
+        return copy;
+    }
+
     //
     // Main action
     //
