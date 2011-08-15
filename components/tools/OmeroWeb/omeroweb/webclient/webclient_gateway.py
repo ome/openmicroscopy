@@ -525,34 +525,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield ImageWrapper(self, e, None, **kwargs)
     
     # SPW
-    def listScreens(self, eid=None, page=None):
-        """
-        List all available Screens.
-        Optionally filter by experimenter 'eid'
-        
-        @param eid:         experimenter id
-        @type eid:          Long
-        @param page:        page number
-        @type page:         Long
-        @return:            Generator yielding Screens
-        @rtype:             L{ScreenWrapper} generator
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        sql = "select sc from Screen sc " \
-                "join fetch sc.details.creationEvent "\
-                "join fetch sc.details.owner join fetch sc.details.group" \
-        
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-            sql += " where sc.details.owner.id=:eid"
-            
-        for e in q.findAllByQuery(sql, p):
-            yield ScreenWrapper(self, e)
-    
-    
     def getWell(self, oid, index=None, eid=None):
         """
         Get filed in the given Well with the specific index
