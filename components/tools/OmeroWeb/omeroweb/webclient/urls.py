@@ -103,8 +103,14 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^render_thumbnail/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail, name="render_thumbnail" ),
     url( r'^render_thumbnail/size/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail_resize, name="render_thumbnail_resize" ),
     
+    #plate
+    url(r'^plate/(?P<pid>[^/]+)/(?:(?P<field>[^/]+)/)?$', views.plateGrid_json, name="web_plategrid_json"),
+    
+    #image
     url( r'^(?:(?P<share_id>[0-9]+)/)?render_image_region/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', views.render_image_region, name="web_render_image_region"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?render_image/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', views.render_image, name="web_render_image"),
+    url( r'^(?:(?P<share_id>[0-9]+)/)?img_detail/(?P<iid>[0-9]+)/$', views.image_viewer, name="web_image_viewer"),
+    
     url( r'^(?:(?P<share_id>[0-9]+)/)?img_detail/(?P<iid>[0-9]+)/$', views.image_viewer, name="web_image_viewer"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?imgData/(?P<iid>[0-9]+)/$', views.imageData_json, name="web_imageData_json"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_row_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<y>[^/]+)/(?:(?P<w>[^/]+)/)?$', views.render_row_plot, name="web_render_row_plot"),

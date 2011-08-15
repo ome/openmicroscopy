@@ -619,12 +619,11 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             else:
                 template = "webclient/data/container_subtree.html"
         elif kw.has_key('plate'):
-            manager.listPlate(kw.get('plate'), index)
-            template = "webclient/data/plate_details.html"
-            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
-        elif kw.has_key('screen') and kw.has_key('plate'):
-            manager.listPlate(o2_id, index)
-            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
+            template = "webclient/data/plate.html"
+            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.plate.getFields()})
+        #elif kw.has_key('screen') and kw.has_key('plate'):
+        #    manager.listPlate(o2_id, index)
+        #    form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
     else:
         manager.listContainerHierarchy(filter_user_id)
         if view =='tree':
@@ -2899,6 +2898,23 @@ def render_image_region (request, iid, z, t, server_id=None, share_id=None, _con
         raise Exception("Connection not available")
 
     return webgateway_views.render_image_region(request, iid, z, t, server_id=None, _conn=conn, **kwargs)
+
+@isUserConnected
+def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs):
+    """ This view is responsible for showing well data within plate """
+    
+    conn = None
+    kwargs['viewport_server'] = '/webclient'
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+     
+    if conn is None:
+        raise Exception("Connection not available")
+
+    return webgateway_views.plateGrid_json(request, pid, field=0, server_id=None, _conn=None, **kwargs)
 
 @isUserConnected
 def image_viewer (request, iid, share_id=None, **kwargs):

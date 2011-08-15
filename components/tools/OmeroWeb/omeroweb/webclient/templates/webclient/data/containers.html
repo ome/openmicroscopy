@@ -50,7 +50,6 @@
     <script type="text/javascript">
         $(function() 
             {
-
                 var h = $(window).height()-200;
                 $("div#tree_details").css('height', h);
                 $("div#metadata_details").css('height', h+31);
@@ -258,7 +257,7 @@
                                 "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
                             },
                             "plate" : {
-                                "valid_children" : "none",
+                                "valid_children" : "acquisition",
                                 "icon" : {
                                     "image" : '{% url webstatic "images/folder_plate16.png" %}'
                                 },
@@ -269,7 +268,7 @@
                                 "remove" : true
                             },
                             "plate-locked" : {
-                                "valid_children" : "none",
+                                "valid_children" : "acquisition",
                                 "icon" : {
                                     "image" : '{% url webstatic "images/folder_plate_locked16.png" %}'
                                 },
@@ -278,6 +277,28 @@
                                 "move_node" : false,
                                 "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
                                 "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
+                            },
+                            "acquisition" : {
+                                "valid_children" : "none",
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/image16.png" %}'
+                                },
+                                "create_node" : false,
+                                "start_drag" : false,
+                                "move_node" : false,
+                                "delete_node" : false,
+                                "remove" : false
+                            },
+                            "acquisition-locked" : {
+                                "valid_children" : "none",
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/image16.png" %}'
+                                },
+                                "create_node" : false,
+                                "start_drag" : false,
+                                "move_node" : false,
+                                "delete_node" : false,
+                                "remove" : false
                             },
                             "orphaned" : {
                                 "valid_children" : [ "image", "image_locked" ],
@@ -455,6 +476,11 @@
                                     config["create"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
+                                } else {
+                                    config["ccp"]["_disabled"] = true;
+                                    config["create"]["_disabled"] = true;
+                                    config["basket"]["_disabled"] = true;
+                                    config["delete"]["_disabled"] = true;
                                 }
                             }
                             

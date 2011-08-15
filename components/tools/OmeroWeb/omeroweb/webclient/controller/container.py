@@ -286,68 +286,12 @@ class BaseContainer(BaseController):
         if page is not None:
             self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
     
-    def listPlate(self, plid, index):
-        
-        def letterNamingConventions(i):
-            i-=1
-            if i < 26:
-                return chr(i+ord("A"))
-            elif i >= 26 and i < 702:
-                return chr(((i/26)-1)+ord("A")), chr(((i % 26))+ord("A"))        
-        
-        wl_list = list(self.conn.listWellsInPlate(oid=plid, index=index))
-        wl_list_with_counters = dict()
-        wl_ids = list()
-        self.fields = None
-        
-        row_names = set()
-        column_names = set()
-        row_count = 0
-        col_count = 0
-        
-        for wl in wl_list:
-            wl_ids.append(wl.id)
-            row_count = wl.row > row_count and wl.row or row_count
-            col_count = wl.column > col_count and wl.column or col_count
-            
-        if row_count >= 0 and col_count >= 0:   
-            for r in range(1, row_count+2):
-                row_names.add(r)
-                wl_list_with_counters[r] = dict()
-                for c in range(1, col_count+2):
-                    column_names.add(c)
-                    wl_list_with_counters[r][c] = None
-
-            if len(wl_ids) > 0:
-                wl_annotation_counter = self.conn.getCollectionCount("Well", "annotationLinks", wl_ids)
-                for wl in wl_list:
-                    if self.fields is None or self.fields == 0:
-                        self.fields = wl.countWellSample()
-                    wl.annotation_counter = wl_annotation_counter.get(wl.id)
-                    wl_list_with_counters[wl.row+1][wl.column+1]= wl
-        
-        wl_list_with_counters_final = list()
-        for key,val in wl_list_with_counters.iteritems():
-            row_final = list()
-            for k,v in val.items():
-                k = self.plate.columnNamingConvention=='number' and k or letterNamingConventions(k)
-                row_final.append((k,v))
-            key = self.plate.rowNamingConvention=='number' and key or letterNamingConventions(key)
-            wl_list_with_counters_final.append((key,row_final))
-
-        self.index = index is None and 0 or index
-        self.containers = {'wells': wl_list_with_counters_final}
-        self.names = {'row_names':row_names, 'column_names':column_names}
-        self.c_size = len(wl_list) #self.conn.getCollectionCount("Plate", "wellLinks", [long(plid)])[long(plid)]
-    
     def listContainerHierarchy(self, eid=None):
         if eid is not None:
             self.experimenter = self.conn.getObject("Experimenter", eid)
         else:
             eid = self.conn.getEventContext().userId
-        #obj_list = list(self.conn.listContainerHierarchy('Project', eid=eid))
-        #obj_list.extend(list(self.conn.listContainerHierarchy('Screen', eid=eid)))
-            
+        
         pr_list = list(self.conn.listProjects(eid))
         ds_list = list(self.conn.listOrphans("Dataset", eid))
         sc_list = list(self.conn.listScreens(eid))

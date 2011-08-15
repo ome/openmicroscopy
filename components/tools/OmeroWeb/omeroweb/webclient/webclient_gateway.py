@@ -474,17 +474,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         
         sql = "select obj from %s as obj " \
                 "join fetch obj.details.creationEvent "\
-                "join fetch obj.details.owner join fetch obj.details.group " \
-                "where %s" \
+                "join fetch obj.details.owner join fetch obj.details.group " % (obj_type)
+        
+        sql += "where %s" \
                 "not exists (select obl from %s as obl where " \
-                "obl.child=obj.id)" % (obj_type, eidFilter, links[obj_type][0])
+                "obl.child=obj.id)" % (eidFilter, links[obj_type][0])
+        
         if obj_type == 'Image':
             sql += "and not exists ( "\
                 "select ws from WellSample as ws "\
                 "where ws.image=obj.id %s)" % eidWsFilter
         for e in q.findAllByQuery(sql, p):
             yield links[obj_type][1](self, e)
-            
     
     def listImagesInDataset (self, oid, eid=None, page=None):
         """
@@ -550,41 +551,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             
         for e in q.findAllByQuery(sql, p):
             yield ScreenWrapper(self, e)
-
-    
-    def listWellsInPlate(self, oid, index=None, eid=None):
-        """
-        List all available Wells in the given Plate.
-        Optionally filter by experimenter 'eid'
-        
-        @param eid:         experimenter id
-        @type eid:          Long
-        @param page:        page number
-        @type page:         Long
-        @return:            Generator yielding Wells
-        @rtype:             L{WellWrapper} generator
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        sql = "select well from Well as well "\
-                "join fetch well.details.creationEvent "\
-                "join fetch well.details.owner join fetch well.details.group " \
-                "left outer join fetch well.plate as pt "\
-                "left outer join fetch well.wellSamples as ws " \
-                "left outer join fetch ws.image as img "\
-                "where well.plate.id = :oid"
-                
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-            sql += " and well.details.owner.id=:eid"
-            
-        index = index is None and 0 or index
-        kwargs = {'index': index}
-        for e in q.findAllByQuery(sql,p):
-            yield WellWrapper(self, e, **kwargs)
     
     
     def getWell(self, oid, index=None, eid=None):
@@ -1762,26 +1728,6 @@ class OmeroWebObjectWrapper (object):
         l = self.listParents()
         if l is not None:
             return len(l)
-        
-    def listChildrenWithLinks (self):
-        """
-        Lists available child objects.
-
-        @return     Generator yielding child objects and link to parent.
-        """
-
-        childw = self._getChildWrapper()
-        klass = childw().OMERO_CLASS
-        params = omero.sys.Parameters()
-        params.map = {}
-        params.map["dsid"] = rlong(self._oid)
-        query = "select c from %s as c " \
-                "join fetch c.child as ch " \
-                "where c.parent.id=:dsid " \
-                "order by c.child.name" % self.LINK_CLASS
-        for link in self._conn.getQueryService().findAllByQuery(query, params):
-            kwargs = {'link': omero.gateway.BlitzObjectWrapper(self._conn, link)}
-            yield childw(self._conn, link.child, None, **kwargs)
     
     def countAnnotations (self):
         """
@@ -1853,6 +1799,7 @@ class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper):
     annotation_counter = None
     
     def __prepare__ (self, **kwargs):
+        super(ProjectWrapper, self).__prepare__(**kwargs)
         if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
       
@@ -1867,6 +1814,7 @@ class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper):
     annotation_counter = None
     
     def __prepare__ (self, **kwargs):
+        super(DatasetWrapper, self).__prepare__(**kwargs)
         if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
         if kwargs.has_key('link'):
@@ -1883,6 +1831,7 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
     annotation_counter = None
     
     def __prepare__ (self, **kwargs):
+        super(ImageWrapper, self).__prepare__(**kwargs)
         if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
         if kwargs.has_key('link'):
@@ -1912,12 +1861,60 @@ class PlateWrapper (OmeroWebObjectWrapper, omero.gateway.PlateWrapper):
     annotation_counter = None
 
     def __prepare__ (self, **kwargs):
+        super(PlateWrapper, self).__prepare__(**kwargs)
         if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
         if kwargs.has_key('link'):
             self.link = kwargs.has_key('link') and kwargs['link'] or None
+    
+    def countPlateAcquisitions(self):
+        if self._obj.sizeOfPlateAcquisitions() < 0:
+            p = omero.sys.Parameters()
+            p.map = {}
+            p.map["pid"] = rlong(self.id)
+            sql = "select pa from PlateAcquisition as pa join fetch pa.plate as p where p.id=:pid"
+            self._obj._plateAcquisitionsSeq = self._conn.getQueryService().findAllByQuery(sql, p)
+            self._obj._plateAcquisitionsLoaded = True
+        return self._obj.sizeOfPlateAcquisitions()
+    
+    def listPlateAcquisitions(self):
+        if self._obj._plateAcquisitionsLoaded:
+            for pa in self._obj.copyPlateAcquisitions():
+                yield PlateAcquisitionWrapper(self._conn, pa)
+    
+    def getFields (self):
+        """
+        Returns max of indexed collection of well samples
+        """
+        
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = self._obj.id
+        
+        q = self._conn.getQueryService()
+        sql = "select maxIndex(p.wells.wellSamples)+1 from Plate as p "\
+            "where p.id=:oid"
+        try:
+            index = unwrap(q.projection(sql, p))[0][0]
+        except:
+            index = -1
+        return index
 
 omero.gateway.PlateWrapper = PlateWrapper
+
+class PlateAcquisitionWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+    
+    """
+    omero_model_PlateI class wrapper overwrite omero.gateway.PlateWrapper
+    and extends OmeroWebObjectWrapper.
+    """
+    
+    annotation_counter = None
+
+    def __prepare__ (self, **kwargs):
+        super(PlateAcquisitionWrapper, self).__prepare__(**kwargs)
+        if kwargs.has_key('annotation_counter'):
+            self.annotation_counter = kwargs['annotation_counter']
 
 class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.ScreenWrapper):
     """
@@ -1928,6 +1925,7 @@ class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.ScreenWrapper):
     annotation_counter = None
 
     def __prepare__ (self, **kwargs):
+        super(ScreenWrapper, self).__prepare__(**kwargs)
         if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
 

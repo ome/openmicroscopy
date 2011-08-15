@@ -1237,7 +1237,7 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
     """
     plate = _conn.getObject('plate', long(pid))
     try:
-        field = int(field)
+        field = long(field or 0)
     except ValueError:
         field = 0
     if plate is None:
