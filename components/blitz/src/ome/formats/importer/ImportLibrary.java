@@ -409,9 +409,11 @@ public class ImportLibrary implements IObservable
         String readerName = reader.getClass().getName();
         if (fsLiteReaders.contains(readerName))
         {
-            if (reader.getClass().equals(loci.formats.in.TiffDelegateReader.class))
+            if (reader.getClass().equals(loci.formats.in.TiffDelegateReader.class)
+                || reader.getClass().equals(loci.formats.in.APNGReader.class)
+                || reader.getClass().equals(loci.formats.in.JPEGReader.class))
             {
-                log.debug("Using TIFF reader FS lite handling.");
+                log.debug("Using TIFF/PNG/JPEG reader FS lite handling.");
                 List<Pixels> pixelsList = store.getSourceObjects(Pixels.class);
                 int maxPlaneSize = maxPlaneWidth * maxPlaneHeight;
                 boolean doBigImage = false;
@@ -421,13 +423,13 @@ public class ImportLibrary implements IObservable
                          * pixels.getSizeY().getValue()) > maxPlaneSize)
                     {
                         doBigImage = true;
-                        log.debug("TIFF meets big image criteria.");
+                        log.debug("Image meets big image size criteria.");
                         break;
                     }
                 }
                 if (!doBigImage)
                 {
-                    log.debug("TIFF does not meet big image criteria.");
+                    log.debug("Image does not meet big image size criteria.");
                     return;
                 }
             }
