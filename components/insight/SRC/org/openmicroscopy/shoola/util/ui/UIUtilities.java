@@ -82,6 +82,7 @@ import javax.swing.text.TabStop;
 
 //Third-party libraries
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
 
@@ -2013,8 +2014,9 @@ public class UIUtilities
 	 */
 	public static boolean isMacOS()
 	{
-		 String osName = System.getProperty("os.name").toLowerCase();
-		 return osName.startsWith("mac os");
+		//String osName = System.getProperty("os.name").toLowerCase();
+		//return osName.startsWith("mac os");
+		return (SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_MAC_OSX);
 	}
 	
 	/**
@@ -2025,8 +2027,9 @@ public class UIUtilities
 	 */
 	public static boolean isWindowsOS()
 	{
-		 String osName = System.getProperty("os.name").toLowerCase();
-		 return osName.startsWith("windows");
+		//String osName = System.getProperty("os.name").toLowerCase();
+		//return osName.startsWith("windows");
+		return SystemUtils.IS_OS_WINDOWS;
 	}
 	
 	/**
@@ -2037,9 +2040,7 @@ public class UIUtilities
 	 */
 	public static boolean isLinuxOS()
 	{
-		if (isWindowsOS()) return false;
-		if (isMacOS()) return false;
-		return true;
+		return (!(isWindowsOS() || isMacOS()))
 	}
 	
 	/**
