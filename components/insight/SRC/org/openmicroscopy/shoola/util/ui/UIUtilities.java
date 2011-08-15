@@ -2040,7 +2040,7 @@ public class UIUtilities
 	 */
 	public static boolean isLinuxOS()
 	{
-		return (!(isWindowsOS() || isMacOS()))
+		return (!(isWindowsOS() || isMacOS()));
 	}
 	
 	/**
