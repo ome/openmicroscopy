@@ -33,6 +33,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
@@ -121,10 +123,10 @@ class PropertiesUI
     /** The text for the owner. */
     private static final String OWNER_TEXT = "Owner: ";
     
-    /** Action ID indicating to edit the name. */
+    /** Action ID indicating to edit the name.*/
     private static final int	EDIT_NAME = 0;
     
-    /** Action ID indicating to edit the description. */
+    /** Action ID indicating to edit the description.*/
     private static final int	EDIT_DESC = 1;
     
     /** Button to edit the name. */
@@ -133,16 +135,16 @@ class PropertiesUI
 	/** Button to add documents. */
 	private JButton				editDescription;
 	
-    /** The name before possible modification. */
+    /** The name before possible modification.*/
     private String				originalName;
     
-    /** The name before possible modification. */
+    /** The name before possible modification.*/
     private String				originalDisplayedName;
     
-    /** The description before possible modification. */
+    /** The description before possible modification.*/
     private String				originalDescription;
     
-    /** The component hosting the name of the <code>DataObject</code>. */
+    /** The component hosting the name of the <code>DataObject</code>.*/
     private JTextArea			namePane;
     
     /** The component hosting the name of the <code>DataObject</code>. */
@@ -195,7 +197,7 @@ class PropertiesUI
 	
 	/** Description pane.*/
 	private JScrollPane			pane;
-	
+
 	/** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -267,7 +269,12 @@ class PropertiesUI
     	descriptionPane.setEnabled(false);
     	descriptionPane.setAllowOneClick(true);
     	descriptionPane.addFocusListener(this);
-    	
+    	addComponentListener(new ComponentAdapter() {
+
+			public void componentResized(ComponentEvent e) {
+				descriptionPane.wrapText(descriptionPanel.getSize().width);
+			}
+		});
     	defaultBorder = namePane.getBorder();
     	namePane.setFont(f.deriveFont(Font.BOLD));
     	typePane.setFont(f.deriveFont(Font.BOLD));
@@ -461,7 +468,7 @@ class PropertiesUI
     	layoutComponents(content, components);
     	return content;
     }
-    
+
     /**
      * Lays out the passed components.
      * 
@@ -1039,6 +1046,7 @@ class PropertiesUI
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
+		descriptionPane.wrapText(descriptionPanel.getSize().width);
 		descriptionPane.setCaretPosition(0);
 		descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
     	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
@@ -1093,15 +1101,20 @@ class PropertiesUI
 			if (name.equals(originalName) || name.equals(originalDisplayedName))
 				name = "";
 		}
-		
+		String value = desc;
+		if (desc != null) {
+			String v = OMEWikiComponent.prepare(originalDescription.trim());
+			String v2 = OMEWikiComponent.prepare(desc.trim());
+			if (v2.equals(v)) value = "";
+		}
 		if (object instanceof ProjectData) {
 			ProjectData p = (ProjectData) object;
 			if (name.length() > 0) p.setName(name);
-			p.setDescription(desc);
+			if (value.length() > 0) p.setDescription(value);
 		} else if (object instanceof DatasetData) {
 			DatasetData p = (DatasetData) object;
 			if (name.length() > 0) p.setName(name);
-			p.setDescription(desc);
+			if (value.length() > 0) p.setDescription(value);
 		} else if (object instanceof ImageData) {
 			ImageData p = (ImageData) object;
 			if (name.length() > 0) p.setName(name);
@@ -1110,21 +1123,21 @@ class PropertiesUI
 			TagAnnotationData p = (TagAnnotationData) object;
 			if (name.length() > 0) 
 				p.setTagValue(name);
-			if (desc.length() > 0)
-				p.setTagDescription(desc);
+			if (value.length() > 0)
+				p.setTagDescription(value);
 		} else if (object instanceof ScreenData) {
 			ScreenData p = (ScreenData) object;
 			if (name.length() > 0) p.setName(name);
-			p.setDescription(desc);
+			if (value.length() > 0) p.setDescription(value);
 		} else if (object instanceof PlateData) {
 			PlateData p = (PlateData) object;
 			if (name.length() > 0) p.setName(name);
-			p.setDescription(desc);
+			if (value.length() > 0) p.setDescription(value);
 		} else if (object instanceof WellSampleData) {
 			WellSampleData well = (WellSampleData) object;
 			ImageData img = well.getImage();
 			if (name.length() > 0) img.setName(name);
-			img.setDescription(desc);
+			if (value.length() > 0) img.setDescription(value);
 		} else if (object instanceof FileData) {
 			FileData f = (FileData) object;
 			if (f.getId() > 0) return;
@@ -1212,11 +1225,11 @@ class PropertiesUI
 		value = value.trim();
 		if (name == null) 
 			return value.length() != 0;
-		name = name.trim();
+		name = OMEWikiComponent.prepare(name.trim());
+		value = OMEWikiComponent.prepare(value.trim());
 		if (DEFAULT_DESCRIPTION_TEXT.equals(name) && 
 				DEFAULT_DESCRIPTION_TEXT.equals(value)) return false;
-		if (value.equals(name)) return false;
-		return true;
+		return !(name.equals(value));
 	}
 	
 	/**

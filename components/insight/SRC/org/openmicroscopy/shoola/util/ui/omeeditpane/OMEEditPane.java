@@ -32,7 +32,8 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Map;
-import javax.swing.JTextPane;
+
+import javax.swing.JEditorPane;
 import javax.swing.Timer;
 
 //Third-party libraries
@@ -53,7 +54,7 @@ import javax.swing.Timer;
  * @since OME3.0
  */
 class OMEEditPane
-	extends JTextPane
+	extends JEditorPane//JTextPane
 	implements ActionListener, FocusListener
 {
 	
@@ -103,9 +104,8 @@ class OMEEditPane
 		this.component = component;
 		editorKit = new OMEEditorKit(formatters);
 		setEditorKitForContentType(DOC_TYPE, editorKit);
-	    setContentType(DOC_TYPE);
-	    
-	    addMouseListener(new MouseAdapter() {
+		setContentType(DOC_TYPE);
+		addMouseListener(new MouseAdapter() {
 
 			/**
 			 * Starts the timer.

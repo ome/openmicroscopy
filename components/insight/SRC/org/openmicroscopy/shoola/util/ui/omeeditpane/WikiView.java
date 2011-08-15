@@ -414,7 +414,3 @@ public class WikiView
 	}
 
 }
-    
-
-
-

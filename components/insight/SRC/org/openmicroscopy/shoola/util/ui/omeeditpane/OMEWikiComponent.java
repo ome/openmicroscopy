@@ -28,6 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -46,6 +47,8 @@ import javax.swing.border.Border;
 import javax.swing.event.DocumentListener;
 
 //Third-party libraries
+import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang.WordUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
@@ -138,6 +141,9 @@ public class OMEWikiComponent
 	/** Action id to create a protocol's entry. */
 	private static final int	PROTOCOL = 2;
 
+	/** The number of columns before splitting text.*/
+    private static final int	COLUMNS = 45;
+    
 	/** The formatters installed by default. */
 	private static Map<String, FormatSelectionAction> DEFAULT_FORMATTERS;
 	
@@ -174,9 +180,38 @@ public class OMEWikiComponent
 	/** Flag indicating that one click is supported if <code>true</code>. */
 	private boolean			allowOneClick;
 	
+	/** Flag indicating to wrap or not the word.*/
+	private boolean			wrapWord;
+	
+	/** The default number of columns before formatting the text.*/
+	private int				columns;
+	
+    /**
+     * Wraps the specified string.
+     * 
+     * @param value The value to wrap.
+     */
+    private String wrap(String value)
+    {
+    	return WordUtils.wrap(value, columns, null, false);
+    }
+    
+    /**
+     * Replaces the line separator by space when saving the data.
+     * 
+     * @param value The value to handle.
+     * @return See above.
+     */
+    public static String prepare(String value)
+    {
+    	return value.replaceAll(SystemUtils.LINE_SEPARATOR, " ");
+    }
+    
 	/** Installs the default actions.  */
 	private void installDefaultAction()
 	{
+		columns = COLUMNS;
+		wrapWord = true;
 		toolBarActions = new ArrayList<JButton>();
 		IconManager icons = IconManager.getInstance();
 		JButton b = new JButton(icons.getIcon(IconManager.HYPERLINK));
@@ -228,7 +263,7 @@ public class OMEWikiComponent
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		if (toolBar != null) {
 			JPanel p = new JPanel();
 			p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -240,6 +275,7 @@ public class OMEWikiComponent
 			p.add(Box.createVerticalStrut(2));
 			add(p, BorderLayout.NORTH);
 		}
+		setLayout(new BorderLayout());
 		add(pane, BorderLayout.CENTER);
 	}
 	
@@ -464,6 +500,34 @@ public class OMEWikiComponent
 	public void setAllowOneClick(boolean allowOneClick)
 	{
 		this.allowOneClick = allowOneClick;
+	}
+	
+	/**
+	 * Indicates to wrap the text or not.
+	 * 
+	 * @param wrapWord Pass <code>true</code> to wrap the text,
+	 * 				   <code>false</code> otherwise.
+	 */
+	public void setWrapWord(boolean wrapWord)
+	{
+		this.wrapWord = wrapWord;
+	}
+	
+	/** 
+	 * Invokes when the text needs to be wrapped.
+	 * 
+	 * @param width The width to use.
+	 */
+	public void wrapText(int width)
+	{
+		if (!wrapWord || pane == null) return;
+		String value = getText();
+		if (value == null) return;
+		value = prepare(value);
+		FontMetrics fm = getFontMetrics(getFont());
+		int charWidth = fm.charWidth('m');
+		columns = (int) (1.5*width)/charWidth;
+		setText(wrap(value));
 	}
 	
 	/**

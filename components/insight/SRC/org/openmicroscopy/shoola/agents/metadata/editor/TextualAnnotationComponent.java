@@ -31,6 +31,8 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -112,6 +114,13 @@ class TextualAnnotationComponent
         area.setOpaque(true);
 		area.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
         area.setText(data.getText());
+        area.wrapText(getSize().width);
+        addComponentListener(new ComponentAdapter() {
+
+			public void componentResized(ComponentEvent e) {
+				area.wrapText(getSize().width);
+			}
+		});
 		IconManager icons = IconManager.getInstance();
 		if (model.isUserOwner(data)) {
 			menuButton = new JButton(icons.getIcon(IconManager.UP_DOWN_9_12));
