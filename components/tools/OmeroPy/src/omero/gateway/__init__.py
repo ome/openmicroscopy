@@ -2033,24 +2033,6 @@ class _BlitzGateway (object):
 
         return self.getObjects("Project", params=params)
 
-    def listScreens(self, eid=None, only_owned=False):
-        """
-        List every Screens controlled by the security system.
-
-        @param eid:         Filters Screens by owner ID
-        @param only_owned:  Short-cut for filtering Screens by current user
-        @rtype:             L{ProjectWrapper} list
-        """
-
-        params = omero.sys.Parameters()
-        params.theFilter = omero.sys.Filter()
-        if only_owned:
-            params.theFilter.ownerId = rlong(self._userid)
-        elif eid is not None:
-            params.theFilter.ownerId = rlong(eid)
-
-        return self.getObjects("Screen", params=params)
-    
     #################################################
     ## IAdmin
     
@@ -4173,6 +4155,8 @@ class _ScreenWrapper (BlitzObjectWrapper):
     omero_model_ScreenI class wrapper extends BlitzObjectWrapper.
     """
     
+    annotation_counter = None
+    
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Screen'
         self.LINK_CLASS = "ScreenPlateLink"
@@ -4190,7 +4174,6 @@ class _ScreenWrapper (BlitzObjectWrapper):
         query += " where s.id=%d group by p.id" % self.getId()
         return dict(unwrap(q.projection(query, None)))
 
-
 ScreenWrapper = _ScreenWrapper
 
 def _letterGridLabel (i):
@@ -4207,6 +4190,8 @@ class _PlateWrapper (BlitzObjectWrapper):
     """
     omero_model_PlateI class wrapper extends BlitzObjectWrapper.
     """
+    
+    annotation_counter = None
     
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Plate'
@@ -4297,7 +4282,7 @@ _
         """
         Returns a list of labels for the columns on this plate. E.g. [1, 2, 3...] or ['A', 'B', 'C'...] etc
         """
-        if self.columnNamingConvention is not None and self.columnNamingConvention.lower()=='number':
+        if self.columnNamingConvention.lower()=='number':
             return range(1, self.getGridSize()['columns']+1)
         else:
             # this should simply be precalculated!
@@ -4307,7 +4292,7 @@ _
         """
         Returns a list of labels for the rows on this plate. E.g. [1, 2, 3...] or ['A', 'B', 'C'...] etc
         """
-        if self.rowNamingConvention is not None and self.rowNamingConvention.lower()=='number':
+        if self.rowNamingConvention.lower()=='number':
             return range(1, self.getGridSize()['rows']+1)
         else:
             # this should simply be precalculated!
@@ -4351,8 +4336,7 @@ _
         """
         Returns a query string for constructing custom queries, loading the screen for each plate.
         """
-        query = "select obj from Plate as obj " \
-              "join fetch obj.details.owner join fetch obj.details.group "\
+        query = "select obj from Plate obj join fetch obj.details.owner join fetch obj.details.group "\
               "join fetch obj.details.creationEvent "\
               "left outer join fetch obj.screenLinks spl " \
               "left outer join fetch spl.parent sc"
