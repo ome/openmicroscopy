@@ -54,6 +54,9 @@ java component.
         <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
         </ivy:buildlist>
+        <ivy:buildlist reference="all-tools.buildpath" settingsRef="ivy.toplevel">
+            <fileset dir="${omero.home}/components/tools" includes="*/build.xml"/>
+        </ivy:buildlist>
         <!-- Single file paths defined in antlib/resources/directories.xml -->
     </target>
 
@@ -124,12 +127,7 @@ java component.
     <target name="build" description="Build all components except for C++" depends="init">
         <property name="env.NOMAKE" value="1"/>
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
-        <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
-        <iterate buildpathref="OmeroFs.buildpath" target="tools-dist"/>
-        <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
-        <iterate buildpathref="OmeroImporter.buildpath" target="tools-dist"/>
-        <iterate buildpathref="OmeroMatlab.buildpath" target="tools-dist"/>
-        <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
+        <iterate buildpathref="all-tools.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
         <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
