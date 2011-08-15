@@ -120,7 +120,7 @@ public class RefreshExperimenterDataLoader
     	RefreshExperimenterDef node = expNodes.get(expId);
     	Map<DataObject, Set> map;
     	Map expandedNodes = node.getExpandedTopNodes();
-        if (expandedNodes == null || expandedNodes.size() == 0 
+        if (expandedNodes == null || expandedNodes.size() == 0
         	|| result instanceof Collection) {
         	Collection set = (Collection) result;
             Iterator j = set.iterator();
@@ -254,7 +254,9 @@ public class RefreshExperimenterDataLoader
         			l = (List) def.getExpandedTopNodes().get(GroupData.class);
         			if (l == null) l = new ArrayList();
         			m.put(userID, l);
-        		} else m.put(userID, def.getExpandedNodes());
+        		} else {
+        			m.put(userID, def.getExpandedNodes());
+        		}
     		}
     	}
     	handle = dmView.refreshHierarchy(rootNodeType, m, this);

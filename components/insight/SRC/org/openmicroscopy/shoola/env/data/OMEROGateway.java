@@ -5649,7 +5649,6 @@ class OMEROGateway
 	Collection loadTagSets(Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		
 		isSessionAlive();
 		try {
 			IMetadataPrx service = getMetadataService();

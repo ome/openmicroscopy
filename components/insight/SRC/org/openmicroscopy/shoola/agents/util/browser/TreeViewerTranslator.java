@@ -272,7 +272,7 @@ public class TreeViewerTranslator
                 tag.setNumberItems(tags.size());
                 return tag;
             } 
-            tag.setChildrenLoaded(Boolean.TRUE); 
+            tag.setChildrenLoaded(Boolean.valueOf(true)); 
             tag.setNumberItems(0);
             return tag;
         }
@@ -282,7 +282,7 @@ public class TreeViewerTranslator
         if (dataObjects == null || dataObjects.size() == 0) 
         	tag.setNumberItems(-1);
         else {
-        	tag.setChildrenLoaded(Boolean.TRUE);
+        	tag.setChildrenLoaded(Boolean.valueOf(true));
         	tag.setNumberItems(dataObjects.size());
             Iterator i = dataObjects.iterator();
             DataObject tmp;
@@ -551,6 +551,7 @@ public class TreeViewerTranslator
                 	Set r = (Set) entry.getValue(); //should only have one element
                 	Iterator k = r.iterator();
                 	TagAnnotationData element;
+                	Object o;
                 	while (k.hasNext()) {
                 		element = (TagAnnotationData) k.next();
                 		display = transformTag(element, userID, groupID);
