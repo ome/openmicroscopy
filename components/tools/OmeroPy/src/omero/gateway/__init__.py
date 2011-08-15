@@ -2033,6 +2033,24 @@ class _BlitzGateway (object):
 
         return self.getObjects("Project", params=params)
 
+    def listScreens(self, eid=None, only_owned=False):
+        """
+        List every Screens controlled by the security system.
+
+        @param eid:         Filters Screens by owner ID
+        @param only_owned:  Short-cut for filtering Screens by current user
+        @rtype:             L{ProjectWrapper} list
+        """
+
+        params = omero.sys.Parameters()
+        params.theFilter = omero.sys.Filter()
+        if only_owned:
+            params.theFilter.ownerId = rlong(self._userid)
+        elif eid is not None:
+            params.theFilter.ownerId = rlong(eid)
+
+        return self.getObjects("Screen", params=params)
+    
     #################################################
     ## IAdmin
     
