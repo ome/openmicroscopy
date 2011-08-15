@@ -290,13 +290,13 @@ class GetObjectTest (lib.GTest):
         self.loginAsAdmin()
         
         # experimenters
-        experimenters = list( self.gateway.listExperimenters() )
+        # experimenters = list( self.gateway.listExperimenters() ) # removed from blitz gateway
         exps = list( self.gateway.getObjects("Experimenter") )  # all experimenters
         
-        self.assertEqual(len(exps), len(experimenters))  # check unordered lists are the same length & ids
-        eIds = [e.getId() for e in experimenters]
+        #self.assertEqual(len(exps), len(experimenters))  # check unordered lists are the same length & ids
+        #eIds = [e.getId() for e in experimenters]
         for e in exps:
-            self.assertTrue(e.getId() in eIds)
+            #self.assertTrue(e.getId() in eIds)
             for groupExpMap in e.copyGroupExperimenterMap():    # check iQuery has loaded groups
                 self.assertEqual(e.id, groupExpMap.child.id.val)
 

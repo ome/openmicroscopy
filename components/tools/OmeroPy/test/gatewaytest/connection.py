@@ -113,7 +113,8 @@ class ConnectionMethodsTest (lib.GTest):
         self.assertEqual(self.gateway.getObject("Dataset", dataset_id).getId(), dataset_id)
         ##
         # Test listExperimenters
-        exps = map(lambda x: x.omeName, self.gateway.listExperimenters())
+        #exps = map(lambda x: x.omeName, self.gateway.listExperimenters())  # removed from blitz gateway
+        exps = map(lambda x: x.omeName, self.gateway.getObjects("Experimenter"))
         for omeName in (self.USER.name, self.AUTHOR.name, self.ADMIN.name.decode('utf-8')):
             self.assert_(omeName in exps)
             self.assert_(len(list(self.gateway.getObjects("Experimenter", attributes={'omeName':omeName}))) > 0)
