@@ -802,8 +802,13 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
         tiff_data = webgateway_cache.getOmeTiffImage(request, server_id, imgs[0])
         if tiff_data is None:
-            tiff_data = imgs[0].exportOmeTiff()
+            try:
+                tiff_data = imgs[0].exportOmeTiff()
+            except:
+                logger.debug('Failed to export image (2)', exc_info=True)
+                tiff_data = None
             if tiff_data is None:
+                webgateway_tempfile.abort(fpath)
                 raise Http404
             webgateway_cache.setOmeTiffImage(request, server_id, imgs[0], tiff_data)
         if fobj is None:

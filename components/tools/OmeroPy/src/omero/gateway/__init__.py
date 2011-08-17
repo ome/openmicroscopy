@@ -1398,7 +1398,7 @@ class _BlitzGateway (object):
             self._proxies['config'] = ProxyObjectWrapper(self, 'getConfigService')
             self._proxies['container'] = ProxyObjectWrapper(self, 'getContainerService')
             self._proxies['delete'] = ProxyObjectWrapper(self, 'getDeleteService')
-            self._proxies['export'] = ProxyObjectWrapper(self, 'createExporter')
+            #self._proxies['export'] = ProxyObjectWrapper(self, 'createExporter')
             self._proxies['ldap'] = ProxyObjectWrapper(self, 'getLdapService')
             self._proxies['metadata'] = ProxyObjectWrapper(self, 'getMetadataService')
             self._proxies['query'] = ProxyObjectWrapper(self, 'getQueryService')
@@ -2012,8 +2012,8 @@ class _BlitzGateway (object):
         
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
-        return self._proxies['export']
+        return ProxyObjectWrapper(self, 'createExporter')
+        #return self._proxies['export']
 
     #############################
     # Top level object fetchers #
