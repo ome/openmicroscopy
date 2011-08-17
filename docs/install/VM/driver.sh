@@ -17,4 +17,5 @@ bash setup_omero_daemon.sh
 
 omero admin start
 
-echo $PASSWORD | sudo -S reboot
+echo $PASSWORD | sudo -S halt
+#echo $PASSWORD | sudo -S reboot
