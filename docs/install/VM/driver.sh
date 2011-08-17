@@ -15,4 +15,6 @@ bash setup_environment.sh
 bash setup_omero.sh
 bash setup_omero_daemon.sh
 
+omero admin start
+
 echo $PASSWORD | sudo -S reboot
