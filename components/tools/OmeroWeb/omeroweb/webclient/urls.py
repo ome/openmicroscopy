@@ -57,11 +57,7 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^status/(?:(?P<action>[a-zA-Z]+)/)?$', views.status_action, name="status"),
     
     # loading data    
-    url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|image|screen|plate|well|orphaned))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    
-    
-    url( r'^load_data/(?P<o1_type>((?i)project|dataset|image|screen|plate|well))/(?P<o1_id>[0-9]+)/$', views.load_data, name="load_data_t_id" ),
-    url( r'^load_data/(?P<o1_type>((?i)project|dataset|screen|plate))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset|image|plate|well))/(?P<o2_id>[0-9]+)/$', views.load_data, name="load_data_t_id_t_id" ),
-    url( r'^load_data/(?P<o1_type>((?i)project|screen))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset|plate))/(?P<o2_id>[0-9]+)/(?P<o3_type>((?i)image|well))/(?P<o3_id>[0-9]+)/$', views.load_data, name="load_data_t_id_t_id_t_id" ),
+    url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|image|screen|plate|well|orphaned))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|acquisition|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    
     
     # load history
     url( r'^load_calendar/(?:(\d{4})/(\d{1,2})/)?$', views.load_calendar, name="load_calendar"),
@@ -103,10 +99,10 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^render_thumbnail/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail, name="render_thumbnail" ),
     url( r'^render_thumbnail/size/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail_resize, name="render_thumbnail_resize" ),
     
-    #plate
+    #plate webgateway extention
     url(r'^plate/(?P<pid>[^/]+)/(?:(?P<field>[^/]+)/)?$', views.plateGrid_json, name="web_plategrid_json"),
     
-    #image
+    #image webgateway extention
     url( r'^(?:(?P<share_id>[0-9]+)/)?render_image_region/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', views.render_image_region, name="web_render_image_region"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?render_image/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', views.render_image, name="web_render_image"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?img_detail/(?P<iid>[0-9]+)/$', views.image_viewer, name="web_image_viewer"),

@@ -65,12 +65,12 @@
     {% include "webtest/webtest-toolbar-include.html" %}
 {% endcomment %}
 
-<p>You have selected: {% if count.images %}{{ count.images }} {% plural count.images 'image' 'images' %}, {% endif %}{% if count.datasets %}{{ count.datasets }} {% plural count.datasets 'dataset' 'datasets' %}, {% endif %}{% if count.projects %}{{ count.projects }} {% plural count.projects 'project' 'projects' %}, {% endif %}{% if count.screens %}{{ count.screens }} {% plural count.screens 'screen' 'screens' %}, {% endif %}{% if count.plates %}{{ count.plates }} {% plural count.plates 'plate' 'plates' %}, {% endif %}{% if count.wells %}{{ count.wells }} {% plural count.wells 'well' 'wells' %}, {% endif %} now you can annotate them using forms below.</p>
+<p>You have selected: {% if count.images %}{{ count.images }} {% plural count.images 'image' 'images' %}, {% endif %}{% if count.datasets %}{{ count.datasets }} {% plural count.datasets 'dataset' 'datasets' %}, {% endif %}{% if count.projects %}{{ count.projects }} {% plural count.projects 'project' 'projects' %}, {% endif %}{% if count.screens %}{{ count.screens }} {% plural count.screens 'screen' 'screens' %}, {% endif %}{% if count.plates %}{{ count.plates }} {% plural count.plates 'plate' 'plates' %}, {% endif %}{% if count.acquisitions %}{{ count.acquisitions }} {% plural count.acquisitions 'acquisition' 'acquisitions' %}, {% endif %}{% if count.wells %}{{ count.wells }} {% plural count.wells 'well' 'wells' %}, {% endif %} now you can annotate them using forms below.</p>
 
 <div id="annotation_form">
             
     {% if form_multi %}
-    <form action="{% url manage_annotation_multi %}" enctype="multipart/form-data" method="post">
+    <form action="{% url manage_annotation_multi %}?index={{ index }}" enctype="multipart/form-data" method="post">
 
     <table>
         {% if form_multi.image.errors %}<tr><th>{{ form_multi.image.label_tag }}</th></tr>
@@ -83,6 +83,8 @@
         <tr><td>{% if form_multi.screen.required %}*{% endif %}{{ form_multi.screen.errors }}</td></tr>{% endif %}        
         {% if form_multi.plate.errors %}<tr><th>{{ form_multi.plate.label_tag }}</th></tr>
         <tr><td>{% if form_multi.plate.required %}*{% endif %}{{ form_multi.plate.errors }}</td></tr>{% endif %}
+        {% if form_multi.acquisition.errors %}<tr><th>{{ form_multi.acquisition.label_tag }}</th></tr>
+        <tr><td>{% if form_multi.acquisition.required %}*{% endif %}{{ form_multi.acquisition.errors }}</td></tr>{% endif %}
         {% if form_multi.well.errors %}<tr><th>{{ form_multi.well.label_tag }}</th></tr>
         <tr><td>{% if form_multi.well.required %}*{% endif %}{{ form_multi.well.errors }}</td></tr>{% endif %}
         
@@ -91,6 +93,7 @@
         <tr class="hiddenField"><td>{{ form_multi.project }}</td></tr>
         <tr class="hiddenField"><td>{{ form_multi.screen }}</td></tr>
         <tr class="hiddenField"><td>{{ form_multi.plate }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_multi.acquisition }}</td></tr>
         <tr class="hiddenField"><td>{{ form_multi.well }}</td></tr>
                 
         <tr><td><h1>{% trans "Add new comment" %}:</h1></td></tr>

@@ -70,7 +70,7 @@ jQuery._WeblitzPlateview = function (container, options) {
               if (data.grid[i][j] == null) {
 		  tr.append('<td><div class="placeholder"></div></td>');
 	      } else {
-		  var td = $('<td class="full" id="'+data.grid[i][j].wellId+'"><div class="waiting"></div><img class="loading" src="'+ data.grid[i][j].thumb_url+'"></td>');
+		  var td = $('<td class="well" id="well-'+data.grid[i][j].wellId+'"><div class="waiting"></div><img class="loading" src="'+ data.grid[i][j].thumb_url+'"></td>');
 		  $('img', td)
 		      .click(tclick(data.grid[i][j]))
 		      .load(function() { 

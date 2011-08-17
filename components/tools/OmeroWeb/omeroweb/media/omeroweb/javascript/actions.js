@@ -22,6 +22,7 @@ var loadOtherPanels = function(data, prefix) {
                     cm_var['metadata_details']['html'] = '<p>This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container.</p>';
                 }
             } else if(oid.indexOf("experimenter")<0) {
+                //METADATA panel
                 if(orel=="image") {
                     var pr = data.rslt.obj.parent().parent();
                     if (pr.length>0 && pr.attr('rel').replace("-locked", "")==="share") {
@@ -33,11 +34,25 @@ var loadOtherPanels = function(data, prefix) {
                     cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/';    
                 }
                 
+                // CONTENT panel
                 if ($.inArray(orel, ["project", "screen"]) > -1) {
                     cm_var['content_details']['url'] = null;
                     cm_var['content_details']['rel'] = null;
                     cm_var['content_details']['empty'] = true;
-                } else if($.inArray(orel, ["dataset", "plate", "tag"]) > -1 && oid!==crel) {
+                } else if($.inArray(orel, ["plate"]) > -1) {
+                    if (data.inst.is_leaf(data.rslt.obj)) {
+                        cm_var['content_details']['rel'] = oid;
+                        cm_var['content_details']['url'] = prefix+orel+'/'+oid.split("-")[1]+'/';
+                    } else {
+                        cm_var['content_details']['url'] = null;
+                        cm_var['content_details']['rel'] = null;
+                        cm_var['content_details']['empty'] = true;
+                    }
+                } else if($.inArray(orel, ["acquisition"]) > -1) {
+                    var plate = data.inst._get_parent(data.rslt.obj).attr('id').replace("-", "/");
+                    cm_var['content_details']['rel'] = oid;
+                    cm_var['content_details']['url'] = prefix+plate+'/'+orel+'/'+oid.split("-")[1]+'/';
+                } else if($.inArray(orel, ["dataset", "tag"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
                     cm_var['content_details']['url'] = prefix+orel+'/'+oid.split("-")[1]+'/?view=icon';
                     
@@ -148,20 +163,20 @@ var addToBasket = function(selected) {
     });
 };
 
-var multipleAnnotation = function(selected){
-    if (selected==null) {
-        alert('No object selected')
-        return
-    }    
-    if (selected.length < 1) {
+var multipleAnnotation = function(selected, index){
+    if (selected != null && selected.length > 0) {
+        var productListQuery = new Array(); 
+        selected.each( function(i){
+            productListQuery[i] = $(this).attr('id').replace("-","=");
+        });
+        var query = "/webclient/metadata_details/multiaction/annotatemany/?"+productListQuery.join("&")
+        if (index != null && index > -1) {
+            query += "&index="+index;
+        }
+        loadMetadataPanel(query);
+    } else {
         alert ("Please select at least one element."); 
     }
-    var productListQuery = new Array(); 
-    selected.each( function(i){
-        productListQuery[i] = $(this).attr('id').replace("-","=");
-    });
-    var query = "/webclient/metadata_details/multiaction/annotatemany/?"+productListQuery.join("&")
-    loadMetadataPanel(query);
 };
 
 var loadMetadataPanel = function(src, html) {

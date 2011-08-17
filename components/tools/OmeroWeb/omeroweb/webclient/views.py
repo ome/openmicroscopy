@@ -619,11 +619,11 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             else:
                 template = "webclient/data/container_subtree.html"
         elif kw.has_key('plate'):
+            fields = manager.plate.getFields(kw.get('acquisition', None))
+            form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
+            if fields is not None and index == 0:
+                index = fields[0]
             template = "webclient/data/plate.html"
-            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.plate.getFields()})
-        #elif kw.has_key('screen') and kw.has_key('plate'):
-        #    manager.listPlate(o2_id, index)
-        #    form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
     else:
         manager.listContainerHierarchy(filter_user_id)
         if view =='tree':
@@ -973,7 +973,7 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
     if c_type in ("tag"):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'index':index}
 
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1271,7 +1271,12 @@ def manage_annotation_multi(request, action=None, **kwargs):
         logger.error(traceback.format_exc())
     
     try:
-        manager = BaseContainer(conn)
+        index = int(request.REQUEST['index'])
+    except:
+        index = None
+    
+    try:
+        manager = BaseContainer(conn, index=index)
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(x)
@@ -1283,17 +1288,24 @@ def manage_annotation_multi(request, action=None, **kwargs):
     projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
     screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
     plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plates", request.REQUEST.getlist('plate'))) or list()
-    wells = len(request.REQUEST.getlist('well')) > 0 and list(conn.getObjects("Well", request.REQUEST.getlist('well'))) or list()
-
+    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
+    wells = list()
+    if len(request.REQUEST.getlist('well')) > 0:
+        for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
+            w.index=index
+            wells.append(w)
+    
+    oids = {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
+    
     count = {'images':len(images), 'datasets':len(datasets), 'projects':len(projects), 'screens':len(screens), 'plates':len(plates), 'wells':len(wells)}
     
     form_multi = None
     if action == "annotatemany":
-        selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 'plates':request.REQUEST.getlist('plate'), 'wells':request.REQUEST.getlist('well')}
-        form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'wells':wells})
+        selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), 'wells':request.REQUEST.getlist('well')}
+        form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells})
     else:
         if request.method == 'POST':
-            form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'wells':wells}, data=request.REQUEST.copy(), files=request.FILES)
+            form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}, data=request.REQUEST.copy(), files=request.FILES)
             if form_multi.is_valid():
                 
                 content = form_multi.cleaned_data['content']
@@ -1319,7 +1331,7 @@ def manage_annotation_multi(request, action=None, **kwargs):
                 
                 return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu]))
             
-    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi, 'count':count, 'oids':oids}
+    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi, 'count':count, 'oids':oids, 'index':index}
             
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1350,10 +1362,15 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    #manager = None        
-    if o_type in ("dataset", "project", "image", "screen", "plate", "well","comment", "file", "tag", "tagset"):
+    try:
+        index = int(request.REQUEST['index'])
+    except:
+        index = None
+    
+    manager = None
+    if o_type in ("dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset"):
         if o_type == 'tagset': o_type = 'tag' # TODO: this should be handled by the BaseContainer
-        kw = dict()
+        kw = {'index':index}
         if o_type is not None and o_id > 0:
             kw[str(o_type)] = long(o_id)
         try:
@@ -1398,7 +1415,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}  
     elif action == 'addnewcontainer':
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))        
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
         if o_type is not None and hasattr(manager, o_type) and o_id > 0:        
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
@@ -1668,7 +1685,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         return HttpResponse( json, mimetype='application/javascript')
     elif action == 'addcomment':
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["newcomment", o_type, oid]))
+            return HttpResponseRedirect(reverse("load_metadata_details", args=[o_type, o_id]))
         form_comment = CommentAnnotationForm(data=request.REQUEST.copy())
         if form_comment.is_valid() and o_type is not None and o_id > 0:
             content = form_comment.cleaned_data['content']
@@ -1679,7 +1696,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment}
     elif action == 'addtag':
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["newtag", o_type, oid]))
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["newtag", o_type, o_id]))
         form_tag = TagAnnotationForm(data=request.REQUEST.copy())
         if form_tag.is_valid() and o_type is not None and o_id > 0:
             tag = form_tag.cleaned_data['tag']
@@ -1703,7 +1720,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag}
     elif action == 'usetag':
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["usetag", o_type, oid]))
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["usetag", o_type, o_id]))
         tag_list = manager.getTagsByObject()
         form_tags = TagListForm(data=request.REQUEST.copy(), initial={'tags':tag_list})
         if form_tags.is_valid() and o_type is not None and o_id > 0:
@@ -1715,7 +1732,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tags':form_tags}
     elif action == 'addfile':
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["newfile", o_type, oid]))
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["newfile", o_type, o_id]))
         form_file = UploadFileForm(request.REQUEST.copy(), request.FILES)
         if form_file.is_valid() and o_type is not None and o_id > 0:
             f = request.FILES['annotation_file']
@@ -1726,7 +1743,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file}
     elif action == 'usefile':
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["usefile", o_type, oid]))
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["usefile", o_type, o_id]))
         file_list = manager.getFilesByObject()
         form_files = FileListForm(data=request.REQUEST.copy(), initial={'files':file_list})
         if form_files.is_valid() and o_type is not None and o_id > 0:
@@ -2914,7 +2931,7 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
     if conn is None:
         raise Exception("Connection not available")
 
-    return webgateway_views.plateGrid_json(request, pid, field=0, server_id=None, _conn=None, **kwargs)
+    return webgateway_views.plateGrid_json(request, pid, field=field, server_id=None, _conn=None, **kwargs)
 
 @isUserConnected
 def image_viewer (request, iid, share_id=None, **kwargs):
