@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import ome.services.chgrp.ChgrpStepFactory;
-import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphState;
 import ome.util.SqlAction;
@@ -91,11 +90,11 @@ public class ChgrpI extends Chgrp implements IRequest {
                 log.info(String.format("type=%s, id=%s options=%s [steps=%s]",
                         type, id, options, status.steps));
 
-            } catch (GraphException e) {
+            } catch (Throwable t) {
                 status.steps = 0;
                 status.flags.add(State.FAILURE);
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("message", e.getMessage());
+                params.put("message", t.getMessage());
                 rsp.set(new ERR(ice_id(), "INIT ERR", params));
             }
         }
@@ -108,16 +107,21 @@ public class ChgrpI extends Chgrp implements IRequest {
         }
         try {
             state.execute(i);
-        } catch (GraphException e) {
+        } catch (Throwable t) {
             rsp.set(new ERR());
-            Cancel cancel = new Cancel(e.getMessage());
-            cancel.initCause(e);
+            status.flags.add(State.FAILURE);
+            Cancel cancel = new Cancel(t.getMessage());
+            cancel.initCause(t);
             throw cancel;
         }
     }
 
-    public Response finish() {
+    public void finish() {
         rsp.compareAndSet(null, new OK());
+    }
+
+    public Response getResponse() {
         return rsp.get();
     }
+
 }

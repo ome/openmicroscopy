@@ -38,6 +38,7 @@ import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
+import omero.model.ExperimenterGroupI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
@@ -155,7 +156,32 @@ public class ChgrpITest extends AbstractServantTest {
      * that the chmod will fail.
      */
     @Test(groups = "ticket:6422")
-    public void testDatasetImageLinkage() throws Exception {
+    public void testDatasetImageLinkKeepFails() throws Exception {
+
+        // Create data
+        Image i = new ImageI();
+        i.setAcquisitionDate(rtime(0));
+        i.setName(rstring("ticket:6422"));
+        Dataset d = new DatasetI();
+        d.setName(rstring("ticket:6422"));
+        i.linkDataset(d);
+        i = assertSaveAndReturn(i);
+
+        Map<String, String> options = new HashMap<String, String>();
+        options.put("/DatasetImageLink", "KEEP");
+        ChgrpI chgrp = newChgrp("/Image", i.getId().getValue(), newGroupId, options);
+        HandleI handle = doChgrp(chgrp);
+        block(handle, 5, 1000);
+
+        assertFailure(handle);
+    }
+
+    /**
+     * Like {@link #testDatasetImageLinkFails()} but with the option to delete
+     * the link turned on, the chgrp is successful.
+     */
+    @Test(groups = "ticket:6422")
+    public void testDatasetImageLinkForcePasses() throws Exception {
 
         // Create data
         Image i = new ImageI();
@@ -170,8 +196,7 @@ public class ChgrpITest extends AbstractServantTest {
         HandleI handle = doChgrp(chgrp);
         block(handle, 5, 1000);
 
-        assertNotNull(handle.getResponse());
-        assertFalse(handle.getStatus().flags.contains(State.FAILURE));
+        assertSuccess(handle);
     }
 
     /**
@@ -186,17 +211,16 @@ public class ChgrpITest extends AbstractServantTest {
         List<List<RType>> channelIds = assertProjection(
                 "select ch.id from Channel ch where ch.pixels.image.id = "
                         + imageId, null);
-        assertTrue(channelIds.size() > 0);
+        int size = channelIds.size();
+        assertTrue(size > 0);
 
         // Perform chgrp
-        ChgrpI chgrp = newChgrp("/Image/Pixels/Channel", imageId, newGroupId);
-        doChgrp(chgrp);
+        ChgrpI chgrp = newChgrp("/Image/Pixels/Channel",
+                imageId, newGroupId);
+        HandleI handle = doChgrp(chgrp);
+        block(handle, 5, 500);
+        assertFailure(handle);
 
-        // Check that data is gone
-        channelIds = assertProjection(
-                "select ch.id from Channel ch where ch.pixels.image.id = "
-                        + imageId, null);
-        assertEquals(0, channelIds.size());
     }
 
     /**
@@ -216,27 +240,35 @@ public class ChgrpITest extends AbstractServantTest {
         // Perform chgrp
         ChgrpI chgrp = newChgrp("/Image/Pixels/RenderingDef", imageId,
                 newGroupId);
-        doChgrp(chgrp);
-
-        // Check that data is gone
-        ids = assertProjection(check, null);
-        assertEquals(0, ids.size());
+        HandleI handle = doChgrp(chgrp);
+        block(handle, 5, 500);
+        assertFailure(handle);
     }
 
     /**
-     * Deletes the whole image. This uses the "/Image/Pixels/Channel" sub
-     * specification as seen in {@link #testDeleteChannels()}
+     * chgrp the whole image.
      */
     @SuppressWarnings("rawtypes")
     public void testImage() throws Exception {
         long imageId = makeImage();
         ChgrpI chgrp = newChgrp("/Image", imageId, newGroupId);
 
-        doChgrp(chgrp);
+        HandleI handle = doChgrp(chgrp);
+        block(handle, 5, 500);
+        assertSuccess(handle);
 
+        // For anyone logged into the old group, it should seem to disappear
         List l = assertProjection("select i.id from Image i where i.id = "
                 + imageId, null);
         assertEquals(0, l.size());
+
+        // Log into new group.
+        user_sf.setSecurityContext(new ExperimenterGroupI(newGroupId, false), null);
+
+        // For anyone logged into the new group, it should be present
+        l = assertProjection("select i.id from Image i where i.id = "
+                + imageId, null);
+        assertEquals(1, l.size());
     }
 
     /**
@@ -793,53 +825,30 @@ public class ChgrpITest extends AbstractServantTest {
     //
 
     private void block(HandleI handle, int loops, long pause)
-            throws ServerError, InterruptedException {
-        for (int i = 0; i < loops && null != handle.getResponse(); i++) {
+            throws InterruptedException {
+        for (int i = 0; i < loops && null == handle.getResponse(); i++) {
             Thread.sleep(pause);
         }
+    }
+
+    private void assertSuccess(HandleI handle) {
+        assertNotNull(handle.getResponse());
+        assertFalse(handle.getStatus().flags.contains(State.FAILURE));
+    }
+
+    private void assertFailure(HandleI handle) {
+        assertNotNull(handle.getResponse());
+        assertTrue(handle.getStatus().flags.contains(State.FAILURE));
     }
 
     private HandleI doChgrp(ChgrpI chgrp) throws Exception {
         Ice.Identity id = new Ice.Identity("handle", "chgrp");
         HandleI handle = new HandleI(1000);
         handle.setSession(user_sf);
-        try {
-            handle.initialize(id, chgrp);
-            handle.run();
-            assertFalse(handle.getStatus().flags.contains(State.FAILURE));
-        } finally {
-            handle.close();
-        }
+        handle.initialize(id, chgrp);
+        handle.run();
+        // Client side this would need a try/finally { handle.close() }
         return handle;
-    }
-
-    /**
-     * Method to handle async calls like other blitz test methods; however, this
-     * method returns a proxy which is hard to test, and requires an adapter,
-     * etc. Therefore, {@link #doDelete(DeleteCommand...)} passes back the
-     * actual servant. This method left here for possible future usage.
-     */
-    @SuppressWarnings("unused")
-    private DeleteHandlePrx queueDelete(DeleteCommand... dc) throws Exception {
-
-        final RV rv = new RV();
-        user_delete.queueDelete_async(new AMD_IDelete_queueDelete() {
-
-            public void ice_response(DeleteHandlePrx __ret) {
-                rv.rv = __ret;
-            }
-
-            public void ice_exception(Exception ex) {
-                rv.ex = ex;
-            }
-        }, dc, current("queueDelete"));
-        rv.assertPassed();
-        assertNotNull(rv.rv);
-        return (DeleteHandlePrx) rv.rv;
-    }
-
-    private InvocationMatcher once() {
-        return new InvokeOnceMatcher();
     }
 
     Plate createPlate(long imageId) throws Exception {

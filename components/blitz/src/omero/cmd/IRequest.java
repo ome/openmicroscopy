@@ -30,6 +30,12 @@ public interface IRequest {
 
     void step(int i) throws Cancel;
 
-    Response finish() throws Cancel;
+    void finish() throws Cancel;
+
+    /**
+     * Returns the current response value. This method should be protected
+     * by synchronization where necessary, and should never an exception.
+     */
+    Response getResponse();
 
 }

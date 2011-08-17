@@ -245,7 +245,7 @@ public class HandleI extends _HandleDisp implements IHandle,
                 @Transactional(readOnly = false)
                 public Object doWork(Session session, ServiceFactory sf) {
                     try {
-                        rsp.set(doRun(getSqlAction(), session));
+                        doRun(getSqlAction(), session);
                         state.compareAndSet(State.READY, State.FINISHED);
                     } catch (Cancel c) {
                         state.set(State.CANCELLED);
@@ -262,16 +262,17 @@ public class HandleI extends _HandleDisp implements IHandle,
                 log.debug("Request rolled back by " + t.getCause());
             }
         } finally {
+            rsp.set(req.getResponse());
             sw.stop("omero.request.tx");
         }
     }
 
-    public Response doRun(SqlAction sql, Session session) throws Cancel {
+    public void doRun(SqlAction sql, Session session) throws Cancel {
         log.info("Running " + req);
         StopWatch sw = new CommonsLogStopWatch();
         try {
             steps(sql, session);
-            return req.finish();
+            req.finish();
         } finally {
             sw.stop("omero.request");
             status.startTime = sw.getStartTime();

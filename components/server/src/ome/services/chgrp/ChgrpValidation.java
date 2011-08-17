@@ -73,19 +73,28 @@ public class ChgrpValidation extends GraphStep {
         // =====================================================================
         final String[][] locks = em.getLockCandidateChecks(iObjectType, true);
 
-        int total = 0;
+        List<String> total = new ArrayList<String>();
         for (String[] lock : locks) {
             Long bad = findImproperOutgoingLinks(session, lock);
             if (bad != null && bad > 0) {
-                log.warn(String.format("%s:%s improperly links to %s.%s: %s",
+                String msg = String.format("%s:%s improperly links to %s.%s: %s",
                         iObjectType.getSimpleName(), id, lock[0], lock[1],
-                        bad));
-                total += bad;
+                        bad);
+                total.add(msg);
             }
         }
-        if (total > 0) {
-            throw new GraphException(String.format("%s:%s improperly linked by %s objects",
-                    iObjectType.getSimpleName(), id, total));
+        if (total.size() > 0) {
+            if (opts.isForce()) {
+                QueryBuilder qb = new QueryBuilder();
+                qb.delete(table);
+                qb.where();
+                qb.and("id = :id");
+                qb.param("id", id);
+                qb.query(session).executeUpdate();
+            } else {
+                throw new GraphException(String.format("%s:%s improperly links to %s objects",
+                    iObjectType.getSimpleName(), id, total.size()));
+            }
         }
 
     }

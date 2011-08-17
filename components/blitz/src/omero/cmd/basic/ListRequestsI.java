@@ -10,6 +10,7 @@ package omero.cmd.basic;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import ome.system.OmeroContext;
 import ome.util.SqlAction;
@@ -36,6 +37,8 @@ public class ListRequestsI extends ListRequests implements IRequest {
 
     private static final long serialVersionUID = -3653081139095111039L;
 
+    private final AtomicReference<Response> rsp = new AtomicReference<Response>();
+
     private final OmeroContext ctx;
 
     public ListRequestsI(OmeroContext ctx) {
@@ -50,7 +53,7 @@ public class ListRequestsI extends ListRequests implements IRequest {
         return;
     }
 
-    public Response finish() {
+    public void finish() {
         final List<Request> requestTypes = new ArrayList<Request>();
         final Map<String, ObjectFactoryRegistry> registries = ctx
                 .getBeansOfType(ObjectFactoryRegistry.class);
@@ -68,6 +71,10 @@ public class ListRequestsI extends ListRequests implements IRequest {
         }
 
         rsp.list = requestTypes;
-        return rsp;
+        this.rsp.set(rsp);
+    }
+
+    public Response getResponse() {
+        return rsp.get();
     }
 }
