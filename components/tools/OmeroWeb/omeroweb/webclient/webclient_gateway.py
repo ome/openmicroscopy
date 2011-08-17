@@ -1659,7 +1659,6 @@ class OmeroWebObjectWrapper (object):
     
     def countParents (self):
         l = self.listParents()
-        print 'countParents',self , l
         if l is not None:
             return len(l)
     
