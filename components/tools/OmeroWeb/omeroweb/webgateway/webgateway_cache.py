@@ -820,6 +820,13 @@ class WebGatewayTempFile (object):
         file(os.path.join(dn, '.timestamp'), 'w').write(stamp)
         return dn, key
 
+    def abort (self, fn):
+        logger.debug(fn)
+        logger.debug(os.path.dirname(fn))
+        logger.debug(self._dir)
+        if fn.startswith(self._dir):
+            shutil.rmtree(os.path.dirname(fn), ignore_errors=True)
+
     def new (self, name, key=None):
         """
         Creates a new directory if needed, see L{newdir} and checks whether this contains a file 'name'. If not, a 
