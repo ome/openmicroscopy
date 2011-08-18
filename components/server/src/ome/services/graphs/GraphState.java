@@ -305,7 +305,11 @@ public class GraphState implements GraphStep.Callback {
                 return "";
 
             } catch (ConstraintViolationException cve) {
-                return handleConstraintViolation(step, cve);
+                String cause = "ConstraintViolation: " + cve.getConstraintName();
+                return handleException(step, cve, cause);
+            } catch (GraphException ge) {
+                String cause = "GraphException: " + ge.getMessage();
+                return handleException(step, ge,cause);
             }
 
         } finally {
@@ -314,7 +318,7 @@ public class GraphState implements GraphStep.Callback {
     }
 
     /**
-     * Method called when a {@link ConstraintViolationException} can be thrown,
+     * Method called when an exception is be thrown,
      * i.e. during {@link #execute(int)}.
      *
      * @param session
@@ -323,13 +327,12 @@ public class GraphState implements GraphStep.Callback {
      * @param rv
      * @param cve
      */
-    private String handleConstraintViolation(final GraphStep step,
-            ConstraintViolationException cve) throws GraphException {
+    private String handleException(final GraphStep step,
+            Exception e, String cause) throws GraphException {
 
         // First, immediately rollback the current savepoint.
         step.rollback(this);
 
-        String cause = "ConstraintViolation: " + cve.getConstraintName();
         String msg = String.format("Could not process softly %s: %s due to %s",
                 step.pathMsg, step.id, cause);
 
@@ -357,8 +360,16 @@ public class GraphState implements GraphStep.Callback {
 
         log.info(String.format("Failed to process %s: %s due to %s",
                 step.pathMsg, step.id, cause));
-        throw cve;
 
+        if (e instanceof ConstraintViolationException) {
+            throw (ConstraintViolationException) e;
+        } else if (e instanceof GraphException) {
+            throw (GraphException) e;
+        } else {
+            RuntimeException rt = new RuntimeException();
+            rt.initCause(e);
+            throw rt;
+        }
     }
 
     /**
