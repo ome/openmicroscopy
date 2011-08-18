@@ -110,6 +110,9 @@ public class ScriptingDialog
 	public static final String VIEW_SELECTED_SCRIPT_PROPERTY = 
 		"viewSelectedScript";
 	
+	/** Bound property indicating to close the dialog. */
+	public static final String CLOSE_SCRIPT_PROPERTY = "closeScript";
+	
 	/** 
 	 * The size of the invisible components used to separate buttons
 	 * horizontally.
@@ -246,7 +249,9 @@ public class ScriptingDialog
 	private void close()
 	{
 		setVisible(false);
-		dispose();
+		//dispose();
+		firePropertyChange(CLOSE_SCRIPT_PROPERTY, Boolean.valueOf(false),
+				Boolean.valueOf(true));
 	}
 	
 	/**
@@ -743,6 +748,7 @@ public class ScriptingDialog
 		String text = TEXT+script.getDisplayedName();
 		TitlePanel tp = new TitlePanel(TITLE, text, script.getIconLarge());
 		Container c = getContentPane();
+		c.removeAll();
 		c.setLayout(new BorderLayout(0, 0));
 		c.add(tp, BorderLayout.NORTH);
 		c.add(buildBody(), BorderLayout.CENTER);
@@ -760,7 +766,18 @@ public class ScriptingDialog
 			List<DataObject> refObjects)
 	{
 		super(parent);
-		setModal(true);
+		//setModal(true);
+		reset(script, refObjects);
+	}
+	
+	/**
+	 * Resets the value.
+	 * 
+	 * @param script The script to run. Mustn't be <code>null</code>.
+	 * @param refObjects The objects of reference.
+	 */
+	public void reset(ScriptObject script, List<DataObject> refObjects)
+	{
 		if (script == null)
 			throw new IllegalArgumentException("No script specified");
 		this.script = script;
