@@ -1171,7 +1171,7 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
                 form_channels.append(channel)
 
         try:
-            image = manager.well.selectedWellSample().image()
+            image = manager.well.getWellSample().image()
         except:
             image = manager.image
 
@@ -1400,7 +1400,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         template = "webclient/annotations/annotation_new_form.html"
         form_tag = TagAnnotationForm()
         form_tags = TagListForm(initial={'tags':manager.getTagsByObject()})
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'form_tags':form_tags}
+        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'form_tags':form_tags, 'index':index}
     elif action == 'newfile':
         template = "webclient/annotations/annotation_new_form.html"
         form_file = UploadFileForm()

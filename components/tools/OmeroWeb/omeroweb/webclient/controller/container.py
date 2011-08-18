@@ -175,8 +175,8 @@ class BaseContainer(BaseController):
         self.series_metadata = list()
         if self.image is not None:
             om = self.image.loadOriginalMetadata()
-        elif self.well.selectedWellSample().image is not None:
-            om = self.well.selectedWellSample().image().loadOriginalMetadata()
+        elif self.well.getWellSample().image is not None:
+            om = self.well.getWellSample().image().loadOriginalMetadata()
         if om is not None:
             self.original_metadata = om[0]
             self.global_metadata = om[1]
@@ -188,7 +188,7 @@ class BaseContainer(BaseController):
             if self.image is not None:
                 self.channel_metadata = self.image.getChannels()
             elif self.well is not None:
-                self.channel_metadata = self.well.selectedWellSample().image().getChannels()
+                self.channel_metadata = self.well.getWellSample().image().getChannels()
         except:
             pass
         
@@ -406,8 +406,8 @@ class BaseContainer(BaseController):
         elif self.acquisition is not None:
             aList = list(self.acquisition.listAnnotations())
         elif self.well is not None:
-            aList = list(self.well.selectedWellSample().image().listAnnotations())
-        
+            aList = list(self.well.getWellSample().image().listAnnotations())
+
         for ann in aList:
             annClass = ann._obj.__class__
             if annClass in annTypes:
@@ -518,9 +518,9 @@ class BaseContainer(BaseController):
             otype = 'PlateAcquisition'
             selfobject = self.acquisition
         else:
-            otype = otype.title()
             selfobject = getattr(self, otype)
-
+            otype = otype.title()
+            
         ann = omero.model.CommentAnnotationI()
         ann.textValue = rstring(str(content))
         l_ann = getattr(omero.model, otype+"AnnotationLinkI")()
@@ -547,13 +547,13 @@ class BaseContainer(BaseController):
             raise AttributeError("Object type must be: project, dataset, image, screen, plate, acquisition, well. ")
         if otype == 'well':
             otype = 'Image'
-            selfobject = self.well.selectedWellSample().image()
+            selfobject = self.well.getWellSample().image()
         elif otype == 'acquisition':
             otype = 'PlateAcquisition'
             selfobject = self.acquisition
         else:
-            otype = otype.title()
             selfobject = getattr(self, otype)
+            otype = otype.title()
         
         ann = None
         try:
@@ -599,14 +599,14 @@ class BaseContainer(BaseController):
             raise AttributeError("Object type must be: project, dataset, image, screen, plate, acquisition, well. ")
         if otype == 'well':
             otype = 'Image'
-            selfobject = self.well.selectedWellSample().image()
+            selfobject = self.well.getWellSample().image()
         elif otype == 'acquisition':
             otype = 'PlateAcquisition'
             selfobject = self.acquisition
         else:
-            otype = otype.title()
             selfobject = getattr(self, otype)
-        
+            otype = otype.title()
+            
         if newFile.content_type.startswith("image"):
             f = newFile.content_type.split("/") 
             format = f[1].upper()
@@ -742,9 +742,9 @@ class BaseContainer(BaseController):
             otype = 'PlateAcquisition'
             selfobject = self.acquisition
         else:
-            otype = otype.title()
             selfobject = getattr(self, otype)
-        
+            otype = otype.title()
+            
         new_links = list()
         for a in self.conn.getObjects("Annotation", ids):
             ann = getattr(omero.model, otype+"AnnotationLinkI")()
@@ -776,7 +776,7 @@ class BaseContainer(BaseController):
                     for a in self.conn.getObjects("Annotation", tids):
                         if isinstance(ob._obj, omero.model.WellI):
                             t = 'Image'
-                            obj = ob.selectedWellSample().image()
+                            obj = ob.getWellSample().image()
                         elif isinstance(ob._obj, omero.model.PlateAcquisitionI):
                             t = 'PlateAcquisition'
                             obj = ob

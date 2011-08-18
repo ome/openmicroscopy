@@ -68,8 +68,8 @@
                 {% endif %}
                 
                 {% if manager.well.isOwned %}
-                $( "#wellname-{{ manager.well.selectedWellSample.image.id }} img" ).editable('{% url manage_action_containers "editname" "image" manager.well.selectedWellSample.image.id %}', '{% url manage_action_containers "savename" "image" manager.well.selectedWellSample.image.id %}', "wellname-{{ manager.well.selectedWellSample.image.id }}" );
-                $( "#welldescription-{{ manager.well.selectedWellSample.image.id }} img" ).editable('{% url manage_action_containers "editdescription" "image" manager.well.selectedWellSample.image.id %}', '{% url manage_action_containers "savedescription" "image" manager.well.selectedWellSample.image.id %}', "welldescription-{{ manager.well.selectedWellSample.image.id }}" );                
+                $( "#wellname-{{ manager.well.getWellSample.image.id }} img" ).editable('{% url manage_action_containers "editname" "image" manager.well.getWellSample.image.id %}', '{% url manage_action_containers "savename" "image" manager.well.getWellSample.image.id %}', "wellname-{{ manager.well.getWellSample.image.id }}" );
+                $( "#welldescription-{{ manager.well.getWellSample.image.id }} img" ).editable('{% url manage_action_containers "editdescription" "image" manager.well.getWellSample.image.id %}', '{% url manage_action_containers "savedescription" "image" manager.well.getWellSample.image.id %}', "welldescription-{{ manager.well.getWellSample.image.id }}" );                
                 {% endif %}
                 
                 {% if manager.acquisition.isOwned %}
@@ -281,10 +281,13 @@
         <div id='parent-id' style="display:none">
             {% if manager.image %}image-{{ manager.image.id}}{% else %}
                 {% if manager.dataset %}dataset-{{ manager.dataset.id}}{% else %}
-                    {% if manager.project %}project-{{ manager.project.id}}{% else %}
-                        {% if manager.screen %}screen-{{ manager.screen.id}}{% else %}
-                            {% if manager.plate %}plate-{{ manager.plate.id}}{% endif %}
-                        {% endif %}
+                    {% if manager.project %}project-{{ manager.project.id }}{% endif %}
+                {% endif %}
+            {% endif %}
+            {% if manager.well %}image-{{ manager.well.getWellSample.image.id }}{% else %}
+                {% if manager.acquisition %}acquisition-{{ manager.acquisition.id}}{% else %}
+                    {% if manager.plate %}plate-{{ manager.plate.id}}{% else %}
+                        {% if manager.screen %}screen-{{ manager.screen.id}}{% endif %}
                     {% endif %}
                 {% endif %}
             {% endif %}
@@ -300,7 +303,7 @@
         {% if manager.well %}
         <!-- VIEWER "Preview" -->
         <div id="preview_tab">
-            <a id="preview-link" href="{% url load_metadata_preview manager.well.selectedWellSample.image.id %}" style='display:none'>Preview</a>
+            <a id="preview-link" href="{% url load_metadata_preview manager.well.getWellSample.image.id %}" style='display:none'>Preview</a>
             <img src="{% url webstatic "images/spinner.gif" %}" />
         </div>
         {% endif %}
@@ -317,7 +320,7 @@
         {% if manager.well %}
         <div id="metadata_tab">
             <!-- content is loaded by ajax when this tab is first displayed -->
-            <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.well.selectedWellSample.image.id %}" style='display:none' >Acquisition</a>
+            <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.well.getWellSample.image.id %}" style='display:none' >Acquisition</a>
             <img src="{% url webstatic "images/spinner.gif" %}" />
         </div>
         {% endif %}
@@ -457,55 +460,55 @@
             {% endif %}
             
             {% if manager.well %}            
-            {% if manager.well.selectedWellSample.image.isOwned %}<div id="wellname-{{ manager.well.selectedWellSample.image.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="wellname-{{ manager.well.selectedWellSample.image.id }}-name">{{ manager.well.selectedWellSample.image.name|warphtml:"30" }}</span></h1></div>{% else %}<h1>{{ manager.well.selectedWellSample.image.name|warphtml:"30" }}</h1>{% endif %}
+            {% if manager.well.getWellSample.image.isOwned %}<div id="wellname-{{ manager.well.getWellSample.image.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="wellname-{{ manager.well.getWellSample.image.id }}-name">{{ manager.well.getWellSample.image.name|warphtml:"30" }}</span></h1></div>{% else %}<h1>{{ manager.well.getWellSample.image.name|warphtml:"30" }}</h1>{% endif %}
                    
-            <h2 id='well_id'>Image ID: {{ manager.well.selectedWellSample.image.id }} Well ID: {{ manager.well.id }}</h2>
-            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.selectedWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
+            <h2 id='well_id'>Image ID: {{ manager.well.getWellSample.image.id }} Well ID: {{ manager.well.id }}</h2>
+            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
             <div class="description">
-                {% if manager.well.selectedWellSample.image.isOwned %}<div id="welldescription-{{ manager.well.selectedWellSample.image.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="welldescription-{{ manager.well.selectedWellSample.image.id }}-description">{{ manager.well.selectedWellSample.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='well_desc'>{{ manager.well.selectedWellSample.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                {% if manager.well.getWellSample.image.isOwned %}<div id="welldescription-{{ manager.well.getWellSample.image.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="welldescription-{{ manager.well.getWellSample.image.id }}-description">{{ manager.well.getWellSample.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='well_desc'>{{ manager.well.getWellSample.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
             </div>
             <table>                    
-                {% if not manager.well.selectedWellSample.image.isOwned %}
+                {% if not manager.well.getWellSample.image.isOwned %}
                 <tr>
                     <th>Owner:</th>
-                    <td id='owner_fullname'>{{ manager.well.selectedWellSample.image.getOwner.getFullName }}</td>
+                    <td id='owner_fullname'>{{ manager.well.getWellSample.image.getOwner.getFullName }}</td>
                 </tr>
                 {% endif %}
                 <tr>
                     <th>Acquisition Date:</th>
-                    <td id='acqu_date'>{{ manager.well.selectedWellSample.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
+                    <td id='acqu_date'>{{ manager.well.getWellSample.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
                 </tr>
                 <tr>
                     <th>Imported Date:</th>
-                    <td id='import_date'>{{ manager.well.selectedWellSample.image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
+                    <td id='import_date'>{{ manager.well.getWellSample.image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
                 </tr>
                 <tr>
                     <th>Dimensions (XY):</th>
-                    <td id='dims_xy'>{{ manager.well.selectedWellSample.image.getSizeX }} x {{ manager.well.selectedWellSample.image.getSizeY }}</td>
+                    <td id='dims_xy'>{{ manager.well.getWellSample.image.getSizeX }} x {{ manager.well.getWellSample.image.getSizeY }}</td>
                 </tr>
                 <tr>
                     <th>Pixels Type:</th>
-                    <td id='pixels_type'>{{ manager.well.selectedWellSample.image.getPixelsType }}</td>
+                    <td id='pixels_type'>{{ manager.well.getWellSample.image.getPixelsType }}</td>
                 </tr>
                 <tr>
                     <th>Pixels Size (XYZ) (&#181m):</th>
                     <td id='pixels_size'>
-                        <div class='tooltip'>{{ manager.well.selectedWellSample.image.getPixelSizeX|floatformat:4 }} x {{ manager.well.selectedWellSample.image.getPixelSizeY|floatformat:4 }} 
-                            {% if manager.well.selectedWellSample.image.getPixelSizeZ %} x {{ manager.well.selectedWellSample.image.getPixelSizeZ|floatformat:4 }} {% endif %}
+                        <div class='tooltip'>{{ manager.well.getWellSample.image.getPixelSizeX|floatformat:4 }} x {{ manager.well.getWellSample.image.getPixelSizeY|floatformat:4 }} 
+                            {% if manager.well.getWellSample.image.getPixelSizeZ %} x {{ manager.well.getWellSample.image.getPixelSizeZ|floatformat:4 }} {% endif %}
                         </div>
-                        <span style='display:none'>{{ manager.well.selectedWellSample.image.getPixelSizeX }} x {{ manager.well.selectedWellSample.image.getPixelSizeY }}
-                            {% if manager.well.selectedWellSample.image.getPixelSizeZ %} x {{ manager.well.selectedWellSample.image.getPixelSizeZ }} {% endif %}
+                        <span style='display:none'>{{ manager.well.getWellSample.image.getPixelSizeX }} x {{ manager.well.getWellSample.image.getPixelSizeY }}
+                            {% if manager.well.getWellSample.image.getPixelSizeZ %} x {{ manager.well.getWellSample.image.getPixelSizeZ }} {% endif %}
                         </span>
                     </td>
                 </tr>
                 <tr>
                     <th>Z-sections/Timepoints:</th>
-                    <td id='dims_zt'>{{ manager.well.selectedWellSample.image.getSizeZ }} x {{ manager.well.selectedWellSample.image.getSizeT }}</td>
+                    <td id='dims_zt'>{{ manager.well.getWellSample.image.getSizeZ }} x {{ manager.well.getWellSample.image.getSizeT }}</td>
                 </tr>
                 <tr>
                     <th>Channels:</th>
                     <td id='channel_names'>
-                    {% if manager.well.selectedWellSample.image.getChannels %}{% for c in manager.well.selectedWellSample.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
+                    {% if manager.well.getWellSample.image.getChannels %}{% for c in manager.well.getWellSample.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
                     </td>
                 </tr>
                 <tr>
@@ -638,7 +641,7 @@
                     {% if manager.screen.isEditable %}<a href="{% url manage_action_containers "newtag" "screen" manager.screen.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
                     {% if manager.plate.isEditable %}<a href="{% url manage_action_containers "newtag" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
                     {% if manager.acquisition.isEditable %}<a href="{% url manage_action_containers "newtag" "acquisition" manager.acquisition.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newtag" "well" manager.well.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>
+                    {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newtag" "well" manager.well.id %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>
                     {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
                 </td>
                 <td>
@@ -674,7 +677,7 @@
                     {% if manager.screen.isEditable %}<a href="{% url manage_action_containers "newfile" "screen" manager.screen.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
                     {% if manager.plate.isEditable %}<a href="{% url manage_action_containers "newfile" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
                     {% if manager.acquisition.isEditable %}<a href="{% url manage_action_containers "newfile" "acquisition" manager.acquisition.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newfile" "well" manager.well.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>
+                    {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newfile" "well" manager.well.id %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>
                     {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
                 </td>
                 <td>

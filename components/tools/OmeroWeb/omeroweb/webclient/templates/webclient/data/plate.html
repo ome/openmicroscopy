@@ -117,7 +117,7 @@
                 elm.bind('click', function(event){
                     handleClickSelection(event);
                 }).bind('dblclick', function(){
-                    openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).parent().attr('rel'))));
+                    openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
                 });
             });            
             wpv.load({{ manager.plate.id }}, {{ index }});

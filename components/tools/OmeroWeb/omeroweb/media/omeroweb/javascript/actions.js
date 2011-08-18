@@ -20,6 +20,7 @@ var loadOtherPanels = function(data, prefix) {
                     cm_var['content_details']['url'] = prefix+orel+'/?view=icon';
                 } else {
                     cm_var['metadata_details']['html'] = '<p>This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container.</p>';
+                    cm_var['content_details']['empty'] = true;
                 }
             } else if(oid.indexOf("experimenter")<0) {
                 //METADATA panel
@@ -31,21 +32,17 @@ var loadOtherPanels = function(data, prefix) {
                         cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
                     }                    
                 } else {
-                    cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/';    
+                    cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
                 }
                 
                 // CONTENT panel
                 if ($.inArray(orel, ["project", "screen"]) > -1) {
-                    cm_var['content_details']['url'] = null;
-                    cm_var['content_details']['rel'] = null;
                     cm_var['content_details']['empty'] = true;
                 } else if($.inArray(orel, ["plate"]) > -1) {
                     if (data.inst.is_leaf(data.rslt.obj)) {
                         cm_var['content_details']['rel'] = oid;
                         cm_var['content_details']['url'] = prefix+orel+'/'+oid.split("-")[1]+'/';
                     } else {
-                        cm_var['content_details']['url'] = null;
-                        cm_var['content_details']['rel'] = null;
                         cm_var['content_details']['empty'] = true;
                     }
                 } else if($.inArray(orel, ["acquisition"]) > -1) {
@@ -83,7 +80,8 @@ var loadOtherPanels = function(data, prefix) {
                     }
                 } 
             } else {
-                cm_var['metadata_details']['html'] = '<p>'+data.rslt.obj.children().eq(1).text()+'</p>';                        
+                cm_var['metadata_details']['html'] = '<p>'+data.rslt.obj.children().eq(1).text()+'</p>';
+                cm_var['content_details']['empty'] = true;
             }
         }
 
