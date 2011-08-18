@@ -10,14 +10,11 @@ import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import omero.api.IRenderingSettingsPrx;
-import omero.api.delete.DeleteCommand;
 import omero.cmd.Chgrp;
 import omero.cmd.HandlePrx;
 import omero.cmd.State;
@@ -91,7 +88,7 @@ public class HierarchyMoveTest
 		try {
 			prx = factory.submit(change);
 			assertFalse(prx.getStatus().flags.contains(State.FAILURE));
-			block(prx, 20, 4000);
+			block(prx, 5, 4000);
 			assertNotNull(prx.getResponse());
 		} catch (Exception e) {
 			if (prx != null) prx.close();
