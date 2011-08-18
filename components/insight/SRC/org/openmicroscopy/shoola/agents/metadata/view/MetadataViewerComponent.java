@@ -1105,7 +1105,7 @@ class MetadataViewerComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link Editor} interface.
+	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#setThumbnails(Map, long)
 	 */
 	public void setThumbnails(Map<Long, BufferedImage> thumbnails, 
@@ -1124,7 +1124,7 @@ class MetadataViewerComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link Editor} interface.
+	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#uploadScript()
 	 */
 	public void uploadScript()
@@ -1182,9 +1182,21 @@ class MetadataViewerComponent
 	}
     
 	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#onGroupSwitched(boolean)
+	 */
+	public void onGroupSwitched(boolean success)
+	{
+		if (!success) return;
+		model.getEditor().onGroupSwitched(success);
+	}
+	
+	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
 	public String toString() { return model.getRefObjectName(); }
+
+
 
 }

@@ -3179,6 +3179,7 @@ class TreeViewerComponent
 			model.setGroupId(group.getId());
 			view.removeAllFromWorkingPane();
 			model.setDataViewer(null);
+			model.getMetadataViewer().onGroupSwitched(success);
 			//model.resetMetadataViewer();
 			Map<Integer, Browser> browsers = model.getBrowsers();
 			Entry entry;

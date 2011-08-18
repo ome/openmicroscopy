@@ -1030,5 +1030,19 @@ class EditorComponent
 		if (folder == null) folder = UIUtilities.getDefaultFolder();
 		model.saveAs(folder);
 	}
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#onGroupSwitched(boolean)
+	 */
+	public void onGroupSwitched(boolean success)
+	{
+		if (!success) return;
+		if (dialog != null) {
+			dialog.setVisible(false);
+			dialog.dispose();
+			dialog = null;
+		}
+	}
 
 }

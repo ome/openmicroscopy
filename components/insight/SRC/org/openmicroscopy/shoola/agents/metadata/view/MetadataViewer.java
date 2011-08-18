@@ -609,6 +609,14 @@ public interface MetadataViewer
 							long imageID);
 
 	 /** Notifies to upload the script. */
-    void uploadScript();
-    
+	void uploadScript();
+
+	/** 
+	 * Invokes when the user has switched group.
+	 * 
+	 * @param success Pass <code>true</code> if success, <code>false</code>
+	 * otherwise.
+	 */
+	void onGroupSwitched(boolean success);
+
 }

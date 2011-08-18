@@ -457,4 +457,11 @@ public interface Editor
 	 */
 	public void saveAs(File folder);
 
+	/** 
+	 * Invokes when the user has switched group.
+	 * 
+	 * @param success Pass <code>true</code> if success, <code>false</code>
+	 * otherwise.
+	 */
+	void onGroupSwitched(boolean success);
 }
