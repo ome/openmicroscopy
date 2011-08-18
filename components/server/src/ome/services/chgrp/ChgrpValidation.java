@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.perf4j.commonslog.CommonsLogStopWatch;
 
 /**
  * Post-processing action produced by {@link ChgrpStepFactory},
@@ -104,6 +105,7 @@ public class ChgrpValidation extends GraphStep {
         share.resetReadFilter(session);
         try {
 
+            CommonsLogStopWatch sw = new CommonsLogStopWatch();
             String str = String.format(
                     "select count(*) from %s target, %s source " +
                     "where target.id = source.%s.id and source.id = ? " +
@@ -115,9 +117,17 @@ public class ChgrpValidation extends GraphStep {
             q.setLong(0, id);
             q.setLong(1, grp);
             q.setLong(2, userGroup);
+            Long rv = (Long) q.list().get(0);
 
-            return (Long) q.list().get(0);
 
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("%s<==%s, id=%s, grp=%s, userGroup=%s",
+                        rv, str, id, grp, userGroup));
+            }
+
+            sw.stop("omero.chgrp.validation." + lock[0] + "." + lock[1]);
+
+            return rv;
         } finally {
             share.setShareId(old);
         }
