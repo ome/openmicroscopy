@@ -1241,7 +1241,6 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
     except ValueError:
         field = 0
     if plate is None:
-        return plate
         return HttpResponseServerError('""', mimetype='application/javascript')
     grid = []
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
