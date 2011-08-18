@@ -104,6 +104,9 @@ public class AbstractServerTest
     /** Helper reference to the <code>Service factory</code>. */
     protected ServiceFactoryPrx factory;
 
+    /** Helper reference to the <code>Service factory</code>. */
+    protected ServiceFactoryPrx factoryEncrypted;
+
     /** Helper reference to the <code>IQuery</code> service. */
     protected IQueryPrx iQuery;
 
@@ -247,6 +250,47 @@ public class AbstractServerTest
     }
     
     /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
+     * @param experimenterId The identifier of the experimenter.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected ExperimenterGroup newGroupAddUser(Permissions perms,
+		long experimenterId)
+	throws Exception
+    {
+	IAdminPrx rootAdmin = root.getSession().getAdminService();
+	String uuid = UUID.randomUUID().toString();
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(omero.rtypes.rstring(uuid));
+        g.getDetails().setPermissions(perms);
+        g = new ExperimenterGroupI(rootAdmin.createGroup(g), false);
+
+        //new group
+        g = rootAdmin.getGroup(g.getId().getValue());
+        Experimenter e = rootAdmin.getExperimenter(experimenterId);
+        rootAdmin.addGroups(e, Arrays.asList(g));
+        return g;
+    }
+
+    /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
+     * @param experimenterId The identifier of the experimenter.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected ExperimenterGroup newGroupAddUser(String perms,
+		long experimenterId)
+	throws Exception
+    {
+	return newGroupAddUser(new PermissionsI(perms), experimenterId);
+    }
+
+    /**
      * Creates a new user in the current group.
      * @return
      */
@@ -281,7 +325,6 @@ public class AbstractServerTest
     protected EventContext newUserInGroup(ExperimenterGroup group)
     	throws Exception
     {
-        
         IAdminPrx rootAdmin = root.getSession().getAdminService();
         group = rootAdmin.getGroup(group.getId().getValue());
 
@@ -295,6 +338,24 @@ public class AbstractServerTest
         rootAdmin.addGroups(e, Arrays.asList(group));
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
+        return init(client);
+    }
+
+    /**
+     * Logs in the user.
+     *
+     * @param ownerEc The context of the user.
+     * @param g The group to log into.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected EventContext loginUser(ExperimenterGroup g)
+	throws Exception
+    {
+	EventContext ec = iAdmin.getEventContext();
+        omero.client client = newOmeroClient();
+        client.createSession(ec.userName, "dummy");
+        client.getSession().setSecurityContext(new ExperimenterGroupI(
+			g.getId(), false));
         return init(client);
     }
 
@@ -363,20 +424,13 @@ public class AbstractServerTest
             client.__del__();
         }
         client = null;
-        factory = null;
-        iQuery = null;
-        iUpdate = null;
-        iAdmin = null;
-        iDelete = null;
-        mmFactory = null;
-        importer = null;
     }
 
     /**
      */
     protected EventContext init(EventContext ec) throws Exception {
         omero.client c = newOmeroClient();
-        c.createSession(ec.userName, "");
+        factoryEncrypted = c.createSession(ec.userName, "");
         return init(c);
     }
 
