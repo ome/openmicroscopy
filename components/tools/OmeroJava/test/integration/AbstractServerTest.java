@@ -47,22 +47,59 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.api.delete.DeleteReport;
+import omero.cmd.Chgrp;
+import omero.cmd.HandlePrx;
+import omero.cmd.State;
 import omero.grid.DeleteCallbackI;
+import omero.model.BooleanAnnotation;
+import omero.model.BooleanAnnotationI;
 import omero.model.ChannelBinding;
+import omero.model.CommentAnnotation;
+import omero.model.CommentAnnotationI;
+import omero.model.Dataset;
+import omero.model.DatasetAnnotationLink;
+import omero.model.DatasetAnnotationLinkI;
 import omero.model.Experiment;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageAnnotationLink;
+import omero.model.ImageAnnotationLinkI;
+import omero.model.LongAnnotation;
+import omero.model.LongAnnotationI;
+import omero.model.OriginalFile;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
+import omero.model.Plate;
+import omero.model.PlateAcquisition;
+import omero.model.PlateAcquisitionAnnotationLink;
+import omero.model.PlateAcquisitionAnnotationLinkI;
+import omero.model.PlateAnnotationLink;
+import omero.model.PlateAnnotationLinkI;
+import omero.model.Project;
+import omero.model.ProjectAnnotationLink;
+import omero.model.ProjectAnnotationLinkI;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
+import omero.model.Screen;
+import omero.model.ScreenAnnotationLink;
+import omero.model.ScreenAnnotationLinkI;
+import omero.model.TagAnnotation;
+import omero.model.TagAnnotationI;
+import omero.model.TermAnnotation;
+import omero.model.TermAnnotationI;
 import omero.model.Well;
+import omero.model.WellAnnotationLink;
+import omero.model.WellAnnotationLinkI;
 import omero.model.WellSample;
+import omero.model.WellSampleAnnotationLink;
+import omero.model.WellSampleAnnotationLinkI;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
@@ -261,6 +298,23 @@ public class AbstractServerTest
 		long experimenterId)
 	throws Exception
     {
+	List<Long> ids = new ArrayList<Long>();
+	ids.add(experimenterId);
+	return newGroupAddUser(perms, ids);
+    }
+
+    /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
+     * @param experimenterIds The identifier of the experimenters.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected ExperimenterGroup newGroupAddUser(Permissions perms,
+		List<Long> experimenterIds)
+	throws Exception
+    {
 	IAdminPrx rootAdmin = root.getSession().getAdminService();
 	String uuid = UUID.randomUUID().toString();
         ExperimenterGroup g = new ExperimenterGroupI();
@@ -270,9 +324,28 @@ public class AbstractServerTest
 
         //new group
         g = rootAdmin.getGroup(g.getId().getValue());
-        Experimenter e = rootAdmin.getExperimenter(experimenterId);
-        rootAdmin.addGroups(e, Arrays.asList(g));
+        Iterator<Long> i = experimenterIds.iterator();
+        while (i.hasNext()) {
+			Experimenter e = rootAdmin.getExperimenter(i.next());
+	        rootAdmin.addGroups(e, Arrays.asList(g));
+
+		}
         return g;
+    }
+
+    /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
+     * @param experimenterId The identifier of the experimenters.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected ExperimenterGroup newGroupAddUser(String perms,
+		List<Long> experimenterIds)
+	throws Exception
+    {
+	return newGroupAddUser(new PermissionsI(perms), experimenterIds);
     }
 
     /**
@@ -886,4 +959,445 @@ public class AbstractServerTest
         return image;
     }
 
+    /**
+     * Creates various sharable annotations i.e. TagAnnotation, TermAnnotation,
+     * FileAnnotation
+     *
+     * @param parent1 The object to link the annotation to.
+     * @param parent2 The object to link the annotation to if not null.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected List<Long> createSharableAnnotation(IObject parent1,
+		IObject parent2)
+	throws Exception
+    {
+        // Copying to a proxy to prevent issues with parent.annotationLinks
+        // becoming stale on multiple copies.
+        parent1 = parent1.proxy();
+        if (parent2 != null) {
+            parent2 = parent2.proxy();
+        }
+
+	//creation already tested in UpdateServiceTest
+	List<Long> ids = new ArrayList<Long>();
+	TagAnnotation c = new TagAnnotationI();
+	c.setTextValue(omero.rtypes.rstring("tag"));
+	c = (TagAnnotation) iUpdate.saveAndReturnObject(c);
+	ids.add(c.getId().getValue());
+
+	TermAnnotation t = new TermAnnotationI();
+	t.setTermValue(omero.rtypes.rstring("term"));
+	t = (TermAnnotation) iUpdate.saveAndReturnObject(t);
+	ids.add(t.getId().getValue());
+
+	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+				mmFactory.createOriginalFile());
+		assertNotNull(of);
+		FileAnnotation f = new FileAnnotationI();
+		f.setFile(of);
+		f = (FileAnnotation) iUpdate.saveAndReturnObject(f);
+		ids.add(f.getId().getValue());
+
+	List<IObject> links = new ArrayList<IObject>();
+	if (parent1 instanceof Image) {
+		ImageAnnotationLink link = new ImageAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((Image) parent1);
+		links.add(link);
+		link = new ImageAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((Image) parent1);
+		links.add(link);
+		link = new ImageAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((Image) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((Image) parent2);
+			links.add(link);
+			link = new ImageAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((Image) parent2);
+			links.add(link);
+			link = new ImageAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((Image) parent2);
+			links.add(link);
+		}
+	} else if (parent1 instanceof Project) {
+		ProjectAnnotationLink link = new ProjectAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((Project) parent1);
+		links.add(link);
+		link = new ProjectAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((Project) parent1);
+		links.add(link);
+		link = new ProjectAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((Project) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((Project) parent2);
+			links.add(link);
+			link = new ProjectAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((Project) parent2);
+			links.add(link);
+			link = new ProjectAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((Project) parent2);
+			links.add(link);
+		}
+	} else if (parent1 instanceof Dataset) {
+		DatasetAnnotationLink link = new DatasetAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((Dataset) parent1);
+		links.add(link);
+		link = new DatasetAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((Dataset) parent1);
+		links.add(link);
+		link = new DatasetAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((Dataset) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((Dataset) parent2);
+			links.add(link);
+			link = new DatasetAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((Dataset) parent2);
+			links.add(link);
+			link = new DatasetAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((Dataset) parent2);
+			links.add(link);
+		}
+	} else if (parent1 instanceof Plate) {
+		PlateAnnotationLink link = new PlateAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((Plate) parent1);
+		links.add(link);
+		link = new PlateAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((Plate) parent1);
+		links.add(link);
+		link = new PlateAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((Plate) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((Plate) parent2);
+			links.add(link);
+			link = new PlateAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((Plate) parent2);
+			links.add(link);
+			link = new PlateAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((Plate) parent2);
+			links.add(link);
+		}
+	} else if (parent1 instanceof Screen) {
+		ScreenAnnotationLink link = new ScreenAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((Screen) parent1);
+		links.add(link);
+		link = new ScreenAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((Screen) parent1);
+		links.add(link);
+		link = new ScreenAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((Screen) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((Screen) parent2);
+			links.add(link);
+			link = new ScreenAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((Screen) parent2);
+			links.add(link);
+			link = new ScreenAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((Screen) parent2);
+			links.add(link);
+		}
+	} else if (parent1 instanceof Well) {
+		WellAnnotationLink link = new WellAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((Well) parent1);
+		links.add(link);
+		link = new WellAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((Well) parent1);
+		links.add(link);
+		link = new WellAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((Well) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((Well) parent2);
+			links.add(link);
+			link = new WellAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((Well) parent2);
+			links.add(link);
+			link = new WellAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((Well) parent2);
+			links.add(link);
+		}
+	} else if (parent1 instanceof WellSample) {
+		WellSampleAnnotationLink link = new WellSampleAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((WellSample) parent1);
+		links.add(link);
+		link = new WellSampleAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((WellSample) parent1);
+		links.add(link);
+		link = new WellSampleAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((WellSample) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((WellSample) parent2);
+			links.add(link);
+			link = new WellSampleAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((WellSample) parent2);
+			links.add(link);
+			link = new WellSampleAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((WellSample) parent2);
+			links.add(link);
+		}
+	} else if (parent1 instanceof PlateAcquisition) {
+		PlateAcquisitionAnnotationLink link =
+			new PlateAcquisitionAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((PlateAcquisition) parent1);
+		links.add(link);
+		link = new PlateAcquisitionAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((PlateAcquisition) parent1);
+		links.add(link);
+		link = new PlateAcquisitionAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((PlateAcquisition) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((PlateAcquisition) parent2);
+			links.add(link);
+			link = new PlateAcquisitionAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((PlateAcquisition) parent2);
+			links.add(link);
+			link = new PlateAcquisitionAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((PlateAcquisition) parent2);
+			links.add(link);
+		}
+	}
+	if (links.size() > 0) iUpdate.saveAndReturnArray(links);
+	return ids;
+    }
+
+    /**
+     * Creates various non sharable annotations.
+     *
+     * @param parent The object to link the annotation to.
+     * @param ns     The name space or <code>null</code>.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected List<Long> createNonSharableAnnotation(IObject parent, String ns)
+	throws Exception
+    {
+        // Copying to a proxy to prevent issues with parent.annotationLinks
+        // becoming stale on multiple copies.
+        parent = parent.proxy();
+
+	//creation already tested in UpdateServiceTest
+	List<Long> ids = new ArrayList<Long>();
+	CommentAnnotation c = new CommentAnnotationI();
+	c.setTextValue(omero.rtypes.rstring("comment"));
+	if (ns != null) c.setNs(omero.rtypes.rstring(ns));
+
+	c = (CommentAnnotation) iUpdate.saveAndReturnObject(c);
+
+	LongAnnotation l = new LongAnnotationI();
+	l.setLongValue(omero.rtypes.rlong(1L));
+	if (ns != null) l.setNs(omero.rtypes.rstring(ns));
+
+	l = (LongAnnotation) iUpdate.saveAndReturnObject(l);
+
+	BooleanAnnotation b = new BooleanAnnotationI();
+	b.setBoolValue(omero.rtypes.rbool(true));
+	if (ns != null) b.setNs(omero.rtypes.rstring(ns));
+
+	b = (BooleanAnnotation) iUpdate.saveAndReturnObject(b);
+
+	ids.add(c.getId().getValue());
+	ids.add(l.getId().getValue());
+	ids.add(b.getId().getValue());
+
+	List<IObject> links = new ArrayList<IObject>();
+	if (parent instanceof Image) {
+		ImageAnnotationLink link = new ImageAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((Image) parent);
+		links.add(link);
+		link = new ImageAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((Image) parent);
+		links.add(link);
+		link = new ImageAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((Image) parent);
+		links.add(link);
+	} else if (parent instanceof Project) {
+		ProjectAnnotationLink link = new ProjectAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((Project) parent);
+		links.add(link);
+		link = new ProjectAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((Project) parent);
+		links.add(link);
+		link = new ProjectAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((Project) parent);
+		links.add(link);
+	} else if (parent instanceof Dataset) {
+		DatasetAnnotationLink link = new DatasetAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((Dataset) parent);
+		links.add(link);
+		link = new DatasetAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((Dataset) parent);
+		links.add(link);
+		link = new DatasetAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((Dataset) parent);
+		links.add(link);
+	} else if (parent instanceof Plate) {
+		PlateAnnotationLink link = new PlateAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((Plate) parent);
+		links.add(link);
+		link = new PlateAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((Plate) parent);
+		links.add(link);
+		link = new PlateAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((Plate) parent);
+		links.add(link);
+	} else if (parent instanceof Screen) {
+		ScreenAnnotationLink link = new ScreenAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((Screen) parent);
+		links.add(link);
+		link = new ScreenAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((Screen) parent);
+		links.add(link);
+		link = new ScreenAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((Screen) parent);
+		links.add(link);
+	} else if (parent instanceof Well) {
+		WellAnnotationLink link = new WellAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((Well) parent);
+		links.add(link);
+		link = new WellAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((Well) parent);
+		links.add(link);
+		link = new WellAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((Well) parent);
+		links.add(link);
+	} else if (parent instanceof WellSample) {
+		WellSampleAnnotationLink link = new WellSampleAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((WellSample) parent);
+		links.add(link);
+		link = new WellSampleAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((WellSample) parent);
+		links.add(link);
+		link = new WellSampleAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((WellSample) parent);
+		links.add(link);
+	} else if (parent instanceof PlateAcquisition) {
+		PlateAcquisitionAnnotationLink link =
+			new PlateAcquisitionAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((PlateAcquisition) parent);
+		links.add(link);
+		link = new PlateAcquisitionAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((PlateAcquisition) parent);
+		links.add(link);
+		link = new PlateAcquisitionAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((PlateAcquisition) parent);
+		links.add(link);
+	}
+	if (links.size() > 0) iUpdate.saveAndReturnArray(links);
+	return ids;
+    }
+
+	/**
+	 * Moves the data.
+	 *
+	 * @param change The object hosting information about data to move.
+	 * @return See above.
+	 * @throws Exception
+	 */
+	protected void doChange(Chgrp change)
+		throws Exception
+	{
+		HandlePrx prx = null;
+		try {
+			prx = factory.submit(change);
+			assertFalse(prx.getStatus().flags.contains(State.FAILURE));
+			block(prx, 5, 4000);
+			assertNotNull(prx.getResponse());
+		} catch (Exception e) {
+			if (prx != null) prx.close();
+			throw e;
+		}
+	}
+
+	/**
+	 * Waits for data to be transfered.
+	 *
+	 * @param handle The handle.
+	 * @param loops The number of loops.
+	 * @param pause The time to pause.
+	 * @throws Exception
+	 */
+    private void block(HandlePrx handle, int loops, long pause)
+	throws Exception {
+		for (int i = 0; i < loops && null == handle.getResponse(); i++) {
+			Thread.sleep(pause);
+		}
+    }
 }

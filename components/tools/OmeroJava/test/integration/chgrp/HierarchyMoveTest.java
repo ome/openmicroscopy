@@ -16,12 +16,13 @@ import java.util.UUID;
 
 import omero.api.IRenderingSettingsPrx;
 import omero.cmd.Chgrp;
-import omero.cmd.HandlePrx;
-import omero.cmd.State;
 import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
 import omero.model.Channel;
+import omero.model.Dataset;
+import omero.model.DatasetImageLink;
+import omero.model.DatasetImageLinkI;
 import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
@@ -35,6 +36,9 @@ import omero.model.PlateAcquisition;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
 import omero.model.PlateI;
+import omero.model.Project;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
 import omero.model.Reagent;
 import omero.model.Rect;
 import omero.model.RectI;
@@ -73,43 +77,6 @@ import integration.DeleteServiceTest;
 public class HierarchyMoveTest
 	extends AbstractTest
 {
-
-	/**
-	 * Moves the data.
-	 *
-	 * @param change The object hosting information about data to move.
-	 * @return See above.
-	 * @throws Exception
-	 */
-	private void doChange(Chgrp change)
-		throws Exception
-	{
-		HandlePrx prx = null;
-		try {
-			prx = factory.submit(change);
-			assertFalse(prx.getStatus().flags.contains(State.FAILURE));
-			block(prx, 5, 4000);
-			assertNotNull(prx.getResponse());
-		} catch (Exception e) {
-			if (prx != null) prx.close();
-			throw e;
-		}
-	}
-
-	/**
-	 * Waits for data to be transfered.
-	 *
-	 * @param handle The handle.
-	 * @param loops The number of loops.
-	 * @param pause The time to pause.
-	 * @throws Exception
-	 */
-    private void block(HandlePrx handle, int loops, long pause)
-	throws Exception {
-		for (int i = 0; i < loops && null == handle.getResponse(); i++) {
-			Thread.sleep(pause);
-		}
-    }
 
     /**
      * Test to move an image w/o pixels between 2 private groups.
@@ -768,7 +735,7 @@ public class HierarchyMoveTest
     }
 
     /**
-     * Test to delete a plate with ROI on images. The ROI will have
+     * Test to move a plate with ROI on images. The ROI will have
      * measurements.
      * @throws Exception Thrown if an error occurred.
      */
@@ -840,4 +807,159 @@ public class HierarchyMoveTest
 		loginUser(g);
 		assertTrue(iQuery.findAllByQuery(sb.toString(), param).size() > 0);
 	}
+
+    /**
+     * Tests to move a project containing a dataset with images.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveProject()
+	throws Exception
+    {
+	String perms = "rw----";
+	EventContext ctx = newUserAndGroup(perms);
+	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+
+	Project p = (Project) iUpdate.saveAndReturnObject(
+			mmFactory.simpleProjectData().asIObject());
+	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+			mmFactory.simpleDatasetData().asIObject());
+	Image image1 = (Image) iUpdate.saveAndReturnObject(
+			mmFactory.simpleImage(0));
+	Image image2 = (Image) iUpdate.saveAndReturnObject(
+			mmFactory.simpleImage(0));
+	List<IObject> links = new ArrayList<IObject>();
+	DatasetImageLink link = new DatasetImageLinkI();
+	link.setChild(image1);
+	link.setParent(d);
+	links.add(link);
+
+	link = new DatasetImageLinkI();
+	link.setChild(image2);
+	link.setParent(d);
+	links.add(link);
+
+	ProjectDatasetLink l = new ProjectDatasetLinkI();
+	l.setChild(d);
+	l.setParent(p);
+	links.add(l);
+	iUpdate.saveAndReturnArray(links);
+
+	List<Long> ids = new ArrayList<Long>();
+	ids.add(image1.getId().getValue());
+	ids.add(image2.getId().getValue());
+
+
+        doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PROJECT,
+			p.getId().getValue(), null, g.getId().getValue()));
+
+	//Check if objects have been deleted
+	ParametersI param = new ParametersI();
+	param.addIds(ids);
+	String sql = "select i from Image as i where i.id in (:ids)";
+	List results = iQuery.findAllByQuery(sql, param);
+	assertTrue(results.size() == 0);
+
+	param = new ParametersI();
+	param.addId(d.getId().getValue());
+	sql = "select i from Dataset as i where i.id = :id";
+	assertNull(iQuery.findByQuery(sql, param));
+
+	param = new ParametersI();
+	param.addId(p.getId().getValue());
+	sql = "select i from Project as i where i.id = :id";
+	assertNull(iQuery.findByQuery(sql, param));
+
+	//Log in to other group
+	loginUser(g);
+
+	param = new ParametersI();
+	param.addIds(ids);
+	sql = "select i from Image as i where i.id in (:ids)";
+	results = iQuery.findAllByQuery(sql, param);
+	assertEquals(results.size(), ids.size());
+
+	param = new ParametersI();
+	param.addId(d.getId().getValue());
+	sql = "select i from Dataset as i where i.id = :id";
+	assertNotNull(iQuery.findByQuery(sql, param));
+
+	param = new ParametersI();
+	param.addId(p.getId().getValue());
+	sql = "select i from Project as i where i.id = :id";
+	assertNotNull(iQuery.findByQuery(sql, param));
+    }
+
+    /**
+     * Tests to move a screen containing a plate also contained
+     * in another screen. The screen should be moved but not the plate.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveScreenWithSharedPlate()
+	throws Exception
+    {
+	String perms = "rw----";
+	EventContext ctx = newUserAndGroup(perms);
+	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+
+	Screen s1 = (Screen) iUpdate.saveAndReturnObject(
+			mmFactory.simpleScreenData().asIObject());
+
+	Screen s2 = (Screen) iUpdate.saveAndReturnObject(
+			mmFactory.simpleScreenData().asIObject());
+
+	//Plate w/o plate acquisition
+	Plate p1 = (Plate) iUpdate.saveAndReturnObject(
+			mmFactory.createPlate(1, 1, 1, 0, false));
+	//Plate with plate acquisition
+	List<IObject> links = new ArrayList<IObject>();
+	ScreenPlateLink link = new ScreenPlateLinkI();
+	link.setChild((Plate) p1.proxy());
+	link.setParent(s1);
+	links.add(link);
+	link = new ScreenPlateLinkI();
+	link.setChild((Plate) p1.proxy());
+	link.setParent(s2);
+	links.add(link);
+	iUpdate.saveAndReturnArray(links);
+
+
+	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
+			s1.getId().getValue(), null, g.getId().getValue()));
+
+
+	List<Long> ids = new ArrayList<Long>();
+	ids.add(p1.getId().getValue());
+
+	//Check if the plates exist.
+	ParametersI param = new ParametersI();
+	param.addIds(ids);
+	String sql = "select i from Plate as i where i.id in (:ids)";
+	List results = iQuery.findAllByQuery(sql, param);
+	assertEquals(results.size(), ids.size());
+
+	param = new ParametersI();
+	param.addId(s1.getId().getValue());
+	sql = "select i from Screen as i where i.id = :id";
+	assertNull(iQuery.findByQuery(sql, param));
+
+	param = new ParametersI();
+	param.addId(s2.getId().getValue());
+	assertNotNull(iQuery.findByQuery(sql, param));
+
+	//Check that the data moved
+	loginUser(g);
+	param = new ParametersI();
+	param.addIds(ids);
+	sql = "select i from Plate as i where i.id in (:ids)";
+	results = iQuery.findAllByQuery(sql, param);
+	assertEquals(results.size(), 0);
+
+	param = new ParametersI();
+	param.addId(s1.getId().getValue());
+	sql = "select i from Screen as i where i.id = :id";
+	assertNotNull(iQuery.findByQuery(sql, param));
+    }
+
 }
