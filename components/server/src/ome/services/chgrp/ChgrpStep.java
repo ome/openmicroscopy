@@ -62,6 +62,7 @@ public class ChgrpStep extends GraphStep {
         this.share = (ShareBean) new InternalServiceFactory(ctx).getShareService();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void action(Callback cb, Session session, SqlAction sql, GraphOpts opts)
             throws GraphException {
@@ -82,18 +83,30 @@ public class ChgrpStep extends GraphStep {
         // NB: After all objects are moved, we need to perform the reverse
         // check, which is that no object in GroupB points at any objects in
         // GroupA, i.e. all necessary objects were moved.
-        final String[][] locks = em.getLockChecks(iObjectType);
-
         int total = 0;
-        for (String[] lock : locks) {
-            Long bad = findImproperIncomingLinks(session, lock);
-            if (bad != null && bad > 0) {
-                log.warn(String.format("%s:%s improperly linked by %s.%s: %s",
-                        iObjectType.getSimpleName(), id, lock[2], lock[1],
-                        bad));
-                total += bad;
+        Class<? extends IObject> x = iObjectType;
+        while (true) {
+
+            final String[][] locks = em.getLockChecks(x);
+
+            for (String[] lock : locks) {
+                Long bad = findImproperIncomingLinks(session, lock);
+                if (bad != null && bad > 0) {
+                    log.warn(String.format("%s:%s improperly linked by %s.%s: %s",
+                            iObjectType.getSimpleName(), id, lock[2], lock[1],
+                            bad));
+                    total += bad;
+                }
             }
+
+            Class<?> y = x.getSuperclass();
+            if (IObject.class.isAssignableFrom(y)) {
+                x = (Class<IObject>) y;
+                continue;
+            }
+            break;
         }
+
         if (total > 0) {
             throw new GraphException(String.format("%s:%s improperly linked by %s objects",
                     iObjectType.getSimpleName(), id, total));
