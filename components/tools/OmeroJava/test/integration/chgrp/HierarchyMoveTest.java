@@ -691,7 +691,7 @@ public class HierarchyMoveTest
      * Tests to move a plate with a reagent.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testMovePlateWithReagent()
 	throws Exception
     {
