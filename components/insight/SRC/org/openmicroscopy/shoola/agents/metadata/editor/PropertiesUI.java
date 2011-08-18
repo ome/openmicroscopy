@@ -1046,7 +1046,8 @@ class PropertiesUI
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
-		descriptionPane.wrapText(descriptionPanel.getSize().width);
+		if (descriptionPanel != null && descriptionPanel.getSize() != null)
+			descriptionPane.wrapText(descriptionPanel.getSize().width);
 		descriptionPane.setCaretPosition(0);
 		descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
     	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
