@@ -151,6 +151,10 @@ public class ChgrpITest extends AbstractServantTest {
         assertFalse(handle.getStatus().flags.contains(State.FAILURE));
     }
 
+    //
+    // Phase 1: basic validation
+    //
+
     /**
      * Simple test showing that if a link is found between two non-user groups
      * that the chmod will fail.
@@ -263,7 +267,7 @@ public class ChgrpITest extends AbstractServantTest {
         assertEquals(0, l.size());
 
         // Log into new group.
-        user_sf.setSecurityContext(new ExperimenterGroupI(newGroupId, false), null);
+        changeToNewGroup();
 
         // For anyone logged into the new group, it should be present
         l = assertProjection("select i.id from Image i where i.id = "
@@ -271,11 +275,15 @@ public class ChgrpITest extends AbstractServantTest {
         assertEquals(1, l.size());
     }
 
+    //
+    // Phase 2: annotation validation
+    //
+
     /**
-     * Uses the /Image delete specification to remove an Image and its
+     * Uses the /Image delete specification to chgrp an Image and its
      * annotations simply linked annotation. This is the most basic case.
      */
-    @Test(groups = "ticket:2769")
+    @Test(groups = "ticket:6297")
     public void testImageWithAnnotations() throws Exception {
 
         // Create test data
@@ -285,24 +293,29 @@ public class ChgrpITest extends AbstractServantTest {
         link = assertSaveAndReturn(link);
         long annId = link.getChild().getId().getValue();
 
-        // Perform delete
+        // Perform chgrp
         ChgrpI chgrp = newChgrp("/Image", imageId, newGroupId);
-        doChgrp(chgrp);
+        HandleI handle = doChgrp(chgrp);
+        block(handle, 5, 500);
+        assertSuccess(handle);
 
-        // Check that data is gone
-        List<List<RType>> ids = assertProjection(
-                "select ann.id from Annotation ann where ann.id = :id",
-                new ParametersI().addId(annId));
+        // Check that image and ann are gone
+        assertDoesNotExist("Annotation", annId);
+        assertDoesNotExist("Image", imageId);
 
-        assertEquals(0, ids.size());
+        // Logging into the other group should reverse the situation
+        changeToNewGroup();
+        assertDoesExist("Annotation", annId);
+        assertDoesExist("Image", imageId);
+
     }
 
     /**
-     * Uses the /Image delete specification to remove an Image and attempts to
+     * Uses the /Image specification to chgrp an Image and attempts to
      * remove its annotations. If those annotations are multiply linked,
-     * however, the attempted delete is rolled back (via a savepoint)
+     * however, the attempted chgrp is rolled back (via a savepoint)
      */
-    @Test(groups = { "ticket:2769", "ticket:2780" })
+    @Test(groups = { "ticket:6297" })
     public void testImageWithSharedAnnotations() throws Exception {
 
         // Create test data
@@ -311,6 +324,7 @@ public class ChgrpITest extends AbstractServantTest {
 
         TagAnnotation tag = new TagAnnotationI();
         tag = assertSaveAndReturn(tag);
+        long tagId = tag.getId().getValue();
 
         ImageAnnotationLink link1 = new ImageAnnotationLinkI();
         link1.link(new ImageI(imageId1, false), tag);
@@ -320,31 +334,23 @@ public class ChgrpITest extends AbstractServantTest {
         link2.link(new ImageI(imageId2, false), tag);
         link2 = assertSaveAndReturn(link2);
 
-        // Perform delete
+        // Perform chgrp
         ChgrpI chgrp = newChgrp("/Image", imageId1, newGroupId);
         HandleI handle = doChgrp(chgrp);
-        fail("NYI");
-        /*
-        DeleteReport[] reports = handle.report();
-        boolean found = false;
-        for (DeleteReport report : reports) {
-            found |= report.error.contains("ConstraintViolation");
-        }
-        assertTrue(reports.toString(), found);
+        block(handle, 5, 500);
+        assertSuccess(handle);
 
-        // Check that data is gone
-        List<List<RType>> ids = assertProjection(
-                "select img.id from Image img where img.id = :id",
-                new ParametersI().addId(imageId1));
+        // Check that image and ann are gone
+        assertDoesExist("Annotation", tagId);
+        assertDoesExist("Image", imageId2);
+        assertDoesNotExist("Image", imageId1);
 
-        assertEquals(0, ids.size());
+        // Logging into the other group should reverse the situation
+        changeToNewGroup();
+        assertDoesNotExist("Annotation", tagId);
+        assertDoesNotExist("Annotation", imageId2);
+        assertDoesExist("Image", imageId1);
 
-        ids = assertProjection(
-                "select ann.id from Annotation ann where ann.id = :id",
-                new ParametersI().addId(tag.getId().getValue()));
-
-        assertEquals(1, ids.size());
-        */
     }
 
     /**
@@ -831,6 +837,10 @@ public class ChgrpITest extends AbstractServantTest {
         }
     }
 
+    private void changeToNewGroup() throws ServerError {
+        user_sf.setSecurityContext(new ExperimenterGroupI(newGroupId, false), null);
+    }
+
     private void assertSuccess(HandleI handle) {
         assertNotNull(handle.getResponse());
         assertFalse(handle.getStatus().flags.contains(State.FAILURE));
@@ -839,6 +849,20 @@ public class ChgrpITest extends AbstractServantTest {
     private void assertFailure(HandleI handle) {
         assertNotNull(handle.getResponse());
         assertTrue(handle.getStatus().flags.contains(State.FAILURE));
+    }
+
+    private void assertDoesExist(String table, long id) throws Exception {
+        List<List<RType>> ids = assertProjection(
+                "select x.id from " +table+" x where x.id = :id",
+                new ParametersI().addId(id));
+        assertEquals(1, ids.size());
+    }
+
+    private void assertDoesNotExist(String table, long id) throws Exception {
+        List<List<RType>> ids = assertProjection(
+                "select x.id from " +table+" x where x.id = :id",
+                new ParametersI().addId(id));
+        assertEquals(0, ids.size());
     }
 
     private HandleI doChgrp(ChgrpI chgrp) throws Exception {
