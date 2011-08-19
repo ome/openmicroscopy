@@ -176,9 +176,12 @@ public class FileImportComponent
 	/** Text to indicate that the file, after scanning is not valid. */
 	private static final String FILE_NOT_VALID_TEXT = "File Not Valid";
 	
+	/** Text to indicate that the import is cancelled. */
+	private static final String CANCEL_TEXT = "cancelled";
+
 	/** The number of extra labels for images to add. */
 	private static final int NUMBER = 3;
-	
+
 	/** Action id to delete the image. */
 	private static final int DELETE_ID = 0;
 	
@@ -320,15 +323,19 @@ public class FileImportComponent
 	{
 		if (busyLabel.isBusy() && !statusLabel.isCancellable()) 
 			return;
-		String s = "cancelled";
-		if (file.isDirectory()) 
+		String s = CANCEL_TEXT;
+		if (file.isDirectory()) {
+			busyLabel.setBusy(true);
+			busyLabel.setVisible(true);
 			s += " waiting on scanning to finish";
+		} else {
+			busyLabel.setBusy(false);
+			busyLabel.setVisible(false);
+		}
 		statusLabel.setText(s);
 		statusLabel.markedAsCancel();
 		cancelButton.setEnabled(false);
 		cancelButton.setVisible(false);
-		busyLabel.setBusy(false);
-		busyLabel.setVisible(false);
 		if (image == null && file.isFile())
 			firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null, PARTIAL);
 		if (fire)
@@ -1018,8 +1025,12 @@ public class FileImportComponent
 		}
 		if (components == null || components.size() == 0) {
 			if (image instanceof Boolean) {
-				if (!StatusLabel.DUPLICATE.equals(resultLabel.getText()))
-					return FAILURE;
+				if (file.isDirectory() && isCancelled()) {
+					return SUCCESS;
+				} else {
+					if (!StatusLabel.DUPLICATE.equals(resultLabel.getText()))
+						return FAILURE;
+				}
 			}
 			return SUCCESS;
 		}
@@ -1180,7 +1191,14 @@ public class FileImportComponent
 	{
 		String name = evt.getPropertyName();
 		if (StatusLabel.FILES_SET_PROPERTY.equals(name)) {
-			Map<File, StatusLabel> files = (Map<File, StatusLabel>) evt.getNewValue();
+			if (isCancelled()) {
+				statusLabel.setText(CANCEL_TEXT);
+				busyLabel.setBusy(false);
+				busyLabel.setVisible(false);
+				return;
+			}
+			Map<File, StatusLabel> files = (Map<File, StatusLabel>)
+				evt.getNewValue();
 			insertFiles((Map<File, StatusLabel>) evt.getNewValue());
 			firePropertyChange(IMPORT_FILES_NUMBER_PROPERTY, null, files.size());
 		} else if (StatusLabel.FILE_IMPORT_STARTED_PROPERTY.equals(name)) {
