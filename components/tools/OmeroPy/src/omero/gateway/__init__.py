@@ -4252,7 +4252,18 @@ _
         else:
             # this should simply be precalculated!
             return [_letterGridLabel(x) for x in range(self.getGridSize()['rows'])]
-    
+
+    @timeit
+    def getNumberOfFields (self):
+        """
+        Iterates all wells on plate and returns highest well sample count
+        """
+        q = self._conn.getQueryService()
+        query = "select maxindex(p.wells.wellSamples)+1"
+        query += " from Plate p"
+        query += " where p.id=%d group by p.id" % self.getId()
+        return unwrap(q.projection(query, None))[0][0]
+
 #        if self._childcache is None:
 #            q = self._conn.getQueryService()
 #            params = omero.sys.Parameters()
