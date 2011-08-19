@@ -66,6 +66,7 @@
 
 .postit-content {
   overflow: auto;
+  max-height: 600px;
 }
 
 .collapsed .postit-content {
