@@ -2801,7 +2801,7 @@ def myphoto(request, **kwargs):
 # Bird's eye view
 
 @isUserConnected
-def render_birds_eye_view (request, iid, size=None, share_id=None, **kwargs):
+def render_birds_eye_view (request, iid, size=200, share_id=None, **kwargs):
     conn = None
     if share_id is not None:
         try:

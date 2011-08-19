@@ -94,7 +94,7 @@ urlpatterns = patterns('django.views.generic.simple',
     
     # render bird's eye view
     url( r'^render_birds_eye_view/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_birds_eye_view, name="render_birds_eye_view" ),
-    url( r'^render_birds_eye_view/size/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_birds_eye_view, name="render_birds_eye_view" ),
+    
     # render thumbnails
     url( r'^render_thumbnail/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail, name="render_thumbnail" ),
     url( r'^render_thumbnail/size/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail_resize, name="render_thumbnail_resize" ),
