@@ -4218,6 +4218,8 @@ _
         else:
             # this should simply be precalculated!
             return [_letterGridLabel(x) for x in range(self.getGridSize()['rows'])]
+        else:
+            return range(1, self.getGridSize()['rows']+1)
 
     @timeit
     def getNumberOfFields (self):
