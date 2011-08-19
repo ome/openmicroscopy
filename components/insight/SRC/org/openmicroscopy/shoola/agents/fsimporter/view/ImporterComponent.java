@@ -551,7 +551,7 @@ class ImporterComponent
 	 */
 	public void onDataObjectSaved(DataObject d, DataObject parent)
 	{
-		if (model.getState() != CREATING_CONTAINER) return;
+		//if (model.getState() != CREATING_CONTAINER) return;
 		if (chooser == null) return;
 		chooser.onDataObjectSaved(d, parent);
 	}

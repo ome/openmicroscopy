@@ -140,6 +140,15 @@ public class FileImportComponent
 	/** Bound property indicating to browse the node. */
 	public static final String BROWSE_PROPERTY = "browse";
 	
+	/** Bound property indicating to increase the number of files to import. */
+	public static final String IMPORT_FILES_NUMBER_PROPERTY = "importFilesNumber";
+	
+	/**
+	 * Bound property indicating to the import of the file has been cancelled,
+	 * failed or successful.
+	 */
+	public static final String IMPORT_STATUS_CHANGE_PROPERTY = "importStatusChange";
+	
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
 	
@@ -320,6 +329,8 @@ public class FileImportComponent
 		cancelButton.setVisible(false);
 		busyLabel.setBusy(false);
 		busyLabel.setVisible(false);
+		if (image == null && file.isFile())
+			firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null, PARTIAL);
 		if (fire)
 			firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
 	}
@@ -471,6 +482,7 @@ public class FileImportComponent
 		deleteButton.setToolTipText("Delete the image");
 		UIUtilities.unifiedButtonLookAndFeel(deleteButton);
 		deleteButton.setVisible(false);
+		image = null;
 	}
 	
 	/** Builds and lays out the UI. */
@@ -711,7 +723,7 @@ public class FileImportComponent
 	public void setStatus(boolean status, Object image)
 	{
 		this.image = image;	
-		busyLabel.setBusy(status);
+		busyLabel.setBusy(false);
 		busyLabel.setVisible(false);
 		cancelButton.setVisible(false);
 		importCount++;
@@ -935,6 +947,29 @@ public class FileImportComponent
 	}
 	
 	/**
+	 * Returns <code>true</code> if the import has failed, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasImportFailed()
+	{
+		if (file.isFile()) return errorBox.isVisible();
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the import has been cancelled,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isCancelled()
+	{
+		return statusLabel.isMarkedAsCancel();
+	}
+	
+	/**
 	 * Returns <code>true</code> if errors to send, <code>false</code>
 	 * otherwise.
 	 * 
@@ -956,6 +991,17 @@ public class FileImportComponent
 				return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the folder has components added,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasComponents()
+	{
+		return components != null && components.size() > 0;
 	}
 	
 	/**
@@ -1134,7 +1180,9 @@ public class FileImportComponent
 	{
 		String name = evt.getPropertyName();
 		if (StatusLabel.FILES_SET_PROPERTY.equals(name)) {
+			Map<File, StatusLabel> files = (Map<File, StatusLabel>) evt.getNewValue();
 			insertFiles((Map<File, StatusLabel>) evt.getNewValue());
+			firePropertyChange(IMPORT_FILES_NUMBER_PROPERTY, null, files.size());
 		} else if (StatusLabel.FILE_IMPORT_STARTED_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl == statusLabel && busyLabel != null) {
@@ -1148,8 +1196,19 @@ public class FileImportComponent
 		} else if (StatusLabel.FILE_IMPORTED_PROPERTY.equals(name)) {
 			Object[] results = (Object[]) evt.getNewValue();
 			File f = (File) results[0];
-			if (f.getAbsolutePath().equals(file.getAbsolutePath()))
+			if (f.getAbsolutePath().equals(file.getAbsolutePath())) {
 				setStatus(false, results[1]);
+				if (f.isFile()) {
+					if (hasImportFailed())
+						firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
+								FAILURE);
+					else if (isCancelled())
+						firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
+							PARTIAL);
+					else firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
+							SUCCESS);
+				}
+			}
 		} else if (StatusLabel.FILE_RESET_PROPERTY.equals(name)) {
 			file = (File) evt.getNewValue();
 			fileNameLabel.setText(file.getName());
