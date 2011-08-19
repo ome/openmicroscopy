@@ -48,6 +48,7 @@ import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.api.delete.DeleteReport;
 import omero.cmd.Chgrp;
+import omero.cmd.CmdCallbackI;
 import omero.cmd.HandlePrx;
 import omero.cmd.State;
 import omero.grid.DeleteCallbackI;
@@ -1374,30 +1375,10 @@ public class AbstractServerTest
 	protected void doChange(Chgrp change)
 		throws Exception
 	{
-		HandlePrx prx = null;
-		try {
-			prx = factory.submit(change);
-			assertFalse(prx.getStatus().flags.contains(State.FAILURE));
-			block(prx, 5, 4000);
-			assertNotNull(prx.getResponse());
-		} catch (Exception e) {
-			if (prx != null) prx.close();
-			throw e;
-		}
+		final HandlePrx prx = factory.submit(change);
+		assertFalse(prx.getStatus().flags.contains(State.FAILURE));
+		new CmdCallbackI(client, prx).loop(20, 500);
+		assertNotNull(prx.getResponse());
 	}
 
-	/**
-	 * Waits for data to be transfered.
-	 *
-	 * @param handle The handle.
-	 * @param loops The number of loops.
-	 * @param pause The time to pause.
-	 * @throws Exception
-	 */
-    private void block(HandlePrx handle, int loops, long pause)
-	throws Exception {
-		for (int i = 0; i < loops && null == handle.getResponse(); i++) {
-			Thread.sleep(pause);
-		}
-    }
 }
