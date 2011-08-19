@@ -787,6 +787,14 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             if len(imgs) == 0:
                 raise Http404
         name = '%s-%s' % (obj.getParent().getName(), obj.getName())
+    elif ctx == 'w':
+        obj = _conn.getObject("Well", cid)
+        if obj is None:
+            raise Http404
+        imgs.extend([x.getImage() for x in obj.listChildren()])
+        plate = obj.getParent()
+        coord = "%s%s" % (plate.getRowLabels()[obj.row],plate.getColumnLabels()[obj.column])
+        name = '%s-%s-%s' % (plate.getParent().getName(), plate.getName(), coord)
     else:
         obj = _conn.getObject("Image", cid)
         if obj is None:
