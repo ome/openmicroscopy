@@ -1582,7 +1582,7 @@ class BrowserUI
 	{
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
 		if (model.getBrowserType() != Browser.TAGS_EXPLORER)
-			expNode.setChildrenLoaded(Boolean.TRUE);
+			expNode.setChildrenLoaded(Boolean.valueOf(true));
 		expNode.setExpanded(true);
 		int n = expNode.getChildCount();
 		TreeImageSet node;
@@ -1598,8 +1598,16 @@ class BrowserUI
 			node = (TreeImageSet) expNode.getChildAt(j);
 			if (node instanceof TreeImageTimeSet) {
 				if (((TreeImageTimeSet) node).getType() == index) {
-					if (value instanceof Integer) 
-						node.setNumberItems((Integer) value);
+					if (value instanceof Integer) {
+						//Check if the number is 0
+						int vv = ((Integer) value).intValue();
+						long v = node.getNumberItems();
+						node.setNumberItems(vv);
+						if (v == 0 && vv > 0) {
+							buildEmptyNode(node);
+							node.setChildrenLoaded(Boolean.valueOf(false));
+						}
+					}
 					else if (value instanceof List) {
 						l = (List) value;
 						total = 0;
