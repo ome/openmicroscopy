@@ -840,7 +840,7 @@ class WebGatewayTempFile (object):
         if not self._dir:
             return None, None, None
         dn, stamp = self.newdir(key)
-        name = name.replace('/','_').decode('utf8').encode('ascii', 'ignore')
+        name = name.replace('/','_').replace('#','_').decode('utf8').encode('ascii', 'ignore')
         fn = os.path.join(dn, name)
         rn = os.path.join(stamp, name)
         lf = os.path.join(dn, '.lock')
