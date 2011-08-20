@@ -553,7 +553,7 @@ class ImViewerControl
 			//{ view.addWindowFocusListener(this); }
 		});
 		view.getLoadingWindow().addPropertyChangeListener(
-				LoadingWindow.CLOSED_PROPERTY, this);
+				LoadingWindow.CANCEL_LOADING_PROPERTY, this);
 		view.addWindowFocusListener(this);
 	}
 
@@ -874,9 +874,10 @@ class ImViewerControl
 			return;
 		}
 		int state = model.getState();
+		LoadingWindow window;
 		switch (state) {
 			case ImViewer.DISCARDED:
-				LoadingWindow window = view.getLoadingWindow();
+				window = view.getLoadingWindow();
 				window.setVisible(false);
 				window.dispose();
 				view.setVisible(false);
@@ -889,6 +890,9 @@ class ImViewerControl
 				if (historyState == ImViewer.LOADING_METADATA)
 					view.getLoadingWindow().setVisible(false);
 				view.onStateChange(false);
+				window = view.getLoadingWindow();
+				if (!window.isVisible())
+					UIUtilities.centerAndShow(window);
 				historyState = state;
 				break;  
 			case ImViewer.PROJECTING:
@@ -955,8 +959,8 @@ class ImViewerControl
 				model.renderOverlays(index.intValue(), 
 						(Boolean) entry.getValue());
 			}
-		} else if (LoadingWindow.CLOSED_PROPERTY.equals(pName)) {
-			model.discard();
+		} else if (LoadingWindow.CANCEL_LOADING_PROPERTY.equals(pName)) {
+			model.cancelRendering();
 		} else if (MetadataViewer.RENDER_PLANE_PROPERTY.equals(pName)) {
 			model.renderXYPlane();
 		} else if (MetadataViewer.RND_LOADED_PROPERTY.equals(pName)) {

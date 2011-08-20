@@ -1287,7 +1287,7 @@ class ControlPane
      */
     void onStateChange(boolean b)
     {
-    	if (model.getState() == ImViewer.LOADING_IMAGE) return;
+    	//if (model.getState() == ImViewer.LOADING_IMAGE) return;
         //if (model.isPlayingMovie()) enableSliders(!b);
         //else enableSliders(b);
         Iterator i = channelButtons.iterator();

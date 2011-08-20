@@ -129,6 +129,9 @@ public interface ImViewer
 	/** Flag to denote the <i>Loading Image</i> state. */
 	public static final int     LOADING_IMAGE = 3;
 
+	/** Flag to denote the <i>Loading Image</i> state. */
+	public static final int     LOADING_IMAGE_CANCELLED = 16;
+	
 	/** Flag to denote the <i>Loading Metadata</i> state. */
 	public static final int     LOADING_METADATA = 4;
 
@@ -1227,4 +1230,8 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	int getTiledImageSizeY();
+	
+	/** Cancels the rendering of the image.*/
+	void cancelRendering();
+	
 }

@@ -91,6 +91,7 @@ public class ROIToolAction
     {
     	if (model.getState() == ImViewer.READY)
     		onTabSelection();
+    	else setEnabled(false);
     }
     
     /**

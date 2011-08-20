@@ -796,6 +796,7 @@ class ImViewerComponent
 	 */
 	public void setImage(Object image)
 	{
+		if (model.getState() == LOADING_IMAGE_CANCELLED) return;
 		if (model.getState() != LOADING_IMAGE) 
 			throw new IllegalStateException("This method can only be invoked " +
 			"in the LOADING_IMAGE state.");
@@ -3251,9 +3252,23 @@ class ImViewerComponent
 	}
 	
 	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#cancelRendering()
+	 */
+	public void cancelRendering()
+	{
+		if (model.getState() == LOADING_IMAGE) {
+			model.cancelRendering();
+			view.getLoadingWindow().setVisible(false);
+			fireStateChange();
+		}
+	}
+	
+	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
 	public String toString() { return getTitle(); }
+
 
 }

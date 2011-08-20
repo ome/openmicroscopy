@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
 
@@ -99,6 +100,16 @@ public class ColorModelAction
     
     /** The index of the model. One of the constants defined by this class. */
     private int modelIndex;
+    
+    /**
+     * Disposes and closes the movie player when the {@link ImViewer} is
+     * discarded.
+     * @see ViewerAction#onStateChange(ChangeEvent)
+     */
+    protected void onStateChange(ChangeEvent e)
+    {
+    	setEnabled(model.getState() == ImViewer.READY);
+    }
     
     /**
      * Checks if the passed index is supported.

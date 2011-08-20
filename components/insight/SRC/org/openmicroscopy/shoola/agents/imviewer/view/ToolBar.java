@@ -208,7 +208,7 @@ class ToolBar
         UIUtilities.unifiedButtonLookAndFeel(b);
 
         bar.add(b);  
-        bar.add(pasteButton);    
+        bar.add(pasteButton);
         /*
         b = new JButton(
     			controller.getAction(ImViewerControl.UNDO_RND_SETTINGS));
@@ -444,7 +444,7 @@ class ToolBar
      */
     void onStateChange(boolean b)
     {
-    	if (compressionBox != null) compressionBox.setEnabled(b);
+    	//if (compressionBox != null) compressionBox.setEnabled(b);
 	}
     
     /**
