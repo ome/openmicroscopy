@@ -591,6 +591,7 @@ public class FileImportComponent
 		}
 		removeAll();
 		pane = EditorUtil.createTaskPane("");
+		pane.setCollapsed(false);
 		setNumberOfImport();
 
 		IconManager icons = IconManager.getInstance();

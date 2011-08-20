@@ -503,8 +503,7 @@ class ImporterUIElement
 		header.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
 		
-		JLabel label = UIUtilities.setTextFont(
-				"The number of files/folders imported:", Font.BOLD);
+		JLabel label = UIUtilities.setTextFont("Report:", Font.BOLD);
 		JPanel row = createRow();
 		row.add(label);
 		row.add(numberOfImportLabel);
