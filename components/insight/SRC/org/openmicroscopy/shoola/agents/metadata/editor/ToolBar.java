@@ -144,6 +144,9 @@ class ToolBar
 	/** The option dialog. */
 	private AnalysisDialog  	analysisDialog;
 
+	/** Component used to download the archived file.*/
+	private JMenuItem downloadItem;
+	
     /** Turns off some controls if the binary data are not available. */
     private void checkBinaryAvailability()
     {
@@ -160,14 +163,15 @@ class ToolBar
     	if (saveAsMenu == null) {
     		saveAsMenu = new JPopupMenu();
     		IconManager icons = IconManager.getInstance();
-    		JMenuItem item = new JMenuItem(icons.getIcon(IconManager.DOWNLOAD));
-    		item.setToolTipText("Download the Archived File(s).");
-    		item.setText("Download...");
-    		item.addActionListener(controller);
-    		item.setActionCommand(""+EditorControl.DOWNLOAD);
-    		item.setBackground(UIUtilities.BACKGROUND_COLOR);
-    		saveAsMenu.add(item);
-    		item = new JMenuItem(icons.getIcon(
+    		downloadItem = new JMenuItem(icons.getIcon(IconManager.DOWNLOAD));
+    		downloadItem.setToolTipText("Download the Archived File(s).");
+    		downloadItem.setText("Download...");
+    		downloadItem.addActionListener(controller);
+    		downloadItem.setActionCommand(""+EditorControl.DOWNLOAD);
+    		downloadItem.setBackground(UIUtilities.BACKGROUND_COLOR);
+    		downloadItem.setEnabled(false);
+    		saveAsMenu.add(downloadItem);
+    		JMenuItem item = new JMenuItem(icons.getIcon(
     				IconManager.EXPORT_AS_OMETIFF));
     		item.setText("Export as OME-TIFF...");
     		item.setToolTipText(EXPORT_AS_OME_TIFF_TOOLTIP);
@@ -182,6 +186,7 @@ class ToolBar
     		item.addActionListener(controller);
     		item.setActionCommand(""+EditorControl.SAVE_AS);
     		saveAsMenu.add(item);
+    		setRootObject();
     	}
     	return saveAsMenu;
     }
@@ -561,6 +566,8 @@ class ToolBar
 		}
     	
     	exportAsOmeTiffButton.setEnabled(false);
+    	if (downloadItem != null)
+			downloadItem.setEnabled(false);
     	if (model.isSingleMode()) {
     		ImageData img = null;
         	if (ref instanceof ImageData) {
@@ -572,6 +579,8 @@ class ToolBar
         		try {
         			img.getDefaultPixels();
         			exportAsOmeTiffButton.setEnabled(true);
+        			if (downloadItem != null && img.isArchived())
+        				downloadItem.setEnabled(true);
     			} catch (Exception e) {}
         	}
     	}
