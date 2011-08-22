@@ -280,7 +280,7 @@ public class ChgrpITest extends AbstractServantTest {
     //
 
     /**
-     * Uses the /Image delete specification to chgrp an Image and its
+     * Uses the /Image specification to chgrp an Image and its
      * annotations simply linked annotation. This is the most basic case.
      */
     @Test(groups = "ticket:6297")
@@ -348,13 +348,13 @@ public class ChgrpITest extends AbstractServantTest {
         // Logging into the other group should reverse the situation
         changeToNewGroup();
         assertDoesNotExist("Annotation", tagId);
-        assertDoesNotExist("Annotation", imageId2);
+        assertDoesNotExist("Image", imageId2);
         assertDoesExist("Image", imageId1);
 
     }
 
     /**
-     * Deletes a project and all its datasets though no images are created.
+     * Chgrp a project and all its datasets though no images are created.
      */
     @SuppressWarnings("rawtypes")
     public void testProjectNoImage() throws Exception {
@@ -366,27 +366,26 @@ public class ChgrpITest extends AbstractServantTest {
         d.setName(p.getName());
 
         p.linkDataset(d);
-        p = (Project) assertSaveAndReturn(p);
-        long id = p.getId().getValue();
+        p = assertSaveAndReturn(p);
+        long pid = p.getId().getValue();
+        long did = p.linkedDatasetList().get(0).getId().getValue();
 
         // Do Delete
-        ChgrpI chgrp = newChgrp("/Project", id, newGroupId);
+        ChgrpI chgrp = newChgrp("/Project", pid, newGroupId);
         doChgrp(chgrp);
 
-        // Make sure its come
-        List l;
-        l = assertProjection("select p.id from Project p where p.id = " + id,
-                null);
-        assertEquals(0, l.size());
-        l = assertProjection("select d.id from Dataset d where d.id = " + id,
-                null);
-        assertEquals(0, l.size());
+        // Make sure its been moved.
+        assertDoesNotExist("Project", pid);
+        assertDoesNotExist("Dataset", did);
+        changeToNewGroup();
+        assertDoesExist("Project", pid);
+        assertDoesExist("Dataset", did);
+
     }
 
     /**
-     * Deletes a project and all its datasets which have images.
+     * Chgrp a project and all its datasets which have images.
      */
-    @SuppressWarnings("rawtypes")
     public void testProject() throws Exception {
 
         long iid = makeImage();
@@ -408,25 +407,21 @@ public class ChgrpITest extends AbstractServantTest {
         ChgrpI chgrp = newChgrp("/Project", pid, newGroupId);
         doChgrp(chgrp);
 
-        // Make sure its come
-        List l;
-        l = assertProjection("select p.id from Project p where p.id = " + pid,
-                null);
-        assertEquals(0, l.size());
-        l = assertProjection("select d.id from Dataset d where d.id = " + did,
-                null);
-        assertEquals(0, l.size());
-        l = assertProjection("select i.id from Image i where i.id = " + iid,
-                null);
-        assertEquals(0, l.size());
+        // Make sure its been moved.
+        assertDoesNotExist("Project", pid);
+        assertDoesNotExist("Dataset", did);
+        assertDoesNotExist("Image", iid);
+        changeToNewGroup();
+        assertDoesExist("Project", pid);
+        assertDoesExist("Dataset", did);
+        assertDoesExist("Image", iid);
 
     }
 
     /**
-     * Deletes a very simple plate to ensure that the "/Image+WS" spec is
+     * Chgrp a very simple plate to ensure that the "/Image+WS" spec is
      * working.
      */
-    @SuppressWarnings("rawtypes")
     public void testSimplePlate() throws Exception {
 
         long iid = makeImage();
@@ -447,28 +442,23 @@ public class ChgrpITest extends AbstractServantTest {
         ChgrpI chgrp = newChgrp("/Plate", pid, newGroupId);
         doChgrp(chgrp);
 
-        // Make sure its deleted
-        List l;
-        l = assertProjection("select p.id from Plate p where p.id = " + pid,
-                null);
-        assertEquals(0, l.size());
-        l = assertProjection("select w.id from Well w where w.id = " + wid,
-                null);
-        assertEquals(0, l.size());
-        l = assertProjection("select ws.id from WellSample ws where ws.id = "
-                + wsid, null);
-        assertEquals(0, l.size());
-        l = assertProjection("select i.id from Image i where i.id = " + iid,
-                null);
-        assertEquals(0, l.size());
+        // Make sure its moved
+        assertDoesNotExist("Plate", pid);
+        assertDoesNotExist("Well", wid);
+        assertDoesNotExist("WellSample", wsid);
+        assertDoesNotExist("Image", iid);
+        changeToNewGroup();
+        assertDoesExist("Plate", pid);
+        assertDoesExist("Well", wid);
+        assertDoesExist("WellSample", wsid);
+        assertDoesExist("Image", iid);
 
     }
 
     /**
-     * Deletes a very simple image/annotation graph, to guarantee that the basic
+     * Chgrp a very simple image/annotation graph, to guarantee that the basic
      * options are working
      */
-    @SuppressWarnings("rawtypes")
     public void testSimpleImageWithAnnotation() throws Exception {
 
         long iid = makeImage();
@@ -485,27 +475,22 @@ public class ChgrpITest extends AbstractServantTest {
         ChgrpI chgrp = newChgrp("/Image", iid, newGroupId);
         doChgrp(chgrp);
 
-        // Make sure its deleted
-        List l;
-        l = assertProjection("select i.id from Image i where i.id = " + iid,
-                null);
-        assertEquals(0, l.size());
-        l = assertProjection(
-                "select l.id from ImageAnnotationLink l where l.id = " + lid,
-                null);
-        assertEquals(0, l.size());
-        l = assertProjection("select a.id from Annotation a where a.id = "
-                + aid, null);
-        assertEquals(0, l.size());
+        // Make sure its moved
+        assertDoesNotExist("Image", iid);
+        assertDoesNotExist("ImageAnnotationLink", lid);
+        assertDoesNotExist("Annotation", aid);
+        changeToNewGroup();
+        assertDoesExist("Image", iid);
+        assertDoesExist("ImageAnnotationLink", lid);
+        assertDoesExist("Annotation", aid);
 
     }
 
     /**
-     * Attempts to use the ILink type for deleting all links which point at an
+     * Attempts to use the ILink type for chgrp'ing all links which point at an
      * annotation.
      */
-    @SuppressWarnings("rawtypes")
-    public void testDeleteAllAnnotationLinks() throws Exception {
+    public void testChgrpAllAnnotationLinks() throws Exception {
 
         // Create test data
         AnnotationAnnotationLink link = new AnnotationAnnotationLinkI();
@@ -522,25 +507,19 @@ public class ChgrpITest extends AbstractServantTest {
 
         // Make sure the parent annotation still exists, but both the annotation
         // link and the annotation that was linked to (the child) are gone.
-        List l;
-        l = assertProjection("select p.id from Annotation p where p.id = "
-                + pid, null);
-        assertEquals(1, l.size());
-        l = assertProjection(
-                "select l.id from AnnotationAnnotationLink l where l.id = "
-                        + lid, null);
-        assertEquals(0, l.size());
-        l = assertProjection("select c.id from Annotation c where c.id = "
-                + cid, null);
-        assertEquals(0, l.size());
-
+        assertDoesExist("Annotation", pid);
+        assertDoesNotExist("AnnotationAnnotationLink", lid); // Deleted
+        assertDoesNotExist("Annotation", cid);
+        changeToNewGroup();
+        assertDoesNotExist("Annotation", pid);
+        assertDoesNotExist("AnnotationAnnotationLink", lid);
+        assertDoesExist("Annotation", cid);
     }
 
     /**
-     * Uses the {@link GraphEntry.Op#KEEP} setting to prevent a delete from
+     * Uses the {@link GraphEntry.Op#KEEP} setting to prevent a chgrp from
      * happening.
      */
-    @SuppressWarnings("rawtypes")
     public void testKeepAnnotation() throws Exception {
 
         // Create test data
@@ -558,27 +537,21 @@ public class ChgrpITest extends AbstractServantTest {
         ChgrpI chgrp = newChgrp("/Annotation", cid, newGroupId, options);
         doChgrp(chgrp);
 
-        // Make sure the parent annotation still exists, but both the annotation
-        // link and the annotation that was linked to (the child) are gone.
-        List l;
-        l = assertProjection("select p.id from Annotation p where p.id = "
-                + pid, null);
-        assertEquals(1, l.size());
-        l = assertProjection(
-                "select l.id from AnnotationAnnotationLink l where l.id = "
-                        + lid, null);
-        assertEquals(1, l.size());
-        l = assertProjection("select c.id from Annotation c where c.id = "
-                + cid, null);
-        assertEquals(1, l.size());
+        // Make sure everything stays put.
+        assertDoesExist("Annotation", pid);
+        assertDoesExist("AnnotationAnnotationLink", lid);
+        assertDoesExist("Annotation", cid);
+        changeToNewGroup();
+        assertDoesNotExist("Annotation", pid);
+        assertDoesNotExist("AnnotationAnnotationLink", lid);
+        assertDoesNotExist("Annotation", cid);
 
     }
 
     /**
-     * Uses the {@link GraphEntry.Op#KEEP} setting to prevent a delete from
+     * Uses the {@link GraphEntry.Op#KEEP} setting to prevent a chgrp from
      * happening.
      */
-    @SuppressWarnings("rawtypes")
     public void testKeepImageAnnotation() throws Exception {
 
         // Create test data
@@ -597,26 +570,20 @@ public class ChgrpITest extends AbstractServantTest {
         ChgrpI chgrp = newChgrp("/Image", pid, newGroupId, options);
         doChgrp(chgrp);
 
-        // Make sure the parent annotation still exists, but both the annotation
-        // link and the annotation that was linked to (the child) are gone.
-        List l;
-        l = assertProjection("select p.id from Image p where p.id = " + pid,
-                null);
-        assertEquals(0, l.size());
-        l = assertProjection(
-                "select l.id from ImageAnnotationLink l where l.id = " + lid,
-                null);
-        assertEquals(0, l.size());
-        l = assertProjection("select c.id from Annotation c where c.id = "
-                + cid, null);
-        assertEquals(1, l.size());
+        assertDoesNotExist("Image", pid);
+        assertDoesNotExist("AnnotationAnnotationLink", lid); // Deleted
+        assertDoesExist("Annotation", cid);
+        changeToNewGroup();
+        assertDoesExist("Image", pid);
+        assertDoesNotExist("AnnotationAnnotationLink", lid);
+        assertDoesNotExist("Annotation", cid);
 
     }
 
     /**
      * Tests overriding the {@link GraphEntry.Op#KEEP} setting by a hard-code
      * value in spec.xml. These are well-known "unshared" annotations, that
-     * should be deleted, regardless of KEEP.
+     * should be chgrp'd, regardless of KEEP.
      */
     @SuppressWarnings("rawtypes")
     public void testDontKeepImageAnnotationIfUnsharedNS() throws Exception {
@@ -641,27 +608,20 @@ public class ChgrpITest extends AbstractServantTest {
         ChgrpI chgrp = newChgrp("/Image", pid, newGroupId, options);
         doChgrp(chgrp);
 
-        // Make sure the parent annotation still exists, but both the annotation
-        // link and the annotation that was linked to (the child) are gone.
-        List l;
-        l = assertProjection("select p.id from Image p where p.id = " + pid,
-                null);
-        assertEquals(0, l.size());
-        l = assertProjection(
-                "select l.id from ImageAnnotationLink l where l.id = " + lid,
-                null);
-        assertEquals(0, l.size());
-        l = assertProjection("select c.id from Annotation c where c.id = "
-                + cid, null);
-        assertEquals(0, l.size());
+        assertDoesNotExist("Image", pid);
+        assertDoesNotExist("AnnotationAnnotationLink", lid);
+        assertDoesNotExist("Annotation", cid);
+        changeToNewGroup();
+        assertDoesExist("Image", pid);
+        assertDoesExist("AnnotationAnnotationLink", lid);
+        assertDoesExist("Annotation", cid);
 
     }
 
     /**
      * Tests overriding the {@link GraphEntry.Op#KEEP} setting by setting a
-     * namespace which should always be deleted (an "unshared" annotation).
+     * namespace which should always be chgrp'd (an "unshared" annotation).
      */
-    @SuppressWarnings("rawtypes")
     public void testDontKeepImageAnnotationIfRequestedNS() throws Exception {
 
         // Create test data
@@ -683,19 +643,13 @@ public class ChgrpITest extends AbstractServantTest {
         ChgrpI chgrp = newChgrp("/Image", pid, newGroupId, options);
         doChgrp(chgrp);
 
-        // Make sure the parent annotation still exists, but both the annotation
-        // link and the annotation that was linked to (the child) are gone.
-        List l;
-        l = assertProjection("select p.id from Image p where p.id = " + pid,
-                null);
-        assertEquals(0, l.size());
-        l = assertProjection(
-                "select l.id from ImageAnnotationLink l where l.id = " + lid,
-                null);
-        assertEquals(0, l.size());
-        l = assertProjection("select c.id from Annotation c where c.id = "
-                + cid, null);
-        assertEquals(0, l.size());
+        assertDoesNotExist("Image", pid);
+        assertDoesNotExist("AnnotationAnnotationLink", lid);
+        assertDoesNotExist("Annotation", cid);
+        changeToNewGroup();
+        assertDoesExist("Image", pid);
+        assertDoesExist("AnnotationAnnotationLink", lid);
+        assertDoesExist("Annotation", cid);
 
     }
 
@@ -704,9 +658,9 @@ public class ChgrpITest extends AbstractServantTest {
      * which KEEP;excludes= is not being taken into acount.
      */
     @Test
-    public void testDeleteObjectWithAnnotationWithoutNS() throws Exception {
+    public void testChgrpObjectWithAnnotationWithoutNS() throws Exception {
         Screen obj = new ScreenI();
-        obj.setName(omero.rtypes.rstring("testDelete"));
+        obj.setName(omero.rtypes.rstring("testChgrpObjectWithAnnotationWithoutNS"));
         obj = assertSaveAndReturn(obj);
         String type = "/Screen";
         long id = obj.getId().getValue();
@@ -748,82 +702,6 @@ public class ChgrpITest extends AbstractServantTest {
         link.link((Screen) obj.proxy(), ta);
         link = assertSaveAndReturn(link);
         return Arrays.asList(link.getChild().getId().getValue());
-    }
-
-    //
-    // Specs
-    //
-
-    /**
-     * Loads the backup ids, i.e. those ids which should be deleted after the
-     * channel has already been deleted.
-     */
-    @SuppressWarnings("unchecked")
-    public void testBackUpIds() throws Exception {
-
-        // Make data
-        final long imageId = makeImage();
-
-        // Get target ids
-        String siQuery = "select si.id from Channel ch join ch.statsInfo si join ch.pixels pix join pix.image img where img.id = "
-                + imageId;
-        String lcQuery = "select lc.id from Channel ch join ch.logicalChannel lc join ch.pixels pix join pix.image img where img.id = "
-                + imageId;
-        String chQuery = "select ch.id from Channel ch join ch.pixels pix join pix.image img where img.id = "
-                + imageId;
-
-        RLong statsInfoId = (RLong) assertProjection(siQuery, null).get(0).get(
-                0);
-        RLong logicalId = (RLong) assertProjection(lcQuery, null).get(0).get(0);
-        RLong channelId = (RLong) assertProjection(chQuery, null).get(0).get(0);
-
-        Long si = statsInfoId.getValue();
-        Long lc = logicalId.getValue();
-        Long ch = channelId.getValue();
-
-        // Run test
-        final ApplicationContext dsf = user_delete.loadSpecs();
-        final BaseGraphSpec spec = dsf.getBean("/Image/Pixels/Channel",
-                BaseGraphSpec.class);
-        spec.initialize(imageId, null, null);
-
-        List<List<Long>> backupIds = (List<List<Long>>) user_sf.getExecutor()
-                .execute(user_sf.getPrincipal(),
-                        new Executor.SimpleWork(this, "testBackpIds") {
-                            @Transactional(readOnly = true)
-                            public Object doWork(Session session,
-                                    ServiceFactory sf) {
-
-                                try {
-                                    GraphState ids = new GraphState(
-                                            new DeleteStepFactory(ctx), null,
-                                            session, spec);
-                                    List<List<Long>> rv = new ArrayList<List<Long>>();
-                                    fail("NYI");
-                                    /*
-                                     * rv.add(ids.getFoundIds(spec, 0));
-                                     * rv.add(ids.getFoundIds(spec, 1));
-                                     * rv.add(ids.getFoundIds(spec, 2));
-                                     */
-                                    return rv;
-                                } catch (Exception e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
-                        });
-
-        // Check
-        // This relies on the ordering of the description.
-
-        // Previously we were loading nothing if the path didn't require it
-        // But do to the complexity of the SPW model (#2777) and the upcoming
-        // need to log the ids that are deleted (#1423) we're storing all the
-        // ids
-        // assertEquals(null, backupIds.get(0));
-        assertEquals(ch, backupIds.get(0).get(0));
-        assertEquals(si, backupIds.get(1).get(0));
-        assertEquals(lc, backupIds.get(2).get(0));
-
     }
 
     //
