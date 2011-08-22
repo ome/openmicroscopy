@@ -255,7 +255,7 @@
                 <value>/Image;;/Well/WellSample</value>
                 <value>/Well/WellAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Well/WellAnnotationLink</value>
-                <value>/Well/WellReagentLink</value>
+                <value>/Well/WellReagentLink;FORCE</value>
                 <value>/Well</value>
             </list>
         </constructor-arg>
