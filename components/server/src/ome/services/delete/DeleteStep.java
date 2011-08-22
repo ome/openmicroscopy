@@ -55,9 +55,12 @@ public class DeleteStep extends GraphStep {
 
         // Phase 1: top-levels
         if (stack.size() <= 1) {
-            StopWatch swTop = new CommonsLogStopWatch();
-            runTopLevel(spec, session, Arrays.<Long> asList(id));
-            swTop.stop("omero.deletestep.top." + id);
+            // If this is a top-level annotation delete then the first thing we
+            // do is delete all the links to it.
+            if (spec instanceof AnnotationGraphSpec) {
+                deleteAnnotationLinks((AnnotationGraphSpec) spec, session,
+                        Arrays.<Long> asList(id));
+            }
         }
 
         final QueryBuilder nullOp = optionalNullBuilder();
@@ -77,42 +80,6 @@ public class DeleteStep extends GraphStep {
         logResults(count);
         swStep.lap("omero.deletestep." + table + "." + id);
 
-    }
-
-    /*
-     * Workaround for refactoring to {@link GraphState}.
-     *
-     * If more logic is needed by subclasses, then
-     * {@link #queryBackupIds(Session, int, GraphEntry, QueryBuilder)}
-     * should no longer return list of ids, but rather a "Action" class
-     * so that it can inject its own logic as needed, though it would be necessary
-     * to give that method its place in the graph to detect "top-ness".
-     */
-    private void runTopLevel(GraphSpec spec, Session session, List<Long> ids) {
-        // If this is a top-level annotation delete then the first thing we
-        // do is delete all the links to it.
-        if (!(spec instanceof AnnotationGraphSpec)) {
-            return;
-        }
-
-        AnnotationGraphSpec aspec = (AnnotationGraphSpec) spec;
-        String sspec = aspec.getSuperSpec();
-        if (sspec == null || sspec.length() == 0) {
-            if (ids != null && ids.size() > 0) {
-                QueryBuilder qb = new QueryBuilder();
-                qb.delete("ome.model.IAnnotationLink"); // FIXME
-                qb.where();
-                qb.and("child.id in (:ids)");
-                qb.paramList("ids", ids);
-                // ticket:2962
-                EventContext ec = spec.getCurrentDetails().getCurrentEventContext();
-                GraphStep.permissionsClause(ec, qb);
-
-                Query q = qb.query(session);
-                int count = q.executeUpdate();
-                log.info("Graphed " + count + " annotation links");
-            }
-        }
     }
 
     private QueryBuilder optionalNullBuilder() {

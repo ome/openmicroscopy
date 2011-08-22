@@ -8,10 +8,12 @@
 package ome.services.chgrp;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import ome.model.IObject;
+import ome.services.graphs.AnnotationGraphSpec;
 import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphOpts;
@@ -67,6 +69,16 @@ public class ChgrpStep extends GraphStep {
     @Override
     public void action(Callback cb, Session session, SqlAction sql, GraphOpts opts)
             throws GraphException {
+
+        // Phase 1: top-levels
+        if (stack.size() <= 1) {
+            // If this is a top-level annotation delete then the first thing we
+            // do is delete all the links to it.
+            if (spec instanceof AnnotationGraphSpec) {
+                deleteAnnotationLinks((AnnotationGraphSpec) spec, session,
+                        Arrays.<Long> asList(id));
+            }
+        }
 
         final QueryBuilder qb = queryBuilder(opts);
         qb.param("id", id);

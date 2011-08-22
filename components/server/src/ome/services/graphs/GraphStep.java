@@ -22,7 +22,10 @@ import ome.util.SqlAction;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Query;
 import org.hibernate.Session;
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
 
 /**
  * Single action performed by {@link GraphState}.
@@ -314,6 +317,39 @@ public abstract class GraphStep {
         rollbackOnly = true;
         cb.rollback(savepoint, count);
         savepoint =  INVALIDATED + savepoint;
+    }
+
+
+    /*
+     * Workaround for refactoring to {@link GraphState}.
+     *
+     * If more logic is needed by subclasses, then
+     * {@link #queryBackupIds(Session, int, GraphEntry, QueryBuilder)}
+     * should no longer return list of ids, but rather a "Action" class
+     * so that it can inject its own logic as needed, though it would be necessary
+     * to give that method its place in the graph to detect "top-ness".
+     */
+    protected void deleteAnnotationLinks(AnnotationGraphSpec aspec, Session session, List<Long> ids) {
+        String sspec = aspec.getSuperSpec();
+        if (sspec == null || sspec.length() == 0) {
+            if (ids != null && ids.size() > 0) {
+                StopWatch swTop = new CommonsLogStopWatch();
+
+                QueryBuilder qb = new QueryBuilder();
+                qb.delete("ome.model.IAnnotationLink"); // FIXME
+                qb.where();
+                qb.and("child.id in (:ids)");
+                qb.paramList("ids", ids);
+                // ticket:2962
+                EventContext ec = spec.getCurrentDetails().getCurrentEventContext();
+                GraphStep.permissionsClause(ec, qb);
+
+                Query q = qb.query(session);
+                int count = q.executeUpdate();
+                log.info("Deleted " + count + " annotation links");
+                swTop.stop("omero.graphstep.deleteannotationlinks." + id);
+            }
+        }
     }
 
 }
