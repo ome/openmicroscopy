@@ -15,6 +15,7 @@ import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import omero.cmd.basic.ListRequestsI;
 import omero.cmd.graphs.ChgrpI;
+import omero.cmd.graphs.GraphSpecListI;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -54,6 +55,14 @@ public class RequestObjectFactoryRegistry extends
             @Override
             public Ice.Object create(String name) {
                 return new ListRequestsI(ctx);
+            }
+
+        });
+        factories.put(GraphSpecListI.ice_staticId(), new ObjectFactory(
+                GraphSpecListI.ice_staticId()) {
+            @Override
+            public Ice.Object create(String name) {
+                return new GraphSpecListI(ctx);
             }
 
         });

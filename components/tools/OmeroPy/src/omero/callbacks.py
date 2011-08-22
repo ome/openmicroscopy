@@ -187,12 +187,23 @@ class CmdCallbackI(object):
     Example usage:
 
         cb = CmdCallbackI(client, handle)
-        errors = None
-        while (errors is None):
-            errors = cb.block(500)
+        response = None
+        while (response is None):
+            response = cb.block(500)
+
+        # or
+
+        response = cb.loop(5, 500)
     """
 
     def __init__(self, adapter_or_client, handle, poll = True):
+
+        if adapter_or_client is None:
+            raise omero.ClientError("Null client")
+
+        if handle is None:
+            raise omero.ClientError("Null handle")
+
         self.event = omero.util.concurrency.get_event(name="CmdCallbackI")
         self.result = None
         self.poll = poll
@@ -219,18 +230,18 @@ class CmdCallbackI(object):
         """
 
         count = 0
-        errors = None
-        while errors is None and count < loops:
-            errors = self.block(ms)
+        rsp = None
+        while rsp is None and count < loops:
+            rsp = self.block(ms)
             count += 1
 
-        if errors is None:
-            waited = (ms / 1000) * loops
+        if rsp is None:
+            waited = (ms / 1000.0) * loops
             raise omero.LockTimeout(None, None,
-                    "Delete unfinished after %s seconds" % waited,
+                    "Command unfinished after %s seconds" % waited,
                     5000L, waited)
         else:
-            return self.handle.getResponse()
+            return rsp
 
     def block(self, ms):
         """
@@ -270,4 +281,3 @@ class CmdCallbackI(object):
             self.handle.close() # ticket:2978
         except exceptions.Exception, e:
             CMD_LOG.warn("Error calling CmdHandlePrx.close: %s" % self.handle, exc_info=True)
-

@@ -24,6 +24,18 @@ module omero {
             StringMap options;
         };
 
+        ["java:type:java.util.ArrayList<omero.cmd.GraphModify>:java.util.List<omero.cmd.GraphModify>"]
+        sequence<GraphModify> GraphModifyList;
+
+        /**
+         *
+         **/
+        class GraphSpecList extends Request {};
+
+        class GraphSpecListRsp extends Response {
+            GraphModifyList list;
+        };
+
         class Chgrp extends GraphModify {
             long grp;
         };
