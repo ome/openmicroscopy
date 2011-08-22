@@ -96,7 +96,8 @@ public class MeasurementAgent
     		viewer.setIconImage(evt.getThumbnail());
     		viewer.setRndImage(evt.getRenderedImage());
     		MeasurementViewerFactory.addRequest(evt);
-    		viewer.activate(evt.getMeasurements(), evt.isHCSData());
+    		viewer.activate(evt.getMeasurements(), evt.isHCSData(),
+    				evt.isBigImage());
     	}
     }
 

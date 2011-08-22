@@ -512,6 +512,19 @@ class BrowserUI
     		model.checkTilesToLoad(getViewport().getViewRect());
     }
     
+    /** 
+     * Sets the selected region.
+     * 
+     * @param region The selected region.
+     */
+    void setSelectedRegion(Rectangle region)
+    {
+    	scrollTo(region, false);
+    	setSelectionRegion();
+    	setBirdEyeViewLocation();
+    	model.checkTilesToLoad(getViewport().getViewRect());
+    }
+    
 	/**
 	 * Scrolls to the location.
 	 * 

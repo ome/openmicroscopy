@@ -256,7 +256,7 @@ public class ROINode
 	 */
 	public Object getValueAt(int column)
 	{
-		Object userObject=getUserObject();
+		Object userObject = getUserObject();
 		if (userObject instanceof ROI)
 		{
 			ROI roi = (ROI) userObject;

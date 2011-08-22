@@ -201,6 +201,9 @@ class MeasurementViewerModel
 	/** Flag indicating that the current user can deleted the ROI. */
 	private boolean					dataToDelete;
 	
+	 /** Flag indicating if it is a big image or not.*/
+    private boolean 				bigImage;
+    
     /** 
 	 * Sorts the passed nodes by row.
 	 * 
@@ -1660,4 +1663,19 @@ class MeasurementViewerModel
     		notifyDataChanged(false);
     }
     
+    /**
+     * Sets the flag indicating if the tool is for big image data.
+     * 
+     * @param value The value to set.
+     */
+    public void setBigImage(boolean value) { bigImage = value; }
+    
+    /**
+     * Returns <code>true</code> if big image data, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isBigImage() { return bigImage; }
+
 }	

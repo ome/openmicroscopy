@@ -317,6 +317,15 @@ public interface ImViewer
 	 * 
 	 * @param z The selected z-section.
 	 * @param t The selected timepoint.
+	 * @param roi The ROI to display.
+	 */
+	public void setSelectedRegion(int z, int t, Rectangle roi);
+	
+	/**
+	 * Sets the selected XY-plane. A new plane is then rendered.
+	 * 
+	 * @param z The selected z-section.
+	 * @param t The selected timepoint.
 	 */
 	public void setSelectedXYPlane(int z, int t);
 

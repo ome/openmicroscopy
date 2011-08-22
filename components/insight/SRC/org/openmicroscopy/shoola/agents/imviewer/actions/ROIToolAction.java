@@ -75,10 +75,12 @@ public class ROIToolAction
      */
     protected void onTabSelection()
     {
+    	/*
     	if (model.isBigImage()) {
     		setEnabled(false);
     		return;
     	}
+    	*/
     	setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
     }
     

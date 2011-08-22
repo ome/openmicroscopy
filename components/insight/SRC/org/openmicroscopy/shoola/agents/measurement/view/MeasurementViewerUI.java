@@ -79,6 +79,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
@@ -420,29 +421,7 @@ class MeasurementViewerUI
 		});
 	}
 
-	/** Builds and lays out the GUI. */
-	private void buildGUI()
-	{
-		mainMenu = createMenuBar();
-		setJMenuBar(mainMenu);
-		tabs.addTab(roiManager.getComponentName(), 
-					roiManager.getComponentIcon(), roiManager);
-		tabs.addTab(roiInspector.getComponentName(), 
-			roiInspector.getComponentIcon(), roiInspector);
-		tabs.addTab(roiResults.getComponentName(), 
-			roiResults.getComponentIcon(), roiResults);
-		tabs.addTab(graphPane.getComponentName(), 
-			graphPane.getComponentIcon(), graphPane);
-		tabs.addTab(intensityView.getComponentName(), 
-			intensityView.getComponentIcon(), intensityView);
-		tabs.addTab(intensityResultsView.getComponentName(), 
-			intensityResultsView.getComponentIcon(), intensityResultsView);
-		Container container = getContentPane();
-		container.setLayout(new BorderLayout(0, 0));
-		container.add(toolBar, BorderLayout.NORTH);
-		container.add(tabs, BorderLayout.CENTER);
-		container.add(statusBar, BorderLayout.SOUTH);
-	}
+	
 	
 	/**
      * Creates a new instance.
@@ -486,8 +465,34 @@ class MeasurementViewerUI
         		IconManager.MEASUREMENT_TOOL);
         if (icon != null) setIconImage(icon.getImage());
         initComponents();
-        buildGUI();
+        //buildGUI();
     }
+    
+    /** Builds and lays out the GUI. */
+	void buildGUI()
+	{
+		mainMenu = createMenuBar();
+		setJMenuBar(mainMenu);
+		tabs.addTab(roiManager.getComponentName(), 
+					roiManager.getComponentIcon(), roiManager);
+		tabs.addTab(roiInspector.getComponentName(), 
+			roiInspector.getComponentIcon(), roiInspector);
+		if (!model.isBigImage()) {
+			tabs.addTab(roiResults.getComponentName(),
+				roiResults.getComponentIcon(), roiResults);
+			tabs.addTab(graphPane.getComponentName(),
+				graphPane.getComponentIcon(), graphPane);
+			tabs.addTab(intensityView.getComponentName(),
+				intensityView.getComponentIcon(), intensityView);
+			tabs.addTab(intensityResultsView.getComponentName(),
+				intensityResultsView.getComponentIcon(), intensityResultsView);
+		}
+		Container container = getContentPane();
+		container.setLayout(new BorderLayout(0, 0));
+		container.add(toolBar, BorderLayout.NORTH);
+		container.add(tabs, BorderLayout.CENTER);
+		container.add(statusBar, BorderLayout.SOUTH);
+	}
 
     /** 
      * Displays the menu at the specified location if not already visible.
@@ -826,14 +831,20 @@ class MeasurementViewerUI
      */
     void selectFigure(ROIFigure figure)
     {
-    	if (figure == null) return;
+    	if (figure == null) {
+    		model.getDrawingView().setToolTipText("");
+    		return;
+    	}
     	Coord3D coord3D = figure.getROIShape().getCoord3D();
     	if (coord3D == null) return;
-    	if (!coord3D.equals(model.getCurrentView())) {
+    	if (!coord3D.equals(model.getCurrentView()) || model.isBigImage()) {
     		model.setPlane(coord3D.getZSection(), coord3D.getTimePoint());
     		SelectPlane request = 
     			new SelectPlane(model.getPixelsID(), coord3D.getZSection(), 
     							coord3D.getTimePoint());
+    		if (model.isBigImage()) {
+    			request.setBounds(figure.getBounds().getBounds());
+    		}
     		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
     		bus.post(request);
     		updateDrawingArea();
@@ -841,6 +852,7 @@ class MeasurementViewerUI
     	}
     	
     	DrawingCanvasView dv = model.getDrawingView();
+    	dv.setToolTipText(""+figure.getAttribute(MeasurementAttributes.TEXT));
     	dv.clearSelection();
     	dv.addToSelection(figure);
 		List<ROIShape> roiShapeList = new ArrayList<ROIShape>();
@@ -1237,8 +1249,6 @@ class MeasurementViewerUI
 					 drawing.add(figure);
 					 figure.addFigureListener(controller);
 				 }
-				
-				
 			}
 		}
 		setStatus(DEFAULT_MSG);

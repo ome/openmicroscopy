@@ -406,4 +406,11 @@ public interface Browser
 	/** Invokes when the viewer is resized.*/
 	void onComponentResized();
 	
+	/**
+	 * Sets the selected region.
+	 * 
+	 * @param region The selected region.
+	 */
+	void setSelectedRegion(Rectangle region);
+	
 }

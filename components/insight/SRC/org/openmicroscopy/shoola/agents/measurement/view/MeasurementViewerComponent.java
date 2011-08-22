@@ -225,14 +225,16 @@ class MeasurementViewerComponent
      */
     public void activate()
     { 
-    	activate(model.getMeasurements(), model.isHCSData()); 
+    	activate(model.getMeasurements(), model.isHCSData(),
+    			model.isBigImage());
     }
     
     /** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#activate(List, boolean)
+     * @see MeasurementViewer#activate(List, boolean, boolean)
      */
-	public void activate(List<FileAnnotationData> measurements, boolean HCSData)
+	public void activate(List<FileAnnotationData> measurements, boolean HCSData,
+			boolean isBigImage)
 	{
 		int state = model.getState();
         switch (state) {
@@ -244,6 +246,8 @@ class MeasurementViewerComponent
         		UIUtilities.setDefaultSize(model.getDrawingView(), d);
         		model.getDrawingView().setSize(d);
         		model.setHCSData(HCSData);
+        		model.setBigImage(isBigImage);
+        		view.buildGUI();
         		if (HCSData) {
         			if (measurements == null) {
         				model.setHCSData(false);
@@ -385,35 +389,35 @@ class MeasurementViewerComponent
 		double f = model.getMagnification();
 		if (z == defaultZ && t == defaultT) {
 			if (f != magnification) model.setMagnification(magnification);
-		} else {
-			model.setPlane(defaultZ, defaultT);
-			Drawing drawing = model.getDrawing();
-			drawing.removeDrawingListener(controller);
-			drawing.clear();
-			ShapeList list = null;
-			try {
-				list = model.getShapeList();
-			} catch (Exception e) {
-				view.handleROIException(e, MeasurementViewerUI.RETRIEVE_MSG);
-			}
-			view.setStatus(MeasurementViewerUI.DEFAULT_MSG);
-			if (list != null) {
-				TreeMap map = list.getList();
-				Iterator i = map.values().iterator();
-				ROIShape shape;
-				while (i.hasNext()) {
-					shape = (ROIShape) i.next();
-					if (shape != null)
-					{
-						drawing.add(shape.getFigure());
-						shape.getFigure().addFigureListener(controller);
-					}
+			if (!model.isBigImage()) return;
+		}
+		model.setPlane(defaultZ, defaultT);
+		Drawing drawing = model.getDrawing();
+		drawing.removeDrawingListener(controller);
+		drawing.clear();
+		ShapeList list = null;
+		try {
+			list = model.getShapeList();
+		} catch (Exception e) {
+			view.handleROIException(e, MeasurementViewerUI.RETRIEVE_MSG);
+		}
+		view.setStatus(MeasurementViewerUI.DEFAULT_MSG);
+		if (list != null) {
+			TreeMap map = list.getList();
+			Iterator i = map.values().iterator();
+			ROIShape shape;
+			while (i.hasNext()) {
+				shape = (ROIShape) i.next();
+				if (shape != null)
+				{
+					drawing.add(shape.getFigure());
+					shape.getFigure().addFigureListener(controller);
 				}
 			}
-			model.getDrawingView().setDrawing(drawing);
-			drawing.addDrawingListener(controller);
-			if (f != magnification) model.setMagnification(magnification);
 		}
+		model.getDrawingView().setDrawing(drawing);
+		drawing.addDrawingListener(controller);
+		if (f != magnification) model.setMagnification(magnification);
 	}
 
 	/** 
