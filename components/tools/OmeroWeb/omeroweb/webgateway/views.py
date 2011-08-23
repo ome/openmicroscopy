@@ -1585,24 +1585,30 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
     def urlprefix(iid):
         return reverse(prefix, args=(iid,64))
     xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
-    plate.setGridSizeConstraints(8,12)
-    for row in plate.getWellGrid(field):
-        tr = []
-        for e in row:
-            if e:
-                i = e.getImage()
-                if i:
-                    t = i.simpleMarshal(xtra=xtra)
-                    t['wellId'] = e.getId()
-                    t['field'] = field
-                    tr.append(t)
-                    continue
-            tr.append(None)
-        grid.append(tr)
-        #grid.append(map(lambda x: x is not None and x.simpleMarshal(xtra=xtra) or None, [( x and x.getImage() ) for x in row]))
-    return {'grid': grid,
-            'collabels': plate.getColumnLabels(),
-            'rowlabels': plate.getRowLabels()}
+
+    rv = webgateway_cache.getJson(request, server_id, plate, 'plategrid-%d' % field)
+    if rv is None:
+        plate.setGridSizeConstraints(8,12)
+        for row in plate.getWellGrid(field):
+            tr = []
+            for e in row:
+                if e:
+                    i = e.getImage()
+                    if i:
+                        t = i.simpleMarshal(xtra=xtra)
+                        t['wellId'] = e.getId()
+                        t['field'] = field
+                        tr.append(t)
+                        continue
+                tr.append(None)
+            grid.append(tr)
+        rv = {'grid': grid,
+              'collabels': plate.getColumnLabels(),
+              'rowlabels': plate.getRowLabels()}
+        webgateway_cache.setJson(request, server_id, plate, simplejson.dumps(rv), 'plategrid-%d' % field)
+    else:
+        rv = simplejson.loads(rv)
+    return rv
 
 @jsonp
 def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
