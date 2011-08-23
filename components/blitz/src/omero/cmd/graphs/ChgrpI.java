@@ -24,6 +24,7 @@ import omero.cmd.OK;
 import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
+import omero.cmd.Unknown;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,6 +32,7 @@ import org.hibernate.Session;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
@@ -60,43 +62,44 @@ public class ChgrpI extends Chgrp implements IRequest {
     }
 
     public void init(Status status, Session session, SqlAction sql) {
-        this.factory.setGroup(grp);
-        this.spec = specs.getBean(type, GraphSpec.class);
-        this.status = status;
         synchronized (status) {
             if (status.flags == null) {
                 status.flags = new ArrayList<State>();
             }
         }
 
-        if (this.spec == null) {
+        try {
+            this.factory.setGroup(grp);
+            this.status = status;
+            this.spec = specs.getBean(type, GraphSpec.class);
+
+            this.spec.initialize(id, "", options);
+
+            StopWatch sw = new CommonsLogStopWatch();
+            state = new GraphState(factory, sql, session, spec);
+            status.steps = state.getTotalFoundCount();
+            if (status.steps == 0) {
+                rsp.set(new OK()); // TODO: Subclass?
+            } else {
+                sw.stop("omero.chgrp.ids." + status.steps);
+            }
+
+            // SUCCESS
+            log.info(String.format("type=%s, id=%s options=%s [steps=%s]",
+                    type, id, options, status.steps));
+
+        } catch (NoSuchBeanDefinitionException nsbde) {
             status.steps = 0;
             status.flags.add(State.FAILURE);
-            rsp.set(new ERR(ice_id(), "NO SPEC", null));
-        } else {
-            try {
-                this.spec.initialize(id, "", options);
-
-                StopWatch sw = new CommonsLogStopWatch();
-                state = new GraphState(factory, sql, session, spec);
-                status.steps = state.getTotalFoundCount();
-                if (status.steps == 0) {
-                    rsp.set(new OK()); // TODO: Subclass?
-                } else {
-                    sw.stop("omero.chgrp.ids." + status.steps);
-                }
-
-                // SUCCESS
-                log.info(String.format("type=%s, id=%s options=%s [steps=%s]",
-                        type, id, options, status.steps));
-
-            } catch (Throwable t) {
-                status.steps = 0;
-                status.flags.add(State.FAILURE);
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("message", t.getMessage());
-                rsp.set(new ERR(ice_id(), "INIT ERR", params));
-            }
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("message", "Unknown type: " + type);
+            rsp.set(new Unknown(ice_id(), "notype", params));
+        } catch (Throwable t) {
+            status.steps = 0;
+            status.flags.add(State.FAILURE);
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("message", t.getMessage());
+            rsp.set(new ERR(ice_id(), "INIT ERR", params));
         }
 
     }
