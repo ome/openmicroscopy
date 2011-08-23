@@ -51,7 +51,7 @@
                             {% if d.countPlateAcquisitions %}
                             <ul>
                                 {% for e in d.listPlateAcquisitions %}
-                                    <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}"><a href="#">{{ e.name|truncatebefor:"35" }}</a></li>
+                                    <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}"><a href="#">{{ e.getName|truncatebefor:"35" }}</a></li>
                                 {% endfor %}
                             </ul>
                             {% endif %}
@@ -67,7 +67,7 @@
                     {% if d.countPlateAcquisitions %}
                     <ul>
                         {% for e in d.listPlateAcquisitions %}
-                            <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}"><a href="#">{{ e.name|truncatebefor:"35" }}</a></li>
+                            <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}"><a href="#">{{ e.getName|truncatebefor:"35" }}</a></li>
                         {% endfor %}
                     </ul>
                     {% endif %}

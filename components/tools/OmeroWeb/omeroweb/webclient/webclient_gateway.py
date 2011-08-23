@@ -1877,7 +1877,16 @@ class PlateAcquisitionWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectW
         super(PlateAcquisitionWrapper, self).__prepare__(**kwargs)
         if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
-
+    
+    def getName (self):
+        name = super(PlateAcquisitionWrapper, self).getName()
+        if name is None:
+            if self.startTime is not None and self.endTime is not None:
+                name = "%s - %s" % (datetime.fromtimestamp(self.startTime/1000), datetime.fromtimestamp(self.endTime/1000))
+            else:
+                name = "Plate %i" % self.id
+        return name
+    
     def getFields (self):
         """
         Returns max of indexed collection of well samples
