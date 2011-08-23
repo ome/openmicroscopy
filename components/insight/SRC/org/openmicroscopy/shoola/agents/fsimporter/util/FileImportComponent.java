@@ -877,15 +877,21 @@ public class FileImportComponent
 				else if (image instanceof String) {
 					setStatusText((String) image);
 				} else if (image instanceof ImportException) {
+					ImportException ie = (ImportException) image;
 					fileNameLabel.setForeground(ERROR_COLOR);
 					resultLabel.setVisible(false);
-					ImportException ie = (ImportException) image;
 					errorButton.setToolTipText(
 							UIUtilities.formatExceptionForToolTip(ie));
 					exception = ie;
 					errorButton.setVisible(true);
-					errorBox.setVisible(true);
-					errorBox.addChangeListener(this);
+					if (ie.getStatus() == ImportException.COMPRESSION) {
+						resultLabel.setVisible(true);
+						resultLabel.setText("Compression not supported");
+					} else {
+						errorBox.setVisible(true);
+						errorBox.addChangeListener(this);
+					}
+					
 					cancelButton.setVisible(false);
 				}
 			}

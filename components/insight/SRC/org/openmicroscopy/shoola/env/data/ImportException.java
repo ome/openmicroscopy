@@ -29,6 +29,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 //Third-party libraries
+import loci.formats.UnsupportedCompressionException;
 
 //Application-internal dependencies
 
@@ -49,6 +50,9 @@ public class ImportException
 	extends Exception
 {
 	
+	/** Indicates that the compression is not supported.*/
+	public static int COMPRESSION = 0;
+
 	/**
 	 * Constructs a new exception with the specified detail message.
 	 * 
@@ -72,6 +76,20 @@ public class ImportException
 	public ImportException(String message, Throwable cause) 
 	{
 		super(message, cause);
+	}
+	
+	/**
+	 * Returns one of the constant defined by this class.
+	 * 
+	 * @return See above.
+	 */
+	public int getStatus()
+	{
+		Throwable cause = getCause();
+		if (cause instanceof UnsupportedCompressionException) {
+			return COMPRESSION;
+		}
+		return -1;
 	}
 	
 	/**
