@@ -379,6 +379,16 @@ class TreeViewerComponent
 						model.getObjectMimeType(object)));
         	}
         } else {
+        	TreeImageDisplay[] displayedNodes = browser.getSelectedDisplays();
+        	if (displayedNodes != null && displayedNodes.length > 1) {
+        		if (object instanceof DatasetData || 
+        				object instanceof PlateAcquisitionData || 
+        			object instanceof PlateData) {
+        			view.removeAllFromWorkingPane();
+        			model.setDataViewer(null);
+        			return;
+        		}
+        	}
         	db = DataBrowserFactory.getDataBrowser(object);
         	if (db != null) {
         		db.setComponentTitle("");
