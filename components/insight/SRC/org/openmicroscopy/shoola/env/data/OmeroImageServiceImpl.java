@@ -157,10 +157,13 @@ class OmeroImageServiceImpl
 			entry = (Entry) jj.next();
 			file = (File) entry.getKey();
 			if (ImportableObject.isHCSFile(file)) {
-				if (ioContainer != null && 
-					!(ioContainer.getClass().equals(Screen.class) ||
-					ioContainer.getClass().equals(ScreenI.class)))
-					ioContainer = null;
+				if (!file.getName().endsWith(
+						ImportableObject.DAT_EXTENSION)) {
+					if (ioContainer != null && 
+							!(ioContainer.getClass().equals(Screen.class) ||
+							ioContainer.getClass().equals(ScreenI.class)))
+							ioContainer = null;
+				}
 			}
 			label = (StatusLabel) entry.getValue();
 			if (close) {
@@ -1205,12 +1208,19 @@ class OmeroImageServiceImpl
 		Iterator<String> i = candidates.iterator();
 		File f;
 		StatusLabel sl;
+		int n = candidates.size();
 		while (i.hasNext()) {
 			f = new File(i.next());
 			sl = new StatusLabel();
-			if (ImportableObject.isHCSFile(f))
-				hcsFiles.put(f, sl);
-			else otherFiles.put(f, sl);
+			if (ImportableObject.isHCSFile(f)) {
+				if (n == 1 && file.list().length > 1)
+					hcsFiles.put(f, sl);
+				else if (n > 1) {
+					if (f.getName().endsWith(ImportableObject.DAT_EXTENSION))
+						otherFiles.put(f, sl);
+					else hcsFiles.put(f, sl);
+				} else hcsFiles.put(f, sl);
+			} else otherFiles.put(f, sl);
 			files.put(f, sl);
 		}
 		status.setFiles(files);
