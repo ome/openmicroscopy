@@ -41,13 +41,18 @@
   width: 64px;
 }
 
+.weblitz-plateview div.loading {
+  width: 64px;
+  height: 48px;
+}
+
 .weblitz-plateview .waiting {
   width: 64px;
   height: 48px;
   background-color: #eee;
 }
 
-.weblitz-plateview .loading {
+.weblitz-plateview img.loading {
   display: none;
 }
 
