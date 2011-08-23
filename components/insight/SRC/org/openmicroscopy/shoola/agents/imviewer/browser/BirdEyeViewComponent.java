@@ -78,7 +78,7 @@ class BirdEyeViewComponent
 	private static final Color STROKE_COLOR = Color.BLACK;
 	
 	/** The default color for the border. */
-	private static final Color BORDER_COLOR = Color.WHITE;
+	private static final Color BORDER_COLOR = Color.LIGHT_GRAY;//Color.WHITE;
 	
 	/** The default selection color. */
 	private static final Color SELECTION_COLOR = new Color(255, 0, 0, 100);
