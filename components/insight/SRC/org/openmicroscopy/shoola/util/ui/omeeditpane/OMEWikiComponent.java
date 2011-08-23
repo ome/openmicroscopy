@@ -199,12 +199,16 @@ public class OMEWikiComponent
     /**
      * Replaces the line separator by space when saving the data.
      * 
-     * @param value The value to handle.
+     * @param value 		The value to handle.
+     * @param removeSpace 	Pass <code>true</code> to remove the spaces,
+     * 						<code>false</code> otherwise.
      * @return See above.
      */
-    public static String prepare(String value)
+    public static String prepare(String value, boolean removeSpace)
     {
-    	return value.replaceAll(SystemUtils.LINE_SEPARATOR, " ");
+    	String v = value.replaceAll(SystemUtils.LINE_SEPARATOR, " ");
+    	if (removeSpace) return v.replaceAll(" ", "");
+    	return v;
     }
     
 	/** Installs the default actions.  */
@@ -523,7 +527,7 @@ public class OMEWikiComponent
 		if (!wrapWord || pane == null) return;
 		String value = getText();
 		if (value == null) return;
-		value = prepare(value);
+		value = prepare(value, false);
 		FontMetrics fm = getFontMetrics(getFont());
 		int charWidth = fm.charWidth('m');
 		columns = (int) (1.5*width)/charWidth;

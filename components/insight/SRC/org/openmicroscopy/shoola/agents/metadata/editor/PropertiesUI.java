@@ -1104,8 +1104,9 @@ class PropertiesUI
 		}
 		String value = desc;
 		if (desc != null) {
-			String v = OMEWikiComponent.prepare(originalDescription.trim());
-			String v2 = OMEWikiComponent.prepare(desc.trim());
+			String v = OMEWikiComponent.prepare(originalDescription.trim(), 
+					true);
+			String v2 = OMEWikiComponent.prepare(desc.trim(), true);
 			if (v2.equals(v)) value = "";
 		}
 		if (object instanceof ProjectData) {
@@ -1226,8 +1227,8 @@ class PropertiesUI
 		value = value.trim();
 		if (name == null) 
 			return value.length() != 0;
-		name = OMEWikiComponent.prepare(name.trim());
-		value = OMEWikiComponent.prepare(value.trim());
+		name = OMEWikiComponent.prepare(name.trim(), true);
+		value = OMEWikiComponent.prepare(value.trim(), true);
 		if (DEFAULT_DESCRIPTION_TEXT.equals(name) && 
 				DEFAULT_DESCRIPTION_TEXT.equals(value)) return false;
 		return !(name.equals(value));
