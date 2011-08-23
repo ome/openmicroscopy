@@ -87,6 +87,7 @@ jQuery._WeblitzPlateview = function (container, options) {
 
   this.load = function (pid,field) {
       $('table img', _this.self).remove();
+      $('table div.placeholder', _this.self).removeClass('placeholder').addClass('loading');
       if (field === undefined) {
 	  field = 0;
       }
