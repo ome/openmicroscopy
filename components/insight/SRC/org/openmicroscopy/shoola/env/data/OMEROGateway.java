@@ -3245,16 +3245,22 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 		isSessionAlive();
+		RenderingEnginePrx service = null;
 		try {
-			RenderingEnginePrx service = getRenderingService();
+			service = getRenderingService();
 			if (service == null) service = getRenderingService();
-			reServices.put(pixelsID, service);
 			service.lookupPixels(pixelsID);
 			needDefault(pixelsID, service);
+			reServices.put(pixelsID, service);
 			service.load();
 			return service;
 		} catch (Throwable t) {
 			String s = "Cannot start the Rendering Engine.";
+			if (service != null) {
+				try {
+					service.close();
+				} catch (Exception e) {}
+			}
 			handleFSException(t, s);
 			handleException(t, s);
 		}
