@@ -1302,6 +1302,7 @@ class ImViewerUI
 	{ 
 		//TODO
 		//model.getRenderer().onStateChange(b);
+		model.getBrowser().onStateChange(b);
 		tabs.setEnabled(b);
 		enableSliders(b);
 		controlPane.onStateChange(b); 

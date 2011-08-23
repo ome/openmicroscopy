@@ -54,6 +54,7 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
 /** 
  * Hosts the UI components displaying the rendered image.
@@ -632,6 +633,20 @@ class BrowserUI
 	Rectangle getVisibleRectangle()
 	{
 		return getViewport().getViewRect();
+	}
+	
+	/** 
+	 * Reacts to {@link ImViewer} change events.
+	 * 
+	 * @param b Pass <code>true</code> to enable the UI components, 
+	 *          <code>false</code> otherwise.
+	 */
+	void onStateChange(boolean b)
+	{ 
+		JScrollBar bar = getHorizontalScrollBar();
+		if (bar.isVisible()) bar.setEnabled(b);
+		bar = getVerticalScrollBar();
+		if (bar.isVisible()) bar.setEnabled(b);
 	}
 	
 	/**

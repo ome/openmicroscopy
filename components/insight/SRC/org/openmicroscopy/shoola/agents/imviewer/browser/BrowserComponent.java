@@ -715,4 +715,13 @@ class BrowserComponent
 		view.setSelectedRegion(region);
 	}
 	
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#onStateChange(boolean)
+	 */
+	public void onStateChange(boolean b)
+	{ 
+		if (view == null) return;
+		view.onStateChange(b);
+	}
 }
