@@ -233,6 +233,12 @@ public class MessengerDialog
 	/** Component indicating to submit the files or not. */
 	private JCheckBox		submitFile;
 	
+	/** Indicates the progress of the files submission.*/
+	private JXBusyLabel		progress;
+	
+	/** Indicates the progress of the files submission.*/
+	private JLabel			progressLabel;
+	
 	/** 
 	 * Displays the dialog indicating the consequence of not submitting
 	 * the files.
@@ -334,6 +340,9 @@ public class MessengerDialog
 	/** Initializes the various components. */
 	private void initComponents()
 	{
+		progress = new JXBusyLabel(new Dimension(16, 16));
+		progress.setVisible(false);
+		progressLabel = new JLabel();
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) { close(); }
@@ -574,7 +583,17 @@ public class MessengerDialog
     	JPanel bars = new JPanel();
     	bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
     	if (submit) {
-    		bars.add(UIUtilities.buildComponentPanel(submitFile));
+    		JPanel p = new JPanel();
+    		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+    		p.add(UIUtilities.buildComponentPanel(submitFile));
+    		JPanel progressPane = new JPanel();
+    		progressPane.setLayout(new BoxLayout(progressPane,
+    				BoxLayout.X_AXIS));
+    		progressPane.add(progress);
+    		progressPane.add(Box.createHorizontalStrut(5));
+    		progressPane.add(progressLabel);
+    		p.add(UIUtilities.buildComponentPanel(progressPane));
+    		bars.add(UIUtilities.buildComponentPanel(p));
     	}
     	JPanel bar = new JPanel();
     	bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
@@ -619,7 +638,7 @@ public class MessengerDialog
         c.setLayout(new BorderLayout(0, 0));
         c.add(tp, BorderLayout.NORTH);
 		c.add(component, BorderLayout.CENTER);
-		c.add(buildToolBar(toSubmit != null && toSubmit.size() >0), 
+		c.add(buildToolBar(toSubmit != null && toSubmit.size() > 0), 
 				BorderLayout.SOUTH);
 	}
 	
@@ -725,6 +744,20 @@ public class MessengerDialog
 	 */
 	public int getDialogType() { return dialogType; }
 
+	/**
+	 * Sets the status of the file submission.
+	 * 
+	 * @param text The text to display.
+	 * @param hide Pass <code>true</code> to hide the progress,
+	 * 				<code>false</code> otherwise.
+	 */
+	public void setSubmitStatus(String text, boolean hide)
+	{
+		progressLabel.setText(text);
+		progress.setVisible(!hide);
+		progress.setBusy(!hide);
+	}
+	
 	/**
 	 * Reacts to click on controls.
 	 * @see ActionListener#actionPerformed(ActionEvent)
