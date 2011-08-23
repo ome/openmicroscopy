@@ -10,4 +10,5 @@
 #include<omero/ServicesF.h>
 #include<omero/Constants.h>
 #include<omero/RTypesI.h>
+#include<omero/cmd/API.h>
 #endif
