@@ -177,19 +177,6 @@ class WellsModel
 	}
 	
 	/**
-	 * Returns <code>true</code> if the passed colors are the same, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param c1 The color to handle.
-	 * @param c2 The color to handle.
-	 * @return See above.
-	 */
-	private boolean isSameColor(Color c1, Color c2)
-	{
-		return UIUtilities.isSameColors(c1, c2);
-	}
-	
-	/**
 	 * Returns <code>true</code> if the passed description are the same, 
 	 * <code>false</code> otherwise.
 	 * 
@@ -290,7 +277,7 @@ class WellsModel
 			if (cMap.containsKey(column)) {
 				co = cMap.get(column);
 				color = createColor(data);
-				if (!isSameColor(co.getColor(), color) ||
+				if (!UIUtilities.isSameColors(co.getColor(), color, true) ||
 						!isSameDescription(co.getDescription(), type)) {
 					co.setColor(null);
 					co.setDescription(null);
@@ -303,7 +290,7 @@ class WellsModel
 			if (rMap.containsKey(row)) {
 				co = rMap.get(row);
 				color = createColor(data);
-				if (!isSameColor(co.getColor(), color) ||
+				if (!UIUtilities.isSameColors(co.getColor(), color, true) ||
 						!isSameDescription(co.getDescription(), type)) {
 					co.setColor(null);
 					co.setDescription(null);

@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
 import org.openmicroscopy.shoola.util.ui.graphutils.LinePlot;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
@@ -88,6 +89,9 @@ class GraphPane
 	
 	/** The name of the panel. */
 	private static final String				NAME = "Graph Pane";
+	
+	/** The default color for a line.*/
+	private static final Color				DEFAULT_COLOR = Color.LIGHT_GRAY;
 	
 	/** Reference to the model. */
 	private MeasurementViewerModel			model;
@@ -328,7 +332,6 @@ class GraphPane
 		plot.setYAxisName("Frequency");
 		return plot;
 	}
-	
 
 	/**
 	 * The method builds the graphs from the data that was constructed in the
@@ -364,7 +367,8 @@ class GraphPane
 				if (cData != null)
 				channelName.add(cData.getChannelLabeling());
 				c = model.getActiveChannelColor(channel);
-				if (c == null) c = Color.WHITE;
+				if (UIUtilities.isSameColors(c, Color.white, false))
+					c = DEFAULT_COLOR;
 				channelColour.add(c);
 				values = data.get(channel);
 				if (values != null && values.length != 0) {
