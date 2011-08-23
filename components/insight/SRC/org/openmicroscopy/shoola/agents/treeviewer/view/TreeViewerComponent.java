@@ -1270,10 +1270,11 @@ class TreeViewerComponent
 		if (model.getState() != LOADING_DATA)
 			throw new IllegalStateException(
 					"This method cannot be invoked in the LOADING_DATA state.");
-		if (objects == null || objects.size() == 0)
-			return;
+		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		model.setState(READY);
+		if (objects == null || objects.size() == 0)
+			return;
 		Browser b = model.getSelectedBrowser();
 		Set selected = null;
 		List available = new ArrayList();
@@ -1308,6 +1309,7 @@ class TreeViewerComponent
 				}
 			} else available.addAll(objects);
 		}
+		fireStateChange();
 		SelectionWizard d = new SelectionWizard(view, available, selected,
 				objects.get(0).getClass(), 
 				TreeViewerAgent.getUserDetails().getId());
