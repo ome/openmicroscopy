@@ -680,13 +680,50 @@ class WebGatewayCache (object):
         else:
             return 'json_%s/single/%s' % (client_base, ctx)
 
-    def clearJson (self, client_base, obj):
+    def getJson (self, r, client_base, obj, ctx=''):
         """
-        Only handles Dataset obj, calling L{clearDatasetContents}
+        Gets data from the json cache
+        
+        @param r:               http request - not used
+        @param client_base:     server_id for cache key
+        @param obj:             ObjectWrapper for cache key
+        @param ctx:             context string used for cache key
+        @rtype:                 String or None
         """
-        logger.debug('clearjson')
-        if obj.OMERO_CLASS == 'Dataset':
-            self.clearDatasetContents(None, client_base, obj)
+        k = self._jsonKey(r, client_base, obj, ctx)
+        r = self._json_cache.get(k)
+        if r is None:
+            logger.debug('  fail: %s' % k)
+        else:
+            logger.debug('cached: %s' % k)
+        return r
+
+    def setJson (self, r, client_base, obj, data, ctx=''):
+        """
+        Adds data to the json cache
+        
+        @param r:               http request - not used
+        @param client_base:     server_id for cache key
+        @param obj:             ObjectWrapper for cache key
+        @param data:            Data to cache
+        @param ctx:             context string used for cache key
+        @rtype:                 True
+        """
+        k = self._jsonKey(r, client_base, obj, ctx)
+        self._cache_set(self._json_cache, k, data)
+        return True
+
+    def clearJson (self, client_base, obj, ctx=''):
+        """
+        TODO: document
+        WAS: Only handles Dataset obj, calling L{clearDatasetContents}
+        """
+        k = self._jsonKey(r, client_base, obj, ctx)
+        self._cache_clear(self._json_cache, k)
+        return True
+        #logger.debug('clearjson')
+        #if obj.OMERO_CLASS == 'Dataset':
+        #    self.clearDatasetContents(None, client_base, obj)
     
     def setDatasetContents (self, r, client_base, ds, data):
         """
@@ -698,10 +735,7 @@ class WebGatewayCache (object):
         @param data:            Data to cache
         @rtype:                 True
         """
-        
-        k = self._jsonKey(r, client_base, ds, 'contents')
-        self._cache_set(self._json_cache, k, data)
-        return True
+        return self.setJson(r, client_base, ds, data, 'contents')
 
     def getDatasetContents (self, r, client_base, ds):
         """
@@ -712,14 +746,7 @@ class WebGatewayCache (object):
         @param ds:              ObjectWrapper for cache key
         @rtype:                 String or None
         """
-        
-        k = self._jsonKey(r, client_base, ds, 'contents')
-        r = self._json_cache.get(k)
-        if r is None:
-            logger.debug('  fail: %s' % k)
-        else:
-            logger.debug('cached: %s' % k)
-        return r
+        return self.getJson(r, client_base, ds, 'contents')
 
     def clearDatasetContents (self, r, client_base, ds):
         """
