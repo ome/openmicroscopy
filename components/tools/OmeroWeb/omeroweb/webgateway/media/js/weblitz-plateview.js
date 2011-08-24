@@ -95,7 +95,7 @@ jQuery._WeblitzPlateview = function (container, options) {
       if (field === undefined) {
 	  field = 0;
       }
-      gs_json(opts.baseurl+'/plate/'+pid+'/'+field+'/?callback=?', {}, _reset);
+      gs_json(opts.baseurl+'/plate/'+pid+'/'+field+'/', {size:opts.size}, _reset);
       //gs_modalJson(opts.baseurl+'/plate/'+pid+'/'+field+'/?callback=?', {}, _reset);
       //jQuery.getJSON(opts.baseurl+'/plate/'+pid+'/'+field+'/?callback=?', _reset);
   }
