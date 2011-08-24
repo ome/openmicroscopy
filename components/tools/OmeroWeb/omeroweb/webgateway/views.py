@@ -1274,11 +1274,14 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
         return HttpResponseServerError('""', mimetype='application/javascript')
     grid = []
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
+    thumbsize = int(request.REQUEST.get('size', 64))
+    logger.debug(thumbsize)
+
     def urlprefix(iid):
-        return reverse(prefix, args=(iid,64))
+        return reverse(prefix, args=(iid,thumbsize))
     xtra = {'thumbUrlPrefix': urlprefix}
 
-    rv = webgateway_cache.getJson(request, server_id, plate, 'plategrid-%d' % field)
+    rv = webgateway_cache.getJson(request, server_id, plate, 'plategrid-%d-%d' % (field, thumbsize))
     if rv is None:
         plate.setGridSizeConstraints(8,12)
         for row in plate.getWellGrid(field):
@@ -1297,7 +1300,7 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
         rv = {'grid': grid,
               'collabels': plate.getColumnLabels(),
               'rowlabels': plate.getRowLabels()}
-        webgateway_cache.setJson(request, server_id, plate, simplejson.dumps(rv), 'plategrid-%d' % field)
+        webgateway_cache.setJson(request, server_id, plate, simplejson.dumps(rv), 'plategrid-%d-%d' % (field, thumbsize))
     else:
         rv = simplejson.loads(rv)
     return rv
