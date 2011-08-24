@@ -2292,19 +2292,6 @@ class _BlitzGateway (object):
         if result is not None:
             return wrapper(self, result)
 
-    def getWell (self, oid):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        sql = "select obj from Well obj join fetch obj.details.owner join fetch obj.details.group " \
-              "where obj.id=:oid "
-        obj = query_serv.findByQuery(sql,p)
-        if obj is not None:
-            return WellWrapper(self, obj)
-        else:
-            return None
-
     def getObjects (self, obj_type, ids=None, params=None, attributes=None):
         """
         Retrieve Objects by type E.g. "Image"

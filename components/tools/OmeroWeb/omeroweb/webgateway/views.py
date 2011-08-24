@@ -1303,7 +1303,7 @@ def listWellImages_json (request, did, server_id=None, _conn=None, **kwargs):
     """
     
     blitzcon = _conn
-    well = blitzcon.getWell(did)
+    well = blitzcon.getObject("Well", did)
     if well is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
