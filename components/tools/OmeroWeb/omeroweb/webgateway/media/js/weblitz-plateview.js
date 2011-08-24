@@ -42,7 +42,11 @@ jQuery.WeblitzPlateview = function (elm, options) {
 jQuery._WeblitzPlateview = function (container, options) {
   var opts = jQuery.extend({
       baseurl: '',
+      width: 64,
+      height: 48
     }, options);
+
+  opts.size = Math.max(opts.width, opts.height);
   this.self = jQuery(container);
   this.self.addClass('weblitz-plateview');
   this.origHTML = this.self.html();
@@ -68,9 +72,9 @@ jQuery._WeblitzPlateview = function (container, options) {
           tr.append('<th>'+data.rowlabels[i]+'</th>');
           for (j in data.grid[i]) {
               if (data.grid[i][j] == null) {
-		  tr.append('<td><div class="placeholder"></div></td>');
+		  tr.append('<td style="width:'+opts.width+'px;height:'+opts.height+'px;line-height:'+opts.height+'px;"><div class="placeholder">&nbsp;</div></td>');
 	      } else {
-		  var td = $('<td class="well" id="well-'+data.grid[i][j].wellId+'"><div class="waiting"></div><img id="image-'+data.grid[i][j].id+'" class="loading" src="'+ data.grid[i][j].thumb_url+'"></td>');
+		  var td = $('<td class="well" style="width:'+opts.width+'px;height:'+opts.height+'px;" id="well-'+thisid+'-well-'+data.grid[i][j].wellId+'"><div class="waiting"></div><img id="image-'+data.grid[i][j].id+'" class="loading" src="'+ data.grid[i][j].thumb_url+'"></td>');
 		  $('img', td)
 		      .click(tclick(data.grid[i][j]))
 		      .load(function() { 
