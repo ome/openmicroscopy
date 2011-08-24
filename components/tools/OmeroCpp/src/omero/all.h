@@ -5,7 +5,7 @@
  */
 
 #ifndef OMERO_IMPORT_STYLE
-#define OMERO_IMPORT_STYLE "all"
+#define OMERO_IMPORT_STYLE 'A'
 #include<omero/min.h>
 #include<omero/Repositories.h>
 #include<omero/SharedResources.h>
