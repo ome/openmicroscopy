@@ -25,30 +25,40 @@
 .weblitz-plateview td {
   padding: 5px;
   border: 1px solid;
+/*
   width: 64px;
   height: 48px;
+*/
   background-color: white;
 }
 
 .weblitz-plateview .pv-focus {
   margin: -4px;
+/*
   height: 48px;
+*/
   padding: 1px;
   border: solid 3px red;
 }
 
 .weblitz-plateview .placeholder {
+/*
   width: 64px;
+*/
 }
 
 .weblitz-plateview div.loading {
+/*
   width: 64px;
   height: 48px;
+*/
 }
 
 .weblitz-plateview .waiting {
+/*
   width: 64px;
   height: 48px;
+*/
   background-color: #eee;
 }
 
