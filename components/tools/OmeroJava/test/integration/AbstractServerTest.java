@@ -243,24 +243,41 @@ public class AbstractServerTest
      * Creates a new group and experimenter and returns the event context.
      * 
      * @param perms The permissions level.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected EventContext newUserAndGroup(String perms, boolean owner)
+	throws Exception
+    {
+        return newUserAndGroup(new PermissionsI(perms), owner);
+    }
+
+    /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
     protected EventContext newUserAndGroup(String perms) 
     	throws Exception
     {
-        return newUserAndGroup(new PermissionsI(perms));
+        return newUserAndGroup(new PermissionsI(perms), false);
     }
 
     /**
      * Creates a new group and experimenter and returns the event context.
      * 
      * @param perms The permissions level.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    protected EventContext newUserAndGroup(Permissions perms) 
-    	throws Exception
+    protected EventContext newUserAndGroup(Permissions perms, boolean owner)
+	throws Exception
     {
         IAdminPrx rootAdmin = root.getSession().getAdminService();
         String uuid = UUID.randomUUID().toString();
@@ -268,7 +285,7 @@ public class AbstractServerTest
         g.setName(omero.rtypes.rstring(uuid));
         g.getDetails().setPermissions(perms);
         g = new ExperimenterGroupI(rootAdmin.createGroup(g), false);
-        return newUserInGroup(g);
+        return newUserInGroup(g, owner);
     }
 
     /**
@@ -292,6 +309,7 @@ public class AbstractServerTest
      *
      * @param perms The permissions level.
      * @param experimenterId The identifier of the experimenter.
+     * @
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
@@ -299,9 +317,24 @@ public class AbstractServerTest
 		long experimenterId)
 	throws Exception
     {
-	List<Long> ids = new ArrayList<Long>();
-	ids.add(experimenterId);
-	return newGroupAddUser(perms, ids);
+	return newGroupAddUser(perms, Arrays.asList(experimenterId), false);
+    }
+
+    /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
+     * @param experimenterId The identifier of the experimenter.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected ExperimenterGroup newGroupAddUser(Permissions perms,
+		long experimenterId, boolean owner)
+	throws Exception
+    {
+	return newGroupAddUser(perms, Arrays.asList(experimenterId), owner);
     }
 
     /**
@@ -309,11 +342,13 @@ public class AbstractServerTest
      *
      * @param perms The permissions level.
      * @param experimenterIds The identifier of the experimenters.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
     protected ExperimenterGroup newGroupAddUser(Permissions perms,
-		List<Long> experimenterIds)
+		List<Long> experimenterIds, boolean owner)
 	throws Exception
     {
 	IAdminPrx rootAdmin = root.getSession().getAdminService();
@@ -326,12 +361,33 @@ public class AbstractServerTest
         //new group
         g = rootAdmin.getGroup(g.getId().getValue());
         Iterator<Long> i = experimenterIds.iterator();
+        List<Experimenter> l = new ArrayList<Experimenter>();
         while (i.hasNext()) {
 			Experimenter e = rootAdmin.getExperimenter(i.next());
 	        rootAdmin.addGroups(e, Arrays.asList(g));
-
+	        l.add(e);
 		}
+        if (owner && l.size() > 0) {
+		rootAdmin.addGroupOwners(g, l);
+        }
         return g;
+    }
+
+    /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
+     * @param experimenterId The identifier of the experimenters.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected ExperimenterGroup newGroupAddUser(String perms,
+		List<Long> experimenterIds, boolean owner)
+	throws Exception
+    {
+	return newGroupAddUser(new PermissionsI(perms), experimenterIds, owner);
     }
 
     /**
@@ -346,7 +402,7 @@ public class AbstractServerTest
 		List<Long> experimenterIds)
 	throws Exception
     {
-	return newGroupAddUser(new PermissionsI(perms), experimenterIds);
+	return newGroupAddUser(new PermissionsI(perms), experimenterIds, false);
     }
 
     /**
@@ -365,11 +421,28 @@ public class AbstractServerTest
     }
 
     /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
+     * @param experimenterId The identifier of the experimenter.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected ExperimenterGroup newGroupAddUser(String perms,
+		long experimenterId, boolean owner)
+	throws Exception
+    {
+	return newGroupAddUser(new PermissionsI(perms), experimenterId, owner);
+    }
+
+    /**
      * Creates a new user in the current group.
      * @return
      */
     protected EventContext newUserInGroup() throws Exception {
-        EventContext ec = 
+        EventContext ec =
         	client.getSession().getAdminService().getEventContext();
         return newUserInGroup(ec);
     }
@@ -384,19 +457,38 @@ public class AbstractServerTest
     protected EventContext newUserInGroup(EventContext previousUser)
     throws Exception
     {
+        return newUserInGroup(previousUser, false);
+    }
+
+    /**
+     * Takes the {@link EventContext} from another user and creates a new user
+     * in the same group as that user is currently logged in to.
+     *
+     * @param previousUser The context of the previous user.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected EventContext newUserInGroup(EventContext previousUser,
+		boolean owner)
+    throws Exception
+    {
         ExperimenterGroup eg = new ExperimenterGroupI(previousUser.groupId, 
         		false);
-        return newUserInGroup(eg);
+        return newUserInGroup(eg, owner);
     }
     
     /**
      * Creates a new user in the specified group.
      * 
      * @param group The group to add the user to.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
      * @return The context.
      * @throws Exception Thrown if an error occurred.
      */
-    protected EventContext newUserInGroup(ExperimenterGroup group)
+    protected EventContext newUserInGroup(ExperimenterGroup group,
+		boolean owner)
     	throws Exception
     {
         IAdminPrx rootAdmin = root.getSession().getAdminService();
@@ -410,6 +502,9 @@ public class AbstractServerTest
         long id = rootAdmin.createUser(e, group.getName().getValue());
         e = rootAdmin.getExperimenter(id);
         rootAdmin.addGroups(e, Arrays.asList(group));
+        if (owner) {
+		rootAdmin.addGroupOwners(group, Arrays.asList(e));
+        }
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
         return init(client);

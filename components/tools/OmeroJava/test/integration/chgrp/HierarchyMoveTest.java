@@ -379,9 +379,7 @@ public class HierarchyMoveTest
     }
 
     /**
-     * Test to move a populated plate.
-     * The boolean flag indicates to create or no plate acquisition.
-     * The <code>deleteQueue</code> method is tested.
+     * Test to move a populated plate. Plate with plate acquisition.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -505,6 +503,110 @@ public class HierarchyMoveTest
 				"where p.id = :id");
 	        assertNotNull(iQuery.findByQuery(sb.toString(), param));
         }
+    }
+
+    /**
+     * Test to move a populated plate. Plate with no plate acquisition.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMovePlateNoPlateAcquisition()
+	throws Exception
+    {
+	String perms = "rw----";
+	EventContext ctx = newUserAndGroup(perms);
+	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+
+	Plate p;
+	List results;
+	StringBuilder sb;
+	Well well;
+	WellSample field;
+	Iterator j;
+		ParametersI param;
+		List<Long> wellSampleIds;
+		List<Long> imageIds;
+		p = (Plate) iUpdate.saveAndReturnObject(
+				mmFactory.createPlate(1, 1, 1, 0, false));
+		param = new ParametersI();
+		param.addLong("plateID", p.getId().getValue());
+		sb = new StringBuilder();
+		sb.append("select well from Well as well ");
+		sb.append("left outer join fetch well.plate as pt ");
+		sb.append("left outer join fetch well.wellSamples as ws ");
+		sb.append("left outer join fetch ws.image as img ");
+        sb.append("where pt.id = :plateID");
+        results = iQuery.findAllByQuery(sb.toString(), param);
+
+        j = results.iterator();
+        wellSampleIds = new ArrayList<Long>();
+        imageIds = new ArrayList<Long>();
+        while (j.hasNext()) {
+			well = (Well) j.next();
+			for (int k = 0; k < well.sizeOfWellSamples(); k++) {
+				field = well.getWellSample(k);
+				wellSampleIds.add(field.getId().getValue());
+				assertNotNull(field.getImage());
+				imageIds.add(field.getImage().getId().getValue());
+			}
+		}
+        //Now delete the plate
+      //Move the plate.
+	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+			p.getId().getValue(), null, g.getId().getValue()));
+
+        //check the well
+        param = new ParametersI();
+        param.addLong("plateID", p.getId().getValue());
+        sb = new StringBuilder();
+		sb.append("select well from Well as well ");
+		sb.append("left outer join fetch well.plate as pt ");
+		sb.append("where pt.id = :plateID");
+		results = iQuery.findAllByQuery(sb.toString(), param);
+        assertTrue(results.size() == 0);
+
+        //check the well samples.
+        sb = new StringBuilder();
+        param = new ParametersI();
+        param.addIds(wellSampleIds);
+        sb.append("select p from WellSample as p where p.id in (:ids)");
+        results = iQuery.findAllByQuery(sb.toString(), param);
+        assertTrue(results.size() == 0);
+
+        //check the image.
+        sb = new StringBuilder();
+        param = new ParametersI();
+        param.addIds(imageIds);
+        sb.append("select p from Image as p where p.id in (:ids)");
+        results = iQuery.findAllByQuery(sb.toString(), param);
+        assertTrue(results.size() == 0);
+
+        loginUser(g);
+      //check the well
+        param = new ParametersI();
+        param.addLong("plateID", p.getId().getValue());
+        sb = new StringBuilder();
+		sb.append("select well from Well as well ");
+		sb.append("left outer join fetch well.plate as pt ");
+		sb.append("where pt.id = :plateID");
+		results = iQuery.findAllByQuery(sb.toString(), param);
+        assertTrue(results.size() > 0);
+
+        //check the well samples.
+        sb = new StringBuilder();
+        param = new ParametersI();
+        param.addIds(wellSampleIds);
+        sb.append("select p from WellSample as p where p.id in (:ids)");
+        results = iQuery.findAllByQuery(sb.toString(), param);
+        assertTrue(results.size() > 0);
+
+        //check the image.
+        sb = new StringBuilder();
+        param = new ParametersI();
+        param.addIds(imageIds);
+        sb.append("select p from Image as p where p.id in (:ids)");
+        results = iQuery.findAllByQuery(sb.toString(), param);
+        assertTrue(results.size() > 0);
     }
 
     /**
