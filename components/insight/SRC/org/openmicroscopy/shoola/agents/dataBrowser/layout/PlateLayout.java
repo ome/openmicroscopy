@@ -150,13 +150,17 @@ public class PlateLayout
     		i = l.iterator();
     		WellSampleNode wsNode;
     		int r, c;
+    		int h = 0;
     		while (i.hasNext()) {
     			wsNode = (WellSampleNode) i.next();
+    			h = 0;
     			r = wsNode.getRow();
     			c = wsNode.getColumn();
     			//d = wiNode.getPreferredSize();
     			d = wsNode.getPreferredSize();
-    			wsNode.setBounds(width+c*maxDim.width, height+r*maxDim.height, 
+    			if (wsNode.getTitleBarType() == ImageNode.NO_BAR) 
+    				h = wsNode.getTitleHeight();
+    			wsNode.setBounds(width+c*maxDim.width, height+r*maxDim.height+h,
 					   		d.width, d.height);
 			}
         }

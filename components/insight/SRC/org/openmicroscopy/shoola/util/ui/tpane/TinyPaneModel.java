@@ -139,16 +139,17 @@ class TinyPaneModel
     private boolean         resizable;
     
     /**
-     * Flag to indicate if the frame is draggable, resizable etc.
+     * Flag to indicate if listen to the border so that the component can
+     * be resized, dragged.
      */
     private boolean         listenToBorder;
     
     /** The frame's icon. */
     private Icon            frameIcon;
     
-    /** The oollection of buttons to add to the <code>TitleBar</code>.*/
+    /** The collection of buttons to add to the <code>TitleBar</code>.*/
     private List             decoration;
-    
+
     /**
      * Checks that <code>c</code> is one of the components that were added
      * to the internal desktop.

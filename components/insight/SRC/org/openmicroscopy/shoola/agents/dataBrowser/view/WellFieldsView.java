@@ -42,7 +42,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.jdesktop.swingx.JXTaskPane;

@@ -214,7 +214,7 @@ public class ThumbnailProvider
     	if (!valid && display != null) {
     		Registry reg = DataBrowserAgent.getRegistry();
     		Boolean b = (Boolean) reg.lookup("/views/DisplayNonValidImage");
-    		display.setVisible(b);
+    		//display.setVisible(b);
     	}
     }
     
