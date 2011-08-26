@@ -10,8 +10,10 @@ import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import omero.api.IRenderingSettingsPrx;
@@ -240,73 +242,6 @@ public class HierarchyMoveTest
 		sb.append("select i from LogicalChannel i ");
 		sb.append("where i.id = :id");
 		assertNotNull(iQuery.findByQuery(sb.toString(), param));
-		}
-    }
-
-    /**
-     * Test to move an image w/o pixels between 2 private groups.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testMoveImageWithRenderingSettings()
-	throws Exception
-    {
-	String perms = "rw----";
-	EventContext ctx = newUserAndGroup(perms);
-	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
-
-	Image img = mmFactory.createImage();
-	img = (Image) iUpdate.saveAndReturnObject(img);
-	Pixels pixels = img.getPrimaryPixels();
-	//method already tested in RenderingSettingsServiceTest
-	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-	List<Long> ids = new ArrayList<Long>();
-	ids.add(img.getId().getValue());
-	prx.resetDefaultsInSet(Image.class.getName(), ids);
-	//check if we have settings now.
-	ParametersI param = new ParametersI();
-	param.addLong("pid", pixels.getId().getValue());
-	String sql = "select rdef from RenderingDef as rdef " +
-			"where rdef.pixels.id = :pid";
-	List<IObject> settings = iQuery.findAllByQuery(sql, param);
-	//now delete the image
-	//assertTrue(settings.size() > 0);
-
-
-	long id = img.getId().getValue();
-	//Move the image
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
-			null, g.getId().getValue()));
-
-	//check if the settings have been deleted.
-	Iterator<IObject> i = settings.iterator();
-	IObject o;
-	while (i.hasNext()) {
-			o = i.next();
-			param = new ParametersI();
-			param.addId(o.getId().getValue());
-			sql = "select rdef from RenderingDef as rdef " +
-			"where rdef.id = :id";
-			assertNull(iQuery.findByQuery(sql, param));
-		}
-	//Log in to other group
-	loginUser(g);
-	id = img.getId().getValue();
-	param = new ParametersI();
-	param.addId(id);
-
-	StringBuilder sb = new StringBuilder();
-	sb.append("select i from Image i ");
-	sb.append("where i.id = :id");
-	assertNotNull(iQuery.findByQuery(sb.toString(), param));
-	i = settings.iterator();
-	while (i.hasNext()) {
-			o = i.next();
-			param = new ParametersI();
-			param.addId(o.getId().getValue());
-			sql = "select rdef from RenderingDef as rdef " +
-			"where rdef.id = :id";
-			assertNotNull(iQuery.findByQuery(sql, param));
 		}
     }
 
@@ -757,7 +692,8 @@ public class HierarchyMoveTest
     }
 
     /**
-     * Tests to move a plate with a reagent.
+     * Tests to move a plate with a reagent. The test now passes with or w/o
+     * the FORCE option. Similar to delete
      * @throws Exception Thrown if an error occurred.
      */
     @Test(enabled = true)
@@ -793,7 +729,8 @@ public class HierarchyMoveTest
 	ScreenPlateLink link = (ScreenPlateLink) iQuery.findByQuery(sql, param);
 	p = link.getChild();
 	long plateID = p.getId().getValue();
-
+	Map<String, String> options = new HashMap<String, String>();
+	options.put("/Well/WellReagentLink", DeleteServiceTest.FORCE);
 	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
 			plateID, null, g.getId().getValue()));
 

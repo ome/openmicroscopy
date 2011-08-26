@@ -10,6 +10,7 @@ import integration.AbstractTest;
 import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
+import omero.model.RenderingDef;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
@@ -42,7 +44,7 @@ public class RenderingSettingsMoveTest
 {
 
 	/**
-     * Test to move an image with rendering settings between 2 private groups.
+     * Test to move an image w/o pixels between 2 private groups.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -58,16 +60,16 @@ public class RenderingSettingsMoveTest
 	Pixels pixels = img.getPrimaryPixels();
 	//method already tested in RenderingSettingsServiceTest
 	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-	List<Long> ids = new ArrayList<Long>();
-	ids.add(img.getId().getValue());
-	prx.resetDefaultsInSet(Image.class.getName(), ids);
+	prx.setOriginalSettingsInSet(Pixels.class.getName(),
+			Arrays.asList(pixels.getId().getValue()));
 	//check if we have settings now.
 	ParametersI param = new ParametersI();
 	param.addLong("pid", pixels.getId().getValue());
 	String sql = "select rdef from RenderingDef as rdef " +
 			"where rdef.pixels.id = :pid";
 	List<IObject> settings = iQuery.findAllByQuery(sql, param);
-	//assertTrue(settings.size() > 0);
+	//now delete the image
+	assertTrue(settings.size() > 0);
 
 
 	long id = img.getId().getValue();
@@ -120,6 +122,9 @@ public class RenderingSettingsMoveTest
     public void testMoveImageWithRenderingSettingsRW()
 	throws Exception
     {
+	//This currently leads to a security violation
+	//The owner should still be able to move the image even if somebody
+	//looks at the image.
 	String permsDestination = "rw----";
 	EventContext ctx = newUserAndGroup("rwr---");
 
@@ -129,9 +134,8 @@ public class RenderingSettingsMoveTest
 	//method already tested in RenderingSettingsServiceTest
 	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
 	long id = img.getId().getValue();
-	List<Long> ids = new ArrayList<Long>();
-	ids.add(id);
-	prx.resetDefaultsInSet(Image.class.getName(), ids);
+	prx.setOriginalSettingsInSet(Pixels.class.getName(),
+			Arrays.asList(pixels.getId().getValue()));
 	//check if we have settings now.
 	ParametersI param = new ParametersI();
 	param.addLong("pid", pixels.getId().getValue());
@@ -145,7 +149,8 @@ public class RenderingSettingsMoveTest
 	EventContext ctx2 = newUserInGroup(ctx);
 	init(ctx2);
 	prx = factory.getRenderingSettingsService();
-	prx.resetDefaultsInSet(Image.class.getName(), ids);
+	prx.setOriginalSettingsInSet(Pixels.class.getName(),
+			Arrays.asList(pixels.getId().getValue()));
 	List<IObject> settingsUser2 = iQuery.findAllByQuery(sql, param);
 	assertTrue(settingsUser2.size() > 0);
 	disconnect();
@@ -228,6 +233,10 @@ public class RenderingSettingsMoveTest
     public void testMoveImageWithRenderingSettingsRWR()
 	throws Exception
     {
+	//This currently leads to the same security violation even if
+	// permissions are different.
+	//The owner should still be able to move the image even if somebody
+	//looks at the image.
 	String permsDestination = "rwr---";
 	EventContext ctx = newUserAndGroup("rwr---");
 
@@ -237,9 +246,8 @@ public class RenderingSettingsMoveTest
 	//method already tested in RenderingSettingsServiceTest
 	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
 	long id = img.getId().getValue();
-	List<Long> ids = new ArrayList<Long>();
-	ids.add(id);
-	prx.resetDefaultsInSet(Image.class.getName(), ids);
+	prx.setOriginalSettingsInSet(Pixels.class.getName(),
+			Arrays.asList(pixels.getId().getValue()));
 	//check if we have settings now.
 	ParametersI param = new ParametersI();
 	param.addLong("pid", pixels.getId().getValue());
@@ -253,7 +261,8 @@ public class RenderingSettingsMoveTest
 	EventContext ctx2 = newUserInGroup(ctx);
 	init(ctx2);
 	prx = factory.getRenderingSettingsService();
-	prx.resetDefaultsInSet(Image.class.getName(), ids);
+	prx.setOriginalSettingsInSet(Pixels.class.getName(),
+			Arrays.asList(pixels.getId().getValue()));
 	List<IObject> settingsUser2 = iQuery.findAllByQuery(sql, param);
 	assertTrue(settingsUser2.size() > 0);
 	disconnect();
