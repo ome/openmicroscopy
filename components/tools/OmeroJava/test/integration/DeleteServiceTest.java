@@ -22,7 +22,6 @@ import java.util.UUID;
 
 import junit.framework.AssertionFailedError;
 import ome.formats.OMEROMetadataStoreClient;
-import ome.xml.model.OME;
 import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IMetadataPrx;
@@ -49,7 +48,6 @@ import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.Dichroic;
 import omero.model.Experiment;
-import omero.model.ExperimenterGroupI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Filter;
@@ -117,7 +115,6 @@ import omero.model.WellAnnotationLinkI;
 import omero.model.WellSample;
 import omero.model.WellSampleAnnotationLink;
 import omero.model.WellSampleAnnotationLinkI;
-import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.AfterMethod;
@@ -1296,9 +1293,8 @@ public class DeleteServiceTest
     	Pixels pixels = img.getPrimaryPixels();
     	//method already tested in RenderingSettingsServiceTest
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(pixels.getId().getValue());
-    	prx.resetDefaultsInSet(Pixels.class.getName(), ids);
+    	prx.setOriginalSettingsInSet(Pixels.class.getName(), 
+    			Arrays.asList(pixels.getId().getValue()));
     	//check if we have settings now.
     	ParametersI param = new ParametersI();
     	param.addLong("pid", pixels.getId().getValue());
@@ -1335,9 +1331,8 @@ public class DeleteServiceTest
     	Pixels pixels = img.getPrimaryPixels();
     	//method already tested in RenderingSettingsServiceTest
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(pixels.getId().getValue());
-    	prx.resetDefaultsInSet(Pixels.class.getName(), ids);
+    	prx.setOriginalSettingsInSet(Pixels.class.getName(), 
+    			Arrays.asList(pixels.getId().getValue()));
     	//check if we have settings now.
     	ParametersI param = new ParametersI();
     	param.addLong("pid", pixels.getId().getValue());

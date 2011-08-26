@@ -765,7 +765,7 @@ public class PojosServiceTest
      * 
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testFindContainerHierarchiesProjectAsRootFilterByOwner() 
     	throws Exception
     {
@@ -798,9 +798,8 @@ public class PojosServiceTest
     	List results = iContainer.findContainerHierarchies(
         		Project.class.getName(), ids, param);
     	assertTrue(results.size() == 1);
-    	Project pp = (Project) results.get(0);
-    	assertTrue(pp.getId().getValue() == p.getId().getValue());
-    	//Should return a project not an image.
+    	Image pp = (Image) results.get(0);
+    	assertTrue(pp.getId().getValue() == i.getId().getValue());
     }
     
     /**

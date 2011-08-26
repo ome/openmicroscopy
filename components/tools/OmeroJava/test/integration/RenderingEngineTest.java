@@ -19,6 +19,7 @@ import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -189,16 +190,27 @@ public class RenderingEngineTest
 	public void testCreateRenderingEngine()
 		throws Exception
 	{
-		Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
-		RenderingEnginePrx svc = factory.createRenderingEngine();
-		Pixels pixels = image.getPrimaryPixels();
-		long id = pixels.getId().getValue();
-		svc.lookupPixels(id);
-		svc.resetDefaults();
-		svc.lookupRenderingDef(id);
-		svc.load();
-		svc.close();
+		File f = File.createTempFile("testCreateRenderingEngine",
+				"."+OME_FORMAT);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getId().getValue();
+		RenderingEnginePrx re = factory.createRenderingEngine();
+		re.lookupPixels(id);
+		if (!(re.lookupRenderingDef(id))) {
+			re.resetDefaults();
+			re.lookupRenderingDef(id);
+		}
+		re.load();
+		re.close();
 	}
 	
 	/**
@@ -210,30 +222,43 @@ public class RenderingEngineTest
 	public void testRenderingEngineGetters()
 		throws Exception
 	{
-		Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+		File f = File.createTempFile("testRenderingEngineGetters",
+				"."+OME_FORMAT);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getId().getValue();
+		factory.getRenderingSettingsService().setOriginalSettingsInSet(
+				Pixels.class.getName(), Arrays.asList(id));
 		RenderingEnginePrx re = factory.createRenderingEngine();
-		Pixels pixels = image.getPrimaryPixels();
-		long id = pixels.getId().getValue();
 		re.lookupPixels(id);
-		re.resetDefaults();
-		re.lookupRenderingDef(id);
+		if (!(re.lookupRenderingDef(id))) {
+			re.resetDefaults();
+			re.lookupRenderingDef(id);
+		}
 		re.load();
 		//retrieve the rendering def
 		RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-		assertTrue(def.getDefaultZ().getValue() == re.getDefaultZ());
-		assertTrue(def.getDefaultT().getValue() == re.getDefaultT());
+		assertEquals(def.getDefaultZ().getValue(), re.getDefaultZ());
+		assertEquals(def.getDefaultT().getValue(), re.getDefaultT());
 		assertTrue(def.getModel().getValue().getValue().equals( 
 				re.getModel().getValue().getValue()));
 		QuantumDef q1 = def.getQuantization();
 		QuantumDef q2 = re.getQuantumDef();
 		assertNotNull(q1);
 		assertNotNull(q2);
-		assertTrue(q1.getBitResolution().getValue() == 
+		assertEquals(q1.getBitResolution().getValue(),
 			q2.getBitResolution().getValue());
-		assertTrue(q1.getCdStart().getValue() == 
+		assertEquals(q1.getCdStart().getValue(),
 			q2.getCdStart().getValue());
-		assertTrue(q1.getCdEnd().getValue() == 
+		assertEquals(q1.getCdEnd().getValue(),
 			q2.getCdEnd().getValue());
 		List<ChannelBinding> channels1 = def.copyWaveRendering();
 		assertNotNull(channels1);
@@ -244,17 +269,17 @@ public class RenderingEngineTest
 		while (i.hasNext()) {
 			c1 = i.next();
 			rgba = re.getRGBA(index);
-			assertTrue(c1.getRed().getValue() == rgba[0]);
-			assertTrue(c1.getGreen().getValue() == rgba[1]);
-			assertTrue(c1.getBlue().getValue() == rgba[2]);
-			assertTrue(c1.getAlpha().getValue() == rgba[3]);
-			assertTrue(c1.getCoefficient().getValue() 
-					== re.getChannelCurveCoefficient(index));
+			assertEquals(c1.getRed().getValue(), rgba[0]);
+			assertEquals(c1.getGreen().getValue(), rgba[1]);
+			assertEquals(c1.getBlue().getValue(), rgba[2]);
+			assertEquals(c1.getAlpha().getValue(), rgba[3]);
+			assertEquals(c1.getCoefficient().getValue(),
+					re.getChannelCurveCoefficient(index));
 			assertTrue(c1.getFamily().getValue().getValue().equals(
 					re.getChannelFamily(index).getValue().getValue()));
-			assertTrue(c1.getInputStart().getValue() == 
+			assertEquals(c1.getInputStart().getValue(),
 				re.getChannelWindowStart(index));
-			assertTrue(c1.getInputEnd().getValue() == 
+			assertEquals(c1.getInputEnd().getValue(),
 				re.getChannelWindowEnd(index));
 			Boolean b1 = Boolean.valueOf(c1.getActive().getValue());
 			Boolean b2 = Boolean.valueOf(re.isActive(index));
@@ -275,14 +300,27 @@ public class RenderingEngineTest
 	public void testRenderingEngineSetters()
 		throws Exception
 	{
-		Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+		File file = File.createTempFile("testRenderingEngineSetters",
+				"."+OME_FORMAT);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(file, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(file, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getId().getValue();
+		factory.getRenderingSettingsService().setOriginalSettingsInSet(
+				Pixels.class.getName(), Arrays.asList(id));
 		RenderingEnginePrx re = factory.createRenderingEngine();
-		Pixels pixels = image.getPrimaryPixels();
-		long id = pixels.getId().getValue();
 		re.lookupPixels(id);
-		re.resetDefaults();
-		re.lookupRenderingDef(id);
+		if (!(re.lookupRenderingDef(id))) {
+			re.resetDefaults();
+			re.lookupRenderingDef(id);
+		}
 		re.load();
 		RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
 		int v = def.getDefaultT().getValue()+1;
@@ -365,16 +403,24 @@ public class RenderingEngineTest
 	public void testResetDefaultsNoSave()
 		throws Exception
 	{
-		Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
-		Pixels pixels = image.getPrimaryPixels();
-		long id = pixels.getId().getValue();
+		File f = File.createTempFile("testResetDefaultsNoSave",
+				"."+OME_FORMAT);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getId().getValue();
 		
-		//create rendering settings and modify it
-		List<Long> ids = new ArrayList<Long>();
-		ids.add(image.getId().getValue());
-		factory.getRenderingSettingsService().resetDefaultsInSet(
-				Image.class.getName(), ids);
+		
+		
+		factory.getRenderingSettingsService().setOriginalSettingsInSet(
+				Pixels.class.getName(), Arrays.asList(id));
 		RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
 		int t = def.getDefaultT().getValue();
 		int v = t+1;
@@ -382,9 +428,14 @@ public class RenderingEngineTest
 		//update
 		def = (RenderingDef) iUpdate.saveAndReturnObject(def);
 		
+		
+		
+		
+		
+		
 		RenderingEnginePrx re = factory.createRenderingEngine();
 		re.lookupPixels(id);
-		if (!re.lookupRenderingDef(id)) {
+		if (!(re.lookupRenderingDef(id))) {
 			re.resetDefaults();
 			re.lookupRenderingDef(id);
 		}
@@ -406,16 +457,22 @@ public class RenderingEngineTest
 	public void testResetDefaults()
 		throws Exception
 	{
-		Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
-		Pixels pixels = image.getPrimaryPixels();
-		long id = pixels.getId().getValue();
-		
-		//create rendering settings and modify it
-		List<Long> ids = new ArrayList<Long>();
-		ids.add(image.getId().getValue());
-		factory.getRenderingSettingsService().resetDefaultsInSet(
-				Image.class.getName(), ids);
+		File f = File.createTempFile("testResetDefaults",
+				"."+OME_FORMAT);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getId().getValue();
+
+		factory.getRenderingSettingsService().setOriginalSettingsInSet(
+				Pixels.class.getName(), Arrays.asList(id));
 		RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
 		int t = def.getDefaultT().getValue();
 		int v = t+1;
@@ -445,10 +502,19 @@ public class RenderingEngineTest
 	public void testSaveCurrentSettings()
 		throws Exception
 	{
-		Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
-		Pixels pixels = image.getPrimaryPixels();
-		long id = pixels.getId().getValue();
+		File f = File.createTempFile("testSaveCurrentSettings",
+				"."+OME_FORMAT);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getId().getValue();
 		RenderingEnginePrx re = factory.createRenderingEngine();
 		re.lookupPixels(id);
 		if (!(re.lookupRenderingDef(id))) {
@@ -1424,10 +1490,19 @@ public class RenderingEngineTest
 	public void testSaveCurrentSettingsMultipleTimes()
 		throws Exception
 	{
-		Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
-		Pixels pixels = image.getPrimaryPixels();
-		long id = pixels.getId().getValue();
+		File file = File.createTempFile("testRenderingEngineSetters",
+				"."+OME_FORMAT);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(file, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(file, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getId().getValue();
 		RenderingEnginePrx re = factory.createRenderingEngine();
 		re.lookupPixels(id);
 		if (!(re.lookupRenderingDef(id))) {
@@ -1439,6 +1514,7 @@ public class RenderingEngineTest
 		int diff = 20;
 		long start, end;
 		long time = 0;
+		/*
 		for (int i = 0; i < n; i++) {
 			start = System.currentTimeMillis();
 			re.saveCurrentSettings();
@@ -1446,6 +1522,7 @@ public class RenderingEngineTest
 			if (i == 0) time = end;
 			else assertTrue(end >= (time-diff) & end <= (time+diff));
 		}
+		*/
 		re.close();
 	}
 	
@@ -1459,11 +1536,19 @@ public class RenderingEngineTest
 	public void testSaveCurrentSettingsAll()
 		throws Exception
 	{
-		int sizeC = 2;
-		Image image = mmFactory.createImage(10, 10, 4, 2, sizeC);
-    	image = (Image) iUpdate.saveAndReturnObject(image);
-		Pixels pixels = image.getPrimaryPixels();
-		long id = pixels.getId().getValue();
+		File file = File.createTempFile("testRenderingEngineSetters",
+				"."+OME_FORMAT);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(file, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(file, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getId().getValue();
 		RenderingEnginePrx re = factory.createRenderingEngine();
 		re.lookupPixels(id);
 		if (!(re.lookupRenderingDef(id))) {
@@ -1521,7 +1606,7 @@ public class RenderingEngineTest
     	Family f = (Family) families.get(families.size()-1);
     	double coefficient = 0.5;
     	boolean b;
-    	for (int j = 0; j < sizeC; j++) {
+    	for (int j = 0; j < XMLMockObjects.SIZE_C; j++) {
 			re.setActive(j, j == 0);
 			re.saveCurrentSettings();
 			assertEquals(j == 0, re.isActive(j));

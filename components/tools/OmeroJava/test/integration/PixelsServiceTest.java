@@ -9,6 +9,7 @@ package integration;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -344,9 +345,8 @@ public class PixelsServiceTest
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(pixels.getId().getValue());
-    	prx.resetDefaultsInSet(Pixels.class.getName(), ids);
+    	prx.setOriginalSettingsInSet(Pixels.class.getName(), 
+    			Arrays.asList(pixels.getId().getValue()));
     	IPixelsPrx svc = factory.getPixelsService();
     	RenderingDef def = svc.retrieveRndSettings(pixels.getId().getValue());
     	assertNotNull(def);
@@ -377,9 +377,8 @@ public class PixelsServiceTest
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(pixels.getId().getValue());
-    	prx.resetDefaultsInSet(Pixels.class.getName(), ids);
+    	prx.setOriginalSettingsInSet(Pixels.class.getName(), 
+    			Arrays.asList(pixels.getId().getValue()));
     	IPixelsPrx svc = factory.getPixelsService();
     	long id = iAdmin.getEventContext().userId;
     	List<IObject> defs = svc.retrieveAllRndSettings(
@@ -433,9 +432,8 @@ public class PixelsServiceTest
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first
     	long id = pixels.getId().getValue();
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(id);
-    	prx.resetDefaultsInSet(Pixels.class.getName(), ids);
+    	prx.setOriginalSettingsInSet(Pixels.class.getName(), 
+    			Arrays.asList(id));
     	IPixelsPrx svc = factory.getPixelsService();
     	//Already tested
     	RenderingDef def = svc.retrieveRndSettings(id);
