@@ -1063,7 +1063,7 @@ class TreeViewerComponent
 			DataBrowserFactory.discardAll();
 			view.removeAllFromWorkingPane();
 		}
-		if (operation == UPDATE_OBJECT) {
+		if (operation == UPDATE_OBJECT && browser != null) {
 			browser.accept(new UpdateVisitor(browser, data));
 			browser.getUI().repaint();
 		}
