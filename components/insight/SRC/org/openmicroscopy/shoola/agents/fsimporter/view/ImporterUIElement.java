@@ -510,7 +510,6 @@ class ImporterUIElement
 		header.add(row);
 		row = createRow();
 		label = UIUtilities.setTextFont("Import Time:", Font.BOLD);
-		startImport = System.currentTimeMillis();
 		timeLabel = UIUtilities.createComponent(null);
 		timeLabel.setText(UIUtilities.formatShortDateTime(null));
     	row.add(label);
@@ -815,6 +814,7 @@ class ImporterUIElement
 	/** Indicates that the import has started. */
 	void startImport()
 	{ 
+		startImport = System.currentTimeMillis();
 		setClosable(false);
 		busyLabel.setBusy(true);
 		repaint();
