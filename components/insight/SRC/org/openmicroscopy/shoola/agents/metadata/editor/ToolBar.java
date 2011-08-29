@@ -466,7 +466,7 @@ class ToolBar
     			if (so.isOfficialScript()) menu.add(subMenu);
     			else others.add(subMenu);
     		}
-    		if (!ScriptMenuItem.isScriptWithUI(so.getScriptLabel()))
+    		//if (!ScriptMenuItem.isScriptWithUI(so.getScriptLabel()))
     			subMenu.addScript(so).addActionListener(controller);
     	}
     	if (others.size() > 0) {
