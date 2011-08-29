@@ -500,11 +500,13 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                             FileFilter tmpFileFilter = new WildcardFileFilter("."
                                     + id + PixelsService.PYRAMID_SUFFIX + "*.tmp");
                             File[] tmpFiles = dir.listFiles(tmpFileFilter);
-                            for (int i = 0; i < tmpFiles.length; i++) {
-                                if(!deleteSingleFile(tmpFiles[i])) {
-                                    failedMap.get(fileType).add(id);
-                                    filesFailed++;
-                                    bytesFailed += tmpFiles[i].length();
+                            if(tmpFiles != null) {
+                                for (int i = 0; i < tmpFiles.length; i++) {
+                                    if(!deleteSingleFile(tmpFiles[i])) {
+                                        failedMap.get(fileType).add(id);
+                                        filesFailed++;
+                                        bytesFailed += tmpFiles[i].length();
+                                    }
                                 }
                             }
                         }
