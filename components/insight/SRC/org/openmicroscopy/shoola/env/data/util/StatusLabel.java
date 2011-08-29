@@ -58,7 +58,7 @@ public class StatusLabel
 {
 
 	/** The text displayed when the file is already selected.*/
-	public static final String DUPLICATE = "Duplicate, import cancel";
+	public static final String DUPLICATE = "Already processed, skipping";
 	
 	/** The text displayed when loading the image to import. */
 	public static final String PREPPING_TEXT = "prepping";
