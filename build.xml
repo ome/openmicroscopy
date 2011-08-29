@@ -82,6 +82,10 @@ java component.
             <fileset dir="${lib.dir}/repository" includes="omero/**,omero-tools/**"/>
         </delete>
         <delete dir="${target.dir}" quiet="true"/>
+        <delete dir="${omero.home}/test-output" quiet="true"/>
+        <delete includeemptydirs="true" quiet="true">
+            <fileset dir="${omero.home}/examples" includes="config.log,**/*.o,**/*.class,**/*.exe"/>
+        </delete>
     </target>
 
     <macrodef name="setup-py-install">
