@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -164,6 +165,24 @@ class BrowserModel
     private boolean isImageMappedRGB(List channels)
     {
     	return parent.isMappedImageRGB(channels);
+    }
+    
+    /**
+     * Handles the exception thrown if any while creating the images for the
+     * split view.
+     * 
+     * @param e The exception to handle.
+     */
+    private void handleGridImageCreationException(Exception e)
+    {
+    	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+		un.notifyInfo("Split View", "Unable to create the images for the view");
+		LogMessage msg = new LogMessage();
+        msg.print("Grid Images creation");
+        msg.print(e);
+        ImViewerAgent.getRegistry().getLogger().error(this, msg);
+        gridImages.clear();
+		gridImagesAsTextures.clear();
     }
     
     /** 
@@ -494,8 +513,12 @@ class BrowserModel
     	if (gridImages.size() != 0) return;
     	if (originalGridImages != null) originalGridImages.clear();
     	if (gridImagesAsTextures.size() != 0) return;
-    	if (ImViewerAgent.hasOpenGLSupport()) createGridImagesAsTextures();
-    	else createGridImages();
+    	try {
+    		if (ImViewerAgent.hasOpenGLSupport()) createGridImagesAsTextures();
+        	else createGridImages();
+		} catch (Exception e) {
+			handleGridImageCreationException(e);
+		}
     }
     
     /**
@@ -964,7 +987,11 @@ class BrowserModel
 		this.gridRatio = gridRatio; 
 		if (ImViewerAgent.hasOpenGLSupport()) return;
 		if (originalGridImages == null || originalGridImages.size() == 0) {
-			createGridImages(); 
+			try {
+				createGridImages();
+			} catch (Exception e) {
+				handleGridImageCreationException(e);
+			}
 			return;
 		}
 		int n = originalGridImages.size();
@@ -980,7 +1007,11 @@ class BrowserModel
 			case 3:
 				//TODO: Review that code.
 				if (isImageMappedRGB(parent.getActiveChannels())) {
-					createGridImages(); 
+					try {
+						createGridImages();
+					} catch (Exception e) {
+						handleGridImageCreationException(e);
+					}
 				} else {
 					combinedImage = Factory.magnifyImage(gridRatio, 
 														renderedImage);
