@@ -24,6 +24,7 @@ import loci.formats.ImageWriter;
 import loci.formats.MetadataTools;
 import loci.formats.meta.IMetadata;
 import loci.formats.meta.MetadataRetrieve;
+import loci.formats.out.TiffWriter;
 import loci.formats.services.OMEXMLService;
 import ome.api.RawPixelsStore;
 import ome.conditions.ApiUsageException;
@@ -348,6 +349,13 @@ public class ExporterI extends AbstractAmdServant implements
                                 writer = new ImageWriter();
                                 writer.setMetadataRetrieve(retrieve);
                                 writer.setId(file.getAbsolutePath());
+
+                                final boolean bigtiff =
+                                    ( raw.getTotalSize() > Integer.MAX_VALUE * 2);
+
+                                if (bigtiff) {
+                                    ((TiffWriter) writer.getWriter()).setBigTiff(true);
+                                }
 
                                 int planeCount = reader.planes;
                                 int planeSize = raw.getPlaneSize();
