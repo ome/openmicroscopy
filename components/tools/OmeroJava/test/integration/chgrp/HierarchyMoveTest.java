@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import omero.api.IRenderingSettingsPrx;
 import omero.cmd.Chgrp;
 import omero.grid.Column;
 import omero.grid.LongColumn;
@@ -987,17 +986,92 @@ public class HierarchyMoveTest
 	param.addId(s2.getId().getValue());
 	assertNotNull(iQuery.findByQuery(sql, param));
 
+
+	loginUser(g);
+	param = new ParametersI();
+	param.addIds(ids);
+	//plate should not have moved.
+	sql = "select i from Plate as i where i.id in (:ids)";
+	results = iQuery.findAllByQuery(sql, param);
+	assertEquals(results.size(), 0);
+
+	//screen should move
+	param = new ParametersI();
+	param.addId(s1.getId().getValue());
+	sql = "select i from Screen as i where i.id = :id";
+	assertNotNull(iQuery.findByQuery(sql, param));
+    }
+
+    /**
+     * Tests to move a dataset containing an image also contained
+     * in another dataset. The dataset should be moved but not the image.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveDatasetWithSharedImage()
+	throws Exception
+    {
+	String perms = "rw----";
+	EventContext ctx = newUserAndGroup(perms);
+	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+
+	Dataset s1 = (Dataset) iUpdate.saveAndReturnObject(
+			mmFactory.simpleDatasetData().asIObject());
+
+	Dataset s2 = (Dataset) iUpdate.saveAndReturnObject(
+			mmFactory.simpleDatasetData().asIObject());
+
+	//Plate w/o plate acquisition
+	Image i1 = (Image) iUpdate.saveAndReturnObject(
+			mmFactory.simpleImage(10));
+	//Plate with plate acquisition
+	List<IObject> links = new ArrayList<IObject>();
+	DatasetImageLink link = new DatasetImageLinkI();
+	link.setChild((Image) i1.proxy());
+	link.setParent(s1);
+	links.add(link);
+	link = new DatasetImageLinkI();
+	link.setChild((Image) i1.proxy());
+	link.setParent(s2);
+	links.add(link);
+	iUpdate.saveAndReturnArray(links);
+
+
+	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_DATASET,
+			s1.getId().getValue(), null, g.getId().getValue()));
+
+
+	List<Long> ids = new ArrayList<Long>();
+	ids.add(i1.getId().getValue());
+
+
+	ParametersI param = new ParametersI();
+	param.addIds(ids);
+	String sql = "select i from Image as i where i.id in (:ids)";
+	List results = iQuery.findAllByQuery(sql, param);
+	assertEquals(results.size(), ids.size());
+
+	//S1 should have moved
+	param = new ParametersI();
+	param.addId(s1.getId().getValue());
+	sql = "select i from Dataset as i where i.id = :id";
+	assertNull(iQuery.findByQuery(sql, param));
+
+	param = new ParametersI();
+	param.addId(s2.getId().getValue());
+	assertNotNull(iQuery.findByQuery(sql, param));
+
 	//Check that the data moved
 	loginUser(g);
 	param = new ParametersI();
 	param.addIds(ids);
-	sql = "select i from Plate as i where i.id in (:ids)";
+	sql = "select i from Image as i where i.id in (:ids)";
 	results = iQuery.findAllByQuery(sql, param);
 	assertEquals(results.size(), 0);
 
 	param = new ParametersI();
 	param.addId(s1.getId().getValue());
-	sql = "select i from Screen as i where i.id = :id";
+	sql = "select i from Dataset as i where i.id = :id";
 	assertNotNull(iQuery.findByQuery(sql, param));
     }
 

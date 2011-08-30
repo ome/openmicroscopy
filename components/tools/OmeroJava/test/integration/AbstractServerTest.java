@@ -554,9 +554,16 @@ public class AbstractServerTest
      * Creates a new {@link omero.client} for root based on the {@link EventContext}
      */
     protected void logRootIntoGroup(EventContext ec) throws Exception {
+	logRootIntoGroup(ec.groupId);
+    }
+
+    /**
+     * Creates a new {@link omero.client} for root based on the group identifier.
+     */
+    protected void logRootIntoGroup(long groupId) throws Exception {
         omero.client rootClient = newRootOmeroClient();
         rootClient.getSession().setSecurityContext(new ExperimenterGroupI(
-        		ec.groupId, false));
+			groupId, false));
         init(rootClient);
     }
 
