@@ -563,6 +563,8 @@ public class ImportDialog
 	/** Displays the location of the import.*/
 	private void showLocationDialog()
 	{
+		addFiles();
+		/*
 		if (!popUpLocation) {
 			addFiles();
 		} else {
@@ -570,7 +572,7 @@ public class ImportDialog
 			if (dialog.centerLocation() == LocationDialog.ADD_OPTION) {
 				addFiles();
 			}
-		}
+		}*/
 	}
 	
 	/** 
@@ -1546,7 +1548,19 @@ public class ImportDialog
 					}
 				}
 			}
-		} 
+		} else { // no node selected
+			if (l.size() > 1) {
+				Iterator<DataNode> i = l.iterator();
+				while (i.hasNext()) {
+					n = i.next();
+					if (!n.isDefaultDataset()) {
+						datasetsBox.setSelectedItem(n);
+						break;
+					}
+				}
+			}
+			
+		}
 		//now check what is the selected node
 		//n = (DataNode) datasetsBox.getSelectedItem();
 		//folderAsDatasetBox.setSelected(n.isDefaultNode());
@@ -1642,7 +1656,8 @@ public class ImportDialog
 		container.add(table.buildControls(), "0, 1, LEFT, CENTER");
 		
 		buildLocationPane();
-		if (!popUpLocation) container.add(locationPane, "3, 0");
+		//if (!popUpLocation)
+		container.add(locationPane, "3, 0");
 		container.add(tabbedPane, "2, 1, 3, 1");
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser, 
 				container);
@@ -2203,11 +2218,12 @@ public class ImportDialog
 		buildLocationPane();
 		boolean b = popUpLocation;
 		popUpLocation = this.selectedContainer == null;
+		/*
 		if (b != popUpLocation) {
 			if (b) container.add(locationPane, "3, 0");
 			else container.remove(locationPane);
 			container.repaint();
-		}
+		}*/
 		locationPane.repaint();
 		tagsPane.removeAll();
 		tagsMap.clear();
