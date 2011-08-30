@@ -37,7 +37,7 @@ if exist %OMERO_DIST_DIR% goto AlreadyBuilt
   goto Ready
 
 :Ready
-cd %OMERO_DIR_DIST%
+cd %OMERO_DIST_DIR%
 
 echo Stopping server...
 python bin\omero admin status && python bin\omero admin stop
