@@ -926,11 +926,11 @@ class OMEROGateway
 		throws FSAccessException
 	{
 		Throwable cause = t.getCause();
-		String s = "\n Image not ready. Please try again later.";
+		String s = "\nImage not ready. Please try again later.";
 		if (cause instanceof ConcurrencyException) {
 			ConcurrencyException mpe = (ConcurrencyException) cause;
 			//s += ", ready in approximately ";
-			//s +=UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
+			//s += UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
 			FSAccessException fsa = new FSAccessException(message+s, cause);
 			if (mpe instanceof MissingPyramidException)
 				fsa.setIndex(FSAccessException.PYRAMID);
@@ -938,7 +938,7 @@ class OMEROGateway
 			throw fsa;
 		} else if (t instanceof ConcurrencyException) {
 			ConcurrencyException mpe = (ConcurrencyException) t;
-			s +=UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
+			s += UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
 			FSAccessException fsa = new FSAccessException(message+s, t);
 			if (mpe instanceof MissingPyramidException)
 				fsa.setIndex(FSAccessException.PYRAMID);
