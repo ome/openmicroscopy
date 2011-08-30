@@ -10,6 +10,8 @@ sc stop OMERO.%OMERO_BRANCH%
 REM Print out the environment
 set
 
+set OMERO_SRC_DIR=%cd%
+set OMERO_DIST_DIR=%cd%\..\dist
 set OMERO_MASTER=%OMERO_BRANCH%
 set OMERO_CONFIG=%OMERO_BRANCH%
 set ROUTERPREFIX=%OMERO_PREFIX%
@@ -40,7 +42,7 @@ if errorlevel 1 goto ERROR
 
 call docs\QUICKSTART.bat
 if errorlevel 1 goto ERROR
-cd dist
+cd %OMERO_DIST_DIR%
 
 python bin\omero admin waitup
 
@@ -95,7 +97,7 @@ if errorlevel 1 goto ERROR
 REM
 REM Write test file for OMERO-start jobs
 REM
-cd ..
+cd %OMERO_SRC_DIR%
 if not exist target mkdir target
 if not exist target\reports mkdir target\reports
 set FILE=startup.xml

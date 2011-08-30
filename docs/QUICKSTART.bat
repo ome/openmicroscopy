@@ -18,14 +18,18 @@ echo.
 echo Logging in user for service: %USERDOMAIN%\%USERNAME%
 echo.
 
+REM Move to the directory above this script's directory
+REM i.e. OMERO_HOME
+cd "%~dp0\.."
+
 if "x%PASSWORD%" == "x" (SET /P PASSWORD=Password:)
 REM Other defaults
 if "x%ROUTERPREFIX%" == "x" (SET ROUTERPREFIX="")
+if "x%OMERO_DIST_DIR%" == "x" (SET OMERO_DIST_DIR="%cd%\dist")
 
-cd "%~dp0\.."
-if exist dist goto AlreadyBuilt
+if exist %OMERO_DIST_DIR% goto AlreadyBuilt
   echo Building...
-  python build.py
+  python build.py -Ddist.dir=%OMERO_DIST_DIR%
   if errorlevel 1 goto ERROR
   goto Ready
 :AlreadyBuilt
@@ -33,7 +37,7 @@ if exist dist goto AlreadyBuilt
   goto Ready
 
 :Ready
-cd dist
+cd %OMERO_DIR_DIST%
 
 echo Stopping server...
 python bin\omero admin status && python bin\omero admin stop
