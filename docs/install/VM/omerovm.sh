@@ -16,82 +16,29 @@ set -x
 
 VBOX="VBoxManage --nologo"
 OS=`uname -s`
+ATTEMPTS=0
+MAXATTEMPTS=5
+DELAY=2
+NATADDR="10.0.2.15"
 
-if test -e $HOME/Library/VirtualBox; then
-    export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks/"}
-elif test -e $HOME/.VirtualBox; then
-    export HARDDISKS=${HARDDISKS:-"$HOME/.VirtualBox/HardDisks/"}
-else
-    echo "Cannot find harddisks! Trying setting HARDDISKS"
-    exit 3
-fi
+##################
+##################
+# SCRIPT FUNCTIONS
+##################
+##################
 
-$VBOX list vms | grep "$VMNAME" && {
-	if VBoxManage showvminfo "$VMNAME" | grep -q "running"
-	then
-	VBoxManage controlvm "$VMNAME" poweroff
-	sleep 10
-	fi
-	VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium none
-	VBoxManage unregistervm "$VMNAME" --delete
-	VBoxManage closemedium disk $HARDDISKS"$VMNAME".vdi --delete
+function checknet ()
+{
+	UP=$($VBOX guestproperty enumerate $VMNAME | grep "10.0.2.15") || true
+	ATTEMPTS=$(($ATTEMPTS + 1))
 }
 
-set +e
-
-ps aux | grep [V]Box && {
-
-	if [ "$OS" == "Darwin" ]; then
-		killall -m [V]Box
-	else [ "$OS" == "Linux" ];
-		killall -r [V]Box
-	fi
-
-}
-
-ps aux | grep [V]irtualBox && {
-
-	if [ "$OS" == "Darwin" ]; then
-		killall -m [V]irtualBox
-	else [ "$OS" == "Linux" ];
-		killall -r [V]irtualBox
-	fi
-
-}
-
-set -e
-
-
-$VBOX list vms | grep "$VMNAME" || {
-	VBoxManage clonehd "$HARDDISKS"omero-base-img_2011-08-08.vdi"" "$HARDDISKS$VMNAME.vdi"
-	VBoxManage createvm --name "$VMNAME" --register --ostype "Debian"
-	VBoxManage storagectl "$VMNAME" --name "SATA CONTROLLER" --add sata
-	VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium $HARDDISKS$VMNAME.vdi
-		
-	VBoxManage modifyvm "$VMNAME" --nic1 nat --nictype1 "82545EM"
-	VBoxManage modifyvm "$VMNAME" --memory $MEMORY --acpi on
-
-	VBoxManage modifyvm "$VMNAME" --natpf1 "ssh,tcp,127.0.0.1,2222,10.0.2.15,22"
-	VBoxManage modifyvm "$VMNAME" --natpf1 "omero-unsec,tcp,127.0.0.1,4063,10.0.2.15,4063"
-	VBoxManage modifyvm "$VMNAME" --natpf1 "omero-ssl,tcp,127.0.0.1,4064,10.0.2.15,4064"
-	VBoxManage modifyvm "$VMNAME" --natpf1 "omero-web,tcp,127.0.0.1,4080,10.0.2.15,4080"
-}
-
-$VBOX list runningvms | grep "$VMNAME" || {
-    echo "Starting VM... first boot... give the VM time to boot..."
-    $VBOX startvm "$VMNAME" --type headless && sleep 45
-}
-
-$VBOX guestproperty enumerate $VMNAME | grep "10.0.2.15" && {
-	
+function installvm ()
+{
 	ssh-keygen -R [localhost]:2222 -f ~/.ssh/known_hosts
-
 	chmod 600 ./omerovmkey
-
 	SCP="scp -2 -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i omerovmkey -P $SSH_PF"
-
 	SSH="ssh -2 -o StrictHostKeyChecking=no -i omerovmkey -p $SSH_PF -t"
-
 	echo "Copying scripts to VM"
 	$SCP driver.sh omero@localhost:~/
 	$SCP setup_userspace.sh omero@localhost:~/
@@ -100,15 +47,143 @@ $VBOX guestproperty enumerate $VMNAME | grep "10.0.2.15" && {
 	$SCP setup_omero.sh omero@localhost:~/
 	$SCP setup_omero_daemon.sh omero@localhost:~/
 	$SCP omero-init.d omero@localhost:~/
-
 	echo "ssh : exec driver.sh"
 	$SSH omero@localhost 'bash /home/omero/driver.sh'
-
-	sleep 60
+	sleep 10
 	
 	echo "ALL DONE!"
-	echo "Connect to your OMERO VM using either OMERO.insight or another OMERO client or SSH using the connect.sh script"
-	echo "Your VM has the following IP addresses:"
-	VBoxManage guestproperty enumerate $VMNAME | grep IP
+}
 
-} || "VM has no network connection (VirtualBox error http://www.virtualbox.org/ticket/4038). Rerun omerovm.sh"
+function failfast ()
+{
+	exit 1
+}
+
+function poweroffvm ()
+{
+	$VBOX list vms | grep "$VMNAME" && {
+		if VBoxManage showvminfo "$VMNAME" | grep -q "running"
+		then
+			VBoxManage controlvm "$VMNAME" poweroff
+			sleep 10
+		fi
+	}
+}
+
+function poweronvm ()
+{
+	$VBOX list runningvms | grep "$VMNAME" || {
+    	#echo "Starting VM... first boot... give the VM time to boot..."
+    	$VBOX startvm "$VMNAME" --type headless && sleep 45
+	}
+
+}
+
+function rebootvm ()
+{
+	poweroffvm
+	poweronvm
+}
+
+function killallvbox ()
+{
+	set +e
+
+	ps aux | grep [V]Box && {
+	
+		if [ "$OS" == "Darwin" ]; then
+			killall -m [V]Box
+		else [ "$OS" == "Linux" ];
+			killall -r [V]Box
+		fi
+	
+	}
+	
+	ps aux | grep [V]irtualBox && {
+	
+		if [ "$OS" == "Darwin" ]; then
+			killall -m [V]irtualBox
+		else [ "$OS" == "Linux" ];
+			killall -r [V]irtualBox
+		fi
+	
+	}
+	
+	set -e
+}
+
+function checkhddfolder ()
+{
+	if test -e $HOME/Library/VirtualBox; then
+	    export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks/"}
+	elif test -e $HOME/.VirtualBox; then
+	    export HARDDISKS=${HARDDISKS:-"$HOME/.VirtualBox/HardDisks/"}
+	else
+	    echo "Cannot find harddisks! Trying setting HARDDISKS"
+	    failfast
+	fi
+}
+
+function deletevm ()
+{
+	poweroffvm
+	
+	VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium none
+	VBoxManage unregistervm "$VMNAME" --delete
+	VBoxManage closemedium disk $HARDDISKS"$VMNAME".vdi --delete
+
+}
+
+function createvm ()
+{
+		$VBOX list vms | grep "$VMNAME" || {
+		VBoxManage clonehd "$HARDDISKS"omero-base-img_2011-08-08.vdi"" "$HARDDISKS$VMNAME.vdi"
+		VBoxManage createvm --name "$VMNAME" --register --ostype "Debian"
+		VBoxManage storagectl "$VMNAME" --name "SATA CONTROLLER" --add sata
+		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium $HARDDISKS$VMNAME.vdi
+			
+		VBoxManage modifyvm "$VMNAME" --nic1 nat --nictype1 "82545EM"
+		VBoxManage modifyvm "$VMNAME" --memory $MEMORY --acpi on
+	
+		VBoxManage modifyvm "$VMNAME" --natpf1 "ssh,tcp,127.0.0.1,2222,10.0.2.15,22"
+		VBoxManage modifyvm "$VMNAME" --natpf1 "omero-unsec,tcp,127.0.0.1,4063,10.0.2.15,4063"
+		VBoxManage modifyvm "$VMNAME" --natpf1 "omero-ssl,tcp,127.0.0.1,4064,10.0.2.15,4064"
+		VBoxManage modifyvm "$VMNAME" --natpf1 "omero-web,tcp,127.0.0.1,4080,10.0.2.15,4080"
+	}
+}
+
+####################
+####################
+# SCRIPT ENTRY POINT
+####################
+####################
+
+checkhddfolder
+
+deletevm
+
+killallvbox
+
+createvm
+
+poweronvm
+
+checknet
+
+if [[ -z "$UP" ]]
+then
+	while [[ -z "$UP" && $ATTEMPTS -lt $MAXATTEMPTS ]]
+	do
+		rebootvm
+	    checknet
+	    sleep $DELAY
+	done
+	if [[ -z "$UP" ]]
+	then
+    	echo "No connection to x. Failure after $ATTEMPTS tries"
+    	failfast
+    fi
+fi
+
+echo "Network up after $ATTEMPTS tries"
+installvm
