@@ -105,7 +105,6 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.IRepositoryInfoPrx;
 import omero.api.IRoiPrx;
 import omero.api.IScriptPrx;
-import omero.api.ISessionPrx;
 import omero.api.ITimelinePrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
@@ -460,7 +459,7 @@ class OMEROGateway
 	private Map<String, List<EnumerationObject>>	enumerations;
 	
 	/** Collection of services to keep alive. */
-	private List<ServiceInterfacePrx>				services;
+	private Set<ServiceInterfacePrx>				services;
 	
 	/** Collection of services to keep alive. */
 	private Map<Long, StatefulServiceInterfacePrx>	reServices;
@@ -1256,25 +1255,6 @@ class OMEROGateway
 		}
 		return new ArrayList();
 	}
-	/**
-	 * Returns the {@link ISessionPrx} service.
-	 * 
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private ISessionPrx getSessionService()
-		throws DSAccessException, DSOutOfServiceException
-	{
-		try {
-			
-			return entryEncrypted.getSessionService();
-		} catch (Throwable e) {
-			handleException(e, "Cannot access Session service.");
-		}
-		return null;
-	}
 	
 	/**
 	 * Returns the {@link SharedResourcesPrx} service.
@@ -1292,6 +1272,9 @@ class OMEROGateway
 		try {
 			if (sharedResources == null) {
 				sharedResources = entryEncrypted.sharedResources();
+				if (sharedResources == null)
+					throw new DSOutOfServiceException(
+					"Cannot access the Shared Resources."); 
 			}
 			return sharedResources;
 		} catch (Exception e) {
@@ -1313,13 +1296,21 @@ class OMEROGateway
 	{
 		try {
 			if (rndSettingsService == null) {
-				rndSettingsService = 
-					entryEncrypted.getRenderingSettingsService(); 
+				if (entryUnencrypted != null)
+					rndSettingsService = 
+						entryUnencrypted.getRenderingSettingsService();
+				else 
+					rndSettingsService = 
+						entryEncrypted.getRenderingSettingsService();
+				
+				if (rndSettingsService == null)
+					throw new DSOutOfServiceException(
+							"Cannot access the RenderingSettings service.");
 				services.add(rndSettingsService);
 			}
 			return rndSettingsService;
 		} catch (Throwable e) {
-			handleException(e, "Cannot access RenderingSettings service.");
+			handleException(e, "Cannot access the RenderingSettings service.");
 		}
 		return null;
 	}
@@ -1360,12 +1351,19 @@ class OMEROGateway
 	{
 		try {
 			if (repInfoService == null) {
-				repInfoService = entryEncrypted.getRepositoryInfoService();
+				if (entryUnencrypted != null)
+					repInfoService = 
+						entryUnencrypted.getRepositoryInfoService();
+				else repInfoService = 
+						entryEncrypted.getRepositoryInfoService();
+				if (repInfoService == null)
+					throw new DSOutOfServiceException(
+							"Cannot access the RepositoryInfo service.");
 				services.add(repInfoService);
 			}
 			return repInfoService;
 		} catch (Throwable e) {
-			handleException(e, "Cannot access RepositoryInfo service.");
+			handleException(e, "Cannot access the RepositoryInfo service.");
 		}
 		return null;
 	}
@@ -1383,12 +1381,17 @@ class OMEROGateway
 	{ 
 		try {
 			if (scriptService == null) {
-				scriptService = entryEncrypted.getScriptService();
+				if (entryUnencrypted != null)
+					scriptService = entryUnencrypted.getScriptService();
+				else scriptService = entryEncrypted.getScriptService();
+				if (scriptService == null)
+					throw new DSOutOfServiceException(
+							"Cannot access the Scripting service.");
 				services.add(scriptService);
 			}
 			return scriptService; 
 		} catch (Throwable e) {
-			handleException(e, "Cannot access the script service.");
+			handleException(e, "Cannot access the Scripting service.");
 		}
 		return null;
 	}
@@ -1406,12 +1409,17 @@ class OMEROGateway
 	{ 
 		try {
 			if (pojosService == null) {
-				pojosService = entryEncrypted.getContainerService();
+				if (entryUnencrypted != null)
+					pojosService = entryUnencrypted.getContainerService();
+				else pojosService = entryEncrypted.getContainerService();
+				if (pojosService == null)
+					throw new DSOutOfServiceException(
+							"Cannot access the Container service.");
 				services.add(pojosService);
 			}
 			return pojosService; 
 		} catch (Throwable e) {
-			handleException(e, "Cannot access container service.");
+			handleException(e, "Cannot access the Container service.");
 		}
 		return null;
 	}
@@ -1429,12 +1437,17 @@ class OMEROGateway
 	{ 
 		try {
 			if (queryService == null) {
-				queryService = entryEncrypted.getQueryService(); 
+				if (entryUnencrypted != null)
+					queryService = entryUnencrypted.getQueryService();
+				else queryService = entryEncrypted.getQueryService();
+				if (queryService == null)
+					throw new DSOutOfServiceException(
+							"Cannot access the Query service.");
 				services.add(queryService);
 			}
 			return queryService; 
 		} catch (Throwable e) {
-			handleException(e, "Cannot access Query service.");
+			handleException(e, "Cannot access the Query service.");
 		}
 		return null;
 	}
@@ -1452,7 +1465,12 @@ class OMEROGateway
 	{ 
 		try {
 			if (updateService == null) {
-				updateService = entryEncrypted.getUpdateService();
+				if (entryUnencrypted != null)
+					updateService = entryUnencrypted.getUpdateService();
+				else updateService = entryEncrypted.getUpdateService();
+				if (updateService == null)
+					throw new DSOutOfServiceException(
+							"Cannot access Update service.");
 				services.add(updateService);
 			}
 			return updateService; 
@@ -1475,12 +1493,17 @@ class OMEROGateway
 	{ 
 		try {
 			if (metadataService == null) {
-				metadataService = entryEncrypted.getMetadataService();
+				if (entryUnencrypted != null)
+					metadataService = entryUnencrypted.getMetadataService();
+				else metadataService = entryEncrypted.getMetadataService();
+				if (metadataService == null)
+					throw new DSOutOfServiceException(
+							"Cannot access the Metadata service.");
 				services.add(metadataService);
 			}
 			return metadataService; 
 		} catch (Throwable e) {
-			handleException(e, "Cannot access Metadata service.");
+			handleException(e, "Cannot access the Metadata service.");
 		}
 		return null;
 	}
@@ -1498,12 +1521,17 @@ class OMEROGateway
 	{ 
 		try {
 			if (roiService == null) {
-				roiService = entryEncrypted.getRoiService();
+				if (entryUnencrypted != null)
+					roiService = entryUnencrypted.getRoiService();
+				else roiService = entryEncrypted.getRoiService();
+				if (roiService == null)
+					throw new DSOutOfServiceException(
+							"Cannot access the ROI service.");
 				services.add(roiService);
 			}
 			return roiService; 
 		} catch (Throwable e) {
-			handleException(e, "Cannot access ROI service.");
+			handleException(e, "Cannot access th ROI service.");
 		}
 		return null;
 	}
@@ -1521,12 +1549,15 @@ class OMEROGateway
 	{ 
 		try {
 			if (adminService == null) {
-				adminService = entryEncrypted.getAdminService(); 
+				adminService = entryEncrypted.getAdminService();
+				if (adminService == null)
+					throw new DSOutOfServiceException(
+							"Cannot access the Admin service.");
 				services.add(adminService);
 			}
 			return adminService; 
 		} catch (Throwable e) {
-			handleException(e, "Cannot access Admin service.");
+			handleException(e, "Cannot access the Admin service.");
 		}
 		return null;
 	}
@@ -1545,7 +1576,7 @@ class OMEROGateway
 		try {
 			if (entryUnencrypted != null)
 				return entryUnencrypted.getConfigService();
-			return entryEncrypted.getConfigService(); 
+			return entryEncrypted.getConfigService();
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Configuration service.");
 		}
@@ -1569,37 +1600,14 @@ class OMEROGateway
 					deleteService = entryUnencrypted.getDeleteService(); 
 				else 
 					deleteService = entryEncrypted.getDeleteService();
+				if (deleteService == null)
+					throw new DSOutOfServiceException(
+							"Cannot access the Delete service.");
 				services.add(deleteService);
 			}
 			return deleteService;
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Delete service.");
-		}
-		return null;
-	}
-	
-	/**
-	 * Returns the {@link ITimelinePrx} service.
-	 * 
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private ITimelinePrx getTimeService()
-		throws DSAccessException, DSOutOfServiceException
-	{
-		try {
-			if (timeService == null) {
-				if (entryUnencrypted != null)
-					timeService = entryUnencrypted.getTimelineService(); 
-				else 
-					timeService = entryEncrypted.getTimelineService(); 
-				services.add(timeService);
-			}
-			return timeService;
-		} catch (Throwable e) {
-			handleException(e, "Cannot access Time service.");
 		}
 		return null;
 	}
@@ -1628,6 +1636,9 @@ class OMEROGateway
 					thumbnailService = entryUnencrypted.createThumbnailStore();
 				else 
 					thumbnailService = entryEncrypted.createThumbnailStore();
+				if (thumbnailService == null)
+					throw new DSOutOfServiceException(
+							"Cannot access Thumbnail service.");
 				services.add(thumbnailService);
 			}
 			return thumbnailService; 
@@ -1653,9 +1664,12 @@ class OMEROGateway
 			if (entryUnencrypted != null)
 				store = entryUnencrypted.createExporter();
 			else store = entryEncrypted.createExporter();
-			return store;//exporterService; 
+			if (store == null)
+				throw new DSOutOfServiceException(
+						"Cannot access the Exporter service.");
+			return store;
 		} catch (Throwable e) {
-			handleException(e, "Cannot access Exporter service.");
+			handleException(e, "Cannot access the Exporter service.");
 		}
 		return null;
 	}
@@ -1686,9 +1700,12 @@ class OMEROGateway
 				fileStore = entryUnencrypted.createRawFileStore();
 			else 
 				fileStore = entryEncrypted.createRawFileStore();
+			if (fileStore == null)
+				throw new DSOutOfServiceException(
+						"Cannot access the RawFileStore Engine.");
 			return fileStore;
 		} catch (Throwable e) {
-			handleException(e, "Cannot access RawFileStore service.");
+			handleException(e, "Cannot access the RawFileStore service.");
 		}
 		return null;
 	}
@@ -1709,10 +1726,13 @@ class OMEROGateway
 			if (entryUnencrypted != null)
 				engine = entryUnencrypted.createRenderingEngine();
 			else engine = entryEncrypted.createRenderingEngine();
+			if (engine == null)
+				throw new DSOutOfServiceException(
+						"Cannot access the Rendering Engine.");
 			engine.setCompressionLevel(compression);
 			return engine;
 		} catch (Throwable e) {
-			handleException(e, "Cannot access RawFileStore service.");
+			handleException(e, "Cannot access the Rendering Engine.");
 		}
 		return null;
 	}
@@ -1733,9 +1753,12 @@ class OMEROGateway
 				pixelsStore = entryUnencrypted.createRawPixelsStore();
 			else 
 				pixelsStore = entryEncrypted.createRawPixelsStore();
+			if (pixelsStore == null)
+				throw new DSOutOfServiceException(
+						"Cannot access the RawPixelsStore service.");
 			return pixelsStore;
 		} catch (Throwable e) {
-			handleException(e, "Cannot access RawPixelsStore service.");
+			handleException(e, "Cannot access the RawPixelsStore service.");
 		}
 		return null;
 	}
@@ -1757,11 +1780,14 @@ class OMEROGateway
 					pixelsService = entryUnencrypted.getPixelsService();
 				else 
 					pixelsService = entryEncrypted.getPixelsService();
+				if (pixelsService == null)
+					throw new DSOutOfServiceException(
+							"Cannot access the Pixels service.");
 				services.add(pixelsService);
 			}
 			return pixelsService;
 		} catch (Throwable e) {
-			handleException(e, "Cannot access Pixels service.");
+			handleException(e, "Cannot access the Pixels service.");
 		}
 		return null;
 	}
@@ -1778,11 +1804,16 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
+			SearchPrx prx = null;
 			if (entryUnencrypted != null)
-				return entryUnencrypted.createSearchService();
-			return entryEncrypted.createSearchService();
+				prx = entryUnencrypted.createSearchService();
+			else prx = entryEncrypted.createSearchService();
+			if (prx == null)
+				throw new DSOutOfServiceException(
+					"Cannot access the Search service.");
+			return prx;
 		} catch (Throwable e) {
-			handleException(e, "Cannot access Search service.");
+			handleException(e, "Cannot access the Search service.");
 		}
 		return null;
 	}
@@ -1801,13 +1832,16 @@ class OMEROGateway
 		try {
 			if (projService == null) {
 				if (entryUnencrypted != null)
-					projService = entryUnencrypted.getProjectionService(); 
+					projService = entryUnencrypted.getProjectionService();
 				else projService = entryEncrypted.getProjectionService();
+				if (projService == null)
+					throw new DSOutOfServiceException(
+							"Cannot access the Projection service.");
 				services.add(projService);
 			}
 			return projService;
 		} catch (Throwable e) {
-			handleException(e, "Cannot access Pixels service.");
+			handleException(e, "Cannot access the Projection service.");
 		}
 		return null;
 	}
@@ -2036,7 +2070,7 @@ class OMEROGateway
 		this.port = port;
 		thumbRetrieval = 0;
 		enumerations = new HashMap<String, List<EnumerationObject>>();
-		services = new ArrayList<ServiceInterfacePrx>();
+		services = new HashSet<ServiceInterfacePrx>();
 		reServices = new HashMap<Long, StatefulServiceInterfacePrx>();
 	}
 	
@@ -5241,6 +5275,11 @@ class OMEROGateway
 	/** Keeps the services alive. */
 	void keepSessionAlive()
 	{
+		Collection<ServiceInterfacePrx> 
+			all = new HashSet<ServiceInterfacePrx>();
+		if (services.size() > 0) all.addAll(services);
+		if (reServices.size() > 0) all.addAll(reServices.values());
+		/*
 		int n = services.size()+reServices.size();
 		ServiceInterfacePrx[] entries = new ServiceInterfacePrx[n];
 		Iterator<ServiceInterfacePrx> i = services.iterator();
@@ -5254,6 +5293,10 @@ class OMEROGateway
 			entries[index] = reServices.get(j.next());
 			index++;
 		}
+		*/
+		if (all.size() == 0) return;
+		ServiceInterfacePrx[] entries = (ServiceInterfacePrx[]) 
+			all.toArray(new ServiceInterfacePrx[all.size()]);
 		try {
 			entryEncrypted.keepAllAlive(entries);
 		} catch (Exception e) {
