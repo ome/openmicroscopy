@@ -1893,9 +1893,9 @@ def image_as_map(request, imageId, **kwargs):
                 pass
 
     header = {}
-    header["xlen"] = pixels.physicalSizeX
-    header["ylen"] = pixels.physicalSizeY
-    header["zlen"] = pixels.physicalSizeZ
+    header["xlen"] = pixels.physicalSizeX * image.getSizeX()
+    header["ylen"] = pixels.physicalSizeY * image.getSizeY()
+    header["zlen"] = pixels.physicalSizeZ * image.getSizeZ()
     if header["xlen"] == 0 or header["ylen"] == 0 or header["zlen"] == 0:
         header = {}
 
