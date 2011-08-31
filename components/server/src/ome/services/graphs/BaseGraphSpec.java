@@ -216,6 +216,28 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         return true;
     }
 
+
+    /*
+     * See interface documentation.
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public IObject load(Session session) throws GraphException {
+
+        final GraphEntry subpath = new GraphEntry(this, this.beanName);
+        final String[] sub = subpath.path(superspec);
+        final QueryBuilder qb = new QueryBuilder();
+
+        qb.select("ROOT"+(sub.length-1));
+        walk(qb, subpath);
+        qb.where();
+        // From queryBackupIds
+        qb.and("ROOT0.id = :id");
+        qb.param("id", id);
+
+        return (IObject) qb.query(session).uniqueResult();
+
+    }
+
     /*
      * See interface documentation.
      */

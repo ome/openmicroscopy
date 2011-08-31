@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphSpec;
 import ome.system.OmeroContext;
+import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import omero.cmd.GraphModify;
 import omero.cmd.GraphSpecList;
@@ -48,7 +49,7 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
         this.ctx = ctx;
     }
 
-    public void init(Status status, Session session, SqlAction sql) {
+    public void init(Status status, SqlAction sql, Session session, ServiceFactory sf) {
         status.steps = 1;
     }
 

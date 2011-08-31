@@ -45,7 +45,7 @@ public class ListRequestsI extends ListRequests implements IRequest {
         this.ctx = ctx;
     }
 
-    public void init(Status status, Session session, SqlAction sql) {
+    public void init(Status status, SqlAction sql, Session session, ome.system.ServiceFactory sf) {
         status.steps = 1;
     }
 

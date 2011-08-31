@@ -8,8 +8,8 @@ package integration.chgrp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
-import omero.api.delete.DeleteCommand;
 import omero.cmd.Chgrp;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
@@ -164,41 +164,80 @@ public class HierarchyMoveAndPermissionsTest
 
     /**
      * Test to move an image w/o pixels between 2 groups. The owner of the
-     * source group is NOT an owner of the destination group.
+     * source group is NOT an owner or member of the destination group.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
     public void testMoveBasicImageNotOwnerDestination()
-	throws Exception
+        throws Exception
     {
-	String perms = "rw----";
-	//group and group owner.
-	EventContext ctx = newUserAndGroup(perms, true);
-	EventContext dataOwner = newUserInGroup();
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
-	long id = img.getId().getValue();
-	disconnect();
-	ctx = init(ctx);
+        String perms = "rw----";
+        //group and group owner.
+        EventContext ctx = newUserAndGroup(perms, true);
+        EventContext dataOwner = newUserInGroup();
+        Image img = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        long id = img.getId().getValue();
+        disconnect();
+        ctx = init(ctx);
 
-	//Create a new group and make owner of first group an owner.
-	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, false);
+        //Create a new group and make owner of first group an owner.
+        ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, false);
 
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
-			null, g.getId().getValue()));
-		//Now check that the image is no longer in group
-	ParametersI param = new ParametersI();
-	param.addId(id);
+        doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+                null, g.getId().getValue()));
+        //Now check that the image is no longer in group
+        ParametersI param = new ParametersI();
+        param.addId(id);
 
-	assertTrue(g.getId().getValue() != ctx.groupId);
-	StringBuilder sb = new StringBuilder();
-	sb.append("select i from Image i ");
-	sb.append("where i.id = :id");
-	//image should not have been moved.
-	assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        assertTrue(g.getId().getValue() != ctx.groupId);
+        StringBuilder sb = new StringBuilder();
+        sb.append("select i from Image i ");
+        sb.append("where i.id = :id");
+        //image should not have been moved.
+        assertNotNull(iQuery.findByQuery(sb.toString(), param));
 
-	EventContext ec = loginUser(g);
-	assertNull(iQuery.findByQuery(sb.toString(), param));
+        EventContext ec = loginUser(g);
+        assertNull(iQuery.findByQuery(sb.toString(), param));
+    }
+
+    /**
+     * Test to move an image w/o pixels between 2 groups. The owner of the
+     * source group is NOT an owner but IS a member of the destination group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveBasicImageNotOwnerButMemberDestination()
+        throws Exception
+    {
+        String perms = "rw----";
+        //group and group owner.
+        EventContext oldGroupOwner = newUserAndGroup(perms, true);
+        EventContext dataOwner = newUserInGroup();
+        Image img = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        long id = img.getId().getValue();
+        disconnect();
+        oldGroupOwner = init(oldGroupOwner);
+
+        //Create a new group and make owner of first group an owner.
+        ExperimenterGroup g = newGroupAddUser(perms, oldGroupOwner.userId, false);
+
+        doChange(new Chgrp(oldGroupOwner.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+                null, g.getId().getValue()));
+        //Now check that the image is no longer in group
+        ParametersI param = new ParametersI();
+        param.addId(id);
+
+        assertTrue(g.getId().getValue() != oldGroupOwner.groupId);
+        StringBuilder sb = new StringBuilder();
+        sb.append("select i from Image i ");
+        sb.append("where i.id = :id");
+        //image should not have been moved.
+        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+
+        EventContext ec = loginUser(g);
+        assertNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**

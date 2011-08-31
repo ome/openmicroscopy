@@ -197,5 +197,14 @@ public interface GraphSpec {
 
     CurrentDetails getCurrentDetails();
 
+    /**
+     * Loads the object that this spec points to. Performs similar logic to
+     * the {@link #queryBackupIds(Session, int, GraphEntry, QueryBuilder)}
+     * but only returns the last element.
+     *
+     * @return possibly null.
+     */
+    IObject load(Session session) throws GraphException;
+
     void close();
 }

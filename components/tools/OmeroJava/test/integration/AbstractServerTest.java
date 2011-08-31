@@ -49,8 +49,12 @@ import omero.api.delete.DeleteHandlePrx;
 import omero.api.delete.DeleteReport;
 import omero.cmd.Chgrp;
 import omero.cmd.CmdCallbackI;
+import omero.cmd.ERR;
 import omero.cmd.HandlePrx;
+import omero.cmd.OK;
+import omero.cmd.Response;
 import omero.cmd.State;
+import omero.cmd.Status;
 import omero.grid.DeleteCallbackI;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
@@ -351,14 +355,20 @@ public class AbstractServerTest
 		List<Long> experimenterIds, boolean owner)
 	throws Exception
     {
-	IAdminPrx rootAdmin = root.getSession().getAdminService();
+        IAdminPrx rootAdmin = root.getSession().getAdminService();
 	String uuid = UUID.randomUUID().toString();
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(omero.rtypes.rstring(uuid));
         g.getDetails().setPermissions(perms);
         g = new ExperimenterGroupI(rootAdmin.createGroup(g), false);
+        return addUsers(g, experimenterIds, owner);
+    }
 
-        //new group
+    protected ExperimenterGroup addUsers(ExperimenterGroup g,
+            List<Long> experimenterIds, boolean owner)
+        throws Exception
+    {
+        IAdminPrx rootAdmin = root.getSession().getAdminService();
         g = rootAdmin.getGroup(g.getId().getValue());
         Iterator<Long> i = experimenterIds.iterator();
         List<Experimenter> l = new ArrayList<Experimenter>();
@@ -1474,13 +1484,37 @@ public class AbstractServerTest
 	 * @return See above.
 	 * @throws Exception
 	 */
-	protected void doChange(Chgrp change)
+	protected Response doChange(Chgrp change)
+	    throws Exception {
+	    return doChange(change, true);
+	}
+
+	protected Response doChange(Chgrp change, boolean pass)
 		throws Exception
 	{
 		final HandlePrx prx = factory.submit(change);
 		assertFalse(prx.getStatus().flags.contains(State.FAILURE));
 		new CmdCallbackI(client, prx).loop(20, 500);
 		assertNotNull(prx.getResponse());
+
+		Status status = prx.getStatus();
+		Response rsp = prx.getResponse();
+		assertNotNull(rsp);
+		if (pass) {
+		    if (rsp instanceof ERR) {
+		        ERR err = (ERR) rsp;
+		        fail(String.format("Found ERR when pass==true: %s (%s) params=",
+		                err.category, err.name, err.parameters));
+		    }
+		    assertFalse(status.flags.contains(State.FAILURE));
+		} else {
+		    if (rsp instanceof OK) {
+		        OK ok = (OK) rsp;
+		        fail(String.format("Found OK when pass==false: %s", ok));
+		    }
+		    assertTrue(status.flags.contains(State.FAILURE));
+		}
+		return rsp;
 	}
 
 }

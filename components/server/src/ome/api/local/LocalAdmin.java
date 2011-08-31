@@ -15,6 +15,7 @@ import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.system.EventContext;
 
 // Third-party libraries
 
@@ -86,4 +87,9 @@ public interface LocalAdmin extends ome.api.IAdmin {
      * TODO This will eventually return a list of ids
      */
     Map<String, Long> getLockingIds(Class<IObject> klass, long id, Long groupId);
+
+    /**
+     * Like {@link #getEventContext()} but will not reload the context.
+     */
+    EventContext getEventContextQuiet();
 }

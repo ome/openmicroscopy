@@ -7,6 +7,7 @@
  */
 package omero.cmd;
 
+import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import omero.cmd.HandleI.Cancel;
 
@@ -26,7 +27,7 @@ public interface IRequest {
      *
      * @param status
      */
-    void init(Status status, Session session, SqlAction sql) throws Cancel;
+    void init(Status status, SqlAction sql, Session session, ServiceFactory sf) throws Cancel;
 
     void step(int i) throws Cancel;
 

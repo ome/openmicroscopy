@@ -1217,6 +1217,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         return new SimpleEventContext(getSecuritySystem().getEventContext(true));
     }
 
+    public EventContext getEventContextQuiet() {
+        return new SimpleEventContext(getSecuritySystem().getEventContext(false));
+    }
+
     // ~ Helpers
     // =========================================================================
 

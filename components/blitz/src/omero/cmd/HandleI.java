@@ -245,7 +245,7 @@ public class HandleI extends _HandleDisp implements IHandle,
                 @Transactional(readOnly = false)
                 public Object doWork(Session session, ServiceFactory sf) {
                     try {
-                        doRun(getSqlAction(), session);
+                        doRun(getSqlAction(), session, sf);
                         state.compareAndSet(State.READY, State.FINISHED);
                     } catch (Cancel c) {
                         state.set(State.CANCELLED);
@@ -267,11 +267,11 @@ public class HandleI extends _HandleDisp implements IHandle,
         }
     }
 
-    public void doRun(SqlAction sql, Session session) throws Cancel {
+    public void doRun(SqlAction sql, Session session, ServiceFactory sf) throws Cancel {
         log.info("Running " + req);
         StopWatch sw = new CommonsLogStopWatch();
         try {
-            steps(sql, session);
+            steps(sql, session, sf);
             req.finish();
         } finally {
             sw.stop("omero.request");
@@ -280,12 +280,12 @@ public class HandleI extends _HandleDisp implements IHandle,
         }
     }
 
-    public void steps(SqlAction sql, Session session) throws Cancel {
+    public void steps(SqlAction sql, Session session, ServiceFactory sf) throws Cancel {
         try {
 
             // Initialize. Any exceptions should cancel the process
             StopWatch sw = new CommonsLogStopWatch();
-            req.init(status, session, sql);
+            req.init(status, sql, session, sf);
 
             for (int j = 0; j < status.steps; j++) {
                 sw = new CommonsLogStopWatch();
