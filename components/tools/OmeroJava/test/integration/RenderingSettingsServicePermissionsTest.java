@@ -10,7 +10,6 @@ package integration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import omero.api.IRenderingSettingsPrx;
 import omero.model.ChannelBinding;
@@ -34,7 +33,7 @@ import org.testng.annotations.Test;
  * @since 3.0-Beta4
  */
 @Test(groups = { "client", "integration", "blitz" })
-public class RenderingSettingsServicePermissionsTest 
+public class RenderingSettingsServicePermissionsTest
 	extends AbstractTest
 {
 
@@ -44,7 +43,7 @@ public class RenderingSettingsServicePermissionsTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testApplySettingsToSetForImageRW() 
+    public void testApplySettingsToSetForImageRW()
     	throws Exception 
     {
     	EventContext ctx = newUserAndGroup("rw----");
@@ -95,7 +94,7 @@ public class RenderingSettingsServicePermissionsTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testApplySettingsToSetForImageRWR() 
+    public void testApplySettingsToSetForImageRWR()
     	throws Exception 
     {
     	EventContext ctx = newUserAndGroup("rwr---");
@@ -146,7 +145,7 @@ public class RenderingSettingsServicePermissionsTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testApplySettingsToSetForImageRWRW() 
+    public void testApplySettingsToSetForImageRWRW()
     	throws Exception 
     {
     	EventContext ctx = newUserAndGroup("rwrw--");
@@ -198,7 +197,7 @@ public class RenderingSettingsServicePermissionsTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testApplySettingsToSetTargetImageViewedByOtherRWR() 
+    public void testApplySettingsToSetTargetImageViewedByOtherRWR()
     	throws Exception 
     {
     	EventContext ctx = newUserAndGroup("rwr---");
@@ -244,7 +243,7 @@ public class RenderingSettingsServicePermissionsTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testApplySettingsToSetSourcetImageViewedByOtherRWR() 
+    public void testApplySettingsToSetSourcetImageViewedByOtherRWR()
     	throws Exception 
     {
     	EventContext ctx = newUserAndGroup("rwr---");
@@ -285,4 +284,51 @@ public class RenderingSettingsServicePermissionsTest
     	prx.applySettingsToSet(id, Image.class.getName(), ids);
     }
     
+    /**
+     * Tests to apply the rendering settings to a collection of images
+     * The group is initially <code>RWRW--</code> and then <code>RWR---</code>.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageGroupDowngrade()
+    	throws Exception 
+    {
+    	EventContext ctx = newUserAndGroup("rwrw--");
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = createBinaryImage();
+    	Image image2 = createBinaryImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(image.getId().getValue());
+    	ids.add(image2.getId().getValue());
+    	//Generate settings for the 3 images.
+    	prx.setOriginalSettingsInSet(Image.class.getName(), ids);
+    
+    	disconnect();
+    	EventContext ctx2 = newUserInGroup(ctx);
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+    			Arrays.asList(id));
+    	disconnect();
+    	init(ctx);
+    	
+    	resetGroupPerms("rwr---", ctx.groupId);
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	long pix2 = image2.getPrimaryPixels().getId().getValue();
+    	ChannelBinding cb = def.getChannelBinding(0);
+    	boolean b = cb.getActive().getValue();
+    	cb.setActive(omero.rtypes.rbool(!b));
+    	def = (RenderingDef) iUpdate.saveAndReturnObject(def);
+    	
+    	ids.clear();
+    	ids.add(image2.getId().getValue());
+    	//apply the settings of image1 to image2 and 3
+    	prx.applySettingsToSet(id, Image.class.getName(), ids);
+    	RenderingDef def2 = 
+    		factory.getPixelsService().retrieveRndSettings(pix2);
+    	cb = def2.getChannelBinding(0);
+    	assertEquals(cb.getActive().getValue(), !b);
+    }
+
 }

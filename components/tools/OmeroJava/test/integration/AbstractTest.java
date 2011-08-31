@@ -322,6 +322,22 @@ public class AbstractTest
     }
 
     /**
+     * Changes the permissions of the group.
+     * 
+     * @param perms The permissions level.
+     * @param groupId The identifier of the group to handle.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected void resetGroupPerms(String perms, long groupId)
+    	throws Exception
+    {
+    	 IAdminPrx rootAdmin = root.getSession().getAdminService();
+    	 ExperimenterGroup g = rootAdmin.getGroup(groupId);
+    	 g.getDetails().setPermissions(new PermissionsI(perms));
+    	 rootAdmin.updateGroup(g);
+    }
+    
+    /**
      * Creates a new user in the current group.
      * @return
      */
