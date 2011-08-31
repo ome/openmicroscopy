@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -54,6 +55,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.IObject;
+import omero.model.Image;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
@@ -969,6 +971,52 @@ public class AbstractTest
                 new StreamSource(xslt));
         StreamResult result = new StreamResult(new FileOutputStream(output));
         transformer.transform(new StreamSource(input), result);
+    }
+    
+    /**
+     * Create a single image with binary.
+     *
+     * After recent changes on the server to check for existing
+     * binary data for pixels, many resetDefaults methods tested
+     * below began returning null since {@link omero.LockTimeout}
+     * exceptions were being thrown server-side. By using
+     * omero.client.forEachTile, we can set the necessary data easily.
+     *
+     * @see ticket:5755
+     */
+    protected Image createBinaryImage() throws Exception {
+        Image image = mmFactory.createImage();
+        image = (Image) iUpdate.saveAndReturnObject(image);
+        return createBinaryImage(image);
+    }
+
+    /**
+     * Create the binary data for the given image.
+     */
+    protected Image createBinaryImage(Image image) throws Exception {
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        //Image
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(image.getId().getValue());
+        //method already tested
+
+        // first write to the image
+        omero.util.RPSTileLoop loop =
+            new omero.util.RPSTileLoop(client.getSession(), pixels);
+        loop.forEachTile(256, 256, new omero.util.TileLoopIteration(){
+            public void run(omero.util.TileData data, int z, int c, int t, 
+            		int x, int y, int tileWidth,
+                    int tileHeight, int tileCount) {
+                data.setTile(new byte[tileWidth*tileHeight*8], z, c, t, x, y, 
+                		tileWidth, tileHeight);
+            }
+        });
+        // This block will change the updateEvent on the pixels
+        // therefore we're going to reload the pixels.
+
+        image.setPixels(0, loop.getPixels());
+        return image;
     }
 
 }

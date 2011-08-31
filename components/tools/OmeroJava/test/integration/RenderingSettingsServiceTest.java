@@ -6,18 +6,14 @@
  */
 package integration;
 
-
-//Java imports
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
 import org.testng.annotations.Test;
 
-//Application-internal dependencies
 import omero.api.IRenderingSettingsPrx;
 import omero.model.ChannelBinding;
 import omero.model.Dataset;
@@ -59,50 +55,7 @@ public class RenderingSettingsServiceTest
 	extends AbstractTest
 {
 
-    /**
-     * Create a single image with binary.
-     *
-     * After recent changes on the server to check for existing
-     * binary data for pixels, many resetDefaults methods tested
-     * below began returning null since {@link omero.LockTimeout}
-     * exceptions were being thrown server-side. By using
-     * omero.client.forEachTile, we can set the necessary data easily.
-     *
-     * @see ticket:5755
-     */
-    public Image createBinaryImage() throws Exception {
-        Image image = mmFactory.createImage();
-        image = (Image) iUpdate.saveAndReturnObject(image);
-        return createBinaryImage(image);
-    }
-
-    /**
-     * Create the binary data for the given image.
-     */
-    public Image createBinaryImage(Image image) throws Exception {
-        Pixels pixels = image.getPrimaryPixels();
-        long id = pixels.getId().getValue();
-        //Image
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(image.getId().getValue());
-        //method already tested
-
-        // first write to the image
-        omero.util.RPSTileLoop loop =
-            new omero.util.RPSTileLoop(client.getSession(), pixels);
-        loop.forEachTile(256, 256, new omero.util.TileLoopIteration(){
-            public void run(omero.util.TileData data, int z, int c, int t, int x, int y, int tileWidth,
-                    int tileHeight, int tileCount) {
-                data.setTile(new byte[tileWidth*tileHeight*8], z, c, t, x, y, tileWidth, tileHeight);
-            }
-        });
-        // This block will change the updateEvent on the pixels
-        // therefore we're going to reload the pixels.
-
-        image.setPixels(0, loop.getPixels());
-        return image;
-
-    }
+    
 
     /**
      * Create an entire plate, uploading binary data for all the images.
