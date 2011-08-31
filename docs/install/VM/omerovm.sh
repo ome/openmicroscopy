@@ -187,3 +187,5 @@ fi
 
 echo "Network up after $ATTEMPTS tries"
 installvm
+
+bash export_ova.sh
