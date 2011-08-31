@@ -5451,8 +5451,8 @@ class OMEROGateway
             sb.append("left outer join fetch pix.pixelsType as pt ");
             sb.append("where well.plate.id = :plateID");
             if (acquisitionID > 0) {
-            	 sb.append(" and pa.id = :acquisitionID");
-            	 param.addLong("acquisitionID", acquisitionID);
+            	sb.append(" and pa.id = :acquisitionID");
+            	param.addLong("acquisitionID", acquisitionID);
             } 
             results = service.findAllByQuery(sb.toString(), param);
 			i = results.iterator();

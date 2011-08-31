@@ -159,7 +159,7 @@ public class ImportableObject
 			for (int i = 0; i < suffixes.length; i++) {
 				s = suffixes[i];
 				if (s != null && s.trim().length() > 0)
-					HCS_FILES_EXTENSION.add(s);
+					HCS_FILES_EXTENSION.add(s.toLowerCase());
 			}
 		}
 	}
@@ -499,7 +499,8 @@ public class ImportableObject
 		String name = path;
 		if (!name.contains(".")) return false; 
 		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
-		return HCS_FILES_EXTENSION.contains(ext);
+		if (ext == null) return false;
+		return HCS_FILES_EXTENSION.contains(ext.toLowerCase());
 	}
 	
 	/**
