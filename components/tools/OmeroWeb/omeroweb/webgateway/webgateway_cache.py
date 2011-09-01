@@ -718,7 +718,7 @@ class WebGatewayCache (object):
         TODO: document
         WAS: Only handles Dataset obj, calling L{clearDatasetContents}
         """
-        k = self._jsonKey(r, client_base, obj, ctx)
+        k = self._jsonKey(None, client_base, obj, ctx)
         self._cache_clear(self._json_cache, k)
         return True
         #logger.debug('clearjson')
