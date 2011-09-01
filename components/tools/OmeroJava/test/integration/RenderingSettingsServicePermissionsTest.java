@@ -331,4 +331,79 @@ public class RenderingSettingsServicePermissionsTest
     	assertEquals(cb.getActive().getValue(), !b);
     }
 
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rende
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageNoSettings()
+    	throws Exception 
+    {
+    	EventContext ctx = newUserAndGroup("rw----");
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = createBinaryImage();
+    	Image image2 = createBinaryImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(image.getId().getValue());
+    	//Generate settings for the 3 images.
+    	prx.setOriginalSettingsInSet(Image.class.getName(), ids);
+    
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	long pix2 = image2.getPrimaryPixels().getId().getValue();
+    	ChannelBinding cb = def.getChannelBinding(0);
+    	boolean b = cb.getActive().getValue();
+    	cb.setActive(omero.rtypes.rbool(!b));
+    	def = (RenderingDef) iUpdate.saveAndReturnObject(def);
+    	
+    	ids.clear();
+    	ids.add(image2.getId().getValue());
+    	//apply the settings of image1 to image2 and 3
+    	prx.applySettingsToSet(id, Image.class.getName(), ids);
+    	RenderingDef def2 = 
+    		factory.getPixelsService().retrieveRndSettings(pix2);
+    	cb = def2.getChannelBinding(0);
+    	assertEquals(cb.getActive().getValue(), !b);
+    }
+    
+    /**
+     * Tests to apply the rendering settings to an image w/o previous rende
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetTargetImageNoSettingsAndBinary()
+    	throws Exception 
+    {
+    	EventContext ctx = newUserAndGroup("rw----");
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = createBinaryImage();
+    	Image image2 = mmFactory.createImage();
+    	image2 = (Image) iUpdate.saveAndReturnObject(image);
+        
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(image.getId().getValue());
+    	ids.add(image2.getId().getValue());
+    	prx.resetDefaultsInSet(Image.class.getName(), ids);
+    
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	long pix2 = image2.getPrimaryPixels().getId().getValue();
+    	ChannelBinding cb = def.getChannelBinding(0);
+    	boolean b = cb.getActive().getValue();
+    	cb.setActive(omero.rtypes.rbool(!b));
+    	def = (RenderingDef) iUpdate.saveAndReturnObject(def);
+    	
+    	ids.clear();
+    	ids.add(image2.getId().getValue());
+    	//apply the settings of image1 to image2 and 3
+    	prx.applySettingsToSet(id, Image.class.getName(), ids);
+    	RenderingDef def2 = 
+    		factory.getPixelsService().retrieveRndSettings(pix2);
+    	cb = def2.getChannelBinding(0);
+    	assertEquals(cb.getActive().getValue(), !b);
+    }
 }
