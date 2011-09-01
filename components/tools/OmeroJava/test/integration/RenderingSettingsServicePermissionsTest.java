@@ -369,7 +369,8 @@ public class RenderingSettingsServicePermissionsTest
     }
     
     /**
-     * Tests to apply the rendering settings to an image w/o previous rende
+     * Tests to apply the rendering settings to an image w/o previous rendering
+     * settings.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -406,4 +407,44 @@ public class RenderingSettingsServicePermissionsTest
     	cb = def2.getChannelBinding(0);
     	assertEquals(cb.getActive().getValue(), !b);
     }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForImageModifyIntensity()
+    	throws Exception 
+    {
+    	EventContext ctx = newUserAndGroup("rw----");
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = createBinaryImage();
+    	Image image2 = createBinaryImage();
+        
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(image.getId().getValue());
+    	ids.add(image2.getId().getValue());
+    	prx.setOriginalSettingsInSet(Image.class.getName(), ids);
+    
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	long pix2 = image2.getPrimaryPixels().getId().getValue();
+    	ChannelBinding cb = def.getChannelBinding(0);
+    	boolean b = cb.getActive().getValue();
+    	cb.setActive(omero.rtypes.rbool(!b));
+    	cb.setInputStart(omero.rtypes.rdouble(cb.getInputEnd().getValue()-1));
+    	def = (RenderingDef) iUpdate.saveAndReturnObject(def);
+    	
+    	ids.clear();
+    	ids.add(image2.getId().getValue());
+    	//apply the settings of image1 to image2 and 3
+    	prx.applySettingsToSet(id, Image.class.getName(), ids);
+    	RenderingDef def2 = 
+    		factory.getPixelsService().retrieveRndSettings(pix2);
+    	cb = def2.getChannelBinding(0);
+    	assertEquals(cb.getActive().getValue(), !b);
+    }
+    
 }
