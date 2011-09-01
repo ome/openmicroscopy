@@ -83,6 +83,7 @@ import omero.AuthenticationException;
 import omero.ClientError;
 import omero.ConcurrencyException;
 import omero.InternalException;
+import omero.LockTimeout;
 import omero.MissingPyramidException;
 import omero.RLong;
 import omero.RString;
@@ -931,7 +932,8 @@ class OMEROGateway
 			//s += ", ready in approximately ";
 			//s += UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
 			FSAccessException fsa = new FSAccessException(message+s, cause);
-			if (mpe instanceof MissingPyramidException)
+			if (mpe instanceof MissingPyramidException || 
+					mpe instanceof LockTimeout)
 				fsa.setIndex(FSAccessException.PYRAMID);
 			fsa.setBackOffTime(mpe.backOff);
 			throw fsa;
@@ -939,7 +941,8 @@ class OMEROGateway
 			ConcurrencyException mpe = (ConcurrencyException) t;
 			s += UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
 			FSAccessException fsa = new FSAccessException(message+s, t);
-			if (mpe instanceof MissingPyramidException)
+			if (mpe instanceof MissingPyramidException || 
+					mpe instanceof LockTimeout)
 				fsa.setIndex(FSAccessException.PYRAMID);
 			fsa.setBackOffTime(mpe.backOff);
 			throw fsa;
