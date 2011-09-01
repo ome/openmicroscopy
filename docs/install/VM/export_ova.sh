@@ -16,4 +16,8 @@ VBOX="VBoxManage --nologo"
     $VBOX controlvm "$VMNAME" poweroff && sleep 5
 }
 
+if [[ -e $EXPORTVMNAME.ova ]]; then
+	rm -f $EXPORTVMNAME.ova
+fi
+
 $VBOX export $VMNAME --output $EXPORTVMNAME.ova
