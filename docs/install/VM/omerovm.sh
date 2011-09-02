@@ -61,22 +61,16 @@ function failfast ()
 
 function poweroffvm ()
 {
-	$VBOX list vms | grep "$VMNAME" && {
-		if VBoxManage showvminfo "$VMNAME" | grep -q "running"
-		then
-			VBoxManage controlvm "$VMNAME" poweroff
-			sleep 10
-		fi
-	}
+	$VBOX list runningvms | grep "$VMNAME" && {
+			VBoxManage controlvm "$VMNAME" poweroff && sleep 10
+	} || true
 }
 
 function poweronvm ()
 {
 	$VBOX list runningvms | grep "$VMNAME" || {
-    	#echo "Starting VM... first boot... give the VM time to boot..."
     	$VBOX startvm "$VMNAME" --type headless && sleep 45
 	}
-
 }
 
 function rebootvm ()
@@ -87,8 +81,6 @@ function rebootvm ()
 
 function killallvbox ()
 {
-	set +e
-
 	ps aux | grep [V]Box && {
 	
 		if [ "$OS" == "Darwin" ]; then
@@ -96,8 +88,7 @@ function killallvbox ()
 		else [ "$OS" == "Linux" ];
 			killall -r [V]Box
 		fi
-	
-	}
+	} || true
 	
 	ps aux | grep [V]irtualBox && {
 	
@@ -106,10 +97,7 @@ function killallvbox ()
 		else [ "$OS" == "Linux" ];
 			killall -r [V]irtualBox
 		fi
-	
-	}
-	
-	set -e
+	} || true
 }
 
 function checkhddfolder ()
@@ -128,10 +116,11 @@ function deletevm ()
 {
 	poweroffvm
 	
-	VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium none
-	VBoxManage unregistervm "$VMNAME" --delete
-	VBoxManage closemedium disk $HARDDISKS"$VMNAME".vdi --delete
-
+	$VBOX list vms | grep "$VMNAME" && {
+		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium none
+		VBoxManage unregistervm "$VMNAME" --delete
+		VBoxManage closemedium disk $HARDDISKS"$VMNAME".vdi --delete
+	} || true
 }
 
 function createvm ()
@@ -160,9 +149,9 @@ function createvm ()
 
 checkhddfolder
 
-deletevm
-
 killallvbox
+
+deletevm
 
 createvm
 
