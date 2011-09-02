@@ -1288,7 +1288,7 @@ def manage_annotation_multi(request, action=None, **kwargs):
     datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
     projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
     screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
-    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plates", request.REQUEST.getlist('plate'))) or list()
+    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
     acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
     wells = list()
     if len(request.REQUEST.getlist('well')) > 0:
