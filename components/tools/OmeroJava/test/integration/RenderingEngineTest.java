@@ -7,7 +7,6 @@
 package integration;
 
 
-//Java imports
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -25,10 +24,8 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-//Third-party libraries
 import org.testng.annotations.Test;
 
-//Application-internal dependencies
 import omero.api.IPixelsPrx;
 import omero.api.RenderingEnginePrx;
 import omero.model.ChannelBinding;

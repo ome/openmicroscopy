@@ -6,16 +6,12 @@
  */
 package integration;
 
-//Java imports
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-//Third-party libraries
+import java.util.Arrays;
+
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
-//Application-internal dependencies
 import omero.api.IAdminPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.delete.DeleteCommand;

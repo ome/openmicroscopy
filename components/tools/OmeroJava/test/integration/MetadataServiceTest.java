@@ -7,19 +7,15 @@
 package integration;
 
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-
-//Third-party libraries
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-//Application-internal dependencies
 import omero.api.IAdminPrx;
 import omero.api.IMetadataPrx;
 import omero.api.ServiceFactoryPrx;
