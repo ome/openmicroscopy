@@ -794,7 +794,7 @@
       <ul>
         <li class="buttonbar">
         {% block save_rdef %}
-        {% if image.isOwned %}
+        {% if image.isEditable %}
           <button id="rdef-reset-btn" class="editor" onclick="return resetImageDefaults(this)" title="Returns the image settings to their original state at time of import.">reset</button>
           {% if image.isEditable %}<button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save</button>{% endif %}
           
