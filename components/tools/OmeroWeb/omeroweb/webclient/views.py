@@ -620,9 +620,10 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                 template = "webclient/data/container_subtree.html"
         elif kw.has_key('plate'):
             fields = manager.plate.getFields(kw.get('acquisition', None))
-            form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
-            if fields is not None and index == 0:
-                index = fields[0]
+            if fields is not None:
+                form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
+                if index == 0:
+                    index = fields[0]
             template = "webclient/data/plate.html"
     else:
         manager.listContainerHierarchy(filter_user_id)

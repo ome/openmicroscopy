@@ -1836,10 +1836,13 @@ class PlateWrapper (OmeroWebObjectWrapper, omero.gateway.PlateWrapper):
             sql += " and ws.plateAcquisition.id=:pid"
             p.map["pid"] = rlong(pid)
         
+        fields = None
         try:
-            fields = tuple(unwrap(q.projection(sql, p))[0])
+            res = [r for r in unwrap(q.projection(sql, p))[0] if r != None]
+            if len(res) == 2:
+                fields = tuple(res)
         except:
-            fields = None
+            pass
         return fields
 
 omero.gateway.PlateWrapper = PlateWrapper
