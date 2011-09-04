@@ -111,8 +111,11 @@ public class Environment
 	 */
 	public boolean isServerAvailable()
 	{
-		return (Boolean) container.getRegistry().lookup(
-				LookupNames.SERVER_AVAILABLE);
+		Integer v = (Integer) container.getRegistry().lookup(
+				LookupNames.ENTRY_POINT);
+		if (v != null) return v.intValue() != LookupNames.EDITOR_ENTRY;
+		return Boolean.valueOf(true);
+		//return (Boolean) container.getRegistry().lookup(LookupNames.SERVER_AVAILABLE);
 	}
 	
 	/**

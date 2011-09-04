@@ -131,9 +131,18 @@ public class ImporterAgent
 	
 	 /**
      * Implemented as specified by {@link Agent}.
-     * @see Agent#activate()
+     * @see Agent#activate(boolean)
      */
-    public void activate() {}
+    public void activate(boolean master)
+    {
+    	if (!master) return;
+    	//TODO: indicate to model that it is master
+    	Importer importer = ImporterFactory.getImporter();
+    	if (importer != null) {
+    		//get type from config
+    		importer.activate(Importer.PROJECT_TYPE, null, null);
+    	}
+    }
 
     /**
      * Implemented as specified by {@link Agent}. 

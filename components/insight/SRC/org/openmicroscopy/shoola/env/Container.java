@@ -292,14 +292,24 @@ public final class Container
 				a.setContext(r);
 			}
 		}
-		
+		Integer v = (Integer) singleton.registry.lookup(
+				LookupNames.ENTRY_POINT);
+		int value = LookupNames.TREE_VIEWER_ENTRY;
+		if (v != null) {
+			switch (v.intValue()) {
+				case LookupNames.EDITOR_ENTRY:
+				case LookupNames.IMPORTER_ENTRY:
+				case LookupNames.TREE_VIEWER_ENTRY:
+					value = v.intValue();
+			}
+		}
 		//Agents activation phase.
 		i = agents.iterator();
 		while (i.hasNext()) {
 			agentInfo = (AgentInfo) i.next();
-			if (agentInfo.isActive()) {
+			if (agentInfo.isActive() && agentInfo.getNumber() == value) {
 				a = agentInfo.getAgent();
-				a.activate();
+				a.activate(true);
 			}
 		}
 		

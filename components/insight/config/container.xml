@@ -41,8 +41,11 @@
       <port>4063</port>
       <portSSL>4064</portSSL>
     </structuredEntry>
-    
-    <entry name="/services/SERVER/available" type="boolean">true</entry>
+
+    <!-- the value corresponding to the agent defined as the master
+    i.e. DataBrowserAgent = 0, EditorAgent = 1, ImporterAgent = 2
+    The default value is 0.-->
+    <entry name="/application/entryPoint" type="integer">1</entry>
     
     <!-- default fs directory -->
     <entry name="/services/FS/defaultDirectory"></entry>
@@ -181,6 +184,7 @@
       </agent>
        <agent>
         <name>Tree Manager</name>
+        <number>0</number>
         <active>true</active>
         <class>org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent</class>
         <config>treeviewer.xml</config>
@@ -198,19 +202,21 @@
         <config>metadataViewer.xml</config>
     </agent>
     	<agent>
-        <name>Data Browser</name>
+        <name>Data Browser</name> 
         <active>true</active>
         <class>org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent</class>
         <config>dataBrowser.xml</config>
     </agent>
     <agent>
         <name>Editor</name>
+        <number>1</number>
         <active>true</active>
         <class>org.openmicroscopy.shoola.agents.editor.EditorAgent</class>
         <config>editor.xml</config>
     </agent>
     <agent>
         <name>Importer</name>
+        <number>2</number>
         <active>true</active>
         <class>org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent</class>
         <config>importer.xml</config>
