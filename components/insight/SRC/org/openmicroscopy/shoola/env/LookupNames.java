@@ -47,6 +47,24 @@ package org.openmicroscopy.shoola.env;
 public class LookupNames
 {
     
+	 /** 
+	  * Field to indicating the value associated to the
+	  * <code>Tree Viewer</code> as an entry point.
+	  */
+	public static final int TREE_VIEWER_ENTRY = 0;	
+	
+	 /** 
+	  * Field to indicating the value associated to the
+	  * <code>Editor</code> as an entry point.
+	  */
+	public static final int EDITOR_ENTRY = 1;
+	
+	 /** 
+	  * Field to indicating the value associated to the
+	  * <code>Importer</code> as an entry point.
+	  */
+	public static final int IMPORTER_ENTRY = 2;
+	
     /** Field to access the <code>Version</code> information. */
 	public static final String VERSION = "Version";	
 	
@@ -231,7 +249,7 @@ public class LookupNames
     public static final String	ROI_MAIN_FILE = "/roi/mainFileName";
     
     /** Field to access the <code>Server Available</code> information. */
-	public static final String SERVER_AVAILABLE = "/services/SERVER/available";
+	//public static final String SERVER_AVAILABLE = "/services/SERVER/available";
 	
     //For blitz
     /** The value to replace in the FS configuration file. */
@@ -246,5 +264,9 @@ public class LookupNames
     
     /** Field to access <code>RAPID</code> information. */
     public static final String	RAPID = "/services/SERVER/RAPID";
+    
+    /** Field to access the <code>Entry Point</code> information. */
+	public static final String ENTRY_POINT = "/application/entryPoint";
+	
     
 }

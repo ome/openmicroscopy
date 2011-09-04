@@ -76,6 +76,19 @@ public class ImporterFactory
 	}
 	
 	/**
+	 * Returns a {@link Importer}.
+	 * 
+	 * @param groupId The identifier of the current group.
+	 * @return See above.
+	 */
+	public static Importer getImporter(long groupId)
+	{
+		ImporterModel model = new ImporterModel(groupId);
+		return singleton.getImporter(model);
+	}
+	
+	
+	/**
 	 * Notifies the model that the user's group has successfully be modified
 	 * if the passed value is <code>true</code>, unsuccessfully 
 	 * if <code>false</code>.
