@@ -25,11 +25,13 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,13 +39,23 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
+import javax.swing.JToolBar;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -54,6 +66,10 @@ import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.PersonalManagementAction;
+import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -61,6 +77,7 @@ import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ExperimenterData;
 
 /** 
  * The {@link Importer}'s View. Displays the on-going import and the finished
@@ -114,6 +131,74 @@ class ImporterUI
 	/** The component indicating to refresh the containers view.*/
 	private JXLabel messageLabel;
 	
+	/** The menu displaying the groups the user is a member of. */
+    private JPopupMenu	personalMenu;
+    
+    /**
+     * Sets the defaults of the specified menu item.
+     * 
+     * @param item The menu item.
+     */
+    private void initMenuItem(JMenuItem item)
+    {
+        item.setBorder(null);
+        //item.setFont((Font) ImporterAgent.getRegistry().lookup(
+        //              "/resources/fonts/Labels"));
+    }
+    
+    /**
+     * Brings up the <code>ManagePopupMenu</code>on top of the specified
+     * component at the specified location.
+     * 
+     * @param c The component that requested the po-pup menu.
+     * @param p The point at which to display the menu, relative to the
+     *            <code>component</code>'s coordinates.
+     */
+    private void showPersonalMenu(Component c, Point p)
+    {
+    	if (p == null) return;
+        if (c == null) throw new IllegalArgumentException("No component.");
+        //if (p == null) throw new IllegalArgumentException("No point.");
+        //if (personalMenu == null) {
+        	personalMenu = new JPopupMenu();
+        	personalMenu.setBorder(
+        			BorderFactory.createBevelBorder(BevelBorder.RAISED));
+        	List<GroupSelectionAction> l = controller.getUserGroupAction();
+        	Iterator<GroupSelectionAction> i = l.iterator();
+        	GroupSelectionAction a;
+        	JCheckBoxMenuItem item;
+        	ButtonGroup buttonGroup = new ButtonGroup();
+        	ExperimenterData exp = ImporterAgent.getUserDetails();
+        	long id = exp.getDefaultGroup().getId();
+        	while (i.hasNext()) {
+				a = i.next();
+				item = new JCheckBoxMenuItem(a);
+				item.setEnabled(true);
+				item.setSelected(a.isSameGroup(id));
+				initMenuItem(item);
+				buttonGroup.add(item);
+				personalMenu.add(item);
+			}
+        //}
+        personalMenu.show(c, p.x, p.y);
+    }
+    /** 
+     * Builds the toolbar when the importer is the entry point.
+     * 
+     * @return See above.
+     */
+    private JComponent buildToolBar()
+    {
+        Set set = ImporterAgent.getAvailableUserGroups();
+        if (set == null || set.size() == 0) return null;
+        
+    	ImporterAction a = controller.getAction(ImporterControl.GROUP_BUTTON);
+    	JButton b = new JButton(a);
+    	UIUtilities.unifiedButtonLookAndFeel(b);
+        b.addMouseListener((PersonalManagementAction) a);
+        return b;
+    }
+    
 	/**
 	 * Builds and lays out the controls.
 	 * 
@@ -236,9 +321,10 @@ class ImporterUI
 	 * 
 	 * @param chooser The component to add.
 	 */
-	void addComponent(JComponent chooser)
+	void addComponent(ImportDialog chooser)
 	{
 		if (chooser == null) return;
+		if (model.isMaster()) chooser.addToolBar(buildToolBar());
 		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
 	}
 	
@@ -437,5 +523,22 @@ class ImporterUI
 		}
 		return false;
 	}
+
+    /**
+     * Brings up the menu on top of the specified component at 
+     * the specified location.
+     * 
+     * @param menuID    The id of the menu.
+     * @param c         The component that requested the pop-up menu.
+     * @param p         The point at which to display the menu, relative to the
+     *                  <code>component</code>'s coordinates.
+     */
+    void showMenu(int menuID, Component c, Point p)
+    {
+        switch (menuID) {
+            case Importer.PERSONAL_MENU:
+            	showPersonalMenu(c, p);
+        }  
+    }
 	
 }

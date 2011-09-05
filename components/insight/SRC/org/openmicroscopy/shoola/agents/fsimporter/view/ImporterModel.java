@@ -115,12 +115,19 @@ class ImporterModel
 	void setGroupId(long groupId) { this.groupId = groupId; }
 	
 	/**
+	 * Returns the group's identifier.
+	 * 
+	 * @return See above.
+	 */
+	long getGroupId() { return groupId; }
+	
+	/**
 	 * Returns <code>true</code> if the agent is the entry point
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	boolean isMaster() { return groupId > 0; }
+	boolean isMaster() { return groupId >= 0; }
 	
 	/**
 	 * Called by the <code>FSImporter</code> after creation to allow this
