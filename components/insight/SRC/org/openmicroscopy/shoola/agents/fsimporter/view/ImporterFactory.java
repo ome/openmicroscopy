@@ -99,6 +99,11 @@ public class ImporterFactory
 	public static void onGroupSwitched(boolean success)
 	{
 		if (!success)  return;
+		if (singleton.importer != null && 
+				((ImporterComponent) singleton.importer).isMaster()) {
+			singleton.importer.onGroupSwitched(success);
+			return;
+		}
 		singleton.clear();
 	}
 	

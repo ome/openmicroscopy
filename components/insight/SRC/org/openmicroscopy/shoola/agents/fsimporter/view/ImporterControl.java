@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.swing.JMenu;
 import javax.swing.WindowConstants;
 import javax.swing.event.MenuEvent;
@@ -46,12 +48,15 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ActivateAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.CancelAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.CloseAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.PersonalManagementAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.RetryImportAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.SubmitFilesAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ErrorDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
@@ -61,6 +66,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * The {@link Importer}'s controller. 
@@ -91,6 +97,9 @@ class ImporterControl
 	/** Action ID indicating to retry failed import. */
 	static final Integer RETRY_BUTTON = 3;
 	
+	/** Action ID indicating to switch between groups. */
+	static final Integer GROUP_BUTTON = 4;
+	
 	/** 
 	 * Reference to the {@link Importer} component, which, in this context,
 	 * is regarded as the Model.
@@ -114,6 +123,7 @@ class ImporterControl
 		actionsMap.put(CLOSE_BUTTON, new CloseAction(model));
 		actionsMap.put(CANCEL_BUTTON, new CancelAction(model));
 		actionsMap.put(RETRY_BUTTON, new RetryImportAction(model));
+		actionsMap.put(GROUP_BUTTON, new PersonalManagementAction(model));
 	}
 	
 	/** 
@@ -268,6 +278,27 @@ class ImporterControl
 				toSubmit, this);
 	}
 	
+	/**
+	 * Returns the list of group the user is a member of.
+	 * 
+	 * @return See above.
+	 */
+	List<GroupSelectionAction> getUserGroupAction()
+	{
+		List<GroupSelectionAction> l = new ArrayList<GroupSelectionAction>();
+		Set m = ImporterAgent.getAvailableUserGroups();
+		if (m == null || m.size() == 0) return l;
+		ViewerSorter sorter = new ViewerSorter();
+		Iterator i = sorter.sort(m).iterator();
+		GroupData group;
+		GroupSelectionAction action;
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			l.add(new GroupSelectionAction(model, group));
+		}
+		return l;
+	}
+
 	/**
 	 * Reacts to property changes.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

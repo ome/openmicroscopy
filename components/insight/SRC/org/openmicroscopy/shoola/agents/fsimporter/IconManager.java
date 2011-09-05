@@ -118,11 +118,41 @@ public class IconManager
     /** The <code>Delete 48x48</code> icon. */
     public static final int 	DELETE_48 = 20;
     
+    /** The 16x16 <code>Personal</code> icon. */
+    public static final int		PERSONAL = 21;
+    
+    /** The <code>Private Group</code> icon. */
+    public static final int		PRIVATE_GROUP = 22;
+    
+    /** The <code>Read Group</code> icon. */
+    public static final int		READ_GROUP = 23;
+    
+    /** The <code>Read Link Group</code> icon. */
+    public static final int		READ_LINK_GROUP = 24;
+    
+    /** The <code>Public Group</code> icon. */
+    public static final int		PUBLIC_GROUP = 25;
+    
+    /** The <code>Up down</code> icon. */
+    public static final int		UP_DOWN_9_12 = 26;
+    
+    /** The 12x12 <code>Private Group Drop Down</code> icon. */
+    public static final int		PRIVATE_GROUP_DD_12 = 27;
+    
+    /** The 12x12 <code>Read Group Drop Down</code> icon. */
+    public static final int		READ_GROUP_DD_12 = 28;
+    
+    /** The 12x12 <code>Read Link Group Drop Down</code> icon. */
+    public static final int		READ_LINK_GROUP_DD_12 = 29;
+    
+    /** The 12x12 <code>Public Group Drop Down</code> icon. */
+    public static final int		PUBLIC_GROUP_DD_12 = 30;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int	MAX_ID = 20;
+    private static final int	MAX_ID = 30;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -149,6 +179,16 @@ public class IconManager
         relPaths[REFRESH] = "nuvola_reload16.png";
         relPaths[SWITCH_LOCATION] = "eclipse_hierarchy_co16.png";
         relPaths[DELETE_48] = "nuvola_cancel48.png";
+        relPaths[PERSONAL] = "nuvola_personal16.png";
+        relPaths[PRIVATE_GROUP] = "nuvola_ledred16.png";
+        relPaths[READ_GROUP] = "nuvola_ledorange_readOnly16.png";
+        relPaths[READ_LINK_GROUP] = "nuvola_ledorange16.png";
+        relPaths[PUBLIC_GROUP] = "nuvola_ledgreen16.png";
+        relPaths[UP_DOWN_9_12] = "upDown.png";
+        relPaths[PRIVATE_GROUP_DD_12] = "nuvola_permission_private_dd12.png";
+        relPaths[READ_GROUP_DD_12] = "nuvola_permission_readOnly_dd12.png";
+        relPaths[READ_LINK_GROUP_DD_12] = "nuvola_permission_read_dd12.png";//"nuvola_permission_readLink_dd12.png";
+        relPaths[PUBLIC_GROUP_DD_12] = "nuvola_permission_public_dd12.png";
     }
     
     /** The sole instance. */

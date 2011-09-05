@@ -77,7 +77,7 @@ import pojos.ImageData;
 public interface ImViewer
 	extends ObservableComponent
 {
-
+	
 	/** Flag to indicate that the image is not compressed. */
 	public static final int 	UNCOMPRESSED = RenderingControl.UNCOMPRESSED;
 	

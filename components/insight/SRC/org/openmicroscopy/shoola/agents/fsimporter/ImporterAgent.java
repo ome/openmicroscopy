@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 //Java imports
 import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -32,7 +33,9 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
@@ -41,6 +44,7 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * This agent interacts is used to import images.
@@ -93,6 +97,16 @@ public class ImporterAgent
 	}
 	
 	/**
+	 * Returns the available user groups.
+	 * 
+	 * @return See above.
+	 */
+	public static Set getAvailableUserGroups()
+	{
+		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+	}
+    
+	/**
 	 * Handles the {@link LoadImporter} event.
 	 * 
 	 * @param evt The event to handle.
@@ -137,7 +151,19 @@ public class ImporterAgent
     {
     	if (!master) return;
     	//TODO: indicate to model that it is master
-    	Importer importer = ImporterFactory.getImporter();
+    	
+    	ExperimenterData exp = (ExperimenterData) registry.lookup(
+    			LookupNames.CURRENT_USER_DETAILS);
+    	if (exp == null) return;
+    	GroupData gp = null;
+    	try {
+    		gp = exp.getDefaultGroup();
+    	} catch (Exception e) {
+    		//No default group
+    	}
+    	long id = -1;
+    	if (gp != null) id = gp.getId();
+    	Importer importer = ImporterFactory.getImporter(id);
     	if (importer != null) {
     		//get type from config
     		importer.activate(Importer.PROJECT_TYPE, null, null);
