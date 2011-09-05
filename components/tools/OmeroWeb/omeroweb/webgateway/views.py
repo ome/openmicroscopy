@@ -592,6 +592,9 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
     @return:            Tuple (L{omero.gateway.ImageWrapper} image, quality)
     """
     r = request.REQUEST
+    logger.debug('Preparing Image:%r with_session=%r saveDefs=%r ' \
+                 'retry=%r request=%r' % (iid, with_session, saveDefs, retry,
+                 r))
     if _conn is None:
         _conn = getBlitzConnection(request, server_id=server_id, with_session=with_session, useragent="OMERO.webgateway")
     if _conn is None or not _conn.isConnected():
