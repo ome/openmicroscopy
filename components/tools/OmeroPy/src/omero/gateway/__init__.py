@@ -6636,7 +6636,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return: Boolean
         """
         
-        if not self.canWrite():
+        if not self.isEditable():
             return False
         ns = self._conn.CONFIG.get('IMG_ROPTSNS', None)
         if ns:
