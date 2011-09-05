@@ -6425,7 +6425,7 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Imports the specified file. Returns the image.
+	 * Returns the import candidates.
 	 * 
 	 * @param object Host information about the file to import.
 	 * @param file 		The file to import.
@@ -6436,7 +6436,7 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
-	List<String> getImportCandidates(ImportableObject object, File file, 
+	ImportCandidates getImportCandidates(ImportableObject object, File file, 
 			StatusLabel status)
 		throws ImportException
 	{
@@ -6448,7 +6448,8 @@ class OMEROGateway
 			paths[0] = file.getAbsolutePath();
 			ImportCandidates candidates = new ImportCandidates(reader, 
 					paths, status);
-			return new ArrayList<String>(candidates.getPaths());
+			return candidates;
+			//return candidates.getPaths();
 		} catch (Throwable e) {
 			throw new ImportException(getImportFailureMessage(e), e);
 		}
