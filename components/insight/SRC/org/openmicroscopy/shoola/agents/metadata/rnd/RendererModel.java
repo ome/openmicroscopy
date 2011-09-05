@@ -1225,7 +1225,7 @@ class RendererModel
 		if (rndControl == null) return false;
 		return rndControl.validatePixels(pixels);
 	}
-
+	
 	/**
 	 * Renders the specified plane.
 	 * 
