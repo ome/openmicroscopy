@@ -3,14 +3,15 @@ var multi_key = function() {
     else return "ctrl";
 };
 
-var loadOtherPanels = function(data, prefix) {
-    if(data.rslt.obj.length > 0) {
+var loadOtherPanels = function(inst, prefix) {
+    var selected = inst.get_selected();
+    if(selected.length > 0) {
         var cm_var = new Object();
         cm_var['content_details'] = {'url': null, 'rel': null, 'empty':false };
         cm_var['metadata_details']= {'iframe': null, 'html': null};
 
-        var oid = data.rslt.obj.attr('id');
-        var orel = data.rslt.obj.attr('rel').replace("-locked", "");
+        var oid = selected.attr('id');
+        var orel = selected.attr('rel').replace("-locked", "");
         var crel = $("div#content_details").attr('rel');
         if (typeof oid!=="undefined" && oid!==false) {
             if (oid.indexOf("orphaned")>=0) {
@@ -25,7 +26,7 @@ var loadOtherPanels = function(data, prefix) {
             } else if(oid.indexOf("experimenter")<0) {
                 //METADATA panel
                 if(orel=="image") {
-                    var pr = data.rslt.obj.parent().parent();
+                    var pr = selected.parent().parent();
                     if (pr.length>0 && pr.attr('rel').replace("-locked", "")==="share") {
                         cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/'+pr.attr("id").split("-")[1]+'/';
                     } else {
@@ -39,14 +40,14 @@ var loadOtherPanels = function(data, prefix) {
                 if ($.inArray(orel, ["project", "screen"]) > -1) {
                     cm_var['content_details']['empty'] = true;
                 } else if($.inArray(orel, ["plate"]) > -1) {
-                    if (data.inst.is_leaf(data.rslt.obj)) {
+                    if (inst.is_leaf(selected)) {
                         cm_var['content_details']['rel'] = oid;
                         cm_var['content_details']['url'] = prefix+orel+'/'+oid.split("-")[1]+'/';
                     } else {
                         cm_var['content_details']['empty'] = true;
                     }
                 } else if($.inArray(orel, ["acquisition"]) > -1) {
-                    var plate = data.inst._get_parent(data.rslt.obj).attr('id').replace("-", "/");
+                    var plate = inst._get_parent(selected).attr('id').replace("-", "/");
                     cm_var['content_details']['rel'] = oid;
                     cm_var['content_details']['url'] = prefix+plate+'/'+orel+'/'+oid.split("-")[1]+'/';
                 } else if($.inArray(orel, ["dataset", "tag"]) > -1 && oid!==crel) {
@@ -62,7 +63,7 @@ var loadOtherPanels = function(data, prefix) {
                     cm_var['content_details']['url'] = "/webclient/load_tags/?view=icon&o_type=tag&o_id="+oid.split("-")[1];
 
                 } else if(orel=="image") {
-                    var pr = data.rslt.obj.parent().parent();
+                    var pr = selected.parent().parent();
                     if (pr.length>0 && pr.attr('id')!==crel) {
                         if(pr.attr('rel').replace("-locked", "")==="share" && pr.attr('id')!==crel) {
                             cm_var['content_details']['rel'] = pr.attr('id');
@@ -80,7 +81,7 @@ var loadOtherPanels = function(data, prefix) {
                     }
                 } 
             } else {
-                cm_var['metadata_details']['html'] = '<p>'+data.rslt.obj.children().eq(1).text()+'</p>';
+                cm_var['metadata_details']['html'] = '<p>'+selected.children().eq(1).text()+'</p>';
                 cm_var['content_details']['empty'] = true;
             }
         }
@@ -98,7 +99,7 @@ var loadOtherPanels = function(data, prefix) {
             $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
             $("div#content_details").attr('rel', cm_var.content_details.rel);
             $("div#content_details").load(cm_var.content_details.url, function() {
-                syncPanels(data.inst.get_selected());
+                syncPanels(selected);
             });
         } else if (cm_var.content_details.empty){
             $("div#content_details").empty();
@@ -114,9 +115,9 @@ var loadOtherPanels = function(data, prefix) {
 var syncPanels = function(get_selected) {
     var toSelect = new Array();
     get_selected.each(function(i) {
-        toSelect[i]=this.id.split("-")[1];
+        var _this = $(this)
+        if ($.inArray(_this.attr("rel").replace("-locked", ""), ["image"]) >= 0) toSelect[i]=_this.attr("id").split("-")[1];
     });
-    
     $(".ui-selectee", $("ul.ui-selectable")).each(function(){
         var selectee = $(this);
         if ($.inArray(selectee.attr('id'), toSelect) != -1) {

@@ -56,12 +56,11 @@
                 $("div#metadata_details iframe").attr('height', h+7);
                 $("div#content_details").css('height', h+31);
                 
-                var buttonsShowHide = function(selected, inst) { 
-                    var toolbar_config = new Object();
+                var buttonsShowHide = function(selected, inst) {
+                    var toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}, 'annotation':false, 'basket':false};
+                    
                     if(selected.length > 0) {
-                        if(selected.attr("rel").indexOf("locked")>=0) {
-                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}, 'annotation':false, 'basket':false};
-                        } else {
+                        if(selected.attr("rel").indexOf("locked") < 0) {
                             toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false};
                             if(selected.attr("id").indexOf("experimenter")>=0) {
                                 toolbar_config['delete'] = false;
@@ -493,17 +492,18 @@
                     if(!data.is_open() && data.get_selected().length < 2) {
                         data.open_node(data.get_selected());
                     }
+                    
                 })
                 .delegate("a", "dblclick", function(e) {
                     if ($(this).parent().attr('rel')=='image') {
                         openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
-                    $("#dataTree").jstree("open_node", this);
                 })
                 .bind("select_node.jstree", function (e, data) {
+                    buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
                     
                     var selected = data.inst.get_selected();
-                    buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
+                    
                     if (selected.length > 1) {
                         loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% url webstatic "images/knotes16.png" %}"/> Batch Annotate</a></p>');
                         $("#batchAnnotate").click(function() {
@@ -511,18 +511,22 @@
                             return false;
                         });
                     } else {
-                        loadOtherPanels(data, '{% url load_data %}');
+                        loadOtherPanels(data.inst, '{% url load_data %}');
                     }
                     syncPanels(selected);
+                    
                 })
                 .bind("deselect_node.jstree", function (e, data) {
                     var selected = data.inst.get_selected();
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
                     if (selected.length < 2) {
                         data.rslt.obj = selected;
-                        loadOtherPanels(data, '{% url load_data %}');                        
+                        loadOtherPanels(data.inst, '{% url load_data %}');
                     }
                     syncPanels(selected);
+                })
+                .bind("open_node.jstree", function (e, data) {
+                    
                 })
                 .bind("create.jstree", function (e, data) {
                     if(data.rslt.parent.attr("rel") == "project") {
