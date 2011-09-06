@@ -72,7 +72,7 @@ public class ImportContainer
     private String customPlateName;
     private String customPlateDescription;
     private boolean doThumbnails = true;
-    private boolean useMetadataFile;
+    private boolean useMetadataFile = true;
     private List<Annotation> customAnnotationList;
     private IObject target;
     private boolean isMetadataOnly = false;
