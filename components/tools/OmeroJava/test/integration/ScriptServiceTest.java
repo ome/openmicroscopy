@@ -120,6 +120,32 @@ public class ScriptServiceTest
     }
     
     /**
+     * Tests to upload an official script by a user who is an administrator,
+     * this method uses the <code>uploadOfficialScript</code>.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = true)
+    public void testUploadOfficialScriptAsRoot()
+    	throws Exception
+    {
+    	logRootIntoGroup();
+    	StringBuffer buf = new StringBuffer("");
+    	String[] values = {"a", "b", "c"};
+    	for (int i = 0; i < values.length; i++) {
+			buf.append(values[i].charAt(0));
+		}
+    	String folder = "officialTestFolder";
+    	IScriptPrx svc = factory.getScriptService();
+    	int n = svc.getScripts().size();
+    	try {
+    		long id = svc.uploadOfficialScript(folder, buf.toString());
+    		//fail("Only administrators can upload official script.");
+    		assertTrue(id > 0);
+		} catch (Exception e) {
+		}
+    }
+    
+    /**
      * Tests to upload a script, this method uses the <code>uploadScript</code>.
      * @throws Exception Thrown if an error occurred.
      */
