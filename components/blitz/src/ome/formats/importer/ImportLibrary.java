@@ -138,10 +138,8 @@ public class ImportLibrary implements IObservable
                      "omero.pixeldata.fs_lite_readers, using hard coded " +
                      "readers!");
             fsLiteReaders.add(loci.formats.in.SVSReader.class.getName());
-            fsLiteReaders.add(loci.formats.in.TrestleReader.class.getName());
             fsLiteReaders.add(loci.formats.in.APNGReader.class.getName());
             fsLiteReaders.add(loci.formats.in.JPEG2000Reader.class.getName());
-            fsLiteReaders.add(loci.formats.in.CellSensReader.class.getName());
             fsLiteReaders.add(loci.formats.in.JPEGReader.class.getName());
             fsLiteReaders.add(loci.formats.in.TiffDelegateReader.class.getName());
         }
