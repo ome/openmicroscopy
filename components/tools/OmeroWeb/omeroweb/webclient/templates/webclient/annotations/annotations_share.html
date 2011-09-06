@@ -167,7 +167,7 @@
         <!-- ANNOTATIONS "General" -->
         <div id="annotation_tab">
             {% if manager.image %}            
-            <h1>{{ manager.image.name|warphtml:"30" }}</h1>
+            <h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>
             
             <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>    
             <!-- open-image link -->
