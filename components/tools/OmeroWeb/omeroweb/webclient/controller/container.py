@@ -772,7 +772,7 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                for ob in self.conn.getObjects(k.lower().title(), oids[k]):
+                for ob in self.conn.getObjects(k.lower().title(), [o.id for o in oids[k]]):
                     for a in self.conn.getObjects("Annotation", tids):
                         if isinstance(ob._obj, omero.model.WellI):
                             t = 'Image'
