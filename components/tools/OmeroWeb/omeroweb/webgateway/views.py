@@ -1118,7 +1118,8 @@ def imageMarshal (image, key=None):
         # ImageWrapper.getDataset() with shares in mind.
         # -- Tue Sep  6 10:48:47 BST 2011 (See #6660)
         parents = image.listParents()
-        if parents is not None and len(parents) == 1:
+        if parents is not None and len(parents) == 1 \
+           and parents[0].OMERO_CLASS == 'Dataset':
             ds = parents[0]
     except omero.SecurityViolation, e:
         # We're in a share so the Image's parent Dataset cannot be loaded
