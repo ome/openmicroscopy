@@ -136,10 +136,8 @@ public class ScriptServiceTest
 		}
     	String folder = "officialTestFolder";
     	IScriptPrx svc = factory.getScriptService();
-    	int n = svc.getScripts().size();
     	try {
     		long id = svc.uploadOfficialScript(folder, buf.toString());
-    		//fail("Only administrators can upload official script.");
     		assertTrue(id > 0);
 		} catch (Exception e) {
 		}
