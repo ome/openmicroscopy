@@ -712,6 +712,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public int[] getTileSize()
     {
+        errorIfNotLoaded();
         Dimension tileSize = buffer.getTileSize();
         return new int[] { (int) tileSize.getWidth(),
                            (int) tileSize.getHeight() };
@@ -723,6 +724,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public boolean requiresPixelsPyramid()
     {
+        errorIfNotLoaded();
         return dataService.requiresPixelsPyramid(pixelsInstance);
     }
 
@@ -732,6 +734,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public int getResolutionLevel()
     {
+        errorIfNotLoaded();
         return buffer.getResolutionLevel();
     }
 
@@ -741,6 +744,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public void setResolutionLevel(int resolutionLevel)
     {
+        errorIfNotLoaded();
         buffer.setResolutionLevel(resolutionLevel);
     }
 
