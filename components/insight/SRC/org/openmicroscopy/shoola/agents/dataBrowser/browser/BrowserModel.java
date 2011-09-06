@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 //Java imports
 import java.awt.Cursor;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,6 +35,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.JComponent;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 
 //Third-party libraries
 
@@ -770,4 +773,31 @@ class BrowserModel
 	    }
 	}
 	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#scrollToNode(ImageDisplay)
+	 */
+	public void scrollToNode(ImageDisplay node)
+	{
+		if (node == null) return;
+		JScrollPane pane = rootDisplay.getDeskDecorator();
+		Rectangle bounds = node.getBounds();
+		Rectangle viewRect = pane.getViewport().getViewRect();
+		if (viewRect.contains(bounds)) return;
+		JScrollBar hBar = pane.getHorizontalScrollBar();
+		if (hBar.isVisible()) {
+			int x = bounds.x;
+			int max = hBar.getMaximum();
+			if (x > max) x = max;
+			hBar.setValue(x);
+		}
+		JScrollBar vBar = pane.getVerticalScrollBar();
+		if (vBar.isVisible()) {
+			int y = bounds.y;
+			int max = vBar.getMaximum();
+			if (y > max) y = max;
+			vBar.setValue(y);
+		}
+	}
+
 }

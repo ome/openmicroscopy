@@ -47,7 +47,6 @@ import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
 
 
 /** 
@@ -93,7 +92,7 @@ import pojos.FileAnnotationData;
 public interface DataBrowser 
 	extends ObservableComponent
 {
-	
+
 	/** 
 	 * Bound property indicating to launch the editor to create a new 
 	 * experiment. 

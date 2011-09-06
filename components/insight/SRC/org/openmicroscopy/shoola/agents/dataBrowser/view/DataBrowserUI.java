@@ -637,7 +637,7 @@ class DataBrowserUI
 		if (!(model instanceof WellsModel)) return;
 		plateGridUI.onSelectedWell();
 	}
-
+	
 	/**
 	 * Sets the layout used to display the fields.
 	 * 
