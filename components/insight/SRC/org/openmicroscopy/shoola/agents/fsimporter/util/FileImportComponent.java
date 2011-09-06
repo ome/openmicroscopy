@@ -284,6 +284,9 @@ public class FileImportComponent
 	/** The error to show if any.*/
 	private Throwable exception;
 	
+	/** Flag indicating that no container specified.*/
+	private boolean noContainer;
+	
 	/** Displays the error box at the specified location.
 	 * 
 	 * @param p The location where to show the box.
@@ -767,8 +770,13 @@ public class FileImportComponent
 				addMouseListener(adapter);
 				showContainerLabel = 
 					(dataset != null || containerFromFolder != null);
-				browseButton.setVisible(showContainerLabel);
-				containerLabel.setVisible(showContainerLabel);
+				if (noContainer) {
+					browseButton.setVisible(false);
+					containerLabel.setVisible(false);
+				} else {
+					browseButton.setVisible(showContainerLabel);
+					containerLabel.setVisible(showContainerLabel);
+				}
 			}
 		} else if (image instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) image;
@@ -790,8 +798,13 @@ public class FileImportComponent
 				}
 				showContainerLabel = 
 					(dataset != null || containerFromFolder != null);
-				browseButton.setVisible(showContainerLabel);
-				containerLabel.setVisible(showContainerLabel);
+				if (noContainer) {
+					browseButton.setVisible(false);
+					containerLabel.setVisible(false);
+				} else {
+					browseButton.setVisible(showContainerLabel);
+					containerLabel.setVisible(showContainerLabel);
+				}
 			} else {
 				fileNameLabel.setForeground(ERROR_COLOR);
 				resultLabel.setVisible(false);
@@ -816,8 +829,13 @@ public class FileImportComponent
 			fileNameLabel.addMouseListener(adapter);
 			resultLabel.addMouseListener(adapter);
 			showContainerLabel = containerObject instanceof ScreenData;
-			browseButton.setVisible(showContainerLabel);
-			containerLabel.setVisible(showContainerLabel);
+			if (noContainer) {
+				browseButton.setVisible(false);
+				containerLabel.setVisible(false);
+			} else {
+				browseButton.setVisible(showContainerLabel);
+				containerLabel.setVisible(showContainerLabel);
+			}
 		} else if (image instanceof List) {
 			statusLabel.setVisible(false);
 			List list = (List) image;
@@ -845,8 +863,13 @@ public class FileImportComponent
 			}
 			resultLabel.setVisible(true);
 			showContainerLabel = true;
-			browseButton.setVisible(showContainerLabel);
-			containerLabel.setVisible(showContainerLabel);
+			if (noContainer) {
+				browseButton.setVisible(false);
+				containerLabel.setVisible(false);
+			} else {
+				browseButton.setVisible(showContainerLabel);
+				containerLabel.setVisible(showContainerLabel);
+			}
 			//control = resultLabel;
 		} else if (image instanceof Boolean) {
 			if (!statusLabel.isMarkedAsCancel()) {
@@ -1253,6 +1276,9 @@ public class FileImportComponent
 						((ScreenData) containerFromFolder).getName());
 				containerObject = containerFromFolder;
 			}
+		} else if (StatusLabel.NO_CONTAINER_PROPERTY.equals(name)) {
+			containerLabel.setText("");
+			noContainer = true;
 		}
 	}
 

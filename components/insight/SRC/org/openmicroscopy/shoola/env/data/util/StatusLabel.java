@@ -63,6 +63,11 @@ public class StatusLabel
 	/** The text displayed when loading the image to import. */
 	public static final String PREPPING_TEXT = "prepping";
 	
+	/** 
+	 * Bound property indicating that the original container has been reset.
+	 * */
+	public static final String NO_CONTAINER_PROPERTY = "noContainer";
+	
 	/** Bound property indicating that children files have been set. */
 	public static final String FILES_SET_PROPERTY = "filesSet";
 	
@@ -215,6 +220,15 @@ public class StatusLabel
 	public void setFiles(Map<File, StatusLabel> files)
 	{
 		firePropertyChange(FILES_SET_PROPERTY, null, files);
+	}
+	
+	/**
+	 * Indicates that the original container has been reset.
+	 */
+	public void setNoContainer()
+	{
+		firePropertyChange(NO_CONTAINER_PROPERTY,
+				Boolean.valueOf(false), Boolean.valueOf(true));
 	}
 	
 	/**

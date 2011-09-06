@@ -176,6 +176,7 @@ class OmeroImageServiceImpl
 			}
 			if (!label.isMarkedAsCancel()) {
 				try {
+					if (ioContainer == null) label.setNoContainer();
 					result = gateway.importImage(object, ioContainer, file,
 							label, archived, toClose);
 					if (result instanceof ImageData) {
@@ -1183,6 +1184,8 @@ class OmeroImageServiceImpl
 					}
 					File f = new File(value);
 					status.resetFile(f);
+					if (ioContainer == null)
+						status.setNoContainer();
 					result = gateway.importImage(object, ioContainer, f,
 							status, importable.isArchived(), close);
 					if (result instanceof ImageData) {
@@ -1218,6 +1221,8 @@ class OmeroImageServiceImpl
 					}
 				}
 			} else { //single file let's try to import it.
+				if (ioContainer == null)
+					status.setNoContainer();
 				result = gateway.importImage(object, ioContainer, file, status, 
 						importable.isArchived(), close);
 				if (result instanceof ImageData) {
