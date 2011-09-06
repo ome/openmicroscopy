@@ -148,22 +148,28 @@ class BrowserModel
         ImageDisplay primary = null;
         if (selectedDisplays.size() > 0) primary = selectedDisplays.get(0);
 
-        if (toDeselect != null) {
+        if (toDeselect != null && toDeselect.size() > 0) {
         	i = toDeselect.iterator();
             while (i.hasNext()) {
             	node = (ImageDisplay) i.next();
-                if (node != null && !toSelect.contains(node))
-                	node.setHighlight(colors.getDeselectedHighLight(node));
+            	if (node != null) {
+            		if (toSelect != null) {
+            			if (!toSelect.contains(node))
+            				node.setHighlight(
+            						colors.getDeselectedHighLight(node));
+            		} else
+            			node.setHighlight(colors.getDeselectedHighLight(node));
+            	}
             }
         }
-        
-        i = toSelect.iterator();
-        while (i.hasNext()) {
-			node = (ImageDisplay) i.next();
-			node.setHighlight(colors.getSelectedHighLight(node, 
-					isSameNode(node, primary)));
-		}
-
+        if (toSelect != null && toSelect.size() > 0) {
+        	 i = toSelect.iterator();
+             while (i.hasNext()) {
+     			node = (ImageDisplay) i.next();
+     			node.setHighlight(colors.getSelectedHighLight(node, 
+     					isSameNode(node, primary)));
+     		}
+        }
     }
 	
 	/**
@@ -542,6 +548,7 @@ class BrowserModel
 	            Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 
+	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#setSelectedNodes(List)
@@ -556,15 +563,19 @@ class BrowserModel
 				l.add(i.next());
 			}
 			selectedDisplays.clear();
-			setNodesColor(new ArrayList<ImageDisplay>(0), l);
+			setNodesColor(null, l);
 			return;
 		}
 		NodesFinder finder = new NodesFinder(nodes);
 		rootDisplay.accept(finder);
 		List<ImageDisplay> found = finder.getFoundNodes();
 		//to reset color if parent is selected.
-		setNodesColor(found, getSelectedDisplays());
+		Collection selected = getSelectedDisplays();
+		setNodesColor(found, selected);
 		if (found.size() == 0) {
+			if (selected == null || selected.size() == 0) {
+				setNodesColor(null, getRootNodes());
+			}
 			setSelectedDisplay(null, false, false);
 			return;
 		}

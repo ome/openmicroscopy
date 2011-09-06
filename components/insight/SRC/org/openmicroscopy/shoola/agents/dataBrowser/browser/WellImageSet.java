@@ -188,7 +188,7 @@ public class WellImageSet
 	{
 		if (node != null) {
 			samples.add(node);
-			node.setHighlight(getHighlight());
+			//node.setHighlight(getHighlight());
 		}
 		setSelectedWellSample(0);
 	}
