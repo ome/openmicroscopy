@@ -121,7 +121,8 @@ class RDefsTest (lib.GTest):
         tiny = self.getTinyTestImage().getChannels()
         self.assertEqual(tiny[0].getEmissionWave(), 500)
 
-    def testBatchCopy (self):
+    # Disabled. See #6038
+    def XtestBatchCopy (self):
         """ tests that we can copy rendering settings from one image to a set of targets """
         #self.loginAsAdmin()
         self.loginAsAuthor()
