@@ -5361,7 +5361,8 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def getDataset(self):
         """
-        Gets the Dataset that image is in, or None. TODO: Why not use getParent()? 
+        XXX: Deprecated since 4.3.2, use listParents(). (See #6660)
+        Gets the Dataset that image is in, or None.
         Returns None if Image is in more than one Dataset. 
         
         @return:    Dataset
