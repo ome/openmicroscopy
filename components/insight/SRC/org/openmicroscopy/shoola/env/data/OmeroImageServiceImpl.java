@@ -1099,7 +1099,12 @@ class OmeroImageServiceImpl
 							} else hcsFile = false;
 						}
 					}
-					
+				}
+			}
+			if (!hcsFile && ImportableObject.isOMEFile(file)) {
+				ic = gateway.getImportCandidates(object, file, status);
+				if (ic != null) {
+					hcsFile = isHCS(ic.getContainers());
 				}
 			}
 			if (hcsFile) {
