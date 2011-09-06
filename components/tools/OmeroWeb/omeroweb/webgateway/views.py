@@ -1112,8 +1112,20 @@ def imageMarshal (image, key=None):
     
     image.loadRenderOptions()
     pr = image.getProject()
-    ds = image.getDataset()
-    
+    ds = None
+    try:
+        # Replicating the functionality of the deprecated
+        # ImageWrapper.getDataset() with shares in mind.
+        # -- Tue Sep  6 10:48:47 BST 2011 (See #6660)
+        parents = image.listParents()
+        if parents is not None and len(parents) == 1:
+            ds = parents[0]
+    except omero.SecurityViolation, e:
+        # We're in a share so the Image's parent Dataset cannot be loaded
+        # or some other permissions related issue has tripped us up.
+        logger.warn('Security violation while retrieving Dataset when ' \
+                    'marshaling image metadata: %s' % e.message)
+
     try:
         reOK = image._prepareRenderingEngine()
         if not reOK:
