@@ -1574,7 +1574,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         if hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
             template = "webclient/ajax_form/container_form_ajax.html"
-            form = ContainerNameForm(initial={'name': (o_type != "tag" and obj.name or obj.textValue)})
+            form = ContainerNameForm(initial={'name': ((o_type != ("tag")) and obj.getName() or obj.textValue)})
             context = {'nav':request.session['nav'], 'manager':manager, 'eContext':manager.eContext, 'form':form}
         else:
             return HttpResponseServerError("Object does not exist")

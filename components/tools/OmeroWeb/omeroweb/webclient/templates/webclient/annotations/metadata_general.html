@@ -73,8 +73,9 @@
                 {% endif %}
                 
                 {% if manager.acquisition.isOwned %}
-                $( "#acquisitionname-{{ manager.acquisition.id }} img" ).editable('{% url manage_action_containers "editname" "acquisition" manager.acquisition.id %}', '{% url manage_action_containers "savename" "acquisition" manager.acquisition.id %}', "acquisitionname-{{ manager.acquisition.id }}" );
-                $( "#acquisitiondescription-{{ manageracquisition.id }} img" ).editable('{% url manage_action_containers "editdescription" "acquisition" manager.acquisition.id %}', '{% url manage_action_containers "savedescription" "acquisition" manager.acquisition.id %}', "welldescription-{{ manager.acquisition.id }}" );                
+                $( "#acquisitionname-{{ manager.acquisition.id }} img" ).editable('{% url manage_action_containers "editname" "acquisition" manager.acquisition.id %}', '{% url manage_action_containers "savename" "acquisition" manager.acquisition.id %}', "acquisitionname-{{ manager.acquisition.id }}" );                
+                $( "#acquisitiondescription-{{ manager.acquisition.id }} img" ).editable('{% url manage_action_containers "editdescription" "acquisition" manager.acquisition.id %}', '{% url manage_action_containers "savedescription" "acquisition" manager.acquisition.id %}', "acquisitiondescription-{{ manager.acquisition.id }}" );             
+                               
                 {% endif %}
                 
                 {% if manager.plate.isOwned %}
@@ -520,12 +521,14 @@
             </table>
             {% else %}
                 {% if manager.acquisition %}
-                {% if manager.acquisition.isOwned %}<div id="acquisitionname-{{ manager.acquisition.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <p id="acquisitionname-{{ manager.acquisition.id }}-name" style="word-wrap: break-word;">{{ manager.acquisition.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.acquisition.name }}</h1>{% endif %}
-              
+                {% if manager.acquisition.isOwned %}<div id="acquisitionname-{{ manager.acquisition.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <p id="acquisitionname-{{ manager.acquisition.id }}-name" style="word-wrap: break-word;">{{ manager.acquisition.getName }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.acquisition.getName }}</h1>{% endif %}
+                
                 <h2 id='acquisition_id'>Plate acquisition ID: {{ manager.acquisition.id }}</h2>
+                
                 <div class="description">
                     {% if manager.acquisition.isOwned %}<div id="acquisitiondescription-{{ manager.acquisition.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="acquisitiondescription-{{ manager.acquisition.id }}-description">{{ manager.acquisition.description|default_if_none:""}}</span><p></div>{% else %}<span id='acquisition_desc'>{{ manager.acquisition.description|default_if_none:""|linebreaks }}</span>{% endif %}
                 </div>
+                
                 <table>
                     {% if not manager.acquisition.isOwned %}
                     <tr>
