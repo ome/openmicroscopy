@@ -15,6 +15,7 @@
     <dependency org="omero" name="omero_client" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}"/>
     <dependency org="ij" name="ij" rev="${versions.ij}"/>
+    <dependency org="omeio" name="ome-io" rev="${versions.bio-formats}"/>
     <!-- dependency org="i5d" name="Image_5D" rev="${versions.i5d}"/ -->
      <!-- Gui -->
      <dependency org="gui" name="swingx" rev="${versions.swingx}"/>

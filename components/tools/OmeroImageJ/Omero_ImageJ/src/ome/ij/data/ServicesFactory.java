@@ -125,6 +125,9 @@ public class ServicesFactory
     /** Keeps the client's session alive. */
 	private ScheduledThreadPoolExecutor	executor;
 	
+	/** The login credentials.*/
+	private LoginCredentials lc;
+	
 	/**
 	 * Attempts to create a new instance.
      * 
@@ -181,6 +184,7 @@ public class ServicesFactory
 		try {
 			gateway.login(lc.getUserName(), lc.getPassword(), lc.getHostName(), 
 					lc.getPort(), lc.getGroup(), lc.isEncrypted());
+			this.lc = lc;
 			KeepClientAlive kca = new KeepClientAlive(gateway);
 	        executor = new ScheduledThreadPoolExecutor(1);
 	        executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
@@ -203,6 +207,7 @@ public class ServicesFactory
 			return PERMISSION_INDEX;
 		}
 	}
+	
 	/**
 	 * Returns the version of the server.
 	 * 
@@ -231,6 +236,34 @@ public class ServicesFactory
 		//Need to notify the window.
 		IJ.getInstance().firePropertyChange(DISCONNECT_PROPERTY, 0, 1);
 		return;
+	}
+	
+	/**
+	 * Runs the plug-in to view the image.
+	 * 
+	 * @param imageId The identifier of image to view.
+	 */
+	public void runBFPlugin(long imageId)
+	{
+		if (lc == null || imageId < 0) return;
+		try {
+			IJ.debugMode = true;
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("location=[OMERO] open=[omero:server=");
+			buffer.append(lc.getHostName());
+			buffer.append("\nuser=");
+			buffer.append(lc.getUserName());
+			buffer.append("\nport=");
+			buffer.append(lc.getPort());
+			buffer.append("\npass=");
+			buffer.append(lc.getPassword());
+			buffer.append("\niid=");
+			buffer.append(imageId);
+			buffer.append("]");
+			IJ.runPlugIn("loci.plugins.LociImporter", buffer.toString());
+		} catch (Exception e) {
+			IJ.showMessage("An error occurred while loading the image.");
+		}
 	}
 	
 	/** Exits the plug-in. */
