@@ -108,9 +108,14 @@ class FileCache(CacheBase):
         fname = self._key_to_file(key)
         try:
             f = open(fname, 'rb')
-            exp = struct.unpack('d',f.read(size_of_double))[0]
-            now = time.time()
-            if exp < now:
+            if self._default_timeout > 0:
+                exp = struct.unpack('d',f.read(size_of_double))[0]
+                now = time.time()
+                exp = exp < now
+            else: 
+                f.seek(size_of_double)
+                exp = False
+            if exp:
                 f.close()
                 self._delete(fname)
             else:
@@ -485,11 +490,13 @@ class WebGatewayCache (object):
         @param iid:             image ID
         @param size:            size of the thumbnail - tuple. E.g. (100,)
         """
-        
+        pre = str(iid)[:-4]
+        if len(pre) == 0:
+            pre = '0'
         if size is not None and len(size):
-            return 'thumb_user_%s/%s/%s/%s' % (client_base, str(iid), user_id, 'x'.join([str(x) for x in size]))
+            return 'thumb_user_%s/%s/%s/%s/%s' % (client_base, pre, str(iid), user_id, 'x'.join([str(x) for x in size]))
         else:
-            return 'thumb_user_%s/%s/%s' % (client_base, str(iid), user_id)
+            return 'thumb_user_%s/%s/%s/%s' % (client_base, pre, str(iid), user_id)
 
     def setThumb (self, r, client_base, user_id, iid, obj, size=()):
         """
@@ -570,7 +577,10 @@ class WebGatewayCache (object):
             q = r.get('q', '')
             region = r.get('region', '')
             tile = r.get('tile', '')
-            rv = 'img_%s/%s/%%s-c%s-m%s-q%s-r%s-t%s' % (client_base, str(iid), c, m, q, region, tile)
+            pre = str(iid)[:-4]
+            if len(pre) == 0:
+                pre = '0'
+            rv = 'img_%s/%s/%s/%%s-c%s-m%s-q%s-r%s-t%s' % (client_base, pre, str(iid), c, m, q, region, tile)
             if p:
                 return rv % ('%s-%s' % (p, str(t)))
             else:
