@@ -100,11 +100,17 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
                 }
             }
 
+
+            /*
+             * ring.checkPassword calls SqlAction.activeSession
+             * which logs the user id.
+             *
             if (session == null) {
                 if (ring.checkPassword(password)) {
                     session = "ring.checkPassword(password)";
                 }
             }
+            */
 
 
             // If any of the above blocks returned a valid value
