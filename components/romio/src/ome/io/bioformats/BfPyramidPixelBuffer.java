@@ -513,7 +513,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             try
             {
                 initializeWriter(writerFile.getAbsolutePath(),
-                        TiffCompression.JPEG_2000.getCodecName(), false, w, h);
+                        TiffCompression.JPEG_2000.getCodecName(), true, w, h);
             }
             catch (Exception e)
             {
