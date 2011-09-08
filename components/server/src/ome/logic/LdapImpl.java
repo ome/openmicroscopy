@@ -257,6 +257,13 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
     public void synchronizeLdapUser(String username) {
 
+        if (!config.isSyncOnLogin()) {
+            if (getBeanHelper().getLogger().isTraceEnabled()) {
+                getBeanHelper().getLogger().trace("sync_on_login=false");
+            }
+            return;
+        }
+
         Experimenter omeExp = iQuery.findByString(Experimenter.class, "omeName", username);
 
         Experimenter ldapExp = findExperimenter(username);

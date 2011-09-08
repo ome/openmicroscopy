@@ -40,15 +40,19 @@ public class LdapConfig {
 
     private final boolean enabled;
 
+    private final boolean syncOnLogin;
+
     public LdapConfig(boolean enabled, String newUserGroup,
             String userFilter, String groupFilter,
-            String userMapping, String groupMapping) {
+            String userMapping, String groupMapping,
+            boolean syncOnLogin) {
         this.enabled = enabled;
         this.newUserGroup = newUserGroup;
         this.userFilter = new HardcodedFilter(userFilter);
         this.groupFilter = new HardcodedFilter(groupFilter);
         this.userMapping = parse(userMapping);
         this.groupMapping = parse(groupMapping);
+        this.syncOnLogin = syncOnLogin;
     }
 
     // Helpers
@@ -65,6 +69,10 @@ public class LdapConfig {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public boolean isSyncOnLogin() {
+        return syncOnLogin;
     }
 
     public String getNewUserGroup() {
