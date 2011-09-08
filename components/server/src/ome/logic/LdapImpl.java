@@ -8,6 +8,8 @@
 package ome.logic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -32,6 +34,7 @@ import ome.conditions.ValidationException;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.security.auth.AttributeNewUserGroupBean;
 import ome.security.auth.AttributeSet;
@@ -252,6 +255,94 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     // WRITES
     //
 
+    public void synchronizeLdapUser(String username) {
+
+        Experimenter omeExp = iQuery.findByString(Experimenter.class, "omeName", username);
+
+        Experimenter ldapExp = findExperimenter(username);
+        String ldapDN = getContextMapper().getDn(ldapExp);
+        DistinguishedName dn = new DistinguishedName(ldapDN);
+        List<Long> ldapGroups = loadLdapGroups(username, dn);
+        List<Object[]> omeGroups = iQuery.projection(
+                "select g.id from ExperimenterGroup g " +
+			"join g.groupExperimenterMap m join m.child e where e.id = :id",
+                new Parameters().addId(omeExp.getId()));
+
+        Set<Long> omeGroupIds = new HashSet<Long>();
+        for (Object[] objs : omeGroups) {
+            omeGroupIds.add((Long) objs[0]);
+        }
+
+        // All the omeGroups not in ldapGroups should be removed.
+        modifyGroups(omeExp, omeGroupIds, ldapGroups, false);
+        // All the ldapGroups not in omeGroups shoud be added.
+        modifyGroups(omeExp, ldapGroups, omeGroupIds, true);
+
+        List<String> fields = Arrays.asList(
+                Experimenter.FIRSTNAME,
+                Experimenter.MIDDLENAME,
+                Experimenter.LASTNAME,
+                Experimenter.EMAIL,
+                Experimenter.INSTITUTION);
+
+        for (String field : fields) {
+            String fieldname = field.substring(field.indexOf("_")+1);
+            String ome = (String) omeExp.retrieve(field);
+            String ldap = (String) ldapExp.retrieve(field);
+
+            if (ome == null) {
+                if (ldap != null) {
+                    getBeanHelper().getLogger().info(
+                        String.format("Nulling %s for %s, was:",
+                                fieldname, username, ome));
+                    omeExp.putAt(field, ldap);
+                }
+            } else if (!ome.equals(ldap)) {
+                getBeanHelper().getLogger().info(
+                        String.format("Changing %s for %s: %s -> %s",
+                                fieldname, username, ome, ldap));
+                omeExp.putAt(field, ldap);
+            }
+        }
+        iUpdate.flush();
+    }
+
+    /**
+     * The ids in "minus" will be removed from the ids in "base" and then
+     * the operation chosen by "add" will be run on them. This method
+     * ignores all methods known by Roles.
+     *
+     * @param e
+     * @param base
+     * @param minus
+     * @param add
+     */
+    private void modifyGroups(Experimenter e, Collection<Long> base,
+            Collection<Long> minus, boolean add) {
+
+        Set<Long> ids = new HashSet<Long>(base);
+        ids.removeAll(minus);
+        // Take no actions on system/user group.
+        ids.remove(roles.getSystemGroupId());
+        ids.remove(roles.getUserGroupId());
+
+        if (ids.size() > 0) {
+            getBeanHelper().getLogger().info(String.format(
+                    "%s groups for %s: %s",
+                    add ? "Adding" : "Removing",
+                    e.getOmeName(), ids));
+            Set<ExperimenterGroup> grps = new HashSet<ExperimenterGroup>();
+            for (Long id : ids) {
+                grps.add(new ExperimenterGroup(id, false));
+            }
+            if (add) {
+                provider.addGroups(e, grps.toArray(new ExperimenterGroup[0]));
+            } else {
+                provider.removeGroups(e, grps.toArray(new ExperimenterGroup[0]));
+            }
+        }
+    }
+
     /**
      * Gets user from LDAP for checking him by requirements and setting his
      * details on DB
@@ -268,23 +359,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
         if (access) {
 
-            String grpSpec = config.getNewUserGroup();
-            List<Long> groups = new ArrayList<Long>();
-
-            if (grpSpec.startsWith(":ou:")) {
-                handleGrpSpecOu(dn, groups);
-            } else if (grpSpec.startsWith(":attribute:")) {
-                handleGroupSpecAttr(dn, username, grpSpec, groups);
-            } else if (grpSpec.startsWith(":query:")) {
-                handleGroupSpecQuery(username, grpSpec, groups);
-            } else if (grpSpec.startsWith(":bean:")) {
-                handleGroupSpecBean(username, grpSpec, groups);
-            } else if (grpSpec.startsWith(":")) {
-                throw new ValidationException(grpSpec + " spec currently not supported.");
-            } else {
-                // The default case is the original logic: use the spec as name
-                groups.add(provider.createGroup(grpSpec, null, false));
-            }
+            List<Long> groups = loadLdapGroups(username, dn);
 
             if (groups.size() == 0) {
                 throw new ValidationException("No group found for: " + dn);
@@ -306,6 +381,27 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             setDN(uid, dn.toString());
         }
         return access;
+    }
+
+    public List<Long> loadLdapGroups(String username, DistinguishedName dn) {
+        String grpSpec = config.getNewUserGroup();
+        List<Long> groups = new ArrayList<Long>();
+
+        if (grpSpec.startsWith(":ou:")) {
+            handleGrpSpecOu(dn, groups);
+        } else if (grpSpec.startsWith(":attribute:")) {
+            handleGroupSpecAttr(dn, username, grpSpec, groups);
+        } else if (grpSpec.startsWith(":query:")) {
+            handleGroupSpecQuery(username, grpSpec, groups);
+        } else if (grpSpec.startsWith(":bean:")) {
+            handleGroupSpecBean(username, grpSpec, groups);
+        } else if (grpSpec.startsWith(":")) {
+            throw new ValidationException(grpSpec + " spec currently not supported.");
+        } else {
+            // The default case is the original logic: use the spec as name
+            groups.add(provider.createGroup(grpSpec, null, false));
+        }
+        return groups;
     }
 
     //

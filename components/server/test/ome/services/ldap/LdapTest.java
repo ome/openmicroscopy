@@ -16,14 +16,17 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.logic.LdapImpl;
 import ome.security.auth.LdapConfig;
+import ome.security.auth.LdapPasswordProvider;
+import ome.security.auth.PasswordUtil;
 import ome.security.auth.RoleProvider;
+import ome.services.util.Executor;
+import ome.system.EventContext;
 import ome.system.Roles;
 import ome.util.SqlAction;
 
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.jmock.core.Constraint;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.ldap.core.ContextMapper;
@@ -42,16 +45,17 @@ import org.testng.annotations.Test;
  */
 public class LdapTest extends MockObjectTestCase {
 
-    protected class Fixture {
-        ConfigurableApplicationContext ctx;
+    public class Fixture {
+        public ConfigurableApplicationContext ctx;
         File file;
         Mock role;
         Mock sql;
         LdapImpl ldap;
         LdapConfig config;
-        LdapTemplate template;
+        LdapPasswordProvider provider;
+        public LdapTemplate template;
 
-        protected void createUserWithGroup(LdapTest t, final String dn, String group) {
+        public void createUserWithGroup(LdapTest t, final String dn, String group) {
             role.expects(atLeastOnce()).method("createGroup")
                 .with(t.eq(group), t.NULL, t.eq(false))
                 .will(returnValue(101L));
@@ -60,13 +64,18 @@ public class LdapTest extends MockObjectTestCase {
             // sql.expects(once()).method("update") // FIXME
         }
 
-        protected boolean createUserFromLdap(String user, String string) {
+        public boolean createUserFromLdap(String user, String string) {
             return ldap.createUserFromLdap(user, "password");
         }
 
 
-        protected void login(String username, String group) {
+        public EventContext login(String username, String group, String password) {
             // no-op here.
+            return null;
+        }
+
+        public Object execute(Executor.Work work) {
+            throw new RuntimeException("Only in subclasses!");
         }
 
         void close() {
@@ -81,7 +90,7 @@ public class LdapTest extends MockObjectTestCase {
      */
     @DataProvider(name = "ldif_files")
     public Object[][] getLdifContexts() throws Exception {
-        String name = LdapTest.class.getName();
+        String name = getClass().getName();
         name = name.replaceAll("[.]", "//");
         name = "classpath:" + name + ".class";
         File file = ResourceUtils.getFile(name);
@@ -176,6 +185,9 @@ public class LdapTest extends MockObjectTestCase {
 
         fixture.ldap = new LdapImpl(source, fixture.template,
                 new Roles(), fixture.config, provider, sql);
+
+        fixture.provider = new LdapPasswordProvider(
+                new PasswordUtil(sql), fixture.ldap);
         return fixture;
     }
 
@@ -202,7 +214,7 @@ public class LdapTest extends MockObjectTestCase {
             assertEquals(user, ldap.findExperimenter(user).getOmeName());
             fixture.createUserWithGroup(this, dn, users.get(user).get(0));
             assertTrue(fixture.createUserFromLdap(user, "password"));
-            fixture.login(user, users.get(user).get(0));
+            fixture.login(user, users.get(user).get(0), "password");
 
             // Check that proper dn is passed to setDN
             // Check password

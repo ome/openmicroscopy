@@ -391,6 +391,28 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("system")
     @Transactional(readOnly = false)
     public void synchronizeLoginCache() {
+
+        final Log log = getBeanHelper().getLogger();
+        final List<Map<String, Object>> dnIds = ldapUtil.lookupLdapAuthExperimenters();
+
+        if (dnIds.size() > 0) {
+            log.info("Synchronizing " + dnIds.size() + " ldap user(s)");
+        }
+
+
+        for (Map<String, Object> dnId: dnIds) {
+            String dn = (String) dnId.get("dn");
+            Long id = (Long) dnId.get("experimenter_id");
+            try {
+                Experimenter e = userProxy(id);
+                ldapUtil.synchronizeLdapUser(e.getOmeName());
+            } catch (ApiUsageException aue) {
+                // User likely doesn't exist
+                log.debug("User not found: " + dn);
+            } catch (Exception e) {
+                log.error("synchronizeLdapUser:" + dnId, e);
+            }
+        }
         context.publishEvent(new UserGroupUpdateEvent(this));
     }
 

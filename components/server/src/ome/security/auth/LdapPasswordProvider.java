@@ -102,8 +102,11 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
         // Known user
         else {
             try {
+
+
                 String dn = ldapUtil.lookupLdapAuthExperimenter(id);
                 if (dn != null) {
+                    ldapUtil.synchronizeLdapUser(user);
                     return loginAttempt(user,
                             ldapUtil.validatePassword(dn, password));
                 }
