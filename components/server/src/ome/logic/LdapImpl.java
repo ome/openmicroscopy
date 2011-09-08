@@ -34,6 +34,7 @@ import ome.conditions.ValidationException;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.GroupExperimenterMap;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.security.auth.AttributeNewUserGroupBean;
@@ -346,6 +347,20 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
                 provider.addGroups(e, grps.toArray(new ExperimenterGroup[0]));
             } else {
                 provider.removeGroups(e, grps.toArray(new ExperimenterGroup[0]));
+            }
+
+            if (add) {
+                // If we have just added groups, then it's possible that
+                // the "user" groupis at the front of the list, in which
+                // case we should assign another specific group.
+                e = iQuery.get(Experimenter.class, e.getId());
+                if (e.sizeOfGroupExperimenterMap() > 1) {
+                    GroupExperimenterMap primary = e.getGroupExperimenterMap(0);
+                    GroupExperimenterMap next = e.getGroupExperimenterMap(1);
+                    if (primary.parent().getId().equals(roles.getUserGroupId())) {
+                        provider.setDefaultGroup(e, next.parent());
+                    }
+                }
             }
         }
     }
