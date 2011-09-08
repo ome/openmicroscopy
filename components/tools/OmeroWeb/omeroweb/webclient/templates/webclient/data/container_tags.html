@@ -124,7 +124,6 @@
                         "types" : {
                             // I want only `drive` nodes to be root nodes 
                             // This will prevent moving or creating any other type as a root node
-                            "select_limit" : -1,
                             "max_depth" : -1,
                             "max_children" : -1,
                             "valid_children" : [ "experimenter" ],
@@ -285,6 +284,9 @@
                         // For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
                         // the UI plugin - it handles selecting/deselecting/hovering nodes
                         "ui" : {
+                            "select_limit" : 1,
+                            "select_multiple_modifier" : false,
+                            "select_range_modifier" : false,
                             "initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ]
                         },
                         // the core plugin - not many options here
@@ -318,10 +320,14 @@
                 .bind("select_node.jstree", function (e, data) {
                     var selected = data.inst.get_selected();
                     buttonsShowHide(selected);
-                    if (data.rslt.obj.attr("id").indexOf("tag")<0) {
-                        loadOtherPanels(data, '{% url load_data %}');
+                    if (selected.attr("rel").replace("locked","") === "tag") {
+                        loadOtherPanels(data.inst, '{% url load_data_by_tag %}');
                     } else {
-                        loadOtherPanels(data, '{% url load_data_by_tag %}');
+                        if (selected.attr("rel").replace("locked","") === "image" && selected.parent().parent().attr("rel").replace("locked","") === "tag") {
+                            loadOtherPanels(data.inst, '{% url load_data_by_tag %}');
+                        } else {
+                            loadOtherPanels(data.inst, '{% url load_data %}');
+                        }
                     }
                     syncPanels(selected);
                 })

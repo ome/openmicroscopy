@@ -100,7 +100,6 @@
                         "types" : {
                             // I want only `drive` nodes to be root nodes 
                             // This will prevent moving or creating any other type as a root node
-                            "select_limit" : -1,
                             "max_depth" : -1,
                             "max_children" : -1,
                             "valid_children" : [ "experimenter" ],
@@ -191,6 +190,9 @@
                         // For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
                         // the UI plugin - it handles selecting/deselecting/hovering nodes
                         "ui" : {
+                            "select_limit" : 1,
+                            "select_multiple_modifier" : false,
+                            "select_range_modifier" : false,
                             "initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ]
                         },
                         // the core plugin - not many options here
@@ -217,7 +219,7 @@
                 })
                 .bind("select_node.jstree", function (e, data) {
                     buttonsShowHide(data.rslt.obj);
-                    loadOtherPanels(data, '{% url load_public %}');
+                    loadOtherPanels(data.inst, '{% url load_public %}');
                     syncPanels(data.inst.get_selected());
                 })
                 .bind("remove.jstree", function (e, data) {

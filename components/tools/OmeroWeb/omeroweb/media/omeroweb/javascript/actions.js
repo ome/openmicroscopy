@@ -46,7 +46,7 @@ var loadOtherPanels = function(inst, prefix) {
                     } else {
                         cm_var['content_details']['empty'] = true;
                     }
-                } else if($.inArray(orel, ["acquisition"]) > -1) {
+                } else if($.inArray(orel, ["acquisition"]) > -1 && oid!==crel) {
                     var plate = inst._get_parent(selected).attr('id').replace("-", "/");
                     cm_var['content_details']['rel'] = oid;
                     cm_var['content_details']['url'] = prefix+plate+'/'+orel+'/'+oid.split("-")[1]+'/';
@@ -61,7 +61,6 @@ var loadOtherPanels = function(inst, prefix) {
                 } else if($.inArray(orel, ["tag"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
                     cm_var['content_details']['url'] = "/webclient/load_tags/?view=icon&o_type=tag&o_id="+oid.split("-")[1];
-
                 } else if(orel=="image") {
                     var pr = selected.parent().parent();
                     if (pr.length>0 && pr.attr('id')!==crel) {
@@ -213,7 +212,6 @@ var loadMetadataPanel = function(src, html) {
 var refreshCenterPanel = function() {
     var rel = $("div#content_details").attr("rel");
     var page = parseInt($("div#content_details").find("#page").attr("rel"));
-    var view = $("div#content_details").find("#toolbar").attr('rel');
     
     if (typeof rel!=="undefined") {
         if (rel.indexOf("orphaned")>=0) {
@@ -229,6 +227,8 @@ var refreshCenterPanel = function() {
             $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
             url = '/webclient/load_data/'+rel.replace('-', '/')+'/';
         }
+        
+        var view = $("div#content_details").find("#toolbar").attr('rel') ? $("div#content_details").find("#toolbar").attr('rel') : "icon";
         
         $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
         url = url+'?view='+view

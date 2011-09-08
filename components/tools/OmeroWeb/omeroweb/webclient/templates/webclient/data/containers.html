@@ -57,11 +57,11 @@
                 $("div#content_details").css('height', h+31);
                 
                 var buttonsShowHide = function(selected, inst) {
-                    var toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}, 'annotation':false, 'basket':false};
+                    var toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
                     
                     if(selected.length > 0) {
                         if(selected.attr("rel").indexOf("locked") < 0) {
-                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false};
+                            toolbar_config['delete'] = true;
                             if(selected.attr("id").indexOf("experimenter")>=0) {
                                 toolbar_config['delete'] = false;
                                 toolbar_config["addproject"] = true;
@@ -96,6 +96,8 @@
                         if ((inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes) && ($.inArray(selected.attr('rel').replace("-locked", ""), ["project", "dataset", "screen"]) > -1)) {
                             toolbar_config['paste'] = true;
                         }
+                    } else {
+                        toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}, 'annotation':false, 'basket':false};
                     }
                     
                     for (var sIndex in toolbar_config) { 
@@ -151,7 +153,6 @@
                     "types" : {
                         // I want only `drive` nodes to be root nodes 
                         // This will prevent moving or creating any other type as a root node
-                        "select_limit" : -1,
                         "max_depth" : -1,
                         "max_children" : -1,
                         "valid_children" : [ "experimenter" ],
@@ -315,10 +316,11 @@
                     // For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
                     // the UI plugin - it handles selecting/deselecting/hovering nodes
                     "ui" : {
-                        "initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ],
+                        "select_limit" : -1,
                         "select_multiple_modifier": multi_key(),
                         "selected_parent_close": "select_parent",
-                        "select_prev_on_delete": false
+                        "select_prev_on_delete": false,
+                        "initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ],
                     },
                     // the core plugin - not many options here
                     "core" : { 
@@ -501,15 +503,17 @@
                 })
                 .bind("select_node.jstree", function (e, data) {
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
-                    
                     var selected = data.inst.get_selected();
-                    
                     if (selected.length > 1) {
                         loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% url webstatic "images/knotes16.png" %}"/> Batch Annotate</a></p>');
                         $("#batchAnnotate").click(function() {
                             multipleAnnotation(selected);
                             return false;
                         });
+                        if (selected.filter('li:not([id|=image])').length > 0) {
+                            $("div#content_details").empty();
+                            $("div#content_details").removeAttr('rel');
+                        }
                     } else {
                         loadOtherPanels(data.inst, '{% url load_data %}');
                     }
@@ -522,6 +526,12 @@
                     if (selected.length < 2) {
                         data.rslt.obj = selected;
                         loadOtherPanels(data.inst, '{% url load_data %}');
+                    } else {
+                        var parent = data.inst._get_parent(data.inst.data.ui.last_selected);
+                        if ($.inArray(parent.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1 ) {
+                            $("div#content_details").attr('rel', parent.attr("id"));
+                            refreshCenterPanel();
+                        }
                     }
                     syncPanels(selected);
                 })
