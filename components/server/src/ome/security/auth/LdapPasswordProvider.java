@@ -100,8 +100,9 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
             }
         }
 
-        // Known user
-        else {
+        // Known user, preventing special users
+        // See ticket:6702
+        else if (!id.equals(0L)) {
             String dn1 = null, dn2 = null;
             try {
                 dn1 = ldapUtil.lookupLdapAuthExperimenter(id);
