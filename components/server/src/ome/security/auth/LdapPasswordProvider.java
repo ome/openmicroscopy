@@ -103,17 +103,9 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
         // Known user, preventing special users
         // See ticket:6702
         else if (!id.equals(0L)) {
-            String dn1 = null, dn2 = null;
-            try {
-                dn1 = ldapUtil.lookupLdapAuthExperimenter(id);
-                dn2 = ldapUtil.findDN(user);
-                if (log.isDebugEnabled()) {
-                    log.debug(String.format("lookupLdap(%s)=%s", id, dn1));
-                    log.debug(String.format("findDB(%s)=%s", user, dn2));
-                }
-            } catch (ApiUsageException e) {
-                log.info("Default choice on check ldap password: " + user, e);
-            }
+
+            final String dn1 = getOmeroDN(id);
+            final String dn2 = getLdapDN(user);
 
             if ((dn1 != null && !dn1.equals(dn2)) ||
                     (dn2 != null && !dn2.equals(dn1))) {
@@ -138,4 +130,33 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
         return super.checkPassword(user, password, readOnly);
     }
 
+    private String getOmeroDN(long id) {
+        try {
+            String dn = ldapUtil.lookupLdapAuthExperimenter(id);
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("lookupLdap(%s)=%s", id, dn));
+            }
+            return dn;
+        } catch (ApiUsageException e) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("lookupLdap(%s) is empty", id));
+            }
+            return null;
+        }
+    }
+
+    private String getLdapDN(String user) {
+        try {
+            String dn = ldapUtil.findDN(user);
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("findDN(%s)=%s", user, dn));
+            }
+            return dn;
+        } catch (ApiUsageException e) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("findDN(%s) is empty", user));
+            }
+            return null;
+        }
+    }
 }
