@@ -53,6 +53,7 @@ import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.measurement.Analyser;
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.ROILoader;
@@ -66,9 +67,12 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
@@ -778,13 +782,14 @@ class MeasurementViewerModel
 	}
 	
 	/**
-	 * Removes all the <code>ROI</code> in the system..
+	 * Removes all the <code>ROI</code> in the system.
 	 * 
 	 * @throws NoSuchROIException If the ROI does not exist.
 	 */
 	void removeAllROI() 
 		throws NoSuchROIException
 	{
+		state = MeasurementViewer.READY;
 		drawingComponent.removeAllFigures();
 		int size = roiComponent.getROIMap().values().size();
 		ROI[] valueList = new ROI[size];
@@ -1084,6 +1089,7 @@ class MeasurementViewerModel
 				currentSaver = new ROISaver(component, getImageID(), 
 						exp.getId(), roiList);
 				currentSaver.load();
+				state = MeasurementViewer.SAVING_ROI;
 				notifyDataChanged(false);
 			} else {
 				OmeroImageService svc = 
@@ -1658,11 +1664,31 @@ class MeasurementViewerModel
     void onROIDeleted(long imageID) 
     {
     	if (this.imageID != imageID) return;
-    	roiToDelete.clear();
+    	state = MeasurementViewer.READY;
+    	if (roiToDelete != null) roiToDelete.clear();
     	if (getROIData().size() == 0)
     		notifyDataChanged(false);
     }
     
+	
+	/** 
+	 * Post an event indicating to delete all the rois.
+	 * 
+	 * @param list The list of objects to delete.
+	 */
+	void deleteAllROIs(List<DeletableObject> list)
+	{
+		if (list.size() == 0) return;
+		state = MeasurementViewer.SAVING_ROI;
+		IconManager icons = IconManager.getInstance();
+		DeleteActivityParam p = new DeleteActivityParam(
+				icons.getIcon(IconManager.APPLY_22), list);
+		p.setImageID(imageID);
+		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+		UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+		un.notifyActivity(p);
+	}
+	
     /**
      * Sets the flag indicating if the tool is for big image data.
      * 

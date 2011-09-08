@@ -217,7 +217,11 @@ class MeasurementViewerComponent
      * 
      * @param imageID The image's identifier.
      */
-    void onROIDeleted(long imageID) { model.onROIDeleted(imageID); }
+    void onROIDeleted(long imageID)
+    { 
+    	model.onROIDeleted(imageID);
+    	fireStateChange();
+    }
 
     /** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
@@ -519,21 +523,15 @@ class MeasurementViewerComponent
 			}
 			if (objects.size() == 0) {
 				model.saveROIToServer(true);
-				model.saveWorkflowToServer(true);
+				//model.saveWorkflowToServer(true);
 			} else {
-				IconManager icons = IconManager.getInstance();
-				DeleteActivityParam p = new DeleteActivityParam(
-						icons.getIcon(IconManager.APPLY_22), objects);
-				p.setImageID(model.getImageID());
-				p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
-				UserNotifier un = 
-					MeasurementAgent.getRegistry().getUserNotifier();
-				un.notifyActivity(p);
+				model.deleteAllROIs(objects);
 			}
 		} else {
 			model.saveROIToServer(true);
-			model.saveWorkflowToServer(true);
+			//model.saveWorkflowToServer(true);
 		}
+		fireStateChange();
 	}
 	
 	/** 
@@ -1010,14 +1008,8 @@ class MeasurementViewerComponent
 			msg.print(e);
 			MeasurementAgent.getRegistry().getLogger().error(this, msg);
 		}
-		if (l.size() == 0) return;
-		
-		IconManager icons = IconManager.getInstance();
-		DeleteActivityParam p = new DeleteActivityParam(
-				icons.getIcon(IconManager.APPLY_22), l);
-		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
-		UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(p);
+		model.deleteAllROIs(l);
+		fireStateChange();
 	}
 
 	/** 

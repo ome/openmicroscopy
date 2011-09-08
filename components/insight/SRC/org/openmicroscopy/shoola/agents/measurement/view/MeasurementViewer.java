@@ -83,6 +83,9 @@ public interface MeasurementViewer
     /** Flag to denote the <i>Value adjusting</i> state. */
     public static final int     VALUE_ADJUSTING = 7;
  
+    /** Flag to denote the <i>Saving ROI</i> state. */
+    public static final int     SAVING_ROI = 8;
+    
     /** Bound property indicating that the ROI component has changed. */
     public static final String	ROI_CHANGED_PROPERTY = "roiChanged";
     
