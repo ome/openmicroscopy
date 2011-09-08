@@ -3068,6 +3068,10 @@ def list_scripts (request, **kwargs):
         scriptId = s.id.val
         path = s.path.val
         name = s.name.val
+        fullpath = os.path.join(path, name)
+        if fullpath in settings.SCRIPTS_TO_IGNORE:
+            logger.info('Ignoring script %r' % fullpath)
+            continue
         displayName = name.replace("_", " ")
 
         if path not in scriptMenu:

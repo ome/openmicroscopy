@@ -167,7 +167,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean],
     "omero.web.server_email": ["SERVER_EMAIL", None, identity],
     "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],
-    "omero.web.use_eman2": ["USE_EMAN2", "false", parse_boolean]
+    "omero.web.use_eman2": ["USE_EMAN2", "false", parse_boolean],
+    "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', json.loads],
 }
 
 for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
