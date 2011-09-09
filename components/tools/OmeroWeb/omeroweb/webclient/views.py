@@ -1843,7 +1843,7 @@ def get_original_file(request, fileId, **kwargs):
 def image_as_map(request, imageId, **kwargs):
     """ Converts OMERO image into mrc.map file (using tiltpicker utils) and returns the file """
 
-    from tiltpicker.pyami import mrc
+    from omero_ext.tiltpicker.pyami import mrc
     from numpy import dstack, zeros, int8
 
     conn = None

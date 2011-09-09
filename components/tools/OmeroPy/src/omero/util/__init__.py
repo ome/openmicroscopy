@@ -765,7 +765,7 @@ def edit_path(path_or_obj, start_text):
     if editor_obj.isabs():
         editor_path = editor
     else:
-        from which import which
+        from omero_ext.which import which
         editor_path = which(editor)
 
     pid = os.spawnl(os.P_WAIT, editor_path, editor_path, f)

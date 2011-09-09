@@ -17,7 +17,7 @@ import logging
 logging.basicConfig(level=logging.WARN)
 
 import unittest
-import xmlrunner
+from omero_ext import xmlrunner
 
 class TopLevel(unittest.TestCase):
     pass
