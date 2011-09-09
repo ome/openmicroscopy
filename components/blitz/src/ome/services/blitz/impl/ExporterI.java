@@ -520,7 +520,7 @@ public class ExporterI extends AbstractAmdServant implements
     // Misc. helpers.
     // =========================================================================
 
-    public long getMetadataBytes(OmeroReader reader)
+    private long getMetadataBytes(OmeroReader reader)
             throws DependencyException, ServiceException {
 
         String xml = service.getOMEXML(retrieve);
@@ -535,7 +535,7 @@ public class ExporterI extends AbstractAmdServant implements
         return planebytes + xmlbytes;
     }
 
-    public long getDataBytes(OmeroReader reader) {
+    private long getDataBytes(OmeroReader reader) {
         return reader.planes * reader.sizeX * reader.sizeY *
             (reader.getBitsPerPixel() / 8);
     }
