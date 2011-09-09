@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
+import ome.conditions.SecurityViolation;
 import ome.logic.LdapImpl;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
@@ -76,13 +77,18 @@ public class LdapIntegrationTest extends LdapTest {
 
         if (fixture != null && password != null) {
             // Will cause synchronization.
-            executor.execute(p, new Executor.SimpleWork(this, "newSession"){
+            Boolean check =
+                (Boolean) executor.execute(p, new Executor.SimpleWork(this, "newSession"){
                 @Transactional(readOnly = false)
                 public Object doWork(org.hibernate.Session session,
                         ServiceFactory sf) {
-                    fixture.provider.checkPassword(username, password, true);
-                    return null;
+                    return fixture.provider.checkPassword(username, password, true);
                 }});
+
+            if (check != null && Boolean.FALSE.equals(check.booleanValue())) {
+                throw new SecurityViolation("false returned.");
+            }
+
         }
 
         Principal tmp = new Principal(username, group, "Test");

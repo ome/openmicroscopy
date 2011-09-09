@@ -100,17 +100,23 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
             }
         }
 
-        // Known user, preventing special users
+        // Known user, preventing special users by checking for a null dn
+        // in which case we ignore any information from LDAP.
         // See ticket:6702
-        else if (!id.equals(0L)) {
+        final String dn1 = getOmeroDN(id);
+        if (dn1 != null) {
 
-            final String dn1 = getOmeroDN(id);
+            // If LDAP doesn't return a DN for a user that expects one
+            // then assume that they've been locked out. ticket:6248
             final String dn2 = getLdapDN(user);
-
-            if ((dn1 != null && !dn1.equals(dn2)) ||
-                    (dn2 != null && !dn2.equals(dn1))) {
+            if (dn2 == null) {
+                log.info(String.format(
+                        "User not found in LDAP: {username=%s, dn=%s}",
+                        user, dn1));
+                return loginAttempt(user, false);
+            } else if (!dn1.equals(dn2)) {
                 String msg = String.format("DNs don't match: '%s' and '%s'",
-                        dn1 == null ? "" : dn1, dn2 == null ? "" : dn2);
+                        dn1, dn2);
                 log.warn(msg);
                 loginAttempt(user, false);
                 // Throwing an exception so that the permissions verifier
@@ -118,15 +124,16 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
                 // We will need to find another way to handle this.
                 // Perhaps a hard-coded value in "password"."dn"
                 throw new ValidationException(msg);
-            } else if (dn1 != null) {
+            } else {
                 ldapUtil.synchronizeLdapUser(user);
                 return loginAttempt(user,
                         ldapUtil.validatePassword(dn1, password));
             }
-
         }
 
-        // If anything goes wrong, use the default (configurable) logic.
+        // If anything goes wrong or no LDAP is found in OMERO,
+        // then use the default (configurable) logic, which will
+        // probably return null in order to check JDBC for the password.
         return super.checkPassword(user, password, readOnly);
     }
 
