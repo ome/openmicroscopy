@@ -475,6 +475,10 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             Integer t, Integer x, Integer y, Integer w, Integer h)
         throws IOException, BufferOverflowException
     {
+        if (!isWrite())
+        {
+            throw new ApiUsageException("In read-only mode!");
+        }
         try
         {
             int planeCount = getSizeZ() * getSizeC() * getSizeT();
