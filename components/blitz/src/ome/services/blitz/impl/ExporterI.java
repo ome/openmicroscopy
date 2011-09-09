@@ -361,6 +361,7 @@ public class ExporterI extends AbstractAmdServant implements
 
                                 writer = new ImageWriter();
                                 writer.setMetadataRetrieve(retrieve);
+                                writer.setWriteSequentially(true); // ticket:6701
                                 writer.setId(file.getAbsolutePath());
 
                                 long mSize = getMetadataBytes(reader);
