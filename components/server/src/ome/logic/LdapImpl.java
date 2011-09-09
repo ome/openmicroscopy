@@ -49,6 +49,7 @@ import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.util.SqlAction;
 
+import org.apache.commons.logging.Log;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -328,6 +329,8 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     private void modifyGroups(Experimenter e, Collection<Long> base,
             Collection<Long> minus, boolean add) {
 
+        final Log log = getBeanHelper().getLogger();
+
         Set<Long> ids = new HashSet<Long>(base);
         ids.removeAll(minus);
         // Take no actions on system/user group.
@@ -335,7 +338,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         ids.remove(roles.getUserGroupId());
 
         if (ids.size() > 0) {
-            getBeanHelper().getLogger().info(String.format(
+            log.info(String.format(
                     "%s groups for %s: %s",
                     add ? "Adding" : "Removing",
                     e.getOmeName(), ids));
@@ -354,20 +357,21 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
                 // the "user" groupis at the front of the list, in which
                 // case we should assign another specific group.
                 e = iQuery.get(Experimenter.class, e.getId());
-                getBeanHelper().getLogger().info("TMP: sizeOfGroupExperimenterMap=" + e.sizeOfGroupExperimenterMap());
+                log.debug("sizeOfGroupExperimenterMap=" + e.sizeOfGroupExperimenterMap());
                 if (e.sizeOfGroupExperimenterMap() > 1) {
                     GroupExperimenterMap primary = e.getGroupExperimenterMap(0);
                     GroupExperimenterMap next = e.getGroupExperimenterMap(1);
-                    getBeanHelper().getLogger().info("TMP: primary=" + primary.parent().getId());
-                    getBeanHelper().getLogger().info("TMP: next=" + primary.parent().getId());
+                    log.debug("primary=" + primary.parent().getId());
+                    log.debug("next=" + next.parent().getId());
                     if (primary.parent().getId().equals(roles.getUserGroupId())) {
-                        getBeanHelper().getLogger().info("TMP: call setDefaultGroup");
+                        log.debug("calling setDefaultGroup");
                         provider.setDefaultGroup(e, next.parent());
                     }
                 }
             }
         }
     }
+
 
     /**
      * Gets user from LDAP for checking him by requirements and setting his
