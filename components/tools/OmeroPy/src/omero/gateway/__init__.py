@@ -762,6 +762,9 @@ class BlitzObjectWrapper (object):
         else:
             sql = "select an from Annotation as an " \
         
+        if anntype.title() == "File":
+            sql += " join fetch an.file "
+        
         sql += "where not exists ( select obal from %sAnnotationLink as obal "\
                 "where obal.child=an.id and obal.parent.id=:oid) " % self.OMERO_CLASS
         
