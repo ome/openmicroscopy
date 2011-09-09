@@ -354,10 +354,14 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
                 // the "user" groupis at the front of the list, in which
                 // case we should assign another specific group.
                 e = iQuery.get(Experimenter.class, e.getId());
+                getBeanHelper().getLogger().info("TMP: sizeOfGroupExperimenterMap=" + e.sizeOfGroupExperimenterMap());
                 if (e.sizeOfGroupExperimenterMap() > 1) {
                     GroupExperimenterMap primary = e.getGroupExperimenterMap(0);
                     GroupExperimenterMap next = e.getGroupExperimenterMap(1);
+                    getBeanHelper().getLogger().info("TMP: primary=" + primary.parent().getId());
+                    getBeanHelper().getLogger().info("TMP: next=" + primary.parent().getId());
                     if (primary.parent().getId().equals(roles.getUserGroupId())) {
+                        getBeanHelper().getLogger().info("TMP: call setDefaultGroup");
                         provider.setDefaultGroup(e, next.parent());
                     }
                 }
