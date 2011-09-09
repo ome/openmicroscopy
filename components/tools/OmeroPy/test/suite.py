@@ -18,6 +18,7 @@ class TopLevel(unittest.TestCase):
 def additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
+    suite.addTest(load("PythonOnly"))
     suite.addTest(load("t_bin"))
     suite.addTest(load("t_config"))
     suite.addTest(load("t_ext"))
@@ -26,10 +27,10 @@ def additional_tests():
     suite.addTest(load("t_parameters"))
     suite.addTest(load("t_permissions"))
     suite.addTest(load("t_tempfiles"))
-    suite.addTest(load("clitest.suite"))
     #suite.addTest(load("scriptstest.harness"))
-    suite.addTest(load("scriptstest.suite"))
-    suite.addTest(load("tablestest.suite"))
+    suite.addTest(load("clitest.suite._additional_tests"))
+    suite.addTest(load("scriptstest.suite._additional_tests"))
+    suite.addTest(load("tablestest.suite._additional_tests"))
     return suite
 
 if __name__ == "__main__":
