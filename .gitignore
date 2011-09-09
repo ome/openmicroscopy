@@ -12,6 +12,7 @@ components/tools/OmeroCpp/scons.log
 /dist
 /var
 /components/insight/bin/*
+/components/insight/OUT
 /components/*/target
 /lib/cache
 /lib/repository/omero/*
