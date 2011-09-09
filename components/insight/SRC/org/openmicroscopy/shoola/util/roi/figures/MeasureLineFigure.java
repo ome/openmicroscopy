@@ -34,9 +34,11 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
@@ -557,29 +559,24 @@ public class MeasureLineFigure
 	 */
 	public List<Point> getPoints()
 	{
-		/*
-		Rectangle r = path.getBounds();
-		ArrayList<PlanePoint2D> vector = new ArrayList<PlanePoint2D>();
-		for(int i = 0 ; i < getNodeCount()-1; i++)
-		{
-			Point2D pt1 = getPoint(i);
-			Point2D pt2 = getPoint(i+1);
-			Line2D line = new Line2D.Double(pt1, pt2);
-			iterateLine(line, vector);
-		}
-		
-		return (PlanePoint2D[])vector.toArray(new PlanePoint2D[vector.size()]);
-		*/
-		//Rectangle r = path.getBounds();
 		List<Point> vector = new ArrayList<Point>();
-		Line2D line;
 		for (int i = 0 ; i < getNodeCount()-1; i++)
-		{
-			line = new Line2D.Double(getPoint(i), getPoint(i+1));
-			iterateLine(line, vector);
-		}
-		
+			iterateLine(new Line2D.Double(getPoint(i), getPoint(i+1)), vector);
+
 		return vector;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getSize()
+	 */
+	public int getSize()
+	{
+		int total = 0;
+		for (int i = 0 ; i < getNodeCount()-1; i++)
+			iterateLine(new Line2D.Double(getPoint(i), getPoint(i+1)), total);
+		
+		return total;
 	}
 	
 	/**
@@ -617,6 +614,34 @@ public class MeasureLineFigure
 		}
 	}
 
+	/**
+	 * Iterate the line to get the points under it.
+	 * @param line the line to iterate.
+	 * @param total The total number of points.
+	 */
+	private void iterateLine(Line2D line, int total)
+	{
+		Point2D start = line.getP1();
+		Point2D end = line.getP2();
+		Point2D m = new Point2D.Double(end.getX()-start.getX(), 
+				end.getY()-start.getY());
+		double lengthM = (Math.sqrt(m.getX()*m.getX()+m.getY()*m.getY()));
+		Point2D mNorm = new Point2D.Double(m.getX()/lengthM,m.getY()/lengthM);
+		Map<Point2D, Boolean> map = new HashMap<Point2D, Boolean>();
+		
+		Point2D pt, quantisedPoint;
+		for (double i = 0 ; i < lengthM ; i += 0.1)
+		{
+			pt = new Point2D.Double(start.getX()+i*mNorm.getX(),
+					start.getY()+i*mNorm.getY());
+			quantisedPoint = new Point2D.Double(Math.floor(pt.getX()), 
+					Math.floor(pt.getY()));
+			if (!map.containsKey(quantisedPoint))
+				map.put(quantisedPoint, Boolean.valueOf(true));
+		}
+		total += map.size();
+	}
+	
 	/**
 	 * Overridden method for bezier, make public what 7.0 made private.
 	 */

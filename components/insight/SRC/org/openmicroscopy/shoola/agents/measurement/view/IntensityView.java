@@ -535,14 +535,15 @@ class IntensityView
 	}
 	
 	/**
-	 * Populate the data for use in the summary table for the figure fig,
-	 * and for channel. 
+	 * Populates the data for use in the summary table for the figure fig,
+	 * and for channel.
+	 * 
 	 * @param fig see above.
 	 * @param data see above.
 	 * @param channel see above.
 	 * @param count the column the data is being placed in.
 	 */
-	private void populateSummaryColumn(ROIFigure fig, Double data[][], 
+	private void populateSummaryColumn(ROIFigure fig, Double data[][],
 			int channel, int count)
 	{
 		data[count][0] = channelMin.get(channel);
@@ -550,10 +551,10 @@ class IntensityView
 		data[count][2] = channelSum.get(channel);
 		data[count][3] = channelMean.get(channel);
 		data[count][4] = channelStdDev.get(channel);
-		data[count][5] = (double)fig.getPoints().size();
-		if(areaFigure(fig))
+		data[count][5] = (double) fig.getSize();
+		if (areaFigure(fig))
 			addValuesForAreaFigure(fig, data, channel, count);
-		else if(lineFigure(fig))
+		else if (lineFigure(fig))
 			addValuesForLineFigure(fig, data, channel, count);
 		else if (pointFigure(fig))
 			addValuesForPointFigure(fig, data, channel, count);
