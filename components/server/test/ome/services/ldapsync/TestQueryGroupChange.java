@@ -5,18 +5,13 @@
 
 package ome.services.ldapsync;
 
-import java.util.Set;
-
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
 import ome.conditions.SecurityViolation;
-import ome.security.auth.AttributeSet;
 import ome.services.ldap.LdapTest.Fixture;
 import ome.system.EventContext;
-
-import org.springframework.ldap.core.DirContextAdapter;
 
 
 /**

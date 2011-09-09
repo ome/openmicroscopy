@@ -20,6 +20,7 @@
       <constructor-arg index="3" value="(objectClass=groupOfNames)"/>
       <constructor-arg index="4" value="omeName=cn,firstName=givenName,lastName=sn"/>
       <constructor-arg index="5" value="name=cn"/>
+      <constructor-arg index="6" value="true"/>
     </bean>
 
     <bean id="modification" class="ome.services.ldapsync.TestQueryGroupChange"/>
