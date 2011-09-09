@@ -30,6 +30,7 @@ import loci.formats.services.OMEXMLService;
 import ome.api.RawPixelsStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.io.nio.PixelsService;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
@@ -135,12 +136,22 @@ public class ExporterI extends AbstractAmdServant implements
     private final DatabaseIdentity databaseIdentity;
 
     /** LOCI OME-XML service for working with OME-XML. */
-    private OMEXMLService service;
+    private final OMEXMLService service;
 
-    public ExporterI(BlitzExecutor be, DatabaseIdentity databaseIdentity)
+    /** Access to information about big images to prevent exporting large
+     * files since there is currently no generally readable tiff support
+     * for our tiles.
+     *
+     * @see ticket:6713
+     */
+    private final PixelsService pixelsService;
+
+    public ExporterI(BlitzExecutor be, DatabaseIdentity databaseIdentity,
+            PixelsService pixelsService)
         throws DependencyException {
         super(null, be);
         this.databaseIdentity = databaseIdentity;
+        this.pixelsService = pixelsService;
         retrieve = new OmeroMetadata(databaseIdentity);
         loci.common.services.ServiceFactory sf =
             new loci.common.services.ServiceFactory();
@@ -349,6 +360,15 @@ public class ExporterI extends AbstractAmdServant implements
 
                                 Image image = retrieve.getImage(0);
                                 Pixels pix = image.getPixels(0);
+                                if (requiresPyramid(sf, pix.getId().getValue())) {
+                                    long id = image.getId().getValue();
+                                    int x = pix.getSizeY().getValue();
+                                    int y = pix.getSizeY().getValue();
+                                    throw new omero.ApiUsageException(
+                                            null, null, String.format(
+                                            "Image:%s is too large for export (sizeX=%s, sizeY=%s)",
+                                            id, x, y));
+                                }
 
                                 file = TempFileManager.create_path("__omero_export__",
                                         ".ome.tiff");
@@ -538,6 +558,12 @@ public class ExporterI extends AbstractAmdServant implements
     private long getDataBytes(OmeroReader reader) {
         return reader.planes * reader.sizeX * reader.sizeY *
             (reader.getBitsPerPixel() / 8);
+    }
+
+    private boolean requiresPyramid(ServiceFactory sf, long id) {
+        ome.model.core.Pixels _p =
+            sf.getQueryService().get(ome.model.core.Pixels.class, id);
+        return pixelsService.requiresPixelsPyramid(_p);
     }
 
 
