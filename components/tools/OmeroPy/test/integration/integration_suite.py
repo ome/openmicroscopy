@@ -36,6 +36,7 @@ def additional_tests():
     suite.addTest(load("integration.counts"))
     suite.addTest(load("integration.delete"))
     suite.addTest(load("integration.emanScripts"))
+    suite.addTest(load("integration.exporter"))
     suite.addTest(load("integration.figureExportScripts"))
     suite.addTest(load("integration.files"))
     suite.addTest(load("integration.gateway"))
