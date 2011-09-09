@@ -499,6 +499,29 @@ public class MeasureEllipseFigure
 	}
 	
 	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getSize()
+	 */
+	public int getSize()
+	{
+		Shape transformedEllipse = getTransformedShape();
+		Rectangle2D r = transformedEllipse.getBounds2D();
+		//getP
+
+		int total = 0;
+		double xEnd = (r.getX()+r.getWidth());
+		double yEnd = (r.getY()+r.getHeight());
+		double startX = r.getX();
+		double startY =  r.getY();
+		double x, y;
+		for (y = startY; y < yEnd; ++y)
+			for (x = startX; x < xEnd; ++x)
+				if (transformedEllipse.intersects(x, y, 0.001, 0.001))
+					total++;
+		return total; 
+	}
+	
+	/**
 	 * Overridden to stop updating shape if read only
 	 * @see AbstractAttributedFigure#transform(AffineTransform)
 	 */

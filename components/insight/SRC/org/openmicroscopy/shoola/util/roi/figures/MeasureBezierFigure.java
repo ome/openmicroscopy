@@ -35,9 +35,11 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
@@ -109,6 +111,24 @@ public class MeasureBezierFigure
 	private int 					status;
 	
 	/**
+	 * Returns the number of points(pixels) on the polyline.
+	 * 
+	 * @return See above.
+	 */
+	private int getLineSize()
+	{
+		int total = 0;
+		Point2D pt1, pt2;
+		for (int i = 0 ; i < getNodeCount()-1; i++)
+		{
+			pt1 = getPoint(i);
+			pt2 = getPoint(i+1);
+			iterateLine(new Line2D.Double(pt1, pt2), total);
+		}
+		return total;
+	}
+	
+	/**
 	 * Returns the points(pixels) on the polyline return this as an array.
 	 * 
 	 * @return See above.
@@ -159,6 +179,35 @@ public class MeasureBezierFigure
 			pt  = i.next();
 			vector.add(new Point((int) pt.getX(), (int) pt.getY()));
 		}
+	}
+	
+	/**
+	 * Iterates the line to get the points under it.
+	 * 
+	 * @param line The line to iterate.
+	 * @param total The total number of points.
+	 */
+	private void iterateLine(Line2D line, int total)
+	{
+		Point2D start = line.getP1();
+		Point2D end = line.getP2();
+		Point2D m = new Point2D.Double(end.getX()-start.getX(),
+				end.getY()-start.getY());
+		double lengthM = (Math.sqrt(m.getX()*m.getX()+m.getY()*m.getY()));
+		Point2D mNorm = new Point2D.Double(m.getX()/lengthM,m.getY()/lengthM);
+		Map<Point2D, Boolean> map = new HashMap<Point2D, Boolean>();
+		Point2D pt;
+		Point2D quantisedPoint;
+		for (double i = 0 ; i < lengthM ; i+=0.1)
+		{
+			pt = new Point2D.Double(start.getX()+i*mNorm.getX(),
+				start.getY()+i*mNorm.getY());
+			quantisedPoint = new Point2D.Double(Math.floor(pt.getX()), 
+				Math.floor(pt.getY()));
+			if (!map.containsKey(quantisedPoint))
+				map.put(quantisedPoint, Boolean.TRUE);
+		}
+		total += map.size();
 	}
 	
 	/** Creates an instance of the Bezier figure. */
@@ -572,6 +621,30 @@ public class MeasureBezierFigure
 		return vector;
 	}
 
+	/**
+	 * Returns the number of points(pixels) in the polygon.
+	 * 
+	 * @return See above.
+	 */
+	private int getAreaSize()
+	{
+		Rectangle r = path.getBounds();
+		double iX = Math.floor(r.getX());
+		double iY = Math.floor(r.getY());
+		int total = 0;
+		path.toPolygonArray();
+		Point2D point = new Point2D.Double(0,0);
+		for (int x = 0 ; x < Math.ceil(r.getWidth()); x++)
+		{
+			for ( int y = 0 ; y < Math.ceil(r.getHeight()) ; y++)
+			{
+				point.setLocation(iX+x, iY+y);
+				if (path.contains(point))
+					total++;
+			}
+		}
+		return total;
+	}
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
@@ -600,6 +673,16 @@ public class MeasureBezierFigure
 	{
 		if (isClosed()) return getAreaPoints();
 		return getLinePoints();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getSize()
+	 */
+	public int getSize()
+	{
+		if (isClosed()) return getAreaSize();
+		return getLineSize();
 	}
 		
 	/**

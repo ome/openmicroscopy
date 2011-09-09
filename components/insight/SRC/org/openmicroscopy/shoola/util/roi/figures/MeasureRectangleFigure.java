@@ -498,6 +498,24 @@ public class MeasureRectangleFigure
 		
 		return vector;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getSize()
+	 */
+	public int getSize()
+	{
+		Rectangle r = rectangle.getBounds();
+		int total = 0;
+		int xEnd = r.x+r.width, yEnd = r.y+r.height;
+		int x, y;
+		for (y = r.y; y < yEnd; ++y) 
+			for (x = r.x; x < xEnd; ++x) 
+				if (rectangle.contains(x, y)) 
+					total++;
+		
+		return total;
+	}
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.

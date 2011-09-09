@@ -140,6 +140,13 @@ public interface ROIFigure
 	public List<Point> getPoints();
 
 	/**
+	 * Returns the number of points contained in the figure.
+	 * 
+	 * @return See above.
+	 */
+	public int getSize();
+	
+	/**
 	 * Sets the status of the figure.
 	 * 
 	 * @param status The value to set.
