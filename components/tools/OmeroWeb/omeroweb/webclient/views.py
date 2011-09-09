@@ -1392,7 +1392,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     elif action == 'newcomment':
         template = "webclient/annotations/annotation_new_form.html"
         form_comment = CommentAnnotationForm()
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment}     
+        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'index':index}
     elif action == 'newtagonly':
         template = "webclient/annotations/annotation_new_form.html"
         form_tag = TagAnnotationForm()
@@ -1406,7 +1406,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         template = "webclient/annotations/annotation_new_form.html"
         form_file = UploadFileForm()
         form_files = FileListForm(initial={'files':manager.getFilesByObject()})
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'form_files':form_files}
+        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'form_files':form_files, 'index':index}
     elif action == 'newsharecomment':
         template = "webclient/annotations/annotation_new_form.html"
         if manager.share.isExpired():
@@ -1524,7 +1524,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'index':index}
         elif o_type == 'tag':
             form = TagAnnotationForm(data=request.REQUEST.copy())
             if form.is_valid():
@@ -1535,7 +1535,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'index':index}
         elif o_type == "share":
             experimenters = list(conn.getExperimenters())
             experimenters.sort(key=lambda x: x.getOmeName().lower())
@@ -1694,7 +1694,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             return HttpResponseRedirect(url)
         else:
             template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment}
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'index':index}
     elif action == 'addtag':
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newtag", o_type, o_id]))
@@ -1706,7 +1706,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             return HttpResponseRedirect(url)
         else:
             template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag}
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'index':index}
     elif action == 'addtagonly':
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newtagonly"]))
@@ -1730,7 +1730,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             return HttpResponseRedirect(url)
         else:
             template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tags':form_tags}
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tags':form_tags, 'index':index}
     elif action == 'addfile':
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newfile", o_type, o_id]))
@@ -1741,7 +1741,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             return HttpResponseRedirect(url)
         else:
             template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file}
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'index':index}
     elif action == 'usefile':
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["usefile", o_type, o_id]))
@@ -1753,7 +1753,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             return HttpResponseRedirect(url)
         else:
             template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files}
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files, 'index':index}
     elif action == 'delete':
         child = toBoolean(request.REQUEST.get('child'))
         anns = toBoolean(request.REQUEST.get('anns'))

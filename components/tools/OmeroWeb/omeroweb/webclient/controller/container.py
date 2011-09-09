@@ -439,7 +439,7 @@ class BaseContainer(BaseController):
         elif self.project is not None:
             return list(self.project.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.well is not None:
-            return list(self.well.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+            return list(self.well.getWellSample().image().listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.plate is not None:
             return list(self.plate.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.screen is not None:
@@ -464,7 +464,7 @@ class BaseContainer(BaseController):
         elif self.project is not None:
             return list(self.project.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.well is not None:
-            return list(self.well.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+            return list(self.well.getWellSample().image().listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.plate is not None:
             return list(self.plate.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.screen is not None:
