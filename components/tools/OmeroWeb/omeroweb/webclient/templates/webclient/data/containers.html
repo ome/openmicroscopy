@@ -778,7 +778,17 @@
 
         var ids = new Array();
         var Data_Type = null;
-        datatree.data.ui.selected.each(function() {
+        var selected = datatree.data.ui.selected;
+        if (selected.size() == 1) {
+            var klass = selected.attr('rel');
+            if (klass == 'plate' || klass == 'acquisition') {
+                var plateSelected = $('#spw .ui-selected img');
+                if (plateSelected.size() > 0) {
+                    selected = plateSelected;
+                }
+            }
+        }
+        selected.each(function() {
             var dtype = this.id.split("-")[0];
             if (Data_Type == undefined) {
                 Data_Type = dtype;
