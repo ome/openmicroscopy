@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -84,6 +85,18 @@ public class ExporterI extends AbstractAmdServant implements
     private final static Log log = LogFactory.getLog(ExporterI.class);
 
     private final static int MAX_SIZE = 1024 * 1024;
+
+    /**
+     * The size above which a big tiff should be written as opposed to
+     * a normal tiff. This value is checked against the data size PLUS
+     * various metadata sizes.
+     *
+     * @see #getMetadataBytes(OmeroReader)
+     * @see #getDataBytes(OmeroReader)
+     * @see ticket:6520
+     */
+    private final static long BIG_TIFF_SIZE = 2L * Integer.MAX_VALUE;
+
 
     /**
      * Utility enum for asserting the state of Exporter instances.
@@ -350,8 +363,10 @@ public class ExporterI extends AbstractAmdServant implements
                                 writer.setMetadataRetrieve(retrieve);
                                 writer.setId(file.getAbsolutePath());
 
+                                long mSize = getMetadataBytes(reader);
+                                long dSize = getDataBytes(reader);
                                 final boolean bigtiff =
-                                    ( raw.getTotalSize() > Integer.MAX_VALUE * 2);
+                                    ( ( mSize + dSize ) > BIG_TIFF_SIZE );
 
                                 if (bigtiff) {
                                     ((TiffWriter) writer.getWriter()).setBigTiff(true);
@@ -499,6 +514,29 @@ public class ExporterI extends AbstractAmdServant implements
             file.delete();
             file = null;
         }
+    }
+
+    // Misc. helpers.
+    // =========================================================================
+
+    public long getMetadataBytes(OmeroReader reader)
+            throws DependencyException, ServiceException {
+
+        String xml = service.getOMEXML(retrieve);
+
+        long xmlbytes;
+        try {
+            xmlbytes = xml.getBytes("UTF8").length;
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Failed to convert to UTF-8", e);
+        }
+        long planebytes = reader.planes * 512;
+        return planebytes + xmlbytes;
+    }
+
+    public long getDataBytes(OmeroReader reader) {
+        return reader.planes * reader.sizeX * reader.sizeY *
+            (reader.getBitsPerPixel() / 8);
     }
 
 
