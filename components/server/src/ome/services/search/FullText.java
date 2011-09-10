@@ -7,9 +7,11 @@
 
 package ome.services.search;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -106,12 +108,8 @@ public class FullText extends SearchAction {
         }
     }
 
-    @Transactional(readOnly = true)
-    public Object doWork(Session s, ServiceFactory sf) {
-
+    private Criteria criteria(FullTextSession session) {
         final Class<?> cls = values.onlyTypes.get(0);
-
-        FullTextSession session = Search.getFullTextSession(s);
         Criteria criteria = session.createCriteria(cls);
         AnnotationCriteria ann = new AnnotationCriteria(criteria,
                 values.fetchAnnotations);
@@ -160,6 +158,18 @@ public class FullText extends SearchAction {
                 }
             }
         }
+        return criteria;
+    }
+
+    @Transactional(readOnly = true)
+    public Object doWork(Session s, ServiceFactory sf) {
+
+        final Class<?> cls = values.onlyTypes.get(0);
+        FullTextSession session = Search.createFullTextSession(s);
+        Criteria criteria = criteria(session);
+        if (criteria == null) {
+            return null; // EARLY EXIT. See criteria method.
+        }
 
         final String ticket975 = "ticket:975 - Wrong return type: %s instead of %s\n"
                 + "Under some circumstances, byFullText and related methods \n"
@@ -191,8 +201,22 @@ public class FullText extends SearchAction {
 
         // TODO Could add a performance optimization here on returnUnloaded
 
-        criteria.add(Restrictions.in("id", scores.keySet()));
-        final List<IObject> check975 = criteria.list();
+        final LinkedList<Long> ids = new LinkedList<Long>(scores.keySet());
+        final List<IObject> check975 = new ArrayList<IObject>();
+
+        while (ids.size() > 0) {
+            final List<Long> page = new ArrayList<Long>();
+            for (int i = 0; i < 1000 && ids.size() > 0; i++) {
+                page.add(ids.removeFirst());
+            }
+            if (criteria == null) {
+                criteria = criteria(session);
+            }
+            criteria.add(Restrictions.in("id", page));
+            check975.addAll(criteria.list());
+            criteria = null;
+        }
+
         for (IObject object : check975) {
             // TODO This is now all but impossible. Remove
             if (!cls.isAssignableFrom(object.getClass())) {
