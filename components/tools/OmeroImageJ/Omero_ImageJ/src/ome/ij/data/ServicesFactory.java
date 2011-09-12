@@ -247,7 +247,6 @@ public class ServicesFactory
 	{
 		if (lc == null || imageId < 0) return;
 		try {
-			IJ.debugMode = true;
 			StringBuffer buffer = new StringBuffer();
 			buffer.append("location=[OMERO] open=[omero:server=");
 			buffer.append(lc.getHostName());
