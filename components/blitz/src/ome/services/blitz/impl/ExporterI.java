@@ -21,6 +21,7 @@ import javax.xml.transform.TransformerException;
 import loci.common.services.DependencyException;
 import loci.common.services.ServiceException;
 import loci.formats.FormatTools;
+import loci.formats.IFormatWriter;
 import loci.formats.ImageWriter;
 import loci.formats.MetadataTools;
 import loci.formats.meta.IMetadata;
@@ -355,7 +356,7 @@ public class ExporterI extends AbstractAmdServant implements
 
                             RawPixelsStore raw = null;
                             OmeroReader reader = null;
-                            ImageWriter writer = null;
+                            TiffWriter writer = null;
                             try {
 
                                 Image image = retrieve.getImage(0);
@@ -379,19 +380,17 @@ public class ExporterI extends AbstractAmdServant implements
                                 reader = new OmeroReader(raw, pix);
                                 reader.setId("OMERO");
 
-                                writer = new ImageWriter();
+                                writer = new TiffWriter();
                                 writer.setMetadataRetrieve(retrieve);
                                 writer.setWriteSequentially(true); // ticket:6701
-                                writer.setId(file.getAbsolutePath());
-
                                 long mSize = getMetadataBytes(reader);
                                 long dSize = getDataBytes(reader);
                                 final boolean bigtiff =
                                     ( ( mSize + dSize ) > BIG_TIFF_SIZE );
-
                                 if (bigtiff) {
-                                    ((TiffWriter) writer.getWriter()).setBigTiff(true);
+                                    writer.setBigTiff(true);
                                 }
+                                writer.setId(file.getAbsolutePath());
 
                                 int planeCount = reader.planes;
                                 int planeSize = raw.getPlaneSize();
@@ -435,7 +434,7 @@ public class ExporterI extends AbstractAmdServant implements
                         }
 
                         private void cleanup(RawPixelsStore raw,
-                                OmeroReader reader, ImageWriter writer) {
+                                OmeroReader reader, IFormatWriter writer) {
                             try {
                                 if (raw != null) {
                                     raw.close();
