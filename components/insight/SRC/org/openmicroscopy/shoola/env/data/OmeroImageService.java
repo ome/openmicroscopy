@@ -774,4 +774,19 @@ public interface OmeroImageService
 	public ScriptCallback saveAs(SaveAsParam param)
 		throws ProcessException, DSAccessException, DSOutOfServiceException;
 	
+	/**
+	 * Indicates if the image corresponding to the specified pixels set is
+	 * a large image.
+	 * 
+	 * @param pixelsId The identifier of the pixels set.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 * @throws ProcessException If an error occurred while running the script.
+	 */
+	public Boolean isLargeImage(long pixelsId)
+		throws DSAccessException, DSOutOfServiceException;
+
 }

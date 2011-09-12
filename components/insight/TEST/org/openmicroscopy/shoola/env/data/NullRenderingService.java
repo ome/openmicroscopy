@@ -534,4 +534,10 @@ public class NullRenderingService
 		return null;
 	}
 
+	public Boolean isLargeImage(long pixelsId) throws DSAccessException,
+			DSOutOfServiceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

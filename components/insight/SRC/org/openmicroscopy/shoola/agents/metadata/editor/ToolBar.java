@@ -55,7 +55,6 @@ import org.jdesktop.swingx.JXBusyLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptMenuItem;
 import org.openmicroscopy.shoola.agents.metadata.util.ScriptSubMenu;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -147,6 +146,9 @@ class ToolBar
 	/** Component used to download the archived file.*/
 	private JMenuItem downloadItem;
 	
+	/** Component used to download the archived file.*/
+	private JMenuItem exportAsOmeTiffItem;
+	
     /** Turns off some controls if the binary data are not available. */
     private void checkBinaryAvailability()
     {
@@ -171,15 +173,16 @@ class ToolBar
     		downloadItem.setBackground(UIUtilities.BACKGROUND_COLOR);
     		downloadItem.setEnabled(false);
     		saveAsMenu.add(downloadItem);
-    		JMenuItem item = new JMenuItem(icons.getIcon(
+    		exportAsOmeTiffItem = new JMenuItem(icons.getIcon(
     				IconManager.EXPORT_AS_OMETIFF));
-    		item.setText("Export as OME-TIFF...");
-    		item.setToolTipText(EXPORT_AS_OME_TIFF_TOOLTIP);
-    		item.addActionListener(controller);
-    		item.setActionCommand(
+    		exportAsOmeTiffItem.setText("Export as OME-TIFF...");
+    		exportAsOmeTiffItem.setToolTipText(EXPORT_AS_OME_TIFF_TOOLTIP);
+    		exportAsOmeTiffItem.addActionListener(controller);
+    		exportAsOmeTiffItem.setActionCommand(
     				""+EditorControl.EXPORT_AS_OMETIFF);
-    		saveAsMenu.add(item);
-    		item = new JMenuItem(icons.getIcon(
+    		exportAsOmeTiffItem.setEnabled(!model.isLargeImage());
+    		saveAsMenu.add(exportAsOmeTiffItem);
+    		JMenuItem item = new JMenuItem(icons.getIcon(
     				IconManager.SAVE_AS));
     		item.setText("Save as JPEG...");
     		item.setToolTipText("Save the images at full size as JPEG.");
@@ -578,7 +581,11 @@ class ToolBar
         	if (img != null) {
         		try {
         			img.getDefaultPixels();
-        			exportAsOmeTiffButton.setEnabled(true);
+        			boolean b = !model.isLargeImage();
+        			exportAsOmeTiffButton.setEnabled(b);
+        			if (exportAsOmeTiffItem != null) {
+        				exportAsOmeTiffButton.setEnabled(b);
+        			}
         			if (downloadItem != null && img.isArchived())
         				downloadItem.setEnabled(true);
     			} catch (Exception e) {}

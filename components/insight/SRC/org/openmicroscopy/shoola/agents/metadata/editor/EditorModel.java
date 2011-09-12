@@ -2792,5 +2792,31 @@ class EditorModel
 		return objects;
 	}
 
+	/**
+	 * Returns <code>true</code> if the image is a large image,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isLargeImage()
+	{
+		ImageData img = null;
+		if (refObject instanceof ImageData) {
+    		img = (ImageData) refObject;
+    	} else if (refObject instanceof WellSampleData) {
+    		img = ((WellSampleData) refObject).getImage();
+    	}
+		if (img == null) return false;
+		Boolean b = null;
+		try {
+			PixelsData data = img.getDefaultPixels();
+			b = 
+			MetadataViewerAgent.getRegistry().getImageService().isLargeImage(
+					data.getId());
+		} catch (Exception e) {}
+		if (b != null) return b.booleanValue();
+		return false;
+	}
+
 }
 	

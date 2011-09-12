@@ -286,8 +286,8 @@ class OmeroImageServiceImpl
 	{
 		Boolean backoff = null;
 		try {
-			backoff = gateway.isLargeImage(
-					image.getDefaultPixels().asPixels());
+			PixelsData pixels = image.getDefaultPixels();
+			backoff = gateway.isLargeImage(pixels.getId());
 		} catch (Exception e) {}
 		//if (backoff != null && backoff.booleanValue())
 		//	return new ThumbnailData(image, backoff);
@@ -1794,4 +1794,14 @@ class OmeroImageServiceImpl
 		return gateway.saveAs(exp.getId(), param);
 	}
 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#isLargeImage(long)
+	 */
+	public Boolean isLargeImage(long pixelsId)
+		throws DSAccessException, DSOutOfServiceException
+	{
+		return gateway.isLargeImage(pixelsId);
+	}
+	
 }

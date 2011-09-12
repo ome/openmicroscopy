@@ -6957,23 +6957,26 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	File exportImageAsOMETiff(File f, long imageID)
+	synchronized File exportImageAsOMETiff(File f, long imageID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive();
 		FileOutputStream stream = null;
+		DSAccessException exception = null;
 		try {
 			ExporterPrx store = null;
 			stream = new FileOutputStream(f);
+			
 			try {
-				synchronized(new Object()) {
+				//synchronized(new Object()) {
 					store = getExporterService();
 					if (store == null) store = getExporterService();
 					store.addImage(imageID);
-					long size = store.generateTiff();
-					int offset = 0;
-					int length = (int) size;
+					
 					try {
+						long size = store.generateTiff();
+						int offset = 0;
+						int length = (int) size;
 						try {
 							for (offset = 0; (offset+INC) < size;) {
 								stream.write(store.read(offset, INC));
@@ -6986,20 +6989,21 @@ class OMEROGateway
 					} catch (Exception e) {
 						if (stream != null) stream.close();
 						if (f != null) f.delete();
-						handleException(e, 
-								"Cannot export the image as an OME-TIFF");
+						exception = new DSAccessException(
+								"Cannot export the image as an OME-TIFF ", e);
 					}
-				}
+				//}
 			} finally {
 				try {
 					if (store != null) store.close();
 				} catch (Exception e) {}
+				if (exception != null) throw exception;
 				return f;
 			}
 		} catch (Throwable t) {
 			if (f != null) f.delete();
-			handleException(t, "Cannot export the image as an OME-TIFF");
-			return null;
+			throw new DSAccessException(
+					"Cannot export the image as an OME-TIFF", t);
 		}
 	}
 	
@@ -7923,21 +7927,21 @@ class OMEROGateway
 	 * Returns the back-off time if it requires a pyramid to be built, 
 	 * <code>null</code> otherwise.
 	 * 
-	 * @param pixels The pixels set to handle.
+	 * @param pixelsId The identifier of the pixels set to handle.
 	 * @return See above
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Boolean isLargeImage(Pixels pixels)
+	Boolean isLargeImage(long pixelsId)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {	
 			RawPixelsStorePrx store = getPixelsStore();
 			if (store == null) store = getPixelsStore();
-			store.setPixelsId(pixels.getId().getValue(), true);
+			store.setPixelsId(pixelsId, true);
 			boolean b = store.requiresPixelsPyramid();
 			store.close();
 			return b;
