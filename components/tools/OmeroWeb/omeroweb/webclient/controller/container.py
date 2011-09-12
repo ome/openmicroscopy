@@ -581,18 +581,11 @@ class BaseContainer(BaseController):
                 t_ann.setChild(ann)
                 self.conn.saveObject(t_ann)
     
-    # File annotation
-    def getFileFormat(self, newFile):
-        format = None
-        try:
-            format = self.conn.getFileFormat(newFile.content_type)
-        except:
-            pass
-        
-        if format is None:
-            format = "application/octet-stream"
-        return format
-    
+    def checkMimetype(self, file_type):
+        if file_type is None or len(file_type) == 0:
+            file_type = "application/octet-stream"
+        return file_type
+            
     def createFileAnnotation(self, otype, newFile):
         otype = str(otype).lower()
         if not otype in ("project", "dataset", "image", "screen", "plate", "acquisition", "well"):
@@ -607,11 +600,8 @@ class BaseContainer(BaseController):
             selfobject = getattr(self, otype)
             otype = otype.title()
             
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            format = f[1].upper()
-        else:
-            format = newFile.content_type
+        format = self.checkMimetype(newFile.content_type)
+        
         oFile = omero.model.OriginalFileI()
         oFile.setName(rstring(smart_str(newFile.name)));
         oFile.setPath(rstring(smart_str(newFile.name)));
@@ -688,11 +678,8 @@ class BaseContainer(BaseController):
             self.conn.saveArray(new_links)
     
     def createFileAnnotations(self, newFile, oids):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            format = f[1].upper()
-        else:
-            format = newFile.content_type
+        format = self.checkMimetype(newFile.content_type)
+        
         oFile = omero.model.OriginalFileI()
         oFile.setName(rstring(smart_str(newFile.name)));
         oFile.setPath(rstring(smart_str(newFile.name)));
