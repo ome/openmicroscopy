@@ -984,8 +984,8 @@ class MeasurementViewerModel
 	 */
 	void fireROILoading(String fileName)
 	{
-		state = MeasurementViewer.LOADING_ROI;
 		InputStream stream = null;
+		state = MeasurementViewer.LOADING_ROI;
 		try {
 			if (fileName == null)
 				fileName = FileMap.getSavedFile(getServerName(), getUserName(), 
@@ -998,6 +998,7 @@ class MeasurementViewerModel
 			log.warn(this, "Cannot load the ROI "+e.getMessage());
 		}
 		component.setROI(stream);
+		if (stream != null) notifyDataChanged(true);
 		try {
 			if (stream != null) stream.close();
 		} catch (Exception e) {
