@@ -563,8 +563,7 @@ public class ImportDialog
 	/** Displays the location of the import.*/
 	private void showLocationDialog()
 	{
-		addFiles();
-		/*
+		//addFiles();
 		if (!popUpLocation) {
 			addFiles();
 		} else {
@@ -572,7 +571,7 @@ public class ImportDialog
 			if (dialog.centerLocation() == LocationDialog.ADD_OPTION) {
 				addFiles();
 			}
-		}*/
+		}
 	}
 	
 	/** 
@@ -1656,8 +1655,8 @@ public class ImportDialog
 		container.add(table.buildControls(), "0, 1, LEFT, CENTER");
 		
 		buildLocationPane();
-		//if (!popUpLocation)
-		container.add(locationPane, "3, 0");
+		if (!popUpLocation)
+			container.add(locationPane, "3, 0");
 		container.add(tabbedPane, "2, 1, 3, 1");
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser, 
 				container);
@@ -2218,12 +2217,11 @@ public class ImportDialog
 		buildLocationPane();
 		boolean b = popUpLocation;
 		popUpLocation = this.selectedContainer == null;
-		/*
 		if (b != popUpLocation) {
 			if (b) container.add(locationPane, "3, 0");
 			else container.remove(locationPane);
 			container.repaint();
-		}*/
+		}
 		locationPane.repaint();
 		tagsPane.removeAll();
 		tagsMap.clear();
