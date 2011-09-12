@@ -763,7 +763,6 @@ class BaseContainer(BaseController):
                     t = 'PlateAcquisition'
                 else:
                     t = k.lower().title()
-                print t
                 for ob in self.conn.getObjects(t, [o.id for o in oids[k]]):
                     for a in self.conn.getObjects("Annotation", tids):
                         if isinstance(ob._obj, omero.model.WellI):
