@@ -93,13 +93,13 @@ public class NotDeletedObjectDialog
 	private static final String TEXT = "Follow the list of objects that " +
 			"could not be deleted.";
 	
-	/** The texf of the {@link #NAME_COL}. */
+	/** The text of the {@link #NAME_COL}. */
 	private static final String	NAME =  "Name";
 	
-	/** The texf of the {@link #TYPE_COL}. */
+	/** The text of the {@link #TYPE_COL}. */
 	private static final String	TYPE =  "Type";
 	
-	/** The texf of the {@link #ID_COL}. */
+	/** The text of the {@link #ID_COL}. */
 	private static final String	ID =  "ID";
 	
 	

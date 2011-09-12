@@ -817,7 +817,7 @@ class TreeViewerComponent
 	{
 		switch (model.getState()) {
 		case DISCARDED:
-		case SAVE:  
+		//case SAVE:
 			throw new IllegalStateException("This method cannot be " +
 			"invoked in the DISCARDED, SAVE state.");
 		}
@@ -2686,9 +2686,7 @@ class TreeViewerComponent
 	 */
 	public void onNodesMoved()
 	{
-		if (model.getState()!= SAVE)
-			throw new IllegalStateException("This method can only be " +
-			"invoked in the SAVE state");
+		if (model.getState() != SAVE) return;
 		model.setState(READY);
 		fireStateChange();
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
