@@ -59,7 +59,7 @@ Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
 
 def download(simple=False):
     # JARs to ignore from download
-    ignore = ["loci_tools.jar", "ome_tools.jar", "ome-io.jar"]
+    ignore = ["loci_tools.jar", "ome_tools.jar"]
     url = urllib.urlopen("http://hudson.openmicroscopy.org.uk/job/BIOFORMATS-Beta4.3/lastBuild/api/xml")
     hudson_xml = url.read()
     hudson_xml = hudson_xml.replace('origin/', 'origin_')
