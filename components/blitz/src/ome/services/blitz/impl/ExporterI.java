@@ -395,6 +395,12 @@ public class ExporterI extends AbstractAmdServant implements
 
                                 int planeCount = reader.planes;
                                 int planeSize = raw.getPlaneSize();
+                                log.info(String.format(
+                                            "Using big TIFF? %s mSize=%d " +
+                                            "dSize=%d planeCount=%d " +
+                                            "planeSize=%d",
+                                            bigtiff, mSize, dSize,
+                                            planeCount, planeSize));
                                 byte[] plane = new byte[planeSize];
                                 for (int i = 0; i < planeCount; i++) {
                                     int[] zct = FormatTools.getZCTCoords(
