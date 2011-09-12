@@ -759,16 +759,17 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                for ob in self.conn.getObjects(k.lower().title(), [o.id for o in oids[k]]):
+                if k.lower() == 'acquisitions':
+                    t = 'PlateAcquisition'
+                else:
+                    t = k.lower().title()
+                print t
+                for ob in self.conn.getObjects(t, [o.id for o in oids[k]]):
                     for a in self.conn.getObjects("Annotation", tids):
                         if isinstance(ob._obj, omero.model.WellI):
                             t = 'Image'
                             obj = ob.getWellSample().image()
-                        elif isinstance(ob._obj, omero.model.PlateAcquisitionI):
-                            t = 'PlateAcquisition'
-                            obj = ob
                         else:
-                            t = k.lower().title()
                             obj = ob
                         l_ann = getattr(omero.model, t+"AnnotationLinkI")()
                         l_ann.setParent(obj._obj)
