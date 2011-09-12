@@ -78,6 +78,7 @@
         <bean class="ome.services.blitz.impl.ExporterI">
             <constructor-arg ref="throttlingStrategy"/>
             <constructor-arg ref="databaseIdentity"/>
+            <constructor-arg ref="/OMERO/Pixels"/>
         </bean>
     </constructor-arg>
   </bean>
