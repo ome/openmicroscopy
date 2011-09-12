@@ -47,6 +47,8 @@ import org.springframework.util.Assert;
  */
 public class FullText extends SearchAction {
 
+    public final static String ALL_PROJECTIONS = "__ALL_PROJECTIONS";
+
     private static final Log log = LogFactory.getLog(FullText.class);
 
     private static final long serialVersionUID = 1L;
@@ -161,6 +163,20 @@ public class FullText extends SearchAction {
         return criteria;
     }
 
+    /**
+     * Allows settings offset and limit on the query. The default implementation
+     * calls setProjection with SCORE and ID, which MUST BE the first two
+     * projection values. Any overriding method may add further projections but
+     * must start with these two.
+     *
+     * @param ftQuery
+     */
+    protected void initializeQuery(FullTextQuery ftQuery) {
+        ftQuery
+        .setProjection(ProjectionConstants.SCORE,
+                ProjectionConstants.ID);
+    }
+
     @Transactional(readOnly = true)
     public Object doWork(Session s, ServiceFactory sf) {
 
@@ -180,9 +196,7 @@ public class FullText extends SearchAction {
 
         // Main query
         FullTextQuery ftQuery = session.createFullTextQuery(this.q, cls);
-        ftQuery
-                .setProjection(ProjectionConstants.SCORE,
-                        ProjectionConstants.ID);
+        initializeQuery(ftQuery);
         List<?> result = ftQuery.list();
         int totalSize = ftQuery.getResultSize();
 
@@ -193,10 +207,12 @@ public class FullText extends SearchAction {
 
         final Map<Long, Integer> order = new HashMap<Long, Integer>();
         final Map<Long, Float> scores = new HashMap<Long, Float>();
+        final Map<Long, Object[]> projections = new HashMap<Long, Object[]>();
         for (int i = 0; i < result.size(); i++) {
             Object[] parts = (Object[]) result.get(i);
             scores.put((Long) parts[1], (Float) parts[0]);
             order.put((Long) parts[1], i);
+            projections.put((Long) parts[1], parts);
         }
 
         // TODO Could add a performance optimization here on returnUnloaded
@@ -226,6 +242,7 @@ public class FullText extends SearchAction {
                 object.putAt("TOTAL_SIZE", totalSize);
                 object.putAt(ProjectionConstants.SCORE, scores.get(object
                         .getId()));
+                object.putAt(ALL_PROJECTIONS, projections.get(object.getId()));
             }
         }
 
