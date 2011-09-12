@@ -1880,7 +1880,7 @@ class PlateAcquisitionWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectW
         super(PlateAcquisitionWrapper, self).__prepare__(**kwargs)
         if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
-    
+
     def getName (self):
         name = super(PlateAcquisitionWrapper, self).getName()
         if name is None:
@@ -1889,6 +1889,7 @@ class PlateAcquisitionWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectW
             else:
                 name = "Plate %i" % self.id
         return name
+    name = property(getName)
     
     def getFields (self):
         """
