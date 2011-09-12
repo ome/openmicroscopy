@@ -348,11 +348,14 @@ class MeasurementViewerComponent
 			if (!valid) {
 				reg.getUserNotifier().notifyInfo("ROI", "The ROI are not " +
 						"compatible with the image.");
+				
 				try {
 					input.close();
 				} catch (Exception io) {
 					log.warn(this, "Cannot close the stream "+io.getMessage());
 				}
+				//reset
+				
 				fireStateChange();
 				return;
 			}

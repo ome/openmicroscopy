@@ -536,6 +536,7 @@ class MeasurementViewerModel
 		int sizeZ = pixels.getSizeZ();
 		int sizeT = pixels.getSizeT();
 		
+		boolean b = true;
 		while (i.hasNext()) {
 			roi = i.next();
 			shapeList = roi.getShapes();
@@ -543,11 +544,27 @@ class MeasurementViewerModel
 			while (shapeIterator.hasNext()) {
 				shape = shapeIterator.next();
 				c = shape.getCoord3D();
-				if (c.getTimePoint() > sizeT) return false;
-				if (c.getZSection() > sizeZ) return false;
+				if (c.getTimePoint() > sizeT) {
+					b = false;
+					break;
+				}
+				if (c.getZSection() > sizeZ) {
+					b = false;
+					break;
+				}
 			}
 		}
+		if (!b) {
+			i = roiList.iterator();
+			while (i.hasNext()) {
+				roi = i.next();
+				roiComponent.deleteROI(roi.getID());
+			}
+			return false;
+		}
+		
 		component.attachListeners(roiList);
+		notifyDataChanged(true);
 		return true;
 	}
 
@@ -825,7 +842,7 @@ class MeasurementViewerModel
 		while (i.hasNext()) {
 			roi = i.next();
 			roiComponent.deleteROI(roi.getID());
-		}	
+		}
 		Iterator<ROIFigure> j = figures.iterator();
 		while (j.hasNext()) {
 			drawingComponent.removeFigure(j.next());
@@ -998,7 +1015,6 @@ class MeasurementViewerModel
 			log.warn(this, "Cannot load the ROI "+e.getMessage());
 		}
 		component.setROI(stream);
-		if (stream != null) notifyDataChanged(true);
 		try {
 			if (stream != null) stream.close();
 		} catch (Exception e) {
