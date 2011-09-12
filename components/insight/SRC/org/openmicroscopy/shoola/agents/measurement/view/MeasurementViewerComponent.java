@@ -472,6 +472,7 @@ class MeasurementViewerComponent
 	public void loadROI()
 	{
 		FileChooser chooser = createChooserDialog(FileChooser.LOAD);
+		chooser.setCheckOverride(false);
 		if (chooser.showDialog() != JFileChooser.APPROVE_OPTION) return;
 		File f = chooser.getSelectedFile();
 		if (f == null) return;
