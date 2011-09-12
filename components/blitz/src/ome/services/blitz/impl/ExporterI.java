@@ -562,7 +562,7 @@ public class ExporterI extends AbstractAmdServant implements
     }
 
     private long getDataBytes(OmeroReader reader) {
-        return reader.planes * reader.sizeX * reader.sizeY *
+        return (long) reader.planes * reader.sizeX * reader.sizeY *
             FormatTools.getBytesPerPixel(reader.getPixelType());
     }
 
