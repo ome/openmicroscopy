@@ -563,7 +563,7 @@ public class ExporterI extends AbstractAmdServant implements
 
     private long getDataBytes(OmeroReader reader) {
         return reader.planes * reader.sizeX * reader.sizeY *
-            (reader.getBitsPerPixel() / 8);
+            FormatTools.getBytesPerPixel(reader.getPixelType());
     }
 
     private boolean requiresPyramid(ServiceFactory sf, long id) {
