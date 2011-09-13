@@ -112,6 +112,9 @@ def parse_boolean(s):
         return True
     return False
 
+def parse_paths(s):
+    return [os.path.normpath(path) for path in json.loads(s)]
+
 def check_server_type(s):
     if s not in ALL_SERVER_TYPES:
         raise ValueError("Unknown server type: %s. Valid values are: %s" % (s, ALL_SERVER_TYPES))
@@ -168,7 +171,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.server_email": ["SERVER_EMAIL", None, identity],
     "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],
     "omero.web.use_eman2": ["USE_EMAN2", "false", parse_boolean],
-    "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', json.loads],
+    "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', parse_paths],
 }
 
 for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
