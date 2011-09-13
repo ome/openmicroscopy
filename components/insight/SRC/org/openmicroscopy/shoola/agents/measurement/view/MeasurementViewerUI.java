@@ -642,12 +642,13 @@ class MeasurementViewerUI
 		try
 		{
 			ROIFigure roi;
-			model.notifyDataChanged(true);
 			ROI r;
+			boolean b = false;
 			for (ROIShape shape : shapeList)
 			{
 				roi = shape.getFigure();
 				r = roi.getROI();
+				if (!r.isClientSide()) b = true;
 				if (getDrawing().contains(roi))
 				{
 					shape.getFigure().removeFigureListener(controller);
@@ -658,6 +659,7 @@ class MeasurementViewerUI
 				model.deleteShape(shape.getID(), shape.getCoord3D());
 				model.markROIForDelete(shape.getID(), r);
 			}
+			model.notifyDataChanged(b);
 		} catch (Exception e) {
 			handleROIException(e, DELETE_MSG);
 		}

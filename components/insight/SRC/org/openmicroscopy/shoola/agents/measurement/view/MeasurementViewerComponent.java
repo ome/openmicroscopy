@@ -1006,6 +1006,7 @@ class MeasurementViewerComponent
 			List<ROIFigure> figures = model.removeAllROI(exp.getId());
 			//clear all tables.
 			view.deleteROIs(figures);
+			model.getROIComponent().reset();
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 			msg.print("Delete ROI");

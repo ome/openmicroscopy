@@ -100,6 +100,9 @@ public class ROITable
 	/** Reference to the object manager. */
 	private ObjectManager   manager;
 
+	/** Flag indicating to reset the component when loading locally.*/
+	private boolean reset;
+	
 	/**
 	 * Returns <code>true</code> if all the roishapes in the shapelist 
 	 * have the same id, <code>false</code> otherwise.
@@ -186,12 +189,12 @@ public class ROITable
 		this.setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
 		ROIMap = new HashMap<ROI, ROINode>();
 		for (int i = 0 ; i < model.getColumnCount() ; i++)
-		{
 			getColumn(i).setResizable(true);
-		}
+		
 		setDefaultRenderer(ShapeType.class, new ShapeRenderer());
 		setTreeCellRenderer(new ROITableCellRenderer());
 		popupMenu = new ROIPopupMenu(this);
+		reset = false;
 	}
 	
 	/** 
@@ -658,7 +661,8 @@ public class ROITable
 			nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
 			if (nodeObject instanceof ROI)
 			{
-				roi = (ROI)nodeObject;
+				roi = (ROI) nodeObject;
+				if (roi.isClientSide()) reset = true;
 				roiMap.put(roi.getID(), roi);
 				shapeIterator = roi.getShapes().values().iterator();
 				while (shapeIterator.hasNext())
@@ -687,7 +691,6 @@ public class ROITable
 					if (figure instanceof ROIFigure) {
 						selectedList.add(((ROIFigure) figure).getROIShape());
 					}
-					
 				}
 			}
 		}
@@ -772,6 +775,8 @@ public class ROITable
 	{
 		List<ROIShape> selectionList = getSelectedROIShapes();
 		manager.deleteROIShapes(selectionList);
+		if (reset) manager.reset();
+		reset = false;
 	}
 	
 	/** 
