@@ -104,7 +104,8 @@ def savePlane(image, format, cName, zRange, projectZ, t=0, channel=None, greysca
     if projectZ:
         image.setProjection('intmax')   # imageWrapper only supports projection of full Z range (can't specify)
 
-    plane = image.renderImage(zRange[0], t)
+    # All Z and T indices in this script are 1-based, but this method uses 0-based.
+    plane = image.renderImage(zRange[0]-1, t-1)
     if imgWidth:
         w, h = plane.size
         newH = (float(imgWidth) / w ) * h
@@ -203,7 +204,7 @@ def savePlanesForImage(conn, image, sizeC, splitCs, mergedCs, channelNames=None,
     """
     
     if tRange == None:
-        tIndexes = [image.getDefaultT()]
+        tIndexes = [image.getDefaultT()+1]      # use 1-based indices throughout script
     else:
         if len(tRange) > 1:
             tIndexes = range(tRange[0], tRange[1])
@@ -222,7 +223,7 @@ def savePlanesForImage(conn, image, sizeC, splitCs, mergedCs, channelNames=None,
             gScale = False   # if we're rendering 'merged' image - don't want grey!
         for t in tIndexes:
             if zRange == None:
-                defaultZ = image.getDefaultZ()
+                defaultZ = image.getDefaultZ()+1
                 savePlane(image, format, cName, (defaultZ,), projectZ, t, c, gScale, imgWidth, folder_name)
             elif projectZ:
                 savePlane(image, format, cName, zRange, projectZ, t, c, gScale, imgWidth, folder_name)
@@ -264,42 +265,48 @@ def batchImageExport(conn, scriptParams):
         zRange = None
         if "Choose_Z_Section" in scriptParams:
             zChoice = scriptParams["Choose_Z_Section"]
+            # NB: all Z indices in this script are 1-based
             if zChoice == 'ALL Z planes':
-                zRange = (0, sizeZ)
+                zRange = (1, sizeZ+1)
             elif "OR_specify_Z_index" in scriptParams:
                 zIndex = scriptParams["OR_specify_Z_index"]
-                zIndex = min(zIndex, sizeZ-1)
+                zIndex = min(zIndex, sizeZ)
                 zRange = (zIndex,)
             elif "OR_specify_Z_start_AND..." in scriptParams and "...specify_Z_end" in scriptParams:
                 start = scriptParams["OR_specify_Z_start_AND..."]
+                start = min(start, sizeZ)
                 end = scriptParams["...specify_Z_end"]
+                end = min(end, sizeZ)
                 zStart = min(start, end)  # in case user got zStart and zEnd mixed up
                 zEnd = max(start, end)
                 if zStart == zEnd:
-                    zRange = (min(sizeZ-1,zStart),)
+                    zRange = (zStart,)
                 else:
-                    zRange = (min(sizeZ-1,zStart), min(sizeZ-1,zEnd) )
+                    zRange = (zStart, zEnd+1)
         return zRange
     
     def getTrange(sizeT, scriptParams):
         tRange = None
         if "Choose_T_Section" in scriptParams:
             tChoice = scriptParams["Choose_T_Section"]
+            # NB: all T indices in this script are 1-based
             if tChoice == 'ALL T planes':
-                tRange = (0, sizeT)
+                tRange = (1, sizeT+1)
             elif "OR_specify_T_index" in scriptParams:
                 tIndex = scriptParams["OR_specify_T_index"]
-                tIndex = min(tIndex, sizeT-1)
+                tIndex = min(tIndex, sizeT)
                 tRange = (tIndex,)
             elif "OR_specify_T_start_AND..." in scriptParams and "...specify_T_end" in scriptParams:
                 start = scriptParams["OR_specify_T_start_AND..."]
+                start = min(start, sizeT)
                 end = scriptParams["...specify_T_end"]
+                end = min(end, sizeT)
                 tStart = min(start, end)  # in case user got zStart and zEnd mixed up
                 tEnd = max(start, end)
                 if tStart == tEnd:
-                    tRange = (min(sizeT-1,tStart),)
+                    tRange = (tStart,)
                 else:
-                    tRange = (min(sizeT-1,tStart), min(sizeT-1,tEnd) )
+                    tRange = (tStart, tEnd+1)
         return tRange
 
     # images to export
@@ -341,11 +348,11 @@ def batchImageExport(conn, scriptParams):
             log("Using:")
             if zRange is None:      log("  Z-index: Last-viewed")
             elif len(zRange) == 1:  log("  Z-index: %d" % zRange[0])
-            else:                   log("  Z-range: %s-%s" % ( zRange[0],zRange[1]) )
+            else:                   log("  Z-range: %s-%s" % ( zRange[0],zRange[1]-1) )
             if projectZ:            log("  Z-projection: ON")
             if tRange is None:      log("  T-index: Last-viewed")
             elif len(tRange) == 1:  log("  T-index: %d" % tRange[0])
-            else:                   log("  T-range: %s-%s" % ( tRange[0],tRange[1]) )
+            else:                   log("  T-range: %s-%s" % ( tRange[0],tRange[1]-1) )
             log("  Format: %s" % format)
             if imgWidth is None:    log("  Image Width: no resize")
             else:                   log("  Image Width: %s" % imgWidth)
@@ -427,25 +434,25 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
         description="Default Z is last viewed Z for each image, OR choose Z below.", values=zChoices, default=defaultZoption),
     
     scripts.Int("OR_specify_Z_index", grouping="5.1",
-        description="Choose a specific Z-index to export", min=0),
+        description="Choose a specific Z-index to export", min=1),
     
     scripts.Int("OR_specify_Z_start_AND...", grouping="5.2",
-        description="Choose a specific Z-index to export", min=0),
+        description="Choose a specific Z-index to export", min=1),
     
     scripts.Int("...specify_Z_end", grouping="5.3",
-        description="Choose a specific Z-index to export", min=0),
+        description="Choose a specific Z-index to export", min=1),
     
     scripts.String("Choose_T_Section", grouping="6",
         description="Default T is last viewed T for each image, OR choose T below.", values=tChoices, default=defaultToption),
     
     scripts.Int("OR_specify_T_index", grouping="6.1",
-        description="Choose a specific T-index to export", min=0),
+        description="Choose a specific T-index to export", min=1),
     
     scripts.Int("OR_specify_T_start_AND...", grouping="6.2",
-        description="Choose a specific T-index to export", min=0),
+        description="Choose a specific T-index to export", min=1),
     
     scripts.Int("...specify_T_end", grouping="6.3",
-        description="Choose a specific T-index to export", min=0),
+        description="Choose a specific T-index to export", min=1),
         
     scripts.Int("Image_Width", grouping="7", 
         description="The max width of each image panel. Default is actual size", min=1),
