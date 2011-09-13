@@ -69,10 +69,10 @@ class LoginScreenManager
 	static final String	TITLE = "Open Microscopy Environment";
 
 	/** This should not be there.*/
-	private static final String version = "4.3.1";
+	private static final String version = "4.3.x";
 	
 	/** The version the plugin. */
-	private static final String VERSION = "v1.0 (for server version: "+version+")";
+	private static final String VERSION = "v1.1 (for server version: "+version+")";
 	
 	/** The default port value. */
 	private static final String PORT = ""+4064;
