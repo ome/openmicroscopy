@@ -3128,9 +3128,9 @@ def script_ui(request, scriptId, **kwargs):
             i["required"] = True
         i["description"] = param.description
         if param.min:
-            i["min"] = param.min.getValue()
+            i["min"] = str(param.min.getValue())
         if param.max:
-            i["max"] = param.max.getValue()
+            i["max"] = str(param.max.getValue())
         if param.values:
             i["options"] = [v.getValue() for v in param.values.getValue()]
         if param.useDefault:
