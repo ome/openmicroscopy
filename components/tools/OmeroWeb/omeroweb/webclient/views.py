@@ -2763,7 +2763,7 @@ def status_action (request, action=None, **kwargs):
         data['key'] = key
         jobs.append(data)
 
-    jobs.sort(key=lambda x:x['start_time'])
+    jobs.sort(key=lambda x:x['start_time'], reverse=True)
     context = {'sizeOfJobs':len(request.session['callback']), 'jobs':jobs }
 
     t = template_loader.get_template(template)
