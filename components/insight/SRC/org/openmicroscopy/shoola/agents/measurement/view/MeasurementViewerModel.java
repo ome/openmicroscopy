@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -86,6 +87,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import pojos.ChannelData;
@@ -1102,6 +1104,7 @@ class MeasurementViewerModel
 			ExperimenterData exp = 
 				(ExperimenterData) MeasurementAgent.getUserDetails();
 			if (roiList.size() == 0) return;
+			roiComponent.reset();
 			if (async) {
 				currentSaver = new ROISaver(component, getImageID(), 
 						exp.getId(), roiList);
