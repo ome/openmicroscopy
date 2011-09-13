@@ -9,14 +9,14 @@ shift
 # Brew support ===================================================
 if (git --version)
 then
- git clone -b omero git://github.com/joshmoore/homebrew.git $DIR
- cd $DIR
+  git clone -b omero git://github.com/joshmoore/homebrew.git $DIR
+  cd $DIR
 else
- mkdir $DIR
- cd $DIR
- curl -L https://github.com/joshmoore/homebrew/tarball/omero |\
-   /usr/bin/tar --strip-components=1 -xvf -
- bin/brew install git
+  mkdir $DIR
+  cd $DIR
+  curl -L https://github.com/joshmoore/homebrew/tarball/omero |\
+    /usr/bin/tar --strip-components=1 -xvf -
+  bin/brew install git
 fi
 
 
@@ -34,12 +34,15 @@ bin/brew install omero43 "$@" # For psql, cpp, etc.
 # Python virtualenv/pip support ===================================
 curl -O https://raw.github.com/pypa/virtualenv/master/virtualenv.py
 python virtualenv.py .
-. bin/activate
+
+#. bin/activate This fails for some reason in the script
 
 
 # Python requirements =============================================
-pip install PIL
-pip install matplotlib
+bin/pip install PIL
+bin/pip install matplotlib
 
 export HDF5_DIR=`pwd`
-pip install tables
+bin/pip install -U numpy
+bin/pip install Cython
+bin/pip install tables
