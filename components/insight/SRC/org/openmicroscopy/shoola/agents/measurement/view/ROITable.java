@@ -676,6 +676,8 @@ public class ROITable
 			if (nodeObject instanceof ROIShape)
 			{
 				roiShape = (ROIShape) nodeObject;
+				roi = roiShape.getROI();
+				if (roi.getShapes().size() == 1) reset = true;
 				if (!roiMap.containsKey(roiShape.getID()))
 					selectedList.add(roiShape);
 			}
