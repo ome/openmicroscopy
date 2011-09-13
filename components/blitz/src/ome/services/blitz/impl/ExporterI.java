@@ -363,7 +363,7 @@ public class ExporterI extends AbstractAmdServant implements
                                 Pixels pix = image.getPixels(0);
                                 if (requiresPyramid(sf, pix.getId().getValue())) {
                                     long id = image.getId().getValue();
-                                    int x = pix.getSizeY().getValue();
+                                    int x = pix.getSizeX().getValue();
                                     int y = pix.getSizeY().getValue();
                                     throw new omero.ApiUsageException(
                                             null, null, String.format(
