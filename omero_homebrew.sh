@@ -7,18 +7,22 @@ DIR=$1
 shift
 
 # Brew support ===================================================
-if (git --version)
+if ($DIR/bin/brew --version)
 then
-  git clone -b omero git://github.com/joshmoore/homebrew.git $DIR
-  cd $DIR
+  echo "Using brew installed in $DIR"
 else
-  mkdir $DIR
-  cd $DIR
-  curl -L https://github.com/joshmoore/homebrew/tarball/omero |\
-    /usr/bin/tar --strip-components=1 -xvf -
-  bin/brew install git
+  if (git --version)
+  then
+    git clone -b omero git://github.com/joshmoore/homebrew.git $DIR
+    cd $DIR
+  else
+    mkdir $DIR
+    cd $DIR
+    curl -L https://github.com/joshmoore/homebrew/tarball/omero |\
+      /usr/bin/tar --strip-components=1 -xvf -
+    bin/brew install git
+  fi
 fi
-
 
 # OPTIONAL: this makes things faster for devs =====================
 bin/brew install ccache
