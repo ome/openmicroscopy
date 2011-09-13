@@ -340,6 +340,18 @@ class MetadataViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getParentUI()
+	 */
+	public JFrame getParentUI()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException("This method cannot be invoked " +
+					"in the DISCARDED state.");
+		return view;
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#setRootObject(Object, long)
 	 */
 	public void setRootObject(Object root, long userID)

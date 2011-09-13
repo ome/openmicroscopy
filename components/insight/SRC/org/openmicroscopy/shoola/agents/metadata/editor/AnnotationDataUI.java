@@ -370,13 +370,15 @@ class AnnotationDataUI
 		UIUtilities.unifiedButtonLookAndFeel(removeTagsButton);
 		removeTagsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		removeTagsButton.setToolTipText("Unlink Tags.");
-		removeTagsButton.addActionListener(controller);
+		removeTagsButton.addMouseListener(controller);
+		//removeTagsButton.addActionListener(controller);
 		removeTagsButton.setActionCommand(""+EditorControl.REMOVE_TAGS);
 		removeDocsButton = new JButton(icons.getIcon(IconManager.MINUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(removeDocsButton);
 		removeDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		removeDocsButton.setToolTipText("Unlink Attachments.");
-		removeDocsButton.addActionListener(controller);
+		//removeDocsButton.addActionListener(controller);
+		removeDocsButton.addMouseListener(controller);
 		removeDocsButton.setActionCommand(""+EditorControl.REMOVE_DOCS);
 		
 		selectedValue = 0;
@@ -1237,6 +1239,54 @@ class AnnotationDataUI
 		handleObjectsSelection(TagAnnotationData.class, toKeep, false);
 		if (list.size() == 0) tagFlag = false;
 		return list;
+	}
+	
+	/**
+	 * Returns <code>true</code> some tags can be unlink, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasTagsToUnlink()
+	{
+		if (tagsDocList.size() == 0) return false;
+		DocComponent doc;
+		Object object;
+		Iterator<DocComponent> i = tagsDocList.iterator();
+		while (i.hasNext()) {
+			doc = i.next();
+			object = doc.getData();
+			if (doc.canUnlink()) {
+				if (object instanceof TagAnnotationData) {
+					return true;
+				} 
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> some tags can be unlink, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasAttachmentsToUnlink()
+	{
+		if (filesDocList.size() == 0) return false;
+		DocComponent doc;
+		Object object;
+		Iterator<DocComponent> i = filesDocList.iterator();
+		while (i.hasNext()) {
+			doc = i.next();
+			object = doc.getData();
+			if (doc.canUnlink()) {
+				if (object instanceof FileAnnotationData) {
+					return true;
+				} 
+			}
+		}
+		return false;
 	}
 	
 	/**

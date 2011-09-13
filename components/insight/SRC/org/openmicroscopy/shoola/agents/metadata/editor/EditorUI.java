@@ -29,6 +29,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -54,6 +55,7 @@ import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -555,11 +557,24 @@ class EditorUI
 		}
 	}
 	
-	/** Removes the tags. */
-	void removeTags()
+	/**
+	 * Removes the tags.
+	 * 
+	 * @param location The location of the mouse pressed.
+	 */
+	void removeTags(Point location)
 	{
-		List<TagAnnotationData> list = generalPane.removeTags();
-		if (list.size() > 0) saveData(true);
+		
+		if (!generalPane.hasTagsToUnlink()) return;
+		MessageBox box = new MessageBox(model.getRefFrame(),
+				"Remove All Tags", 
+				"Are you sure you want to remove all Tags?");
+		Dimension d = box.getPreferredSize();
+		Point p = new Point(location.x-d.width/2, location.y);
+		if (box.showMsgBox(p) == MessageBox.YES_OPTION) {
+			List<TagAnnotationData> list = generalPane.removeTags();
+			if (list.size() > 0) saveData(true);
+		}
 	}
 	
 	/**
@@ -594,12 +609,20 @@ class EditorUI
 	/**
 	 * Returns the collection of attachments.
 	 * 
-	 * @return See above.
+	 * @param location The location of the mouse pressed.
 	 */
-	void removeAttachedFiles()
+	void removeAttachedFiles(Point location)
 	{
-		List<FileAnnotationData> list = generalPane.removeAttachedFiles();
-		if (list.size() > 0) saveData(true);
+		if (!generalPane.hasAttachmentsToUnlink()) return;
+		MessageBox box = new MessageBox(model.getRefFrame(),
+				"Remove All Attachments", 
+				"Are you sure you want to remove all Attachments?");
+		Dimension d = box.getPreferredSize();
+		Point p = new Point(location.x-d.width/2, location.y);
+		if (box.showMsgBox(p) == MessageBox.YES_OPTION) {
+			List<FileAnnotationData> list = generalPane.removeAttachedFiles();
+			if (list.size() > 0) saveData(true);
+		}
 	}
 	
 	/**

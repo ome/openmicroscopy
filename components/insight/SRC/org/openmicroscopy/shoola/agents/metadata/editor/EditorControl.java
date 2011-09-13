@@ -29,6 +29,10 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -39,8 +43,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
@@ -81,6 +88,7 @@ import org.openmicroscopy.shoola.util.filter.file.TEXTFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.filter.file.WordFilter;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
@@ -106,7 +114,7 @@ import pojos.TextualAnnotationData;
  * @since OME3.0
  */
 class EditorControl
-	implements ActionListener, ChangeListener, PropertyChangeListener
+	implements ActionListener, ChangeListener, PropertyChangeListener, MouseListener
 {
 
 	/** Bound property indicating that the save status has been modified. */
@@ -708,16 +716,64 @@ class EditorControl
 			case RELOAD_SCRIPT:
 				view.reloadScript();
 				break;
+				/*
 			case REMOVE_TAGS:
 				view.removeTags();
 				break;
 			case REMOVE_DOCS:
 				view.removeAttachedFiles();
 				break;
+				*/
 			case SAVE_AS:
 				saveAsJPEG();
 		}
 	}
-	
-}
 
+	/**
+	 * Removes the tags or files.
+	 * @see MouseListener#mouseReleased(MouseEvent)
+	 */
+	public void mouseReleased(MouseEvent e)
+	{
+		JButton src = (JButton) e.getSource();
+		int index = Integer.parseInt(src.getActionCommand());
+		Point p = e.getPoint();
+		SwingUtilities.convertPointToScreen(p, src);
+		switch (index) {
+			case REMOVE_TAGS:
+				view.removeTags(p);
+				break;
+			case REMOVE_DOCS:
+				view.removeAttachedFiles(p);
+		}
+	}
+	
+	/**
+	 * Required by the {@link MouseListener} I/F but no-operation
+	 * implementation in our case.
+	 * @see MouseListener#mouseClicked(MouseEvent)
+	 */
+	public void mouseClicked(MouseEvent e) {}
+
+	/**
+	 * Required by the {@link MouseListener} I/F but no-operation
+	 * implementation in our case.
+	 * @see MouseListener#mouseEntered(MouseEvent)
+	 */
+	public void mouseEntered(MouseEvent e) {}
+
+	/**
+	 * Required by the {@link MouseListener} I/F but no-operation
+	 * implementation in our case.
+	 * @see MouseListener#mouseExited(MouseEvent)
+	 */
+	public void mouseExited(MouseEvent e) {}
+
+	/**
+	 * Required by the {@link MouseListener} I/F but no-operation
+	 * implementation in our case.
+	 * @see MouseListener#mousePressed(MouseEvent)
+	 */
+	public void mousePressed(MouseEvent e) {}
+
+}
