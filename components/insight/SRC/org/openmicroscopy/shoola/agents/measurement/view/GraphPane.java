@@ -499,14 +499,13 @@ class GraphPane
 			shapeMap.put(c3D, shape);
 			if (shape.getFigure() instanceof MeasureTextFigure)
 				return;
-		
 			shapeStats = AnalysisStatsWrapper.convertStats(
-											(Map) entry.getValue());
-			shapeStatsList.put(c3D, shapeStats);
-
-	
-			data = shapeStats.get(StatsType.PIXELDATA);
-			pixelStats.put(c3D, data);
+					(Map) entry.getValue());
+			if (shapeStats != null) {
+				shapeStatsList.put(c3D, shapeStats);
+				data = shapeStats.get(StatsType.PIXELDATA);
+				pixelStats.put(c3D, data);
+			}
 		}
 		maxZ = maxZ+1;
 		minZ = minZ+1;
