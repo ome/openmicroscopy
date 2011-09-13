@@ -1,0 +1,18 @@
+dn: ou=testNoSyncExplicit,o=eg
+objectclass: organizationalUnit
+objectClass: top
+ou: testNoSyncExplicit
+
+dn: cn=grp,ou=testNoSyncExplicit,o=eg
+objectClass: top
+objectClass: groupOfNames
+cn: grp
+member: cn=test1,ou=testNoSyncExplicit,o=eg
+
+dn: cn=test1,ou=testNoSyncExplicit,o=eg
+objectClass: person
+cn: test1
+givenName: Testy
+sn: Tester
+mail: test1@test.com
+userPassword: password
