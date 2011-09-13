@@ -528,15 +528,16 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, _conn=None, 
             size = (int(w),)
         else:
             size = (int(w), int(h))
-    jpeg_data = webgateway_cache.getThumb(request, server_id, iid, size)
+    if _conn is None:
+        blitzcon = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
+    else:
+        blitzcon = _conn
+    if blitzcon is None or not blitzcon.isConnected():
+        logger.debug("failed connect, HTTP404")
+        raise Http404
+    user_id = blitzcon.getEventContext().userId
+    jpeg_data = webgateway_cache.getThumb(request, server_id, user_id, iid, size)
     if jpeg_data is None:
-        if _conn is None:
-            blitzcon = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
-        else:
-            blitzcon = _conn
-        if blitzcon is None or not blitzcon.isConnected():
-            logger.debug("failed connect, HTTP404")
-            raise Http404
         prevent_cache = False
         img = blitzcon.getObject("Image", iid)
         if img is None:
@@ -556,7 +557,7 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, _conn=None, 
                 else:
                     return HttpResponseServerError('Failed to render thumbnail')
         if not prevent_cache:
-            webgateway_cache.setThumb(request, server_id, iid, jpeg_data, size)
+            webgateway_cache.setThumb(request, server_id, user_id, iid, jpeg_data, size)
     else:
         pass
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
@@ -1510,7 +1511,8 @@ def save_image_rdef_json (request, iid, server_id=None, **kwargs):
     if pi is None:
         json_data = 'false'
     else:
-        webgateway_cache.invalidateObject(server_id, pi[0])
+        user_id = pi[0]._conn.getEventContext().userId
+        webgateway_cache.invalidateObject(server_id, user_id, pi[0])
         pi[0].getThumbnail()
         json_data = 'true'
     if r.get('callback', None):
@@ -1627,7 +1629,8 @@ def copy_image_rdef_json (request, server_id=None, _conn=None, _internal=False, 
                 del json_data[True][json_data[True].index(fromid)]
             for iid in json_data[True]:
                 img = newConn.getObject("Image", iid)
-                img is not None and webgateway_cache.invalidateObject(server_id, img)
+                user_id = newConn.getEventContext().userId
+                img is not None and webgateway_cache.invalidateObject(server_id, user_id, img)
     return json_data
 #
 #            json_data = simplejson.dumps(json_data)
@@ -1660,7 +1663,8 @@ def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
     img = _conn.getObject("Image", iid)
 
     if img is not None and img.resetRDefs():
-        webgateway_cache.invalidateObject(server_id, img)
+        user_id = _conn.getEventContext().userId
+        webgateway_cache.invalidateObject(server_id, user_id, img)
         return True
         json_data = 'true'
     else:

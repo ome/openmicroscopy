@@ -457,16 +457,17 @@ class WebGatewayCache (object):
         logger.debug(' clear: %s' % key)
         cache.delete(key)
 
-    def invalidateObject (self, client_base, obj):
+    def invalidateObject (self, client_base, user_id, obj):
         """
         Invalidates all caches for this particular object
         
         @param client_base:     The server_id
+        @param user_id:         OMERO user ID to partition caching upon
         @param obj:             The object wrapper. E.g. L{omero.gateway.ImageWrapper}
         """
         
         if obj.OMERO_CLASS == 'Image':
-            self.clearImage(None, client_base, obj)
+            self.clearImage(None, client_base, user_id, obj)
         else:
             logger.debug('unhandled object type: %s' % obj.OMERO_CLASS)
             self.clearJson(client_base, obj)
@@ -474,49 +475,52 @@ class WebGatewayCache (object):
     ##
     # Thumb
 
-    def _thumbKey (self, r, client_base, iid, size):
+    def _thumbKey (self, r, client_base, user_id, iid, size):
         """
         Generates a string key for caching the thumbnail, based on the above parameters
         
         @param r:       not used
         @param client_base:     server-id, forms stem of the key
+        @param user_id:         OMERO user ID to partition caching upon
         @param iid:             image ID
         @param size:            size of the thumbnail - tuple. E.g. (100,)
         """
         
         if size is not None and len(size):
-            return 'thumb_%s/%s/%s' % (client_base, str(iid), 'x'.join([str(x) for x in size]))
+            return 'thumb_%s/%s/%s/%s' % (client_base, str(iid), user_id, 'x'.join([str(x) for x in size]))
         else:
-            return 'thumb_%s/%s' % (client_base, str(iid))
+            return 'thumb_%s/%s/%s' % (client_base, str(iid), user_id)
 
-    def setThumb (self, r, client_base, iid, obj, size=()):
+    def setThumb (self, r, client_base, user_id, iid, obj, size=()):
         """
         Puts thumbnail into cache. 
         
         @param r:               for cache key - Not used? 
         @param client_base:     server_id for cache key
+        @param user_id:         OMERO user ID to partition caching upon
         @param iid:             image ID for cache key
         @param obj:             Data to cache
         @param size:            Size used for cache key. Tuple
         """
         
-        k = self._thumbKey(r, client_base, iid, size)
+        k = self._thumbKey(r, client_base, user_id, iid, size)
         self._cache_set(self._thumb_cache, k, obj)
         return True
 
-    def getThumb (self, r, client_base, iid, size=()):
+    def getThumb (self, r, client_base, user_id, iid, size=()):
         """
         Gets thumbnail from cache. 
         
         @param r:               for cache key - Not used? 
         @param client_base:     server_id for cache key
+        @param user_id:         OMERO user ID to partition caching upon
         @param iid:             image ID for cache key
         @param size:            Size used for cache key. Tuple
         @return:                Cached data or None
         @rtype:                 String
         """
         
-        k = self._thumbKey(r, client_base, iid, size)
+        k = self._thumbKey(r, client_base, user_id, iid, size)
         r = self._thumb_cache.get(k)
         if r is None:
             logger.debug('  fail: %s' % k)
@@ -524,17 +528,18 @@ class WebGatewayCache (object):
             logger.debug('cached: %s' % k)
         return r
 
-    def clearThumb (self, r, client_base, iid, size=None):
+    def clearThumb (self, r, client_base, user_id, iid, size=None):
         """
         Clears thumbnail from cache. 
         
         @param r:               for cache key - Not used? 
         @param client_base:     server_id for cache key
+        @param user_id:         OMERO user ID to partition caching upon
         @param iid:             image ID for cache key
         @param size:            Size used for cache key. Tuple
         @return:                True
         """
-        k = self._thumbKey(r, client_base, iid, size)
+        k = self._thumbKey(r, client_base, user_id, iid, size)
         self._cache_clear(self._thumb_cache, k)
         return True
 
@@ -611,7 +616,7 @@ class WebGatewayCache (object):
             logger.debug('cached: %s' % k)
         return r
 
-    def clearImage (self, r, client_base, img):
+    def clearImage (self, r, client_base, user_id, img):
         """
         Clears image data from cache using default rendering settings (r=None) T and Z indexes ( = 0).
         TODO: Doesn't clear any data stored WITH r, t, or z specified in cache key? 
@@ -619,6 +624,7 @@ class WebGatewayCache (object):
         
         @param r:               http request for cache key
         @param client_base:     server_id for cache key
+        @param user_id:         OMERO user ID to partition caching upon
         @param img:             ImageWrapper for cache key
         @param obj:             Data to cache
         @param rtype:           True
@@ -627,7 +633,7 @@ class WebGatewayCache (object):
         k = self._imageKey(None, client_base, img)
         self._cache_clear(self._img_cache, k)
         # do the thumb too
-        self.clearThumb(r, client_base, img.getId())
+        self.clearThumb(r, client_base, user_id, img.getId())
         # and json data
         self.clearJson(client_base, img)
         return True
