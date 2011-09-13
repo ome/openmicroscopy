@@ -337,7 +337,7 @@ class OmeroEnvironment(SConsEnvironment):
             return ["Ice", "IceUtil", "Glacier2"]
 
     def which(self, exe):
-        import which
+        from omero_ext import which
         try:
             rv = file = which.which(exe)
         except which.WhichError:
