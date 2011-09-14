@@ -46,8 +46,11 @@ fi
 ###################################################################
 
 installed(){
-    bin/brew list | grep -wq $1
-    echo $1 installed.
+    bin/brew list | grep -wq $1 && {
+        echo $1 installed.
+    } || {
+        return 1
+    }
 }
 
 # OPTIONAL: this makes things faster for devs =====================
@@ -66,8 +69,11 @@ installed omero43 || bin/brew install omero43 "$@" # For psql, cpp, etc.
 
 installed(){
     PKG=$1; shift
-    bin/pip freeze "$@" | grep -q "^$PKG=="
-    echo $PKG installed.
+    bin/pip freeze "$@" | grep -q "^$PKG==" && {
+        echo $PKG installed.
+    } || {
+        return 1
+    }
 }
 
 # Python requirements =============================================
