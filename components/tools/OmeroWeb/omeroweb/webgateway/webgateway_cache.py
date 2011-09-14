@@ -487,9 +487,9 @@ class WebGatewayCache (object):
         """
         
         if size is not None and len(size):
-            return 'thumb_%s/%s/%s/%s' % (client_base, str(iid), user_id, 'x'.join([str(x) for x in size]))
+            return 'thumb_user_%s/%s/%s/%s' % (client_base, str(iid), user_id, 'x'.join([str(x) for x in size]))
         else:
-            return 'thumb_%s/%s/%s' % (client_base, str(iid), user_id)
+            return 'thumb_user_%s/%s/%s' % (client_base, str(iid), user_id)
 
     def setThumb (self, r, client_base, user_id, iid, obj, size=()):
         """
