@@ -35,7 +35,6 @@ else
         bin/git reset FETCH_HEAD
     fi
 fi
-exit 0
 
 # Python virtualenv/pip support ===================================
 if (bin/pip --version)
