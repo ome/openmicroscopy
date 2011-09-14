@@ -6,6 +6,9 @@ set -u
 DIR=$1
 shift
 
+OMERO_GIT=${OMERO_URL:-git://github.com/joshmoore/homebrew.git}
+OMERO_URL=${OMERO_URL:-https://github.com/joshmoore/homebrew/tarball/omero}
+VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
 
 ###################################################################
 # BREW & PIP BASE SYSTEMS
@@ -19,16 +22,20 @@ then
 else
     if (git --version)
     then
-        git clone -b omero git://github.com/joshmoore/homebrew.git $DIR
+        git clone -b omero "$OMERO_GIT" $DIR
         cd $DIR
     else
         mkdir $DIR
         cd $DIR
-        curl -L https://github.com/joshmoore/homebrew/tarball/omero |\
-            /usr/bin/tar --strip-components=1 -xvf -
+        curl -L "$OMERO_URL" | /usr/bin/tar --strip-components=1 -xvf -
         bin/brew install git
+        bin/git init
+        bin/git remote add omero "$OMERO_GIT"
+        bin/git fetch omero omero
+        bin/git reset FETCH_HEAD
     fi
 fi
+exit 0
 
 # Python virtualenv/pip support ===================================
 if (bin/pip --version)
@@ -36,7 +43,7 @@ then
     echo "Using existing pip"
 else
     rm -rf virtualenv.py
-    curl -O https://raw.github.com/pypa/virtualenv/master/virtualenv.py
+    curl -O "$VENV_URL"
     python virtualenv.py .
 fi
 
