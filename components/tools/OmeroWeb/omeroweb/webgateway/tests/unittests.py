@@ -205,43 +205,46 @@ class WebGatewayCacheTest(unittest.TestCase):
         os.system('rm -fr test_cache')
 
     def testCacheSettings (self):
+        uid = 123
         empty_size, cache_block = _testCacheFSBlockSize(self.wcache._thumb_cache)
         max_size = empty_size + 4 * cache_block + 1
         self.wcache._updateCacheSettings(self.wcache._thumb_cache, timeout=2, max_entries=5, max_size=max_size )
         for i in range(6):
-            self.wcache.setThumb(self.request, 'test', i, 'abcdefgh'*127*cache_block)
+            self.wcache.setThumb(self.request, 'test', uid, i, 'abcdefgh'*127*cache_block)
         for i in range(4):
-            self.assertEqual(self.wcache.getThumb(self.request, 'test', i), 'abcdefgh'*127*cache_block,
+            self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, i), 'abcdefgh'*127*cache_block,
                              'Key %d not properly cached' % i)
-        self.assertEqual(self.wcache.getThumb(self.request, 'test', 5), None, 'Size limit failed')
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, 5), None, 'Size limit failed')
         for i in range(10):
-            self.wcache.setThumb(self.request, 'test', i, 'abcdefgh')
+            self.wcache.setThumb(self.request, 'test', uid, i, 'abcdefgh')
         for i in range(5):
-            self.assertEqual(self.wcache.getThumb(self.request, 'test', i), 'abcdefgh', 'Key %d not properly cached' % i)
-        self.assertEqual(self.wcache.getThumb(self.request, 'test', 5), None, 'Entries limit failed')
+            self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, i), 'abcdefgh', 'Key %d not properly cached' % i)
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, 5), None, 'Entries limit failed')
         time.sleep(2)
-        self.assertEqual(self.wcache.getThumb(self.request, 'test', 0), None, 'Time limit failed')
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, 0), None, 'Time limit failed')
 
     def testThumbCache (self):
-        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), None)
-        self.wcache.setThumb(self.request, 'test', 1, 'thumbdata')
-        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), 'thumbdata',
-                         'Thumb not properly cached (%s)' % self.wcache.getThumb(self.request, 'test', 1))
-        self.wcache.clearThumb(self.request, 'test', 1)
-        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), None)
+        uid = 123
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, 1), None)
+        self.wcache.setThumb(self.request, 'test', uid, 1, 'thumbdata')
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, 1), 'thumbdata',
+                         'Thumb not properly cached (%s)' % self.wcache.getThumb(self.request, 'test', uid, 1))
+        self.wcache.clearThumb(self.request, 'test', uid, 1)
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, 1), None)
         # Make sure clear() nukes this
-        self.wcache.setThumb(self.request, 'test', 1, 'thumbdata')
-        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), 'thumbdata', 'Thumb not properly cached')
+        self.wcache.setThumb(self.request, 'test', uid, 1, 'thumbdata')
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, 1), 'thumbdata', 'Thumb not properly cached')
         self.assertNotEqual(self.wcache._thumb_cache._num_entries, 0)
         self.wcache.clear()
         self.assertEqual(self.wcache._thumb_cache._num_entries, 0)
 
     def testImageCache (self):
+        uid = 123
         # Also add a thumb, a split channel and a projection, as it should get deleted with image
         preq = self.request.new({'p':'intmax'})
-        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), None)
-        self.wcache.setThumb(self.request, 'test', 1, 'thumbdata')
-        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), 'thumbdata')
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, 1), None)
+        self.wcache.setThumb(self.request, 'test', uid, 1, 'thumbdata')
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, 1), 'thumbdata')
         img = omero.gateway.ImageWrapper(None, omero.model.ImageI(1,False))
         self.assertEqual(self.wcache.getImage(self.request, 'test', img, 2, 3), None)
         self.wcache.setImage(self.request, 'test', img, 2, 3, 'imagedata')
@@ -252,14 +255,14 @@ class WebGatewayCacheTest(unittest.TestCase):
         self.assertEqual(self.wcache.getSplitChannelImage(self.request, 'test', img, 2, 3), None)
         self.wcache.setSplitChannelImage(self.request, 'test', img, 2, 3, 'imagedata')
         self.assertEqual(self.wcache.getSplitChannelImage(self.request, 'test', img, 2, 3), 'imagedata')
-        self.wcache.clearImage(self.request, 'test', img)
+        self.wcache.clearImage(self.request, 'test', uid, img)
         self.assertEqual(self.wcache.getImage(self.request, 'test', img, 2, 3), None)
         self.assertEqual(self.wcache.getSplitChannelImage(self.request, 'test', img, 2, 3), None)
         self.assertEqual(self.wcache.getImage(preq, 'test', img, 2, 3), None)
-        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), None)
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, 1), None)
         # The exact same behaviour, using invalidateObject
-        self.wcache.setThumb(self.request, 'test', 1, 'thumbdata')
-        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), 'thumbdata')
+        self.wcache.setThumb(self.request, 'test', uid, 1, 'thumbdata')
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, 1), 'thumbdata')
         self.wcache.setImage(self.request, 'test', img, 2, 3, 'imagedata')
         self.assertEqual(self.wcache.getImage(self.request, 'test', img, 2, 3), 'imagedata')
         self.assertEqual(self.wcache.getImage(preq, 'test', img, 2, 3), None)
@@ -268,11 +271,11 @@ class WebGatewayCacheTest(unittest.TestCase):
         self.assertEqual(self.wcache.getSplitChannelImage(self.request, 'test', img, 2, 3), None)
         self.wcache.setSplitChannelImage(self.request, 'test', img, 2, 3, 'imagedata')
         self.assertEqual(self.wcache.getSplitChannelImage(self.request, 'test', img, 2, 3), 'imagedata')
-        self.wcache.invalidateObject('test', img)
+        self.wcache.invalidateObject('test', uid, img)
         self.assertEqual(self.wcache.getImage(self.request, 'test', img, 2, 3), None)
         self.assertEqual(self.wcache.getSplitChannelImage(self.request, 'test', img, 2, 3), None)
         self.assertEqual(self.wcache.getImage(preq, 'test', img, 2, 3), None)
-        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), None)
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, 1), None)
         # Make sure clear() nukes this
         self.assertEqual(self.wcache.getImage(self.request, 'test', img, 2, 3), None)
         self.wcache.setImage(self.request, 'test', img, 2, 3, 'imagedata')
@@ -292,6 +295,7 @@ class WebGatewayCacheTest(unittest.TestCase):
         self.assert_(self.wcache.tryLock())
 
     def testJsonCache (self):
+        uid = 123
         ds = omero.gateway.DatasetWrapper(None, omero.model.DatasetI(1,False))
         self.assertEqual(self.wcache.getDatasetContents(self.request, 'test', ds), None)
         self.wcache.setDatasetContents(self.request, 'test', ds, 'datasetdata')
@@ -302,7 +306,7 @@ class WebGatewayCacheTest(unittest.TestCase):
         self.assertEqual(self.wcache.getDatasetContents(self.request, 'test', ds), None)
         self.wcache.setDatasetContents(self.request, 'test', ds, 'datasetdata')
         self.assertEqual(self.wcache.getDatasetContents(self.request, 'test', ds), 'datasetdata')
-        self.wcache.invalidateObject('test', ds)
+        self.wcache.invalidateObject('test', uid, ds)
         self.assertEqual(self.wcache.getDatasetContents(self.request, 'test', ds), None)
         # Make sure clear() nukes this
         self.assertEqual(self.wcache.getDatasetContents(self.request, 'test', ds), None)
