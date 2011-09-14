@@ -28,6 +28,7 @@ or a redirect, or the 404 and 500 error, or an XML document, or an image...
 or anything.'''
 
 import sys
+import copy
 import re
 import os
 import calendar
@@ -44,6 +45,7 @@ from thread import start_new_thread
 
 from omero_version import omero_version
 import omero, omero.scripts 
+from omero.rtypes import *
 
 from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
@@ -58,6 +60,9 @@ from django.views import debug
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_str
+
+from webclient.webclient_gateway import OmeroWebGateway
+from omeroweb.webclient.webclient_utils import string_to_dict
 
 from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpLoginRedirect
 
@@ -86,8 +91,7 @@ from controller.share import BaseShare
 from omeroweb.webadmin.forms import MyAccountForm, UploadPhotoForm, LoginForm, ChangePassword
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
 from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
-from omeroweb.webadmin.views import _checkVersion, _isServerOn
-from omeroweb.webclient.webclient_utils import toBoolean, string_to_dict, upgradeCheck
+from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck
 
 from omeroweb.webgateway.views import getBlitzConnection
 from omeroweb.webgateway import views as webgateway_views
@@ -145,8 +149,8 @@ def isUserConnected (f):
             if server is not None:
                 return HttpLoginRedirect(reverse("weblogin")+(("?url=%s&server=%s") % (url,server)))
             return HttpLoginRedirect(reverse("weblogin")+(("?url=%s") % url))
-            
-        conn_share = None     
+        
+        conn_share = None
         share_id = kwargs.get('share_id', None)
         if share_id is not None:
             sh = conn.getShare(share_id)
@@ -169,9 +173,6 @@ def sessionHelper(request):
     changes = False
     if request.session.get('callback') is None:
         request.session['callback'] = dict()
-        changes = True
-    if request.session.get('clipboard') is None:
-        request.session['clipboard'] = list()
         changes = True
     if request.session.get('shares') is None:
         request.session['shares'] = dict()
@@ -197,7 +198,6 @@ def sessionHelper(request):
 
 def login(request):
     request.session.modified = True
-    
     if request.REQUEST.get('server'):
         blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server'))
         request.session['server'] = blitz.id
@@ -206,7 +206,6 @@ def login(request):
         request.session['username'] = smart_str(request.REQUEST.get('username',None))
         request.session['password'] = smart_str(request.REQUEST.get('password',None))
         request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
-        request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
         request.session['shares'] = dict()
         request.session['imageInBasket'] = set()
         blitz_host = "%s:%s" % (blitz.host, blitz.port)
@@ -404,7 +403,6 @@ def change_active_group(request, **kwargs):
     request.session['username'] = username
     request.session['password'] = password
     request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
-    request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
     request.session['shares'] = dict()
     request.session['imageInBasket'] = set()
     blitz_host = "%s:%s" % (blitz.host, blitz.port)
@@ -604,7 +602,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     # load data & template
     template = None
     if kw.has_key('orphaned'):
-        manager.listOrphanedImages(filter_user_id)
+        manager.listOrphanedImages(filter_user_id, page)
         if view =='icon':
             template = "webclient/data/containers_icon.html"
         elif view =='table':
@@ -621,12 +619,12 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             else:
                 template = "webclient/data/container_subtree.html"
         elif kw.has_key('plate'):
-            manager.listPlate(kw.get('plate'), index)
-            template = "webclient/data/plate_details.html"
-            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
-        elif kw.has_key('screen') and kw.has_key('plate'):
-            manager.listPlate(o2_id, index)
-            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
+            fields = manager.plate.getFields(kw.get('acquisition', None))
+            if fields is not None:
+                form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
+                if index == 0:
+                    index = fields[0]
+            template = "webclient/data/plate.html"
     else:
         manager.listContainerHierarchy(filter_user_id)
         if view =='tree':
@@ -713,7 +711,7 @@ def load_searching(request, form=None, **kwargs):
     batch_query = request.REQUEST.get('batch_query')
     if batch_query is not None:
         delimiter = request.REQUEST.get('delimiter')
-    	delimiter = delimiter.decode("string_escape")
+        delimiter = delimiter.decode("string_escape")
         batch_query = batch_query.split("\n")
         batch_query = [query.split(delimiter) for query in batch_query]
         template = "webclient/search/search_details.html"
@@ -836,7 +834,7 @@ def autocomplete_tags(request, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @isUserConnected
-def open_astex_viewer(request, fileAnnId, **kwargs):
+def open_astex_viewer(request, obj_type, obj_id, **kwargs):
     conn = None
     try:
         conn = kwargs["conn"]        
@@ -844,17 +842,86 @@ def open_astex_viewer(request, fileAnnId, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    ann = conn.getObject("Annotation", long(fileAnnId))
-    # determine mapType by name
-    mapType = "map"
-    if ann:
-        fileName = ann.getFileName()
-        if fileName.endswith(".bit"):
-            mapType = "bit"
-    
-    return render_to_response('webclient/annotations/open_astex_viewer.html', {'fileAnnId': fileAnnId, 'mapType': mapType})
-    
-    
+    # can only populate these for 'image'
+    image = None
+    data_storage_mode = None
+    pixelRange = None       # (min, max) values of the raw data
+    # If we convert to 8bit map, subtract dataOffset, multiply by mapPixelFactor add mapOffset. (used for js contour controls)
+    if obj_type == 'file':
+        ann = conn.getObject("Annotation", obj_id)
+        if ann is None:
+            return handlerInternalError("Can't find file Annotation ID %s as data source for Open Astex Viewer." % obj_id)
+        # determine mapType by name
+        imageName = ann.getFileName()
+        if imageName.endswith(".bit"):
+            data_url = reverse("open_astex_bit", args=[obj_id])
+        else:
+            data_url = reverse("open_astex_map", args=[obj_id])
+
+    elif obj_type in ('image', 'image_8bit'):
+        image = conn.getObject("Image", obj_id)     # just check the image exists
+        if image is None:
+            return handlerInternalError("Can't find image ID %s as data source for Open Astex Viewer." % obj_id)
+        imageName = image.getName()
+        c = image.getChannels()[0]
+        # By default, scale to 120 ^3. Also give option to load 'bigger' map or full sized
+        DEFAULTMAPSIZE = 120
+        BIGGERMAPSIZE = 160
+        targetSize = DEFAULTMAPSIZE * DEFAULTMAPSIZE * DEFAULTMAPSIZE
+        biggerSize = BIGGERMAPSIZE * BIGGERMAPSIZE * BIGGERMAPSIZE
+        imgSize = image.getSizeX() * image.getSizeY() * image.getSizeZ()
+        sizeOptions = None  # only give user choice if we need to scale down (and we CAN scale with scipy)
+        if imgSize > targetSize:
+            try:
+                import scipy.ndimage
+                sizeOptions = {}
+                factor = float(targetSize)/ imgSize
+                f = pow(factor,1.0/3)
+                sizeOptions["small"] = {'x':image.getSizeX() * f, 'y':image.getSizeY() * f, 'z':image.getSizeZ() * f, 'size':DEFAULTMAPSIZE}
+                if imgSize > biggerSize:
+                    factor2 = float(biggerSize)/ imgSize
+                    f2 = pow(factor2,1.0/3)
+                    sizeOptions["medium"] = {'x':image.getSizeX() * f2, 'y':image.getSizeY() * f2, 'z':image.getSizeZ() * f2, 'size':BIGGERMAPSIZE}
+                else:
+                    sizeOptions["full"] = {'x':image.getSizeX(), 'y':image.getSizeY(), 'z':image.getSizeZ()}
+            except ImportError:
+                DEFAULTMAPSIZE = 0  # don't try to resize the map (see image_as_map)
+                pass
+        pixelRange = (c.getWindowMin(), c.getWindowMax())
+        contourSliderInit = (pixelRange[0] + pixelRange[1])/2   # best guess as starting position for contour slider
+
+        def calcPrecision(range):
+            dec=0
+            if (range == 0):    dec = 0
+            elif (range < 0.0000001): dec = 10
+            elif (range < 0.000001): dec = 9
+            elif (range < 0.00001): dec = 8
+            elif (range < 0.0001): dec = 7
+            elif (range < 0.001): dec = 6
+            elif (range < 0.01): dec = 5
+            elif (range < 0.1): dec = 4
+            elif (range < 1.0): dec = 3
+            elif (range < 10.0): dec = 2
+            elif (range < 100.0): dec = 1
+            return dec
+        dec = calcPrecision(pixelRange[1]-pixelRange[0])
+        contourSliderIncr = "%.*f" % (dec,abs((pixelRange[1]-pixelRange[0])/128.0))
+
+        if obj_type == 'image_8bit':
+            data_storage_mode = 1
+            data_url = reverse("webclient_image_as_map_8bit", args=[obj_id, DEFAULTMAPSIZE])
+        else:
+            if image.getPrimaryPixels().getPixelsType.value == 'float':
+                data_storage_mode = 2
+            else:
+                data_storage_mode = 1   # E.g. uint16 image will get served as 8bit map
+            data_url = reverse("webclient_image_as_map", args=[obj_id, DEFAULTMAPSIZE])
+
+    return render_to_response('webclient/annotations/open_astex_viewer.html', {'data_url': data_url, "image": image,
+        "sizeOptions":sizeOptions, "contourSliderInit":contourSliderInit, "contourSliderIncr":contourSliderIncr,
+        "data_storage_mode": data_storage_mode,'pixelRange':pixelRange})
+
+
 @isUserConnected
 def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
     conn = None
@@ -907,7 +974,7 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
     if c_type in ("tag"):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'index':index}
 
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1105,7 +1172,7 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
                 form_channels.append(channel)
 
         try:
-            image = manager.well.selectedWellSample().image()
+            image = manager.well.getWellSample().image()
         except:
             image = manager.image
 
@@ -1205,7 +1272,12 @@ def manage_annotation_multi(request, action=None, **kwargs):
         logger.error(traceback.format_exc())
     
     try:
-        manager = BaseContainer(conn)
+        index = int(request.REQUEST['index'])
+    except:
+        index = None
+    
+    try:
+        manager = BaseContainer(conn, index=index)
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(x)
@@ -1216,18 +1288,25 @@ def manage_annotation_multi(request, action=None, **kwargs):
     datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
     projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
     screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
-    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plates", request.REQUEST.getlist('plate'))) or list()
-    wells = len(request.REQUEST.getlist('well')) > 0 and list(conn.getObjects("Well", request.REQUEST.getlist('well'))) or list()
-
+    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
+    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
+    wells = list()
+    if len(request.REQUEST.getlist('well')) > 0:
+        for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
+            w.index=index
+            wells.append(w)
+    
+    oids = {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
+    
     count = {'images':len(images), 'datasets':len(datasets), 'projects':len(projects), 'screens':len(screens), 'plates':len(plates), 'wells':len(wells)}
     
     form_multi = None
     if action == "annotatemany":
-        selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 'plates':request.REQUEST.getlist('plate'), 'wells':request.REQUEST.getlist('well')}
-        form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'wells':wells})
+        selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), 'wells':request.REQUEST.getlist('well')}
+        form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells})
     else:
         if request.method == 'POST':
-            form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'wells':wells}, data=request.REQUEST.copy(), files=request.FILES)
+            form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}, data=request.REQUEST.copy(), files=request.FILES)
             if form_multi.is_valid():
                 
                 content = form_multi.cleaned_data['content']
@@ -1253,7 +1332,7 @@ def manage_annotation_multi(request, action=None, **kwargs):
                 
                 return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu]))
             
-    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi, 'count':count, 'oids':oids}
+    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi, 'count':count, 'oids':oids, 'index':index}
             
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1284,10 +1363,15 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    #manager = None        
-    if o_type in ("dataset", "project", "image", "screen", "plate", "well","comment", "file", "tag", "tagset"):
+    try:
+        index = int(request.REQUEST['index'])
+    except:
+        index = None
+    
+    manager = None
+    if o_type in ("dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset"):
         if o_type == 'tagset': o_type = 'tag' # TODO: this should be handled by the BaseContainer
-        kw = dict()
+        kw = {'index':index}
         if o_type is not None and o_id > 0:
             kw[str(o_type)] = long(o_id)
         try:
@@ -1308,7 +1392,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     elif action == 'newcomment':
         template = "webclient/annotations/annotation_new_form.html"
         form_comment = CommentAnnotationForm()
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment}     
+        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'index':index}
     elif action == 'newtagonly':
         template = "webclient/annotations/annotation_new_form.html"
         form_tag = TagAnnotationForm()
@@ -1317,12 +1401,12 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         template = "webclient/annotations/annotation_new_form.html"
         form_tag = TagAnnotationForm()
         form_tags = TagListForm(initial={'tags':manager.getTagsByObject()})
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'form_tags':form_tags}
+        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'form_tags':form_tags, 'index':index}
     elif action == 'newfile':
         template = "webclient/annotations/annotation_new_form.html"
         form_file = UploadFileForm()
         form_files = FileListForm(initial={'files':manager.getFilesByObject()})
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'form_files':form_files}
+        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'form_files':form_files, 'index':index}
     elif action == 'newsharecomment':
         template = "webclient/annotations/annotation_new_form.html"
         if manager.share.isExpired():
@@ -1332,7 +1416,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}  
     elif action == 'addnewcontainer':
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))        
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
         if o_type is not None and hasattr(manager, o_type) and o_id > 0:        
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
@@ -1440,7 +1524,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'index':index}
         elif o_type == 'tag':
             form = TagAnnotationForm(data=request.REQUEST.copy())
             if form.is_valid():
@@ -1451,7 +1535,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'index':index}
         elif o_type == "share":
             experimenters = list(conn.getExperimenters())
             experimenters.sort(key=lambda x: x.getOmeName().lower())
@@ -1490,7 +1574,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         if hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
             template = "webclient/ajax_form/container_form_ajax.html"
-            form = ContainerNameForm(initial={'name': (o_type != "tag" and obj.name or obj.textValue)})
+            form = ContainerNameForm(initial={'name': ((o_type != ("tag")) and obj.getName() or obj.textValue)})
             context = {'nav':request.session['nav'], 'manager':manager, 'eContext':manager.eContext, 'form':form}
         else:
             return HttpResponseServerError("Object does not exist")
@@ -1585,11 +1669,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             json = simplejson.dumps(rdict, ensure_ascii=False)
             return HttpResponse( json, mimetype='application/javascript')
         
-        if o_type == "dataset" or o_type == "image" or o_type == "plate":
-            images = o_type=='image' and [o_id] or None
-            datasets = o_type == 'dataset' and [o_id] or None
-            plates = o_type == 'plate' and [o_id] or None        
-            request.session['clipboard'] = {'images': images, 'datasets': datasets, 'plates': plates}
         rdict = {'bad':'false' }
         json = simplejson.dumps(rdict, ensure_ascii=False)
         return HttpResponse( json, mimetype='application/javascript')
@@ -1607,7 +1686,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         return HttpResponse( json, mimetype='application/javascript')
     elif action == 'addcomment':
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["newcomment", o_type, oid]))
+            return HttpResponseRedirect(reverse("load_metadata_details", args=[o_type, o_id]))
         form_comment = CommentAnnotationForm(data=request.REQUEST.copy())
         if form_comment.is_valid() and o_type is not None and o_id > 0:
             content = form_comment.cleaned_data['content']
@@ -1615,10 +1694,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             return HttpResponseRedirect(url)
         else:
             template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment}
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'index':index}
     elif action == 'addtag':
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["newtag", o_type, oid]))
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["newtag", o_type, o_id]))
         form_tag = TagAnnotationForm(data=request.REQUEST.copy())
         if form_tag.is_valid() and o_type is not None and o_id > 0:
             tag = form_tag.cleaned_data['tag']
@@ -1627,7 +1706,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             return HttpResponseRedirect(url)
         else:
             template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag}
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'index':index}
     elif action == 'addtagonly':
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newtagonly"]))
@@ -1642,7 +1721,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag}
     elif action == 'usetag':
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["usetag", o_type, oid]))
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["usetag", o_type, o_id]))
         tag_list = manager.getTagsByObject()
         form_tags = TagListForm(data=request.REQUEST.copy(), initial={'tags':tag_list})
         if form_tags.is_valid() and o_type is not None and o_id > 0:
@@ -1651,10 +1730,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             return HttpResponseRedirect(url)
         else:
             template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tags':form_tags}
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tags':form_tags, 'index':index}
     elif action == 'addfile':
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["newfile", o_type, oid]))
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["newfile", o_type, o_id]))
         form_file = UploadFileForm(request.REQUEST.copy(), request.FILES)
         if form_file.is_valid() and o_type is not None and o_id > 0:
             f = request.FILES['annotation_file']
@@ -1662,10 +1741,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             return HttpResponseRedirect(url)
         else:
             template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file}
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'index':index}
     elif action == 'usefile':
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["usefile", o_type, oid]))
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["usefile", o_type, o_id]))
         file_list = manager.getFilesByObject()
         form_files = FileListForm(data=request.REQUEST.copy(), initial={'files':file_list})
         if form_files.is_valid() and o_type is not None and o_id > 0:
@@ -1674,14 +1753,15 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             return HttpResponseRedirect(url)
         else:
             template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files}
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files, 'index':index}
     elif action == 'delete':
         child = toBoolean(request.REQUEST.get('child'))
         anns = toBoolean(request.REQUEST.get('anns'))
         try:
             handle = manager.deleteItem(child, anns)
-            request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
-            request.session.modified = True            
+            request.session['callback'][str(handle)] = {'job_type': 'delete', 'delmany':False,'did':o_id, 'dtype':o_type, 'status':'in progress',
+                'derror':handle.errors(), 'dreport':_formatReport(handle), 'start_time': datetime.datetime.now()}
+            request.session.modified = True
         except Exception, x:
             logger.error('Failed to delete: %r' % {'did':o_id, 'dtype':o_type}, exc_info=True)
             rdict = {'bad':'true','errs': str(x) }
@@ -1693,14 +1773,20 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         object_ids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate'), 'well':request.REQUEST.getlist('well')}
         child = toBoolean(request.REQUEST.get('child'))
         anns = toBoolean(request.REQUEST.get('anns'))
+        logger.debug("Delete many: child? %s anns? %s object_ids %s" % (child, anns, object_ids))
         try:
             for key,ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
                     handle = manager.deleteObjects(key, ids, child, anns)
+                    dMap = {'job_type': 'delete', 'start_time': datetime.datetime.now(),'status':'in progress', 'derrors':handle.errors(),
+                        'dreport':_formatReport(handle), 'dtype':key}
                     if len(ids) > 1:
-                        request.session['callback'][str(handle)] = {'delmany':len(ids), 'did':ids, 'dtype':key, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
+                        dMap['delmany'] = len(ids)
+                        dMap['did'] = ids
                     else:
-                        request.session['callback'][str(handle)] = {'delmany':False, 'did':ids[0], 'dtype':key, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
+                        dMap['delmany'] = False
+                        dMap['did'] = ids[0]
+                    request.session['callback'][str(handle)] = dMap
             request.session.modified = True
         except Exception, x:
             logger.error('Failed to delete: %r' % {'did':ids, 'dtype':key}, exc_info=True)
@@ -1714,6 +1800,192 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
+
+@isUserConnected
+def get_original_file(request, fileId, **kwargs):
+
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    orig_file = conn.getObject("OriginalFile", fileId)
+
+    try:
+        from django.conf import settings
+        tempdir = settings.FILE_UPLOAD_TEMP_DIR
+        temp = os.path.join(tempdir, ('%i-%s.download' % (orig_file.id, conn._sessionUuid))).replace('\\','/')
+        logger.info("temp path: %s" % str(temp))
+        f = open(str(temp),"wb")
+        for piece in orig_file.getFileInChunks():
+            f.write(piece)
+        f.seek(0)
+
+        from django.core.servers.basehttp import FileWrapper
+        originalFile_data = FileWrapper(file(temp))
+    except Exception, x:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Cannot download original file (id:%s)." % (fileId))
+    rsp = HttpResponse(originalFile_data)
+
+    mimetype = orig_file.mimetype
+    if mimetype == "text/x-python": mimetype = "text/plain" # allows display in browser
+    rsp['Content-Type'] =  mimetype
+    rsp['Content-Length'] = orig_file.size
+    #rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.name.replace(" ","_"))
+
+    return rsp
+
+
+@isUserConnected
+def image_as_map(request, imageId, **kwargs):
+    """ Converts OMERO image into mrc.map file (using tiltpicker utils) and returns the file """
+
+    from omero_ext.tiltpicker.pyami import mrc
+    from numpy import dstack, zeros, int8
+
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    image = conn.getObject("Image", imageId)
+    if image is None:
+        message = "Image ID %s not found in image_as_map" % imageId
+        logger.error(message)
+        return handlerInternalError(message)
+
+    imageName = image.getName()
+    downloadName = imageName.endswith(".map") and imageName or "%s.map" % imageName
+    pixels = image.getPrimaryPixels()
+
+    # get a list of numpy planes and make stack
+    zctList = [(z,0,0) for z in range(image.getSizeZ())]
+    npList = list(pixels.getPlanes(zctList))
+    npStack = dstack(npList)
+    logger.info("Numpy stack for image_as_map: dtype: %s, range %s-%s" % (npStack.dtype.name, npStack.min(), npStack.max()) )
+
+    # OAV only supports 'float' and 'int8'. Convert anything else to int8
+    if pixels.getPixelsType().value != 'float' or ('8bit' in kwargs and kwargs['8bit']):
+        #scale from -127 -> 128 and conver to 8 bit integer
+        npStack = npStack - npStack.min()  # start at 0
+        npStack = (npStack * 255.0 / npStack.max()) - 127 # range - 127 -> 128
+        a = zeros(npStack.shape, dtype=int8)
+        npStack = npStack.round(out=a)
+
+    if "maxSize" in kwargs and int(kwargs["maxSize"]) > 0:
+        sz = int(kwargs["maxSize"])
+        targetSize = sz * sz * sz
+        # if available, use scipy.ndimage to resize
+        if npStack.size > targetSize:
+            try:
+                import scipy.ndimage
+                from numpy import round
+                factor = float(targetSize)/ npStack.size
+                factor = pow(factor,1.0/3)
+                logger.info("Resizing numpy stack %s by factor of %s" % (npStack.shape, factor))
+                npStack = round(scipy.ndimage.interpolation.zoom(npStack, factor), 1)
+            except ImportError:
+                logger.info("Failed to import scipy.ndimage for interpolation of 'image_as_map'. Full size: %s" % str(npStack.shape))
+                pass
+
+    header = {}
+    header["xlen"] = pixels.physicalSizeX * image.getSizeX()
+    header["ylen"] = pixels.physicalSizeY * image.getSizeY()
+    header["zlen"] = pixels.physicalSizeZ * image.getSizeZ()
+    if header["xlen"] == 0 or header["ylen"] == 0 or header["zlen"] == 0:
+        header = {}
+
+    # write mrc.map to temp file
+    from django.conf import settings 
+    tempdir = settings.FILE_UPLOAD_TEMP_DIR
+    temp = os.path.join(tempdir, ('%d-%s.map' % (image.getId(), conn._sessionUuid))).replace('\\','/')
+    mrc.write(npStack, temp, header)
+    logger.info("image_as_map temp path: %s with size: %s kb" % (str(temp), os.path.getsize(temp) / 1000) )
+            
+    from django.core.servers.basehttp import FileWrapper
+    originalFile_data = FileWrapper(file(temp))
+
+    rsp = HttpResponse(originalFile_data)
+    rsp['Content-Type'] = 'application/force-download'
+    rsp['Content-Length'] = os.path.getsize(temp)
+    rsp['Content-Disposition'] = 'attachment; filename=%s' % downloadName
+    return rsp
+
+
+@isUserConnected
+def archived_files(request, iid, **kwargs):
+    """
+    Downloads the archived file(s) as a single file or as a zip (if more than one file)
+    """
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    image = conn.getObject("Image", iid)
+    files = list(image.getArchivedFiles())
+
+    if len(files) == 0:
+        logger.info("Tried downloading archived files from image with no files archived")
+        return handlerInternalError("This image has no Archived Files")
+
+    from django.conf import settings
+    tempdir = settings.FILE_UPLOAD_TEMP_DIR
+    # just download the file itself
+    if len(files) == 1:
+        orig_file = files[0]
+        temp = os.path.join(tempdir, ('%i-%s.archived' % (image.id, conn._sessionUuid))).replace('\\','/')
+        logger.info("temp path: %s" % str(temp))
+        f = open(str(temp),"wb")
+        for piece in orig_file.getFileInChunks():
+            f.write(piece)
+        f.seek(0)
+        f.close()
+        file_name = orig_file.name.replace(" ","_")
+
+    else:
+        # download each file into a zip file
+        temp_zip_dir = os.path.join(tempdir, ('%i-%s.archived2' % (image.id, conn._sessionUuid))).replace('\\','/')
+        logger.info("temp archived zip dir: %s" % str(temp_zip_dir))
+        os.mkdir(temp_zip_dir)
+
+        for a in files:
+            temp_f = os.path.join(temp_zip_dir, a.name)
+            f = open(str(temp_f),"wb")
+            for piece in a.getFileInChunks():
+                f.write(piece)
+            f.seek(0)
+            f.close()
+        # create zip
+        import zipfile
+        import glob
+        temp = "%s.zip" % temp_zip_dir
+        zip_file = zipfile.ZipFile(temp, 'w')
+        try:
+            a_files = os.path.join(temp_zip_dir, "*")
+            for name in glob.glob(a_files):
+                zip_file.write(name, os.path.basename(name), zipfile.ZIP_DEFLATED)
+        finally:
+            zip_file.close()
+        file_name = "%s.zip" % image.getName().replace(" ","_")
+
+    # return the zip or single file
+    from django.core.servers.basehttp import FileWrapper
+    archivedFile_data = FileWrapper(file(temp))
+    rsp = HttpResponse(archivedFile_data)
+    if archivedFile_data is None:
+        return handlerInternalError("Cannot download archived files for image (id:%s)." % (iid))
+    rsp['Content-Type'] = 'application/force-download'
+    rsp['Content-Length'] = os.path.getsize(temp)
+    rsp['Content-Disposition'] = 'attachment; filename=%s' % file_name
+    return rsp
 
 @isUserConnected
 def download_annotation(request, action, iid, **kwargs):
@@ -2244,95 +2516,255 @@ def load_history(request, year, month, day, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-########################################
-# Progressbar
 
+def getObjectUrl(conn, obj):
+    """
+    This provides a url to browse to the specified omero.model.ObjectI P/D/I, S/P, FileAnnotation etc.
+    used to display results from the scripting service
+    E.g webclient/userdata/?path=project=1|dataset=5|image=12601:selected
+    If the object is a file annotation, try to browse to the parent P/D/I
+    """
+    base_url = reverse(viewname="load_template", args=['userdata'])
+
+    if isinstance(obj, omero.model.FileAnnotationI):
+        fa = conn.getObject("Annotation", obj.id.val)
+        for ptype in ['project', 'dataset', 'image']:
+            links = fa.getParentLinks(ptype)
+            for l in links:
+                obj = l.parent
+
+    if isinstance(obj, omero.model.ImageI):
+        # return path from first Project we find, or None if no Projects
+        image = conn.getObject("Image", obj.id.val)
+        for d in image.listParents():
+            for p in d.listParents():
+                return "%s?path=project=%d|dataset=%d|image=%d:selected" % (base_url, p.id, d.id, image.id)
+        return None
+
+    if isinstance(obj, omero.model.DatasetI):
+        dataset = conn.getObject("Dataset", obj.id.val)
+        for p in dataset.listParents():
+            return "%s?path=project=%d|dataset=%d:selected" % (base_url, p.id, dataset.id)
+        return None
+
+    if isinstance(obj, omero.model.ProjectI):
+        return "%s?path=project=%d:selected" % (base_url, obj.id.val)
+
+    if isinstance(obj, omero.model.PlateI):
+        plate = conn.getObject("Plate", obj.id.val)
+        screen = plate.getParent()
+        if screen is not None:
+            return "%s?path=screen=%d|plate=%d:selected" % (base_url, screen.id, plate.id)
+        return "%s?path=plate=%d:selected" % (base_url, obj.id.val)
+
+    if isinstance(obj, omero.model.ScreenI):
+        return "%s?path=screen=%d:selected" % (base_url, obj.id.val)
+
+
+######################
+# Activities window & Progressbar
 @isUserConnected
 def progress(request, **kwargs):
+    """
+    Refresh callbacks (delete, scripts etc) and provide json to update Activities window & Progressbar.
+    The returned json contains details for ALL callbacks in web session, regardless of their status.
+    We also add counts of jobs, failures and 'in progress' to update status bar.
+    """
     conn = None
     try:
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
+
     in_progress = 0
     failure = 0
     _purgeCallback(request)
-    
+
+    rv = {}
+    # test each callback for failure, errors, completion, results etc
     for cbString in request.session.get('callback').keys():
-        dstatus = request.session['callback'][cbString]['dstatus']
-        if dstatus == "failed":
+        job_type = request.session['callback'][cbString]['job_type']
+
+        status = request.session['callback'][cbString]['status']
+        if status == "failed":
             failure+=1
-        elif dstatus != "failed" or dstatus != "finished":
-            try:
-                handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
-                cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
-                if cb.block(500) is None: # ms.
-                    err = handle.errors()
-                    request.session['callback'][cbString]['derror'] = err
-                    if err > 0:
-                        logger.error("Status job '%s'error:" % cbString)
-                        logger.error(err)
-                        request.session['callback'][cbString]['dstatus'] = "failed"
-                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                        failure+=1
+
+        # update delete
+        if job_type == 'delete':
+            if status not in ("failed", "finished"):
+                try:
+                    handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                    cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
+                    if cb.block(0) is None: # ms #500
+                        err = handle.errors()
+                        request.session['callback'][cbString]['derror'] = err
+                        if err > 0:
+                            logger.error("Status job '%s'error:" % cbString)
+                            logger.error(err)
+                            request.session['callback'][cbString]['status'] = "failed"
+                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                            failure+=1
+                        else:
+                            request.session['callback'][cbString]['status'] = "in progress"
+                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                            in_progress+=1
                     else:
-                        request.session['callback'][cbString]['dstatus'] = "in progress"
-                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                        in_progress+=1
+                        err = handle.errors()
+                        request.session['callback'][cbString]['derror'] = err
+                        if err > 0:
+                            request.session['callback'][cbString]['status'] = "failed"
+                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                            failure+=1
+                        else:
+                            request.session['callback'][cbString]['status'] = "finished"
+                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                            cb.close()
+                except Ice.ObjectNotExistException:
+                    request.session['callback'][cbString]['derror'] = 0
+                    request.session['callback'][cbString]['status'] = "finished"
+                    request.session['callback'][cbString]['dreport'] = None
+                except Exception, x:
+                    logger.error(traceback.format_exc())
+                    logger.error("Status job '%s'error:" % cbString)
+                    request.session['callback'][cbString]['derror'] = 1
+                    request.session['callback'][cbString]['status'] = "failed"
+                    request.session['callback'][cbString]['dreport'] = str(x)
+                    failure+=1
+                request.session.modified = True
+            # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
+            rv[cbString] = copy.copy(request.session['callback'][cbString])
+            rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
+
+        # update scripts
+        elif job_type == 'script':
+            # if error on runScript, the cbString is not a ProcessCallback...
+            if not cbString.startswith('ProcessCallback'): continue  # ignore
+            if status not in ("failed", "finished"):
+                logger.info("Check callback on script: %s" % cbString)
+                proc = omero.grid.ScriptProcessPrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                cb = omero.scripts.ProcessCallbackI(conn.c, proc)
+                # check if we get something back from the handle...
+                if cb.block(0): # ms.
+                    cb.close()
+                    try:
+                        results = proc.getResults(0)        # we can only retrieve this ONCE - must save results
+                        request.session['callback'][cbString]['status'] = "finished"
+                    except Exception, x:
+                        logger.error(traceback.format_exc())
+                        continue
+                    # value could be rstring, rlong, robject
+                    rMap = {}
+                    for key, value in results.items():
+                        v = value.getValue()
+                        if key in ("stdout", "stderr", "Message"):
+                            if key in ('stderr', 'stdout'):
+                                v = v.id.val    # just save the id of original file
+                            request.session['callback'][cbString][key] = v
+                        else:
+                            if hasattr(v, "id"):    # do we have an object (ImageI, FileAnnotationI etc)
+                                obj_data = {'id': v.id.val, 'type': v.__class__.__name__[:-1]}
+                                obj_data['browse_url'] = getObjectUrl(conn, v)
+                                if v.isLoaded() and hasattr(v, "file"):
+                                    #try:
+                                    mimetypes = {'image/png':'png', 'image/jpeg':'jpeg', 'image/tiff': 'tiff'}
+                                    if v.file.mimetype.val in mimetypes:
+                                        obj_data['fileType'] = mimetypes[v.file.mimetype.val]
+                                        obj_data['fileId'] = v.file.id.val
+                                    obj_data['name'] = v.file.name.val
+                                    #except:
+                                    #    pass
+                                if v.isLoaded() and hasattr(v, "name"):  # E.g Image, OriginalFile etc
+                                    obj_data['name'] = v.name.val
+                                rMap[key] = obj_data
+                            else:
+                                rMap[key] = v
+                    request.session['callback'][cbString]['results'] = rMap
+                    request.session.modified = True
                 else:
-                    err = handle.errors()
-                    request.session['callback'][cbString]['derror'] = err
-                    if err > 0:
-                        request.session['callback'][cbString]['dstatus'] = "failed"
-                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                        failure+=1
-                    else:
-                        request.session['callback'][cbString]['dstatus'] = "finished"
-                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                        cb.close()
-            except Ice.ObjectNotExistException:
-                request.session['callback'][cbString]['derror'] = 0
-                request.session['callback'][cbString]['dstatus'] = "finished"
-                request.session['callback'][cbString]['dreport'] = None
-            except Exception, x:
-                logger.error(traceback.format_exc())
-                logger.error("Status job '%s'error:" % cbString)
-                request.session['callback'][cbString]['derror'] = 1
-                request.session['callback'][cbString]['dstatus'] = "failed"
-                request.session['callback'][cbString]['dreport'] = str(x)
-                failure+=1
-            request.session.modified = True        
-        
-    rv = {'inprogress':in_progress, 'failure':failure, 'jobs':len(request.session['callback'])}
-    return HttpResponse(simplejson.dumps(rv),mimetype='application/json')
+                    in_progress+=1
+
+            # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
+            rv[cbString] = copy.copy(request.session['callback'][cbString])
+            rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
+
+    rv['inprogress'] = in_progress
+    rv['failure'] = failure
+    rv['jobs'] = len(request.session['callback'])
+
+    return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript') # json
+
 
 @isUserConnected
 def status_action (request, action=None, **kwargs):
+    """
+    Opens the Activites window, using data from jobs in the request.session['callback'].
+    Once this window is open, AJAX calls are used to poll the request.session['callback'] and update the page
+
+    If the above 'action' == 'clean' then we clear jobs from request.session['callback']
+    either a single job (if 'jobKey' is specified in POST) or all jobs (apart from those in progress)
+    """
+
     request.session.modified = True
-    
+
     request.session['nav']['menu'] = 'status'
-    
+
     if action == "clean":
-        request.session['callback'] = dict()
+        if 'jobKey' in request.POST:
+            jobId = request.POST.get('jobKey')
+            rv = {}
+            if jobId in request.session['callback']:
+                del request.session['callback'][jobId]
+                request.session.modified = True
+                rv['removed'] = True
+            else:
+                rv['removed'] = False
+            return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript')
+        else:
+            for key, data in request.session['callback'].items():
+                if data['status'] != "in progress":
+                    del request.session['callback'][key]
         return HttpResponseRedirect(reverse("status"))
-        
+
+    elif action == "update":
+        # try to update the 'attribute' of the job with 'new_value' (or None)
+        if 'jobKey' in request.POST:
+            jobId = request.POST.get('jobKey')
+            rv = {'updated':False}
+            if jobId in request.session['callback']:
+                if 'attribute' in request.POST:
+                    attribute = request.POST.get('attribute')
+                    new_value = request.POST.get('new_value', None)
+                    request.session['callback'][jobId][attribute] = new_value
+                    request.session.modified = True
+                    rv['updated'] = True
+            return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript')
+
     conn = None
     try:
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    template = "webclient/status/status.html"
+
+    template = "webclient/status/statusWindow.html"
 
     _purgeCallback(request)
-            
-    controller = BaseController(conn)    
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
-        
-    context = {'nav':request.session['nav'], 'eContext':controller.eContext, 'sizeOfJobs':len(request.session['callback']), 'jobs':request.session['callback'], 'form_active_group':form_active_group }
+
+    jobs = []
+    for key, data in request.session['callback'].items():
+        # E.g. key: ProcessCallback/39f77932-c447-40d8-8f99-910b5a531a25 -t:tcp -h 10.211.55.2 -p 54727:tcp -h 10.37.129.2 -p 54727:tcp -h 10.12.2.21 -p 54727
+        # create id we can use as html id, E.g. 39f77932-c447-40d8-8f99-910b5a531a25
+        data['id'] = key
+        if len(key.split(" ")) > 0:
+            data['id'] = key.split(" ")[0]
+            if len(data['id'].split("/")) > 1:
+                data['id'] = data['id'].split("/")[1]
+        data['key'] = key
+        jobs.append(data)
+
+    jobs.sort(key=lambda x:x['start_time'], reverse=True)
+    context = {'sizeOfJobs':len(request.session['callback']), 'jobs':jobs }
 
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -2367,6 +2799,30 @@ def myphoto(request, **kwargs):
     return HttpResponse(photo, mimetype='image/jpeg')
 
 ####################################################################################
+# Bird's eye view
+
+@isUserConnected
+def render_birds_eye_view (request, iid, size=200, share_id=None, **kwargs):
+    conn = None
+    if share_id is not None:
+        try:
+            conn = kwargs["conn_share"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+    else:
+        try:
+            conn = kwargs["conn"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    if conn is None:
+        raise Exception("Connection not available")
+
+    return webgateway_views.render_birds_eye_view(request, iid, size=size, _conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
+
+####################################################################################
 # Rendering
 
 @isUserConnected
@@ -2389,15 +2845,6 @@ def render_thumbnail (request, iid, share_id=None, **kwargs):
         raise Exception("Connection not available")
 
     return webgateway_views.render_thumbnail(request, iid, w=80, _conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
-#    img = conn.getObject("Image", iid)
-#    
-#    if img is None:
-#        jpeg_data = conn.defaultThumbnail(80)
-#        logger.error("Image %s not found..." % (str(iid)))
-#        #return handlerInternalError("Image %s not found..." % (str(iid)))
-#    else:
-#        jpeg_data = img.getThumbnailOrDefault(size=80)
-#    return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 @isUserConnected
 def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
@@ -2417,15 +2864,8 @@ def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
          
     if conn is None:
         raise Exception("Connection not available")
-    img = conn.getObject("Image", iid)
     
-    if img is None:
-        jpeg_data = conn.defaultThumbnail(size=int(size))
-        logger.error("Image %s not found..." % (str(iid)))
-        #return handlerInternalError("Image %s not found..." % (str(iid)))
-    else:
-        jpeg_data = img.getThumbnailOrDefault(size=int(size))
-    return HttpResponse(jpeg_data, mimetype='image/jpeg')
+    return webgateway_views.render_thumbnail(request, iid, w=size, _conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
 
 @isUserConnected
 def render_image (request, iid, z, t, share_id=None, **kwargs):
@@ -2476,6 +2916,23 @@ def render_image_region (request, iid, z, t, server_id=None, share_id=None, _con
         raise Exception("Connection not available")
 
     return webgateway_views.render_image_region(request, iid, z, t, server_id=None, _conn=conn, **kwargs)
+
+@isUserConnected
+def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs):
+    """ This view is responsible for showing well data within plate """
+    
+    conn = None
+    kwargs['viewport_server'] = '/webclient'
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+     
+    if conn is None:
+        raise Exception("Connection not available")
+
+    return webgateway_views.plateGrid_json(request, pid, field=field, server_id=None, _conn=None, **kwargs)
 
 @isUserConnected
 def image_viewer (request, iid, share_id=None, **kwargs):
@@ -2593,6 +3050,266 @@ def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
     img = conn.getObject("Image", iid)
 
     return webgateway_views.render_split_channel(request, iid, z, t, _conn=conn, **kwargs)
+
+
+# scripting service....
+@isUserConnected
+def list_scripts (request, **kwargs):
+    """ List the available scripts - Just officical scripts for now """
+
+    conn = kwargs['conn']
+
+    scriptService = conn.getScriptService()
+    scripts = scriptService.getScripts()
+
+    # group scripts into 'folders' (path), named by parent folder name
+    scriptMenu = {}
+    for s in scripts:
+        scriptId = s.id.val
+        path = s.path.val
+        name = s.name.val
+        fullpath = os.path.join(path, name)
+        if fullpath in settings.SCRIPTS_TO_IGNORE:
+            logger.info('Ignoring script %r' % fullpath)
+            continue
+        displayName = name.replace("_", " ")
+
+        if path not in scriptMenu:
+            folder, name = os.path.split(path)
+            if len(name) == 0:      # path was /path/to/folderName/  - we want 'folderName'
+                folderName = os.path.basename(folder)
+            else:                   # path was /path/to/folderName  - we want 'folderName'
+                folderName = name
+            folderName = folderName.title().replace("_", " ")
+            scriptMenu[path] = {'name': folderName, 'scripts': []}
+
+        scriptMenu[path]['scripts'].append((scriptId, displayName))
+
+    # convert map into list
+    scriptList = []
+    for path, sData in scriptMenu.items():
+        sData['path'] = path    # sData map has 'name', 'path', 'scripts'
+        scriptList.append(sData)
+    scriptList.sort(key=lambda x:x['name'])
+
+    return render_to_response("webclient/scripts/list_scripts.html", {'scriptMenu': scriptList})
+
+@isUserConnected
+def script_ui(request, scriptId, **kwargs):
+    """
+    Generates an html form for the parameters of a defined script.
+    """
+
+    conn = kwargs['conn']
+    scriptService = conn.getScriptService()
+
+    params = scriptService.getParams(long(scriptId))
+    if params == None:
+        return HttpResponse()
+
+    paramData = {}
+
+    paramData["id"] = long(scriptId)
+    paramData["name"] = params.name.replace("_", " ")
+    paramData["description"] = params.description
+    paramData["authors"] = ", ".join([a for a in params.authors])
+    paramData["contact"] = params.contact
+    paramData["version"] = params.version
+    paramData["institutions"] = ", ".join([i for i in params.institutions])
+
+    inputs = []     # use a list so we can sort by 'grouping'
+    Data_TypeParam = None
+    IDsParam = None
+    for key, param in params.inputs.items():
+        i = {}
+        i["name"] = key.replace("_", " ")
+        i["key"] = key
+        if not param.optional:
+            i["required"] = True
+        i["description"] = param.description
+        if param.min:
+            i["min"] = str(param.min.getValue())
+        if param.max:
+            i["max"] = str(param.max.getValue())
+        if param.values:
+            i["options"] = [v.getValue() for v in param.values.getValue()]
+        if param.useDefault:
+            i["default"] = unwrap(param.prototype)
+        pt = unwrap(param.prototype)
+        if pt.__class__.__name__ == 'dict':
+            i["map"] = True
+        elif pt.__class__.__name__ == 'list':
+            i["list"] = True
+            if "default" in i: i["default"] = i["default"][0]
+        elif pt.__class__ == type(True):
+            i["boolean"] = True
+        elif pt.__class__ == type(0) or pt.__class__ == type(long(0)):
+            i["number"] = "number"  # will stop the user entering anything other than numbers.
+        elif pt.__class__ == type(float(0.0)):
+            i["number"] = "float"
+
+        # if we got a value for this key in the page request, use this as default
+        if request.REQUEST.get(key, None) is not None:
+            i["default"] = request.REQUEST.get(key, None)
+
+        i["prototype"] = unwrap(param.prototype)    # E.g  ""  (string) or [0] (int list) or 0.0 (float)
+        i["grouping"] = param.grouping
+        inputs.append(i)
+
+        if key == "IDs": IDsParam = i           # remember these...
+        if key == "Data_Type": Data_TypeParam = i
+    inputs.sort(key=lambda i: i["grouping"])
+
+    # if we have Data_Type param that has a "default" and "options" - check they match...
+    if Data_TypeParam is not None and "default" in Data_TypeParam and "options" in Data_TypeParam:
+        if Data_TypeParam["default"] not in Data_TypeParam["options"]:
+            IDsParam["default"] = ""        # ... if not, don't set IDs
+
+    # try to determine hierarchies in the groupings - ONLY handle 1 hierarchy level now (not recursive!)
+    for i in range(len(inputs)):
+        if len(inputs) <= i:    # we may remove items from inputs as we go - need to check
+            break
+        param = inputs[i]
+        grouping = param["grouping"]    # E.g  03
+        param['children'] = list()
+        c = 1
+        while len(inputs) > i+1:
+            nextParam = inputs[i+1]
+            nextGrp = inputs[i+1]["grouping"]  # E.g. 03.1
+            if nextGrp.split(".")[0] == grouping:
+                param['children'].append(inputs[i+1])
+                inputs.pop(i+1)
+            else:
+                break
+
+    paramData["inputs"] = inputs
+
+    return render_to_response('webclient/scripts/script_ui.html', {'paramData': paramData, 'scriptId': scriptId})
+
+@isUserConnected
+def script_run(request, scriptId, **kwargs):
+    """
+    Runs a script using values in a POST
+    """
+    conn = kwargs['conn']
+    scriptService = conn.getScriptService()
+
+    inputMap = {}
+
+    sId = long(scriptId)
+
+    params = scriptService.getParams(sId)
+    scriptName = params.name.replace("_", " ").replace(".py", "")
+
+    logger.debug("Script: run with request.POST: %s" % request.POST)
+
+    for key, param in params.inputs.items():
+        prototype = param.prototype
+        pclass = prototype.__class__
+        
+        # handle bool separately, since unchecked checkbox will not be in request.POST
+        if pclass == omero.rtypes.RBoolI:
+            value = key in request.POST
+            inputMap[key] = pclass(value)
+            continue
+        
+        if pclass.__name__ == 'RMapI':
+            keyName = "%s_key" % key
+            valueName = "%s_value" % key
+            row = 0
+            paramMap = {}
+            while keyName in request.POST:
+                # the key and value don't have any data-type defined by scripts - just use string
+                k = str(request.POST[keyName])
+                v = str(request.POST[valueName])
+                if len(k) > 0 and len(v) > 0:
+                    paramMap[str(k)] = str(v)
+                row +=1
+                keyName = "%s_key%d" % (key, row)
+                valueName = "%s_value%d" % (key, row)
+            if len(paramMap) > 0:
+                inputMap[key] = wrap(paramMap)
+            continue
+
+        if key in request.POST:
+            if pclass == omero.rtypes.RListI:
+                values = request.POST.getlist(key)
+                if len(values) == 0: continue
+                if len(values) == 1:     # process comma-separated list
+                    if len(values[0]) == 0: continue
+                    values = values[0].split(",")
+
+                # try to determine 'type' of values in our list
+                listClass = omero.rtypes.rstring
+                l = prototype.val     # list
+                if len(l) > 0:       # check if a value type has been set (first item of prototype list)
+                    listClass = l[0].__class__
+                    if listClass == int(1).__class__:
+                        listClass = omero.rtypes.rint
+                    if listClass == long(1).__class__:
+                        listClass = omero.rtypes.rlong
+
+                # construct our list, using appropriate 'type'
+                valueList = []
+                for v in values:
+                    try:
+                        obj = listClass(str(v.strip())) # convert unicode -> string
+                    except:
+                        logger.debug("Invalid entry for '%s' : %s" % (key, v))
+                        continue
+                    if isinstance(obj, omero.model.IObject):
+                        valueList.append(omero.rtypes.robject(obj))
+                    else:
+                        valueList.append(obj)
+                inputMap[key] = omero.rtypes.rlist(valueList)
+
+            # Handle other rtypes: String, Long, Int etc.
+            else:
+                value = request.POST[key]
+                if len(value) == 0: continue
+                try:
+                    inputMap[key] = pclass(value)
+                except:
+                    logger.debug("Invalid entry for '%s' : %s" % (key, value))
+                    continue
+
+    logger.debug("Running script %s with params %s" % (scriptName, inputMap))
+    try:
+        handle = scriptService.runScript(sId, inputMap, None)
+        # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154
+        jobId = str(handle)
+        request.session['callback'][jobId] = {
+            'job_type': "script",
+            'job_name': scriptName,
+            'start_time': datetime.datetime.now(),
+            'status':'in progress'}
+        request.session.modified = True
+    except Exception, x:
+        jobId = str(time())      # E.g. 1312803670.6076391
+        if x.message == "No processor available.": # omero.ResourceError
+            logger.info(traceback.format_exc())
+            error = None
+            status = 'no processor available'
+            message = 'No Processor Available: Please try again later'
+        else:
+            logger.error(traceback.format_exc())
+            error = traceback.format_exc()
+            status = 'failed'
+            message = x.message
+        # save the error to http session, for display in 'Activities' window
+        request.session['callback'][jobId] = {
+            'job_type': "script",
+            'job_name': scriptName,
+            'start_time': datetime.datetime.now(),
+            'status':status,
+            'Message': message,
+            'error':error}
+        request.session.modified = True
+        # we return this, although it is now ignored (script window closes)
+        return HttpResponse(simplejson.dumps({'status': status, 'error': error}), mimetype='json')
+
+    return HttpResponse(simplejson.dumps({'jobId': jobId, 'status':'in progress'}), mimetype='json')
+
 
 ####################################################################################
 # utils

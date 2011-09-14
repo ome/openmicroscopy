@@ -24,6 +24,8 @@ package integration;
 
 
 //Java imports
+import java.util.Arrays;
+import java.util.List;
 
 //Third-party libraries
 import org.testng.annotations.BeforeMethod;
@@ -108,6 +110,57 @@ public class RawPixelsStoreTest
         assertNotNull(r);
         assertEquals(data.length, r.length);
         assertEquals(sha1(data), sha1(r));
+    }
+
+    /**
+     * Tests to set a plane and retrieve it as a hypercube, this method will test the 
+     * <code>setPlane</code> and <code>getHypercube</code>.
+     * 
+     * @throws Exception Thrown if an error occurred.
+     * @see RawFileStoreTest#testUploadFile()
+     */
+    @Test
+    public void testSetPlaneGetHypercube() 
+    	throws Exception
+    {
+        byte[] data = prepareTestByteArray(svc.getPlaneSize(), 0);
+        svc.setPlane(data, 0, 0, 0);
+        List<Integer> offset = Arrays.asList(new Integer[]{0,0,0,0,0});
+        List<Integer> size = Arrays.asList(new Integer[]{ModelMockFactory.SIZE_X,
+                ModelMockFactory.SIZE_Y,1,1,1});
+        List<Integer> step = Arrays.asList(new Integer[]{1,1,1,1,1});
+        byte[] r = svc.getHypercube(offset,size,step);
+        assertNotNull(r);
+        assertEquals(data.length, r.length);
+        assertEquals(sha1(data), sha1(r));
+    }
+
+    /**
+     * Tests to set a series of planes and retrieve them as a hypercube, 
+     * this method will test the <code>setPlane</code> and <code>getHypercube</code>.
+     * 
+     * @throws Exception Thrown if an error occurred.
+     * @see RawFileStoreTest#testUploadFile()
+     */
+    @Test
+    public void testSetEveryPlaneGetHypercube() 
+    	throws Exception
+    {
+        byte[] data = prepareTestByteArray(svc.getPlaneSize(), 0);
+        for (int t = 0; t < ModelMockFactory.SIZE_T; t++) {
+            for (int c = 0;c < 1; c++) {
+                for (int z = 0; z < ModelMockFactory.SIZE_Z; z++) {
+                    svc.setPlane(data, z, c, t);
+                }
+            }
+        }
+        List<Integer> offset = Arrays.asList(new Integer[]{0,0,0,0,0});
+        List<Integer> size = Arrays.asList(new Integer[]{ModelMockFactory.SIZE_X,
+                ModelMockFactory.SIZE_Y,ModelMockFactory.SIZE_Z,1,ModelMockFactory.SIZE_T});
+        List<Integer> step = Arrays.asList(new Integer[]{1,1,1,1,1});
+        byte[] r = svc.getHypercube(offset,size,step);
+        assertNotNull(r);
+        assertEquals(data.length * ModelMockFactory.SIZE_Z * ModelMockFactory.SIZE_T, r.length);
     }
 
     /**

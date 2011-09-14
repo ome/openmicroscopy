@@ -22,8 +22,6 @@
  */
 package integration;
 
-
-//Java imports
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -31,11 +29,9 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 
-//Third-party libraries
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-//Application-internal dependencies
 import ome.formats.OMEROMetadataStoreClient;
 import omero.api.ThumbnailStorePrx;
 import omero.model.Pixels;

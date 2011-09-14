@@ -455,11 +455,15 @@ td.title {
 #z-axis-legend {
   position: absolute; 
   left: 160px;
+  height: 80px;
+  width: 25px;
 }
 
 #t-axis-legend {
   position: absolute;
   left: 155px;
+  height: 26px;
+  width: 80px;
 }
 
 .odd .multiselect {

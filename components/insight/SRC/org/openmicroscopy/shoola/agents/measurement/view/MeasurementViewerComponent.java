@@ -44,14 +44,12 @@ import org.jhotdraw.draw.Drawing;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
-import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
-import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -217,7 +215,11 @@ class MeasurementViewerComponent
      * 
      * @param imageID The image's identifier.
      */
-    void onROIDeleted(long imageID) { model.onROIDeleted(imageID); }
+    void onROIDeleted(long imageID)
+    { 
+    	model.onROIDeleted(imageID);
+    	fireStateChange();
+    }
 
     /** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
@@ -225,14 +227,16 @@ class MeasurementViewerComponent
      */
     public void activate()
     { 
-    	activate(model.getMeasurements(), model.isHCSData()); 
+    	activate(model.getMeasurements(), model.isHCSData(),
+    			model.isBigImage());
     }
     
     /** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#activate(List, boolean)
+     * @see MeasurementViewer#activate(List, boolean, boolean)
      */
-	public void activate(List<FileAnnotationData> measurements, boolean HCSData)
+	public void activate(List<FileAnnotationData> measurements, boolean HCSData,
+			boolean isBigImage)
 	{
 		int state = model.getState();
         switch (state) {
@@ -244,6 +248,8 @@ class MeasurementViewerComponent
         		UIUtilities.setDefaultSize(model.getDrawingView(), d);
         		model.getDrawingView().setSize(d);
         		model.setHCSData(HCSData);
+        		model.setBigImage(isBigImage);
+        		view.buildGUI();
         		if (HCSData) {
         			if (measurements == null) {
         				model.setHCSData(false);
@@ -342,11 +348,14 @@ class MeasurementViewerComponent
 			if (!valid) {
 				reg.getUserNotifier().notifyInfo("ROI", "The ROI are not " +
 						"compatible with the image.");
+				
 				try {
 					input.close();
 				} catch (Exception io) {
 					log.warn(this, "Cannot close the stream "+io.getMessage());
 				}
+				//reset
+				
 				fireStateChange();
 				return;
 			}
@@ -385,35 +394,35 @@ class MeasurementViewerComponent
 		double f = model.getMagnification();
 		if (z == defaultZ && t == defaultT) {
 			if (f != magnification) model.setMagnification(magnification);
-		} else {
-			model.setPlane(defaultZ, defaultT);
-			Drawing drawing = model.getDrawing();
-			drawing.removeDrawingListener(controller);
-			drawing.clear();
-			ShapeList list = null;
-			try {
-				list = model.getShapeList();
-			} catch (Exception e) {
-				view.handleROIException(e, MeasurementViewerUI.RETRIEVE_MSG);
-			}
-			view.setStatus(MeasurementViewerUI.DEFAULT_MSG);
-			if (list != null) {
-				TreeMap map = list.getList();
-				Iterator i = map.values().iterator();
-				ROIShape shape;
-				while (i.hasNext()) {
-					shape = (ROIShape) i.next();
-					if (shape != null)
-					{
-						drawing.add(shape.getFigure());
-						shape.getFigure().addFigureListener(controller);
-					}
+			if (!model.isBigImage()) return;
+		}
+		model.setPlane(defaultZ, defaultT);
+		Drawing drawing = model.getDrawing();
+		drawing.removeDrawingListener(controller);
+		drawing.clear();
+		ShapeList list = null;
+		try {
+			list = model.getShapeList();
+		} catch (Exception e) {
+			view.handleROIException(e, MeasurementViewerUI.RETRIEVE_MSG);
+		}
+		view.setStatus(MeasurementViewerUI.DEFAULT_MSG);
+		if (list != null) {
+			TreeMap map = list.getList();
+			Iterator i = map.values().iterator();
+			ROIShape shape;
+			while (i.hasNext()) {
+				shape = (ROIShape) i.next();
+				if (shape != null)
+				{
+					drawing.add(shape.getFigure());
+					shape.getFigure().addFigureListener(controller);
 				}
 			}
-			model.getDrawingView().setDrawing(drawing);
-			drawing.addDrawingListener(controller);
-			if (f != magnification) model.setMagnification(magnification);
 		}
+		model.getDrawingView().setDrawing(drawing);
+		drawing.addDrawingListener(controller);
+		if (f != magnification) model.setMagnification(magnification);
 	}
 
 	/** 
@@ -464,12 +473,13 @@ class MeasurementViewerComponent
 	public void loadROI()
 	{
 		FileChooser chooser = createChooserDialog(FileChooser.LOAD);
+		chooser.setCheckOverride(false);
 		if (chooser.showDialog() != JFileChooser.APPROVE_OPTION) return;
 		File f = chooser.getSelectedFile();
 		if (f == null) return;
 		model.fireROILoading(f.getAbsolutePath());
 		fireStateChange();
-		view.updateDrawingArea();
+		//view.updateDrawingArea();
 	}
 
 	/** 
@@ -515,21 +525,15 @@ class MeasurementViewerComponent
 			}
 			if (objects.size() == 0) {
 				model.saveROIToServer(true);
-				model.saveWorkflowToServer(true);
+				//model.saveWorkflowToServer(true);
 			} else {
-				IconManager icons = IconManager.getInstance();
-				DeleteActivityParam p = new DeleteActivityParam(
-						icons.getIcon(IconManager.APPLY_22), objects);
-				p.setImageID(model.getImageID());
-				p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
-				UserNotifier un = 
-					MeasurementAgent.getRegistry().getUserNotifier();
-				un.notifyActivity(p);
+				model.deleteAllROIs(objects);
 			}
 		} else {
 			model.saveROIToServer(true);
-			model.saveWorkflowToServer(true);
+			//model.saveWorkflowToServer(true);
 		}
+		fireStateChange();
 	}
 	
 	/** 
@@ -896,6 +900,8 @@ class MeasurementViewerComponent
 		UserNotifier un = reg.getUserNotifier();
 		try {
 			model.removeAllROI();
+			view.rebuildManagerTable();
+			view.updateDrawingArea();
 		} catch (NoSuchROIException e) {
 			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
 			un.notifyInfo("Save ROI", "Cannot save ROI " +
@@ -1000,20 +1006,15 @@ class MeasurementViewerComponent
 			List<ROIFigure> figures = model.removeAllROI(exp.getId());
 			//clear all tables.
 			view.deleteROIs(figures);
+			model.getROIComponent().reset();
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 			msg.print("Delete ROI");
 			msg.print(e);
 			MeasurementAgent.getRegistry().getLogger().error(this, msg);
 		}
-		if (l.size() == 0) return;
-		
-		IconManager icons = IconManager.getInstance();
-		DeleteActivityParam p = new DeleteActivityParam(
-				icons.getIcon(IconManager.APPLY_22), l);
-		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
-		UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(p);
+		model.deleteAllROIs(l);
+		fireStateChange();
 	}
 
 	/** 

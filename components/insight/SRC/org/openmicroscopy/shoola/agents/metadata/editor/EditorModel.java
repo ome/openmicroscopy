@@ -39,6 +39,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.swing.JFrame;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -2762,7 +2764,7 @@ class EditorModel
 		if (objects.size() > 0) {
 			IconManager icons = IconManager.getInstance();
 			SaveAsParam p = new SaveAsParam(folder, objects);
-			p.setIcon(icons.getIcon(IconManager.SAVE_AS_48));
+			p.setIcon(icons.getIcon(IconManager.SAVE_AS_22));
 			UserNotifier un =
 				MetadataViewerAgent.getRegistry().getUserNotifier();
 			un.notifyActivity(p);
@@ -2792,5 +2794,37 @@ class EditorModel
 		return objects;
 	}
 
+	/**
+	 * Returns <code>true</code> if the image is a large image,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isLargeImage()
+	{
+		ImageData img = null;
+		if (refObject instanceof ImageData) {
+    		img = (ImageData) refObject;
+    	} else if (refObject instanceof WellSampleData) {
+    		img = ((WellSampleData) refObject).getImage();
+    	}
+		if (img == null) return false;
+		Boolean b = null;
+		try {
+			PixelsData data = img.getDefaultPixels();
+			b = 
+			MetadataViewerAgent.getRegistry().getImageService().isLargeImage(
+					data.getId());
+		} catch (Exception e) {}
+		if (b != null) return b.booleanValue();
+		return false;
+	}
+
+	/**
+	 * Returns the parent UI.
+	 * 
+	 * @return See above.
+	 */
+	JFrame getRefFrame() { return parent.getParentUI(); }
+
 }
-	

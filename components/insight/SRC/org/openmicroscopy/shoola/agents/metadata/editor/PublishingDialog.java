@@ -275,11 +275,12 @@ class PublishingDialog
     		PixelsData data = null;
     		try {
     			data = img.getDefaultPixels();
-    			exportAsOmeTiffButton.setEnabled(true);
+    			boolean b = !model.isLargeImage();
+    			exportAsOmeTiffButton.setEnabled(b);
     			movieButton.setEnabled(data.getSizeT() > 1 || 
     					data.getSizeZ() > 1);
     			splitViewFigureButton.setEnabled(data.getSizeC() > 1);
-    			exportAsOmeTiffItem.setEnabled(true);
+    			exportAsOmeTiffItem.setEnabled(b);
     			movieItem.setEnabled(data.getSizeT() > 1 || 
     					data.getSizeZ() > 1);
     			splitViewFigureItem.setEnabled(data.getSizeC() > 1);

@@ -624,13 +624,13 @@ class IntensityResultsView
 			c3D = shape.getCoord3D();
 			shapeStats = AnalysisStatsWrapper.convertStats(
 					(Map) entry.getValue());
-				
-			minStats.put(c3D, shapeStats.get(StatsType.MIN));
-			maxStats.put(c3D, shapeStats.get(StatsType.MAX));
-			meanStats.put(c3D, shapeStats.get(StatsType.MEAN));
-			sumStats.put(c3D, shapeStats.get(StatsType.SUM));
-			stdDevStats.put(c3D, shapeStats.get(StatsType.STDDEV));
-			
+			if (shapeStats != null) {
+				minStats.put(c3D, shapeStats.get(StatsType.MIN));
+				maxStats.put(c3D, shapeStats.get(StatsType.MAX));
+				meanStats.put(c3D, shapeStats.get(StatsType.MEAN));
+				sumStats.put(c3D, shapeStats.get(StatsType.SUM));
+				stdDevStats.put(c3D, shapeStats.get(StatsType.STDDEV));
+			}
 			channelName.clear();
 			nameMap.clear();
 			channelColour.clear();

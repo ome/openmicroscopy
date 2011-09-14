@@ -57,10 +57,10 @@ def send_feedback(request):
     if form.is_valid():
         error = request.REQUEST['error']
         comment = None
-        if request.REQUEST['comment'] is not None or request.REQUEST['comment'] != "":
+        if request.REQUEST.get('comment',None) is not None and request.REQUEST['comment'] != "":
             comment = request.REQUEST['comment']
         email = None
-        if request.REQUEST['email'] is not None or request.REQUEST['email'] != "":
+        if request.REQUEST.get('email', None) is not None and request.REQUEST['email'] != "":
             email = request.REQUEST['email']
         try:
             sf = SendFeedback()

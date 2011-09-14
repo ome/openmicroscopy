@@ -66,7 +66,7 @@ var Metadata = function () {
         if (this.channels[i].active != other.channels[i].active ||
             rgbToHex(this.channels[i].color) != rgbToHex(other.channels[i].color) ||
             this.channels[i].emissionWave != other.channels[i].emissionWave ||
-            this.channels[i].label != other.channels[i].label ||
+            this.channels[i].metalabel != other.channels[i].metalabel ||
             this.channels[i].window.end != other.channels[i].window.end ||
             this.channels[i].window.min != other.channels[i].window.min ||
             this.channels[i].window.max != other.channels[i].window.max ||
@@ -273,7 +273,9 @@ jQuery._WeblitzViewport = function (container, server, options) {
         href = server + '/render_image_region/' + _this.getRelUrl();
         // temporary solution for sharing. ShareId must me passed in a different way.
         var serverPrefix = server.split("/");
-        thref = "/" + serverPrefix[1] + '/render_thumbnail/' + _this.loadedImg.id + '/'
+        
+        
+        thref = "/" + serverPrefix[1] + '/render_birds_eye_view/' + _this.loadedImg.id + '/?' + _this.getQuery();
         if (serverPrefix.length > 2) thref += (serverPrefix[2] + "/");
       } else if (_this.loadedImg.rdefs.projection.toLowerCase() != 'split') {
         href = server + '/render_image/' + _this.getRelUrl();
@@ -524,7 +526,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
   }
 
   this.setChannelLabel = function (idx, label, noreload) {
-    _this.loadedImg.channels[idx].label = label;
+    _this.loadedImg.channels[idx].metalabel = label;
     _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
     if (!noreload) {
       _load();
@@ -766,7 +768,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
             rgbToHex(e1.channels[i].color) == rgbToHex(e2.channels[i].color) &&
             e1.channels[i].windowStart == e2.channels[i].windowStart &&
             e1.channels[i].windowEnd == e2.channels[i].windowEnd &&
-            e1.channels[i].label == e2.channels[i].label)) {
+            e1.channels[i].metalabel == e2.channels[i].metalabel)) {
         return false;
       }
     }
@@ -782,7 +784,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
                      color: toRGB(channels[i].color),
                      windowStart: channels[i].window.start,
                      windowEnd: channels[i].window.end,
-                     label: channels[i].label};
+                     metalabel: channels[i].metalabel};
       entry.channels.push(channel);
     }
     /* Trim stack to current position to dump potential redo information */
@@ -806,7 +808,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
         this.setChannelWindow(i, entry.channels[i].windowStart, entry.channels[i].windowEnd, true);
         this.setChannelColor(i, entry.channels[i].color, true);
         this.setChannelActive(i, entry.channels[i].active, true);
-        this.setChannelLabel(i, entry.channels[i].label, true);
+        this.setChannelLabel(i, entry.channels[i].metalabel, true);
       }
       _load();
     }

@@ -53,6 +53,9 @@ public class WellSampleNode
 	/** The index of the sample. */
 	private int 			index;
 	
+	/** The height of the title to add to the location.*/
+	private int				titleHeight;
+	
 	/**
      * Creates a new leaf node.
      * 
@@ -72,10 +75,19 @@ public class WellSampleNode
 		super(title, ho, t);
 		if (parent == null)
 			throw new IllegalArgumentException("No parent.");
+		setTitleBarType(ImageNode.SMALL_TITLE_BAR);
+		titleHeight = getTitleBar().getPreferredSize().height;
 		setTitleBarType(ImageNode.NO_BAR);
 		this.index = index;
 		this.parent = parent;
 	}
+	
+	/** 
+	 * Returns the height of the title.
+	 * 
+	 * @return See above.
+	 */
+	public int getTitleHeight() { return titleHeight; }
 	
 	/**
 	 * Returns the x-coordinate of the top-left corner that field on the grid.

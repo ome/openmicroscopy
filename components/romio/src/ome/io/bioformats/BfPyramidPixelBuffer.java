@@ -475,6 +475,10 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             Integer t, Integer x, Integer y, Integer w, Integer h)
         throws IOException, BufferOverflowException
     {
+        if (!isWrite())
+        {
+            throw new ApiUsageException("In read-only mode!");
+        }
         try
         {
             int planeCount = getSizeZ() * getSizeC() * getSizeT();
@@ -513,7 +517,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             try
             {
                 initializeWriter(writerFile.getAbsolutePath(),
-                        TiffCompression.JPEG_2000.getCodecName(), false, w, h);
+                        TiffCompression.JPEG_2000.getCodecName(), true, w, h);
             }
             catch (Exception e)
             {
@@ -574,50 +578,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     private synchronized void checkTileParameters(int x, int y, int w, int h)
         throws IOException
     {
-        // Ensure the reader has been initialized
-        delegate().reader();
-        IFDList ifds = reader.getIFDs();
-        if (ifds.size() == 0)
-        {
-            throw new IOException("Backing reader has no IFDs!");
-        }
-        IFD firstIFD = ifds.get(0);
-        int tileWidth, tileHeight;
-        try
-        {
-            tileWidth = (int) firstIFD.getTileWidth();
-            tileHeight = (int) firstIFD.getTileLength();
-        }
-        catch (FormatException e)
-        {
-            String message = "Error retrieving tile width and height!";
-            log.error(message, e);
-            throw new IOException(message);
-        }
-        if (x % tileWidth != 0)
-        {
-            throw new IOException(String.format(
-                    "Tile X offset %d not a multiple of tile width %d",
-                    x, tileWidth));
-        }
-        if (y % tileHeight != 0)
-        {
-            throw new IOException(String.format(
-                    "Tile Y offset %d not a multiple of tile width %d",
-                    y, tileWidth));
-        }
-        if (w > tileWidth)
-        {
-            throw new IOException(String.format(
-                    "Requested tile width %d larger than tile width %d",
-                    w, tileWidth));
-        }
-        if (h > tileHeight)
-        {
-            throw new IOException(String.format(
-                    "Requested tile height %d larger than tile height %d",
-                    h, tileHeight));
-        }
+        // No-op.
     }
 
     /**
@@ -750,6 +711,16 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     public synchronized byte[] getHypercubeDirect(List<Integer> offset,
             List<Integer> size, List<Integer> step, byte[] buffer)
         throws IOException, DimensionsOutOfBoundsException
+    {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getHypercubeSize(java.util.List, java.util.List, java.util.List)
+     */
+    public synchronized Integer getHypercubeSize(List<Integer> offset,
+            List<Integer> size, List<Integer> step)
+        throws DimensionsOutOfBoundsException
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }

@@ -169,7 +169,7 @@ class BaseClient(object):
         """
 
         if not id:
-            raise ClientError("No initialization data provided.");
+            raise omero.ClientError("No initialization data provided.");
 
         # Strictly necessary for this class to work
         id.properties.setProperty("Ice.ImplicitContext", "Shared")
@@ -225,12 +225,17 @@ class BaseClient(object):
         self.__lock.acquire()
         try:
             if self.__ic:
-                raise ClientError("Client already initialized")
+                raise omero.ClientError("Client already initialized")
 
-            self.__ic = Ice.initialize(id)
+            try:
+                self.__ic = Ice.initialize(id)
+            except Ice.EndpointParseException:
+                msg = "No host specified. "
+                msg += "Use omero.client(HOSTNAME), ICE_CONFIG, or similar."
+                raise omero.ClientError(msg)
 
             if not self.__ic:
-                raise ClientError("Improper initialization")
+                raise omero.ClientError("Improper initialization")
 
             # Register Object Factory
             self.of = ObjectFactory()
@@ -242,7 +247,7 @@ class BaseClient(object):
             self.__uuid = str(uuid.uuid4())
             ctx = self.__ic.getImplicitContext()
             if not ctx:
-                raise ClientError("Ice.ImplicitContext not set to Shared")
+                raise omero.ClientError("Ice.ImplicitContext not set to Shared")
             ctx.put(omero.constants.CLIENTUUID, self.__uuid)
 
             # ticket:2951 - sending user group
@@ -316,7 +321,7 @@ class BaseClient(object):
         self.__lock.acquire()
         try:
             if not self.__ic:
-                raise ClientError("No Ice.Communicator active; call createSession() or create a new client instance")
+                raise omero.ClientError("No Ice.Communicator active; call createSession() or create a new client instance")
             return self.__ic
         finally:
             self.__lock.release()
@@ -329,7 +334,7 @@ class BaseClient(object):
         self.__lock.acquire()
         try:
             if not self.__oa:
-                raise ClientError("No Ice.ObjectAdapter active; call createSession() or create a new client instance")
+                raise omero.ClientError("No Ice.ObjectAdapter active; call createSession() or create a new client instance")
             return self.__oa
         finally:
             self.__lock.release()
@@ -414,11 +419,11 @@ class BaseClient(object):
             # Checking state
 
             if self.__sf:
-                raise ClientError("Session already active. Create a new omero.client or closeSession()")
+                raise omero.ClientError("Session already active. Create a new omero.client or closeSession()")
 
             if not self.__ic:
                 if not self.__previous:
-                    raise ClientError("No previous data to recreate communicator.")
+                    raise omero.ClientError("No previous data to recreate communicator.")
                 self._initData(self.__previous)
                 self.__previous = None
 
@@ -430,7 +435,7 @@ class BaseClient(object):
                 username = username.val
 
             if not username or len(username) == 0:
-                raise ClientError("No username specified")
+                raise omero.ClientError("No username specified")
 
             if not password:
                 password = self.getProperty("omero.pass")
@@ -438,7 +443,7 @@ class BaseClient(object):
                 password = password.val
 
             if not password:
-                raise ClientError("No password specified")
+                raise omero.ClientError("No password specified")
 
             # Acquire router and get the proxy
             prx = None
@@ -463,12 +468,12 @@ class BaseClient(object):
                     retries = retries + 1
 
             if not prx:
-                raise ClientError("Obtained null object prox")
+                raise omero.ClientError("Obtained null object prox")
 
             # Check type
             self.__sf = omero.api.ServiceFactoryPrx.uncheckedCast(prx)
             if not self.__sf:
-                raise ClientError("Obtained object proxy is not a ServiceFactory")
+                raise omero.ClientError("Obtained object proxy is not a ServiceFactory")
 
             # Configure keep alive
             keep_alive = self.__ic.getProperties().getPropertyWithDefault("omero.keep_alive", "-1")
@@ -544,10 +549,10 @@ class BaseClient(object):
         """
         prx = comm.getDefaultRouter()
         if not prx:
-            raise ClientError("No default router found.")
+            raise omero.ClientError("No default router found.")
         router = Glacier2.RouterPrx.uncheckedCast(prx)
         if not router:
-            raise ClientError("Error obtaining Glacier2 router")
+            raise omero.ClientError("Error obtaining Glacier2 router")
 
         # For whatever reason, we have to set the context
         # on the router context here as well
@@ -580,14 +585,14 @@ class BaseClient(object):
         Utility method to upload a file to the server.
         """
         if not self.__sf:
-            raise ClientError("No session. Use createSession first.")
+            raise omero.ClientError("No session. Use createSession first.")
 
         import os, types
         if not filename or not isinstance(filename, types.StringType):
-            raise ClientError("Non-null filename must be provided")
+            raise omero.ClientError("Non-null filename must be provided")
 
         if not os.path.exists(filename):
-            raise ClientError("File does not exist: " + filename)
+            raise omero.ClientError("File does not exist: " + filename)
 
         from path import path as __path__
         filepath = __path__(filename)
@@ -648,7 +653,7 @@ class BaseClient(object):
         prx = self.__sf.createRawFileStore()
         try:
             if not ofile or not ofile.id:
-                raise ClientError("No file to download")
+                raise omero.ClientError("No file to download")
             ofile = self.__sf.getQueryService().get("OriginalFile", ofile.id.val)
 
             if block_size > ofile.size.val:
@@ -661,11 +666,11 @@ class BaseClient(object):
 
             if filehandle is None:
                 if filename is None:
-                    raise ClientError("no filename or filehandle specified")
+                    raise omero.ClientError("no filename or filehandle specified")
                 filehandle = open(filename, 'wb')
             else:
                 if filename:
-                    raise ClientError("filename and filehandle specified.")
+                    raise omero.ClientError("filename and filehandle specified.")
 
             try:
                 while (offset+block_size) < size:
@@ -798,7 +803,7 @@ class BaseClient(object):
         """ Helper method to access session environment"""
         session = self.getSession()
         if not session:
-            raise ClientError("No session active")
+            raise omero.ClientError("No session active")
         a = session.getAdminService()
         u = self.getSessionId()
         s = session.getSessionService()
@@ -889,10 +894,10 @@ class BaseClient(object):
     #
     def _getCb(self):
         if not self.__oa:
-            raise ClientError("No session active; call createSession()")
+            raise omero.ClientError("No session active; call createSession()")
         obj = self.__oa.find(self.ic.stringToIdentity("ClientCallback/%s" %  self.__uuid))
         if not isinstance(obj, BaseClient.CallbackI):
-            raise ClientError("Cannot find CallbackI in ObjectAdapter")
+            raise omero.ClientError("Cannot find CallbackI in ObjectAdapter")
         return obj
 
     def onHeartbeat(self, myCallable):
@@ -967,23 +972,9 @@ class ObjectFactory(Ice.ObjectFactory):
     def create(self, type):
         generator = self.__m[type]
         if generator == None:
-            raise ClientError("Unknown type:"+type)
+            raise omero.ClientError("Unknown type:"+type)
         return generator.next()
 
     def destroy(self):
         # Nothing to do
         pass
-
-
-
-class ClientError(exceptions.Exception):
-    """
-    Top of client exception hierarchy.
-    """
-    pass
-
-class UnloadedEntityException(ClientError):
-    pass
-
-class UnloadedCollectionException(ClientError):
-    pass

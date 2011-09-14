@@ -108,7 +108,7 @@ div.paging input.button_pagination {
     border: 1px solid #ccc;
     width: 25px;
 }
-#spw table td.full {
+#spw table td.well {
     background: #eee;
 }
 

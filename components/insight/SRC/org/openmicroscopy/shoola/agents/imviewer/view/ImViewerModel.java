@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImageDataLoader;
+import org.openmicroscopy.shoola.agents.imviewer.ImageLoader;
 import org.openmicroscopy.shoola.agents.imviewer.MeasurementsLoader;
 import org.openmicroscopy.shoola.agents.imviewer.OverlaysRenderer;
 import org.openmicroscopy.shoola.agents.imviewer.PlaneInfoLoader;
@@ -133,6 +134,9 @@ class ImViewerModel
 	
 	/** Index of the <code>RenderingControlLoader</code> loader. */
 	private static final int	RND = 1;
+	
+	/** Index of the <code>ImageLoader</code> loader. */
+	private static final int	IMAGE = 2;
 	
 	/** The image to view. */
 	private DataObject 					image; 
@@ -291,6 +295,9 @@ class ImViewerModel
 	
 	/** The size of the tiled image along the Y-axis.*/
 	private int tiledImageSizeY;
+	
+	/** Flag indicating that the image is loaded for the first time.*/
+	private boolean firstTime;
 	
 	/**
 	 * Creates the plane to retrieve.
@@ -457,6 +464,7 @@ class ImViewerModel
 	 */
 	private void initialize(Rectangle bounds, boolean separateWindow)
 	{
+		firstTime = true;
 		this.separateWindow = separateWindow;
 		tiles = new HashMap<Integer, Tile>();
 		originalRatio = 1;
@@ -831,11 +839,27 @@ class ImViewerModel
 		if (rnd == null) return;
 		PlaneDef pDef = createPlaneDef();
 		state = ImViewer.LOADING_IMAGE;
-		if (ImViewerAgent.hasOpenGLSupport()) 
-			component.setImage(rnd.renderPlaneAsTexture(pDef));
-		else component.setImage(rnd.renderPlane(pDef));
+		if (firstTime) {
+			long pixelsID = getImage().getDefaultPixels().getId();
+			ImageLoader loader = new ImageLoader(component, pixelsID, pDef, 
+					false);
+			loader.load();
+			loaders.put(IMAGE, loader);
+		} else {
+			if (ImViewerAgent.hasOpenGLSupport()) 
+				component.setImage(rnd.renderPlaneAsTexture(pDef));
+			else component.setImage(rnd.renderPlane(pDef));
+		}
 	}
 
+	/**
+	 * Returns <code>true</code> if the image is rendered for the first time,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above
+	 */
+	boolean isFirstTime() { return firstTime; }
+	
 	/**
 	 * This method should only be invoked when we save the displayed image
 	 * and split its components.
@@ -878,16 +902,18 @@ class ImViewerModel
 		resolutionMap = new HashMap<Integer, ResolutionLevel>();
 		if (rnd != null) {
 			tileSize = rnd.getTileSize();
-			int levels = getResolutionLevels();
-			int powerX = (int) (Math.log(tileSize.width)/Math.log(2));
-			int powerY = (int) (Math.log(tileSize.height)/Math.log(2));
-			int index = 0;
-			int vx = 0, vy = 0;
-			for (int i = levels-1; i >= 0; i--) {
-				vx = powerX-index;
-				vy = powerY-index;
-				resolutionMap.put(i, new ResolutionLevel(i, vx, vy));
-				index++;
+			if (tileSize != null) {
+				int levels = getResolutionLevels();
+				int powerX = (int) (Math.log(tileSize.width)/Math.log(2));
+				int powerY = (int) (Math.log(tileSize.height)/Math.log(2));
+				int index = 0;
+				int vx = 0, vy = 0;
+				for (int i = levels-1; i >= 0; i--) {
+					vx = powerX-index;
+					vy = powerY-index;
+					resolutionMap.put(i, new ResolutionLevel(i, vx, vy));
+					index++;
+				}
 			}
 		}
 		if (isBigImage())
@@ -959,6 +985,8 @@ class ImViewerModel
 	{
 		state = ImViewer.READY; 
 		browser.setRenderedImage(image);
+		loaders.remove(IMAGE);
+		firstTime = false;
 		//update image icon
 		//28/02 added to speed up process, turn back on for 4.1
 		/*
@@ -2266,6 +2294,8 @@ class ImViewerModel
 	{
 		state = ImViewer.READY; 
 		browser.setRenderedImage(image);
+		loaders.remove(IMAGE);
+		firstTime = false;
 		//update image icon
 		//28/02 added to speed up process, turn back on for 4.1
 		/*
@@ -2680,6 +2710,17 @@ class ImViewerModel
 					tile.setImage(null);
 				}
 			}
+		}
+	}
+	
+	/** Cancels the rendering of the image.*/
+	void cancelRendering()
+	{
+		DataLoader loader = loaders.get(IMAGE);
+		if (loader != null) {
+			loader.cancel();
+			firstTime = true;
+			state = ImViewer.LOADING_IMAGE_CANCELLED;
 		}
 	}
 	

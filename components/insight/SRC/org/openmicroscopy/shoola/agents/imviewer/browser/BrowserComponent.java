@@ -704,5 +704,24 @@ class BrowserComponent
 		if (view == null) return null;
 		return view.getVisibleRectangle();
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setSelectedRegion(Rectangle)
+	 */
+	public void setSelectedRegion(Rectangle region)
+	{
+		if (view == null || region == null) return;
+		view.setSelectedRegion(region);
+	}
 	
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#onStateChange(boolean)
+	 */
+	public void onStateChange(boolean b)
+	{ 
+		if (view == null) return;
+		view.onStateChange(b);
+	}
 }

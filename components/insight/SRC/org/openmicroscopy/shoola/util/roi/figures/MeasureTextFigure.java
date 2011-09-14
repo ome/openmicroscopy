@@ -240,6 +240,12 @@ public class MeasureTextFigure
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getSize()
+	 */
+	public int getSize() { return 0; }
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#setStatus(boolean)}
 	 */
 	public void setStatus(int status) { this.status = status; }

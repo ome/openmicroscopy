@@ -22,17 +22,15 @@
  */
 package org.openmicroscopy.shoola.agents.events.measurement;
 
-
-
 //Java imports
-
+import java.awt.Rectangle;
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
- * 
+ * Selects the plane or/and region to display.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,6 +55,9 @@ public class SelectPlane
     /** The currently selected timepoint. */
     private int			defaultT;
     
+    /* The bounds of the ROI for big image.*/
+    private Rectangle	bounds;
+    
     /**
      * Creates a new instance.
      * 
@@ -72,8 +73,26 @@ public class SelectPlane
         this.pixelsID = pixelsID;
         this.defaultT = defaultT;
         this.defaultZ = defaultZ;
+        bounds = null;
     }
     
+    /** 
+     * Sets the bounds of the ROI for the big image only.
+     * 
+     * @param bounds The bounds of the roi shape.
+     */
+    public void setBounds(Rectangle bounds)
+    {
+    	this.bounds = bounds;
+    }
+    
+    /**
+     * Returns the bounds of the ROI for the big image only.
+     * 
+     * @return See above
+     */
+    public Rectangle getBounds() { return bounds; }
+
     /**
      * Returns the pixels set ID.
      * 

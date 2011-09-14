@@ -1,0 +1,17 @@
+dn: ou=testDefaultGroup,o=eg
+objectclass: organizationalUnit
+objectClass: top
+ou: testDefaultGroup
+
+dn: cn=grp,ou=testDefaultGroup,o=eg
+objectClass: top
+objectClass: groupOfNames
+cn: grp
+member: cn=test1,ou=testDefaultGroup,o=eg
+
+dn: cn=test1,ou=testDefaultGroup,o=eg
+objectClass: person
+cn: test1
+givenName: Testy
+sn: Tester
+userPassword: password

@@ -71,6 +71,9 @@ class FileUploader
     /** The files to upload. */
     private Map<ImportErrorObject, FileTableNode> nodes;
     
+    /** The total number of files.*/
+    private int total;
+    
     /**
      * Creates a new instance.
      * 
@@ -105,6 +108,8 @@ class FileUploader
 	 */
 	public void load()
 	{
+		total = nodes.size();
+		src.setSubmitStatus("0 out of "+total, false);
 		handle = mhView.submitFiles(details, this);
 	}
     
@@ -129,6 +134,9 @@ class FileUploader
         	if (node != null) node.setStatus(false);
         	nodes.remove(f);
         }
+        int v = total-nodes.size();
+        if (v != total) src.setSubmitStatus(v+" out of "+total, false);
+        else src.setSubmitStatus("Done", true);
         if (nodes.size() == 0) {
         	if (details.isExceptionOnly()) {
         		viewer.notifyInfo("Submit Exceptions", "The exceptions " +

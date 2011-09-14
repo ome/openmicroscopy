@@ -110,6 +110,9 @@ class EditorComponent
 	/** The View sub-component. */
 	private EditorUI		view;
 	
+	/** The dialog used to display script.*/
+	private ScriptingDialog dialog;
+	
 	/**
 	 * Shows the selection wizard.
 	 * 
@@ -914,11 +917,18 @@ class EditorComponent
 		model.setScript(script);
 		setStatus(false);
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		ScriptingDialog dialog = new ScriptingDialog(f, 
-				model.getScript(script.getScriptID()), 
-				model.getSelectedObjects());
-		dialog.addPropertyChangeListener(controller);
-		UIUtilities.centerAndShow(dialog);
+		if (dialog == null) {
+			dialog = new ScriptingDialog(f, 
+					model.getScript(script.getScriptID()), 
+					model.getSelectedObjects());
+			dialog.addPropertyChangeListener(controller);
+			UIUtilities.centerAndShow(dialog);
+		} else {
+			dialog.reset(model.getScript(script.getScriptID()), 
+					model.getSelectedObjects());
+			if (!dialog.isVisible())
+				UIUtilities.centerAndShow(dialog);
+		}
 	}
 
 	/** 
@@ -1019,6 +1029,20 @@ class EditorComponent
 	{
 		if (folder == null) folder = UIUtilities.getDefaultFolder();
 		model.saveAs(folder);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#onGroupSwitched(boolean)
+	 */
+	public void onGroupSwitched(boolean success)
+	{
+		if (!success) return;
+		if (dialog != null) {
+			dialog.setVisible(false);
+			dialog.dispose();
+			dialog = null;
+		}
 	}
 
 }

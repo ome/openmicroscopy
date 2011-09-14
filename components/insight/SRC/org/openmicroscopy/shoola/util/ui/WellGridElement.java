@@ -53,6 +53,9 @@ public class WellGridElement
 	/** Flag indicating if the well is valid or not. */
 	private boolean valid;
 	
+	/** The tool tip text for that component.*/
+	private String text;
+	
 	/**
 	 * Creates a new instance.
 	 * 

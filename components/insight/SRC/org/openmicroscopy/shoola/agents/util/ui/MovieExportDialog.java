@@ -32,7 +32,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
@@ -42,6 +47,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -67,6 +73,8 @@ import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
+
+import pojos.ChannelData;
 
 /** 
  * Modal dialog displaying option to export the rendered image. 
@@ -167,15 +175,59 @@ public class MovieExportDialog
 	/** The number of time-points. */
 	private int						maxT;
 	
+	/** The collection of channels.*/
+	private Map<Object, JComponent>	buttons;
+	
 	/** 
 	 * Creates the components composing the display. 
 	 * 
 	 * @param name The default name of the file.
 	 * @param defaultZ The default z-section.
 	 * @param defaultT The default time-point.
+	 * @param channels The collection of channels.
 	 */
-	private void initComponents(String name, int defaultZ, int defaultT)
+	private void initComponents(String name, int defaultZ, int defaultT, Object
+			channels)
 	{
+		buttons = new LinkedHashMap<Object, JComponent>();
+		
+		if (channels instanceof Map) {
+			Entry entry;
+			Iterator i = ((Map) channels).entrySet().iterator();
+			ChannelData data;
+			ChannelButton button;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				data = (ChannelData) entry.getKey();
+				button = new ChannelButton(data.getChannelLabeling(), 
+						(Color) entry.getValue(), data.getIndex());
+				button.setSelected(true);
+				button.addPropertyChangeListener(new PropertyChangeListener() {
+					
+					public void propertyChange(PropertyChangeEvent evt) {
+						String n = evt.getPropertyName();
+						if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(n)) {
+							Map m = (Map) evt.getNewValue();
+							ChannelButton button = 
+								(ChannelButton) evt.getSource();
+							Boolean b = (Boolean) m.get(
+									button.getChannelIndex());
+							if (b != null) 
+								button.setSelected(b.booleanValue());
+						}
+					}
+				});
+				buttons.put(data, button);
+			}
+		} else {
+			JCheckBox box;
+			int maxC = (Integer) channels;
+			for (int i = 0; i < maxC; i++) {
+				box = new JCheckBox(""+i);
+				box.setSelected(true);
+				buttons.put(i, box);
+			}
+		}
 		closeButton = new JButton("Cancel");
 		closeButton.setToolTipText(UIUtilities.formatToolTipText(
 				"Close the window."));
@@ -340,10 +392,11 @@ public class MovieExportDialog
         			TableLayout.FILL}, //columns
         				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
         				TableLayout.PREFERRED, 5, TableLayout.PREFERRED,
-        				TableLayout.PREFERRED,
+        				TableLayout.PREFERRED, TableLayout.PREFERRED,
         				5, TableLayout.PREFERRED, TableLayout.PREFERRED,
-        				5, TableLayout.PREFERRED, 5,
-        				TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 10}}; //rows
+        				5, TableLayout.PREFERRED, 
+        				TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 
+        				TableLayout.PREFERRED, TableLayout.PREFERRED, 10}}; //rows
         TableLayout layout = new TableLayout(tl);
         content.setLayout(layout);
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -359,12 +412,22 @@ public class MovieExportDialog
         content.add(fps, "1, "+i);
         content.add(new JLabel("fps"), "2, "+i);
         i = i+2;
+        //
+        content.add(UIUtilities.setTextFont("Channels selection"), "0, "+i+"");
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        Iterator<JComponent> k = buttons.values().iterator();
+        while (k.hasNext()) {
+			p.add(k.next());
+		}
+        content.add(p, "1, "+i);
+        i = i+2;
         content.add(timeInterval, "0, "+i+", l, t");
         content.add(UIUtilities.buildComponentPanel(timeRange), 
         		"1, "+i+", 2, "+i);
         i = i+1;
         JLabel l = new JLabel();
-        JPanel p = new JPanel();
+        p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(UIUtilities.setTextFont("If interval not selected, " +
         		"select the time-point", Font.ITALIC, 
@@ -450,6 +513,27 @@ public class MovieExportDialog
 			j++;
 		}
 		param.setColor(c);
+		
+		//Channels
+		List<Integer> channels = new ArrayList<Integer>();
+		i = buttons.entrySet().iterator();
+		JComponent comp;
+		ChannelButton cb;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			comp = (JComponent) entry.getValue();
+			if (comp instanceof JCheckBox) {
+				if (((JCheckBox) comp).isSelected()) {
+					channels.add((Integer) entry.getKey());
+				}
+			} else if (comp instanceof ChannelButton) {
+				cb = (ChannelButton) comp;
+				if (cb.isSelected()) {
+					channels.add(cb.getChannelIndex());
+				}
+			}
+		}
+		param.setChannels(channels);
 		option = SAVE;
 		close();
 		firePropertyChange(CREATE_MOVIE_PROPERTY, null, param);
@@ -490,16 +574,17 @@ public class MovieExportDialog
 	 * @param maxZ  The maximum number of z-sections.
 	 * @param defaultZ The default z-section.
 	 * @param defaultT The default timepoint.
+	 * @param channels The channels information or the number of channels.
 	 */
 	public MovieExportDialog(JFrame owner, String name, int maxT, int maxZ, 
-			int defaultZ, int defaultT)
+			int defaultZ, int defaultT, Object channels)
 	{
 		super(owner);
 		setModal(true);
 		param = null;
 		this.maxT = maxT;
 		this.maxZ = maxZ;
-		initComponents(name, defaultZ, defaultT);
+		initComponents(name, defaultZ, defaultT, channels);
 		buildGUI();
 		pack();
 	}

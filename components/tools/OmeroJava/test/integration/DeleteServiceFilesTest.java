@@ -14,15 +14,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.AssertionFailedError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.PixelsService;
 import omero.ApiUsageException;
 import omero.ResourceError;
 import omero.ServerError;
-import omero.api.IDeletePrx;
-import omero.api.IRenderingSettingsPrx;
 import omero.api.RawFileStorePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.api.delete.DeleteCommand;
@@ -41,7 +38,6 @@ import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Well;
-import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 

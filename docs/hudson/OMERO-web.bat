@@ -32,12 +32,15 @@ if errorlevel 1 goto ERROR
 python dist\bin\omero web unittest --config=%ICE_CONFIG% --test=webadmin
 if errorlevel 1 goto ERROR
 
-python dist\bin\omero web start
-if errorlevel 1 goto ERROR
-python dist\bin\omero web seleniumtest webadmin "hudson.openmicroscopy.org.uk" "http://%OMERO_HOST%:%webport%" firefox --config=$ICE_CONFIG
-if errorlevel 1 goto ERROR
-python dist\bin\omero web stop
-if errorlevel 1 goto ERROR
+REM Disabled Selenium Tests (#6624)
+REM Tue 13 Sep 2011 17:23:54 BST
+REM
+REM python dist\bin\omero web start
+REM if errorlevel 1 goto ERROR
+REM python dist\bin\omero web seleniumtest webadmin "hudson.openmicroscopy.org.uk" "http://%OMERO_HOST%:%webport%" firefox --config=$ICE_CONFIG
+REM if errorlevel 1 goto ERROR
+REM python dist\bin\omero web stop
+REM if errorlevel 1 goto ERROR
 
 REM
 REM Write test file for OMERO-web jobs

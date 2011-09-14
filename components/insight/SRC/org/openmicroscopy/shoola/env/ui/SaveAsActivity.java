@@ -51,7 +51,7 @@ public class SaveAsActivity
 {
 
 	/** The description of the activity. */
-	private static final String		DESCRIPTION_CREATION = "Saving images";
+	private static final String		DESCRIPTION_CREATION = "Saving Images as ";
 	
 	/** The description of the activity when finished. */
 	private static final String		DESCRIPTION_CREATED = "Images saved in";
@@ -78,7 +78,8 @@ public class SaveAsActivity
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
-		initialize(DESCRIPTION_CREATION, parameters.getIcon());
+		initialize(DESCRIPTION_CREATION+parameters.getIndexAsString(), 
+				parameters.getIcon());
 		File folder = parameters.getFolder();
 		messageLabel.setText("in "+folder.getName());
 		messageLabel.setToolTipText(folder.getAbsolutePath());

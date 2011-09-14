@@ -147,8 +147,7 @@ class MetadataViewerComponent
 		}
 		if (img == null) return;
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		MovieActivityParam activity = new MovieActivityParam(parameters, null,
-				img);
+		MovieActivityParam activity = new MovieActivityParam(parameters, img);
 		IconManager icons = IconManager.getInstance();
 		activity.setIcon(icons.getIcon(IconManager.MOVIE_22));
 		un.notifyActivity(activity);
@@ -337,6 +336,18 @@ class MetadataViewerComponent
 			throw new IllegalStateException("This method cannot be invoked " +
 					"in the DISCARDED state.");
 		return view.getUI();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getParentUI()
+	 */
+	public JFrame getParentUI()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException("This method cannot be invoked " +
+					"in the DISCARDED state.");
+		return view;
 	}
 	
 	/** 
@@ -725,10 +736,14 @@ class MetadataViewerComponent
     	int maxZ = data.getSizeZ();
     	int defaultZ = maxZ;
     	int defaultT = maxT;
+    	
+    	Object value = data.getSizeC();
+    	if (model.getEditor().getChannelData() != null)
+    		value = model.getEditor().getChannelData();
     	String name = EditorUtil.getPartialName(img.getName());
     	JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
     	MovieExportDialog dialog = new MovieExportDialog(f, name, 
-    			maxT, maxZ, defaultZ, defaultT);
+    			maxT, maxZ, defaultZ, defaultT, value);
     	dialog.setBinaryAvailable(MetadataViewerAgent.isBinaryAvailable());
     	dialog.setScaleBarDefault(scaleBar, overlayColor);
     	dialog.addPropertyChangeListener(new PropertyChangeListener() {
@@ -1102,7 +1117,7 @@ class MetadataViewerComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link Editor} interface.
+	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#setThumbnails(Map, long)
 	 */
 	public void setThumbnails(Map<Long, BufferedImage> thumbnails, 
@@ -1121,7 +1136,7 @@ class MetadataViewerComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link Editor} interface.
+	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#uploadScript()
 	 */
 	public void uploadScript()
@@ -1179,9 +1194,21 @@ class MetadataViewerComponent
 	}
     
 	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#onGroupSwitched(boolean)
+	 */
+	public void onGroupSwitched(boolean success)
+	{
+		if (!success) return;
+		model.getEditor().onGroupSwitched(success);
+	}
+	
+	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
 	public String toString() { return model.getRefObjectName(); }
+
+
 
 }

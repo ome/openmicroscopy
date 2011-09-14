@@ -5,6 +5,7 @@
 
 package ome.services.blitz.test;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,6 +36,7 @@ import omero.api.AMD_IUpdate_saveAndReturnObject;
 import omero.model.IObject;
 import omero.model.Pixels;
 import omero.sys.EventContext;
+import omero.util.TempFileManager;
 
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.AfterClass;
@@ -73,6 +75,10 @@ public abstract class AbstractServantTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
+
+        // ticket:#6417
+        File omeroDataDir = TempFileManager.create_path(".omeroDataDir", "test", true);
+        System.setProperty("omero.data.dir", omeroDataDir.getAbsolutePath());
 
         // Shared
         OmeroContext inner = OmeroContext.getManagedServerContext();

@@ -311,7 +311,7 @@ class ITest(unittest.TestCase):
         admin = self.root.sf.getAdminService()
         if isinstance(user, omero.model.Experimenter):
             if user.isLoaded():
-                name = user.name.val
+                name = user.omeName.val
                 user = admin.lookupExperimenter(name)
             else:
                 user = admin.getExperimenter(user.id.val)

@@ -24,7 +24,9 @@
 
 {% ifnotequal nav.menu "status" %}
 <script>
-    $(document).ready(function() {
+
+    var refreshProgressBar = function() {
+        refreshActivitiesWindow('{% url status %}');
         var i = setInterval(function (){
             $.getJSON("{% url progress %}", function(data) {
                 if (data.inprogress==0) {
@@ -36,12 +38,13 @@
                         $("#jobstatus").html(data.jobs + ' job(s)');
                     } return;
                 }
-
                 $("#progress").show();
                 $("#jobstatus").html(data.inprogress + ' job(s) in progress');
             });
         }, 10000);
-
+    }
+    $(document).ready(function() {
+        refreshProgressBar();
     });
 </script>
 {% endifnotequal %}
@@ -50,7 +53,11 @@
         <div id="baskets"><a href="{% url basket_action %}">{% trans "BASKET:" %}</a> <span id="cartTotal">{{ nav.basket }}</span> {% plural nav.basket 'item' 'items' %}</div>
         {% endifnotequal %}
         {% ifnotequal nav.menu "status" %}
-        <div id="queue"><a href="{% url status %}" class="align_left">STATUS:</a><div id="jobstatus">0 job(s)</div><img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none;"/></div>
+        <div id="queue">
+            <a href="#" onClick="popupActivites('{% url status %}');" class="align_left">STATUS:</a>
+            <div id="jobstatus">0 job(s)</div>
+            <img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none;"/>
+        </div>
         {% endifnotequal %}
         <div style="float:left">
             {% for field in form_active_group %} {% trans "group" %}: {{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}

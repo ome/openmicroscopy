@@ -6,7 +6,6 @@
  */
 package integration;
 
-//Java imports
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
@@ -1469,7 +1468,9 @@ public class UpdateServiceTest
     /**
 	 * Tests to delete various types of annotations i.e. 
 	 * Boolean, comment, long, tag, file annotation. 
-	 * This method the <code>deleteObject</code> method. 
+	 * This method the <code>deleteObject</code> method.
+	 * Annotation should be deleted using the deleteQueue method cf. delete
+	 * tests.
 	 * 
 	 * @throws Exception  Thrown if an error occurred.
 	 */

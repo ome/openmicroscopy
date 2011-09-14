@@ -637,7 +637,6 @@ class TreeViewerModel
 	 */
 	void firePasteRenderingSettings(List<Long> ids, Class klass)
 	{
-		state = TreeViewer.SETTINGS_RND;
 		long id = refImage.getId();
 		List<Long> toKeep = new ArrayList<Long>();
 		Iterator<Long> i = ids.iterator();
@@ -647,6 +646,7 @@ class TreeViewerModel
 			if (id1 != id) toKeep.add(id1);
 		}
 		if (toKeep.size() == 0) return;
+		state = TreeViewer.SETTINGS_RND;
 		currentLoader = new RndSettingsSaver(component, klass, toKeep, 
 								refImage.getDefaultPixels().getId());
 		currentLoader.load();

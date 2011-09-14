@@ -29,42 +29,42 @@
     padding: 10px;
 }
 .calendar table {
-	text-align: center;
-	width: 100%;
+    text-align: center;
+    width: 100%;
 }
 
 .calendar td.calendar_day {
-	height: 70px;
-	vertical-align: top;
-	width: 14.29%;
-	background-color: #f3f3f3;
+    height: 70px;
+    vertical-align: top;
+    width: 14.29%;
+    background-color: #f3f3f3;
 }
 .calendar td.not_calendar_day {
-	background-color: #fff;
+    background-color: #fff;
 }
 .calendar_numerical_day {
-	padding: 2px;
-	text-align: right;
-	background-color: #fff;
-	border: 1px solid #f3f3f3;
+    padding: 2px;
+    text-align: right;
+    background-color: #fff;
+    border: 1px solid #f3f3f3;
 }
 .calendar_items{
-	margin: 5px;
+    margin: 5px;
 }
 .calendar th {
-	font-weight: normal;
-	border: 0px;
-	color: #555;
-	background-color: #f3f3f3;
-	-moz-border-radius-topleft: 5px;
-	-moz-border-radius-topright: 5px;
+    font-weight: normal;
+    border: 0px;
+    color: #555;
+    background-color: #f3f3f3;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
 }
 .calendar th.calendar_day {
-	font-weight: bold;
-	background-color: #bbb;
+    font-weight: bold;
+    background-color: #bbb;
 }
 .calendar_numerical_day a {
     color: #555;
     font-weight: bold;
-	text-decoration: none;
+    text-decoration: none;
 }

@@ -43,12 +43,15 @@ import loci.formats.in.FlexReader;
 import loci.formats.in.InCellReader;
 import loci.formats.in.MIASReader;
 import loci.formats.in.MetamorphTiffReader;
+import loci.formats.in.OMEXMLReader;
 import loci.formats.in.ScanrReader;
 import loci.formats.in.ScreenReader;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
@@ -91,8 +94,16 @@ public class ImportableObject
 	 */
 	public static final List<String> HCS_DOMAIN;
 	
+	/** 
+	 * The collection of OME suffices. 
+	 */
+	public static final List<String> OME_SUFFIXES;
+	
 	/** The filter used to exclude extensions.*/
 	public static final TIFFFilter	FILTER;
+	
+	/** The <code>dat</code> extension.*/
+	public static final String DAT_EXTENSION = "dat";
 	
 	static {
 		FILTER = new TIFFFilter();
@@ -130,8 +141,9 @@ public class ImportableObject
 		reader = new ScreenReader();
 		populateExtensions(reader.getSuffixes());
 		HCS_DOMAIN.add(reader.getFormat());
+		reader = new OMEXMLReader();
+		OME_SUFFIXES = (List<String>) Arrays.asList(reader.getSuffixes());
 		
-		//
 		ARBITRARY_FILES_EXTENSION = new ArrayList<String>();
 		ARBITRARY_FILES_EXTENSION.add("text");
 		ARBITRARY_FILES_EXTENSION.add("txt");
@@ -156,7 +168,7 @@ public class ImportableObject
 			for (int i = 0; i < suffixes.length; i++) {
 				s = suffixes[i];
 				if (s != null && s.trim().length() > 0)
-					HCS_FILES_EXTENSION.add(s);
+					HCS_FILES_EXTENSION.add(s.toLowerCase());
 			}
 		}
 	}
@@ -496,7 +508,8 @@ public class ImportableObject
 		String name = path;
 		if (!name.contains(".")) return false; 
 		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
-		return HCS_FILES_EXTENSION.contains(ext);
+		if (ext == null) return false;
+		return HCS_FILES_EXTENSION.contains(ext.toLowerCase());
 	}
 	
 	/**
@@ -511,6 +524,29 @@ public class ImportableObject
 		Iterator<String> i = HCS_DOMAIN.iterator();
 		while (i.hasNext()) {
 			if (format.contains(i.next()))
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns code <code>true</code> if the specified file is an
+	 * <code>OME</code> file, <code>false</code> otherwise.
+	 * 
+	 * @param file The file to handle.
+	 * @return See above.
+	 */
+	public static boolean isOMEFile(File file)
+	{
+		if (file == null) return false;
+		String name = file.getName();
+		if (name == null) return false;
+		Iterator<String> i = OME_SUFFIXES.iterator();
+		name = name.toLowerCase();
+		String s;
+		while (i.hasNext()) {
+			s = i.next().toLowerCase();
+			if (name.endsWith(s))
 				return true;
 		}
 		return false;

@@ -130,7 +130,6 @@ def change_active_group(request, groupId, **kwargs):
     blitz_host = "%s:%s" % (blitz.host, blitz.port)
     request.session['nav']={"error": None, "blitz": blitz_host, "menu": "start", "view": "icon", "basket": 0, "experimenter":None, 'callback':dict()}
     
-    print "conn", conn
     #conn = getBlitzConnection(request, useragent="OMERO.webmobile")
 
     if conn.changeActiveGroup(groupId):
@@ -171,7 +170,6 @@ def viewer_big(request, imageId, **kwargs):
     w = image.getWidth() 
     h = image.getHeight() 
     z = image.z_count() /2
-    print z
     
     return render_to_response('webmobile/viewers/big_iphone.html', {'image':image, 'w':w, 'h': h, 'z':z})
     
@@ -191,7 +189,7 @@ def projects (request, eid=None, **kwargs):
     #eId = request.REQUEST.get('experimenter', None)
     experimenter = None
     if eid is not None:
-        experimenter = conn.getExperimenter(eid)
+        experimenter = conn.getObject("Experimenter", eid)
     else:
         # show current user's projects by default
         eid = conn.getEventContext().userId
@@ -246,7 +244,6 @@ def object_details(request, obj_type, id, **kwargs):
     anns = getAnnotations(obj)
     
     parent = obj.getParent()
-    print "parent", parent
     
     return render_to_response('webmobile/browse/object_details.html', {'client': conn, 'object': obj, 'title': title, 
         'annotations':anns, 'obj_type': obj_type})
@@ -312,7 +309,7 @@ def screens(request, eid=None, **kwargs):
 
     experimenter = None
     if eid is not None:
-        experimenter = conn.getExperimenter(eid)
+        experimenter = conn.getObject("Experimenter", eid)
     else:
         # show current user's screens by default
         eid = conn.getEventContext().userId
@@ -519,7 +516,7 @@ def index (request, eid=None, **kwargs):
     
     experimenter = None
     if eid is not None:
-        experimenter = conn.getExperimenter(eid)
+        experimenter = conn.getObject("Experimenter", eid)
       
     return render_to_response('webmobile/index.html', {'client': conn, 'experimenter': experimenter})
 
@@ -535,7 +532,7 @@ def recent (request, obj_type, eid=None, **kwargs):
     
     experimenter = None
     if eid:
-        experimenter = conn.getExperimenter(eid)
+        experimenter = conn.getObject("Experimenter", eid)
         
     # By default, get 3 each of Projects, Datasets, Images, Ratings, Comments, Tags
     obj_count = 3   
@@ -572,7 +569,7 @@ def recent_full_page (request, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
     
-    exp = conn.getExperimenter(conn.getEventContext().userId)
+    exp = conn.getObject("Experimenter", conn.getEventContext().userId)
         
     return render_to_response('webmobile/timeline/recent_full_page.html', {'client':conn, 'exp':exp })
     

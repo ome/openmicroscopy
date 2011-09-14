@@ -55,7 +55,6 @@ import org.jdesktop.swingx.JXBusyLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptMenuItem;
 import org.openmicroscopy.shoola.agents.metadata.util.ScriptSubMenu;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -144,6 +143,12 @@ class ToolBar
 	/** The option dialog. */
 	private AnalysisDialog  	analysisDialog;
 
+	/** Component used to download the archived file.*/
+	private JMenuItem downloadItem;
+	
+	/** Component used to download the archived file.*/
+	private JMenuItem exportAsOmeTiffItem;
+	
     /** Turns off some controls if the binary data are not available. */
     private void checkBinaryAvailability()
     {
@@ -160,28 +165,31 @@ class ToolBar
     	if (saveAsMenu == null) {
     		saveAsMenu = new JPopupMenu();
     		IconManager icons = IconManager.getInstance();
-    		JMenuItem item = new JMenuItem(icons.getIcon(IconManager.DOWNLOAD));
-    		item.setToolTipText("Download the Archived File(s).");
-    		item.setText("Download...");
-    		item.addActionListener(controller);
-    		item.setActionCommand(""+EditorControl.DOWNLOAD);
-    		item.setBackground(UIUtilities.BACKGROUND_COLOR);
-    		saveAsMenu.add(item);
-    		item = new JMenuItem(icons.getIcon(
+    		downloadItem = new JMenuItem(icons.getIcon(IconManager.DOWNLOAD));
+    		downloadItem.setToolTipText("Download the Archived File(s).");
+    		downloadItem.setText("Download...");
+    		downloadItem.addActionListener(controller);
+    		downloadItem.setActionCommand(""+EditorControl.DOWNLOAD);
+    		downloadItem.setBackground(UIUtilities.BACKGROUND_COLOR);
+    		downloadItem.setEnabled(false);
+    		saveAsMenu.add(downloadItem);
+    		exportAsOmeTiffItem = new JMenuItem(icons.getIcon(
     				IconManager.EXPORT_AS_OMETIFF));
-    		item.setText("Export as OME-TIFF...");
-    		item.setToolTipText(EXPORT_AS_OME_TIFF_TOOLTIP);
-    		item.addActionListener(controller);
-    		item.setActionCommand(
+    		exportAsOmeTiffItem.setText("Export as OME-TIFF...");
+    		exportAsOmeTiffItem.setToolTipText(EXPORT_AS_OME_TIFF_TOOLTIP);
+    		exportAsOmeTiffItem.addActionListener(controller);
+    		exportAsOmeTiffItem.setActionCommand(
     				""+EditorControl.EXPORT_AS_OMETIFF);
-    		saveAsMenu.add(item);
-    		item = new JMenuItem(icons.getIcon(
+    		exportAsOmeTiffItem.setEnabled(!model.isLargeImage());
+    		saveAsMenu.add(exportAsOmeTiffItem);
+    		JMenuItem item = new JMenuItem(icons.getIcon(
     				IconManager.SAVE_AS));
     		item.setText("Save as JPEG...");
     		item.setToolTipText("Save the images at full size as JPEG.");
     		item.addActionListener(controller);
     		item.setActionCommand(""+EditorControl.SAVE_AS);
     		saveAsMenu.add(item);
+    		setRootObject();
     	}
     	return saveAsMenu;
     }
@@ -461,7 +469,7 @@ class ToolBar
     			if (so.isOfficialScript()) menu.add(subMenu);
     			else others.add(subMenu);
     		}
-    		if (!ScriptMenuItem.isScriptWithUI(so.getScriptLabel()))
+    		//if (!ScriptMenuItem.isScriptWithUI(so.getScriptLabel()))
     			subMenu.addScript(so).addActionListener(controller);
     	}
     	if (others.size() > 0) {
@@ -561,6 +569,8 @@ class ToolBar
 		}
     	
     	exportAsOmeTiffButton.setEnabled(false);
+    	if (downloadItem != null)
+			downloadItem.setEnabled(false);
     	if (model.isSingleMode()) {
     		ImageData img = null;
         	if (ref instanceof ImageData) {
@@ -571,7 +581,13 @@ class ToolBar
         	if (img != null) {
         		try {
         			img.getDefaultPixels();
-        			exportAsOmeTiffButton.setEnabled(true);
+        			boolean b = !model.isLargeImage();
+        			exportAsOmeTiffButton.setEnabled(b);
+        			if (exportAsOmeTiffItem != null) {
+        				exportAsOmeTiffButton.setEnabled(b);
+        			}
+        			if (downloadItem != null && img.isArchived())
+        				downloadItem.setEnabled(true);
     			} catch (Exception e) {}
         	}
     	}

@@ -69,60 +69,15 @@ from controller.drivespace import BaseDriveSpace, usersData
 from controller.uploadfile import BaseUploadFile
 from controller.enums import BaseEnums
 
-from omeroweb.webgateway import views as webgateway_views
+from omeroweb.webclient.views import _session_logout
+from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck, getGuestConnection
 from omeroweb.webgateway.views import getBlitzConnection
-from omeroweb.webclient.webclient_utils import toBoolean, upgradeCheck
 
 logger = logging.getLogger('views-admin')
 
 connectors = {}
 
 logger.info("INIT '%s'" % os.getpid())
-
-################################################################################    
-def getGuestConnection(host, port):
-    conn = None
-    guest = "guest"
-    try:
-        # do not store connection on connectors
-        conn = webgateway_views._createConnection('', host=host, port=port, username=guest, passwd=guest, secure=True, useragent="OMERO.web")
-        if conn is not None:
-            logger.info("Have connection as Guest")
-        else:
-            logger.info("Open connection is not available")
-    except Exception, x:
-        logger.error(traceback.format_exc())
-    return conn
-
-def _checkVersion(host, port):
-    rv = False
-    conn = getGuestConnection(host, port)
-    if conn is not None:
-        try:
-            agent = conn.getServerVersion()
-            regex = re.compile("^.*?[-]?(\\d+[.]\\d+([.]\\d+)?)[-]?.*?$")
-
-            agent_cleaned = regex.match(agent).group(1)
-            agent_split = agent_cleaned.split(".")
-
-            local_cleaned = regex.match(omero_version).group(1)
-            local_split = local_cleaned.split(".")
-
-            rv = (agent_split == local_split)
-            logger.info("Client version: '%s'; Server version: '%s'"% (omero_version, agent))
-        except Exception, x:
-            logger.error(traceback.format_exc())
-    return rv
-
-def _isServerOn(host, port):
-    conn = getGuestConnection(host, port)
-    if conn is not None:
-        try:
-            conn.getServerVersion()
-            return True
-        except Exception, x:
-            logger.error(traceback.format_exc())
-    return False
 
 ################################################################################
 # decorators
@@ -329,7 +284,7 @@ def login(request):
 
 @isUserConnected
 @isAnythingCreated
-def index(request, **kwargs):    
+def index(request, **kwargs):
     conn = None
     try:
         conn = kwargs["conn"]
@@ -344,18 +299,10 @@ def index(request, **kwargs):
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
 
+
 @isUserConnected
 def logout(request, **kwargs):
-    webgateway_views._session_logout(request, request.session.get('server'))
-    
-    try:
-        if request.session.get('shares') is not None:
-            for key in request.session.get('shares').iterkeys():
-                session_key = "S:%s#%s#%s" % (request.session.session_key,request.session.get('server'), key)
-                webgateway_views._session_logout(request,request.session.get('server'), force_key=session_key)
-    except:
-        logger.error(traceback.format_exc())
-    
+    _session_logout(request, request.session.get('server'))
     #request.session.set_expiry(1)
     return HttpResponseRedirect(reverse("waindex"))
 
@@ -532,7 +479,7 @@ def manage_password(request, eid, **kwargs):
             old_password = password_form.cleaned_data['old_password']
             password = password_form.cleaned_data['password']
             if conn.isAdmin():
-                exp = conn.getExperimenter(eid)
+                exp = conn.getObject("Experimenter", eid)
                 try:
                     conn.changeUserPassword(exp.omeName, password, old_password)
                 except Exception, x:

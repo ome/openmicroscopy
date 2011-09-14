@@ -201,6 +201,29 @@ def getSplitView(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames, colou
         else:
             log("  Projecting z range: %d - %d   (max Z is %d)" % (proStart+1, proEnd+1, sizeZ))
         
+
+
+        # turn on channels in mergedIndexes.
+        for i in mergedIndexes:
+            if i >= sizeC:
+                channelMismatch = True
+            else:
+                re.setActive(i, True)
+                if i in mergedColours:
+                    re.setRGBA(i, *mergedColours[i])
+
+        # get the combined image, using the existing rendering settings
+        channelsString = ", ".join([channelNames[i] for i in mergedIndexes])
+        log("  Rendering merged channels: %s" % channelsString)
+        if proStart != proEnd:
+            overlay = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
+        else:
+            planeDef = omero.romio.PlaneDef()
+            planeDef.z = proStart
+            planeDef.t = timepoint
+            overlay = re.renderCompressed(planeDef)
+
+
         # now get each channel in greyscale (or colour)
         # a list of renderedImages (data as Strings) for the split-view row
         renderedImages = []
@@ -214,6 +237,7 @@ def getSplitView(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames, colou
         for index in splitIndexes:
             if index >= sizeC:
                 channelMismatch = True        # can't turn channel on - simply render black square! 
+                renderedImages.append(None)
             else:
                 re.setActive(index, True)                # turn channel on
                 if colourChannels:                            # if split channels are coloured...
@@ -230,40 +254,19 @@ def getSplitView(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames, colou
                     re.setRGBA(index,255,255,255,255)    # if not colourChannels - channels are white
                 info = (index, re.getChannelWindowStart(index), re.getChannelWindowEnd(index))
                 log("  Render channel: %s  start: %d  end: %d" % info)
-            if proStart != proEnd:
-                renderedImg = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
-            else:
-                planeDef = omero.romio.PlaneDef()
-                planeDef.z = proStart
-                planeDef.t = timepoint
-                renderedImg = re.renderCompressed(planeDef)
-            renderedImages.append(renderedImg)
+                if proStart != proEnd:
+                    renderedImg = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
+                else:
+                    planeDef = omero.romio.PlaneDef()
+                    planeDef.z = proStart
+                    planeDef.t = timepoint
+                    renderedImg = re.renderCompressed(planeDef)
+                renderedImages.append(renderedImg)
             if index < sizeC:
                 re.setActive(index, False)                # turn the channel off again!
-    
 
-        # turn on channels in mergedIndexes. 
-        for i in mergedIndexes: 
-            if i >= sizeC:
-                channelMismatch = True
-            else:
-                rgba = mergedColours[i]
-                re.setActive(i, True)
-                re.setRGBA(i, *rgba)
-                
-        # get the combined image, using the existing rendering settings 
-        channelsString = ", ".join([channelNames[i] for i in mergedIndexes])
-        log("  Rendering merged channels: %s" % channelsString)
-        if proStart != proEnd:
-            overlay = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
-        else:
-            planeDef = omero.romio.PlaneDef()
-            planeDef.z = proStart
-            planeDef.t = timepoint
-            overlay = re.renderCompressed(planeDef)
         if channelMismatch:
             log(" WARNING channel mismatch: The current image has fewer channels than the primary image.")
-        
         
         # make a canvas for the row of splitview images...
         imageCount = len(renderedImages) + 1     # extra image for combined image
@@ -277,7 +280,10 @@ def getSplitView(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames, colou
         col = 0
         # paste the images in
         for img in renderedImages:
-            im = Image.open(StringIO.StringIO(img))
+            if img is None:
+                im = Image.new(mode, (sizeX, sizeY), (0,0,0))
+            else:
+                im = Image.open(StringIO.StringIO(img))
             i = imgUtil.resizeImage(im, width, height)
             imgUtil.pasteImage(i, canvas, px, py)
             px = px + width + spacer
@@ -431,10 +437,10 @@ def makeSplitViewFigure(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames
         # text is coloured if channel is grey AND in the merged image
         rgba = (0,0,0,255)
         if index in mergedIndexes:
-            if not colourChannels:
+            if (not colourChannels) and (index in mergedColours):
                 rgba = tuple(mergedColours[index])
                 if rgba == (255,255,255,255):    # if white (unreadable), needs to be black!
-                    rgba = (0,0,0,0)
+                    rgba = (0,0,0,255)
         draw.text((px+inset, py), channelNames[index], font=font, fill=rgba)
         px = px + width + spacer
     
@@ -443,10 +449,12 @@ def makeSplitViewFigure(conn, pixelIds, zStart, zEnd, splitIndexes, channelNames
         mergedIndexes.reverse()
         print "Adding merged channel names..."
         for index in mergedIndexes:
-            rgba = tuple(mergedColours[index])
-            print index, channelNames[index], rgba
-            if rgba == (255,255,255, 255):    # if white (unreadable), needs to be black!
-                rgba = (0,0,0,0)
+            rgba = (0,0,0,255)
+            if index in mergedColours:
+                rgba = tuple(mergedColours[index])
+                print index, channelNames[index], rgba
+                if rgba == (255,255,255, 255):    # if white (unreadable), needs to be black!
+                    rgba = (0,0,0,255)
             name = channelNames[index]
             combTextWidth = font.getsize(name)[0]
             inset = int((width - combTextWidth) / 2)

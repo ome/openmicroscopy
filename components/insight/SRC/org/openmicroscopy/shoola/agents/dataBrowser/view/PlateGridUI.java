@@ -129,7 +129,8 @@ class PlateGridUI
 			selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
 			grid.selectCell(node.getRow(), node.getColumn());
 			if (node.getText() != null) {
-				selectedText.setText(UIUtilities.formatToolTipText(node.getText()));
+				selectedText.setText(
+						UIUtilities.formatToolTipText(node.getText()));
 			}
 		}
 	}

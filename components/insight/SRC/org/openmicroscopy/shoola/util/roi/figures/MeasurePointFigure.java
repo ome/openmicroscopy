@@ -446,13 +446,13 @@ public class MeasurePointFigure
 		List<Point> points = new ArrayList<Point>(1);
 		points.add(new Point((int) getX(), (int) getY())); 
 		return points;
-		/*
-		PlanePoint2D[] points = new PlanePoint2D[1];
-		points[0] = new PlanePoint2D(getX(), getY());
-		return points;
-		*/
-		
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getSize()
+	 */
+	public int getSize() { return 1; }
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.

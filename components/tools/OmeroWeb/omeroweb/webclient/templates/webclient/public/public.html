@@ -27,8 +27,8 @@
 {% block jscript %}
 
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.cookie.js" %}"></script>
-	<script type="text/javascript" src="{% url webstatic "javascript/jquery.hotkeys.js" %}"></script>
-	<script type="text/javascript" src="{% url webstatic "javascript/jquery.jstree.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.hotkeys.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.jstree.js" %}"></script>
 
 {% endblock %}
 
@@ -47,7 +47,7 @@
                 var buttonsShowHide = function(selected) { 
                     var toolbar_config = new Object();
                     if(selected.length > 0) {
-                        if(selected.attr("rel").indexOf("locked")>=0) {            	            
+                        if(selected.attr("rel").indexOf("locked")>=0) {                            
                             toolbar_config = {"adddiscussion":false, 'removecontent':false};
                         } else {
                             if(selected.attr("id").indexOf("experimenter")>=0) {
@@ -73,205 +73,207 @@
                 }
                 
                 $("#datashareTree").jstree({ 
-            			// the list of plugins to include
-            			"plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
-            			// Plugin configuration
+                        // the list of plugins to include
+                        "plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
+                        // Plugin configuration
 
-            			// I usually configure the plugin that handles the data first - in this case JSON as it is most common
-            			"html_data" : { 
-            				// I chose an ajax enabled tree - again - as this is most common, and maybe a bit more complex
-            				// All the options are the same as jQuery's except for `data` which CAN (not should) be a function
-            				"ajax" : {
-            					// the URL to fetch the data
-            					"url" : function(n) {
-            					    return n.attr ? ("{% url load_public %}"+n.attr("id").split("-")[1]+"/") : "{% url load_public %}";
-            					    },
-            					// this function is executed in the instance's scope (this refers to the tree instance)
-            					// the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
-            					"data" : function (n) {
+                        // I usually configure the plugin that handles the data first - in this case JSON as it is most common
+                        "html_data" : { 
+                            // I chose an ajax enabled tree - again - as this is most common, and maybe a bit more complex
+                            // All the options are the same as jQuery's except for `data` which CAN (not should) be a function
+                            "ajax" : {
+                                // the URL to fetch the data
+                                "url" : function(n) {
+                                    return n.attr ? ("{% url load_public %}"+n.attr("id").split("-")[1]+"/") : "{% url load_public %}";
+                                    },
+                                // this function is executed in the instance's scope (this refers to the tree instance)
+                                // the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
+                                "data" : function (n) {
                                     return { 
                                         "view" : "tree"
-            						};
+                                    };
                                 }
-            				}
-            			},
-            			// Using types - most of the time this is an overkill
-            			// Still meny people use them - here is how
-            			"types" : {
-            				// I want only `drive` nodes to be root nodes 
-            				// This will prevent moving or creating any other type as a root node
-            				"select_limit" : -1,
-            				"max_depth" : -1,
-            				"max_children" : -1,
-            				"valid_children" : [ "experimenter" ],
-            				"types" : {
-            					"experimenter" : {
-            						"valid_children" : [ "share", "share-locked", "discussion", "discussion-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/personal16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"share" : {
-            						"valid_children" : [ "image", "image-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_html16.png" %}'
-            						},
-            						"create_node" : false,
+                            }
+                        },
+                        // Using types - most of the time this is an overkill
+                        // Still meny people use them - here is how
+                        "types" : {
+                            // I want only `drive` nodes to be root nodes 
+                            // This will prevent moving or creating any other type as a root node
+                            "max_depth" : -1,
+                            "max_children" : -1,
+                            "valid_children" : [ "experimenter" ],
+                            "types" : {
+                                "experimenter" : {
+                                    "valid_children" : [ "share", "share-locked", "discussion", "discussion-locked" ],
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/personal16.png" %}'
+                                    },
+                                    "create_node" : false,
                                     "start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"share-locked" : {
-            						"valid_children" : [ "image", "image-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_html_locked16.png" %}'
-            						},
-            						"create_node" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "share" : {
+                                    "valid_children" : [ "image", "image-locked" ],
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/folder_html16.png" %}'
+                                    },
+                                    "create_node" : false,
                                     "start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"share-disabled" : {
-            						"valid_children" : [ "image", "image-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_html_locked16.png" %}'
-            						},
-            						"select_node" : false,
-            						"create_node" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "share-locked" : {
+                                    "valid_children" : [ "image", "image-locked" ],
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/folder_html_locked16.png" %}'
+                                    },
+                                    "create_node" : false,
                                     "start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},            					
-            					"discussion" : {
-            						"valid_children" : "none",
-            						"icon" : {
-            							"image" : '{% url webstatic "images/wp_protocol16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"discussion-locked" : {
-            						"valid_children" :  "none",
-            						"icon" : {
-            							"image" : '{% url webstatic "images/wp_protocol_locked16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"image" : {
-            						"valid_children" : "none",
-            						"icon" : {
-            							"image" : '{% url webstatic "images/image16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : true
-            					},
-            					"image-locked" : {
-            						"valid_children" : "none",
-            						"icon" : {
-            							"image" : '{% url webstatic "images/image_locked16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					}
-            				}
-            			},
-            			// For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
-            			// the UI plugin - it handles selecting/deselecting/hovering nodes
-            			"ui" : {
-            				"initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ]
-            			},
-            			// the core plugin - not many options here
-            			"core" : { 
-            				// just open those two nodes up
-            				// as this is an AJAX enabled tree, both will be downloaded from the server
-            			    "initially_open" : [ {% for p in init.initially_open %}"{{ p }}",{% endfor %} "experimenter-0" ]
-            			},
-            			"contextmenu" : {
-            			    "select_node":true,
-            			    "items" : function(obj){
-            			        var config = {};        
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "share-disabled" : {
+                                    "valid_children" : [ "image", "image-locked" ],
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/folder_html_locked16.png" %}'
+                                    },
+                                    "select_node" : false,
+                                    "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },                                
+                                "discussion" : {
+                                    "valid_children" : "none",
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/wp_protocol16.png" %}'
+                                    },
+                                    "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "discussion-locked" : {
+                                    "valid_children" :  "none",
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/wp_protocol_locked16.png" %}'
+                                    },
+                                    "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "image" : {
+                                    "valid_children" : "none",
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/image16.png" %}'
+                                    },
+                                    "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "remove" : true
+                                },
+                                "image-locked" : {
+                                    "valid_children" : "none",
+                                    "icon" : {
+                                        "image" : '{% url webstatic "images/image_locked16.png" %}'
+                                    },
+                                    "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                }
+                            }
+                        },
+                        // For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
+                        // the UI plugin - it handles selecting/deselecting/hovering nodes
+                        "ui" : {
+                            "select_limit" : 1,
+                            "select_multiple_modifier" : false,
+                            "select_range_modifier" : false,
+                            "initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ]
+                        },
+                        // the core plugin - not many options here
+                        "core" : { 
+                            // just open those two nodes up
+                            // as this is an AJAX enabled tree, both will be downloaded from the server
+                            "initially_open" : [ {% for p in init.initially_open %}"{{ p }}",{% endfor %} "experimenter-0" ]
+                        },
+                        "contextmenu" : {
+                            "select_node":true,
+                            "items" : function(obj){
+                                var config = {};        
                                 
                                 return config;
                             }
                         }
-            			
-            	})
-            	.delegate("a", "click.jstree", function (event) {
-					var data = $.jstree._focused();
-					if(!data.is_open()) {
-                	    data.open_node(data.get_selected());
-                	}
-				})
-            	.bind("select_node.jstree", function (e, data) {
-            	    buttonsShowHide(data.rslt.obj);
-            	    loadOtherPanels(data, '{% url load_public %}');
-            	    syncPanels(data.inst.get_selected());
-        		})
-        		.bind("remove.jstree", function (e, data) {
-        		    var pr = $(data.args[1]);
-        		    
-        		    data.args[0].each(function (i) {
+                        
+                })
+                .delegate("a", "click.jstree", function (event) {
+                    var data = $.jstree._focused();
+                    if(!data.is_open()) {
+                        data.open_node(data.get_selected());
+                    }
+                })
+                .bind("select_node.jstree", function (e, data) {
+                    buttonsShowHide(data.rslt.obj);
+                    loadOtherPanels(data.inst, '{% url load_public %}');
+                    syncPanels(data.inst.get_selected());
+                })
+                .bind("remove.jstree", function (e, data) {
+                    var pr = $(data.args[1]);
+                    
+                    data.args[0].each(function (i) {
                         url = '/webclient/action/removefromshare/share/'+pr.attr('id').split('-')[1]+'/'
                         $.ajax({
-            		        async : false,
+                            async : false,
                             url: url,
                             data : {'source':$(this).attr('id').split("-")[1]},
                             dataType: "json",
                             type: "POST",
                             success: function(r){
                                 if(eval(r.bad)) {
-          							$.jstree.rollback(data.rlbk);
-          							alert(r.errs);
-          						} else {
-          						    refreshCenterPanel();
-          						}
+                                      $.jstree.rollback(data.rlbk);
+                                      alert(r.errs);
+                                  } else {
+                                      refreshCenterPanel();
+                                  }
                             },
                             error: function(response) {
                                 $.jstree.rollback(data.rlbk);
                                 alert("Internal server error. Cannot remove image.");
                             }
                         });
-        		    });
+                    });
                     
-        		});
-            	
-        	});
+                });
+                
+            });
         
     </script>
     <script type="text/javascript">
     $(function () { 
-    	$("#buttons input").click(function () {
-    		switch(this.id) {
-    			case "adddiscussionButton":
-    			    makeDiscussion();
-    				break;
-    			case "removecontentButton":
-    			    if (confirm("Remove image?")) {
-    			        var jstree = $.jstree._focused();
-    			        $("#datashareTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
-                    }    			    
-    				break;
-    			case "refreshButton":
+        $("#buttons input").click(function () {
+            switch(this.id) {
+                case "adddiscussionButton":
+                    makeDiscussion();
+                    break;
+                case "removecontentButton":
+                    if (confirm("Remove image?")) {
+                        var jstree = $.jstree._focused();
+                        $("#datashareTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
+                    }                    
+                    break;
+                case "refreshButton":
                     $("#datashareTree").jstree("refresh");
                     refreshCenterPanel();
                     break;
-		        default:
-        		    break;
-    		}
-    	});
+                default:
+                    break;
+            }
+        });
     });
     </script>
 {% endblock %}

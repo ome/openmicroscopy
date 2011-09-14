@@ -379,6 +379,16 @@ class TreeViewerComponent
 						model.getObjectMimeType(object)));
         	}
         } else {
+        	TreeImageDisplay[] displayedNodes = browser.getSelectedDisplays();
+        	if (displayedNodes != null && displayedNodes.length > 1) {
+        		if (object instanceof DatasetData || 
+        				object instanceof PlateAcquisitionData || 
+        			object instanceof PlateData) {
+        			view.removeAllFromWorkingPane();
+        			model.setDataViewer(null);
+        			return;
+        		}
+        	}
         	db = DataBrowserFactory.getDataBrowser(object);
         	if (db != null) {
         		db.setComponentTitle("");
@@ -807,7 +817,7 @@ class TreeViewerComponent
 	{
 		switch (model.getState()) {
 		case DISCARDED:
-		case SAVE:  
+		//case SAVE:
 			throw new IllegalStateException("This method cannot be " +
 			"invoked in the DISCARDED, SAVE state.");
 		}
@@ -1053,7 +1063,7 @@ class TreeViewerComponent
 			DataBrowserFactory.discardAll();
 			view.removeAllFromWorkingPane();
 		}
-		if (operation == UPDATE_OBJECT) {
+		if (operation == UPDATE_OBJECT && browser != null) {
 			browser.accept(new UpdateVisitor(browser, data));
 			browser.getUI().repaint();
 		}
@@ -1270,10 +1280,11 @@ class TreeViewerComponent
 		if (model.getState() != LOADING_DATA)
 			throw new IllegalStateException(
 					"This method cannot be invoked in the LOADING_DATA state.");
-		if (objects == null || objects.size() == 0)
-			return;
+		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		model.setState(READY);
+		if (objects == null || objects.size() == 0)
+			return;
 		Browser b = model.getSelectedBrowser();
 		Set selected = null;
 		List available = new ArrayList();
@@ -1308,6 +1319,7 @@ class TreeViewerComponent
 				}
 			} else available.addAll(objects);
 		}
+		fireStateChange();
 		SelectionWizard d = new SelectionWizard(view, available, selected,
 				objects.get(0).getClass(), 
 				TreeViewerAgent.getUserDetails().getId());
@@ -2674,9 +2686,7 @@ class TreeViewerComponent
 	 */
 	public void onNodesMoved()
 	{
-		if (model.getState()!= SAVE)
-			throw new IllegalStateException("This method can only be " +
-			"invoked in the SAVE state");
+		if (model.getState() != SAVE) return;
 		model.setState(READY);
 		fireStateChange();
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -3179,6 +3189,7 @@ class TreeViewerComponent
 			model.setGroupId(group.getId());
 			view.removeAllFromWorkingPane();
 			model.setDataViewer(null);
+			model.getMetadataViewer().onGroupSwitched(success);
 			//model.resetMetadataViewer();
 			Map<Integer, Browser> browsers = model.getBrowsers();
 			Entry entry;

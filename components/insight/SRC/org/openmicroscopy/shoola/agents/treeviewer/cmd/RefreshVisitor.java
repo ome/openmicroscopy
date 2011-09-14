@@ -71,7 +71,6 @@ public class RefreshVisitor
      */
     private List<Object>		foundNodes;
     
-    
     /** Contains the expanded top container nodes ID. */
     private Map<Class, List>     expandedTopNodes;
     
@@ -124,12 +123,15 @@ public class RefreshVisitor
                 	l = new ArrayList<Long>();
                 	expandedTopNodes.put(DatasetData.class, l);
                 }
-                l.add(id);
+                l.add(Long.valueOf(id));
     		}
         } else if ((userObject instanceof TagAnnotationData) 
         		&& node.isChildrenLoaded() && node.isExpanded()) {
         	parent = node.getParentDisplay();
-    		if (parent.isExpanded()) 
+        	TagAnnotationData tag = (TagAnnotationData) userObject;
+        	String ns = tag.getNameSpace();
+    		if (parent.isExpanded() &&
+    			!TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) 
     			foundNodes.add(userObject);
     		if (!(parent.getUserObject() instanceof TagAnnotationData)) {
     			long id = ((DataObject) userObject).getId();
@@ -138,7 +140,7 @@ public class RefreshVisitor
                 	l = new ArrayList<Long>();
                 	expandedTopNodes.put(TagAnnotationData.class, l);
                 }
-                l.add(id);
+                l.add(Long.valueOf(id));
     		}
         } else if ((userObject instanceof ProjectData) 
         		&& node.isExpanded()) {
@@ -207,5 +209,5 @@ public class RefreshVisitor
     		foundNodes.add(node);
     	}
     }
-    
+
 }

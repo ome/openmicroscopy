@@ -21,6 +21,7 @@ import subprocess
 import getpass
 import omero.java
 
+from omero.util import get_user
 from omero.util.sessions import SessionsStore
 from omero.cli import BaseControl, CLI
 from path import path
@@ -233,9 +234,14 @@ class SessionsControl(BaseControl):
         if args.key:
             stored_name = store.find_name_by_key(server, args.key)
             if not stored_name:
+                # ticket:5975 : If this is the case, then this session key
+                # did not come from a CLI login, and so we're not going to
+                # modify the value returned by store.get_current()
                 self.ctx.dbg("No name found for %s." % args.key)
-                stored_name = args.key
-            rv = self.check_and_attach(store, server, stored_name, args.key, props)
+                rv = self.attach(store, server, args.key, args.key, props,\
+                        False, set_current = False)
+            else:
+                rv = self.check_and_attach(store, server, stored_name, args.key, props)
             action = "Joined"
             if not rv:
                 self.ctx.die(523, "Bad session key")
@@ -287,13 +293,15 @@ class SessionsControl(BaseControl):
                 self.ctx.dbg("Skipping %s due to conflicts: %s" % (uuid, conflicts))
                 return None
 
+        return self.attach(store, server, name, uuid, props, exists)
+
+    def attach(self, store, server, name, uuid, props, exists, set_current = True):
         rv = None
         try:
             if exists:
-                rv = store.attach(server, name, uuid)
+                rv = store.attach(server, name, uuid, set_current = set_current)
             else:
-                rv = store.create(name, name, props)
-            store.set_current(server, name, uuid)
+                rv = store.create(name, name, props, set_current = set_current)
         except exceptions.Exception, e:
             self.ctx.dbg("Removing %s: %s" % (uuid, e))
             store.clear(server, name, uuid)
@@ -336,7 +344,8 @@ class SessionsControl(BaseControl):
         except exceptions.Exception, e:
             self.ctx.dbg("Exception on logout: %s" % e)
         store.remove(*previous)
-        store.set_current("", "", "")
+        # Last is still useful. Not resetting.
+        # store.set_current("", "", "")
 
     def group(self, args):
         store = self.store(args)
@@ -492,7 +501,7 @@ class SessionsControl(BaseControl):
 
     def _get_username(self, defuser):
         if defuser is None:
-            defuser = getpass.getuser()
+            defuser = get_user("root")
         rv = self.ctx.input("Username: [%s]" % defuser)
         if not rv:
             return defuser

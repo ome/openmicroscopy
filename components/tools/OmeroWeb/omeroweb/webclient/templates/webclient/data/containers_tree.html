@@ -30,8 +30,8 @@
             <li id='project-{{ c.id }}' rel="project{% if not c.isOwned %}-locked{% endif %}"><a href="#">{{ c.name|truncatebefor:"35" }} {% if c.countChildren %}<span id="counter-project-{{ c.id }}">[{{ c.countChildren}}]</span>{% endif %}</a>
                 {% if c.countChildren %}
                 <ul>    
-                    {% for d in c.listChildrenWithLinks %}
-                        <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" {% if d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }} {% if d.countChildren %}<span id="counter-dataset-{{ d.id }}">[{{ d.countChildren}}]</span>{% endif %}</a></li>
+                    {% for d in c.listChildren %}
+                        <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" {% if d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }} {% if d.countChildren %}<span id="counter-dataset-{{ d.id }}">[{{ d.countChildren}}<span id="page-dataset-{{ d.id }}"></span>]</span>{% endif %}</a></li>
                     {% endfor %}
                 </ul>
                 {% endif %}
@@ -39,15 +39,23 @@
             {% endfor %}
         
             {% for d in manager.containers.datasets %}
-                <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" {% if d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }} {% if d.countChildren %}<span id="counter-dataset-{{ d.id }}">[{{ d.countChildren}}]</span>{% endif %}</a></li>
+                <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" {% if d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }} {% if d.countChildren %}<span id="counter-dataset-{{ d.id }}">[{{ d.countChildren}}<span id="page-dataset-{{ d.id }}"></span>]</span>{% endif %}</a></li>
             {% endfor %}
             
             {% for c in manager.containers.screens %}
             <li id='screen-{{ c.id }}' rel="screen{% if not c.isOwned %}-locked{% endif %}"><a href="#">{{ c.name|truncatebefor:"35" }} {% if c.countChildren %}<span id="counter-screen-{{ c.id }}">[{{ c.countChildren}}]</span>{% endif %}</a>
                 {% if c.countChildren %}
                 <ul>
-                    {% for d in c.listChildrenWithLinks %}
-                        <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}"><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
+                    {% for d in c.listChildren %}
+                        <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}"><a href="#">{{ d.name|truncatebefor:"35" }}</a>
+                            {% if d.countPlateAcquisitions %}
+                            <ul>
+                                {% for e in d.listPlateAcquisitions %}
+                                    <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}"><a href="#">{{ e.getName|truncatebefor:"35" }}</a></li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </li>
                     {% endfor %}
                 </ul>
                 {% endif %}
@@ -55,10 +63,18 @@
             {% endfor %}
             
             {% for d in manager.containers.plates %}
-                <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}"><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
+                <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}"><a href="#">{{ d.name|truncatebefor:"35" }}</a>
+                    {% if d.countPlateAcquisitions %}
+                    <ul>
+                        {% for e in d.listPlateAcquisitions %}
+                            <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}"><a href="#">{{ e.getName|truncatebefor:"35" }}</a></li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </li>
             {% endfor %}
             
-            <li id='orphaned-0' rel="orphaned" class="jstree-closed"><a href="#">Orphaned images</a></li>
+            <li id='orphaned-0' rel="orphaned" {% if manager.orphans %}class="jstree-closed"{% endif %}><a href="#">Orphaned images</a></li>
             
         </ul>
     </li>

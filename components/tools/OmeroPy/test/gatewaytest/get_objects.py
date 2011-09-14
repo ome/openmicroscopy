@@ -290,13 +290,15 @@ class GetObjectTest (lib.GTest):
         self.loginAsAdmin()
         
         # experimenters
-        experimenters = list( self.gateway.listExperimenters() )
+        # experimenters = list( self.gateway.listExperimenters() ) # removed from blitz gateway
         exps = list( self.gateway.getObjects("Experimenter") )  # all experimenters
         
-        self.assertEqual(len(exps), len(experimenters))  # check unordered lists are the same length & ids
-        eIds = [e.getId() for e in experimenters]
+        #self.assertEqual(len(exps), len(experimenters))  # check unordered lists are the same length & ids
+        #eIds = [e.getId() for e in experimenters]
         for e in exps:
-            self.assertTrue(e.getId() in eIds)
+            #self.assertTrue(e.getId() in eIds)
+            for groupExpMap in e.copyGroupExperimenterMap():    # check iQuery has loaded groups
+                self.assertEqual(e.id, groupExpMap.child.id.val)
 
         # returns all experimenters except current user - now moved to webclient_gateway
         #allBarOne = list( self.gateway.getExperimenters() )
@@ -307,7 +309,8 @@ class GetObjectTest (lib.GTest):
         # groups
         #groups = list( self.gateway.listGroups() )     # now removed from blitz gateway.
         gps = list( self.gateway.getObjects("ExperimenterGroup") )
-        
+        for grp in gps:
+            grpExpMap = grp.copyGroupExperimenterMap()
         #self.assertEqual(len(gps), len(groups))  # check unordered lists are the same length & ids
         #gIds = [g.getId() for g in gps]
         #for g in groups:
@@ -318,21 +321,39 @@ class GetObjectTest (lib.GTest):
         for e in colleagues:
             cName = e.getOmeName()
 
+        # check we can find some groups
+        exp = self.gateway.getObject("Experimenter", attributes={'omeName': self.USER.name})
+        for groupExpMap in exp.copyGroupExperimenterMap():
+            gName = groupExpMap.parent.name.val
+            gId = groupExpMap.parent.id.val
+            findG = self.gateway.getObject("ExperimenterGroup", attributes={'name': gName})
+            self.assertEqual(gId, findG.id, "Check we found the same group")
+
     def testGetExperimenter(self):
         self.loginAsAdmin()
-        e = self.gateway.findExperimenter(self.USER.name)
-        exp = self.gateway.getObject("Experimenter", e.id) # uses iQuery
-        experimenter = self.gateway.getExperimenter(e.id)  # uses IAdmin
+
+        # check that findExperimenter can be replaced by getObject()
+        #e = self.gateway.findExperimenter(self.USER.name)          # now removed from blitz gateway
+        findExp = self.gateway.getObject("Experimenter", attributes={'omeName': self.USER.name})
+        #self.assertEqual(e.id, findExp.id, "Finding experimenter via omeName - should return single exp")
+
+        noExp = self.gateway.getObject("Experimenter", attributes={'omeName': "Dummy Fake Name"})
+        self.assertEqual(noExp, None, "Should not find any matching experimenter")
+        #noE = self.gateway.findExperimenter("Dummy Fake Name")
+        #self.assertEqual(noE, None, "Should not find any matching experimenter")
+
+        exp = self.gateway.getObject("Experimenter", findExp.id) # uses iQuery
+        #experimenter = self.gateway.getExperimenter(e.id)  # uses IAdmin
         
-        self.assertEqual(exp.getDetails().getOwner().omeName, experimenter.getDetails().getOwner().omeName)
+        self.assertEqual(exp.getDetails().getOwner().omeName, exp.getDetails().getOwner().omeName)
         
-        # groupExperimenterMap not loaded for exp
-        #for groupExpMap in exp.copyGroupExperimenterMap():
-            #self.assertEqual(e.id, groupExpMap.child.id.val)
+        # check groupExperimenterMap loaded for exp
         groupIds = []
-        for groupExpMap in experimenter.copyGroupExperimenterMap():
-            self.assertEqual(e.id, groupExpMap.child.id.val)
+        for groupExpMap in exp.copyGroupExperimenterMap():
+            self.assertEqual(findExp.id, groupExpMap.child.id.val)
             groupIds.append(groupExpMap.parent.id.val)
+        #for groupExpMap in experimenter.copyGroupExperimenterMap():
+        #    self.assertEqual(findExp.id, groupExpMap.child.id.val)
             
         groupGen = self.gateway.getObjects("ExperimenterGroup", groupIds)
         #gGen = self.gateway.getExperimenterGroups(groupIds)  # removed from blitz gateway

@@ -44,7 +44,7 @@ class BaseSearch(BaseController):
         self.eContext['breadcrumb'] = ['Search']
 
     def batch_search(self, query_list):
-       	im_list = list()
+        im_list = list()
         well_list = list()
         for (plate_name, row, column) in query_list:
             row = int(row)
@@ -53,7 +53,7 @@ class BaseSearch(BaseController):
             if well is not None:
                 well_list.append(well)
         for well in well_list:
-            img=well.selectedWellSample().image()
+            img=well.getWellSample().image()
             im_list.append(img)
     
         im_ids = [im.id for im in im_list]

@@ -552,6 +552,25 @@ public class MeasureLineConnectionFigure
 		}
 		return vector;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getSize()
+	 */
+	public int getSize()
+	{
+		Rectangle r = path.getBounds();
+		int total = 0;
+		int yEnd = r.y+r.height;
+		int x, y;
+		int index = 0;
+		for (y = r.y; y < yEnd; ++y) {
+			x = r.x+index;
+			if (r.contains(x, y)) total++;
+			index++;
+		}
+		return total;
+	}
 
 	/**
 	 * Returns the number of points in the line. 

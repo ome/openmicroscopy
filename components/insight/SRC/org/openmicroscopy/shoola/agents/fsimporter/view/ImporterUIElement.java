@@ -125,11 +125,23 @@ class ImporterUIElement
 	/** Component hosting the entries. */
 	private JPanel	entries;
 
-	/** The number of files imported. */
+	/** The number of files/folder imported. */
 	private int countImported;
 	
-	/** The total number of tiles to import. */
+	/** The number of files imported. */
+	private int countFilesImported;
+	
+	/** The number of files imported. */
+	private int countCancelled;
+	
+	/** The number of files imported. */
+	private int countFailure;
+	
+	/** The total number of files or folder to import. */
 	private int totalToImport;
+	
+	/** The total number of files to import.*/
+	private int totalFilesToImport;
 	
 	/** The time when the import started. */
 	private long startImport;
@@ -237,7 +249,16 @@ class ImporterUIElement
 	/** Sets the text of indicating the number of imports. */
 	private void setNumberOfImport()
 	{
-		numberOfImportLabel.setText(countImported+" of "+totalToImport);
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(" out of ");
+		buffer.append(totalFilesToImport);
+		buffer.append(" imported: "+countFilesImported);
+		if (countCancelled > 0)
+			buffer.append(" cancelled: "+countCancelled);
+		if (countFailure > 0)
+			buffer.append(" failed: "+countFailure);
+		//numberOfImportLabel.setText(countImported+" of "+totalToImport);
+		numberOfImportLabel.setText(buffer.toString());
 	}
 	
 	/**
@@ -327,6 +348,9 @@ class ImporterUIElement
 			}
 		};
 		countImported = 0;
+		countCancelled = 0;
+		countFailure = 0;
+		countFilesImported = 0;
 		//setClosable(true);
 		addPropertyChangeListener(controller);
 		entries = new JPanel();
@@ -374,12 +398,33 @@ class ImporterUIElement
 				public void propertyChange(PropertyChangeEvent evt) {
 					String name = evt.getPropertyName();
 					if (FileImportComponent.BROWSE_PROPERTY.equals(name)) {
-						//TODO: review that code
 						List<Object> refNodes = object.getRefNodes();
 						Object node = null;
 						if (refNodes != null && refNodes.size() > 0)
 							node = refNodes.get(0);
 						browse(evt.getNewValue(), node);
+					} else if (
+						FileImportComponent.IMPORT_FILES_NUMBER_PROPERTY.equals(
+								name)) {
+						//-1 to remove the entry for the folder.
+						Integer v = (Integer) evt.getNewValue()-1;
+						totalFilesToImport += v;
+						setNumberOfImport();
+					} else if (
+						FileImportComponent.IMPORT_STATUS_CHANGE_PROPERTY.equals(
+								name)) {
+						Integer v = (Integer) evt.getNewValue();
+						switch (v) {
+							case FileImportComponent.FAILURE:
+								countFailure++;
+								break;
+							case FileImportComponent.PARTIAL:
+								countCancelled++;
+								break;
+							default:
+								countFilesImported++;
+						}
+						setNumberOfImport();
 					}
 				}
 			});
@@ -430,6 +475,7 @@ class ImporterUIElement
 			}
 		}
 		totalToImport = files.size();
+		totalFilesToImport = files.size();
 	}
 	
 	/** 
@@ -457,15 +503,13 @@ class ImporterUIElement
 		header.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
 		
-		JLabel label = UIUtilities.setTextFont(
-				"The number of files/folders imported:", Font.BOLD);
+		JLabel label = UIUtilities.setTextFont("Report:", Font.BOLD);
 		JPanel row = createRow();
 		row.add(label);
 		row.add(numberOfImportLabel);
 		header.add(row);
 		row = createRow();
 		label = UIUtilities.setTextFont("Import Time:", Font.BOLD);
-		startImport = System.currentTimeMillis();
 		timeLabel = UIUtilities.createComponent(null);
 		timeLabel.setText(UIUtilities.formatShortDateTime(null));
     	row.add(label);
@@ -683,6 +727,12 @@ class ImporterUIElement
 		if (c != null) {
 			c.setStatus(false, result);
 			countImported++;
+			if (f.isFile()) {
+				if (c.hasImportFailed()) countFailure++;
+				else if (!c.isCancelled()) countFilesImported++;
+			}
+			if (f.isDirectory() && !c.hasComponents() && 
+					c.isCancelled()) countCancelled++;
 			setNumberOfImport();
 			setClosable(isDone());
 			if (isDone()) {
@@ -764,6 +814,7 @@ class ImporterUIElement
 	/** Indicates that the import has started. */
 	void startImport()
 	{ 
+		startImport = System.currentTimeMillis();
 		setClosable(false);
 		busyLabel.setBusy(true);
 		repaint();

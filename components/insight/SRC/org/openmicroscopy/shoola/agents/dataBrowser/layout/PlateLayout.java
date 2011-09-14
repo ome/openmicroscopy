@@ -122,8 +122,10 @@ public class PlateLayout
             }
     		 //First need to set width and height
     		Dimension d;
-    		int height = 10;
-    		int width = 10;
+    		int height = 0;
+    		int width = 0;
+    		/*
+    		 * remove comments if using cell nodes
     		if (col.size() > 0){
     			d = col.get(0).getPreferredSize();
     			height = d.height;
@@ -137,7 +139,7 @@ public class PlateLayout
     		while (i.hasNext()) {
     			cell = (CellDisplay) i.next();
     			d = cell.getPreferredSize();
-    			cell.setBounds(width+cell.getIndex()*maxDim.width, 0, 
+    			cell.setBounds(width+cell.getIndex()*maxDim.width, 0,
     					maxDim.width, d.height);
     		}
     		i = row.iterator();
@@ -147,17 +149,28 @@ public class PlateLayout
     			cell.setBounds(0, height+cell.getIndex()*maxDim.height, 
     					width, maxDim.height);
     		}
+    		*/
     		i = l.iterator();
     		WellSampleNode wsNode;
     		int r, c;
+    		int h = 0;
+    		int hh;
     		while (i.hasNext()) {
     			wsNode = (WellSampleNode) i.next();
+    			h = 0;
+    			hh = 0;
     			r = wsNode.getRow();
     			c = wsNode.getColumn();
-    			//d = wiNode.getPreferredSize();
     			d = wsNode.getPreferredSize();
-    			wsNode.setBounds(width+c*maxDim.width, height+r*maxDim.height, 
-					   		d.width, d.height);
+    			//if (r > 0) h = wsNode.getTitleHeight();
+    			if (r > 0) h = wsNode.getTitleHeight();
+    			if (wsNode.getTitleBarType() == ImageNode.NO_BAR) {
+    				h = wsNode.getTitleHeight();
+    				hh = h;
+    			}
+    				
+    			wsNode.setBounds(width+c*maxDim.width,
+    					height+r*(maxDim.height+h) + hh, d.width, d.height);
 			}
         }
     }

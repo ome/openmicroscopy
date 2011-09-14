@@ -65,7 +65,7 @@ class BaseGroup(BaseController):
             for gem in self.group.copyGroupExperimenterMap():
                 if gem.owner.val == True:
                     self.owners.append(gem.child.id.val)
-        self.experimenters = list(self.conn.listExperimenters())
+        self.experimenters = list(self.conn.getObjects("Experimenter"))
         self.experimenters.sort(key=lambda x: x.getOmeName().lower())
     
     def getOwnersNames(self):

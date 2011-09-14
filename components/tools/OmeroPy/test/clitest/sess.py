@@ -8,7 +8,7 @@
 
 """
 
-import unittest, os, subprocess, StringIO, getpass, exceptions
+import unittest, os, subprocess, StringIO, exceptions
 import Ice
 import Glacier2
 import omero
@@ -17,6 +17,7 @@ import omero_ext.uuid as uuid # see ticket:3774
 
 from path import path
 from omero.cli import Context, BaseControl, CLI, NonZeroReturnCode
+from omero.util import get_user
 from omero.util.sessions import SessionsStore
 from omero.util.temp_files import create_path
 from omero.plugins.sessions import SessionsControl
@@ -35,7 +36,7 @@ class MyStore(SessionsStore):
         self.clients = []
         self.exceptions = []
 
-    def create(self, name, pasw, props, new=True):
+    def create(self, name, pasw, props, new = True, set_current = True):
 
         if not isinstance(props, dict):
             raise exceptions.Exception("Bad type")
@@ -53,6 +54,10 @@ class MyStore(SessionsStore):
 
         if new:
             self.add(*add_tuple)
+
+        if set_current:
+            self.set_current(*add_tuple[0:3])
+
         return return_tuple
 
     def __del__(self):
@@ -128,7 +133,7 @@ class MyCLI(CLI):
         self.REQRESP["Server: [localhost]"] = host
 
     def requests_user(self, user = 'testuser'):
-        self.REQRESP["Username: [%s]" % getpass.getuser()] = user
+        self.REQRESP["Username: [%s]" % get_user("Unknown")] = user
 
     def requests_pass(self, pasw = "pasw"):
         self.REQRESP["Password:"] = pasw
@@ -361,6 +366,25 @@ class TestSessions(unittest.TestCase):
         cli.creates_client(sess=MOCKKEY, new=True)
         cli.invoke(key_login)
         cli._client = None # Forcing new instance
+
+    def assert5975(self, key, cli):
+        host, name, uuid = cli.STORE.get_current()
+        self.assert_(key != name)
+
+    def test5975(self):
+        """
+        Runs various tests which try to force the stored user name
+        to be a session uuid (which should never happen)
+        """
+        cli = MyCLI()
+        key = str(uuid.uuid4())
+        key_login = "-s testuser@testhost -k %s s login" % key
+        cli.creates_client(sess=key, new=True)
+        cli.invoke(key_login)
+        self.assert5975(key, cli)
+
+        cli.invoke("s logout")
+        self.assert5975(key, cli)
 
 if __name__ == '__main__':
     unittest.main()

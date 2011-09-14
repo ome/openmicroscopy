@@ -83,6 +83,9 @@ public interface MeasurementViewer
     /** Flag to denote the <i>Value adjusting</i> state. */
     public static final int     VALUE_ADJUSTING = 7;
  
+    /** Flag to denote the <i>Saving ROI</i> state. */
+    public static final int     SAVING_ROI = 8;
+    
     /** Bound property indicating that the ROI component has changed. */
     public static final String	ROI_CHANGED_PROPERTY = "roiChanged";
     
@@ -94,9 +97,11 @@ public interface MeasurementViewer
      * 
      * @param measurements The measurements to load if any.
      * @param HCSData Flag indicating if the tool is for HCS data.
+     * @param isBigImage Flag indicating if the tool is for Big Image data. 
      * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
      */
-    public void activate(List<FileAnnotationData> measurements, boolean HCSData);
+    public void activate(List<FileAnnotationData> measurements, boolean HCSData,
+    		boolean isBigImage);
     
     /**
      * Starts the data loading process when the current state is {@link #NEW} 

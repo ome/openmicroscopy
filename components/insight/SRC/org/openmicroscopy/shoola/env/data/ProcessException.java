@@ -22,11 +22,13 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
+
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.ResourceError;
 
 /** 
  * Reports an error occurred while trying to run a script.
@@ -44,13 +46,16 @@ package org.openmicroscopy.shoola.env.data;
 public class ProcessException 
 	extends Exception
 {
+
+	/** Indicates that no processor available to run the script.*/
+	public static final int NO_PROCESSOR = 0;
 	
 	/**
 	 * Constructs a new exception with the specified detail message.
 	 * 
 	 * @param message	Short explanation of the problem.
 	 */
-	public  ProcessException(String message)
+	public ProcessException(String message)
 	{
 		super(message);
 	}
@@ -61,9 +66,27 @@ public class ProcessException
 	 * @param message	Short explanation of the problem.
 	 * @param cause		The exception that caused this one to be risen.
 	 */
-	public  ProcessException(String message, Throwable cause) 
+	public ProcessException(String message, Throwable cause) 
 	{
 		super(message, cause);
 	}
 
+	/**
+	 * Returns one of the constant defined by this class.
+	 * 
+	 * @return See above.
+	 */
+	public int getStatus()
+	{
+		Throwable cause = getCause();
+		if (cause instanceof ResourceError) {
+			ResourceError error = (ResourceError) cause;
+			String message = error.message;
+			if (message != null && message.toLowerCase().contains(
+					"no processor available"))
+				return NO_PROCESSOR;
+		}
+		return -1;
+	}
+	
 }

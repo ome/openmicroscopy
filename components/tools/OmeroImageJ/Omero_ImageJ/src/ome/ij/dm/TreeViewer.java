@@ -33,17 +33,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+
 
 //Third-party libraries
 import ij.IJ;
@@ -213,6 +217,8 @@ public class TreeViewer
 		DataObject object = browser.getSelectedObject();
 		if (!(object instanceof ImageData)) return;
 		ImageData image = (ImageData) object;
+		ServicesFactory.getInstance().runBFPlugin(image.getId());
+		/*
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		IJ.showStatus("Loading Image from server...");
 		String path = getFile(image);
@@ -223,6 +229,7 @@ public class TreeViewer
 		}
 		IJ.showStatus("");
 		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		*/
 	}
 	
 	/** Creates a new instance. */

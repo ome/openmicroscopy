@@ -6,15 +6,12 @@
  */
 package integration;
 
-//Java imports
-import java.util.ArrayList;
-import java.util.List;
 
-//Third-party libraries
+import java.util.Arrays;
+
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
-//Application-internal dependencies
 import omero.api.IAdminPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.delete.DeleteCommand;
@@ -402,17 +399,17 @@ public class DeleteServicePermissionsTest
     	long id = pixels.getId().getValue();
     	long imageID = image.getId().getValue();
     	//Image
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(imageID);
     	//method already tested 
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	prx.resetDefaultsInSet(Image.class.getName(), ids);
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+     			 Arrays.asList(imageID));
     	RenderingDef ownerDef = factory.getPixelsService().retrieveRndSettings(
     			id);
 
     	newUserInGroup(ownerCtx);
     	prx = factory.getRenderingSettingsService();
-    	prx.resetDefaultsInSet(Image.class.getName(), ids);
+    	prx.setOriginalSettingsInSet(Image.class.getName(), 
+    			Arrays.asList(imageID));
     	RenderingDef otherDef = factory.getPixelsService().retrieveRndSettings(
     			id);
     	assertAllExist(ownerDef, otherDef);

@@ -117,8 +117,8 @@ public class FileChooser
      */
     private String 				folderPath;
     
-    /** Ask if a file should be overwritten. */
-    private boolean 			checkOverwrite;
+    /** Ask if a file should be overridden. */
+    private boolean 			checkOverride;
     
     /** Sets the properties of the dialog. */
     private void setProperties()
@@ -205,12 +205,12 @@ public class FileChooser
      * @param accept			Determines whether the all files filter is 
      * 							turned on or off. Default value is 
      * 							<code>false</code>.
-     * @param checkOverwrite	Ask for confirmation if the user selects a file 
+     * @param checkOverride	Ask for confirmation if the user selects a file 
      * 							That already exists.
      */
     public FileChooser(JFrame owner, int dialogType, String title, 
     					String message, List<FileFilter> filters, boolean
-    					accept, boolean checkOverwrite)
+    					accept, boolean checkOverride)
     {
         super(owner);
         checkType(dialogType);
@@ -218,7 +218,7 @@ public class FileChooser
         this.title = title;
         this.message = message;
         this.filters = filters;
-        this.checkOverwrite = checkOverwrite;
+        this.checkOverride = checkOverride;
         setProperties();
         folderPath = null;
        	uiDelegate = new FileSaverUI(this, accept);
@@ -346,9 +346,10 @@ public class FileChooser
         	UIUtilities.setDefaultFolder(
         			uiDelegate.getCurrentDirectory().toString());
         if (getChooserType() != FileChooser.FOLDER_CHOOSER) {
-        	if (getSelectedFile().exists() && checkOverwrite)
+        	if (getSelectedFile().exists() && checkOverride)
             {
-            	MessageBox msg = new MessageBox(this, "Overwrite existing file.", 
+            	MessageBox msg = new MessageBox(this, 
+            			"Overwrite existing file.",
             	"Do you wish to overwrite the existing file?");
             	int option = msg.centerMsgBox();
             	if (option == MessageBox.NO_OPTION) 
@@ -617,4 +618,15 @@ public class FileChooser
     	uiDelegate.setMultiSelectionEnabled(enabled);
     }
     
+    /**
+     * Sets the value indicating to check or not if the file can be overridden.
+     * 
+     * @param checkOverwrite Pass <code>true</code> to override,
+     * 						 <code>false</code> otherwise.
+     */
+    public void setCheckOverride(boolean checkOverride)
+    {
+    	this.checkOverride = checkOverride;
+    }
+
 }

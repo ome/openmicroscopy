@@ -50,11 +50,36 @@ class MonitorState(object):
         def __str__(self):
             return "<Entry:%s>"%id(self)
 
-    def __init__(self):
+    def __init__(self, event):
         self.log = logging.getLogger("fsclient."+__name__)
         self._lock = threading.RLock()
         self.__entries = {}
         self.__timers = 0
+        self.__wait = time.time()
+        self.__event = event
+
+    def appropriateWait(self, throttleImport):
+        """
+        If the last call to appropriateWait was longer than throttleImport
+        seconds ago, then wait long enough to make it so and return. The
+        __wait property will be set to the current time after this method
+        returns. Access to __wait is protected by the _lock lock.
+        """
+        self.log.debug("Locking for appropriate wait...")
+        self._lock.acquire()
+        try:
+            try:
+                elapsed = time.time() - self.__wait
+                if elapsed < throttleImport:
+                    to_wait = throttleImport - elapsed
+                    self.log.info("Waiting %s seconds..." % to_wait)
+                    self.__event.wait(to_wait)
+                else:
+                    self.log.debug("Not waiting.")
+            finally:
+                self.__wait = time.time()
+        finally:
+            self._lock.release()
 
     def addTimer(self, wait, callback, argsList):
         self.__timers += 1
@@ -308,6 +333,7 @@ class MonitorClientI(monitors.MonitorClient):
         self.host = ""
         self.port = 0
         self.dirImportWait = 0
+        self.throttleImport = 5
         self.timeToLive = 0
         self.timeToIdle = 0
         self.readers = ""
@@ -324,7 +350,7 @@ class MonitorClientI(monitors.MonitorClient):
         self.worker_batch = worker_batch
         self.event = get_event()
         self.queue = Queue.Queue(0)
-        self.state = MonitorState()
+        self.state = MonitorState(self.event)
         self.resources = Resources(stop_event = self.event)
         if ctx:
             # Primarily used for testing
@@ -571,6 +597,7 @@ class MonitorClientI(monitors.MonitorClient):
             return
 
         try:
+            self.state.appropriateWait(self.throttleImport) # See ticket:5739
             self.log.info("Importing %s (session=%s)", fileName, key)
 
             imageId = []
@@ -700,6 +727,19 @@ class MonitorClientI(monitors.MonitorClient):
 
         """
         self.dirImportWait = dirImportWait
+
+    def setThrottleImport(self, throttleImport):
+        """
+            Setter for throttleImport
+
+            :Parameters:
+                throttleImport : int
+
+
+            :return: No explicit return value.
+
+        """
+        self.throttleImport = throttleImport
 
     def setTimeouts(self, timeToLive, timeToIdle):
         """

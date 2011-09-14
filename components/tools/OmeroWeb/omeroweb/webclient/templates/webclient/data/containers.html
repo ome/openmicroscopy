@@ -27,11 +27,20 @@
 -->
 {% endcomment %}
 
+{% comment %}
+<!--
+  This page is the 'home page' of the 3-column data layout for webclient.
+  It loads the tree in the left panel. This is then used to load data into the middle and right panels (via AJAX)
+  using functions in the actions.js file.
+  E.g. On selection change: loadOtherPanels() calls loadMetadataPanel()
+-->
+{% endcomment %}
+
 {% block jscript %}
 
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.cookie.js" %}"></script>
-	<script type="text/javascript" src="{% url webstatic "javascript/jquery.hotkeys.js" %}"></script>
-	<script type="text/javascript" src="{% url webstatic "javascript/jquery.jstree.js" %}"></script>   
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.hotkeys.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.jstree.js" %}"></script>   
     
 {% endblock %}
 
@@ -41,41 +50,56 @@
     <script type="text/javascript">
         $(function() 
             {
-
                 var h = $(window).height()-200;
                 $("div#tree_details").css('height', h);
                 $("div#metadata_details").css('height', h+31);
-                $("div#metadata_details iframe").attr('height', h+31);
+                $("div#metadata_details iframe").attr('height', h+7);
                 $("div#content_details").css('height', h+31);
                 
-                var buttonsShowHide = function(selected) { 
-                    var toolbar_config = new Object();
+                var buttonsShowHide = function(selected, inst) {
+                    var toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
                     
                     if(selected.length > 0) {
-                        if(selected.attr("rel").indexOf("locked")>=0) {            	            
-                            toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}, 'annotation':false, 'basket':false};
-                        } else {
-                            if(selected.attr("id").indexOf("orphaned")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
-                            } else if(selected.attr("id").indexOf("experimenter")>=0) {
-                                toolbar_config = {"addproject":true, 'adddataset':true, 'addscreen':true, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
+                        if(selected.attr("rel").indexOf("locked") < 0) {
+                            toolbar_config['delete'] = true;
+                            if(selected.attr("id").indexOf("experimenter")>=0) {
+                                toolbar_config['delete'] = false;
+                                toolbar_config["addproject"] = true;
+                                toolbar_config['adddataset'] = true;
+                                toolbar_config['addscreen'] = true;
+                                if ($.inArray(selected.attr('rel').replace("-locked", ""), ["dataset", "plate"]) > -1) {
+                                    toolbar_config['copy'] = true;
+                                }
                             } else if(selected.attr("id").indexOf("project")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':true, 'addscreen':false, 'copy':false, 'cut':false, 'paste':true, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false};
+                                toolbar_config['adddataset'] = true;
                             } else if(selected.attr("id").indexOf("dataset")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':true, 'cut':true, 'paste':true, 'unlink':true, 'delete':true, 'annotation':false, 'basket':false};
+                                toolbar_config['copy'] = true;
+                                if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
+                                    toolbar_config["cut"] = true;
+                                    toolbar_config["unlink"] = true;
+                                }
                             } else if(selected.attr("id").indexOf("image")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':true, 'cut':true, 'paste':false, 'unlink':true, 'delete':true, 'annotation':false, 'basket':true};
-                            } else if(selected.attr("id").indexOf("screen")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':true, 'addscreen':false, 'copy':false, 'cut':false, 'paste':true, 'unlink':false, 'delete':true, 'annotation':false, 'basket':false};
+                                toolbar_config['basket'] = true;
+                                toolbar_config['copy'] = true;
+                                if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("orphaned") < 0) {
+                                    toolbar_config["cut"] = true;
+                                    toolbar_config["unlink"] = true;
+                                }
                             } else if(selected.attr("id").indexOf("plate")>=0) {
-                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':true, 'cut':true, 'paste':false, 'unlink':true, 'delete':true, 'annotation':false, 'basket':false};
-                            } else {
-                                toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'paste':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
-                            }
+                                toolbar_config['copy'] = true;
+                                if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
+                                    toolbar_config["cut"] = true;
+                                    toolbar_config["unlink"] = true;
+                                }
+                            } 
                         }
+                        if ((inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes) && ($.inArray(selected.attr('rel').replace("-locked", ""), ["project", "dataset", "screen"]) > -1)) {
+                            toolbar_config['paste'] = true;
+                        }
+                    } else {
+                        toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}, 'annotation':false, 'basket':false};
                     }
                     
-                    if (selected.length > 1) toolbar_config['annotation'] = true;
                     for (var sIndex in toolbar_config) { 
                         if (toolbar_config[sIndex]){
                             $('input#'+sIndex+'Button').removeClass('button-disabled').removeAttr('disabled');
@@ -86,354 +110,436 @@
                 }
                 
                 var jstree = $("#dataTree").jstree({ 
-            			// the list of plugins to include
-            			"plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
-            			// Plugin configuration
+                        // the list of plugins to include
+                    "plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
+                    // Plugin configuration
 
-            			// I usually configure the plugin that handles the data first - in this case JSON as it is most common
-            			"html_data" : { 
-            				// I chose an ajax enabled tree - again - as this is most common, and maybe a bit more complex
-            				// All the options are the same as jQuery's except for `data` which CAN (not should) be a function
-            				"ajax" : {
-            					// the URL to fetch the data
-            					"url" : function(n) {
-            					    if (n.attr) {
-            					        var parent = this._get_parent(n);
-            					        if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["project", "screen"]) > -1) {
-                                            url = "{% url load_data %}"+$(parent).attr("rel").replace("-locked", "")+"/"+$(parent).attr("id").split("-")[1]+"/"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
-                					    } else {
-                					        url = "{% url load_data %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
-                					    }
-            					    } else {
-            					        url = "{% url load_data %}";
-            					    }
-            					    return url;
-            					},
-            					// this function is executed in the instance's scope (this refers to the tree instance)
-            					// the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
-            					"data" : function (n) {
-            					    if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset"]) > -1) {
-            					        var r = { "view" : "tree" };
-            					        if($("div#content_details").has("#page").length > 0) {
-            					            r["page"] = parseInt($("div#content_details").find("#page").attr("rel"));
-            					        }
-            					        return r;
-            					    } else {
-            					        return { "view" : "tree" };
-            					    }
-                                }
-            				}
-            			},
-            			// Using types - most of the time this is an overkill
-            			// Still meny people use them - here is how
-            			"types" : {
-            				// I want only `drive` nodes to be root nodes 
-            				// This will prevent moving or creating any other type as a root node
-            				"select_limit" : -1,
-            				"max_depth" : -1,
-            				"max_children" : -1,
-            				"valid_children" : [ "experimenter" ],
-            				"types" : {
-            					"experimenter" : {
-            						"valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "screen", "screen-locked", "plate", "plate-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/personal16.png" %}'
-            						},
-            						"create_node" : true,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					},
-            					"project" : {
-            						"valid_children" : [ "dataset" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder16.png" %}'
-            						},
-            						"create_node" : true,
-                                    "start_drag" : false,
-            						"move_node" : true,
-            						"remove" : true
-            					},
-            					"project-locked" : {
-            						"valid_children" : [ "dataset", "dataset-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_locked16.png" %}'
-            						},
-            						"create_node" : true,
-                                    "start_drag" : false,
-            						"move_node" : false,
-            						"remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
-            					},
-            					"dataset" : {
-            						"valid_children" : [ "image", "image-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_image16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : true,
-            						"move_node" : true,
-            						"remove" : true
-            					},
-            					"dataset-locked" : {
-            						"valid_children" : [ "image", "image-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_image_locked16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
-            					},
-            					"image" : {
-            						"valid_children" : "none",
-            						"icon" : {
-            							"image" : '{% url webstatic "images/image16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : true,
-            						"move_node" : true,
-            						"remove" : true
-            					},
-            					"image-locked" : {
-            						"valid_children" : "none",
-            						"icon" : {
-            							"image" : '{% url webstatic "images/image_locked16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
-            					},
-            					"screen" : {
-            						"valid_children" : [ "plate", "plate-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_screen16.png" %}'
-            						},
-            						"create_node" : true,
-                                    "start_drag" : false,
-            						"move_node" : true,
-            						"remove" : true
-            					},
-            					"screen-locked" : {
-            						"valid_children" : [ "plate", "plate-locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_screen_locked16.png" %}'
-            						},
-            						"create_node" : true,
-                                    "start_drag" : false,
-            						"move_node" : false,
-            						"remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
-            					},
-            					"plate" : {
-            						"valid_children" : "none",
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_plate16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : true,
-            						"move_node" : true,
-            						"delete_node" : true,
-            						"remove" : true
-            					},
-            					"plate-locked" : {
-            						"valid_children" : "none",
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_plate_locked16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
-            					},
-            					"orphaned" : {
-            						"valid_children" : [ "image", "image_locked" ],
-            						"icon" : {
-            							"image" : '{% url webstatic "images/folder_yellow16.png" %}'
-            						},
-            						"create_node" : false,
-            						"start_drag" : false,
-            						"move_node" : false,
-            						"remove" : false
-            					}          					
-            				}
-            			},
-            			// For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
-            			// the UI plugin - it handles selecting/deselecting/hovering nodes
-            			"ui" : {
-            				"initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ],
-            				"select_multiple_modifier": multi_key(),
-            				"selected_parent_close": "select_parent",
-            				"select_prev_on_delete": false
-            			},
-            			// the core plugin - not many options here
-            			"core" : { 
-            				// just open those two nodes up
-            				// as this is an AJAX enabled tree, both will be downloaded from the server
-            			    "initially_open" : [ {% for p in init.initially_open %}"{{ p }}",{% endfor %} "experimenter-0" ]
-            			},
-            			"contextmenu" : {
-            			    "select_node":true,
-            			    "items" : function(obj){
-            			        var config = {};
-                                                                
-                                config["create"] = {
-                                    "label" : "Create new",
-                                    "icon"  : '{% url webstatic "images/window_new16.png" %}',
-                                    "submenu": {
-                                        "project": {
-                                            "label" : "Project",
-                                            "icon"  : '{% url webstatic "images/folder16.png" %}',
-                                            "action": function (obj) { this.create(obj, null, {"attr": {"rel": "project"}, "data":"New project"}, false, true); }
-                                        },
-                                        "dataset": {
-                                            "label" : "Dataset",
-                                            "icon"  : '{% url webstatic "images/folder_image16.png" %}',
-                                            "action": function (obj) { this.create(obj, null, {"attr":{"rel": "dataset"}, "data":"New dataset"}, false, true); }
-                                      	},
-                                      	"screen": {
-                                            "label" : "Screen",
-                                            "icon"  : '{% url webstatic "images/folder_screen16.png" %}',
-                                            "action": function (obj) { this.create(obj, null, {"attr":{"rel": "screen"}, "data":"New screen"}, false, true); }
-                                      	}
+                    // I usually configure the plugin that handles the data first - in this case JSON as it is most common
+                    "html_data" : { 
+                        // I chose an ajax enabled tree - again - as this is most common, and maybe a bit more complex
+                        // All the options are the same as jQuery's except for `data` which CAN (not should) be a function
+                        "ajax" : {
+                            // the URL to fetch the data
+                            "url" : function(n) {
+                                if (n.attr) {
+                                    var parent = this._get_parent(n);
+                                    if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["project", "screen"]) > -1) {
+                                        url = "{% url load_data %}"+$(parent).attr("rel").replace("-locked", "")+"/"+$(parent).attr("id").split("-")[1]+"/"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
+                                    } else {
+                                        url = "{% url load_data %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
                                     }
-                                };
-                                
-                                config["ccp"] = {
-                                    "label"     : "Edit",
-                                    "action"    : false,
-                                    "submenu"   : {
-                                        "copy"  : {
-                                            "label" : "Copy",
-                                            "icon"  : '{% url webstatic "images/eclipse_copy_edit16.png" %}',
-                                            "action": function() {
-                                                this.copy(this.get_selected());
-                                            }
-                                        },
-                                        "cut"   :{
-                                            "label" : "Cut",
-                                            "icon"  : '{% url webstatic "images/cut16.png" %}',
-                                            "action": function() {
-                                                this.cut(this.get_selected());
-                                            }
-                                        },
-                                        "paste": {
-                                            "label" : "Paste",
-                                            "icon"  : '{% url webstatic "images/eclipse_paste_edit16.png" %}',
-                                            "action": function() {
-                                                this.paste(this.get_selected());
-                                            }
-                                        },                                      
-                                        "unlink"    : {
-                                            "label" : "Remove",
-                                            "icon"  : '{% url webstatic "images/minus_15.png" %}',
-                                            "action": function(){ 
-                                                var tree = this;
-                                                var selected = tree.get_selected();
-                                                if (selected.length>0) {
-                                                    if (confirm("Remove the "+selected.length+" object(-s) from its current context.")) {
-                                                        selected.each(function() {
-                                                            tree.cut($(this));
-                                                            if ($(this).attr('rel') == 'image') tree.paste($("li#orphaned-0"))
-                                                            else tree.paste($("li#experimenter-0"));
-                                                        });                                                        
-                                                    }
-                                                } }
+                                } else {
+                                    url = "{% url load_data %}";
+                                }
+                                return url;
+                            },
+                            // this function is executed in the instance's scope (this refers to the tree instance)
+                            // the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
+                            "data" : function (n) {
+                                if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) {
+                                    var r = { "view" : "tree" };
+                                    if($("div#content_details").attr("rel")===n.attr("id") && $("div#content_details").has("#page").length > 0) {
+                                        r["page"] = parseInt($("div#content_details").find("#page").attr("rel"));
+                                    }
+                                    return r;
+                                } else {
+                                    return { "view" : "tree" };
+                                }
+                            }
+                        }
+                    },
+                    // Using types - most of the time this is an overkill
+                    // Still meny people use them - here is how
+                    "types" : {
+                        // I want only `drive` nodes to be root nodes 
+                        // This will prevent moving or creating any other type as a root node
+                        "max_depth" : -1,
+                        "max_children" : -1,
+                        "valid_children" : [ "experimenter" ],
+                        "types" : {
+                            "experimenter" : {
+                                "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "screen", "screen-locked", "plate", "plate-locked" ],
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/personal16.png" %}'
+                                },
+                                "create_node" : true,
+                                "start_drag" : false,
+                                "move_node" : false,
+                                "delete_node" : false,
+                                "remove" : false
+                            },
+                            "project" : {
+                                "valid_children" : [ "dataset" ],
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/folder16.png" %}'
+                                },
+                                "create_node" : true,
+                                "start_drag" : false,
+                                "move_node" : true,
+                                "delete_node" : true,
+                                "remove" : true
+                            },
+                            "project-locked" : {
+                                "valid_children" : [ "dataset", "dataset-locked" ],
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/folder_locked16.png" %}'
+                                },
+                                "create_node" : true,
+                                "start_drag" : false,
+                                "move_node" : false,
+                                "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
+                                "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
+                            },
+                            "dataset" : {
+                                "valid_children" : [ "image", "image-locked" ],
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/folder_image16.png" %}'
+                                },
+                                "create_node" : false,
+                                "start_drag" : true,
+                                "move_node" : true,
+                                "delete_node" : true,
+                                "remove" : true
+                            },
+                            "dataset-locked" : {
+                                "valid_children" : [ "image", "image-locked" ],
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/folder_image_locked16.png" %}'
+                                },
+                                "create_node" : false,
+                                "start_drag" : false,
+                                "move_node" : false,
+                                "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
+                                "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
+                            },
+                            "image" : {
+                                "valid_children" : "none",
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/image16.png" %}'
+                                },
+                                "create_node" : false,
+                                "start_drag" : true,
+                                "move_node" : true,
+                                "delete_node" : true,
+                                "remove" : true
+                            },
+                            "image-locked" : {
+                                "valid_children" : "none",
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/image_locked16.png" %}'
+                                },
+                                "create_node" : false,
+                                "start_drag" : false,
+                                "move_node" : false,
+                                "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
+                                "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
+                            },
+                            "screen" : {
+                                "valid_children" : [ "plate", "plate-locked" ],
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/folder_screen16.png" %}'
+                                },
+                                "create_node" : true,
+                                "start_drag" : false,
+                                "move_node" : true,
+                                "delete_node" : true,
+                                "remove" : true
+                            },
+                            "screen-locked" : {
+                                "valid_children" : [ "plate", "plate-locked" ],
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/folder_screen_locked16.png" %}'
+                                },
+                                "create_node" : true,
+                                "start_drag" : false,
+                                "move_node" : false,
+                                "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
+                                "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
+                            },
+                            "plate" : {
+                                "valid_children" : "acquisition",
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/folder_plate16.png" %}'
+                                },
+                                "create_node" : false,
+                                "start_drag" : true,
+                                "move_node" : true,
+                                "delete_node" : true,
+                                "remove" : true
+                            },
+                            "plate-locked" : {
+                                "valid_children" : "acquisition",
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/folder_plate_locked16.png" %}'
+                                },
+                                "create_node" : false,
+                                "start_drag" : false,
+                                "move_node" : false,
+                                "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
+                                "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
+                            },
+                            "acquisition" : {
+                                "valid_children" : "none",
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/image16.png" %}'
+                                },
+                                "create_node" : false,
+                                "start_drag" : false,
+                                "move_node" : false,
+                                "delete_node" : false,
+                                "remove" : false
+                            },
+                            "acquisition-locked" : {
+                                "valid_children" : "none",
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/image16.png" %}'
+                                },
+                                "create_node" : false,
+                                "start_drag" : false,
+                                "move_node" : false,
+                                "delete_node" : false,
+                                "remove" : false
+                            },
+                            "orphaned" : {
+                                "valid_children" : [ "image", "image_locked" ],
+                                "icon" : {
+                                    "image" : '{% url webstatic "images/folder_yellow16.png" %}'
+                                },
+                                "create_node" : false,
+                                "start_drag" : false,
+                                "move_node" : false,
+                                "delete_node" : false,
+                                "remove" : false
+                            }                              
+                        }
+                    },
+                    // For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
+                    // the UI plugin - it handles selecting/deselecting/hovering nodes
+                    "ui" : {
+                        "select_limit" : -1,
+                        "select_multiple_modifier": multi_key(),
+                        "selected_parent_close": "select_parent",
+                        "select_prev_on_delete": false,
+                        "initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ],
+                    },
+                    // the core plugin - not many options here
+                    "core" : { 
+                        // just open those two nodes up
+                        // as this is an AJAX enabled tree, both will be downloaded from the server
+                        "initially_open" : [ {% for p in init.initially_open %}"{{ p }}",{% endfor %} "experimenter-0" ]
+                    },
+                    "contextmenu" : {
+                        "select_node":true,
+                        "items" : function(obj){
+                            var config = {};
+                                                            
+                            config["create"] = {
+                                "label" : "Create new",
+                                "icon"  : '{% url webstatic "images/window_new16.png" %}',
+                                "submenu": {
+                                    "project": {
+                                        "label" : "Project",
+                                        "icon"  : '{% url webstatic "images/folder16.png" %}',
+                                        "action": function (obj) { this.create(obj, null, {"attr": {"rel": "project"}, "data":"New project"}, false, true); }
+                                    },
+                                    "dataset": {
+                                        "label" : "Dataset",
+                                        "icon"  : '{% url webstatic "images/folder_image16.png" %}',
+                                        "action": function (obj) { this.create(obj, null, {"attr":{"rel": "dataset"}, "data":"New dataset"}, false, true); }
+                                      },
+                                      "screen": {
+                                        "label" : "Screen",
+                                        "icon"  : '{% url webstatic "images/folder_screen16.png" %}',
+                                        "action": function (obj) { this.create(obj, null, {"attr":{"rel": "screen"}, "data":"New screen"}, false, true); }
+                                      }
+                                }
+                            };
+                            
+                            config["ccp"] = {
+                                "label"     : "Edit",
+                                "action"    : false,
+                                "submenu"   : {
+                                    "copy"  : {
+                                        "label" : "Copy",
+                                        "icon"  : '{% url webstatic "images/eclipse_copy_edit16.png" %}',
+                                        "action": function() {
+                                            this.copy(this.get_selected());
+                                        }
+                                    },
+                                    "cut"   :{
+                                        "label" : "Cut",
+                                        "icon"  : '{% url webstatic "images/cut16.png" %}',
+                                        "action": function() {
+                                            this.cut(this.get_selected());
+                                        }
+                                    },
+                                    "paste": {
+                                        "label" : "Paste",
+                                        "icon"  : '{% url webstatic "images/eclipse_paste_edit16.png" %}',
+                                        "action": function() {
+                                            this.paste(this.get_selected());
+                                        }
+                                    },
+                                    "unlink"    : {
+                                        "label" : "Remove",
+                                        "icon"  : '{% url webstatic "images/minus_15.png" %}',
+                                        "action": function(){
+                                            var tree = this;
+                                            //empty clipboard
+                                            tree.data.crrm.ct_nodes = false;
+                                            tree.data.crrm.cp_nodes = false;
+                                            var selected = tree.get_selected();
+                                            if (selected.length>0) {
+                                                var images = selected.filter('li[id|=image]');
+                                                var datasets = selected.filter('li[id|=dataset]')
+                                                if (confirm("Remove the "+selected.length+" object(-s) from its current context.")) {
+                                                    if (images.length > 0) tree.move_node(images,$("li#orphaned-0"))
+                                                    if (datasets.length > 0) tree.move_node(datasets, $("li#experimenter-0"));
+                                                }
+                                            } 
                                         }
                                     }
-                                };
-                                
-                                config["delete"] = {
-                                    "label" : "Delete",
-                                    "icon"  : '{% url webstatic "images/cancel16.png" %}',
-                                    "action": function(){ if (confirm("Delete permanently selected object(-s)? You will NOT be able to access this object any more.")) {
-                                        this.remove(this.get_selected());
-                                    } }
-                                };
-                                
-                                config["basket"] = {
-                                    "label" : "Add to Basket",
-                                    "icon"  : '{% url webstatic "images/basket16.png" %}',                                    
-                                    "action": function(){
-                                        addToBasket(this.get_selected());
-                                    }
-                                };
-                                
-                                if(obj.attr("rel").indexOf("locked")>=0) {
-                                    {% if not eContext.isLeader %}config["delete"]["_disabled"] = true;{% endif %}
+                                }
+                            };
+                            
+                            config["delete"] = {
+                                "label" : "Delete",
+                                "icon"  : '{% url webstatic "images/cancel16.png" %}',
+                                "action": function(){ if (confirm("Delete permanently selected object(-s)? You will NOT be able to access this object any more.")) {
+                                    this.remove(this.get_selected());
+                                } }
+                            };
+                            
+                            config["basket"] = {
+                                "label" : "Add to Basket",
+                                "icon"  : '{% url webstatic "images/basket16.png" %}',                                    
+                                "action": function(){
+                                    addToBasket(this.get_selected());
+                                }
+                            };
+                            
+                            if(obj.attr("rel").indexOf("locked")>=0) {
+                                {% if not eContext.isLeader %}config["delete"]["_disabled"] = true;{% endif %}
+                                config["ccp"]["_disabled"] = true;
+                                config["create"]["_disabled"] = true;
+                                config["basket"]["_disabled"] = true;
+                            } else {
+                                if(obj.attr("id").indexOf("orphaned")>=0) {
+                                    config["delete"]["_disabled"] = true;
                                     config["ccp"]["_disabled"] = true;
                                     config["create"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
-                                } else {
-                                    if(obj.attr("id").indexOf("orphaned")>=0) {
-                                        config["delete"]["_disabled"] = true;
-                                        config["ccp"]["_disabled"] = true;
-                                        config["create"]["_disabled"] = true;
-                                        config["basket"]["_disabled"] = true;
-                                    } else if(obj.attr("id").indexOf("experimenter")>=0) {
-                                        config["delete"]["_disabled"] = true;
-                                        config["ccp"]["_disabled"] = true;
-                                        config["basket"]["_disabled"] = true;
-                                    } else if(obj.attr("id").indexOf("project")>=0) {
-                                        config["ccp"]["submenu"]["cut"]["_disabled"] = true;
-                                        config["ccp"]["submenu"]["copy"]["_disabled"] = true;
-                                        config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
-                                        config["create"]["submenu"]["project"]["_disabled"] = true;
-                                        config["create"]["submenu"]["screen"]["_disabled"] = true;
-                                        config["basket"]["_disabled"] = true;
-                                    } else if(obj.attr("id").indexOf("dataset")>=0) {
-                                        config["create"]["_disabled"] = true;
-                                        config["basket"]["_disabled"] = true;
-                                    } else if(obj.attr("id").indexOf("image")>=0) {
+                                } else if(obj.attr("id").indexOf("experimenter")>=0) {
+                                    config["delete"]["_disabled"] = true;
+                                    config["ccp"]["_disabled"] = true;
+                                    config["basket"]["_disabled"] = true;
+                                } else if(obj.attr("id").indexOf("project")>=0) {
+                                    config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["copy"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
+                                    config["basket"]["_disabled"] = true;
+                                    if (!this.data.crrm.cp_nodes && !this.data.crrm.ct_nodes) {
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;
-                                        config["create"]["_disabled"] = true;
-                                    } else if(obj.attr("id").indexOf("plate")>=0) {
-                                        config["create"]["_disabled"] = true;
-                                        config["ccp"]["submenu"]["paste"]["_disabled"] = true;
-                                        config["basket"]["_disabled"] = true;
                                     }
+                                } else if(obj.attr("id").indexOf("dataset")>=0) {
+                                    if (obj.parent().parent().attr('rel').indexOf('experimenter')>=0) {
+                                        config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                        config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
+                                    }
+                                    if (!this.data.crrm.cp_nodes && !this.data.crrm.ct_nodes) {
+                                        config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                    }
+                                    config["create"]["_disabled"] = true;
+                                    config["basket"]["_disabled"] = true;
+                                } else if(obj.attr("id").indexOf("image")>=0) {
+                                    if (obj.parent().parent().attr('rel').indexOf('orphaned')>=0) {
+                                        config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                        config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
+                                    }
+                                    config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                    config["create"]["_disabled"] = true;
+                                } else if(obj.attr("id").indexOf("screen")>=0) {
+                                    config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["copy"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
+                                    config["create"]["_disabled"] = true;
+                                    config["basket"]["_disabled"] = true;
+                                    if (!this.data.crrm.cp_nodes && !this.data.crrm.ct_nodes) {
+                                        config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                    }
+                                } else if(obj.attr("id").indexOf("plate")>=0) {
+                                    if (obj.parent().parent().attr('rel').indexOf('experimenter')>=0) {
+                                        config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                        config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
+                                    }
+                                    config["create"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                    config["basket"]["_disabled"] = true;
+                                } else {
+                                    config["ccp"]["_disabled"] = true;
+                                    config["create"]["_disabled"] = true;
+                                    config["basket"]["_disabled"] = true;
+                                    config["delete"]["_disabled"] = true;
                                 }
-                                    
-                                return config;
                             }
+                            
+                            return config;
                         }
-            			
-            	})
-        	    .delegate("a", "click.jstree", function (event) {
-					var data = $.jstree._focused();
-					if(!data.is_open() && data.get_selected().length < 2) {
-                	    data.open_node(data.get_selected());
-                	}
-				})
-            	.delegate("a", "dblclick", function(e, data) {
-        		    if ($(this).parent().attr('rel')=='image') {
-        		        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
-        		    }
-        		    $("#dataTree").jstree("open_node", this);
-        		})
-        		.bind("select_node.jstree", function (e, data) {
-        		    var selected = data.inst.get_selected();
-            	    buttonsShowHide(selected);
-            	    if (selected.length > 1) {
-            	        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% url webstatic "images/knotes16.png" %}"/> Batch Annotate</a></p>');
+                    }
+                })
+                .delegate("a", "click.jstree", function (e) {
+                    var data = $.jstree._focused();
+                    if(!data.is_open() && data.get_selected().length < 2) {
+                        data.open_node(data.get_selected());
+                    }
+                    
+                })
+                .delegate("a", "dblclick", function(e) {
+                    if ($(this).parent().attr('rel')=='image') {
+                        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                    }
+                })
+                .bind("select_node.jstree", function (e, data) {
+                    buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
+                    var selected = data.inst.get_selected();
+                    if (selected.length > 1) {
+                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% url webstatic "images/knotes16.png" %}"/> Batch Annotate</a></p>');
                         $("#batchAnnotate").click(function() {
                             multipleAnnotation(selected);
                             return false;
                         });
+                        if (selected.filter('li:not([id|=image])').length > 0) {
+                            $("div#content_details").empty();
+                            $("div#content_details").removeAttr('rel');
+                        }
                     } else {
-                        loadOtherPanels(data, '{% url load_data %}');
+                        loadOtherPanels(data.inst, '{% url load_data %}');
                     }
                     syncPanels(selected);
-        		})
-        		.bind("deselect_node.jstree", function (e, data) {
-            	    buttonsShowHide(data.inst.get_selected());
-            	    if (data.inst.get_selected().length < 2) {
-            	        data.rslt.obj = data.inst.get_selected()
-                        loadOtherPanels(data, '{% url load_data %}');                        
+                    
+                })
+                .bind("deselect_node.jstree", function (e, data) {
+                    var selected = data.inst.get_selected();
+                    buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
+                    if (selected.length < 2) {
+                        data.rslt.obj = selected;
+                        loadOtherPanels(data.inst, '{% url load_data %}');
+                    } else {
+                        var parent = data.inst._get_parent(data.inst.data.ui.last_selected);
+                        if ($.inArray(parent.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1 ) {
+                            $("div#content_details").attr('rel', parent.attr("id"));
+                            refreshCenterPanel();
+                        }
                     }
-                    syncPanels(data.inst.get_selected());
-        	    })
-            	.bind("create.jstree", function (e, data) {
-            	    if(data.rslt.parent.attr("rel") == "project") {
+                    syncPanels(selected);
+                })
+                .bind("open_node.jstree", function (e, data) {
+                    
+                })
+                .bind("create.jstree", function (e, data) {
+                    if(data.rslt.parent.attr("rel") == "project") {
                         url = '{% url manage_action_containers "addnewcontainer" %}project/'+data.rslt.parent.attr("id").split("-")[1]+'/';
                     } else {
                         url = '{% url manage_action_containers "addnewcontainer" %}';
@@ -442,67 +548,66 @@
                     $.ajax({
                       url: url,
                       data: {
-      			          "name" : data.rslt.name,
-      					  "folder_type" : data.rslt.obj.attr("rel")
-      				  },
+                            "name" : data.rslt.name,
+                            "folder_type" : data.rslt.obj.attr("rel")
+                        },
                       dataType: "json",
                       type: "POST",
                       success: function(r){
                           if(eval(r.bad)) {
                               $.jstree.rollback(data.rlbk);
-      						  alert(r.errs);
-      				      } else {
+                                alert(r.errs);
+                            } else {
                               $(data.rslt.obj).attr("id", data.rslt.obj.attr("rel")+"-"+r.id);
-      				      }
+                            }
                       },
                       error: function(response) {
                           $.jstree.rollback(data.rlbk);
                           alert("Internal server error. Cannot create object.");
                       }
                     });
-        		})
-        		.bind("move_node.jstree", function (e, data) {
-        		    var refresh = false;
-    		        data.rslt.o.each(function (i) {
-        		        if (data.inst.data.crrm.cp_nodes) {
+                })
+                .bind("move_node.jstree", function (e, data) {
+                    var refresh = false;
+                    data.rslt.o.each(function (i) {
+                        var remove = false;
+                        if (data.inst.data.crrm.cp_nodes) {
                             url = '{% url manage_action_containers "paste" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
                             d = {
-          					    "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
-          					}
+                                "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
+                            }
                         } else  {
                             if (data.rslt.cr.attr('rel')!="orphaned") {
-            		            url = '{% url manage_action_containers "move" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/';
+                                url = '{% url manage_action_containers "move" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/';
                                 d = {
-          					        "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1], 
-          						    "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
-          					    };
-            		        } else {
-        		                url = '{% url manage_action_containers "remove" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
-            		            d = {
-              					    "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1]
-              					};
-          					}
+                                    "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1], 
+                                    "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
+                                };
+                                if (data.inst.get_container().find('#'+this.id).length > 1 ) data.inst.delete_node(this);
+                            } else {
+                                url = '{% url manage_action_containers "remove" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
+                                d = {
+                                    "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1]
+                                };
+                            }
                         }
                         $.ajax({
-            		        async : false,
+                            async : false,
                             url: url,
                             data : d,
                             dataType: "json",
                             type: "POST",
                             success: function(r){
                                 if(eval(r.bad)) {
-          							$.jstree.rollback(data.rlbk);
-          							alert(r.errs);
-          						}
-          						else {
-          						    $(data.rslt.oc).attr("id", data.rslt.o.attr('id'));
-          						    if(data.rslt.cy && $(data.rslt.oc).children("UL").length) {
-          								data.inst.refresh(data.inst._get_node(data.rslt.oc));
-          							}
-          							//data.inst.refresh(data.inst._get_node(data.rslt.cr));
-          							//refreshCenterPanel();
-          							refresh = true;
-          						}
+                                      $.jstree.rollback(data.rlbk);
+                                      alert(r.errs);
+                                  }
+                                  else {
+                                      refresh = true;
+                                      if(data.rslt.cy && $(data.rslt.oc).children("UL").length) {
+                                          data.inst.refresh(data.inst._get_node(data.rslt.oc));
+                                      }
+                                  }
                             },
                             error: function(response) {
                                 $.jstree.rollback(data.rlbk);
@@ -510,122 +615,118 @@
                             }
                         });
                     });
-                    if (refresh) refreshCenterPanel();
-        		})
-        		.bind("remove.jstree", function (e, data) {
-        		    data.inst.select_node("li#experimenter-0");
-        		    
-        		    var ajax_data = new Array();
-        		    var q = false;
-        		    data.args[0].each(function (i) {
-        		        ajax_data[i] = $(this).attr('id').replace("-","=");
-        		        if (!q && $(this).attr('rel').indexOf('image')<0) q = true;
-        		    });
-        		    
-        		    if (q){
+                    if (refresh) {
+                        //data.inst.refresh();
+                        if (refresh) {
+                            data.inst.deselect_all();
+                            if (!data.inst.is_leaf(data.rslt.op) && $.inArray(data.rslt.op.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) data.inst.refresh(data.inst._get_node('#'+data.rslt.op.attr('id')));
+                            data.inst.select_node(data.rslt.op);
+                            if (!data.inst.is_leaf(data.rslt.cr) && $.inArray(data.rslt.cr.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) data.inst.refresh(data.inst._get_node('#'+data.rslt.cr.attr('id')));
+                            if(!data.inst.data.crrm.cp_nodes && !data.inst.data.crrm.ct_nodes) refreshCenterPanel();
+                        }
+                    }
+                })
+                .bind("remove.jstree", function (e, data) {
+                    data.inst.select_node("li#experimenter-0");
+                    
+                    var ajax_data = new Array();
+                    var q = false;
+                    data.args[0].each(function (i) {
+                        ajax_data[i] = $(this).attr('id').replace("-","=");
+                        if (!q && $(this).attr('rel').indexOf('image')<0) q = true;
+                    });
+
+                    if (q){
                         if (confirm('Also delete content of selected object(-s)?')) {
                             ajax_data[ajax_data.length] = 'child=on';
                         }
-                    } 
-                
+                    }
+
                     if (confirm('Also delete linked annotations?')) {
                         ajax_data[ajax_data.length] = 'anns=on';
                     }
-                    
+
                     url = '{% url manage_action_containers "deletemany" %}'
                     $.ajax({
-        		        async : false,
+                        async : false,
                         url: url,
                         data : ajax_data.join("&"),
                         dataType: "json",
                         type: "POST",
                         success: function(r){
                             if(eval(r.bad)) {
-      							$.jstree.rollback(data.rlbk);
-      							alert(r.errs);
-      						} else {
-      						    refreshCenterPanel();
-      						    var i = setInterval(function (){
-                                    $.getJSON("/webclient/progress/", function(data) {
-                                        if (data.inprogress== 0) {
-                                            clearInterval(i);
-                                            $("#progress").hide();
-                                            if(data.failure>0) {
-                                                $("#jobstatus").html(data.failure + ' job(s) failed');
-                                            } else {
-                                                $("#jobstatus").html(data.jobs + ' job(s)');
-                                            }
-                                            return;
-                                        }
-
-                                        $("#progress").show();
-                                        $("#jobstatus").html(data.inprogress + ' job(s) in progress');
-                                    });
-                                }, 10000);
-      						}
+                                  $.jstree.rollback(data.rlbk);
+                                  alert(r.errs);
+                              } else {
+                                  data.args[0].each(function (i) {
+                                      data.inst.get_container().find('#'+this.id).each(function() { data.inst.delete_node(this); });
+                                  });
+                                  refreshProgressBar();
+                              }
                         },
                         error: function(response) {
                             $.jstree.rollback(data.rlbk);
                             alert("Internal server error. Cannot remove object.");
                         }
                     });
-        		})
-        		
-        	});
-        	        
+                })
+                
+            });
+            
     </script>
     
     <script type="text/javascript">
     $(function () {
-    	$("#buttons input").click(function () {
-    		switch(this.id) {
-    			case "addprojectButton":
-    			    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'project' }, "data":"New project" }, false, true);
-    				break;
-    			case "adddatasetButton":
-    			    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'dataset' }, "data":"New dataset" }, false, true);
-    				break;
-    			case "addscreenButton":
-    			    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'screen' }, "data":"New screen" }, false, true);
-    				break;
-    			case "copyButton":
-    			    $("#dataTree").jstree('copy', $.jstree._focused().get_selected());
-    				break;
-    			case "cutButton":
-    			    $("#dataTree").jstree('cut', $.jstree._focused().get_selected());
-    				break;
-    			case "pasteButton":
-    			    $("#dataTree").jstree('paste', $.jstree._focused().get_selected());
-    				break;
-    			case "unlinkButton":
-    			    var jstree = $.jstree._focused();
+        $("#buttons input").click(function () {
+            switch(this.id) {
+                case "addprojectButton":
+                    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'project' }, "data":"New project" }, false, true);
+                    break;
+                case "adddatasetButton":
+                    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'dataset' }, "data":"New dataset" }, false, true);
+                    break;
+                case "addscreenButton":
+                    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'screen' }, "data":"New screen" }, false, true);
+                    break;
+                case "copyButton":
+                    $("#dataTree").jstree('copy', $.jstree._focused().get_selected());
+                    break;
+                case "cutButton":
+                    $("#dataTree").jstree('cut', $.jstree._focused().get_selected());
+                    break;
+                case "pasteButton":
+                    $("#dataTree").jstree('paste', $.jstree._focused().get_selected());
+                    break;
+                case "unlinkButton":
+                    var jstree = $.jstree._focused();
+                    jstree.data.crrm.ct_nodes = false;
+                    jstree.data.crrm.cp_nodes = false;
                     var selected = jstree.get_selected();
                     if (selected.length>0) {
+                        var images = selected.filter('li[id|=image]');
+                        var datasets = selected.filter('li[id|=dataset]')
                         if (confirm("Remove the "+selected.length+" object(-s) from its current context.")) {
-                            selected.each(function() {
-                                jstree.cut($(this));
-                                if ($(this).attr('rel') == 'image') jstree.paste($("li#orphaned-0"))
-                                else jstree.paste($("li#experimenter-0"));
-                            });                                                        
+                            if (images.length > 0) jstree.move_node(images,$("li#orphaned-0"))
+                            if (datasets.length > 0) jstree.move_node(datasets,$("li#experimenter-0"));
                         }
                     }
                     break;
-    			case "deleteButton":
-    			    if (confirm("Delete permanently selected object(-s)? You will NOT be able to access this object any more.")) {
+                case "deleteButton":
+                    if (confirm("Delete permanently selected object(-s)? You will NOT be able to access this object any more.")) {
                         $("#dataTree").jstree('remove', $.jstree._focused().get_selected());
-                    }    			    
-    				break;
-    			case "basketButton":
-        		    addToBasket($.jstree._focused().get_selected());
-        			break;
+                    }    
+                    break;
+                case "basketButton":
+                    addToBasket($.jstree._focused().get_selected());
+                    break;
                 case "refreshButton":
                     $("#dataTree").jstree("refresh");
                     refreshCenterPanel();
                     break;
                 default:
-    			    break;
-    		}
-    	});
+                    break;
+            }
+        });
     });
     </script>
 {% endblock %}
@@ -666,7 +767,108 @@
 
 {% block right %}
 
+<script type="text/javascript">
+
+    function openScriptWindow(event) {
+        // open script url, providing Data_Type and IDs params in request
+        var script_url = $(this).attr('href');
+        if (script_url == "#") return false;
+
+        var datatree = $.jstree._focused();
+
+        var ids = new Array();
+        var Data_Type = null;
+        var selected = datatree.data.ui.selected;
+        if (selected.size() == 1) {
+            var klass = selected.attr('rel');
+            if (klass == 'plate' || klass == 'acquisition') {
+                var plateSelected = $('#spw .ui-selected img');
+                if (plateSelected.size() > 0) {
+                    selected = plateSelected;
+                }
+            }
+        }
+        selected.each(function() {
+            var dtype = this.id.split("-")[0];
+            if (Data_Type == undefined) {
+                Data_Type = dtype;
+                ids.push(this.id.split("-")[1]);
+            } else if (Data_Type == dtype) {
+                // need to be sure our IDs are all of the same dtype
+                ids.push(this.id.split("-")[1]);
+            }
+        });
+        Data_Type = Data_Type.charAt(0).toUpperCase() + Data_Type.slice(1); // capitalise
+        script_url += "?Data_Type="+ Data_Type +"&IDs="+ ids.join();
+        openCenteredWindow(script_url);
+        return false;
+    }
+
+    $(document).ready(function(){
+
+        // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
+        // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
+        $("#scriptButton").click(function(e){
+            if ($("#scriptList li").length == 0){  // if none loaded yet...
+                var $scriptLink = $(this).hide();
+                var $scriptSpinner = $("#scriptSpinner").show();
+                var script_list_url = $(this).attr('href');
+                $("#scriptList").load(script_list_url, function(){
+                    // Now show the menu and add ">>" to any <li> with child <ul>
+                    $('ul.sub_menu').css('visibility', 'visible');
+                    $("ul.sub_menu li:has(ul)").find("a:first").append(" &raquo; ");
+                    // bind links to openPopup
+                    $("ul.sub_menu a").click(openScriptWindow);
+                    $scriptLink.show();
+                    $scriptSpinner.hide();
+                });
+            } else {
+                $('ul.sub_menu').css('visibility', 'visible');
+            }
+            e.preventDefault();
+            return false;
+        });
+        // on hover-out, hide drop-down menus
+        $("#scriptList").hover(function(){}, function(){
+            $(this).css('visibility', 'hidden');
+        });
+
+    });
+
+</script>
+
+<style type="text/css">
+    /* Styles for Drop-down menu - based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/ */
+    .dropdown                   { font-weight: bold; float: left; zoom: 1; position: relative; }
+    .dropdown li a              { display: block; padding: 4px 8px; border-right: 1px solid #333; color: #222; }
+    .dropdown li:last-child a   { border-right: none; } /* Doesn't work in IE */
+    .dropdown li.hover,
+    .dropdown li:hover          { background: #ddf; color: black; position: relative; }
+    .dropdown li.hover a        { color: black; }
+
+    .dropdown ul                { width: 170px; visibility: hidden; position: absolute; top: 100%; left: 0; z-index:50;
+                                    margin: 0; padding: 0; list-style:none; border:solid black 1px;}
+    .dropdown ul li             { font-weight: normal; background: #fff; color: #000; border-bottom: 1px solid #eee; float: none; }
+    .dropdown ul li a           { border-right: none; width: 100%; display: inline-block; } /* IE 6 & 7 Needs Inline Block */
+
+    ul.sub_menu li ul           { left: 100%; top: 0;}
+    ul.sub_menu li:hover > ul   { visibility: visible;}
+</style>
+
 <div id="metadata_details">
+
+    <div id="toolbar-right" class="dropdown" style="padding-top: 7px">
+        <!-- Script launcher -->
+        <a id="scriptButton" href="{% url list_scripts %}">
+            <img src="{% url webstatic 'images/nuvola_script-run16.png' %}" />
+        </a>
+        <img id="scriptSpinner" style="display:none" src="{% url webstatic 'images/spinner.gif' %}" />
+        <ul id="scriptList" class="sub_menu">
+            <!-- script list-items loaded here by AJAX -->
+        </ul>
+    </div>
+    <div style="clear:both"></div>
+
     <div id="metadata_description"></div>
     <iframe width="370" name="metadata_details"></iframe>
 </div>

@@ -140,6 +140,15 @@ public class FileImportComponent
 	/** Bound property indicating to browse the node. */
 	public static final String BROWSE_PROPERTY = "browse";
 	
+	/** Bound property indicating to increase the number of files to import. */
+	public static final String IMPORT_FILES_NUMBER_PROPERTY = "importFilesNumber";
+	
+	/**
+	 * Bound property indicating to the import of the file has been cancelled,
+	 * failed or successful.
+	 */
+	public static final String IMPORT_STATUS_CHANGE_PROPERTY = "importStatusChange";
+	
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
 	
@@ -167,9 +176,12 @@ public class FileImportComponent
 	/** Text to indicate that the file, after scanning is not valid. */
 	private static final String FILE_NOT_VALID_TEXT = "File Not Valid";
 	
+	/** Text to indicate that the import is cancelled. */
+	private static final String CANCEL_TEXT = "cancelled";
+
 	/** The number of extra labels for images to add. */
 	private static final int NUMBER = 3;
-	
+
 	/** Action id to delete the image. */
 	private static final int DELETE_ID = 0;
 	
@@ -272,6 +284,9 @@ public class FileImportComponent
 	/** The error to show if any.*/
 	private Throwable exception;
 	
+	/** Flag indicating that no container specified.*/
+	private boolean noContainer;
+	
 	/** Displays the error box at the specified location.
 	 * 
 	 * @param p The location where to show the box.
@@ -311,15 +326,21 @@ public class FileImportComponent
 	{
 		if (busyLabel.isBusy() && !statusLabel.isCancellable()) 
 			return;
-		String s = "cancelled";
-		if (file.isDirectory()) 
+		String s = CANCEL_TEXT;
+		if (file.isDirectory()) {
+			busyLabel.setBusy(true);
+			busyLabel.setVisible(true);
 			s += " waiting on scanning to finish";
+		} else {
+			busyLabel.setBusy(false);
+			busyLabel.setVisible(false);
+		}
 		statusLabel.setText(s);
 		statusLabel.markedAsCancel();
 		cancelButton.setEnabled(false);
 		cancelButton.setVisible(false);
-		busyLabel.setBusy(false);
-		busyLabel.setVisible(false);
+		if (image == null && file.isFile())
+			firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null, PARTIAL);
 		if (fire)
 			firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
 	}
@@ -471,6 +492,7 @@ public class FileImportComponent
 		deleteButton.setToolTipText("Delete the image");
 		UIUtilities.unifiedButtonLookAndFeel(deleteButton);
 		deleteButton.setVisible(false);
+		image = null;
 	}
 	
 	/** Builds and lays out the UI. */
@@ -572,6 +594,7 @@ public class FileImportComponent
 		}
 		removeAll();
 		pane = EditorUtil.createTaskPane("");
+		pane.setCollapsed(false);
 		setNumberOfImport();
 
 		IconManager icons = IconManager.getInstance();
@@ -711,7 +734,7 @@ public class FileImportComponent
 	public void setStatus(boolean status, Object image)
 	{
 		this.image = image;	
-		busyLabel.setBusy(status);
+		busyLabel.setBusy(false);
 		busyLabel.setVisible(false);
 		cancelButton.setVisible(false);
 		importCount++;
@@ -747,8 +770,13 @@ public class FileImportComponent
 				addMouseListener(adapter);
 				showContainerLabel = 
 					(dataset != null || containerFromFolder != null);
-				browseButton.setVisible(showContainerLabel);
-				containerLabel.setVisible(showContainerLabel);
+				if (noContainer) {
+					browseButton.setVisible(false);
+					containerLabel.setVisible(false);
+				} else {
+					browseButton.setVisible(showContainerLabel);
+					containerLabel.setVisible(showContainerLabel);
+				}
 			}
 		} else if (image instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) image;
@@ -770,8 +798,13 @@ public class FileImportComponent
 				}
 				showContainerLabel = 
 					(dataset != null || containerFromFolder != null);
-				browseButton.setVisible(showContainerLabel);
-				containerLabel.setVisible(showContainerLabel);
+				if (noContainer) {
+					browseButton.setVisible(false);
+					containerLabel.setVisible(false);
+				} else {
+					browseButton.setVisible(showContainerLabel);
+					containerLabel.setVisible(showContainerLabel);
+				}
 			} else {
 				fileNameLabel.setForeground(ERROR_COLOR);
 				resultLabel.setVisible(false);
@@ -796,8 +829,13 @@ public class FileImportComponent
 			fileNameLabel.addMouseListener(adapter);
 			resultLabel.addMouseListener(adapter);
 			showContainerLabel = containerObject instanceof ScreenData;
-			browseButton.setVisible(showContainerLabel);
-			containerLabel.setVisible(showContainerLabel);
+			if (noContainer) {
+				browseButton.setVisible(false);
+				containerLabel.setVisible(false);
+			} else {
+				browseButton.setVisible(showContainerLabel);
+				containerLabel.setVisible(showContainerLabel);
+			}
 		} else if (image instanceof List) {
 			statusLabel.setVisible(false);
 			List list = (List) image;
@@ -825,8 +863,13 @@ public class FileImportComponent
 			}
 			resultLabel.setVisible(true);
 			showContainerLabel = true;
-			browseButton.setVisible(showContainerLabel);
-			containerLabel.setVisible(showContainerLabel);
+			if (noContainer) {
+				browseButton.setVisible(false);
+				containerLabel.setVisible(false);
+			} else {
+				browseButton.setVisible(showContainerLabel);
+				containerLabel.setVisible(showContainerLabel);
+			}
 			//control = resultLabel;
 		} else if (image instanceof Boolean) {
 			if (!statusLabel.isMarkedAsCancel()) {
@@ -857,15 +900,21 @@ public class FileImportComponent
 				else if (image instanceof String) {
 					setStatusText((String) image);
 				} else if (image instanceof ImportException) {
+					ImportException ie = (ImportException) image;
 					fileNameLabel.setForeground(ERROR_COLOR);
 					resultLabel.setVisible(false);
-					ImportException ie = (ImportException) image;
 					errorButton.setToolTipText(
 							UIUtilities.formatExceptionForToolTip(ie));
 					exception = ie;
 					errorButton.setVisible(true);
-					errorBox.setVisible(true);
-					errorBox.addChangeListener(this);
+					if (ie.getStatus() == ImportException.COMPRESSION) {
+						resultLabel.setVisible(true);
+						resultLabel.setText("Compression not supported");
+					} else {
+						errorBox.setVisible(true);
+						errorBox.addChangeListener(this);
+					}
+					
 					cancelButton.setVisible(false);
 				}
 			}
@@ -935,6 +984,29 @@ public class FileImportComponent
 	}
 	
 	/**
+	 * Returns <code>true</code> if the import has failed, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasImportFailed()
+	{
+		if (file.isFile()) return errorBox.isVisible();
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the import has been cancelled,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isCancelled()
+	{
+		return statusLabel.isMarkedAsCancel();
+	}
+	
+	/**
 	 * Returns <code>true</code> if errors to send, <code>false</code>
 	 * otherwise.
 	 * 
@@ -959,6 +1031,17 @@ public class FileImportComponent
 	}
 	
 	/**
+	 * Returns <code>true</code> if the folder has components added,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasComponents()
+	{
+		return components != null && components.size() > 0;
+	}
+	
+	/**
 	 * Returns one of the following constants: {@link #SUCCESS}, 
 	 * {@link #PARTIAL} or {@link #FAILURE}.
 	 * 
@@ -972,8 +1055,12 @@ public class FileImportComponent
 		}
 		if (components == null || components.size() == 0) {
 			if (image instanceof Boolean) {
-				if (!StatusLabel.DUPLICATE.equals(resultLabel.getText()))
-					return FAILURE;
+				if (file.isDirectory() && isCancelled()) {
+					return SUCCESS;
+				} else {
+					if (!StatusLabel.DUPLICATE.equals(resultLabel.getText()))
+						return FAILURE;
+				}
 			}
 			return SUCCESS;
 		}
@@ -1134,7 +1221,16 @@ public class FileImportComponent
 	{
 		String name = evt.getPropertyName();
 		if (StatusLabel.FILES_SET_PROPERTY.equals(name)) {
+			if (isCancelled()) {
+				statusLabel.setText(CANCEL_TEXT);
+				busyLabel.setBusy(false);
+				busyLabel.setVisible(false);
+				return;
+			}
+			Map<File, StatusLabel> files = (Map<File, StatusLabel>)
+				evt.getNewValue();
 			insertFiles((Map<File, StatusLabel>) evt.getNewValue());
+			firePropertyChange(IMPORT_FILES_NUMBER_PROPERTY, null, files.size());
 		} else if (StatusLabel.FILE_IMPORT_STARTED_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl == statusLabel && busyLabel != null) {
@@ -1148,8 +1244,19 @@ public class FileImportComponent
 		} else if (StatusLabel.FILE_IMPORTED_PROPERTY.equals(name)) {
 			Object[] results = (Object[]) evt.getNewValue();
 			File f = (File) results[0];
-			if (f.getAbsolutePath().equals(file.getAbsolutePath()))
+			if (f.getAbsolutePath().equals(file.getAbsolutePath())) {
 				setStatus(false, results[1]);
+				if (f.isFile()) {
+					if (hasImportFailed())
+						firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
+								FAILURE);
+					else if (isCancelled())
+						firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
+							PARTIAL);
+					else firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
+							SUCCESS);
+				}
+			}
 		} else if (StatusLabel.FILE_RESET_PROPERTY.equals(name)) {
 			file = (File) evt.getNewValue();
 			fileNameLabel.setText(file.getName());
@@ -1169,6 +1276,9 @@ public class FileImportComponent
 						((ScreenData) containerFromFolder).getName());
 				containerObject = containerFromFolder;
 			}
+		} else if (StatusLabel.NO_CONTAINER_PROPERTY.equals(name)) {
+			containerLabel.setText("");
+			noContainer = true;
 		}
 	}
 

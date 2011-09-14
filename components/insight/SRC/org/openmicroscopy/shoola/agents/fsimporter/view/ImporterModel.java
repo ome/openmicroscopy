@@ -101,7 +101,7 @@ class ImporterModel
 	 * 
 	 * @return One of the flags defined by the {@link Importer} interface.  
 	 */
-	int getState() { return state; }    
+	int getState() { return state; }
 
 	/**
 	 * Sets the state of the component.
@@ -246,7 +246,7 @@ class ImporterModel
 		DataObjectCreator loader = new DataObjectCreator(component, child,
 				parent);
 		loader.load();
-		state = Importer.CREATING_CONTAINER;
+		//state = Importer.CREATING_CONTAINER;
 	}
 	
 }

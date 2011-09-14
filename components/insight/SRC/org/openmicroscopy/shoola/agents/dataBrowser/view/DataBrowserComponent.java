@@ -258,6 +258,7 @@ class DataBrowserComponent
 	public void setSelectedDisplay(ImageDisplay node)
 	{
 		if (node == null) return;
+		model.getBrowser().scrollToNode(node);
 		Object object = node.getHierarchyObject();
 		List<Object> objects = new ArrayList<Object>();
 		List<Object> others = new ArrayList<Object>(); 

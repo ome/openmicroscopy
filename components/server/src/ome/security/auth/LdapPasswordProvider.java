@@ -10,6 +10,7 @@ package ome.security.auth;
 import java.security.Permissions;
 
 import ome.conditions.ApiUsageException;
+import ome.conditions.ValidationException;
 import ome.logic.LdapImpl;
 import ome.security.SecuritySystem;
 
@@ -99,21 +100,70 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
             }
         }
 
-        // Known user
-        else {
-            try {
-                String dn = ldapUtil.lookupLdapAuthExperimenter(id);
-                if (dn != null) {
-                    return loginAttempt(user,
-                            ldapUtil.validatePassword(dn, password));
-                }
-            } catch (ApiUsageException e) {
-                log.warn("Default choice on check ldap password: " + user, e);
+        // Known user, preventing special users by checking for a null dn
+        // in which case we ignore any information from LDAP.
+        // See ticket:6702
+        final String dn1 = getOmeroDN(id);
+        if (dn1 != null) {
+
+            // If LDAP doesn't return a DN for a user that expects one
+            // then assume that they've been locked out. ticket:6248
+            final String dn2 = getLdapDN(user);
+            if (dn2 == null) {
+                log.info(String.format(
+                        "User not found in LDAP: {username=%s, dn=%s}",
+                        user, dn1));
+                return loginAttempt(user, false);
+            } else if (!dn1.equals(dn2)) {
+                String msg = String.format("DNs don't match: '%s' and '%s'",
+                        dn1, dn2);
+                log.warn(msg);
+                loginAttempt(user, false);
+                // Throwing an exception so that the permissions verifier
+                // will state an "InternalException: Please contact your admin"
+                // We will need to find another way to handle this.
+                // Perhaps a hard-coded value in "password"."dn"
+                throw new ValidationException(msg);
+            } else {
+                ldapUtil.synchronizeLdapUser(user);
+                return loginAttempt(user,
+                        ldapUtil.validatePassword(dn1, password));
             }
         }
 
-        // If anything goes wrong, use the default (configurable) logic.
+        // If anything goes wrong or no LDAP is found in OMERO,
+        // then use the default (configurable) logic, which will
+        // probably return null in order to check JDBC for the password.
         return super.checkPassword(user, password, readOnly);
     }
 
+    private String getOmeroDN(long id) {
+        try {
+            String dn = ldapUtil.lookupLdapAuthExperimenter(id);
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("lookupLdap(%s)=%s", id, dn));
+            }
+            return dn;
+        } catch (ApiUsageException e) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("lookupLdap(%s) is empty", id));
+            }
+            return null;
+        }
+    }
+
+    private String getLdapDN(String user) {
+        try {
+            String dn = ldapUtil.findDN(user);
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("findDN(%s)=%s", user, dn));
+            }
+            return dn;
+        } catch (ApiUsageException e) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("findDN(%s) is empty", user));
+            }
+            return null;
+        }
+    }
 }

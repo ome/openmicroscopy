@@ -52,15 +52,12 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^basket/update/$', views.update_basket, name="update_basket"),
     url( r'^basket/(?:(?P<action>[a-zA-Z]+)/)?$', views.basket_action, name="basket_action"),
     
+    # update, display processes, E.g. delete queues, scripts etc.
     url( r'^progress/', views.progress, name="progress"),
     url( r'^status/(?:(?P<action>[a-zA-Z]+)/)?$', views.status_action, name="status"),
     
     # loading data    
-    url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|image|screen|plate|well|orphaned))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    
-    
-    url( r'^load_data/(?P<o1_type>((?i)project|dataset|image|screen|plate|well))/(?P<o1_id>[0-9]+)/$', views.load_data, name="load_data_t_id" ),
-    url( r'^load_data/(?P<o1_type>((?i)project|dataset|screen|plate))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset|image|plate|well))/(?P<o2_id>[0-9]+)/$', views.load_data, name="load_data_t_id_t_id" ),
-    url( r'^load_data/(?P<o1_type>((?i)project|screen))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset|plate))/(?P<o2_id>[0-9]+)/(?P<o3_type>((?i)image|well))/(?P<o3_id>[0-9]+)/$', views.load_data, name="load_data_t_id_t_id_t_id" ),
+    url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|image|screen|plate|well|orphaned))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|acquisition|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    
     
     # load history
     url( r'^load_calendar/(?:(\d{4})/(\d{1,2})/)?$', views.load_calendar, name="load_calendar"),
@@ -81,21 +78,35 @@ urlpatterns = patterns('django.views.generic.simple',
     
     url( r'^action/(?P<action>[a-zA-Z]+)/(?:(?P<o_type>[a-zA-Z]+)/)?(?:(?P<o_id>[0-9]+)/)?$', views.manage_action_containers, name="manage_action_containers" ),
     url( r'^annotation/(?P<action>[a-zA-Z]+)/(?P<iid>[0-9]+)/$', views.download_annotation, name="download_annotation" ),
+    url( r'^archived_files/download/(?P<iid>[0-9]+)/$', views.archived_files, name="archived_files" ),
     
     url( r'^load_tags/(?:(?P<o_type>((?i)tag|dataset))/(?P<o_id>[0-9]+)/)?$', views.load_data_by_tag, name="load_data_by_tag" ),
     url( r'^autocompletetags/$', views.autocomplete_tags, name="autocomplete_tags" ),
     
     # Open Astex Viewer will try to show file as volume, e.g. mrc.map file. 
-    url( r'^open_astex_viewer/file/(?P<fileAnnId>[0-9]+)/$', views.open_astex_viewer, name='open_astex_viewer' ),  # html page
+    url( r'^open_astex_viewer/(?P<obj_type>((?i)image|image_8bit|file))/(?P<obj_id>[0-9]+)/$', views.open_astex_viewer, name='open_astex_viewer' ),  # 'data_url' to load in REQUEST
     url( r'^file/(?P<iid>[0-9]+)\.map$', views.download_annotation, {'action':'download'}, name='open_astex_map' ),# download file
     url( r'^file/(?P<iid>[0-9]+)\.bit$', views.download_annotation, {'action':'download'}, name='open_astex_bit' ),# download file
+    url( r'^image_as_map/(?P<imageId>[0-9]+)\.map$', views.image_as_map, name='webclient_image_as_map' ), # convert image to map (full size)
+    url( r'^image_as_map/(?P<imageId>[0-9]+)/(?P<maxSize>[0-9]+)\.map$', views.image_as_map, name='webclient_image_as_map' ), # image to map of max Size (side length)
+    url( r'^image_as_map/8bit/(?P<imageId>[0-9]+)\.map$', views.image_as_map, {'8bit':True}, name='webclient_image_as_map_8bit' ), # convert image to map
+    url( r'^image_as_map/8bit/(?P<imageId>[0-9]+)/(?P<maxSize>[0-9]+)\.map$', views.image_as_map, {'8bit':True}, name='webclient_image_as_map_8bit' ), # image to map
+    
+    # render bird's eye view
+    url( r'^render_birds_eye_view/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_birds_eye_view, name="render_birds_eye_view" ),
     
     # render thumbnails
     url( r'^render_thumbnail/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail, name="render_thumbnail" ),
     url( r'^render_thumbnail/size/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail_resize, name="render_thumbnail_resize" ),
     
+    #plate webgateway extention
+    url(r'^plate/(?P<pid>[^/]+)/(?:(?P<field>[^/]+)/)?$', views.plateGrid_json, name="web_plategrid_json"),
+    
+    #image webgateway extention
     url( r'^(?:(?P<share_id>[0-9]+)/)?render_image_region/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', views.render_image_region, name="web_render_image_region"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?render_image/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', views.render_image, name="web_render_image"),
+    url( r'^(?:(?P<share_id>[0-9]+)/)?img_detail/(?P<iid>[0-9]+)/$', views.image_viewer, name="web_image_viewer"),
+    
     url( r'^(?:(?P<share_id>[0-9]+)/)?img_detail/(?P<iid>[0-9]+)/$', views.image_viewer, name="web_image_viewer"),
     url( r'^(?:(?P<share_id>[0-9]+)/)?imgData/(?P<iid>[0-9]+)/$', views.imageData_json, name="web_imageData_json"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_row_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<y>[^/]+)/(?:(?P<w>[^/]+)/)?$', views.render_row_plot, name="web_render_row_plot"),
@@ -114,4 +125,10 @@ urlpatterns = patterns('django.views.generic.simple',
     
     url( r'^spellchecker/$', views.spellchecker, name="spellchecker"), 
     
+    # scripting service urls
+    url( r'^list_scripts/$', views.list_scripts, name="list_scripts"),  # returns html list of scripts - click to run
+    url( r'^script_ui/(?P<scriptId>[0-9]+)/$', views.script_ui, name='script_ui' ), # shows a form for running a script
+    url( r'^script_run/(?P<scriptId>[0-9]+)/$', views.script_run, name='script_run' ),  # runs the script - parameters in POST
+    url( r'^get_original_file/(?:(?P<fileId>[0-9]+)/)?$', views.get_original_file, name="get_original_file"), # for stderr, stdout etc
+
 )

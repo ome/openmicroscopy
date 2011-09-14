@@ -527,6 +527,28 @@ class GeneralPaneUI
 	}
 	
 	/**
+	 * Returns <code>true</code> some tags can be unlink, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasAttachmentsToUnlink()
+	{ 
+		return annotationUI.hasAttachmentsToUnlink();
+	}
+	
+	/**
+	 * Returns <code>true</code> some tags can be unlink, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasTagsToUnlink()
+	{
+		return annotationUI.hasTagsToUnlink();
+	}
+	
+	/**
 	 * Removes the annotation from the view.
 	 * 
 	 * @param annotation The annotation to remove.

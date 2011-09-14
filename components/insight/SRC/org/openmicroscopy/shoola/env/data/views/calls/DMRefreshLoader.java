@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -356,14 +357,60 @@ public class DMRefreshLoader
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
-                Iterator users = nodes.keySet().iterator();
                 Map<Long, Object> r = new HashMap<Long, Object>(nodes.size());
                 long userID;
                 Object result;
-                while (users.hasNext()) {
-                	userID = (Long) users.next();
-                	result = os.loadTags(-1L, false, true, userID, -1);
-                	r.put(userID, result);
+                Entry entry;
+                Iterator j = nodes.entrySet().iterator();
+                List l;
+                Collection tags;
+                Iterator k;
+                Iterator<TagAnnotationData> i;
+                TagAnnotationData tag, child;
+                Map<Long, Collection> values;
+                String ns;
+                Set<TagAnnotationData> set;
+                while (j.hasNext()) {
+                	entry = (Entry) j.next();
+                	userID = (Long) entry.getKey();
+                	l = (List) entry.getValue();
+                	
+                	tags = os.loadTags(-1L, false, true, userID, -1);
+                	if (l == null || l.size() == 0) {
+                		r.put(userID, tags);
+                	} else {
+                		values = new HashMap<Long, Collection>();
+                		k = l.iterator();
+                		while (k.hasNext()) {
+                			tag = (TagAnnotationData) k.next();
+							values.put(tag.getId(), os.loadTags(tag.getId(),
+									true, false, userID, -1));
+						}
+                		k = tags.iterator();
+                    	while (k.hasNext()) {
+                    		tag = (TagAnnotationData) k.next();
+                    		ns = tag.getNameSpace();
+							if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
+							{
+								set = tag.getTags();
+								i = set.iterator();
+								while (i.hasNext()) {
+									child = i.next();
+									if (values.containsKey(child.getId())) {
+										child.setDataObjects(
+	    	        					(Set<DataObject>) values.get(
+	    	        							child.getId()));
+									}
+								}
+							} else {
+								if (values.containsKey(tag.getId()))
+    								tag.setDataObjects(
+    										(Set<DataObject>) values.get(
+    												tag.getId()));
+							}
+    					}
+                		r.put(userID, tags);
+                	}
                 }
                 results = r;
             }

@@ -50,8 +50,8 @@
                 url: "{% url autocomplete_tags %}",  
                 contentType: "application/json; charset=utf-8",  
                 cache:false,
-				async: false,
-				dataType: "json",  
+                async: false,
+                dataType: "json",  
                 success: function(json){  
                     prepareAutocomplite(json);
                     $("div#tagloader").remove();
@@ -98,7 +98,7 @@
 <div class="comment">
     <h1>{% trans "Add new comment" %}:</h1>
     
-    <form action="{% if manager.project %}{% url manage_action_containers "addcomment" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addcomment" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addcomment" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addcomment" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addcomment" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addcomment" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}" method="post">
+    <form action="{% if manager.project %}{% url manage_action_containers "addcomment" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addcomment" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addcomment" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addcomment" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addcomment" "plate" manager.plate.id %}{% else %}{% if manager.acquisition %}{% url manage_action_containers "addcomment" "acquisition" manager.acquisition.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addcomment" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}" method="post">
     
     <table>
         {% for field in form_comment %}
@@ -124,7 +124,7 @@
     <h1>{% trans "Add new tag" %}:</h1>
     <p>This form allows you to create a new tag.</p>
     
-    <form action="{% if manager.project %}{% url manage_action_containers "addtag" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addtag" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addtag" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addtag" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addtag" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addtag" "well" manager.well.id %}{% else %}{% url manage_action_containers "addtagonly" %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}" method="post">
+    <form action="{% if manager.project %}{% url manage_action_containers "addtag" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addtag" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addtag" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addtag" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addtag" "plate" manager.plate.id %}{% else %}{% if manager.acquisition %}{% url manage_action_containers "addtag" "acquisition" manager.acquisition.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addtag" "well" manager.well.id %}{% else %}{% url manage_action_containers "addtag" %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}" method="post">
     <table>
         {% for field in form_tag %}
             <tr>
@@ -145,7 +145,7 @@
     <h1>{% trans "Use existing tag" %}:</h1>
     <p>This page allows you to choose an existing tags.</p>
     
-    <form action="{% if manager.project %}{% url manage_action_containers "usetag" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "usetag" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "usetag" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "usetag" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "usetag" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "usetag" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}" method="post">
+    <form action="{% if manager.project %}{% url manage_action_containers "usetag" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "usetag" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "usetag" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "usetag" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "usetag" "plate" manager.plate.id %}{% else %}{% if manager.acquisition %}{% url manage_action_containers "usetag" "acquisition" manager.acquisition.id %}{% else %}{% if manager.well %}{% url manage_action_containers "usetag" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}" method="post">
     <table>
     {% for field in form_tags %}
         <tr>
@@ -169,7 +169,7 @@
 {% if form_file %}
 <div class="file">
     <h1>{% trans "Upload a new file" %}:</h1>
-    <form action="{% if manager.project %}{% url manage_action_containers "addfile" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addfile" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addfile" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addfile" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addfile" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addfile" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}" enctype="multipart/form-data" method="post"><input type="hidden" name="action" value="file" />
+    <form action="{% if manager.project %}{% url manage_action_containers "addfile" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addfile" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addfile" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addfile" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addfile" "plate" manager.plate.id %}{% else %}{% if manager.acquisition %}{% url manage_action_containers "addfile" "acquisition" manager.acquisition.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addfile" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}" enctype="multipart/form-data" method="post"><input type="hidden" name="action" value="file" />
     <table>
     {% for field in form_file %}
         <tr>
@@ -188,7 +188,7 @@
 {% if form_files %}
 <div class="exfile">
     <h1>{% trans "Attach existing file" %}:</h1>
-    <form action="{% if manager.project %}{% url manage_action_containers "usefile" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "usefile" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "usefile" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "usefile" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "usefile" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "usefile" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}" method="post"><input type="hidden" name="action" value="usefile" />
+    <form action="{% if manager.project %}{% url manage_action_containers "usefile" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "usefile" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "usefile" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "usefile" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "usefile" "plate" manager.plate.id %}{% else %}{% if manager.acquisition %}{% url manage_action_containers "usefile" "acquisition" manager.acquisition.id %}{% else %}{% if manager.well %}{% url manage_action_containers "usefile" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}" method="post"><input type="hidden" name="action" value="usefile" />
     <table>
     {% for field in form_files %}
         <tr>

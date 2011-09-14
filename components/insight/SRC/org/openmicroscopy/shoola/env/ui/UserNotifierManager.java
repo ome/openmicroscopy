@@ -133,6 +133,7 @@ class UserNotifierManager
 		FileUploader loader = new FileUploader(component, 
 				container.getRegistry(), 
 				source, details);
+		
 		loader.load();
 	}
 	

@@ -217,9 +217,12 @@ class ImViewerComponent
 	private void postMeasurePlane()
 	{
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+		double f = model.getZoomFactor()*model.getOriginalRatio();
+		if (model.isBigImage()) {
+			f = view.getBigImageMagnificationFactor();
+		}
 		MeasurePlane event = new MeasurePlane(model.getPixelsID(), 
-				model.getDefaultZ(), model.getDefaultT(), 
-				model.getZoomFactor()*model.getOriginalRatio());
+				model.getDefaultZ(), model.getDefaultT(), f);
 		bus.post(event);
 	}
 
@@ -466,16 +469,19 @@ class ImViewerComponent
 	private void postMeasurementEvent(List<FileAnnotationData> measurements)
 	{
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+		double f = 
+			model.getZoomFactor()*model.getOriginalRatio();
+		if (model.isBigImage()) f = view.getBigImageMagnificationFactor();
 		MeasurementTool request = new MeasurementTool(model.getImageID(), 
 				model.getPixelsData(), model.getImageName(), 
 				model.getDefaultZ(), model.getDefaultT(),
-				model.getActiveChannelsColorMap(), 
-				model.getZoomFactor()*model.getOriginalRatio(), 
+				model.getActiveChannelsColorMap(),f, 
 				view.getBounds(), model.getChannelData());
 		request.setThumbnail(model.getImageIcon());
 		request.setRenderedImage(model.getBrowser().getRenderedImage());
 		request.setMeasurements(measurements);
 		request.setHCSData(model.isHCSImage());
+		request.setBigImage(model.isBigImage());
 		bus.post(request);
 		int tabbedIndex = model.getTabbedIndex();
 		if (tabbedIndex != ImViewer.VIEW_INDEX) {
@@ -689,6 +695,7 @@ class ImViewerComponent
 			model.getBrowser().setComponentsSize(model.getTiledImageSizeX(),
 					model.getTiledImageSizeY());
 			loadTiles(null);
+			postMeasurePlane();
 			return;
 		}
 		double oldFactor = model.getZoomFactor();
@@ -783,6 +790,53 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setSelectedXYPlane(int, int, int)
+	 */
+	public void setSelectedRegion(int z, int t, Rectangle region)
+	{
+		if (region == null || !model.isBigImage()) {
+			setSelectedXYPlane(z, t);
+			return;
+		}
+		switch (model.getState()) {
+			case NEW:
+			case DISCARDED:
+				return;
+		}
+		int defaultZ = model.getDefaultZ();
+		int defaultT = model.getDefaultT();
+		boolean reset = false;
+		if (defaultZ != z) {
+			reset = true;
+			firePropertyChange(ImViewer.Z_SELECTED_PROPERTY, 
+					Integer.valueOf(defaultZ), Integer.valueOf(z));
+		}
+		if (defaultT != t) {
+			reset = true;
+			firePropertyChange(ImViewer.T_SELECTED_PROPERTY, 
+					Integer.valueOf(defaultT), Integer.valueOf(t));
+		}
+		Rectangle r = model.getBrowser().getVisibleRectangle();
+		double f = view.getBigImageMagnificationFactor();
+		Rectangle transformRegion = new Rectangle(
+				(int) (region.x*f), (int) (region.y*f), (int) (region.width*f), 
+				(int) (region.height*f));
+				
+		if (r.contains(transformRegion)) return;
+		//Now determine the view size so the ROI is displayed.
+		Rectangle r2 = new Rectangle(
+				transformRegion.x, transformRegion.y, r.width, r.height);
+		if (reset) {
+			model.fireBirdEyeViewRetrieval();
+			model.resetTiles();
+			model.getBrowser().setSelectedRegion(r2);
+		} else {
+			model.getBrowser().setSelectedRegion(r2);
+		}
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#setSelectedXYPlane(int, int)
 	 */
 	public void setSelectedXYPlane(int z, int t)
@@ -796,6 +850,7 @@ class ImViewerComponent
 	 */
 	public void setImage(Object image)
 	{
+		if (model.getState() == LOADING_IMAGE_CANCELLED) return;
 		if (model.getState() != LOADING_IMAGE) 
 			throw new IllegalStateException("This method can only be invoked " +
 			"in the LOADING_IMAGE state.");
@@ -1419,8 +1474,7 @@ class ImViewerComponent
 			" state.");
 		}
 		//view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		if (!model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
-		int index;
+		if (!GREY_SCALE_MODEL.equals(model.getColorModel())) return null;
 		List active = view.getActiveChannelsInGrid();
 		BufferedImage image = null;
 		Iterator i = active.iterator();
@@ -1428,20 +1482,19 @@ class ImViewerComponent
 			model.setChannelActive(k, false);
 		}
 		while (i.hasNext()) { //reset values.
-			index = ((Integer) i.next()).intValue();
-			model.setChannelActive(index, true);
+			model.setChannelActive(((Integer) i.next()).intValue(), true);
 		}
 		if (active.size() != 0) {
 			model.setColorModel(RGB_MODEL, false);
 			image = model.getSplitComponentImage();
 			model.setColorModel(GREY_SCALE_MODEL, false);
 		}
+
 		
 		active = model.getActiveChannels();
 		i = active.iterator();
 		while (i.hasNext()) { //reset values.
-			index = ((Integer) i.next()).intValue();
-			model.setChannelActive(index, true);
+			model.setChannelActive(((Integer) i.next()).intValue(), true);
 		}
 		return image;
 	}
@@ -3253,9 +3306,23 @@ class ImViewerComponent
 	}
 	
 	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#cancelRendering()
+	 */
+	public void cancelRendering()
+	{
+		if (model.getState() == LOADING_IMAGE) {
+			model.cancelRendering();
+			view.getLoadingWindow().setVisible(false);
+			fireStateChange();
+		}
+	}
+	
+	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
 	public String toString() { return getTitle(); }
+
 
 }

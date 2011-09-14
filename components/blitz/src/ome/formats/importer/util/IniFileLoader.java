@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -258,8 +260,15 @@ public class IniFileLoader {
      */
     public String getVersionNumber()
     {
-        // return Main.versionNumber;
-        return staticPref("General", "appVersionNumber", "Dev Build");
+        try
+        {
+            ResourceBundle bundle = ResourceBundle.getBundle("omero");
+            return "Beta" + bundle.getString("omero.version");
+        }
+        catch (MissingResourceException e)
+        {
+            return "Dev Build";
+        }
     }
 
     /**

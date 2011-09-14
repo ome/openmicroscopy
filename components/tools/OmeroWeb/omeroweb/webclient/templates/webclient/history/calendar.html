@@ -41,43 +41,43 @@
     </script>
     
 <div class="calendar">
-	<div class="cal_nav">
-		<div style="float: left; width: 20%; text-align:left; font-weight: bold;">
-		    <input id="prevMonth" class="button" type="button" alt="{{ controller.last_month_name }}" value="{{ controller.last_month_name }}" >
-		</div>
-		<div style="float: right;width: 20%; text-align: right; font-weight: bold;">
-			<input id="nextMonth" class="button" type="button" alt="{{ controller.next_month_name }}" value="{{ controller.next_month_name }}">
-		</div>
-		<div style="text-align: center;">{{ controller.month_name }} {{ controller.year }}</div>
-	</div>
-	<table>
-		<thead>
-		{% for day_label in  controller.week_day_labels %}
-			<th class="calendar_day">{{ day_label }}</th>
-		{% endfor %}
-		</thead>
-		<tbody>
-		{% for week in controller.cal_weeks %}
-		<tr class="calendar_week">
-			{% for day in week %}
-				{% if not day.cell.day %}<td class="not_calendar_day"></td>
-				{% else %}
-					<td class="calendar_day">
-						<div class="calendar_numerical_day"><input class="button" type="submit" onClick="load_details('{{ controller.year }}', '{{ controller.month }}', '{{ day.cell.day }}')" name="{{ day.cell.day }}" value="{{ day.cell.day }}"/></div>
-						<div class="calendar_items">
-							{% if day.cell.counter.imgCounter or day.cell.counter.dsCounter or  day.cell.counter.prCounter or day.cell.counter.rdCounter %}<table>
-								<tr><td>{% if day.cell.counter.imgCounter %}<img src="{% url webstatic "images/image16.png" %}" />({{ day.cell.counter.imgCounter }}){% endif %}</td></tr>
-								<tr><td>{% if day.cell.counter.dsCounter %}<img src="{% url webstatic "images/folder_image16.png" %}" />({{ day.cell.counter.dsCounter }}){% endif %}</td></tr>
-								<tr><td>{% if day.cell.counter.prCounter %}<img src="{% url webstatic "images/folder16.png" %}" />({{ day.cell.counter.prCounter }}){% endif %}</td></tr>
-							</table>{% endif %}
-						</div>
-				</td>
-				{% endif %}
-			{% endfor %}
-		</tr>
-		{% endfor %}</tbody>
-	</table>
-	
-	<p>{% trans "Calendar feature enables you to keep track of images, datasets and projects stored on the server all in one place." %}
+    <div class="cal_nav">
+        <div style="float: left; width: 20%; text-align:left; font-weight: bold;">
+            <input id="prevMonth" class="button" type="button" alt="{{ controller.last_month_name }}" value="{{ controller.last_month_name }}" >
+        </div>
+        <div style="float: right;width: 20%; text-align: right; font-weight: bold;">
+            <input id="nextMonth" class="button" type="button" alt="{{ controller.next_month_name }}" value="{{ controller.next_month_name }}">
+        </div>
+        <div style="text-align: center;">{{ controller.month_name }} {{ controller.year }}</div>
+    </div>
+    <table>
+        <thead>
+        {% for day_label in  controller.week_day_labels %}
+            <th class="calendar_day">{{ day_label }}</th>
+        {% endfor %}
+        </thead>
+        <tbody>
+        {% for week in controller.cal_weeks %}
+        <tr class="calendar_week">
+            {% for day in week %}
+                {% if not day.cell.day %}<td class="not_calendar_day"></td>
+                {% else %}
+                    <td class="calendar_day">
+                        <div class="calendar_numerical_day"><input class="button" type="submit" onClick="load_details('{{ controller.year }}', '{{ controller.month }}', '{{ day.cell.day }}')" name="{{ day.cell.day }}" value="{{ day.cell.day }}"/></div>
+                        <div class="calendar_items">
+                            {% if day.cell.counter.imgCounter or day.cell.counter.dsCounter or  day.cell.counter.prCounter or day.cell.counter.rdCounter %}<table>
+                                <tr><td>{% if day.cell.counter.imgCounter %}<img src="{% url webstatic "images/image16.png" %}" />({{ day.cell.counter.imgCounter }}){% endif %}</td></tr>
+                                <tr><td>{% if day.cell.counter.dsCounter %}<img src="{% url webstatic "images/folder_image16.png" %}" />({{ day.cell.counter.dsCounter }}){% endif %}</td></tr>
+                                <tr><td>{% if day.cell.counter.prCounter %}<img src="{% url webstatic "images/folder16.png" %}" />({{ day.cell.counter.prCounter }}){% endif %}</td></tr>
+                            </table>{% endif %}
+                        </div>
+                </td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}</tbody>
+    </table>
+    
+    <p>{% trans "Calendar feature enables you to keep track of images, datasets and projects stored on the server all in one place." %}
     
 </div>

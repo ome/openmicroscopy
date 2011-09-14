@@ -128,12 +128,16 @@ public abstract class EditorLoader
     }
     
     /**
-     * Notifies the user that it wasn't possible to retrieve the data and
-     * and discards the {@link #viewer}.
+     * Notifies the user that it wasn't possible to retrieve the data.
      */
     public void handleNullResult() 
     {
-        handleException(new Exception("No data available."));
+    	viewer.setStatus(false);
+    	LogMessage msg = new LogMessage();
+        msg.print("No data returned.");
+        registry.getLogger().error(this, msg);
+        registry.getLogger().info(this, msg);
+        //handleException(new Exception("No data available."));
     }
     
     /** Notifies the user that the data retrieval has been canceled. */

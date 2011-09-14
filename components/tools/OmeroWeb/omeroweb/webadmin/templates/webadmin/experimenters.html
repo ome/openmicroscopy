@@ -41,7 +41,7 @@
                 headers: {0: { sorter: 'digit' } }
             } );
             $('input#id_search').quicksearch('table#experimenterTable tbody tr', {
-            	'delay': 300,
+                'delay': 300,
                 'loader': 'span.loading'     
             });
     })
@@ -75,9 +75,9 @@
         <tr>
             <td class="action">
                 {{ dict.experimenter.id }}
-                <a href="{% url wamanageexperimenterid "edit" dict.experimenter.id %}">
+                {% if dict.experimenter.isEditable %}<a href="{% url wamanageexperimenterid "edit" dict.experimenter.id %}">
                     <img src="{% url webstatic "images/edit.png" %}" alt="edit" title="edit">
-                </a>
+                </a>{% endif %}
             </td>
             <td class="link">{{ dict.experimenter.getFullName }}</td>
             <td class="link">{{ dict.experimenter.omeName }}</td>

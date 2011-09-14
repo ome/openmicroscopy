@@ -88,6 +88,7 @@ public class WellImageSet
 	{
 		if (rowDisplay == null) setRowDisplay(""+getRow());
 		if (columnDisplay == null) setColumnDisplay(""+getColumn());
+		/*
 		StringBuffer buf = new StringBuffer();
 		buf.append(rowDisplay+"-"+columnDisplay);
 		if (description != null) {
@@ -101,7 +102,7 @@ public class WellImageSet
 			n = (ImageNode) i.next();
 			n.setToolTipText(txt);
 			n.setCanvasToolTip(txt);
-		}
+		}*/
 	}
 	
 	/** Formats the tool tips. */
@@ -187,7 +188,7 @@ public class WellImageSet
 	{
 		if (node != null) {
 			samples.add(node);
-			node.setHighlight(getHighlight());
+			//node.setHighlight(getHighlight());
 		}
 		setSelectedWellSample(0);
 	}
@@ -223,6 +224,19 @@ public class WellImageSet
 	public List<WellSampleNode> getWellSamples()
 	{
 		return Collections.unmodifiableList(samples);
+	}
+	
+	/** Formats the title of the wells.*/
+	public void formatWellSampleTitle()
+	{
+		if (samples == null || samples.size() == 0) return;
+		Iterator<WellSampleNode> i = samples.iterator();
+		WellSampleNode wsn;
+		while (i.hasNext()) {
+			wsn = i.next();
+			wsn.setTitle(getCellLabel());
+			wsn.setTitleBarType(ImageNode.SMALL_TITLE_BAR);
+		}
 	}
 	
 	/**
@@ -305,6 +319,16 @@ public class WellImageSet
 		this.rowDisplay = rowDisplay;
 		this.columnDisplay = columnDisplay;
 		setDefault();
+	}
+	
+	/** 
+	 * Returns the label associated to the well e.g. A 1.
+	 * 
+	 * @return See above.
+	 */
+	public String getCellLabel()
+	{
+		return rowDisplay+" "+columnDisplay;
 	}
 	
 	/**

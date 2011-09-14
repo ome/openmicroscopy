@@ -180,7 +180,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private List<Pixels> loadPixels(Set<Long> pixelsIds)
     {
-		StopWatch s1 = new CommonsLogStopWatch("omero.loadPixelsByImage");
+		StopWatch s1 = new CommonsLogStopWatch("omero.loadPixels");
 		Parameters p = new Parameters();
 		p.addIds(pixelsIds);
 		String sql = "select pix from Pixels as pix " +
@@ -1091,7 +1091,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	
     	// Load our dependencies for rendering settings manipulation
     	StopWatch s1 = new CommonsLogStopWatch("omero.applySettingsToSet");
-    	nodeIds.add(from);
+    	//nodeIds.add(from);
     	// Pre-process our list of potential containers. This will resolve down
     	// to a list of Pixels objects for us to work on.
     	List<Pixels> pixels = new ArrayList<Pixels>();
@@ -1103,6 +1103,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     		if (p.getId() == from)
     		{
     			pixelsFrom = p;
+    			break;
     		}
     	}
     	/*
@@ -1124,7 +1125,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         	return toReturn;
     	}
     	
-    	List<RenderingDef> toSave = new ArrayList<RenderingDef>(pixels.size());
+    	List<RenderingDef> toSave = new ArrayList<RenderingDef>();
     	
     	Map<Long, RenderingDef> settingsMap = loadRenderingSettings(pixels);
     	RenderingDef settingsFrom = settingsMap.get(from);

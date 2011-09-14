@@ -37,3 +37,27 @@ function openPopup(url) {
     if(!owindow.closed) owindow.focus();
     return false;
 }
+
+var activitiesWindow = null;
+function popupActivites(url) {
+    // IE8 doesn't support arbitrary text for 'name' 2nd arg.  #6118
+    activitiesWindow = window.open(url, 'Activities', config='height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
+    if(!activitiesWindow.closed) activitiesWindow.focus();
+    return false;
+}
+function refreshActivitiesWindow(url) {
+    if (activitiesWindow != undefined) {
+        if(!activitiesWindow.closed) activitiesWindow.location.href = url;
+    }
+}
+
+function openCenteredWindow(url) {
+    var width = 550;
+    var height = 600;
+    var left = parseInt((screen.availWidth/2) - (width/2));
+    var top = 0 // parseInt((screen.availHeight/2) - (height/2));
+    var windowFeatures = "width=" + width + ",height=" + height + ",status=no,resizable=yes,scrollbars=yes,menubar=no,toolbar=no,left=" + left + ",top=" + top + "screenX=" + left + ",screenY=" + top;
+    var myWindow = window.open(url, "", windowFeatures);
+    if(!myWindow.closed) myWindow.focus();
+    return false;
+}

@@ -29,6 +29,7 @@ from request_factory import fakeRequest
 
 from webgateway import views as webgateway_views
 from webadmin import views as webadmin_views
+from webadmin.webadmin_utils import toBoolean
 from webadmin.forms import LoginForm, GroupForm, ExperimenterForm, \
                 ContainedExperimentersForm, ChangePassword
                    
@@ -195,12 +196,12 @@ class WebAdminConfigTest(unittest.TestCase):
             c.__del__()
     
     def test_isServerOn(self):
-        from omeroweb.webadmin.views import _isServerOn
+        from omeroweb.webadmin.webadmin_utils import _isServerOn
         if not _isServerOn(self.omero_host, self.omero_port):
             self.fail('Server is offline')
             
     def test_checkVersion(self):
-        from omeroweb.webadmin.views import _checkVersion
+        from omeroweb.webadmin.webadmin_utils import _checkVersion
         if not _checkVersion(self.omero_host, self.omero_port):
             self.fail('Client version does not match server')
     
@@ -784,7 +785,7 @@ def _changePassword(request, conn, eid=None):
         old_password = password_form.cleaned_data['old_password']
         password = password_form.cleaned_data['password']
         if conn.isAdmin():
-            exp = conn.getExperimenter(eid)
+            exp = conn.getObject("Experimenter", eid)
             conn.changeUserPassword(exp.omeName, password, old_password)
         else:
             conn.changeMyPassword(password, old_password)
@@ -801,7 +802,7 @@ def _createGroup(request, conn):
         description = form.cleaned_data['description']
         owners = form.cleaned_data['owners']
         permissions = form.cleaned_data['permissions']
-        readonly = webadmin_views.toBoolean(form.cleaned_data['readonly'])
+        readonly = toBoolean(form.cleaned_data['readonly'])
         return controller.createGroup(name, owners, permissions, readonly, description)
     else:
         raise Exception(form.errors.as_text())
@@ -816,7 +817,7 @@ def _updateGroup(request, conn, gid):
         description = form.cleaned_data['description']
         owners = form.cleaned_data['owners']
         permissions = form.cleaned_data['permissions']
-        readonly = webadmin_views.toBoolean(form.cleaned_data['readonly'])
+        readonly = toBoolean(form.cleaned_data['readonly'])
         controller.updateGroup(name, owners, permissions, readonly, description)
     else:
         raise Exception(form.errors.as_text())            
@@ -846,8 +847,8 @@ def _createExperimenter(request, conn):
         lastName = form.cleaned_data['last_name']
         email = form.cleaned_data['email']
         institution = form.cleaned_data['institution']
-        admin = webadmin_views.toBoolean(form.cleaned_data['administrator'])
-        active = webadmin_views.toBoolean(form.cleaned_data['active'])
+        admin = toBoolean(form.cleaned_data['administrator'])
+        active = toBoolean(form.cleaned_data['active'])
         defaultGroup = form.cleaned_data['default_group']
         otherGroups = form.cleaned_data['other_groups']
         password = form.cleaned_data['password']
@@ -882,8 +883,8 @@ def _updateExperimenter(request, conn, eid):
         lastName = form.cleaned_data['last_name']
         email = form.cleaned_data['email']
         institution = form.cleaned_data['institution']
-        admin = webadmin_views.toBoolean(form.cleaned_data['administrator'])
-        active = webadmin_views.toBoolean(form.cleaned_data['active'])
+        admin = toBoolean(form.cleaned_data['administrator'])
+        active = toBoolean(form.cleaned_data['active'])
         defaultGroup = form.cleaned_data['default_group']
         otherGroups = form.cleaned_data['other_groups']
         controller.updateExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution)

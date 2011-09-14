@@ -465,7 +465,4 @@ public class SelectionWizard
 	 */
 	public void changedUpdate(DocumentEvent e) {}
 
-
-
-
 }

@@ -21,7 +21,6 @@ import exceptions
 import portalocker
 
 from path import path
-from which import whichall
 
 import omero
 import omero.config
@@ -33,6 +32,8 @@ from omero.cli import NonZeroReturnCode
 from omero.cli import VERSION
 
 from omero.plugins.prefs import with_config
+
+from omero_ext.which import whichall
 
 try:
     import win32service

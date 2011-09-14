@@ -110,7 +110,6 @@ def script_run(request, scriptId):
         if key in request.POST:
             value = request.POST[key]
             if len(value) == 0: continue
-            print key, value
             prototype = param.prototype
             pclass = prototype.__class__
             if pclass == omero.rtypes.RListI:
@@ -148,7 +147,6 @@ def script_run(request, scriptId):
                     # print "Invalid entry for '%s' : %s" % (key, value)
                     continue
                 
-    print inputMap
     
     proc = scriptService.runScript(sId, inputMap, None)
     
@@ -269,7 +267,6 @@ def script_form(request, scriptId):
         if pt.__class__ == type(True):
             i["boolean"] = True
         elif pt.__class__ == type(0) or pt.__class__ == type(long(0)):
-            print "Number!"
             i["number"] = "number"  # will stop the user entering anything other than numbers. 
         elif pt.__class__ == type(float(0.0)):
             #print "Float!"
@@ -311,7 +308,6 @@ def dataset_stack(request, datasetId):
         if em == None:
             sizeY, sizeX = plane.shape
             sizeZ = dataset.countChildren()
-            print "creating EMData ", sizeY, sizeX, sizeZ
             em = EMData(sizeY, sizeX, sizeZ)    # x,y,z or y,x,z ?
             
         em.insert_clip(e,(0,0,z))

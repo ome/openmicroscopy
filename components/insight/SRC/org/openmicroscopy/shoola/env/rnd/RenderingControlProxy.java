@@ -85,6 +85,11 @@ class RenderingControlProxy
 	/** Default error message. */
 	private static final String	ERROR = "An error occurred while trying to " +
 										"set the ";
+	
+	/** Default error message. */
+	private static final String	ERROR_RENDER = "An error occurred while " +
+			"rendering ";
+	
 	/** The Red Color index. */
 	private static final Integer RED_INDEX = 0;
 	
@@ -520,7 +525,7 @@ class RenderingControlProxy
 			imageSize = values.length;
 			return WriterImage.bytesToImage(values);
 		} catch (Throwable e) {
-			handleException(e, ERROR+"cannot render the compressed image.");
+			handleException(e, ERROR_RENDER+"the compressed image.");
 		} 
 		return null;
 	}
@@ -542,14 +547,14 @@ class RenderingControlProxy
         BufferedImage img = (BufferedImage) getFromCache(pDef);
         //if (img != null) return img;
         try {
-            int[] buf = servant.renderAsPackedInt(pDef);
+        	int[] buf = servant.renderAsPackedInt(pDef);
             Point p = getSize(pDef);
             imageSize = 3*buf.length;
             initializeCache(pDef);
             img = Factory.createImage(buf, 32, p.x, p.y);
             cache(pDef, img);
 		} catch (Throwable e) {
-			handleException(e, ERROR+"cannot render the plane.");
+			handleException(e, ERROR_RENDER+"the uncompressed plane.");
 		}
         
         return img;
@@ -576,7 +581,8 @@ class RenderingControlProxy
             Point p = getSize(pDef);
             img = createTexture(servant.renderAsPackedInt(pDef), p.x, p.y);
 		} catch (Throwable e) {
-			handleException(e, ERROR+"cannot render the plane.");
+			handleException(e, ERROR_RENDER+"the uncompressed plane as " +
+					"texture.");
 		}
         return img;
 	}
@@ -599,7 +605,7 @@ class RenderingControlProxy
 			Point p = getSize(pDef); 
 			return PixelsServicesFactory.createTexture(values, p.x, p.y);
 		} catch (Throwable e) {
-			handleException(e, ERROR+"cannot render the compressed image " +
+			handleException(e, ERROR_RENDER+"the compressed image " +
 					"as texture.");
 		} 
 		return null;
@@ -632,7 +638,7 @@ class RenderingControlProxy
 			TextureData texture = createTexture(buf.getData(), w, h);
 			return texture;
 		} catch (Throwable e) {
-			handleException(e, ERROR+"cannot render projected selection.");
+			handleException(e, ERROR_RENDER+"the projected selection.");
 		}
 		return null;
 	}
@@ -661,7 +667,7 @@ class RenderingControlProxy
             return createTexture(buf, getPixelsDimensionsX(), 
             		getPixelsDimensionsY());
 		} catch (Throwable e) {
-			handleException(e, ERROR+"cannot render projected selection.");
+			handleException(e, ERROR_RENDER+"the projected selection.");
 		}
         return null;
 	}
@@ -703,7 +709,7 @@ class RenderingControlProxy
 			
 			return WriterImage.bytesToImage(values);
 		} catch (Throwable e) {
-			handleException(e, ERROR+"cannot render projected selection.");
+			handleException(e, ERROR_RENDER+"the projected selection.");
 		}
 		return null;
 	}
@@ -734,7 +740,7 @@ class RenderingControlProxy
             int sizeX2 = pixs.getSizeY().getValue();
             img = Factory.createImage(buf, 32, sizeX1, sizeX2);
 		} catch (Throwable e) {
-			handleException(e, ERROR+"cannot render projected selection.");
+			handleException(e, ERROR_RENDER+"the projected selection.");
 		}
         
         return img;
@@ -1265,7 +1271,8 @@ class RenderingControlProxy
     		servant.saveCurrentSettings();
 			return rndDef.copy();
 		} catch (Throwable e) {
-			handleException(e, ERROR+"save current settings.");
+			handleException(e, "An error occurred while saving the current " +
+					"settings.");
 		}
 		return null;
     }
@@ -1953,7 +1960,8 @@ class RenderingControlProxy
 				tileSize = new Dimension(values[0], values[1]);
 			}
 		} catch (Exception e) {
-			handleException(e, ERROR+" retrieving the tile size.");
+			handleException(e, "An error occurred while retrieving " +
+					"the tile size.");
 		}
 		return tileSize;
 	}

@@ -206,7 +206,6 @@ def listCollabAnnotations(conn, myData=True, limit=10):
                     "join fetch al.details.owner as linkOwner " \
                     "join fetch al.details.creationEvent as event %s" \
                     "order by event desc" % selection
-    print query
     imageLinks = queryService.findAllByQuery(query, params)
                         
     return [RecentEvent (AnnotationWrapper._wrap(conn, a.child, a) ) for a in imageLinks]

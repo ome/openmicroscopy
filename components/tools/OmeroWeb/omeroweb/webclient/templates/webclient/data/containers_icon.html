@@ -27,19 +27,19 @@
     
     <script type="text/javascript">
         $(document).ready(function(){
-
+            
             var datatree = $.jstree._focused();
             
             // double-click handler on image - launches image viewer
             $("#dataIcons img").dblclick(function(event) {
                 openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id') )));
             });
-
+            
             // single click handler on image (container). Selection then update toolbar & metadata pane
             $("#dataIcons li").click(function(event) {
                 handleClickSelection(event);
             });
-
+            
             // handles selection for 'clicks' (not drags) including multi-select for shift and meta keys
             var handleClickSelection = function(event) {
                 
@@ -133,7 +133,7 @@
                     
                 }
             }
-
+            
             // plugin to handle drag-select of images
             $("ul#dataIcons").selectable({
                 filter: 'li',
@@ -154,17 +154,14 @@
                 start: function(){
                 }
             });
-            
-            
-
         });
 
     </script>
 
 {% if manager.containers.images %}
 
-    <div id="toolbar" class="toolbar_noborder">
-        <input onclick="changeView('table');" class="button" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table"></div>
+    <div id="toolbar" class="toolbar_noborder" rel="icon">
+        <input onclick="changeView('table',{{ manager.paging.page|default:"1" }});" class="button" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table"></div>
     <div class="clear"> </div>
         
     <ul id="dataIcons">

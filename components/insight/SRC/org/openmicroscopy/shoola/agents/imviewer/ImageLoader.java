@@ -66,6 +66,9 @@ public class ImageLoader
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
+    /** Indicates that the rendering of that image has been cancelled.*/
+    private boolean cancelled;
+    
     /**
      * Creates a new instance
      * 
@@ -99,7 +102,11 @@ public class ImageLoader
      * Cancels the ongoing data retrieval.
      * @see DataLoader#cancel()
      */
-    public void cancel() { handle.cancel(); }
+    public void cancel()
+    {
+    	cancelled = true;
+    	handle.cancel();
+    }
     
     /** 
      * Feeds the result back to the viewer. 
@@ -108,7 +115,14 @@ public class ImageLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        viewer.setImage(result);
+        if (!cancelled)
+        	viewer.setImage(result);
     }
+    
+    /**
+     * Notifies the user that it wasn't possible to retrieve the data and
+     * and discards the {@link #viewer}.
+     */
+    public void handleNullResult() {}
 
 }

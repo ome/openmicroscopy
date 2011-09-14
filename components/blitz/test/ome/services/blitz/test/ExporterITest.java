@@ -35,10 +35,10 @@ public class ExporterITest extends AbstractServantTest {
     protected void setUp() throws Exception {
         super.setUp();
 
-        user_e = new ExporterI(be, db);
+        user_e = new ExporterI(be, db, null);
         user_e.setServiceFactory(user_sf);
 
-        root_e = new ExporterI(be, db);
+        root_e = new ExporterI(be, db, null);
         root_e.setServiceFactory(root_sf);
     }
 
@@ -84,7 +84,7 @@ public class ExporterITest extends AbstractServantTest {
         String xml1 = new String(buf);
         OmeroMetadata retrieve = new OmeroMetadata(db);
         retrieve.addImage(new ImageI(i.getId(), false));
-        ExporterI exporter = new ExporterI(null, null);
+        ExporterI exporter = new ExporterI(null, null, null);
         String xml2 = exporter.generateXml(retrieve);
         System.out.println(xml1);
         assertEquals(xml1, xml2);

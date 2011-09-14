@@ -24,10 +24,13 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -63,6 +66,10 @@ public class LoadingWindow
     /** Bounds property indicating that the window is closed. */
     public static final String		CLOSED_PROPERTY = "closed";
     
+    /** Bounds property indicating that the window is closed. */
+    public static final String		CANCEL_LOADING_PROPERTY = 
+    	"cancelLoadingProperty";
+    
     /** The message displayed. */
     public static final String 		LOADING_TXT = "Loaded: ";
     
@@ -78,12 +85,25 @@ public class LoadingWindow
     /** The bar notifying the user for the data retrieval progress. */
     private JProgressBar        progressBar;
     
+    /** Cancels the loading of the image.*/
+    private JButton				cancelButton;
+    
     /** Initializes the components. */
     private void initComponents()
     {
         progressBar = new JProgressBar();
-        status = new JLabel("Loading...");
+        status = new JLabel("Rendering...");
         progressBar.setIndeterminate(true);
+        cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+				firePropertyChange(CANCEL_LOADING_PROPERTY,
+						Boolean.valueOf(false), Boolean.valueOf(true));
+			}
+		});
+        getRootPane().setDefaultButton(cancelButton);
     }
     
     /** Builds and lays out the GUI. */
@@ -92,8 +112,10 @@ public class LoadingWindow
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(status);
-        p.add(UIUtilities.buildComponentPanelRight(progressBar));
-        getContentPane().add(p);
+        p.add(progressBar);
+        p.add(UIUtilities.buildComponentPanelRight(cancelButton));
+        Container c = getContentPane();
+        c.add(p, BorderLayout.CENTER);
     }
     
     /** 
@@ -103,15 +125,17 @@ public class LoadingWindow
     private void attachWindowListeners()
     {
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        /*
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e)
             { 
                 if (isVisible()) {
-                    firePropertyChange(CLOSED_PROPERTY, Boolean.FALSE, 
-                            Boolean.TRUE);
+                    firePropertyChange(CANCEL_LOADING_PROPERTY, 
+                    		Boolean.valueOf(false), Boolean.valueOf(true));
                 }   
             }
         });
+        */
     }
     
     /** Sets the properties of the component. */
@@ -157,6 +181,7 @@ public class LoadingWindow
             //progressBar.setIndeterminate(false);
             progressBar.setValue(perc);
         }
+        progressBar.setIndeterminate(true);
     }
     
 }

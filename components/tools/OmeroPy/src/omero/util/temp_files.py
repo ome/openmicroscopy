@@ -10,7 +10,6 @@ OMERO Support for temporary files and directories
 import os
 import sys
 import atexit
-import getpass
 import logging
 import tempfile
 import threading
@@ -19,7 +18,7 @@ import exceptions
 import portalocker
 
 from path import path
-from omero.util import get_user_dir
+from omero.util import get_user_dir, get_user
 
 # Activating logging at a static level
 if "DEBUG" in os.environ:
@@ -205,11 +204,7 @@ class TempFileManager(object):
         """
         Returns the current OS-user's name
         """
-        try:
-            return getpass.getuser() # Uses environment variable or pwd
-        except ImportError: # No pwd on Windows
-            import win32api
-            return win32api.GetUserName()
+        return get_user("Unknown")
 
     def pid(self):
         """

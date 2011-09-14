@@ -353,5 +353,51 @@ client.closeSession()
         # commenting out for now to get Hudson green. 
         #self.assertEquals("Thumbnail-Figure Created", results["Message"])
 
+    def test6066(self):
+
+        # Make two users in a new group. Only one is an owner of the group
+        grp = self.new_group()
+        clientU, userU = self.new_client_and_user(group = grp, admin = False)
+        clientA, userA = self.new_client_and_user(group = grp, admin = True)
+
+        # Make both users admins
+        admin = self.root.sf.getAdminService()
+        for sf, usr in ((clientU.sf, userU), (clientA.sf, userA)):
+            admin.addGroups(usr, [omero.model.ExperimenterGroupI(0, False)])
+            sf.getAdminService().getEventContext() # Reset session
+
+        def assertUploadAndReplace(client):
+            svc = client.sf.getScriptService()
+            SCRIPT = """if True:
+            import omero.model as OM
+            import omero.rtypes as OR
+            import omero.scripts as OS
+            c = OS.client("ticket 6066")
+            """
+
+            # Upload official
+            scriptID = svc.uploadOfficialScript("/test/ticket6066%s.py" % self.uuid(), SCRIPT)
+            params = svc.getParams(scriptID)
+
+            # Replace
+            svc.editScript(omero.model.OriginalFileI(scriptID, False),
+                    SCRIPT + "\n")
+            params = svc.getParams(scriptID)
+
+            LATER = """
+            process = svc.runScript(scriptID, None, None)
+
+            impl = omero.processor.usermode_processor(self.root)
+            cb = omero.scripts.ProcessCallbackI(self.root, process)
+            count = 10
+            while cb.block(500) is None:
+                count -= 1
+                if not count:
+                    self.fail("Took too long")
+            """
+
+        assertUploadAndReplace(clientA)
+        assertUploadAndReplace(clientU)
+
 if __name__ == '__main__':
     unittest.main()

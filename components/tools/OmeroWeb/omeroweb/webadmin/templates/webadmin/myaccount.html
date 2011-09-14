@@ -40,21 +40,21 @@
     
     {% if edit_mode %}
     function preview(img, selection) { 
-    	var scaleX = 100 / (selection.width || 1); 
-    	var scaleY = 100 / (selection.height || 1); 
+        var scaleX = 100 / (selection.width || 1); 
+        var scaleY = 100 / (selection.height || 1); 
 
-    	$('#thumbnail + div > img').css({ 
-    		width: Math.round(scaleX * {{ photo_size.0.0 }}) + 'px', 
-    		height: Math.round(scaleY * {{ photo_size.0.1 }}) + 'px',
-    		marginLeft: '-' + Math.round(scaleX * selection.x1) + 'px', 
-    		marginTop: '-' + Math.round(scaleY * selection.y1) + 'px' 
-    	});
-    	$('#x1').val(selection.x1);
-    	$('#y1').val(selection.y1);
-    	$('#x2').val(selection.x2);
-    	$('#y2').val(selection.y2);
-    	$('#w').val(selection.width);
-    	$('#h').val(selection.height);
+        $('#thumbnail + div > img').css({ 
+            width: Math.round(scaleX * {{ photo_size.0.0 }}) + 'px', 
+            height: Math.round(scaleY * {{ photo_size.0.1 }}) + 'px',
+            marginLeft: '-' + Math.round(scaleX * selection.x1) + 'px', 
+            marginTop: '-' + Math.round(scaleY * selection.y1) + 'px' 
+        });
+        $('#x1').val(selection.x1);
+        $('#y1').val(selection.y1);
+        $('#x2').val(selection.x2);
+        $('#y2').val(selection.y2);
+        $('#w').val(selection.width);
+        $('#h').val(selection.height);
     } 
     {% endif %}
     
@@ -63,27 +63,27 @@
         $("#groupTable").tablesorter( {sortList: [[1,0]]} ); 
 
         $('input#id_search').quicksearch('table#groupTable tbody tr', {
-        	'delay': 300,
+            'delay': 300,
             'loader': 'span.loading'
         });
         
         
         {% if edit_mode %}
-    	$('#save_thumb').click(function() {
-    		var x1 = $('#x1').val();
-    		var y1 = $('#y1').val();
-    		var x2 = $('#x2').val();
-    		var y2 = $('#y2').val();
-    		var w = $('#w').val();
-    		var h = $('#h').val();
-    		if(x1=="" || y1=="" || x2=="" || y2=="" || w=="" || h==""){
-    			alert("You must make a selection first");
-    			return false;
-    		}else{
-    			return true;
-    		}
-    	});
-    	{% endif %}
+        $('#save_thumb').click(function() {
+            var x1 = $('#x1').val();
+            var y1 = $('#y1').val();
+            var x2 = $('#x2').val();
+            var y2 = $('#y2').val();
+            var w = $('#w').val();
+            var h = $('#h').val();
+            if(x1=="" || y1=="" || x2=="" || y2=="" || w=="" || h==""){
+                alert("You must make a selection first");
+                return false;
+            }else{
+                return true;
+            }
+        });
+        {% endif %}
     }); 
 
     {% if edit_mode %}
@@ -93,7 +93,7 @@
         var x2 = {{ photo_size.0.0 }}/2+dim
         var y1 = {{ photo_size.0.1 }}/2-dim
         var y2 = {{ photo_size.0.1 }}/2+dim
-    	$('#thumbnail').imgAreaSelect({ x1: x1, y1: y1, x2: x2, y2: y2, selectionOpacity: 0.2, aspectRatio: '1:1', handles: true, onSelectChange: preview }); 
+        $('#thumbnail').imgAreaSelect({ x1: x1, y1: y1, x2: x2, y2: y2, selectionOpacity: 0.2, aspectRatio: '1:1', handles: true, onSelectChange: preview }); 
     });
     {% endif %}
     </script>
@@ -127,31 +127,31 @@
 <div class="photo">
     {% if edit_mode %}
     
-	<img src="{% url wamyphoto %}" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
-	<div style="border:1px #999999 solid; float:left; position:relative; overflow:hidden; width:100px; height:100px;">
-		<img src="{% url wamyphoto %}" style="position: relative;" alt="Thumbnail Preview" />
-	</div>
-	<div class="clear"> </div>
-	<h1><form name="thumbnail" action="{% url wamyaccount "crop" %}" method="post">
-		<input type="hidden" name="x1" value="" id="x1" />
-		<input type="hidden" name="y1" value="" id="y1" />
-		<input type="hidden" name="x2" value="" id="x2" />
-		<input type="hidden" name="y2" value="" id="y2" />
-		<input type="submit" name="Cancel" value="Cancel" onclick="history.back();return false" />
-		<input type="submit" name="upload_thumbnail" value="Crop" id="save_thumb" />
-	</form></h1>
-	{% else %}
-	    <p><center>
-		    {% if photo_size %}
-		    <img src="{% url wamyphoto %}" width="150" height="150" class="imgzoom"/>
-		    <br/>Original size: ({{ photo_size.0.0 }}, {{ photo_size.0.1 }}) {{ photo_size.1|filesizeformat }}
-		    <br/><a href="{% url wamyaccount "editphoto" %}">Crop this picture.</a>
-    		{% else %}
-    		<img src="{% url wamyphoto %}" />
-    		<ul class="errorlist"><li>Please attach a photo to your profile.</li></ul>
-    		{% endif %}
-		</center></p>
-	{% endif %}
+    <img src="{% url wamyphoto %}" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
+    <div style="border:1px #999999 solid; float:left; position:relative; overflow:hidden; width:100px; height:100px;">
+        <img src="{% url wamyphoto %}" style="position: relative;" alt="Thumbnail Preview" />
+    </div>
+    <div class="clear"> </div>
+    <h1><form name="thumbnail" action="{% url wamyaccount "crop" %}" method="post">
+        <input type="hidden" name="x1" value="" id="x1" />
+        <input type="hidden" name="y1" value="" id="y1" />
+        <input type="hidden" name="x2" value="" id="x2" />
+        <input type="hidden" name="y2" value="" id="y2" />
+        <input type="submit" name="Cancel" value="Cancel" onclick="history.back();return false" />
+        <input type="submit" name="upload_thumbnail" value="Crop" id="save_thumb" />
+    </form></h1>
+    {% else %}
+        <p><center>
+            {% if photo_size %}
+            <img src="{% url wamyphoto %}" width="150" height="150" class="imgzoom"/>
+            <br/>Original size: ({{ photo_size.0.0 }}, {{ photo_size.0.1 }}) {{ photo_size.1|filesizeformat }}
+            <br/><a href="{% url wamyaccount "editphoto" %}">Crop this picture.</a>
+            {% else %}
+            <img src="{% url wamyphoto %}" />
+            <ul class="errorlist"><li>Please attach a photo to your profile.</li></ul>
+            {% endif %}
+        </center></p>
+    {% endif %}
 
     <h1>Upload your photo</h1>
     <div class="body">

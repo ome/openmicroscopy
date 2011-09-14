@@ -88,31 +88,31 @@
             
             
             $("table#dataTable tbody").selectable({
-            	filter: 'tr',
-            	stop: function(){
-            		var l = $('tr.ui-selected', this).length;
-            		$("tr.ui-selected td input", this).each(function(){
-            		    this.checked = true;
-            		});
-            		if (l == 1) {
-            		    $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% url webstatic "images/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare();"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
-            		    loadMetadataPanel('/webclient/metadata_details/image/'+$("tr.ui-selected td input", this).first().attr("id")+'/');
-            		} else {
-            		    $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% url webstatic "images/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare();"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
+                filter: 'tr',
+                stop: function(){
+                    var l = $('tr.ui-selected', this).length;
+                    $("tr.ui-selected td input", this).each(function(){
+                        this.checked = true;
+                    });
+                    if (l == 1) {
+                        $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% url webstatic "images/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare();"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
+                        loadMetadataPanel('/webclient/metadata_details/image/'+$("tr.ui-selected td input", this).first().attr("id")+'/');
+                    } else {
+                        $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% url webstatic "images/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare();"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
                         loadMetadataPanel(null, ('<p>'+ l +' elements selected.</p>'));
-            		}
-            	},
-            	start: function(){
-            		$("tr input", this).each(function(){
-            			this.checked = false;
-            		});
-            	}
+                    }
+                },
+                start: function(){
+                    $("tr input", this).each(function(){
+                        this.checked = false;
+                    });
+                }
             });
             
             $("#dataTable").tablesorter( {sortList: [[1,0]]} ); 
 
             $('input#id_search').quicksearch('table#dataTable tbody tr', {
-            	'delay': 300,
+                'delay': 300,
                 'loader': 'span.loading'
             });
         });    

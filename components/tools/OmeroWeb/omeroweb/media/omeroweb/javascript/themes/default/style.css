@@ -40,16 +40,17 @@
 #vakata-dragged.jstree-default ins { background:transparent !important; }
 #vakata-dragged.jstree-default .jstree-ok { background:url("/appmedia/omeroweb/javascript/themes/default/d.png") -2px -53px no-repeat !important; }
 #vakata-dragged.jstree-default .jstree-invalid { background:url("/appmedia/omeroweb/javascript/themes/default/d.png") -18px -53px no-repeat !important; }
-#jstree-marker.jstree-default { background:url("/appmedia/omeroweb/javascript/themes/default/d.png") -41px -57px no-repeat !important; }
+#jstree-marker.jstree-default { background:url("/appmedia/omeroweb/javascript/themes/default/d.png") -41px -57px no-repeat !important; text-indent:-100px; }
 
 .jstree-default a.jstree-search { color:aqua; }
+.jstree-default .jstree-locked a { color:silver; cursor:default; }
 
 #vakata-contextmenu.jstree-default-context, 
 #vakata-contextmenu.jstree-default-context li ul { background:#f0f0f0; border:1px solid #979797; -moz-box-shadow: 1px 1px 2px #999; -webkit-box-shadow: 1px 1px 2px #999; box-shadow: 1px 1px 2px #999; }
 #vakata-contextmenu.jstree-default-context li { }
-#vakata-contextmenu.jstree-default-context a { color:#555555; }
+#vakata-contextmenu.jstree-default-context a { color:#555; }
 #vakata-contextmenu.jstree-default-context a:hover, 
-#vakata-contextmenu.jstree-default-context .vakata-hover > a { padding:0 5px; background:#e8eff7; border:1px solid #aecff7; color:#555555; -moz-border-radius:2px; -webkit-border-radius:2px; border-radius:2px; }
+#vakata-contextmenu.jstree-default-context .vakata-hover > a { padding:0 5px; background:#e8eff7; border:1px solid #aecff7; color:#555; -moz-border-radius:2px; -webkit-border-radius:2px; border-radius:2px; }
 #vakata-contextmenu.jstree-default-context li.jstree-contextmenu-disabled a, 
 #vakata-contextmenu.jstree-default-context li.jstree-contextmenu-disabled a:hover { color:silver; background:transparent; border:0; padding:1px 4px; }
 #vakata-contextmenu.jstree-default-context li.vakata-separator { background:white; border-top:1px solid #e0e0e0; margin:0; }

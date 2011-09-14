@@ -8,7 +8,6 @@
 
 package integration;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -20,11 +19,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
 
-//Third-party libraries
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-//Application-internal dependencies
 import omero.RType;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
@@ -62,7 +59,6 @@ import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
 import omero.model.StageLabel;
 import static omero.rtypes.rlong;
-import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.DatasetData;
@@ -765,7 +761,7 @@ public class PojosServiceTest
      * 
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testFindContainerHierarchiesProjectAsRootFilterByOwner() 
     	throws Exception
     {
@@ -798,9 +794,8 @@ public class PojosServiceTest
     	List results = iContainer.findContainerHierarchies(
         		Project.class.getName(), ids, param);
     	assertTrue(results.size() == 1);
-    	Project pp = (Project) results.get(0);
-    	assertTrue(pp.getId().getValue() == p.getId().getValue());
-    	//Should return a project not an image.
+    	Image pp = (Image) results.get(0);
+    	assertTrue(pp.getId().getValue() == i.getId().getValue());
     }
     
     /**
@@ -1210,4 +1205,135 @@ public class PojosServiceTest
 		}
     }
 
+    /**
+     * Test to find the P/D the specified images are in.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = true)
+    public void testFindContainerHierarchyFromProject() 
+    	throws Exception 
+    {
+    	Project p = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asIObject());
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Image i = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(10));
+    	//link the project and the dataset
+    	ProjectDatasetLink l = new ProjectDatasetLinkI();
+    	l.setParent((Project) p.proxy());
+    	l.setChild((Dataset) d.proxy());
+    	iUpdate.saveAndReturnObject(l);
+    	
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setParent((Dataset) d.proxy());
+    	link.setChild((Image) i.proxy());
+    	iUpdate.saveAndReturnObject(link);
+    	
+    	
+    	
+    	ParametersI param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(i.getId().getValue());
+        List results = iContainer.findContainerHierarchies(
+        		Project.class.getName(), ids, param);
+        assertEquals(results.size(), 1);
+        Project found = (Project) results.get(0);
+        assertEquals(found.getId().getValue(), p.getId().getValue());
+        ProjectData project = new ProjectData(found);
+        Set<DatasetData> datasets = project.getDatasets();
+        assertEquals(datasets.size(), 1);
+        Iterator<DatasetData> j = datasets.iterator();
+        DatasetData dataset;
+        Set<ImageData> images;
+        Iterator<ImageData> k;
+        while (j.hasNext()) {
+			dataset = j.next();
+			assertEquals(dataset.getId(), d.getId().getValue());
+			images = dataset.getImages();
+			k = images.iterator();
+			while (k.hasNext()) {
+				assertEquals(k.next().getId(), i.getId().getValue());
+			}
+		}
+    }
+    
+    /**
+     * Test to find the P/D the specified images are in.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = true)
+    public void testFindContainerHierarchyFromDataset() 
+    	throws Exception 
+    {
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Image i = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(10));
+    	//link the project and the dataset
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setParent((Dataset) d.proxy());
+    	link.setChild((Image) i.proxy());
+    	iUpdate.saveAndReturnObject(link);
+    	
+    	
+    	
+    	ParametersI param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(i.getId().getValue());
+        List results = iContainer.findContainerHierarchies(
+        		Project.class.getName(), ids, param);
+        assertEquals(results.size(), 1);
+        Dataset found = (Dataset) results.get(0);
+        assertEquals(found.getId().getValue(), d.getId().getValue());
+
+        DatasetData dataset = new DatasetData(found);
+        Set<ImageData> images = dataset.getImages();
+        Iterator<ImageData> k = images.iterator();
+		while (k.hasNext()) {
+			assertEquals(k.next().getId(), i.getId().getValue());
+		}
+    }
+
+    /**
+     * Test to find the P/D the specified images are in.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = true)
+    public void testFindContainerHierarchyFromImage() 
+    	throws Exception 
+    {
+    	Image i = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(10));
+    	
+    	ParametersI param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(i.getId().getValue());
+        List results = iContainer.findContainerHierarchies(
+        		Project.class.getName(), ids, param);
+        assertEquals(results.size(), 1);
+        Image found = (Image) results.get(0);
+        assertEquals(found.getId().getValue(), i.getId().getValue());
+    }
+
+    /**
+     * Test to find the P/D the specified images are in.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = true)
+    public void testFindContainerHierarchyWrongType() 
+    	throws Exception 
+    {
+    	Image i = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(10));
+    	
+    	ParametersI param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(i.getId().getValue());
+        try {
+        	iContainer.findContainerHierarchies(
+            		Dataset.class.getName(), ids, param);
+        	fail("Only Project type is supported.");
+		} catch (Exception e) {}
+    }
 }

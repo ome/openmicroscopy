@@ -115,7 +115,7 @@ class Utils:
     def runAsScript (base='webgateway'):
         import sys
         SeleniumTestBase.SERVER = SeleniumTestServer(base)
-        print sys.argv
+        #print sys.argv
         if len(sys.argv) > 1:
             SeleniumTestBase.SERVER.host = sys.argv.pop(1)
         if len(sys.argv) > 1:

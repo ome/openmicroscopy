@@ -139,9 +139,15 @@ class RendererComponent
 			logMsg.println(rse.getExtendedMessage());
 			logMsg.print(rse);
 			logger.error(this, logMsg);
-			if (e.getCause() instanceof OutOfMemoryError) {
-				un.notifyInfo("Image", "Due to an out of Memory error, " +
-				"\nit is not possible to render the image.");
+			if (e.getCause() instanceof OutOfMemoryError || 
+				e instanceof OutOfMemoryError) {
+				un.notifyInfo("Image", "Running out of memory, " +
+				"\nit is not possible to render the image.\n" +
+				"The image might be too large or you might have several viewers" +
+				" already opened.");
+				discard();
+				fireStateChange();
+				return;
 			} else {
 				if (notify) {
 					JFrame f = 
@@ -511,6 +517,13 @@ class RendererComponent
 			Iterator i;
 			int j;
 			model.setColorModel(index);
+			if (!update) {
+				view.setColorModelChanged();
+				//if (model.isGeneralIndex()) model.saveRndSettings();
+				firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
+						Boolean.valueOf(true));
+				return;
+			}
 			if (GREY_SCALE_MODEL.equals(index)) {
 				historyActiveChannels = model.getActiveChannels();
 				if (active != null && active.size() >= 1) {

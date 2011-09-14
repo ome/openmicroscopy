@@ -156,6 +156,13 @@ class StatusBar
     	statusButton.setToolTipText(UIUtilities.formatToolTipText(ll));
     }
     
+    /**
+     * Returns the text of the right status.
+     * 
+     * @return See above.
+     */
+    String getRightStatus() { return rigthStatus.getText(); }
+    
     /** 
      * Sets the status message.
      * 

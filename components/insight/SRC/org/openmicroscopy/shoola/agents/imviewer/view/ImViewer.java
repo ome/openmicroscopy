@@ -129,6 +129,9 @@ public interface ImViewer
 	/** Flag to denote the <i>Loading Image</i> state. */
 	public static final int     LOADING_IMAGE = 3;
 
+	/** Flag to denote the <i>Loading Image</i> state. */
+	public static final int     LOADING_IMAGE_CANCELLED = 16;
+	
 	/** Flag to denote the <i>Loading Metadata</i> state. */
 	public static final int     LOADING_METADATA = 4;
 
@@ -309,6 +312,15 @@ public interface ImViewer
 	 */
 	public void setColorModel(int m);
 
+	/**
+	 * Sets the selected XY-plane. A new plane is then rendered.
+	 * 
+	 * @param z The selected z-section.
+	 * @param t The selected timepoint.
+	 * @param roi The ROI to display.
+	 */
+	public void setSelectedRegion(int z, int t, Rectangle roi);
+	
 	/**
 	 * Sets the selected XY-plane. A new plane is then rendered.
 	 * 
@@ -1227,4 +1239,8 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	int getTiledImageSizeY();
+	
+	/** Cancels the rendering of the image.*/
+	void cancelRendering();
+	
 }

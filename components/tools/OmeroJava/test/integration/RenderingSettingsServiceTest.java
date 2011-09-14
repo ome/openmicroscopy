@@ -6,17 +6,14 @@
  */
 package integration;
 
-
-//Java imports
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
 import org.testng.annotations.Test;
 
-//Application-internal dependencies
 import omero.api.IRenderingSettingsPrx;
 import omero.model.ChannelBinding;
 import omero.model.Dataset;
@@ -58,50 +55,7 @@ public class RenderingSettingsServiceTest
 	extends AbstractTest
 {
 
-    /**
-     * Create a single image with binary.
-     *
-     * After recent changes on the server to check for existing
-     * binary data for pixels, many resetDefaults methods tested
-     * below began returning null since {@link omero.LockTimeout}
-     * exceptions were being thrown server-side. By using
-     * omero.client.forEachTile, we can set the necessary data easily.
-     *
-     * @see ticket:5755
-     */
-    public Image createBinaryImage() throws Exception {
-        Image image = mmFactory.createImage();
-        image = (Image) iUpdate.saveAndReturnObject(image);
-        return createBinaryImage(image);
-    }
-
-    /**
-     * Create the binary data for the given image.
-     */
-    public Image createBinaryImage(Image image) throws Exception {
-        Pixels pixels = image.getPrimaryPixels();
-        long id = pixels.getId().getValue();
-        //Image
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(image.getId().getValue());
-        //method already tested
-
-        // first write to the image
-        omero.util.RPSTileLoop loop =
-            new omero.util.RPSTileLoop(client.getSession(), pixels);
-        loop.forEachTile(256, 256, new omero.util.TileLoopIteration(){
-            public void run(omero.util.TileData data, int z, int c, int t, int x, int y, int tileWidth,
-                    int tileHeight, int tileCount) {
-                data.setTile(new byte[tileWidth*tileHeight*8], z, c, t, x, y, tileWidth, tileHeight);
-            }
-        });
-        // This block will change the updateEvent on the pixels
-        // therefore we're going to reload the pixels.
-
-        image.setPixels(0, loop.getPixels());
-        return image;
-
-    }
+    
 
     /**
      * Create an entire plate, uploading binary data for all the images.
@@ -140,6 +94,8 @@ public class RenderingSettingsServiceTest
     	Image image = createBinaryImage();
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	prx.setOriginalSettingsInSet(Pixels.class.getName(),
+     			 Arrays.asList(pixels.getId().getValue()));
     	//Pixels first
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(pixels.getId().getValue());
@@ -175,6 +131,8 @@ public class RenderingSettingsServiceTest
     	Image image = createBinaryImage();
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+      			 Arrays.asList(image.getId().getValue()));
     	//Image
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(image.getId().getValue());
@@ -210,10 +168,12 @@ public class RenderingSettingsServiceTest
     	iUpdate.saveAndReturnObject(l);
     	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	prx.setOriginalSettingsInSet(Dataset.class.getName(),
+   			 Arrays.asList(d.getId().getValue()));
+    	
     	//Dataset
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(d.getId().getValue());
-    	List<Long> v = prx.resetDefaultsInSet(Dataset.class.getName(), ids);
+    	List<Long> v = prx.resetDefaultsInSet(Dataset.class.getName(), 
+    			Arrays.asList(d.getId().getValue()));
     	assertNotNull(v);
     	assertNotNull(v.size() == 1);
     	ParametersI param = new ParametersI();
@@ -254,7 +214,8 @@ public class RenderingSettingsServiceTest
       
     	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	
+    	prx.setOriginalSettingsInSet(Project.class.getName(),
+      			 Arrays.asList(p.getId().getValue()));
     	
     	List<Long> ids = new ArrayList<Long>();
         ids.add(p.getId().getValue());
@@ -312,6 +273,8 @@ public class RenderingSettingsServiceTest
     	Image image = well.getWellSample(0).getImage();
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	prx.setOriginalSettingsInSet(Screen.class.getName(),
+     			 Arrays.asList(screen.getId().getValue()));
     	//Image
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(screen.getId().getValue());
@@ -342,6 +305,8 @@ public class RenderingSettingsServiceTest
     	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Dataset
+    	prx.setOriginalSettingsInSet(Dataset.class.getName(),
+      			 Arrays.asList(d.getId().getValue()));
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(d.getId().getValue());
     	List<Long> v = prx.resetDefaultsInSet(Dataset.class.getName(), ids);
@@ -363,19 +328,16 @@ public class RenderingSettingsServiceTest
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(image.getId().getValue());
-    	//method already tested 
-    	 prx.resetDefaultsInSet(Image.class.getName(), ids);
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+      			 Arrays.asList(image.getId().getValue()));
     
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
     	//Create a second image.
     	Image image2 = createBinaryImage();
-    	ids = new ArrayList<Long>();
-    	ids.add(image2.getId().getValue());
     	Map<Boolean, List<Long>> m = 
-    		prx.applySettingsToSet(id, Image.class.getName(), ids);
+    		prx.applySettingsToSet(id, Image.class.getName(), 
+    				Arrays.asList(image2.getId().getValue()));
     	assertNotNull(m);
     	List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
     	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
@@ -405,10 +367,9 @@ public class RenderingSettingsServiceTest
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(image.getId().getValue());
     	//method already tested 
-    	 prx.resetDefaultsInSet(Image.class.getName(), ids);
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+    			 Arrays.asList(image.getId().getValue()));
     
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
@@ -423,10 +384,9 @@ public class RenderingSettingsServiceTest
     	l.setParent(d);
     	iUpdate.saveAndReturnObject(l);
     	
-    	ids = new ArrayList<Long>();
-    	ids.add(d.getId().getValue());
     	Map<Boolean, List<Long>> m = 
-    		prx.applySettingsToSet(id, Dataset.class.getName(), ids);
+    		prx.applySettingsToSet(id, Dataset.class.getName(), 
+    				Arrays.asList(d.getId().getValue()));
     	assertNotNull(m);
     	List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
     	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
@@ -455,21 +415,17 @@ public class RenderingSettingsServiceTest
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(image.getId().getValue());
-    	//method already tested 
-    	prx.resetDefaultsInSet(Image.class.getName(), ids);
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+   			 Arrays.asList(image.getId().getValue()));
     	 
     	//create a dataset
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	
     	//Dataset
-    	ids = new ArrayList<Long>();
-    	ids.add(d.getId().getValue());
     	Map<Boolean, List<Long>> m = 
     		prx.applySettingsToSet(id, Dataset.class.getName(), 
-    			ids);
+    				 Arrays.asList(d.getId().getValue()));
     	assertNotNull(m);
     }
     
@@ -488,11 +444,9 @@ public class RenderingSettingsServiceTest
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(image.getId().getValue());
     	//method already tested 
-    	 prx.resetDefaultsInSet(Image.class.getName(), ids);
-    
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+     			 Arrays.asList(image.getId().getValue()));
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
     	//Create a second image.
@@ -513,10 +467,9 @@ public class RenderingSettingsServiceTest
     	link.link(new DatasetI(d.getId().getValue(), false), image2);
     	iUpdate.saveAndReturnObject(link);
     	
-    	ids = new ArrayList<Long>();
-    	ids.add(project.getId().getValue());
     	Map<Boolean, List<Long>> m = 
-    		prx.applySettingsToSet(id, Project.class.getName(), ids);
+    		prx.applySettingsToSet(id, Project.class.getName(),
+    				Arrays.asList(project.getId().getValue()));
     	assertNotNull(m);
     	List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
     	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
@@ -551,10 +504,9 @@ public class RenderingSettingsServiceTest
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(p.getId().getValue());
     	//method already tested 
-    	 prx.resetDefaultsInSet(Plate.class.getName(), ids);
+    	prx.setOriginalSettingsInSet(Plate.class.getName(),
+     			 Arrays.asList(p.getId().getValue()));
     
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
@@ -567,10 +519,9 @@ public class RenderingSettingsServiceTest
     	results = loadWells(p.getId().getValue(), true);
     	well = (Well) results.get(0);
     	Image image2 = well.getWellSample(0).getImage();
-    	ids = new ArrayList<Long>();
-    	ids.add(p.getId().getValue());
     	Map<Boolean, List<Long>> m = 
-    		prx.applySettingsToSet(id, Plate.class.getName(), ids);
+    		prx.applySettingsToSet(id, Plate.class.getName(),
+    				Arrays.asList(p.getId().getValue()));
     	assertNotNull(m);
     	List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
     	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
@@ -590,7 +541,7 @@ public class RenderingSettingsServiceTest
      * Tests the <code>ApplySettingsToSet</code> method.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testApplySettingsToSetForPlateAcquisition() 
     	throws Exception 
     {
@@ -606,11 +557,9 @@ public class RenderingSettingsServiceTest
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(ws.getPlateAcquisition().getId().getValue());
     	//method already tested 
-    	 prx.resetDefaultsInSet(PlateAcquisition.class.getName(), ids);
-    
+    	prx.setOriginalSettingsInSet(PlateAcquisition.class.getName(),
+     			 Arrays.asList(ws.getPlateAcquisition().getId().getValue()));
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
 
@@ -621,10 +570,9 @@ public class RenderingSettingsServiceTest
     	well = (Well) results.get(0);
     	ws = well.getWellSample(0);
     	Image image2 = ws.getImage();
-    	ids = new ArrayList<Long>();
-    	ids.add(ws.getPlateAcquisition().getId().getValue());
     	Map<Boolean, List<Long>> m = 
-    		prx.applySettingsToSet(id, PlateAcquisition.class.getName(), ids);
+    		prx.applySettingsToSet(id, PlateAcquisition.class.getName(),
+    				Arrays.asList(ws.getPlateAcquisition().getId().getValue()));
     	assertNotNull(m);
     	List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
     	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
@@ -667,10 +615,9 @@ public class RenderingSettingsServiceTest
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(p.getId().getValue());
-    	//method already tested 
-    	 prx.resetDefaultsInSet(Plate.class.getName(), ids);
+
+    	prx.setOriginalSettingsInSet(Plate.class.getName(),
+    			 Arrays.asList(p.getId().getValue()));
     
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
@@ -689,10 +636,9 @@ public class RenderingSettingsServiceTest
     	results = loadWells(p.getId().getValue(), true);
     	well = results.get(0);
     	Image image2 = well.getWellSample(0).getImage();
-    	ids = new ArrayList<Long>();
-    	ids.add(screen.getId().getValue());
     	Map<Boolean, List<Long>> m = 
-    		prx.applySettingsToSet(id, Screen.class.getName(), ids);
+    		prx.applySettingsToSet(id, Screen.class.getName(),
+    				Arrays.asList(screen.getId().getValue()));
     	assertNotNull(m);
     	List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
     	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
@@ -725,6 +671,8 @@ public class RenderingSettingsServiceTest
     	Image image = well.getWellSample(0).getImage();
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	prx.setOriginalSettingsInSet(Plate.class.getName(),
+    			 Arrays.asList(p.getId().getValue()));
     	//Image
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(p.getId().getValue());
@@ -745,7 +693,7 @@ public class RenderingSettingsServiceTest
      * Tests the <code>ResetDefaultInSet</code> method.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testResetDefaultInSetForPlateAcquisition() 
     	throws Exception 
     {
@@ -758,6 +706,8 @@ public class RenderingSettingsServiceTest
     	Image image = ws.getImage();
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	prx.setOriginalSettingsInSet(PlateAcquisition.class.getName(),
+   			 Arrays.asList(ws.getPlateAcquisition().getId().getValue()));
     	//Image
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(ws.getPlateAcquisition().getId().getValue());
@@ -788,10 +738,9 @@ public class RenderingSettingsServiceTest
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(image.getId().getValue());
     	//method already tested 
-    	 prx.resetDefaultsInSet(Image.class.getName(), ids);
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+   			 Arrays.asList(image.getId().getValue()));
     
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
@@ -813,7 +762,8 @@ public class RenderingSettingsServiceTest
 			toUpdate.add(channel);
 		}
     	iUpdate.saveAndReturnArray(toUpdate);
-    	List<Long> m = prx.resetMinMaxInSet(Image.class.getName(), ids);
+    	List<Long> m = prx.resetMinMaxInSet(Image.class.getName(),
+    			Arrays.asList(image.getId().getValue()));
     	assertNotNull(m);
     	assertTrue(m.size() == 1);
     	def = factory.getPixelsService().retrieveRndSettings(id);
@@ -839,10 +789,9 @@ public class RenderingSettingsServiceTest
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(image.getId().getValue());
     	//method already tested 
-    	 prx.resetDefaultsInSet(Image.class.getName(), ids);
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+     			 Arrays.asList(image.getId().getValue()));
     
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
@@ -871,9 +820,8 @@ public class RenderingSettingsServiceTest
     	link.setChild(image);
     	link.setParent(d);
     	iUpdate.saveAndReturnObject(link);
-    	ids.clear();
-    	ids.add(d.getId().getValue());
-    	List<Long> m = prx.resetMinMaxInSet(Dataset.class.getName(), ids);
+    	List<Long> m = prx.resetMinMaxInSet(Dataset.class.getName(), 
+    			Arrays.asList(d.getId().getValue()));
     	assertNotNull(m);
     	assertTrue(m.size() == 1);
     	def = factory.getPixelsService().retrieveRndSettings(id);
@@ -896,10 +844,11 @@ public class RenderingSettingsServiceTest
     {
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(d.getId().getValue());
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	List<Long> m = prx.resetMinMaxInSet(Dataset.class.getName(), ids);
+    	prx.setOriginalSettingsInSet(Dataset.class.getName(),
+    			 Arrays.asList(d.getId().getValue()));
+    	List<Long> m = prx.resetMinMaxInSet(Dataset.class.getName(), 
+    			Arrays.asList(d.getId().getValue()));
     	assertTrue(m.size() == 0);
     }
     
@@ -917,11 +866,9 @@ public class RenderingSettingsServiceTest
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(image.getId().getValue());
     	//method already tested 
-
-    	prx.resetDefaultsInSet("Image", ids);
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+     			 Arrays.asList(image.getId().getValue()));
     	//method already tested
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
     	assertNotNull(def);
@@ -958,9 +905,8 @@ public class RenderingSettingsServiceTest
     	link.link(new DatasetI(d.getId().getValue(), false), image);
     	iUpdate.saveAndReturnObject(link);
     	
-    	ids.clear();
-    	ids.add(project.getId().getValue());
-    	List<Long> m = prx.resetMinMaxInSet(Project.class.getName(), ids);
+    	List<Long> m = prx.resetMinMaxInSet(Project.class.getName(),
+    			Arrays.asList(project.getId().getValue()));
     	assertNotNull(m);
     	assertTrue(m.size() == 1);
     	def = factory.getPixelsService().retrieveRndSettings(id);
@@ -993,10 +939,8 @@ public class RenderingSettingsServiceTest
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(plate.getId().getValue());
-    	//method already tested 
-    	 prx.resetDefaultsInSet(Plate.class.getName(), ids);
+    	prx.setOriginalSettingsInSet(Plate.class.getName(),
+      			 Arrays.asList(plate.getId().getValue()));
     
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
@@ -1018,7 +962,8 @@ public class RenderingSettingsServiceTest
 		}
     	iUpdate.saveAndReturnArray(toUpdate);
     	
-    	List<Long> m = prx.resetMinMaxInSet(Plate.class.getName(), ids);
+    	List<Long> m = prx.resetMinMaxInSet(Plate.class.getName(),
+    			Arrays.asList(plate.getId().getValue()));
     	assertNotNull(m);
     	assertTrue(m.size() == 1);
     	def = factory.getPixelsService().retrieveRndSettings(id);
@@ -1035,7 +980,7 @@ public class RenderingSettingsServiceTest
      * Tests the <code>ResetMinMaxForSet</code> method.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testResetMinMaxForSetForPlateAcquisition() 
     	throws Exception 
     {
@@ -1051,11 +996,9 @@ public class RenderingSettingsServiceTest
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(ws.getPlateAcquisition().getId().getValue());
     	//method already tested 
-    	 prx.resetDefaultsInSet(PlateAcquisition.class.getName(), ids);
-    
+    	prx.setOriginalSettingsInSet(PlateAcquisition.class.getName(),
+      			 Arrays.asList(ws.getPlateAcquisition().getId().getValue()));
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
     	//Modified the settings.
@@ -1077,7 +1020,7 @@ public class RenderingSettingsServiceTest
     	iUpdate.saveAndReturnArray(toUpdate);
     	
     	List<Long> m = prx.resetMinMaxInSet(PlateAcquisition.class.getName(), 
-    			ids);
+    			Arrays.asList(ws.getPlateAcquisition().getId().getValue()));
     	assertNotNull(m);
     	assertTrue(m.size() == 1);
     	def = factory.getPixelsService().retrieveRndSettings(id);
@@ -1116,12 +1059,9 @@ public class RenderingSettingsServiceTest
     	Image image = well.getWellSample(0).getImage();
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
-    	//Image
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(plate.getId().getValue());
-    	//method already tested 
-    	 prx.resetDefaultsInSet(Plate.class.getName(), ids);
-    
+
+    	prx.setOriginalSettingsInSet(Plate.class.getName(),
+     			 Arrays.asList(plate.getId().getValue()));
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
     	//Modified the settings.
@@ -1142,7 +1082,8 @@ public class RenderingSettingsServiceTest
 		}
     	iUpdate.saveAndReturnArray(toUpdate);
     	
-    	List<Long> m = prx.resetMinMaxInSet(Plate.class.getName(), ids);
+    	List<Long> m = prx.resetMinMaxInSet(Plate.class.getName(),
+    			Arrays.asList(plate.getId().getValue()));
     	assertNotNull(m);
     	assertTrue(m.size() == 1);
     	def = factory.getPixelsService().retrieveRndSettings(id);
@@ -1152,6 +1093,45 @@ public class RenderingSettingsServiceTest
 			assertTrue(channel.getInputStart().getValue() == p.getX());
 			assertTrue(channel.getInputEnd().getValue() == p.getY());
 		}
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ApplySettingsToSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testSetOriginalSettingsInSet() 
+    	throws Exception 
+    {
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = createBinaryImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	//Image
+    	//method already tested 
+    	prx.setOriginalSettingsInSet(Image.class.getName(),
+    			Arrays.asList(image.getId().getValue()));
+    
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	//Create a second image.
+    	Image image2 = createBinaryImage();
+    	Map<Boolean, List<Long>> m = 
+    		prx.applySettingsToSet(id, Image.class.getName(),
+    				Arrays.asList(image2.getId().getValue()));
+    	assertNotNull(m);
+    	List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
+    	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
+    	assertNotNull(success);
+    	assertNotNull(failure);
+    	assertTrue(success.size() == 1);
+    	assertTrue(failure.size() == 0);
+    	id = success.get(0); //image id.
+    	assertTrue(id == image2.getId().getValue());
+    	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
+    			image2.getPrimaryPixels().getId().getValue());
+    	compareRenderingDef(def, def2);
     }
     
 }

@@ -58,7 +58,7 @@ class TitlePainter
     
     /** The font to use for painting. */
     private Font    font;
-     
+
     /**
      * Tells if the current {@link #font} will fit into the specified height.
      * That is, if the maximum height that text rendered in the current
@@ -161,7 +161,7 @@ class TitlePainter
         if (t == null) t = "";
         title = t;
     }
-    
+
     /**
      * Derives the default font of the painter.
      * 

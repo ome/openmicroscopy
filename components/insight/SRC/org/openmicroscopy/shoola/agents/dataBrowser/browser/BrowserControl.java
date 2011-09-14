@@ -106,7 +106,7 @@ class BrowserControl
     	if (me.getClickCount() == 1) {
     		ImageDisplay d = findParentDisplay(me.getSource());
         	d.moveToFront();
-        	handleSelection(d, me.isShiftDown(), me.getPoint());
+        	handleSelection(d, me);
         	me = SwingUtilities.convertMouseEvent((Component) me.getSource(),
         			me, view);
         	Point p = me.getPoint();
@@ -134,19 +134,20 @@ class BrowserControl
      * Handles the selection.
      * 
      * @param d The selected node.
-     * @param shiftDown Passed <code>true</code> if <code>shift</code> button is
-     * 					down, <code>false</code> otherwise.
-     * @param p The point where the mouse is clicked.
+     * @param me The mouse event to handle.
      */
-    private void handleSelection(ImageDisplay d, boolean shiftDown, Point p)
+    private void handleSelection(ImageDisplay d, MouseEvent me)
     {
+    	boolean shiftDown = me.isShiftDown();
+    	Point p = me.getPoint();
     	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
+    	
     	if (((rightClickButton && !ctrl) || rightClickPad)
         		&& model.isMultiSelection()) {
         		//setFoundNode(nodes);
         		return;
         }
-    	if ((ctrl || shiftDown)) { //multi selection
+    	if (((ctrl || shiftDown) && leftMouseButton)) { //multi selection
     		ImageDisplay previous = model.getLastSelectedDisplay();
     		if (previous == null) {
     			model.setSelectedDisplay(d, true, true);
@@ -175,6 +176,8 @@ class BrowserControl
     				setSelectedCell(p, (CellDisplay) d);
     			} else {
     				boolean b = model.isMultiSelection();
+    				if (rightClickButton && b)
+    					return;
     				if (b || !(d.equals(previousDisplay)))
     					model.setSelectedDisplay(d, false, true);
     			}

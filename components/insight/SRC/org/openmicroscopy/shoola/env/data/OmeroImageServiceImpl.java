@@ -44,6 +44,8 @@ import loci.formats.ImageReader;
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
+import ome.formats.importer.ImportCandidates;
+import ome.formats.importer.ImportContainer;
 import omero.api.RenderingEnginePrx;
 import omero.model.Annotation;
 import omero.model.Channel;
@@ -129,10 +131,12 @@ class OmeroImageServiceImpl
 	 * @param ioList The containers where to import the files.
 	 * @param list   The list of annotations.
 	 * @param userID The identifier of the user.
+	 * @param hcs Value returns by the import containers.
 	 */
-	private Boolean importCandidates(Map<File, StatusLabel> files, StatusLabel status, 
-			ImportableObject object, boolean archived, IObject ioContainer, 
-			List<Annotation> list, long userID, boolean close)
+	private Boolean importCandidates(Map<File, StatusLabel> files,
+			StatusLabel status, ImportableObject object, boolean archived,
+			IObject ioContainer, List<Annotation> list, long userID,
+			boolean close, boolean hcs)
 	{
 		if (status.isMarkedAsCancel()) {
 			gateway.closeImport();
@@ -156,11 +160,14 @@ class OmeroImageServiceImpl
 		while (jj.hasNext()) {
 			entry = (Entry) jj.next();
 			file = (File) entry.getKey();
-			if (ImportableObject.isHCSFile(file)) {
-				if (ioContainer != null && 
-					!(ioContainer.getClass().equals(Screen.class) ||
-					ioContainer.getClass().equals(ScreenI.class)))
-					ioContainer = null;
+			if (ImportableObject.isHCSFile(file) || hcs) {
+				if (!file.getName().endsWith(
+						ImportableObject.DAT_EXTENSION)) {
+					if (ioContainer != null && 
+							!(ioContainer.getClass().equals(Screen.class) ||
+							ioContainer.getClass().equals(ScreenI.class)))
+							ioContainer = null;
+				}
 			}
 			label = (StatusLabel) entry.getValue();
 			if (close) {
@@ -169,6 +176,7 @@ class OmeroImageServiceImpl
 			}
 			if (!label.isMarkedAsCancel()) {
 				try {
+					if (ioContainer == null) label.setNoContainer();
 					result = gateway.importImage(object, ioContainer, file,
 							label, archived, toClose);
 					if (result instanceof ImageData) {
@@ -278,8 +286,8 @@ class OmeroImageServiceImpl
 	{
 		Boolean backoff = null;
 		try {
-			backoff = gateway.isLargeImage(
-					image.getDefaultPixels().asPixels());
+			PixelsData pixels = image.getDefaultPixels();
+			backoff = gateway.isLargeImage(pixels.getId());
 		} catch (Exception e) {}
 		//if (backoff != null && backoff.booleanValue())
 		//	return new ThumbnailData(image, backoff);
@@ -978,6 +986,26 @@ class OmeroImageServiceImpl
 		return ioContainer;
 	}
 	
+	/**
+	 * Returns <code>true</code> if the containers are <code>HCS</code>
+	 * containers, <code>false</code> otherwise.
+	 * 
+	 * @param containers The collection to handle.
+	 * @return See above.
+	 */
+	private boolean isHCS(List<ImportContainer> containers)
+	{
+		if (containers == null || containers.size() == 0) return false;
+		int count = 0;
+		Iterator<ImportContainer> i = containers.iterator();
+		ImportContainer ic;
+		while (i.hasNext()) {
+			ic = i.next();
+			if (ic.getIsSPW()) count++;
+		}
+		return count == containers.size();
+	}
+	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#importFile(ImportableObject, ImportableFile, 
@@ -1034,6 +1062,7 @@ class OmeroImageServiceImpl
 		Iterator<ImageData> kk;
 		List<Object> converted;
 		List<String> candidates;
+		ImportCandidates ic;
 		File file = importable.getFile();
 		boolean thumbnail = object.isLoadThumbnail();
 		DatasetData dataset = importable.getDataset();
@@ -1044,23 +1073,39 @@ class OmeroImageServiceImpl
 		IObject project = null;
 		DataObject folder = null;
 		boolean hcsFile;
+		boolean hcs;
 		if (file.isFile()) {
 			hcsFile = ImportableObject.isHCSFile(file);
 			//Create the container if required.
 			if (hcsFile) {
 				boolean b = ImportableObject.isArbitraryFile(file);
 				if (b) { //check if it is actually a HCS file.
-					candidates = gateway.getImportCandidates(object, file, status);
-					if (candidates.size() == 1) { 
-						String value = candidates.get(0);
-						if (!file.getAbsolutePath().equals(value) && 
-							object.isFileinQueue(value)) {
-							gateway.closeImport();
-							status.markedAsDuplicate();
-							return Boolean.valueOf(true);
+					ic = gateway.getImportCandidates(object, file, status);
+					if (ic != null) {
+						candidates = ic.getPaths();
+						if (candidates.size() == 1) { 
+							String value = candidates.get(0);
+							if (!file.getAbsolutePath().equals(value) && 
+								object.isFileinQueue(value)) {
+								gateway.closeImport();
+								status.markedAsDuplicate();
+								return Boolean.valueOf(true);
+							}
+							if (!file.getName().endsWith(
+									ImportableObject.DAT_EXTENSION)) {
+								hcsFile = ImportableObject.isHCSFile(value);
+								if (!hcsFile) {
+									hcsFile = isHCS(ic.getContainers());
+								}
+							} else hcsFile = false;
 						}
-						hcsFile = ImportableObject.isHCSFile(value);
 					}
+				}
+			}
+			if (!hcsFile && ImportableObject.isOMEFile(file)) {
+				ic = gateway.getImportCandidates(object, file, status);
+				if (ic != null) {
+					hcsFile = isHCS(ic.getContainers());
 				}
 			}
 			if (hcsFile) {
@@ -1125,7 +1170,8 @@ class OmeroImageServiceImpl
 				}
 			}
 			if (ImportableObject.isArbitraryFile(file)) {
-				candidates = gateway.getImportCandidates(object, file, status);
+				ic = gateway.getImportCandidates(object, file, status);
+				candidates = ic.getPaths();
 				int size = candidates.size();
 				if (size == 0) return Boolean.valueOf(false);
 				else if (size == 1) {
@@ -1138,6 +1184,8 @@ class OmeroImageServiceImpl
 					}
 					File f = new File(value);
 					status.resetFile(f);
+					if (ioContainer == null)
+						status.setNoContainer();
 					result = gateway.importImage(object, ioContainer, f,
 							status, importable.isArchived(), close);
 					if (result instanceof ImageData) {
@@ -1158,6 +1206,7 @@ class OmeroImageServiceImpl
 					}
 					return result;
 				} else {
+					hcs = isHCS(ic.getContainers());
 					Map<File, StatusLabel> files = 
 						new HashMap<File, StatusLabel>();
 					Iterator<String> i = candidates.iterator();
@@ -1166,12 +1215,14 @@ class OmeroImageServiceImpl
 					status.setFiles(files);
 					Boolean v = importCandidates(files, status, object, 
 							importable.isArchived(), ioContainer, list, userID,
-							close);
+							close, hcs);
 					if (v != null) {
 						return v.booleanValue();
 					}
 				}
 			} else { //single file let's try to import it.
+				if (ioContainer == null)
+					status.setNoContainer();
 				result = gateway.importImage(object, ioContainer, file, status, 
 						importable.isArchived(), close);
 				if (result instanceof ImageData) {
@@ -1194,7 +1245,8 @@ class OmeroImageServiceImpl
 			}
 		} //file import ends.
 		//Checks folder import.
-		candidates = gateway.getImportCandidates(object, file, status);
+		ic = gateway.getImportCandidates(object, file, status);
+		candidates = ic.getPaths();
 		if (candidates.size() == 0) return Boolean.valueOf(false);
 		Map<File, StatusLabel> hcsFiles = new HashMap<File, StatusLabel>();
 		Map<File, StatusLabel> otherFiles = new HashMap<File, StatusLabel>();
@@ -1202,12 +1254,21 @@ class OmeroImageServiceImpl
 		Iterator<String> i = candidates.iterator();
 		File f;
 		StatusLabel sl;
+		int n = candidates.size();
+		hcs = isHCS(ic.getContainers());
 		while (i.hasNext()) {
 			f = new File(i.next());
 			sl = new StatusLabel();
-			if (ImportableObject.isHCSFile(f))
-				hcsFiles.put(f, sl);
-			else otherFiles.put(f, sl);
+			//if (ImportableObject.isHCSFile(f) || hcs) {
+			if (hcs) {
+				if (n == 1 && file.list().length > 1)
+					hcsFiles.put(f, sl);
+				else if (n > 1) {
+					if (f.getName().endsWith(ImportableObject.DAT_EXTENSION))
+						otherFiles.put(f, sl);
+					else hcsFiles.put(f, sl);
+				} else hcsFiles.put(f, sl);
+			} else otherFiles.put(f, sl);
 			files.put(f, sl);
 		}
 		status.setFiles(files);
@@ -1238,7 +1299,8 @@ class OmeroImageServiceImpl
 				} else ioContainer = container.asIObject();
 			}
 			importCandidates(hcsFiles, status, object, 
-					importable.isArchived(), ioContainer, list, userID, close);
+					importable.isArchived(), ioContainer, list, userID, close, 
+					hcs);
 		}
 		if (otherFiles.size() > 0) {
 			folder = object.createFolderAsContainer(importable);
@@ -1310,8 +1372,9 @@ class OmeroImageServiceImpl
 				}
 			}
 			
-			importCandidates(otherFiles, status, object, 
-					importable.isArchived(), ioContainer, list, userID, close);
+			importCandidates(otherFiles, status, object,
+					importable.isArchived(), ioContainer, list, userID, close,
+					hcs);
 		}
 		return Boolean.valueOf(true);
 	}
@@ -1341,7 +1404,7 @@ class OmeroImageServiceImpl
 	 */
 	public ScriptCallback createMovie(long imageID, long pixelsID, 
 			List<Integer> channels, MovieExportParam param)
-		throws DSOutOfServiceException, DSAccessException
+		throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		if (imageID <= 0)
 			throw new IllegalArgumentException("Image ID not valid.");
@@ -1401,7 +1464,7 @@ class OmeroImageServiceImpl
 	 */
 	public ScriptCallback createFigure(List<Long> ids, Class type, 
 			Object parameters)
-			throws DSOutOfServiceException, DSAccessException
+			throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		if (parameters == null)
 			throw new IllegalArgumentException("No parameters");
@@ -1463,7 +1526,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#runScript(ScriptObject)
 	 */
 	public ScriptCallback runScript(ScriptObject script)
-			throws DSOutOfServiceException, DSAccessException
+			throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		if (script == null) 
 			throw new IllegalArgumentException("No script to run.");
@@ -1718,7 +1781,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#saveAs(SaveAsParam)
 	 */
 	public ScriptCallback saveAs(SaveAsParam param)
-		throws DSAccessException, DSOutOfServiceException
+		throws ProcessException, DSAccessException, DSOutOfServiceException
 	{
 		if (param == null)
 			throw new IllegalArgumentException("No parameters specified.");
@@ -1729,6 +1792,16 @@ class OmeroImageServiceImpl
 				LookupNames.CURRENT_USER_DETAILS);
 
 		return gateway.saveAs(exp.getId(), param);
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#isLargeImage(long)
+	 */
+	public Boolean isLargeImage(long pixelsId)
+		throws DSAccessException, DSOutOfServiceException
+	{
+		return gateway.isLargeImage(pixelsId);
 	}
 	
 }

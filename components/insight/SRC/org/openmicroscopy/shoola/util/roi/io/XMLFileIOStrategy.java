@@ -67,6 +67,12 @@ public class XMLFileIOStrategy
 		inputStrategy = new InputStrategy();
 	}
 	
+	/** Indicates to reset the identifier when loading from local file.*/
+	public void reset()
+	{
+		inputStrategy.reset();
+	}
+	
 	/**
 	 * Converts the ROIs hosted in the passed input stream.
 	 * 

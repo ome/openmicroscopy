@@ -39,6 +39,7 @@ from omero_ext.argparse import RawDescriptionHelpFormatter
 from omero_ext.argparse import RawTextHelpFormatter
 from omero_ext.argparse import SUPPRESS
 
+from omero.util import get_user
 from omero.util.concurrency import get_event
 from omero.util.sessions import SessionsStore
 
@@ -353,7 +354,6 @@ class Context:
             while True:
                 if hidden:
                     import getpass
-                    defuser = getpass.getuser()
                     rv = getpass.getpass(prompt)
                 else:
                     rv = raw_input(prompt)

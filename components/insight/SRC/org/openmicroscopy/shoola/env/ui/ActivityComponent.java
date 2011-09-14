@@ -60,6 +60,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.ProcessException;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -816,6 +817,18 @@ public abstract class ActivityComponent
 	public void notifyError(String text, String message, Throwable ex)
 	{
 		reset();
+		
+		int status = -1;
+		if (ex != null) {
+			Throwable cause = ex.getCause();
+			if (cause instanceof ProcessException) {
+				status = ((ProcessException) cause).getStatus();
+				if (status == ProcessException.NO_PROCESSOR)
+					messageLabel.setText("No processor available. " +
+							"Please try later.");
+			}
+		}
+		
 		if (text != null) {
 			type.setText(text);
 			if (message != null)
@@ -823,7 +836,7 @@ public abstract class ActivityComponent
 		}
 		//if (message != null) messageLabel.setText(message);
 		exception = ex;
-		if (exception != null) {
+		if (exception != null && status != ProcessException.NO_PROCESSOR) {
 			exceptionButton.setVisible(true);
 			exceptionButton.setToolTipText(
 					UIUtilities.formatExceptionForToolTip(ex));

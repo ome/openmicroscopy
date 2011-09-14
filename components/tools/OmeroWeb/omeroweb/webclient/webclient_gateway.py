@@ -57,7 +57,9 @@ from omero.model import FileAnnotationI, TagAnnotationI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, \
                         LaserI
 
-from omero.gateway import TagAnnotationWrapper, ExperimenterWrapper, WellWrapper, AnnotationWrapper
+from omero.gateway import TagAnnotationWrapper, ExperimenterWrapper, \
+                ExperimenterGroupWrapper, WellWrapper, AnnotationWrapper, \
+                OmeroGatewaySafeCallWrapper
 
 from omero.sys import ParametersI
 
@@ -70,7 +72,7 @@ from django.core.mail import EmailMultiAlternatives
 try:
     PAGE = settings.PAGE
 except:
-    PAGE = 24
+    PAGE = 200
 
 class OmeroWebGateway (omero.gateway.BlitzGateway):
 
@@ -126,7 +128,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             if self._ctx.userName!="guest":
                 self.removeGroupFromContext()
         return rv
-
+    
     def attachToShare (self, share_id):
         """
         Turns on the access control lists attached to the given share for the
@@ -382,6 +384,55 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for ann in q.findAllByQuery(sql, params):
             yield TagAnnotationWrapper(self, ann)
     
+    def countOrphans (self, obj_type, eid=None):
+        links = {'Dataset':('ProjectDatasetLink', DatasetWrapper), 
+                'Image':('DatasetImageLink', ImageWrapper),
+                'Plate':('ScreenPlateLink', PlateWrapper)}
+        
+        if obj_type not in links:
+            raise TypeError("'%s' is not valid object type. Must use one of %s" % (obj_type, links.keys()) )
+            
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        
+        links = {'Dataset':('ProjectDatasetLink', DatasetWrapper), 
+                'Image':('DatasetImageLink', ImageWrapper),
+                'Plate':('ScreenPlateLink', PlateWrapper)}
+        
+        if obj_type not in links:
+            raise TypeError("'%s' is not valid object type. Must use one of %s" % (obj_type, links.keys()) )
+            
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        
+        if eid is not None:
+            p.map["eid"] = rlong(long(eid))
+            eidFilter = "obj.details.owner.id=:eid and " 
+            eidWsFilter = " and ws.details.owner.id=:eid"
+        else:
+            eidFilter = ""
+            eidWsFilter = ""
+        
+        sql = "select count(obj.id) from %s as obj " \
+                "join obj.details.creationEvent "\
+                "join obj.details.owner join obj.details.group " \
+                "where %s" \
+                "not exists (select obl from %s as obl where " \
+                "obl.child=obj.id)" % (obj_type, eidFilter, links[obj_type][0])
+        if obj_type == 'Image':
+            sql += "and not exists ( "\
+                "select ws from WellSample as ws "\
+                "where ws.image=obj.id %s)" % eidWsFilter
+        
+        rslt = q.projection(sql, p)
+        if len(rslt) > 0:
+            if len(rslt[0]) > 0:
+                return rslt[0][0].val
+        return 0
+            
+    
     def listOrphans (self, obj_type, eid=None, page=None):
         """
         List orphaned Datasets, Images, Plates controlled by the security system, 
@@ -406,6 +457,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
+        
         if eid is not None:
             p.map["eid"] = rlong(long(eid))
             eidFilter = "obj.details.owner.id=:eid and " 
@@ -413,19 +465,27 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         else:
             eidFilter = ""
             eidWsFilter = ""
+        
+        if page is not None:
+            f = omero.sys.Filter()
+            f.limit = rint(PAGE)
+            f.offset = rint((int(page)-1)*PAGE)
+            p.theFilter = f
+        
         sql = "select obj from %s as obj " \
                 "join fetch obj.details.creationEvent "\
-                "join fetch obj.details.owner join fetch obj.details.group " \
-                "where %s" \
+                "join fetch obj.details.owner join fetch obj.details.group " % (obj_type)
+        
+        sql += "where %s" \
                 "not exists (select obl from %s as obl where " \
-                "obl.child=obj.id)" % (obj_type, eidFilter, links[obj_type][0])
+                "obl.child=obj.id)" % (eidFilter, links[obj_type][0])
+        
         if obj_type == 'Image':
             sql += "and not exists ( "\
                 "select ws from WellSample as ws "\
                 "where ws.image=obj.id %s)" % eidWsFilter
         for e in q.findAllByQuery(sql, p):
             yield links[obj_type][1](self, e)
-            
     
     def listImagesInDataset (self, oid, eid=None, page=None):
         """
@@ -463,108 +523,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p):
             kwargs = {'link': omero.gateway.BlitzObjectWrapper(self, e.copyDatasetLinks()[0])}
             yield ImageWrapper(self, e, None, **kwargs)
-    
-    # SPW
-    def listScreens(self, eid=None, page=None):
-        """
-        List all available Screens.
-        Optionally filter by experimenter 'eid'
-        
-        @param eid:         experimenter id
-        @type eid:          Long
-        @param page:        page number
-        @type page:         Long
-        @return:            Generator yielding Screens
-        @rtype:             L{ScreenWrapper} generator
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        sql = "select sc from Screen sc " \
-                "join fetch sc.details.creationEvent "\
-                "join fetch sc.details.owner join fetch sc.details.group" \
-        
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-            sql += " where sc.details.owner.id=:eid"
-            
-        for e in q.findAllByQuery(sql, p):
-            yield ScreenWrapper(self, e)
-
-    
-    def listWellsInPlate(self, oid, index=None, eid=None):
-        """
-        List all available Wells in the given Plate.
-        Optionally filter by experimenter 'eid'
-        
-        @param eid:         experimenter id
-        @type eid:          Long
-        @param page:        page number
-        @type page:         Long
-        @return:            Generator yielding Wells
-        @rtype:             L{WellWrapper} generator
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        sql = "select well from Well as well "\
-                "join fetch well.details.creationEvent "\
-                "join fetch well.details.owner join fetch well.details.group " \
-                "left outer join fetch well.plate as pt "\
-                "left outer join fetch well.wellSamples as ws " \
-                "left outer join fetch ws.image as img "\
-                "where well.plate.id = :oid"
-                
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-            sql += " and well.details.owner.id=:eid"
-            
-        index = index is None and 0 or index
-        kwargs = {'index': index}
-        for e in q.findAllByQuery(sql,p):
-            yield WellWrapper(self, e, **kwargs)
-    
-    
-    def getWell(self, oid, index=None, eid=None):
-        """
-        Get filed in the given Well with the specific index
-        controlled by the security system, ordered by id.
-        If user id not set, owned by the current user.
-        
-        @param eid:         experimenter id
-        @type eid:          Long
-        @param page:        page number
-        @type page:         Long
-        @return:            Well
-        @rtype:             WellWrapper
-        """
-
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        sql = "select well from Well as well "\
-                "join fetch well.details.creationEvent "\
-                "join fetch well.details.owner join fetch well.details.group " \
-                "left outer join fetch well.wellSamples as ws " \
-                "left outer join fetch ws.image as im "\
-                "join fetch im.details.creationEvent "\
-                "join fetch im.details.owner join fetch im.details.group " \
-                "where well.id = :oid"
-        
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-            sql += " and well.details.owner.id=:eid"
-            
-        res = q.findByQuery(sql,p)
-        if res is None:
-            return None
-        index = index is None and 0 or index
-        kwargs = {'index': index}
-        return WellWrapper(self, res, **kwargs)
     
     # DATA RETRIVAL BY TAGs
     def findTag (self, name, desc=None):
@@ -1013,7 +971,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if perm is not None:
             logger.warning("WARNING: changePermissions was called!!!")
             admin_serv.changePermissions(group, perm)
-        self._user = self.getExperimenter(self._userid)
+        self._user = self.getObject("Experimenter", self._userid)
         admin_serv.addGroupOwners(group, add_exps)
         admin_serv.removeGroupOwners(group, rm_exps)
     
@@ -1030,7 +988,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         admin_serv.updateSelf(experimenter)
         admin_serv.setDefaultGroup(experimenter, defultGroup)
         self.changeActiveGroup(defultGroup.id.val)
-        self._user = self.getExperimenter(self._userid)
+        self._user = self.getObject("Experimenter", self._userid)
     
     def updatePermissions(self, obj, perm):
         """
@@ -1045,7 +1003,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if perm is not None:
             logger.warning("WARNING: changePermissions was called!!!")
             admin_serv.changePermissions(obj, perm)
-            self._user = self.getExperimenter(self._userid)
+            self._user = self.getObject("Experimenter", self._userid)
     
     def saveObject (self, obj):
         """
@@ -1409,7 +1367,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                     logger.error("Email was sent")
                 except:
                     logger.error(traceback.format_exc())
-			
+            
         if len(rm_members) > 0:
             try:
                 recipients = self.prepareRecipients(rm_members)
@@ -1665,9 +1623,35 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.groupId = rlong(self.getEventContext().groupId)
         p.theFilter = f
         return tm.getEventLogsByPeriod(rtime(start), rtime(end), p)
-        #yield EventLogWrapper(self, e)    
+        #yield EventLogWrapper(self, e)
 
 omero.gateway.BlitzGateway = OmeroWebGateway
+
+class OmeroWebSafeCallWrapper(OmeroGatewaySafeCallWrapper): #pragma: no cover
+    """
+    Function or method wrapper that handles L{Ice.ObjectNotExistException}
+    by re-creating the server side proxy.
+    """
+
+    def handle_exception(self, e, *args, **kwargs):
+        if e.__class__ is Ice.ObjectNotExistException:
+            # Restored proxy object re-creation logic from the pre-#5835
+            # version of # _safeCallWrap() from omero.gateway. (See #6365)
+            logger.warn('Attempting to re-create proxy and re-call method.')
+            try:
+                self.proxyObjectWrapper._obj = \
+                        self.proxyObjectWrapper._create_func()
+                func = getattr(self.proxyObjectWrapper._obj, self.attr)
+                return func(*args, **kwargs)
+            except Exception, e:
+                self.debug(e.__class__.__name__, args, kwargs)
+                raise
+        else:
+            super(OmeroWebSafeCallWrapper, self).handle_exception(
+                    e, *args, **kwargs)
+
+
+omero.gateway.SafeCallWrapper = OmeroWebSafeCallWrapper
 
 class OmeroWebObjectWrapper (object):
     
@@ -1677,26 +1661,6 @@ class OmeroWebObjectWrapper (object):
         l = self.listParents()
         if l is not None:
             return len(l)
-        
-    def listChildrenWithLinks (self):
-        """
-        Lists available child objects.
-
-        @return     Generator yielding child objects and link to parent.
-        """
-
-        childw = self._getChildWrapper()
-        klass = childw().OMERO_CLASS
-        params = omero.sys.Parameters()
-        params.map = {}
-        params.map["dsid"] = rlong(self._oid)
-        query = "select c from %s as c " \
-                "join fetch c.child as ch " \
-                "where c.parent.id=:dsid " \
-                "order by c.child.name" % self.LINK_CLASS
-        for link in self._conn.getQueryService().findAllByQuery(query, params):
-            kwargs = {'link': omero.gateway.BlitzObjectWrapper(self._conn, link)}
-            yield childw(self._conn, link.child, None, **kwargs)
     
     def countAnnotations (self):
         """
@@ -1737,6 +1701,27 @@ class OmeroWebObjectWrapper (object):
             logger.info(traceback.format_exc()) 
             return self.name
 
+class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrapper): 
+    """
+    omero_model_ExperimenterI class wrapper overwrite omero.gateway.ExperimenterWrapper
+    and extend OmeroWebObjectWrapper.
+    """
+    
+    def isEditable(self):
+        return self.omeName.lower() not in ('guest')
+
+omero.gateway.ExperimenterWrapper = ExperimenterWrapper 
+
+class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterGroupWrapper): 
+    """
+    omero_model_ExperimenterGroupI class wrapper overwrite omero.gateway.ExperimenterGroupWrapper
+    and extend OmeroWebObjectWrapper.
+    """
+    
+    def isEditable(self):
+        return self.name.lower() not in ('guest', 'user')
+
+omero.gateway.ExperimenterGroupWrapper = ExperimenterGroupWrapper 
 
 class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper): 
     """
@@ -1747,11 +1732,12 @@ class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper):
     annotation_counter = None
     
     def __prepare__ (self, **kwargs):
+        super(ProjectWrapper, self).__prepare__(**kwargs)
         if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
- 	 
+      
 omero.gateway.ProjectWrapper = ProjectWrapper 
- 	 
+      
 class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper): 
     """
     omero_model_DatasetI class wrapper overwrite omero.gateway.DatasetWrapper
@@ -1761,11 +1747,12 @@ class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper):
     annotation_counter = None
     
     def __prepare__ (self, **kwargs):
+        super(DatasetWrapper, self).__prepare__(**kwargs)
         if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
         if kwargs.has_key('link'):
             self.link = kwargs.has_key('link') and kwargs['link'] or None    
-	 
+     
 omero.gateway.DatasetWrapper = DatasetWrapper
 
 class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
@@ -1777,20 +1764,23 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
     annotation_counter = None
     
     def __prepare__ (self, **kwargs):
+        super(ImageWrapper, self).__prepare__(**kwargs)
         if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
         if kwargs.has_key('link'):
             self.link = kwargs.has_key('link') and kwargs['link'] or None
     
-    def getThumbnailOrDefault (self, size=(120,120)):
-        rv = super(ImageWrapper, self).getThumbnail(size=size)
-        if rv is None:
-            try:
-                rv = self._conn.defaultThumbnail(size)
-            except Exception, e:
-                logger.info(traceback.format_exc())
-                raise e
-        return rv
+    """
+    This override standard omero.gateway.ImageWrapper.getChannels 
+    and catch exceptions.
+    """
+    def getChannels (self):
+        try:
+            return super(ImageWrapper, self).getChannels()
+        except Exception, x:
+            logger.error('Failed to load channels:', exc_info=True)
+            return None
+
 
 omero.gateway.ImageWrapper = ImageWrapper
 
@@ -1804,12 +1794,121 @@ class PlateWrapper (OmeroWebObjectWrapper, omero.gateway.PlateWrapper):
     annotation_counter = None
 
     def __prepare__ (self, **kwargs):
+        super(PlateWrapper, self).__prepare__(**kwargs)
+        if kwargs.has_key('annotation_counter'):
+            self.annotation_counter = kwargs['annotation_counter']
+        if kwargs.has_key('link'):
+            self.link = kwargs.has_key('link') and kwargs['link'] or None
+    
+    def _loadPlateAcquisitions(self):
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["pid"] = self._obj.id
+        sql = "select pa from PlateAcquisition as pa join fetch pa.plate as p where p.id=:pid"
+        self._obj._plateAcquisitionsSeq = self._conn.getQueryService().findAllByQuery(sql, p)
+        self._obj._plateAcquisitionsLoaded = True
+    
+    def countPlateAcquisitions(self):
+        if self._obj.sizeOfPlateAcquisitions() < 0:
+            self._loadPlateAcquisitions()
+        return self._obj.sizeOfPlateAcquisitions()
+    
+    def listPlateAcquisitions(self):
+        if not self._obj._plateAcquisitionsLoaded:
+            self._loadPlateAcquisitions()
+        for pa in self._obj.copyPlateAcquisitions():
+            yield PlateAcquisitionWrapper(self._conn, pa)
+    
+    def getFields (self, pid=None):
+        """
+        Returns tuple of min and max of indexed collection of well samples 
+        per plate acquisition if exists
+        """
+        
+        q = self._conn.getQueryService()
+        sql = "select minIndex(ws), maxIndex(ws) from Well w " \
+            "join w.wellSamples ws where w.plate.id=:oid"
+        
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = self._obj.id
+        if pid is not None:
+            sql += " and ws.plateAcquisition.id=:pid"
+            p.map["pid"] = rlong(pid)
+        
+        fields = None
+        try:
+            res = [r for r in unwrap(q.projection(sql, p))[0] if r != None]
+            if len(res) == 2:
+                fields = tuple(res)
+        except:
+            pass
+        return fields
+
+omero.gateway.PlateWrapper = PlateWrapper
+
+class WellWrapper (OmeroWebObjectWrapper, omero.gateway.WellWrapper):
+    """
+    omero_model_ImageI class wrapper overwrite omero.gateway.ImageWrapper
+    and extends OmeroWebObjectWrapper.
+    """
+    
+    annotation_counter = None
+    
+    def __prepare__ (self, **kwargs):
+        super(WellWrapper, self).__prepare__(**kwargs)
         if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
         if kwargs.has_key('link'):
             self.link = kwargs.has_key('link') and kwargs['link'] or None
 
-omero.gateway.PlateWrapper = PlateWrapper
+omero.gateway.WellWrapper = WellWrapper
+
+class PlateAcquisitionWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+    
+    """
+    omero_model_PlateI class wrapper overwrite omero.gateway.PlateWrapper
+    and extends OmeroWebObjectWrapper.
+    """
+    
+    annotation_counter = None
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'PlateAcquisition'
+    
+    def __prepare__ (self, **kwargs):
+        super(PlateAcquisitionWrapper, self).__prepare__(**kwargs)
+        if kwargs.has_key('annotation_counter'):
+            self.annotation_counter = kwargs['annotation_counter']
+
+    def getName (self):
+        name = super(PlateAcquisitionWrapper, self).getName()
+        if name is None:
+            if self.startTime is not None and self.endTime is not None:
+                name = "%s - %s" % (datetime.fromtimestamp(self.startTime/1000), datetime.fromtimestamp(self.endTime/1000))
+            else:
+                name = "Plate %i" % self.id
+        return name
+    name = property(getName)
+    
+    def getFields (self):
+        """
+        Returns max of indexed collection of well samples
+        """
+        
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = self._obj.id
+        
+        q = self._conn.getQueryService()
+        sql = "select maxIndex(pa.wellSamples)+1 from PlateAcquisition as pa "\
+            "where pa.id=:oid"
+        try:
+            index = unwrap(q.projection(sql, p))[0][0]
+        except:
+            index = -1
+        return index
+
 
 class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.ScreenWrapper):
     """
@@ -1820,14 +1919,12 @@ class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.ScreenWrapper):
     annotation_counter = None
 
     def __prepare__ (self, **kwargs):
+        super(ScreenWrapper, self).__prepare__(**kwargs)
         if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
 
 omero.gateway.ScreenWrapper = ScreenWrapper
 
-# IMPORTANT to update the map of wrappers 'project', 'dataset', 'image' etc. returned by getObjects()
-omero.gateway.refreshWrappers()
-    
 class EventLogWrapper (omero.gateway.BlitzObjectWrapper):
     """
     omero_model_EventLogI class wrapper extends omero.gateway.BlitzObjectWrapper.
@@ -1933,3 +2030,7 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         """
         
         return omero.gateway.ExperimenterWrapper(self, self.owner)
+
+# IMPORTANT to update the map of wrappers 'project', 'dataset', 'image' etc. returned by getObjects()
+omero.gateway.refreshWrappers()
+omero.gateway.KNOWN_WRAPPERS.update({"plateacquisition":PlateAcquisitionWrapper})

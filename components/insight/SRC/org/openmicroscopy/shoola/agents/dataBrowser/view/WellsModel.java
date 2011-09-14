@@ -177,19 +177,6 @@ class WellsModel
 	}
 	
 	/**
-	 * Returns <code>true</code> if the passed colors are the same, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param c1 The color to handle.
-	 * @param c2 The color to handle.
-	 * @return See above.
-	 */
-	private boolean isSameColor(Color c1, Color c2)
-	{
-		return UIUtilities.isSameColors(c1, c2);
-	}
-	
-	/**
 	 * Returns <code>true</code> if the passed description are the same, 
 	 * <code>false</code> otherwise.
 	 * 
@@ -281,7 +268,12 @@ class WellsModel
 		Color color;
 		boolean b;
 		validWells = new ArrayList<WellGridElement>();
+		boolean titleRow, titleColumn;
+		int minRow = -1;
+		int minColumn = -1;
 		while (j.hasNext()) {
+			titleRow = false;
+			titleColumn = false;
 			node = (WellImageSet) j.next();
 			row = node.getRow();
 			column = node.getColumn();
@@ -290,7 +282,7 @@ class WellsModel
 			if (cMap.containsKey(column)) {
 				co = cMap.get(column);
 				color = createColor(data);
-				if (!isSameColor(co.getColor(), color) ||
+				if (!UIUtilities.isSameColors(co.getColor(), color, true) ||
 						!isSameDescription(co.getDescription(), type)) {
 					co.setColor(null);
 					co.setDescription(null);
@@ -303,7 +295,7 @@ class WellsModel
 			if (rMap.containsKey(row)) {
 				co = rMap.get(row);
 				color = createColor(data);
-				if (!isSameColor(co.getColor(), color) ||
+				if (!UIUtilities.isSameColors(co.getColor(), color, true) ||
 						!isSameDescription(co.getDescription(), type)) {
 					co.setColor(null);
 					co.setDescription(null);
@@ -314,6 +306,17 @@ class WellsModel
 			}
 			if (row > rows) rows = row;
 			if (column > columns) columns = column;
+			
+			if (minRow < 0 || minRow == row) {
+				minRow = row;
+				titleRow = true;
+			}
+			
+			if (minColumn < 0 || minColumn == column) {
+				minColumn = column;
+				titleColumn = true;
+			}
+			
 			columnSequence = "";
 			if (columnSequenceIndex == PlateData.ASCENDING_LETTER)
 				columnSequence = UIUtilities.LETTERS.get(column+1);
@@ -329,18 +332,18 @@ class WellsModel
 			if (fieldsNumber < f) fieldsNumber = f;
 			node.setSelectedWellSample(selectedField);
 			selected = node.getSelectedWellSample();
+			if (titleColumn || titleRow)
+				node.formatWellSampleTitle();
 			samples.add(selected);
 			b = false;
 			if (((DataObject) selected.getHierarchyObject()).getId() >= 0) {
 				wellDimension = selected.getThumbnail().getOriginalSize();
 				b = true;
-			} 
+			}
 			validWells.add(new WellGridElement(row, column, b));
 		}
-		
 		columns++;
 		rows++;
-		boolean isMac = UIUtilities.isMacOS();
 		CellDisplay cell;
 		for (int k = 1; k <= columns; k++) {
 			columnSequence = "";
@@ -355,8 +358,8 @@ class WellsModel
 				cell.setDescription(co.getDescription());
 			}
 			//if (!isMac)
-			samples.add(cell);
-			cells.add(cell);
+			//samples.add(cell);
+			//cells.add(cell);
 		}
 		for (int k = 1; k <= rows; k++) {
 			rowSequence = "";
@@ -372,8 +375,8 @@ class WellsModel
 				cell.setDescription(co.getDescription());
 			}
 			//if (!isMac)
-			samples.add(cell);
-			cells.add(cell);
+			//samples.add(cell);
+			//cells.add(cell);
 		}
 		browser = BrowserFactory.createBrowser(samples);
 		layoutBrowser(LayoutFactory.PLATE_LAYOUT);

@@ -65,20 +65,18 @@ public class MovieActivityParam
      * Creates a new instance.
      * 
      * @param param  	The parameters used to create the movie.
-     * @param channels	The selected channels.
      * @param image		The image.
      */
-	public MovieActivityParam(MovieExportParam param, List<Integer> channels, 
-			ImageData image)
+	public MovieActivityParam(MovieExportParam param, ImageData image)
 	{
 		if (image == null)
 			throw new IllegalArgumentException("Image not valid.");
 		if (param == null)
 			throw new IllegalArgumentException("Parameters cannot be null.");
 		this.param = param;
-		if (channels == null) 
+		channels = param.getChannels();
+		if (channels == null)
 			channels = new ArrayList<Integer>();
-		this.channels = channels;
 		this.image = image;
 	}
 	

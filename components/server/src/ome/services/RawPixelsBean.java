@@ -337,6 +337,23 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
+    public byte[] getHypercube(List<Integer> offset, List<Integer> size, List<Integer> step) {
+        errorIfNotLoaded();
+
+        int cubeSize = buffer.getHypercubeSize(offset, size, step);
+        if (readBuffer == null || readBuffer.length != cubeSize) {
+            readBuffer = new byte[cubeSize];
+        }
+        try {
+            readBuffer = buffer.getHypercubeDirect(offset, size, step,
+                    readBuffer);
+        } catch (Exception e) {
+            handleException(e);
+        }
+        return readBuffer;
+    }
+
+    @RolesAllowed("user")
     public byte[] getPlaneRegion(int z, int c, int t, int count, int offset) {
         errorIfNotLoaded();
 
@@ -695,6 +712,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public int[] getTileSize()
     {
+        errorIfNotLoaded();
         Dimension tileSize = buffer.getTileSize();
         return new int[] { (int) tileSize.getWidth(),
                            (int) tileSize.getHeight() };
@@ -706,6 +724,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public boolean requiresPixelsPyramid()
     {
+        errorIfNotLoaded();
         return dataService.requiresPixelsPyramid(pixelsInstance);
     }
 
@@ -715,6 +734,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public int getResolutionLevel()
     {
+        errorIfNotLoaded();
         return buffer.getResolutionLevel();
     }
 
@@ -724,6 +744,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public void setResolutionLevel(int resolutionLevel)
     {
+        errorIfNotLoaded();
         buffer.setResolutionLevel(resolutionLevel);
     }
 

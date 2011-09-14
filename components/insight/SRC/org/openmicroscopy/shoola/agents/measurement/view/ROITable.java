@@ -38,6 +38,7 @@ import java.util.Vector;
 import java.util.Map.Entry;
 
 import javax.swing.JPopupMenu;
+import javax.swing.ToolTipManager;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
 
@@ -55,6 +56,8 @@ import org.openmicroscopy.shoola.agents.measurement.util.ui.ShapeRenderer;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
@@ -97,6 +100,9 @@ public class ROITable
 	/** Reference to the object manager. */
 	private ObjectManager   manager;
 
+	/** Flag indicating to reset the component when loading locally.*/
+	private boolean reset;
+	
 	/**
 	 * Returns <code>true</code> if all the roishapes in the shapelist 
 	 * have the same id, <code>false</code> otherwise.
@@ -179,15 +185,16 @@ public class ROITable
 		this.manager = manager;
 		this.root = (ROINode) model.getRoot();
 		this.columnNames = columnNames;
+		ToolTipManager.sharedInstance().registerComponent(this);
 		this.setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
 		ROIMap = new HashMap<ROI, ROINode>();
 		for (int i = 0 ; i < model.getColumnCount() ; i++)
-		{
 			getColumn(i).setResizable(true);
-		}
+		
 		setDefaultRenderer(ShapeType.class, new ShapeRenderer());
 		setTreeCellRenderer(new ROITableCellRenderer());
 		popupMenu = new ROIPopupMenu(this);
+		reset = false;
 	}
 	
 	/** 
@@ -654,7 +661,8 @@ public class ROITable
 			nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
 			if (nodeObject instanceof ROI)
 			{
-				roi = (ROI)nodeObject;
+				roi = (ROI) nodeObject;
+				if (roi.isClientSide()) reset = true;
 				roiMap.put(roi.getID(), roi);
 				shapeIterator = roi.getShapes().values().iterator();
 				while (shapeIterator.hasNext())
@@ -668,6 +676,8 @@ public class ROITable
 			if (nodeObject instanceof ROIShape)
 			{
 				roiShape = (ROIShape) nodeObject;
+				roi = roiShape.getROI();
+				if (roi.getShapes().size() == 1) reset = true;
 				if (!roiMap.containsKey(roiShape.getID()))
 					selectedList.add(roiShape);
 			}
@@ -683,7 +693,6 @@ public class ROITable
 					if (figure instanceof ROIFigure) {
 						selectedList.add(((ROIFigure) figure).getROIShape());
 					}
-					
 				}
 			}
 		}
@@ -768,6 +777,8 @@ public class ROITable
 	{
 		List<ROIShape> selectionList = getSelectedROIShapes();
 		manager.deleteROIShapes(selectionList);
+		if (reset) manager.reset();
+		reset = false;
 	}
 	
 	/** 
@@ -814,6 +825,28 @@ public class ROITable
 			showROIManagementMenu(this, e.getX(), e.getY());
 		}
 	}
-	
+
+	/**
+	 * Overridden to display the tool tip.
+	 * @see JXTreeTable#getToolTipText(MouseEvent)
+	 */
+	public String getToolTipText(MouseEvent e)
+	{
+		TreePath path = getPathForLocation(e.getX(), e.getY());
+		if (path == null) return "";
+		int row = getRowForPath(path);
+		if (row < 0) return "";
+		ROINode node = (ROINode) getNodeAtRow(row);
+		if (node == null) return "";
+		Object object = node.getUserObject();
+		if (object instanceof ROI) {
+			ROI roi = (ROI) object;
+			return AnnotationKeys.TEXT.get(roi);
+		} else if (object instanceof ROIShape) {
+			ROIShape s = (ROIShape) object;
+			return ""+s.getFigure().getAttribute(MeasurementAttributes.TEXT);
+		}
+		return "";
+	}
 }
 

@@ -3,15 +3,16 @@ var multi_key = function() {
     else return "ctrl";
 };
 
-var loadOtherPanels = function(data, prefix) {
-    if(data.rslt.obj.length > 0) {
+var loadOtherPanels = function(inst, prefix) {
+    var selected = inst.get_selected();
+    if(selected.length > 0) {
         var cm_var = new Object();
-	    cm_var['content_details'] = {'url': null, 'rel': null, 'empty':false };
-	    cm_var['metadata_details']= {'iframe': null, 'html': null};
+        cm_var['content_details'] = {'url': null, 'rel': null, 'empty':false };
+        cm_var['metadata_details']= {'iframe': null, 'html': null};
 
-	    var oid = data.rslt.obj.attr('id');
-	    var orel = data.rslt.obj.attr('rel').replace("-locked", "");
-	    var crel = $("div#content_details").attr('rel');
+        var oid = selected.attr('id');
+        var orel = selected.attr('rel').replace("-locked", "");
+        var crel = $("div#content_details").attr('rel');
         if (typeof oid!=="undefined" && oid!==false) {
             if (oid.indexOf("orphaned")>=0) {
                 if(oid!==crel) {
@@ -20,24 +21,36 @@ var loadOtherPanels = function(data, prefix) {
                     cm_var['content_details']['url'] = prefix+orel+'/?view=icon';
                 } else {
                     cm_var['metadata_details']['html'] = '<p>This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container.</p>';
+                    cm_var['content_details']['empty'] = true;
                 }
             } else if(oid.indexOf("experimenter")<0) {
+                //METADATA panel
                 if(orel=="image") {
-                    var pr = data.rslt.obj.parent().parent();
+                    var pr = selected.parent().parent();
                     if (pr.length>0 && pr.attr('rel').replace("-locked", "")==="share") {
                         cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/'+pr.attr("id").split("-")[1]+'/';
                     } else {
                         cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
                     }                    
                 } else {
-                    cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/';    
+                    cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
                 }
                 
+                // CONTENT panel
                 if ($.inArray(orel, ["project", "screen"]) > -1) {
-                    cm_var['content_details']['url'] = null;
-                    cm_var['content_details']['rel'] = null;
                     cm_var['content_details']['empty'] = true;
-                } else if($.inArray(orel, ["dataset", "plate", "tag"]) > -1 && oid!==crel) {
+                } else if($.inArray(orel, ["plate"]) > -1) {
+                    if (inst.is_leaf(selected)) {
+                        cm_var['content_details']['rel'] = oid;
+                        cm_var['content_details']['url'] = prefix+orel+'/'+oid.split("-")[1]+'/';
+                    } else {
+                        cm_var['content_details']['empty'] = true;
+                    }
+                } else if($.inArray(orel, ["acquisition"]) > -1 && oid!==crel) {
+                    var plate = inst._get_parent(selected).attr('id').replace("-", "/");
+                    cm_var['content_details']['rel'] = oid;
+                    cm_var['content_details']['url'] = prefix+plate+'/'+orel+'/'+oid.split("-")[1]+'/';
+                } else if($.inArray(orel, ["dataset", "tag"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
                     cm_var['content_details']['url'] = prefix+orel+'/'+oid.split("-")[1]+'/?view=icon';
                     
@@ -48,9 +61,8 @@ var loadOtherPanels = function(data, prefix) {
                 } else if($.inArray(orel, ["tag"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
                     cm_var['content_details']['url'] = "/webclient/load_tags/?view=icon&o_type=tag&o_id="+oid.split("-")[1];
-
                 } else if(orel=="image") {
-                    var pr = data.rslt.obj.parent().parent();
+                    var pr = selected.parent().parent();
                     if (pr.length>0 && pr.attr('id')!==crel) {
                         if(pr.attr('rel').replace("-locked", "")==="share" && pr.attr('id')!==crel) {
                             cm_var['content_details']['rel'] = pr.attr('id');
@@ -68,7 +80,8 @@ var loadOtherPanels = function(data, prefix) {
                     }
                 } 
             } else {
-                cm_var['metadata_details']['html'] = '<p>'+data.rslt.obj.children().eq(1).text()+'</p>';                        
+                cm_var['metadata_details']['html'] = '<p>'+selected.children().eq(1).text()+'</p>';
+                cm_var['content_details']['empty'] = true;
             }
         }
 
@@ -85,7 +98,7 @@ var loadOtherPanels = function(data, prefix) {
             $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
             $("div#content_details").attr('rel', cm_var.content_details.rel);
             $("div#content_details").load(cm_var.content_details.url, function() {
-                syncPanels(data.inst.get_selected());
+                syncPanels(selected);
             });
         } else if (cm_var.content_details.empty){
             $("div#content_details").empty();
@@ -101,9 +114,9 @@ var loadOtherPanels = function(data, prefix) {
 var syncPanels = function(get_selected) {
     var toSelect = new Array();
     get_selected.each(function(i) {
-        toSelect[i]=this.id.split("-")[1];
+        var _this = $(this)
+        if ($.inArray(_this.attr("rel").replace("-locked", ""), ["image"]) >= 0) toSelect[i]=_this.attr("id").split("-")[1];
     });
-    
     $(".ui-selectee", $("ul.ui-selectable")).each(function(){
         var selectee = $(this);
         if ($.inArray(selectee.attr('id'), toSelect) != -1) {
@@ -148,20 +161,20 @@ var addToBasket = function(selected) {
     });
 };
 
-var multipleAnnotation = function(selected){
-    if (selected==null) {
-        alert('No object selected')
-        return
-    }    
-    if (selected.length < 1) {
+var multipleAnnotation = function(selected, index){
+    if (selected != null && selected.length > 0) {
+        var productListQuery = new Array(); 
+        selected.each( function(i){
+            productListQuery[i] = $(this).attr('id').replace("-","=");
+        });
+        var query = "/webclient/metadata_details/multiaction/annotatemany/?"+productListQuery.join("&")
+        if (index != null && index > -1) {
+            query += "&index="+index;
+        }
+        loadMetadataPanel(query);
+    } else {
         alert ("Please select at least one element."); 
     }
-    var productListQuery = new Array(); 
-    selected.each( function(i){
-        productListQuery[i] = $(this).attr('id').replace("-","=");
-    });
-    var query = "/webclient/metadata_details/multiaction/annotatemany/?"+productListQuery.join("&")
-    loadMetadataPanel(query);
 };
 
 var loadMetadataPanel = function(src, html) {
@@ -198,38 +211,51 @@ var loadMetadataPanel = function(src, html) {
 
 var refreshCenterPanel = function() {
     var rel = $("div#content_details").attr("rel");
+    var page = parseInt($("div#content_details").find("#page").attr("rel"));
+    
     if (typeof rel!=="undefined") {
         if (rel.indexOf("orphaned")>=0) {
             $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
-            $("div#content_details").attr('rel', rel);
-            $("div#content_details").load('/webclient/load_data/'+rel.split('-')[0]+'/?view=icon');
+            url = '/webclient/load_data/'+rel.split('-')[0]+'/';
         } else if (rel.indexOf("share")>=0) {
-                $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
-                $("div#content_details").attr('rel', rel);
-                $("div#content_details").load('/webclient/load_public/'+rel.split('-')[1]+'/?view=icon');
+            $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
+            url = '/webclient/load_public/'+rel.split('-')[1]+'/';
         } else if(rel.indexOf('tag')>=0) {
             $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
-            $("div#content_details").load('/webclient/load_tags/tag/'+rel.split('-')[1]+'/?view=icon');
+            url = '/webclient/load_tags/tag/'+rel.split('-')[1]+'/';
         } else {
             $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
-            $("div#content_details").attr('rel', rel);
-            $("div#content_details").load('/webclient/load_data/'+rel.replace('-', '/')+'/?view=icon');
+            url = '/webclient/load_data/'+rel.replace('-', '/')+'/';
+        }
+        
+        var view = $("div#content_details").find("#toolbar").attr('rel') ? $("div#content_details").find("#toolbar").attr('rel') : "icon";
+        
+        $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
+        url = url+'?view='+view
+        if (page!=null && page > 0) {
+            url = url+"&page="+page;
         }        
+        $("div#content_details").load(url);
+        if(rel.indexOf('tag')<0) $("div#content_details").attr('rel', rel);
     }
 };
 
-function changeView(view) { 
+function changeView(view, page) { 
     var rel = $("div#content_details").attr('rel').split("-");
     if(rel.indexOf('orphaned')>=0) {
-        $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
-        $("div#content_details").load('/webclient/load_data/orphaned/?view='+view);
+        url = '/webclient/load_data/orphaned/?view='+view;
     } else if(rel.indexOf('tag')>=0) {
         $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
-        $("div#content_details").load('/webclient/load_tags/tag/'+rel[1]+'/?view='+view);
+        url = '/webclient/load_tags/tag/'+rel[1]+'/?view='+view;
     } else {
         $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
-        $("div#content_details").load('/webclient/load_data/dataset/'+rel[1]+'/?view='+view);
+        url = '/webclient/load_data/dataset/'+rel[1]+'/?view='+view;
     }
+    if (page!=null && page > 0) {
+        url = url+"&page="+page;
+    }
+    $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
+    $("div#content_details").load(url);
     return false;
 };
 
@@ -258,10 +284,12 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
 function doPagination(view, page) {
     var rel = $("div#content_details").attr('rel').split("-");
     $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
-    $("div#content_details").load('/webclient/load_data/dataset/'+rel[1]+'/?view='+view+'&page='+page, function() {
-        $("#dataTree").jstree("refresh", $('#dataset-'+rel[1]));
-        src = '/webclient/metadata_details/dataset/'+rel[1]+'/';
-        loadMetadata(src);
+    $("div#content_details").load('/webclient/load_data/'+rel[0]+'/'+rel[1]+'/?view='+view+'&page='+page, function() {
+        $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
+        if(rel[0].indexOf("orphaned")<0) {
+            src = '/webclient/metadata_details/'+rel[0]+'/'+rel[1]+'/';
+            loadMetadata(src);
+        }
     });
     return false;
 }

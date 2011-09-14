@@ -191,6 +191,12 @@ class MultiAnnotationForm(NonASCIIForm):
             self.fields['plate'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['plates'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         
         try:
+            self.fields['acquisition'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['acquisitions'], initial=kwargs['initial']['selected']['acquisitions'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        except:
+            logger.error(traceback.format_exc())
+            self.fields['acquisition'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['acquisitions'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
+        try:
             self.fields['well'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['wells'], initial=kwargs['initial']['selected']['wells'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         except:
             logger.error(traceback.format_exc())
@@ -199,7 +205,7 @@ class MultiAnnotationForm(NonASCIIForm):
         self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}), required=False)
         self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}), required=False)
         
-        self.fields.keyOrder = ['content', 'tag', 'description', 'annotation_file', 'tags', 'files', 'image', 'project', 'dataset', 'screen', 'plate', 'well']
+        self.fields.keyOrder = ['content', 'tag', 'description', 'annotation_file', 'tags', 'files', 'image', 'project', 'dataset', 'screen', 'plate', 'acquisition', 'well']
         
     content = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}), required=False)
     tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)
@@ -258,9 +264,9 @@ class WellIndexForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         super(WellIndexForm, self).__init__(*args, **kwargs)
-        choices = [(str(i), "Field#%i" % (i+1)) for i in range(0, kwargs['initial']['range'])]
-        self.fields['index'] = forms.ChoiceField(choices=tuple(choices),  widget=forms.Select(attrs={'onchange':'changeIndex(this.options[this.selectedIndex].value);'}))
-        
+        rmin, rmax = kwargs['initial']['range']
+        choices = [(str(i), "Field#%i" % (i-rmin+1)) for i in range(rmin, rmax+1)]
+        self.fields['index'] = forms.ChoiceField(choices=tuple(choices),  widget=forms.Select(attrs={'onchange':'changeFiled(this.options[this.selectedIndex].value);'}))
         self.fields.keyOrder = ['index']
 
 ###############################

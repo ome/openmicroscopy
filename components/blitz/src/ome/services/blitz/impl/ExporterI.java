@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -20,14 +21,17 @@ import javax.xml.transform.TransformerException;
 import loci.common.services.DependencyException;
 import loci.common.services.ServiceException;
 import loci.formats.FormatTools;
+import loci.formats.IFormatWriter;
 import loci.formats.ImageWriter;
 import loci.formats.MetadataTools;
 import loci.formats.meta.IMetadata;
 import loci.formats.meta.MetadataRetrieve;
+import loci.formats.out.TiffWriter;
 import loci.formats.services.OMEXMLService;
 import ome.api.RawPixelsStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.io.nio.PixelsService;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
@@ -85,6 +89,18 @@ public class ExporterI extends AbstractAmdServant implements
     private final static int MAX_SIZE = 1024 * 1024;
 
     /**
+     * The size above which a big tiff should be written as opposed to
+     * a normal tiff. This value is checked against the data size PLUS
+     * various metadata sizes.
+     *
+     * @see #getMetadataBytes(OmeroReader)
+     * @see #getDataBytes(OmeroReader)
+     * @see ticket:6520
+     */
+    private final static long BIG_TIFF_SIZE = 2L * Integer.MAX_VALUE;
+
+
+    /**
      * Utility enum for asserting the state of Exporter instances.
      */
     private enum State {
@@ -121,12 +137,22 @@ public class ExporterI extends AbstractAmdServant implements
     private final DatabaseIdentity databaseIdentity;
 
     /** LOCI OME-XML service for working with OME-XML. */
-    private OMEXMLService service;
+    private final OMEXMLService service;
 
-    public ExporterI(BlitzExecutor be, DatabaseIdentity databaseIdentity)
+    /** Access to information about big images to prevent exporting large
+     * files since there is currently no generally readable tiff support
+     * for our tiles.
+     *
+     * @see ticket:6713
+     */
+    private final PixelsService pixelsService;
+
+    public ExporterI(BlitzExecutor be, DatabaseIdentity databaseIdentity,
+            PixelsService pixelsService)
         throws DependencyException {
         super(null, be);
         this.databaseIdentity = databaseIdentity;
+        this.pixelsService = pixelsService;
         retrieve = new OmeroMetadata(databaseIdentity);
         loci.common.services.ServiceFactory sf =
             new loci.common.services.ServiceFactory();
@@ -330,11 +356,20 @@ public class ExporterI extends AbstractAmdServant implements
 
                             RawPixelsStore raw = null;
                             OmeroReader reader = null;
-                            ImageWriter writer = null;
+                            TiffWriter writer = null;
                             try {
 
                                 Image image = retrieve.getImage(0);
                                 Pixels pix = image.getPixels(0);
+                                if (requiresPyramid(sf, pix.getId().getValue())) {
+                                    long id = image.getId().getValue();
+                                    int x = pix.getSizeX().getValue();
+                                    int y = pix.getSizeY().getValue();
+                                    throw new omero.ApiUsageException(
+                                            null, null, String.format(
+                                            "Image:%s is too large for export (sizeX=%s, sizeY=%s)",
+                                            id, x, y));
+                                }
 
                                 file = TempFileManager.create_path("__omero_export__",
                                         ".ome.tiff");
@@ -345,12 +380,26 @@ public class ExporterI extends AbstractAmdServant implements
                                 reader = new OmeroReader(raw, pix);
                                 reader.setId("OMERO");
 
-                                writer = new ImageWriter();
+                                writer = new TiffWriter();
                                 writer.setMetadataRetrieve(retrieve);
+                                writer.setWriteSequentially(true); // ticket:6701
+                                long mSize = getMetadataBytes(reader);
+                                long dSize = getDataBytes(reader);
+                                final boolean bigtiff =
+                                    ( ( mSize + dSize ) > BIG_TIFF_SIZE );
+                                if (bigtiff) {
+                                    writer.setBigTiff(true);
+                                }
                                 writer.setId(file.getAbsolutePath());
 
                                 int planeCount = reader.planes;
                                 int planeSize = raw.getPlaneSize();
+                                log.info(String.format(
+                                            "Using big TIFF? %s mSize=%d " +
+                                            "dSize=%d planeCount=%d " +
+                                            "planeSize=%d",
+                                            bigtiff, mSize, dSize,
+                                            planeCount, planeSize));
                                 byte[] plane = new byte[planeSize];
                                 for (int i = 0; i < planeCount; i++) {
                                     int[] zct = FormatTools.getZCTCoords(
@@ -385,7 +434,7 @@ public class ExporterI extends AbstractAmdServant implements
                         }
 
                         private void cleanup(RawPixelsStore raw,
-                                OmeroReader reader, ImageWriter writer) {
+                                OmeroReader reader, IFormatWriter writer) {
                             try {
                                 if (raw != null) {
                                     raw.close();
@@ -491,6 +540,35 @@ public class ExporterI extends AbstractAmdServant implements
             file.delete();
             file = null;
         }
+    }
+
+    // Misc. helpers.
+    // =========================================================================
+
+    private long getMetadataBytes(OmeroReader reader)
+            throws DependencyException, ServiceException {
+
+        String xml = service.getOMEXML(retrieve);
+
+        long xmlbytes;
+        try {
+            xmlbytes = xml.getBytes("UTF8").length;
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Failed to convert to UTF-8", e);
+        }
+        long planebytes = reader.planes * 512;
+        return planebytes + xmlbytes;
+    }
+
+    private long getDataBytes(OmeroReader reader) {
+        return (long) reader.planes * reader.sizeX * reader.sizeY *
+            FormatTools.getBytesPerPixel(reader.getPixelType());
+    }
+
+    private boolean requiresPyramid(ServiceFactory sf, long id) {
+        ome.model.core.Pixels _p =
+            sf.getQueryService().get(ome.model.core.Pixels.class, id);
+        return pixelsService.requiresPixelsPyramid(_p);
     }
 
 

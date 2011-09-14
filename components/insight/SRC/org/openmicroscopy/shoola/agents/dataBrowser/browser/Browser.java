@@ -432,4 +432,11 @@ public interface Browser
 	public void setSelectedDisplay(ImageDisplay node, boolean multiSelection, 
 			boolean fireProperty);
 	
+	/**
+	 * Scrolls to the specified node.
+	 * 
+	 * @param node The node to scroll to.
+	 */
+	public void scrollToNode(ImageDisplay node);
+	
 }

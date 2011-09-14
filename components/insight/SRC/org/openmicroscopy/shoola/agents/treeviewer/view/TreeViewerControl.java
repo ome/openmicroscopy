@@ -59,6 +59,7 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -1045,33 +1046,35 @@ class TreeViewerControl
 			Class klass = null;
 			Object p = null;
 			if (param.getIndex() == FigureParam.THUMBNAILS) {
-				TreeImageDisplay[] nodes = 
-					model.getSelectedBrowser().getSelectedDisplays();
-				if (nodes != null && nodes.length > 0) {
-					TreeImageDisplay node = nodes[0];
-					Object ho = node.getUserObject();
-					TreeImageDisplay pNode;
+				Browser browser = model.getSelectedBrowser();
+				if (browser != null) {
+					TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+					if (nodes != null && nodes.length > 0) {
+						TreeImageDisplay node = nodes[0];
+						Object ho = node.getUserObject();
+						TreeImageDisplay pNode;
 
-					if (ho instanceof DatasetData) {
-						/*
-						klass = ho.getClass();
-						pNode = node.getParentDisplay();
-						if (pNode != null) {
-							p = pNode.getUserObject();
-							if (!(p instanceof ProjectData)) p = null;
+						if (ho instanceof DatasetData) {
+							/*
+							klass = ho.getClass();
+							pNode = node.getParentDisplay();
+							if (pNode != null) {
+								p = pNode.getUserObject();
+								if (!(p instanceof ProjectData)) p = null;
+							}
+							*/
+							p = ho;
+						} else if (ho instanceof ImageData) {
+							klass = ho.getClass();
+							pNode = node.getParentDisplay();
+							if (pNode != null) {
+								p = pNode.getUserObject();
+								if (!(p instanceof DatasetData)) p = null;
+							}
+							if (p == null) p = ho;
 						}
-						*/
-						p = ho;
-					} else if (ho instanceof ImageData) {
-						klass = ho.getClass();
-						pNode = node.getParentDisplay();
-						if (pNode != null) {
-							p = pNode.getUserObject();
-							if (!(p instanceof DatasetData)) p = null;
-						}
-						if (p == null) p = ho;
+						if (p != null) param.setAnchor((DataObject) p);
 					}
-					if (p != null) param.setAnchor((DataObject) p);
 				}
 			}
 			

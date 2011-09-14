@@ -77,6 +77,9 @@ public class CompressionAction
 			case ImViewer.PROJECTING:
 			case ImViewer.PROJECTION_PREVIEW:
 				setEnabled(false);
+				break;
+			default:
+				setEnabled(true);
 		}
     }
 	

@@ -33,7 +33,7 @@
     <li id='project-{{ c.id }}' rel="project{% if not c.isOwned %}-locked{% endif %}"><a href="#">{{ c.name|truncatebefor:"35" }}</a>
         <ul>
             {% if c.countChildren %}
-            {% for d in c.listChildrenWithLinks %}
+            {% for d in c.listChildren %}
                 <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" {% if d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
             {% endfor %}
             {% endif %}
@@ -49,7 +49,7 @@
     <li id='screen-{{ c.id }}' rel="screen{% if not c.isOwned %}-locked{% endif %}"><a href="#">{{ c.name|truncatebefor:"35" }}</a>
         <ul>
             {% if c.countChildren %}
-            {% for d in c.listChildrenWithLinks %}
+            {% for d in c.listChildren %}
                 <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}"><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
             {% endfor %}
             {% endif %}

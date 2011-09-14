@@ -28,25 +28,33 @@ class UserTest (lib.GTest):
                 print "loginAsAdmin"
             else:
                 print "loginAsAuthor"
-            self.doLogin(u)
             # Test image should be owned by author
+            self.loginAsAuthor()
             image = self.getTestImage()
+
+            # Now login as author or admin
+            self.doLogin(u)
             self.assertEqual(image.getOwnerOmeName(), self.AUTHOR.name)
             # Create some object
             param = omero.sys.Parameters()
             param.map = {'ns': omero.rtypes.rstring('weblitz.UserTest.testSaveAs')}
-            ann = self.gateway.getQueryService().findAllByQuery('from CommentAnnotation as a where a.ns=:ns', param)
-            self.assertEqual(len(ann), 0)
+            anns = self.gateway.getQueryService().findAllByQuery('from CommentAnnotation as a where a.ns=:ns', param)
+            self.assertEqual(len(anns), 0)
             ann = omero.gateway.CommentAnnotationWrapper(conn=self.gateway)
             ann.setNs(param.map['ns'].val)
             ann.setValue('foo')
             ann.saveAs(image.getDetails())
+
+            # Annotations are owned by author
+            self.loginAsAuthor()
             try:
-                ann2 = self.gateway.getQueryService().findAllByQuery('from CommentAnnotation as a where a.ns=:ns', param)
-                self.assertEqual(len(ann2), 1)
-                self.assertEqual(omero.gateway.CommentAnnotationWrapper(self.gateway, ann2[0]).getOwnerOmeName(), self.AUTHOR.name)
+                anns = self.gateway.getQueryService().findAllByQuery('from CommentAnnotation as a where a.ns=:ns', param)
+                self.assertEqual(len(anns), 1)
+                self.assertEqual(omero.gateway.CommentAnnotationWrapper(self.gateway, anns[0]).getOwnerOmeName(), self.AUTHOR.name)
             finally:
                 self.gateway.getUpdateService().deleteObject(ann._obj)
+                anns = self.gateway.getQueryService().findAllByQuery('from CommentAnnotation as a where a.ns=:ns', param)
+                self.assertEqual(len(anns), 0)
 
 if __name__ == '__main__':
     unittest.main()

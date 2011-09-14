@@ -37,6 +37,7 @@ import javax.swing.JComponent;
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
@@ -405,5 +406,20 @@ public interface Browser
 
 	/** Invokes when the viewer is resized.*/
 	void onComponentResized();
+	
+	/**
+	 * Sets the selected region.
+	 * 
+	 * @param region The selected region.
+	 */
+	void setSelectedRegion(Rectangle region);
+	
+	/** 
+	 * Reacts to {@link ImViewer} change events.
+	 * 
+	 * @param b Pass <code>true</code> to enable the UI components, 
+	 *          <code>false</code> otherwise.
+	 */
+	void onStateChange(boolean b);
 	
 }

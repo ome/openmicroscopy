@@ -31,9 +31,7 @@ class WebClientTestBase (SeleniumTestBase):
     def login (self, u, p):
         sel = self.selenium
         if self.selenium.is_element_present('link=Log out'):
-            print "logging out..."
             self.logout()
-        print "logging in..."
         sel.open("/webclient/login")
         sel.type("id_username", u)
         sel.type("id_password", p)
@@ -98,7 +96,7 @@ class WebClientTests (WebClientTestBase):
         Displays the metadata page for an image.
         """
         
-        print "testMetadata"
+        #print "testMetadata"
         
         sel = self.selenium
         sel.open("/webclient/metadata_details/image/4183")
@@ -119,7 +117,6 @@ class WebClientTests (WebClientTestBase):
         self.assertEqual("457", sel.get_value("//div[@id='metadata_tab']/div[4]/table/tbody/tr[3]/td[2]/input"))   # Excitation
         
         # using id='id_name' gets us the FIRST element with that id (currently 1 per channel)
-        print sel.get_value("//input[@id='id_name']")
         self.assertEqual("DAPI", sel.get_value("//input[@id='id_name']"))
         
 

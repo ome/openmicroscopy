@@ -545,7 +545,6 @@ class MeasurementViewerControl
                 window.dispose();
                 view.setVisible(false);
                 view.dispose();
-                break;
 		}
 	}
 

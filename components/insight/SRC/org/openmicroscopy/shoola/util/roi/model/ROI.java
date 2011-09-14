@@ -122,6 +122,20 @@ public class ROI
 	}
 	
 	/**
+	 * Constructs the ROI with id on coordinate and initial ROIShape shape.
+	 * 
+	 * @param id The ID of the ROI.
+	 * @param coord The coordinate of the ROIShape being constructed with the 
+	 * ROI. 
+	 * @param shape The ROIShape being constructed with the ROI. 
+	 */
+	public ROI(long id, boolean clientSide, Coord3D coord, ROIShape shape)
+	{
+		this(id, clientSide);
+		roiShapes.put(coord, shape);
+	}
+	
+	/**
 	 * Add an attachment to the ROI. 
 	 * @param key the key of the attachment.
 	 * @param attachment the value of the attachment. 
@@ -150,19 +164,7 @@ public class ROI
 		return attachments;
 	}
 	
-	/**
-	 * Constructs the ROI with id on coordinate and initial ROIShape shape.
-	 * 
-	 * @param id The ID of the ROI.
-	 * @param coord The coordinate of the ROIShape being constructed with the 
-	 * ROI. 
-	 * @param shape The ROIShape being constructed with the ROI. 
-	 */
-	public ROI(long id, boolean clientSide, Coord3D coord, ROIShape shape)
-	{
-		init(id, clientSide);
-		roiShapes.put(coord, shape);
-	}
+
 	
 	/**
 	 * Gets the ROI id.
@@ -191,7 +193,7 @@ public class ROI
 	}
 	
 	/** 
-	 * Gets the range of the timepoints this ROI spans. 
+	 * Gets the range of the z-sections this ROI spans. 
 	 * 
 	 * @return string. see above.
 	 */

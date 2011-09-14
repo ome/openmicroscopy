@@ -88,6 +88,7 @@ class ImageCanvasListener
      */
     private void pan(Point p, boolean load)
     {
+    	if (p == null) return;
 		view.pan(p.x-pressedPoint.x, p.y-pressedPoint.y, load);
     }
     
@@ -112,6 +113,7 @@ class ImageCanvasListener
 		canvas.addMouseWheelListener(this);
 		installMouseListeners();
 		handleKeyDown = false;
+		pressedPoint = new Point(0, 0);
     }
     
     /**

@@ -87,8 +87,9 @@ class BrowserUI
 	static final String     		LOADING_MSG = "Loading...";
 
 	/** The text of the default node when the object has not parents */
-	static final String     		NO_PARENTS_MSG = "Wild and Free. " +
-			"As data, and maybe all creatures should be.";
+	//static final String     		NO_PARENTS_MSG = "Wild and Free. " +
+	//		"As data, and maybe all creatures should be.";
+	static final String     		NO_PARENTS_MSG = "Not in a container.";
 	
 	/** Action Id indicating to browse the item. */
 	private static final int		VIEW = 0;

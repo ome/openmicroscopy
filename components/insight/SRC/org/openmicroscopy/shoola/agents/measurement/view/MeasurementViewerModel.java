@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -53,6 +54,7 @@ import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.measurement.Analyser;
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.ROILoader;
@@ -66,9 +68,12 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
@@ -82,6 +87,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import pojos.ChannelData;
@@ -201,6 +207,9 @@ class MeasurementViewerModel
 	/** Flag indicating that the current user can deleted the ROI. */
 	private boolean					dataToDelete;
 	
+	 /** Flag indicating if it is a big image or not.*/
+    private boolean 				bigImage;
+    
     /** 
 	 * Sorts the passed nodes by row.
 	 * 
@@ -529,6 +538,7 @@ class MeasurementViewerModel
 		int sizeZ = pixels.getSizeZ();
 		int sizeT = pixels.getSizeT();
 		
+		boolean b = true;
 		while (i.hasNext()) {
 			roi = i.next();
 			shapeList = roi.getShapes();
@@ -536,11 +546,27 @@ class MeasurementViewerModel
 			while (shapeIterator.hasNext()) {
 				shape = shapeIterator.next();
 				c = shape.getCoord3D();
-				if (c.getTimePoint() > sizeT) return false;
-				if (c.getZSection() > sizeZ) return false;
+				if (c.getTimePoint() > sizeT) {
+					b = false;
+					break;
+				}
+				if (c.getZSection() > sizeZ) {
+					b = false;
+					break;
+				}
 			}
 		}
+		if (!b) {
+			i = roiList.iterator();
+			while (i.hasNext()) {
+				roi = i.next();
+				roiComponent.deleteROI(roi.getID());
+			}
+			return false;
+		}
+		
 		component.attachListeners(roiList);
+		notifyDataChanged(true);
 		return true;
 	}
 
@@ -775,13 +801,14 @@ class MeasurementViewerModel
 	}
 	
 	/**
-	 * Removes all the <code>ROI</code> in the system..
+	 * Removes all the <code>ROI</code> in the system.
 	 * 
 	 * @throws NoSuchROIException If the ROI does not exist.
 	 */
 	void removeAllROI() 
 		throws NoSuchROIException
 	{
+		state = MeasurementViewer.READY;
 		drawingComponent.removeAllFigures();
 		int size = roiComponent.getROIMap().values().size();
 		ROI[] valueList = new ROI[size];
@@ -817,7 +844,7 @@ class MeasurementViewerModel
 		while (i.hasNext()) {
 			roi = i.next();
 			roiComponent.deleteROI(roi.getID());
-		}	
+		}
 		Iterator<ROIFigure> j = figures.iterator();
 		while (j.hasNext()) {
 			drawingComponent.removeFigure(j.next());
@@ -976,8 +1003,8 @@ class MeasurementViewerModel
 	 */
 	void fireROILoading(String fileName)
 	{
-		state = MeasurementViewer.LOADING_ROI;
 		InputStream stream = null;
+		state = MeasurementViewer.LOADING_ROI;
 		try {
 			if (fileName == null)
 				fileName = FileMap.getSavedFile(getServerName(), getUserName(), 
@@ -1077,10 +1104,12 @@ class MeasurementViewerModel
 			ExperimenterData exp = 
 				(ExperimenterData) MeasurementAgent.getUserDetails();
 			if (roiList.size() == 0) return;
+			roiComponent.reset();
 			if (async) {
 				currentSaver = new ROISaver(component, getImageID(), 
 						exp.getId(), roiList);
 				currentSaver.load();
+				state = MeasurementViewer.SAVING_ROI;
 				notifyDataChanged(false);
 			} else {
 				OmeroImageService svc = 
@@ -1655,9 +1684,44 @@ class MeasurementViewerModel
     void onROIDeleted(long imageID) 
     {
     	if (this.imageID != imageID) return;
-    	roiToDelete.clear();
+    	state = MeasurementViewer.READY;
+    	if (roiToDelete != null) roiToDelete.clear();
     	if (getROIData().size() == 0)
     		notifyDataChanged(false);
     }
     
+	
+	/** 
+	 * Post an event indicating to delete all the rois.
+	 * 
+	 * @param list The list of objects to delete.
+	 */
+	void deleteAllROIs(List<DeletableObject> list)
+	{
+		if (list.size() == 0) return;
+		state = MeasurementViewer.SAVING_ROI;
+		IconManager icons = IconManager.getInstance();
+		DeleteActivityParam p = new DeleteActivityParam(
+				icons.getIcon(IconManager.APPLY_22), list);
+		p.setImageID(imageID);
+		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+		UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+		un.notifyActivity(p);
+	}
+	
+    /**
+     * Sets the flag indicating if the tool is for big image data.
+     * 
+     * @param value The value to set.
+     */
+    public void setBigImage(boolean value) { bigImage = value; }
+    
+    /**
+     * Returns <code>true</code> if big image data, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isBigImage() { return bigImage; }
+
 }	

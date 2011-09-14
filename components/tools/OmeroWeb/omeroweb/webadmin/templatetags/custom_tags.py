@@ -74,37 +74,6 @@ def truncatebefor(value, arg):
         return value
 
 @register.filter
-def warphtml(value, arg):
-    """ Split words longer than arg, adding ' ' so that they wrap when displayed in web """
-    try:
-        length = int(arg)
-    except ValueError: # invalid literal for int()
-        return value # Fail silently.
-    
-    if not isinstance(value, basestring):
-        value = str(value)  
-    try:
-        result = []
-        for w in value.split(" "):
-            l = len(w)
-            if l < length:
-                result.append(w)
-            # only interested in splitting words longer than limit..
-            elif l >= length:
-                for i, s in enumerate(w.split("|")):  # ... try splitting bit more first
-                    if i>0:
-                        s = "|"+s
-                    if len(s) < length:
-                        result.append(s)
-                    else:
-                        for v in range(0,len(value),length):
-                            result.append(s[v:v+length])
-        return " ".join(result)
-    except Exception, x:
-        logger.error(traceback.format_exc())
-        return value
-
-@register.filter
 def shortening(value, arg):
     try:
         length = int(arg)

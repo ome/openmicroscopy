@@ -1030,7 +1030,7 @@ public class AdminServiceTest
 	
     /**
 	 * Tests the addition of existing user by the owner of the group.
-	 * The owner is NOT an administator.
+	 * The owner is NOT an administrator.
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test(enabled = true)
@@ -1086,7 +1086,7 @@ public class AdminServiceTest
 	
     /**
 	 * Tests the removal of a member of the group by the owner of the group.
-	 * The owner is NOT an administator.
+	 * The owner is NOT an administrator.
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test(enabled = true)

@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -609,6 +610,21 @@ public interface MetadataViewer
 							long imageID);
 
 	 /** Notifies to upload the script. */
-    void uploadScript();
-    
+	void uploadScript();
+
+	/** 
+	 * Invokes when the user has switched group.
+	 * 
+	 * @param success Pass <code>true</code> if success, <code>false</code>
+	 * otherwise.
+	 */
+	void onGroupSwitched(boolean success);
+
+	/**
+	 * Returns the parent UI.
+	 * 
+	 * @return See above.
+	 */
+	JFrame getParentUI();
+	
 }

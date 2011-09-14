@@ -794,7 +794,7 @@
       <ul>
         <li class="buttonbar">
         {% block save_rdef %}
-        {% if image.isOwned %}
+        {% if image.isEditable and not blitzcon.getShareId %}
           <button id="rdef-reset-btn" class="editor" onclick="return resetImageDefaults(this)" title="Returns the image settings to their original state at time of import.">reset</button>
           {% if image.isEditable %}<button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save</button>{% endif %}
           
@@ -909,12 +909,13 @@
                 Image Link
             </a><br />
           </div>
+{% block roi_buttons %}
           <div id="roi_controls">
                 ROIs:
                 <a href="#" onclick="show_rois()">Show</a> |
                 <a href="#" onclick="hide_rois()">Hide</a>
           </div>
-          
+{% endblock roi_buttons %}
           {% block current_image_tools %}{% endblock %}
         </div>
             
@@ -1090,9 +1091,7 @@
     //if ($(document).width() < 1024 || $(document).height() < 768) 
     //  window.resizeTo(1024,768);
 {% endblock %}
-
     calcResize();
-
   });
 {% endblock content_script %}
 

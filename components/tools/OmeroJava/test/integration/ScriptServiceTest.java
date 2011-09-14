@@ -78,7 +78,7 @@ public class ScriptServiceTest
      * @throws Exception Thrown if an error occurred.
      * @see #testGetScripts() 
      */
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testGetParams() 
     	throws Exception 
     {
@@ -99,7 +99,7 @@ public class ScriptServiceTest
      * this method uses the <code>uploadOfficialScript</code>.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testUploadOfficialScript()
     	throws Exception
     {
@@ -120,10 +120,34 @@ public class ScriptServiceTest
     }
     
     /**
+     * Tests to upload an official script by a user who is an administrator,
+     * this method uses the <code>uploadOfficialScript</code>.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = true)
+    public void testUploadOfficialScriptAsRoot()
+    	throws Exception
+    {
+    	logRootIntoGroup();
+    	StringBuffer buf = new StringBuffer("");
+    	String[] values = {"a", "b", "c"};
+    	for (int i = 0; i < values.length; i++) {
+			buf.append(values[i].charAt(0));
+		}
+    	String folder = "officialTestFolder";
+    	IScriptPrx svc = factory.getScriptService();
+    	try {
+    		long id = svc.uploadOfficialScript(folder, buf.toString());
+    		assertTrue(id > 0);
+		} catch (Exception e) {
+		}
+    }
+    
+    /**
      * Tests to upload a script, this method uses the <code>uploadScript</code>.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testUploadScript()
     	throws Exception
     {
@@ -134,10 +158,8 @@ public class ScriptServiceTest
 		}
     	String folder = "scriptTestFolder";
     	IScriptPrx svc = factory.getScriptService();
-    	int n = svc.getScripts().size();
     	long id = svc.uploadScript(folder, buf.toString());
     	assertTrue(id > 0);
-    	assertTrue(svc.getScripts().size() == (n+1));
     }
     
 }

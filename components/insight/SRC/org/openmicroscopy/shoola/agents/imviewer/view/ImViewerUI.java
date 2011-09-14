@@ -295,6 +295,9 @@ class ImViewerUI
 	/** The dialog displaying info about the image.*/
 	private TinyDialog							channelDialog;
 	
+	/** The magnification factor for the big image.*/
+	private double								bigImageMagnification;
+	
 	/**
 	 * Finds the first {@link HistoryItem} in <code>x</code>'s containment
 	 * hierarchy.
@@ -1100,6 +1103,7 @@ class ImViewerUI
 		loadingWindow = new LoadingWindow(this);
 		defaultIndex = UnitBarSizeAction.DEFAULT_UNIT_INDEX;
 		displayMode = NEUTRAL;
+		bigImageMagnification = 1.0;
 	}
 
 	/**
@@ -1208,9 +1212,21 @@ class ImViewerUI
 				}
 			}
 			f = Math.round(factor)/100.0;
+			bigImageMagnification = f;
 			//model.setZoomFactor(f, false);
 			statusBar.setRigthStatus("x: "+f);
 		}
+	}
+	
+	/**
+	 * Returns the magnification factor for big images.
+	 * 
+	 * @return See above.
+	 */
+	double getBigImageMagnificationFactor()
+	{
+		if (!model.isBigImage()) return 1.0;
+		return bigImageMagnification;
 	}
 	
 	/**
@@ -1286,6 +1302,7 @@ class ImViewerUI
 	{ 
 		//TODO
 		//model.getRenderer().onStateChange(b);
+		model.getBrowser().onStateChange(b);
 		tabs.setEnabled(b);
 		enableSliders(b);
 		controlPane.onStateChange(b); 

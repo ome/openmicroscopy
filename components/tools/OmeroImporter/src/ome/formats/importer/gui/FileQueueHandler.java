@@ -266,7 +266,8 @@ public class FileQueueHandler extends JPanel
                          || fileExt.startsWith("dat")
                          || fileExt.equals("xml")
                          || fileExt.equals("exp")
-                         || fileExt.equals("log"))
+                         || fileExt.equals("log")
+                         || fileExt.equals("ini"))
                 { // arbitrary file extension so we must do candidates
                     runCandidates = true;
                     break;

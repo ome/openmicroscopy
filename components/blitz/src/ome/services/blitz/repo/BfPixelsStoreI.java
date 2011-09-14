@@ -99,7 +99,7 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
             Current __current) throws ServerError {
 
         try {
-            byte[] cube = new byte[reader.getCubeSize(offset,size,step)];
+            byte[] cube = new byte[reader.getHypercubeSize(offset,size,step)];
             reader.getHypercube(offset,size,step,cube);
             reader.swapIfRequired(cube);
             __cb.ice_response(cube);
