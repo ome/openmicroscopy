@@ -66,8 +66,7 @@ export PATH=`bin/brew --prefix ccache`:$PATH
 # Basic native requirements =======================================
 installed hdf5 || bin/brew install hdf5 # Used by pytables
 installed berkeley-db46 || bin/brew install berkeley-db46 --without-java
-installed omero43 || bin/brew install omero43 "$@" # For psql, cpp, etc.
-
+installed zero-ice33 || bin/brew install zeroc-ice33
 
 ###################################################################
 # PIP INSTALLS
@@ -88,8 +87,10 @@ installed matplotlib || bin/pip install matplotlib
 
 # PyTables requirements ===========================================
 export HDF5_DIR=`pwd`
-installed numpy -l || bin/pip install -U numpy # Must be newer!
+installed numpy  || bin/pip install numpy
 installed Cython || bin/pip install Cython
 installed tables || bin/pip install tables
 
 echo "Done."
+echo "You can now install OMERO with: 'bin/brew install omero43 ...'"
+
