@@ -64,9 +64,10 @@ installed ccache || bin/brew install ccache
 export PATH=`bin/brew --prefix ccache`:$PATH
 
 # Basic native requirements =======================================
+installed pkg-config || bin/brew install pkg-config # for matplotlib
 installed hdf5 || bin/brew install hdf5 # Used by pytables
 installed berkeley-db46 || bin/brew install berkeley-db46 --without-java
-installed zero-ice33 || bin/brew install zeroc-ice33
+installed zeroc-ice33 || bin/brew install zeroc-ice33
 
 ###################################################################
 # PIP INSTALLS
@@ -82,12 +83,18 @@ installed(){
 }
 
 # Python requirements =============================================
+installed numpy  || bin/pip install numpy
 installed PIL || bin/pip install PIL
+#
+# Various issues with matplotlib. See the following if you have problems:
+# -----------------------------------------------------------------------
+# http://superuser.com/questions/242190/how-to-install-matplotlib-on-os-x
+# https://jholewinski.wordpress.com/2011/07/21/installing-matplotlib-on-os-x-10-7-with-homebrew/
+#
 installed matplotlib || bin/pip install matplotlib
 
 # PyTables requirements ===========================================
 export HDF5_DIR=`pwd`
-installed numpy  || bin/pip install numpy
 installed Cython || bin/pip install Cython
 installed tables || bin/pip install tables
 
