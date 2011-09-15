@@ -60,9 +60,10 @@ installed(){
     }
 }
 
-# OPTIONAL: this makes things faster for devs =====================
+# Setup PATH ======================================================
+# ccache is optional but makes things faster for devs
 installed ccache || bin/brew install ccache
-export PATH=`bin/brew --prefix ccache`:$PATH
+export PATH=`bin/brew --prefix ccache`:`pwd`/bin/:$PATH
 
 # Basic native requirements =======================================
 installed pkg-config || bin/brew install pkg-config # for matplotlib
