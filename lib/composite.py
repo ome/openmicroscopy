@@ -195,7 +195,7 @@ compress('%s.zip' % target, target)
 # Create the composite Linux client build
 #
 target_artifacts = list()
-regex = re.compile(r'.*b\d+.zip')
+regex = re.compile(r'.*-b\d+.zip')
 revision, artifacts = download(INSIGHT_JOB_NAME, regex)
 target_artifacts += artifacts
 regex = re.compile(r'.*importer.*-b\d+.zip')
