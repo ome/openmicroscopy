@@ -9,6 +9,7 @@ shift
 OMERO_GIT=${OMERO_URL:-git://github.com/joshmoore/homebrew.git}
 OMERO_URL=${OMERO_URL:-https://github.com/joshmoore/homebrew/tarball/omero}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
+TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
 
 ###################################################################
 # BREW & PIP BASE SYSTEMS
@@ -98,7 +99,8 @@ installed matplotlib || bin/pip install matplotlib
 # PyTables requirements ===========================================
 export HDF5_DIR=`pwd`
 installed Cython || bin/pip install Cython
-installed tables || bin/pip install tables
+installed numexpr || bin/pip install numexpr
+installed tables || bin/pip install -e $TABLES_GIT#egg=tables
 
 echo "Done."
 echo "You can now install OMERO with: 'bin/brew install omero43 ...'"
