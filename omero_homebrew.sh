@@ -43,7 +43,7 @@ then
 else
     rm -rf virtualenv.py
     curl -O "$VENV_URL"
-    python virtualenv.py .
+    python virtualenv.py --no-site-packages .
 fi
 
 
