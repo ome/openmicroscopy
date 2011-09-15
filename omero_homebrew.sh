@@ -101,7 +101,7 @@ installed matplotlib || bin/pip install matplotlib
 export HDF5_DIR=`pwd`
 installed Cython || bin/pip install Cython
 installed numexpr || bin/pip install numexpr
-installed tables || bin/pip install -e $TABLES_GIT#egg=tables
+bin/pip freeze | grep -q tables-dev || bin/pip install -e $TABLES_GIT#egg=tables
 
 echo "Done."
 echo "You can now install OMERO with: 'bin/brew install omero43 ...'"
