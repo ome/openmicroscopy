@@ -3003,17 +3003,23 @@ class ProxyObjectWrapper (object):
     Handles creation of service when requested. 
     """
     
-    def __init__ (self, conn, func_str):
+    def __init__ (self, conn, func_str, cast_to=None, service_name=None):
         """
         Initialisation of proxy object wrapper. 
         
-        @param conn:        The L{BlitzGateway} connection
-        @type conn:         L{BlitzGateway}
-        @param func_str:    The name of the service creation method. E.g 'getAdminService'
-        @type func_str:     String
+        @param conn:         The L{BlitzGateway} connection
+        @type conn:          L{BlitzGateway}
+        @param func_str:     The name of the service creation method. E.g 'getAdminService'
+        @type func_str:      String
+        @param cast_to:      the checkedCast function to call with service name (only if func_str is None)
+        @type cast_to:       function
+        @param service_name: Service name to use with cast_to (only if func_str is None)
+        
         """
         self._obj = None
         self._func_str = func_str
+        self._cast_to = cast_to
+        self._service_name = service_name
         self._resyncConn(conn)
         self._tainted = False
     
@@ -3026,7 +3032,7 @@ class ProxyObjectWrapper (object):
         @rtype:     L{ProxyObjectWrapper}
         """
         
-        return ProxyObjectWrapper(self._conn, self._func_str)
+        return ProxyObjectWrapper(self._conn, self._func_str, self._cast_to, self._service_name)
 
     def _connect (self, forcejoin=False): #pragma: no cover
         """
@@ -3051,7 +3057,6 @@ class ProxyObjectWrapper (object):
         logger.debug("proxy_connect: b");
         self._resyncConn(self._conn)
         logger.debug("proxy_connect: c");
-        self._obj = self._create_func()
         logger.debug("proxy_connect: d");
         return True
 
@@ -3084,10 +3089,15 @@ class ProxyObjectWrapper (object):
         
         self._conn = conn
         self._sf = conn.c.sf
-        self._create_func = getattr(self._sf, self._func_str)
+        def cf ():
+            if self._func_str is None:
+                return self._cast_to(self._sf.getByName(self._service_name))
+            else:
+                return getattr(self._sf, self._func_str)()
+        self._create_func = cf
         if self._obj is not None:
             try:
-                logger.debug("## - refreshing %s" % (self._func_str))
+                logger.debug("## - refreshing %s" % (self._func_str or self._service_name))
                 obj = conn.c.ic.stringToProxy(str(self._obj))
                 self._obj = self._obj.checkedCast(obj)
             except Ice.ObjectNotExistException:
