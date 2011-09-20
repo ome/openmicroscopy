@@ -3057,6 +3057,7 @@ class ProxyObjectWrapper (object):
         logger.debug("proxy_connect: b");
         self._resyncConn(self._conn)
         logger.debug("proxy_connect: c");
+        self._obj = self._create_func()
         logger.debug("proxy_connect: d");
         return True
 
