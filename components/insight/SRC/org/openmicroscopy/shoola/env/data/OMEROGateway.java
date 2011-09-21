@@ -6975,15 +6975,14 @@ class OMEROGateway
 					
 					try {
 						long size = store.generateTiff();
-						int offset = 0;
-						int length = (int) size;
+						long offset = 0;
 						try {
 							for (offset = 0; (offset+INC) < size;) {
 								stream.write(store.read(offset, INC));
 								offset += INC;
 							}	
 						} finally {
-							stream.write(store.read(offset, length-offset)); 
+							stream.write(store.read(offset, (int)(size-offset))); 
 							stream.close();
 						}
 					} catch (Exception e) {

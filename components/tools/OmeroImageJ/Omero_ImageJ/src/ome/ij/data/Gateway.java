@@ -698,8 +698,7 @@ class Gateway
 					store = getExporterService();
 					store.addImage(imageID);
 					long size = store.generateTiff();
-					int offset = 0;
-					int length = (int) size;
+					long offset = 0;
 					try {
 						try {
 							for (offset = 0; (offset+INC) < size;) {
@@ -707,7 +706,7 @@ class Gateway
 								offset += INC;
 							}	
 						} finally {
-							stream.write(store.read(offset, length-offset)); 
+							stream.write(store.read(offset, (int)(size-offset))); 
 							stream.close();
 						}
 					} catch (Exception e) {
