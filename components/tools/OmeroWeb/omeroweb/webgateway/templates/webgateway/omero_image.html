@@ -520,8 +520,11 @@
           roi_html += "</tr></thead>";
           
           var tbody = $(shapesHtml);
-          $roi_table.append($(roi_html));      // add the roi thead
-          
+          if (shapes.length > 1) {
+              $roi_table.append($(roi_html));      // add the roi thead
+          } else {
+              tbody.addClass('only_child');
+          }
           $roi_table.append(tbody);    // add the tbody
       }
   }
@@ -532,6 +535,7 @@
       $("#roi_table_postit").show();
       var $roi_table = $("#roi_small_table");
       $roi_table.find('tbody').hide();  // hides the shapes
+      $roi_table.find('tbody.only_child').show();
       
       //var roi_count = $roi_table.find('thead').length;
       //var shape_count = $roi_table.find('tbody tr').length;
@@ -543,8 +547,7 @@
         var $roi_table = $("#roi_small_table");
         // show the rows
         var $row = $("#"+shape_id+"_shape");
-        $roi_table.find('tbody').children().children().css('background-color', '#fff');// all rows white...
-        // $roi_table.find('tbody').hide();
+        $roi_table.find('tbody').children().children().css('background-color', null);// all rows white...
         $row.children().css('background-color', '#d0d0ff');      // ...show this row blue
         $row.parent().show();   // show this 'tbody' set of shapes
     }
