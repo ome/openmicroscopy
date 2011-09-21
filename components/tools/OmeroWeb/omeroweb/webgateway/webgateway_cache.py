@@ -586,7 +586,7 @@ class WebGatewayCache (object):
             else:
                 return rv % ('%sx%s' % (str(z), str(t)))
         else:
-            return 'img_%s/%s/' % (client_base, str(iid))
+            return 'img_%s/%s' % (client_base, str(iid))
 
     def setImage (self, r, client_base, img, z, t, obj, ctx=''):
         """
@@ -626,7 +626,7 @@ class WebGatewayCache (object):
             logger.debug('cached: %s' % k)
         return r
 
-    def clearImage (self, r, client_base, user_id, img):
+    def clearImage (self, r, client_base, user_id, img, skipJson=False):
         """
         Clears image data from cache using default rendering settings (r=None) T and Z indexes ( = 0).
         TODO: Doesn't clear any data stored WITH r, t, or z specified in cache key? 
@@ -645,7 +645,8 @@ class WebGatewayCache (object):
         # do the thumb too
         self.clearThumb(r, client_base, user_id, img.getId())
         # and json data
-        self.clearJson(client_base, img)
+        if not skipJson:
+            self.clearJson(client_base, img)
         return True
 
     def setSplitChannelImage (self, r, client_base, img, z, t, obj):
