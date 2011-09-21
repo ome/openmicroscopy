@@ -480,6 +480,17 @@
       
       $roi_table.find('tbody').remove();
       
+      // thead for whole table:
+      var roi_html = "<thead><tr>";
+      roi_html += "<th></th>";
+      roi_html += "<th>ROI/shape</th>"; // first shape (count)
+      roi_html += "<th>ID</th>";
+      roi_html += "<th>Z</th>"; // no Z for ROI
+      roi_html += "<th>T</th>"; // no T for ROI
+      roi_html += "<th>Text</th>";
+      roi_html += "</tr></thead>";
+      $roi_table.append($(roi_html));
+      
       // populate table. Cols are: ID, Z, T, Shape, text
       for (var r=0; r<json.length; r++) {
           var roi = json[r];
@@ -499,10 +510,11 @@
               } else text = "";
               shapesHtml += "<tr id='"+shape['id']+"_shape' class='shape_row'>";
               // clicking on any cell of a shape 'shape_cell' selects it
+              shapesHtml += "<td></td>";
+              shapesHtml += "<td class='shape_cell'>" + shape['type'] + "</td>";
               shapesHtml += "<td class='shape_cell'>" + shape['id'] + "</td>"
               shapesHtml += "<td class='shape_cell'>" + (shape['theZ']+1) + "</td>";
               shapesHtml += "<td class='shape_cell'>" + (shape['theT']+1) + "</td>";
-              shapesHtml += "<td class='shape_cell'>" + shape['type'] + "</td>";
               shapesHtml += "<td class='shape_cell'>" + text + "</td>";
               shapesHtml += "</tr>";
               if (firstShape == null) firstShape = shape['type'];
@@ -512,10 +524,11 @@
           
           // new tbody for each ROI
           var roi_html = "<thead><tr class='roi_row'>";
-          roi_html += "<th>" + roi['id'] + "</th>";
-          roi_html += "<th>Z</th>"; // no Z for ROI
-          roi_html += "<th>T</th>"; // no T for ROI
+          roi_html += "<th><img class='expand_arrow' src='/appmedia/webgateway/img/arrowRight_grey.png' /></th>";
           roi_html += "<th>" + firstShape + " (" + shapes.length + ")</th>"; // first shape (count)
+          roi_html += "<th>" + roi['id'] + "</th>";
+          roi_html += "<th></th>"; // no Z for ROI
+          roi_html += "<th></th>"; // no T for ROI
           roi_html += "<th>"+ firstText +"</th>";
           roi_html += "</tr></thead>";
           
@@ -550,6 +563,10 @@
         $roi_table.find('tbody').children().children().css('background-color', null);// all rows white...
         $row.children().css('background-color', '#d0d0ff');      // ...show this row blue
         $row.parent().show();   // show this 'tbody' set of shapes
+        var arrow_src = '/appmedia/webgateway/img/arrowDown_grey.png';
+        $row.parent().prev('thead').find('img.expand_arrow').attr('src', arrow_src);
+        var arrow_src = '/appmedia/webgateway/img/arrowRight_grey.png';
+        
     }
 
   var linePlotPos = function (ev, obj) {
@@ -1082,14 +1099,22 @@
             var $shapeRow = $target.parent();
             var shape_id = parseInt($shapeRow.attr('id'));      // E.g. id='123_shape'
             viewport.viewportimg.get(0).set_selected_shape(shape_id);
-            var z = parseInt( $shapeRow.find('td:nth-child(2)').text() );
-            var t = parseInt( $shapeRow.find('td:nth-child(3)').text() );
+            var z = parseInt( $shapeRow.find('td:nth-child(4)').text() );
+            var t = parseInt( $shapeRow.find('td:nth-child(5)').text() );
             viewport.setZPos(z);
             viewport.setTPos(t);
         } else if ($target.get(0).nodeName.toLowerCase() == 'th'){
             // a ROI (th) click toggles the ROI-shapes 'tbody' below
             var $roiThead = $target.parent().parent();
-            $roiThead.next().toggle();
+            $roiThead.next().toggle(0,
+                function(){
+                    var vis = $roiThead.next().is(':visible');
+                    var arrow_src = '/appmedia/webgateway/img/arrowRight_grey.png';
+                    if (vis) {
+                        arrow_src = '/appmedia/webgateway/img/arrowDown_grey.png';
+                    }
+                    $roiThead.find('img.expand_arrow').attr('src', arrow_src);
+                });
         }
         return false;
     });
