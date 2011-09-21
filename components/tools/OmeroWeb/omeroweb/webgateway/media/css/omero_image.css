@@ -638,6 +638,10 @@ input.spin-button {
     background-color: #fff; 
     text-align: center;
 }
+#roi_small_table .only_child td {
+    background-color: #ddd;
+}
+
 #roi_small_table .shape_cell {
     cursor: pointer;
 }
