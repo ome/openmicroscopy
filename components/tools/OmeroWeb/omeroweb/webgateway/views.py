@@ -32,6 +32,17 @@ from omero.gateway import timeit, TimeIt
 
 import Ice
 
+try:
+    import Image
+    import ImageDraw
+except: #pragma: nocover
+    try:
+        from PIL import Image
+        from PIL import ImageDraw
+    except:
+        logger.error('No PIL installed')
+    
+
 #from models import StoredConnection
 
 from webgateway_cache import webgateway_cache, CacheBase, webgateway_tempfile
@@ -563,6 +574,184 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, _conn=None, 
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
+
+@serverid
+def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=None, **kwargs):
+    """
+    For the given ROI, choose the shape to render (first time-point, mid z-section) then render 
+    a region around that plane, scale to width and height (or default size) and draw the
+    shape on to the region
+    """
+    if _conn is None:
+        _conn = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
+    
+    # need to find the z indices of the first shape in T
+    roiResult = _conn.getRoiService().findByRoi(long(roiId), None)
+    if roiResult is None or roiResult.rois is None:
+        raise Http404
+    zz = set()
+    minT = None
+    shapes = {}
+    for roi in roiResult.rois:
+        imageId = roi.image.id.val
+        for s in roi.copyShapes():
+            if s is None:   # seems possible in some situations
+                continue
+            t = s.getTheT().getValue()
+            z = s.getTheZ().getValue()
+            shapes[(z,t)] = s
+            if minT is None: minT = t
+            if t < minT:
+                zz = set([z])
+                minT = t
+            elif minT == t: 
+                zz.add(z)
+    zList = list(zz)
+    zList.sort()
+    midZ = zList[len(zList)/2]
+    s = shapes[(midZ, minT)]
+    
+    def pointsStringToXYlist(string):
+        """
+        Method for converting the string returned from omero.model.ShapeI.getPoints()
+        into list of (x,y) points.
+        E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503, 190,491] points2[309,427, 366,503, 190,491]"
+        """
+        pointLists = string.strip().split("points")
+        if len(pointLists) < 2:
+            logger.error("Unrecognised ROI shape 'points' string: %s" % string)
+            return ""
+        firstList = pointLists[1]
+        xyList = []
+        for xy in firstList.strip(" []").split(", "):
+            x, y = xy.split(",")
+            xyList.append( ( int( x.strip() ), int(y.strip() ) ) )
+        return xyList
+
+    def xyListToBbox(xyList):
+        """ Returns a bounding box (x,y,w,h) that will contain the shape represented by the XY points list """
+        xList, yList = [], []
+        for xy in xyList:
+            x, y = xy
+            xList.append(x)
+            yList.append(y)
+        return (min(xList), min(yList), max(xList)-min(xList), max(yList)-min(yList))
+
+    bBox = None   # bounding box: (x, y, w, h)
+    shape = {}
+    if type(s) == omero.model.RectI:
+        shape['type'] = 'Rectangle'
+        shape['x'] = s.getX().getValue()
+        shape['y'] = s.getY().getValue()
+        shape['width'] = s.getWidth().getValue()
+        shape['height'] = s.getHeight().getValue()
+        bBox = (shape['x'], shape['y'], shape['width'], shape['height'])
+    elif type(s) == omero.model.MaskI:
+        shape['type'] = 'Mask'
+        shape['x'] = s.getX().getValue()
+        shape['y'] = s.getY().getValue()
+        shape['width'] = s.getWidth().getValue()
+        shape['height'] = s.getHeight().getValue()
+        bBox = (shape['x'], shape['y'], shape['width'], shape['height'])
+        # TODO: support for mask
+    elif type(s) == omero.model.EllipseI:
+        shape['type'] = 'Ellipse'
+        shape['cx'] = int(s.getCx().getValue())
+        shape['cy'] = int(s.getCy().getValue())
+        shape['rx'] = int(s.getRx().getValue())
+        shape['ry'] = int(s.getRy().getValue())
+        bBox = (shape['cx']-shape['rx'], shape['cy']-shape['ry'], 2*shape['rx'], 2*shape['ry'])
+    elif type(s) == omero.model.PolylineI:
+        shape['type'] = 'PolyLine'
+        shape['xyList'] = pointsStringToXYlist(s.getPoints().getValue())
+        bBox = xyListToBbox(shape['xyList'])
+    elif type(s) == omero.model.LineI:
+        shape['type'] = 'Line'
+        shape['x1'] = int(s.getX1().getValue())
+        shape['x2'] = int(s.getX2().getValue())
+        shape['y1'] = int(s.getY1().getValue())
+        shape['y2'] = int(s.getY2().getValue())
+        x = min(shape['x1'],shape['x2'])
+        y = min(shape['y1'],shape['y2'])
+        bBox = (x, y, max(shape['x1'],shape['x2'])-x, max(shape['y1'],shape['y2'])-y)
+    elif type(s) == omero.model.PointI:
+        shape['type'] = 'Point'
+        shape['cx'] = s.getCx().getValue()
+        shape['cy'] = s.getCy().getValue()
+        bBox = (shape['cx']-50, shape['cy']-50, 100, 100)
+    elif type(s) == omero.model.PolygonI:
+        shape['type'] = 'Polygon'
+        shape['xyList'] = pointsStringToXYlist(s.getPoints().getValue())
+        bBox = xyListToBbox(shape['xyList'])
+    elif type(s) == omero.model.LabelI:
+        shape['type'] = 'Label'
+        shape['x'] = s.getX().getValue()
+        shape['y'] = s.getY().getValue()
+        bBox = (shape['x']-50, shape['y']-50, 100, 100)
+    else:
+        logger.debug("Shape type not supported: %s" % str(type(s)))
+    #print shape
+    
+    # we want to render a region larger than the bounding box
+    x,y,w,h = bBox
+    requiredWidth = max(w,h*3/2)
+    requiredHeight = requiredWidth*2/3
+    newW = int(requiredWidth * 1.5)
+    newH = int(requiredHeight * 1.5)
+    xOffset = (newW - w)/2
+    yOffset = (newH - h)/2
+    newX = int(x - xOffset)
+    newY = int(y - yOffset)
+    
+    pi = _get_prepared_image(request, imageId, server_id=server_id, _conn=_conn, with_session=False)
+    
+    if pi is None:
+        raise Http404
+    img, compress_quality = pi
+    
+    jpeg_data = img.renderJpegRegion(midZ,minT,newX, newY, newW, newH,level=None, compression=compress_quality)
+    image = Image.open(StringIO(jpeg_data))
+    
+    # we have our full-sized region. Need to resize to thumbnail. 
+    MAX_WIDTH = 150.0
+    factor = MAX_WIDTH / newW
+    resizeH = newH * factor
+    image = image.resize((MAX_WIDTH, resizeH))
+    
+    draw = ImageDraw.Draw(image)
+    if shape['type'] == 'Rectangle':
+        rectX = int(xOffset * factor)
+        rectY = int(yOffset * factor)
+        rectW = int((w+xOffset) * factor)
+        rectH = int((h+yOffset) * factor)
+        draw.rectangle((rectX, rectY, rectW, rectH), outline=(255,255,255))
+    elif shape['type'] == 'Line':
+        lineX1 = (shape['x1'] - newX) * factor
+        lineX2 = (shape['x2'] - newX) * factor
+        lineY1 = (shape['y1'] - newY) * factor
+        lineY2 = (shape['y2'] - newY) * factor
+        draw.line((lineX1, lineY1, lineX2, lineY2), fill=(255,255,255))
+    elif shape['type'] == 'Ellipse':
+        rectX = int(xOffset * factor)
+        rectY = int(yOffset * factor)
+        rectW = int((w+xOffset) * factor)
+        rectH = int((h+yOffset) * factor)
+        draw.ellipse((rectX, rectY, rectW, rectH), outline=(255,255,255))
+    elif 'xyList' in shape:
+        #resizedXY = [ (int(x*factor), int(y*factor)) for (x,y) in shape['xyList'] ]
+        def resizeXY(xy):
+            x,y = xy
+            return (int((x-newX)*factor), int((y-newY)*factor))
+        resizedXY = [ resizeXY(xy) for xy in shape['xyList'] ]
+        draw.polygon(resizedXY, outline=(255,255,255))
+        
+    rv = StringIO()
+    compression = 0.9
+    image.save(rv, 'jpeg', quality=int(compression*100))
+    jpeg = rv.getvalue()
+    
+    return HttpResponse(jpeg, mimetype='image/jpeg')
+    
 def _get_signature_from_request (request):
     """
     returns a string that identifies this image, along with the settings passed on the request.

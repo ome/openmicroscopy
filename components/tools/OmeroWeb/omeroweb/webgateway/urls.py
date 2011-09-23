@@ -86,6 +86,16 @@ Params in render_thumbnail/<iid>/<w>/<h> are:
     - h:    Optional max height
 """
 
+render_roi_thumbnail = (r'^render_roi_thumbnail/(?P<roiId>[^/]+)/(?:(?P<w>[^/]+)/)?(?:(?P<h>[^/]+)/)?$', 'webgateway.views.render_roi_thumbnail')
+"""
+Returns a thumbnail jpeg of the OMERO ROI, optionally scaled to max-width and max-height.
+See L{views.render_thumbnail}. Uses current rendering settings. 
+Params in render_thumbnail/<iid>/<w>/<h> are:
+    - roiId:  ROI ID
+    - w:    Optional max width
+    - h:    Optional max height
+"""
+
 render_birds_eye_view = (r'^render_birds_eye_view/(?P<iid>[^/]+)/(?:(?P<size>[^/]+)/)?$', 'webgateway.views.render_birds_eye_view')
 """
 Returns a bird's eye view JPEG of the OMERO Image.
@@ -252,6 +262,7 @@ urlpatterns = patterns('',
     render_split_channel,
     render_row_plot,
     render_col_plot,
+    render_roi_thumbnail,
     render_thumbnail,
     render_birds_eye_view,
     render_ome_tiff,
