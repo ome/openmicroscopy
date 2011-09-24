@@ -1176,6 +1176,10 @@ class OMEROGateway
 			table = "PlateAnnotationLink";
 		else if (klass.equals(TagAnnotationData.class.getName()))
 			table = "AnnotationAnnotationLink";
+		else if (klass.equals(PlateAcquisitionData.class.getName()))
+			table = "PlateAcquisitionAnnotationLink";
+		else if (klass.equals(PlateAcquisitionI.class.getName())) 
+			table = "PlateAcquisitionAnnotationLink";
 		return table;
 	}
 	
