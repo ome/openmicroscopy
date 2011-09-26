@@ -27,6 +27,9 @@ conn = BlitzGateway(conf.USERNAME, conf.PASSWORD, host=conf.HOST, port=conf.PORT
 conn.connect()
 datasetId = 101
 projectId = 51
+#Specify a local file. E.g. could be result of some analysis
+fileToUpload = "path/to/fileToUpload.txt"   # This file should already exist
+downloadFileName = "path/to/download.txt"
 
 # Create a new Dataset
 
@@ -46,20 +49,12 @@ conn.getUpdateService().saveObject(link)
 #How to create a file annotation and link to a Dataset
 
 dataset = conn.getObject("Dataset", datasetId)
-#Create a local file. E.g. could be result of some analysis
-tempFileName = "fileToUpload.txt"
-f = open(tempFileName, 'w')
-try:
-    f.write("Some text to write to local file")
-finally:
-    f.close()
 # create the original file and file annotation (uploads the file etc.)
 namespace = "omero.training.write_data"
 print "\nCreating an OriginalFile and FileAnnotation"
-fileAnn = conn.createFileAnnfromLocalFile(tempFileName, mimetype="text/plain", ns=namespace, desc=None)
+fileAnn = conn.createFileAnnfromLocalFile(fileToUpload, mimetype="text/plain", ns=namespace, desc=None)
 print "Attaching FileAnnotation to Dataset: ", fileAnn.getId(), fileAnn.getFile(), fileAnn.getFile().getName()
 dataset.linkAnnotation(fileAnn)     # link it to dataset.
-os.remove(tempFileName)             # delete our local copy
 
 
 #Load all the file annotations with a given namespace
@@ -77,13 +72,15 @@ for ann in annotations:
 print "\nAnnotations on Dataset:", dataset.getName()
 for ann in dataset.listAnnotations():
     print ann
+    if isinstance(ann, omero.gateway.FileAnnotationWrapper):
+        print ann.getFile().getName()
+        print ann.getFile().getPath()
 
 
 # Get first annotation with specified namespace and download file
 
 ann = dataset.getAnnotation(namespace)
 # download
-downloadFileName = "download"
 f = open(downloadFileName, 'w')
 print "\nDownloading file to ", downloadFileName
 try:
@@ -92,7 +89,6 @@ try:
         f.write(chunk)
 finally:
     f.close()
-os.remove(downloadFileName)     # clean up
 
 # When you're done, close the session to free up server resources. 
 

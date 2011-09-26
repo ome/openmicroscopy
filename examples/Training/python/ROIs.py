@@ -75,5 +75,3 @@ for roi in result.rois:
         width = int(shape.getWidth().getValue())
         height = int(shape.getHeight().getValue())
         print "  at theZ: %s, theT: %s, X: %s, Y: %s, width: %s, height: %s" % (theZ,theT,x,y,width,height)
-        tile = (x, y, width, height)
-        print image.getPrimaryPixels().getTile(theZ,0,theT, tile)

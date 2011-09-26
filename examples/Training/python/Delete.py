@@ -25,7 +25,6 @@ from omero.rtypes import *
 from omero.model import *
 conn = BlitzGateway(conf.USERNAME, conf.PASSWORD, host=conf.HOST, port=conf.PORT)
 conn.connect()
-
 # Let's set up an Image to delete (NB this image has no Pixel data etc)
 image = omero.model.ImageI()
 image.setName(omero.rtypes.rstring("test_delete"))
