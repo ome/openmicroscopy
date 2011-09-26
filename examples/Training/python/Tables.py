@@ -75,6 +75,9 @@ for col in data.columns:
         print "   ", v
 
 
-data = openTable.getWhereList("(Uid > 0)", variables={}, start=0, stop=0, step=0)
-for col in data:
-    print col
+queryRows = openTable.getWhereList("(Uid > 2) & (Uid <= 8)", variables={}, start=0, stop=rowCount, step=0)
+data = openTable.readCoordinates(queryRows)
+for col in data.columns:
+    print "Query Results for Column: ", col.name
+    for v in col.values:
+        print "   ", v
