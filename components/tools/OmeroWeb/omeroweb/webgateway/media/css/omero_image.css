@@ -380,7 +380,7 @@ INPUT.changed {
 }
 
 #roi_table_postit {
-    width:175px;
+    width:300px;
 }
 #roi_table_postit table {
     width: 100%;
@@ -643,7 +643,15 @@ input.spin-button {
 
 #roi_small_table .shape_cell {
     cursor: pointer;
+    position: relative;
 }
 #roi_small_table .roi_row th {
     cursor: pointer;
+    position: relative;
+}
+.roi_thumb_popup {
+    position: absolute;
+    left: 50px;
+    top: 10px;
+    z-index: 50;
 }

@@ -463,7 +463,6 @@ $.fn.viewportImage = function(options) {
             jQuery('#wblitz-lp-enable').parent().hide();
             jQuery('.multiselect').hide();
             jQuery('#wblitz-invaxis').attr('disable', true);
-            jQuery('#roi_controls').hide();
         } else {
             viewerBean.tileUrlProvider = myProvider;
             viewerBean.update_url();

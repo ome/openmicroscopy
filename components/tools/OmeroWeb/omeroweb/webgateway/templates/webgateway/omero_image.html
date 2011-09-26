@@ -488,6 +488,7 @@
       roi_html += "<th>Z</th>"; // no Z for ROI
       roi_html += "<th>T</th>"; // no T for ROI
       roi_html += "<th>Text</th>";
+      roi_html += "<th></th>";
       roi_html += "</tr></thead>";
       $roi_table.append($(roi_html));
       
@@ -496,12 +497,17 @@
           var roi = json[r];
           var shapes = roi['shapes'];
           
+          // thumbnail of roi - display small & popup full-size
+          var thumbHtml = "<img src='/webgateway/render_roi_thumbnail/"+ roi['id'] +"/?color=red' width=50 class='roi_thumb'/>";
+          thumbHtml += "<img src='/webgateway/render_roi_thumbnail/"+ roi['id'] +"/?color=red' class='roi_thumb_popup' />"
+          
           // process the shapes first - note first shape & text
           var firstShape = null;
           var firstText = null;
           var shapesHtml = '<tbody>';
           var shape = null;
           var text;
+          var thumbnail = "";
           for (var s=0; s<shapes.length; s++) {
               shape = shapes[s];
               if (shape['textValue'] != null) {
@@ -509,7 +515,11 @@
                   if (firstText == null) firstText = text;
               } else text = "";
               var indent = "&nbsp&nbsp&nbsp&nbsp";    // hacked indent, but not if shape is only-child
-              if (shapes.length == 1) indent = "";
+              if (shapes.length == 1) {
+                  indent = "";
+                  thumbnail = thumbHtml;
+                  thumbHtml = "";
+              }
               shapesHtml += "<tr id='"+shape['id']+"_shape' class='shape_row'>";
               // clicking on any cell of a shape 'shape_cell' selects it
               shapesHtml += "<td></td>";
@@ -518,6 +528,7 @@
               shapesHtml += "<td class='shape_cell'>" + (shape['theZ']+1) + "</td>";
               shapesHtml += "<td class='shape_cell'>" + (shape['theT']+1) + "</td>";
               shapesHtml += "<td class='shape_cell'>" + text + "</td>";
+              shapesHtml += "<td class='shape_cell'>" + thumbnail + "</td>";
               shapesHtml += "</tr>";
               if (firstShape == null) firstShape = shape['type'];
           }
@@ -532,6 +543,7 @@
           roi_html += "<th></th>"; // no Z for ROI
           roi_html += "<th></th>"; // no T for ROI
           roi_html += "<th>"+ firstText +"</th>";
+          roi_html += "<th>"+ thumbHtml +"</th>";
           roi_html += "</tr></thead>";
           
           var tbody = $(shapesHtml);
