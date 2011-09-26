@@ -19,26 +19,57 @@
 #
 # This script shows a simple connection to OMERO, printing details of the connection.
 # NB: You will need to edit the config.py before running.
-import my_omero_config as conf
+# 
+# 
+import Ice
+import omero
+import omero.callbacks
 from omero.gateway import BlitzGateway
-from omero.rtypes import *
-from omero.model import *
-conn = BlitzGateway(conf.USERNAME, conf.PASSWORD, host=conf.HOST, port=conf.PORT)
+from Connecting import USERNAME, PASSWORD, HOST, PORT
+# create a connection
+conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
-# Let's set up an Image to delete (NB this image has no Pixel data etc)
-image = omero.model.ImageI()
-image.setName(omero.rtypes.rstring("test_delete"))
-image.setAcquisitionDate(omero.rtypes.rtime(2000000))
-image = conn.getUpdateService().saveAndReturnObject(image)
-imageId = image.getId().getValue()
-# OR, you could put the ID of an image you want to delte here:
-#imageId = 101
+projectId = 305
+deleteChildren = True # FLAG
 
+project = conn.getObject("Project", projectId)
+if project is None:
+    import sys
+    sys.stderr.write("Error: Object does not exist.\n")
+    sys.exit(1)
+    
+print "\nProject:", project.getName()
 
 # Delete Image
 
-# You can delete a number of objects of the same type at the same time. In this case 'Image'
+# You can delete a number of objects of the same type at the same time. In this case 'Project'
 
-obj_ids = [imageId]
-# use deleteChildren=True if you are E.g. deleting a Dataset and you want to delete Images.
-conn.deleteObjects("Image", obj_ids, deleteAnns=True, deleteChildren=False)
+obj_ids = [projectId]
+# use deleteChildren=True if you are E.g. deleting a Project and you want to delete Datasets and Images.
+handle = conn.deleteObjects("Project", obj_ids, deleteAnns=True, deleteChildren=deleteChildren)
+# callback as string
+# cbString = str(handle)
+
+# retrieve callback and wait delete complete
+callback = omero.callbacks.DeleteCallbackI(conn.c, handle)
+print "Deleting, please wait."
+while callback.block(500) is not None: # ms.
+    print "."
+
+# print errors
+print "Errors:", handle.errors()
+# close callback
+callback.close()
+
+# retrieve callback from string
+# try:
+#     post_handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+#     self.fail("exception Ice.ObjectNotExistException was not thrown")
+# except Ice.ObjectNotExistException:
+#     pass
+
+# Close connection
+
+# When you're done, close the session to free up server resources. 
+
+conn._closeSession()

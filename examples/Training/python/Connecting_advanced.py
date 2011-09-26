@@ -19,32 +19,16 @@
 #
 # This script shows a simple connection to OMERO, printing details of the connection.
 # NB: You will need to edit the config.py before running.
-
-# Connect to the Python Blitz Gateway
-
-# See OmeroPy/Gateway for more info
-
-# import the libraries we need
+#
+#
+import traceback
+import omero
 from omero.gateway import BlitzGateway
+from Connecting import USERNAME, PASSWORD, HOST, PORT
 # create a connection
-HOST = 'localhost'
-PORT = 4064
-USERNAME = 'ola'
-PASSWORD = 'ome'
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 connected = conn.connect()
-# check if you are connected.
-if not connected:
-    import sys
-    sys.stderr.write("Error: Connection not available, please check your user name and password.\n")
-    sys.exit(1)
-
-# Using secure connection.
-
-# By default, once we have logged in, data transfer is not encrypted (faster)
-
-# To use secure connection
-conn.setSecure(True)
+groupId = 5
 
 # Current session details
 
@@ -63,17 +47,42 @@ for g in conn.getGroupsMemberOf():
 group = conn.getGroupFromContext()
 print "Current group: ", group.getName()
 
-print "Other Members of current group:"
-for g in conn.listColleagues():
-    print "   ID:", g.getId(), " Name:", g.getFullName()
+# Change active group
 
-print "Owner of:"
-for g in conn.listOwnedGroups():
+# Every time session is created the user's default group is used as the initial context 
+# and is loaded with the security for the current user and thread.
+# setSecurityContext sets the context for the current session to the given value.
+# WARNING: if there are any jobs run and services cannot be closed, 
+# active group will not be changed.
+
+try:
+    for k in conn._proxies.keys():
+        conn._proxies[k].close()
+    conn.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(groupId, False))
+    conn.getAdminService().setDefaultGroup(conn.getUser()._obj, omero.model.ExperimenterGroupI(groupId, False))
+    conn._ctx = conn.getAdminService().getEventContext()
+    conn._user = conn.getObject("Experimenter", conn._userid)
+except omero.SecurityViolation:
+    print traceback.format_exc()
+except:
+    print traceback.format_exc()
+
+user = conn.getUser()
+print "Current user:"
+print "   ID:", user.getId()
+print "   Username:", user.getName()
+print "   Full Name:", user.getFullName()
+
+print "Member of:"
+for g in conn.getGroupsMemberOf():
     print "   ID:", g.getName(), " Name:", g.getId()
+group = conn.getGroupFromContext()
+print "Current group: ", group.getName()
 
-# The 'context' of our current session
-ctx = conn.getEventContext()
-# print ctx     # for more info
+
+# Keep the connection alive
+
+conn.getAdminService().getEventContext()
 
 # Close connection
 

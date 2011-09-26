@@ -21,10 +21,10 @@
 # NB: You will need to edit the config.py before running.
 # 
 # 
-import my_omero_config as conf
 from omero.gateway import BlitzGateway
-from omero.rtypes import *
-conn = BlitzGateway(conf.USERNAME, conf.PASSWORD, host=conf.HOST, port=conf.PORT)
+from Connecting import USERNAME, PASSWORD, HOST, PORT
+# create a connection
+conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 imageId = 101
 datasetId = 101
@@ -32,9 +32,9 @@ plateId = 1
 
 
 # list all Projects available to me, and their Datasets and Images. 
-
+print "\nList Projects:"
 for project in conn.listProjects():
-    print project.getName()
+    print project.getName(), project.getOwnerOmeName()
     for dataset in project.listChildren():
         print "   ", dataset.getName()
         for image in dataset.listChildren():
@@ -43,8 +43,8 @@ for project in conn.listProjects():
 
 # Retrieve the datasets owned by the user currently logged in.
 
-datasets = conn.getObjects("Dataset")
 print "\nList Datasets:"
+datasets = conn.getObjects("Dataset")
 for d in datasets:
     print d.getName(), d.getOwnerOmeName()
 
@@ -77,16 +77,26 @@ renderedImage = image.renderImage(z, t)
 
 
 # Retrieve Screening data
-
-screens = conn.getObjects("Screen")
-print "\nScreens:"
-for s in screens:
-    print s.getName(), s.getId()
-
-
+print "\nList Screens:"
+for screen in conn.getObjects("Screen"):
+    print screen.getName(), screen.getOwnerOmeName()
+    for plate in screen.listChildren():
+        print "   ", plate.getName()
+        
 # Retrieve Wells within a Plate
 
 plate = conn.getObject("Plate", plateId)
+print "\nNumber of fields:", plate.getNumberOfFields()
+print "\nGrid size:", plate.getGridSize()
 print "\nWells in Plate:", plate.getName()
 for well in plate.listChildren():
-    print "  Well: ", well.row, well.column
+    index = well.countWellSample()
+    print "  Well: ", well.row, well.column, " Fields:", index
+    for index in xrange(0,index):
+        print "    Image: ", well.getImage(index).getName(), well.getImage(index).getId()
+
+# Close connection
+
+# When you're done, close the session to free up server resources. 
+
+conn._closeSession()

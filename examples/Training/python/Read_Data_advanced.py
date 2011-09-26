@@ -21,17 +21,26 @@
 # NB: You will need to edit the config.py before running.
 # 
 # 
-import my_omero_config as conf
 from omero.gateway import BlitzGateway
 from omero.rtypes import *
-conn = BlitzGateway(conf.USERNAME, conf.PASSWORD, host=conf.HOST, port=conf.PORT)
+from Connecting import USERNAME, PASSWORD, HOST, PORT
+# create a connection
+conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 dataset_name = "MyDataset"
 object_array = list()
-for i in xrange(5):
+for i in xrange(3):
     dataset = omero.model.DatasetI()
     dataset.setName(rstring(dataset_name))
     object_array.append(dataset) 
+conn.getUpdateService().saveArray(object_array)
+tag_name = "MyTag"
+object_array = list()
+for i in xrange(3):
+    tag = omero.model.TagAnnotationI()
+    tag.setTextValue(rstring(tag_name))
+    tag.setDescription(rstring("%s %i" % (tag_name,i)))
+    object_array.append(tag) 
 conn.getUpdateService().saveArray(object_array)
 
 # Find the datasets by name.
@@ -41,3 +50,13 @@ print "\nList Datasets:"
 for d in datasets:
     print "ID:", d.getId(), "Name:", d.getName()
 
+# Find the tag by name.
+
+Tags = conn.getObjects("TagAnnotation", attributes={'textValue':tag_name})
+print "\nList Tags:"
+for t in Tags:
+    print "ID:", t.getId(), "Text:", t.getTextValue(), "Desc:", t.getDescription()
+
+# When you're done, close the session to free up server resources. 
+
+conn._closeSession()

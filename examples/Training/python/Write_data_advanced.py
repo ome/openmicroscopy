@@ -19,11 +19,13 @@
 #
 # This script shows a simple connection to OMERO, printing details of the connection.
 # NB: You will need to edit the config.py before running.
-import my_omero_config as conf
+# 
+# 
 from omero.gateway import BlitzGateway
 from omero.rtypes import *
-import os
-conn = BlitzGateway(conf.USERNAME, conf.PASSWORD, host=conf.HOST, port=conf.PORT)
+from Connecting import USERNAME, PASSWORD, HOST, PORT
+# create a connection
+conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 datasetId = 101
 projectId = 51
