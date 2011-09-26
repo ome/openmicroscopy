@@ -48,8 +48,7 @@ print "Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s, height
 # create an ROI, link it to Image
 roi = omero.model.RoiI()
 roi.setImage(image._obj)    # use the omero.model.ImageI that underlies the 'image' wrapper
-r = updateService.saveAndReturnObject(roi) 
-# create and save a rectangle shape
+# create a rectangle shape and add to ROI
 rect = omero.model.RectI()
 rect.x = rdouble(x)
 rect.y = rdouble(y)
@@ -57,11 +56,20 @@ rect.width = rdouble(width)
 rect.height = rdouble(height)
 rect.theZ = rint(theZ)
 rect.theT = rint(theT)
-# link the rectangle to the ROI and save it 
-rect.setRoi(r)
-r.addShape(rect)    
-sh = updateService.saveAndReturnObject(rect)
-
+rect.textValue = rstring("test-Rectangle")
+roi.addShape(rect)
+# create an Ellips shape and add to ROI
+ellipse = omero.model.EllipseI()
+ellipse.cx = rdouble(y)
+ellipse.cy = rdouble(x)
+ellipse.rx = rdouble(width)
+ellipse.ry = rdouble(height)
+ellipse.theZ = rint(theZ)
+ellipse.theT = rint(theT)
+ellipse.textValue = rstring("test-Ellipse")
+roi.addShape(ellipse)
+# Save the ROI (saves any linked shapes too)
+r = updateService.saveAndReturnObject(roi) 
 
 #Retrieve ROIs linked to an Image.
 
@@ -74,6 +82,8 @@ for roi in result.rois:
         shape['id'] = s.getId().getValue()
         shape['theT'] = s.getTheT().getValue()
         shape['theZ'] = s.getTheZ().getValue()
+        if s.getTextValue():
+            shape['textValue'] = s.getTextValue().getValue()
         if type(s) == omero.model.RectI:
             shape['type'] = 'Rectangle'
             shape['x'] = s.getX().getValue()
@@ -103,3 +113,15 @@ for roi in result.rois:
         for key, value in shape.items():
             print "  ", key, value,
         print ""
+
+
+# Remove shape from ROI
+
+result = roiService.findByImage(imageId, None)
+for roi in result.rois:
+    for s in roi.copyShapes():
+        # Find and remove the Shape we added above
+        if s.getTextValue() and s.getTextValue().getValue() == "test-Ellipse":
+            print "Removing Shape from ROI..."
+            roi.removeShape(s)
+            roi = updateService.saveAndReturnObject(roi) 
