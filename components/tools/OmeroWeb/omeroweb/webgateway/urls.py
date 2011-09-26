@@ -86,7 +86,7 @@ Params in render_thumbnail/<iid>/<w>/<h> are:
     - h:    Optional max height
 """
 
-render_roi_thumbnail = (r'^render_roi_thumbnail/(?P<roiId>[^/]+)/(?:(?P<w>[^/]+)/)?(?:(?P<h>[^/]+)/)?$', 'webgateway.views.render_roi_thumbnail')
+render_roi_thumbnail = (r'^render_roi_thumbnail/(?P<roiId>[^/]+)/?$', 'webgateway.views.render_roi_thumbnail')
 """
 Returns a thumbnail jpeg of the OMERO ROI, optionally scaled to max-width and max-height.
 See L{views.render_thumbnail}. Uses current rendering settings. 

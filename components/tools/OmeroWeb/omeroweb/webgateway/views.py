@@ -585,6 +585,12 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
     if _conn is None:
         _conn = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
     
+    color = request.REQUEST.get("color", "white")
+    colours = {"red":(255,0,0), "green":(0,255,0), "blue":(0,0,255), "yellow":(255,255,0), "white":(255,255,255)}
+    lineColour = colours["white"]
+    if color in colours:
+        lineColour = colours[color]
+    
     # need to find the z indices of the first shape in T
     roiResult = _conn.getRoiService().findByRoi(long(roiId), None)
     if roiResult is None or roiResult.rois is None:
@@ -724,26 +730,28 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
         rectY = int(yOffset * factor)
         rectW = int((w+xOffset) * factor)
         rectH = int((h+yOffset) * factor)
-        draw.rectangle((rectX, rectY, rectW, rectH), outline=(255,255,255))
+        draw.rectangle((rectX, rectY, rectW, rectH), outline=lineColour)
+        draw.rectangle((rectX-1, rectY-1, rectW+1, rectH+1), outline=lineColour)    # hack to get line width of 3
+        #draw.rectangle((rectX-2, rectY-2, rectW+2, rectH+2), outline=lineColour)
     elif shape['type'] == 'Line':
         lineX1 = (shape['x1'] - newX) * factor
         lineX2 = (shape['x2'] - newX) * factor
         lineY1 = (shape['y1'] - newY) * factor
         lineY2 = (shape['y2'] - newY) * factor
-        draw.line((lineX1, lineY1, lineX2, lineY2), fill=(255,255,255))
+        draw.line((lineX1, lineY1, lineX2, lineY2), fill=lineColour, width=3)
     elif shape['type'] == 'Ellipse':
         rectX = int(xOffset * factor)
         rectY = int(yOffset * factor)
         rectW = int((w+xOffset) * factor)
         rectH = int((h+yOffset) * factor)
-        draw.ellipse((rectX, rectY, rectW, rectH), outline=(255,255,255))
+        draw.ellipse((rectX, rectY, rectW, rectH), outline=lineColour)
     elif 'xyList' in shape:
         #resizedXY = [ (int(x*factor), int(y*factor)) for (x,y) in shape['xyList'] ]
         def resizeXY(xy):
             x,y = xy
             return (int((x-newX)*factor), int((y-newY)*factor))
         resizedXY = [ resizeXY(xy) for xy in shape['xyList'] ]
-        draw.polygon(resizedXY, outline=(255,255,255))
+        draw.polygon(resizedXY, outline=lineColour)
         
     rv = StringIO()
     compression = 0.9
