@@ -68,13 +68,38 @@ sh = updateService.saveAndReturnObject(rect)
 roiService = conn.getRoiService()
 result = roiService.findByImage(imageId, None)
 for roi in result.rois:
-    print "ROI:"
-    for shape in roi.copyShapes():
-        print "  Shape:", shape.__class__.__name__ # E.g. omero.model.RectI
-        theZ = shape.getTheZ().getValue()
-        theT = shape.getTheT().getValue()
-        x = int(shape.getX().getValue())
-        y = int(shape.getY().getValue())
-        width = int(shape.getWidth().getValue())
-        height = int(shape.getHeight().getValue())
-        print "  at theZ: %s, theT: %s, X: %s, Y: %s, width: %s, height: %s" % (theZ,theT,x,y,width,height)
+    print "ROI:  ID:", roi.getId().getValue()
+    for s in roi.copyShapes():
+        shape = {}
+        shape['id'] = s.getId().getValue()
+        shape['theT'] = s.getTheT().getValue()
+        shape['theZ'] = s.getTheZ().getValue()
+        if type(s) == omero.model.RectI:
+            shape['type'] = 'Rectangle'
+            shape['x'] = s.getX().getValue()
+            shape['y'] = s.getY().getValue()
+            shape['width'] = s.getWidth().getValue()
+            shape['height'] = s.getHeight().getValue()
+        elif type(s) == omero.model.EllipseI:
+            shape['type'] = 'Ellipse'
+            shape['cx'] = s.getCx().getValue()
+            shape['cy'] = s.getCy().getValue()
+            shape['rx'] = s.getRx().getValue()
+            shape['ry'] = s.getRy().getValue()
+        elif type(s) == omero.model.PointI:
+            shape['type'] = 'Point'
+            shape['cx'] = s.getCx().getValue()
+            shape['cy'] = s.getCy().getValue()
+        elif type(s) == omero.model.LineI:
+            shape['type'] = 'Line'
+            shape['x1'] = s.getX1().getValue()
+            shape['x2'] = s.getX2().getValue()
+            shape['y1'] = s.getY1().getValue()
+            shape['y2'] = s.getY2().getValue()
+        elif type(s) in (omero.model.MaskI, omero.model.LabelI, omero.model.PolygonI):
+            print type(s), " Not supported by this code"
+        # Do some processing here, or just print:
+        print "   Shape:",
+        for key, value in shape.items():
+            print "  ", key, value,
+        print ""
