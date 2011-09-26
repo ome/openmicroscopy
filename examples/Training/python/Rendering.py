@@ -29,29 +29,41 @@ conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 imageId = 101
 
-
-# Render each channel as a separate plane
-
+# Get current settings
 image = conn.getObject("Image", imageId)
+print "Channel rendering settings:"
+for ch in image.getChannels():
+    print "Name: ", ch.getLabel()   # if no name, this gets emission wavelength or index
+    print "  Color:", ch.getColor().getHtml()
+    print "  Active:", ch.isActive()
+    print "  Levels:", ch.getWindowStart(), "-", ch.getWindowEnd()
+print "isGreyscaleRenderingModel:", image.isGreyscaleRenderingModel()
+
+# Render each channel as a separate greyscale image
+
+image.setGreyscaleRenderingModel()
 sizeC = image.getSizeC()
 z = image.getSizeZ() / 2
 t = 0
 for c in range(1, sizeC+1):     # Channel index starts at 1
-    channels = [c]  
+    channels = [c]              # Turn on a single channel at a time
     image.setActiveChannels(channels)
     renderedImage = image.renderImage(z, t)
-    #renderedImage.show()                        # popup (use for debug only)
+    renderedImage.show()                        # popup (use for debug only)
     renderedImage.save("channel%s.jpg" % c)     # save in the current folder
 
 
 # Turn 3 channels on, setting their colours
 
+image.setColorRenderingModel()
 channels = [1,2,3]
 colorList = ['F00', None, 'FFFF00']         # don't change colour of 2nd channel
 image.setActiveChannels(channels, colors=colorList)
-renderedImage = image.renderImage(z, t)
-#renderedImage.show()
+image.setProjection('intmax')       # max intensity projection 'intmean' for mean-intensity
+renderedImage = image.renderImage(z, t)     # z and t are ignored for projections
+renderedImage.show()
 renderedImage.save("all_channels.jpg")
+image.setProjection('normal')       # turn off projection
 
 
 # Turn 2 channels on, setting levels of the first one
@@ -62,3 +74,6 @@ image.setActiveChannels(channels, windows=rangeList)
 renderedImage = image.renderImage(z, t)
 renderedImage.show()
 renderedImage.save("two_channels.jpg")
+
+# Save the current rendering settings
+image.saveDefaults()

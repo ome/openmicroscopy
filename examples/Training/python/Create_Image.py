@@ -57,15 +57,18 @@ image = conn.getObject('Image', imageId)
 sizeZ, sizeC, sizeT = image.getSizeZ(), image.getSizeC(), image.getSizeT()
 dataset = image.getParent()
 pixels = image.getPrimaryPixels()
-# set up a generator of 2D numpy arrays.
-def planeGen():
-    for z in range(sizeZ):          # all Z sections
-        for t in range(sizeT):      # all time-points
-            channel0 = pixels.getPlane(z,0,t)
-            channel1 = pixels.getPlane(z,1,t)
-            newPlane = (channel0 + channel1)/2       # numpy allows us to divide arrays
-            print "newPlane for z,t:", z, t, newPlane.dtype, newPlane.min(), newPlane.max()
-            yield newPlane
 newSizeC = 1
+# set up a generator of 2D numpy arrays.
+# The createImage method below expects planes in the order specified here (for z.. for c.. for t..)
+def planeGen():
+    for z in range(sizeZ):              # all Z sections
+        for c in range(newSizeC):       # Illustrative purposes only, since we only have 1 channel
+            for t in range(sizeT):      # all time-points
+                channel0 = pixels.getPlane(z,0,t)
+                channel1 = pixels.getPlane(z,1,t)
+                newPlane = (channel0 + channel1)/2       # numpy allows us to divide arrays
+                print "newPlane for z,t:", z, t, newPlane.dtype, newPlane.min(), newPlane.max()
+                yield newPlane
+
 desc = "Image created from Image ID: %s by averaging Channel 1 and Channel 2" % imageId
 i = conn.createImageFromNumpySeq(planeGen(), "new image", sizeZ, newSizeC, sizeT, description=desc, dataset=dataset)
