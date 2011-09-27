@@ -29,8 +29,8 @@ from omero.gateway import BlitzGateway
 # create a connection
 HOST = 'localhost'
 PORT = 4064
-USERNAME = 'ola'
-PASSWORD = 'ome'
+USERNAME = 'username'
+PASSWORD = 'passwd'
 
 if __name__ == '__main__':
     

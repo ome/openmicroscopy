@@ -49,6 +49,29 @@ link.setParent(omero.model.ProjectI(project.getId(), False))
 link.setChild(dataset)
 conn.getUpdateService().saveObject(link)
 
+# Download a file annotation linked to a Project
+
+path = os.path.join(os.path.dirname(__file__), "download")
+if not os.path.exists(path):
+    os.makedirs(path)
+    
+
+print "\nAnnotations on Project:", project.getName()
+for ann in project.listAnnotations():
+    if isinstance(ann, omero.gateway.FileAnnotationWrapper):
+        print "File ID:", ann.getFile().getId(), ann.getFile().getName(), "Size:", ann.getFile().getSize()
+        
+        file_path = os.path.join(path, ann.getFile().getName())
+
+        f = open(str(file_path), 'w')
+        print "\nDownloading file to", file_path, "..."
+        try:
+            for chunk in ann.getFileInChunks():
+                f.write(chunk)
+        finally:
+            f.close()
+            print "File downloaded!"
+
 #How to create a file annotation and link to a Dataset
 
 dataset = conn.getObject("Dataset", datasetId)
@@ -56,7 +79,7 @@ dataset = conn.getObject("Dataset", datasetId)
 namespace = "omero.training.write_data"
 print "\nCreating an OriginalFile and FileAnnotation"
 fileAnn = conn.createFileAnnfromLocalFile(fileToUpload, mimetype="text/plain", ns=namespace, desc=None)
-print "Attaching FileAnnotation to Dataset: ", fileAnn.getId(), fileAnn.getFile(), fileAnn.getFile().getName()
+print "Attaching FileAnnotation to Dataset: ", "File ID:", fileAnn.getId(), ",", fileAnn.getFile().getName(), "Size:", fileAnn.getFile().getSize()
 dataset.linkAnnotation(fileAnn)     # link it to dataset.
 
 
@@ -74,11 +97,8 @@ for ann in annotations:
 
 print "\nAnnotations on Dataset:", dataset.getName()
 for ann in dataset.listAnnotations():
-    print ann
     if isinstance(ann, omero.gateway.FileAnnotationWrapper):
-        print ann.getFile().getName()
-        print ann.getFile().getPath()
-
+        print "File ID:", ann.getFile().getId(), ann.getFile().getName(), "Path:", ann.getFile().getPath(), "Size:", ann.getFile().getSize()
 
 # Get first annotation with specified namespace and download file
 
