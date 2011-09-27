@@ -1,10 +1,10 @@
 # import the libraries we need
-import my_omero_config as conf
 import omero
 import omero.grid
 from omero.gateway import BlitzGateway
+from Connecting import USERNAME, PASSWORD, HOST, PORT
 # create a connection
-conn = BlitzGateway(conf.USERNAME, conf.PASSWORD, host=conf.HOST, port=conf.PORT)
+conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 print conn.connect()
 datasetId = 33
 

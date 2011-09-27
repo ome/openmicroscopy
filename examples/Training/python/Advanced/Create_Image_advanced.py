@@ -23,7 +23,7 @@
 #
 from omero.gateway import BlitzGateway
 from omero.rtypes import *
-USERNAME, PASSWORD, HOST, PORT = ('will', 'ome', 'localhost', 4064)
+from Connecting import USERNAME, PASSWORD, HOST, PORT
 # create a connection
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
