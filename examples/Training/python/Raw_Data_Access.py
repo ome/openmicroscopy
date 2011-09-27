@@ -75,3 +75,6 @@ print "\nHyper stack of planes:"
 planes = pixels.getPlanes(zctList)
 for i, p in enumerate(planes):
     print "plane zct:", zctList[i], " min:", p.min(), " max:", p.max()
+
+
+conn._closeSession()

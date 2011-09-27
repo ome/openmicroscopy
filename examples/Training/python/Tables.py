@@ -81,3 +81,4 @@ for col in data.columns:
     print "Query Results for Column: ", col.name
     for v in col.values:
         print "   ", v
+conn._closeSession()

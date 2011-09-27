@@ -124,4 +124,7 @@ for roi in result.rois:
         if s.getTextValue() and s.getTextValue().getValue() == "test-Ellipse":
             print "Removing Shape from ROI..."
             roi.removeShape(s)
-            roi = updateService.saveAndReturnObject(roi) 
+            roi = updateService.saveAndReturnObject(roi)
+
+
+conn._closeSession()

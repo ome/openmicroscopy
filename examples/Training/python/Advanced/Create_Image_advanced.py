@@ -87,3 +87,6 @@ if physicalSizeY is not None:
 if physicalSizeZ is not None:
     px.setPhysicalSizeZ(rdouble(pixels.getPhysicalSizeZ()))
 conn.getUpdateService().saveObject(px)
+
+
+conn._closeSession()

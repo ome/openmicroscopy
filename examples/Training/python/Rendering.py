@@ -77,3 +77,6 @@ renderedImage.save("two_channels.jpg")
 
 # Save the current rendering settings
 image.saveDefaults()
+
+
+conn._closeSession()

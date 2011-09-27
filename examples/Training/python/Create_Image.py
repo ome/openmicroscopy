@@ -72,3 +72,6 @@ def planeGen():
 
 desc = "Image created from Image ID: %s by averaging Channel 1 and Channel 2" % imageId
 i = conn.createImageFromNumpySeq(planeGen(), "new image", sizeZ, newSizeC, sizeT, description=desc, dataset=dataset)
+
+
+conn._closeSession()

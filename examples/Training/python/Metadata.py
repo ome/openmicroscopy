@@ -49,3 +49,5 @@ if om is not None:
             print "   ", keyValue[0], "NOT FOUND" 
 
 
+
+conn._closeSession()
