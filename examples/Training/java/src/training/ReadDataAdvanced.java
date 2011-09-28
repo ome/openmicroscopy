@@ -160,13 +160,12 @@ public class ReadDataAdvanced
 			loadDatasetsByName();
 			loadTagsByNS();
 		} catch (Exception e) {
-                        e.printStackTrace();
+			e.printStackTrace();
 		} finally {
 			try {
 				disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
-		                e.printStackTrace();
-
+				e.printStackTrace();
 			}
 		}
 	}

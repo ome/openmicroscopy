@@ -179,18 +179,21 @@ public class ROIs
 			connect();
 			loadImage();
 			createROIs();
-			client.closeSession();
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (client != null) client.closeSession();
+		} finally {
+			try {
+				disconnect(); // Be sure to disconnect
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
-		
-		
 	}
-	
-	public static void main(String[] args) 
+
+	public static void main(String[] args)
 	{
 		new ROIs();
+		System.exit(0);
 	}
-	
+
 }

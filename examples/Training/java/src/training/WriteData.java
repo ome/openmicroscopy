@@ -314,17 +314,21 @@ public class WriteData
 			loadAnnotationsLinkedToImage();
 			createNewDataset();
 			createNewTag();
-			client.closeSession();
 		} catch (Exception e) {
-			if (client != null) client.closeSession();
+			e.printStackTrace();
+		} finally {
+			try {
+				disconnect(); // Be sure to disconnect
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
-		
-		
 	}
-	
-	public static void main(String[] args) 
+
+	public static void main(String[] args)
 	{
 		new WriteData();
+		System.exit(0);
 	}
-	
+
 }

@@ -100,15 +100,20 @@ public class LoadMetadataAdvanced
 			connect(); //First connect.
 			loadAcquisitionData();
 			loadChannelData();
-			client.closeSession();
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (client != null) client.closeSession();
+		} finally {
+			try {
+				disconnect(); // Be sure to disconnect
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
-	
-	public static void main(String[] args) 
+
+	public static void main(String[] args)
 	{
 		new LoadMetadataAdvanced();
+		System.exit(0);
 	}
 }
