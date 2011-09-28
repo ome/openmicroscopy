@@ -33,13 +33,18 @@ import java.util.List;
 //Application-internal dependencies
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
+import omero.model.EllipseI;
 import omero.model.Image;
 import omero.model.Rect;
 import omero.model.RectI;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Shape;
+import pojos.EllipseData;
+import pojos.LineData;
+import pojos.PointData;
 import pojos.ROIData;
+import pojos.RectangleData;
 import pojos.ShapeData;
 
 /** 
@@ -83,6 +88,8 @@ public class ROIs
         rect.setTheZ(omero.rtypes.rint(0));
         rect.setTheT(omero.rtypes.rint(0));
         roi.addShape(rect);
+        
+        //Create a rectangular shape
         rect = new RectI();
         rect.setX(omero.rtypes.rdouble(10));
         rect.setY(omero.rtypes.rdouble(10));
@@ -90,7 +97,22 @@ public class ROIs
         rect.setHeight(omero.rtypes.rdouble(10));
         rect.setTheZ(omero.rtypes.rint(1));
         rect.setTheT(omero.rtypes.rint(0));
+        
+        //Add the shape
         roi.addShape(rect);
+        
+        //Create an ellipse.
+        EllipseI ellipse = new EllipseI();
+        ellipse.setCx(omero.rtypes.rdouble(10));
+        ellipse.setCy(omero.rtypes.rdouble(10));
+        ellipse.setRx(omero.rtypes.rdouble(10));
+        ellipse.setRy(omero.rtypes.rdouble(10));
+        ellipse.setTheZ(omero.rtypes.rint(1));
+        ellipse.setTheT(omero.rtypes.rint(0));
+        ellipse.setTextValue(omero.rtypes.rstring("ellipse text"));
+        
+        //Add the shape
+        roi.addShape(ellipse);
         roi = (Roi) entryUnencrypted.getUpdateService().saveAndReturnObject(roi);
         
         //now check that the shape has been added.
@@ -100,6 +122,23 @@ public class ROIs
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
 			ShapeData shape = i.next();
+			//plane info
+			int z = shape.getZ();
+			int t = shape.getT();
+			long id = shape.getId();
+			if (shape instanceof RectangleData) {
+				RectangleData rectData = (RectangleData) shape;
+				//Handle rectangle
+			} else if (shape instanceof EllipseData) {
+				EllipseData ellipseData = (EllipseData) shape;
+				//Handle ellipse
+			} else if (shape instanceof LineData) {
+				LineData lineData = (LineData) shape;
+				//Handle line
+			} else if (shape instanceof PointData) {
+				PointData pointData = (PointData) shape;
+				//Handle line
+			}
 		}
         
         
@@ -123,15 +162,12 @@ public class ROIs
         r = entryUnencrypted.getRoiService().findByImage(
         		image.getId().getValue(), new RoiOptions());
         rois = r.rois;
-        System.err.println(rois.size());
         j = rois.iterator();
         while (j.hasNext()) {
 			roi = j.next();
 			list = roi.copyShapes();
 			//size = 1
 		}
-        
-       
 	}
 	
 	/**

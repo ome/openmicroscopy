@@ -25,6 +25,10 @@ package training;
 
 
 //Java imports
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +37,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import omero.api.IMetadataPrx;
+import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.model.Annotation;
@@ -69,6 +74,9 @@ public class WriteData
 	extends ConnectToOMERO
 {
 
+	/** Maximum size of data read at once. */
+	private static final int INC = 262144;
+	
 	/** The image.*/
 	private ImageData image;
 	
@@ -78,12 +86,6 @@ public class WriteData
 	/** The id of a project.*/
 	private long projectId = 2;
 	
-	private String nameOfFile = "name";
-	
-	private String fileAbsolutePath = "/";
-	
-	private long lengthOfFile = 4;
-	
 	private String generatedSha1 = "pending";
 	
 	private String fileMimeType = "application/octet-stream";
@@ -91,6 +93,13 @@ public class WriteData
 	private String description = "description";
 	
 	private String NAME_SPACE_TO_SET = "Java/Training";
+	
+	/** Path to the file to upload.*/
+	private String fileToUpload = "path/to/fileToUpload.txt";// This file should already exist
+	
+	/** Path to the file. The file should already be there.*/
+	private String downloadFileName = "path/to/download.txt";
+		
 	
 	/** Load the image.*/
 	private void loadImage()
@@ -165,12 +174,18 @@ public class WriteData
 		throws Exception
 	{
 		// To retrieve the image see above.
+		File file = new File(fileToUpload);
+		String name = file.getName();
+		String absolutePath = file.getAbsolutePath();
+		String path = absolutePath.substring(0, 
+				absolutePath.length()-name.length());
+		
 		IUpdatePrx iUpdate = entryUnencrypted.getUpdateService(); // service used to write object
 		// create the original file object.
 		OriginalFile originalFile = new OriginalFileI();
-		originalFile.setName(omero.rtypes.rstring(nameOfFile));
-		originalFile.setPath(omero.rtypes.rstring(fileAbsolutePath));
-		originalFile.setSize(omero.rtypes.rlong(lengthOfFile));
+		originalFile.setName(omero.rtypes.rstring(name));
+		originalFile.setPath(omero.rtypes.rstring(path));
+		originalFile.setSize(omero.rtypes.rlong(file.length()));
 		originalFile.setSha1(omero.rtypes.rstring(generatedSha1));
 		originalFile.setMimetype(omero.rtypes.rstring(fileMimeType)); // or "application/octet-stream"
 		// now we save the originalFile object
@@ -180,11 +195,18 @@ public class WriteData
 		RawFileStorePrx rawFileStore = entryUnencrypted.createRawFileStore();
 		rawFileStore.setFileId(originalFile.getId().getValue());
 		// open file and read stream.
-		//byteArray = uint8([2 1 0 0]);
-		// method takes a byte array, position and length.
-		byte[] values = new byte[4];
-		rawFileStore.write(values, 0, 4);
-
+		FileInputStream stream = new FileInputStream(file);
+		long pos = 0;
+		int rlen;
+		byte[] buf = new byte[INC];
+		ByteBuffer bbuf;
+		while ((rlen = stream.read(buf)) > 0) {
+			rawFileStore.write(buf, pos, rlen);
+			pos += rlen;
+			bbuf = ByteBuffer.wrap(buf);
+			bbuf.limit(rlen);
+		}
+		stream.close();
 		originalFile = rawFileStore.save();
 		// Important to close the service
 		rawFileStore.close();
@@ -215,7 +237,6 @@ public class WriteData
 	private void loadAnnotationsLinkedToImage()
 		throws Exception
 	{
-		int INC = 262144;
 		long userId = entryUnencrypted.getAdminService().getEventContext().userId;
 		List<String> nsToInclude = new ArrayList<String>();
 		nsToInclude.add(NAME_SPACE_TO_SET);
@@ -231,21 +252,54 @@ public class WriteData
 		Annotation annotation;
 		FileAnnotationData fa;
 		RawFileStorePrx store = entryUnencrypted.createRawFileStore();
-		long size = 10;
+		int index = 0;
+		File file = new File(downloadFileName);
+		FileOutputStream stream = new FileOutputStream(file);
+		OriginalFile of;
 		while (j.hasNext()) {
 			annotation = j.next();
-			if (annotation instanceof FileAnnotation) {
+			if (annotation instanceof FileAnnotation && index == 0) {
 				fa = new FileAnnotationData((FileAnnotation) annotation);
 				//The id of te original file
+				of = getOriginalFile(fa.getFileID());
 				store.setFileId(fa.getFileID());
 				int offset = 0;
-				for (offset = 0; (offset+INC) < size;) {
-					byte[] values = store.read(offset, INC);
-					offset += INC;
+				long size = of.getSize().getValue();
+				//name of the file
+				of.getName().getValue();
+				try {
+					for (offset = 0; (offset+INC) < size;) {
+						stream.write(store.read(offset, INC));
+						offset += INC;
+					}	
+				} finally {
+					stream.write(store.read(offset, (int) (size-offset))); 
+					stream.close();
 				}
+				index++;
 			}
 		}
 		store.close();
+	}
+	
+	/**
+	 * Returns the original file corresponding to the passed id.
+	 * 
+	 * @param id	The id identifying the file.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private OriginalFile getOriginalFile(long id)
+		throws Exception
+	{
+		ParametersI param = new ParametersI();
+		param.map.put("id", omero.rtypes.rlong(id));
+		IQueryPrx svc = entryUnencrypted.getQueryService();
+		return (OriginalFile) svc.findByQuery(
+				"select p from OriginalFile as p " +
+				"where p.id = :id", param);
 	}
 	
 	/**
