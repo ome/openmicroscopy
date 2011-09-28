@@ -1,5 +1,5 @@
 /*
- * training.LoadData 
+ * training.ReadData 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
@@ -22,14 +22,19 @@
  *------------------------------------------------------------------------------
  */
 package training;
+
+
+//Java imports
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import omero.client;
+
+//Third-party libraries
+
+//Application-internal dependencies
 import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
-import omero.api.ServiceFactoryPrx;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
@@ -44,11 +49,9 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.WellData;
-//Java imports
-//Third-party libraries
-//Application-internal dependencies
+
 /** 
- * 
+ * Sample code showing how to load data from an OMERO server.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,27 +61,9 @@ import pojos.WellData;
  * </small>
  * @since 3.0-Beta4
  */
- 
-public class LoadData
+public class ReadData
+	extends ConnectToOMERO
 {
-
-	/** The server address.*/
-	private String hostName = "localhost";
-	
-	/** The port to use.*/
-	private int port = 4064; //default port
-	
-	/** The username.*/
-	private String userName = "root";
-	
-	/** The password.*/
-	private String password = "omero";
-	
-	/** Reference to the client.*/
-	private client client;
-	
-	/** The service factory.*/
-	private ServiceFactoryPrx entryUnencrypted;
 	
 	/** The id of a dataset.*/
 	private long datasetId = 51;
@@ -91,24 +76,7 @@ public class LoadData
 	
 	/** The id of the plate acquisition corresponding to the plate.*/
 	private long plateAcquisitionId = 0;
-	
-	/** First connect.*/
-	private void connect()
-		throws Exception
-	{
-		
-		client = new client(hostName, port);
-		ServiceFactoryPrx entry = client.createSession(userName, password);
-		// if you want to have the data transfer encrypted then you can 
-		// use the entry variable otherwise use the following 
-		client unsecureClient = client.createClient(false);
-		entryUnencrypted = unsecureClient.getSession();
-		
-		long userId = entryUnencrypted.getAdminService().getEventContext().userId;
-		
-		long groupId = entryUnencrypted.getAdminService().getEventContext().groupId;
-	}
-	
+
 	/** 
 	 * Retrieve the projects owned by the user currently logged in.
 	 * 
@@ -295,9 +263,9 @@ public class LoadData
 	}
 	
 	/**
-	 * Shows how to connect to omero.
+	 * Connects and invokes the various methods.
 	 */
-	LoadData()
+	ReadData()
 	{
 		try {
 			connect(); //First connect.
@@ -317,7 +285,7 @@ public class LoadData
 	
 	public static void main(String[] args) 
 	{
-		new LoadData();
+		new ReadData();
 	}
 	
 }
