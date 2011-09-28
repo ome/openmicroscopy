@@ -8,44 +8,54 @@
 #
 
 """
-This script shows a simple connection to OMERO, printing details of the connection.
-NB: You will need to edit the config.py before running.
-
 FOR TRAINING PURPOSES ONLY!
 """
 
-# Connect to the Python Blitz Gateway
-
-# See OmeroPy/Gateway for more info
-
-# import the libraries we need
 from omero.gateway import BlitzGateway
-# create a connection
+
+
+# Configuration
+# =================================================================
+# These values will be imported by all the other training scripts.
 HOST = 'localhost'
 PORT = 4064
 USERNAME = 'username'
 PASSWORD = 'passwd'
 
 if __name__ == '__main__':
+    """
+    NB: This block is only run when calling this file directly
+    and not when imported.
+    """
+
+    # Connect to the Python Blitz Gateway
+    # =============================================================
+    # Make a simple connection to OMERO, printing details of the
+    # connection. See OmeroPy/Gateway for more info
     conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
     connected = conn.connect()
-    # check if you are connected.
+
+
+    # Check if you are connected.
+    # =============================================================
     if not connected:
         import sys
         sys.stderr.write("Error: Connection not available, please check your user name and password.\n")
         sys.exit(1)
 
+
     # Using secure connection.
-
+    # =============================================================
     # By default, once we have logged in, data transfer is not encrypted (faster)
+    # To use a secure connection, call setSecure(True):
 
-    # To use secure connection
-    conn.setSecure(True)
+    # conn.setSecure(True)         # <--------- Uncomment this
+
 
     # Current session details
-
-    # By default, you will have logged into your 'current' group in OMERO. This can be changed by
-    # switching group in the OMERO insight or web clients.
+    # =============================================================
+    # By default, you will have logged into your 'current' group in OMERO. This
+    # can be changed by switching group in the OMERO insight or web clients.
 
     user = conn.getUser()
     print "Current user:"
@@ -71,8 +81,8 @@ if __name__ == '__main__':
     ctx = conn.getEventContext()
     # print ctx     # for more info
 
-    # Close connection
 
-    # When you're done, close the session to free up server resources. 
-
+    # Close connection:
+    # =================================================================
+    # When you're done, close the session to free up server resources.
     conn._closeSession()

@@ -17,11 +17,13 @@ from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
 
 
 # Create a connection
+# =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
 # Configuration
+# =================================================================
 imageId = -1
 datasetId = -1
 plateId = -1
@@ -40,7 +42,11 @@ def print_obj(obj, indent=0):
             obj.getOwnerOmeName())
 
 
-# List all Projects available to me, and their Datasets and Images.
+# List all Projects available to me, and their Datasets and Images:
+# =================================================================
+# The only_owned=True parameter limits the Projects which are returned.
+# If the parameter is omitted or the value is Fale, then all Projects
+# visible in the current group are returned.
 print "\nList Projects:"
 print "=" * 50
 for project in conn.listProjects(only_owned=True):
@@ -51,8 +57,8 @@ for project in conn.listProjects(only_owned=True):
             print_obj(image, 4)
 
 
-# Retrieve the datasets owned by the user currently logged in.
-# ============================================================
+# Retrieve the datasets owned by the user currently logged in:
+# =================================================================
 # Here we create an omero.sys.ParametersI instance which we
 # can use to filter the results that are returned. If we did
 # not pass the params argument to getObjects, then all Datasets
@@ -68,7 +74,8 @@ for dataset in datasets:
     print_obj(dataset)
 
 
-# Retrieve the images contained in a dataset.
+# Retrieve the images contained in a dataset:
+# =================================================================
 if datasetId >= 0:
     print "\nDataset:%s" % datasetId
     print "=" * 50
@@ -78,7 +85,8 @@ if datasetId >= 0:
         print_obj(image)
 
 
-# Retrieve an image by Image ID.
+# Retrieve an image by Image ID:
+# =================================================================
 if imageId >= 0:
     image = conn.getObject("Image", imageId)
     print "\nImage:%s" % imageId
@@ -98,7 +106,8 @@ if imageId >= 0:
     #renderedImage.save("test.jpg")     # save in the current folder
 
 
-# Retrieve Screening data
+# Retrieve Screening data:
+# =================================================================
 print "\nList Screens:"
 print "=" * 50
 for screen in conn.getObjects("Screen"):
@@ -107,7 +116,8 @@ for screen in conn.getObjects("Screen"):
         print_obj(plate, 2)
 
 
-# Retrieve Wells within a Plate
+# Retrieve Wells and Images within a Plate:
+# =================================================================
 if plateId >= 0:
     print "\nPlate:%s" % plateId
     print "=" * 50
@@ -124,5 +134,6 @@ if plateId >= 0:
                     well.getImage(index).getId()
 
 # Close connection:
+# =================================================================
 # When you're done, close the session to free up server resources.
 conn._closeSession()

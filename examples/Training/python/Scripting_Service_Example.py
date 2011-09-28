@@ -1,4 +1,4 @@
-# This is a 'bare-bones' template to allow easy conversion from a simple client-side Python script 
+# This is a 'bare-bones' template to allow easy conversion from a simple client-side Python script
 # to a script run by the server, on the OMERO scripting service.
 # To use the script, simply paste the body of the script (not the connection code)
 # into the point indicated below.
@@ -8,21 +8,21 @@ from omero.gateway import BlitzGateway
 import omero.scripts as scripts
 from omero.rtypes import *
 
-# Script definition 
+# Script definition
 
-# Script name, description and 2 parameters are defined here. 
-# These parameters will be recognised by the Insight and web clients and 
+# Script name, description and 2 parameters are defined here.
+# These parameters will be recognised by the Insight and web clients and
 # populated with the currently selected Image(s)
 
 dataTypes = [rstring('Image')]      # this script only takes Images (not Datasets etc.)
-client = scripts.client("Scripting_Service_Example.py", 
+client = scripts.client("Scripting_Service_Example.py",
     """Example script to use as a template for getting started with the scripting service.""",
     # first parameter
     scripts.String("Data_Type", optional=False, values=dataTypes, default="Image"),
     # second parameter
     scripts.List("IDs", optional=False).ofType(rlong(0)),
 )
-# we can now create our Blitz Gateway by wrapping the client object 
+# we can now create our Blitz Gateway by wrapping the client object
 conn = BlitzGateway(client_obj=client)
 
 # get the 'IDs' parameter (which we have restricted to 'Image' IDs)
@@ -30,13 +30,13 @@ ids = unwrap(client.getInput("IDs"))
 imageId = ids[0]        # simply use the first ID for this example
 
 
-# ** paste here **  
+# ** paste here **
 # Replace the code block below. NB: we have established a connection "conn" and we have an "imageId"
 image = conn.getObject("Image", imageId)
 print image.getName()
 
 
-# Return some value(s). 
+# Return some value(s).
 
 # Here, we return anything useful the script has produced.
 # NB: The Insight and web clients will display the "Message" output.

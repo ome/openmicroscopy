@@ -14,29 +14,39 @@ FOR TRAINING PURPOSES ONLY!
 from omero.gateway import BlitzGateway
 from omero.rtypes import *
 from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
-# create a connection
+
+
+# Create a connection
+# =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
+
+
+# Configuration
+# =================================================================
 imageId = 101
 
+
 # Get current settings
+# =================================================================
 image = conn.getObject("Image", imageId)
 print "Channel rendering settings:"
 for ch in image.getChannels():
-    print "Name: ", ch.getLabel()   # if no name, this gets emission wavelength or index
+    print "Name: ", ch.getLabel()   # if no name, get emission wavelength or index
     print "  Color:", ch.getColor().getHtml()
     print "  Active:", ch.isActive()
     print "  Levels:", ch.getWindowStart(), "-", ch.getWindowEnd()
 print "isGreyscaleRenderingModel:", image.isGreyscaleRenderingModel()
 
-# Render each channel as a separate greyscale image
 
+# Render each channel as a separate greyscale image
+# =================================================================
 image.setGreyscaleRenderingModel()
 sizeC = image.getSizeC()
 z = image.getSizeZ() / 2
 t = 0
-for c in range(1, sizeC+1):     # Channel index starts at 1
-    channels = [c]              # Turn on a single channel at a time
+for c in range(1, sizeC + 1):       # Channel index starts at 1
+    channels = [c]                  # Turn on a single channel at a time
     image.setActiveChannels(channels)
     renderedImage = image.renderImage(z, t)
     renderedImage.show()                        # popup (use for debug only)
@@ -44,29 +54,34 @@ for c in range(1, sizeC+1):     # Channel index starts at 1
 
 
 # Turn 3 channels on, setting their colours
-
+# =================================================================
 image.setColorRenderingModel()
-channels = [1,2,3]
+channels = [1, 2, 3]
 colorList = ['F00', None, 'FFFF00']         # don't change colour of 2nd channel
 image.setActiveChannels(channels, colors=colorList)
-image.setProjection('intmax')       # max intensity projection 'intmean' for mean-intensity
+image.setProjection('intmax')               # max intensity projection 'intmean' for mean-intensity
 renderedImage = image.renderImage(z, t)     # z and t are ignored for projections
 renderedImage.show()
 renderedImage.save("all_channels.jpg")
-image.setProjection('normal')       # turn off projection
+image.setProjection('normal')               # turn off projection
 
 
 # Turn 2 channels on, setting levels of the first one
-
-channels = [1,2]
+# =================================================================
+channels = [1, 2]
 rangeList = [(100.0, 120.2), (None, None)]
 image.setActiveChannels(channels, windows=rangeList)
 renderedImage = image.renderImage(z, t)
 renderedImage.show()
 renderedImage.save("two_channels.jpg")
 
+
 # Save the current rendering settings
+# =================================================================
 image.saveDefaults()
 
 
+# Close connection:
+# =================================================================
+# When you're done, close the session to free up server resources.
 conn._closeSession()

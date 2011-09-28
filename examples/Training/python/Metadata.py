@@ -13,21 +13,34 @@ FOR TRAINING PURPOSES ONLY!
 
 from omero.gateway import BlitzGateway
 from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
-# create a connection
+
+
+# Create a connection
+# =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
+
+
+# Configuration
+# =================================================================
 imageId = 101
 
 
+# Load Instrument
+# =================================================================
 image = conn.getObject("Image", imageId)
 instrument = image.getInstrument()
 if instrument is not None:
-    # Instrument contains links to all filters, objectives etc (not just the ones used for this image)
+    # Instrument contains links to all filters,
+    # objectives etc (not just the ones used for this image)
     if instrument.getMicroscope() is not None:
         print "Instrument:"
         microscope = instrument.getMicroscope()
         print "  Model:", microscope.getModel(), "Type:", microscope.getType() and microscope.getType().getValue()
 
+
+# Load ObjectiveSettings
+# =================================================================
 if image.getObjectiveSettings():
     objSet = image.getObjectiveSettings()
     print "Objective Settings:"
@@ -36,14 +49,17 @@ if image.getObjectiveSettings():
         obj = objSet.getObjective()
         print "Objective:"
         print "  Model:", obj.getModel(), "Nominal Mag:", obj.getNominalMagnification(), "Calibrated Mag:", obj.getCalibratedMagnification()
-        print "  LensNA:", obj.getLensNA(), "Immersion", 
-        print obj.getImmersion() and obj.getImmersion().getValue(), "Correction:", obj.getCorrection() and obj.getCorrection().getValue() 
+        print "  LensNA:", obj.getLensNA(), "Immersion",
+        print obj.getImmersion() and obj.getImmersion().getValue(), "Correction:", obj.getCorrection() and obj.getCorrection().getValue()
         print "  Working Distance:", obj.getWorkingDistance()
 
+
+# Load Channels, LogicalChannels, and LightSourceSettings
+# =================================================================
 for ch in image.getChannels():
     print "Channel: ", ch.getLabel()
     logicalChannel = ch.getLogicalChannel()
-    
+
     lightPath = logicalChannel.getLightPath()
     if lightPath is not None:
         lightPathDichroic = lightPath.getDichroic()
@@ -77,7 +93,7 @@ for ch in image.getChannels():
         if lightSourceSettings.getLightSource() is not None:
             ls = lightSourceSettings.getLightSource()
             print "    Model:", ls.getModel(), "Manufacturer:", ls.getManufacturer(), "Power:", ls.getPower()
-            # TODO: Check whether this is Arc etc. 
+            # TODO: Check whether this is Arc etc.
             try:
                 wl = ls.getWavelength()
                 print "    Laser Wavelength:", wl
@@ -85,8 +101,9 @@ for ch in image.getChannels():
                 # this is not a laser
                 pass
 
-# Load the 'Original Metadata' for the image
 
+# Load the 'Original Metadata' for the image
+# =================================================================
 om = image.loadOriginalMetadata()
 if om is not None:
     print "\n\noriginal_metadata"
@@ -102,7 +119,10 @@ if om is not None:
         if len(keyValue) > 1:
             print "   ", keyValue[0], keyValue[1]
         else:
-            print "   ", keyValue[0], "NOT FOUND" 
+            print "   ", keyValue[0], "NOT FOUND"
 
 
+# Close connection:
+# =================================================================
+# When you're done, close the session to free up server resources.
 conn._closeSession()

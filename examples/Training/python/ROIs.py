@@ -14,30 +14,41 @@ FOR TRAINING PURPOSES ONLY!
 from omero.gateway import BlitzGateway
 from omero.rtypes import *
 from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
-# create a connection
+
+# Create a connection
+# =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 updateService = conn.getUpdateService()
+
+
+# Configuration
+# =================================================================
 imageId = 101
 x = 50
 y = 200
 width = 3
 height = 2
 
-# Create ROI. 
 
-# We are using the core Python API and omero.model objects here, since ROIs are not
-# yet supported in the Python Blitz Gateway.
-
-#In this example, we create an ROI with a rectangular shape and attach it to an image. 
+# Create ROI.
+# =================================================================
+# We are using the core Python API and omero.model objects here, since ROIs are
+# not yet supported in the Python Blitz Gateway.
+#
+# In this example, we create an ROI with a rectangular shape and attach it to an
+# image.
 
 image = conn.getObject("Image", imageId)
-theZ = image.getSizeZ()/2
+theZ = image.getSizeZ() / 2
 theT = 0
-print "Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s, height: %s" % (theZ,theT,x,y,width,height)
+print "Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s, height: %s" % \
+        (theZ, theT, x, y, width, height)
+
 # create an ROI, link it to Image
 roi = omero.model.RoiI()
 roi.setImage(image._obj)    # use the omero.model.ImageI that underlies the 'image' wrapper
+
 # create a rectangle shape and add to ROI
 rect = omero.model.RectI()
 rect.x = rdouble(x)
@@ -48,6 +59,7 @@ rect.theZ = rint(theZ)
 rect.theT = rint(theT)
 rect.textValue = rstring("test-Rectangle")
 roi.addShape(rect)
+
 # create an Ellips shape and add to ROI
 ellipse = omero.model.EllipseI()
 ellipse.cx = rdouble(y)
@@ -58,11 +70,13 @@ ellipse.theZ = rint(theZ)
 ellipse.theT = rint(theT)
 ellipse.textValue = rstring("test-Ellipse")
 roi.addShape(ellipse)
+
 # Save the ROI (saves any linked shapes too)
-r = updateService.saveAndReturnObject(roi) 
+r = updateService.saveAndReturnObject(roi)
 
-#Retrieve ROIs linked to an Image.
 
+# Retrieve ROIs linked to an Image.
+# =================================================================
 roiService = conn.getRoiService()
 result = roiService.findByImage(imageId, None)
 for roi in result.rois:
@@ -106,7 +120,7 @@ for roi in result.rois:
 
 
 # Remove shape from ROI
-
+# =================================================================
 result = roiService.findByImage(imageId, None)
 for roi in result.rois:
     for s in roi.copyShapes():
@@ -117,4 +131,7 @@ for roi in result.rois:
             roi = updateService.saveAndReturnObject(roi)
 
 
+# Close connection:
+# =================================================================
+# When you're done, close the session to free up server resources.
 conn._closeSession()
