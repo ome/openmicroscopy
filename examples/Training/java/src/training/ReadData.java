@@ -92,7 +92,7 @@ public class ReadData
 		param.leaves(); //indicate to load the images
 		//param.noLeaves(); //no images loaded, this is the default value.
 		List<IObject> results = proxy.loadContainerHierarchy(
-				Project.class.getName(), new ArrayList(), param);
+				Project.class.getName(), new ArrayList<Long>(), param);
 		//You can directly interact with the IObject or the Pojos object.
 		//Follow interaction with the Pojos.
 		Iterator<IObject> i = results.iterator();
@@ -126,7 +126,7 @@ public class ReadData
 		param.leaves(); //indicate to load the images
 		//param.noLeaves(); //no images loaded, this is the default value.
 		List<IObject> results = proxy.loadContainerHierarchy(
-				Dataset.class.getName(), new ArrayList(), param);
+				Dataset.class.getName(), new ArrayList<Long>(), param);
 		//You can directly interact with the IObject or the Pojos object.
 		//Follow interaction with the Pojos.
 		Iterator<IObject> i = results.iterator();
@@ -210,7 +210,7 @@ public class ReadData
 		param.exp(omero.rtypes.rlong(userId));
 		
 		List<IObject> results = proxy.loadContainerHierarchy(
-				Screen.class.getName(), new ArrayList(), param);
+				Screen.class.getName(), new ArrayList<Long>(), param);
 		//You can directly interact with the IObject or the Pojos object.
 		//Follow interaction with the Pojos.
 		Iterator<IObject> i = results.iterator();
