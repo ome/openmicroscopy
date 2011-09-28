@@ -112,6 +112,7 @@ public class ReadData
 	/** 
 	 * Retrieve the datasets owned by the user currently logged in.
 	 */
+	@SuppressWarnings("unchecked")
 	private void loadDatasets()
 		throws Exception
 	{
@@ -146,6 +147,7 @@ public class ReadData
 	 * 
 	 * In that case, we specify the dataset's id.
 	 */
+	@SuppressWarnings("unchecked")
 	private void loadImagesInDataset()
 		throws Exception
 	{
