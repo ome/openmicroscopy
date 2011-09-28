@@ -23,55 +23,76 @@
  */
 package training;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import omero.api.IContainerPrx;
-import omero.model.Image;
-import omero.sys.ParametersI;
-import pojos.ImageData;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import omero.api.IContainerPrx;
+import omero.model.Channel;
+import omero.model.Image;
+import omero.model.Pixels;
+import omero.sys.ParametersI;
+import pojos.ChannelData;
+import pojos.ImageAcquisitionData;
+import pojos.ImageData;
 
 /** 
  * Sample code showing how to load image metadata
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since 3.0-Beta4
+ * @since Beta4.3.2
  */
 public class LoadMetadata 
 	extends ConnectToOMERO
 {
 
-	/** The image.*/
-	private ImageData image;
-	
 	/** The id of an image.*/
 	private long imageId = 551;
 	
-	/** Load the image.*/
-	private void loadImage()
+	/** Load the image acquisition data.*/
+	private void loadAcquisitionData()
 		throws Exception
 	{
-		image = loadImage(imageId);
+		IContainerPrx proxy = entryUnencrypted.getContainerService();
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(imageId);
+		ParametersI po = new ParametersI();
+		po.acquisitionData(); // load the acquisition data.
+		List<Image> results = proxy.getImages(Image.class.getName(), ids, po);
+		ImageAcquisitionData image = new ImageAcquisitionData(results.get(0));
+		//Display information about the image
+		//e.g. humidity
+		System.err.println(image.getHumidity());
 	}
 	
-	/** Load channel metadata.*/
-	private void loadChannelMetadata()
+	
+	/** Load the channel data.*/
+	private void loadChannelData()
 		throws Exception
 	{
-		image = loadImage(imageId);
+		ImageData image = loadImage(imageId);
+		long pixelsId = image.getDefaultPixels().getId();
+		Pixels pixels = 
+			entryUnencrypted.getPixelsService().retrievePixDescription(pixelsId);
+		List<Channel> l = pixels.copyChannels();
+		Iterator<Channel> i = l.iterator();
+		int index = 0;
+		//Easier to use Pojo to access data.
+		ChannelData channel;
+		while (i.hasNext()) {
+			channel = new ChannelData(index, i.next());
+			index++;
+		}
 	}
-	
+
 	/**
 	 * Connects and invokes the various methods.
 	 */
@@ -79,13 +100,13 @@ public class LoadMetadata
 	{
 		try {
 			connect(); //First connect.
-			loadImage();
+			loadAcquisitionData();
+			loadChannelData();
 			client.closeSession();
 		} catch (Exception e) {
+			e.printStackTrace();
 			if (client != null) client.closeSession();
 		}
-		
-		
 	}
 	
 	public static void main(String[] args) 
