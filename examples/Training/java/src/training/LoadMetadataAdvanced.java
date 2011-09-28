@@ -1,5 +1,5 @@
 /*
- * training.LoadMetadata 
+ * training.LoadMetadataAdvanced
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
@@ -25,15 +25,13 @@ package training;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 import omero.api.IContainerPrx;
 import omero.model.Channel;
 import omero.model.Image;
@@ -50,7 +48,7 @@ import pojos.ImageData;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.3.2
  */
-public class LoadMetadata 
+public class LoadMetadataAdvanced 
 	extends ConnectToOMERO
 {
 
@@ -96,7 +94,7 @@ public class LoadMetadata
 	/**
 	 * Connects and invokes the various methods.
 	 */
-	LoadMetadata()
+	LoadMetadataAdvanced()
 	{
 		try {
 			connect(); //First connect.
@@ -111,6 +109,6 @@ public class LoadMetadata
 	
 	public static void main(String[] args) 
 	{
-		new LoadMetadata();
+		new LoadMetadataAdvanced();
 	}
 }
