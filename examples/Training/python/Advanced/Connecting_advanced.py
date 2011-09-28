@@ -24,7 +24,7 @@
 import traceback
 import omero
 from omero.gateway import BlitzGateway
-from Connecting import USERNAME, PASSWORD, HOST, PORT
+from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
 # create a connection
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 connected = conn.connect()

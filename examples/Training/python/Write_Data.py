@@ -24,7 +24,7 @@
 import os
 from omero.gateway import BlitzGateway
 from omero.rtypes import *
-from Connecting import USERNAME, PASSWORD, HOST, PORT
+from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
 # create a connection
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
