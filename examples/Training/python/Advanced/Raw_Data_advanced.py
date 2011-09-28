@@ -1,28 +1,16 @@
 #!/usr/bin/env python
-# 
-# Copyright (c) 2011 University of Dundee. 
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-# 
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
-# Version: 1.0
+# -*- coding: utf-8 -*-
+
 #
-# This script gets plane data from OMERO images and saves them as local tiff files,
-# using the PIL image library.
-# If the pixel type has a larger range than can be handled by PIL (uint8) 
-# then we scale the data to fit. 
-# This shouldn't affect the quantitive analysis of the data.
-# 
+# Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+#                    All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+
+"""
+FOR TRAINING PURPOSES ONLY!
+"""
+
 from numpy import zeros, uint8
 from omero.gateway import BlitzGateway
 from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
