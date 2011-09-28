@@ -47,7 +47,7 @@ def planeGen():
 
 desc = "Image created from a hard-coded arrays"
 i = conn.createImageFromNumpySeq(planeGen(), "numpy image",\
-        sizeZ, sizeC, sizeT, description=desc, dataset=dataset)
+        sizeZ, sizeC, sizeT, description=desc, dataset=None)
 
 
 # Create an Image from an existing image
