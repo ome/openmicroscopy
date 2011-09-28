@@ -11,8 +11,8 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
+from omero.rtypes import rdouble, rint
 from omero.gateway import BlitzGateway
-from omero.rtypes import *
 from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
 
 

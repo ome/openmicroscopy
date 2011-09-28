@@ -4,9 +4,9 @@
 # into the point indicated below.
 # A more complete template, for 'real-world' scripts, is also included in this folder
 # This script takes an Image ID as a parameter from the scripting service.
+from omero.rtypes import rlong, rstring, unwrap
 from omero.gateway import BlitzGateway
 import omero.scripts as scripts
-from omero.rtypes import *
 
 # Script definition
 
