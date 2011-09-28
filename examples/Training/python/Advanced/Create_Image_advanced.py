@@ -86,14 +86,21 @@ newImg.resetRDefs()  # reset based on colors above
 
 # Apply pixel sizes from original image
 # =================================================================
-px = conn.getQueryService().get("Pixels", newImg.getPixelsId())
+newPix = conn.getQueryService().get("Pixels", newImg.getPixelsId())
+
+physicalSizeX = pixels.getPhysicalSizeX()
 if physicalSizeX is not None:
-    px.setPhysicalSizeX(rdouble(pixels.getPhysicalSizeX()))
+    newPix.setPhysicalSizeX(rdouble(physicalSizeX))
+
+physicalSizeY = pixels.getPhysicalSizeY()
 if physicalSizeY is not None:
-    px.setPhysicalSizeY(rdouble(pixels.getPhysicalSizeY()))
+    newPix.setPhysicalSizeY(rdouble(physicalSizeY))
+
+physicalSizeZ = pixels.getPhysicalSizeZ()
 if physicalSizeZ is not None:
-    px.setPhysicalSizeZ(rdouble(pixels.getPhysicalSizeZ()))
-conn.getUpdateService().saveObject(px)
+    newPix.setPhysicalSizeZ(rdouble(physicalSizeZ))
+
+conn.getUpdateService().saveObject(newPix)
 
 
 # Close connection:
