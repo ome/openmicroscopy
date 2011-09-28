@@ -11,82 +11,118 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
+import omero
 from omero.gateway import BlitzGateway
 from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
-# create a connection
+
+
+# Create a connection
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
-imageId = 101
-datasetId = 101
-plateId = 1
 
 
-# list all Projects available to me, and their Datasets and Images. 
+# Configuration
+imageId = -1
+datasetId = -1
+plateId = -1
+
+
+def print_obj(obj, indent=0):
+    """
+    Helper method to display info about OMERO objects.
+    Not all objects will have a "name" or owner field.
+    """
+    print """%s%s:%s  Name:"%s" (owner=%s)""" % (\
+            " " * indent,
+            obj._obj.ice_staticId().split("::")[-1],\
+            obj.getId(),\
+            obj.getName(),\
+            obj.getOwnerOmeName())
+
+
+# List all Projects available to me, and their Datasets and Images.
 print "\nList Projects:"
-for project in conn.listProjects():
-    print project.getName(), project.getOwnerOmeName()
+print "=" * 50
+for project in conn.listProjects(only_owned=True):
+    print_obj(project)
     for dataset in project.listChildren():
-        print "   ", dataset.getName()
+        print_obj(dataset, 2)
         for image in dataset.listChildren():
-            print "      -", image.getName()
+            print_obj(image, 4)
 
 
 # Retrieve the datasets owned by the user currently logged in.
-
+# ============================================================
+# Here we create an omero.sys.ParametersI instance which we
+# can use to filter the results that are returned. If we did
+# not pass the params argument to getObjects, then all Datasets
+# in the current group would be returned.
 print "\nList Datasets:"
-datasets = conn.getObjects("Dataset")
-for d in datasets:
-    print d.getName(), d.getOwnerOmeName()
+print "=" * 50
+
+params = omero.sys.ParametersI()
+params.exp(conn.getUser().getId())
+
+datasets = conn.getObjects("Dataset", params=params)
+for dataset in datasets:
+    print_obj(dataset)
 
 
 # Retrieve the images contained in a dataset.
-
-dataset = conn.getObject("Dataset", datasetId)
-print "\nImages in Dataset:", dataset.getName()
-for i in dataset.listChildren():
-    print i.getName(), i.getId()
+if datasetId >= 0:
+    print "\nDataset:%s" % datasetId
+    print "=" * 50
+    dataset = conn.getObject("Dataset", datasetId)
+    print "\nImages in Dataset:", dataset.getName()
+    for image in dataset.listChildren():
+        print_obj(image)
 
 
 # Retrieve an image by Image ID.
-
-image = conn.getObject("Image", imageId)
-print "\nImage:"
-print image.getName(), image.getDescription()
-# Retrieve information about an image.
-print " X:", image.getSizeX()
-print " Y:", image.getSizeY()
-print " Z:", image.getSizeZ()
-print " C:", image.getSizeC()
-print " T:", image.getSizeT()
-# render the first timepoint, mid Z section
-z = image.getSizeZ() / 2
-t = 0
-renderedImage = image.renderImage(z, t)
-#renderedImage.show()               # popup (use for debug only)
-#renderedImage.save("test.jpg")     # save in the current folder
+if imageId >= 0:
+    image = conn.getObject("Image", imageId)
+    print "\nImage:%s" % imageId
+    print "=" * 50
+    print image.getName(), image.getDescription()
+    # Retrieve information about an image.
+    print " X:", image.getSizeX()
+    print " Y:", image.getSizeY()
+    print " Z:", image.getSizeZ()
+    print " C:", image.getSizeC()
+    print " T:", image.getSizeT()
+    # render the first timepoint, mid Z section
+    z = image.getSizeZ() / 2
+    t = 0
+    renderedImage = image.renderImage(z, t)
+    #renderedImage.show()               # popup (use for debug only)
+    #renderedImage.save("test.jpg")     # save in the current folder
 
 
 # Retrieve Screening data
 print "\nList Screens:"
+print "=" * 50
 for screen in conn.getObjects("Screen"):
-    print screen.getName(), screen.getOwnerOmeName()
+    print_obj(screen)
     for plate in screen.listChildren():
-        print "   ", plate.getName()
-        
+        print_obj(plate, 2)
+
+
 # Retrieve Wells within a Plate
+if plateId >= 0:
+    print "\nPlate:%s" % plateId
+    print "=" * 50
+    plate = conn.getObject("Plate", plateId)
+    print "\nNumber of fields:", plate.getNumberOfFields()
+    print "\nGrid size:", plate.getGridSize()
+    print "\nWells in Plate:", plate.getName()
+    for well in plate.listChildren():
+        index = well.countWellSample()
+        print "  Well: ", well.row, well.column, " Fields:", index
+        for index in xrange(0, index):
+            print "    Image: ", \
+                    well.getImage(index).getName(),\
+                    well.getImage(index).getId()
 
-plate = conn.getObject("Plate", plateId)
-print "\nNumber of fields:", plate.getNumberOfFields()
-print "\nGrid size:", plate.getGridSize()
-print "\nWells in Plate:", plate.getName()
-for well in plate.listChildren():
-    index = well.countWellSample()
-    print "  Well: ", well.row, well.column, " Fields:", index
-    for index in xrange(0,index):
-        print "    Image: ", well.getImage(index).getName(), well.getImage(index).getId()
-
-# Close connection
-
-# When you're done, close the session to free up server resources. 
-
+# Close connection:
+# When you're done, close the session to free up server resources.
 conn._closeSession()
