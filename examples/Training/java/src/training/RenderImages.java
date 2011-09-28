@@ -1,5 +1,5 @@
 /*
- * training.Rendering 
+ * training.RenderImages
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
@@ -53,7 +53,7 @@ import pojos.PixelsData;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.3.2
  */
-public class Rendering
+public class RenderImages
 	extends ConnectToOMERO
 {
 	
@@ -132,7 +132,7 @@ public class Rendering
 	/**
 	 * Connects and invokes the various methods.
 	 */
-	Rendering()
+	RenderImages()
 	{
 		try {
 			connect();
@@ -149,7 +149,7 @@ public class Rendering
 	
 	public static void main(String[] args) 
 	{
-		new Rendering();
+		new RenderImages();
 	}
 
 }
