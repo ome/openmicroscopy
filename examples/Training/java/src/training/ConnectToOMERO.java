@@ -48,7 +48,7 @@ import pojos.ImageData;
 public class ConnectToOMERO {
 
 	/** The server address.*/
-	private String hostName = "sererName";
+	private String hostName = "serverName";
 	
 	/** The port to use.*/
 	private int port = 4064; //default port
