@@ -59,8 +59,8 @@ public class ConnectToOMERO {
 	/** The password.*/
 	private String password = "password";
 	
-	/** Reference to the client.*/
-	protected client client;
+	/** Reference to the clients.*/
+	protected client client, unsecureClient;
 	
 	/** The service factory.*/
 	protected ServiceFactoryPrx entryUnencrypted;
@@ -72,14 +72,21 @@ public class ConnectToOMERO {
 		ServiceFactoryPrx entry = client.createSession(userName, password);
 		// if you want to have the data transfer encrypted then you can 
 		// use the entry variable otherwise use the following 
-		client unsecureClient = client.createClient(false);
+		unsecureClient = client.createClient(false);
 		entryUnencrypted = unsecureClient.getSession();
 		
 		long userId = entryUnencrypted.getAdminService().getEventContext().userId;
 		
 		long groupId = entryUnencrypted.getAdminService().getEventContext().groupId;
 	}
-	
+
+	protected void disconnect()
+		throws Exception
+	{
+			if (client != null) client.closeSession(); // No exception
+			if (unsecureClient != null) unsecureClient.closeSession(); // No exception
+	}
+
 	/** Load the image.*/
 	protected ImageData loadImage(long imageId)
 		throws Exception
