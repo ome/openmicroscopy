@@ -34,6 +34,8 @@ import java.util.List;
 import omero.api.RawPixelsStorePrx;
 import pojos.ImageData;
 import pojos.PixelsData;
+import training.util.DataSink;
+import training.util.Plane2D;
 
 /** 
  * Sample code showing how to access raw data.
@@ -73,13 +75,23 @@ public class RawDataAccess
 		int sizeZ = pixels.getSizeZ();
 		int sizeT = pixels.getSizeT();
 		int sizeC = pixels.getSizeC();
+		int sizeX = pixels.getSizeX();
+		int sizeY = pixels.getSizeY();
 		long pixelsId = pixels.getId();
 		RawPixelsStorePrx store = entryUnencrypted.createRawPixelsStore(); 
 		store.setPixelsId(pixelsId, false);
+		DataSink data = new DataSink(pixels);
+		Plane2D p;
 		for (int z = 0; z < sizeZ; z++) {
 			for (int t = 0; t < sizeT; t++) {
 				for (int c = 0; c < sizeC; c++) {
 					 byte[] plane = store.getPlane(z, c, t);
+					 p = data.getPlane(plane);
+					 for (int x = 0; x < sizeX; x++) {
+						for (int y = 0; y < sizeY; y++) {
+							System.err.println(p.getPixelValue(x, y));
+						}
+					}
 				}
 			}
 		}
