@@ -26,6 +26,7 @@ package training;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -60,11 +61,12 @@ public class LoadMetadataAdvanced
 		throws Exception
 	{
 		IContainerPrx proxy = entryUnencrypted.getContainerService();
-		List<Long> ids = new ArrayList<Long>();
-		ids.add(imageId);
 		ParametersI po = new ParametersI();
 		po.acquisitionData(); // load the acquisition data.
-		List<Image> results = proxy.getImages(Image.class.getName(), ids, po);
+		List<Image> results = proxy.getImages(Image.class.getName(), 
+				Arrays.asList(imageId), po);
+		if (results.size() == 0)
+			throw new Exception("Image does not exist. Check ID.");
 		ImageAcquisitionData image = new ImageAcquisitionData(results.get(0));
 		//Display information about the image
 		//e.g. humidity
@@ -77,6 +79,8 @@ public class LoadMetadataAdvanced
 		throws Exception
 	{
 		ImageData image = loadImage(imageId);
+		if (image == null)
+			throw new Exception("Image does not exist. Check ID.");
 		long pixelsId = image.getDefaultPixels().getId();
 		Pixels pixels = 
 			entryUnencrypted.getPixelsService().retrievePixDescription(pixelsId);

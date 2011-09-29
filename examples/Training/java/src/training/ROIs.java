@@ -70,6 +70,8 @@ public class ROIs
 		throws Exception
 	{
 		image = loadImage(imageId).asImage();
+		if (image == null)
+			throw new Exception("Image does not exist. Check ID.");
 	}
 	
 	/** 

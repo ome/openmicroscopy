@@ -60,6 +60,8 @@ public class RawDataAccess
 		throws Exception
 	{
 		image = loadImage(imageId);
+		if (image == null)
+			throw new Exception("Image does not exist. Check ID.");
 	}
 	
 	/**

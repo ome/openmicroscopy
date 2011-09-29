@@ -26,6 +26,7 @@ package training;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -98,10 +99,12 @@ public class ReadData
 		DatasetData dataset;
 		while (i.hasNext()) {
 			project = new ProjectData((Project) i.next());
+			System.err.println("Project:"+project.getId()+" "+project.getName());
 			datasets = project.getDatasets();
 			j = datasets.iterator();
 			while (j.hasNext()) {
 				dataset = j.next();
+				System.err.println("dataset:"+dataset.getId()+" "+dataset.getName());
 				//Do something here
 				//If images loaded.
 				//dataset.getImages();
@@ -137,7 +140,7 @@ public class ReadData
 			j = images.iterator();
 			while (j.hasNext()) {
 				image = j.next();
-				//Do something
+				System.err.println("image:"+image.getId()+" "+image.getName());
 			}
 		}
 	}
@@ -167,6 +170,7 @@ public class ReadData
 		ImageData image;
 		while (j.hasNext()) {
 			image = j.next();
+			System.err.println("image:"+image.getId()+" "+image.getName());
 			//Do something
 		}
 	}
@@ -178,19 +182,19 @@ public class ReadData
 		throws Exception
 	{
 		IContainerPrx proxy = entryUnencrypted.getContainerService();
-		List<Long> ids = new ArrayList<Long>();
-		ids.add(imageId);
-		List<Image> results = proxy.getImages(Image.class.getName(), ids, 
-				new ParametersI());
+		List<Image> results = proxy.getImages(Image.class.getName(),
+				Arrays.asList(imageId), new ParametersI());
+		if (results.size() == 0)
+			throw new Exception("Image does not exist. Check ID.");
 		//You can directly interact with the IObject or the Pojos object.
 		//Follow interaction with the Pojos.
 		ImageData image = new ImageData(results.get(0));
 		PixelsData pixels = image.getDefaultPixels();
-		int sizeZ = pixels.getSizeZ(); // The number of z-sections.
-		int sizeT = pixels.getSizeT(); // The number of timepoints.
-		int sizeC = pixels.getSizeC(); // The number of channels.
-		int sizeX = pixels.getSizeX(); // The number of pixels along the X-axis.
-		int sizeY = pixels.getSizeY(); // The number of pixels along the Y-axis.
+		System.err.println(pixels.getSizeZ()); // The number of z-sections.
+		System.err.println(pixels.getSizeT()); // The number of timepoints.
+		System.err.println(pixels.getSizeC()); // The number of channels.
+		System.err.println(pixels.getSizeX()); // The number of pixels along the X-axis.
+		System.err.println(pixels.getSizeY()); // The number of pixels along the Y-axis.
 	}
 	
 	/** 
@@ -218,10 +222,12 @@ public class ReadData
 		PlateData plate;
 		while (i.hasNext()) {
 			screen = new ScreenData((Screen) i.next());
+			System.err.println("screen:"+screen.getId()+" "+screen.getName());
 			plates = screen.getPlates();
 			j = plates.iterator();
 			while (j.hasNext()) {
 				plate = j.next();
+				System.err.println("plate:"+plate.getId()+" "+plate.getName());
 			}
 		}
 	}

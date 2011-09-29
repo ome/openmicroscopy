@@ -98,6 +98,7 @@ public class HowToUseTables
 		
 		for (int i = 0; i < cols.length; i++) {
 			String colName = cols[i].name;
+			System.err.println("Column"+colName);
 		}
 
 		// Depending on size of table, you may only want to read some blocks.
