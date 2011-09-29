@@ -65,6 +65,7 @@ public class ConnectToOMERO {
 	/** The service factory.*/
 	protected ServiceFactoryPrx entryUnencrypted;
 	
+	/** Connects to the server.*/
 	protected void connect()
 		throws Exception
 	{
@@ -80,6 +81,7 @@ public class ConnectToOMERO {
 		long groupId = entryUnencrypted.getAdminService().getEventContext().groupId;
 	}
 
+	/** Disconnects.*/
 	protected void disconnect()
 		throws Exception
 	{

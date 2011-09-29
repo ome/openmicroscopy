@@ -40,14 +40,13 @@ import omero.api.IQueryPrx;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.IObject;
-import omero.model.Image;
 import omero.model.Project;
-import omero.model.Screen;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
-import omero.model.Well;
 import omero.sys.Filter;
 import omero.sys.ParametersI;
+import pojos.DatasetData;
+import pojos.ProjectData;
 
 /**
  * More advanced code for how to load data from an OMERO server.
@@ -72,14 +71,14 @@ public class ReadDataAdvanced
 	private void createDatasets()
 		throws Exception
 	{
-                List<IObject> datasets = new ArrayList<IObject>();
-                for (int i = 0; i < 3; i ++)
-                {
-                    Dataset d = new DatasetI();
-                    d.setName(rstring(datasetName));
-                    datasets.add(d);
-                }
-                entryUnencrypted.getUpdateService().saveArray(datasets);
+		List<IObject> datasets = new ArrayList<IObject>();
+		for (int i = 0; i < 3; i ++)
+		{
+			Dataset d = new DatasetI();
+			d.setName(rstring(datasetName));
+			datasets.add(d);
+		}
+		entryUnencrypted.getUpdateService().saveArray(datasets);
 	}
 
 	/**
@@ -88,15 +87,15 @@ public class ReadDataAdvanced
 	private void createTags()
 		throws Exception
 	{
-                List<IObject> tags = new ArrayList<IObject>();
-                for (int i = 0; i < 3; i ++)
-                {
-                    TagAnnotation t = new TagAnnotationI();
-                    t.setNs(rstring(tagName));
-                    t.setDescription(rstring(String.format("%s %s", tagName, i)));
-                    tags.add(t);
-                }
-                entryUnencrypted.getUpdateService().saveArray(tags);
+		List<IObject> tags = new ArrayList<IObject>();
+		for (int i = 0; i < 3; i ++)
+		{
+			TagAnnotation t = new TagAnnotationI();
+			t.setNs(rstring(tagName));
+			t.setDescription(rstring(String.format("%s %s", tagName, i)));
+			tags.add(t);
+		}
+		entryUnencrypted.getUpdateService().saveArray(tags);
 	}
 
 
@@ -106,22 +105,24 @@ public class ReadDataAdvanced
 	private void loadDatasetsByName()
 		throws Exception
 	{
-                final boolean caseSensitive = true;
-                final Filter filter = new Filter();
-                // Return the first 10 hits or less.
-                filter.limit = rint(10);
-                filter.offset = rint(0);
+		final boolean caseSensitive = true;
+		final Filter filter = new Filter();
+		// Return the first 10 hits or less.
+		filter.limit = rint(10);
+		filter.offset = rint(0);
 
-                IQueryPrx proxy = entryUnencrypted.getQueryService();
-                List<IObject> datasets = (List<IObject>)
-                    proxy.findAllByString("Dataset", "name", datasetName, caseSensitive, filter);
-                System.out.println("\nList Datasets:");
-                for (IObject obj : datasets)
-                {
-                    Dataset d = (Dataset) obj;
-                    System.out.println("ID: " + d.getId().getValue() + " Name: " + d.getName().getValue());
+		IQueryPrx proxy = entryUnencrypted.getQueryService();
+		List<IObject> datasets = (List<IObject>)
+		proxy.findAllByString("Dataset", "name", datasetName, caseSensitive,
+				filter);
+		System.out.println("\nList Datasets:");
+		for (IObject obj : datasets)
+		{
+			Dataset d = (Dataset) obj;
+			System.out.println("ID: " + d.getId().getValue() + " Name: " +
+					d.getName().getValue());
 
-                }
+		}
 	}
 
 	/**
@@ -130,22 +131,69 @@ public class ReadDataAdvanced
 	private void loadTagsByNS()
 		throws Exception
 	{
-                final boolean caseSensitive = true;
-                final Filter filter = new Filter();
-                // Return the first 10 hits or less.
-                filter.limit = rint(10);
-                filter.offset = rint(0);
+		final boolean caseSensitive = true;
+		final Filter filter = new Filter();
+		// Return the first 10 hits or less.
+		filter.limit = rint(10);
+		filter.offset = rint(0);
 
-                IQueryPrx proxy = entryUnencrypted.getQueryService();
-                List<IObject> tags = (List<IObject>)
-                    proxy.findAllByString("TagAnnotation", "ns", tagName, caseSensitive, filter);
-                System.out.println("\nList Tags:");
-                for (IObject obj : tags)
-                {
-                    TagAnnotation t = (TagAnnotation) obj;
-                    System.out.println("ID: " + t.getId().getValue() + " NS: " + t.getNs().getValue());
+		IQueryPrx proxy = entryUnencrypted.getQueryService();
+		List<IObject> tags = (List<IObject>)
+		proxy.findAllByString("TagAnnotation", "ns", tagName, caseSensitive,
+				filter);
+		System.out.println("\nList Tags:");
+		for (IObject obj : tags)
+		{
+			TagAnnotation t = (TagAnnotation) obj;
+			System.out.println("ID: " + t.getId().getValue() + " NS: " +
+					t.getNs().getValue());
 
-                }
+		}
+	}
+	
+	/** 
+	 * Retrieve the projects and the orphaned datasets i.e. datasets not in
+	 * a project.
+	 * 
+	 * If a project contains datasets, the datasets will automatically be loaded.
+	 */
+	private void loadProjectsAndOrphanedDatasets()
+		throws Exception
+	{
+		IContainerPrx proxy = entryUnencrypted.getContainerService();
+		ParametersI param = new ParametersI();
+		long userId = entryUnencrypted.getAdminService().getEventContext().userId;
+		param.exp(omero.rtypes.rlong(userId));
+		
+		//Load the orphaned datasets.
+		param.orphan();
+		
+		//Do not load the images.
+		param.noLeaves(); //indicate to load the images
+		//param.noLeaves(); //no images loaded, this is the default value.
+		List<IObject> results = proxy.loadContainerHierarchy(
+				Project.class.getName(), new ArrayList<Long>(), param);
+		//You can directly interact with the IObject or the Pojos object.
+		//Follow interaction with the Pojos.
+		Iterator<IObject> i = results.iterator();
+		ProjectData project;
+		Set<DatasetData> datasets;
+		Iterator<DatasetData> j;
+		DatasetData dataset;
+		IObject o;
+		while (i.hasNext()) {
+			o = i.next();
+			if (o instanceof Project) {
+				project = new ProjectData((Project) o);
+				System.err.println("Project:"+project.getId()+" "+
+						project.getName());
+			} else if (o instanceof Dataset) {
+				dataset = new DatasetData((Dataset) o);
+				System.err.println("Dataset:"+dataset.getId()+" "+
+						dataset.getName());
+				//Image not loaded.
+			}
+		}
 	}
 
 	/**
@@ -155,10 +203,11 @@ public class ReadDataAdvanced
 	{
 		try {
 			connect(); // First connect.
-                        createDatasets();
-                        createTags();
+			createDatasets();
+			createTags();
 			loadDatasetsByName();
 			loadTagsByNS();
+			loadProjectsAndOrphanedDatasets();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
