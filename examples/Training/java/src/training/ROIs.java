@@ -147,7 +147,11 @@ public class ROIs
         // Retrieve the roi linked to an image
         RoiResult r = entryUnencrypted.getRoiService().findByImage(
         		image.getId().getValue(), new RoiOptions());
+        if (r == null)
+        	throw new Exception("No rois linked to Image:"+image.getId().getValue());
         List<Roi> rois = r.rois;
+        if (rois == null)
+        	throw new Exception("No rois linked to Image:"+image.getId().getValue());
         List<Shape> list;
         Iterator<Roi> j = rois.iterator();
         while (j.hasNext()) {
@@ -163,7 +167,11 @@ public class ROIs
         //Check that the shape does not have shape.
         r = entryUnencrypted.getRoiService().findByImage(
         		image.getId().getValue(), new RoiOptions());
+        if (r == null)
+        	throw new Exception("No rois linked to Image:"+image.getId().getValue());
         rois = r.rois;
+        if (rois == null)
+        	throw new Exception("No rois linked to Image:"+image.getId().getValue());
         j = rois.iterator();
         while (j.hasNext()) {
 			roi = j.next();

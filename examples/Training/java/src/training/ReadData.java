@@ -156,11 +156,12 @@ public class ReadData
 	{
 		IContainerPrx proxy = entryUnencrypted.getContainerService();
 		ParametersI param = new ParametersI();
-		List<Long> ids = new ArrayList<Long>();
-		ids.add(datasetId);
 		param.leaves(); //indicate to load the images
 		List<IObject> results = proxy.loadContainerHierarchy(
-				Dataset.class.getName(), ids, param);
+				Dataset.class.getName(), Arrays.asList(datasetId), param);
+		
+		if (results.size() == 0)
+			throw new Exception("Dataset does not exist. Check ID");
 		
 		//You can directly interact with the IObject or the Pojos object.
 		//Follow interaction with the Pojos.
