@@ -70,8 +70,8 @@ if __name__ == '__main__':
     print "Current group: ", group.getName()
 
     print "Other Members of current group:"
-    for g in conn.listColleagues():
-        print "   ID:", g.getId(), " Name:", g.getFullName()
+    for exp in conn.listColleagues():
+        print "   ID:", exp.getId(), exp.getOmeName(), " Name:", exp.getFullName()
 
     print "Owner of:"
     for g in conn.listOwnedGroups():

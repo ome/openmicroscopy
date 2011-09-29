@@ -1,34 +1,41 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 #
 # Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
 #                    All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
-
 """
 FOR TRAINING PURPOSES ONLY!
 """
-
 from omero.gateway import BlitzGateway
+from cStringIO import StringIO
+try:
+    from PIL import Image
+except ImportError:
+    import Image
 from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
-
-
 # Create a connection
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
-
-
 # Configuration
 # =================================================================
-imageId = 101
+imageId = 27544
+
+
+# Get thumbnail
+# =================================================================
+# Thumbnail is created using the current rendering settings on the image
+image = conn.getObject("Image", imageId)
+img_data = image.getThumbnail()
+renderedThumb = Image.open(StringIO(img_data))
+renderedThumb.show()
+renderedThumb.save("thumbnail.jpg")
 
 
 # Get current settings
 # =================================================================
-image = conn.getObject("Image", imageId)
 print "Channel rendering settings:"
 for ch in image.getChannels():
     print "Name: ", ch.getLabel()   # if no name, get emission wavelength or index

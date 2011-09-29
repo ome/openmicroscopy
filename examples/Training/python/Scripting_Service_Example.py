@@ -41,6 +41,6 @@ print image.getName()
 # Here, we return anything useful the script has produced.
 # NB: The Insight and web clients will display the "Message" output.
 
-message = "Script ran with Image ID: %s" % imageId
+message = "Script ran with Image ID: %s, Name: %s" % (imageId, image.getName())
 client.setOutput("Message", rstring(message))
 client.closeSession()

@@ -204,9 +204,11 @@ handler = WikiRenderer()
 #parser.parse(sys.stdin)
 
 
-pythonFiles = ['python/Connecting.py', 'python/Read_Data.py', 'python/Raw_Data_Access.py', 'python/Write_Data.py', 
-    'python/ROIs.py', 'python/Delete.py', 'python/Rendering.py', 'python/Create_Image.py']
-titles = ['Connecting to OMERO', 'Read Data', 'Raw Data Access', 'Write Data', 'ROIs', 'Delete', 'Rendering', 'Create Image']
+pythonFiles = ['python/Connect_To_OMERO.py', 'python/Read_Data.py', 'python/Raw_Data_Access.py', 'python/Write_Data.py', 
+    'python/Tables.py', 'python/ROIs.py', 'python/Delete.py', 'python/Render_Images.py', 'python/Create_Image.py', 
+        'python/Scripting_Service_Example.py']
+titles = ['Connect to OMERO', 'Read Data', 'Raw Data Access', 'Write Data', 
+    'OMERO tables', 'ROIs', 'Delete Data', 'Render Images', 'Create Image', 'Python OMERO.scripts' ]
 print "\n\n------------------------------------------------PYTHON-------------------------------------------------------------\n\n"
 parser = PythonParser(handler)
 for f, name in zip(pythonFiles, titles):

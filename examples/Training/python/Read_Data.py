@@ -1,32 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 #
 # Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
 #                    All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
-
 """
 FOR TRAINING PURPOSES ONLY!
 """
-
 import omero
 from omero.gateway import BlitzGateway
 from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
-
-
 # Create a connection
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
-
-
 # Configuration
 # =================================================================
-imageId = -1
-datasetId = -1
-plateId = -1
+imageId = 27544
+datasetId = 2651
 
 
 def print_obj(obj, indent=0):
@@ -36,7 +28,7 @@ def print_obj(obj, indent=0):
     """
     print """%s%s:%s  Name:"%s" (owner=%s)""" % (\
             " " * indent,
-            obj._obj.ice_staticId().split("::")[-1],\
+            obj.OMERO_CLASS,\
             obj.getId(),\
             obj.getName(),\
             obj.getOwnerOmeName())
@@ -67,7 +59,7 @@ print "\nList Datasets:"
 print "=" * 50
 
 params = omero.sys.ParametersI()
-params.exp(conn.getUser().getId())
+params.exp(conn.getUser().getId())  # only show current user's Datasets
 
 datasets = conn.getObjects("Dataset", params=params)
 for dataset in datasets:
@@ -76,44 +68,44 @@ for dataset in datasets:
 
 # Retrieve the images contained in a dataset:
 # =================================================================
-if datasetId >= 0:
-    print "\nDataset:%s" % datasetId
-    print "=" * 50
-    dataset = conn.getObject("Dataset", datasetId)
-    print "\nImages in Dataset:", dataset.getName()
-    for image in dataset.listChildren():
-        print_obj(image)
+print "\nDataset:%s" % datasetId
+print "=" * 50
+dataset = conn.getObject("Dataset", datasetId)
+print "\nImages in Dataset:", dataset.getName()
+for image in dataset.listChildren():
+    print_obj(image)
 
 
 # Retrieve an image by Image ID:
 # =================================================================
-if imageId >= 0:
-    image = conn.getObject("Image", imageId)
-    print "\nImage:%s" % imageId
-    print "=" * 50
-    print image.getName(), image.getDescription()
-    # Retrieve information about an image.
-    print " X:", image.getSizeX()
-    print " Y:", image.getSizeY()
-    print " Z:", image.getSizeZ()
-    print " C:", image.getSizeC()
-    print " T:", image.getSizeT()
-    # render the first timepoint, mid Z section
-    z = image.getSizeZ() / 2
-    t = 0
-    renderedImage = image.renderImage(z, t)
-    #renderedImage.show()               # popup (use for debug only)
-    #renderedImage.save("test.jpg")     # save in the current folder
+image = conn.getObject("Image", imageId)
+print "\nImage:%s" % imageId
+print "=" * 50
+print image.getName(), image.getDescription()
+# Retrieve information about an image.
+print " X:", image.getSizeX()
+print " Y:", image.getSizeY()
+print " Z:", image.getSizeZ()
+print " C:", image.getSizeC()
+print " T:", image.getSizeT()
+# render the first timepoint, mid Z section
+z = image.getSizeZ() / 2
+t = 0
+renderedImage = image.renderImage(z, t)
+#renderedImage.show()               # popup (use for debug only)
+#renderedImage.save("test.jpg")     # save in the current folder
 
 
 # Retrieve Screening data:
 # =================================================================
+plateId = -1
 print "\nList Screens:"
 print "=" * 50
 for screen in conn.getObjects("Screen"):
     print_obj(screen)
     for plate in screen.listChildren():
         print_obj(plate, 2)
+        plateId = plate.getId()
 
 
 # Retrieve Wells and Images within a Plate:
