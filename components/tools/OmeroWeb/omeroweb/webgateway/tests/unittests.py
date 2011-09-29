@@ -140,6 +140,7 @@ class FileCacheTest(unittest.TestCase):
         self.cache.set('date/test/1', '1', timeout=3)
         self.assertEqual(self.cache.get('date/test/1'), '1', 'Key not properly cached')
         time.sleep(4)
+        self.assert_(self.cache.has_key('date/test/1'))
         self.assertEqual(self.cache.get('date/test/1'), '1', 'Key got timedout and should not')
 
     def testMaxSize (self):

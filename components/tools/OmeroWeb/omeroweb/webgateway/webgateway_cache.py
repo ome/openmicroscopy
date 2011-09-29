@@ -16,13 +16,13 @@ import omero
 import logging
 from random import random
 import datetime
-
+from types import StringTypes
 
 logger = logging.getLogger('cache')
 
 import struct, time, os, re, shutil, stat
 size_of_double = len(struct.pack('d',0))
-string_type = type('')
+#string_type = type('')
 
 CACHE=getattr(settings, 'WEBGATEWAY_CACHE', None)
 TMPROOT=getattr(settings, 'WEBGATEWAY_TMPROOT', None)
@@ -108,14 +108,7 @@ class FileCache(CacheBase):
         fname = self._key_to_file(key)
         try:
             f = open(fname, 'rb')
-            if self._default_timeout > 0:
-                exp = struct.unpack('d',f.read(size_of_double))[0]
-                now = time.time()
-                exp = exp < now
-            else: 
-                f.seek(size_of_double)
-                exp = False
-            if exp:
+            if not self._check_entry(f):
                 f.close()
                 self._delete(fname)
             else:
@@ -134,7 +127,7 @@ class FileCache(CacheBase):
         @param invalidateGroup:     Not used? 
         """
         
-        if type(value) != string_type:
+        if not isinstance(value, StringTypes):
             raise ValueError("%s not a string, can't cache" % type(value))
         fname = self._key_to_file(key)
         dirname = os.path.dirname(fname)
@@ -156,9 +149,13 @@ class FileCache(CacheBase):
                 os.makedirs(dirname)
 
             f = open(fname, 'wb')
-            exp = time.time() + timeout + (timeout / 5 * random()) 
+            if timeout > 0:
+                exp = time.time() + timeout + (timeout / 5 * random())
+            else:
+                exp = 0
             f.write(struct.pack('d', exp))
             f.write(value)
+            f.close()
         except (IOError, OSError): #pragma: nocover
             pass
 
@@ -206,19 +203,30 @@ class FileCache(CacheBase):
         Verifies if a specific cache entry (provided as absolute file path) is expired.
         If expired, it gets deleted and method returns false.
         If not expired, returns True.
+
+        If fname is a file object, fpos will advance size_of_double bytes.
         
-        @param fname:   File path
+        @param fname:   File path or file object
+        @rtype Boolean
+        @return True if entry is valid, False if expired
         """
         try:
-            f = open(fname, 'rb')
-            exp = struct.unpack('d',f.read(size_of_double))[0]
-            now = time.time()
-            if exp < now:
-                f.close()
-                self._delete(fname)
-                return False
+            if isinstance(fname, StringTypes):
+                f = open(fname, 'rb')
+                exp = struct.unpack('d',f.read(size_of_double))[0]
             else:
-                return True
+                f = None
+                exp = struct.unpack('d',fname.read(size_of_double))[0]
+            if self._default_timeout > 0 and exp > 0:
+                now = time.time()
+                if exp < now:
+                    if f is not None:
+                        f.close()
+                        self._delete(fname)
+                    return False
+                else:
+                    return True
+            return True
         except (IOError, OSError, EOFError, struct.error): #pragma: nocover
             return False
 
