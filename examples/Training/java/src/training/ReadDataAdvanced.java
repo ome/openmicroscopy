@@ -26,6 +26,7 @@ package training;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -46,6 +47,7 @@ import omero.model.TagAnnotationI;
 import omero.sys.Filter;
 import omero.sys.ParametersI;
 import pojos.DatasetData;
+import pojos.ImageData;
 import pojos.ProjectData;
 
 /**
@@ -177,10 +179,9 @@ public class ReadDataAdvanced
 		//Follow interaction with the Pojos.
 		Iterator<IObject> i = results.iterator();
 		ProjectData project;
-		Set<DatasetData> datasets;
-		Iterator<DatasetData> j;
 		DatasetData dataset;
 		IObject o;
+		long datasetId = -1;
 		while (i.hasNext()) {
 			o = i.next();
 			if (o instanceof Project) {
@@ -191,7 +192,28 @@ public class ReadDataAdvanced
 				dataset = new DatasetData((Dataset) o);
 				System.err.println("Dataset:"+dataset.getId()+" "+
 						dataset.getName());
+				if (datasetId < 0) datasetId = dataset.getId();
 				//Image not loaded.
+			}
+		}
+		
+		//Now load the image for the first orphaned dataset
+		if (datasetId < 0) return;
+		param = new ParametersI();
+		param.exp(omero.rtypes.rlong(userId));
+		param.leaves();
+		results = proxy.loadContainerHierarchy(
+				Dataset.class.getName(), Arrays.asList(datasetId), param);
+		i = results.iterator();
+		Iterator<ImageData> j;
+		while (i.hasNext()) {
+			dataset = new DatasetData((Dataset) i.next());
+			Set<ImageData> images = dataset.getImages();
+			j = images.iterator();
+			System.err.println("Size:"+images.size());
+			while (j.hasNext()) {
+				ImageData image = j.next();
+				System.err.println("Image:"+image.getId()+" "+image.getName());
 			}
 		}
 	}
