@@ -84,7 +84,7 @@ image.setProjection('normal')               # turn off projection
 channels = [1, 2]
 rangeList = [(100.0, 120.2), (None, None)]
 image.setActiveChannels(channels, windows=rangeList)
-renderedImage = image.renderImage(z, t)
+renderedImage = image.renderImage(z, t, compression=0.5)    # default compression is 0.9
 renderedImage.show()
 renderedImage.save("two_channels.jpg")
 
