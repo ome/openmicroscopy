@@ -48,12 +48,11 @@ public class RawDataAccess
 	extends ConnectToOMERO
 {
 	
+	/** Information to edit.*/
+	private long imageId = 27544;
+	
 	/** The image.*/
 	private ImageData image;
-	
-	/** The id of an image.*/
-	private long imageId = 456;
-	
 
 	/** Load the image.*/
 	private void loadImage()

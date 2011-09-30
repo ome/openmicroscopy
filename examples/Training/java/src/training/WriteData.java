@@ -74,18 +74,26 @@ public class WriteData
 	extends ConnectToOMERO
 {
 
+	/** Information to edit.*/
+	/** The id of an image.*/
+	private long imageId = 27544;
+	
+	/** The id of a project.*/
+	private long projectId = 3109;
+	
+	/** Path to the file to upload.*/
+	private String fileToUpload = "path/to/fileToUpload.txt";// This file should already exist
+	
+	/** Path to the file. The file should already be there.*/
+	private String downloadFileName = "path/to/download.txt";
+	
+	
 	/** Maximum size of data read at once. */
 	private static final int INC = 262144;
 	
 	/** The image.*/
 	private ImageData image;
-	
-	/** The id of an image.*/
-	private long imageId = 456;
-	
-	/** The id of a project.*/
-	private long projectId = 2;
-	
+
 	private String generatedSha1 = "pending";
 	
 	private String fileMimeType = "application/octet-stream";
@@ -93,14 +101,7 @@ public class WriteData
 	private String description = "description";
 	
 	private String NAME_SPACE_TO_SET = "Java/Training";
-	
-	/** Path to the file to upload.*/
-	private String fileToUpload = "path/to/fileToUpload.txt";// This file should already exist
-	
-	/** Path to the file. The file should already be there.*/
-	private String downloadFileName = "path/to/download.txt";
-		
-	
+
 	/** Load the image.*/
 	private void loadImage()
 		throws Exception

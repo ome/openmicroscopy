@@ -58,8 +58,8 @@ public class ROIs
 	extends ConnectToOMERO
 {
 	
-	/** The id of an image.*/
-	private long imageId = 551;
+	/** Information to edit.*/
+	private long imageId = 27544;
 	
 	private Image image;
 

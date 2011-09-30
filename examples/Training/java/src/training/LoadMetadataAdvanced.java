@@ -25,7 +25,6 @@ package training;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -53,8 +52,8 @@ public class LoadMetadataAdvanced
 	extends ConnectToOMERO
 {
 
-	/** The id of an image.*/
-	private long imageId = 551;
+	/**Information to edit.*/
+	private long imageId = 27544;
 	
 	/** Load the image acquisition data.*/
 	private void loadAcquisitionData()

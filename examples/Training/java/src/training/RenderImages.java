@@ -57,8 +57,8 @@ public class RenderImages
 	extends ConnectToOMERO
 {
 	
-	/** The id of an image.*/
-	private long imageId = 456;
+	/** Information to edit.*/
+	private long imageId = 27544;
 	
 	private ImageData image;
 	/** 

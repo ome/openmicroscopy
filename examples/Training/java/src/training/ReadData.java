@@ -62,14 +62,16 @@ public class ReadData
 	extends ConnectToOMERO
 {
 	
+	/** Information to edit.*/
+	
 	/** The id of a dataset.*/
-	private long datasetId = 51;
+	private long datasetId = 2651;
 	
 	/** The id of an image.*/
-	private long imageId = 456;
+	private long imageId = 27544;
 	
 	/** The id of a plate.*/
-	private long plateId = 53;
+	private long plateId = 1007;
 	
 	/** The id of the plate acquisition corresponding to the plate.*/
 	private long plateAcquisitionId = 0;
