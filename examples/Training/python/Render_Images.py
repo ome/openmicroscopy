@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 #
 # Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
 #                    All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
+
 """
 FOR TRAINING PURPOSES ONLY!
 """
+
 from omero.gateway import BlitzGateway
 from cStringIO import StringIO
 try:
@@ -15,10 +18,14 @@ try:
 except ImportError:
     import Image
 from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
+
+
 # Create a connection
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
+
+
 # Configuration
 # =================================================================
 imageId = 27544
