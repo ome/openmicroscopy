@@ -1,4 +1,11 @@
-import sys, re
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#
+# Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+#                    All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
 
 """
 This script parses a list of text files and generates Wiki output.
@@ -8,8 +15,19 @@ $ python markup.py > wikiText.txt    # to file
 
 """
 
+import sys, re
+import fileinput
+
+
 def lines(file):
-    for line in file: yield line
+    if file.name.endswith(".py"):
+        all = [line for line in file]
+        skip = check_header(all, quiet=True)
+        for line in all[skip:]:
+            yield line
+    else:
+        for line in file:
+            yield line
     yield '\n'
 
 def blocks(file):
@@ -198,28 +216,73 @@ class MatlabParser(Parser):
         #self.addFilter(r'\*(.+?)\*', 'emphasis')
         self.addFilter(r'(http://[\.a-zA-Z_/]+)', 'url')
 
-#handler = HTMLRenderer()
-handler = WikiRenderer()
 
-#parser.parse(sys.stdin)
+PYHEADER="""#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
+#
+# Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+#                    All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
 
-pythonFiles = ['python/Connect_To_OMERO.py', 'python/Read_Data.py', 'python/Raw_Data_Access.py', 'python/Write_Data.py', 
-    'python/Tables.py', 'python/ROIs.py', 'python/Delete.py', 'python/Render_Images.py', 'python/Create_Image.py', 
-        'python/Scripting_Service_Example.py']
-titles = ['Connect to OMERO', 'Read Data', 'Raw Data Access', 'Write Data', 
-    'OMERO tables', 'ROIs', 'Delete Data', 'Render Images', 'Create Image', 'Python OMERO.scripts' ]
-print "\n\n------------------------------------------------PYTHON-------------------------------------------------------------\n\n"
-parser = PythonParser(handler)
-for f, name in zip(pythonFiles, titles):
-    read = open(f, 'r')
-    parser.parse(read, name)
+\"\"\"
+FOR TRAINING PURPOSES ONLY!
+\"\"\"""".split("\n")
 
 
-matlabFiles = ['matlab/loadData.m']
-mTitles = ['Load Data']
-print "\n\n------------------------------------------------MATLAB-------------------------------------------------------------\n\n"
-parser = MatlabParser(handler)
-for f, name in zip(matlabFiles, mTitles):
-    read = open(f, 'r')
-    parser.parse(read, name)
+def check_header(file_lines, quiet=False):
+    """
+    Checks the first N lines of the file that they match
+    PYHEADER. Returns the number of lines which should be skipped.
+    """
+    lines = []
+    for line in file_lines:
+        idx = len(lines)
+        lines.append(line)
+        try:
+            test = PYHEADER[idx]
+            if test.strip() != line.strip():
+                raise Exception("bad header. expected: '%s'. found: '%s'." % \
+                    (line.strip(), test.strip()))
+        except IndexError:
+            if not quiet:
+                print "ok"
+            break
+    return len(lines)
+
+if __name__ == "__main__":
+
+    pythonFiles = ['python/Connect_To_OMERO.py', 'python/Read_Data.py', 'python/Raw_Data_Access.py', 'python/Write_Data.py', 
+        'python/Tables.py', 'python/ROIs.py', 'python/Delete.py', 'python/Render_Images.py', 'python/Create_Image.py', 
+            'python/Scripting_Service_Example.py']
+    titles = ['Connect to OMERO', 'Read Data', 'Raw Data Access', 'Write Data', 
+        'OMERO tables', 'ROIs', 'Delete Data', 'Render Images', 'Create Image', 'Python OMERO.scripts' ]
+
+    if "--check_header" in sys.argv:
+        for py in pythonFiles:
+            print "check_header(%s)" % py,
+            check_header([x for x in open(py, "r")])
+
+    else:
+
+        #handler = HTMLRenderer()
+        handler = WikiRenderer()
+
+        #parser.parse(sys.stdin)
+
+
+        print "\n\n------------------------------------------------PYTHON-------------------------------------------------------------\n\n"
+        parser = PythonParser(handler)
+        for f, name in zip(pythonFiles, titles):
+            read = open(f, 'r')
+            parser.parse(read, name)
+
+
+        matlabFiles = ['matlab/loadData.m']
+        mTitles = ['Load Data']
+        print "\n\n------------------------------------------------MATLAB-------------------------------------------------------------\n\n"
+        parser = MatlabParser(handler)
+        for f, name in zip(matlabFiles, mTitles):
+            read = open(f, 'r')
+            parser.parse(read, name)
