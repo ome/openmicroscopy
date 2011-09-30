@@ -57,7 +57,7 @@ conn.getUpdateService().saveObject(link)
 # =================================================================
 dataset = conn.getObject("Dataset", datasetId)
 # create the original file and file annotation (uploads the file etc.)
-namespace = "omero.training.write_data"
+namespace = "imperial.training.demo"
 print "\nCreating an OriginalFile and FileAnnotation"
 fileAnn = conn.createFileAnnfromLocalFile(fileToUpload, mimetype="text/plain", ns=namespace, desc=None)
 print "Attaching FileAnnotation to Dataset: ", "File ID:", fileAnn.getId(), ",", fileAnn.getFile().getName(), "Size:", fileAnn.getFile().getSize()
