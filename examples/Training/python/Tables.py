@@ -55,6 +55,7 @@ data1 = omero.grid.LongColumn('Uid', 'test Long', ids)
 data2 = omero.grid.StringColumn('MyStringColumn', '', 64, strings)
 data = [data1, data2]
 table.addData(data)
+table.close()           # when we're done, close.
 
 
 # Get the table as an original file...
@@ -117,6 +118,7 @@ for col in data.columns:
     print "Query Results for Column: ", col.name
     for v in col.values:
         print "   ", v
+openTable.close()           # we're done
 
 
 # Close connection:

@@ -27,10 +27,6 @@ updateService = conn.getUpdateService()
 # Configuration
 # =================================================================
 imageId = 27544
-x = 50
-y = 200
-width = 3
-height = 2
 
 
 # Create ROI.
@@ -40,7 +36,10 @@ height = 2
 #
 # In this example, we create an ROI with a rectangular shape and attach it to an
 # image.
-
+x = 50
+y = 200
+width = 100
+height = 50
 image = conn.getObject("Image", imageId)
 theZ = image.getSizeZ() / 2
 theT = 0

@@ -33,7 +33,7 @@ def lines(file):
 def blocks(file):
     block = []
     for line in lines(file):
-        if line.strip():
+        if line.strip() and not line.startswith("# ======================="):
             block.append(line.rstrip())
         elif block:
             #yield ''.join(block).strip()

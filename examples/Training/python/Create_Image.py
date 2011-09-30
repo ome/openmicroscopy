@@ -52,7 +52,7 @@ i = conn.createImageFromNumpySeq(planeGen(), "numpy image",\
 # Create an Image from an existing image
 # =================================================================
 # We are going to create a new image by passing the method a 'generator' of 2D
-# planes This will come from an existing image, dividing one channel by another
+# planes This will come from an existing image, by taking the average of 2 channels.
 zctList = []
 image = conn.getObject('Image', imageId)
 sizeZ, sizeC, sizeT = image.getSizeZ(), image.getSizeC(), image.getSizeT()
@@ -73,7 +73,8 @@ def planeGen():
             for t in range(sizeT):      # all time-points
                 channel0 = pixels.getPlane(z, 0, t)
                 channel1 = pixels.getPlane(z, 1, t)
-                newPlane = (channel0 + channel1) / 2       # numpy allows us to divide arrays
+                # Here we can manipulate the data in many different ways. As an example we're doing "average"
+                newPlane = (channel0 + channel1) / 2    # average of 2 channels
                 print "newPlane for z,t:", z, t, newPlane.dtype, newPlane.min(), newPlane.max()
                 yield newPlane
 
