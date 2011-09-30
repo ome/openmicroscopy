@@ -606,6 +606,13 @@ java component.
         </nsis>
     </target>
 
+    <target name="release-training" description="Produces a zip with the examples/Training files">
+        <zip destfile="${omero.home}/target/OMERO.training-${omero.version}.zip">
+            <zipfileset dir="${omero.home}/examples" prefix="OMERO.training-${omero.version}" includes="Training/**"/>
+            <zipfileset dir="${omero.home}" prefix="OMERO.training-${omero.version}" includes="LICENSE.txt"/>
+        </zip>
+    </target>
+
     <!--
     Top-level helpers (shared helpers are in components/antlib/resources)
     =====================================================================
