@@ -19,6 +19,7 @@ conn.connect()
 # =================================================================
 imageId = 27544
 datasetId = 2651
+plateId = -1
 
 
 def print_obj(obj, indent=0):
@@ -98,7 +99,6 @@ renderedImage = image.renderImage(z, t)
 
 # Retrieve Screening data:
 # =================================================================
-plateId = -1
 print "\nList Screens:"
 print "=" * 50
 for screen in conn.getObjects("Screen"):
