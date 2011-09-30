@@ -32,7 +32,7 @@ imageId = 27544
 # a 2D numpy array. See http://www.scipy.org/Tentative_NumPy_Tutorial
 #
 # Numpy array can be used for various analysis routines
-
+#
 image = conn.getObject("Image", imageId)
 sizeZ = image.getSizeZ()
 sizeC = image.getSizeC()
@@ -53,7 +53,6 @@ print "min:", plane.min(), " max:", plane.max(),\
 # a generator of data (not all the data in hand) The RawPixelsStore is
 # only opened once (not closed after each plane) Alternative is to use
 # getPlane() or getTile() multiple times - slightly slower.
-
 c, t = 0, 0                 # First channel and timepoint
 tile = (50, 50, 10, 10)     # x, y, width, height of tile
 

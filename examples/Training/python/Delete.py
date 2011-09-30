@@ -44,7 +44,6 @@ print "\nProject:", project.getName()
 # You can delete a number of objects of the same type at the same
 # time. In this case 'Project'. Use deleteChildren=True if you are
 # deleting a Project and you want to delete Datasets and Images.
-
 obj_ids = [projectId]
 deleteChildren = False
 handle = conn.deleteObjects("Project", obj_ids,\

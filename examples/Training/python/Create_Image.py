@@ -31,7 +31,6 @@ imageId = 27544     # This image must have at least 2 channels
 # This example demonstrates the usage of the convenience method
 # createImageFromNumpySeq() Here we create a multi-dimensional image from a
 # hard-coded array of data.
-
 from numpy import array
 sizeX, sizeY, sizeZ, sizeC, sizeT = 5, 4, 1, 2, 1
 plane1 = array([[0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [0, 1, 2, 3, 4], [5, 6, 7, 8, 9]])
@@ -54,7 +53,6 @@ i = conn.createImageFromNumpySeq(planeGen(), "numpy image",\
 # =================================================================
 # We are going to create a new image by passing the method a 'generator' of 2D
 # planes This will come from an existing image, dividing one channel by another
-
 zctList = []
 image = conn.getObject('Image', imageId)
 sizeZ, sizeC, sizeT = image.getSizeZ(), image.getSizeC(), image.getSizeT()

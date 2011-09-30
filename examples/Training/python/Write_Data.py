@@ -24,7 +24,6 @@ conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
-
 # Configuration
 # =================================================================
 projectId = 3109

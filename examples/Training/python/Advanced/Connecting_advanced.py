@@ -32,7 +32,6 @@ groupId = 5
 # =================================================================
 # By default, you will have logged into your 'current' group in OMERO. This can
 # be changed by switching group in the OMERO insight or web clients.
-
 user = conn.getUser()
 print "Current user:"
 print "   ID:", user.getId()
@@ -55,7 +54,6 @@ print "Current group: ", group.getName()
 #
 # WARNING: if there are any jobs run and services cannot be closed,
 # active group will not be changed.
-
 try:
 
     # Close possibly stateful proxies
