@@ -272,7 +272,8 @@ class PropertiesUI
     	addComponentListener(new ComponentAdapter() {
 
 			public void componentResized(ComponentEvent e) {
-				descriptionPane.wrapText(descriptionPanel.getSize().width);
+				if (descriptionPane != null && descriptionPanel != null)
+					descriptionPane.wrapText(descriptionPanel.getSize().width);
 			}
 		});
     	defaultBorder = namePane.getBorder();
