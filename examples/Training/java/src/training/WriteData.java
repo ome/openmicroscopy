@@ -100,8 +100,6 @@ public class WriteData
 	
 	private String description = "description";
 	
-	private String NAME_SPACE_TO_SET = "Java/Training";
-
 	/** Load the image.*/
 	private void loadImage()
 		throws Exception
@@ -219,7 +217,7 @@ public class WriteData
 		FileAnnotation fa = new FileAnnotationI();
 		fa.setFile(originalFile);
 		fa.setDescription(omero.rtypes.rstring(description)); // The description set above e.g. PointsModel
-		fa.setNs(omero.rtypes.rstring(NAME_SPACE_TO_SET)); // The name space you have set to identify the file annotation.
+		fa.setNs(omero.rtypes.rstring(trainingNameSpace)); // The name space you have set to identify the file annotation.
 
 		// save the file annotation.
 		fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
@@ -242,7 +240,7 @@ public class WriteData
 	{
 		long userId = entryUnencrypted.getAdminService().getEventContext().userId;
 		List<String> nsToInclude = new ArrayList<String>();
-		nsToInclude.add(NAME_SPACE_TO_SET);
+		nsToInclude.add(trainingNameSpace);
 		List<String> nsToExclude = new ArrayList<String>();
 		ParametersI param = new ParametersI();
 		param.exp(omero.rtypes.rlong(userId)); //load the annotation for a given user.

@@ -93,7 +93,7 @@ public class ReadDataAdvanced
 		for (int i = 0; i < 3; i ++)
 		{
 			TagAnnotation t = new TagAnnotationI();
-			t.setNs(rstring(tagName));
+			t.setNs(rstring(trainingNameSpace));
 			t.setDescription(rstring(String.format("%s %s", tagName, i)));
 			tags.add(t);
 		}
@@ -141,15 +141,14 @@ public class ReadDataAdvanced
 
 		IQueryPrx proxy = entryUnencrypted.getQueryService();
 		List<IObject> tags = (List<IObject>)
-		proxy.findAllByString("TagAnnotation", "ns", tagName, caseSensitive,
-				filter);
+		proxy.findAllByString("TagAnnotation", "ns", trainingNameSpace,
+				caseSensitive, filter);
 		System.out.println("\nList Tags:");
 		for (IObject obj : tags)
 		{
 			TagAnnotation t = (TagAnnotation) obj;
 			System.out.println("ID: " + t.getId().getValue() + " NS: " +
 					t.getNs().getValue());
-
 		}
 	}
 	

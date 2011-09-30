@@ -138,8 +138,10 @@ public class CreateImage
 		if (type == null)
 			throw new Exception("Pixels Type not valid.");
 	
+		String name = "newImageFrom"+image.getId();
 		RLong idNew = proxy.createImage(sizeX, sizeY, sizeZ, sizeT, 
-				Arrays.asList(0), type, "new image", "Image ID:"+image.getId());
+				Arrays.asList(0), type, name,
+				"From Image ID: "+image.getId());
 		if (idNew == null)
 			throw new Exception("New image could not be created.");
 		ImageData newImage = loadImage(idNew.getValue());

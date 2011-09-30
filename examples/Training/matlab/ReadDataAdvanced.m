@@ -4,7 +4,7 @@
 
 % Information to edit
 datasetName = char('myDataset');
-tagNs = char('myTagNs');
+tagNs = char('imperial.training.demo');
 tagName = char('myTagName');
 
 % Load Data

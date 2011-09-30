@@ -11,7 +11,7 @@ generatedSha1 = char('pending');
 fileMimeType = char('application/octet-stream');
 
 description = char(java.util.UUID.randomUUID());
-NAME_SPACE_TO_SET = char('Training/matlab');
+NAME_SPACE_TO_SET = char('imperial.training.demo');
 
 % How to create a file annotation and link to an image.
 

@@ -47,6 +47,9 @@ import pojos.ImageData;
  */
 public class ConnectToOMERO {
 
+	/** The name space used during the training.*/
+	String trainingNameSpace = "imperial.training.demo";
+	
 	/** The server address.*/
 	private String hostName = "serverName";
 	
