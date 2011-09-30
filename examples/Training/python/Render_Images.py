@@ -37,7 +37,7 @@ imageId = 27544
 image = conn.getObject("Image", imageId)
 img_data = image.getThumbnail()
 renderedThumb = Image.open(StringIO(img_data))
-renderedThumb.show()
+#renderedThumb.show()           # shows a pop-up
 renderedThumb.save("thumbnail.jpg")
 
 
@@ -62,7 +62,7 @@ for c in range(1, sizeC + 1):       # Channel index starts at 1
     channels = [c]                  # Turn on a single channel at a time
     image.setActiveChannels(channels)
     renderedImage = image.renderImage(z, t)
-    renderedImage.show()                        # popup (use for debug only)
+    #renderedImage.show()                        # popup (use for debug only)
     renderedImage.save("channel%s.jpg" % c)     # save in the current folder
 
 
@@ -74,7 +74,7 @@ colorList = ['F00', None, 'FFFF00']         # don't change colour of 2nd channel
 image.setActiveChannels(channels, colors=colorList)
 image.setProjection('intmax')               # max intensity projection 'intmean' for mean-intensity
 renderedImage = image.renderImage(z, t)     # z and t are ignored for projections
-renderedImage.show()
+#renderedImage.show()
 renderedImage.save("all_channels.jpg")
 image.setProjection('normal')               # turn off projection
 
@@ -85,7 +85,7 @@ channels = [1, 2]
 rangeList = [(100.0, 120.2), (None, None)]
 image.setActiveChannels(channels, windows=rangeList)
 renderedImage = image.renderImage(z, t, compression=0.5)    # default compression is 0.9
-renderedImage.show()
+#renderedImage.show()
 renderedImage.save("two_channels.jpg")
 
 
