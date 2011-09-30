@@ -279,8 +279,10 @@ if __name__ == "__main__":
             parser.parse(read, name)
 
 
-        matlabFiles = ['matlab/loadData.m']
-        mTitles = ['Load Data']
+        matlabFiles = [ 'matlab/ConnectToOMERO.m', 'matlab/ReadData.m', 'matlab/RawDataAccess.m', \
+                        'matlab/WriteData.m', 'matlab/ROIs.m', 'matlab/DeleteData.m', 'matlab/RenderImages.m']
+        mTitles = ['Connect to OMERO', 'Read Data', 'Raw Data Access', 'Write Data', \
+                        'ROIs', 'Delete Data', 'Render Images']
         print "\n\n------------------------------------------------MATLAB-------------------------------------------------------------\n\n"
         parser = MatlabParser(handler)
         for f, name in zip(matlabFiles, mTitles):
