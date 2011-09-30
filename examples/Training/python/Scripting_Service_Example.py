@@ -1,3 +1,16 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#
+# Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+#                    All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+
+"""
+FOR TRAINING PURPOSES ONLY!
+"""
+
 # This is a 'bare-bones' template to allow easy conversion from a simple client-side Python script
 # to a script run by the server, on the OMERO scripting service.
 # To use the script, simply paste the body of the script (not the connection code)
