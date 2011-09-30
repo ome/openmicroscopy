@@ -11,6 +11,10 @@ try
     imagename = tempname();
     proxy = session.getContainerService();
     list = proxy.getImages(omero.model.Image.class, java.util.Arrays.asList(imageId), omero.sys.ParametersI());
+    if (list.size == 0)
+        exception = MException('OMERO:RenderImages', 'Image Id not valid');
+        throw(exception);
+    end
     image = list.get(0);
     pixelsList = image.copyPixels();
     pixels = pixelsList.get(0);
@@ -86,6 +90,7 @@ try
         stream.close();
         imshow(JavaImageToMatlab(image));
     end
+    store.close();
 catch err
      disp(err.message);
 end

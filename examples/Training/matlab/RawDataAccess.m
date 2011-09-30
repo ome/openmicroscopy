@@ -18,7 +18,11 @@ try
     % First retrieve the image.
     
     proxy = session.getContainerService();
-    list = proxy.getImages(omero.model.Image.class, java.util.Arrays.asList(imageId), omero.sys.ParametersI()); 
+    list = proxy.getImages(omero.model.Image.class, java.util.Arrays.asList(imageId), omero.sys.ParametersI());
+    if (list.size == 0)
+        exception = MException('OMERO:RawDataAccess', 'Image Id not valid');
+        throw(exception);
+    end
     image = list.get(0);
     pixelsList = image.copyPixels();
     % you should only have one pixels set per image.

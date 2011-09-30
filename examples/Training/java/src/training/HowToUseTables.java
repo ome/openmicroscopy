@@ -88,9 +88,13 @@ public class HowToUseTables
 		}
     	
 		table.addData(newRow);
-		
+
 		OriginalFile file = table.getOriginalFile(); // if you need to interact with the table
-		file = new OriginalFileI(file.getId(), false); 
+		
+		table.close();
+		
+		file = new OriginalFileI(file.getId(), false);
+		//Open the table again
 		table = entryUnencrypted.sharedResources().openTable(file);
 
 		//read headers

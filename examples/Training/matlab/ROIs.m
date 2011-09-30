@@ -13,6 +13,13 @@ imageId = 27544;
 % ROIs
 try
     [client, session] = connect();
+    proxy = session.getContainerService();
+    list = proxy.getImages(omero.model.Image.class, java.util.Arrays.asList(java.lang.Long(imageId)), omero.sys.ParametersI());
+    if (list.size == 0)
+        exception = MException('OMERO:ROIs', 'Image Id not valid');
+        throw(exception);
+    end
+    
     %Create ROI. In this example, we create an ROI with a rectangular shape and
     %attach it to an image. 
     % First create a rectangular shape.

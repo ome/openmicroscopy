@@ -45,12 +45,20 @@ try
     param = omero.sys.ParametersI();
     param.leaves(); % indicate to load the images.
     list = proxy.loadContainerHierarchy(omero.model.Dataset.class, java.util.Arrays.asList(datasetId), param);
+    if (list.size == 0)
+        exception = MException('OMERO:ReadData', 'Dataset Id not valid');
+        throw(exception);
+    end
     dataset = list.get(0);
     imageList = dataset.linkedImageList; % The images in the dataset.
 
     % Retrieve an image if the identifier is known.
     proxy = session.getContainerService();
     list = proxy.getImages(omero.model.Image.class, java.util.Arrays.asList(imageId), omero.sys.ParametersI());
+    if (list.size == 0)
+        exception = MException('OMERO:ReadData', 'Image Id not valid');
+        throw(exception);
+    end
     image = list.get(0);
 
     % Access information about the image for example to draw it.
@@ -75,7 +83,7 @@ try
     % (to learn about the model go to ScreenPlateWell) but you can use the ContainerService to 
     % load the data, you can use the method `findAllByQuery`. 
 
-    % load Screen and plate owned by the user with id 1
+    % load Screen and plate owned by the user currently logged in
     proxy = session.getContainerService();
     userId = session.getAdminService().getEventContext().userId;
     param = omero.sys.ParametersI;

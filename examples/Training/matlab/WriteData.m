@@ -27,6 +27,10 @@ try
     ids.add(imageId); %add the id of the image.
     proxy = session.getContainerService();
     list = proxy.getImages(omero.model.Image.class, ids, omero.sys.ParametersI());
+    if (list.size == 0)
+        exception = MException('OMERO:WriteData', 'Image Id not valid');
+        throw(exception);
+    end
     image = list.get(0);
     iUpdate = session.getUpdateService(); % service used to write object
     % create the original file object.

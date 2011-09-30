@@ -15,7 +15,10 @@ try
     param = omero.sys.ParametersI();
     param.acquisitionData();
     results = proxy.getImages(omero.model.Image.class, java.util.Arrays.asList(imageId), param);
-    
+    if (results.size == 0)
+        exception = MException('OMERO:LoadMetadataAdvanced', 'Image Id not valid');
+        throw(exception);
+    end
     image = results.get(0);
     %display the humidity
     %image.getImagingEnvironment().getHumidity().getValue();
