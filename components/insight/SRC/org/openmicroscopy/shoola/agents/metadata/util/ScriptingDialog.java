@@ -393,7 +393,7 @@ public class ScriptingDialog
 			new HashMap<String, List<ScriptComponent>>();
 		List<ScriptComponent> l;
 		int length;
-		boolean columnsSet = false;
+		boolean columnsSet;
 		while (i.hasNext()) {
 			text = "";
 			columnsSet = false;
@@ -462,9 +462,11 @@ public class ScriptingDialog
 					comp = new JTextField();
 					if (defValue != null) {
 						length = defValue.toString().length();
+						String s = defValue.toString().trim();
 						((JTextField) comp).setColumns(length);
-						((JTextField) comp).setText(defValue.toString());
-						columnsSet = true;
+						((JTextField) comp).setText(s);
+						
+						columnsSet = s.length() > 0;
 					}
 				}
 			} else if (Boolean.class.equals(type)) {

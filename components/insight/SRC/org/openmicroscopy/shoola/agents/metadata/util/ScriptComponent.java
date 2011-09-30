@@ -318,18 +318,7 @@ class ScriptComponent
 			}
 		}
 	}
-	
-	Object getParentValue()
-	{
-		if (parent != null) {
-			Object v = parent.getValue();
-			if (v instanceof Boolean) {
-				boolean b = ((Boolean) v).booleanValue();
-				if (!b) return null;
-			}
-		}
-		return null;
-	}
+
 	/** 
 	 * Returns the value associated to a script.
 	 * 
