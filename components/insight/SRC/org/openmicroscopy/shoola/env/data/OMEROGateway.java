@@ -2592,6 +2592,7 @@ class OMEROGateway
 	{
 		connected = false;
 		try {
+			shutDownServices(true);
 			clear();
 			secureClient.closeSession();
 			secureClient = null;
