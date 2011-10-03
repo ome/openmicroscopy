@@ -42,6 +42,7 @@ import javax.swing.border.BevelBorder;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
@@ -363,10 +364,14 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.USER_ACTIVATED);
 				activatedUser = new JCheckBoxMenuItem();
 				TreeImageDisplay node = controller.getLastSelectedDisplay();
+				boolean value = false;
 				if (node != null) {
 					Object o = node.getUserObject();
 					if (o instanceof ExperimenterData) {
 						ExperimenterData exp = (ExperimenterData) o;
+						ExperimenterData loggedIn = 
+							TreeViewerAgent.getUserDetails();
+						value = exp.getId() == loggedIn.getId();
 						activatedUser.setSelected(exp.isActive());
 						if (exp.isActive()) {
 							activatedUser.setIcon(
@@ -375,15 +380,18 @@ class PopupMenu
 							activatedUser.setIcon(
 								icons.getIcon(IconManager.OWNER_NOT_ACTIVE));
 						}
+						activatedUser.setEnabled(!value);
 					}
-					activatedUser.addItemListener(new ItemListener() {
-						
-						public void itemStateChanged(ItemEvent e) {
-							controller.activateUser();
-						}
-					});
+					if (!value)
+						activatedUser.addItemListener(new ItemListener() {
+							
+							public void itemStateChanged(ItemEvent e) {
+								controller.activateUser();
+							}
+						});
 				}
 				activatedUser.setAction(a);
+				activatedUser.setEnabled(!value);
 				initMenuItem(activatedUser, a.getActionName());
 		}
 	}
