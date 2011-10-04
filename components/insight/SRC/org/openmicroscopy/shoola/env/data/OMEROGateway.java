@@ -6153,6 +6153,30 @@ class OMEROGateway
 		return new HashMap<Long, String>();
 	}
 	
+
+	/**
+	 * Returns all the scripts currently stored into the system.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<OriginalFile> getScripts()
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IScriptPrx svc = getScriptService();
+			if (svc == null) svc = getScriptService();
+			return svc.getScripts();
+		} catch (Exception e) {
+			handleException(e, "Cannot load the scripts. ");
+		}
+		return new ArrayList<OriginalFile>();
+	}
+	
 	/**
 	 * Returns the <code>RType</code> corresponding to the passed value.
 	 * 
@@ -7119,10 +7143,29 @@ class OMEROGateway
 						"Cannot upload the script: "+script.getName()+".");
 				return -1;
 			}
+			String path = script.getFolder();
+			List<OriginalFile> scripts = getScripts();
+			if (scripts.size() > 0) {
+				Iterator<OriginalFile> i = scripts.iterator();
+				OriginalFile of;
+				StringBuffer buffer = new StringBuffer();
+				RString v;
+				while (i.hasNext()) {
+					of = i.next();
+					v = of.getPath();
+					if (v != null) buffer.append(v.getValue());
+					v = of.getName();
+					if (v != null) buffer.append(v.getValue());
+					//check if the script already exists.
+					if (buffer.toString().equals(path)) {
+						svc.editScript(of, buf.toString());
+						return of.getId().getValue();
+					}
+				}
+			}
 			if (official)
-				return svc.uploadOfficialScript(script.getFolder(), 
-						buf.toString());
-			return svc.uploadScript(script.getFolder(), buf.toString());
+				return svc.uploadOfficialScript(path, buf.toString());
+			return svc.uploadScript(path, buf.toString());
 		} catch (Exception e) {
 			handleException(e, 
 					"Cannot upload the script: "+script.getName()+".");
