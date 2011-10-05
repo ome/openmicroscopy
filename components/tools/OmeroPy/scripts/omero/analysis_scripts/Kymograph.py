@@ -125,7 +125,7 @@ def getLineData(pixels, x1,y1,x2,y2, cMinMax, lineW=2, theZ=0, theC=0, theT=0):
     if x1 > x2:
         toRotate += 180
     print "To rotate fully:", toRotate
-    rotated = pil.rotate(toRotate, expand=True)
+    rotated = pil.rotate(toRotate, expand=True)  # filter=Image.BICUBIC see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2172449/
     #rotated.show()
 
     # finally we need to crop to the length of the line
