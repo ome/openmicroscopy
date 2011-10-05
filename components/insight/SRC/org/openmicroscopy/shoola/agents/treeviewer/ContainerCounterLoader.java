@@ -81,7 +81,6 @@ public class ContainerCounterLoader
             throw new IllegalArgumentException("Collection shouldn't be null.");
         this.rootIDs = rootIDs;
         this.nodes = nodes;
-        System.err.println(nodes);
     }
 
     /**
