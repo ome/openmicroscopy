@@ -5945,7 +5945,7 @@ class OMEROGateway
 		List<RType> set = new ArrayList<RType>(channels.size());
 		Iterator<Integer> i = channels.iterator();
 		while (i.hasNext()) 
-			set.add(omero.rtypes.rlong(i.next()));
+			set.add(omero.rtypes.rint(i.next()));
 
 		RenderingDef def = null;
 		int startZ = param.getStartZ();
