@@ -71,7 +71,7 @@ public class ContainerCounterLoader
      * @param viewer  Reference to the Model. Mustn't be <code>null</code>.
      * @param rootIDs The collection of <code>DataObject</code>s 
      *                we want to analyze.
-     * @param nodes   The collection of corresponding nodes.            
+     * @param nodes   The collection of corresponding nodes.
      */
     public ContainerCounterLoader(Browser viewer, Set rootIDs, 
     		Set<TreeImageSet> nodes)
@@ -81,6 +81,7 @@ public class ContainerCounterLoader
             throw new IllegalArgumentException("Collection shouldn't be null.");
         this.rootIDs = rootIDs;
         this.nodes = nodes;
+        System.err.println(nodes);
     }
 
     /**
@@ -107,17 +108,23 @@ public class ContainerCounterLoader
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
         Map map = (Map) result;
         if (map == null) return;
-        Set set = map.entrySet();
-        Entry entry;
-        Iterator i = set.iterator();
+        Entry entry, child;
+        Iterator i = map.entrySet().iterator();
         Long containerID;
         Long value;
+        Map<Long, Long> values;
+        Iterator j;
         while (i.hasNext()) {
         	entry = (Entry) i.next();
-            containerID = (Long) entry.getKey();
-            value = (Long) entry.getValue();
-            viewer.setContainerCountValue(containerID.longValue(),
-                    						value.longValue(), nodes);
+        	values = (Map<Long, Long>) entry.getValue();
+        	j = values.entrySet().iterator();
+        	while (j.hasNext()) {
+				child = (Entry) j.next();
+				containerID = (Long) child.getKey();
+				value = (Long) child.getValue();
+				viewer.setContainerCountValue(containerID.longValue(),
+						value.longValue(), nodes);
+			}
         }
     }
     

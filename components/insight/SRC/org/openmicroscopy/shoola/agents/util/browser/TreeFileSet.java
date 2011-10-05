@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.util.browser;
 
+import java.util.Iterator;
+
 //Java imports
 
 //Third-party libraries
@@ -115,4 +117,23 @@ public class TreeFileSet
 	 */
 	public int getType() { return type; }
 	
+	/**
+     * Makes a copy of the node.
+     * @see TreeImageDisplay#copy()
+     */
+    public TreeImageDisplay copy()
+    {
+    	TreeImageSet copy = new TreeFileSet(this.getType());
+        copy.setChildrenLoaded(Boolean.valueOf(this.isChildrenLoaded()));
+        copy.setNumberItems(this.getNumberItems());
+        copy.setHighLight(this.getHighLight());
+        copy.setToolTip(this.getToolTip());
+        copy.setExpanded(this.isExpanded());
+        Iterator i = this.getChildrenDisplay().iterator();
+        while (i.hasNext()) {
+            copy.addChildDisplay(((TreeImageDisplay) i.next()).copy());
+        }
+        return copy;
+    }
+    
 }

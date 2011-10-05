@@ -36,6 +36,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -801,9 +802,10 @@ class BrowserUI
         while (i.hasNext()) {
             display = (TreeImageDisplay) i.next();
         	tm.insertNodeInto(display, parent, parent.getChildCount());
+        	
             if (display instanceof TreeImageSet) {
                 children = display.getChildrenDisplay();
-                if (children.size() != 0) {
+                if (children.size() > 0) {
                     if (display.containsImages()) {
                     	display.setExpanded(true);
                     	setExpandedParent(display, false);
@@ -813,12 +815,26 @@ class BrowserUI
                         expandNode(display);
                         tm.reload(display);
                     } else {
-                    	if (display.isExpanded()) {
-                    		setExpandedParent(display, true);
-                        	nodesToReset.add(display);
+                    	if (browserType == Browser.TAGS_EXPLORER) {
+                    		if (display.isExpanded()) {
+                        		setExpandedParent(display, false);
+                            	nodesToReset.add(display);
+                        	}
+                    		buildTreeNode(display, 
+                            		prepareSortedList(sorter.sort(children)),
+                            		tm);
+                    		if (display.isExpanded()) {
+                    			expandNode(display);
+                                tm.reload(display);
+                    		}
+                    	} else {
+                    		if (display.isExpanded()) {
+                        		setExpandedParent(display, true);
+                            	nodesToReset.add(display);
+                        	}
+                        	buildTreeNode(display, 
+                        		prepareSortedList(sorter.sort(children)), tm);
                     	}
-                    	buildTreeNode(display, 
-                    			prepareSortedList(sorter.sort(children)), tm);
                     }
                 } else {
                 	uo = display.getUserObject();
@@ -1004,8 +1020,8 @@ class BrowserUI
 			Map<Integer, Set> r)
 	{
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-		expNode.setChildrenLoaded(Boolean.TRUE);
-		expNode.setExpanded(true);
+		expNode.setChildrenLoaded(Boolean.valueOf(true));
+		expNode.setExpanded(Boolean.valueOf(true));
 		if (r == null || r.size() == 0) return;
 		Iterator i = r.keySet().iterator();
 		int index;
@@ -1486,24 +1502,46 @@ class BrowserUI
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
 		expNode.removeAllChildren();
 		expNode.removeAllChildrenDisplay();
-		expNode.setChildrenLoaded(Boolean.TRUE);
-		//expNode.setExpanded(true);
+		expNode.setChildrenLoaded(Boolean.valueOf(true));
         dtm.reload();
         Iterator i;
-        if (nodes.size() != 0) {
+        if (nodes.size() > 0) {
             i = nodes.iterator();
+            TreeImageDisplay node;
+            TreeFileSet n = null;
+            Set toKeep = new HashSet();
             while (i.hasNext()) {
-            	expNode.addChildDisplay((TreeImageDisplay) i.next());
-            } 
-            buildTreeNode(expNode, prepareSortedList(sorter.sort(nodes)), 
-                        (DefaultTreeModel) treeDisplay.getModel());
-            if (model.getBrowserType() == Browser.TAGS_EXPLORER)
-           	 	createTagsElements(expNode);
+            	node = (TreeImageDisplay) i.next();
+            	if (node instanceof TreeFileSet) {
+            		if (((TreeFileSet) node).getType() == TreeFileSet.TAG) {
+            			List l = node.getChildrenDisplay();
+                		if (l.size() > 0) {
+                			n = (TreeFileSet) node.copy();
+                			n.setExpanded(Boolean.valueOf(true));
+                			n.setChildrenLoaded(Boolean.valueOf(true));
+                			expNode.addChildDisplay(n);
+                		}
+            		} else {
+            			toKeep.add(node);
+            			expNode.addChildDisplay(node);
+            		}
+            	} else {
+            		toKeep.add(node);
+            		expNode.addChildDisplay(node);
+            	}
+            }
+            List sorted = prepareSortedList(sorter.sort(toKeep));
+            if (n != null) sorted.add(n);
+            buildTreeNode(expNode, sorted,
+            		(DefaultTreeModel) treeDisplay.getModel());
+            if (model.getBrowserType() == Browser.TAGS_EXPLORER && n == null) {
+            	createTagsElements(expNode);
+            }	
         } else {
         	expNode.setExpanded(false);
-        	 if (model.getBrowserType() == Browser.TAGS_EXPLORER)
-            	 createTagsElements(expNode);
-        	 else buildEmptyNode(expNode);
+        	if (model.getBrowserType() == Browser.TAGS_EXPLORER)
+        		createTagsElements(expNode);
+        	else buildEmptyNode(expNode);
         }
         i = nodesToReset.iterator();
         while (i.hasNext()) 

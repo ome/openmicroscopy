@@ -214,16 +214,20 @@ class BrowserComponent
 	 *
 	 * @param rootType The type of node to track.
 	 */
-	private void countItems(Class rootType)
+	private void countItems(List<Class> rootType)
 	{
 		if (rootType == null) {
 			int type = model.getBrowserType();
-			if (type == PROJECTS_EXPLORER) 
-				rootType = DatasetData.class;
-			else if (type == TAGS_EXPLORER)
-				rootType = TagAnnotationData.class;
-			else if (type == ADMIN_EXPLORER)
-				rootType = GroupData.class;
+			if (type == PROJECTS_EXPLORER) {
+				rootType = new ArrayList<Class>();
+				rootType.add(DatasetData.class);
+			} else if (type == TAGS_EXPLORER) {
+				rootType = new ArrayList<Class>();
+				rootType.add(TagAnnotationData.class);
+			} else if (type == ADMIN_EXPLORER) {
+				rootType = new ArrayList<Class>();
+				rootType.add(GroupData.class);
+			}
 		} 
 		if (rootType == null) {
 			countExperimenterDataInFolders();
@@ -471,8 +475,11 @@ class BrowserComponent
         	//countItems(TagAnnotationData.class);
         	countItemsInAnnotation(parent);
         if (model.getBrowserType() == TAGS_EXPLORER && 
-        		parent instanceof TreeFileSet)
-        	countItems(TagAnnotationData.class);
+        		parent instanceof TreeFileSet) {
+        	List<Class> types = new ArrayList<Class>();
+        	types.add(TagAnnotationData.class);
+        	countItems(types);
+        }
         Object p = null;
         if (parent != null && 
         		parent.getUserObject() instanceof PlateData) {
@@ -1294,7 +1301,7 @@ class BrowserComponent
 			node = nodes.get(userId);
 			expNode = node.getExperimenterNode();
 			exp = (ExperimenterData) expNode.getUserObject();
-			if (browserType == IMAGES_EXPLORER || browserType == FILES_EXPLORER) 
+			if (browserType == IMAGES_EXPLORER || browserType == FILES_EXPLORER)
 			{
 				results = TreeViewerTranslator.refreshFolderHierarchy(
 							(Map) node.getResults(), exp.getId(), -1);
@@ -1345,9 +1352,15 @@ class BrowserComponent
 		
 		model.setSelectedDisplay(null, true);
 		model.setState(READY);
-		countItems(null);
-		if (model.getBrowserType() == TAGS_EXPLORER)
+		
+		if (model.getBrowserType() == TAGS_EXPLORER) {
+			List<Class> types = new ArrayList<Class>();
+			types.add(TagAnnotationData.class);
+			types.add(DatasetData.class);
+			countItems(types);
 			countExperimenterDataInFolders();
+		} else countItems(null);
+			
 		model.getParentModel().setStatus(false, "", true);
 		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
