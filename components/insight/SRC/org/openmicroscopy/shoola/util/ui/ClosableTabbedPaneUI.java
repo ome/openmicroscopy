@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JTabbedPane;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 
@@ -168,9 +169,14 @@ class ClosableTabbedPaneUI
 		};
 	}
 	
-	/** Creates a new instance. */
-	ClosableTabbedPaneUI()
+	/**
+	 * Creates a new instance. 
+	 * 
+	 * @param pane The pane this UI is for.
+	 */
+	ClosableTabbedPaneUI(JTabbedPane tabPane)
 	{
+		this.tabPane = tabPane;
 		initialize();
 	}
 	

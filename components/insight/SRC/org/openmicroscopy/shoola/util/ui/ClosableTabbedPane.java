@@ -92,7 +92,7 @@ public class ClosableTabbedPane
     public ClosableTabbedPane(int tabPlacement, int tabLayoutPolicy)
     {
     	super(tabPlacement, tabLayoutPolicy);
-    	ClosableTabbedPaneUI ui = new ClosableTabbedPaneUI();
+    	ClosableTabbedPaneUI ui = new ClosableTabbedPaneUI(this);
     	setUI(ui);
     	setFocusable(false);
     	addMouseMotionListener(ui);
