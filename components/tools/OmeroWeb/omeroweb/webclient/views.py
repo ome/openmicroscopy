@@ -1952,9 +1952,9 @@ def archived_files(request, iid, **kwargs):
 
     else:
         # download each file into a zip file
-        temp_zip_dir = os.path.join(tempdir, ('%i-%s.archived2' % (image.id, conn._sessionUuid))).replace('\\','/')
+        import tempfile
+        temp_zip_dir = tempfile.mkdtemp()
         logger.info("temp archived zip dir: %s" % str(temp_zip_dir))
-        os.mkdir(temp_zip_dir)
 
         for a in files:
             temp_f = os.path.join(temp_zip_dir, a.name)
