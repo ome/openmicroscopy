@@ -28,6 +28,9 @@ import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -86,6 +89,29 @@ public class NumericalTextField
 	/** The accepted characters. */
 	private String					accepted;
 	
+	/** Checks if the value is value.*/
+	private void checkValue()
+	{
+		String str = getText();
+		try {
+			if (Integer.class.equals(numberType)) {
+				int val = Integer.parseInt(str);
+				int m = (int) getMinimum();
+				if (val < m) setText(""+m);
+			} else if (Double.class.equals(numberType)) {
+				double val = Double.parseDouble(str);
+				if (val < getMinimum()) setText(""+getMinimum());
+			} else if (Long.class.equals(numberType)) {
+				long val = Long.parseLong(str);
+				long m = (long) getMinimum();
+				if (val < m) setText(""+m);
+			} else if (Float.class.equals(numberType)) {
+				float val = Float.parseFloat(str);
+				if (val < getMinimum()) setText(""+getMinimum());
+			}
+		} catch(NumberFormatException nfe) {}
+	}
+	
 	/**
 	 * Updates the <code>foreground</code> color depending on the text entered.
 	 */
@@ -142,6 +168,17 @@ public class NumericalTextField
 		editedColor = null;
 		document.addDocumentListener(this);
 		addFocusListener(this);
+		addKeyListener(new KeyAdapter() {
+			
+			/**
+			 * Checks if the text is valid.
+			 * @see KeyListener#keyPressed(KeyEvent)
+			 */
+			public void keyPressed(KeyEvent e)
+			{
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) checkValue();
+			}
+		});
 		numberType = type;
 		accepted = NUMERIC;
 		setNegativeAccepted(min < 0);
@@ -248,6 +285,7 @@ public class NumericalTextField
 	{
 		String str = getText();
 		if (str == null || str.trim().length() == 0) return null;
+		checkValue();
 		if (Integer.class.equals(numberType))
 			return Integer.parseInt(str);
 		else if (Double.class.equals(numberType))
@@ -283,6 +321,7 @@ public class NumericalTextField
 			s += "0";
 			setText(s);
 		}
+		checkValue();
 	}
 
     /**
@@ -327,18 +366,22 @@ public class NumericalTextField
 					int val = Integer.parseInt(str);
 					int m = (int) min;
 					int mx = (int) max;
-		            if (m <= val && val <= mx) return true;
+		            //if (m <= val && val <= mx) return true;
+					return (val <= mx);
 				} else if (Double.class.equals(numberType)) {
 					double val = Double.parseDouble(str);
-		            if (min <= val && val <= max) return true;
+		            //if (min <= val && val <= max) return true;
+					return (val <= max);
 				} else if (Long.class.equals(numberType)) {
 					long val = Long.parseLong(str);
 					long m = (long) min;
 					long mx = (long) max;
-		            if (m <= val && val <= mx) return true;
+		            //if (m <= val && val <= mx) return true;
+					return (val <= mx);
 				} else if (Float.class.equals(numberType)) {
 					float val = Float.parseFloat(str);
-		            if (min <= val && val <= max) return true;
+		            //if (min <= val && val <= max) return true;
+		            return (val <= max);
 				}
 	        } catch(NumberFormatException nfe) {}
 	       return false;
@@ -392,26 +435,22 @@ public class NumericalTextField
 		public void insertString(int offset, String str, AttributeSet a)
 		{
 			try {
-
 				if (str == null) return;
 				for (int i = 0; i < str.length(); i++) {
-		            if (accepted.indexOf(String.valueOf(str.charAt(i))) == -1) {
+		            if (accepted.indexOf(String.valueOf(str.charAt(i))) == -1)
 		            	return;
-		            }
 		        }
 				
 				if (accepted.equals(FLOAT) ||
 				   (accepted.equals(FLOAT+"-") && negativeAccepted)) {
 					if (str.indexOf(".") != -1) {
-						if (getText(0, getLength()).indexOf(".") != -1) {
+						if (getText(0, getLength()).indexOf(".") != -1)
 							return;
-						}	
 					}
 				}
 				if (negativeAccepted && str.indexOf("-") != -1) {
-					if (str.indexOf("-") != 0 || offset != 0 ) {
+					if (str.indexOf("-") != 0 || offset != 0)
 						return;
-					}
 				}
 				if (str.equals(".") && accepted.equals(FLOAT)) {
 					super.insertString(offset, str, a);
@@ -426,7 +465,7 @@ public class NumericalTextField
 			} catch (Exception e) {
 				Toolkit.getDefaultToolkit().beep();
 			}
-    	}
+		}
 	}
-	
+
 }
