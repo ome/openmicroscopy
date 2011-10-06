@@ -386,7 +386,7 @@ class GeneralPaneUI
 		propertiesUI.clearDisplay();
 		annotationUI.clearDisplay();
     	textualAnnotationsUI.clearDisplay();
-    	propertiesUI.buildUI();
+    	//propertiesUI.buildUI();
     	Object uo = model.getRefObject();
     	
     	int annotation = 0;

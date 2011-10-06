@@ -114,11 +114,11 @@ class TextualAnnotationComponent
         area.setOpaque(true);
 		area.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
         area.setText(data.getText());
-        area.wrapText(getSize().width);
+        //area.wrapText(getSize().width);
         addComponentListener(new ComponentAdapter() {
 
 			public void componentResized(ComponentEvent e) {
-				area.wrapText(getSize().width);
+				area.wrapText(getSize().width, null);
 			}
 		});
 		IconManager icons = IconManager.getInstance();

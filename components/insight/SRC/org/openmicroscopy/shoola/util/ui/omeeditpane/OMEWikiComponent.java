@@ -185,17 +185,7 @@ public class OMEWikiComponent
 	
 	/** The default number of columns before formatting the text.*/
 	private int				columns;
-	
-    /**
-     * Wraps the specified string.
-     * 
-     * @param value The value to wrap.
-     */
-    private String wrap(String value)
-    {
-    	return WordUtils.wrap(value, columns, null, false);
-    }
-    
+
     /**
      * Replaces the line separator by space when saving the data.
      * 
@@ -521,8 +511,9 @@ public class OMEWikiComponent
 	 * Invokes when the text needs to be wrapped.
 	 * 
 	 * @param width The width to use.
+	 * @param newLineStr The string used for new line.
 	 */
-	public void wrapText(int width)
+	public void wrapText(int width, String newLineStr)
 	{
 		if (!wrapWord || pane == null) return;
 		String value = getText();
@@ -531,7 +522,7 @@ public class OMEWikiComponent
 		FontMetrics fm = getFontMetrics(getFont());
 		int charWidth = fm.charWidth('m');
 		columns = (int) (1.5*width)/charWidth;
-		setText(wrap(value));
+		setText(WordUtils.wrap(value, columns, newLineStr, false));
 	}
 	
 	/**

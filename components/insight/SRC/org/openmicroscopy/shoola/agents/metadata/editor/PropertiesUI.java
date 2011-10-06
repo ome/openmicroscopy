@@ -272,8 +272,7 @@ class PropertiesUI
     	addComponentListener(new ComponentAdapter() {
 
 			public void componentResized(ComponentEvent e) {
-				if (descriptionPane != null && descriptionPanel != null)
-					descriptionPane.wrapText(descriptionPanel.getSize().width);
+				wrap();
 			}
 		});
     	defaultBorder = namePane.getBorder();
@@ -849,7 +848,6 @@ class PropertiesUI
         if (data == null) return;
         add(Box.createVerticalStrut(5));
     	add(buildContentPanel(EditorUtil.transformPixelsData(data), img));
-    	
     }
 
 	/**
@@ -978,6 +976,18 @@ class PropertiesUI
        init = false;
     }   
 
+    /** Wraps the text.*/
+    private void wrap()
+    {
+    	if (descriptionPanel != null && descriptionPanel.getSize() != null) {
+    		String newLineStr = null;
+    		if (pane.getVerticalScrollBar().isVisible())
+    			newLineStr = "";
+			descriptionPane.wrapText(descriptionPanel.getSize().width,
+					newLineStr);
+		}
+    }
+    
     /**
 	 * Overridden to lay out the tags.
 	 * @see AnnotationUI#buildUI()
@@ -1047,8 +1057,8 @@ class PropertiesUI
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
-		if (descriptionPanel != null && descriptionPanel.getSize() != null)
-			descriptionPane.wrapText(descriptionPanel.getSize().width);
+		
+		//wrap();
 		descriptionPane.setCaretPosition(0);
 		descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
     	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
