@@ -296,7 +296,12 @@ public abstract class ActivityComponent
 	{
 		exceptionButton = createButton("Error", EXCEPTION, this);
 		exceptionButton.setVisible(false);
-		removeButton = createButton("Remove", REMOVE, this);
+		//removeButton = createButton("Remove", REMOVE, this);
+		IconManager icons = IconManager.getInstance(registry);
+		removeButton = new JButton(icons.getIcon(IconManager.REMOVE));
+		UIUtilities.unifiedButtonLookAndFeel(removeButton);
+		removeButton.setActionCommand(""+REMOVE);
+		removeButton.addActionListener(this);
 		cancelButton = createButton("Cancel", CANCEL, this);
 		//if (index == ADVANCED)
 		downloadButton = createButton("Download", DOWNLOAD, this);

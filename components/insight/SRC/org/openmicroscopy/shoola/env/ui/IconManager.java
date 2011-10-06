@@ -275,7 +275,7 @@ public class IconManager
         relPaths[DOCUMENT_12] = "nuvola_fileexport12.png";
         relPaths[DOCUMENT_32] = "nuvola_fileexport32.png";
         relPaths[CANCEL] = "nuvola_background16.png";
-		relPaths[REMOVE] = "nuvola_artscontrol16.png";
+		relPaths[REMOVE] = "nuvola_button_cancel16.png";
 		relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
         relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
         relPaths[FORUM] = "nuvola_chat16.png";
@@ -353,30 +353,21 @@ public class IconManager
 	 * 
 	 * @return See above.
 	 */
-	static Icon getArrowDown()
-	{
-		return createIcon(ARROW_DOWN);
-	}
+	static Icon getArrowDown() { return createIcon(ARROW_DOWN); }
 	
 	/**
 	 * Returns the image of the options button within the server dialog.
 	 * 
 	 * @return See above.
 	 */
-	static Icon getArrowRight()
-	{
-		return createIcon(ARROW_RIGHT);
-	}
-    
+	static Icon getArrowRight() { return createIcon(ARROW_RIGHT); }
+
 	/**
 	 * Returns the image of the remove button within the server dialog.
 	 * 
 	 * @return See above.
 	 */
-	static Icon getMinus()
-	{
-		return createIcon(MINUS);
-	}
+	static Icon getMinus() { return createIcon(MINUS); }
 	
 	/**
 	 * Returns the icon to use for the software update dialog.
@@ -410,11 +401,8 @@ public class IconManager
 	 * 
 	 * @return See above.
 	 */
-	static Icon getResults()
-	{
-		return createIcon(RESULTS);
-	}
-	
+	static Icon getResults() { return createIcon(RESULTS); }
+
 	/**
 	 * Returns the default error icon to use for notification dialogs.
 	 * 
