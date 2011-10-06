@@ -150,6 +150,7 @@ class BaseContainer(BaseController):
             return False
         sizeZ = self.image.getSizeZ()
         if sizeZ < MIN_Z: return False
+        if self.image.getSizeC() > 1: return False
         sizeX = self.image.getSizeX()
         sizeY = self.image.getSizeY()
         voxelCount = (sizeX * sizeY * sizeZ)
