@@ -340,6 +340,15 @@ public class CreateTopContainerAction
 							withParent = false;//true;
 						break;
 					case TAG:
+						if (uo instanceof TagAnnotationData) {
+							TagAnnotationData tag = (TagAnnotationData) uo;
+							String ns = tag.getNameSpace();
+							if (ns != null && 
+								TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+											ns));
+								withParent = model.isUserOwner(tag);
+						}
+						/*
 						if (fromTopMenu) withParent = false;
 						else {
 							if (uo instanceof TagAnnotationData) {
@@ -351,6 +360,7 @@ public class CreateTopContainerAction
 									withParent = model.isUserOwner(tag);
 							}
 						}
+						*/
 				}
         	}
         }
