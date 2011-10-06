@@ -40,6 +40,11 @@ import locale
 import logging
 import traceback
 
+import tempfile
+import shutil
+import zipfile
+import glob
+
 from time import time
 from thread import start_new_thread
 
@@ -60,6 +65,7 @@ from django.views import debug
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_str
+from django.core.servers.basehttp import FileWrapper
 
 from webclient.webclient_gateway import OmeroWebGateway
 from omeroweb.webclient.webclient_utils import string_to_dict
@@ -1812,30 +1818,27 @@ def get_original_file(request, fileId, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     orig_file = conn.getObject("OriginalFile", fileId)
-
+    if orig_file is None:
+        return handlerInternalError("Original File does not exists (id:%s)." % (iid))
+    
+    temp = tempfile.NamedTemporaryFile(suffix='.download')
     try:
-        from django.conf import settings
-        tempdir = settings.FILE_UPLOAD_TEMP_DIR
-        temp = os.path.join(tempdir, ('%i-%s.download' % (orig_file.id, conn._sessionUuid))).replace('\\','/')
-        logger.info("temp path: %s" % str(temp))
-        f = open(str(temp),"wb")
         for piece in orig_file.getFileInChunks():
-            f.write(piece)
-        f.seek(0)
-
-        from django.core.servers.basehttp import FileWrapper
-        originalFile_data = FileWrapper(file(temp))
+            temp.write(piece)
+        logger.debug("download file: %r" % {'name':temp.name, 'size':temp.tell()})
+        originalFile_data = FileWrapper(temp)
+        rsp = HttpResponse(originalFile_data)
+        mimetype = orig_file.mimetype
+        if mimetype == "text/x-python": 
+            mimetype = "text/plain" # allows display in browser
+        rsp['Content-Type'] =  mimetype
+        rsp['Content-Length'] = temp.tell()
+        #rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.name.replace(" ","_"))
+        temp.seek(0)
     except Exception, x:
+        temp.close()
         logger.error(traceback.format_exc())
         return handlerInternalError("Cannot download original file (id:%s)." % (fileId))
-    rsp = HttpResponse(originalFile_data)
-
-    mimetype = orig_file.mimetype
-    if mimetype == "text/x-python": mimetype = "text/plain" # allows display in browser
-    rsp['Content-Type'] =  mimetype
-    rsp['Content-Length'] = orig_file.size
-    #rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.name.replace(" ","_"))
-
     return rsp
 
 
@@ -1901,19 +1904,20 @@ def image_as_map(request, imageId, **kwargs):
         header = {}
 
     # write mrc.map to temp file
-    from django.conf import settings 
-    tempdir = settings.FILE_UPLOAD_TEMP_DIR
-    temp = os.path.join(tempdir, ('%d-%s.map' % (image.getId(), conn._sessionUuid))).replace('\\','/')
-    mrc.write(npStack, temp, header)
-    logger.info("image_as_map temp path: %s with size: %s kb" % (str(temp), os.path.getsize(temp) / 1000) )
-            
-    from django.core.servers.basehttp import FileWrapper
-    originalFile_data = FileWrapper(file(temp))
-
-    rsp = HttpResponse(originalFile_data)
-    rsp['Content-Type'] = 'application/force-download'
-    rsp['Content-Length'] = os.path.getsize(temp)
-    rsp['Content-Disposition'] = 'attachment; filename=%s' % downloadName
+    temp = tempfile.NamedTemporaryFile(suffix='.map')
+    try:
+        mrc.write(npStack, temp.name, header)
+        logger.debug("download file: %r" % {'name':temp.name, 'size':temp.tell()})
+        originalFile_data = FileWrapper(temp)
+        rsp = HttpResponse(originalFile_data)
+        rsp['Content-Type'] = 'application/force-download'
+        rsp['Content-Length'] = temp.tell()
+        rsp['Content-Disposition'] = 'attachment; filename=%s' % downloadName
+        temp.seek(0)
+    except Exception, x:
+        temp.close()
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Cannot generate map (id:%s)." % (imageId))
     return rsp
 
 
@@ -1936,55 +1940,52 @@ def archived_files(request, iid, **kwargs):
         logger.info("Tried downloading archived files from image with no files archived")
         return handlerInternalError("This image has no Archived Files")
 
-    from django.conf import settings
-    tempdir = settings.FILE_UPLOAD_TEMP_DIR
-    # just download the file itself
-    if len(files) == 1:
-        orig_file = files[0]
-        temp = os.path.join(tempdir, ('%i-%s.archived' % (image.id, conn._sessionUuid))).replace('\\','/')
-        logger.info("temp path: %s" % str(temp))
-        f = open(str(temp),"wb")
-        for piece in orig_file.getFileInChunks():
-            f.write(piece)
-        f.seek(0)
-        f.close()
-        file_name = orig_file.name.replace(" ","_")
-
-    else:
-        # download each file into a zip file
-        import tempfile
-        temp_zip_dir = tempfile.mkdtemp()
-        logger.info("temp archived zip dir: %s" % str(temp_zip_dir))
-
-        for a in files:
-            temp_f = os.path.join(temp_zip_dir, a.name)
-            f = open(str(temp_f),"wb")
-            for piece in a.getFileInChunks():
-                f.write(piece)
-            f.seek(0)
-            f.close()
-        # create zip
-        import zipfile
-        import glob
-        temp = "%s.zip" % temp_zip_dir
-        zip_file = zipfile.ZipFile(temp, 'w')
-        try:
-            a_files = os.path.join(temp_zip_dir, "*")
-            for name in glob.glob(a_files):
-                zip_file.write(name, os.path.basename(name), zipfile.ZIP_DEFLATED)
-        finally:
-            zip_file.close()
-        file_name = "%s.zip" % image.getName().replace(" ","_")
-
-    # return the zip or single file
-    from django.core.servers.basehttp import FileWrapper
-    archivedFile_data = FileWrapper(file(temp))
-    rsp = HttpResponse(archivedFile_data)
-    if archivedFile_data is None:
-        return handlerInternalError("Cannot download archived files for image (id:%s)." % (iid))
-    rsp['Content-Type'] = 'application/force-download'
-    rsp['Content-Length'] = os.path.getsize(temp)
-    rsp['Content-Disposition'] = 'attachment; filename=%s' % file_name
+    temp = tempfile.NamedTemporaryFile(suffix='_archive.zip')
+    try:
+        # just download the file itself
+        if len(files) == 1:
+            orig_file = files[0]
+            for piece in orig_file.getFileInChunks():
+                temp.write(piece)
+            logger.debug("download file: %r" % {'name':temp.name, 'size':temp.tell()})
+            file_name = orig_file.name.replace(" ","_")
+        else:
+            # download each file into a temp directory and zip
+            temp_zip_dir = tempfile.mkdtemp()
+            logger.debug("download dir: %s" % temp_zip_dir)
+        
+            for a in files:
+                temp_f = os.path.join(temp_zip_dir, a.name)
+                try:
+                    f = open(str(temp_f),"wb")
+                    for piece in a.getFileInChunks():
+                        f.write(piece)
+                finally:
+                    f.close()
+        
+            # create zip
+            zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
+            try:
+                a_files = os.path.join(temp_zip_dir, "*")
+                for name in glob.glob(a_files):
+                    zip_file.write(name, os.path.basename(name))
+            finally:
+                zip_file.close()
+                # delete temp dir
+                shutil.rmtree(temp_zip_dir, ignore_errors=True)
+            file_name = "%s.zip" % image.getName().replace(" ","_")
+    
+        # return the zip or single file
+        archivedFile_data = FileWrapper(temp)
+        rsp = HttpResponse(archivedFile_data)
+        rsp['Content-Type'] = 'application/force-download'
+        rsp['Content-Length'] = temp.tell()
+        rsp['Content-Disposition'] = 'attachment; filename=%s' % file_name
+        temp.seek(0)
+    except Exception, x:
+        temp.close()
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Cannot download file (id:%s)." % (iid))
     return rsp
 
 @isUserConnected
@@ -1996,30 +1997,29 @@ def download_annotation(request, action, iid, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
+    ann = conn.getObject("Annotation", long(iid))
+    if ann is None:
+        return handlerInternalError("Annotation does not exist (id:%s)." % (iid))
+    
+    temp = tempfile.NamedTemporaryFile(suffix='.download')
     try:
-        ann = conn.getObject("Annotation", long(iid))
-        
-        from django.conf import settings 
-        tempdir = settings.FILE_UPLOAD_TEMP_DIR
-        temp = os.path.join(tempdir, ('%i-%s.download' % (ann.file.id.val, conn._sessionUuid))).replace('\\','/')
-        logger.info("temp path: %s" % str(temp))
-        f = open(str(temp),"wb")
         for piece in ann.getFileInChunks():
-            f.write(piece)
-        f.seek(0)
-                
-        from django.core.servers.basehttp import FileWrapper
-        originalFile_data = FileWrapper(file(temp))
+            temp.write(piece)
+        logger.debug("download file: %r" % {'name':temp.name, 'size':temp.tell()})
+        
+        originalFile_data = FileWrapper(temp)
+        rsp = HttpResponse(originalFile_data)
+        if originalFile_data is None:
+            return handlerInternalError("Cannot download annotation (id:%s)." % (iid))
+        if action == 'download':
+            rsp['Content-Type'] = 'application/force-download'
+            rsp['Content-Length'] = temp.tell()
+            rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
+        temp.seek(0)
     except Exception, x:
+        temp.close()
         logger.error(traceback.format_exc())
-        return handlerInternalError("Cannot download annotation (id:%s)." % (iid))
-    rsp = HttpResponse(originalFile_data)
-    if originalFile_data is None:
-        return handlerInternalError("Cannot download annotation (id:%s)." % (iid))
-    if action == 'download':
-        rsp['Content-Type'] = 'application/force-download'
-        rsp['Content-Length'] = ann.getFileSize()
-        rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
+        return handlerInternalError("Cannot download file (id:%s)." % (iid))
     return rsp
 
 @isUserConnected
@@ -2046,7 +2046,7 @@ def load_public(request, share_id=None, **kwargs):
     # get connection
     conn = None
     try:
-        conn = kwargs["conn"]        
+        conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
