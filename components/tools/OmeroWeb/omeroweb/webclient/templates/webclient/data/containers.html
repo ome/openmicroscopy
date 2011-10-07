@@ -521,20 +521,14 @@
                 .bind("deselect_node.jstree", function (e, data) {
                     var selected = data.inst.get_selected();
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
-                    if (selected.length < 2) {
+                    if (selected.length === 1 && data.args[0].length > 0) {
                         data.rslt.obj = selected;
                         loadOtherPanels(data.inst, '{% url load_data %}');
-                    } else {
-                        var parent = data.inst._get_parent(data.inst.data.ui.last_selected);
-                        if ($.inArray(parent.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1 ) {
-                            $("div#content_details").attr('rel', parent.attr("id"));
-                            refreshCenterPanel();
-                        }
                     }
                     syncPanels(selected);
                 })
                 .bind("open_node.jstree", function (e, data) {
-                    
+
                 })
                 .bind("create.jstree", function (e, data) {
                     if(data.rslt.parent.attr("rel") == "project") {
@@ -625,7 +619,7 @@
                     }
                 })
                 .bind("remove.jstree", function (e, data) {
-                    data.inst.select_node("li#experimenter-0");
+                    data.inst.deselect_all();
                     
                     var ajax_data = new Array();
                     var q = false;
@@ -660,6 +654,7 @@
                                       data.inst.get_container().find('#'+this.id).each(function() { data.inst.delete_node(this); });
                                   });
                                   refreshProgressBar();
+                                  data.inst.load_node($("li#orphaned-0"));
                               }
                         },
                         error: function(response) {
