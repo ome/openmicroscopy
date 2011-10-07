@@ -143,25 +143,29 @@ class BaseContainer(BaseController):
         Is the image suitable to be viewed with the Volume viewer 'Open Astex Viewer' applet?
         Image must be a 'volume' of suitable dimensions and not too big.
         """
-        MIN_Z = 20
+        from django.conf import settings 
+        MAX_SIDE = settings.OPEN_ASTEX_MAX_SIDE     # default is 400
+        MIN_SIDE = settings.OPEN_ASTEX_MIN_SIDE     # default is 20
+        MAX_VOXELS = settings.OPEN_ASTEX_MAX_VOXELS # default is 15625000 (250 * 250 * 250)
 
-        MAX_VOL = (400 * 400 * 400)
+        print "Max side, min side, max voxels", MAX_SIDE, MIN_SIDE, MAX_VOXELS
         if self.image is None:
             return False
         sizeZ = self.image.getSizeZ()
-        if sizeZ < MIN_Z: return False
         if self.image.getSizeC() > 1: return False
         sizeX = self.image.getSizeX()
         sizeY = self.image.getSizeY()
+        if sizeZ < MIN_SIDE or sizeX < MIN_SIDE or sizeY < MIN_SIDE: return False
+        if sizeX > MAX_SIDE or sizeY > MAX_SIDE or sizeZ > MAX_SIDE: return False
         voxelCount = (sizeX * sizeY * sizeZ)
-        if voxelCount > MAX_VOL: return False
+        if voxelCount > MAX_VOXELS: return False
 
         try:    # if scipy ndimage is not available for interpolation, can only handle smaller images
             import scipy.ndimage
         except ImportError:
             logger.debug("Failed to import scipy.ndimage - Open Astex Viewer limited to display of smaller images.")
-            MAX_VOL = (160 * 160 * 160)
-            if voxelCount > MAX_VOL: return False
+            MAX_VOXELS = (160 * 160 * 160)
+            if voxelCount > MAX_VOXELS: return False
 
         return True
 

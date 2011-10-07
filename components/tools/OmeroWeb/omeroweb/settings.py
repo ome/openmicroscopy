@@ -170,6 +170,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.server_email": ["SERVER_EMAIL", None, identity],
     "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],
     "omero.web.use_eman2": ["USE_EMAN2", "false", parse_boolean],
+    # the following parameters configure when to show/hide the 'Volume viewer' icon in the Image metadata panel
+    "omero.web.open_astex_max_side": ["OPEN_ASTEX_MAX_SIDE", 400, int],
+    "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int],
+    "omero.web.open_astex_max_voxels": ["OPEN_ASTEX_MAX_VOXELS", 15625000, int],  # 250 x 250 x 250
+    
     "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', parse_paths],
 }
 
