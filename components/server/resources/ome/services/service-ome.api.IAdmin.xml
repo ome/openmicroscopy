@@ -17,10 +17,10 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-<beans>	
+<beans default-lazy-init="true">
 
   <alias name="internal-ome.api.IAdmin" alias="internal-ome.api.LocalAdmin"/>
-  
+
   <bean parent="level2" name="internal-ome.api.IAdmin" class="ome.logic.AdminImpl">
     <description>
     Privileged bean which has several "private" references injected. This is not
@@ -44,17 +44,47 @@
 
   <alias name="${omero.security.password_provider}" alias="passwordProvider"/>
 
+  <bean id="ldapPasswordProvider431" class="ome.security.auth.providers.LdapPasswordProvider431">
+    <description>
+        PasswordProvider which was the default LDAP implementation until 4.3.2. This implementation
+        does NOT check the user_filter on every login, which is useful if any manual intervention
+        is necessary by the sysadmin after a user has been created, e.g. when capitalization differs
+        or a DN is changed.
+    </description>
+    <constructor-arg ref="passwordUtil"/>
+    <constructor-arg ref="internal-ome.api.ILdap"/>
+    <constructor-arg value="true"/>
+  </bean>
+
+  <bean id="ldapPasswordProvider" class="ome.security.auth.LdapPasswordProvider">
+    <description>
+        New LDAP PasswordProvider implementation as of 4.3.2 which checks the user_filter
+        on every login. Due to other issues (DN synchronization and capitalization handling)
+        this may not be the best implementation for all sites.
+    </description>
+    <constructor-arg ref="passwordUtil"/>
+    <constructor-arg ref="internal-ome.api.ILdap"/>
+    <constructor-arg value="true"/>
+  </bean>
+
+  <bean id="jdbcPasswordProvider" class="ome.security.auth.JdbcPasswordProvider">
+    <constructor-arg ref="passwordUtil"/>
+  </bean>
+
+  <bean id="chainedPasswordProvider431" class="ome.security.auth.PasswordProviders">
+    <constructor-arg>
+      <list>
+        <ref bean="ldapPasswordProvider431"/>
+        <ref bean="jdbcPasswordProvider"/>
+      </list>
+    </constructor-arg>
+  </bean>
+
   <bean id="chainedPasswordProvider" class="ome.security.auth.PasswordProviders">
     <constructor-arg>
       <list>
-        <bean class="ome.security.auth.LdapPasswordProvider">
-          <constructor-arg ref="passwordUtil"/>
-          <constructor-arg ref="internal-ome.api.LocalLdap"/>
-          <constructor-arg value="true"/>
-        </bean>
-        <bean class="ome.security.auth.JdbcPasswordProvider">
-          <constructor-arg ref="passwordUtil"/>
-        </bean>
+        <ref bean="ldapPasswordProvider"/>
+        <ref bean="jdbcPasswordProvider"/>
       </list>
     </constructor-arg>
   </bean>
