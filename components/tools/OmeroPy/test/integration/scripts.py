@@ -218,6 +218,8 @@ class TestScripts(lib.ITest):
         namedScripts = [s for s in scripts if s.path.val + s.name.val == scriptPath]
         scriptFile = namedScripts[0]
 
+        paramsBefore = scriptService.getParams(scriptId)
+
         editedScript = """
 import omero, omero.scripts as s
 from omero.rtypes import *
@@ -228,10 +230,18 @@ client.setOutput("b", rstring("c"))
 client.closeSession()
 """
         scriptService.editScript(scriptFile, editedScript)
-        
+
         editedText = scriptService.getScriptText(scriptId)
         self.assertEquals(editedScript, editedText)
-        
+
+        paramsAfter = scriptService.getParams(scriptId)
+
+        self.assertTrue("message" in paramsBefore.inputs)
+        self.assertEquals(0, len(paramsBefore.outputs))
+
+        for x in ("a", "b"):
+            self.assertTrue(x in paramsAfter.inputs)
+            self.assertTrue(x in paramsAfter.outputs)
 
     def testScriptValidation(self):
         scriptService = self.root.sf.getScriptService()
