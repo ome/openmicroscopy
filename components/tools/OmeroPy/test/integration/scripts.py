@@ -75,6 +75,14 @@ class TestScripts(lib.ITest):
         ofile = self.query.get("OriginalFile", id)
         self.assertEquals("/", ofile.path.val)
         self.assertEquals("%s.py" % uuid, ofile.name.val)
+        return svc, ofile
+
+    def testDelete6905(self):
+        """
+        Delete of official scripts was broken in 4.3.2.
+        """
+        svc, ofile = self.testUpload2562()
+        svc.deleteScript(ofile.id.val)
 
     def testParseErrorTicket2185(self):
         svc = self.root.sf.getScriptService()
