@@ -850,9 +850,9 @@ class OmeroMetadataServiceImpl
 			} else {
 				annObject = ann.asIObject();
 				ModelMapper.unloadCollections(annObject);
+				OriginalFile of = ((FileAnnotation) annObject).getFile();
 				link = ModelMapper.linkAnnotation(ho, (Annotation) annObject);
 			}
-			
 		} else
 			link = ModelMapper.createAnnotationAndLink(ho, annotation);
 		if (link != null) {
@@ -1744,8 +1744,9 @@ class OmeroMetadataServiceImpl
 			gateway.findIObject(FileAnnotation.class.getName(), id);
 		FileAnnotationData data = 
 			(FileAnnotationData) PojoMapper.asDataObject(fa);
-		if (of != null) 
+		if (of != null) {
 			data.setContent(of);
+		}	
 		if (linkTo != null) {
 			if (linkTo.getId() > 0) {
 				annotate(linkTo, data);

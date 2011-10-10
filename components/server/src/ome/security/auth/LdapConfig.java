@@ -40,15 +40,50 @@ public class LdapConfig {
 
     private final boolean enabled;
 
+    private final boolean syncOnLogin;
+
+    /**
+     * Passes all values to
+     * {@link #LdapConfig(boolean, String, String, String, String, String, boolean)}
+     * but sets {@link #syncOnLogin} to false.
+     *
+     * @param enabled
+     * @param newUserGroup
+     * @param userFilter
+     * @param groupFilter
+     * @param userMapping
+     * @param groupMapping
+     */
     public LdapConfig(boolean enabled, String newUserGroup,
             String userFilter, String groupFilter,
             String userMapping, String groupMapping) {
+        this(enabled, newUserGroup, userFilter, groupFilter,
+                userMapping, groupMapping, false);
+    }
+
+    /**
+     * Base constructor which stores all {@link #parse(String)} and stores all
+     * values for later lookup.
+     *
+     * @param enabled
+     * @param newUserGroup
+     * @param userFilter
+     * @param groupFilter
+     * @param userMapping
+     * @param groupMapping
+     * @param syncOnLogin
+     */
+    public LdapConfig(boolean enabled, String newUserGroup,
+            String userFilter, String groupFilter,
+            String userMapping, String groupMapping,
+            boolean syncOnLogin) {
         this.enabled = enabled;
         this.newUserGroup = newUserGroup;
         this.userFilter = new HardcodedFilter(userFilter);
         this.groupFilter = new HardcodedFilter(groupFilter);
         this.userMapping = parse(userMapping);
         this.groupMapping = parse(groupMapping);
+        this.syncOnLogin = syncOnLogin;
     }
 
     // Helpers
@@ -65,6 +100,10 @@ public class LdapConfig {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public boolean isSyncOnLogin() {
+        return syncOnLogin;
     }
 
     public String getNewUserGroup() {

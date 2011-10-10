@@ -53,7 +53,6 @@ else:
 LOGFILE = ('OMEROweb.log')
 LOGLEVEL = logging.INFO
 LOGDIR = os.path.join(OMERO_HOME, 'var', 'log').replace('\\','/')
-DEFAULT_CACHE_DIR = os.path.join(OMERO_HOME, 'var', 'cache', 'webgateway').replace('\\','/')
 
 if not os.path.isdir(LOGDIR):
     try:
@@ -112,6 +111,9 @@ def parse_boolean(s):
         return True
     return False
 
+def parse_paths(s):
+    return [os.path.normpath(path) for path in json.loads(s)]
+
 def check_server_type(s):
     if s not in ALL_SERVER_TYPES:
         raise ValueError("Unknown server type: %s. Valid values are: %s" % (s, ALL_SERVER_TYPES))
@@ -154,7 +156,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.application_server.host": ["APPLICATION_SERVER_HOST", "0.0.0.0", str],
     "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
     "omero.web.cache_backend": ["CACHE_BACKEND", None, leave_none_unset],
-    "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", DEFAULT_CACHE_DIR, leave_none_unset],
+    "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
     "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
     "omero.web.debug": ["DEBUG", "false", parse_boolean],
     "omero.web.email_host": ["EMAIL_HOST", None, identity],
@@ -168,7 +170,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.server_email": ["SERVER_EMAIL", None, identity],
     "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],
     "omero.web.use_eman2": ["USE_EMAN2", "false", parse_boolean],
-    "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', json.loads],
+    "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', parse_paths],
 }
 
 for key, values in CUSTOM_SETTINGS_MAPPINGS.items():

@@ -152,7 +152,7 @@
             padding: 0px;
         }
         #script_desc {
-            font-size: 90%;
+            font-size: 85%;
             margin: 8px 0px;
             background: #ddd;
             border: 1px solid #aaa;
@@ -180,7 +180,13 @@
     <form method="post" action="{% url script_run paramData.id %}">
         <div style="padding:10px; margin-bottom:40px">
             <h3 id="scriptName">{{ paramData.name }}</h3>
-            <div id='script_desc'>{{ paramData.description|linebreaks }}</div>
+            <div id='script_desc'>{{ paramData.description|linebreaks }}
+            
+            {% if paramData.authors %}<div> <b>Authors:</b> {{ paramData.authors }} </div>{% endif %}
+            {% if paramData.contact %}<div> <b>Contact:</b> {{ paramData.contact }} </div>{% endif %}
+            {% if paramData.version %}<div> <b>Version:</b> {{ paramData.version }} </div>{% endif %}
+            
+            </div>
 
             {% for i in paramData.inputs %}
                 <div class="{% if i.required %}required{% endif %}{% if i.children %} parent{% endif %}">

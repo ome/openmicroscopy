@@ -479,7 +479,7 @@ class MeasurementViewerComponent
 		if (f == null) return;
 		model.fireROILoading(f.getAbsolutePath());
 		fireStateChange();
-		view.updateDrawingArea();
+		//view.updateDrawingArea();
 	}
 
 	/** 
@@ -900,6 +900,8 @@ class MeasurementViewerComponent
 		UserNotifier un = reg.getUserNotifier();
 		try {
 			model.removeAllROI();
+			view.rebuildManagerTable();
+			view.updateDrawingArea();
 		} catch (NoSuchROIException e) {
 			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
 			un.notifyInfo("Save ROI", "Cannot save ROI " +
@@ -1004,6 +1006,7 @@ class MeasurementViewerComponent
 			List<ROIFigure> figures = model.removeAllROI(exp.getId());
 			//clear all tables.
 			view.deleteROIs(figures);
+			model.getROIComponent().reset();
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 			msg.print("Delete ROI");

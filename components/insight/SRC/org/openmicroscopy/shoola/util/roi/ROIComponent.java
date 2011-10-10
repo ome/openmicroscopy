@@ -146,6 +146,12 @@ public class ROIComponent
 		roiResult = new LinkedHashMap<Long, List<ROI>>();
 	}
 
+	/** Indicates to reset the identifier when loading from local file.*/
+	public void reset()
+	{
+		if (ioStrategy != null) ioStrategy.reset();
+	}
+	
 	/**
 	 * Removes the specified figure from the display.
 	 * 

@@ -461,64 +461,54 @@ public class ModelMapper
     {
     	if (annotation == null) return null;
     	if (annotatedObject instanceof Dataset) {
-    		Dataset m = (Dataset) annotatedObject;
     		DatasetAnnotationLink l = new DatasetAnnotationLinkI();
-    		l.setParent(m);
+    		l.setParent((Dataset) annotatedObject.proxy());
     		l.setChild(annotation);
     		return l;
     	} else if (annotatedObject instanceof Image) {
-    		Image m = (Image) annotatedObject;
     		ImageAnnotationLink l = new ImageAnnotationLinkI();
-    		l.setParent(m);
+    		l.setParent((Image) annotatedObject.proxy());
     		l.setChild(annotation);
     		return l;
     	} else if (annotatedObject instanceof Project) {
-    		Project m = (Project) annotatedObject;
     		ProjectAnnotationLink l = new ProjectAnnotationLinkI();
-    		l.setParent(m);
+    		l.setParent((Project) annotatedObject.proxy());
     		l.setChild(annotation);
     		return l;
     	} else if (annotatedObject instanceof Annotation) {
-    		Annotation ann = (Annotation) annotatedObject;
     		AnnotationAnnotationLink l = new AnnotationAnnotationLinkI();
-    		l.setParent(ann);
+    		l.setParent((Annotation) annotatedObject.proxy());
     		l.setChild(annotation);
     		return l;
     	} else if (annotatedObject instanceof Screen) {
-    		Screen m = (Screen) annotatedObject;
     		ScreenAnnotationLink l = new ScreenAnnotationLinkI();
-    		l.setParent(m);
+    		l.setParent((Screen) annotatedObject.proxy());
     		l.setChild(annotation);
     		return l;
     	} else if (annotatedObject instanceof Plate) {
-    		Plate m = (Plate) annotatedObject;
     		PlateAnnotationLink l = new PlateAnnotationLinkI();
-    		l.setParent(m);
+    		l.setParent((Plate) annotatedObject.proxy());
     		l.setChild(annotation);
     		return l;
     	} else if (annotatedObject instanceof PlateAcquisition) {
-    		PlateAcquisition m = (PlateAcquisition) annotatedObject;
     		PlateAcquisitionAnnotationLink l = 
     			new PlateAcquisitionAnnotationLinkI();
-    		l.setParent(m);
+    		l.setParent((PlateAcquisition) annotatedObject.proxy());
     		l.setChild(annotation);
     		return l;
     	} else if (annotatedObject instanceof Well) {
-    		Well m = (Well) annotatedObject;
     		WellAnnotationLink l = new WellAnnotationLinkI();
-    		l.setParent(m);
+    		l.setParent((Well) annotatedObject.proxy());
     		l.setChild(annotation);
     		return l;
     	} else if (annotatedObject instanceof WellSample) {
-    		WellSample m = (WellSample) annotatedObject;
     		WellSampleAnnotationLink l = new WellSampleAnnotationLinkI();
-    		l.setParent(m);
+    		l.setParent((WellSample) annotatedObject.proxy());
     		l.setChild(annotation);
     		return l;
     	} else if (annotatedObject instanceof OriginalFile) {
-    		OriginalFile of = (OriginalFile) annotatedObject;
     		OriginalFileAnnotationLink l = new OriginalFileAnnotationLinkI();
-    		l.setParent(of);
+    		l.setParent((OriginalFile) annotatedObject.proxy());
     		l.setChild(annotation);
     		return l;
     	}

@@ -1120,14 +1120,16 @@ class IntensityView
 	
 			shapeStats = AnalysisStatsWrapper.convertStats(
 										(Map) entry.getValue());
-			shapeStatsList.put(c3D, shapeStats);
-
-			minStats.put(c3D, shapeStats.get(StatsType.MIN));
-			maxStats.put(c3D, shapeStats.get(StatsType.MAX));
-			meanStats.put(c3D, shapeStats.get(StatsType.MEAN));
-			sumStats.put(c3D, shapeStats.get(StatsType.SUM));
-			stdDevStats.put(c3D, shapeStats.get(StatsType.STDDEV));
-			pixelStats.put(c3D, shapeStats.get(StatsType.PIXEL_PLANEPOINT2D));
+			if (shapeStats != null) {
+				shapeStatsList.put(c3D, shapeStats);
+				minStats.put(c3D, shapeStats.get(StatsType.MIN));
+				maxStats.put(c3D, shapeStats.get(StatsType.MAX));
+				meanStats.put(c3D, shapeStats.get(StatsType.MEAN));
+				sumStats.put(c3D, shapeStats.get(StatsType.SUM));
+				stdDevStats.put(c3D, shapeStats.get(StatsType.STDDEV));
+				pixelStats.put(c3D, shapeStats.get(StatsType.PIXEL_PLANEPOINT2D));
+			}
+			
 			
 			/* really inefficient but hey.... quick hack just now till refactor */
 			channelName.clear();

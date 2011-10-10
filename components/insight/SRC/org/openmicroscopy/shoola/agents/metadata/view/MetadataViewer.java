@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -619,4 +620,11 @@ public interface MetadataViewer
 	 */
 	void onGroupSwitched(boolean success);
 
+	/**
+	 * Returns the parent UI.
+	 * 
+	 * @return See above.
+	 */
+	JFrame getParentUI();
+	
 }

@@ -37,11 +37,14 @@ python dist/bin/omero config set omero.web.server_list '[["'$OMERO_HOST'", '$ROU
 python dist/bin/omero config set omero.web.debug True
 python dist/bin/omero web unittest --config=$ICE_CONFIG --test=webadmin
 
-python dist/bin/omero web start
-
-python dist/bin/omero web seleniumtest webadmin hudson.openmicroscopy.org.uk 'http://'$OMERO_HOST':'$WEBPORT firefox --config=$ICE_CONFIG
-
-python dist/bin/omero web stop
+# Disabled Selenium Tests (#6624)
+# Tue 13 Sep 2011 17:23:54 BST
+#
+#python dist/bin/omero web start
+#
+#python dist/bin/omero web seleniumtest webadmin hudson.openmicroscopy.org.uk 'http://'$OMERO_HOST':'$WEBPORT firefox --config=$ICE_CONFIG
+#
+#python dist/bin/omero web stop
 
 #
 # Write test file for OMERO-web jobs

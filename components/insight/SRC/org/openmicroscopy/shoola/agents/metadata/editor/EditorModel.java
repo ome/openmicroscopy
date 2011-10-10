@@ -39,6 +39,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.swing.JFrame;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -2818,5 +2820,11 @@ class EditorModel
 		return false;
 	}
 
+	/**
+	 * Returns the parent UI.
+	 * 
+	 * @return See above.
+	 */
+	JFrame getRefFrame() { return parent.getParentUI(); }
+
 }
-	

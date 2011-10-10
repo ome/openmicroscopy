@@ -375,7 +375,10 @@ class ObjectManager
 		view.deleteROIShapes(shapeList);
 		this.rebuildTable();
 	}
-		
+	
+	/** Resets the component.*/
+	void reset() { model.getROIComponent().reset(); }
+	
 	/**
 	 * Duplicates the ROI shapes in the list and belonging to the ROI with
 	 * id.
