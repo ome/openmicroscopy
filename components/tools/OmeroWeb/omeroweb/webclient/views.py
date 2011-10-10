@@ -40,7 +40,6 @@ import locale
 import logging
 import traceback
 
-import tempfile
 import shutil
 import zipfile
 import glob
@@ -1821,24 +1820,13 @@ def get_original_file(request, fileId, **kwargs):
     if orig_file is None:
         return handlerInternalError("Original File does not exists (id:%s)." % (iid))
     
-    temp = tempfile.NamedTemporaryFile(suffix='.download')
-    try:
-        for piece in orig_file.getFileInChunks():
-            temp.write(piece)
-        logger.debug("download file: %r" % {'name':temp.name, 'size':temp.tell()})
-        originalFile_data = FileWrapper(temp)
-        rsp = HttpResponse(originalFile_data)
-        mimetype = orig_file.mimetype
-        if mimetype == "text/x-python": 
-            mimetype = "text/plain" # allows display in browser
-        rsp['Content-Type'] =  mimetype
-        rsp['Content-Length'] = temp.tell()
-        #rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.name.replace(" ","_"))
-        temp.seek(0)
-    except Exception, x:
-        temp.close()
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Cannot download original file (id:%s)." % (fileId))
+    rsp = HttpResponse(ann.getFileInChunks())
+    mimetype = orig_file.mimetype
+    if mimetype == "text/x-python": 
+        mimetype = "text/plain" # allows display in browser
+    rsp['Content-Type'] =  mimetype
+    rsp['Content-Length'] = temp.tell()
+    #rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.name.replace(" ","_"))
     return rsp
 
 
@@ -1904,6 +1892,7 @@ def image_as_map(request, imageId, **kwargs):
         header = {}
 
     # write mrc.map to temp file
+    import tempfile
     temp = tempfile.NamedTemporaryFile(suffix='.map')
     try:
         mrc.write(npStack, temp.name, header)
@@ -1940,29 +1929,26 @@ def archived_files(request, iid, **kwargs):
         logger.info("Tried downloading archived files from image with no files archived")
         return handlerInternalError("This image has no Archived Files")
 
-    temp = tempfile.NamedTemporaryFile(suffix='_archive.zip')
-    try:
-        # just download the file itself
-        if len(files) == 1:
-            orig_file = files[0]
-            for piece in orig_file.getFileInChunks():
-                temp.write(piece)
-            logger.debug("download file: %r" % {'name':temp.name, 'size':temp.tell()})
-            file_name = orig_file.name.replace(" ","_")
-        else:
-            # download each file into a temp directory and zip
+    if len(files) == 1:
+        rsp = HttpResponse(orig_file.getFileInChunks())
+        rsp['Content-Length'] = orig_file.getFileSize()
+        rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
+    else:
+        import tempfile
+        temp = tempfile.NamedTemporaryFile(suffix='.archive')
+        try:
             temp_zip_dir = tempfile.mkdtemp()
             logger.debug("download dir: %s" % temp_zip_dir)
-        
+
             for a in files:
                 temp_f = os.path.join(temp_zip_dir, a.name)
                 try:
                     f = open(str(temp_f),"wb")
-                    for piece in a.getFileInChunks():
-                        f.write(piece)
+                    for chunk in a.getFileInChunks():
+                        f.write(chunk)
                 finally:
                     f.close()
-        
+
             # create zip
             zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
             try:
@@ -1974,18 +1960,19 @@ def archived_files(request, iid, **kwargs):
                 # delete temp dir
                 shutil.rmtree(temp_zip_dir, ignore_errors=True)
             file_name = "%s.zip" % image.getName().replace(" ","_")
-    
-        # return the zip or single file
-        archivedFile_data = FileWrapper(temp)
-        rsp = HttpResponse(archivedFile_data)
-        rsp['Content-Type'] = 'application/force-download'
-        rsp['Content-Length'] = temp.tell()
-        rsp['Content-Disposition'] = 'attachment; filename=%s' % file_name
-        temp.seek(0)
-    except Exception, x:
-        temp.close()
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Cannot download file (id:%s)." % (iid))
+
+            # return the zip or single file
+            archivedFile_data = FileWrapper(temp)
+            rsp = HttpResponse(archivedFile_data)
+            rsp['Content-Length'] = temp.tell()
+            rsp['Content-Disposition'] = 'attachment; filename=%s' % file_name
+            temp.seek(0)
+        except Exception, x:
+            temp.close()
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Cannot download file (id:%s)." % (iid))
+
+    rsp['Content-Type'] = 'application/force-download'
     return rsp
 
 @isUserConnected
@@ -2001,25 +1988,10 @@ def download_annotation(request, action, iid, **kwargs):
     if ann is None:
         return handlerInternalError("Annotation does not exist (id:%s)." % (iid))
     
-    temp = tempfile.NamedTemporaryFile(suffix='.download')
-    try:
-        for piece in ann.getFileInChunks():
-            temp.write(piece)
-        logger.debug("download file: %r" % {'name':temp.name, 'size':temp.tell()})
-        
-        originalFile_data = FileWrapper(temp)
-        rsp = HttpResponse(originalFile_data)
-        if originalFile_data is None:
-            return handlerInternalError("Cannot download annotation (id:%s)." % (iid))
-        if action == 'download':
-            rsp['Content-Type'] = 'application/force-download'
-            rsp['Content-Length'] = temp.tell()
-            rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
-        temp.seek(0)
-    except Exception, x:
-        temp.close()
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Cannot download file (id:%s)." % (iid))
+    rsp = HttpResponse(ann.getFileInChunks())
+    rsp['Content-Type'] = 'application/force-download'
+    rsp['Content-Length'] = ann.getFileSize()
+    rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
     return rsp
 
 @isUserConnected

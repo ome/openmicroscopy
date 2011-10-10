@@ -3325,19 +3325,14 @@ class FileAnnotationWrapper (AnnotationWrapper):
 
     OMERO_TYPE = FileAnnotationI
 
-    def __loadedHotSwap__ (self):
-        """
-        Checks that the Annotation's File is loaded - Loads if needed. 
-        """
-        if not self._obj.file.loaded:
-            self._obj._file = self._conn.getQueryService().find('OriginalFile', self._obj.file.id.val)
-
+    _attrs = ('file|OriginalFileWrapper',)
+    
     def _getQueryString(self):
         """
         Used for building queries in generic methods such as getObjects("FileAnnotation")
         """
         return "select obj from FileAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-                "join fetch obj.details.creationEvent"
+                "join fetch obj.details.creationEvent join fetch obj.file"
 
     def getValue (self):
         """ Not implemented """
@@ -3355,7 +3350,6 @@ class FileAnnotationWrapper (AnnotationWrapper):
         @rtype:     Boolean
         """
         
-        self.__loadedHotSwap__()
         try:
             if self._obj.ns is not None and self._obj.ns.val == omero.constants.namespaces.NSCOMPANIONFILE and self._obj.file.name.val.startswith("original_metadata"):
                 return True
@@ -3370,8 +3364,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
         @return:    File size (bytes)
         @rtype:     Long
         """
-        
-        return self._obj.file.size.val
+        return self.getFile().size
 
     def getFileName(self):
         """
@@ -3381,8 +3374,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
         @rtype:     String
         """
         
-        self.__loadedHotSwap__()
-        return self._obj.file.name.val
+        return self.getFile().name
     
     def getFileInChunks(self):
         """
@@ -3392,35 +3384,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
         @rtype:     Generator
         """
         
-        self.__loadedHotSwap__()
-        store = self._conn.createRawFileStore()
-        store.setFileId(self._obj.file.id.val)
-        size = self.getFileSize()
-        buf = 2621440
-        if size <= buf:
-            yield store.read(0,long(size))
-        else:
-            for pos in range(0,long(size),buf):
-                data = None
-                if size-pos < buf:
-                    data = store.read(pos, size-pos)
-                else:
-                    data = store.read(pos, buf)
-                yield data
-        store.close()
-
-
-#    def shortTag(self):
-#        if isinstance(self._obj, TagAnnotationI):
-#            try:
-#                name = self._obj.textValue.val
-#                l = len(name)
-#                if l < 25:
-#                    return name
-#                return name[:10] + "..." + name[l - 10:] 
-#            except:
-#                logger.info(traceback.format_exc())
-#                return self._obj.textValue.val
+        return self.getFile().getFileInChunks();
 
 AnnotationWrapper._register(FileAnnotationWrapper)
 
@@ -3430,10 +3394,9 @@ class _OriginalFileWrapper (BlitzObjectWrapper):
     omero_model_OriginalFileI class wrapper extends BlitzObjectWrapper.
     """
 
-    def __bstrap__ (self):
-        self.OMERO_CLASS = 'OriginalFile'
-
-    def getFileInChunks(self):
+    OMERO_CLASS = 'OriginalFileI'
+    
+    def getFileInChunks(self, buf=2621440):
         """
         Returns a generator yielding chunks of the file data.
 
@@ -3441,12 +3404,9 @@ class _OriginalFileWrapper (BlitzObjectWrapper):
         @rtype:     Generator
         """
 
-        if not self._obj.isLoaded():
-            self._obj = self._conn.getQueryService().get(self.OMERO_CLASS, self._obj.id.val)
         store = self._conn.createRawFileStore()
         store.setFileId(self._obj.id.val)
         size = self._obj.size.val
-        buf = 2621440
         if size <= buf:
             yield store.read(0,long(size))
         else:
@@ -3458,8 +3418,10 @@ class _OriginalFileWrapper (BlitzObjectWrapper):
                     data = store.read(pos, buf)
                 yield data
         store.close()
+    
 
 OriginalFileWrapper = _OriginalFileWrapper
+
 
 from omero_model_TimestampAnnotationI import TimestampAnnotationI
 
