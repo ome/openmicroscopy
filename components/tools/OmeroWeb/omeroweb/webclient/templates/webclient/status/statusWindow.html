@@ -114,7 +114,14 @@
                                 oid = results[key]["id"];
                                 rHtml += "<span class='result'>"
                                 rHtml += "<a href='#' title=\"Script Result: '"+ key +"'\">";
-                                if (results[key]['name']) rHtml += results[key]['name'];
+                                if (results[key]['name']) {
+                                    var nameTxt = results[key]['name'];
+                                    var MAXL = 30;
+                                    if (nameTxt.length > MAXL) {
+                                        nameTxt = "..." + nameTxt.substring(nameTxt.length-MAXL, nameTxt.length);
+                                    }
+                                    rHtml += nameTxt
+                                }
                                 else rHtml += type + " ID: " + oid;
                                 rHtml += "</a>";
 
