@@ -690,7 +690,8 @@ def load_searching(request, form=None, **kwargs):
     
     manager = BaseSearch(conn)
     if form is not None: 
-        query_search = request.REQUEST.get('query')
+        query_search = request.REQUEST.get('query').replace("+", " ")
+        print "".replace("+", " ")
         template = "webclient/search/search_details.html"
 
         onlyTypes = list()
