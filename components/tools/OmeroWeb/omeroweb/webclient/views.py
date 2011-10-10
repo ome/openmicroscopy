@@ -2526,6 +2526,7 @@ def getObjectUrl(conn, obj):
     """
     base_url = reverse(viewname="load_template", args=['userdata'])
 
+    # if we have a File Annotation, then we want our URL to be for the parent object...
     if isinstance(obj, omero.model.FileAnnotationI):
         fa = conn.getObject("Annotation", obj.id.val)
         for ptype in ['project', 'dataset', 'image']:

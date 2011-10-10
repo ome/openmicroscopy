@@ -92,19 +92,22 @@
                         if (cbMap["Message"]) {
                             $jobRow.find(".message").text(cbMap["Message"]);
                         }
-                        if (cbMap["stderr"]) {
-                            var err_url = $("#original_file_link").text().replace("0", cbMap["stderr"]);
-                            var errHtml = "<a href='#' onClick=\"return openPopup('" + err_url + "');\">Error</a>";
-                            $jobRow.find(".error").html(errHtml);
-                        }
+                        
+                        var infoLink = "";
                         if (cbMap["stdout"]) {
                             var info_url = $("#original_file_link").text().replace("0", cbMap["stdout"]);
-                            var infoHtml = "<a href='#' onClick=\"return openPopup('" + info_url + "');\">Info</a>";
-                            $jobRow.find(".info").html(infoHtml);
+                            infoLink = "<a href='#' onClick=\"return openPopup('" + info_url + "');\">Info</a>";
                         }
-                        var resultsHtml = "";
+                        var errLink = "";
+                        if (cbMap["stderr"]) {
+                            var err_url = $("#original_file_link").text().replace("0", cbMap["stderr"]);
+                            errLink = "<a href='#' onClick=\"return openPopup('" + err_url + "');\">Error</a>";
+                        }
+                        
+                        var infoErrShown = false;
+                        var rHtml = "";
                         for (key in results) {
-                            var rHtml = "<div>";
+                            rHtml += "<div>";
                             if (results[key]["type"] && results[key]["id"]) {     
                                 // handle result 'Objects' - E.g ImageI, FileAnnotationI
                                 type = results[key]["type"];
@@ -117,7 +120,10 @@
 
                                 rHtml += "<ul class='resultOptions'>";
                                 if (results[key]['browse_url']) {
-                                    rHtml += "<li><a href='#' onClick=\"return browseParent('" + results[key]['browse_url'] + "');\" title='Browse to {{ v.type }}'>Browse</a></li>"
+                                    var objTxt = type;
+                                    if (type == "FileAnnotation") objTxt = "File Attachment";
+                                    rHtml += "<li><a href='#' onClick=\"return browseParent('" + results[key]['browse_url'] + "');\" title='Navigate to "+objTxt+" in the main window '>";
+                                    rHtml += "Go to "+ objTxt +"</a></li>";
                                 }
 
                                 if (type == "FileAnnotation"){
@@ -131,15 +137,34 @@
                                     var img_url = $("#full_viewer_link").text().replace("0", oid);
                                     rHtml += "<li><a href='#' onClick=\"return openPopup('"+ img_url +"');\" title='Open Image in Viewer'>View Image</a></li>";
                                 }
+                                // add Info and Error to the end of the menu
+                                if (!infoErrShown) {
+                                    if (cbMap["stderr"]) {
+                                        rHtml += "<li>"+errLink + "</li>";
+                                    }
+                                    if (cbMap["stdout"]) {
+                                        rHtml += "<li>"+infoLink + "</li>";
+                                    }
+                                    infoErrShown = true;
+                                }
                                 rHtml += "</ul>";
                             } else {
                                 // handle rtypes
                                 rHtml += "<span title='Script Result: "+ key + "'>" + results[key] + "</span>";
                             }
                             rHtml += "</div>";
-                            $jobRow.find(".results").html(rHtml);
-                            setupResultOptions();
                         }
+                        // if we have no results, put Info and Error at top (instead of in menus)
+                        if (!infoErrShown) {
+                            if (cbMap["stderr"]) {
+                                rHtml += errLink;
+                            }
+                            if (cbMap["stdout"]) {
+                                rHtml += infoLink;
+                            }
+                        }
+                        $jobRow.find(".results").html(rHtml);
+                        setupResultOptions();
                     } else if (cbMap["job_type"] == "delete") {
                         var icon_src = $("#delete_icon_src").text();
                         $jobRow.find(".icon").attr('src', icon_src);
@@ -356,7 +381,7 @@
                                                 <ul class="resultOptions">
                                                     {% if v.browse_url %}
                                                         <li><a href='#' onClick="return browseParent('{{ v.browse_url}}');" title="Navigate to {{ v.type }} in the main window">
-                                                            Go To {{ v.type }}
+                                                            Go to {% ifequal v.type "FileAnnotation" %} File Attachment {% else %} {{ v.type }} {% endifequal %}
                                                         </a></li>
                                                     {% endif %}
 
