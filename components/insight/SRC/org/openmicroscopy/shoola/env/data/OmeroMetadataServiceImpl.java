@@ -947,7 +947,6 @@ class OmeroMetadataServiceImpl
 			                                    long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		System.err.println(type);
 		if (id < 0) new ArrayList<Long>();
 		if (type == null) 
 			throw new IllegalArgumentException("No type specified.");
