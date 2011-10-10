@@ -89,6 +89,7 @@ import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.WellSampleData;
 import pojos.XMLAnnotationData;
 
 /** 
@@ -441,7 +442,7 @@ class OmeroMetadataServiceImpl
 	 */
 	private void linkAnnotation(DataObject data, AnnotationData annotation)
 		throws DSOutOfServiceException, DSAccessException
-	{
+	{			
 		String ioType = gateway.convertPojos(data).getName();
 		IObject ho = gateway.findIObject(ioType, data.getId());
 		ModelMapper.unloadCollections(ho);
@@ -946,6 +947,7 @@ class OmeroMetadataServiceImpl
 			                                    long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		System.err.println(type);
 		if (id < 0) new ArrayList<Long>();
 		if (type == null) 
 			throw new IllegalArgumentException("No type specified.");

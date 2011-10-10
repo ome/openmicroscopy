@@ -495,8 +495,16 @@ class MetadataViewerComponent
 		if (!model.isSingleMode()) {
 			if (nodes != null) {
 				n = nodes.iterator();
-				while (n.hasNext()) 
-					toSave.add((DataObject) n.next());
+				DataObject o;
+				while (n.hasNext()) {
+					o = (DataObject) n.next();
+					if (o instanceof WellSampleData) {
+						WellSampleData wsd = (WellSampleData) o;
+						if (wsd.getImage() != null) {
+							toSave.add(wsd.getImage());
+						}
+					} else toSave.add(o);
+				}
 			}
 		}
 		boolean b = true;
