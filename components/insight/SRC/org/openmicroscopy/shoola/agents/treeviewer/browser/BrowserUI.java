@@ -36,7 +36,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1819,13 +1818,12 @@ class BrowserUI
 			TreePath[] paths = new TreePath[newSelection.length];
 			for (int i = 0; i < newSelection.length; i++) {
 				paths[i] = new TreePath(newSelection[i].getPath());
-			}	
-			//treeDisplay.get
+			}
 			treeDisplay.setSelectionPaths(paths);
 		}
 		
 		treeDisplay.repaint();
-		//treeDisplay.addTreeSelectionListener(selectionListener);
+		
 	}
     
 	/**

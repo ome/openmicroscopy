@@ -306,7 +306,7 @@ class BrowserComponent
             			display);
     	} else {
     		firePropertyChange(SELECTED_TREE_NODE_DISPLAY_PROPERTY, oldDisplay, 
-        			display);
+    				display);
     	}
     }
 	

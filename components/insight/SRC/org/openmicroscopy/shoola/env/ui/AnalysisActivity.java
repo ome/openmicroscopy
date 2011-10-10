@@ -112,10 +112,12 @@ public class AnalysisActivity
 	protected void notifyDownload()
 	{
 		//Check name space.
+		/*
 		if (!(result instanceof FileAnnotationData)) {
 			downloadButton.setEnabled(false);
 			return;
 		}
+		*/
 		final FileAnnotationData data = (FileAnnotationData) result;
 		JFrame f = registry.getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
