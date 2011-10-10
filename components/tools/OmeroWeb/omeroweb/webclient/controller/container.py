@@ -424,7 +424,7 @@ class BaseContainer(BaseController):
                 else:
                     annTypes[annClass].append(ann)
 
-        self.text_annotations.sort(key=lambda x: x.creationEventDate())
+        self.text_annotations.sort(key=lambda x: x.creationEventDate(), reverse=True)
         self.file_annotations.sort(key=lambda x: x.creationEventDate())
         self.rating_annotations.sort(key=lambda x: x.creationEventDate())
         self.tag_annotations.sort(key=lambda x: x.textValue)
