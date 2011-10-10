@@ -350,6 +350,7 @@ public class UserNotifierImpl
 		if (activity == null) return;
 		ActivityComponent comp = null;
 		boolean register = true;
+		boolean uiRegister = true;
 		if (activity instanceof MovieActivityParam) {
 			MovieActivityParam p = (MovieActivityParam) activity;
 			comp = new MovieActivity(this, manager.getRegistry(), p);
@@ -362,6 +363,7 @@ public class UserNotifierImpl
 			if (register) {
 				if (!canWriteInFolder(p.getFolder().getParentFile()))
 					return;
+				uiRegister = p.isUIRegister();
 			}
 			comp = new DownloadActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof FigureActivityParam) {
@@ -406,7 +408,7 @@ public class UserNotifierImpl
 			UserNotifierLoader loader = comp.createLoader();
 			if (loader == null) return;
 			if (register) comp.startActivity();
-			manager.registerActivity(comp, register);
+			manager.registerActivity(comp, uiRegister);
 			EventBus bus = manager.getRegistry().getEventBus();
 			bus.post(new ActivityProcessEvent(comp, false));
 			loader.load();

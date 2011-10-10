@@ -32,7 +32,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -139,9 +138,6 @@ public abstract class ActivityComponent
 	
 	/** The component displaying the status. */
 	private JComponent					 statusPane;
-	
-	/** One of the constants defined by this class. */
-	private int							index;
 	
 	/** The index of the {@link #cancelButton} or {@link #removeButton}. */
 	private int							buttonIndex;
@@ -440,13 +436,6 @@ public abstract class ActivityComponent
 		buildGUI();
 	}
 
-	/**
-	 * Sets the index associated to this activity.
-	 * 
-	 * @param index The value to set.
-	 */
-	void setIndex(int index) { this.index = index; }
-	
     /**
      * Creates a button.
      * 
@@ -554,9 +543,9 @@ public abstract class ActivityComponent
 	 * 
 	 * @param text   The text used if the object is not loaded.
 	 * @param object The object to handle.
-	 * 
+	 * @param folder Indicates where to download the file or <code>null</code>.
 	 */
-	void download(String text, Object object)
+	void download(String text, Object object, File folder)
 	{
 		if (!(object instanceof FileAnnotationData || 
 				object instanceof OriginalFile)) return;
@@ -594,6 +583,24 @@ public abstract class ActivityComponent
 		final int type = index;
 		final String desc = description;
 		final long id = dataID;
+		if (folder != null) {
+			if (original == null && type == -1) return;
+			DownloadActivityParam activity;
+			IconManager icons = IconManager.getInstance(registry);
+			File f = new File(folder.getAbsolutePath(), name);
+			if (original != null) {
+				activity = new DownloadActivityParam(original,
+						f, icons.getIcon(IconManager.DOWNLOAD_22));
+				
+			} else {
+				activity = new DownloadActivityParam(id, type,
+						f, icons.getIcon(IconManager.DOWNLOAD_22));
+			}
+			activity.setLegend(desc);
+			activity.setUIRegister(false);
+			viewer.notifyActivity(activity);
+			return;
+		}
 		JFrame f = registry.getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
 				"Download", "Select where to download the file.", null, 
@@ -621,15 +628,22 @@ public abstract class ActivityComponent
 								folder, icons.getIcon(IconManager.DOWNLOAD_22));
 					}
 					activity.setLegend(desc);
-					/*
-					activity.setLegendExtension(
-							DownloadActivity.LEGEND_TEXT_CSV);
-							*/
 					viewer.notifyActivity(activity);
 				}
 			}
 		});
 		chooser.centerDialog();
+	}
+	
+	/** 
+	 * Downloads the passed object is supported.
+	 * 
+	 * @param text   The text used if the object is not loaded.
+	 * @param object The object to handle.
+	 */
+	void download(String text, Object object)
+	{
+		download(text, object, null);
 	}
 	
 	/**

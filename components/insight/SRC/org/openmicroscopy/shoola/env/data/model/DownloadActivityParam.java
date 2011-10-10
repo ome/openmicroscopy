@@ -87,6 +87,9 @@ public class DownloadActivityParam
     
     /** The source triggering the operation.*/
     private JComponent source;
+
+    /** Indicates to register in UI.*/
+    private boolean		uiRegister;
     
     /** 
      * Checks if the index is valid.
@@ -123,6 +126,7 @@ public class DownloadActivityParam
     	legendExtension = null;
     	index = -1;
     	id = -1;
+    	uiRegister = true;
     }
 
     /**
@@ -140,7 +144,28 @@ public class DownloadActivityParam
     	this.folder = folder;
     	this.icon = icon;
     	this.id = id;
+    	uiRegister = true;
     }
+    
+    /**
+     * Sets to <code>true</code> if the component does not need to be
+     * registered, <code>false</code> otherwise.
+     * 
+     * @param uiRegister Pass <code>true</code> to register, <code>false</code>
+     * 					 otherwise.
+     */
+    public void setUIRegister(boolean uiRegister)
+    { 
+    	this.uiRegister = uiRegister; 
+    }
+    
+    /**
+     * Returns <code>true</code> if the component does not need to be
+     * registered, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isUIRegister() { return uiRegister; }
     
     /**
      * Sets the application data.
