@@ -365,7 +365,7 @@
                             <td class="results" align="middle">
                                 {% if j.error %}
                                     <div class='script_error' title="{{ j.error }}">
-                                        Error
+                                        Failure
                                         <img src="{% url webstatic 'images/info16.png' %}"/>
                                         <input type='submit' title="Send Error as Feeback to the OME team" jobKey="{{ j.key }}"
                                         {% if j.error_sent %}
