@@ -98,6 +98,9 @@ class ActivityResultRow
 	/** Indicates to browse the object. */
 	private static final int BROWSE = 2;
 
+	/** The maximum length.*/
+	private static final int MAX_LENGTH = 27;
+	
 	/** Reference to the activity. */
 	private ActivityComponent activity;
 	
@@ -340,7 +343,14 @@ class ActivityResultRow
 		setOpaque(false);
 		setForeground(UIUtilities.HYPERLINK_COLOR);
 		UIUtilities.unifiedButtonLookAndFeel(this);
-		setText(getObjectText());
+		String text = getObjectText();
+		//Format the t
+		int l = text.length();
+		if (l <= MAX_LENGTH) setText(text);
+		else {
+			setText("..."+text.substring(l-MAX_LENGTH-1, l-1));
+		}
+		setToolTipText(text);
 		Font f = getFont();
 		setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
 	}
