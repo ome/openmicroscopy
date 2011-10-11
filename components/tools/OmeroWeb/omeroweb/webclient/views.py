@@ -1821,7 +1821,7 @@ def get_original_file(request, fileId, **kwargs):
     if orig_file is None:
         return handlerInternalError("Original File does not exists (id:%s)." % (iid))
     
-    rsp = HttpResponse(ann.getFileInChunks())
+    rsp = HttpResponse(orig_file.getFileInChunks())
     mimetype = orig_file.mimetype
     if mimetype == "text/x-python": 
         mimetype = "text/plain" # allows display in browser
