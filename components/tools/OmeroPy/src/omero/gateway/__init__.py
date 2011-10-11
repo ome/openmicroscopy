@@ -3394,7 +3394,8 @@ class _OriginalFileWrapper (BlitzObjectWrapper):
     omero_model_OriginalFileI class wrapper extends BlitzObjectWrapper.
     """
 
-    OMERO_CLASS = 'OriginalFileI'
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'OriginalFile'
     
     def getFileInChunks(self, buf=2621440):
         """
