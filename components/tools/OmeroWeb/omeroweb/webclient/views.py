@@ -1826,7 +1826,7 @@ def get_original_file(request, fileId, **kwargs):
     if mimetype == "text/x-python": 
         mimetype = "text/plain" # allows display in browser
     rsp['Content-Type'] =  mimetype
-    rsp['Content-Length'] = temp.tell()
+    rsp['Content-Length'] = orig_file.getSize()
     #rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.name.replace(" ","_"))
     return rsp
 
