@@ -1940,26 +1940,28 @@ def archived_files(request, iid, **kwargs):
         try:
             temp_zip_dir = tempfile.mkdtemp()
             logger.debug("download dir: %s" % temp_zip_dir)
-
-            for a in files:
-                temp_f = os.path.join(temp_zip_dir, a.name)
-                try:
-                    f = open(str(temp_f),"wb")
-                    for chunk in a.getFileInChunks():
-                        f.write(chunk)
-                finally:
-                    f.close()
-
-            # create zip
-            zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
             try:
-                a_files = os.path.join(temp_zip_dir, "*")
-                for name in glob.glob(a_files):
-                    zip_file.write(name, os.path.basename(name))
+                for a in files:
+                    temp_f = os.path.join(temp_zip_dir, a.name)
+                    f = open(str(temp_f),"wb")
+                    try:
+                        for chunk in a.getFileInChunks():
+                            f.write(chunk)
+                    finally:
+                        f.close()
+
+                # create zip
+                zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
+                try:
+                    a_files = os.path.join(temp_zip_dir, "*")
+                    for name in glob.glob(a_files):
+                        zip_file.write(name, os.path.basename(name))
+                finally:
+                    zip_file.close()
+                    # delete temp dir
             finally:
-                zip_file.close()
-                # delete temp dir
                 shutil.rmtree(temp_zip_dir, ignore_errors=True)
+            
             file_name = "%s.zip" % image.getName().replace(" ","_")
 
             # return the zip or single file
