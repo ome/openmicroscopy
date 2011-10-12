@@ -242,6 +242,7 @@
                                 } else {
                                     // simply remove the item (parent class div)
                                     $parent.remove();
+                                    window.parent.refreshProgressBar();
                                 }
                             },
                             error: function(response) {
