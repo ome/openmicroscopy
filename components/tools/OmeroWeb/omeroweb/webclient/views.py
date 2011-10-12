@@ -1931,9 +1931,10 @@ def archived_files(request, iid, **kwargs):
         return handlerInternalError("This image has no Archived Files")
 
     if len(files) == 1:
+        orig_file = files[0]
         rsp = HttpResponse(orig_file.getFileInChunks())
-        rsp['Content-Length'] = orig_file.getFileSize()
-        rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
+        rsp['Content-Length'] = orig_file.getSize()
+        rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.getName().replace(" ","_"))
     else:
         import tempfile
         temp = tempfile.NamedTemporaryFile(suffix='.archive')
