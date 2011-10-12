@@ -6738,6 +6738,7 @@ class OMEROGateway
 			RoiResult tempResults;
 			int shapeIndex;
 	
+			Image unloaded = new ImageI(imageID, false);
 			for (ROIData roi : roiList)
 			{
 				/*
@@ -6745,7 +6746,9 @@ class OMEROGateway
 				 */
 				if (!roiMap.containsKey(roi.getId()))
 				{
-					updateService.saveAndReturnObject(roi.asIObject());
+					Roi r = (Roi) roi.asIObject();
+					r.setImage(unloaded);
+					updateService.saveAndReturnObject(r);
 					continue;
 				}	
 				
@@ -6786,6 +6789,7 @@ class OMEROGateway
 				Iterator si = serverCoordMap.entrySet().iterator();
 				Entry entry;
 				List<ROICoordinate> removed = new ArrayList<ROICoordinate>();
+				List<IObject> toDelete = new ArrayList<IObject>();
 				while (si.hasNext())
 				{
 					entry = (Entry) si.next();
@@ -6793,8 +6797,9 @@ class OMEROGateway
 					if (!clientCoordMap.containsKey(coord))
 					{
 						s = (Shape) entry.getValue();
-						if (s != null)
+						if (s != null) {
 							updateService.deleteObject(s);
+						}
 					} else {
 						s = (Shape) entry.getValue();
 						if (s instanceof Line || s instanceof Polyline) {
@@ -6809,7 +6814,6 @@ class OMEROGateway
 						}
 					}
 				}
-				
 				/*
 				 * Step 5. retrieve new roi as some are stale.
 				 */
@@ -6908,6 +6912,7 @@ class OMEROGateway
 					serverRoi.setDescription(ri.getDescription());
 					serverRoi.setNamespaces(ri.getNamespaces());
 					serverRoi.setKeywords(ri.getKeywords());
+					serverRoi.setImage(unloaded);
 					updateService.saveAndReturnObject(serverRoi);
 				}
 				
