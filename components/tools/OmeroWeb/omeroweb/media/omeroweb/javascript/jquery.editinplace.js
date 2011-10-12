@@ -86,6 +86,8 @@
                                         $("#form-"+field_id).find('input').each( function( ) {
                                             if ($(this).attr('name')!=null && $(this).attr('name')!=""){
                                                 $("#"+field_id+"-"+$(this).attr('name')).text($(this).attr('value'));
+                                                // update tree object TODO: move it out of scope
+                                                window.parent.$("#dataTree").jstree('set_text', window.parent.$.jstree._focused().get_selected(), $(this).attr('value'));
                                             }
                                         }); // this.each
                                         $("#form-"+field_id).find('textarea').each( function( ) {
