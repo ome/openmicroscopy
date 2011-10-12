@@ -104,18 +104,16 @@ public class ContainerCounterLoader
 					ids = (List<Long>) entry.getValue();
 					if (PlateData.class.equals(type)) {
 						j = ids.iterator();
-						
 						while (j.hasNext()) {
 							id = j.next();
 							m.put(id, Long.valueOf(
 									ms.loadROIMeasurements(
 											type, id, userID).size()));
 						}
-			        	
 			        	result = m;
 			        } else if (GroupData.class.equals(type)) {
 			        	AdminService svc = context.getAdminService();
-			        	result = svc.countExperimenters(ids);
+			        	result = count.put(type, svc.countExperimenters(ids));
 			        } else {
 			        	count.put(type, os.getCollectionCount(type, 
 		                		OmeroDataService.IMAGES_PROPERTY, ids));
