@@ -28,6 +28,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JFrame;
@@ -327,6 +328,28 @@ class UserNotifierManager
 	{ 
 		if (activities == null) return 0;
 		return activities.size();
+	}
+	
+	/**
+	 * Returns <code>true</code> if there is an on-going activity of
+	 * the specified type, <code>false</code> otherwise.
+	 * 
+	 * @param type The type of activity to handle.
+	 * @return See above.
+	 */
+	boolean hasRunningActivityOfType(Class type)
+	{
+		if (type == null || getRunningActivitiesCount() == 0) return false;
+		if (ExportActivity.class.equals(type)) {
+			Iterator<ActivityComponent> i = activities.iterator();
+			ActivityComponent ac;
+			while (i.hasNext()) {
+				ac = i.next();
+				if (ExportActivity.class.equals(ac.getClass()))
+					return true;
+			}
+		}
+		return false;
 	}
 	
 	/**

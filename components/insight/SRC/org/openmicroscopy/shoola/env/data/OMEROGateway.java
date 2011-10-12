@@ -6987,7 +6987,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	synchronized File exportImageAsOMETiff(File f, long imageID)
+	File exportImageAsOMETiff(File f, long imageID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive();

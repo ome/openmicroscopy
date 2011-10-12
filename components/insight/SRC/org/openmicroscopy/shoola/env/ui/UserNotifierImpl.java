@@ -355,6 +355,11 @@ public class UserNotifierImpl
 			MovieActivityParam p = (MovieActivityParam) activity;
 			comp = new MovieActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof ExportActivityParam) {
+			if (manager.hasRunningActivityOfType(ExportActivity.class)) {
+				notifyInfo("Export", "There is already an ongoing export." +
+						"\nTry again when the export is completed.");
+				return;
+			}
 			ExportActivityParam p = (ExportActivityParam) activity;
 			comp = new ExportActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof DownloadActivityParam) {
