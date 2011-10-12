@@ -39,7 +39,7 @@
     <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
 
     <script type="text/javascript">
-        jQuery.fn.runScript = function() {
+        jQuery.fn.runScript = function(actWindow) {
             var $form = $(this);
             var postData = $form.serialize();
             var actionUrl = $form.attr('action');
@@ -50,16 +50,19 @@
                 contentType:'json',
                 success: function(data){
                     if(data.status == 'in progress') {
-                        // we don't try to open 'Activities' window here, since it triggers popup blockers
+                        // we don't try to open 'Activities' window here, since it triggers popup blockers...
                         window.opener.refreshProgressBar();
+                        actWindow.location.href = '{% url status %}';   //...but we can refresh
                         self.close();
                     }
                     else {
                         // error is stored in http session - displayed in 'Activities' window.
+                        actWindow.location.href = '{% url status %}';
                         self.close();
                     }
                 },
                 error: function(data) {
+                    actWindow.location.href = '{% url status %}';
                     self.close();
                 }
             });
@@ -69,11 +72,13 @@
         $(document).ready(function() {
             $('form').submit(function() {
                 $("#submit").attr("disabled", true); // make sure we don't submit twice.
-                $(this).runScript();
 
                 // if an "existing" window is opened by the window behind this one, we can't focus it...
                 window.open("", 'Activities').close();    // make sure there is no existing 'Activities' window
-                window.opener.popupActivites('{% url status %}');
+                var actWindow = window.opener.popupActivites('{% url status %}');
+
+                // pass the window to runScript() so we can refresh the window on AJAX callback.
+                $(this).runScript(actWindow);
                 return false;
             });
 

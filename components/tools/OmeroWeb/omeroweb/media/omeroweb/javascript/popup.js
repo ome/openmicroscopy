@@ -47,7 +47,7 @@ function popupActivites(url) {
     var top = parseInt((screen.availHeight - h)/3);
     activitiesWindow = window.open(url, 'Activities', config='height='+h+',width='+w+',left='+left+',top='+top+',toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
     if(!activitiesWindow.closed) activitiesWindow.focus();
-    return false;
+    return activitiesWindow;
 }
 function refreshActivitiesWindow(url) {
     if (activitiesWindow != undefined) {
