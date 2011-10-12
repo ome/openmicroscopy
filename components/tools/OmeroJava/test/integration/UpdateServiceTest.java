@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.BooleanAnnotation;
@@ -51,8 +52,13 @@ import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.PlaneInfo;
 import omero.model.Plate;
+import omero.model.PlateAcquisition;
+import omero.model.PlateAcquisitionAnnotationLink;
+import omero.model.PlateAcquisitionAnnotationLinkI;
+import omero.model.PlateAcquisitionI;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
+import omero.model.PlateI;
 import omero.model.Point;
 import omero.model.PointI;
 import omero.model.Polygon;
@@ -73,11 +79,13 @@ import omero.model.RoiI;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenAnnotationLinkI;
+import omero.model.ScreenI;
 import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
 import omero.model.TermAnnotationI;
+import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import org.testng.annotations.Test;
 
@@ -88,6 +96,7 @@ import pojos.ImageData;
 import pojos.LineData;
 import pojos.LongAnnotationData;
 import pojos.MaskData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.PointData;
 import pojos.PolygonData;
@@ -1695,4 +1704,147 @@ public class UpdateServiceTest
 				i2.getId().getValue());
     }
     
+    /**
+	 * Tests to delete comment annotation linked to a plate acquisition.
+	 * 
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test(enabled = true)
+    public void testDeleteCommentAnnotationLinkedToObject()
+    	throws Exception
+    {
+    	//comment linked to project
+    	Project project = new ProjectI();
+    	project.setName(omero.rtypes.rstring("p"));
+    	project = (Project) iUpdate.saveAndReturnObject(project);
+    	CommentAnnotation cp = new CommentAnnotationI();
+    	cp.setTextValue(omero.rtypes.rstring("comment"));
+    	cp = (CommentAnnotation) iUpdate.saveAndReturnObject(cp);
+    	
+    	ProjectAnnotationLink lpc = new ProjectAnnotationLinkI();
+    	lpc.setChild((Annotation) cp.proxy());
+    	lpc.setParent((Project) project.proxy());
+    	IObject o = iUpdate.saveAndReturnObject(lpc);
+    	iUpdate.deleteObject(o);
+    	iUpdate.deleteObject(cp);
+    	String sql = "select a from Annotation as a ";
+		sql += "where a.id = :id";
+		ParametersI param = new ParametersI();
+    	param.addId(cp.getId().getValue());
+    	List<IObject> results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(results.size(), 0);
+    	
+
+    	//comment linked to dataset
+    	Dataset dataset = new DatasetI();
+    	dataset.setName(omero.rtypes.rstring("p"));
+    	dataset = (Dataset) iUpdate.saveAndReturnObject(dataset);
+    	cp = new CommentAnnotationI();
+    	cp.setTextValue(omero.rtypes.rstring("comment"));
+    	cp = (CommentAnnotation) iUpdate.saveAndReturnObject(cp);
+    	
+    	DatasetAnnotationLink ldc = new DatasetAnnotationLinkI();
+    	ldc.setChild((Annotation) cp.proxy());
+    	ldc.setParent(dataset);
+    	o = iUpdate.saveAndReturnObject(ldc);
+    	iUpdate.deleteObject(o);
+    	iUpdate.deleteObject(cp);
+		param = new ParametersI();
+    	param.addId(cp.getId().getValue());
+    	results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(results.size(), 0);
+    	
+    	//comment linked to screen
+    	Screen screen = new ScreenI();
+    	screen.setName(omero.rtypes.rstring("p"));
+    	
+    	screen = (Screen) iUpdate.saveAndReturnObject(screen);
+    	cp = new CommentAnnotationI();
+    	cp.setTextValue(omero.rtypes.rstring("comment"));
+    	cp = (CommentAnnotation) iUpdate.saveAndReturnObject(cp);
+    	
+    	//Comment linked to a screen
+    	ScreenAnnotationLink lsc = new ScreenAnnotationLinkI();
+    	lsc.setChild((Annotation) cp.proxy());
+    	lsc.setParent(screen);
+    	o = iUpdate.saveAndReturnObject(lsc);
+    	iUpdate.deleteObject(o);
+    	iUpdate.deleteObject(cp);
+		param = new ParametersI();
+    	param.addId(cp.getId().getValue());
+    	results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(results.size(), 0);
+    	
+    	//comment linked to plate
+    	Plate plate = new PlateI();
+    	plate.setName(omero.rtypes.rstring("p"));
+    	plate = (Plate) iUpdate.saveAndReturnObject(plate);
+    	cp = new CommentAnnotationI();
+    	cp.setTextValue(omero.rtypes.rstring("comment"));
+    	cp = (CommentAnnotation) iUpdate.saveAndReturnObject(cp);
+    	
+    	PlateAnnotationLink lppc = new PlateAnnotationLinkI();
+    	lppc.setChild((Annotation) cp.proxy());
+    	lppc.setParent(plate);
+    	o = iUpdate.saveAndReturnObject(o);
+    	iUpdate.deleteObject(o);
+    	iUpdate.deleteObject(cp);
+		param = new ParametersI();
+    	param.addId(cp.getId().getValue());
+    	results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(results.size(), 0);
+    	
+    	//comment linked to image
+    	Image image = new ImageI();
+    	image.setName(omero.rtypes.rstring("p"));
+    	image.setAcquisitionDate(omero.rtypes.rtime(100000));
+    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	cp = new CommentAnnotationI();
+    	cp.setTextValue(omero.rtypes.rstring("comment"));
+    	cp = (CommentAnnotation) iUpdate.saveAndReturnObject(cp);
+    	
+    	ImageAnnotationLink lic = new ImageAnnotationLinkI();
+    	lic.setChild((Annotation) cp.proxy());
+    	lic.setParent(image);
+    	o = iUpdate.saveAndReturnObject(lic);
+    	iUpdate.deleteObject(o);
+    	iUpdate.deleteObject(cp);
+		param = new ParametersI();
+    	param.addId(cp.getId().getValue());
+    	results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(results.size(), 0);
+    	
+    	
+    	
+    	Plate p;
+		p = (Plate) iUpdate.saveAndReturnObject(
+				mmFactory.createPlate(1, 1, 1, 1, false));
+		sql = "select pa from PlateAcquisition as pa ";
+		sql += "where pa.plate.id = :id";
+		param = new ParametersI();
+    	param.addId(p.getId().getValue());
+    	List<IObject> pas = iQuery.findAllByQuery(sql, param);
+    	//Delete the first one.
+    	PlateAcquisition pa = (PlateAcquisition) pas.get(0);
+    	
+    	CommentAnnotation c = new CommentAnnotationI();
+    	c.setTextValue(omero.rtypes.rstring("comment"));
+    	c = (CommentAnnotation) iUpdate.saveAndReturnObject(c);
+    	long id = c.getId().getValue();
+    	
+    	PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
+    	link.setChild(c);
+    	link.setParent(pa);
+    	
+    	o = iUpdate.saveAndReturnObject(link);
+    	iUpdate.deleteObject(o);
+    	iUpdate.deleteObject(c);
+		//delete(iDelete, client, new DeleteCommand("/Annotation", id, null));
+		sql = "select a from Annotation as a ";
+		sql += "where a.id = :id";
+		param = new ParametersI();
+    	param.addId(id);
+    	results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(results.size(), 0);
+    }
 }

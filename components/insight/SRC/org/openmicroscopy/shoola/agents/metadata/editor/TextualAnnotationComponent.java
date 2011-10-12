@@ -73,7 +73,7 @@ class TextualAnnotationComponent
 	/** Action id to edit the comment.*/
 	private static final int EDIT = 0;
 	
-	/** Action id to edit the comment.*/
+	/** Action id to delete the comment.*/
 	private static final int DELETE = 1;
 	
 	/** Area displaying the textual annotation. */

@@ -41,6 +41,7 @@ import java.util.Map.Entry;
 import org.apache.commons.collections.ListUtils;
 
 //Application-internal dependencies
+import omero.api.delete.DeleteCommand;
 import omero.model.Annotation;
 import omero.model.Channel;
 import omero.model.DatasetAnnotationLink;
@@ -1024,18 +1025,29 @@ class OmeroMetadataServiceImpl
 			if (toRemove != null) {
 				i = toRemove.iterator();
 				List<IObject> toDelete = new ArrayList<IObject>();
+				DeleteCommand cmd;
 				while (i.hasNext()) {
 					ann = (AnnotationData) i.next();
 					if (ann != null) {
+						/*
+						cmd = new DeleteCommand(
+								gateway.createDeleteCommand(
+								ann.getClass().getName()), ann.getId(),
+								null);
+						commands.add(cmd);
+						*/
+						
 						removeAnnotation(ann, object);
 						if (ann instanceof TextualAnnotationData) {
-							if (!isAnnotationShared(ann, object))
+							if (!isAnnotationShared(ann, object)) {
 								toDelete.add(ann.asIObject());
+							}
 						}
 					}
 				}
-				if (toDelete.size() > 0)
+				if (toDelete.size() > 0) {
 					gateway.deleteObjects(toDelete);
+				}
 			}
 		}
 		return data;
