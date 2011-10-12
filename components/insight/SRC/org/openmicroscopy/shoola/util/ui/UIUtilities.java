@@ -2030,7 +2030,11 @@ public class UIUtilities
 	{
 		//String osName = System.getProperty("os.name").toLowerCase();
 		//return osName.startsWith("windows");
-		return SystemUtils.IS_OS_WINDOWS;
+		return (SystemUtils.IS_OS_WINDOWS || SystemUtils.IS_OS_WINDOWS_2000 ||
+				SystemUtils.IS_OS_WINDOWS_7 || SystemUtils.IS_OS_WINDOWS_95 || 
+				SystemUtils.IS_OS_WINDOWS_98 || SystemUtils.IS_OS_WINDOWS_ME|| 
+				SystemUtils.IS_OS_WINDOWS_NT || SystemUtils.IS_OS_WINDOWS_VISTA ||
+				SystemUtils.IS_OS_WINDOWS_XP);
 	}
 	
 	/**

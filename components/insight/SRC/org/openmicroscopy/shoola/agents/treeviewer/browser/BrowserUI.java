@@ -688,12 +688,13 @@ class BrowserUI
         	   ctrl = e.isControlDown();
         	   if (UIUtilities.isMacOS()) ctrl = e.isMetaDown();
         	   leftMouseButton = SwingUtilities.isLeftMouseButton(e);
-        	   if (UIUtilities.isMacOS()) onClick(e, false); 
+        	   if (UIUtilities.isMacOS() || UIUtilities.isLinuxOS())
+        		   onClick(e, false); 
            }
            public void mouseReleased(MouseEvent e)
            { 
         	   leftMouseButton = SwingUtilities.isLeftMouseButton(e);
-        	   if (!UIUtilities.isMacOS()) onClick(e, true);
+        	   if (UIUtilities.isWindowsOS()) onClick(e, true);
            }
            
           // public void mouseMoved(MouseEvent e) { rollOver(e); }
