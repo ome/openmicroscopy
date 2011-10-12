@@ -40,6 +40,7 @@ import javax.swing.JOptionPane;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.svc.SvcRegistry;
@@ -330,6 +331,22 @@ class UserNotifierManager
 		return activities.size();
 	}
 	
+	/** 
+	 * Starts the specified activity.
+	 * 
+	 * @param start Pass <code>true</code> to update view, <code>false</code>
+	 * 				otherwise.
+	 * @param comp The component to activate.
+	 */
+	void startActivity(boolean start, ActivityComponent comp)
+	{
+		if (comp == null) return;
+		if (start) comp.startActivity();
+		EventBus bus = getRegistry().getEventBus();
+		bus.post(new ActivityProcessEvent(comp, false));
+		comp.createLoader().load();
+	}
+	
 	/**
 	 * Returns <code>true</code> if there is an on-going activity of
 	 * the specified type, <code>false</code> otherwise.
@@ -378,6 +395,18 @@ class UserNotifierManager
 		{
 			ActivityComponent c = (ActivityComponent) pce.getNewValue();
 			if (c != null) activities.remove(c);
+			//Depending on the activity check if need to do another one.
+			if (c instanceof ExportActivity) {
+				Iterator<ActivityComponent> i = activities.iterator();
+				ActivityComponent ac;
+				while (i.hasNext()) {
+					ac = i.next();
+					if (ExportActivity.class.equals(ac.getClass())) {
+						startActivity(true, ac);
+						break;
+					}
+				}
+			}
 		}
 	}
 

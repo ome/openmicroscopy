@@ -502,8 +502,8 @@ public abstract class ActivityComponent
 	public void onActivityCancelled()
 	{
 		reset();
-		notifyActivityCancelled();
 		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
+		notifyActivityCancelled();
 		EventBus bus = registry.getEventBus();
 		bus.post(new ActivityProcessEvent(this, false));
 	}
@@ -738,8 +738,8 @@ public abstract class ActivityComponent
 			exceptionButton.setToolTipText(
 					UIUtilities.formatExceptionForToolTip(ex));
 		}
-		notifyActivityError();
 		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
+		notifyActivityError();
 		EventBus bus = registry.getEventBus();
 		bus.post(new ActivityProcessEvent(this, false));
 	}
@@ -853,8 +853,9 @@ public abstract class ActivityComponent
 			
 			repaint();
 		}
-		notifyActivityEnd();
+		
 		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
+		notifyActivityEnd();
 		//Post an event to 
 		//if (busy) {
 		EventBus bus = registry.getEventBus();

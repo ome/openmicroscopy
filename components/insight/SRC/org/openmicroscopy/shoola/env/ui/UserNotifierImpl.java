@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
@@ -351,14 +350,13 @@ public class UserNotifierImpl
 		ActivityComponent comp = null;
 		boolean register = true;
 		boolean uiRegister = true;
+		boolean startActivity = true;
 		if (activity instanceof MovieActivityParam) {
 			MovieActivityParam p = (MovieActivityParam) activity;
 			comp = new MovieActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof ExportActivityParam) {
 			if (manager.hasRunningActivityOfType(ExportActivity.class)) {
-				notifyInfo("Export", "There is already an ongoing export." +
-						"\nTry again when the export is completed.");
-				return;
+				startActivity = false;
 			}
 			ExportActivityParam p = (ExportActivityParam) activity;
 			comp = new ExportActivity(this, manager.getRegistry(), p);
@@ -412,11 +410,13 @@ public class UserNotifierImpl
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();
 			if (loader == null) return;
-			if (register) comp.startActivity();
+			if (startActivity) {
+				if (register) comp.startActivity();
+			}
 			manager.registerActivity(comp, uiRegister);
-			EventBus bus = manager.getRegistry().getEventBus();
-			bus.post(new ActivityProcessEvent(comp, false));
-			loader.load();
+			if (startActivity) {
+				manager.startActivity(false, comp);
+			}
 		}
 	}
 	
