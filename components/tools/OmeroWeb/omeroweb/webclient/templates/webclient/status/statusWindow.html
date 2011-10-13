@@ -366,14 +366,16 @@
                                 {% if j.error %}
                                     <div class='script_error' title="{{ j.error }}">
                                         Failure
+                                        {% comment %}
+                                        <!-- Don't allow submitting now. TODO: launch submit page -->
                                         <img src="{% url webstatic 'images/info16.png' %}"/>
                                         <input type='submit' title="Send Error as Feeback to the OME team" jobKey="{{ j.key }}"
                                         {% if j.error_sent %}
                                             value='Thank you' disabled='true'
                                         {% else %}
                                             value='Submit Feedback'
-                                        {% endif %}
-                                        />
+                                        {% endif %} />
+                                        {% endcomment %}
                                     </div>
                                 {% endif %}
 
