@@ -28,7 +28,6 @@
     // this is called by the setInterval loop below
     var progressAjaxUpdate = function(i) {
         $.getJSON("{% url progress %}", function(data) {
-            console.log("data.inprogress " + data.inprogress);
             if (data.inprogress==0) {
                 if (i != undefined) clearInterval(i);
                 $("#progress").hide();
