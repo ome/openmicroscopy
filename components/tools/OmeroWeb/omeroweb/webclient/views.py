@@ -1924,11 +1924,15 @@ def archived_files(request, iid, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     image = conn.getObject("Image", iid)
+    if image is None:
+        logger.debug("Cannot download archived file becuase Image does not exist.")
+        return handlerInternalError("Cannot download archived file becuase Image does not exist (id:%s)." % (iid))
+    
     files = list(image.getArchivedFiles())
 
     if len(files) == 0:
-        logger.info("Tried downloading archived files from image with no files archived")
-        return handlerInternalError("This image has no Archived Files")
+        logger.debug("Tried downloading archived files from image with no files archived.")
+        return handlerInternalError("This image has no Archived Files.")
 
     if len(files) == 1:
         orig_file = files[0]
@@ -1988,7 +1992,7 @@ def download_annotation(request, action, iid, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    ann = conn.getObject("Annotation", long(iid))
+    ann = conn.getObject("Annotation", iid)
     if ann is None:
         return handlerInternalError("Annotation does not exist (id:%s)." % (iid))
     
