@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -74,41 +75,52 @@ public class ContainerCounterLoader
      * Creates a {@link BatchCall} to retrieve the number of items per 
      * container.
      * 
-     * @param ids  The ids of the node to count.
-     * @param type The type of nodes.
+     * @param types A Map whose keys are the type of object and the values are
+     * 				the identifiers of the objects.
      * @return See above
      */
-    private BatchCall makeBatchCall(final List<Long> ids, final Class type)
+    private BatchCall makeBatchCall(final Map<Class, List<Long>> types)
     {
         
         return new BatchCall("Counting items.") {
 		    public void doCall() throws Exception
 		    { 
 		        OmeroDataService os = context.getDataService();
-		        if (PlateData.class.equals(type)) {
-		        	Iterator<Long> i = ids.iterator();
-		        	OmeroImageService ms = context.getImageService();
-		        	Long id;
-		        	ExperimenterData exp = (ExperimenterData) context.lookup(
-							LookupNames.CURRENT_USER_DETAILS);
-		        	//Long userID = context.get
-		        	Map<Long, Long> m = new HashMap<Long, Long>();
-		        	long userID = exp.getId();
-		        	while (i.hasNext()) {
-						id = i.next();
-						m.put(id, Long.valueOf(
-								ms.loadROIMeasurements(
-										type, id, userID).size()));
-					}
-		        	
-		        	result = m;
-		        } else if (GroupData.class.equals(type)) {
-		        	AdminService svc = context.getAdminService();
-		        	result = svc.countExperimenters(ids);
-		        } else {
-		        	 result = os.getCollectionCount(type, 
-		                		OmeroDataService.IMAGES_PROPERTY, ids);
-		        }
+		        Entry entry; 
+		        Iterator i = types.entrySet().iterator();
+		        Class type;
+		        Iterator<Long> j;
+		        List<Long> ids;
+		        Long id;
+		        OmeroImageService ms = context.getImageService();
+		        ExperimenterData exp = (ExperimenterData) context.lookup(
+						LookupNames.CURRENT_USER_DETAILS);
+		        long userID = exp.getId();
+		        Map<Long, Long> m = new HashMap<Long, Long>();
+		        Map<Class, Map<Long, Long>> count = new HashMap<Class, Map<Long, Long>>();
+		        while (i.hasNext()) {
+					entry = (Entry) i.next();
+					type = (Class) entry.getKey();
+					ids = (List<Long>) entry.getValue();
+					if (PlateData.class.equals(type)) {
+						j = ids.iterator();
+						while (j.hasNext()) {
+							id = j.next();
+							m.put(id, Long.valueOf(
+									ms.loadROIMeasurements(
+											type, id, userID).size()));
+						}
+			        	result = m;
+			        } else if (GroupData.class.equals(type)) {
+			        	AdminService svc = context.getAdminService();
+			        	result = count.put(type, svc.countExperimenters(ids));
+			        } else {
+			        	count.put(type, os.getCollectionCount(type, 
+		                		OmeroDataService.IMAGES_PROPERTY, ids));
+			        }
+				}
+		        if (count.size() > 0)
+		        	result = count;
 		    }
 		};
     }
@@ -141,6 +153,7 @@ public class ContainerCounterLoader
         Long id = null;
         Class rootType = null;
         List<Long> ids = new ArrayList<Long>();
+        Map<Class, List<Long>> types = new HashMap<Class, List<Long>>();
         while (i.hasNext()) {
             root = (DataObject) i.next();
             if (root instanceof DatasetData) {
@@ -156,9 +169,12 @@ public class ContainerCounterLoader
             	rootType = GroupData.class;
                 id = Long.valueOf(((GroupData) root).getId());
             }
+            if (!types.containsKey(rootType))
+            	types.put(rootType, new ArrayList<Long>());
+            ids = types.get(rootType);
             if (id != null) ids.add(id);
         }
-        loadCall = makeBatchCall(ids, rootType);
+        loadCall = makeBatchCall(types);
     }
     
 }

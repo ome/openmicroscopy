@@ -355,6 +355,7 @@ class UserProfile
 		
 		
 		if (MetadataViewerAgent.isAdministrator()) {
+			//Check that the user is not the one currently logged.
 			oldPassword.setVisible(false);
 			owner = true;
 			adminBox.setVisible(true);
@@ -362,13 +363,14 @@ class UserProfile
 			adminBox.addChangeListener(this);
 			active = user.isActive();
 			activeBox.setSelected(active);
+			activeBox.setEnabled(!model.isSelf());
 			activeBox.addChangeListener(this);
 			//indicate if the user is an administrator.a
 			admin = isUserAdministrator();
 			adminBox.setSelected(admin);
-			ownerBox.setEnabled(true);
 			ownerBox.addChangeListener(this);
 			//admin = false;
+			//Now check if the user is the last administrator
 		} else {
 			ownerBox.setEnabled(false);
 			passwordConfirm.getDocument().addDocumentListener(

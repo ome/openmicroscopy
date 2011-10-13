@@ -101,6 +101,8 @@ public class SaveAsActivity
 	 */
 	protected void notifyActivityEnd()
 	{
+		//Download the file.
+		download("", result, parameters.getFolder());
 		type.setText(DESCRIPTION_CREATED+" "+parameters.getFolder().getName());
 	}
 	

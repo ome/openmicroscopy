@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.util.browser;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,8 +71,7 @@ public class ContainerFinder
      */
     public ContainerFinder(Class rootType)
     {
-    	this.rootType = new ArrayList<Class>();
-    	this.rootType.add(rootType);
+    	this.rootType = Arrays.asList(rootType);
         containerNodes = new HashSet<TreeImageSet>();
         containers = new HashSet<DataObject>();
     }

@@ -458,7 +458,8 @@ class BrowserControl
     	ctrl = me.isControlDown();
     	if (UIUtilities.isMacOS()) ctrl = me.isMetaDown();
     	leftMouseButton = SwingUtilities.isLeftMouseButton(me);
-    	if (UIUtilities.isMacOS()) onClick(me, false); 
+    	if (UIUtilities.isMacOS() || UIUtilities.isLinuxOS()) 
+    		onClick(me, false); 
     }
     
     /**
@@ -469,7 +470,7 @@ class BrowserControl
     public void mouseReleased(MouseEvent me) 
     {
     	leftMouseButton = SwingUtilities.isLeftMouseButton(me);
-    	if (!UIUtilities.isMacOS()) onClick(me, true);
+    	if (UIUtilities.isWindowsOS()) onClick(me, true);
     	/*
     	int count = me.getClickCount();
     	if (count == 2 && !(me.isShiftDown() 

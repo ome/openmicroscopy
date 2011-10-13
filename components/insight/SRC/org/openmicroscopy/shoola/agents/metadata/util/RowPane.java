@@ -115,7 +115,6 @@ class RowPane
 				Long.class.equals(keyType) || Float.class.equals(keyType)) {
 			field = new NumericalTextField();
 			((NumericalTextField) field).setNumberType(keyType);
-			field.setColumns(ScriptComponent.COLUMNS);
 		} else field = new JTextField();
 		field.getDocument().addDocumentListener(this);
 		field.setColumns(ScriptComponent.COLUMNS);
