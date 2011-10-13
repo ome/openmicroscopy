@@ -204,7 +204,7 @@ var loadMetadataPanel = function(src, html) {
         }
     } else {
         var h = $(window).height()-200;
-        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details"></iframe>');
+        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details" frameborder="0"></iframe>');
         $('iframe#metadata_details').load();
     }
 };
@@ -326,6 +326,6 @@ function loadMetadata(src) {
     var h = $(window).height()-200;
     $("#right_panel").show();
     $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-    $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details"></iframe>');
+    $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details" frameborder="0"></iframe>');
     $('iframe#metadata_details').load();
 }
