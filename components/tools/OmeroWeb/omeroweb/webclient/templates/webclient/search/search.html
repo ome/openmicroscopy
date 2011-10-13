@@ -72,14 +72,17 @@
                 $("#search_button").click(function() { 
                     var url = null;
                     var query = $("input[name='query']"); 
-                    if (query.val().length ==1 && query.val().indexOf("*") == 0) {
+                    if (query.val().length <= 0) {
+                        alert("Search must contains some text.");
+                        return false;
+                    } else if (query.val().length <= 1 && query.val().indexOf("*") < 1) {
                         alert("Wildcard searches (*) must contain more than a single wildcard.");
                         return false;
+                    } else {
+                        url = query.serialize();
                     }
-                    var dateperiodinput = $("input[name='dateperiodinput']"); 
-                    if(query.val()!=null && query.val()!="") {
-                        url = "query="+query.val();
-                    }
+                    
+                    var dateperiodinput = $("input[name='dateperiodinput']");
                     if(dateperiodinput.val()!=null && dateperiodinput.val()!="") {
                         if(url!=null) {
                             url = url + "&dateperiodinput="+dateperiodinput.val();
@@ -163,7 +166,7 @@
     <form id="batch_searching_form">
         <table>
             <tr><th>{% trans "Search for" %}</th>
-            <td><textarea name="batch_query" cols="35" rows="8" wrap="hard"></textarea><span id="searching" title="Batch search - <small>Each line of the textbox should consist of exactly 3 elements(/columns). The elements should contain the following information in order: plate name, row, column. The columns are separated by a delimiter which can be selected below the textbox.<br/><br/>
+            <td><textarea name="batch_query" cols="30" rows="5" wrap="hard"></textarea><span id="searching" title="Batch search - <small>Each line of the textbox should consist of exactly 3 elements(/columns). The elements should contain the following information in order: plate name, row, column. The columns are separated by a delimiter which can be selected below the textbox.<br/><br/>
     +</small><b>Example search:</b><small><pre>
     +Foo    0    0
     +Bar    2    3
@@ -189,7 +192,7 @@
 
 <div id="metadata_details">
     <div id="metadata_description"></div>
-    <iframe width="370" name="metadata_details"></iframe>
+    <iframe width="370" name="metadata_details" frameborder="0"></iframe>
 </div>
 
 {% endblock %}

@@ -7,7 +7,7 @@ img.thumbnail {
     border: 1px solid #bbb;
 }
 #annotation_form {
-    width: 350px;
+    max-width: 350px;
     margin: 0;
 }
 
@@ -70,7 +70,6 @@ div.lnfiles{
 /* tabs */
 #annotation_tabs {
     margin: 5px 0 0 ;
-    width: 100%;
     background:none repeat scroll 0 0 #F3F3F3;
     border: 0;
 }

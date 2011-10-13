@@ -69,14 +69,16 @@ def send_feedback(request):
             logger.error('handler500: Feedback could not be sent')
             logger.error(traceback.format_exc())
             error = "Feedback could not been sent. Please contact administrator."
+            fileObj = open(("%s/error500-%s.html" % (settings.LOGDIR, datetime.datetime.now())),"w")
             try:
-                fileObj = open(("%s/error500-%s.html" % (settings.LOGDIR, datetime.datetime.now())),"w")
-                fileObj.write(request.REQUEST['error'])
-                fileObj.close() 
-            except:
-                logger.error('handler500: Error could not be saved.')
-                logger.error(traceback.format_exc())
-                
+                try:
+                    fileObj.write(request.REQUEST['error'])
+                except:
+                    logger.error('handler500: Error could not be saved.')
+                    logger.error(traceback.format_exc())
+            finally:
+                fileObj.close()
+
         return HttpResponseRedirect(reverse("fthanks"))
         
     context = {'form':form, 'error':error}

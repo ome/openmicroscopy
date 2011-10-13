@@ -71,6 +71,8 @@ def _usage_map_helper(pixels_list, pixels_originalFiles_list, exps):
     return tt #sorted(tt.iteritems(), key=lambda (k,v):(v,k), reverse=True)
 
 def usersData(conn, offset=0):
+    loading = False
+    usage_map = dict()
     exps = dict()
     for e in list(conn.getObjects("Experimenter")):
         exps[e.id] = e.getFullName()
@@ -91,22 +93,21 @@ def usersData(conn, offset=0):
             "order by p.id", p, ctx)
     
     # archived files
-    pids = omero.rtypes.rlist([p.id for p in pixels_list])
-    p2 = omero.sys.ParametersI()
-    p2.add("pids", pids)
-    pixels_originalFiles_list = conn.getQueryService().findAllByQuery(
-        "select m from PixelsOriginalFileMap as m join fetch m.parent " \
-        "where m.child.id in (:pids)", p2, ctx)
+    if len(pixels_list) > 0:
+        pids = omero.rtypes.rlist([p.id for p in pixels_list])
+        p2 = omero.sys.ParametersI()
+        p2.add("pids", pids)
+        pixels_originalFiles_list = conn.getQueryService().findAllByQuery(
+            "select m from PixelsOriginalFileMap as m join fetch m.parent " \
+            "where m.child.id in (:pids)", p2, ctx)
     
-    count = len(pixels_list)
-    usage_map = _usage_map_helper(pixels_list, pixels_originalFiles_list, exps)
+        count = len(pixels_list)
+        usage_map = _usage_map_helper(pixels_list, pixels_originalFiles_list, exps)
     
-    count = len(pixels_list)
-    offset += count
+        count = len(pixels_list)
+        offset += count
     
-    if count != PAGE_SIZE:
-        loading = False
-    else:
-        loading = True
+        if count == PAGE_SIZE:
+            loading = True
     
     return {'loading':loading, 'offset':offset, 'usage':usage_map}
