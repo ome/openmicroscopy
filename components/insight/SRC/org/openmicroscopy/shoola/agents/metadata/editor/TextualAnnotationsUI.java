@@ -425,7 +425,7 @@ class TextualAnnotationsUI
 		revalidate();
 		repaint();
 		firePropertyChange(EditorControl.SAVE_PROPERTY, 
-				Boolean.valueOf(false), Boolean.valueOf(true));
+			Boolean.valueOf(false), Boolean.valueOf(true));
 	}
 	
 	/**
