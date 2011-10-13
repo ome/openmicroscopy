@@ -649,9 +649,8 @@ input.spin-button {
     cursor: pointer;
     position: relative;
 }
-.roi_thumb_popup {
+#roi_thumb_popup {
     position: absolute;
-    left: 50px;
-    top: 10px;
-    z-index: 50;
+    z-index: 250;
+    display: none;
 }
