@@ -395,7 +395,10 @@ label {
     padding: 0 20px 0 10px;
     overflow: auto;
 }
-#tree_details, #metadata_details {
+#metadata_details {
+    overflow: hidden;
+}
+#tree_details {
     overflow: auto;
 }
 
