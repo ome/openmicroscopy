@@ -85,9 +85,13 @@
                                     } else {
                                         $("#form-"+field_id).find('input').each( function( ) {
                                             if ($(this).attr('name')!=null && $(this).attr('name')!=""){
-                                                $("#"+field_id+"-"+$(this).attr('name')).text($(this).attr('value'));
+                                                var new_name = $(this).attr('value');
+                                                $("#"+field_id+"-"+$(this).attr('name')).text(new_name);
                                                 // update tree object TODO: move it out of scope
-                                                window.parent.$("#dataTree").jstree('set_text', window.parent.$.jstree._focused().get_selected(), $(this).attr('value'));
+                                                if (new_name.length > 30) {
+                                                    new_name = '...' + new_name.substring(new_name.length-30, new_name.length)
+                                                }
+                                                window.parent.$("#dataTree").jstree('set_text', window.parent.$.jstree._focused().get_selected(), new_name);
                                             }
                                         }); // this.each
                                         $("#form-"+field_id).find('textarea').each( function( ) {
