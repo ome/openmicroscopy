@@ -123,7 +123,7 @@ public class DownloadAndZipActivity
 	 */
 	protected void notifyActivityEnd()
 	{
-		resultButton.setVisible(false);
+		//resultButton.setVisible(false);
 		try {
 			IOUtil.zipDirectory(zipFolder);
 			messageLabel.setText(zipFolder.getAbsolutePath());

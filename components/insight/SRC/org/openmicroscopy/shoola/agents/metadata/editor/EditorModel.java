@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -567,6 +566,20 @@ class EditorModel
 		if (ref instanceof DataObject)
 			return ((DataObject) ref).getId();
 		return -1;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the user currently logged in is
+	 * the one currently edited, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isSelf()
+	{
+		Object ref = getRefObject();
+		if (!(ref instanceof ExperimenterData)) return false;
+		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
+		return exp.getId() == getRefObjectID();
 	}
 	
 	/**

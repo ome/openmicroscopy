@@ -60,6 +60,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
@@ -2029,7 +2030,11 @@ public class UIUtilities
 	{
 		//String osName = System.getProperty("os.name").toLowerCase();
 		//return osName.startsWith("windows");
-		return SystemUtils.IS_OS_WINDOWS;
+		return (SystemUtils.IS_OS_WINDOWS || SystemUtils.IS_OS_WINDOWS_2000 ||
+				SystemUtils.IS_OS_WINDOWS_7 || SystemUtils.IS_OS_WINDOWS_95 || 
+				SystemUtils.IS_OS_WINDOWS_98 || SystemUtils.IS_OS_WINDOWS_ME|| 
+				SystemUtils.IS_OS_WINDOWS_NT || SystemUtils.IS_OS_WINDOWS_VISTA ||
+				SystemUtils.IS_OS_WINDOWS_XP);
 	}
 	
 	/**
@@ -2247,6 +2252,25 @@ public class UIUtilities
     	JButton b = new JButton(text);
     	Font f = b.getFont();
     	b.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+		b.setOpaque(false);
+		b.setForeground(UIUtilities.HYPERLINK_COLOR);
+		unifiedButtonLookAndFeel(b);
+		return b;
+    }
+    
+    /**
+     * Creates a button looking like an hyper-link.
+     * 
+     * @param text The text to display
+     * @return See above.
+     */
+    public static JMenuItem createHyperLinkMenuItem(String text)
+    {
+    	if (text == null || text.trim().length() == 0)
+    		text = "hyperlink";
+    	JMenuItem b = new JMenuItem(text);
+    	//Font f = b.getFont();
+    	//b.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
 		b.setOpaque(false);
 		b.setForeground(UIUtilities.HYPERLINK_COLOR);
 		unifiedButtonLookAndFeel(b);

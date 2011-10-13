@@ -354,14 +354,16 @@ public class PixelsServicesFactory
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
+		/*
 		Entry entry;
 		Iterator i = singleton.rndSvcProxies.entrySet().iterator();
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
-			singleton.rndSvcProxiesCount.put((Long) entry.getKey(), 1);
 			((RenderingControlProxy) entry.getValue()).shutDown();
 		}
+		*/
 		singleton.rndSvcProxies.clear();
+		singleton.rndSvcProxiesCount.clear();
 	}
 
 	/**

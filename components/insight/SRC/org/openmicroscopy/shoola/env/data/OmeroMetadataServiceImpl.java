@@ -90,6 +90,7 @@ import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.WellSampleData;
 import pojos.XMLAnnotationData;
 
 /** 
@@ -442,7 +443,7 @@ class OmeroMetadataServiceImpl
 	 */
 	private void linkAnnotation(DataObject data, AnnotationData annotation)
 		throws DSOutOfServiceException, DSAccessException
-	{
+	{			
 		String ioType = gateway.convertPojos(data).getName();
 		IObject ho = gateway.findIObject(ioType, data.getId());
 		ModelMapper.unloadCollections(ho);
@@ -1893,6 +1894,42 @@ class OmeroMetadataServiceImpl
 		if (parameters == null)
 			throw new IllegalArgumentException("No parameters specified.");
 		return gateway.loadTabularData(parameters, userID);
+	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroMetadataService#loadParentsOfAnnotations(long)
+	 */
+	public List<DataObject> loadParentsOfAnnotations(long annotationId)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (annotationId < 0)
+			throw new IllegalArgumentException("Annotation id not valid.");
+		//Check possible links
+		ExperimenterData exp = (ExperimenterData) context.lookup(
+					LookupNames.CURRENT_USER_DETAILS);
+		
+		List links = gateway.findLinks(FileAnnotation.class, annotationId, 
+				exp.getId());
+		List<DataObject> nodes = new ArrayList<DataObject>();
+		if (links != null) {
+			Iterator j = links.iterator();
+			Object o;
+			while (j.hasNext()) {
+				o = j.next();
+				if (o instanceof ProjectAnnotationLink) {
+					nodes.add(PojoMapper.asDataObject(
+							((ProjectAnnotationLink) o).getParent()));
+				} else if (o instanceof DatasetAnnotationLink) {
+					nodes.add(PojoMapper.asDataObject(
+							((DatasetAnnotationLink) o).getParent()));
+				} else if (o instanceof ImageAnnotationLink) {
+					nodes.add(PojoMapper.asDataObject(
+							((ImageAnnotationLink) o).getParent()));
+				}
+			}
+		}
+		return nodes;
 	}
 	
 }

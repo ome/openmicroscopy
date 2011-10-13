@@ -279,10 +279,10 @@ class ImViewerModel
     private Map<Integer, Tile>			tiles;
     
     /** The number of rows, default is <code>1</code>.*/
-    private Integer numberOfRows;
+    private int numberOfRows;
     
     /** The number of columns, default is <code>1</code>.*/
-    private Integer numberOfColumns;
+    private int numberOfColumns;
     
 	/** The size of the tile.*/
 	private Dimension tileSize;
@@ -354,6 +354,8 @@ class ImViewerModel
 		int y = 0;
 		int ww;
 		int hh;
+		if (numberOfColumns <= 0) numberOfColumns = 1;
+		if (numberOfColumns <= 0) numberOfColumns = 1;
 		for (int i = 0; i < numberOfRows; i++) {
 			if (i == (numberOfRows-1)) hh = edgeHeight;
 			else hh = h;

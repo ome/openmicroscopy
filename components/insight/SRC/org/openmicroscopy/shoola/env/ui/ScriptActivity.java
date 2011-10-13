@@ -68,14 +68,14 @@ public class ScriptActivity
 								"Running ";
 	
 	/** The description of the activity when it is finished. */
-	private static final String		DESCRIPTION_RUN_CREATED = " finished";
+	private static final String		DESCRIPTION_RUN_CREATED = ": finished";
 	
 	/** The description of the activity. */
 	private static final String		DESCRIPTION_UPLOAD_CREATION = 
 									"Uploading ";
 	
 	/** The description of the activity when finished. */
-	private static final String		DESCRIPTION_UPLOAD_CREATED = " uploaded";
+	private static final String		DESCRIPTION_UPLOAD_CREATED = ": uploaded";
 	
 	/** The description of the activity when cancelled. */
 	private static final String		DESCRIPTION_UPLOAD_CANCEL = 

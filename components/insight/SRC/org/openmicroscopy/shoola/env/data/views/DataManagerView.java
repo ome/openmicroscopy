@@ -295,4 +295,14 @@ public interface DataManagerView
 	public CallHandle loadRepositories(long userID, 
 			AgentEventListener observer);
 	
+	/**
+	 * Loads the parents of the specified annotation.
+	 * 
+	 * @param annotationId The id of the user.
+	 * @param observer Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadParentsOfAnnotation(long annotationId,
+			AgentEventListener observer);
+	
 }

@@ -297,6 +297,7 @@ public class ImViewerAgent
     {
     	if (evt == null) return;
     	Object o = evt.getObject();
+    	if (evt.browseObject()) return;
     	if (o instanceof ImageData) {
     		ImViewer view = ImViewerFactory.getImageViewer(
     				((ImageData) o).getId(), null, true);

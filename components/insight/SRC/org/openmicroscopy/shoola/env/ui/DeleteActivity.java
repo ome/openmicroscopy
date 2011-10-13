@@ -102,7 +102,7 @@ public class DeleteActivity
     	DeletableObject o;
     	Iterator<DeletableObject> i = objects.iterator();
     	int index = 0;
-    	int n = 2;
+    	int n = 1;
     	while (i.hasNext()) {
 			o = i.next();
 			if (index == n) break;
@@ -111,7 +111,7 @@ public class DeleteActivity
 			index++;
 		}
     	if (objects.size() > n)
-    		buffer.append(" and "+(objects.size()-2)+" more");
+    		buffer.append(" and "+(objects.size()-n)+" more");
     	return buffer.toString();
     }
     
