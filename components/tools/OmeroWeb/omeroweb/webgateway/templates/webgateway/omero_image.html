@@ -499,7 +499,7 @@
           
           // thumbnail of roi - display small & popup full-size
           var thumbHtml = "<img src='/webgateway/render_roi_thumbnail/"+ roi['id'] +"/?color=red' width=50 class='roi_thumb'/>";
-          thumbHtml += "<img src='/webgateway/render_roi_thumbnail/"+ roi['id'] +"/?color=red' class='roi_thumb_popup' />"
+          //thumbHtml += "<img src='/webgateway/render_roi_thumbnail/"+ roi['id'] +"/?color=red' class='roi_thumb_popup' />"
           
           // process the shapes first - note first shape & text
           var firstShape = null;
@@ -553,6 +553,17 @@
               tbody.addClass('only_child');
           }
           $roi_table.append(tbody);    // add the tbody
+          
+          // now bind mouseover
+          var $roi_thumb_popup = $('#roi_thumb_popup');
+          $('.roi_thumb').hover(function(e) {
+              $roi_thumb_popup.attr('src', $(this).attr('src')).show();
+          }, function(e){
+              $roi_thumb_popup.hide();
+          });
+          $('.roi_thumb').mousemove(function(e) {
+                $roi_thumb_popup.css({ 'left': e.pageX+5, 'top': e.pageY+5 })
+          });
       }
   }
   
@@ -774,6 +785,7 @@
       </table>
     </div>
 
+    <img id="roi_thumb_popup" />
     <div id="roi_table_postit" class="postit">
         <h1>ROIs</h1>
         <table id='roi_small_table' border='0' cellpadding='0' cellspacing='1'></table>
