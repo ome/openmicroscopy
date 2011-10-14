@@ -38,10 +38,11 @@ from Queue import Queue
 
 import omero.clients
 from omero.rtypes import rdouble, rstring, rint
-from omero.model import DatasetAnnotationLinkI, DatasetI, FileAnnotationI, \
+from omero.model import DatasetAnnotationLink, DatasetI, FileAnnotationI, \
                         OriginalFileI, PlateI, PlateAnnotationLinkI, ScreenI, \
                         ScreenAnnotationLinkI
-from omero.grid import ImageColumn, LongColumn, StringColumn, WellColumn
+from omero.grid import ImageColumn, LongColumn, PlateColumn, StringColumn, \
+                       WellColumn
 from omero.util.temp_files import create_path, remove_path
 from omero import client
 
@@ -66,6 +67,7 @@ Options:
   -s    OMERO hostname to use [defaults to "localhost"]
   -p    OMERO port to use [defaults to 4064]
   -u    OMERO username to use
+  -w    OMERO password
   -k    OMERO session key to use
   -i    Dump measurement information and exit (no population)
   -d    Print debug statements
@@ -78,6 +80,10 @@ Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
 
 # Global thread pool for use by workers
 thread_pool = None
+
+# Special column names we may add depending on the data type
+PLATE_NAME_COLUMN = 'Plate Name'
+WELL_NAME_COLUMN = 'Well Name'
 
 class Skip(object):
     """Instance to denote a row skip request."""
@@ -107,7 +113,7 @@ class HeaderResolver(object):
     }
 
     screen_keys = dict({
-            'plate': LongColumn,
+            'plate': PlateColumn,
     }, **plate_keys)
 
     def __init__(self, target_object, headers):
@@ -117,11 +123,15 @@ class HeaderResolver(object):
 
     def create_columns(self):
         target_class = self.target_object.__class__
+        target_id = self.target_object.id.val
         if ScreenI is target_class:
+            log.debug('Creating columns for Screen:%d' % target_id)
             return self.create_columns_screen()
         if PlateI is target_class:
+            log.debug('Creating columns for Plate:%d' % target_id)
             return self.create_columns_plate()
         if DatasetI is target_class:
+            log.debug('Creating columns for Dataset:%d' % target_id)
             return self.create_columns_dataset()
         raise MetadataError('Unsupported target object class: %s' \
                             % target_class)
@@ -136,6 +146,13 @@ class HeaderResolver(object):
                 column = StringColumn(name, '', self.DEFAULT_COLUMN_SIZE,
                                       list())
             columns.append(column)
+        for column in columns:
+            if column.__class__ is PlateColumn:
+                columns.append(StringColumn(PLATE_NAME_COLUMN, '',
+                               self.DEFAULT_COLUMN_SIZE, list()))
+            if column.__class__ is WellColumn:
+                columns.append(StringColumn(WELL_NAME_COLUMN, '',
+                               self.DEFAULT_COLUMN_SIZE, list()))
         return columns
 
     def create_columns_plate(self):
@@ -159,7 +176,7 @@ class ValueResolver(object):
     non-metadata columns with their OMERO data model identifiers.
     """
     
-    AS_ALPHA = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l']
+    AS_ALPHA = [chr(v) for v in range(97, 122 + 1)]  # a-z
     WELL_REGEX = re.compile(r'^([a-zA-Z]+)(\d+)$')
 
     def __init__(self, client, target_object):
@@ -167,14 +184,13 @@ class ValueResolver(object):
         self.target_object = target_object
         self.target_class = self.target_object.__class__
         if PlateI is self.target_class:
-            self.load_plate()
-        elif DatasetI is self.target_class:
-            self.load_dataset()
-        elif ScreenI is self.target_class:
-            self.load_screen()
-        else:
-            raise MetadataError('Unsupported target object class: %s' \
-                            % self.target_class)
+            return self.load_plate()
+        if DatasetI is self.target_class:
+            return self.load_dataset()
+        if ScreenI is self.target_class:
+            return self.load_screen()
+        raise MetadataError('Unsupported target object class: %s' \
+                            % target_class)
     def load_screen(self):
         query_service = self.client.getSession().getQueryService()
         parameters = omero.sys.ParametersI()
@@ -184,15 +200,22 @@ class ValueResolver(object):
                 'select s from Screen as s '
                 'join fetch s.plateLinks as p_link '
                 'join fetch p_link.child as p '
-                'join fetch p.wells as w '
-                'join fetch w.wellSamples as ws '
                 'where s.id = :id', parameters)
         if self.target_object is None:
-            raise MetadataError('Could not find target object!')
+            raise MetadataException('Could not find target object!')
         self.wells_by_location = dict()
         self.plates_by_name = dict()
+        self.plates_by_id = dict()
         for plate in (l.child for l in self.target_object.copyPlateLinks()):
+            parameters = omero.sys.ParametersI()
+            parameters.addId(plate.id.val)
+            plate = query_service.findByQuery(
+                    'select p from Plate as p '
+                    'join fetch p.wells as w '
+                    'join fetch w.wellSamples as ws '
+                    'where p.id = :id', parameters)
             self.plates_by_name[plate.name.val] = plate
+            self.plates_by_id[plate.id.val] = plate
             wells_by_location = dict()
             self.wells_by_location[plate.name.val] = wells_by_location
             self.parse_plate(plate, wells_by_location)
@@ -208,7 +231,7 @@ class ValueResolver(object):
                 'join fetch w.wellSamples as ws '
                 'where p.id = :id', parameters)
         if self.target_object is None:
-            raise MetadataError('Could not find target object!')
+            raise MetadataException('Could not find target object!')
         self.wells_by_location = dict()
         wells_by_location = dict()
         self.wells_by_location[self.target_object.name.val] = wells_by_location
@@ -250,7 +273,7 @@ class ValueResolver(object):
                         (value, plate_row, plate_column))
             else:
                 for column, plate in row:
-                    if column.name == 'Plate':
+                    if column.__class__ is PlateColumn:
                         wells_by_location = self.wells_by_location[plate]
                         log.debug('Parsed "%s" row: %s column: %s plate: %s' % \
                                 (value, plate_row, plate_column, plate))
@@ -261,7 +284,7 @@ class ValueResolver(object):
                 log.debug('Row: %s Column: %s not found!' % \
                         (plate_row, plate_column))
                 return -1L
-        if column_as_lower in ('plate') and column_class is LongColumn:
+        if PlateColumn is column_class:
             try:
                 return self.plates_by_name[value].id.val
             except KeyError:
@@ -285,6 +308,7 @@ class ParsingContext(object):
         self.client = client
         self.target_object = target_object
         self.file = file
+        self.value_resolver = ValueResolver(self.client, self.target_object)
 
     def create_annotation_link(self):
         self.target_class = self.target_object.__class__
@@ -295,7 +319,7 @@ class ParsingContext(object):
         if DatasetI is self.target_class:
             return DatasetAnnotationLinkI()
         raise MetadataError('Unsupported target object class: %s' \
-                            % self.target_class)
+                            % target_class)
 
     def get_column_widths(self):
         widths = list()
@@ -318,6 +342,7 @@ class ParsingContext(object):
         log.debug('Columns: %r' % self.columns)
         self.populate(rows[1:])
         self.post_process()
+        log.debug('Column widths: %r' % self.get_column_widths())
         log.debug('Columns: %r' % \
                 [(o.name, len(o.values)) for o in self.columns])
         # Paranoid debugging
@@ -328,13 +353,12 @@ class ParsingContext(object):
         #    log.debug('Row: %r' % values)
 
     def populate(self, rows):
-        value_resolver = ValueResolver(self.client, self.target_object)
         value = None
         for row in rows:
             values = list()
             row = [(self.columns[i], value) for i, value in enumerate(row)]
             for column, original_value in row:
-                value = value_resolver.resolve(column, original_value, row)
+                value = self.value_resolver.resolve(column, original_value, row)
                 if value.__class__ is Skip:
                     break
                 values.append(value)
@@ -345,15 +369,58 @@ class ParsingContext(object):
                     log.error('Original value "%s" now "%s" of bad type!' % \
                             (original_value, value))
                     raise
-                    pass
             if value.__class__ is not Skip:
                 values.reverse()
                 for column in self.columns:
-                    column.values.append(values.pop())
-        log.debug('Column widths: %r' % self.get_column_widths())
+                    if column.name in (PLATE_NAME_COLUMN, WELL_NAME_COLUMN):
+                        continue
+                    try:
+                        column.values.append(values.pop())
+                    except IndexError:
+                        log.error('Column %s has no values to pop.' % \
+                                column.name)
+                        raise
 
     def post_process(self):
-        pass
+        columns_by_name = dict()
+        plate_column = None
+        well_column = None
+        well_name_column = None
+        plate_name_column = None
+        for column in self.columns:
+            columns_by_name[column.name] = column
+            if column.__class__ is PlateColumn:
+                plate_column = column
+            elif column.__class__ is WellColumn:
+                well_column = column
+            elif column.name == WELL_NAME_COLUMN:
+                well_name_column = column
+            elif column.name == PLATE_NAME_COLUMN:
+                plate_name_column = column
+        if well_name_column is None and plate_name_column is None:
+            log.info('Nothing to do during post processing.')
+        for i in range(0, len(self.columns[0].values)):
+            if well_name_column is not None:
+                try:
+                    row = columns_by_name['Row'].values[i]
+                    col = columns_by_name['Column'].values[i]
+                except KeyError:
+                    log.error('Missing row or column for well name population!')
+                    raise
+                row = self.value_resolver.AS_ALPHA[row]
+                v = '%s%d' % (row, col + 1)
+                well_name_column.size = max(well_name_column.size, len(v))
+                well_name_column.values.append(v)
+            else:
+                log.info('Missing well name column, skipping.')
+            if plate_name_column is not None:
+                plate = columns_by_name['Plate'].values[i]
+                plate = self.value_resolver.plates_by_id[plate]
+                v = plate.name.val
+                plate_name_column.size = max(plate_name_column.size, len(v))
+                plate_name_column.values.append(v)
+            else:
+                log.info('Missing plate name column, skipping.')
 
     def write_to_omero(self):
         sf = self.client.getSession()
@@ -392,7 +459,7 @@ def parse_target_object(target_object):
 
 if __name__ == "__main__":
     try:
-        options, args = getopt(sys.argv[1:], "s:p:u:k:id")
+        options, args = getopt(sys.argv[1:], "s:p:u:w:k:id")
     except GetoptError, (msg, opt):
         usage(msg)
 
@@ -403,6 +470,7 @@ if __name__ == "__main__":
         usage('Target object and file must be a specified!')
     
     username = None
+    password = None
     hostname = 'localhost'
     port = 4064  # SSL
     info = False
@@ -412,6 +480,8 @@ if __name__ == "__main__":
     for option, argument in options:
         if option == "-u":
             username = argument
+        if option == "-w":
+            password = argument
         if option == "-s":
             hostname = argument
         if option == "-p":
@@ -428,7 +498,7 @@ if __name__ == "__main__":
         usage("Username must be specified!")
     if session_key is None and hostname is None:
         usage("Host name must be specified!")
-    if session_key is None:
+    if session_key is None and password is None:
         password = getpass()
     
     logging.basicConfig(level = logging_level)
@@ -448,4 +518,5 @@ if __name__ == "__main__":
         if not info:
             ctx.write_to_omero()
     finally:
+        pass
         client.closeSession()
