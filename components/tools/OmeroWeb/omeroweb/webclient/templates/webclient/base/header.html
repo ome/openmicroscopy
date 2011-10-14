@@ -27,6 +27,7 @@
 
     // this is called by the setInterval loop below
     var progressAjaxUpdate = function(i) {
+        $.ajaxSetup({ cache: false });      // IE8 etc caches json by default
         $.getJSON("{% url progress %}", function(data) {
             if (data.inprogress==0) {
                 if (i != undefined) clearInterval(i);
@@ -40,6 +41,7 @@
             }
             $("#progress").show();
             $("#jobstatus").html(data.inprogress + ' job(s) in progress');
+            $.ajaxSetup({ cache: true });
         });
     }
 

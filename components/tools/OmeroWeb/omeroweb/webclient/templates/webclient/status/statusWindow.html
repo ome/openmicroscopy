@@ -48,7 +48,7 @@
         }
 
         var browseParent = function(url) {
-            window.opener.location.href = url;
+            window.opener.document.location.href = url;
             if (!window.opener.closed) window.opener.focus();
             return false;
         }
@@ -128,7 +128,7 @@
                                 rHtml += "<ul class='resultOptions'>";
                                 if (results[key]['browse_url']) {
                                     var objTxt = type;
-                                    if (type == "FileAnnotation") objTxt = "File Attachment";
+                                    if (type == "FileAnnotation") objTxt = "Attachment";
                                     rHtml += "<li><a href='#' onClick=\"return browseParent('" + results[key]['browse_url'] + "');\" title='Navigate to "+objTxt+" in the main window '>";
                                     rHtml += "Go to "+ objTxt +"</a></li>";
                                 }
@@ -193,11 +193,13 @@
 
             // make an AJAX call to update all 'in progress' callbacks in the web session and return current status
             var i = setInterval(function (){
+                $.ajaxSetup({ cache: false });
                 $.getJSON("{% url progress %}", function(data) {
                     update_ui(data);
                     if (data.inprogress == 0) {
                         clearInterval(i);
                     }
+                    $.ajaxSetup({ cache: true });
                 });
             }, 3000);
 
@@ -390,7 +392,7 @@
                                                 <ul class="resultOptions">
                                                     {% if v.browse_url %}
                                                         <li><a href='#' onClick="return browseParent('{{ v.browse_url}}');" title="Navigate to {{ v.type }} in the main window">
-                                                            Go to {% ifequal v.type "FileAnnotation" %} File Attachment {% else %} {{ v.type }} {% endifequal %}
+                                                            Go to {% ifequal v.type "FileAnnotation" %} Attachment {% else %} {{ v.type }} {% endifequal %}
                                                         </a></li>
                                                     {% endif %}
 

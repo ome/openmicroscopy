@@ -42,13 +42,15 @@
         jQuery.fn.runScript = function(actWindow) {
             var $form = $(this);
             var postData = $form.serialize();
-            var actionUrl = $form.attr('action');
+            var actionUrl="{% url script_run paramData.id %}";
+            $.ajaxSetup({ cache: false });
             $.ajax({
                 type: "POST",
                 url: actionUrl,
                 data: postData,
                 contentType:'json',
                 success: function(data){
+                    $.ajaxSetup({ cache: true });
                     if(data.status == 'in progress') {
                         // we don't try to open 'Activities' window here, since it triggers popup blockers...
                         window.opener.refreshProgressBar();
@@ -62,25 +64,32 @@
                     }
                 },
                 error: function(data) {
-                    actWindow.location.href = '{% url status %}';
-                    self.close();
+                    //actWindow.location.href = '{% url status %}';
+                    //self.close();
                 }
             });
             return false;
         };
 
-        $(document).ready(function() {
-            $('form').submit(function() {
-                $("#submit").attr("disabled", true); // make sure we don't submit twice.
 
+        $(document).ready(function() {
+            $("#submit").click(function(){
                 // if an "existing" window is opened by the window behind this one, we can't focus it...
-                window.open("", 'Activities').close();    // make sure there is no existing 'Activities' window
+                window.open("", 'Activities');    // make sure there is no existing 'Activities' window
                 var actWindow = window.opener.popupActivites('{% url status %}');
 
                 // pass the window to runScript() so we can refresh the window on AJAX callback.
-                $(this).runScript(actWindow);
+                $('#script_form').runScript(actWindow);
+                e.preventDefault();
                 return false;
             });
+
+            // this simply prevents any attempt to 'submit' the form (default behavior)
+            $('form').submit(function(e){
+                e.preventDefault();
+                return false;
+            });
+
 
             // for any 'list' parameters with enum options, controls to add / remove
             $(".addListSelect").click(function(e) {
@@ -182,7 +191,7 @@
 
 <body>
 
-    <form method="post" action="{% url script_run paramData.id %}">
+    <form id='script_form' method="post">
         <div style="padding:10px; margin-bottom:40px">
             <h3 id="scriptName">{{ paramData.name }}</h3>
             <div id='script_desc'>{{ paramData.description|linebreaks }}
