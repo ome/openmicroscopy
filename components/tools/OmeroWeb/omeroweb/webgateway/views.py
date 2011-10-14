@@ -590,6 +590,7 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
     lineColour = colours["white"]
     if color in colours:
         lineColour = colours[color]
+    bg_color = (100,100,100)        # used for padding if we go outside the image area
     
     # need to find the z indices of the first shape in T
     roiResult = _conn.getRoiService().findByRoi(long(roiId), None)
@@ -700,9 +701,9 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
     
     # we want to render a region larger than the bounding box
     x,y,w,h = bBox
-    requiredWidth = max(w,h*3/2)
+    requiredWidth = max(w,h*3/2)            # make the aspect ratio (w/h) = 3/2
     requiredHeight = requiredWidth*2/3
-    newW = int(requiredWidth * 1.5)
+    newW = int(requiredWidth * 1.5)         # make the rendered region 1.5 times larger than the bounding box
     newH = int(requiredHeight * 1.5)
     xOffset = (newW - w)/2
     yOffset = (newH - h)/2
@@ -715,13 +716,43 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
         raise Http404
     img, compress_quality = pi
     
+    # Need to check if any part of our region is outside the image. (assume that SOME of the region is within the image!)
+    sizeX = img.getSizeX()
+    sizeY = img.getSizeY()
+    left_xs, right_xs, top_xs, bottom_xs = 0,0,0,0
+    if newX < 0:
+        newW = newW + newX
+        left_xs = abs(newX)
+        newX = 0
+    if newY < 0:
+        newH = newH + newY
+        top_xs = abs(newY)
+        newY = 0
+    if newW+newX > sizeX:
+        right_xs = (newW+newX) - sizeX
+        newW = newW - right_xs
+    if newH+newY > sizeY:
+        bottom_xs = (newH+newY) - sizeY
+        newH = newH - bottom_xs
+
+    # now we should be getting the correct region
     jpeg_data = img.renderJpegRegion(midZ,minT,newX, newY, newW, newH,level=None, compression=compress_quality)
     image = Image.open(StringIO(jpeg_data))
     
+    # add back on the xs we were forced to trim
+    if left_xs != 0 or right_xs != 0 or top_xs != 0 or bottom_xs != 0:
+        jpg_w, jpg_h = image.size
+        xs_w = jpg_w + right_xs + left_xs
+        xs_h = jpg_h + bottom_xs + top_xs
+        xs_image = Image.new('RGBA', (xs_w, xs_h), bg_color)
+        xs_image.paste(image, (left_xs, top_xs))
+        image = xs_image
+    
     # we have our full-sized region. Need to resize to thumbnail. 
-    MAX_WIDTH = 150.0
-    factor = MAX_WIDTH / newW
-    resizeH = newH * factor
+    MAX_WIDTH = 250.0
+    current_w, current_h = image.size
+    factor = MAX_WIDTH / current_w
+    resizeH = current_h * factor
     image = image.resize((MAX_WIDTH, resizeH))
     
     draw = ImageDraw.Draw(image)
@@ -734,10 +765,10 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
         draw.rectangle((rectX-1, rectY-1, rectW+1, rectH+1), outline=lineColour)    # hack to get line width of 3
         #draw.rectangle((rectX-2, rectY-2, rectW+2, rectH+2), outline=lineColour)
     elif shape['type'] == 'Line':
-        lineX1 = (shape['x1'] - newX) * factor
-        lineX2 = (shape['x2'] - newX) * factor
-        lineY1 = (shape['y1'] - newY) * factor
-        lineY2 = (shape['y2'] - newY) * factor
+        lineX1 = (shape['x1'] - newX + left_xs) * factor
+        lineX2 = (shape['x2'] - newX + left_xs) * factor
+        lineY1 = (shape['y1'] - newY + top_xs) * factor
+        lineY2 = (shape['y2'] - newY + top_xs) * factor
         draw.line((lineX1, lineY1, lineX2, lineY2), fill=lineColour, width=3)
     elif shape['type'] == 'Ellipse':
         rectX = int(xOffset * factor)
@@ -749,7 +780,7 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
         #resizedXY = [ (int(x*factor), int(y*factor)) for (x,y) in shape['xyList'] ]
         def resizeXY(xy):
             x,y = xy
-            return (int((x-newX)*factor), int((y-newY)*factor))
+            return (int((x-newX + left_xs)*factor), int((y-newY + top_xs)*factor))
         resizedXY = [ resizeXY(xy) for xy in shape['xyList'] ]
         draw.polygon(resizedXY, outline=lineColour)
         
