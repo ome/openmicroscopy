@@ -107,15 +107,13 @@
                                 // this function is executed in the instance's scope (this refers to the tree instance)
                                 // the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
                                 "data" : function (n) {
+                                    var r = { "view" : "tree" };
                                     if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset"]) > -1) {
-                                        var r = { "view" : "tree" };
                                         if($("div#content_details").has("#page").length > 0) {
                                             r["page"] = parseInt($("div#content_details").find("#page").attr("rel"));
                                         }
-                                        return r;
-                                    } else {
-                                        return { "view" : "tree" };
                                     }
+                                    return r;
                                 }
                             }
                         },
@@ -320,10 +318,10 @@
                 .bind("select_node.jstree", function (e, data) {
                     var selected = data.inst.get_selected();
                     buttonsShowHide(selected);
-                    if (selected.attr("rel").replace("locked","") === "tag") {
+                    if (selected.attr("rel").replace("-locked","") === "tag") {
                         loadOtherPanels(data.inst, '{% url load_data_by_tag %}');
                     } else {
-                        if (selected.attr("rel").replace("locked","") === "image" && selected.parent().parent().attr("rel").replace("locked","") === "tag") {
+                        if (selected.attr("rel").replace("-locked","") === "image" && selected.parent().parent().attr("rel").replace("-locked","") === "tag") {
                             loadOtherPanels(data.inst, '{% url load_data_by_tag %}');
                         } else {
                             loadOtherPanels(data.inst, '{% url load_data %}');
@@ -333,7 +331,7 @@
                 })
                 .bind("remove.jstree", function (e, data) {
                     data.args[0].each(function (i) {
-                        url = '{% url manage_action_containers "delete" %}'+$(this).attr("rel").replace("locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
+                        url = '{% url manage_action_containers "delete" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
 
                         $.ajax({
                             async : false,
@@ -431,7 +429,7 @@
 {% block right %}
 
 <div id="metadata_details">
-    <iframe width="370" name="metadata_details"></iframe>
+    <iframe width="370" name="metadata_details" frameborder="0"></iframe>
 </div>
 
 
