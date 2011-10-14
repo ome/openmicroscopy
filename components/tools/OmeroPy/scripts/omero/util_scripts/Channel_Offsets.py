@@ -230,56 +230,56 @@ applying an x, y and z shift to each channel independently. """,
     scripts.List("IDs", optional=False, grouping="2",
         description="List of Dataset IDs or Image IDs to process.").ofType(rlong(0)),
 
-    scripts.Bool("Channel_1", grouping="3", default=True,
-        description="Choose to include this channel in the output image"),
-
-    scripts.Int("Channel1_X_shift", grouping="3.1", default=0,
-        description="Number of pixels to shift this channel in the X direction. (negative to shift left)"),
-
-    scripts.Int("Channel1_Y_shift", grouping="3.2", default=0,
-        description="Number of pixels to shift this channel in the Y direction. (negative to shift up)"),
-
-    scripts.Int("Channel1_Z_shift", grouping="3.3", default=0,
-        description="Offset channel by a number of Z-sections"),
-
-    scripts.Bool("Channel_2", grouping="4", default=True,
-        description="Choose to include this channel in the output image"),
-
-    scripts.Int("Channel2_X_shift", grouping="4.1", default=0,
-        description="Number of pixels to shift this channel in the X direction. (negative to shift left)"),
-
-    scripts.Int("Channel2_Y_shift", grouping="4.2", default=0,
-        description="Number of pixels to shift this channel in the Y direction. (negative to shift up)"),
-
-    scripts.Int("Channel2_Z_shift", grouping="4.3", default=0,
-        description="Offset channel by a number of Z-sections"),
-
-    scripts.Bool("Channel_3", grouping="5", default=False,
-        description="Choose to include this channel in the output image"),
-
-    scripts.Int("Channel3_X_shift", grouping="5.1", default=0,
-        description="Number of pixels to shift this channel in the X direction. (negative to shift left)"),
-
-    scripts.Int("Channel3_Y_shift", grouping="5.2", default=0,
-        description="Number of pixels to shift this channel in the Y direction. (negative to shift up)"),
-
-    scripts.Int("Channel3_Z_shift", grouping="5.3", default=0,
-        description="Offset channel by a number of Z-sections"),
-
-    scripts.Bool("Channel_4", grouping="6", default=False,
-        description="Choose to include this channel in the output image"),
-
-    scripts.Int("Channel4_X_shift", grouping="6.1", default=0,
-        description="Number of pixels to shift this channel in the X direction. (negative to shift left)"),
-
-    scripts.Int("Channel4_Y_shift", grouping="6.2", default=0,
-        description="Number of pixels to shift this channel in the Y direction. (negative to shift up)"),
-
-    scripts.Int("Channel4_Z_shift", grouping="6.3", default=0,
-        description="Offset channel by a number of Z-sections"),
-
-    scripts.String("New_Dataset_Name", grouping="7",
+    scripts.String("New_Dataset_Name", grouping="3",
         description="If you want the new image(s) in a new Dataset, put name here"),
+
+    scripts.Bool("Channel_1", grouping="4", default=True,
+        description="Choose to include this channel in the output image"),
+
+    scripts.Int("Channel1_X_shift", grouping="4.1", default=0,
+        description="Number of pixels to shift this channel in the X direction. (negative to shift left)"),
+
+    scripts.Int("Channel1_Y_shift", grouping="4.2", default=0,
+        description="Number of pixels to shift this channel in the Y direction. (negative to shift up)"),
+
+    scripts.Int("Channel1_Z_shift", grouping="4.3", default=0,
+        description="Offset channel by a number of Z-sections"),
+
+    scripts.Bool("Channel_2", grouping="5", default=True,
+        description="Choose to include this channel in the output image"),
+
+    scripts.Int("Channel2_X_shift", grouping="5.1", default=0,
+        description="Number of pixels to shift this channel in the X direction. (negative to shift left)"),
+
+    scripts.Int("Channel2_Y_shift", grouping="5.2", default=0,
+        description="Number of pixels to shift this channel in the Y direction. (negative to shift up)"),
+
+    scripts.Int("Channel2_Z_shift", grouping="5.3", default=0,
+        description="Offset channel by a number of Z-sections"),
+
+    scripts.Bool("Channel_3", grouping="6", default=False,
+        description="Choose to include this channel in the output image"),
+
+    scripts.Int("Channel3_X_shift", grouping="6.1", default=0,
+        description="Number of pixels to shift this channel in the X direction. (negative to shift left)"),
+
+    scripts.Int("Channel3_Y_shift", grouping="6.2", default=0,
+        description="Number of pixels to shift this channel in the Y direction. (negative to shift up)"),
+
+    scripts.Int("Channel3_Z_shift", grouping="6.3", default=0,
+        description="Offset channel by a number of Z-sections"),
+
+    scripts.Bool("Channel_4", grouping="7", default=False,
+        description="Choose to include this channel in the output image"),
+
+    scripts.Int("Channel4_X_shift", grouping="7.1", default=0,
+        description="Number of pixels to shift this channel in the X direction. (negative to shift left)"),
+
+    scripts.Int("Channel4_Y_shift", grouping="7.2", default=0,
+        description="Number of pixels to shift this channel in the Y direction. (negative to shift up)"),
+
+    scripts.Int("Channel4_Z_shift", grouping="7.3", default=0,
+        description="Offset channel by a number of Z-sections"),
 
     version = "4.2.0",
     authors = ["William Moore", "OME Team"],
