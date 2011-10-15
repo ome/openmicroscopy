@@ -25,6 +25,10 @@
 {% ifnotequal nav.menu "status" %}
 <script>
 
+    var launchActivities = function() {
+        var actWindow = popupActivites('{% url status %}');
+    }
+
     // this is called by the setInterval loop below
     var progressAjaxUpdate = function(i) {
         $.ajaxSetup({ cache: false });      // IE8 etc caches json by default
@@ -63,7 +67,7 @@
         {% endifnotequal %}
         {% ifnotequal nav.menu "status" %}
         <div id="queue">
-            <a href="#" onClick="popupActivites('{% url status %}');" class="align_left">ACTIVITIES:</a>
+            <a href="#" onClick="launchActivities();" class="align_left">ACTIVITIES:</a>
             <div id="jobstatus">0 job(s)</div>
             <img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none;"/>
         </div>

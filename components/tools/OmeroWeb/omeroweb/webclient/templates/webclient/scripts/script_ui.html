@@ -74,10 +74,8 @@
 
         $(document).ready(function() {
             $("#submit").click(function(){
-                // if an "existing" window is opened by the window behind this one, we can't focus it...
-                window.open("", 'Activities');    // make sure there is no existing 'Activities' window
-                var actWindow = window.opener.popupActivites('{% url status %}');
-
+                var actWindow = popupActivites('{% url status %}');
+                actWindow.webclient_window = window.opener;
                 // pass the window to runScript() so we can refresh the window on AJAX callback.
                 $('#script_form').runScript(actWindow);
                 e.preventDefault();

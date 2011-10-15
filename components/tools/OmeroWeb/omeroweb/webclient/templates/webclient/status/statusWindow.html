@@ -48,8 +48,13 @@
         }
 
         var browseParent = function(url) {
-            window.opener.document.location.href = url;
-            if (!window.opener.closed) window.opener.focus();
+            if ((window.opener != undefined) && (window.opener != null)) {
+                window.opener.document.location.href = url;
+                if (!window.opener.closed) window.opener.focus();
+            } else if ((window.webclient_window != undefined) && (window.webclient_window != null)) {
+                window.webclient_window.location.href = url;
+                if (!window.webclient_window.closed) window.webclient_window.focus();
+            }
             return false;
         }
 
