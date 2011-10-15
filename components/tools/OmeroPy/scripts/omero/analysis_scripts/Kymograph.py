@@ -94,17 +94,14 @@ def getLineData(pixels, x1,y1,x2,y2, cMinMax, lineW=2, theZ=0, theC=0, theT=0):
     lineY = y2-y1
 
     rads = math.atan(float(lineX)/lineY)
-    print "Leaning over by degrees:", math.degrees(rads)
 
     # How much extra Height do we need, top and bottom?
     extraH = abs(math.sin(rads) * lineW)
-    print "Need extraH", extraH
     bottom = max(y1,y2) + extraH/2
     top = min(y1,y2) - extraH/2
 
     # How much extra width do we need, left and right?
     extraW = abs(math.cos(rads) * lineW)
-    print "Need extraW", extraW
     left = min(x1,x2) - extraW
     right = max(x1,x2) + extraW
 
@@ -120,11 +117,9 @@ def getLineData(pixels, x1,y1,x2,y2, cMinMax, lineW=2, theZ=0, theC=0, theT=0):
 
     # Now need to rotate so that x1,y1 is horizontally to the left of x2,y2
     toRotate = 90 - math.degrees(rads)
-    print "To straighten:", toRotate
 
     if x1 > x2:
         toRotate += 180
-    print "To rotate fully:", toRotate
     rotated = pil.rotate(toRotate, expand=True)  # filter=Image.BICUBIC see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2172449/
     #rotated.show()
 
@@ -135,43 +130,60 @@ def getLineData(pixels, x1,y1,x2,y2, cMinMax, lineW=2, theZ=0, theC=0, theT=0):
     cropX2 = cropX + length
     cropY = (rotH - lineW)/2
     cropY2 = cropY + lineW
-    print "Cropping: cropX, cropY, cropX2, cropY2 ", cropX, cropY, cropX2, cropY2
     cropped = rotated.crop( (cropX, cropY, cropX2, cropY2))
     #cropped.show()
     return asarray(cropped)
 
 
-def polyLineKymograph(conn, image, points, theZ, channelMinMax, lineWidth, dataset):
+def polyLineKymograph(conn, image, polylines, channelMinMax, lineWidth, dataset):
     """
-    Creates a new kymograph Image from a single polyLine (list of points)
+    Creates a new kymograph Image from one or more polylines.
     
-    @param points:  list of (x,y)
-    @param theZ:    Assume all Time-points on a single Z section
+    @param polylines:       map of theT: {theZ:theZ, points: list of (x,y)}
     """
     pixels = image.getPrimaryPixels()
     sizeC = image.getSizeC()
     sizeT = image.getSizeT()
 
+    # for now, assume we're using ALL timepoints
+    # need the first shape
+    firstShape = None
+    for t in range(sizeT):
+        if t in polylines:
+            firstShape = polylines[t]
+            break
+    
     def planeGen():
         """ Final image is single Z and T. Each plane is rows of T-slices """
         for theC in range(sizeC):
+            shape = firstShape
             tRows = []
             cMinMax = channelMinMax[theC]
             for theT in range(sizeT):
                 # make a row by joining each line of polyline
+                if theT in polylines:
+                    shape = polylines[theT]
                 lineData = []
+                points = shape['points']
+                theZ = shape['theZ']
                 for l in range(len(points)-1):
                     x1, y1 = points[l]
                     x2, y2 = points[l+1]
                     ld = getLineData(pixels, x1,y1,x2,y2, cMinMax, lineWidth, theZ, theC, theT)
-                    print " Line data: Z,C,T, shape",theZ,theC,theT,ld.shape 
                     lineData.append(ld)
                 rowData = hstack(lineData)
-                print "Row data: shape", rowData.shape
                 tRows.append( rowData )
             
+            # have to handle any mismatch in line lengths by padding shorter rows
+            longest = max([row_array.shape[1] for row_array in tRows])
+            for t in range(len(tRows)):
+                t_row = tRows[t]
+                row_height, row_length = t_row.shape
+                if row_length < longest:
+                    padding = longest - row_length
+                    pad_data = zeros( (row_height,padding), dtype=t_row.dtype)
+                    tRows[t] = hstack([t_row, pad_data])
             cData = vstack(tRows)
-            print "Channel Data: shape", cData.shape
             yield cData
 
     desc = "Kymograph generated from Image ID: %s with each timepoint being %s vertical pixels" % (image.getId(), lineWidth)
@@ -186,28 +198,46 @@ def linesKymograph(conn, image, lines, channelMinMax, lineWidth, dataset):
     making all subsequent lines the same length as the first. 
     """
     
-    if len(lines) == 1:
-        pixels = image.getPrimaryPixels()
-        sizeC = image.getSizeC()
-        sizeT = image.getSizeT()
-        l = lines[0]
-        theZ = l['theZ']
-        x1,y1,x2,y2 = l['x1'], l['y1'], l['x2'], l['y2']
-        
-        def planeGen():
-            """ Final image is single Z and T. Each plane is rows of T-slices """
-            for theC in range(sizeC):
-                tRows = []
-                cMinMax = channelMinMax[theC]
-                for theT in range(sizeT):
-                    # make a row by joining each line of polyline
-                    rowData = getLineData(pixels, x1,y1,x2,y2, cMinMax, lineWidth, theZ, theC, theT)
-                    tRows.append( rowData )
-                yield vstack(tRows)
-        
-        desc = "Kymograph generated from Image ID: %s with each timepoint being %s vertical pixels" % (image.getId(), lineWidth)
-        newImg = conn.createImageFromNumpySeq(planeGen(), "kymograph", 1, sizeC, 1, description=desc, dataset=dataset)
-        return newImg
+    pixels = image.getPrimaryPixels()
+    sizeC = image.getSizeC()
+    sizeT = image.getSizeT()
+    
+    # for now, assume we're using ALL timepoints
+    # need the first shape - Going to make all lines this length
+    firstLine = None
+    for t in range(sizeT):
+        if t in lines:
+            firstLine = lines[t]
+            break
+
+    def planeGen():
+        """ Final image is single Z and T. Each plane is rows of T-slices """
+        for theC in range(sizeC):
+            shape = firstLine
+            r_length = None           # set this for first line
+            tRows = []
+            cMinMax = channelMinMax[theC]
+            for theT in range(sizeT):
+                if theT in lines:
+                    shape = lines[theT]
+                theZ = shape['theZ']
+                x1,y1,x2,y2 = shape['x1'], shape['y1'], shape['x2'], shape['y2']
+                rowData = getLineData(pixels, x1,y1,x2,y2, cMinMax, lineWidth, theZ, theC, theT)
+                # if the row is too long, crop - if it's too short, pad
+                row_height, row_length = rowData.shape
+                if r_length is None:  r_length = row_length
+                if row_length < r_length:
+                    padding = r_length - row_length
+                    pad_data = zeros( (row_height,padding), dtype=rowData.dtype)
+                    rowData = hstack([rowData, pad_data])
+                elif row_length > r_length:
+                    rowData = rowData[:, 0:r_length]
+                tRows.append( rowData )
+            yield vstack(tRows)
+    
+    desc = "Kymograph generated from Image ID: %s with each timepoint being %s vertical pixels" % (image.getId(), lineWidth)
+    newImg = conn.createImageFromNumpySeq(planeGen(), "kymograph", 1, sizeC, 1, description=desc, dataset=dataset)
+    return newImg
     
 
 def processImages(conn, scriptParams):
@@ -241,8 +271,17 @@ def processImages(conn, scriptParams):
 
         roiService = conn.getRoiService()
         result = roiService.findByImage(image.getId(), None)
+        
+        # kymograph strategy - Using Line and Polyline ROIs:
+        # NB: Use ALL time points unless >1 shape AND 'use_all_timepoints' = False
+        # If > 1 shape per time-point (per ROI), pick one!
+        # 1 - Single line. Use this shape for all time points
+        # 2 - Many lines. Use the first one to fix length. Subsequent lines to update start and direction
+        # 3 - Single polyline. Use this shape for all time points
+        # 4 - Many polylines. Use the first one to fix length. 
         for roi in result.rois:
-            lines = []
+            lines = {}          # map of theT: line
+            polylines = {}      # map of theT: polyline
             for s in roi.copyShapes():
                 theZ = s.getTheZ() and s.getTheZ().getValue() or 0
                 theT = s.getTheT() and s.getTheT().getValue() or 0
@@ -252,20 +291,22 @@ def processImages(conn, scriptParams):
                     x2 = s.getX2().getValue()
                     y1 = s.getY1().getValue()
                     y2 = s.getY2().getValue()
-                    lines.append({'theT':theT, 'theZ':theZ, 'x1':x1, 'y1':y1, 'x2':x2, 'y2':y2})
+                    lines[theT] = {'theZ':theZ, 'x1':x1, 'y1':y1, 'x2':x2, 'y2':y2}
             
                 elif type(s) == omero.model.PolylineI:
                     points = pointsStringToXYlist(s.getPoints().getValue())
-                    newImg = polyLineKymograph(conn, image, points, theZ, channelMinMax, lineWidth, dataset)
-                    newImages.append(newImg)
-                    # TODO: set new channel names, colors, pixel sizes. 
-                    break       # only interested in the first polyline
+                    polylines[theT] = {'theZ':theZ, 'points': points}
 
-            print lines
+
             if len(lines) > 0:
                 newImg = linesKymograph(conn, image, lines, channelMinMax, lineWidth, dataset)
                 newImages.append(newImg)
                 lines = []
+            elif len(polylines) > 0:
+                newImg = polyLineKymograph(conn, image, polylines, channelMinMax, lineWidth, dataset)
+                newImages.append(newImg)
+            else:
+                print "ROI: %s had no lines or polylines" % roi.getId().getValue()
         
         # Save channel names and colors for each new image
         for img in newImages:
@@ -300,7 +341,7 @@ Kymographs are created in the form of new OMERO Images, with single Z and T, sam
     scripts.List("IDs", optional=False, grouping="2",
         description="List of Image IDs to process.").ofType(rlong(0)),
 
-    scripts.Int("Line_Width", optional=False, grouping="3", default=10,
+    scripts.Int("Line_Width", optional=False, grouping="3", default=4,
         description="Width in pixels of each time slice", min=1),
 
     version = "4.3.3",
