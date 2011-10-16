@@ -88,6 +88,9 @@ def getLineData(pixels, x1,y1,x2,y2, cMinMax, lineW=2, theZ=0, theC=0, theT=0):
     cMinMax is the (min, max) values of Channel pixel data, to use for scaling numpy to PIL. 
     """
     
+    sizeX = pixels.getSizeX()
+    sizeY = pixels.getSizeY()
+
     centreX = (x1+x2)/2
     centreY = (y1+y2)/2
     lineX = x2-x1
@@ -97,21 +100,56 @@ def getLineData(pixels, x1,y1,x2,y2, cMinMax, lineW=2, theZ=0, theC=0, theT=0):
 
     # How much extra Height do we need, top and bottom?
     extraH = abs(math.sin(rads) * lineW)
-    bottom = max(y1,y2) + extraH/2
-    top = min(y1,y2) - extraH/2
+    bottom = int(max(y1,y2) + extraH/2)
+    top = int(min(y1,y2) - extraH/2)
 
     # How much extra width do we need, left and right?
     extraW = abs(math.cos(rads) * lineW)
-    left = min(x1,x2) - extraW
-    right = max(x1,x2) + extraW
+    left = int(min(x1,x2) - extraW)
+    right = int(max(x1,x2) + extraW)
 
-    # What's the larger area we need?
-    x = int(left)
-    y = int(top)
+    # What's the larger area we need? - Are we outside the image?
+    pad_left, pad_right, pad_top, pad_bottom = 0,0,0,0
+    if left < 0:
+        pad_left = abs(left)
+        left = 0
+    x = left
+    if top < 0:
+        pad_top = abs(top)
+        top = 0
+    y = top
+    if right > sizeX:
+        pad_right = right-sizeX
+        right = sizeX
     w = int(right - left)
+    if bottom > sizeY:
+        pad_bottom = bottom-sizeY
+        bottom = sizeY
     h = int(bottom - top)
     tile = (x, y, w, h)
+    
+    # get the Tile
     plane = pixels.getTile(theZ, theC, theT, tile)
+    
+    # pad if we wanted a bigger region
+    if pad_left > 0:
+        data_h, data_w = plane.shape
+        pad_data = zeros( (data_h, pad_left), dtype=plane.dtype)
+        plane = hstack( (pad_data, plane) )
+    if pad_right > 0:
+        data_h, data_w = plane.shape
+        pad_data = zeros( (data_h, pad_right), dtype=plane.dtype)
+        plane = hstack( (plane, pad_data) )
+    if pad_top > 0:
+        data_h, data_w = plane.shape
+        pad_data = zeros( (pad_top, data_w), dtype=plane.dtype)
+        plane = vstack( (pad_data, plane) )
+    if pad_bottom > 0:
+        data_h, data_w = plane.shape
+        pad_data = zeros( (pad_bottom, data_w), dtype=plane.dtype)
+        plane = vstack( (plane, pad_data) )
+    
+        
     pil = numpyToImage(plane, cMinMax)
     #pil.show()
 
@@ -135,7 +173,7 @@ def getLineData(pixels, x1,y1,x2,y2, cMinMax, lineW=2, theZ=0, theC=0, theT=0):
     return asarray(cropped)
 
 
-def polyLineKymograph(conn, image, polylines, channelMinMax, lineWidth, dataset):
+def polyLineKymograph(conn, scriptParams, image, polylines, channelMinMax, lineWidth, dataset):
     """
     Creates a new kymograph Image from one or more polylines.
     
@@ -144,6 +182,10 @@ def polyLineKymograph(conn, image, polylines, channelMinMax, lineWidth, dataset)
     pixels = image.getPrimaryPixels()
     sizeC = image.getSizeC()
     sizeT = image.getSizeT()
+    
+    use_all_times = "Use_All_Timepoints" in scriptParams and scriptParams['Use_All_Timepoints'] is True
+    if len(polylines) == 1:
+        use_all_times = True
 
     # for now, assume we're using ALL timepoints
     # need the first shape
@@ -153,6 +195,8 @@ def polyLineKymograph(conn, image, polylines, channelMinMax, lineWidth, dataset)
             firstShape = polylines[t]
             break
     
+    print "\nCreating Kymograph image from 'polyline' ROI. First polyline:", firstShape
+    
     def planeGen():
         """ Final image is single Z and T. Each plane is rows of T-slices """
         for theC in range(sizeC):
@@ -160,9 +204,11 @@ def polyLineKymograph(conn, image, polylines, channelMinMax, lineWidth, dataset)
             tRows = []
             cMinMax = channelMinMax[theC]
             for theT in range(sizeT):
-                # make a row by joining each line of polyline
+                # update shape if specified for this timepoint
                 if theT in polylines:
                     shape = polylines[theT]
+                elif not use_all_times:
+                    continue
                 lineData = []
                 points = shape['points']
                 theZ = shape['theZ']
@@ -186,11 +232,13 @@ def polyLineKymograph(conn, image, polylines, channelMinMax, lineWidth, dataset)
             cData = vstack(tRows)
             yield cData
 
-    desc = "Kymograph generated from Image ID: %s with each timepoint being %s vertical pixels" % (image.getId(), lineWidth)
+    desc = "Kymograph generated from Image ID: %s, polyline: %s" % (image.getId(), firstShape['points'])
+    desc += "\nwith each timepoint being %s vertical pixels" % lineWidth
     newImg = conn.createImageFromNumpySeq(planeGen(), "kymograph", 1, sizeC, 1, description=desc, dataset=dataset)
     return newImg
 
-def linesKymograph(conn, image, lines, channelMinMax, lineWidth, dataset):
+
+def linesKymograph(conn, scriptParams, image, lines, channelMinMax, lineWidth, dataset):
     """
     Creates a new kymograph Image from one or more lines.
     If one line, use this for every time point.
@@ -201,14 +249,19 @@ def linesKymograph(conn, image, lines, channelMinMax, lineWidth, dataset):
     pixels = image.getPrimaryPixels()
     sizeC = image.getSizeC()
     sizeT = image.getSizeT()
-    
-    # for now, assume we're using ALL timepoints
+
+    use_all_times = "Use_All_Timepoints" in scriptParams and scriptParams['Use_All_Timepoints'] is True
+    if len(lines) == 1:
+        use_all_times = True
+
     # need the first shape - Going to make all lines this length
     firstLine = None
     for t in range(sizeT):
         if t in lines:
             firstLine = lines[t]
             break
+    
+    print "\nCreating Kymograph image from 'line' ROI. First line:", firstLine
 
     def planeGen():
         """ Final image is single Z and T. Each plane is rows of T-slices """
@@ -220,6 +273,8 @@ def linesKymograph(conn, image, lines, channelMinMax, lineWidth, dataset):
             for theT in range(sizeT):
                 if theT in lines:
                     shape = lines[theT]
+                elif not use_all_times:
+                    continue
                 theZ = shape['theZ']
                 x1,y1,x2,y2 = shape['x1'], shape['y1'], shape['x2'], shape['y2']
                 rowData = getLineData(pixels, x1,y1,x2,y2, cMinMax, lineWidth, theZ, theC, theT)
@@ -235,7 +290,8 @@ def linesKymograph(conn, image, lines, channelMinMax, lineWidth, dataset):
                 tRows.append( rowData )
             yield vstack(tRows)
     
-    desc = "Kymograph generated from Image ID: %s with each timepoint being %s vertical pixels" % (image.getId(), lineWidth)
+    desc = "Kymograph generated from Image ID: %s, line: %s" % (image.getId(), firstLine)
+    desc += "\nwith each timepoint being %s vertical pixels" % lineWidth
     newImg = conn.createImageFromNumpySeq(planeGen(), "kymograph", 1, sizeC, 1, description=desc, dataset=dataset)
     return newImg
     
@@ -299,11 +355,11 @@ def processImages(conn, scriptParams):
 
 
             if len(lines) > 0:
-                newImg = linesKymograph(conn, image, lines, channelMinMax, lineWidth, dataset)
+                newImg = linesKymograph(conn, scriptParams, image, lines, channelMinMax, lineWidth, dataset)
                 newImages.append(newImg)
                 lines = []
             elif len(polylines) > 0:
-                newImg = polyLineKymograph(conn, image, polylines, channelMinMax, lineWidth, dataset)
+                newImg = polyLineKymograph(conn, scriptParams, image, polylines, channelMinMax, lineWidth, dataset)
                 newImages.append(newImg)
             else:
                 print "ROI: %s had no lines or polylines" % roi.getId().getValue()
@@ -343,6 +399,9 @@ Kymographs are created in the form of new OMERO Images, with single Z and T, sam
 
     scripts.Int("Line_Width", optional=False, grouping="3", default=4,
         description="Width in pixels of each time slice", min=1),
+    
+    scripts.Bool("Use_All_Timepoints", grouping="4", default=True,
+        description="Use every timepoint in the kymograph. If False, only use timepoints with ROI-shapes"),
 
     version = "4.3.3",
     authors = ["William Moore", "OME Team"],
