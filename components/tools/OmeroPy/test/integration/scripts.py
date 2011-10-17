@@ -75,6 +75,14 @@ class TestScripts(lib.ITest):
         ofile = self.query.get("OriginalFile", id)
         self.assertEquals("/", ofile.path.val)
         self.assertEquals("%s.py" % uuid, ofile.name.val)
+        return svc, ofile
+
+    def testDelete6905(self):
+        """
+        Delete of official scripts was broken in 4.3.2.
+        """
+        svc, ofile = self.testUpload2562()
+        svc.deleteScript(ofile.id.val)
 
     def testParseErrorTicket2185(self):
         svc = self.root.sf.getScriptService()
@@ -210,6 +218,8 @@ class TestScripts(lib.ITest):
         namedScripts = [s for s in scripts if s.path.val + s.name.val == scriptPath]
         scriptFile = namedScripts[0]
 
+        paramsBefore = scriptService.getParams(scriptId)
+
         editedScript = """
 import omero, omero.scripts as s
 from omero.rtypes import *
@@ -220,10 +230,18 @@ client.setOutput("b", rstring("c"))
 client.closeSession()
 """
         scriptService.editScript(scriptFile, editedScript)
-        
+
         editedText = scriptService.getScriptText(scriptId)
         self.assertEquals(editedScript, editedText)
-        
+
+        paramsAfter = scriptService.getParams(scriptId)
+
+        self.assertTrue("message" in paramsBefore.inputs)
+        self.assertEquals(0, len(paramsBefore.outputs))
+
+        for x in ("a", "b"):
+            self.assertTrue(x in paramsAfter.inputs)
+            self.assertTrue(x in paramsAfter.outputs)
 
     def testScriptValidation(self):
         scriptService = self.root.sf.getScriptService()

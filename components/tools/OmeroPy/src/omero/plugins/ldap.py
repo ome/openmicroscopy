@@ -15,8 +15,12 @@ from omero.rtypes import unwrap as _
 
 HELP = """Administrative support for managing users' LDAP settings.
 
+Most of these commands should be run as an OMERO administrator such
+as root.
+
 Examples:
 
+  bin/omero login root
   bin/omero ldap active
   bin/omero ldap active     || echo "Not active!"
   bin/omero ldap list
@@ -37,12 +41,18 @@ class LdapControl(BaseControl):
 
         sub = parser.sub()
 
-        active = parser.add(sub, self.active, help = "Return code shows if LDAP is configured")
+        active = parser.add(sub, self.active, \
+                help = "Return code shows if LDAP is configured (admins-only)")
 
         list = parser.add(sub, self.list, help = "List all OMERO users with DNs")
 
         getdn = parser.add(sub, self.getdn, help = "Get DN for user on stdout")
-        setdn = parser.add(sub, self.setdn, help = "Set DN for user on stdout")
+        setdn = parser.add(sub, self.setdn, help = """Set DN for user (admins only)
+
+Once the DN is set for a user, the password set via OMERO is
+ignored, and any attempt to change it will result in an error. When
+you remove the DN, the previous password will be in effect, but if the
+user never had a password, one will need to be set!""")
 
         for x in (getdn, setdn):
             x.add_argument("username", help = "User's OMERO login name")

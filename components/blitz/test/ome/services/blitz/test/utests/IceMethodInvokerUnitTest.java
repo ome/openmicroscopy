@@ -739,6 +739,15 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         assertTrue(l.size() == 1);
     }
 
+    @Test
+    public void testUpdateHanlesCollectionsProperly() throws Exception {
+
+        init(IUpdate.class, "saveCollection");
+        method(); // void
+
+        Object rv = invoke(Arrays.asList(new omero.model.ImageI()));
+    }
+
     // RawFileStore
 
     @Test
