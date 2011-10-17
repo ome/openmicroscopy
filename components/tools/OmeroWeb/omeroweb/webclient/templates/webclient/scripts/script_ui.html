@@ -73,7 +73,7 @@
             $("#submit").click(function(e){
                 var actWindow = popupActivites('{% url status %}');
                 window.opener.activities_Window = actWindow;    // allows webclient window to update Activities window
-
+                actWindow.webclient_window = window.opener;
                 $('#script_form').runScript(actWindow);
                 e.preventDefault();
                 return false;
