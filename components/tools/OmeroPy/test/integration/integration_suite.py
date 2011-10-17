@@ -47,6 +47,7 @@ def additional_tests():
     suite.addTest(load("integration.ishare"))
     suite.addTest(load("integration.itimeline"))
     suite.addTest(load("integration.itypes"))
+    suite.addTest(load("integration.iupdate"))
     suite.addTest(load("integration.metadatastore"))
     suite.addTest(load("integration.model42"))
     suite.addTest(load("integration.permissions"))

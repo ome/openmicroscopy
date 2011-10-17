@@ -73,11 +73,7 @@ public class UpdateI extends AbstractAmdServant implements _IUpdateOperations {
 
     public void saveCollection_async(AMD_IUpdate_saveCollection __cb,
             List<IObject> objs, Current __current) throws ServerError {
-        
-        IceMapper mapper = new IceMapper();
-        Object o = mapper.map(objs);
-        callInvokerOnMappedArgs(mapper, __cb, __current, o);
-
+        callInvokerOnRawArgs(__cb, __current, objs);
     }
 
     public void saveObject_async(AMD_IUpdate_saveObject __cb, IObject obj,
