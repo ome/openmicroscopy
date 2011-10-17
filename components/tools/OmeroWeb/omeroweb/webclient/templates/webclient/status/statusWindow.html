@@ -227,12 +227,6 @@
                 });
 
             });
-        }
-
-        $(document).ready(function() {
-            
-            console.log("OPEN: window.opener " + window.opener);
-            console.log("OPEN: window.webclient_window " + window.webclient_window);
 
             // make an AJAX call to update all 'in progress' callbacks in the web session and return current status
             var i = setInterval(function (){
@@ -245,6 +239,12 @@
                     $.ajaxSetup({ cache: true });
                 });
             }, 3000);
+        }
+
+        $(document).ready(function() {
+
+            console.log("OPEN: window.opener " + window.opener);
+            console.log("OPEN: window.webclient_window " + window.webclient_window);
 
             // bind drop-down lists etc
             content_loaded();
@@ -255,7 +255,7 @@
                 e.preventDefault();
                 return false;
             });
-            
+
         });
     </script>
 
@@ -327,15 +327,15 @@
         <div style="clear:both"> </div>
     </div>
 
-    {% if sizeOfJobs %}
 
     <div id='activities_content'>
+    {% if sizeOfJobs %}
         {% include 'webclient/status/activitiesContent.html' %}
-    </div>
-    
     {% else %}
         <p>{% trans "There are no jobs" %}</p>
     {% endif %}
+    </div>
+
 </div>
 
 </body>
