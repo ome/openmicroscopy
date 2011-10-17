@@ -53,16 +53,16 @@
                     $.ajaxSetup({ cache: true });
                     if(data.status == 'in progress') {
                         window.opener.refreshProgressBar();     // also refreshes Activities window
-                        //self.close();
+                        self.close();
                     }
                     else {
                         window.opener.refreshProgressBar();     // also refreshes Activities window
-                        //self.close();
+                        self.close();
                     }
                 },
                 error: function(data) {
                     window.opener.refreshProgressBar();
-                    //self.close();
+                    self.close();
                 }
             });
             return false;
@@ -71,7 +71,7 @@
 
         $(document).ready(function() {
             $("#submit").click(function(e){
-                popupActivites('{% url status %}').close();
+                window.open('', 'Activities').close();
                 
                 var actWindow = popupActivites('{% url status %}');
                 window.opener.activities_Window = actWindow;    // allows webclient window to update Activities window
