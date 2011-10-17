@@ -53,18 +53,20 @@
                     $.ajaxSetup({ cache: true });
                     if(data.status == 'in progress') {
                         // we don't try to open 'Activities' window here, since it triggers popup blockers...
-                        window.opener.refreshProgressBar();
                         actWindow.location.href = '{% url status %}';   //...but we can refresh
+                        window.opener.refreshProgressBar();
                         self.close();
                     }
                     else {
                         // error is stored in http session - displayed in 'Activities' window.
                         actWindow.location.href = '{% url status %}';
+                        window.opener.refreshProgressBar();
                         self.close();
                     }
                 },
                 error: function(data) {
-                    //actWindow.location.href = '{% url status %}';
+                    actWindow.location.href = '{% url status %}';
+                    window.opener.refreshProgressBar();
                     //self.close();
                 }
             });
