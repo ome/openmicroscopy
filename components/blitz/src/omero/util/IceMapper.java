@@ -1067,6 +1067,8 @@ public class IceMapper extends ome.util.ModelMapper implements
             // doesn't
             // support
             // Sets.
+        } else if (Collection.class.isAssignableFrom(p)) {
+            return reverse((Collection) arg);
         } else if (Timestamp.class.isAssignableFrom(p)) {
             if (arg != null) {
                 throw new RuntimeException("This must be null here");

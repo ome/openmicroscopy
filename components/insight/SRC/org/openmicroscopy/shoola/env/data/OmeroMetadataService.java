@@ -622,4 +622,17 @@ public interface OmeroMetadataService
 			long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	/**
+	 * Loads the parents of the specified annotation.
+	 * 
+	 * @param annotationId The annotation to handle.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public List<DataObject> loadParentsOfAnnotations(long annotationId)
+		throws DSOutOfServiceException, DSAccessException;
+	
 }

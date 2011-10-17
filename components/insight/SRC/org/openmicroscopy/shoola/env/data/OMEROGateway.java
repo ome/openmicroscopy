@@ -1176,6 +1176,10 @@ class OMEROGateway
 			table = "PlateAnnotationLink";
 		else if (klass.equals(TagAnnotationData.class.getName()))
 			table = "AnnotationAnnotationLink";
+		else if (klass.equals(PlateAcquisitionData.class.getName()))
+			table = "PlateAcquisitionAnnotationLink";
+		else if (klass.equals(PlateAcquisitionI.class.getName())) 
+			table = "PlateAcquisitionAnnotationLink";
 		return table;
 	}
 	
@@ -2592,6 +2596,7 @@ class OMEROGateway
 	{
 		connected = false;
 		try {
+			shutDownServices(true);
 			clear();
 			secureClient.closeSession();
 			secureClient = null;
@@ -5944,7 +5949,7 @@ class OMEROGateway
 		List<RType> set = new ArrayList<RType>(channels.size());
 		Iterator<Integer> i = channels.iterator();
 		while (i.hasNext()) 
-			set.add(omero.rtypes.rlong(i.next()));
+			set.add(omero.rtypes.rint(i.next()));
 
 		RenderingDef def = null;
 		int startZ = param.getStartZ();
@@ -6150,6 +6155,30 @@ class OMEROGateway
 			handleException(e, "Cannot load the scripts. ");
 		}
 		return new HashMap<Long, String>();
+	}
+	
+
+	/**
+	 * Returns all the scripts currently stored into the system.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<OriginalFile> getScripts()
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IScriptPrx svc = getScriptService();
+			if (svc == null) svc = getScriptService();
+			return svc.getScripts();
+		} catch (Exception e) {
+			handleException(e, "Cannot load the scripts. ");
+		}
+		return new ArrayList<OriginalFile>();
 	}
 	
 	/**
@@ -6713,6 +6742,7 @@ class OMEROGateway
 			RoiResult tempResults;
 			int shapeIndex;
 	
+			Image unloaded = new ImageI(imageID, false);
 			for (ROIData roi : roiList)
 			{
 				/*
@@ -6720,7 +6750,9 @@ class OMEROGateway
 				 */
 				if (!roiMap.containsKey(roi.getId()))
 				{
-					updateService.saveAndReturnObject(roi.asIObject());
+					Roi r = (Roi) roi.asIObject();
+					r.setImage(unloaded);
+					updateService.saveAndReturnObject(r);
 					continue;
 				}	
 				
@@ -6761,6 +6793,7 @@ class OMEROGateway
 				Iterator si = serverCoordMap.entrySet().iterator();
 				Entry entry;
 				List<ROICoordinate> removed = new ArrayList<ROICoordinate>();
+				List<IObject> toDelete = new ArrayList<IObject>();
 				while (si.hasNext())
 				{
 					entry = (Entry) si.next();
@@ -6768,8 +6801,9 @@ class OMEROGateway
 					if (!clientCoordMap.containsKey(coord))
 					{
 						s = (Shape) entry.getValue();
-						if (s != null)
+						if (s != null) {
 							updateService.deleteObject(s);
+						}
 					} else {
 						s = (Shape) entry.getValue();
 						if (s instanceof Line || s instanceof Polyline) {
@@ -6784,7 +6818,6 @@ class OMEROGateway
 						}
 					}
 				}
-				
 				/*
 				 * Step 5. retrieve new roi as some are stale.
 				 */
@@ -6883,6 +6916,7 @@ class OMEROGateway
 					serverRoi.setDescription(ri.getDescription());
 					serverRoi.setNamespaces(ri.getNamespaces());
 					serverRoi.setKeywords(ri.getKeywords());
+					serverRoi.setImage(unloaded);
 					updateService.saveAndReturnObject(serverRoi);
 				}
 				
@@ -6957,7 +6991,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	synchronized File exportImageAsOMETiff(File f, long imageID)
+	File exportImageAsOMETiff(File f, long imageID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive();
@@ -6975,15 +7009,14 @@ class OMEROGateway
 					
 					try {
 						long size = store.generateTiff();
-						int offset = 0;
-						int length = (int) size;
+						long offset = 0;
 						try {
 							for (offset = 0; (offset+INC) < size;) {
 								stream.write(store.read(offset, INC));
 								offset += INC;
 							}	
 						} finally {
-							stream.write(store.read(offset, length-offset)); 
+							stream.write(store.read(offset, (int)(size-offset))); 
 							stream.close();
 						}
 					} catch (Exception e) {
@@ -7118,10 +7151,29 @@ class OMEROGateway
 						"Cannot upload the script: "+script.getName()+".");
 				return -1;
 			}
+			String path = script.getFolder();
+			List<OriginalFile> scripts = getScripts();
+			if (scripts.size() > 0) {
+				Iterator<OriginalFile> i = scripts.iterator();
+				OriginalFile of;
+				StringBuffer buffer = new StringBuffer();
+				RString v;
+				while (i.hasNext()) {
+					of = i.next();
+					v = of.getPath();
+					if (v != null) buffer.append(v.getValue());
+					v = of.getName();
+					if (v != null) buffer.append(v.getValue());
+					//check if the script already exists.
+					if (buffer.toString().equals(path)) {
+						svc.editScript(of, buf.toString());
+						return of.getId().getValue();
+					}
+				}
+			}
 			if (official)
-				return svc.uploadOfficialScript(script.getFolder(), 
-						buf.toString());
-			return svc.uploadScript(script.getFolder(), buf.toString());
+				return svc.uploadOfficialScript(path, buf.toString());
+			return svc.uploadScript(path, buf.toString());
 		} catch (Exception e) {
 			handleException(e, 
 					"Cannot upload the script: "+script.getName()+".");

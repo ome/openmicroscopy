@@ -44,6 +44,8 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
@@ -93,6 +95,9 @@ public class RefreshExperimenterDataLoader
     /** The data object to browse. */
     private DataObject 							toBrowse;
     
+    /** The smart folder for tags.*/
+    private Map<Long, TreeImageSet>				smartFolders;
+    
     /**
      * Controls if the passed class is supported.
      * 
@@ -118,31 +123,45 @@ public class RefreshExperimenterDataLoader
     private void setExperimenterResult(long expId, Object result)
     {
     	RefreshExperimenterDef node = expNodes.get(expId);
-    	Map<DataObject, Set> map;
+    	Map<Object, Object> map;
     	Map expandedNodes = node.getExpandedTopNodes();
         if (expandedNodes == null || expandedNodes.size() == 0
         	|| result instanceof Collection) {
         	Collection set = (Collection) result;
             Iterator j = set.iterator();
-            map = new HashMap<DataObject, Set>();
-            DataObject parent;
+            map = new HashMap<Object, Object>();
+            Object parent;
             Set children = null;
+            Object ob;
+            TreeImageSet display;
             while (j.hasNext()) {
-                parent = (DataObject) j.next();
-                if (parent instanceof ProjectData) {
-                    children = ((ProjectData) parent).getDatasets();
-                } else if (parent instanceof DatasetData) {
-                	children = new HashSet(1);
-                	children.add(parent);
-                } else if (parent instanceof TagAnnotationData) {
-                	children = new HashSet(1);
-                	children.add(parent);
-                } else if (parent instanceof ScreenData) {
-                	children = ((ScreenData) parent).getPlates();
-                } else if (parent instanceof GroupData) {
-                	children = ((GroupData) parent).getExperimenters();
-                }
-                map.put(parent, children);
+            	parent = j.next();
+            	if (parent instanceof TimeRefObject) { //for tag support.
+            		if (smartFolders != null) {
+            			display = smartFolders.get(expId);
+            			if (display != null) {
+            				display.removeAllChildren();
+            				display.removeAllChildrenDisplay();
+            				map.put(display, 
+            						((TimeRefObject) parent).getResults());
+            			}
+            		}
+            	} else {
+            		if (parent instanceof ProjectData) {
+                        children = ((ProjectData) parent).getDatasets();
+                    } else if (parent instanceof DatasetData) {
+                    	children = new HashSet(1);
+                    	children.add(parent);
+                    } else if (parent instanceof TagAnnotationData) {
+                    	children = new HashSet(1);
+                    	children.add(parent);
+                    } else if (parent instanceof ScreenData) {
+                    	children = ((ScreenData) parent).getPlates();
+                    } else if (parent instanceof GroupData) {
+                    	children = ((GroupData) parent).getExperimenters();
+                    }
+                    map.put(parent, children);
+            	}
             }
         } else map = (Map) result;
         node.setResults(map);
@@ -246,6 +265,9 @@ public class RefreshExperimenterDataLoader
     		}
     	} else {
     		List l;
+    		List<Object> nl;
+    		Iterator k;
+    		Object ob;
         	while (i.hasNext()) {
         		entry = (Entry) i.next();
         		userID = (Long) entry.getKey();
@@ -255,7 +277,26 @@ public class RefreshExperimenterDataLoader
         			if (l == null) l = new ArrayList();
         			m.put(userID, l);
         		} else {
-        			m.put(userID, def.getExpandedNodes());
+        			if (TagAnnotationData.class.equals(rootNodeType)) {
+        				l  = def.getExpandedNodes();
+        				nl = new ArrayList<Object>();
+        				j = l.iterator();
+        				while (j.hasNext()) {
+							ob = (Object) j.next();
+							if (ob instanceof TreeFileSet) {
+								ref = new TimeRefObject(userID,
+										TimeRefObject.FILE);
+								ref.setFileType(
+										MetadataHandlerView.TAG_NOT_OWNED);
+								nl.add(ref);
+								if (smartFolders == null) 
+									smartFolders = new 
+										HashMap<Long, TreeImageSet>();
+								smartFolders.put(userID, (TreeImageSet) ob);
+							} else nl.add(ob);
+						}
+        				m.put(userID, nl);
+        			} else m.put(userID, def.getExpandedNodes());
         		}
     		}
     	}

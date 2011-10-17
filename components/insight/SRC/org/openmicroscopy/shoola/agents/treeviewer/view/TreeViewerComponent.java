@@ -2364,6 +2364,45 @@ class TreeViewerComponent
 				if (nodes.size() > 0) { //node found.
 					model.browsePlates(nodes, withThumbnails);
 				}
+			} else if (data instanceof ImageData) {
+				finder = new NodesFinder((DataObject) data);
+				browser.accept(finder);
+				nodes = finder.getNodes();
+				ExperimenterData exp;
+				MetadataViewer mv = model.getMetadataViewer();
+				int size = nodes.size();
+				if (size == 1) {
+					i = nodes.iterator();
+					TreeImageDisplay parent, expNode;
+					mv.setSelectionMode(size == 1);
+					while (i.hasNext()) {
+						node = i.next();
+						parent = node.getParentDisplay();
+						expNode = BrowserFactory.getDataOwner(node);
+						exp = (ExperimenterData) expNode.getUserObject();
+						if (exp == null) exp = model.getUserDetails();
+						node.setExpanded(true);
+						//mv.setRootObject(node.getUserObject(), exp.getId());
+						
+						List l = parent.getChildrenDisplay();
+						Iterator j = l.iterator();
+						List leaves = new ArrayList();
+						while (j.hasNext()) {
+							TreeImageDisplay o = (TreeImageDisplay) j.next();
+							leaves.add(o.getUserObject());
+						}
+						
+						DataBrowser db = DataBrowserFactory.getDataBrowser(null,
+								parent.getUserObject(), leaves, parent);
+						if (db == null) return;
+						db.addPropertyChangeListener(controller);
+						db.activate();
+						view.displayBrowser(db);
+						//db.activate();
+						model.setDataViewer(db);
+						browser.setSelectedDisplay(node);
+					}
+				}
 			}
 			return;
 		}
@@ -3375,16 +3414,22 @@ class TreeViewerComponent
 			}
 			
 		} else if (data instanceof DataObject) { //should be for new node
-			if (data instanceof DatasetData || data instanceof ProjectData) {
+			if (data instanceof DatasetData || data instanceof ProjectData ||
+				data instanceof ImageData) {
 				browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
-			} else if (data instanceof PlateData) {
+			} else if (data instanceof PlateData ||
+					data instanceof ScreenData) {
 				browser = model.getBrowser(Browser.SCREENS_EXPLORER);
+			} else if (data instanceof FileAnnotationData) {
+				model.loadParentOf((FileAnnotationData) data);
+				return;
 			}
 			if (browser != null) {
 				DataBrowserFactory.discardAll();
-			    //view.removeAllFromWorkingPane();
-			    setSelectedBrowser(browser, false);
-			    browser.refreshTree(refNode, (DataObject) data);
+				if (data instanceof ImageData)
+					view.removeAllFromWorkingPane();
+				setSelectedBrowser(browser, false);
+				browser.refreshTree(refNode, (DataObject) data);
 			}
 		}
 	}

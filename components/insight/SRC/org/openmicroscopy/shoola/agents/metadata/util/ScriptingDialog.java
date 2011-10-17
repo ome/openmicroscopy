@@ -113,21 +113,21 @@ public class ScriptingDialog
 	/** Bound property indicating to close the dialog. */
 	public static final String CLOSE_SCRIPT_PROPERTY = "closeScript";
 	
+	/** The background of the description. */
+	static final Color		BG_COLOR = Color.LIGHT_GRAY;
+	
 	/** 
 	 * The size of the invisible components used to separate buttons
 	 * horizontally.
 	 */
 	private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
 	
-	/** The background of the description. */
-	private static final Color		BG_COLOR = Color.LIGHT_GRAY;
-	
 	/** Title of the dialog. */
 	private static final String		TITLE = "Run Script";
 	
 	/** The text displayed in the header. */
 	private static final String		TEXT = "Set the parameters of the " +
-			"selected script: ";
+			"selected script.";
 	
 	/** The text displayed in the header. */
 	private static final String		TEXT_END = EditorUtil.MANDATORY_SYMBOL +
@@ -352,8 +352,8 @@ public class ScriptingDialog
 		cancelButton.setToolTipText("Close the dialog.");
 		cancelButton.setActionCommand(""+CANCEL);
 		cancelButton.addActionListener(this);
-		applyButton = new JButton("Run");
-		applyButton.setToolTipText("Run the script.");
+		applyButton = new JButton("Run Script");
+		applyButton.setToolTipText("Run the selected script.");
 		applyButton.setActionCommand(""+APPLY);
 		applyButton.addActionListener(this);
 		IconManager icons = IconManager.getInstance();
@@ -393,7 +393,7 @@ public class ScriptingDialog
 			new HashMap<String, List<ScriptComponent>>();
 		List<ScriptComponent> l;
 		int length;
-		boolean columnsSet = false;
+		boolean columnsSet;
 		while (i.hasNext()) {
 			text = "";
 			columnsSet = false;
@@ -462,9 +462,11 @@ public class ScriptingDialog
 					comp = new JTextField();
 					if (defValue != null) {
 						length = defValue.toString().length();
+						String s = defValue.toString().trim();
 						((JTextField) comp).setColumns(length);
-						((JTextField) comp).setText(defValue.toString());
-						columnsSet = true;
+						((JTextField) comp).setText(s);
+						
+						columnsSet = s.length() > 0;
 					}
 				}
 			} else if (Boolean.class.equals(type)) {
@@ -585,9 +587,9 @@ public class ScriptingDialog
 	{
 		JPanel controlPanel = new JPanel();
 		controlPanel.setBorder(null);
-		controlPanel.add(applyButton);
-		controlPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		controlPanel.add(cancelButton);
+		controlPanel.add(Box.createRigidArea(H_SPACER_SIZE));
+		controlPanel.add(applyButton);
 		controlPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		JPanel bar = new JPanel();
 		bar.setLayout(new BoxLayout(bar, BoxLayout.Y_AXIS));
@@ -614,10 +616,18 @@ public class ScriptingDialog
 		OMEWikiComponent area = new OMEWikiComponent(false);
 		area.setEnabled(false);
 		area.setText(description);
+		JPanel content = new JPanel();
+		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+		JLabel label = UIUtilities.setTextFont(script.getName());
+		Font f = label.getFont();
+		label.setFont(f.deriveFont(f.getStyle(), f.getSize()+2));
+		content.add(UIUtilities.buildComponentPanel(label));
+		content.add(Box.createVerticalStrut(5));
 		JPanel p = UIUtilities.buildComponentPanel(area);
 		p.setBackground(BG_COLOR);
 		area.setBackground(BG_COLOR);
-		return p;
+		content.add(p);
+		return content;
 	}
 	
 	/** 
@@ -697,21 +707,16 @@ public class ScriptingDialog
 			layout.insertRow(row, TableLayout.PREFERRED);
 			p.add(area, "0,"+row+", 2, "+row);
 			row++;
-			if (authorsPane == null) {
-				layout.insertRow(row, TableLayout.PREFERRED);
-				p.add(new JSeparator(), "0,"+row+", 2, "+row);
-				row++;
-			}
 		}
 		
 		if (authorsPane != null) {
 			layout.insertRow(row, TableLayout.PREFERRED);
 			p.add(authorsPane, "0,"+row+", 2, "+row);
 			row++;
-			layout.insertRow(row, TableLayout.PREFERRED);
-			p.add(new JSeparator(), "0,"+row+", 2, "+row);
-			row++;
 		}
+		layout.insertRow(row, 5);
+		
+		row++;
 		Entry entry;
 		Iterator i = components.entrySet().iterator();
 		ScriptComponent comp;
@@ -724,6 +729,8 @@ public class ScriptingDialog
 			comp.buildUI();
 			if (comp.isRequired()) required++;
 			p.add(comp, "0,"+row+", 2, "+row);
+			row++;
+			layout.insertRow(row, 2);
 			row++;
 		}
 		if (required > 0) {
@@ -745,7 +752,7 @@ public class ScriptingDialog
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		String text = TEXT+script.getDisplayedName();
+		String text = TEXT;//+script.getDisplayedName();
 		TitlePanel tp = new TitlePanel(TITLE, text, script.getIconLarge());
 		Container c = getContentPane();
 		c.removeAll();

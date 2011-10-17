@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,7 +101,7 @@ public class DMRefreshLoader
         
         Object result;
         Set set, children, newChildren, r;
-        List<Long> ids, cIds;
+        List<Long> ids;
         Iterator i, j, c, k;
         Long id;
         Class klass;
@@ -156,9 +157,8 @@ public class DMRefreshLoader
                             child = (DataObject) c.next();
                             id = Long.valueOf(child.getId());
                             if (ids.contains(id)) {
-                                cIds = new ArrayList(1);
-                                cIds.add(id);
-                                r = os.loadContainerHierarchy(klass, cIds, 
+                                r = os.loadContainerHierarchy(klass, 
+                                		Arrays.asList(id),
                                         true, userID, groupID);
                                 k = r.iterator();
                                 while (k.hasNext()) {
@@ -204,7 +204,7 @@ public class DMRefreshLoader
      * Creates a {@link BatchCall} to retrieve the images.
      * 
      * @param nodes The map whose keys are the id of user and the values 
-     * 				are the corresponding collections of data objects to reload.  		
+     * 				are the corresponding collections of data objects to reload.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeImagesBatchCall(final Map<Long, List> nodes)
@@ -226,7 +226,7 @@ public class DMRefreshLoader
                 	j = containers.iterator();
                 	while (j.hasNext()) {
                 		ref = (TimeRefObject) j.next();
-        				ref.setResults(os.getImagesPeriod(ref.getStartTime(), 
+        				ref.setResults(os.getImagesPeriod(ref.getStartTime(),
         								ref.getEndTime(), userID, true));
 					}
                 }
@@ -306,8 +306,6 @@ public class DMRefreshLoader
 					}
                 	results = toKeep;
                 }
-                
-                
             }
         };
     }
@@ -376,19 +374,31 @@ public class DMRefreshLoader
                 	l = (List) entry.getValue();
                 	
                 	tags = os.loadTags(-1L, false, true, userID, -1);
+                	List<Object> tagResults = new ArrayList<Object>();
                 	if (l == null || l.size() == 0) {
                 		r.put(userID, tags);
                 	} else {
                 		values = new HashMap<Long, Collection>();
                 		k = l.iterator();
+                		Object ob;
+                		TimeRefObject ref;
                 		while (k.hasNext()) {
-                			tag = (TagAnnotationData) k.next();
-							values.put(tag.getId(), os.loadTags(tag.getId(),
-									true, false, userID, -1));
+                			ob = k.next();
+                			if (ob instanceof TagAnnotationData) {
+                				tag = (TagAnnotationData) ob;
+    							values.put(tag.getId(), os.loadTags(tag.getId(),
+    									true, false, userID, -1));
+                			} else {
+                				ref = (TimeRefObject) ob;
+                				ref.setResults(os.loadFiles(ref.getFileType(), 
+                						userID));
+                				tagResults.add(ref);
+                			}
 						}
                 		k = tags.iterator();
                     	while (k.hasNext()) {
                     		tag = (TagAnnotationData) k.next();
+                    		tagResults.add(tag);
                     		ns = tag.getNameSpace();
 							if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
 							{
@@ -409,7 +419,7 @@ public class DMRefreshLoader
     												tag.getId()));
 							}
     					}
-                		r.put(userID, tags);
+                		r.put(userID, tagResults);
                 	}
                 }
                 results = r;

@@ -136,15 +136,13 @@
                             // this function is executed in the instance's scope (this refers to the tree instance)
                             // the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
                             "data" : function (n) {
+                                var r = { "view" : "tree" };
                                 if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) {
-                                    var r = { "view" : "tree" };
                                     if($("div#content_details").attr("rel")===n.attr("id") && $("div#content_details").has("#page").length > 0) {
                                         r["page"] = parseInt($("div#content_details").find("#page").attr("rel"));
                                     }
-                                    return r;
-                                } else {
-                                    return { "view" : "tree" };
-                                }
+                                } 
+                                return r;
                             }
                         }
                     },
@@ -523,20 +521,14 @@
                 .bind("deselect_node.jstree", function (e, data) {
                     var selected = data.inst.get_selected();
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
-                    if (selected.length < 2) {
+                    if (selected.length === 1 && data.args[0].length > 0) {
                         data.rslt.obj = selected;
                         loadOtherPanels(data.inst, '{% url load_data %}');
-                    } else {
-                        var parent = data.inst._get_parent(data.inst.data.ui.last_selected);
-                        if ($.inArray(parent.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1 ) {
-                            $("div#content_details").attr('rel', parent.attr("id"));
-                            refreshCenterPanel();
-                        }
                     }
                     syncPanels(selected);
                 })
                 .bind("open_node.jstree", function (e, data) {
-                    
+
                 })
                 .bind("create.jstree", function (e, data) {
                     if(data.rslt.parent.attr("rel") == "project") {
@@ -627,7 +619,7 @@
                     }
                 })
                 .bind("remove.jstree", function (e, data) {
-                    data.inst.select_node("li#experimenter-0");
+                    data.inst.deselect_all();
                     
                     var ajax_data = new Array();
                     var q = false;
@@ -662,6 +654,7 @@
                                       data.inst.get_container().find('#'+this.id).each(function() { data.inst.delete_node(this); });
                                   });
                                   refreshProgressBar();
+                                  data.inst.load_node($("li#orphaned-0"));
                               }
                         },
                         error: function(response) {
@@ -870,7 +863,7 @@
     <div style="clear:both"></div>
 
     <div id="metadata_description"></div>
-    <iframe width="370" name="metadata_details"></iframe>
+    <iframe width="370" name="metadata_details" frameborder="0"></iframe>
 </div>
 
 

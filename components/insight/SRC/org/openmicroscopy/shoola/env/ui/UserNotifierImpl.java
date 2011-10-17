@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
@@ -350,10 +349,15 @@ public class UserNotifierImpl
 		if (activity == null) return;
 		ActivityComponent comp = null;
 		boolean register = true;
+		boolean uiRegister = true;
+		boolean startActivity = true;
 		if (activity instanceof MovieActivityParam) {
 			MovieActivityParam p = (MovieActivityParam) activity;
 			comp = new MovieActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof ExportActivityParam) {
+			if (manager.hasRunningActivityOfType(ExportActivity.class)) {
+				startActivity = false;
+			}
 			ExportActivityParam p = (ExportActivityParam) activity;
 			comp = new ExportActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof DownloadActivityParam) {
@@ -362,6 +366,7 @@ public class UserNotifierImpl
 			if (register) {
 				if (!canWriteInFolder(p.getFolder().getParentFile()))
 					return;
+				uiRegister = p.isUIRegister();
 			}
 			comp = new DownloadActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof FigureActivityParam) {
@@ -405,11 +410,13 @@ public class UserNotifierImpl
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();
 			if (loader == null) return;
-			if (register) comp.startActivity();
-			manager.registerActivity(comp, register);
-			EventBus bus = manager.getRegistry().getEventBus();
-			bus.post(new ActivityProcessEvent(comp, false));
-			loader.load();
+			if (startActivity) {
+				if (register) comp.startActivity();
+			}
+			manager.registerActivity(comp, uiRegister);
+			if (startActivity) {
+				manager.startActivity(false, comp);
+			}
 		}
 	}
 	

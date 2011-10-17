@@ -54,6 +54,9 @@ public class ViewObjectEvent
 	/** The UI component used to trigger the event.*/
 	private JComponent source;
 
+	/** Flag indicating to browse the object.*/
+	private boolean		browse;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -64,7 +67,25 @@ public class ViewObjectEvent
 	{
 		this.object = object;
 		this.source = source;
+		browse = false;
 	}
+	
+	/**
+	 * Sets to <code>true</code> to browse the node, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param browse Pass <code>true</code> to browse, <code>false</code>
+	 * 				 otherwise.
+	 */
+	public void setBrowseObject(boolean browse) { this.browse = browse; }
+	
+	/**
+	 * Returns <code>true</code> to browse the node, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean browseObject() { return browse; }
 	
 	/**
 	 * Returns the object to view.

@@ -180,7 +180,7 @@
                 })
                 {% endif %}
 
-                // handle removing of Tag, File, Comment (comment will be deleted if orphaned)
+                // handle deleting of Tag, File, Comment
                 // on successful delete via AJAX, the parent .domClass is hidden
                 var removeItem = function(event, domClass) {
                     var removeId = $(event.target).attr('id');
@@ -222,34 +222,42 @@
                 $(".removeFile").click(function(event) {
                     removeItem(event, "file_ann_wrapper");
                 });
-
-            });
-
-            function deleteItem(productType, productId) {
-                if ((productType == 'file' || productType == 'tag' || productType == 'comment') && productId > 0){
-                    if (confirm('Delete '+productType+'?')) {
-                        var productListQuery="";
+                
+                var deleteItem = function(event, domClass) {
+                    var deleteId = $(event.target).attr('id');
+                    var dType = deleteId.split("-")[1]; // E.g. 461-comment
+                    var annId = parseInt(deleteId);
+                    // /webclient/action/remove/comment/461/?parent=image-257
+                    var parentId = $.trim($("#parent-id").text());
+                    var url = "/webclient/action/delete/"+ dType +"/"+ annId +"/";
+                    var $parent = $(event.target).parents("."+domClass);
+                    if (confirm('Delete '+ dType + '?')) {
                         $.ajax({
                             type: "POST",
-                            url: "/webclient/action/delete/"+productType+"/"+productId+"/", //this.href,
-                            data: productListQuery,
-                            contentType:'html',
-                            success: function(responce){
-                                if(responce.match(/(Error: ([A-z]+))/gi)) {
-                                    alert(responce)
-                                } else {  
+                            url: url,
+                            contentType:'json',
+                            success: function(r){
+                                if(eval(r.bad)) {
+                                    alert(r.errs);
+                                } else {
+                                    // simply remove the item (parent class div)
+                                    $parent.remove();
                                     window.parent.refreshProgressBar();
-                                    window.location = "{{ url }}";
                                 }
                             },
-                            error: function(responce) {
-                                alert("Internal server error. Cannot delete object.");
+                            error: function(response) {
+                                alert("Internal server error. Cannot remove object.");
                             }
                         });
-
                     }
-                } 
-            }
+                    return false;
+                }
+                
+                $(".deleteFile").click(function(event) {
+                    deleteItem(event, "file_ann_wrapper");
+                });
+
+            });
             
     </script>
     
@@ -704,7 +712,7 @@
                                 <img class='removeFile' id="{{ fileann.id }}-file" src="{% url webstatic "images/minus_11.png" %}" title="Unlink"/>
                             {% endif %}
                             {% if fileann.canDelete and not fileann.isOriginalMetadata %}
-                                <input class="button" type="image" src="{% url webstatic "images/cancel12.png" %}" alt="Delete" title="Delete" onclick="deleteItem('file', '{{ fileann.id }}');" />
+                                <input class="deleteFile button" id="{{ fileann.id }}-file" type="image" src="{% url webstatic "images/cancel12.png" %}" alt="Delete" title="Delete"/>
                             {% endif %}
                             <!-- if we have 'volume' data attached - link for viewing in Open-Astex Viewer -->
                             {% ifequal fileann.getFileName|slice:"-3:" 'map' %}

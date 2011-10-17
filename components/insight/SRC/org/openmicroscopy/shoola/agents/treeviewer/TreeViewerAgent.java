@@ -60,9 +60,12 @@ import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * The TreeViewer agent. This agent manages and presents the
@@ -319,7 +322,10 @@ public class TreeViewerAgent
     	
     	if (evt == null) return;
     	Object o = evt.getObject();
-    	if (o instanceof DatasetData || o instanceof ProjectData) {
+    	if (!evt.browseObject()) return;
+    	if (o instanceof DatasetData || o instanceof ProjectData || 
+    		o instanceof PlateData || o instanceof ScreenData ||
+    		o instanceof ImageData || o instanceof FileAnnotationData) {
     		DataObject data = (DataObject) o;
     		ExperimenterData exp = (ExperimenterData) registry.lookup(
     				LookupNames.CURRENT_USER_DETAILS);
@@ -333,8 +339,9 @@ public class TreeViewerAgent
     		long id = -1;
 			if (gp != null) id = gp.getId();
 			TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
-			if (viewer != null && !(data instanceof ImageData))
+			if (viewer != null)  {
 				viewer.browseContainer(data, null);
+			}
 			JComponent src = evt.getSource();
 			if (src != null) src.setEnabled(true);
 				//viewer.findDataObject(data.getClass(), data.getId(), false);

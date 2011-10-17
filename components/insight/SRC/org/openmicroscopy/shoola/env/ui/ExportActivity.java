@@ -138,8 +138,8 @@ public class ExportActivity
 	 */
 	protected void notifyActivityEnd()
 	{
-		viewButton.setText(VIEW_TEXT);
-		viewButton.setVisible(true);
+		//viewButton.setText(VIEW_TEXT);
+		//viewButton.setVisible(true);
 		type.setText(DESCRIPTION_CREATED);
 	}
 	

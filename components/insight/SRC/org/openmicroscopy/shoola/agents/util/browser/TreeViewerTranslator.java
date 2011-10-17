@@ -47,6 +47,8 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
@@ -258,7 +260,7 @@ public class TreeViewerTranslator
         if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(data.getNameSpace())) {
         	Set tags = data.getTags();
             if (tags != null && tags.size() > 0) {
-            	tag.setChildrenLoaded(Boolean.TRUE);
+            	tag.setChildrenLoaded(Boolean.valueOf(true));
             	
                 Iterator i = tags.iterator();
                 AnnotationData tmp;
@@ -513,72 +515,94 @@ public class TreeViewerTranslator
         TreeImageDisplay display;
         List expanded = null;
         //TreeImageSet orphan = null;
+        Object ob;
+        Iterator j;
         while (i.hasNext()) {
         	entry = (Entry) i.next();
-            ho = (DataObject) entry.getKey();
-            if (EditorUtil.isReadable(ho, userID, groupID)) {
-                if (ho instanceof ProjectData) {
-                	if (expandedTopNodes != null)
-                		expanded = (List) expandedTopNodes.get(
-                						ProjectData.class);
-                    display = transformProject((ProjectData) ho, 
-                                                (Set) entry.getValue(), 
-                                                userID, groupID);
-                    if (expanded != null)
-	                    display.setExpanded(expanded.contains(ho.getId()));
-                    results.add(display);
-                } else if (ho instanceof DatasetData) {
-                	if (expandedTopNodes != null)
-                		expanded = 
-                			(List) expandedTopNodes.get(DatasetData.class);
-                	Set r = (Set) entry.getValue(); //should only have one element
-                	Iterator k = r.iterator();
-                	DatasetData element;
-                	while (k.hasNext()) {
-                		element = (DatasetData) k.next();
-                		display = transformDataset(element, userID, groupID);
-                		if (expanded != null) {
-                			display.setExpanded(expanded.contains(ho.getId()));
-                		}
-                			
-                		//orphan.addChildDisplay(display);
-                		results.add(display); 
-                	}
-                } else if (ho instanceof TagAnnotationData) {
-                	if (expandedTopNodes != null)
-                		expanded = 
-                		(List) expandedTopNodes.get(TagAnnotationData.class);
-                	Set r = (Set) entry.getValue(); //should only have one element
-                	Iterator k = r.iterator();
-                	TagAnnotationData element;
-                	Object o;
-                	while (k.hasNext()) {
-                		element = (TagAnnotationData) k.next();
-                		display = transformTag(element, userID, groupID);
-                		if (expanded != null)
-                			display.setExpanded(expanded.contains(ho.getId()));
-                		//orphan.addChildDisplay(display);
-                		results.add(display); 
-                	}
-                } else if (ho instanceof ScreenData) {
-                	if (expandedTopNodes != null)
-                		expanded = (List) expandedTopNodes.get(
-                				ScreenData.class);
-                    display = transformScreen((ScreenData) ho, 
-                            ((ScreenData) ho).getPlates(), userID, groupID);
-                    if (expanded != null)
-	                    display.setExpanded(
-	                    		expanded.contains(ho.getId()));
+        	ob = entry.getKey();
+        	if (ob instanceof DataObject) {
+        		ho = (DataObject) ob;
+        		if (EditorUtil.isReadable(ho, userID, groupID)) {
+                    if (ho instanceof ProjectData) {
+                    	if (expandedTopNodes != null)
+                    		expanded = (List) expandedTopNodes.get(
+                    						ProjectData.class);
+                        display = transformProject((ProjectData) ho, 
+                                                    (Set) entry.getValue(), 
+                                                    userID, groupID);
+                        if (expanded != null)
+    	                    display.setExpanded(expanded.contains(ho.getId()));
+                        results.add(display);
+                    } else if (ho instanceof DatasetData) {
+                    	if (expandedTopNodes != null)
+                    		expanded = 
+                    			(List) expandedTopNodes.get(DatasetData.class);
+                    	Set r = (Set) entry.getValue(); //should only have one element
+                    	Iterator k = r.iterator();
+                    	DatasetData element;
+                    	while (k.hasNext()) {
+                    		element = (DatasetData) k.next();
+                    		display = transformDataset(element, userID, groupID);
+                    		if (expanded != null) {
+                    			display.setExpanded(expanded.contains(
+                    					ho.getId()));
+                    		}
+                    			
+                    		//orphan.addChildDisplay(display);
+                    		results.add(display); 
+                    	}
+                    } else if (ho instanceof TagAnnotationData) {
+                    	if (expandedTopNodes != null)
+                    		expanded = 
+                    		(List) expandedTopNodes.get(TagAnnotationData.class);
+                    	Set r = (Set) entry.getValue(); //should only have one element
+                    	Iterator k = r.iterator();
+                    	TagAnnotationData element;
+                    	Object o;
+                    	while (k.hasNext()) {
+                    		element = (TagAnnotationData) k.next();
+                    		display = transformTag(element, userID, groupID);
+                    		if (expanded != null)
+                    			display.setExpanded(expanded.contains(ho.getId()));
+                    		//orphan.addChildDisplay(display);
+                    		results.add(display); 
+                    	}
+                    } else if (ho instanceof ScreenData) {
+                    	if (expandedTopNodes != null)
+                    		expanded = (List) expandedTopNodes.get(
+                    				ScreenData.class);
+                        display = transformScreen((ScreenData) ho, 
+                                ((ScreenData) ho).getPlates(), userID, groupID);
+                        if (expanded != null)
+    	                    display.setExpanded(
+    	                    		expanded.contains(ho.getId()));
 
-                    results.add(display);
-                } else if (ho instanceof PlateData) {
-                	display = transformPlate((PlateData) ho, null,
-                			userID, groupID);
-                	if (expanded != null)
-                		display.setExpanded(expanded.contains(ho.getId()));
-                	results.add(display);
-                }
-            }
+                        results.add(display);
+                    } else if (ho instanceof PlateData) {
+                    	display = transformPlate((PlateData) ho, null,
+                    			userID, groupID);
+                    	if (expanded != null)
+                    		display.setExpanded(expanded.contains(ho.getId()));
+                    	results.add(display);
+                    }
+        		} 
+        	} else if (ob instanceof TreeImageSet) {
+        		display = (TreeImageSet) ob;
+        		Collection values = (Collection) entry.getValue();
+                j = values.iterator();
+                display.setExpanded(Boolean.valueOf(true));
+                while (j.hasNext()) {
+                	ho = (DataObject) j.next();
+                	if (EditorUtil.isReadable(ho, userID, groupID)) {
+                		if (ho instanceof TagAnnotationData) {
+                			display.addChildDisplay( 
+                			transformTag((TagAnnotationData) ho, userID,
+                					groupID));
+                		}
+                	}
+    			}
+                results.add(display);
+    		}
         }
         return results;
     }

@@ -97,16 +97,13 @@
                 
                 if($clickedImage.parent().hasClass("ui-selected")) {
                     $clickedImage.parent().removeClass("ui-selected");
-                    loadMetadataPanel(null,'/webclient/metadata_details/plate/'+datatree.get_selected().attr('id').split('-')[1]+'/')
                 } else {
                     $clickedImage.parent().addClass("ui-selected");
-                    loadMetadataPanel('/webclient/metadata_details/well/'+$clickedImage.parent().attr('id').split('-')[1]+'/?index={{index}}')
                 }
             }
             else {
                 thumbs.parent().removeClass("ui-selected");
                 $clickedImage.parent().addClass("ui-selected");
-                loadMetadataPanel('/webclient/metadata_details/well/'+$clickedImage.parent().attr('id').split('-')[1]+'/?index={{index}}')
                 primaryIndex = selIndex;
             }
         }
@@ -116,6 +113,18 @@
             wpv.self.bind('thumbLoad', function (ev, pelm, elm) {
                 elm.bind('click', function(event){
                     handleClickSelection(event);
+                    var $selected = $('td.ui-selected', wpv.self);
+                    if ($selected.length > 1) {
+                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% url webstatic "images/knotes16.png" %}"/> Batch Annotate</a></p>');
+                        $("#batchAnnotate").click(function() {
+                            multipleAnnotation($selected, {{ index }});
+                            return false;
+                        });
+                    } else {
+                        $selected.each(function(i){
+                            loadMetadataPanel('/webclient/metadata_details/well/'+$(this).attr('id').split('-')[1]+'/');
+                        });
+                    }
                 }).bind('dblclick', function(){
                     openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
                 });

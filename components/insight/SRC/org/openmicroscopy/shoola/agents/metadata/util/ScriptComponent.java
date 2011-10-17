@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.Iterator;
@@ -117,6 +118,25 @@ class ScriptComponent
 	/** The parent of the component. */
 	private ScriptComponent parent;
 	
+	/** 
+	 * Iterates through the components and sets the background color.
+	 * 
+	 * @param c The component to handle
+	 * @param background The color to set.
+	 */
+	private void setComponentColor(JComponent c, Color background)
+	{
+		c.setBackground(background);
+		if (c.getComponentCount() > 0) {
+			Component[] components = c.getComponents();
+			for (int i = 0; i < components.length; i++) {
+				if (components[i] instanceof JComponent) {
+					setComponentColor((JComponent) components[i], background);
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Creates a row.
 	 * 
@@ -128,6 +148,7 @@ class ScriptComponent
 		row.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		row.add(getLabel());
 		row.add(getComponent());
+		setComponentColor(row, ScriptingDialog.BG_COLOR);
 		return row;
 	}
 	
@@ -214,10 +235,14 @@ class ScriptComponent
 	{
 		if (component == null)
 			throw new IllegalArgumentException("No component specified.");
+		if (name == null) name = DEFAULT_TEXT;
 		this.component = component;
 		this.name = name;
 		parentIndex = null;
 		//format
+		if (!name.equals(DEFAULT_TEXT))
+			name = " "+name+":";
+		
 		if (name.contains(ScriptObject.PARAMETER_SEPARATOR)) {
 			label = UIUtilities.setTextFont(name.replace(
 					ScriptObject.PARAMETER_SEPARATOR, 
@@ -306,7 +331,6 @@ class ScriptComponent
 			Iterator<ScriptComponent> i = children.iterator();
 			ScriptComponent child;
 			setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-			
 			add(createRow(), "0, 0");
 			int index = 1;
 			while (i.hasNext()) {
@@ -318,18 +342,7 @@ class ScriptComponent
 			}
 		}
 	}
-	
-	Object getParentValue()
-	{
-		if (parent != null) {
-			Object v = parent.getValue();
-			if (v instanceof Boolean) {
-				boolean b = ((Boolean) v).booleanValue();
-				if (!b) return null;
-			}
-		}
-		return null;
-	}
+
 	/** 
 	 * Returns the value associated to a script.
 	 * 

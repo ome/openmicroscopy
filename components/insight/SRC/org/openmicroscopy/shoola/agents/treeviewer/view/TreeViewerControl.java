@@ -59,7 +59,6 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -896,8 +895,9 @@ class TreeViewerControl
 									TreeViewer.CREATE_OBJECT);
 			}
 		} else if (DataBrowser.ADDED_TO_DATA_OBJECT_PROPERTY.equals(name)) {
-			Browser browser =  model.getSelectedBrowser();
-			if (browser != null) browser.refreshLoggedExperimenterData();
+			//Browser browser =  model.getSelectedBrowser();
+			//if (browser != null) browser.refreshLoggedExperimenterData();
+			model.refreshTree();
 		} else if (DataBrowser.COPY_RND_SETTINGS_PROPERTY.equals(name)) {
 			Object data = pce.getNewValue();
 			if (data != null) model.copyRndSettings((ImageData) data);
