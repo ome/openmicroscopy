@@ -1901,7 +1901,8 @@ def image_as_map(request, imageId, **kwargs):
         originalFile_data = FileWrapper(temp)
         rsp = HttpResponse(originalFile_data)
         rsp['Content-Type'] = 'application/force-download'
-        rsp['Content-Length'] = temp.tell()
+        #rsp['Content-Length'] = temp.tell()
+        rsp['Content-Length'] =os.path.getsize(temp.name)
         rsp['Content-Disposition'] = 'attachment; filename=%s' % downloadName
         temp.seek(0)
     except Exception, x:
