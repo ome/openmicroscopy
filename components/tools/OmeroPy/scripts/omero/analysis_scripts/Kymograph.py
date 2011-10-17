@@ -364,6 +364,27 @@ def processImages(conn, scriptParams):
             else:
                 print "ROI: %s had no lines or polylines" % roi.getId().getValue()
         
+        
+        # look-up the interval for each time-point
+        tInterval = None
+        infos = list (pixels.copyPlaneInfo(theC=0, theT=sizeT-1, theZ=0))
+        if len(infos) > 0:
+            duration = infos[0].deltaT
+            print "duration", duration
+            tInterval = duration/(sizeT-1)
+        elif pixels.timeIncrement is not None:
+            print "pixels.timeIncrement", pixels.timeIncrement
+            tInterval = pixels.timeIncrement
+        elif "Time_Increment" in scriptParams:
+            tInterval = scriptParams["Time_Increment"]
+        
+        pixel_size = None
+        if pixels.physicalSizeX is not None:
+            pixel_size = pixels.physicalSizeX
+        elif "Pixel_Size" in scriptParams:
+            pixel_size = scriptParams['Pixel_Size']
+        
+        
         # Save channel names and colors for each new image
         for img in newImages:
             print "Applying channel Names:", cNames, " Colors:", colors
@@ -380,6 +401,16 @@ def processImages(conn, scriptParams):
                 cObj.alpha = omero.rtypes.rint(255)
                 conn.getUpdateService().saveObject(cObj)
             img.resetRDefs()  # reset based on colors above
+            
+            # If we know pixel sizes, set them on the new image
+            if pixel_size is not None or tInterval is not None:
+                px = conn.getQueryService().get("Pixels", img.getPixelsId())
+                if pixel_size is not None:
+                    px.setPhysicalSizeX(rdouble(pixel_size))
+                if tInterval is not None:
+                    t_per_pixel = tInterval / lineWidth
+                    px.setPhysicalSizeY(rdouble(t_per_pixel))
+                conn.getUpdateService().saveObject(px)
         newKymographs.extend(newImages)
     
     return newKymographs
@@ -402,6 +433,12 @@ Kymographs are created in the form of new OMERO Images, with single Z and T, sam
     
     scripts.Bool("Use_All_Timepoints", grouping="4", default=True,
         description="Use every timepoint in the kymograph. If False, only use timepoints with ROI-shapes"),
+
+    scripts.Float("Time_Increment", grouping="5",
+        description="If source movie has no time info, specify increment per time point (secs)"),
+
+    scripts.Float("Pixel_Size", grouping="6",
+        description="If source movie has no Pixel size info, specify pixel size (microns)"),
 
     version = "4.3.3",
     authors = ["William Moore", "OME Team"],
