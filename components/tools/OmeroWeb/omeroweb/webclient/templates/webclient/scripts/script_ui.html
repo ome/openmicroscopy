@@ -74,10 +74,8 @@
                 popupActivites('{% url status %}').close();
                 
                 var actWindow = popupActivites('{% url status %}');
-                console.log("submit... actWindow: " + actWindow);
                 window.opener.activities_Window = actWindow;    // allows webclient window to update Activities window
                 actWindow.webclient_window = window.opener;
-                console.log("submit2. actWindow.webclient_window: " + actWindow.webclient_window);
                 $('#script_form').runScript(actWindow);
                 e.preventDefault();
                 return false;

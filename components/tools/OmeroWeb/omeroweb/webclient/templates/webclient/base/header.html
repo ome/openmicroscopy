@@ -50,15 +50,9 @@
     }
 
     var refreshProgressBar = function() {
-        console.log('refreshProgressBar...');
         if (window.activities_Window) {
-            console.log('Checking for refresh... ' + activities_Window);
-            //activities_Window.location.href = '{% url status %}';
-            //activities_Window.webclient_window = window;        // this will have got wiped by refresh
             if (window.activities_Window.refresh_page) {
-                console.log("Let's refresh.....now");
                 window.activities_Window.refresh_page();
-                console.log('Refreshed ' + activities_Window.webclient_window);
             };
             window.activities_Window.webclient_window = window;
             //activities_Window.testBrowseParent();

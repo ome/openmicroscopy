@@ -49,15 +49,11 @@
 
 
         var browseParent = function(url) {
-            console.log("window.opener " + window.opener);
-            console.log("window.webclient_window " + window.webclient_window);
             if ((window.webclient_window != undefined) && (window.webclient_window != null)) {
-                console.log("Trying to browse window.webclient_window...");
                 window.webclient_window.location.href = url;
                 if (!window.webclient_window.closed) window.webclient_window.focus();
             } 
             else if ((window.opener != undefined) && (window.opener != null)) {
-                console.log("Trying to browse window.opener...");
                 window.opener.location.href = url;
                 if (!window.opener.closed) window.opener.focus();
             }
@@ -200,13 +196,10 @@
 
         var refresh_page = function() {
             $("#activities_content").load("{% url status %}?content_only=true", content_loaded);
-            console.log("refresh_page window.opener " + window.opener);
-            console.log("refresh_page window.webclient_window " + window.webclient_window);
         }
         
         // bind various actions to elements in the table. Call this after first load, or table refreshed.
         var content_loaded = function() {
-            console.log('content_loaded');
             
             $("#jobsTable").alternateRowColors();
             setupResultOptions();
@@ -243,14 +236,10 @@
 
         $(document).ready(function() {
 
-            console.log("OPEN: window.opener " + window.opener);
-            console.log("OPEN: window.webclient_window " + window.webclient_window);
-
             // bind drop-down lists etc
             content_loaded();
 
             $("#refresh_page").click(function(e){
-                console.log('refresh...');
                 refresh_page();
                 e.preventDefault();
                 return false;
