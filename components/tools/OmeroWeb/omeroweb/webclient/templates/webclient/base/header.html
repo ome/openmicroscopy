@@ -25,8 +25,10 @@
 {% ifnotequal nav.menu "status" %}
 <script>
 
+    var activities_Window = null;
+    
     var launchActivities = function() {
-        var actWindow = popupActivites('{% url status %}');
+        activities_Window = popupActivites('{% url status %}');
     }
 
     // this is called by the setInterval loop below
@@ -50,7 +52,10 @@
     }
 
     var refreshProgressBar = function() {
-        refreshActivitiesWindow('{% url status %}');
+        if (activities_Window != undefined) {
+            activities_Window.location.href = '{% url status %}';
+            activities_Window.webclient_window = window;        // this will have got wiped by refresh
+        }
         progressAjaxUpdate();
         var i = setInterval(function (){
                 progressAjaxUpdate(i);

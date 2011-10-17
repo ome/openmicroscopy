@@ -52,22 +52,17 @@
                 success: function(data){
                     $.ajaxSetup({ cache: true });
                     if(data.status == 'in progress') {
-                        // we don't try to open 'Activities' window here, since it triggers popup blockers...
-                        actWindow.location.href = '{% url status %}';   //...but we can refresh
-                        window.opener.refreshProgressBar();
+                        window.opener.refreshProgressBar();     // also refreshes Activities window
                         self.close();
                     }
                     else {
-                        // error is stored in http session - displayed in 'Activities' window.
-                        actWindow.location.href = '{% url status %}';
-                        window.opener.refreshProgressBar();
+                        window.opener.refreshProgressBar();     // also refreshes Activities window
                         self.close();
                     }
                 },
                 error: function(data) {
-                    actWindow.location.href = '{% url status %}';
                     window.opener.refreshProgressBar();
-                    //self.close();
+                    self.close();
                 }
             });
             return false;
@@ -75,10 +70,10 @@
 
 
         $(document).ready(function() {
-            $("#submit").click(function(){
+            $("#submit").click(function(e){
                 var actWindow = popupActivites('{% url status %}');
-                actWindow.webclient_window = window.opener;
-                // pass the window to runScript() so we can refresh the window on AJAX callback.
+                window.opener.activities_Window = actWindow;    // allows webclient window to update Activities window
+
                 $('#script_form').runScript(actWindow);
                 e.preventDefault();
                 return false;
