@@ -2729,6 +2729,8 @@ def status_action (request, action=None, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     template = "webclient/status/statusWindow.html"
+    if request.REQUEST.get('content_only'):
+        template = "webclient/status/activitiesContent.html"
 
     _purgeCallback(request)
 

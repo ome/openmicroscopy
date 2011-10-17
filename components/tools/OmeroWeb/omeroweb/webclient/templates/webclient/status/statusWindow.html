@@ -47,13 +47,19 @@
             $(".script_error input[type='submit']").click(submitError);
         }
 
+
         var browseParent = function(url) {
-            if ((window.opener != undefined) && (window.opener != null)) {
-                window.opener.location.href = url;
-                if (!window.opener.closed) window.opener.focus();
-            } else if ((window.webclient_window != undefined) && (window.webclient_window != null)) {
+            console.log("window.opener " + window.opener);
+            console.log("window.webclient_window " + window.webclient_window);
+            if ((window.webclient_window != undefined) && (window.webclient_window != null)) {
+                console.log("Trying to browse window.webclient_window...");
                 window.webclient_window.location.href = url;
                 if (!window.webclient_window.closed) window.webclient_window.focus();
+            } 
+            else if ((window.opener != undefined) && (window.opener != null)) {
+                console.log("Trying to browse window.opener...");
+                window.opener.location.href = url;
+                if (!window.opener.closed) window.opener.focus();
             }
             return false;
         }
@@ -192,23 +198,17 @@
           return this;
         };
 
-        $(document).ready(function() {
-
+        var refresh_page = function() {
+            $("#activities_content").load("{% url status %}?content_only=true", content_loaded);
+            console.log("refresh_page window.opener " + window.opener);
+            console.log("refresh_page window.webclient_window " + window.webclient_window);
+        }
+        
+        // bind various actions to elements in the table. Call this after first load, or table refreshed.
+        var content_loaded = function() {
+            console.log('content_loaded');
+            
             $("#jobsTable").alternateRowColors();
-
-            // make an AJAX call to update all 'in progress' callbacks in the web session and return current status
-            var i = setInterval(function (){
-                $.ajaxSetup({ cache: false });
-                $.getJSON("{% url progress %}", function(data) {
-                    update_ui(data);
-                    if (data.inprogress == 0) {
-                        clearInterval(i);
-                    }
-                    $.ajaxSetup({ cache: true });
-                });
-            }, 3000);
-
-            // bind drop-down lists etc
             setupResultOptions();
 
             $(".remove").click(function() {
@@ -226,7 +226,36 @@
                     error: function(r){}
                 });
 
-            })
+            });
+        }
+
+        $(document).ready(function() {
+            
+            console.log("OPEN: window.opener " + window.opener);
+            console.log("OPEN: window.webclient_window " + window.webclient_window);
+
+            // make an AJAX call to update all 'in progress' callbacks in the web session and return current status
+            var i = setInterval(function (){
+                $.ajaxSetup({ cache: false });
+                $.getJSON("{% url progress %}", function(data) {
+                    update_ui(data);
+                    if (data.inprogress == 0) {
+                        clearInterval(i);
+                    }
+                    $.ajaxSetup({ cache: true });
+                });
+            }, 3000);
+
+            // bind drop-down lists etc
+            content_loaded();
+
+            $("#refresh_page").click(function(e){
+                console.log('refresh...');
+                refresh_page();
+                e.preventDefault();
+                return false;
+            });
+            
         });
     </script>
 
@@ -290,181 +319,20 @@
     <div id="toolbar" style="background:#ddd; padding: 4px">
         <input style="float:right" class="button" type="submit" value="Clear List" alt="Clean" title="Clean" onclick="document.location.href='{% url status "clean" %}';">
         <div>
-            <a href="{% url status %}" style="text-decoration:none; position:absolute; top:3px; left:3px; font-size: 90%; color:#666" title="Refresh the Activities list">
-            <img src="{% url webstatic 'images/reload16.png' %}" style="position:relative; top:3px; left:0px; float:left" border='0' />
-            <div style="margin: 3px; position:absolute; top:0px; left:17px">Refresh</div>
-        </a>
+            <a href="#" id='refresh_page' style="text-decoration:none; position:absolute; top:3px; left:3px; font-size: 90%; color:#666" title="Refresh the Activities list">
+                <img src="{% url webstatic 'images/reload16.png' %}" style="position:relative; top:3px; left:0px; float:left" border='0' />
+                <div style="margin: 3px; position:absolute; top:0px; left:17px">Refresh</div>
+            </a>
         </div>
         <div style="clear:both"> </div>
     </div>
 
     {% if sizeOfJobs %}
 
-        <table id="jobsTable" width="100%" cellpadding="6" cellspacing="0" border="0">
-
-            <tbody>
-                {% for j in jobs %}
-
-                    <!-- Delete jobs -->
-                    {% ifequal j.job_type "delete" %}
-                        <tr id="{{ j.id }}">
-                            <td width="25px">
-                                {% ifequal j.status "in progress" %}<img class="icon" src="{% url webstatic 'images/spinner.gif' %}" />
-                                {% else %} <img class="icon" src="{% url webstatic 'images/nuvola_apply22.png' %}" />
-                                {% endifequal %}
-                            </td>
-                            <td width="50%">
-                                {% if j.delmany %}
-                                    <h4>
-                                        Delete {{ j.delmany }} {{ j.dtype }}s:
-                                        <span class="status">{{ j.status }}</span>
-                                    </h4>
-                                    <div class="message">
-                                    {% for iid in j.did %}
-                                        {% ifequal j.status "failed" %}
-                                            <a onclick="loadMetadata('{% url load_metadata_details j.dtype iid %}');">{{ j.dtype }} {{ iid }}</a>,
-                                        {% else %}
-                                            {{ j.dtype }} {{ iid }},
-                                        {% endifequal %}
-                                    {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <h4>
-                                        Delete {{ j.dtype }}:
-                                        <span class="status">{{ j.status }}</span>
-                                    </h4>
-                                    <div class="message">
-                                    {% ifequal j.status "failed" %}
-                                        <a onclick="loadMetadata('{% url load_metadata_details j.dtype j.did %}');">{{ j.dtype }} {{ j.did }}</a>
-                                    {% else %}
-                                        {{ j.dtype }} {{ j.did }}
-                                    {% endifequal %}
-                                    </div>
-                                {% endif %}
-
-                            </td>
-                            <td class="action">
-                                    {% if j.dreport %}{{ j.derror }} error(s) ({{ j.dreport }}){% endif %}
-                            </td>
-                            <td width="16px">
-                                <img id="{{ j.key }}" title="Remove from list" src="{% url webstatic 'images/nuvola_cancel16.png' %}" class="remove" />
-                            </td>
-                            <td width="40px">{{ j.start_time|date:"H:i" }}</td>
-                        </tr>
-                    {% endifequal %}
-
-
-                    <!-- Scripts -->
-                    {% ifequal j.job_type "script" %}
-                        <tr class="script" id="{{ j.id }}">
-                            <td width="25px">
-                                {% ifequal j.status "in progress" %}<img class="icon" src="{% url webstatic 'images/spinner.gif' %}" />
-                                {% else %} <img class="icon" src="{% url webstatic 'images/tango_text-x-python16.png' %}" />
-                                {% endifequal %}
-                            </td>
-                            <td width="50%">
-                                <h4>
-                                    {{ j.job_name }}:
-                                    <span class="status">{{ j.status }}</span>
-                                </h4>
-                                <div class="message">{{ j.Message }}</div>
-                            </td>
-                            <td class="results" align="middle">
-                                {% if j.error %}
-                                    <div class='script_error' title="{{ j.error }}">
-                                        Failure
-                                        {% comment %}
-                                        <!-- Don't allow submitting now. TODO: launch submit page -->
-                                        <img src="{% url webstatic 'images/info16.png' %}"/>
-                                        <input type='submit' title="Send Error as Feeback to the OME team" jobKey="{{ j.key }}"
-                                        {% if j.error_sent %}
-                                            value='Thank you' disabled='true'
-                                        {% else %}
-                                            value='Submit Feedback'
-                                        {% endif %} />
-                                        {% endcomment %}
-                                    </div>
-                                {% endif %}
-
-                                {% for k,v in j.results.iteritems %}
-                                    <div>
-                                        {% if v.type and v.id %}
-                                            <span class="result">
-                                            <!-- Handle robjects, E.g. ImageI, FileAnnotation etc -->
-                                            <a href="#" title="Script Result: '{{ k }}'">
-                                            {% if v.name %} {{ v.name|truncatebefor:"30" }} {% else %} {{ v.type }} ID: {{ v.id }} {% endif %}
-                                            </a>
-                                                <ul class="resultOptions">
-                                                    {% if v.browse_url %}
-                                                        <li><a href='#' onClick="return browseParent('{{ v.browse_url}}');" title="Navigate to {{ v.type }} in the main window">
-                                                            Go to {% ifequal v.type "FileAnnotation" %} Attachment {% else %} {{ v.type }} {% endifequal %}
-                                                        </a></li>
-                                                    {% endif %}
-
-                                                    {% ifequal v.type "FileAnnotation" %}
-                                                        <li><a href="{% url download_annotation 'download' v.id %}" title="Download File">
-                                                            Download
-                                                        </a></li>
-                                                        {% if v.fileId %}
-                                                            <li><a href="#" onClick="return openPopup('{% url get_original_file v.fileId %}');">View {{ v.fileType }}</a></li>
-                                                        {% endif %}
-                                                    {% else %}
-                                                        {% ifequal v.type "Image" %}
-                                                            <li><a href="#" onClick="return openPopup('{% url webgateway.views.full_viewer v.id %}');" title="Open Image in Viewer">
-                                                                View Image
-                                                            </a></li>
-                                                        {% endifequal %}
-                                                    {% endifequal %}
-                                                    
-                                                    <!-- add stderr and stdout to first result only -->
-                                                    {% if forloop.first %}
-                                                        {% if j.stderr %}
-                                                            <li><a href="#" onClick="return openPopup('{% url get_original_file j.stderr %}');"
-                                                                title="Show error produced by the script">
-                                                                Error
-                                                            </a></li>
-                                                        {% endif %}
-                                                        {% if j.stdout %}
-                                                            <li><a href="#" onClick="return openPopup('{% url get_original_file j.stdout %}');" 
-                                                                title="Show additional info generated by the script">
-                                                                Info
-                                                            </a></li>
-                                                        {% endif %}
-                                                    {% endif %}
-                                                </ul>
-                                            </span>
-                                        {% else %}
-                                            <!-- Handle rtypes (already unwrapped) -->
-                                            <span title="Script Result: '{{ k }}'">
-                                            {{ v }}
-                                            </span>
-                                        {% endif %}
-                                    </div>
-                                {% endfor %}
-                                
-                                <!-- if there were no results items, we have to display info and error here -->
-                                {% if not j.results %}
-                                    <div class="error" style='float:left'>
-                                        {% if j.stderr %}<a href="#" onClick="return openPopup('{% url get_original_file j.stderr %}');">Error</a>{% endif %}
-                                    </div>
-                                    <div class="info">
-                                        {% if j.stdout %}<a href="#" onClick="return openPopup('{% url get_original_file j.stdout %}');">Info</a>{% endif %}
-                                    </div>
-                                {% endif %}
-                            </td>
-                            <td width="16px">
-                                <img id="{{ j.key }}" title="Remove from list" src="{% url webstatic 'images/nuvola_cancel16.png' %}" class="remove" />
-                            </td>
-                            <td width="40px">{{ j.start_time|date:"H:i" }}</td>
-                        </tr>
-                    {% endifequal %}
-                {% endfor %}
-            </tbody>
-        </table>
-
-        </div>
-
-
+    <div id='activities_content'>
+        {% include 'webclient/status/activitiesContent.html' %}
+    </div>
+    
     {% else %}
         <p>{% trans "There are no jobs" %}</p>
     {% endif %}

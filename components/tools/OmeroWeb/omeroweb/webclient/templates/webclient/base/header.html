@@ -24,8 +24,6 @@
 
 {% ifnotequal nav.menu "status" %}
 <script>
-
-    var activities_Window = null;
     
     var launchActivities = function() {
         activities_Window = popupActivites('{% url status %}');
@@ -52,9 +50,18 @@
     }
 
     var refreshProgressBar = function() {
-        if (activities_Window != undefined) {
-            activities_Window.location.href = '{% url status %}';
-            activities_Window.webclient_window = window;        // this will have got wiped by refresh
+        console.log('refreshProgressBar...');
+        if (window.activities_Window) {
+            console.log('Checking for refresh... ' + activities_Window);
+            //activities_Window.location.href = '{% url status %}';
+            //activities_Window.webclient_window = window;        // this will have got wiped by refresh
+            if (window.activities_Window.refresh_page) {
+                console.log("Let's refresh.....now");
+                window.activities_Window.refresh_page();
+                console.log('Refreshed ' + activities_Window.webclient_window);
+            };
+            window.activities_Window.webclient_window = window;
+            //activities_Window.testBrowseParent();
         }
         progressAjaxUpdate();
         var i = setInterval(function (){
