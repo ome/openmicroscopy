@@ -103,12 +103,12 @@
                         var infoLink = "";
                         if (cbMap["stdout"]) {
                             var info_url = $("#original_file_link").text().replace("0", cbMap["stdout"]);
-                            infoLink = "<a href='#' onClick=\"return openPopup('" + info_url + "');\">Info</a>";
+                            infoLink = "<a href='#' onClick=\"return openPopup('" + info_url + "');\"> Info </a>";
                         }
                         var errLink = "";
                         if (cbMap["stderr"]) {
                             var err_url = $("#original_file_link").text().replace("0", cbMap["stderr"]);
-                            errLink = "<a href='#' onClick=\"return openPopup('" + err_url + "');\">Error</a>";
+                            errLink = "<a href='#' onClick=\"return openPopup('" + err_url + "');\"> Error </a>";
                         }
                         
                         var infoErrShown = false;
@@ -171,10 +171,10 @@
                         // if we have no results, put Info and Error at top (instead of in menus)
                         if (!infoErrShown) {
                             if (cbMap["stderr"]) {
-                                rHtml += errLink;
+                                rHtml += "<div class='error' style='float:left'>" + errLink + "</div>";
                             }
                             if (cbMap["stdout"]) {
-                                rHtml += infoLink;
+                                rHtml +="<div class='info'>" +  infoLink + "</div>";
                             }
                         }
                         $jobRow.find(".results").html(rHtml);
