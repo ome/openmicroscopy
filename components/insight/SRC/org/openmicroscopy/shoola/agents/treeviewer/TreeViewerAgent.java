@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -191,17 +192,26 @@ public class TreeViewerAgent
 		return false;
 	}
 	
-    /**
-     * Returns <code>true</code> if the Screening data are displayed first,
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    public static boolean isSPWFirst()
+	/**
+	 * Returns the default hierarchy i.e. P/D, HCS etc.
+	 * 
+	 * @return See above.
+	 */
+    public static int getDefaultHierarchy()
     {
-    	Boolean type = (Boolean) registry.lookup("BrowserSPW");
-    	if (type == null) return false;
-		return type;
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env == null) return Browser.PROJECTS_EXPLORER;
+    	switch (env.getDefaultHierarchy()) {
+			case LookupNames.PD_ENTRY:
+				return Browser.PROJECTS_EXPLORER;
+			case LookupNames.HCS_ENTRY:
+				return Browser.SCREENS_EXPLORER;
+			case LookupNames.TAG_ENTRY:
+				return Browser.TAGS_EXPLORER;
+			case LookupNames.ATTACHMENT_ENTRY:
+				return Browser.FILES_EXPLORER;
+		}
+    	return Browser.PROJECTS_EXPLORER;
     }
     
     /**

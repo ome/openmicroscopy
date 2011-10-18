@@ -196,30 +196,67 @@ class TreeViewerWin
     		container = new JXTaskPaneContainerSingle();
     		container.addPropertyChangeListener(controller);
     		JXTaskPane pane;
-    		if (TreeViewerAgent.isSPWFirst()) {
-    			 browser = browsers.get(Browser.SCREENS_EXPLORER);
-    			 pane = new TaskPaneBrowser(browser);
-    			 firstPane = pane;
-    			 container.add(pane);
-    			 browser = browsers.get(Browser.PROJECTS_EXPLORER);
-    			 container.add(new TaskPaneBrowser(browser));
-    		} else {
-    			browser = browsers.get(Browser.PROJECTS_EXPLORER);
-    			pane = new TaskPaneBrowser(browser);
-   			 	firstPane = pane;
-   			 	container.add(pane);
-   			 	browser = browsers.get(Browser.SCREENS_EXPLORER);
-   			 	container.add(new TaskPaneBrowser(browser));
-    		}
-            
+    		switch (TreeViewerAgent.getDefaultHierarchy()) {
+				case Browser.PROJECTS_EXPLORER:
+					browser = browsers.get(Browser.PROJECTS_EXPLORER);
+					pane = new TaskPaneBrowser(browser);
+					firstPane = pane;
+					container.add(pane);
+					browser = browsers.get(Browser.SCREENS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+
+					browser = browsers.get(Browser.FILES_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+
+					browser = browsers.get(Browser.TAGS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+					break;
+				case Browser.SCREENS_EXPLORER:
+					browser = browsers.get(Browser.SCREENS_EXPLORER);
+					pane = new TaskPaneBrowser(browser);
+					firstPane = pane;
+					container.add(pane);
+					browser = browsers.get(Browser.PROJECTS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+
+					browser = browsers.get(Browser.FILES_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+
+					browser = browsers.get(Browser.TAGS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+					break;
+				case Browser.TAGS_EXPLORER:
+					browser = browsers.get(Browser.TAGS_EXPLORER);
+					pane = new TaskPaneBrowser(browser);
+					firstPane = pane;
+					container.add(pane);
+					browser = browsers.get(Browser.PROJECTS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+
+					browser = browsers.get(Browser.SCREENS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+
+					browser = browsers.get(Browser.FILES_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+					break;
+				case Browser.FILES_EXPLORER:
+					browser = browsers.get(Browser.FILES_EXPLORER);
+					pane = new TaskPaneBrowser(browser);
+					firstPane = pane;
+					container.add(pane);
+					browser = browsers.get(Browser.PROJECTS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+
+					browser = browsers.get(Browser.SCREENS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+					browser = browsers.get(Browser.TAGS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+			}
+    		
     		//browser = (Browser) browsers.get(Browser.FILE_SYSTEM_EXPLORER);
     		//container.add(new TaskPaneBrowser(browser));
              
-            browser = browsers.get(Browser.FILES_EXPLORER);
-            container.add(new TaskPaneBrowser(browser));
             
-            browser = browsers.get(Browser.TAGS_EXPLORER);
-            container.add(new TaskPaneBrowser(browser));
             
             browser = browsers.get(Browser.IMAGES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));

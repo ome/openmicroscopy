@@ -33,7 +33,9 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
@@ -163,7 +165,21 @@ public class ImporterAgent
     	Importer importer = ImporterFactory.getImporter(id);
     	if (importer != null) {
     		//get type from config
-    		importer.activate(Importer.PROJECT_TYPE, null, null);
+    		Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    		int type = Importer.PROJECT_TYPE;
+        	if (env != null) {
+        		switch (env.getDefaultHierarchy()) {
+        			case LookupNames.PD_ENTRY:
+        			default:
+        				type = Importer.PROJECT_TYPE;
+        				break;
+        			case LookupNames.HCS_ENTRY:
+        				type = Importer.SCREEN_TYPE;
+        		}
+        	}
+    		
+    		
+    		importer.activate(type, null, null);
     	}
     }
 

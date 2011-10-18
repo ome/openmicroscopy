@@ -113,14 +113,7 @@ public class ImportAction
      */
     protected void onBrowserSelection(Browser browser)
     {
-    	int type = Browser.PROJECTS_EXPLORER;
-    	if (browser == null) {
-    		if (TreeViewerAgent.isSPWFirst()) 
-    			type = Browser.SCREENS_EXPLORER;
-    	} else {
-    		if (browser.getBrowserType() == Browser.SCREENS_EXPLORER)
-        		type = Browser.SCREENS_EXPLORER;
-    	}
+    	int type = TreeViewerAgent.getDefaultHierarchy();
     	setActionDescription(type);
     }
     
@@ -170,10 +163,7 @@ public class ImportAction
 		super(model);
 		this.noNode = noNode;
 		name = NAME;
-		int type = Browser.PROJECTS_EXPLORER;
-		if (TreeViewerAgent.isSPWFirst()) 
-			type = Browser.SCREENS_EXPLORER;
-		setActionDescription(type);
+		setActionDescription(TreeViewerAgent.getDefaultHierarchy());
 		IconManager im = IconManager.getInstance();
 		putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
 	}
