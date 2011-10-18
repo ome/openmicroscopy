@@ -33,7 +33,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -150,7 +149,6 @@ public class ImporterAgent
     public void activate(boolean master)
     {
     	if (!master) return;
-
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
     			LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
@@ -164,7 +162,6 @@ public class ImporterAgent
     	if (gp != null) id = gp.getId();
     	Importer importer = ImporterFactory.getImporter(id);
     	if (importer != null) {
-    		//get type from config
     		Environment env = (Environment) registry.lookup(LookupNames.ENV);
     		int type = Importer.PROJECT_TYPE;
         	if (env != null) {

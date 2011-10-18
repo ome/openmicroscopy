@@ -279,9 +279,9 @@ public class LookupNames
     
     /** Field to access the <code>Entry Point</code> information. */
 	public static final String ENTRY_POINT = "/application/entryPoint";
-	
+
 	/** Field to access the <code>Entry Point</code> information. */
 	public static final String ENTRY_POINT_HIERARCHY = 
 		"/application/entryPointHierarchy";
-    
+
 }
