@@ -39,43 +39,54 @@
     <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
 
     <script type="text/javascript">
-        jQuery.fn.runScript = function() {
+        jQuery.fn.runScript = function(actWindow) {
             var $form = $(this);
             var postData = $form.serialize();
-            var actionUrl = $form.attr('action');
+            var actionUrl="{% url script_run paramData.id %}";
+            $.ajaxSetup({ cache: false });
             $.ajax({
                 type: "POST",
                 url: actionUrl,
                 data: postData,
                 contentType:'json',
                 success: function(data){
+                    $.ajaxSetup({ cache: true });
                     if(data.status == 'in progress') {
-                        // we don't try to open 'Activities' window here, since it triggers popup blockers
-                        window.opener.refreshProgressBar();
+                        window.opener.refreshProgressBar();     // also refreshes Activities window
                         self.close();
                     }
                     else {
-                        // error is stored in http session - displayed in 'Activities' window.
+                        window.opener.refreshProgressBar();     // also refreshes Activities window
                         self.close();
                     }
                 },
                 error: function(data) {
+                    window.opener.refreshProgressBar();
                     self.close();
                 }
             });
             return false;
         };
 
-        $(document).ready(function() {
-            $('form').submit(function() {
-                $("#submit").attr("disabled", true); // make sure we don't submit twice.
-                $(this).runScript();
 
-                // if an "existing" window is opened by the window behind this one, we can't focus it...
-                window.open("", 'Activities').close();    // make sure there is no existing 'Activities' window
-                window.opener.popupActivites('{% url status %}');
+        $(document).ready(function() {
+            $("#submit").click(function(e){
+                window.open('', 'Activities').close();
+                
+                var actWindow = popupActivites('{% url status %}');
+                window.opener.activities_Window = actWindow;    // allows webclient window to update Activities window
+                actWindow.webclient_window = window.opener;
+                $('#script_form').runScript(actWindow);
+                e.preventDefault();
                 return false;
             });
+
+            // this simply prevents any attempt to 'submit' the form (default behavior)
+            $('form').submit(function(e){
+                e.preventDefault();
+                return false;
+            });
+
 
             // for any 'list' parameters with enum options, controls to add / remove
             $(".addListSelect").click(function(e) {
@@ -177,7 +188,7 @@
 
 <body>
 
-    <form method="post" action="{% url script_run paramData.id %}">
+    <form id='script_form' method="post">
         <div style="padding:10px; margin-bottom:40px">
             <h3 id="scriptName">{{ paramData.name }}</h3>
             <div id='script_desc'>{{ paramData.description|linebreaks }}

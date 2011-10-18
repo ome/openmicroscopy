@@ -24,24 +24,43 @@
 
 {% ifnotequal nav.menu "status" %}
 <script>
+    
+    var launchActivities = function() {
+        activities_Window = popupActivites('{% url status %}');
+    }
+
+    // this is called by the setInterval loop below
+    var progressAjaxUpdate = function(i) {
+        $.ajaxSetup({ cache: false });      // IE8 etc caches json by default
+        $.getJSON("{% url progress %}", function(data) {
+            if (data.inprogress==0) {
+                if (i != undefined) clearInterval(i);
+                $("#progress").hide();
+                $("#jobstatus").html(data.inprogress + ' job(s) in progress');
+                if(data.failure>0) {
+                    $("#jobstatus").html(data.failure + ' job(s) failed');
+                } else {
+                    $("#jobstatus").html('0 job(s)');
+                } return;
+            }
+            $("#progress").show();
+            $("#jobstatus").html(data.inprogress + ' job(s) in progress');
+            $.ajaxSetup({ cache: true });
+        });
+    }
 
     var refreshProgressBar = function() {
-        refreshActivitiesWindow('{% url status %}');
+        if (window.activities_Window) {
+            if (window.activities_Window.refresh_page) {
+                window.activities_Window.refresh_page();
+            };
+            window.activities_Window.webclient_window = window;
+            //activities_Window.testBrowseParent();
+        }
+        progressAjaxUpdate();
         var i = setInterval(function (){
-            $.getJSON("{% url progress %}", function(data) {
-                if (data.inprogress==0) {
-                    clearInterval(i);
-                    $("#progress").hide();
-                    if(data.failure>0) {
-                        $("#jobstatus").html(data.failure + ' job(s) failed');
-                    } else {
-                        $("#jobstatus").html(data.jobs + ' job(s)');
-                    } return;
-                }
-                $("#progress").show();
-                $("#jobstatus").html(data.inprogress + ' job(s) in progress');
-            });
-        }, 10000);
+                progressAjaxUpdate(i);
+        }, 5000);
     }
     $(document).ready(function() {
         refreshProgressBar();
@@ -54,7 +73,7 @@
         {% endifnotequal %}
         {% ifnotequal nav.menu "status" %}
         <div id="queue">
-            <a href="#" onClick="popupActivites('{% url status %}');" class="align_left">STATUS:</a>
+            <a href="#" onClick="launchActivities();" class="align_left">ACTIVITIES:</a>
             <div id="jobstatus">0 job(s)</div>
             <img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none;"/>
         </div>
