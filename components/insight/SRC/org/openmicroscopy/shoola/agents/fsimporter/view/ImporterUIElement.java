@@ -388,7 +388,8 @@ class ImporterUIElement
 		while (i.hasNext()) {
 			importable = i.next();
 			f = (File) importable.getFile();
-			c = new FileImportComponent(f, importable.isFolderAsContainer());
+			c = new FileImportComponent(f, importable.isFolderAsContainer(),
+					!controller.isMaster());
 			c.setLocation(importable.getParent(), importable.getDataset(), 
 					importable.getRefNode());
 			c.setType(type);
@@ -781,16 +782,18 @@ class ImporterUIElement
 				String text = timeLabel.getText();
 				String time = UIUtilities.calculateHMS((int) (duration/1000));
 				timeLabel.setText(text+" Duration: "+time);
-				EventBus bus = ImporterAgent.getRegistry().getEventBus();
-				ImportStatusEvent event;
-				if (toRefresh) {
-					event = new ImportStatusEvent(false, 
-							getExistingContainers());
-				} else {
-					event = new ImportStatusEvent(false, null);
+				if (!controller.isMaster()) {
+					EventBus bus = ImporterAgent.getRegistry().getEventBus();
+					ImportStatusEvent event;
+					if (toRefresh) {
+						event = new ImportStatusEvent(false, 
+								getExistingContainers());
+					} else {
+						event = new ImportStatusEvent(false, null);
+					}
+					event.setToRefresh(hasToRefreshTree());
+					bus.post(event);
 				}
-				event.setToRefresh(hasToRefreshTree());
-				bus.post(event);
 			}
 		}
 	}

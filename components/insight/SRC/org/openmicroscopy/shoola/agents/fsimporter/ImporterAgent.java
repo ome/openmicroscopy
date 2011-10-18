@@ -33,9 +33,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
-import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
@@ -150,8 +148,7 @@ public class ImporterAgent
     public void activate(boolean master)
     {
     	if (!master) return;
-    	//TODO: indicate to model that it is master
-    	
+
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
     			LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;

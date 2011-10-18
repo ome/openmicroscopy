@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -53,9 +52,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
-import javax.swing.JToolBar;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -541,4 +538,11 @@ class ImporterUI
         }  
     }
 	
+	/**
+	 * Returns <code>true</code> if the agent is the entry point
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isMaster() { return model.isMaster(); }
 }

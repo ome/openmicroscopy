@@ -43,7 +43,7 @@
     </structuredEntry>
 
     <!-- the value corresponding to the agent defined as the master
-    i.e. DataBrowserAgent = 0, EditorAgent = 1, ImporterAgent = 2
+    i.e. TreeViewerAgent = 0, EditorAgent = 1, ImporterAgent = 2
     The default value is 0.-->
     <entry name="/application/entryPoint" type="integer">2</entry>
     
@@ -172,6 +172,7 @@
            The name tag specifies the human-readable name of the Agent.
            The active tag specified if the agent is turn on or off.
            Set to true to turn the agent on, false otherwise.
+           The number tag identifies a possible master.
            The class tag specifies the FQN of the Agent class.
            The config tag specifies the name of the Agent's configuration file
            within the config directory.

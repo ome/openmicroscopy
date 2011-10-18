@@ -39,9 +39,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-
 import pojos.DataObject;
-import pojos.ExperimenterData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -81,7 +79,7 @@ class ImporterModel
 	
 	/** The id of the selected group of the current user. */
 	private long					groupId;
-
+	
 	/** Initializes the model.*/
 	private void initialize()
 	{

@@ -122,9 +122,12 @@ class ImporterComponent
 		if (element == null) return;
 		view.setSelectedPane(element, true);
 		model.fireImportData(element.getData(), element.getID());
-		EventBus bus = ImporterAgent.getRegistry().getEventBus();
-		bus.post(new ImportStatusEvent(true, element.getExistingContainers()));
-		fireStateChange();
+		if (!model.isMaster()) {
+			EventBus bus = ImporterAgent.getRegistry().getEventBus();
+			bus.post(new ImportStatusEvent(true, 
+					element.getExistingContainers()));
+			fireStateChange();
+		}
 	}
 	
 	/**

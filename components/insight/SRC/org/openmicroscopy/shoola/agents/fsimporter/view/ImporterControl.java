@@ -298,6 +298,14 @@ class ImporterControl
 		}
 		return l;
 	}
+	
+	/**
+	 * Returns <code>true</code> if the agent is the entry point
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isMaster() { return view.isMaster(); }
 
 	/**
 	 * Reacts to property changes.
