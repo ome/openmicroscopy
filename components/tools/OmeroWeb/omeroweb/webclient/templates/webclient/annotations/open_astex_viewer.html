@@ -306,8 +306,15 @@
         <!--    {% if pixelRange %} ({{ pixelRange.0|floatformat:4 }} - {{ pixelRange.1|floatformat:4 }}) {% endif %} -->
             <hr />
         <form onsubmit="return false">
-            Map Size:
-            <div id="data_urls">
+            Map Size: {{ image.getSizeX }} x {{ image.getSizeY }} x {{ image.getSizeZ }}
+            {% if sizeOptions.small %}
+            <div>
+                (scaled to: {{ sizeOptions.small.x|floatformat:0 }} x {{ sizeOptions.small.y|floatformat:0 }} x {{ sizeOptions.small.z|floatformat:0 }})
+            </div>
+
+            {% endif %}
+            <!-- Hiding resize options for now - Not performing as expected -->
+            <div id="data_urls" style="display:none">
                 {% if sizeOptions.small %}
                 <div>
                     <input type="radio" name="sizeMap" checked="true" value="small" />
