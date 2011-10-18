@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
@@ -383,6 +384,11 @@ class ImporterComponent
 	 */
 	public void close()
 	{
+		if (model.isMaster()) {
+			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+			bus.post(new ExitApplication());
+			return;
+		}
 		Collection<ImporterUIElement> list = view.getImportElements();
 		List<ImporterUIElement> 
 		toImport = new ArrayList<ImporterUIElement>();
