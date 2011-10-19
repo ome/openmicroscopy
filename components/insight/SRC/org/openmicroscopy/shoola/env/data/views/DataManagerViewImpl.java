@@ -35,6 +35,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.views.calls.AnnotationParentLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
@@ -276,6 +277,17 @@ class DataManagerViewImpl
 	public CallHandle loadRepositories(long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new RepositoriesLoader(userID);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#loadParentsOfAnnotation(long, AgentEventListener)
+	 */
+	public CallHandle loadParentsOfAnnotation(long annotationId,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AnnotationParentLoader(annotationId);
 		return cmd.exec(observer);
 	}
   

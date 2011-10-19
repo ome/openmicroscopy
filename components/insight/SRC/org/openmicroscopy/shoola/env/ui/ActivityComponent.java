@@ -26,10 +26,8 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -37,13 +35,15 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -65,17 +65,10 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
-import org.openmicroscopy.shoola.util.filter.file.GIFFilter;
-import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
-import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
-import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import omero.model.OriginalFile;
-import pojos.DatasetData;
 import pojos.FileAnnotationData;
-import pojos.ImageData;
-import pojos.ProjectData;
 
 /**
  * Top class that each action should extend.
@@ -101,41 +94,26 @@ public abstract class ActivityComponent
 	/** Bound property indicating to unregister the activity. */
 	static final String 	UNREGISTER_ACTIVITY_PROPERTY = "unregisterActivity";
 
-	/** Text indicating to view the object. */
-	static final String   VIEW_TEXT = "View";
-	
-	/** Text indicating to browse the object. */
-	private static final String   BROWSE_TEXT = "Browse";
-	
 	/** The default dimension of the status. */
 	private static final Dimension SIZE = new Dimension(22, 22);
 	
 	/** ID to remove the entry from the display. */
 	private static final int 	REMOVE = 0;
 	
-	/** ID to download the result. */
-	private static final int 	DOWNLOAD = 1;
-	
 	/** ID to cancel the activity. */
-	private static final int 	CANCEL = 2;
-	
-	/** ID to view the object e.g. the image. */
-	private static final int	VIEW = 3;
-	
-	/** ID to display the standard output. */
-	private static final int	INFO = 4;
-	
-	/** ID to show the result. */
-	private static final int	RESULT = 5;
+	private static final int 	CANCEL = 1;
 	
 	/** ID to display the standard error. */
-	private static final int	ERROR = 6;
+	private static final int	EXCEPTION = 2;
+
+	/** ID to display all the output. */
+	private static final int	ALL_RESULT = 3;
 	
-	/** ID to display the standard error. */
-	private static final int	EXCEPTION = 7;
+	/** ID to display the error. */
+	private static final int	ERROR = 4;
 	
-	/** ID to plot the result. */
-	private static final int 	PLOT = 8;
+	/** ID to display the info. */
+	private static final int	INFO = 5;
 	
 	/** The key to look for to display the output message. */
 	private static final String MESSAGE = "Message";
@@ -161,9 +139,6 @@ public abstract class ActivityComponent
 	/** The component displaying the status. */
 	private JComponent					 statusPane;
 	
-	/** One of the constants defined by this class. */
-	private int							index;
-	
 	/** The index of the {@link #cancelButton} or {@link #removeButton}. */
 	private int							buttonIndex;
 	
@@ -174,31 +149,13 @@ public abstract class ActivityComponent
 	private JButton						exceptionButton;
 	
 	/** Menu displaying the option to view the standard error. */
-	private ActivityResultMenu			errorMenu;
+	private ActivityResultPopupMenu		errorMenu;
 	
 	/** Menu displaying the option to view the standard output. */
-	private ActivityResultMenu			infoMenu;
+	private ActivityResultPopupMenu		infoMenu;
 	
 	/** The exception thrown while running the script. */
 	private Throwable					exception;
-	
-	/** Button to download the result depending on the type of activity. */
-	protected JButton					downloadButton;
-	
-	/** Button to view the result depending on the type of activity. */
-	protected JButton					viewButton;
-	
-	/** Button to show the standard output menu. */
-	protected JButton					infoButton;
-	
-	/** Button to show the general result. */
-	protected JButton					resultButton;
-	
-	/** Button to show the error. */
-	protected JButton					errorButton;
-	
-	/** Button to cancel the activity. */
-	private JButton						plotButton;
 	
 	/** The label displaying the type of activity. */
 	protected JLabel					type;
@@ -218,6 +175,23 @@ public abstract class ActivityComponent
     /** Loader associated to the activity. */
     protected UserNotifierLoader 		loader;
     
+    /** The object hosting the error.*/
+    protected Object					errorObject;
+    
+    /** The object hosting the info.*/
+    protected Object					infoObject;
+    
+    /** The component displaying the results.*/
+    private JComponent					resultPane;
+    
+	/** Button to show the general result. */
+	protected List<ActivityResultRow>	resultButtons;
+	
+	private PropertyChangeListener		listener;
+	
+	/** The index where the output goes.*/
+	private String paneIndex;
+	
     /**
 	 * Opens the passed object. Downloads it first.
 	 * 
@@ -294,54 +268,33 @@ public abstract class ActivityComponent
 	 */
 	private void initComponents(String text, Icon icon)
 	{
-		exceptionButton = createButton("Error", EXCEPTION, this);
+		exceptionButton = createButton("Failure", EXCEPTION, this);
 		exceptionButton.setVisible(false);
-		removeButton = createButton("Remove", REMOVE, this);
+		//removeButton = createButton("Remove", REMOVE, this);
+		IconManager icons = IconManager.getInstance(registry);
+		removeButton = new JButton(icons.getIcon(IconManager.REMOVE));
+		UIUtilities.unifiedButtonLookAndFeel(removeButton);
+		removeButton.setActionCommand(""+REMOVE);
+		removeButton.addActionListener(this);
 		cancelButton = createButton("Cancel", CANCEL, this);
 		//if (index == ADVANCED)
-		downloadButton = createButton("Download", DOWNLOAD, this);
-		downloadButton.setVisible(false);
-		plotButton = createButton("Plot", PLOT, this);
-		plotButton.setVisible(false);
-		viewButton = createButton(VIEW_TEXT, VIEW, this);
-		viewButton.setVisible(false);
-		infoButton = createButton("Info", INFO, this);
-		infoButton.setVisible(false);
-		resultButton = createButton("Show result", RESULT, this);
-		resultButton.setVisible(false);
-		errorButton = createButton("Error", ERROR, this);
-		errorButton.setVisible(false);
-		errorButton.addMouseListener(new MouseAdapter() {
-			
-			/** 
-			 * Displays the menu.
-			 * @see MouseAdapter#mouseReleased(MouseEvent) 
-			 */
-			public void mouseReleased(MouseEvent e) {
-				Point p = e.getPoint();
-				errorMenu.show((Component) e.getSource(), p.x, p.y);
-			}
-			
-		});
-		infoButton.addMouseListener(new MouseAdapter() {
-			
-			/** 
-			 * Displays the menu.
-			 * @see MouseAdapter#mouseReleased(MouseEvent) 
-			 */
-			public void mouseReleased(MouseEvent e) {
-				Point p = e.getPoint();
-				infoMenu.show((Component) e.getSource(), p.x, p.y);
-			}
-			
-		});
+		resultButtons = new ArrayList<ActivityResultRow>();
 		status = new JXBusyLabel(SIZE);
 		type = UIUtilities.setTextFont(text);
-		messageLabel = UIUtilities.setTextFont("", Font.ITALIC, 10);
 		iconLabel = new JLabel();
+		messageLabel = UIUtilities.setTextFont("", 
+				iconLabel.getFont().getStyle(), 10);
 		iconLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		if (icon != null) iconLabel.setIcon(icon);
 		statusPane = status;
+		resultPane = new JPanel();
+		listener = new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				//do something
+				
+			}
+		};
 	}
 	
 	/** Builds and lays out the UI. */
@@ -356,15 +309,19 @@ public abstract class ActivityComponent
 		barPane.add(type, "0, 0, LEFT, CENTER");
 		barPane.add(messageLabel, "0, 1, CENTER, CENTER");
 	
-		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL, 
-			TableLayout.PREFERRED}, {TableLayout.PREFERRED}};
+		//icon, message, content, toolbar
+		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL,
+			TableLayout.PREFERRED, TableLayout.PREFERRED},
+			{TableLayout.PREFERRED}};
 		setLayout(new TableLayout(tl));
-		add(statusPane, "0, 0, CENTER, CENTER");
+		add(statusPane, "0, 0");
 		JPanel p = UIUtilities.buildComponentPanel(barPane);
 		p.setOpaque(false);
 		p.setBackground(barPane.getBackground());
 		add(p, "1, 0");
-		add(createToolBar(), "2, 0");
+		paneIndex = "2, 0";
+		add(resultPane, paneIndex);
+		add(createToolBar(), "3, 0");
 	}
 	
 	/**
@@ -379,21 +336,9 @@ public abstract class ActivityComponent
 		toolBar.setFloatable(false);
 		toolBar.setBorder(null);
 		buttonIndex = 0;
-		//if (index == ADVANCED) {
 		toolBar.add(exceptionButton);
 		toolBar.add(Box.createHorizontalStrut(5));
-		toolBar.add(downloadButton);
-		toolBar.add(Box.createHorizontalStrut(5));
-		toolBar.add(viewButton);
-		toolBar.add(Box.createHorizontalStrut(5));
-		toolBar.add(resultButton);
-		toolBar.add(Box.createHorizontalStrut(5));
-		toolBar.add(errorButton);
-		toolBar.add(Box.createHorizontalStrut(5));
-		toolBar.add(infoButton);
-		toolBar.add(Box.createHorizontalStrut(5));
-		buttonIndex = 12;
-		//}
+		buttonIndex = 2;
 		toolBar.add(cancelButton);
 		JLabel l = new JLabel();
 		Font f = l.getFont();
@@ -418,11 +363,6 @@ public abstract class ActivityComponent
 		toolBar.remove(buttonIndex);
 		toolBar.add(removeButton, buttonIndex);
 		removeButton.setEnabled(true);
-		downloadButton.setVisible(false);
-		viewButton.setVisible(false);
-		infoButton.setVisible(false);
-		resultButton.setVisible(false);
-		errorButton.setVisible(false);
 		exceptionButton.setVisible(false);
 		status.setBusy(false);
 		status.setVisible(false);
@@ -450,24 +390,14 @@ public abstract class ActivityComponent
 		}
 		m.remove(MESSAGE);
 		if (m.containsKey(STD_ERR)) {
-			errorButton.setVisible(true);
-			errorMenu = new ActivityResultMenu(m.get(STD_ERR), this);
+			errorObject = m.get(STD_ERR);
 			m.remove(STD_ERR);
 		}
 		if (m.containsKey(STD_OUT)) {
-			infoButton.setVisible(true);
-			infoMenu = new ActivityResultMenu(m.get(STD_OUT), this);
+			infoObject = m.get(STD_OUT);
 			m.remove(STD_OUT);
 		}
 		return m;
-	}
-	
-	/** Displays the result. */
-	private void showResult()
-	{
-		JFrame f = registry.getTaskBar().getFrame();
-		ActivityResultDialog d = new ActivityResultDialog(f, this, result);
-		UIUtilities.centerAndShow(d);
 	}
 	
 	/** Shows the exception. */
@@ -506,13 +436,6 @@ public abstract class ActivityComponent
 		buildGUI();
 	}
 
-	/**
-	 * Sets the index associated to this activity.
-	 * 
-	 * @param index The value to set.
-	 */
-	void setIndex(int index) { this.index = index; }
-	
     /**
      * Creates a button.
      * 
@@ -579,8 +502,8 @@ public abstract class ActivityComponent
 	public void onActivityCancelled()
 	{
 		reset();
-		notifyActivityCancelled();
 		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
+		notifyActivityCancelled();
 		EventBus bus = registry.getEventBus();
 		bus.post(new ActivityProcessEvent(this, false));
 	}
@@ -595,72 +518,6 @@ public abstract class ActivityComponent
 	public void startActivity()
 	{
 		status.setBusy(true);
-	}
-	
-	/**
-	 * Returns the text of the viewable object.
-	 * 
-	 * @param object The object to handle.
-	 * @return See above.
-	 */
-	String getViewText(Object object)
-	{
-		if (!isViewable(object)) return VIEW_TEXT;
-		if (object instanceof DatasetData || object instanceof ProjectData) 
-			return BROWSE_TEXT;
-		return VIEW_TEXT;
-	}
-	
-	/**
-	 * Returns the text of the viewable object.
-	 * 
-	 * @param object The object to handle.
-	 * @return See above.
-	 */
-	String getViewTooltip(Object object)
-	{
-		String tp = "View Object";
-		if (!isViewable(object)) return tp;
-		if (object instanceof DatasetData) 
-			return "Browse Dataset: "+((DatasetData) object).getName();
-		else if (object instanceof ProjectData) 
-			return "Browse Project: "+((ProjectData) object).getName();
-		return tp;
-	}
-	
-	
-	/**
-	 * Returns <code>true</code> if the object can be viewed, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param object The object to handle.
-	 * @return See above.
-	 */
-	boolean isViewable(Object object)
-	{
-		String mimetype = null;
-		if (object instanceof ImageData) return true;
-		if (object instanceof DatasetData) return true;
-		if (object instanceof ProjectData) return true;
-		if (object instanceof FileAnnotationData) {
-			FileAnnotationData fa = (FileAnnotationData) object;
-			if (fa.isLoaded()) {
-				OriginalFile of = (OriginalFile) fa.getContent();
-				if (of.isLoaded() && of.getMimetype() != null)
-					mimetype = of.getMimetype().getValue();
-			}
-		} else if (object instanceof OriginalFile) {
-			OriginalFile of = (OriginalFile) object;
-			if (of.isLoaded() && of.getMimetype() != null)
-				mimetype = of.getMimetype().getValue();
-		}
-		if (mimetype != null) {
-			return (JPEGFilter.MIMETYPE.equals(mimetype) || 
-					PNGFilter.MIMETYPE.equals(mimetype) ||
-					TIFFFilter.MIMETYPE.equals(mimetype) ||
-					GIFFilter.MIMETYPE.equals(mimetype));
-		}
-		return false;
 	}
 	
 	/**
@@ -681,32 +538,17 @@ public abstract class ActivityComponent
 		return false;
 	}
 	
-	/**
-	 * Returns <code>true</code> if the object can be downloaded, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param object The object to handle.
-	 * @return See above.
-	 */
-	boolean isDownloadable(Object object)
-	{
-		return (object instanceof FileAnnotationData || 
-				object instanceof OriginalFile);
-	}
-	
 	/** 
 	 * Downloads the passed object is supported.
 	 * 
 	 * @param text   The text used if the object is not loaded.
 	 * @param object The object to handle.
-	 * 
+	 * @param folder Indicates where to download the file or <code>null</code>.
 	 */
-	void download(String text, Object object)
+	void download(String text, Object object, File folder)
 	{
 		if (!(object instanceof FileAnnotationData || 
 				object instanceof OriginalFile)) return;
-		if (downloadButton != null)
-			downloadButton.setEnabled(false);
 		int index = -1;
 		if (text == null) text = "";
 		String name = "";
@@ -741,6 +583,24 @@ public abstract class ActivityComponent
 		final int type = index;
 		final String desc = description;
 		final long id = dataID;
+		if (folder != null) {
+			if (original == null && type == -1) return;
+			DownloadActivityParam activity;
+			IconManager icons = IconManager.getInstance(registry);
+			File f = new File(folder.getAbsolutePath(), name);
+			if (original != null) {
+				activity = new DownloadActivityParam(original,
+						f, icons.getIcon(IconManager.DOWNLOAD_22));
+				
+			} else {
+				activity = new DownloadActivityParam(id, type,
+						f, icons.getIcon(IconManager.DOWNLOAD_22));
+			}
+			activity.setLegend(desc);
+			activity.setUIRegister(false);
+			viewer.notifyActivity(activity);
+			return;
+		}
 		JFrame f = registry.getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
 				"Download", "Select where to download the file.", null, 
@@ -768,15 +628,22 @@ public abstract class ActivityComponent
 								folder, icons.getIcon(IconManager.DOWNLOAD_22));
 					}
 					activity.setLegend(desc);
-					/*
-					activity.setLegendExtension(
-							DownloadActivity.LEGEND_TEXT_CSV);
-							*/
 					viewer.notifyActivity(activity);
 				}
 			}
 		});
 		chooser.centerDialog();
+	}
+	
+	/** 
+	 * Downloads the passed object is supported.
+	 * 
+	 * @param text   The text used if the object is not loaded.
+	 * @param object The object to handle.
+	 */
+	void download(String text, Object object)
+	{
+		download(text, object, null);
 	}
 	
 	/**
@@ -798,6 +665,36 @@ public abstract class ActivityComponent
 			bus.post(new ViewObjectEvent(object, source));
 		}
 	}
+	
+	/**
+	 * Browses the node.
+	 * 
+	 * @param object The object to view.
+	 * @param source The UI component invoking the method.
+	 */
+	void browse(Object object, JComponent source)
+	{
+		EventBus bus = registry.getEventBus();
+		ViewObjectEvent evt = new ViewObjectEvent(object, source);
+		evt.setBrowseObject(true);
+		bus.post(evt);
+	}
+	
+	/**
+	 * Returns <code>true</code> if information returned by script,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasInfo() { return infoObject != null; }
+	
+	/**
+	 * Returns <code>true</code> if information returned by script,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasError() { return errorObject != null; }
 	
 	/**
 	 * Returns <code>true</code> if the activity is still on-going,
@@ -841,10 +738,33 @@ public abstract class ActivityComponent
 			exceptionButton.setToolTipText(
 					UIUtilities.formatExceptionForToolTip(ex));
 		}
-		notifyActivityError();
 		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
+		notifyActivityError();
 		EventBus bus = registry.getEventBus();
 		bus.post(new ActivityProcessEvent(this, false));
+	}
+	
+	/**
+	 * Shows the menu corresponding to the passed index.
+	 * 
+	 * @param src The source of the click
+	 * @param index The index indicating which menu to show.
+	 * @param x The x-coordinate of the mouse clicked.
+	 * @param y The y-coordinate of the mouse clicked.
+	 */
+	private void showMenu(JComponent src, int index, int x, int y)
+	{
+		switch (index) {
+			case ERROR:
+				if (errorMenu == null)
+					errorMenu = new ActivityResultPopupMenu(errorObject, this);
+				errorMenu.show(src, x, y);
+				break;
+			case INFO:
+				if (infoMenu == null)
+					infoMenu = new ActivityResultPopupMenu(infoObject, this);
+				infoMenu.show(src, x, y);
+		}
 	}
 	
 	/** 
@@ -860,35 +780,82 @@ public abstract class ActivityComponent
 		if (result instanceof Map) {
 			Map<String, Object> m = convertResult((Map<String, Object>) result);
 			int size = m.size();
-			if (size == 1) {
+			this.result = m;
+			remove(resultPane);
+			Color c = getBackground();
+			if (size == 0) {
+				JToolBar row = new JToolBar();
+				row.setOpaque(false);
+				row.setFloatable(false);
+				row.setBorder(null);
+				row.setBackground(c);
+				JButton button;
+				if (errorObject != null) {
+					button = createButton(ActivityResultRow.ERROR_TEXT, 
+							ERROR, this);
+					button.addMouseListener(new MouseAdapter() {
+						
+						public void mouseReleased(MouseEvent e) {
+							showMenu((JComponent) e.getSource(), ERROR,
+									e.getX(), e.getY()); 
+						}
+					});
+					row.add(button);
+				}
+				if (infoObject != null) {
+					button = createButton(ActivityResultRow.INFO_TEXT, 
+							INFO, this);
+					button.addMouseListener(new MouseAdapter() {
+						
+						public void mouseReleased(MouseEvent e) {
+							showMenu((JComponent) e.getSource(), INFO,
+									e.getX(), e.getY()); 
+						}
+					});
+					row.add(button);
+				}
+				add(row, paneIndex);
+			} else {
 				Entry entry;
 				Iterator i = m.entrySet().iterator();
+				ActivityResultRow row = null;
+				JPanel content = new JPanel();
+				content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+				
+				content.setBackground(c);
+				int index = 0;
+				int max = 2;
+				JButton moreButton = null;
 				while (i.hasNext()) {
 					entry = (Entry) i.next();
 					this.result = entry.getValue();
+					row = new ActivityResultRow((String) entry.getKey(), 
+							entry.getValue(), this);
+					row.setBackground(c);
+					row.addPropertyChangeListener(listener);
+					resultButtons.add(row);
+					if (index < max)
+						content.add(row);
+					else {
+						if (moreButton == null) {
+							moreButton = createButton(""+(m.size()-max)+" more",
+									ALL_RESULT, this);
+							content.add(moreButton);	
+						}
+					}
+					index++;
 				}
-			} else this.result = m; //can be an empty map
-		}
-		downloadButton.setVisible(isDownloadable(this.result));
-		if (isViewable(this.result)) {
-			viewButton.setText(getViewText(this.result));
-			viewButton.setToolTipText(getViewTooltip(this.result));
-			viewButton.setVisible(true);
-		} else viewButton.setVisible(false);
-		
-		if (!viewButton.isVisible() && !downloadButton.isVisible()) {
-			if (this.result instanceof Collection) {
-				Collection l = (Collection) this.result;
-				if (this instanceof DeleteActivity)
-					resultButton.setText("Show error");
-				resultButton.setVisible(l.size() > 0);
-			} else if (this.result instanceof Map) {
-				Map l = (Map) this.result;
-				resultButton.setVisible(l.size() > 0);
+				
+				if (m.size() == 1) add(row, paneIndex);
+				else add(content, paneIndex);
+				resultPane = content;
 			}
+			
+			repaint();
 		}
-		notifyActivityEnd();
+		
 		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
+		notifyActivityEnd();
 		//Post an event to 
 		//if (busy) {
 		EventBus bus = registry.getEventBus();
@@ -930,22 +897,27 @@ public abstract class ActivityComponent
 			case REMOVE:
 				firePropertyChange(REMOVE_ACTIVITY_PROPERTY, null, this);
 				break;
-			case DOWNLOAD:
-				download("", result);
-				break;
 			case CANCEL:
 				if (cancelButton != null) cancelButton.setEnabled(false);
 				if (loader != null) loader.cancel();
 				break;
-			case VIEW:
-				if (viewButton != null) viewButton.setEnabled(false);
-				view(result, viewButton);
-				break;
-			case RESULT:
-				showResult();
-				break;
 			case EXCEPTION:
 				showException();
+				break;
+			case ALL_RESULT:
+				Iterator<ActivityResultRow> i = resultButtons.iterator();
+				JPanel content = new JPanel();
+				content.setBackground(getBackground());
+				content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+				while (i.hasNext()) {
+					content.add(i.next());
+				}
+				remove(resultPane);
+				add(content, paneIndex);
+				resultPane = content;
+				validate();
+				repaint();
+				break;
 		}
 	}
 	
@@ -957,12 +929,9 @@ public abstract class ActivityComponent
 	public void setBackground(Color color)
 	{
 		super.setBackground(color);
+		if (resultPane != null) resultPane.setBackground(color);
 		if (removeButton != null) removeButton.setBackground(color);
 		if (cancelButton != null) cancelButton.setBackground(color);
-		if (downloadButton != null) downloadButton.setBackground(color);
-		if (viewButton != null) viewButton.setBackground(color);
-		if (infoButton != null) infoButton.setBackground(color);
-		if (errorButton != null) errorButton.setBackground(color);
 		if (exceptionButton != null) exceptionButton.setBackground(color);
 	}
 	

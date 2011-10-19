@@ -26,7 +26,7 @@ import loci.formats.ImageWriter;
 import loci.formats.MetadataTools;
 import loci.formats.meta.IMetadata;
 import loci.formats.meta.MetadataRetrieve;
-import loci.formats.out.TiffWriter;
+import loci.formats.out.OMETiffWriter;
 import loci.formats.services.OMEXMLService;
 import ome.api.RawPixelsStore;
 import ome.conditions.ApiUsageException;
@@ -356,7 +356,7 @@ public class ExporterI extends AbstractAmdServant implements
 
                             RawPixelsStore raw = null;
                             OmeroReader reader = null;
-                            TiffWriter writer = null;
+                            OMETiffWriter writer = null;
                             try {
 
                                 Image image = retrieve.getImage(0);
@@ -380,7 +380,7 @@ public class ExporterI extends AbstractAmdServant implements
                                 reader = new OmeroReader(raw, pix);
                                 reader.setId("OMERO");
 
-                                writer = new TiffWriter();
+                                writer = new OMETiffWriter();
                                 writer.setMetadataRetrieve(retrieve);
                                 writer.setWriteSequentially(true); // ticket:6701
                                 long mSize = getMetadataBytes(reader);

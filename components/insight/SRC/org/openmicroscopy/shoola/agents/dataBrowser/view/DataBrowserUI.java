@@ -435,8 +435,9 @@ class DataBrowserUI
 		model.getSorter().setByDate(SORT_BY_DATE == index);
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         Browser browser = model.getBrowser();
-        browser.accept(browser.getSelectedLayout(), 
-        					ImageDisplayVisitor.IMAGE_SET_ONLY);
+        Layout layout = browser.getSelectedLayout();
+        if (layout != null)
+        	browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
         
         ImageTableView v = model.getTableView();
 		if (v != null) v.refreshTable();

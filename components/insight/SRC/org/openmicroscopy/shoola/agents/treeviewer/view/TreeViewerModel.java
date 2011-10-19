@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsSaver;
 import org.openmicroscopy.shoola.agents.treeviewer.OriginalFileLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.ParentLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.PlateWellsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ProjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RndSettingsSaver;
@@ -1149,5 +1150,16 @@ class TreeViewerModel
 	 * Returns 
 	 */
 	boolean isFullScreen() { return true; }
-	
+
+	/** 
+	 * Loads the parents of the specified annotation.
+	 * 
+	 * @param data The annotation to handle.
+	 */
+	void loadParentOf(FileAnnotationData data)
+	{
+		ParentLoader loader = new ParentLoader(component, data);
+		loader.load();
+	}
+
 }

@@ -129,6 +129,7 @@ class QuotaCanvas
 	void setSizeInQueue(long size)
 	{
 		formatToolTip(size);
+		if (quota == null) return;
 		long free = quota.getAvailableSpace();
 		if (free != 0) percentageToImport = (double) size/free;
 		repaint();

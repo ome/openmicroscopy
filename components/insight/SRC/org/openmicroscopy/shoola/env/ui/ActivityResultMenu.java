@@ -24,16 +24,14 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Displays the View and Download options.
@@ -49,16 +47,22 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since 3.0-Beta4
  */
 class ActivityResultMenu 
-	extends JPopupMenu
+	extends JMenu
 	implements ActionListener
 {
 
+	/** Indicates to view the object. */
+	static final String VIEW_TEXT = "View";
+	
+	/** Indicates to view the object. */
+	static final String DOWNLOAD_TEXT = "Download";
+	
 	/** Indicates to download the object. */
 	private static final int DOWNLOAD = 0;
 	
 	/** Indicates to view the object. */
 	private static final int VIEW = 1;
-	
+
 	/** Reference to the activity. */
 	private ActivityComponent activity;
 	
@@ -81,20 +85,16 @@ class ActivityResultMenu
 	private JMenuItem createItem(String text, int actionID)
     {
 		JMenuItem b = new JMenuItem(text);
-    	Font f = b.getFont();
-    	b.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
 		b.setActionCommand(""+actionID);
 		b.addActionListener(this);
-		//b.setOpaque(false);
-		b.setForeground(UIUtilities.HYPERLINK_COLOR);
-		//UIUtilities.unifiedButtonLookAndFeel(b);
 		return b;
     }
+	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		downloadItem = createItem("Download", DOWNLOAD);
-		viewItem = createItem("View", VIEW);
+		downloadItem = createItem(DOWNLOAD_TEXT, DOWNLOAD);
+		viewItem = createItem(VIEW_TEXT, VIEW);
 		add(downloadItem);
 		add(viewItem);
 	}
@@ -102,11 +102,13 @@ class ActivityResultMenu
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param name The name of the menu.
 	 * @param row The object to display.
 	 * @param activity The activity of reference.
 	 */
-	ActivityResultMenu(Object row, ActivityComponent activity)
+	ActivityResultMenu(String name, Object row, ActivityComponent activity)
 	{
+		super(name);
 		this.activity = activity;
 		this.row = row;
 		buildGUI();

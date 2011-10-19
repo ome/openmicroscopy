@@ -29,8 +29,6 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
@@ -527,6 +525,7 @@ class EditorControl
 				TextualAnnotationComponent doc = 
 					(TextualAnnotationComponent) object;
 				TextualAnnotationData data = doc.getData();
+				//view.deleteAnnotation((TextualAnnotationData) data);
 				view.removeObject(data);
 			}
 		} else if (AnnotationUI.EDIT_TAG_PROPERTY.equals(name)) {
