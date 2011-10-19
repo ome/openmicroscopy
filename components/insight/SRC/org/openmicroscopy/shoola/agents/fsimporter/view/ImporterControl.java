@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ActivateAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.CancelAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.CloseAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.ExitAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.PersonalManagementAction;
@@ -100,6 +101,9 @@ class ImporterControl
 	/** Action ID indicating to switch between groups. */
 	static final Integer GROUP_BUTTON = 4;
 	
+	/** Action ID indicating to exit the application. */
+	static final Integer EXIT = 5;
+	
 	/** 
 	 * Reference to the {@link Importer} component, which, in this context,
 	 * is regarded as the Model.
@@ -124,6 +128,7 @@ class ImporterControl
 		actionsMap.put(CANCEL_BUTTON, new CancelAction(model));
 		actionsMap.put(RETRY_BUTTON, new RetryImportAction(model));
 		actionsMap.put(GROUP_BUTTON, new PersonalManagementAction(model));
+		actionsMap.put(EXIT, new ExitAction(model));
 	}
 	
 	/** 

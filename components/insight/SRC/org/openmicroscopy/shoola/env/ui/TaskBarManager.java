@@ -417,7 +417,9 @@ public class TaskBarManager
 			DataServicesFactory f = 
 				DataServicesFactory.getInstance(container);
 			f.exitApplication(false);
-		} catch (Exception e) {} //ignore
+		} catch (Exception e) {
+			e.printStackTrace();
+		} //ignore
 	}
 	
 	/**  Displays information about software. */

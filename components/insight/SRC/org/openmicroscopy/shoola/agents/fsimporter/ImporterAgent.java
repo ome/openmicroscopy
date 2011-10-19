@@ -204,6 +204,7 @@ public class ImporterAgent
      */
     public boolean canTerminate()
     { 
+    	if (!ImporterFactory.doesImportExist()) return true;
     	Importer importer = ImporterFactory.getImporter();
     	if (importer == null) return true;
     	return !importer.hasOnGoingImport();

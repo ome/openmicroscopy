@@ -76,6 +76,17 @@ public class ImporterFactory
 	}
 	
 	/**
+	 * Returns <code>true</code> if the importer already exists,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean doesImportExist()
+	{
+		return singleton.importer != null;
+	}
+	
+	/**
 	 * Returns a {@link Importer}.
 	 * 
 	 * @param groupId The identifier of the current group.

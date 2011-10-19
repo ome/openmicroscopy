@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -33,6 +32,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -48,6 +48,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -58,10 +59,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
-
-//Application-internal dependencies
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction;
@@ -273,6 +274,19 @@ class ImporterUI
 		});
 	}
 	
+	 /**
+     * Helper method to create the <code>File</code> menu.
+     * 
+     * @return See above.
+     */
+    private JMenu createFileMenu()
+    {
+        JMenu menu = new JMenu("File");
+        menu.setMnemonic(KeyEvent.VK_F);
+        menu.add(new JMenuItem(controller.getAction(ImporterControl.EXIT)));
+        return menu;
+    }
+    
 	/**
      * Creates the menu bar.
      * 
@@ -282,6 +296,17 @@ class ImporterUI
     {
     	TaskBar tb = ImporterAgent.getRegistry().getTaskBar();
     	JMenuBar bar = tb.getTaskBarMenuBar();
+    	if (!model.isMaster()) return bar;
+    	JMenu[] existingMenus = new JMenu[bar.getMenuCount()];
+    	for (int i = 0; i < existingMenus.length; i++) {
+    		existingMenus[i] = bar.getMenu(i);
+    	}
+    	
+ 		bar.removeAll();
+ 		bar.add(createFileMenu());
+ 		for (int i = 0; i < existingMenus.length; i++) {
+			bar.add(existingMenus[i]);
+		}
     	return bar;
     }
     

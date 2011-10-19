@@ -325,8 +325,6 @@ public final class Container
 	 */
 	public void exit()
 	{	
-		
-		
 		System.exit(0);
 	}
     
