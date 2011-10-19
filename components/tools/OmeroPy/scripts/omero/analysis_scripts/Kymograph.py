@@ -70,13 +70,10 @@ def numpyToImage(plane, cMinMax):
     Converts the numpy plane to a PIL Image, scaling to cMinMax (minVal, maxVal) and changing data type if needed.
     Need plane dtype to be uint8 (or int8) for conversion to tiff by PIL
     """
-    if plane.dtype.name not in ('uint8', 'int8'):      # we need to scale...
-        minVal, maxVal = cMinMax
-        valRange = maxVal - minVal
-        scaled = (plane - minVal) * (float(255) / valRange)
-        convArray = zeros(plane.shape, dtype=uint8)
-        convArray += scaled
-        #print "using converted int8 plane: dtype: %s min: %s max: %s" % (convArray.dtype.name, convArray.min(), convArray.max())
+
+    if plane.dtype.name not in ('uint8', 'int8'):
+        convArray = zeros(plane.shape, dtype=int32)     # int32 is handled by PIL (not uint32 etc). TODO: support floats
+        convArray += plane
         return Image.fromarray(convArray)
     return Image.fromarray(plane)
 
