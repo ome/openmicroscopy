@@ -63,32 +63,32 @@ def pointsStringToXYlist(string):
 
 def processImages(conn, scriptParams):
 
+    fileAnns = []
     imageIds = scriptParams['IDs']
     for image in conn.getObjects("Image", imageIds):
 
+        print "\nAnalysing Image: %s ID: %s" % (image.getName(), image.getId())
+        
+        if image.getSizeT() > 1:
+            print "  This appears to be a time-lapse Image, not a kymograph"
+            continue
+        
         roiService = conn.getRoiService()
         result = roiService.findByImage(image.getId(), None)
         
         secsPerPixelY = image.getPixelSizeY()
-        print "secsPerPixelY", secsPerPixelY
-        
         micronsPerPixelX = image.getPixelSizeX()
-        print 'micronsPerPixelX', micronsPerPixelX
-        
         if secsPerPixelY and micronsPerPixelX:
             micronsPerSec = micronsPerPixelX / secsPerPixelY
-            print "micronsPerSec", micronsPerSec
         else: micronsPerSec = None
         
         # for each line or polyline, create a row in csv table: y(t), x, dy(dt), dx, x/t (line), x/t (average)
-        colNames = "\ny, x, dy, dx, x/y, average x/y, speed(um/sec)"
-        tableString = ""
+        colNames = "\ny_start, x_start, y_end, x_end, dy, dx, x/y, average x/y, speed(um/sec)"
+        tableData = ""
         for roi in result.rois:
-            tableString += "\n ROI"
             for s in roi.copyShapes():
                 if type(s) == omero.model.LineI:
-                    tableString += "\nLine"
-                    tableString += colNames
+                    tableData += "\nLine"
                     x1 = s.getX1().getValue()
                     x2 = s.getX2().getValue()
                     y1 = s.getY1().getValue()
@@ -96,18 +96,16 @@ def processImages(conn, scriptParams):
                     dx = abs(x1-x2)
                     dy = abs(y1-y2)
                     dxPerY = float(dx)/dy
-                    tableString += "\n%s, %s, , , , , \n" % (y1, x1)
-                    tableString += ",".join([str(x) for x in (y2, x2, dy, dx, dxPerY, dxPerY, "")])
+                    tableData += "\n"
+                    tableData += ",".join([str(x) for x in (y1, x1, y2, x2, dy, dx, dxPerY, dxPerY, "")])
                     if micronsPerSec:
                         speed = dxPerY * micronsPerSec
-                        tableString += "%s" % speed
+                        tableData += "%s" % speed
             
                 elif type(s) == omero.model.PolylineI:
-                    tableString += "\nPolyline"
-                    tableString += colNames
+                    tableData += "\nPolyline"
                     points = pointsStringToXYlist(s.getPoints().getValue())
                     xStart, yStart = points[0]
-                    tableString += "\n%s, %s, , , , , " % (yStart, xStart)
                     for i in range(1, len(points)):
                         x1, y1 = points[i-1]
                         x2, y2 = points[i]
@@ -115,13 +113,35 @@ def processImages(conn, scriptParams):
                         dy = abs(y1-y2)
                         dxPerY = float(dx)/dy
                         avXperY = abs(float(x2-xStart)/(y2-yStart))
-                        tableString += "\n"
-                        tableString += ",".join([str(x) for x in (y2, x2, dy, dx, dxPerY, avXperY, "")])
+                        tableData += "\n"
+                        tableData += ",".join([str(x) for x in (y1, x1, y2, x2, dy, dx, dxPerY, avXperY, "")])
                         if micronsPerSec:
                             speed = dxPerY * micronsPerSec
-                            tableString += "%s" % speed
-        
-        print tableString
+                            tableData += "%s" % speed
+
+        # write table data to csv...
+        if len(tableData) > 0:
+            tableString = "secsPerPixelY: %s" % secsPerPixelY
+            tableString += '\nmicronsPerPixelX: %s' % micronsPerPixelX
+            tableString += "\nmicronsPerSec: %s" % micronsPerSec
+            tableString += "\n"
+            tableString += colNames 
+            tableString += tableData
+            print tableString
+            csvFileName = 'kymograph_velocities_%s.csv' % image.getId()
+            csvFile = open(csvFileName, 'w')
+            try:
+                csvFile.write(tableString)
+            finally:
+                csvFile.close()
+
+            fileAnn = conn.createFileAnnfromLocalFile(csvFileName, mimetype="text/csv", desc=None)
+            fileAnns.append(fileAnn)
+            image.linkAnnotation(fileAnn)
+        else:
+            print "Found NO lines or polylines to analyse for Image"
+
+    return fileAnns
                         
 
 if __name__ == "__main__":
@@ -155,7 +175,15 @@ Kymographs are created in the form of new OMERO Images, with single Z and T, sam
         # wrap client to use the Blitz Gateway
         conn = BlitzGateway(client_obj=client)
 
-        processImages(conn, scriptParams)
+        fileAnns = processImages(conn, scriptParams)
+        
+        if len(fileAnns) == 1:
+            client.setOutput("Message", rstring("Created analysis csv (Excel) file attached to kymograph"))
+            client.setOutput("Kymograph_Analysis", robject(fileAnns[0]._obj))
+        elif len(fileAnns) > 1:
+            client.setOutput("Message", rstring("Created %s csv (Excel) files attached to kymographs" % len(fileAnns)))
+        else:
+            client.setOutput("Message", rstring("No Analysis files created. See 'Info' or 'Errror' for more details"))
         
     finally:
         client.closeSession()
