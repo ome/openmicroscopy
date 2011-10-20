@@ -28,11 +28,10 @@ package org.openmicroscopy.shoola.agents.metadata.actions;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
-import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 
 /** 
  * Top class that each action should extend.

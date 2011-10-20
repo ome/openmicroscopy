@@ -45,7 +45,7 @@
     <!-- the value corresponding to the agent defined as the master
     i.e. TreeViewerAgent = 0, EditorAgent = 1, ImporterAgent = 2
     The default value is 0.-->
-    <entry name="/application/entryPoint" type="integer">0</entry>
+    <entry name="/application/entryPoint" type="integer">2</entry>
     
     <!-- the value corresponding to a given hierarchy
     i.e. Project/Dataset = 0, HCS = 1, Tags = 2, Attachments = 3
@@ -191,7 +191,7 @@
        <agent>
         <name>Tree Manager</name>
         <number>0</number>
-        <active>true</active>
+        <active>false</active>
         <class>org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent</class>
         <config>treeviewer.xml</config>
     </agent>
@@ -209,14 +209,14 @@
     </agent>
     	<agent>
         <name>Data Browser</name> 
-        <active>true</active>
+        <active>false</active>
         <class>org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent</class>
         <config>dataBrowser.xml</config>
     </agent>
     <agent>
         <name>Editor</name>
         <number>1</number>
-        <active>true</active>
+        <active>false</active>
         <class>org.openmicroscopy.shoola.agents.editor.EditorAgent</class>
         <config>editor.xml</config>
     </agent>

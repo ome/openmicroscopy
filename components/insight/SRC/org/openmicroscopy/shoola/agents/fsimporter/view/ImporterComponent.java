@@ -42,7 +42,6 @@ import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -385,7 +384,7 @@ class ImporterComponent
 	public void close()
 	{
 		if (model.isMaster()) {
-			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+			EventBus bus = ImporterAgent.getRegistry().getEventBus();
 			bus.post(new ExitApplication());
 			return;
 		}

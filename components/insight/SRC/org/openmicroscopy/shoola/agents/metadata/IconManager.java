@@ -415,11 +415,14 @@ public class IconManager
     /** The 22x22 <code>Save As</code> icon. */
     public static final int         SAVE_AS_22 = 119;
     
+    /** The 16x16 <code>Viewer</code> icon. */
+    public static final int         VIEWER = 120;
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 119;
+	private static final int          MAX_ID = 120;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -545,6 +548,7 @@ public class IconManager
         relPaths[SAVE_AS] = "download_image16.png";
         relPaths[SAVE_AS_48] = "download_image48.png";
         relPaths[SAVE_AS_22] = "download_image22.png";
+        relPaths[VIEWER] = "viewer16.png";
 	}
    
 	/** The sole instance. */
