@@ -37,7 +37,7 @@ ROIControl.prototype.createDOMElements = function() {
 }
 
 ROIControl.prototype.updateDOMElements = function() {
-  var cur_size = this.viewer.currentImageSize();  
+  var cur_size = this.viewer.currentImageSize();
   this.width = cur_size.width;
   this.height = cur_size.height;
 
@@ -69,7 +69,6 @@ ROIControl.prototype.viewerMoved = function(e) {
 ROIControl.prototype.viewerZoomed = function(e) {
     this.scale  = e.scale;
     this.viewerMoved(e);
-    
 }
 
 ROIControl.prototype.viewerResized = function(e) {
