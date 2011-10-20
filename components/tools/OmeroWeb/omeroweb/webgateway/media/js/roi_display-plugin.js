@@ -8,6 +8,8 @@ $.fn.roi_display = function(options) {
     return this.each(function(){
 
         var self = this;
+        var canvas_name = (options.canvas_name ? options.canvas_name : 'roi_canvas');
+        var tiles =  (options.tiles ? options.tiles : false);
         
         if (options != null) {
             var orig_width = options.width;
@@ -19,9 +21,13 @@ $.fn.roi_display = function(options) {
         var width = $viewportimg.attr('width');   // 0 initially
         var height = $viewportimg.attr('height');
 
-        // add our ROI canvas as a sibling to the image plane. Parent is the 'draggable' div
-        var $dragdiv = $viewportimg.parent();
-        var $canvas =   $('<div id="roi_canvas" class="roi_canvas">').appendTo($dragdiv);
+        if (!tiles) {
+            // add our ROI canvas as a sibling to the image plane. Parent is the 'draggable' div
+            var $dragdiv = $viewportimg.parent();
+            var $canvas =   $('<div id="'+canvas_name+'" class="'+canvas_name+'">').appendTo($dragdiv);
+        } else {
+            var $canvas = $('#'+canvas_name)
+        }
 
         var roi_json = null;          // load ROI data as json when needed
         var rois_displayed = false;   // flag to toggle visability.
@@ -34,8 +40,7 @@ $.fn.roi_display = function(options) {
         var shape_default = {'fill-opacity':0.5, opacity:0.7}
         
         // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
-        var paper = new ScaleRaphael('roi_canvas', orig_width, orig_height);
-
+        var paper = new ScaleRaphael(canvas_name, orig_width, orig_height);
         
         // if the currently selected shape is visible - highlight it
         display_selected = function() {
@@ -223,6 +228,7 @@ $.fn.roi_display = function(options) {
               this.refresh_rois(theZ, theT);
           }
         }
+        
 
         // hides the ROIs from display
         this.hide_rois = function() {

@@ -410,9 +410,11 @@ $.fn.viewportImage = function(options) {
       }
     });
 
+    this.getBigImageContainer = function () {
+        return viewerBean;
+    }
+    
     this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, href, thref) {
-        $('<div id="weblitz-viewport-tiles" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
-        jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});
         var myPyramid = new BisqueISPyramid( imagewidth, imageheight, xtilesize, ytilesize);
         var myProvider = new PanoJS.TileUrlProvider('','','');
         myProvider.assembleUrl = function(xIndex, yIndex, zoom) {
@@ -426,6 +428,8 @@ $.fn.viewportImage = function(options) {
         myProvider.thumbnailUrl(thref);
         
         if (viewerBean == null) {
+            $('<div id="weblitz-viewport-tiles" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
+            jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});
             
             viewerBean = new PanoJS('weblitz-viewport-tiles', {
                 tileUrlProvider : myProvider,
@@ -456,7 +460,8 @@ $.fn.viewportImage = function(options) {
             PanoJS.MSG_BEYOND_MIN_ZOOM = null;
             PanoJS.MSG_BEYOND_MAX_ZOOM = null;
             viewerBean.init();
-            if (this.thumbnail_control) this.thumbnail_control.update();
+            if (viewerBean.thumbnail_control) viewerBean.thumbnail_control.update();
+            if (!viewerBean.roi_control) viewerBean.roi_control = new ROIControl(viewerBean);
             
             // not supported elements
             jQuery('#wblitz-zoom').parent().hide();
@@ -478,7 +483,7 @@ $.fn.viewportImage = function(options) {
       wrapwidth = wrapdiv.width();
       wrapheight = wrapdiv.height();
       //orig_width = image.get(0).clientWidth;
-      //orig_height = image.get(0).clientHeight;   
+      //orig_height = image.get(0).clientHeight;
       
       if (viewerBean != null) {
           jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});

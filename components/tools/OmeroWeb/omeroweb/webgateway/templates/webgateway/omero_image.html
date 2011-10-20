@@ -57,6 +57,7 @@
     <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_thumbnail.js"></script>
     <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_info.js"></script>
     <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_svg.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_roi.js"></script>
     
 {% endblock %}
 
@@ -449,11 +450,15 @@
         
         // if the ROI plugin has not been initialised (method not available...)
       if (!viewport.viewportimg.get(0).show_rois) {
-            viewport.viewportimg.roi_display({width:{{ image.getSizeX }}, 
-                                            height:{{ image.getSizeY }},
-                                            json_url:'{% url webgateway_get_rois_json image.id %}' });
-            var zm = viewport.getZoom();
-            viewport.viewportimg.get(0).setRoiZoom(zm);
+          var options = {'width':{{ image.getSizeX }}, 
+                     'height':{{ image.getSizeY }},
+                     'json_url':'{% url webgateway_get_rois_json image.id %}'};
+          if (viewport.loadedImg.tiles) {
+              options['tiles'] = true;
+              options['canvas_name'] = 'roi_canvas_big';
+          }
+          viewport.viewportimg.roi_display(options);
+          viewport.viewportimg.get(0).setRoiZoom(viewport.getZoom());
       }
       else {
           // if ROIs already loaded, there won't be a callback to show table - do it manually
