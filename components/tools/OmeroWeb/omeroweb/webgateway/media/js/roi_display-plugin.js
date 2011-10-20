@@ -54,6 +54,7 @@ $.fn.roi_display = function(options) {
                 if (shape_id == selected_shape_id) {
                     selectedClone = s.clone();
                     selectedClone.attr({'stroke': '#00a8ff'})
+                    return s;
                 }
             }
         }
@@ -61,7 +62,11 @@ $.fn.roi_display = function(options) {
         this.set_selected_shape = function(shape_id) {
             selected_shape_id = shape_id;
             $viewportimg.trigger("shape_click", [shape_id]);
-            display_selected();
+            var sel_shape = display_selected();
+            var bb = sel_shape.getBBox();
+            var sel_x = bb.x + (bb.width/2);
+            var sel_y = bb.y + (bb.height/2);
+            return {'x':sel_x, 'y':sel_y};
         }
         
         // called when user clicks on ROI

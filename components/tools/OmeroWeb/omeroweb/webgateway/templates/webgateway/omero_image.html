@@ -1135,11 +1135,12 @@
     
     var handleShapeRowClick = function($shapeRow){
         var shape_id = parseInt($shapeRow.attr('id'));      // E.g. id='123_shape'
-        viewport.viewportimg.get(0).set_selected_shape(shape_id);
+        var selected_xy = viewport.viewportimg.get(0).set_selected_shape(shape_id);
         var z = parseInt( $shapeRow.find('td:nth-child(4)').text() );
         var t = parseInt( $shapeRow.find('td:nth-child(5)').text() );
         viewport.setZPos(z);
         viewport.setTPos(t);
+        //console.log("selected: " + selected_xy['x'] + " " + selected_xy['y']);
     }
     
     $("#roi_small_table").click(function(event) {
