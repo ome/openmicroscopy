@@ -635,9 +635,7 @@ public class FileImportComponent
 		this.file = file;
 		importCount = 0;
 		this.browsable = browsable;
-		//if (file.isFile()) folderAsContainer = false;
 		this.folderAsContainer = folderAsContainer;
-		this.browsable = browsable;
 		initComponents();
 		buildGUI();
 	}
@@ -834,15 +832,16 @@ public class FileImportComponent
 		} else if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
 			statusLabel.setVisible(false);
-			resultLabel.setText(BROWSE_TEXT);
-			resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
-			resultLabel.setToolTipText(ThumbnailLabel.PLATE_LABEL_TOOLTIP);
-			//resultLabel.setEnabled(false);
-			resultLabel.setVisible(true);
+			if (browsable) {
+				resultLabel.setText(BROWSE_TEXT);
+				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
+				resultLabel.setToolTipText(ThumbnailLabel.PLATE_LABEL_TOOLTIP);
+				resultLabel.setVisible(true);
+			}
 			fileNameLabel.addMouseListener(adapter);
 			resultLabel.addMouseListener(adapter);
 			showContainerLabel = containerObject instanceof ScreenData;
-			if (noContainer) {
+			if (noContainer || !browsable) {
 				browseButton.setVisible(false);
 				containerLabel.setVisible(false);
 			} else {
