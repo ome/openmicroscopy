@@ -585,11 +585,13 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
     if _conn is None:
         _conn = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
     
-    color = request.REQUEST.get("color", "white")
-    colours = {"red":(255,0,0), "green":(0,255,0), "blue":(0,0,255), "yellow":(255,255,0), "white":(255,255,255)}
-    lineColour = colours["white"]
+    color = request.REQUEST.get("color", "fff")
+    print "color", color
+    colours = {"f00":(255,0,0), "0f0":(0,255,0), "00f":(0,0,255), "ff0":(255,255,0), "fff":(255,255,255), "000":(0,0,0)}
+    lineColour = colours["f00"]
     if color in colours:
         lineColour = colours[color]
+        print 'lineColour', lineColour
     bg_color = (100,100,100)        # used for padding if we go outside the image area
     
     # need to find the z indices of the first shape in T
@@ -762,27 +764,33 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
         rectW = int((w+xOffset) * factor)
         rectH = int((h+yOffset) * factor)
         draw.rectangle((rectX, rectY, rectW, rectH), outline=lineColour)
-        draw.rectangle((rectX-1, rectY-1, rectW+1, rectH+1), outline=lineColour)    # hack to get line width of 3
-        #draw.rectangle((rectX-2, rectY-2, rectW+2, rectH+2), outline=lineColour)
+        draw.rectangle((rectX-1, rectY-1, rectW+1, rectH+1), outline=lineColour)    # hack to get line width of 2
     elif shape['type'] == 'Line':
         lineX1 = (shape['x1'] - newX + left_xs) * factor
         lineX2 = (shape['x2'] - newX + left_xs) * factor
         lineY1 = (shape['y1'] - newY + top_xs) * factor
         lineY2 = (shape['y2'] - newY + top_xs) * factor
-        draw.line((lineX1, lineY1, lineX2, lineY2), fill=lineColour, width=3)
+        draw.line((lineX1, lineY1, lineX2, lineY2), fill=lineColour, width=2)
     elif shape['type'] == 'Ellipse':
         rectX = int(xOffset * factor)
         rectY = int(yOffset * factor)
         rectW = int((w+xOffset) * factor)
         rectH = int((h+yOffset) * factor)
         draw.ellipse((rectX, rectY, rectW, rectH), outline=lineColour)
+        draw.ellipse((rectX-1, rectY-1, rectW+1, rectH+1), outline=lineColour) # hack to get line width of 2
     elif 'xyList' in shape:
         #resizedXY = [ (int(x*factor), int(y*factor)) for (x,y) in shape['xyList'] ]
         def resizeXY(xy):
             x,y = xy
             return (int((x-newX + left_xs)*factor), int((y-newY + top_xs)*factor))
         resizedXY = [ resizeXY(xy) for xy in shape['xyList'] ]
-        draw.polygon(resizedXY, outline=lineColour)
+        #draw.polygon(resizedXY, outline=lineColour)    # doesn't support 'width' of line
+        for l in range(1, len(resizedXY)):
+            x1, y1 = resizedXY[l-1]
+            x2, y2 = resizedXY[l]
+            draw.line((x1, y1, x2, y2), fill=lineColour, width=2)
+        start_x, start_y = resizedXY[0]
+        draw.line((x2, y2, start_x, start_y), fill=lineColour, width=2)
         
     rv = StringIO()
     compression = 0.9

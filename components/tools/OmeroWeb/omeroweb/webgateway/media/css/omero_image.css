@@ -654,3 +654,8 @@ input.spin-button {
     z-index: 250;
     display: none;
 }
+.color_picker_option {
+    float: left;
+    width: 10px;
+    height: 10px;
+}

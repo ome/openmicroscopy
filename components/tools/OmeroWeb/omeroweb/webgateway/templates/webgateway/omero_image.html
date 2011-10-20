@@ -478,12 +478,25 @@
       $("#roi_table_postit").hide();
   }
   
+  
+  var get_roi_thumb_src =  function(roiId, lineColor) {
+      return "/webgateway/render_roi_thumbnail/"+ roiId +"/?color=" + lineColor;
+  }
+  
   // builds an html table of ROI data. All collapsed.
   var build_roi_table = function() {
       var $roi_table = $("#roi_small_table");
       var json = viewport.viewportimg.get(0).get_roi_json();
       
       $roi_table.find('tbody').remove();
+      
+      // give users a small selection of colours for lines on roi_thumbnails
+      var colours = {'red':'#f00', 'white':'#fff', 'black':'#000', 'blue':'#00f', 'green':'#0f0', 'yellow':'#ff0'}
+      var color_picker = "";
+      for (var c in colours) {
+          color_picker += "<div class='color_picker_option' color='" + colours[c] + "' style='background: " + colours[c] + "'> </div>";
+      }
+      
       
       // thead for whole table:
       var roi_html = "<thead><tr>";
@@ -493,7 +506,7 @@
       roi_html += "<th>Z</th>"; // no Z for ROI
       roi_html += "<th>T</th>"; // no T for ROI
       roi_html += "<th>Text</th>";
-      roi_html += "<th></th>";
+      roi_html += "<th title='Pick colour of ROI outlines'>" + color_picker + "</th>";
       roi_html += "</tr></thead>";
       $roi_table.append($(roi_html));
       
@@ -503,8 +516,8 @@
           var shapes = roi['shapes'];
           
           // thumbnail of roi - display small & popup full-size
-          var thumbHtml = "<img src='/webgateway/render_roi_thumbnail/"+ roi['id'] +"/?color=red' width=50 class='roi_thumb'/>";
-          //thumbHtml += "<img src='/webgateway/render_roi_thumbnail/"+ roi['id'] +"/?color=red' class='roi_thumb_popup' />"
+          var roi_thumb_src = get_roi_thumb_src(roi['id'], 'f00');
+          var thumbHtml = "<img src='"+ roi_thumb_src + "' id='"+ roi['id'] +"_roi_thumb' width=50 height=33 class='roi_thumb'>";
           
           // process the shapes first - note first shape & text
           var firstShape = null;
@@ -790,7 +803,7 @@
       </table>
     </div>
 
-    <img id="roi_thumb_popup" />
+    <img id="roi_thumb_popup" style="border: solid #bbb 1px"/>
     <div id="roi_table_postit" class="postit">
         <h1>ROIs</h1>
         <table id='roi_small_table' border='0' cellpadding='0' cellspacing='1'></table>
@@ -1156,6 +1169,15 @@
             // a ROI (th) click toggles the ROI-shapes 'tbody' below
             var $roiThead = $target.parent().parent();
             toggle_th($roiThead);
+        } else if ($target.attr('class') == 'color_picker_option') {
+            var line_color = $target.attr('color').substring(1);  // '#f00' -> 'f00'
+            $('.roi_thumb').each(function(){
+                var $thmb = $(this);
+                var roi_id = parseInt($thmb.attr('id'));
+                var thmb_src = get_roi_thumb_src(roi_id, line_color);
+                console.log(thmb_src);
+                $thmb.attr('src', thmb_src);
+            });
         } else if ($target.attr('class') == 'expand_arrow') {
             // clicked on the arrow - need to get the (th)
             var $roiThead = $target.parent().parent().parent();
