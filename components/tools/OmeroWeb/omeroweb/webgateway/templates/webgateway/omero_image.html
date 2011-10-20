@@ -1128,17 +1128,21 @@
         });
     }
     
+    var handleShapeRowClick = function($shapeRow){
+        var shape_id = parseInt($shapeRow.attr('id'));      // E.g. id='123_shape'
+        viewport.viewportimg.get(0).set_selected_shape(shape_id);
+        var z = parseInt( $shapeRow.find('td:nth-child(4)').text() );
+        var t = parseInt( $shapeRow.find('td:nth-child(5)').text() );
+        viewport.setZPos(z);
+        viewport.setTPos(t);
+    }
+    
     $("#roi_small_table").click(function(event) {
         var $target = $(event.target);
         // a shape td click selects the shape.
         if ($target.attr('class') == "shape_cell") {
             var $shapeRow = $target.parent();
-            var shape_id = parseInt($shapeRow.attr('id'));      // E.g. id='123_shape'
-            viewport.viewportimg.get(0).set_selected_shape(shape_id);
-            var z = parseInt( $shapeRow.find('td:nth-child(4)').text() );
-            var t = parseInt( $shapeRow.find('td:nth-child(5)').text() );
-            viewport.setZPos(z);
-            viewport.setTPos(t);
+            handleShapeRowClick($shapeRow);
         } else if ($target.get(0).nodeName.toLowerCase() == 'th'){
             // a ROI (th) click toggles the ROI-shapes 'tbody' below
             var $roiThead = $target.parent().parent();
@@ -1147,6 +1151,16 @@
             // clicked on the arrow - need to get the (th)
             var $roiThead = $target.parent().parent().parent();
             toggle_th($roiThead);
+        } else if ($target.attr('class') == 'roi_thumb') {
+            // roi thumbnail may be in thead/tr/td (ROI - toggle shapes) or tbody/tr/td (shape - update viewer)
+            var $tableRow = $target.parent().parent();
+            var nodeName = $tableRow.parent().get(0).nodeName.toLowerCase();
+            if (nodeName == 'tbody') {
+                handleShapeRowClick($tableRow);
+            }
+            else if (nodeName == 'thead') {
+                toggle_th($tableRow.parent());
+            }
         }
         return false;
     });
