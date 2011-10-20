@@ -380,7 +380,7 @@ INPUT.changed {
 }
 
 #roi_table_postit {
-    width:175px;
+    width:300px;
 }
 #roi_table_postit table {
     width: 100%;
@@ -635,12 +635,22 @@ input.spin-button {
     padding: 1px;
 }
 #roi_small_table td {
-    background-color: #fff; 
-    text-align: center;
+    background-color: #fff;
 }
+#roi_small_table .only_child td {
+    background-color: #ddd;
+}
+
 #roi_small_table .shape_cell {
     cursor: pointer;
+    position: relative;
 }
 #roi_small_table .roi_row th {
     cursor: pointer;
+    position: relative;
+}
+#roi_thumb_popup {
+    position: absolute;
+    z-index: 250;
+    display: none;
 }

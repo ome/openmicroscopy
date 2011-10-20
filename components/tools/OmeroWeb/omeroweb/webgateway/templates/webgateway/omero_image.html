@@ -485,37 +485,90 @@
       
       $roi_table.find('tbody').remove();
       
-      // populate table. Cols are: ID, T, Z, Shape
+      // thead for whole table:
+      var roi_html = "<thead><tr>";
+      roi_html += "<th></th>";
+      roi_html += "<th>ROI/shape</th>"; // first shape (count)
+      roi_html += "<th>ID</th>";
+      roi_html += "<th>Z</th>"; // no Z for ROI
+      roi_html += "<th>T</th>"; // no T for ROI
+      roi_html += "<th>Text</th>";
+      roi_html += "<th></th>";
+      roi_html += "</tr></thead>";
+      $roi_table.append($(roi_html));
+      
+      // populate table. Cols are: ID, Z, T, Shape, text
       for (var r=0; r<json.length; r++) {
           var roi = json[r];
           var shapes = roi['shapes'];
           
-          // process the shapes first - note first shape
+          // thumbnail of roi - display small & popup full-size
+          var thumbHtml = "<img src='/webgateway/render_roi_thumbnail/"+ roi['id'] +"/?color=red' width=50 class='roi_thumb'/>";
+          //thumbHtml += "<img src='/webgateway/render_roi_thumbnail/"+ roi['id'] +"/?color=red' class='roi_thumb_popup' />"
+          
+          // process the shapes first - note first shape & text
           var firstShape = null;
+          var firstText = null;
           var shapesHtml = '<tbody>';
           var shape = null;
+          var text;
+          var thumbnail = "";
           for (var s=0; s<shapes.length; s++) {
               shape = shapes[s];
+              if (shape['textValue'] != null) {
+                  text = shape['textValue']
+                  if (firstText == null) firstText = text;
+              } else text = "";
+              var indent = "&nbsp&nbsp&nbsp&nbsp";    // hacked indent, but not if shape is only-child
+              if (shapes.length == 1) {
+                  indent = "";
+                  thumbnail = thumbHtml;
+                  thumbHtml = "";
+              }
               shapesHtml += "<tr id='"+shape['id']+"_shape' class='shape_row'>";
               // clicking on any cell of a shape 'shape_cell' selects it
+              shapesHtml += "<td></td>";
+              shapesHtml += "<td class='shape_cell'>" +indent+ shape['type'] + "</td>";
               shapesHtml += "<td class='shape_cell'>" + shape['id'] + "</td>"
               shapesHtml += "<td class='shape_cell'>" + (shape['theZ']+1) + "</td>";
               shapesHtml += "<td class='shape_cell'>" + (shape['theT']+1) + "</td>";
-              shapesHtml += "<td class='shape_cell'>" + shape['type'] + "</td></tr>";
+              shapesHtml += "<td class='shape_cell'>" + text + "</td>";
+              shapesHtml += "<td class='shape_cell'>" + thumbnail + "</td>";
+              shapesHtml += "</tr>";
               if (firstShape == null) firstShape = shape['type'];
           }
+          if (firstText == null) firstText = "";
           shapesHtml += '</tbody>';
           
           // new tbody for each ROI
           var roi_html = "<thead><tr class='roi_row'>";
+          roi_html += "<th><img class='expand_arrow' src='/appmedia/webgateway/img/arrowRight_grey.png' /></th>";
+          roi_html += "<th align='left'>" + firstShape + " (" + shapes.length + ")</th>"; // first shape (count)
           roi_html += "<th>" + roi['id'] + "</th>";
-          roi_html += "<th>Z</th>"; // no Z for ROI
-          roi_html += "<th>T</th>"; // no T for ROI
-          roi_html += "<th>" + firstShape + " (" + shapes.length + ")</th>"; // first shape (count)
+          roi_html += "<th></th>"; // no Z for ROI
+          roi_html += "<th></th>"; // no T for ROI
+          roi_html += "<th>"+ firstText +"</th>";
+          roi_html += "<th>"+ thumbHtml +"</th>";
           roi_html += "</tr></thead>";
           
-          $roi_table.append($(roi_html));      // add the roi thead
-          $roi_table.append($(shapesHtml));    // add the tbody
+          var tbody = $(shapesHtml);
+          if (shapes.length > 1) {
+              $roi_table.append($(roi_html));      // add the roi thead
+          } else {
+              tbody.addClass('only_child');
+          }
+          $roi_table.append(tbody);    // add the tbody
+          
+          // now bind mouseover
+          var $roi_thumb_popup = $('#roi_thumb_popup');
+          $('.roi_thumb').hover(function(e) {
+              $roi_thumb_popup.attr('src', $(this).attr('src')).show();
+          }, function(e){
+              $roi_thumb_popup.hide();
+          });
+          $('.roi_thumb').mousemove(function(e) {
+                $roi_thumb_popup.css({ 'left': e.pageX+5, 'top': e.pageY+5 })
+          });
       }
   }
   
@@ -525,6 +578,7 @@
       $("#roi_table_postit").show();
       var $roi_table = $("#roi_small_table");
       $roi_table.find('tbody').hide();  // hides the shapes
+      $roi_table.find('tbody.only_child').show();
       
       //var roi_count = $roi_table.find('thead').length;
       //var shape_count = $roi_table.find('tbody tr').length;
@@ -536,10 +590,13 @@
         var $roi_table = $("#roi_small_table");
         // show the rows
         var $row = $("#"+shape_id+"_shape");
-        $roi_table.find('tbody').children().children().css('background-color', '#fff');// all rows white...
-        // $roi_table.find('tbody').hide();
+        $roi_table.find('tbody').children().children().css('background-color', null);// all rows white...
         $row.children().css('background-color', '#d0d0ff');      // ...show this row blue
         $row.parent().show();   // show this 'tbody' set of shapes
+        var arrow_src = '/appmedia/webgateway/img/arrowDown_grey.png';
+        $row.parent().prev('thead').find('img.expand_arrow').attr('src', arrow_src);
+        var arrow_src = '/appmedia/webgateway/img/arrowRight_grey.png';
+        
     }
 
   var linePlotPos = function (ev, obj) {
@@ -733,6 +790,7 @@
       </table>
     </div>
 
+    <img id="roi_thumb_popup" />
     <div id="roi_table_postit" class="postit">
         <h1>ROIs</h1>
         <table id='roi_small_table' border='0' cellpadding='0' cellspacing='1'></table>
@@ -1064,22 +1122,50 @@
         }
     });
     
+    var toggle_th = function($roiThead) {
+        $roiThead.next().toggle(0, function(){
+            var vis = $roiThead.next().is(':visible');
+            var arrow_src = '/appmedia/webgateway/img/arrowRight_grey.png';
+            if (vis) {
+                arrow_src = '/appmedia/webgateway/img/arrowDown_grey.png';
+            }
+            $roiThead.find('img.expand_arrow').attr('src', arrow_src);
+        });
+    }
+    
+    var handleShapeRowClick = function($shapeRow){
+        var shape_id = parseInt($shapeRow.attr('id'));      // E.g. id='123_shape'
+        viewport.viewportimg.get(0).set_selected_shape(shape_id);
+        var z = parseInt( $shapeRow.find('td:nth-child(4)').text() );
+        var t = parseInt( $shapeRow.find('td:nth-child(5)').text() );
+        viewport.setZPos(z);
+        viewport.setTPos(t);
+    }
     
     $("#roi_small_table").click(function(event) {
         var $target = $(event.target);
         // a shape td click selects the shape.
         if ($target.attr('class') == "shape_cell") {
             var $shapeRow = $target.parent();
-            var shape_id = parseInt($shapeRow.attr('id'));      // E.g. id='123_shape'
-            viewport.viewportimg.get(0).set_selected_shape(shape_id);
-            var z = parseInt( $shapeRow.find('td:nth-child(2)').text() );
-            var t = parseInt( $shapeRow.find('td:nth-child(3)').text() );
-            viewport.setZPos(z);
-            viewport.setTPos(t);
+            handleShapeRowClick($shapeRow);
         } else if ($target.get(0).nodeName.toLowerCase() == 'th'){
             // a ROI (th) click toggles the ROI-shapes 'tbody' below
             var $roiThead = $target.parent().parent();
-            $roiThead.next().toggle();
+            toggle_th($roiThead);
+        } else if ($target.attr('class') == 'expand_arrow') {
+            // clicked on the arrow - need to get the (th)
+            var $roiThead = $target.parent().parent().parent();
+            toggle_th($roiThead);
+        } else if ($target.attr('class') == 'roi_thumb') {
+            // roi thumbnail may be in thead/tr/td (ROI - toggle shapes) or tbody/tr/td (shape - update viewer)
+            var $tableRow = $target.parent().parent();
+            var nodeName = $tableRow.parent().get(0).nodeName.toLowerCase();
+            if (nodeName == 'tbody') {
+                handleShapeRowClick($tableRow);
+            }
+            else if (nodeName == 'thead') {
+                toggle_th($tableRow.parent());
+            }
         }
         return false;
     });
