@@ -1175,7 +1175,6 @@
                 var $thmb = $(this);
                 var roi_id = parseInt($thmb.attr('id'));
                 var thmb_src = get_roi_thumb_src(roi_id, line_color);
-                console.log(thmb_src);
                 $thmb.attr('src', thmb_src);
             });
         } else if ($target.attr('class') == 'expand_arrow') {
