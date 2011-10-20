@@ -24,7 +24,10 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -32,6 +35,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,10 +58,15 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextPane;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXLabel;
@@ -74,6 +84,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
+import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -102,6 +113,12 @@ class ImporterUI
 	/** The text displayed to notify the user to refresh. */
 	private static final String	REFRESH_TXT = "New containers added. " +
 			"Please Refresh";
+	
+	/** Identifies the style of the document.*/
+	private static final String STYLE = "StyleName";
+	
+	/** The maximum number of characters in the debug text.*/
+	private static final int 	MAX_CHAR = 2000;
 	
 	/** Reference to the model. */
 	private ImporterModel	model;
@@ -133,6 +150,47 @@ class ImporterUI
 	/** The menu displaying the groups the user is a member of. */
     private JPopupMenu	personalMenu;
     
+    /** The debug text.*/
+    private JTextPane	debugTextPane;
+	
+	/**
+	 * Creates the component hosting the debug text.
+	 * 
+	 * @return See above.
+	 */
+	private JComponent createDebugTab()
+	{
+		debugTextPane = new JTextPane();
+		debugTextPane.setEditable(false);
+		StyledDocument doc = (StyledDocument) debugTextPane.getDocument();
+
+		Style style = doc.addStyle(STYLE, null);
+		StyleConstants.setForeground(style, Color.black);
+		StyleConstants.setFontFamily(style, "SansSerif");
+		StyleConstants.setFontSize(style, 12);
+		StyleConstants.setBold(style, false);
+
+		JScrollPane sp = new JScrollPane(debugTextPane);
+		sp.getVerticalScrollBar().addAdjustmentListener(
+				new AdjustmentListener()
+				{
+					public void adjustmentValueChanged(AdjustmentEvent e)
+					{
+						try {
+							debugTextPane.setCaretPosition(
+									debugTextPane.getDocument().getLength());
+						} catch (IllegalArgumentException ex) {
+							//
+						}
+					}
+				}
+		);
+		JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+		panel.add(sp, BorderLayout.CENTER);
+		return panel;
+	}
+	
     /**
      * Sets the defaults of the specified menu item.
      * 
@@ -349,6 +407,21 @@ class ImporterUI
 		if (chooser == null) return;
 		if (model.isMaster()) chooser.addToolBar(buildToolBar());
 		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
+		//if in debug mode insert the debug section
+		Boolean b = (Boolean) 
+			ImporterAgent.getRegistry().lookup("/options/Debug");
+		if (b != null && b.booleanValue()) {
+			IconManager icons = IconManager.getInstance();
+			ClosableTabbedPaneComponent c = new ClosableTabbedPaneComponent(1, 
+					"Debug Text", icons.getIcon(IconManager.DEBUG));
+			c.setCloseVisible(false);
+			c.setClosable(false);
+			double[][] tl = {{TableLayout.FILL}, {TableLayout.FILL}};
+			c.setLayout(new TableLayout(tl));
+			c.add(createDebugTab(), "0, 0");
+			tabs.insertClosableComponent(c);
+		}
+		selectChooser();
 	}
 	
 	/** Indicates to the select the import chooser. */
@@ -571,4 +644,23 @@ class ImporterUI
 	 * @return See above.
 	 */
 	boolean isMaster() { return model.isMaster(); }
+	
+	/** 
+	 * Adds the text to the debug pane.
+	 * 
+	 * @param text The text to display.
+	 */
+	void appendDebugText(String text)
+	{
+		if (debugTextPane == null) return;
+		StyledDocument doc = (StyledDocument) debugTextPane.getDocument();
+		try {
+			doc.insertString(doc.getLength(), text, doc.getStyle(STYLE));
+			if (doc.getLength() > MAX_CHAR)
+				doc.remove(0, doc.getLength()-MAX_CHAR);
+		} catch (Exception e) {
+			//ignore
+		}
+	}
+	
 }

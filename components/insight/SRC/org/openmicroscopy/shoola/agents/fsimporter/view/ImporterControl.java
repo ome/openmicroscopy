@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.util.ErrorDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
@@ -360,6 +361,8 @@ class ImporterControl
 				case 2:
 					model.createDataObject(l.get(0), l.get(1));
 			}
+		} else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
+			view.appendDebugText((String) evt.getNewValue());
 		}
 	}
 	

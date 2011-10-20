@@ -1290,6 +1290,8 @@ public class FileImportComponent
 		} else if (StatusLabel.NO_CONTAINER_PROPERTY.equals(name)) {
 			containerLabel.setText("");
 			noContainer = true;
+		} else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
+			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
 		}
 	}
 
