@@ -192,7 +192,6 @@ class ImporterComponent
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		GroupData group = exp.getDefaultGroup();
 		long oldGroup = -1;
-		System.err.println(group.getId()+" "+group.getName());
 		if (model.getExperimenterId() == exp.getId() &&
 				group.getId() == model.getGroupId())
 			return;
