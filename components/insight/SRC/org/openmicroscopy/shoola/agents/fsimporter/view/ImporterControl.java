@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ExitAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.LogOffAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.PersonalManagementAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.RetryImportAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.SubmitFilesAction;
@@ -105,6 +106,9 @@ class ImporterControl
 	/** Action ID indicating to exit the application. */
 	static final Integer EXIT = 5;
 	
+	/** Action ID indicating to log off the current server. */
+	static final Integer LOG_OFF = 6;
+	
 	/** 
 	 * Reference to the {@link Importer} component, which, in this context,
 	 * is regarded as the Model.
@@ -130,6 +134,7 @@ class ImporterControl
 		actionsMap.put(RETRY_BUTTON, new RetryImportAction(model));
 		actionsMap.put(GROUP_BUTTON, new PersonalManagementAction(model));
 		actionsMap.put(EXIT, new ExitAction(model));
+		actionsMap.put(LOG_OFF, new LogOffAction(model));
 	}
 	
 	/** 

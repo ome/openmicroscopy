@@ -63,6 +63,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.data.events.LogOff;
+import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.SaveEventResponse;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
@@ -130,6 +132,13 @@ public class TaskBarManager
 	private static final String		CLOSE_APP_TEXT = 
 		"Do you really want to close the application?";
 		
+	/** The title displayed before logging out. */
+	private static final String		LOGOUT_TITLE = "Log out";
+		
+	/** The text displayed before logging out. */
+	private static final String		LOGOUT_TEXT = 
+		"Do you really want to disconnect from the server?";
+	
 	/** The view this controller is managing. */
 	private TaskBarView				view;
 	
@@ -358,6 +367,115 @@ public class TaskBarManager
 	}
 	
 	/**
+	 * Logs off from the current server.
+	 * 
+	 * @param evt The event to handle.
+	 */
+	private void handleLogOff(LogOff evt)
+	{
+		if (evt == null) return;
+		if (!((LogOff) evt).isAskQuestion()) {
+			logOut();
+			return;
+		}
+		IconManager icons = IconManager.getInstance(container.getRegistry());
+		Map<Agent, AgentSaveInfo> instances = getInstancesToSave();
+		CheckoutBox msg = new CheckoutBox(view, LOGOUT_TITLE, 
+				LOGOUT_TEXT, 
+				icons.getIcon(IconManager.QUESTION), instances);
+		if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
+			Map<Agent, AgentSaveInfo> map = msg.getInstancesToSave();
+			if (map == null || map.size() == 0) {
+				logOut();
+			} else {
+				List<Object> nodes = new ArrayList<Object>();
+				Iterator i = map.entrySet().iterator();
+				Entry entry;
+				Agent agent;
+				AgentSaveInfo info;
+				while (i.hasNext()) {
+					entry = (Entry) i.next();
+					agent = (Agent) entry.getKey();
+					info = (AgentSaveInfo) entry.getValue();
+					agent.save(info.getInstances());
+					nodes.add(info);
+				}
+				logOut();
+			}
+		}
+	}
+	
+	private void reconnect()
+	{
+		Image img = IconManager.getOMEImageIcon();
+    	Object version = container.getRegistry().lookup(
+    			LookupNames.VERSION);
+    	String v = "";
+    	if (version != null && version instanceof String)
+    		v = (String) version;
+    	OMEROInfo omeroInfo = (OMEROInfo) container.getRegistry().lookup(
+    				LookupNames.OMERODS);
+        
+    	String port = ""+omeroInfo.getPortSSL();
+    	String f = container.resolveFilePath(null, Container.CONFIG_DIR);
+
+		String n = (String) container.getRegistry().lookup(
+				LookupNames.SPLASH_SCREEN_LOGIN);
+		
+		Icon splashLogin = Factory.createIcon(n, f);
+		if (splashLogin == null)
+			splashLogin = IconManager.getLoginBackground();
+    	
+    	
+		ScreenLoginDialog dialog = new ScreenLoginDialog(Container.TITLE, 
+				splashLogin, 
+    			img, v, port);
+		dialog.resetLoginText("Reconnect");
+		
+		dialog.showConnectionSpeed(true);
+		dialog.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (ScreenLogin.QUIT_PROPERTY.equals(name))
+					doExit(false);
+				else if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
+					LoginCredentials lc = (LoginCredentials) evt.getNewValue();
+					if (lc != null) 
+						collectCredentials(lc, 
+								(ScreenLoginDialog) evt.getSource());
+				}
+			}
+		});
+		dialog.setModal(true);
+		UIUtilities.centerAndShow(dialog);
+		dialog.requestFocusOnField();
+		if (success) {
+			container.getRegistry().getEventBus().post(new ReconnectedEvent());
+			success = false;
+		}
+	}
+	
+	/** Disconnects from the current server.*/
+	private void logOut()
+	{
+		try {
+			DataServicesFactory f = 
+				DataServicesFactory.getInstance(container);
+			f.exitApplication(false, false);
+			reconnect();
+		} catch (Exception e) {
+			UserNotifier un = container.getRegistry().getUserNotifier();
+			un.notifyInfo("Log out", "An error occurred while disconnecting" +
+					" from the server.");
+			LogMessage msg = new LogMessage();
+			msg.print("Log out");
+			msg.print(e);
+			container.getRegistry().getLogger().debug(this, msg);
+		}
+	}
+	
+	/**
 	 * The exit action.
 	 * Just forwards to the container.
 	 * 
@@ -416,10 +534,8 @@ public class TaskBarManager
 		try {
 			DataServicesFactory f = 
 				DataServicesFactory.getInstance(container);
-			f.exitApplication(false);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} //ignore
+			f.exitApplication(false, true);
+		} catch (Exception e) {} //ignore
 	}
 	
 	/**  Displays information about software. */
@@ -579,6 +695,7 @@ public class TaskBarManager
         bus.register(this, SaveEventResponse.class);
 
         bus.register(this, SwitchUserGroup.class);
+        bus.register(this, LogOff.class);
 		if (UIUtilities.isMacOS()) {
 			try {
 				MacOSMenuHandler handler = new MacOSMenuHandler(view);
@@ -597,36 +714,39 @@ public class TaskBarManager
      * Collects the user credentials.
      * 
      * @param lc The value collected.
+     * @param dialog the dialog to handle.
      */
-    private void collectCredentials(LoginCredentials lc)
+    private void collectCredentials(LoginCredentials lc,
+    		ScreenLoginDialog dialog)
     {
     	UserCredentials uc = new UserCredentials(lc.getUserName(), 
 				lc.getPassword(), lc.getHostName(), lc.getSpeedLevel());
 		uc.setPort(lc.getPort());
 		uc.setEncrypted(lc.isEncrypted());
+		uc.setGroup(lc.getGroup());
 		LoginService svc = (LoginService) 
 			container.getRegistry().lookup(LookupNames.LOGIN);
 		switch (svc.login(uc)) {
 			case LoginService.CONNECTED:
 				//needed b/c need to retrieve user's details later.
 	            container.getRegistry().bind(LookupNames.USER_CREDENTIALS, uc);
-	            login.close();
+	            dialog.close();
 	            success = true;
 	            break;
 			case LoginService.TIMEOUT:
 				success = false;
 				svc.notifyLoginTimeout();
-				if (login != null) {
-					login.cleanField(ScreenLogin.PASSWORD_FIELD);
-					login.requestFocusOnField();
+				if (dialog != null) {
+					dialog.cleanField(ScreenLogin.PASSWORD_FIELD);
+					dialog.requestFocusOnField();
 				}
 				break;
 			case LoginService.NOT_CONNECTED:
 				success = false;
 				svc.notifyLoginFailure();
-				if (login != null) {
-					login.cleanField(ScreenLogin.PASSWORD_FIELD);
-					login.requestFocusOnField();
+				if (dialog != null) {
+					dialog.cleanField(ScreenLogin.PASSWORD_FIELD);
+					dialog.requestFocusOnField();
 				}
 		}
     }
@@ -759,6 +879,8 @@ public class TaskBarManager
 			handleSwitchUserGroup((SwitchUserGroup) e);
         else if (e instanceof SaveEventResponse) 
         	handleSaveEventResponse((SaveEventResponse) e);
+        else if (e instanceof LogOff)
+        	handleLogOff((LogOff) e);
 	}
 
 	/**
@@ -780,7 +902,7 @@ public class TaskBarManager
 			else doExit(true);
 		} else if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
 			LoginCredentials lc = (LoginCredentials) evt.getNewValue();
-			if (lc != null) collectCredentials(lc);
+			if (lc != null) collectCredentials(lc, login);
 		} else if (ScreenLogin.QUIT_PROPERTY.equals(name)) {
 			login.close();
 			success = false;

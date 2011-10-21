@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -129,7 +130,7 @@ public class ImporterAgent
     }
 
     /**
-     * Removes all the references to the existing viewers.
+     * Removes all the references to the existing imports.
      * 
      * @param evt The event to handle.
      */
@@ -137,6 +138,18 @@ public class ImporterAgent
     {
     	if (evt == null) return;
     	ImporterFactory.onGroupSwitched(evt.isSuccessful());
+    }
+    
+    /**
+     * Indicates that it was possible to reconnect.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleReconnectedEvent(ReconnectedEvent evt)
+    {
+    	if (evt == null) return;
+    	//check if the importer is the master.
+    	ImporterFactory.onReconnected();
     }
     
 	/** Creates a new instance. */
@@ -174,8 +187,6 @@ public class ImporterAgent
         				type = Importer.SCREEN_TYPE;
         		}
         	}
-    		
-    		
     		importer.activate(type, null, null);
     	}
     }
@@ -196,6 +207,7 @@ public class ImporterAgent
         EventBus bus = registry.getEventBus();
         bus.register(this, LoadImporter.class);
         bus.register(this, UserGroupSwitched.class);
+        bus.register(this, ReconnectedEvent.class);
     }
 
     /**
@@ -204,7 +216,7 @@ public class ImporterAgent
      */
     public boolean canTerminate()
     { 
-    	if (!ImporterFactory.doesImportExist()) return true;
+    	if (!ImporterFactory.doesImporterExist()) return true;
     	Importer importer = ImporterFactory.getImporter();
     	if (importer == null) return true;
     	return !importer.hasOnGoingImport();
@@ -233,6 +245,8 @@ public class ImporterAgent
 			handleLoadImporter((LoadImporter) e);
     	else if (e instanceof UserGroupSwitched)
 			handleUserGroupSwitched((UserGroupSwitched) e);
+    	else if (e instanceof ReconnectedEvent)
+			handleReconnectedEvent((ReconnectedEvent) e);
     }
 
 }

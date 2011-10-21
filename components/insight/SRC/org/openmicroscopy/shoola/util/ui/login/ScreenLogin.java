@@ -1091,6 +1091,17 @@ public class ScreenLogin
 		this(null, logo, frameIcon, null, null);
 	}
 
+	/**
+	 * Resets the login text.
+	 * 
+	 * @param value The value to set.
+	 */
+	void resetLoginText(String value)
+	{
+		if (value == null || value.trim().length() == 0) return;
+		pleaseLogIn.setText(value);
+	}
+	
 	/** 
 	 * Indicates to show or hide the connection speed selection. 
 	 * By default the speed is hidden.

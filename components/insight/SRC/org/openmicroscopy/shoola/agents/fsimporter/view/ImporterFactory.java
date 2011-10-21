@@ -81,11 +81,11 @@ public class ImporterFactory
 	 * 
 	 * @return See above.
 	 */
-	public static boolean doesImportExist()
+	public static boolean doesImporterExist()
 	{
 		return singleton.importer != null;
 	}
-	
+
 	/**
 	 * Returns a {@link Importer}.
 	 * 
@@ -112,11 +112,20 @@ public class ImporterFactory
 		if (!success)  return;
 		if (singleton.importer != null && 
 				((ImporterComponent) singleton.importer).isMaster()) {
-			singleton.importer.onGroupSwitched(success);
+			((ImporterComponent) singleton.importer).onGroupSwitched(success);
 			return;
 		}
 		singleton.clear();
 	}
+	
+	public static void onReconnected()
+	{
+		if (singleton.importer != null && 
+				((ImporterComponent) singleton.importer).isMaster()) {
+			((ImporterComponent) singleton.importer).onReconnected();
+		}
+	}
+	
 	
 	/** 
 	 * Returns the <code>window</code> menu. 

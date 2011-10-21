@@ -127,6 +127,13 @@ public class ScreenLoginDialog
 		setCursor(view.getCursor());
 	}
 
+	/**
+	 * Resets the login text.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void resetLoginText(String value) { view.resetLoginText(value); }
+	
 	/** Closes the dialog. */
 	public void close()
 	{

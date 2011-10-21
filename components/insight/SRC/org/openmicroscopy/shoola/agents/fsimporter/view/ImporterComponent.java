@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.data.events.LogOff;
 import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
@@ -160,6 +161,47 @@ class ImporterComponent
 	 * @return See above.
 	 */
 	boolean isMaster() { return model.isMaster(); }
+	
+	/** 
+	 * Indicates that the group has been successfully switched if 
+	 * <code>true</code>, unsuccessfully if <code>false</code>.
+	 * 
+	 * @param success 	Pass <code>true</code> if successful, 
+	 * 					<code>false</code> otherwise.
+	 */
+	void onGroupSwitched(boolean success)
+	{
+		if (!model.isMaster()) return;
+		if (!success) return;
+		ExperimenterData exp = ImporterAgent.getUserDetails();
+		GroupData group = exp.getDefaultGroup();
+		long oldGroup = model.getGroupId();
+		model.setGroupId(group.getId());
+		refreshContainers(chooser.getType());
+		firePropertyChange(CHANGED_GROUP_PROPERTY, oldGroup, 
+				model.getGroupId());
+	}
+
+	
+	/** 
+	 * Indicate that it was possible to reconnect.
+	 */
+	void onReconnected()
+	{
+		if (!model.isMaster()) return;
+		ExperimenterData exp = ImporterAgent.getUserDetails();
+		GroupData group = exp.getDefaultGroup();
+		long oldGroup = -1;
+		System.err.println(group.getId()+" "+group.getName());
+		if (model.getExperimenterId() == exp.getId() &&
+				group.getId() == model.getGroupId())
+			return;
+		model.setGroupId(group.getId());
+		chooser.onReconnected(view.buildToolBar());
+		refreshContainers(chooser.getType());
+		firePropertyChange(CHANGED_GROUP_PROPERTY, oldGroup, 
+				model.getGroupId());
+	}
 	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
@@ -641,19 +683,13 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#onGroupSwitched(boolean)
+	 * @see Importer#logOff()
 	 */
-	public void onGroupSwitched(boolean success)
+	public void logOff()
 	{
-		if (!model.isMaster()) return;
-		if (!success) return;
-		ExperimenterData exp = ImporterAgent.getUserDetails();
-		GroupData group = exp.getDefaultGroup();
-		long oldGroup = model.getGroupId();
-		model.setGroupId(group.getId());
-		refreshContainers(chooser.getType());
-		firePropertyChange(CHANGED_GROUP_PROPERTY, oldGroup, 
-				model.getGroupId());
+		if (model.getState() == IMPORTING) return;
+		Registry reg = ImporterAgent.getRegistry();
+		reg.getEventBus().post(new LogOff());
 	}
 
 }

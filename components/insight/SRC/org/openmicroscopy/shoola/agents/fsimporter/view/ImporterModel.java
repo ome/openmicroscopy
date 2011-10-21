@@ -80,10 +80,14 @@ class ImporterModel
 	/** The id of the selected group of the current user. */
 	private long					groupId;
 
+	/** The id of the user currently logged in.*/
+	private long 					experimenterId;
+	
 	/** Initializes the model.*/
 	private void initialize()
 	{
 		groupId = -1;
+		experimenterId = -1;
 		state = Importer.NEW;
 		loaders = new HashMap<Integer, ImagesImporter>();
 	}
@@ -110,7 +114,11 @@ class ImporterModel
 	 * 
 	 * @param groupId The group's identifier.
 	 */
-	void setGroupId(long groupId) { this.groupId = groupId; }
+	void setGroupId(long groupId)
+	{ 
+		this.groupId = groupId;
+		experimenterId = ImporterAgent.getUserDetails().getId();
+	}
 	
 	/**
 	 * Returns the group's identifier.
@@ -118,6 +126,13 @@ class ImporterModel
 	 * @return See above.
 	 */
 	long getGroupId() { return groupId; }
+	
+	/**
+	 * Returns the experimenter's identifier.
+	 * 
+	 * @return See above.
+	 */
+	long getExperimenterId() { return experimenterId; }
 	
 	/**
 	 * Returns <code>true</code> if the agent is the entry point

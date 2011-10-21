@@ -397,6 +397,9 @@ public class ImportDialog
 	/** The component displaying the component.*/
 	private JComponent toolBar;
 	
+	/** The number of items before adding new elements to the tool bar.*/
+	private int			tbItems;
+	
 	/** 
 	 * Creates the dataset.
 	 * 
@@ -1585,6 +1588,7 @@ public class ImportDialog
 		toolBar.add(Box.createHorizontalStrut(5));
 		toolBar.add(locationLabel);
 		toolBar.add(Box.createHorizontalStrut(5));
+		tbItems = toolBar.getComponentCount();
 		return toolBar;
 	}
 	
@@ -2307,6 +2311,29 @@ public class ImportDialog
 	{
 		if (bar == null) return;
 		toolBar.add(bar);
+	}
+	
+	/**
+	 * Refreshes the display when the user reconnect to server.
+	 * 
+	 * @param bar The component to add.
+	 */
+	public void onReconnected(JComponent bar)
+	{
+		int n = toolBar.getComponentCount();
+		int diff = n-tbItems;
+		if (diff > 0) {
+			for (int i = 0; i < diff; i++) {
+				toolBar.remove(tbItems+i);
+			}
+			toolBar.add(bar);
+			toolBar.validate();
+			toolBar.repaint();
+		}
+		table.removeAllFiles();
+		locationPane.repaint();
+		tagsPane.removeAll();
+		tagsMap.clear();
 	}
 	
 	/** 

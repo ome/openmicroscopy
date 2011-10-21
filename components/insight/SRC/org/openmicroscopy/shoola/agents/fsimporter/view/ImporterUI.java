@@ -239,22 +239,6 @@ class ImporterUI
         //}
         personalMenu.show(c, p.x, p.y);
     }
-    /** 
-     * Builds the toolbar when the importer is the entry point.
-     * 
-     * @return See above.
-     */
-    private JComponent buildToolBar()
-    {
-        Set set = ImporterAgent.getAvailableUserGroups();
-        if (set == null || set.size() == 0) return null;
-        
-    	ImporterAction a = controller.getAction(ImporterControl.GROUP_BUTTON);
-    	JButton b = new JButton(a);
-    	UIUtilities.unifiedButtonLookAndFeel(b);
-        b.addMouseListener((PersonalManagementAction) a);
-        return b;
-    }
     
 	/**
 	 * Builds and lays out the controls.
@@ -341,6 +325,7 @@ class ImporterUI
     {
         JMenu menu = new JMenu("File");
         menu.setMnemonic(KeyEvent.VK_F);
+        menu.add(new JMenuItem(controller.getAction(ImporterControl.LOG_OFF)));
         menu.add(new JMenuItem(controller.getAction(ImporterControl.EXIT)));
         return menu;
     }
@@ -663,4 +648,21 @@ class ImporterUI
 		}
 	}
 	
+    /** 
+     * Builds the toolbar when the importer is the entry point.
+     * 
+     * @return See above.
+     */
+    JComponent buildToolBar()
+    {
+        Set set = ImporterAgent.getAvailableUserGroups();
+        if (set == null || set.size() == 0) return null;
+        
+    	ImporterAction a = controller.getAction(ImporterControl.GROUP_BUTTON);
+    	a.setEnabled(set.size() > 1);
+    	JButton b = new JButton(a);
+    	UIUtilities.unifiedButtonLookAndFeel(b);
+        b.addMouseListener((PersonalManagementAction) a);
+        return b;
+    }
 }

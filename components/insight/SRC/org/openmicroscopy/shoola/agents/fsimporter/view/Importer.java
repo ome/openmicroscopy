@@ -290,15 +290,8 @@ public interface Importer
 	 * @param group The group to set.
 	 */
 	void setUserGroup(GroupData group);
-	
-	/** 
-	 * Indicates that the group has been successfully switched if 
-	 * <code>true</code>, unsuccessfully if <code>false</code>.
-	 * 
-	 * @param success 	Pass <code>true</code> if successful, 
-	 * 					<code>false</code> otherwise.
-	 */
-	void onGroupSwitched(boolean success);
-	
+
+	/** Logs off from the current server.*/
+	void logOff();
 
 }
