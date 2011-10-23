@@ -742,38 +742,63 @@ class PropertiesUI
      */
     private JPanel buildProperties()
     {
-    	 JPanel p = new JPanel();
-    	 p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-    	 p.setBackground(UIUtilities.BACKGROUND_COLOR);
-         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-         JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
-         l.setBackground(UIUtilities.BACKGROUND_COLOR);
-         int w = editName.getIcon().getIconWidth()+4;
-         p.add(layoutEditablefield(null, l));
-         l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
-         l.setBackground(UIUtilities.BACKGROUND_COLOR);
-         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
-         l = UIUtilities.buildComponentPanel(gpLabel, 0, 0);
-         l.setBackground(UIUtilities.BACKGROUND_COLOR);
-         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
-         l = UIUtilities.buildComponentPanel(parentLabel, 0, 0);
-         l.setBackground(UIUtilities.BACKGROUND_COLOR);
-         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
-         l = UIUtilities.buildComponentPanel(wellLabel, 0, 0);
-         l.setBackground(UIUtilities.BACKGROUND_COLOR);
-         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
-         
+    	Object refObject = model.getRefObject();
+        boolean view = false;
+        if (refObject instanceof ImageData) {
+        	ImageData img = (ImageData) refObject;
+        	try {
+        		img.getDefaultPixels();
+        		view = true;
+    		} catch (Exception e) {}
+        } else if (refObject instanceof WellSampleData) {
+        	ImageData img = ((WellSampleData) refObject).getImage();
+        	if (img != null && img.getId() > 0) {
+        		img.getDefaultPixels();
+        		view = true;
+        	}
+        }
+        JButton button = null;
+        if (view) {
+        	IconManager icons = IconManager.getInstance();
+        	button = new JButton(icons.getIcon(IconManager.VIEW));
+        	button.setToolTipText("Open the Image Viewer");
+        	button.setActionCommand(""+EditorControl.VIEW_IMAGE);
+        	button.addActionListener(controller);
+        	UIUtilities.unifiedButtonLookAndFeel(button);
+        }
+        
+        JPanel p = new JPanel();
+        p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        p.setBackground(UIUtilities.BACKGROUND_COLOR);
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
+        l.setBackground(UIUtilities.BACKGROUND_COLOR);
+        int w = editName.getIcon().getIconWidth()+4;
+        p.add(layoutEditablefield(button, l));
+        l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
+        l.setBackground(UIUtilities.BACKGROUND_COLOR);
+        p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
+        l = UIUtilities.buildComponentPanel(gpLabel, 0, 0);
+        l.setBackground(UIUtilities.BACKGROUND_COLOR);
+        p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
+        l = UIUtilities.buildComponentPanel(parentLabel, 0, 0);
+        l.setBackground(UIUtilities.BACKGROUND_COLOR);
+        p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
+        l = UIUtilities.buildComponentPanel(wellLabel, 0, 0);
+        l.setBackground(UIUtilities.BACKGROUND_COLOR);
+        p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
+
          namePanel = layoutEditablefield(editName, namePane);
          p.add(namePanel);
          p.add(Box.createVerticalStrut(5));
-         Object refObject = model.getRefObject();
-         if ((refObject instanceof ImageData) || 
-            (refObject instanceof DatasetData) ||
-        	(refObject instanceof ProjectData) || 
-        	(refObject instanceof TagAnnotationData) ||
-        	(refObject instanceof WellSampleData) |
-        	(refObject instanceof PlateData) ||
-        	(refObject instanceof ScreenData)) {
+         
+         if (refObject instanceof ImageData ||
+            refObject instanceof DatasetData ||
+            refObject instanceof ProjectData ||
+        	refObject instanceof TagAnnotationData ||
+        	refObject instanceof WellSampleData ||
+        	refObject instanceof PlateData ||
+        	refObject instanceof ScreenData) {
         	 p.add(Box.createVerticalStrut(5));
         	 descriptionPanel = layoutEditablefield(editDescription, 
         			 descriptionPane, 5);
