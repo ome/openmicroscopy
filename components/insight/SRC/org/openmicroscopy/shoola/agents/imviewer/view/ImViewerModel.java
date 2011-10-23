@@ -842,6 +842,7 @@ class ImViewerModel
 		PlaneDef pDef = createPlaneDef();
 		state = ImViewer.LOADING_IMAGE;
 		if (firstTime) {
+			browser.setUnitBar(true);
 			long pixelsID = getImage().getDefaultPixels().getId();
 			ImageLoader loader = new ImageLoader(component, pixelsID, pDef, 
 					false);

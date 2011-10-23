@@ -119,7 +119,8 @@ class BrowserModel
     
     /** 
      * Flag to indicate if the unit bar is painted or not on top of the
-     * displayed image.
+     * displayed image. This option will be always set to <code>false</code>
+     * if no value in microns see #7057.
      */
     private boolean         	unitBar;
     
@@ -440,7 +441,7 @@ class BrowserModel
         if (parent == null) throw new IllegalArgumentException("No parent.");
         //unloaded image data
         this.parent = parent;
-        unitBar = true;
+        unitBar = false;
         ratio = ZoomGridAction.DEFAULT_ZOOM_FACTOR;
         gridRatio = ZoomGridAction.DEFAULT_ZOOM_FACTOR;
         init = true;
@@ -495,7 +496,7 @@ class BrowserModel
         		if (imageWidth < ImViewer.MINIMUM_SIZE) {
         			ratio = 1;
         			gridRatio = 1;
-        			unitBar = false;
+        			setUnitBar(false);
         		}
         		if (imageWidth*ratio > ImViewer.MAXIMUM_SIZE)
         			ratio = (double) ImViewer.MAXIMUM_SIZE/imageWidth;
@@ -656,7 +657,12 @@ class BrowserModel
      * @param unitBar   Pass <code>true</code> to paint the unit bar, 
      *                  <code>false</code> otherwise.
      */
-    void setUnitBar(boolean unitBar) { this.unitBar = unitBar; }
+    void setUnitBar(boolean unitBar)
+    {
+    	double v = parent.getPixelsSizeX();
+    	if (v == 0 || v == 1) unitBar = false;
+    	this.unitBar = unitBar;
+    }
     
     /**
      * Sets the size of the unit bar.
@@ -1109,7 +1115,7 @@ class BrowserModel
         		if (imageWidth < ImViewer.MINIMUM_SIZE) {
         			ratio = 1;
         			gridRatio = 1;
-        			unitBar = false;
+        			setUnitBar(false);
         		}
         		if (imageWidth*ratio > ImViewer.MAXIMUM_SIZE)
         			ratio = (double) ImViewer.MAXIMUM_SIZE/imageWidth;
