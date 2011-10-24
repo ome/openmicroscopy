@@ -240,14 +240,17 @@ function gs_getResultLineLinks (data, baseurl, renderurl) {
     renderurl = baseurl;
   }
     var figurl;
+    var imgurl;
     if (data.screenId && data.screenId != 0) {
-        figurl = baseurl+'browse/'+data.projectId+'/S'+data.screenId+'/'+data.datasetId+'/'
+        figurl = baseurl+'browse/'+data.projectId+'/S'+data.screenId+'/P'+data.datasetId+'/'
+        imgurl = baseurl+'browse/'+data.projectId+'/S'+data.screenId+'/'+data.imageId+'/';
     } else {
         figurl = baseurl+'browse/'+data.projectId+'/'+data.datasetId+'/'
+	imgurl = baseurl+'browse/'+data.projectId+'/'+data.datasetId+'/'+data.imageId+'/';
     }
   return {
     figure: figurl,
-    img: baseurl+'browse/'+data.projectId+'/'+data.datasetId+'/'+data.imageId+'/',
+    img: imgurl,
     thumb: renderurl+'render_thumbnail/'+data.imageId+'/',
     viewer: baseurl+'img_detail/'+data.imageId+'/'+data.datasetId+'/',
     paper: baseurl+'browse/'+data.projectId+'/',
