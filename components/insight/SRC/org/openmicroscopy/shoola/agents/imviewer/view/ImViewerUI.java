@@ -1326,6 +1326,7 @@ class ImViewerUI
 				UIUtilities.roundTwoDecimals(m*d)+" "+
 				EditorUtil.MICRONS_NO_BRACKET+")";
 			text += "/"+(model.getMaxZ()+1);
+			controlPane.setRangeSliderToolTip(n, m);
 		} else {
 			n = model.getDefaultZ();
 			text += "Z="+(n+1);
