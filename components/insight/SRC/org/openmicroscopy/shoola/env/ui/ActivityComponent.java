@@ -741,7 +741,7 @@ public abstract class ActivityComponent
 		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
 		notifyActivityError();
 		EventBus bus = registry.getEventBus();
-		bus.post(new ActivityProcessEvent(this, false));
+		bus.post(new ActivityProcessEvent(this, true));
 	}
 	
 	/**
