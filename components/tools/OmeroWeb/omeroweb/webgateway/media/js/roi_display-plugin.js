@@ -37,7 +37,7 @@ $.fn.roi_display = function(options) {
         
         // for keeping track of objects - E.g. de-select all. 
         var shape_objects = new Array();
-        var shape_default = {'fill-opacity':0.5, opacity:0.7}
+        var shape_default = {'fill-opacity':0.5, 'opacity':0.7, 'cursor':'default'}
         
         // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
         var paper = new ScaleRaphael(canvas_name, orig_width, orig_height);

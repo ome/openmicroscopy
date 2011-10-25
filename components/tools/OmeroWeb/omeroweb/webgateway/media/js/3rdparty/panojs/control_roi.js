@@ -1,4 +1,4 @@
-PanoJS.CONTROL_ROI_STYLE = "position: absolute; z-index: 15 ";
+PanoJS.CONTROL_ROI_STYLE = "position: absolute;";
 
 function ROIControl(viewer) {
   this.viewer = viewer; 
@@ -30,7 +30,6 @@ ROIControl.prototype.createDOMElements = function() {
     this.dom_element = document.createElement('div');
     this.dom_element.id = 'roi_canvas_big';
     this.dom_element.className = 'roi_canvas_big';
-    this.dom_element.style.zIndex = 15;
     this.dom_element.setAttribute("style", PanoJS.CONTROL_ROI_STYLE);
     de.appendChild(this.dom_element); 
     
