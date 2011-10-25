@@ -443,6 +443,38 @@ $.fn.viewportImage = function(options) {
                 loadingTile     : '/appmedia/webgateway/img/3rdparty/panojs/blank.gif'//'progress.gif'
             });
             
+            viewerBean.mouseReleasedHandler = function(e) {
+                e = e ? e : window.event;
+                if (!this.pressed) return false;
+                var coords = this.resolveCoordinates(e);
+                var motion = {
+                    'x' : (coords.x - this.mark.x),
+                    'y' : (coords.y - this.mark.y)
+                };
+                var moved = this.mouse_have_moved;
+                this.release(coords);
+
+                if (!moved) return false;
+
+
+                // only if there was little movement
+                if (moved || motion.x>5 || motion.y>5) return false;
+
+                if (e.button == 2) {
+                    this.blockPropagation(e);      
+                    this.zoom(-1);    
+                } else
+                // move on one click
+                if (e.button < 2) {
+                    //if (!this.pointExceedsBoundaries(coords)) {
+                        this.resetSlideMotion();
+                        this.recenter(coords);
+                    //} 
+                }
+
+                return false;
+            }
+            
             // thumbnail url overwritten
             // bird-eye view cannot relay on levels in order to load thumbail,
             // becuase of the way pyramid is generated.
