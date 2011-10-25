@@ -496,7 +496,7 @@
       for (var c in colours) {
           color_picker += "<div class='color_picker_option' color='" + colours[c] + "' style='background: " + colours[c] + "'> </div>";
       }
-      
+      var toggle_roi_thumbs = "<input type='checkbox' id='toggle_roi_thumbs' title='Show ROI Previews' />";
       
       // thead for whole table:
       var roi_html = "<thead><tr>";
@@ -506,7 +506,7 @@
       roi_html += "<th>Z</th>"; // no Z for ROI
       roi_html += "<th>T</th>"; // no T for ROI
       roi_html += "<th>Text</th>";
-      roi_html += "<th title='Pick colour of ROI outlines'>" + color_picker + "</th>";
+      roi_html += "<th title='Pick colour of ROI outlines'><div style='white-space:nowrap;'>" + toggle_roi_thumbs + "Preview</div>"+ color_picker + "</th>";
       roi_html += "</tr></thead>";
       $roi_table.append($(roi_html));
       
@@ -516,8 +516,9 @@
           var shapes = roi['shapes'];
           
           // thumbnail of roi - display small & popup full-size
-          var roi_thumb_src = get_roi_thumb_src(roi['id'], 'f00');
-          var thumbHtml = "<img src='"+ roi_thumb_src + "' id='"+ roi['id'] +"_roi_thumb' width=50 height=33 class='roi_thumb'>";
+          var roi_thumb_src = "";
+          var line_color = 'f00';   // store current line color, used when we 'show' thumbs to get url. 
+          var thumbHtml = "<img src='"+ roi_thumb_src + "' id='"+ roi['id'] +"_roi_thumb' color='"+ line_color +"' width=50 height=33 class='roi_thumb'>";
           
           // process the shapes first - note first shape & text
           var firstShape = null;
@@ -578,7 +579,8 @@
               $roi_thumb_popup.attr('src', $(this).attr('src')).show();
           }, function(e){
               $roi_thumb_popup.hide();
-          });
+          })
+            .hide();    // don't show thumbs initially
           $('.roi_thumb').mousemove(function(e) {
                 $roi_thumb_popup.css({ 'left': e.pageX+5, 'top': e.pageY+5 })
           });
@@ -610,6 +612,31 @@
         $row.parent().prev('thead').find('img.expand_arrow').attr('src', arrow_src);
         var arrow_src = '/appmedia/webgateway/img/arrowRight_grey.png';
         
+    }
+    
+    // update src of roi_thumbnails, based on colour. If 'null', set no src and hide thumbs
+    var update_roi_thumbs = function(line_color) {
+        // we set visibility based on 'toggle_roi_thumbs' checkbox
+        var vis = ($("#toggle_roi_thumbs").attr('checked') == true);
+        $('.roi_thumb').each(function(){
+            var $thmb = $(this);
+            if (vis) {
+                if ((typeof line_color == 'undefined') || (line_color == null)) {
+                    // update src based on color attribute
+                    line_color = $thmb.attr('color');
+                } else {
+                    $thmb.attr('color', line_color);
+                }
+                var roi_id = parseInt($thmb.attr('id'));
+                var thmb_src = get_roi_thumb_src(roi_id, line_color);
+                $thmb.attr('src', thmb_src);
+                $thmb.show();
+            } else {
+                // hide thumb and remove src (don't load thumbs)
+                $thmb.attr('src', '');
+                $thmb.hide();
+            }
+        });
     }
 
   var linePlotPos = function (ev, obj) {
@@ -1161,8 +1188,11 @@
     
     $("#roi_small_table").click(function(event) {
         var $target = $(event.target);
-        // a shape td click selects the shape.
-        if ($target.attr('class') == "shape_cell") {
+        if ($target.attr('id') == "toggle_roi_thumbs") {
+            update_roi_thumbs();
+            return true;
+        } else if ($target.attr('class') == "shape_cell") {
+            // a shape td click selects the shape.
             var $shapeRow = $target.parent();
             handleShapeRowClick($shapeRow);
         } else if ($target.get(0).nodeName.toLowerCase() == 'th'){
@@ -1170,13 +1200,9 @@
             var $roiThead = $target.parent().parent();
             toggle_th($roiThead);
         } else if ($target.attr('class') == 'color_picker_option') {
+            // change the colour of lines drawn on roi_thumbs
             var line_color = $target.attr('color').substring(1);  // '#f00' -> 'f00'
-            $('.roi_thumb').each(function(){
-                var $thmb = $(this);
-                var roi_id = parseInt($thmb.attr('id'));
-                var thmb_src = get_roi_thumb_src(roi_id, line_color);
-                $thmb.attr('src', thmb_src);
-            });
+            update_roi_thumbs(line_color);
         } else if ($target.attr('class') == 'expand_arrow') {
             // clicked on the arrow - need to get the (th)
             var $roiThead = $target.parent().parent().parent();
