@@ -379,9 +379,6 @@ INPUT.changed {
   /* max-width: 600px; */
 }
 
-#roi_table_postit {
-    width:300px;
-}
 #roi_table_postit table {
     width: 100%;
 }
@@ -630,6 +627,11 @@ input.spin-button {
 }
 
 /* Styles for the ROI table */
+#roi_table_postit {
+    width:320px;
+    max-height: 500px;
+    overflow: auto;
+}
 #roi_small_table th {
     background-color: #ccc; 
     padding: 1px;
