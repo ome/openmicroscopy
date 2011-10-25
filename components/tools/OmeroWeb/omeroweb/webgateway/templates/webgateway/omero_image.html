@@ -1177,9 +1177,10 @@
         var shape_id = parseInt($shapeRow.attr('id'));      // E.g. id='123_shape'
         var selected_xy = viewport.viewportimg.get(0).set_selected_shape(shape_id);
         var vpb = viewport.viewportimg.get(0).getBigImageContainer();
-        var scale = vpb.currentScale();
-        vpb.recenter({x:selected_xy['x']*scale ,y:selected_xy['y']*scale}, true);
-        
+        if (vpb!= null && viewport.loadedImg.tiles) {
+            var scale = vpb.currentScale();
+            vpb.recenter({x:selected_xy['x']*scale ,y:selected_xy['y']*scale}, true);
+        }
         var z = parseInt( $shapeRow.find('td:nth-child(4)').text() );
         var t = parseInt( $shapeRow.find('td:nth-child(5)').text() );
         viewport.setZPos(z);
