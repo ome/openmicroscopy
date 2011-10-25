@@ -585,13 +585,12 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
     if _conn is None:
         _conn = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
     
+    MAX_WIDTH = 250
     color = request.REQUEST.get("color", "fff")
-    print "color", color
     colours = {"f00":(255,0,0), "0f0":(0,255,0), "00f":(0,0,255), "ff0":(255,255,0), "fff":(255,255,255), "000":(0,0,0)}
     lineColour = colours["f00"]
     if color in colours:
         lineColour = colours[color]
-        print 'lineColour', lineColour
     bg_color = (100,100,100)        # used for padding if we go outside the image area
     
     # need to find the z indices of the first shape in T
@@ -707,6 +706,10 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
     requiredHeight = requiredWidth*2/3
     newW = int(requiredWidth * 1.5)         # make the rendered region 1.5 times larger than the bounding box
     newH = int(requiredHeight * 1.5)
+    # Don't want the region to be smaller than the thumbnail dimensions
+    if newW < MAX_WIDTH:
+        newW = MAX_WIDTH
+        newH = newW*2/3
     xOffset = (newW - w)/2
     yOffset = (newH - h)/2
     newX = int(x - xOffset)
@@ -751,9 +754,8 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
         image = xs_image
     
     # we have our full-sized region. Need to resize to thumbnail. 
-    MAX_WIDTH = 250.0
     current_w, current_h = image.size
-    factor = MAX_WIDTH / current_w
+    factor = float(MAX_WIDTH) / current_w
     resizeH = current_h * factor
     image = image.resize((MAX_WIDTH, resizeH))
     
