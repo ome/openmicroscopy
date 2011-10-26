@@ -591,7 +591,7 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
     lineColour = colours["f00"]
     if color in colours:
         lineColour = colours[color]
-    bg_color = (100,100,100)        # used for padding if we go outside the image area
+    bg_color = (221,221,221)        # used for padding if we go outside the image area
     
     # need to find the z indices of the first shape in T
     roiResult = _conn.getRoiService().findByRoi(long(roiId), None)
@@ -792,7 +792,8 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
             x2, y2 = resizedXY[l]
             draw.line((x1, y1, x2, y2), fill=lineColour, width=2)
         start_x, start_y = resizedXY[0]
-        draw.line((x2, y2, start_x, start_y), fill=lineColour, width=2)
+        if shape['type'] != 'PolyLine':
+            draw.line((x2, y2, start_x, start_y), fill=lineColour, width=2)
         
     rv = StringIO()
     compression = 0.9
