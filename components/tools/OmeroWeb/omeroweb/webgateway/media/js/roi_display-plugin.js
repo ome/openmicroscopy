@@ -42,6 +42,87 @@ $.fn.roi_display = function(options) {
         // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
         var paper = new ScaleRaphael(canvas_name, orig_width, orig_height);
         
+        
+        draw_shape = function(shape) {
+            var newShape = null;
+            if (shape['type'] == 'Ellipse') {
+              newShape = paper.ellipse(shape['cx'], shape['cy'], shape['rx'], shape['ry']);
+            }
+            else if (shape['type'] == 'Rectangle') {
+              newShape = paper.rect(shape['x'], shape['y'], shape['width'], shape['height']);
+            }
+            else if (shape['type'] == 'Point') {
+              newShape = paper.ellipse( shape['cx'], shape['cy'], 2, 2);
+            }
+            else if (shape['type'] == 'Line') {
+              // define line as 'path': Move then Line: E.g. "M10 10L90 90"
+              newShape = paper.path("M"+ shape['x1'] +" "+ shape['y1'] +"L"+ shape['x2'] +" "+ shape['y2'] );
+            }
+            else if (shape['type'] == 'PolyLine') {
+              newShape = paper.path( shape['points'] );
+            }
+            else if (shape['type'] == 'Polygon') {
+              newShape = paper.path( shape['points'] );
+            }
+            else if (shape['type'] == 'Label') {
+              if (shape['textValue']) {
+                  newShape = paper.text(shape['x'], shape['y'], shape['textValue']);
+              }
+            }
+            // handle transforms. Insight supports: translate(354.05 83.01) and rotate(0 407.0 79.0)
+            if (shape['transform']) {
+                if (shape['transform'].substr(0, 'translate'.length) === 'translate'){
+                    var tt = shape['transform'].replace('translate(', '').replace(')', '').split(" ");
+                    var tx = parseInt(tt[0]);   // only int is supported by Raphael
+                    var ty = parseInt(tt[1]);
+                    newShape.translate(tx,ty);
+                }
+                else if (shape['transform'].substr(0, 'rotate'.length) === 'rotate'){
+                    var tt = shape['transform'].replace('rotate(', '').replace(')', '').split(" ");
+                    var deg = parseFloat(tt[0]);
+                    var rotx = parseFloat(tt[1]);
+                    var roty = parseFloat(tt[2]);
+                    newShape.rotate(deg, rotx, roty);
+                }
+                else if (shape['transform'].substr(0, 'matrix'.length) === 'matrix'){
+                    var tt = shape['transform'].replace('matrix(', '').replace(')', '').split(" ");
+                    var a1 = parseFloat(tt[0]);
+                    var a2 = parseFloat(tt[1]);
+                    var b1 = parseFloat(tt[2]);
+                    var b2 = parseFloat(tt[3]);
+                    var c1 = parseFloat(tt[4]);
+                    var c2 = parseFloat(tt[5]);
+                    var tmatrix = "m"+a1+","+a2+","+b1+","+b2+","+c1+","+c2;
+                    newShape.transform(tmatrix);
+                }
+            }
+            return newShape;
+        }
+        
+        get_tool_tip = function(shape) {
+            var toolTip = "";
+            if (shape['type'] == 'Ellipse') {
+              toolTip = "cx:"+ shape['cx'] +" cy:"+ shape['cy'] +" rx:"+ shape['rx'] + " ry: "+  shape['ry'];
+            }
+            else if (shape['type'] == 'Rectangle') {
+              toolTip = "x:"+ shape['x'] +" y:"+ shape['y'] +
+                " width:"+ shape['width'] + " height: "+  shape['height'];
+            }
+            else if (shape['type'] == 'Point') {
+              toolTip = "cx:"+ shape['cx'] +" cy:"+ shape['cy'];
+            }
+            else if (shape['type'] == 'Line') {
+              toolTip = "x1:"+ shape['x1'] +" y1:"+ shape['y1'] +" x2:"+ shape['x2'] +" y2:"+ shape['y2'];
+            }
+            else if (shape['type'] == 'PolyLine') {
+            }
+            else if (shape['type'] == 'Polygon') {
+            }
+            else if (shape['type'] == 'Label') {
+            }
+            return toolTip;
+        }
+        
         // if the currently selected shape is visible - highlight it
         display_selected = function() {
             
@@ -57,13 +138,34 @@ $.fn.roi_display = function(options) {
                     return s;
                 }
             }
+            return null;
         }
         
         this.set_selected_shape = function(shape_id) {
             selected_shape_id = shape_id;
             $viewportimg.trigger("shape_click", [shape_id]);
-            var sel_shape = display_selected();
-            var bb = sel_shape.getBBox();
+            var sel_shape = display_selected(); 
+            // we will only get the shape if currently displayed (current Z/T section)
+            if (sel_shape===null) {
+                // otherwise we have to work it out by drawing it
+                var bb = null;
+                for (var r=0; r<roi_json.length; r++) {
+                    if (bb != null)   break;
+                    var roi = roi_json[r];
+                    var shapes = roi['shapes'];
+                    var shape = null;
+                    for (var s=0; s<shapes.length; s++) {
+                        shape = shapes[s];
+                        if (shape['id'] == selected_shape_id) {
+                            var newShape = draw_shape(shape);
+                            bb = newShape.getBBox();
+                            newShape.remove();
+                        }
+                    }
+                }
+            } else {
+                var bb = sel_shape.getBBox();
+            }
             var sel_x = bb.x + (bb.width/2);
             var sel_y = bb.y + (bb.height/2);
             return {'x':sel_x, 'y':sel_y};
@@ -113,36 +215,8 @@ $.fn.roi_display = function(options) {
                 for (var s=0; s<shapes.length; s++) {
                     shape = shapes[s];
                     if ((shape['theT'] == theT-1) && (shape['theZ'] == theZ-1)) {
-                        var newShape = null;
-                        var toolTip = ""
-                        if (shape['type'] == 'Ellipse') {
-                          newShape = paper.ellipse(shape['cx'], shape['cy'], shape['rx'], shape['ry']);
-                          toolTip = "cx:"+ shape['cx'] +" cy:"+ shape['cy'] +" rx:"+ shape['rx'] + " ry: "+  shape['ry'];
-                        }
-                        else if (shape['type'] == 'Rectangle') {
-                          newShape = paper.rect(shape['x'], shape['y'], shape['width'], shape['height']);
-                          toolTip = "x:"+ shape['x'] +" y:"+ shape['y'] +
-                            " width:"+ shape['width'] + " height: "+  shape['height'];
-                        }
-                        else if (shape['type'] == 'Point') {
-                          newShape = paper.ellipse( shape['cx'], shape['cy'], 2, 2);
-                          toolTip = "cx:"+ shape['cx'] +" cy:"+ shape['cy'];
-                        }
-                        else if (shape['type'] == 'Line') {
-                          // define line as 'path': Move then Line: E.g. "M10 10L90 90"
-                          newShape = paper.path("M"+ shape['x1'] +" "+ shape['y1'] +"L"+ shape['x2'] +" "+ shape['y2'] );
-                        }
-                        else if (shape['type'] == 'PolyLine') {
-                          newShape = paper.path( shape['points'] );
-                        }
-                        else if (shape['type'] == 'Polygon') {
-                          newShape = paper.path( shape['points'] );
-                        }
-                        else if (shape['type'] == 'Label') {
-                          if (shape['textValue']) {
-                              newShape = paper.text(shape['x'], shape['y'], shape['textValue']);
-                          }
-                        }
+                        var newShape = draw_shape(shape);
+                        var toolTip = get_tool_tip(shape);
                         // Add text - NB: text is not 'attached' to shape in any way. 
                         if (newShape != null) {
                             newShape.attr(shape_default);   // sets fill, stroke etc. 
@@ -183,33 +257,6 @@ $.fn.roi_display = function(options) {
                             if (shape['strokeColor']) { newShape.attr({'stroke': shape['strokeColor']}); }
                             else { newShape.attr({'stroke': '#ffffff'}); }  // white is default
                             if (shape['strokeWidth']) { newShape.attr({'stroke-width': shape['strokeWidth']}); }
-                            // handle transforms. Insight supports: translate(354.05 83.01) and rotate(0 407.0 79.0)
-                            if (shape['transform']) {
-                                if (shape['transform'].substr(0, 'translate'.length) === 'translate'){
-                                    var tt = shape['transform'].replace('translate(', '').replace(')', '').split(" ");
-                                    var tx = parseInt(tt[0]);   // only int is supported by Raphael
-                                    var ty = parseInt(tt[1]);
-                                    newShape.translate(tx,ty);
-                                }
-                                else if (shape['transform'].substr(0, 'rotate'.length) === 'rotate'){
-                                    var tt = shape['transform'].replace('rotate(', '').replace(')', '').split(" ");
-                                    var deg = parseFloat(tt[0]);
-                                    var rotx = parseFloat(tt[1]);
-                                    var roty = parseFloat(tt[2]);
-                                    newShape.rotate(deg, rotx, roty);
-                                }
-                                else if (shape['transform'].substr(0, 'matrix'.length) === 'matrix'){
-                                    var tt = shape['transform'].replace('matrix(', '').replace(')', '').split(" ");
-                                    var a1 = parseFloat(tt[0]);
-                                    var a2 = parseFloat(tt[1]);
-                                    var b1 = parseFloat(tt[2]);
-                                    var b2 = parseFloat(tt[3]);
-                                    var c1 = parseFloat(tt[4]);
-                                    var c2 = parseFloat(tt[5]);
-                                    var tmatrix = "m"+a1+","+a2+","+b1+","+b2+","+c1+","+c2;
-                                    newShape.transform(tmatrix);
-                                }
-                            }
                             newShape.click(handle_shape_click);
                             newShape.attr({ title: toolTip });
                             newShape.id = shape['id'] + "_shape";
