@@ -510,6 +510,14 @@
       roi_html += "</tr></thead>";
       $roi_table.append($(roi_html));
       
+      get_shape_icon_src = function(type) {
+          var shape_icons = {'Line':'line16.png', 'Ellipse':'ellipse16.png', 'Polygon':'polygon16.png', 'Rectangle':'rectangle16.png',
+            'Point':'point16.png', 'Label':'text16.png', 'PolyLine':'line16.png'}
+          if (type in shape_icons) {
+              return "/appmedia/webgateway/img/" + shape_icons[type];
+          }
+          return "";
+      }
       // populate table. Cols are: ID, Z, T, Shape, text
       for (var r=0; r<json.length; r++) {
           var roi = json[r];
@@ -533,16 +541,17 @@
                   text = shape['textValue']
                   if (firstText == null) firstText = text;
               } else text = "";
-              var indent = "&nbsp&nbsp&nbsp&nbsp";    // hacked indent, but not if shape is only-child
+              var indent = " &nbsp&nbsp&nbsp&nbsp";    // hack to add "indent", but not if shape is only-child
               if (shapes.length == 1) {
-                  indent = "";
+                  indent = " &nbsp";
                   thumbnail = thumbHtml;
                   thumbHtml = "";
               }
+              var shape_icon
               shapesHtml += "<tr id='"+shape['id']+"_shape' class='shape_row'>";
               // clicking on any cell of a shape 'shape_cell' selects it
               shapesHtml += "<td></td>";
-              shapesHtml += "<td class='shape_cell'>" +indent+ shape['type'] + "</td>";
+              shapesHtml += "<td class='shape_cell'>" + indent + "<img src='"+ get_shape_icon_src(shape['type']) + "' /></td>";
               shapesHtml += "<td class='shape_cell'>" + shape['id'] + "</td>"
               shapesHtml += "<td class='shape_cell'>" + (shape['theZ']+1) + "</td>";
               shapesHtml += "<td class='shape_cell'>" + (shape['theT']+1) + "</td>";
@@ -557,7 +566,7 @@
           // new tbody for each ROI
           var roi_html = "<thead><tr class='roi_row'>";
           roi_html += "<th><img class='expand_arrow' src='/appmedia/webgateway/img/arrowRight_grey.png' /></th>";
-          roi_html += "<th align='left'>" + firstShape + " (" + shapes.length + ")</th>"; // first shape (count)
+          roi_html += "<th align='left'> &nbsp<img src='"+ get_shape_icon_src(firstShape) + "' /> (" + shapes.length + ")</th>"; // first shape (count)
           roi_html += "<th>" + roi['id'] + "</th>";
           roi_html += "<th></th>"; // no Z for ROI
           roi_html += "<th></th>"; // no T for ROI
@@ -1192,7 +1201,7 @@
         if ($target.attr('id') == "toggle_roi_thumbs") {
             update_roi_thumbs();
             return true;
-        } else if ($target.attr('class') == "shape_cell") {
+        } else if ($target.hasClass('shape_cell')) {
             // a shape td click selects the shape.
             var $shapeRow = $target.parent();
             handleShapeRowClick($shapeRow);
