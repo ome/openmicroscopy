@@ -501,7 +501,7 @@
       // thead for whole table:
       var roi_html = "<thead><tr>";
       roi_html += "<th></th>";
-      roi_html += "<th>ROI/shape</th>"; // first shape (count)
+      roi_html += "<th>shape</th>"; // first shape (count)
       roi_html += "<th>ID</th>";
       roi_html += "<th>Z</th>"; // no Z for ROI
       roi_html += "<th>T</th>"; // no T for ROI
@@ -531,12 +531,17 @@
           // process the shapes first - note first shape & text
           var firstShape = null;
           var firstText = null;
+          var minT = maxT = minZ = maxZ = null;
           var shapesHtml = '<tbody>';
           var shape = null;
           var text;
           var thumbnail = "";
           for (var s=0; s<shapes.length; s++) {
               shape = shapes[s];
+              if (minT === null || minT > shape['theT']) minT = shape['theT'];
+              if (maxT === null || maxT < shape['theT']) maxT = shape['theT'];
+              if (minZ === null || minZ > shape['theZ']) minZ = shape['theZ'];
+              if (maxZ === null || maxZ < shape['theZ']) maxZ = shape['theZ'];
               if (shape['textValue'] != null) {
                   text = shape['textValue']
                   if (firstText == null) firstText = text;
@@ -551,7 +556,7 @@
               shapesHtml += "<tr id='"+shape['id']+"_shape' class='shape_row'>";
               // clicking on any cell of a shape 'shape_cell' selects it
               shapesHtml += "<td></td>";
-              shapesHtml += "<td class='shape_cell'>" + indent + "<img src='"+ get_shape_icon_src(shape['type']) + "' /></td>";
+              shapesHtml += "<td class='shape_cell'>" + indent + "<img class='shape_icon' src='"+ get_shape_icon_src(shape['type']) + "' /></td>";
               shapesHtml += "<td class='shape_cell'>" + shape['id'] + "</td>"
               shapesHtml += "<td class='shape_cell'>" + (shape['theZ']+1) + "</td>";
               shapesHtml += "<td class='shape_cell'>" + (shape['theT']+1) + "</td>";
@@ -566,10 +571,10 @@
           // new tbody for each ROI
           var roi_html = "<thead><tr class='roi_row'>";
           roi_html += "<th><img class='expand_arrow' src='/appmedia/webgateway/img/arrowRight_grey.png' /></th>";
-          roi_html += "<th align='left'> &nbsp<img src='"+ get_shape_icon_src(firstShape) + "' /> (" + shapes.length + ")</th>"; // first shape (count)
+          roi_html += "<th align='left'> &nbsp<img class='roi_icon' src='"+ get_shape_icon_src(firstShape) + "' /> (" + shapes.length + ")</th>"; // first shape (count)
           roi_html += "<th>" + roi['id'] + "</th>";
-          roi_html += "<th></th>"; // no Z for ROI
-          roi_html += "<th></th>"; // no T for ROI
+          roi_html += "<th> "+ (minZ+1) + ((maxZ != minZ) && ("-"+(maxZ+1)) || ("")) +" </th>"; // no Z for ROI
+          roi_html += "<th> "+ (minT+1) + ((maxT != minT) && ("-"+(maxT+1)) || ("")) +" </th>"; // no T for ROI
           roi_html += "<th>"+ firstText +"</th>";
           roi_html += "<th>"+ thumbHtml +"</th>";
           roi_html += "</tr></thead>";
@@ -1205,19 +1210,23 @@
             // a shape td click selects the shape.
             var $shapeRow = $target.parent();
             handleShapeRowClick($shapeRow);
+        } else if ($target.hasClass('shape_icon')) {
+            // need to get to the row
+            var $shapeRow = $target.parent().parent();
+            handleShapeRowClick($shapeRow);
         } else if ($target.get(0).nodeName.toLowerCase() == 'th'){
             // a ROI (th) click toggles the ROI-shapes 'tbody' below
             var $roiThead = $target.parent().parent();
             toggle_th($roiThead);
-        } else if ($target.attr('class') == 'color_picker_option') {
+        } else if ($target.hasClass('color_picker_option')) {
             // change the colour of lines drawn on roi_thumbs
             var line_color = $target.attr('color').substring(1);  // '#f00' -> 'f00'
             update_roi_thumbs(line_color);
-        } else if ($target.attr('class') == 'expand_arrow') {
+        } else if ($target.hasClass('expand_arrow') || $target.hasClass('roi_icon')) {
             // clicked on the arrow - need to get the (th)
             var $roiThead = $target.parent().parent().parent();
             toggle_th($roiThead);
-        } else if ($target.attr('class') == 'roi_thumb') {
+        } else if ($target.hasClass('roi_thumb')) {
             // roi thumbnail may be in thead/tr/td (ROI - toggle shapes) or tbody/tr/td (shape - update viewer)
             var $tableRow = $target.parent().parent();
             var nodeName = $tableRow.parent().get(0).nodeName.toLowerCase();
