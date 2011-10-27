@@ -24,43 +24,70 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextPane;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 //Third-party libraries
-
-//Application-internal dependencies
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.PersonalManagementAction;
+import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
+import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ExperimenterData;
 
 /** 
  * The {@link Importer}'s View. Displays the on-going import and the finished
@@ -86,6 +113,12 @@ class ImporterUI
 	/** The text displayed to notify the user to refresh. */
 	private static final String	REFRESH_TXT = "New containers added. " +
 			"Please Refresh";
+	
+	/** Identifies the style of the document.*/
+	private static final String STYLE = "StyleName";
+	
+	/** The maximum number of characters in the debug text.*/
+	private static final int 	MAX_CHAR = 2000;
 	
 	/** Reference to the model. */
 	private ImporterModel	model;
@@ -114,6 +147,99 @@ class ImporterUI
 	/** The component indicating to refresh the containers view.*/
 	private JXLabel messageLabel;
 	
+	/** The menu displaying the groups the user is a member of. */
+    private JPopupMenu	personalMenu;
+    
+    /** The debug text.*/
+    private JTextPane	debugTextPane;
+	
+	/**
+	 * Creates the component hosting the debug text.
+	 * 
+	 * @return See above.
+	 */
+	private JComponent createDebugTab()
+	{
+		debugTextPane = new JTextPane();
+		debugTextPane.setEditable(false);
+		StyledDocument doc = (StyledDocument) debugTextPane.getDocument();
+
+		Style style = doc.addStyle(STYLE, null);
+		StyleConstants.setForeground(style, Color.black);
+		StyleConstants.setFontFamily(style, "SansSerif");
+		StyleConstants.setFontSize(style, 12);
+		StyleConstants.setBold(style, false);
+
+		JScrollPane sp = new JScrollPane(debugTextPane);
+		sp.getVerticalScrollBar().addAdjustmentListener(
+				new AdjustmentListener()
+				{
+					public void adjustmentValueChanged(AdjustmentEvent e)
+					{
+						try {
+							debugTextPane.setCaretPosition(
+									debugTextPane.getDocument().getLength());
+						} catch (IllegalArgumentException ex) {
+							//
+						}
+					}
+				}
+		);
+		JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+		panel.add(sp, BorderLayout.CENTER);
+		return panel;
+	}
+	
+    /**
+     * Sets the defaults of the specified menu item.
+     * 
+     * @param item The menu item.
+     */
+    private void initMenuItem(JMenuItem item)
+    {
+        item.setBorder(null);
+        //item.setFont((Font) ImporterAgent.getRegistry().lookup(
+        //              "/resources/fonts/Labels"));
+    }
+    
+    /**
+     * Brings up the <code>ManagePopupMenu</code>on top of the specified
+     * component at the specified location.
+     * 
+     * @param c The component that requested the po-pup menu.
+     * @param p The point at which to display the menu, relative to the
+     *            <code>component</code>'s coordinates.
+     */
+    private void showPersonalMenu(Component c, Point p)
+    {
+    	if (p == null) return;
+        if (c == null) throw new IllegalArgumentException("No component.");
+        //if (p == null) throw new IllegalArgumentException("No point.");
+        //if (personalMenu == null) {
+        	personalMenu = new JPopupMenu();
+        	personalMenu.setBorder(
+        			BorderFactory.createBevelBorder(BevelBorder.RAISED));
+        	List<GroupSelectionAction> l = controller.getUserGroupAction();
+        	Iterator<GroupSelectionAction> i = l.iterator();
+        	GroupSelectionAction a;
+        	JCheckBoxMenuItem item;
+        	ButtonGroup buttonGroup = new ButtonGroup();
+        	ExperimenterData exp = ImporterAgent.getUserDetails();
+        	long id = exp.getDefaultGroup().getId();
+        	while (i.hasNext()) {
+				a = i.next();
+				item = new JCheckBoxMenuItem(a);
+				item.setEnabled(true);
+				item.setSelected(a.isSameGroup(id));
+				initMenuItem(item);
+				buttonGroup.add(item);
+				personalMenu.add(item);
+			}
+        //}
+        personalMenu.show(c, p.x, p.y);
+    }
+    
 	/**
 	 * Builds and lays out the controls.
 	 * 
@@ -190,6 +316,20 @@ class ImporterUI
 		});
 	}
 	
+	 /**
+     * Helper method to create the <code>File</code> menu.
+     * 
+     * @return See above.
+     */
+    private JMenu createFileMenu()
+    {
+        JMenu menu = new JMenu("File");
+        menu.setMnemonic(KeyEvent.VK_F);
+        menu.add(new JMenuItem(controller.getAction(ImporterControl.LOG_OFF)));
+        menu.add(new JMenuItem(controller.getAction(ImporterControl.EXIT)));
+        return menu;
+    }
+    
 	/**
      * Creates the menu bar.
      * 
@@ -199,6 +339,17 @@ class ImporterUI
     {
     	TaskBar tb = ImporterAgent.getRegistry().getTaskBar();
     	JMenuBar bar = tb.getTaskBarMenuBar();
+    	if (!model.isMaster()) return bar;
+    	JMenu[] existingMenus = new JMenu[bar.getMenuCount()];
+    	for (int i = 0; i < existingMenus.length; i++) {
+    		existingMenus[i] = bar.getMenu(i);
+    	}
+    	
+ 		bar.removeAll();
+ 		bar.add(createFileMenu());
+ 		for (int i = 0; i < existingMenus.length; i++) {
+			bar.add(existingMenus[i]);
+		}
     	return bar;
     }
     
@@ -236,10 +387,26 @@ class ImporterUI
 	 * 
 	 * @param chooser The component to add.
 	 */
-	void addComponent(JComponent chooser)
+	void addComponent(ImportDialog chooser)
 	{
 		if (chooser == null) return;
+		if (model.isMaster()) chooser.addToolBar(buildToolBar());
 		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
+		//if in debug mode insert the debug section
+		Boolean b = (Boolean) 
+			ImporterAgent.getRegistry().lookup("/options/Debug");
+		if (b != null && b.booleanValue()) {
+			IconManager icons = IconManager.getInstance();
+			ClosableTabbedPaneComponent c = new ClosableTabbedPaneComponent(1, 
+					"Debug Text", icons.getIcon(IconManager.DEBUG));
+			c.setCloseVisible(false);
+			c.setClosable(false);
+			double[][] tl = {{TableLayout.FILL}, {TableLayout.FILL}};
+			c.setLayout(new TableLayout(tl));
+			c.add(createDebugTab(), "0, 0");
+			tabs.insertClosableComponent(c);
+		}
+		selectChooser();
 	}
 	
 	/** Indicates to the select the import chooser. */
@@ -437,5 +604,65 @@ class ImporterUI
 		}
 		return false;
 	}
+
+    /**
+     * Brings up the menu on top of the specified component at 
+     * the specified location.
+     * 
+     * @param menuID    The id of the menu.
+     * @param c         The component that requested the pop-up menu.
+     * @param p         The point at which to display the menu, relative to the
+     *                  <code>component</code>'s coordinates.
+     */
+    void showMenu(int menuID, Component c, Point p)
+    {
+        switch (menuID) {
+            case Importer.PERSONAL_MENU:
+            	showPersonalMenu(c, p);
+        }  
+    }
 	
+	/**
+	 * Returns <code>true</code> if the agent is the entry point
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isMaster() { return model.isMaster(); }
+	
+	/** 
+	 * Adds the text to the debug pane.
+	 * 
+	 * @param text The text to display.
+	 */
+	void appendDebugText(String text)
+	{
+		if (debugTextPane == null) return;
+		StyledDocument doc = (StyledDocument) debugTextPane.getDocument();
+		try {
+			doc.insertString(doc.getLength(), text, doc.getStyle(STYLE));
+			if (doc.getLength() > MAX_CHAR)
+				doc.remove(0, doc.getLength()-MAX_CHAR);
+		} catch (Exception e) {
+			//ignore
+		}
+	}
+	
+    /** 
+     * Builds the toolbar when the importer is the entry point.
+     * 
+     * @return See above.
+     */
+    JComponent buildToolBar()
+    {
+        Set set = ImporterAgent.getAvailableUserGroups();
+        if (set == null || set.size() == 0) return null;
+        
+    	ImporterAction a = controller.getAction(ImporterControl.GROUP_BUTTON);
+    	a.setEnabled(set.size() > 1);
+    	JButton b = new JButton(a);
+    	UIUtilities.unifiedButtonLookAndFeel(b);
+        b.addMouseListener((PersonalManagementAction) a);
+        return b;
+    }
 }

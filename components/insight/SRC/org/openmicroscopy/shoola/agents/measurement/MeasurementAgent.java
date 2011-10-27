@@ -250,9 +250,9 @@ public class MeasurementAgent
 	
     /**
      * Implemented as specified by {@link Agent}.
-     * @see Agent#activate()
+     * @see Agent#activate(boolean)
      */
-	public void activate() {}
+	public void activate(boolean master) {}
 
 	/**
      * Implemented as specified by {@link Agent}.

@@ -60,7 +60,7 @@ public class ScreenLoginDialog
 	{
 		setTitle(view.getTitle());
 		setModal(true);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
 		setUndecorated(true);
 		toFront();
@@ -127,6 +127,13 @@ public class ScreenLoginDialog
 		setCursor(view.getCursor());
 	}
 
+	/**
+	 * Resets the login text.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void resetLoginText(String value) { view.resetLoginText(value); }
+	
 	/** Closes the dialog. */
 	public void close()
 	{

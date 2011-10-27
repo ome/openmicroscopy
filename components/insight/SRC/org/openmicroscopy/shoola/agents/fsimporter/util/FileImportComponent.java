@@ -287,6 +287,12 @@ public class FileImportComponent
 	/** Flag indicating that no container specified.*/
 	private boolean noContainer;
 	
+	/** 
+	 * Flag indicating that the container hosting the imported image
+	 * can be browsed or not depending on how the import is launched.
+	 */
+	private boolean browsable;
+	
 	/** Displays the error box at the specified location.
 	 * 
 	 * @param p The location where to show the box.
@@ -417,22 +423,25 @@ public class FileImportComponent
 		cancelButton.setVisible(true);
 		
 		browseButton = new JLabel(BROWSE_CONTAINER_TEXT);
-		browseButton.setForeground(UIUtilities.HYPERLINK_COLOR);
-		browseButton.setToolTipText(BROWSE_CONTAINER_TOOLTIP);
-		browseButton.addMouseListener(new MouseAdapter() {
-			
-			/**
-			 * Browses the object the image.
-			 * @see MouseListener#mousePressed(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e)
-			{
-				Object src = e.getSource();
-				if (e.getClickCount() == 1 && src instanceof JLabel) {
-					browse();
+		if (browsable) {
+			browseButton.setToolTipText(BROWSE_CONTAINER_TOOLTIP);
+			browseButton.setForeground(UIUtilities.HYPERLINK_COLOR);
+			browseButton.addMouseListener(new MouseAdapter() {
+				
+				/**
+				 * Browses the object the image.
+				 * @see MouseListener#mousePressed(MouseEvent)
+				 */
+				public void mousePressed(MouseEvent e)
+				{
+					Object src = e.getSource();
+					if (e.getClickCount() == 1 && src instanceof JLabel) {
+						browse();
+					}
 				}
-			}
-		});
+			});
+		}
+		
 		browseButton.setVisible(false);
 		
 		containerLabel = new JLabel();
@@ -575,7 +584,7 @@ public class FileImportComponent
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			f = (File) entry.getKey();
-			c = new FileImportComponent(f, folderAsContainer);
+			c = new FileImportComponent(f, folderAsContainer, browsable);
 			if (f.isFile()) {
 				c.setLocation(data, d, node);
 				c.setParent(this);
@@ -616,14 +625,16 @@ public class FileImportComponent
 	 * @param folderAsContainer Pass <code>true</code> if the passed file
 	 * 							has to be used as a container, 
 	 * 							<code>false</code> otherwise.
+	 * @param browsable Flag indicating that the container can be browsed or not.
 	 */
-	public FileImportComponent(File file, boolean folderAsContainer)
+	public FileImportComponent(File file, boolean folderAsContainer, boolean
+			browsable)
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file specified.");
 		this.file = file;
 		importCount = 0;
-		//if (file.isFile()) folderAsContainer = false;
+		this.browsable = browsable;
 		this.folderAsContainer = folderAsContainer;
 		initComponents();
 		buildGUI();
@@ -821,15 +832,16 @@ public class FileImportComponent
 		} else if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
 			statusLabel.setVisible(false);
-			resultLabel.setText(BROWSE_TEXT);
-			resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
-			resultLabel.setToolTipText(ThumbnailLabel.PLATE_LABEL_TOOLTIP);
-			//resultLabel.setEnabled(false);
-			resultLabel.setVisible(true);
+			if (browsable) {
+				resultLabel.setText(BROWSE_TEXT);
+				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
+				resultLabel.setToolTipText(ThumbnailLabel.PLATE_LABEL_TOOLTIP);
+				resultLabel.setVisible(true);
+			}
 			fileNameLabel.addMouseListener(adapter);
 			resultLabel.addMouseListener(adapter);
 			showContainerLabel = containerObject instanceof ScreenData;
-			if (noContainer) {
+			if (noContainer || !browsable) {
 				browseButton.setVisible(false);
 				containerLabel.setVisible(false);
 			} else {
@@ -914,7 +926,6 @@ public class FileImportComponent
 						errorBox.setVisible(true);
 						errorBox.addChangeListener(this);
 					}
-					
 					cancelButton.setVisible(false);
 				}
 			}
@@ -1279,6 +1290,8 @@ public class FileImportComponent
 		} else if (StatusLabel.NO_CONTAINER_PROPERTY.equals(name)) {
 			containerLabel.setText("");
 			noContainer = true;
+		} else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
+			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
 		}
 	}
 

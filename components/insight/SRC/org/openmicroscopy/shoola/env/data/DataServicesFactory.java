@@ -328,7 +328,7 @@ public class DataServicesFactory
 				int v = connectionDialog.centerMsgBox();
 				if (v == MessageBox.NO_OPTION) {
 					connectionDialog = null;
-					exitApplication(true);
+					exitApplication(true, true);
 				} else if (v == MessageBox.YES_OPTION) {
 					UserCredentials uc = (UserCredentials) 
 					registry.lookup(LookupNames.USER_CREDENTIALS);
@@ -361,7 +361,7 @@ public class DataServicesFactory
 						message = "A failure occurred while attempting to " +
 								"reconnect.\nThe application will now exit.";
 						un.notifyInfo("Reconnection Failure", message);
-						exitApplication(true);
+						exitApplication(true, true);
 					}
 				}
 				break;
@@ -370,7 +370,7 @@ public class DataServicesFactory
 				"running. \nPlease contact your system administrator." +
 				"\nThe application will now exit.";
 				un.notifyInfo("Connection Refused", message);
-				exitApplication(true);
+				exitApplication(true, true);
 				break;	
 		}
 	}
@@ -601,12 +601,14 @@ public class DataServicesFactory
 	 * @param forceQuit Pass <code>true</code> to force i.e. do not check if
 	 * 					the application can terminate,
 	 * 					<code>false</code> otherwise.
+	 * @param exit		Pass <code>true</code> to quit, <code>false</code> to
+	 * 					only shut down the services.
 	 */
-	public void exitApplication(boolean forceQuit)
+	public void exitApplication(boolean forceQuit, boolean exit)
 	{
 		if (!forceQuit) {
 			List<AgentInfo> agents = (List<AgentInfo>)
-			registry.lookup(LookupNames.AGENTS);
+				registry.lookup(LookupNames.AGENTS);
 			Iterator<AgentInfo> i = agents.iterator();
 			AgentInfo agentInfo;
 			Agent a;
@@ -647,9 +649,15 @@ public class DataServicesFactory
 			}
 		}
 		shutdown();
-		container.exit();
+		if (exit) container.exit();
 	}
 
+	/**
+	 * Checks if the session is alive.
+	 * 
+	 * @param context 	The context to make sure that agents do not
+	 * 					access the method.
+	 */
 	public static void isSessionAlive(Registry context)
 	{
 		if (context == registry) omeroGateway.isSessionAlive();

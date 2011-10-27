@@ -98,6 +98,9 @@ public class StatusLabel
 	/** Bound property indicating that the status has changed.*/
 	public static final String CANCELLED_IMPORT_PROPERTY = "cancelledImport";
 	
+	/** Bound property indicating that the debug text has been sent.*/
+	public static final String DEBUG_TEXT_PROPERTY = "debugText";
+	
 	/** Default text when a failure occurred. */
 	private static final String		FAILURE_TEXT = "failed";
 	
@@ -291,12 +294,34 @@ public class StatusLabel
 	{
 		if (event == null) return;
 		cancellable = false;
+		
 		if (event instanceof ImportEvent.LOADING_IMAGE) {
 			startTime = System.currentTimeMillis();
 			setText(PREPPING_TEXT);
 			firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
+			ImportEvent.LOADING_IMAGE ev = (ImportEvent.LOADING_IMAGE) event;
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("\n");
+			buffer.append("> [" + ev.index + "] Loading image \""+
+					ev.shortName + "\"...\n");
+			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
+		} else if (event instanceof ImportEvent.BEGIN_SAVE_TO_DB) {
+			ImportEvent.BEGIN_SAVE_TO_DB ev = (ImportEvent.BEGIN_SAVE_TO_DB) 
+				event;
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("> [" + ev.index + "] "+
+					"Saving metadata for " + "image \""+ev.filename+"\"... ");
+			buffer.append("\n");
+			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
 		} else if (event instanceof ImportEvent.LOADED_IMAGE) {
 			setText("analyzing");
+			ImportEvent.LOADED_IMAGE ev = (ImportEvent.LOADED_IMAGE) event;
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(" Succesfully loaded.\n");
+			buffer.append("> [" + ev.index + "] Importing metadata for image \""
+					+ev.shortName + "\"... ");
+			buffer.append("\n");
+			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
 		} else if (event instanceof ImportEvent.IMPORT_DONE) {
 			if (numberOfFiles == 1) setText("one file");
 			else if (numberOfFiles == 0) setText("");
@@ -306,7 +331,20 @@ public class StatusLabel
 			setText("archiving");
 		} else if (event instanceof ImportEvent.DATASET_STORED) {
 			ImportEvent.DATASET_STORED ev = (ImportEvent.DATASET_STORED) event;
+			StringBuffer buffer = new StringBuffer();
 			maxPlanes = ev.size.imageCount;
+			buffer.append("> [" + ev.series + "] " +
+					"Importing pixel data for image \""+ev.filename+"\"... ");
+			buffer.append("\n");
+			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
+		} else if (event instanceof ImportEvent.DATA_STORED) {
+			StringBuffer buffer = new StringBuffer();
+			ImportEvent.DATA_STORED ev = (ImportEvent.DATA_STORED) event;
+			buffer.append("> Successfully stored with pixels id \""+
+					ev.pixId+ "\".");
+			buffer.append("> ["+ev.filename+"] Image imported successfully!");
+			buffer.append("\n");
+			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
 		} else if (event instanceof ImportEvent.IMPORT_STEP) {
 			ImportEvent.IMPORT_STEP ev = (ImportEvent.IMPORT_STEP) event;
 			if (ev.step <= maxPlanes) {   

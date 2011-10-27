@@ -144,7 +144,12 @@ public final class SplashScreenInit
 		//Try to log onto OMEDS and retry upon failure for at most as many
         //times as specified in the Container's configuration.
         Registry reg = container.getRegistry();
-        Boolean b = (Boolean) reg.lookup(LookupNames.SERVER_AVAILABLE);
+        
+        //Boolean b = (Boolean) reg.lookup(LookupNames.SERVER_AVAILABLE);
+        boolean b = false;
+        Integer v = (Integer) container.getRegistry().lookup(
+				LookupNames.ENTRY_POINT);
+		if (v != null) b = v.intValue() != LookupNames.EDITOR_ENTRY;
         if (!b) {
         	splashScreen.close();
         	return;

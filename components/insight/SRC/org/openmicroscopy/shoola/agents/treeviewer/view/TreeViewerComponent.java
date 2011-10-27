@@ -618,9 +618,7 @@ class TreeViewerComponent
 	public Browser getDefaultBrowser()
 	{ 
 		Map<Integer, Browser> browsers = model.getBrowsers();
-		if (TreeViewerAgent.isSPWFirst())
-			return browsers.get(Browser.SCREENS_EXPLORER);
-		return browsers.get(Browser.PROJECTS_EXPLORER);
+		return browsers.get(TreeViewerAgent.getDefaultHierarchy());
 	}
 	
 	/**

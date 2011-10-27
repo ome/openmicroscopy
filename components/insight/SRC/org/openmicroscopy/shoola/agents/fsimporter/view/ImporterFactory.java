@@ -76,6 +76,30 @@ public class ImporterFactory
 	}
 	
 	/**
+	 * Returns <code>true</code> if the importer already exists,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean doesImporterExist()
+	{
+		return singleton.importer != null;
+	}
+
+	/**
+	 * Returns a {@link Importer}.
+	 * 
+	 * @param groupId The identifier of the current group.
+	 * @return See above.
+	 */
+	public static Importer getImporter(long groupId)
+	{
+		ImporterModel model = new ImporterModel(groupId);
+		return singleton.getImporter(model);
+	}
+	
+	
+	/**
 	 * Notifies the model that the user's group has successfully be modified
 	 * if the passed value is <code>true</code>, unsuccessfully 
 	 * if <code>false</code>.
@@ -86,8 +110,22 @@ public class ImporterFactory
 	public static void onGroupSwitched(boolean success)
 	{
 		if (!success)  return;
+		if (singleton.importer != null && 
+				((ImporterComponent) singleton.importer).isMaster()) {
+			((ImporterComponent) singleton.importer).onGroupSwitched(success);
+			return;
+		}
 		singleton.clear();
 	}
+	
+	public static void onReconnected()
+	{
+		if (singleton.importer != null && 
+				((ImporterComponent) singleton.importer).isMaster()) {
+			((ImporterComponent) singleton.importer).onReconnected();
+		}
+	}
+	
 	
 	/** 
 	 * Returns the <code>window</code> menu. 

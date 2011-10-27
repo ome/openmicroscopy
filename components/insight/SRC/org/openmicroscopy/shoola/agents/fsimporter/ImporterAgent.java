@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 //Java imports
 import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -33,14 +34,17 @@ import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * This agent interacts is used to import images.
@@ -93,6 +97,16 @@ public class ImporterAgent
 	}
 	
 	/**
+	 * Returns the available user groups.
+	 * 
+	 * @return See above.
+	 */
+	public static Set getAvailableUserGroups()
+	{
+		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+	}
+    
+	/**
 	 * Handles the {@link LoadImporter} event.
 	 * 
 	 * @param evt The event to handle.
@@ -116,7 +130,7 @@ public class ImporterAgent
     }
 
     /**
-     * Removes all the references to the existing viewers.
+     * Removes all the references to the existing imports.
      * 
      * @param evt The event to handle.
      */
@@ -126,14 +140,56 @@ public class ImporterAgent
     	ImporterFactory.onGroupSwitched(evt.isSuccessful());
     }
     
+    /**
+     * Indicates that it was possible to reconnect.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleReconnectedEvent(ReconnectedEvent evt)
+    {
+    	if (evt == null) return;
+    	//check if the importer is the master.
+    	ImporterFactory.onReconnected();
+    }
+    
 	/** Creates a new instance. */
 	public ImporterAgent() {}
 	
 	 /**
      * Implemented as specified by {@link Agent}.
-     * @see Agent#activate()
+     * @see Agent#activate(boolean)
      */
-    public void activate() {}
+    public void activate(boolean master)
+    {
+    	if (!master) return;
+    	ExperimenterData exp = (ExperimenterData) registry.lookup(
+    			LookupNames.CURRENT_USER_DETAILS);
+    	if (exp == null) return;
+    	GroupData gp = null;
+    	try {
+    		gp = exp.getDefaultGroup();
+    	} catch (Exception e) {
+    		//No default group
+    	}
+    	long id = -1;
+    	if (gp != null) id = gp.getId();
+    	Importer importer = ImporterFactory.getImporter(id);
+    	if (importer != null) {
+    		Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    		int type = Importer.PROJECT_TYPE;
+        	if (env != null) {
+        		switch (env.getDefaultHierarchy()) {
+        			case LookupNames.PD_ENTRY:
+        			default:
+        				type = Importer.PROJECT_TYPE;
+        				break;
+        			case LookupNames.HCS_ENTRY:
+        				type = Importer.SCREEN_TYPE;
+        		}
+        	}
+    		importer.activate(type, null, null);
+    	}
+    }
 
     /**
      * Implemented as specified by {@link Agent}. 
@@ -151,6 +207,7 @@ public class ImporterAgent
         EventBus bus = registry.getEventBus();
         bus.register(this, LoadImporter.class);
         bus.register(this, UserGroupSwitched.class);
+        bus.register(this, ReconnectedEvent.class);
     }
 
     /**
@@ -159,6 +216,7 @@ public class ImporterAgent
      */
     public boolean canTerminate()
     { 
+    	if (!ImporterFactory.doesImporterExist()) return true;
     	Importer importer = ImporterFactory.getImporter();
     	if (importer == null) return true;
     	return !importer.hasOnGoingImport();
@@ -187,6 +245,8 @@ public class ImporterAgent
 			handleLoadImporter((LoadImporter) e);
     	else if (e instanceof UserGroupSwitched)
 			handleUserGroupSwitched((UserGroupSwitched) e);
+    	else if (e instanceof ReconnectedEvent)
+			handleReconnectedEvent((ReconnectedEvent) e);
     }
 
 }

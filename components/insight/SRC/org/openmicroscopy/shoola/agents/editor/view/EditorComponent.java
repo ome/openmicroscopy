@@ -41,6 +41,8 @@ import org.openmicroscopy.shoola.agents.editor.actions.ActionCmd;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveLocallyCmd;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveNewCmd;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
+import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -191,6 +193,8 @@ class EditorComponent
 					save.execute();
 				}
 				discard();
+				EventBus bus = EditorAgent.getRegistry().getEventBus();
+				bus.post(new ExitApplication(false));
 			}
 		} else {
 			if (model.hasDataToSave() && isUserOwner()) {
