@@ -474,8 +474,13 @@ def parse_input(input_string, params):
     param = params.inputs.get(key)
     if param is None:
         return {}
+    elif isinstance(param.prototype, omero.RBool):
+        if val.lower() in ("false", "False", "0", ""):
+            val = rbool(False)
+        else:
+            val = rbool(True)
     elif isinstance(param.prototype,\
-        (omero.RLong, omero.RString, omero.RInt, omero.RBool,\
+        (omero.RLong, omero.RString, omero.RInt, \
             omero.RTime, omero.RDouble, omero.RFloat)):
         val = param.prototype.__class__(val)
     elif isinstance(param.prototype, omero.RList):

@@ -263,6 +263,35 @@ class TestParse(unittest.TestCase):
         self.assertTrue(isinstance(rv["a"], omero.RList))
         self.assertEquals("1", rv["a"].val[0].val)
 
+    def testParseBool(self):
+        """ see ticket:7003 """
+        params = JobParams()
+        params.inputs = {"a": Bool("a", default=True)}
+
+        rv = parse_inputs(["a=False"], params)
+        self.assertEquals(False, rv["a"].val)
+
+        rv = parse_inputs(["a=false"], params)
+        self.assertEquals(False, rv["a"].val)
+
+        rv = parse_inputs(["a=0"], params)
+        self.assertEquals(False, rv["a"].val)
+
+        rv = parse_inputs(["a="], params)
+        self.assertEquals(False, rv["a"].val)
+
+        rv = parse_inputs(["a=True"], params)
+        self.assertEquals(True, rv["a"].val)
+
+        rv = parse_inputs(["a=true"], params)
+        self.assertEquals(True, rv["a"].val)
+
+        rv = parse_inputs(["a=1"], params)
+        self.assertEquals(True, rv["a"].val)
+
+        rv = parse_inputs(["a=xxxanytextxxx"], params)
+        self.assertEquals(True, rv["a"].val)
+
 if __name__ == '__main__':
     logging.basicConfig()
     unittest.main()
