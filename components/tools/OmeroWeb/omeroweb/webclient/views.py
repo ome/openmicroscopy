@@ -2915,6 +2915,10 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
     if conn is None:
         raise Exception("Connection not available")
     
+    def urlprefix(iid):
+        return reverse('render_thumbnail', args=(iid,))
+    kwargs['urlprefix'] = urlprefix
+    
     return webgateway_views.plateGrid_json(request, pid, field=field, server_id=None, _conn=None, **kwargs)
 
 @isUserConnected

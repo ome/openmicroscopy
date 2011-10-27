@@ -1565,7 +1565,7 @@ def wellData_json (request, server_id=None, _conn=None, _internal=False, **kwarg
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
-    xtra = {'thumbUrlPrefix': urlprefix}
+    xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
     rv = well.simpleMarshal(xtra=xtra)
     return rv
 
@@ -1587,7 +1587,7 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
 
     def urlprefix(iid):
         return reverse(prefix, args=(iid,thumbsize))
-    xtra = {'thumbUrlPrefix': urlprefix}
+    xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
 
     rv = webgateway_cache.getJson(request, server_id, plate, 'plategrid-%d-%d' % (field, thumbsize))
     if rv is None:
@@ -1633,7 +1633,7 @@ def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
-    xtra = {'thumbUrlPrefix': urlprefix}
+    xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
     return map(lambda x: x.simpleMarshal(xtra=xtra), dataset.listChildren())
 
 @jsonp
@@ -1656,7 +1656,7 @@ def listWellImages_json (request, did, server_id=None, _conn=None, **kwargs):
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
-    xtra = {'thumbUrlPrefix': urlprefix}
+    xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
     return map(lambda x: x.getImage() and x.getImage().simpleMarshal(xtra=xtra), well.listChildren())
 
 @jsonp
@@ -1789,7 +1789,7 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     # search returns blitz_connector wrapper objects
     def urlprefix(iid):
         return reverse('webgateway.views.render_thumbnail', args=(iid,))
-    xtra = {'thumbUrlPrefix': urlprefix}
+    xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
     pks = None
     try:
         if opts['ctx'] == 'imgs':
