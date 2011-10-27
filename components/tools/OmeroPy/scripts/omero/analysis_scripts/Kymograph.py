@@ -65,7 +65,7 @@ def pointsStringToXYlist(string):
         xyList.append( ( int( x.strip() ), int(y.strip() ) ) )
     return xyList
     
-def numpyToImage(plane, cMinMax):
+def numpyToImage(plane):
     """
     Converts the numpy plane to a PIL Image, scaling to cMinMax (minVal, maxVal) and changing data type if needed.
     Need plane dtype to be uint8 (or int8) for conversion to tiff by PIL
@@ -147,7 +147,7 @@ def getLineData(pixels, x1,y1,x2,y2, cMinMax, lineW=2, theZ=0, theC=0, theT=0):
         plane = vstack( (plane, pad_data) )
     
         
-    pil = numpyToImage(plane, cMinMax)
+    pil = numpyToImage(plane)
     #pil.show()
 
     # Now need to rotate so that x1,y1 is horizontally to the left of x2,y2
