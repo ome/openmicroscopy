@@ -79,7 +79,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
@@ -297,19 +296,24 @@ class MeasurementViewerUI
         menu.setMnemonic(KeyEvent.VK_O);
         
         JMenu subMenu = new JMenu("Units");
-        MeasurementViewerAction a = controller.getAction(
-    			MeasurementViewerControl.IN_MICRONS);
-        JCheckBoxMenuItem inMicronsMenu = new JCheckBoxMenuItem(a);
-        inMicronsMenu.setText(a.getName());
-        displayUnits.add(inMicronsMenu);
-        subMenu.add(inMicronsMenu);
-        
+        JCheckBoxMenuItem item;
+        MeasurementViewerAction a;
+        if (model.sizeInMicrons()) {
+        	a = controller.getAction(MeasurementViewerControl.IN_MICRONS);
+        	item = new JCheckBoxMenuItem(a);
+            item.setText(a.getName());
+            displayUnits.add(item);
+            subMenu.add(item);
+            item.setSelected(true);
+           
+        }
+        model.showMeasurementsInMicrons(model.sizeInMicrons());
         a = controller.getAction(MeasurementViewerControl.IN_PIXELS);
-        JCheckBoxMenuItem inPixelsMenu = new JCheckBoxMenuItem(a);
-        inPixelsMenu.setText(a.getName());
-        displayUnits.add(inPixelsMenu);
-        subMenu.add(inPixelsMenu);
-        inPixelsMenu.setSelected(true); //TODO: retrieve info
+        item = new JCheckBoxMenuItem(a);
+        item.setText(a.getName());
+        displayUnits.add(item);
+        subMenu.add(item);
+        if (!model.sizeInMicrons()) item.setSelected(true);
         
         menu.add(subMenu);
         

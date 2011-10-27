@@ -727,5 +727,3 @@ public class ROIComponent
 	 public MeasurementUnits getMeasurementUnits() { return units; }
 
 }
-
-
