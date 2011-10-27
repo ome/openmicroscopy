@@ -2891,21 +2891,23 @@ class _BlitzGateway (object):
                 return KNOWN_WRAPPERS.get(obj_type.lower(), None)
             types = [getWrapper(o) for o in obj_types]
         search = self.createSearchService()
-        if created:
-            search.onlyCreatedBetween(created[0], created[1]);
-        if text[0] in ('?','*'):
-            search.setAllowLeadingWildcard(True)
-        rv = []
-        for t in types:
-            def actualSearch ():
-                search.onlyType(t().OMERO_CLASS)
-                search.byFullText(text)
-            timeit(actualSearch)()
-            if search.hasNext():
-                def searchProcessing ():
-                    rv.extend(map(lambda x: t(self, x), search.results()))
-                timeit(searchProcessing)()
-        search.close()
+        try:
+            if created:
+                search.onlyCreatedBetween(created[0], created[1]);
+            if text[0] in ('?','*'):
+                search.setAllowLeadingWildcard(True)
+            rv = []
+            for t in types:
+                def actualSearch ():
+                    search.onlyType(t().OMERO_CLASS)
+                    search.byFullText(text)
+                timeit(actualSearch)()
+                if search.hasNext():
+                    def searchProcessing ():
+                        rv.extend(map(lambda x: t(self, x), search.results()))
+                    timeit(searchProcessing)()
+        finally:
+            search.close()
         return rv
 
 
