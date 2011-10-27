@@ -292,6 +292,20 @@ class TestParse(unittest.TestCase):
         rv = parse_inputs(["a=xxxanytextxxx"], params)
         self.assertEquals(True, rv["a"].val)
 
+    def testParseIntList(self):
+        """
+        see ticket:7003
+        """
+        params = JobParams()
+        a = List("Channels").ofType(rint(0))
+        params.inputs = {"a": a}
+
+        rv = parse_inputs(["a=1,2"], params)["a"].val
+        for x in rv:
+            self.assertTrue(isinstance(x, omero.RInt))
+        self.assertEquals(1, rv[0].val)
+        self.assertEquals(2, rv[1].val)
+
 if __name__ == '__main__':
     logging.basicConfig()
     unittest.main()
