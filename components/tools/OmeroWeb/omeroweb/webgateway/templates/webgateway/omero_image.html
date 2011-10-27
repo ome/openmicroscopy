@@ -478,11 +478,6 @@
       $("#roi_table_postit").hide();
   }
   
-  
-  var get_roi_thumb_src =  function(roiId, lineColor) {
-      return "/webgateway/render_roi_thumbnail/"+ roiId +"/?color=" + lineColor;
-  }
-  
   // builds an html table of ROI data. All collapsed.
   var build_roi_table = function() {
       var $roi_table = $("#roi_small_table");
@@ -501,7 +496,7 @@
       // thead for whole table:
       var roi_html = "<thead><tr>";
       roi_html += "<th></th>";
-      roi_html += "<th>shape</th>"; // first shape (count)
+      roi_html += "<th></th>"; // first shape (count)
       roi_html += "<th>ID</th>";
       roi_html += "<th>Z</th>"; // no Z for ROI
       roi_html += "<th>T</th>"; // no T for ROI
@@ -524,9 +519,8 @@
           var shapes = roi['shapes'];
           
           // thumbnail of roi - display small & popup full-size
-          var roi_thumb_src = "";
           var line_color = 'f00';   // store current line color, used when we 'show' thumbs to get url. 
-          var thumbHtml = "<img src='"+ roi_thumb_src + "' id='"+ roi['id'] +"_roi_thumb' color='"+ line_color +"' width=50 height=33 class='roi_thumb'>";
+          var roiThumbHtml = "<img src='' id='"+ roi['id'] +"_roi_thumb' color='"+ line_color +"' width=50 height=33 class='roi_thumb'>";
           
           // process the shapes first - note first shape & text
           var firstShape = null;
@@ -535,7 +529,6 @@
           var shapesHtml = '<tbody>';
           var shape = null;
           var text;
-          var thumbnail = "";
           for (var s=0; s<shapes.length; s++) {
               shape = shapes[s];
               if (minT === null || minT > shape['theT']) minT = shape['theT'];
@@ -549,19 +542,18 @@
               var indent = " &nbsp&nbsp&nbsp&nbsp";    // hack to add "indent", but not if shape is only-child
               if (shapes.length == 1) {
                   indent = " &nbsp";
-                  thumbnail = thumbHtml;
-                  thumbHtml = "";
               }
-              var shape_icon
+              var shapeThumbHtml = "<img src='' id='"+ shape['id'] +"_shape_thumb' color='"+ line_color +"' width=50 height=33 class='roi_thumb shape_thumb'>";
+              
               shapesHtml += "<tr id='"+shape['id']+"_shape' class='shape_row'>";
               // clicking on any cell of a shape 'shape_cell' selects it
               shapesHtml += "<td></td>";
-              shapesHtml += "<td class='shape_cell'>" + indent + "<img class='shape_icon' src='"+ get_shape_icon_src(shape['type']) + "' /></td>";
+              shapesHtml += "<td class='shape_cell icon'>" + indent + "<img class='shape_icon' src='"+ get_shape_icon_src(shape['type']) + "' /></td>";
               shapesHtml += "<td class='shape_cell'>" + shape['id'] + "</td>"
               shapesHtml += "<td class='shape_cell'>" + (shape['theZ']+1) + "</td>";
               shapesHtml += "<td class='shape_cell'>" + (shape['theT']+1) + "</td>";
               shapesHtml += "<td class='shape_cell'>" + text + "</td>";
-              shapesHtml += "<td class='shape_cell'>" + thumbnail + "</td>";
+              shapesHtml += "<td class='shape_cell'>" + shapeThumbHtml + "</td>";
               shapesHtml += "</tr>";
               if (firstShape == null) firstShape = shape['type'];
           }
@@ -576,7 +568,7 @@
           roi_html += "<th> "+ (minZ+1) + ((maxZ != minZ) && ("-"+(maxZ+1)) || ("")) +" </th>"; // no Z for ROI
           roi_html += "<th> "+ (minT+1) + ((maxT != minT) && ("-"+(maxT+1)) || ("")) +" </th>"; // no T for ROI
           roi_html += "<th>"+ firstText +"</th>";
-          roi_html += "<th>"+ thumbHtml +"</th>";
+          roi_html += "<th>"+ roiThumbHtml +"</th>";
           roi_html += "</tr></thead>";
           
           var tbody = $(shapesHtml);
@@ -624,15 +616,13 @@
         $row.parent().show();   // show this 'tbody' set of shapes
         var arrow_src = '/appmedia/webgateway/img/arrowDown_grey.png';
         $row.parent().prev('thead').find('img.expand_arrow').attr('src', arrow_src);
-        var arrow_src = '/appmedia/webgateway/img/arrowRight_grey.png';
-        
     }
     
     // update src of roi_thumbnails, based on colour. If 'null', set no src and hide thumbs
     var update_roi_thumbs = function(line_color) {
         // we set visibility based on 'toggle_roi_thumbs' checkbox
         var vis = ($("#toggle_roi_thumbs").attr('checked') == true);
-        $('.roi_thumb').each(function(){
+        var update_thumbs = function() {
             var $thmb = $(this);
             if (vis) {
                 if ((typeof line_color == 'undefined') || (line_color == null)) {
@@ -641,16 +631,21 @@
                 } else {
                     $thmb.attr('color', line_color);
                 }
-                var roi_id = parseInt($thmb.attr('id'));
-                var thmb_src = get_roi_thumb_src(roi_id, line_color);
+                var thmb_id = parseInt($thmb.attr('id'));
+                var thmb_src = "/webgateway/render_roi_thumbnail/"+ thmb_id +"/?color=" + line_color;
+                if ($thmb.hasClass('shape_thumb')) {
+                    thmb_src = "/webgateway/render_shape_thumbnail/"+ thmb_id +"/?color=" + line_color;
+                }
                 $thmb.attr('src', thmb_src);
                 $thmb.show();
             } else {
                 // hide thumb and remove src (don't load thumbs)
                 $thmb.attr('src', '');
                 $thmb.hide();
-            }
-        });
+            }2
+        }
+        $('.roi_thumb').each(update_thumbs);
+        //$('.shape_thumb').each(update_thumbs);
     }
 
   var linePlotPos = function (ev, obj) {

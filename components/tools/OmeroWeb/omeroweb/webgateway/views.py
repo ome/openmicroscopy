@@ -19,6 +19,7 @@ from django.utils.http import urlquote
 from django.core import template_loader
 from django.core.urlresolvers import reverse
 from django.template import RequestContext as Context
+from omero.rtypes import rlong
 
 try:
     from hashlib import md5
@@ -579,20 +580,12 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, _conn=None, 
 def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=None, **kwargs):
     """
     For the given ROI, choose the shape to render (first time-point, mid z-section) then render 
-    a region around that plane, scale to width and height (or default size) and draw the
+    a region around that shape, scale to width and height (or default size) and draw the
     shape on to the region
     """
     if _conn is None:
         _conn = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
-    
-    MAX_WIDTH = 250
-    color = request.REQUEST.get("color", "fff")
-    colours = {"f00":(255,0,0), "0f0":(0,255,0), "00f":(0,0,255), "ff0":(255,255,0), "fff":(255,255,255), "000":(0,0,0)}
-    lineColour = colours["f00"]
-    if color in colours:
-        lineColour = colours[color]
-    bg_color = (221,221,221)        # used for padding if we go outside the image area
-    
+
     # need to find the z indices of the first shape in T
     roiResult = _conn.getRoiService().findByRoi(long(roiId), None)
     if roiResult is None or roiResult.rois is None:
@@ -618,6 +611,63 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
     zList.sort()
     midZ = zList[len(zList)/2]
     s = shapes[(midZ, minT)]
+    
+    pi = _get_prepared_image(request, imageId, server_id=server_id, _conn=_conn, with_session=False)
+    
+    if pi is None:
+        raise Http404
+    image, compress_quality = pi
+
+    jpeg = get_shape_thumbnail (request, image, s, compress_quality)
+    
+    return HttpResponse(jpeg, mimetype='image/jpeg')
+
+
+@serverid
+def render_shape_thumbnail (request, shapeId, server_id=None, w=None, h=None, _conn=None, **kwargs):
+    """
+    For the given Shape, redner a region around that shape, scale to width and height (or default size) and draw the
+    shape on to the region. 
+    """
+    if _conn is None:
+        _conn = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
+
+    # need to find the z indices of the first shape in T
+    params = omero.sys.Parameters()
+    params.map = {'id':rlong(shapeId)}
+    shape = _conn.getQueryService().findByQuery("select s from Shape s join fetch s.roi where s.id = :id", params)
+
+    if shape is None:
+        raise Http404
+
+    imageId = shape.roi.image.id.val
+
+    pi = _get_prepared_image(request, imageId, server_id=server_id, _conn=_conn, with_session=False)
+    if pi is None:
+        raise Http404
+    image, compress_quality = pi
+
+    jpeg = get_shape_thumbnail (request, image, shape, compress_quality)
+    
+    return HttpResponse(jpeg, mimetype='image/jpeg')
+
+
+def get_shape_thumbnail (request, image, s, compress_quality):
+    """
+    Render a region around the specified Shape, scale to width and height (or default size) and draw the
+    shape on to the region. Returns jpeg data. 
+    
+    @param image:   ImageWrapper
+    @param s:       omero.model.Shape
+    """
+
+    MAX_WIDTH = 250
+    color = request.REQUEST.get("color", "fff")
+    colours = {"f00":(255,0,0), "0f0":(0,255,0), "00f":(0,0,255), "ff0":(255,255,0), "fff":(255,255,255), "000":(0,0,0)}
+    lineColour = colours["f00"]
+    if color in colours:
+        lineColour = colours[color]
+    bg_color = (221,221,221)        # used for padding if we go outside the image area
     
     def pointsStringToXYlist(string):
         """
@@ -647,6 +697,8 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
 
     bBox = None   # bounding box: (x, y, w, h)
     shape = {}
+    theT = s.getTheT().getValue()
+    theZ = s.getTheZ().getValue()
     if type(s) == omero.model.RectI:
         shape['type'] = 'Rectangle'
         shape['x'] = s.getX().getValue()
@@ -715,15 +767,9 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
     newX = int(x - xOffset)
     newY = int(y - yOffset)
     
-    pi = _get_prepared_image(request, imageId, server_id=server_id, _conn=_conn, with_session=False)
-    
-    if pi is None:
-        raise Http404
-    img, compress_quality = pi
-    
     # Need to check if any part of our region is outside the image. (assume that SOME of the region is within the image!)
-    sizeX = img.getSizeX()
-    sizeY = img.getSizeY()
+    sizeX = image.getSizeX()
+    sizeY = image.getSizeY()
     left_xs, right_xs, top_xs, bottom_xs = 0,0,0,0
     if newX < 0:
         newW = newW + newX
@@ -741,25 +787,25 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
         newH = newH - bottom_xs
 
     # now we should be getting the correct region
-    jpeg_data = img.renderJpegRegion(midZ,minT,newX, newY, newW, newH,level=None, compression=compress_quality)
-    image = Image.open(StringIO(jpeg_data))
+    jpeg_data = image.renderJpegRegion(theZ,theT,newX, newY, newW, newH,level=None, compression=compress_quality)
+    img = Image.open(StringIO(jpeg_data))
     
     # add back on the xs we were forced to trim
     if left_xs != 0 or right_xs != 0 or top_xs != 0 or bottom_xs != 0:
-        jpg_w, jpg_h = image.size
+        jpg_w, jpg_h = img.size
         xs_w = jpg_w + right_xs + left_xs
         xs_h = jpg_h + bottom_xs + top_xs
         xs_image = Image.new('RGBA', (xs_w, xs_h), bg_color)
-        xs_image.paste(image, (left_xs, top_xs))
-        image = xs_image
+        xs_image.paste(img, (left_xs, top_xs))
+        img = xs_image
     
     # we have our full-sized region. Need to resize to thumbnail. 
-    current_w, current_h = image.size
+    current_w, current_h = img.size
     factor = float(MAX_WIDTH) / current_w
     resizeH = current_h * factor
-    image = image.resize((MAX_WIDTH, resizeH))
+    img = img.resize((MAX_WIDTH, resizeH))
     
-    draw = ImageDraw.Draw(image)
+    draw = ImageDraw.Draw(img)
     if shape['type'] == 'Rectangle':
         rectX = int(xOffset * factor)
         rectY = int(yOffset * factor)
@@ -780,6 +826,14 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
         rectH = int((h+yOffset) * factor)
         draw.ellipse((rectX, rectY, rectW, rectH), outline=lineColour)
         draw.ellipse((rectX-1, rectY-1, rectW+1, rectH+1), outline=lineColour) # hack to get line width of 2
+    elif shape['type'] == 'Point':
+        point_radius = 2
+        rectX = (MAX_WIDTH/2) - point_radius
+        rectY = int(resizeH/2) - point_radius
+        rectW = rectX + (point_radius * 2)
+        rectH = rectY + (point_radius * 2)
+        draw.ellipse((rectX, rectY, rectW, rectH), outline=lineColour)
+        draw.ellipse((rectX-1, rectY-1, rectW+1, rectH+1), outline=lineColour) # hack to get line width of 2
     elif 'xyList' in shape:
         #resizedXY = [ (int(x*factor), int(y*factor)) for (x,y) in shape['xyList'] ]
         def resizeXY(xy):
@@ -797,11 +851,12 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
         
     rv = StringIO()
     compression = 0.9
-    image.save(rv, 'jpeg', quality=int(compression*100))
+    img.save(rv, 'jpeg', quality=int(compression*100))
     jpeg = rv.getvalue()
     
     return HttpResponse(jpeg, mimetype='image/jpeg')
-    
+
+
 def _get_signature_from_request (request):
     """
     returns a string that identifies this image, along with the settings passed on the request.
