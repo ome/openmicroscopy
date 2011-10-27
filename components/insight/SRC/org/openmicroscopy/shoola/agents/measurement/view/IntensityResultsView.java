@@ -363,7 +363,9 @@ class IntensityResultsView
 			cName = channelIterator.next();
 			channel = nameMap.get(cName);
 			rowData = new Vector();
-			rowData.add(shape.getID());
+			if (shape.getROI().isClientSide())
+				rowData.add("--");
+			else rowData.add(shape.getROIShapeID());
 			rowData.add(shape.getCoord3D().getZSection()+1);
 			rowData.add(shape.getCoord3D().getTimePoint()+1);
 			rowData.add(cName);
