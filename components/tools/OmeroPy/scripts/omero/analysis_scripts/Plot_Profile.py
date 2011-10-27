@@ -371,7 +371,7 @@ the data as csv files, for plotting in E.g. exell.""",
         description="Output the Sum or Average (mean) of Line Profile. Option to include ALL line data with Average", values=sumAvgOptions),
 
     scripts.List("Channels", grouping="4",
-        description="Optional list of Channels to process. E.g 1, 2. Use ALL Channels by default.").ofType(rlong(0)),
+        description="Optional list of Channels to process. E.g 1, 2. Use ALL Channels by default.").ofType(omero.rtypes.rint(0)),
 
     version = "4.3.3",
     authors = ["William Moore", "OME Team"],
