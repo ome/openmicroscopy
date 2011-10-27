@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 
 //Java imports
 import java.awt.Component;
+import java.util.TreeMap;
+
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTree;
@@ -101,10 +103,14 @@ public class ROITableCellRenderer
 			if (userID == roi.getOwnerID() || roi.getOwnerID() == -1)
 				setIcon(ROI_ICON);
 			else setIcon(ROI__OTHER_OWNER_ICON);
-		} else if( thisObject instanceof ROIShape) setIcon(SHAPE_ICON);
+			TreeMap map = roi.getShapes();
+			if (map == null) setText("[0]");
+			else setText("["+map.size()+"]");
+		} else if (thisObject instanceof ROIShape) {
+			setIcon(SHAPE_ICON);
+			setText("");
+		}
 		return this;
 	}
 	
 }
-
-
