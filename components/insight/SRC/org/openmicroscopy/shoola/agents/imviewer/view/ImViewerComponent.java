@@ -2455,9 +2455,9 @@ class ImViewerComponent
 		if (model.getTabbedIndex() != PROJECTION_INDEX) return;
 		if (ref == null) 
 			throw new IllegalArgumentException("No projection object");
-		model.fireImageProjection(view.getProjectionStartZ(), 
-				view.getProjectionEndZ(), view.getProjectionStepping(), 
-				view.getProjectionType(), view.getProjectionTypeName(), ref);
+		model.fireImageProjection(ref.getStartZ(), ref.getEndZ(),
+				view.getProjectionStepping(), view.getProjectionType(),
+				view.getProjectionTypeName(), ref);
 		fireStateChange();
 	}
 
