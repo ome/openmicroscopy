@@ -37,6 +37,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.util.browser.SmartFolder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -141,6 +142,9 @@ public class TreeCellRenderer
 	/** Reference to the <code>Tag Set</code> icon. */
 	private static final Icon TAG_SET_ICON;
 	
+	/** Reference to the <code>Tag not owned but used</code> icon. */
+	private static final Icon TAG_OTHER_OWNER_ICON;
+	
 	/** Reference to the <code>Tag</code> icon. */
 	private static final Icon PERSONAL_ICON;
 	
@@ -237,6 +241,7 @@ public class TreeCellRenderer
 			icons.getIcon(IconManager.PROJECT_ANNOTATED_TO_REFRESH);
 		TAG_ICON = icons.getIcon(IconManager.TAG);
 		TAG_SET_ICON = icons.getIcon(IconManager.TAG_SET);
+		TAG_OTHER_OWNER_ICON = icons.getIcon(IconManager.TAG_OTHER_OWNER);
 		SCREEN_ANNOTATED_ICON = icons.getIcon(IconManager.SCREEN_ANNOTATED);
 		SCREEN_TO_REFRESH_ICON = icons.getIcon(IconManager.SCREEN_TO_REFRESH);
 		SCREEN_ANNOTATED_TO_REFRESH_ICON = 
@@ -327,7 +332,15 @@ public class TreeCellRenderer
         	String ns = tag.getNameSpace();
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
         		icon = TAG_SET_ICON;
-        	else icon = TAG_ICON;
+        	else {
+        		icon = TAG_ICON;
+        		TreeImageDisplay n = BrowserFactory.getDataOwner(node);
+        		if (n != null) {
+        			ExperimenterData exp = (ExperimenterData) n.getUserObject();
+        			if (!EditorUtil.isUserOwner(tag, exp.getId()))
+        				icon = TAG_OTHER_OWNER_ICON;
+        		}
+        	}
         } else if (usrObject instanceof ScreenData) {
         	if (node.isToRefresh()) {
         		if (EditorUtil.isAnnotated(usrObject))

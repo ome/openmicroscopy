@@ -54,6 +54,7 @@ import javax.swing.filechooser.FileFilter;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
@@ -86,7 +87,6 @@ import org.openmicroscopy.shoola.util.filter.file.TEXTFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.filter.file.WordFilter;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
@@ -94,9 +94,11 @@ import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.FileAnnotationData;
+import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.WellSampleData;
 
 /** 
  * The Editor's controller.
@@ -186,6 +188,9 @@ class EditorControl
 	
 	/** Action ID to save the images as full size <code>JPEG</code>.*/
 	static final int	SAVE_AS = 21;
+	
+	/** Action ID to view the image.*/
+	static final int	VIEW_IMAGE = 22;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -725,6 +730,20 @@ class EditorControl
 				*/
 			case SAVE_AS:
 				saveAsJPEG();
+				break;
+			case VIEW_IMAGE:
+				Object refObject = view.getRefObject();
+				ImageData img = null;
+				if (refObject instanceof ImageData) {
+		        	img = (ImageData) refObject;
+		        } else if (refObject instanceof WellSampleData) {
+		        	img = ((WellSampleData) refObject).getImage();
+		        }
+				if (img != null) {
+					ViewImageObject vio = new ViewImageObject(img);
+					EditorAgent.getRegistry().getEventBus().post(
+							new ViewImage(vio, null));
+				}
 		}
 	}
 

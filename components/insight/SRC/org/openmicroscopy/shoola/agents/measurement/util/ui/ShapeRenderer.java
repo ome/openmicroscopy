@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.measurement.util.ui;
 //Java imports
 import java.awt.Component;
 import java.awt.FlowLayout;
+
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -55,8 +57,45 @@ public class ShapeRenderer
 	implements TableCellRenderer
 {
 	
-	/** Helper reference. */
-	private IconManager icons;
+	/** Reference to the <code>Scribble</code> icon. */
+	private static final Icon SCRIBBLE;
+	
+	/** Reference to the <code>Line</code> icon. */
+	private static final Icon LINE;
+	
+	/** Reference to the <code>Connection</code> icon. */
+	private static final Icon CONNECTION;
+	
+	/** Reference to the <code>Polygon</code> icon. */
+	private static final Icon POLYGON;
+	
+	/** Reference to the <code>Point</code> icon. */
+	private static final Icon POINT;
+	
+	/** Reference to the <code>Rectangle</code> icon. */
+	private static final Icon RECTANGLE;
+	
+	/** Reference to the <code>Ellipse</code> icon. */
+	private static final Icon ELLIPSE;
+	
+	/** Reference to the <code>Text</code> icon. */
+	private static final Icon TEXT;
+	
+	/** Reference to the <code>Mask</code> icon. */
+	private static final Icon MASK;
+	
+	static { 
+		IconManager icons = IconManager.getInstance();
+		SCRIBBLE = icons.getIcon(IconManager.SCRIBBLE);
+		LINE = icons.getIcon(IconManager.LINE_16);
+		CONNECTION = icons.getIcon(IconManager.CONNECTION);
+		POLYGON = icons.getIcon(IconManager.POLYGON_16);
+		POINT = icons.getIcon(IconManager.POINT_16);
+		RECTANGLE = icons.getIcon(IconManager.RECTANGLE);
+		ELLIPSE = icons.getIcon(IconManager.ELLIPSE_16);
+		TEXT = icons.getIcon(IconManager.TEXT_16);
+		MASK = icons.getIcon(IconManager.MASK);
+	}
 	
 	/** Component hosting the icon representing the shape. */
 	private JLabel label;
@@ -69,23 +108,23 @@ public class ShapeRenderer
 	private void makeShapeIcon(String shape)
 	{
 		if (FigureUtil.SCRIBBLE_TYPE.equals(shape)) 
-			label.setIcon(icons.getIcon(IconManager.SCRIBBLE));
+			label.setIcon(SCRIBBLE);
 		else if (FigureUtil.LINE_TYPE.equals(shape)) 
-			label.setIcon(icons.getIcon(IconManager.LINE_16));
+			label.setIcon(LINE);
 		else if (FigureUtil.LINE_CONNECTION_TYPE.equals(shape)) 
-			label.setIcon(icons.getIcon(IconManager.CONNECTION));
+			label.setIcon(CONNECTION);
 		else if (FigureUtil.POLYGON_TYPE.equals(shape)) 
-			label.setIcon(icons.getIcon(IconManager.POLYGON_16));
+			label.setIcon(POLYGON);
 		else if (FigureUtil.POINT_TYPE.equals(shape)) 
-			label.setIcon(icons.getIcon(IconManager.POINT_16));
+			label.setIcon(POINT);
 		else if (FigureUtil.RECTANGLE_TYPE.equals(shape)) 
-			label.setIcon(icons.getIcon(IconManager.RECTANGLE));
+			label.setIcon(RECTANGLE);
 		else if (FigureUtil.ELLIPSE_TYPE.equals(shape)) 
-			label.setIcon(icons.getIcon(IconManager.ELLIPSE_16));
+			label.setIcon(ELLIPSE);
 		else if (FigureUtil.TEXT_TYPE.equals(shape)) 
-			label.setIcon(icons.getIcon(IconManager.TEXT_16));
+			label.setIcon(TEXT);
 		else if (FigureUtil.MASK_TYPE.equals(shape)) 
-			label.setIcon(icons.getIcon(IconManager.MASK));
+			label.setIcon(MASK);
 	}
 	
 	/**
@@ -94,11 +133,10 @@ public class ShapeRenderer
 	 */
 	public ShapeRenderer()
 	{
-		icons = IconManager.getInstance();
 		label = new JLabel();
 		FlowLayout layout = new FlowLayout(FlowLayout.CENTER);
 		layout.setVgap(0);
-        setLayout(layout);
+		setLayout(layout);
 		setOpaque(true);
 		add(label);
 	}

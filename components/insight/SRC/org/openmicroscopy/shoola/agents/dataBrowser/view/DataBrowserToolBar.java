@@ -198,6 +198,9 @@ class DataBrowserToolBar
 	/** TextField hosting the number of items per row. */
 	private JTextField			itemsPerRow;
 	
+	/** The component hosting the {@link #itemsPerRow}.*/
+	private JPanel              itemsPerRowPane;
+	
 	/** Indicates how many images are shown. */
 	private JLabel				status;
 	
@@ -611,12 +614,12 @@ class DataBrowserToolBar
 			bar.add(saveButton);
 			bar.add(new JSeparator(JSeparator.VERTICAL));
 		}
-		JPanel panel = new JPanel();
-		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
-		panel.add(new JLabel("# per row:"));
-		panel.add(itemsPerRow);
-		panel.setToolTipText(itemsPerRow.getToolTipText());
-		bar.add(panel);
+		itemsPerRowPane = new JPanel();
+		itemsPerRowPane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+		itemsPerRowPane.add(new JLabel("# per row:"));
+		itemsPerRowPane.add(itemsPerRow);
+		itemsPerRowPane.setToolTipText(itemsPerRow.getToolTipText());
+		bar.add(itemsPerRowPane);
 		/*
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(new JSeparator(JSeparator.VERTICAL));
@@ -731,6 +734,7 @@ class DataBrowserToolBar
 		columnsView.removeActionListener(this);
 		thumbView.setSelected(index == DataBrowserUI.THUMB_VIEW);
 		columnsView.setSelected(index == DataBrowserUI.COLUMNS_VIEW);
+		itemsPerRowPane.setVisible(index == DataBrowserUI.THUMB_VIEW);
 		thumbView.addActionListener(this);
 		columnsView.addActionListener(this);
 	}

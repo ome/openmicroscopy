@@ -241,9 +241,10 @@ public class ProjSavingDialog
 		newFolderButton.addActionListener(this);
 		nameField = new JTextField();
 
-		String s = UIUtilities.removeFileExtension(imageName);
-		s += DEFAULT_EXTENSION;
-		nameField.setText(s);
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(UIUtilities.removeFileExtension(imageName));
+		buffer.append(DEFAULT_EXTENSION);
+		nameField.setText(buffer.toString());
 		nameField.getDocument().addDocumentListener(this);
 		//Display datasets
 		selection = new LinkedHashMap<JCheckBox, DatasetData>();
@@ -464,6 +465,7 @@ public class ProjSavingDialog
 		}
 		int startT = 0, endT = 0;
 		if (maxT > 0) {
+			
 			startT = (int) timeSelection.getStartValue()-1;
 			endT = (int) timeSelection.getEndValue()-1;
 		}
@@ -479,8 +481,9 @@ public class ProjSavingDialog
 		ref.setDatasets(datasets);
 		ref.setImageName(nameField.getText());
 		ref.setTInterval(startT, endT);
-		ref.setZInterval((int) zrangeSelection.getStartValue()-1, 
-				(int) zrangeSelection.getEndValue()-1);
+		double s = zrangeSelection.getStartValue();
+		double e = zrangeSelection.getEndValue();
+		ref.setZInterval((int) s-1, (int) e-1);
 		ref.setApplySettings(rndSettingsBox.isSelected());
 		firePropertyChange(PROJECTION_PROPERTY, null, ref);
 		close();
