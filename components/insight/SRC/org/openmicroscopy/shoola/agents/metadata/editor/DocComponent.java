@@ -501,7 +501,7 @@ class DocComponent
 					//	FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns) ||
 					//	FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
 					openButton = new JMenuItem(icons.getIcon(
-							IconManager.EDITOR_12));
+							IconManager.VIEW_DOC_12));
 					openButton.setText("View");
 					openButton.setToolTipText("View the file.");
 					openButton.setActionCommand(""+OPEN);
