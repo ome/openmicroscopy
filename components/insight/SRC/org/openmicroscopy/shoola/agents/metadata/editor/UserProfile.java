@@ -219,12 +219,22 @@ class UserProfile
         	passwordNew.requestFocus();
         	return;
         }
+        if (old.equals(newPass)) {
+        	un = MetadataViewerAgent.getRegistry().getUserNotifier();
+        	un.notifyInfo(PASSWORD_CHANGE_TITLE, 
+        			"Your new and old passwords are the same.\n" +
+        			"Please enter a new password.");
+        	passwordNew.setText("");
+        	passwordConfirm.setText("");
+        	passwordNew.requestFocus();
+        	return;
+        }
 
         if (pass == null || confirm == null || confirm.length() == 0 ||
         	!pass.equals(confirm)) {
         	un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE, 
-            			"The passwords entered do not match. " +
+            			"The passwords entered do not match.\n" +
             			"Please try again.");
             passwordNew.setText("");
             passwordConfirm.setText("");
