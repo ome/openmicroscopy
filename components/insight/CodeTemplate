@@ -52,8 +52,8 @@ public abstract class Template
      * If you need more than one line to describe a member field, use
      * this common style.
      */
-    private int		aMemberField;
-    private String	anotherField; //use tabs to nicely align field names
+    private int aMemberField;
+    private String anotherField;
 
     /**
      * Put method description here.
