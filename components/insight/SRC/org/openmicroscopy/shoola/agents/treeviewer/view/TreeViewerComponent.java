@@ -825,6 +825,7 @@ class TreeViewerComponent
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
 		TreeImageDisplay display = browser.getLastSelectedDisplay();
+		
 		MetadataViewer metadata = model.getMetadataViewer();
 		TreeImageDisplay[] selection = browser.getSelectedDisplays();
 		
@@ -873,6 +874,10 @@ class TreeViewerComponent
 			DataBrowser db = model.getDataViewer();
 			if (db != null) db.setSelectedNodes(new ArrayList(), null);
 			metadata.setRootObject(null, -1);
+		}
+		if (display.getUserObject() instanceof ExperimenterData &&
+			display.isToRefresh()) {
+			refreshTree();
 		}
 	}
 
@@ -3322,6 +3327,21 @@ class TreeViewerComponent
 				browser = model.getBrowser(Browser.SCREENS_EXPLORER);
 				browser.accept(finder);
 			}
+			Set<TreeImageDisplay> nodes = finder.getNodes();
+			//mark 
+			if (browser != null && nodes != null && nodes.size() > 0) {
+				Iterator<TreeImageDisplay> i = nodes.iterator();
+				TreeImageDisplay parent;
+				while (i.hasNext()) {
+					node = i.next();
+					node.setToRefresh(true);
+					parent = node.getParentDisplay();
+					if (parent != null && !parent.isExpanded())
+						browser.expand(parent);
+				}
+				browser.getUI().repaint();
+			}
+			/*
 			if (browser == null) return;
 			Set<TreeImageDisplay> nodes = finder.getNodes();
 			//mark 
@@ -3343,7 +3363,14 @@ class TreeViewerComponent
 					browser.getUI().repaint();
 				}
 			}
-		} else {
+			node = browser.getLoggedExperimenterNode();
+			if (node != null) {
+				node.setToRefresh(refreshTree);
+				browser.getUI().repaint();
+			}
+			*/
+		} 
+		/*else {
 			browser = model.getSelectedBrowser();
 			if (browser != null) {
 				node = browser.getLoggedExperimenterNode();
@@ -3352,6 +3379,16 @@ class TreeViewerComponent
 					node.setToRefresh(refreshTree);
 					browser.getUI().repaint();
 				}
+			}
+		}
+		*/
+		if (browser == null) browser = model.getSelectedBrowser();
+		if (browser != null) {
+			node = browser.getLoggedExperimenterNode();
+			if (node != null) {
+				node.setExpanded(true);
+				node.setToRefresh(refreshTree);
+				browser.getUI().repaint();
 			}
 		}
 	}
