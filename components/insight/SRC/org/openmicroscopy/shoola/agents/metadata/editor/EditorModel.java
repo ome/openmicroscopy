@@ -70,13 +70,17 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -2580,6 +2584,36 @@ class EditorModel
     		UserPhotoUploader loader = new UserPhotoUploader(component, exp,
     				photo, format);
     		loader.load();
+    	}
+    }
+    
+    /** Deletes the user's photos.*/
+    void deletePicture()
+    {
+    	if (refObject instanceof ExperimenterData) {
+    		try {
+    			ExperimenterData exp = (ExperimenterData) refObject;
+    			OmeroMetadataService svc = 
+    				MetadataViewerAgent.getRegistry().getMetadataService();
+    			Collection photos = svc.loadAnnotations(FileAnnotationData.class, 
+    					FileAnnotationData.EXPERIMENTER_PHOTO_NS, exp.getId(), 
+    					-1);
+    			if (photos == null || photos.size() == 0) return;
+    			List<DeletableObject> l = new ArrayList<DeletableObject>();
+	    		Iterator<AnnotationData> j = photos.iterator();
+	    		while (j.hasNext())
+	    			l.add(new DeletableObject(j.next()));
+	    		IconManager icons = IconManager.getInstance();
+	    		DeleteActivityParam p = new DeleteActivityParam(
+	    				icons.getIcon(IconManager.APPLY_22), l);
+	    		p.setUIRegister(false);
+	    		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+	    		UserNotifier un = 
+	    			TreeViewerAgent.getRegistry().getUserNotifier();
+	    		un.notifyActivity(p);
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
     	}
     }
     
