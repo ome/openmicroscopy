@@ -66,7 +66,7 @@ $.fn.roi_display = function(options) {
             }
             else if (shape['type'] == 'Label') {
               if (shape['textValue']) {
-                  newShape = paper.text(shape['x'], shape['y'], shape['textValue']);
+                  newShape = paper.text(shape['x'], shape['y'], shape['textValue']).attr({'text-anchor':'start'});
               }
             }
             // handle transforms. Insight supports: translate(354.05 83.01) and rotate(0 407.0 79.0)
@@ -126,19 +126,31 @@ $.fn.roi_display = function(options) {
         // if the currently selected shape is visible - highlight it
         display_selected = function() {
             
-            if (selectedClone != null)  selectedClone.remove();
+            // *NB: For some reason, can't overlay text with selectedClone.
+            // So, for text shapes, we highlight by editing attributes instead.
+            if ((selectedClone != null) && (selectedClone.type != 'text'))  selectedClone.remove();
             if (selected_shape_id == null) return;
             
+            selectedClone = null;
             for (var i=0; i<shape_objects.length; i++) {
                 var s = shape_objects[i];
                 var shape_id = parseInt(s.id);
+                
                 if (shape_id == selected_shape_id) {
-                    selectedClone = s.clone();
-                    selectedClone.attr({'stroke': '#00a8ff'})
-                    return s;
+                    if (s.type == 'text') {
+                        selectedClone = s;
+                        s.attr({'stroke': '#00a8ff', 'fill':'#00a8ff'});
+                    } else {
+                        selectedClone = s.clone();
+                    }
+                    selectedClone.attr({'stroke': '#00a8ff'});
+                } else {
+                    if (s.type == 'text') {
+                        s.attr({'stroke': '#ffffff', 'fill':'#ffffff'});
+                    }
                 }
             }
-            return null;
+            return selectedClone;
         }
         
         this.set_selected_shape = function(shape_id) {
