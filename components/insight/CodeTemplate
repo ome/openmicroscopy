@@ -12,16 +12,13 @@ package org.openmicroscopy.package.ClassName;
 
 //follow the pattern below for imports
 
-//Java imports
 import java.lang.reflect.*;		//avoid *, specify actual classes if possible
 import javax.swing.Action;		//follow alphabetical order
 import javax.swing.JFrame;
- 
-//Third-party libraries
+
 import org.open.source.ClassX;
 import org.open.source.lib.ClassY;
 
-//Application-internal dependencies
 import org.openmicroscopy.pkg.ClassX;
 
 //REMEMBER: 
