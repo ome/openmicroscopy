@@ -37,12 +37,8 @@ import org.openmicroscopy.pkg.ClassX;
  * below are required. Just cut and paste. The second line below is
  * automatically handled by CVS, never modify it.
  *
- * @author Your Name, <a href="mailto:your@email">your@email</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
- * @since OME2.2
+ * @author Your Name, user at example.com
+ * @since OMERO-Beta4.4
  */
 public abstract class Template
 	extends BaseClass
