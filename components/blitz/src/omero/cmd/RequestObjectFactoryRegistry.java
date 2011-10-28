@@ -10,11 +10,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ome.services.chgrp.ChgrpStepFactory;
+import ome.services.chown.ChownStepFactory;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import omero.cmd.basic.ListRequestsI;
 import omero.cmd.graphs.ChgrpI;
+import omero.cmd.graphs.ChownI;
 import omero.cmd.graphs.GraphSpecListI;
 
 import org.springframework.beans.BeansException;
@@ -75,6 +77,18 @@ public class RequestObjectFactoryRegistry extends
                                 ctx);
                         ChgrpStepFactory factory = new ChgrpStepFactory(ctx, em, roles);
                         return new ChgrpI(factory, specs);
+                    }
+
+                });
+        factories.put(ChownI.ice_staticId(),
+                new ObjectFactory(ChownI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
+                                new String[] { "classpath:ome/services/spec.xml" },
+                                ctx);
+                        ChownStepFactory factory = new ChownStepFactory(ctx, em, roles);
+                        return new ChownI(factory, specs);
                     }
 
                 });

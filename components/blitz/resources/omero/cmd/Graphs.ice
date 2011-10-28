@@ -43,6 +43,13 @@ module omero {
         class ChgrpRsp extends Response {
         };
 
+        class Chown extends GraphModify {
+            long user;
+        };
+
+        class ChownRsp extends Response {
+        };
+
         class Delete extends GraphModify {
         };
 
