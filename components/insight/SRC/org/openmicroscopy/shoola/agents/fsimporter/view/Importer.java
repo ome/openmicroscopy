@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
+import java.awt.Component;
+import java.awt.Point;
 import java.io.File;
 import java.util.Collection;
 import javax.swing.JFrame;
@@ -37,6 +39,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 import pojos.DataObject;
+import pojos.GroupData;
 
 /** 
  * Defines the interface provided by the importer component. 
@@ -62,6 +65,12 @@ public interface Importer
 	extends ObservableComponent
 {
 
+	/** Bound property indicating to the group has been modified. */
+	public static final String	CHANGED_GROUP_PROPERTY = "changedGroup";
+	
+	/** Identifies the <code>Personal</code> menu. */
+	public static final int     PERSONAL_MENU = 100;
+	
 	/** Indicates that the type is for project. */
 	public static final int		PROJECT_TYPE = 0;
 	
@@ -254,4 +263,35 @@ public interface Importer
 	 * @return See above.
 	 */
 	public boolean hasOnGoingImport();
+
+	/**
+	 * Brings up the menu on top of the specified component at 
+	 * the specified location.
+	 * 
+	 * @param menuID    The id of the menu. One out of the following constants:
+	 *                  {@link #PERSONAL_MENU}.
+	 * @param invoker   The component that requested the pop-up menu.
+	 * @param loc       The point at which to display the menu, relative to the
+	 *                  <code>component</code>'s coordinates.
+	 */
+	public void showMenu(int personalMenu, Component source, Point point);
+
+	/**
+	 * Returns the currently selected group.
+	 * 
+	 * @return See above.
+	 */
+	GroupData getSelectedGroup();
+
+	/**
+	 * Sets the default group for the currently selected user and updates the 
+	 * view.
+	 * 
+	 * @param group The group to set.
+	 */
+	void setUserGroup(GroupData group);
+
+	/** Logs off from the current server.*/
+	void logOff();
+
 }

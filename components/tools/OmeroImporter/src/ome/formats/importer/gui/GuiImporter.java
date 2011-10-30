@@ -543,7 +543,7 @@ WindowStateListener, WindowFocusListener
             StyleConstants.setFontFamily(style, "SansSerif");
             StyleConstants.setFontSize(style, 12);
             StyleConstants.setBold(style, false);
-
+           
             doc.insertString(doc.getLength(), s, style);
 
             //trim the document size so it doesn't grow to big

@@ -394,6 +394,12 @@ public class ImportDialog
 	/** Indicates to reload the hierarchies when the import is completed.*/
 	private boolean reload;
 	
+	/** The component displaying the component.*/
+	private JComponent toolBar;
+	
+	/** The number of items before adding new elements to the tool bar.*/
+	private int			tbItems;
+	
 	/** 
 	 * Creates the dataset.
 	 * 
@@ -1573,15 +1579,17 @@ public class ImportDialog
 	 */
 	private JComponent buildLocationBar()
 	{
-		JPanel bar = new JPanel();
+		toolBar = new JPanel();
 		//bar.setBackground(UIUtilities.BACKGROUND);
-		bar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		bar.add(reloadContainerButton);
-		bar.add(Box.createHorizontalStrut(5));
-		bar.add(locationButton);
-		bar.add(Box.createHorizontalStrut(5));
-		bar.add(locationLabel);
-		return bar;
+		toolBar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		toolBar.add(reloadContainerButton);
+		toolBar.add(Box.createHorizontalStrut(5));
+		toolBar.add(locationButton);
+		toolBar.add(Box.createHorizontalStrut(5));
+		toolBar.add(locationLabel);
+		toolBar.add(Box.createHorizontalStrut(5));
+		tbItems = toolBar.getComponentCount();
+		return toolBar;
 	}
 	
 	/**
@@ -2292,6 +2300,40 @@ public class ImportDialog
 		if (free <= 0 || used < 0) return;
 		canvas.setPercentage(quota);
 		canvas.setVisible(true);
+	}
+	
+	/**
+	 * Adds the component.
+	 * 
+	 * @param bar The component to add.
+	 */
+	public void addToolBar(JComponent bar)
+	{
+		if (bar == null) return;
+		toolBar.add(bar);
+	}
+	
+	/**
+	 * Refreshes the display when the user reconnect to server.
+	 * 
+	 * @param bar The component to add.
+	 */
+	public void onReconnected(JComponent bar)
+	{
+		int n = toolBar.getComponentCount();
+		int diff = n-tbItems;
+		if (diff > 0) {
+			for (int i = 0; i < diff; i++) {
+				toolBar.remove(tbItems+i);
+			}
+			toolBar.add(bar);
+			toolBar.validate();
+			toolBar.repaint();
+		}
+		table.removeAllFiles();
+		locationPane.repaint();
+		tagsPane.removeAll();
+		tagsMap.clear();
 	}
 	
 	/** 

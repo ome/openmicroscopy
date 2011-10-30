@@ -195,10 +195,27 @@ class SplashScreenManager
 		String f = container.resolveFilePath(null, Container.CONFIG_DIR);
 		Icon splashScreen = Factory.createIcon(n, f);
 		if (splashScreen == null) {
+			/*
 			Boolean online = (Boolean) container.getRegistry().lookup(
 					LookupNames.SERVER_AVAILABLE);
 			if (!online) splashScreen = IconManager.getEditorSplashScreen();
 			else splashScreen = IconManager.getSplashScreen();
+			*/
+			Integer v = (Integer) container.getRegistry().lookup(
+					LookupNames.ENTRY_POINT);
+			if (v != null) {
+				switch (v.intValue()) {
+					case LookupNames.EDITOR_ENTRY:
+						splashScreen = IconManager.getEditorSplashScreen();
+						break;
+					case LookupNames.IMPORTER_ENTRY:
+						splashScreen = IconManager.getImporterSplashScreen();
+						break;
+					default:
+						splashScreen = IconManager.getSplashScreen();
+				}
+			}
+			
 		}
 		n = (String) reg.lookup(LookupNames.SPLASH_SCREEN_LOGIN);
 		
@@ -286,8 +303,10 @@ class SplashScreenManager
 		viewTop.setStatus(task, n);
 		if (doneTasks == totalTasks) {
 			viewTop.setStatusVisible(false);
-			Boolean online = (Boolean) container.getRegistry().lookup(
-					LookupNames.SERVER_AVAILABLE);
+			boolean online = false;
+	        Integer v = (Integer) container.getRegistry().lookup(
+					LookupNames.ENTRY_POINT);
+			if (v != null) online = v.intValue() != LookupNames.EDITOR_ENTRY;
 			if (online) view.setVisible(true);
 			else viewTop.setVisible(false);
 		}

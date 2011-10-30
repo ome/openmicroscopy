@@ -39,7 +39,6 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-
 import pojos.DataObject;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -78,12 +77,70 @@ class ImporterModel
 	/** Keeps track of the different loaders. */
 	private Map<Integer, ImagesImporter> loaders;
 	
-	/** Creates a new instance. */
-	ImporterModel()
+	/** The id of the selected group of the current user. */
+	private long					groupId;
+
+	/** The id of the user currently logged in.*/
+	private long 					experimenterId;
+	
+	/** Initializes the model.*/
+	private void initialize()
 	{
+		groupId = -1;
+		experimenterId = -1;
 		state = Importer.NEW;
 		loaders = new HashMap<Integer, ImagesImporter>();
 	}
+	
+	/** Creates a new instance.*/
+	ImporterModel()
+	{
+		initialize();
+	}
+	
+	/** 
+	 * Creates a new instance.
+	 *
+	 * @param groupID 	The id to the group selected for the current user.
+	 */
+	ImporterModel(long groupId)
+	{
+		initialize();
+		setGroupId(groupId);
+	}
+	
+	/**
+	 * Sets the group's identifier.
+	 * 
+	 * @param groupId The group's identifier.
+	 */
+	void setGroupId(long groupId)
+	{ 
+		this.groupId = groupId;
+		experimenterId = ImporterAgent.getUserDetails().getId();
+	}
+	
+	/**
+	 * Returns the group's identifier.
+	 * 
+	 * @return See above.
+	 */
+	long getGroupId() { return groupId; }
+	
+	/**
+	 * Returns the experimenter's identifier.
+	 * 
+	 * @return See above.
+	 */
+	long getExperimenterId() { return experimenterId; }
+	
+	/**
+	 * Returns <code>true</code> if the agent is the entry point
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isMaster() { return groupId >= 0; }
 	
 	/**
 	 * Called by the <code>FSImporter</code> after creation to allow this

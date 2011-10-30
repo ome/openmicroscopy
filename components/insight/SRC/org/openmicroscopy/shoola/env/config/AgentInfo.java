@@ -61,7 +61,7 @@ public class AgentInfo
 	/** Identifies the <code>false</code> active value. */
 	private static final String FALSE_SHORT = "f";
 	
-	/** The value of the <code>name</code> tag. */																									
+	/** The value of the <code>name</code> tag. */
     private String				name; 
     
 	/** The value of the <code>class</code> tag. */
@@ -73,12 +73,22 @@ public class AgentInfo
 	/** The value of the <code>active</code> tag. */
 	private boolean				active;
 	
+	/** The value of the <code>number</code> tag if present.*/
+	private int				number;
+	
 	/** The Agent. */
 	private Agent				agent;
 	
 	/** The Agent's registry. */
 	private Registry			registry;
-	 
+	
+	/** Creates a new instance.*/
+	AgentInfo()
+	{
+		number = -1;
+		active = true;
+	}
+	
 	/** 
 	 * Returns the value of the <code>name</code> tag. 
 	 * 
@@ -106,6 +116,13 @@ public class AgentInfo
 	 * @return See above.
 	 */
     public boolean isActive() { return active; }
+    
+    /** 
+	 * Returns the value of the <code>number</code> tag. 
+	 * 
+	 * @return See above.
+	 */
+    public int getNumber() { return number; }
     
 	/** 
 	 * Returns the {@link Agent}. 
@@ -171,6 +188,22 @@ public class AgentInfo
 			else if (FALSE.equals(active) || FALSE_SHORT.equals(active))
 				this.active = false;
 			else this.active = true; 
+		}
+	}
+	
+	/** 
+	 * Sets the {@link #master} field.
+	 * 
+	 * @param master The field to set.
+	 */
+	void setNumber(String number)
+	{ 
+		if (number != null) {
+			try {
+				this.number = Integer.parseInt(number);
+			} catch (Exception e) {
+				this.number = -1;
+			}
 		}
 	}
 	

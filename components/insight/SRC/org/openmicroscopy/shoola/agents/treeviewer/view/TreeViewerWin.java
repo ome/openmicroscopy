@@ -33,8 +33,6 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -49,19 +47,15 @@ import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
-import javax.swing.SwingUtilities;
-
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
@@ -196,30 +190,67 @@ class TreeViewerWin
     		container = new JXTaskPaneContainerSingle();
     		container.addPropertyChangeListener(controller);
     		JXTaskPane pane;
-    		if (TreeViewerAgent.isSPWFirst()) {
-    			 browser = browsers.get(Browser.SCREENS_EXPLORER);
-    			 pane = new TaskPaneBrowser(browser);
-    			 firstPane = pane;
-    			 container.add(pane);
-    			 browser = browsers.get(Browser.PROJECTS_EXPLORER);
-    			 container.add(new TaskPaneBrowser(browser));
-    		} else {
-    			browser = browsers.get(Browser.PROJECTS_EXPLORER);
-    			pane = new TaskPaneBrowser(browser);
-   			 	firstPane = pane;
-   			 	container.add(pane);
-   			 	browser = browsers.get(Browser.SCREENS_EXPLORER);
-   			 	container.add(new TaskPaneBrowser(browser));
-    		}
-            
+    		switch (TreeViewerAgent.getDefaultHierarchy()) {
+				case Browser.PROJECTS_EXPLORER:
+					browser = browsers.get(Browser.PROJECTS_EXPLORER);
+					pane = new TaskPaneBrowser(browser);
+					firstPane = pane;
+					container.add(pane);
+					browser = browsers.get(Browser.SCREENS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+
+					browser = browsers.get(Browser.FILES_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+
+					browser = browsers.get(Browser.TAGS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+					break;
+				case Browser.SCREENS_EXPLORER:
+					browser = browsers.get(Browser.SCREENS_EXPLORER);
+					pane = new TaskPaneBrowser(browser);
+					firstPane = pane;
+					container.add(pane);
+					browser = browsers.get(Browser.PROJECTS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+
+					browser = browsers.get(Browser.FILES_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+
+					browser = browsers.get(Browser.TAGS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+					break;
+				case Browser.TAGS_EXPLORER:
+					browser = browsers.get(Browser.TAGS_EXPLORER);
+					pane = new TaskPaneBrowser(browser);
+					firstPane = pane;
+					container.add(pane);
+					browser = browsers.get(Browser.PROJECTS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+
+					browser = browsers.get(Browser.SCREENS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+
+					browser = browsers.get(Browser.FILES_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+					break;
+				case Browser.FILES_EXPLORER:
+					browser = browsers.get(Browser.FILES_EXPLORER);
+					pane = new TaskPaneBrowser(browser);
+					firstPane = pane;
+					container.add(pane);
+					browser = browsers.get(Browser.PROJECTS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+
+					browser = browsers.get(Browser.SCREENS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+					browser = browsers.get(Browser.TAGS_EXPLORER);
+					container.add(new TaskPaneBrowser(browser));
+			}
+    		
     		//browser = (Browser) browsers.get(Browser.FILE_SYSTEM_EXPLORER);
     		//container.add(new TaskPaneBrowser(browser));
              
-            browser = browsers.get(Browser.FILES_EXPLORER);
-            container.add(new TaskPaneBrowser(browser));
             
-            browser = browsers.get(Browser.TAGS_EXPLORER);
-            container.add(new TaskPaneBrowser(browser));
             
             browser = browsers.get(Browser.IMAGES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
