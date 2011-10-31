@@ -58,7 +58,7 @@ ROIControl.prototype.viewerMoved = function(e) {
     var theZ = vp.getZPos();
     
     if (vp.viewportimg.get(0).refresh_rois) {
-        vp.viewportimg.get(0).setRoiZoom(e.scale*100);
+        vp.viewportimg.get(0).setRoiZoom(this.scale*100);
     }
     if (vp.viewportimg.get(0).setRoiZoom) {
         vp.viewportimg.get(0).refresh_rois(theZ, theT);
