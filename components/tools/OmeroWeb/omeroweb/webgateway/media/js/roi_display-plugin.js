@@ -138,15 +138,15 @@ $.fn.roi_display = function(options) {
                 
                 if (shape_id == selected_shape_id) {
                     if (s.type == 'text') {
-                        selectedClone = s;
-                        s.attr({'stroke': '#00a8ff', 'fill':'#00a8ff'});
+                        selectedClone = null;
+                        s.attr({'stroke': '#00a8ff'});
                     } else {
                         selectedClone = s.clone();
+                        selectedClone.attr({'stroke': '#00a8ff'});
                     }
-                    selectedClone.attr({'stroke': '#00a8ff'});
                 } else {
                     if (s.type == 'text') {
-                        s.attr({'stroke': '#ffffff', 'fill':'#ffffff'});
+                        s.attr({'stroke': '#ffffff'});
                     }
                 }
             }
