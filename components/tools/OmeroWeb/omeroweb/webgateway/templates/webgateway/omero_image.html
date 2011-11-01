@@ -611,7 +611,7 @@
         var $roi_table = $("#roi_small_table");
         // show the rows
         var $row = $("#"+shape_id+"_shape");
-        $roi_table.find('tbody').children().children().css('background-color', null);// all rows white...
+        $roi_table.find('tbody').children().children().css('background-color', '');// all rows white...
         $row.children().css('background-color', '#d0d0ff');      // ...show this row blue
         $row.parent().show();   // show this 'tbody' set of shapes
         var arrow_src = '/appmedia/webgateway/img/arrowDown_grey.png';
