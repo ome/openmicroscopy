@@ -690,18 +690,16 @@ class ImViewerComponent
 				return;
 		}
 		if (model.isBigImage()) {
-			int sizeX = model.getMaxX();
-			int sizeY = model.getMaxY();
-			double ox = (double) model.getTiledImageSizeX()/sizeX;
-			double oy = (double) model.getTiledImageSizeY()/sizeY;
+			double ox = (double) model.getTiledImageSizeX();
+			double oy = (double) model.getTiledImageSizeY();
 			
 			model.setSelectedResolutionLevel(zoomIndex);
 			view.setZoomFactor(factor, zoomIndex);
 			int w = model.getTiledImageSizeX();
 			int h = model.getTiledImageSizeY();
-			double nx = (double) w/sizeX;
-			double ny = (double) h/sizeY;
-			model.getBrowser().setViewLocation(nx/ox, ny/oy);
+			double nx = (double) w/ox;
+			double ny = (double) h/oy;
+			model.getBrowser().setViewLocation(nx, ny);
 			model.getBrowser().setComponentsSize(w, h);
 			//loadTiles(null);
 			postMeasurePlane();
