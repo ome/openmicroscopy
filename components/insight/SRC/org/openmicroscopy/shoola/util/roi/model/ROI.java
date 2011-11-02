@@ -189,7 +189,10 @@ public class ROI
 	{
 		Coord3D low = roiShapes.firstKey();
 		Coord3D high = roiShapes.lastKey();
-		return "["+(low.getTimePoint()+1)+","+(high.getTimePoint()+1)+"]";
+		int s = low.getTimePoint()+1;
+		int e = high.getTimePoint()+1;
+		if (s == e) return ""+s;
+		return s+"-"+e;
 	}
 	
 	/** 
@@ -201,7 +204,10 @@ public class ROI
 	{
 		Coord3D low = roiShapes.firstKey();
 		Coord3D high = roiShapes.lastKey();
-		return "["+(low.getZSection()+1)+","+(high.getZSection()+1)+"]";
+		int s = low.getZSection()+1;
+		int e = high.getZSection()+1;
+		if (s == e) return ""+s;
+		return s+"-"+e;
 	}
 	
 	/** 

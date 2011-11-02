@@ -90,7 +90,6 @@ import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
-import pojos.WellSampleData;
 import pojos.XMLAnnotationData;
 
 /** 
@@ -980,10 +979,14 @@ class OmeroMetadataServiceImpl
 		if (nameSpace != null) 
 			toInclude.add(nameSpace);
 		if (FileAnnotationData.class.equals(annotationType)) {
-			toExclude.add(FileAnnotationData.COMPANION_FILE_NS);
-			toExclude.add(FileAnnotationData.MEASUREMENT_NS);
-			toExclude.add(FileAnnotationData.FLIM_NS);
-			toExclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
+			if (!FileAnnotationData.COMPANION_FILE_NS.equals(nameSpace))
+				toExclude.add(FileAnnotationData.COMPANION_FILE_NS);
+			if (!FileAnnotationData.MEASUREMENT_NS.equals(nameSpace))
+				toExclude.add(FileAnnotationData.MEASUREMENT_NS);
+			if (!FileAnnotationData.FLIM_NS.equals(nameSpace))
+				toExclude.add(FileAnnotationData.FLIM_NS);
+			if (!FileAnnotationData.EXPERIMENTER_PHOTO_NS.equals(nameSpace))
+				toExclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 		}
 		return gateway.loadSpecificAnnotation(annotationType, toInclude, 
 				toExclude, po);
