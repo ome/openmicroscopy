@@ -88,6 +88,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
@@ -3454,6 +3455,21 @@ class TreeViewerComponent
 				AdminObject.ACTIVATE_USER);
 		model.fireAdmin(admin);
 		fireStateChange();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#viewInPlugin(TreeImageDisplay, int)
+	 */
+	public void viewInPlugin(TreeImageDisplay node, int plugin)
+	{
+		if (node == null) return;
+		Object object = node.getUserObject();
+		if (object instanceof ImageData) {
+			ViewInPluginEvent event = new ViewInPluginEvent(
+					(DataObject) object, plugin);
+			TreeViewerAgent.getRegistry().getEventBus().post(event);
+		}
 	}
 	
 }

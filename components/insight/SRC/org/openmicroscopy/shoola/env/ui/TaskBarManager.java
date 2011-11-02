@@ -24,6 +24,8 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import ij.IJ;
+
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -69,6 +71,7 @@ import org.openmicroscopy.shoola.env.data.events.SaveEventResponse;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
@@ -88,6 +91,7 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLoginDialog;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * Creates and manages the {@link TaskBarView}.
@@ -324,6 +328,49 @@ public class TaskBarManager
 			}
 		}
 		return l;
+	}
+	
+	/**
+	 * Views the image as an <code>ImageJ</code>.
+	 * 
+	 * @param image The image to view.
+	 */
+	private void runAsImageJ(ImageData image)
+	{
+		UserCredentials lc = (UserCredentials) container.getRegistry().lookup(
+				LookupNames.USER_CREDENTIALS);
+		try {
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("location=[OMERO] open=[omero:server=");
+			buffer.append(lc.getHostName());
+			buffer.append("\nuser=");
+			buffer.append(lc.getUserName());
+			buffer.append("\nport=");
+			buffer.append(lc.getPort());
+			buffer.append("\npass=");
+			buffer.append(lc.getPassword());
+			buffer.append("\niid=");
+			buffer.append(image.getId());
+			buffer.append("]");
+			IJ.runPlugIn("loci.plugins.LociImporter", buffer.toString());
+		} catch (Exception e) {
+			IJ.showMessage("An error occurred while loading the image.");
+		}
+	}
+	
+	/**
+	 * Handles the event.
+	 * 
+	 * @param evt The event to handle.
+	 */
+	private void handleViewInPluginEvent(ViewInPluginEvent evt)
+	{
+		if (evt == null) return;
+		switch (evt.getPlugin()) {
+			case ViewInPluginEvent.IMAGE_J:
+				runAsImageJ((ImageData) evt.getObject());
+				break;
+		}
 	}
 	
 	/**
@@ -881,6 +928,8 @@ public class TaskBarManager
         	handleSaveEventResponse((SaveEventResponse) e);
         else if (e instanceof LogOff)
         	handleLogOff((LogOff) e);
+        else if (e instanceof ViewInPluginEvent)
+        	handleViewInPluginEvent((ViewInPluginEvent) e);
 	}
 
 	/**

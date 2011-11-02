@@ -411,8 +411,11 @@ class PopupMenu
 			case TreeViewer.FULL_POP_UP_MENU:
 				add(browse);
 				add(browseNoThumbnails);
-				add(view);
-				if (viewInIJ != null) add(viewInIJ);
+				if (viewInIJ != null) {
+					JMenu menu = new JMenu("View");
+					menu.add(view);
+					menu.add(viewInIJ);
+				} else add(view);
 				add(openWithMenu);
 				add(editFile);
 				add(downloadElement);

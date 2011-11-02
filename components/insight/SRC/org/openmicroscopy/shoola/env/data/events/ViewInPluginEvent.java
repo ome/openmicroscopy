@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewInPluginCmd 
+ * org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
@@ -21,9 +21,8 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.cmd;
+package org.openmicroscopy.shoola.env.data.events;
 
-import java.util.Set;
 
 
 //Java imports
@@ -31,46 +30,53 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.event.RequestEvent;
+import pojos.DataObject;
 
 /** 
- * Views the image with the selected plug-in.
+ * View the image in the specified plug-in.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class ViewInPluginCmd 
-	implements ActionCmd
+public class ViewInPluginEvent
+	extends RequestEvent
 {
 
-	/** Reference to the model. */
-	private TreeViewer model;
-
-    /** Indicate the plugin to open.*/
-    private int plugin;
-
+	/** Identifies the <code>ImageJ</code> plugin.*/
+	public static final int IMAGE_J = 0;
+	
+	/** The selected plugin.*/
+	private int plugin;
+	
+	/** The object to view.*/
+	private DataObject object;
+	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param model Reference to the model. Mustn't be <code>null</code>.
-	 * @param plugin Indicate the plug-in to use.
+	 * @param object The object to view.
+	 * @param plugin The selected plugin.
 	 */
-	public ViewInPluginCmd(TreeViewer model, int plugin)
+	public ViewInPluginEvent(DataObject object, int plugin)
 	{
-		if (model == null) throw new IllegalArgumentException("No model.");
-		this.model = model;
 		this.plugin = plugin;
+		this.object = object;
 	}
-
-	/** Implemented as specified by {@link ActionCmd}. */
-	public void execute()
-	{
-		Browser browser = model.getSelectedBrowser();
-		if (browser == null) return;
-		//browser.browse(browser.getLastSelectedDisplay(), null, withThumbnails);
-	}
-
+	
+	/** 
+	 * Returns the selected plug-in.
+	 * 
+	 * @return See above.
+	 */
+	public int getPlugin() { return plugin; }
+	
+	/**
+	 * Returns the data object.
+	 * 
+	 * @return See above.
+	 */
+	public DataObject getObject() { return object; }
+	
 }
