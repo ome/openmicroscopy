@@ -97,6 +97,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.UploadScriptAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewImageAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewInPlugin;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewOtherAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
@@ -341,6 +342,9 @@ class TreeViewerControl
 	/** Identifies the <code>Import</code> in the menu. */
 	static final Integer    IMPORT_NO_SELECTION = Integer.valueOf(67);
 	
+	/** Identifies the <code>View In ImageJ</code> in the menu. */
+	static final Integer    VIEW_IN_IJ = Integer.valueOf(68);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -523,6 +527,7 @@ class TreeViewerControl
 		actionsMap.put(USER_ACTIVATED,  new ActivatedUserAction(model));
 		actionsMap.put(SEND_COMMENT,  new SendFeedbackAction(model));
 		actionsMap.put(IMPORT_NO_SELECTION, new ImportAction(model, true));
+		actionsMap.put(VIEW_IN_IJ, new ViewInPlugin(model, TreeViewer.IMAGE_J));
 	}
 
 	/** 

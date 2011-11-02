@@ -93,6 +93,9 @@ public interface TreeViewer
 	extends ObservableComponent
 {
 
+	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
+	public static final int		IMAGE_J = 0;
+	
 	/** Indicates to open the editor without selection. */
 	public static final int		NO_SELECTION = 0;
 	

@@ -171,6 +171,9 @@ class PopupMenu
 	/** Button to send feedback. */
 	private JMenuItem			sendFeedbackElement;	
 	
+	/** Button to view an Image using ImageJ. */
+	private JMenuItem			viewInIJ;
+	
 	/** Reference to the Control. */
 	private TreeViewerControl   controller;
 
@@ -220,6 +223,11 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.VIEW);
 				view = new JMenuItem(a);
 				initMenuItem(view, a.getActionName());
+				if (TreeViewerAgent.runAsPlugin() == TreeViewer.IMAGE_J) {
+					a = controller.getAction(TreeViewerControl.VIEW_IN_IJ);
+					viewInIJ = new JMenuItem(a);
+					initMenuItem(viewInIJ, a.getActionName());
+				}
 				a = controller.getAction(
 						TreeViewerControl.EDITOR_WITH_SELECTION);
 				editFile = new JMenuItem(a);
@@ -404,6 +412,7 @@ class PopupMenu
 				add(browse);
 				add(browseNoThumbnails);
 				add(view);
+				if (viewInIJ != null) add(viewInIJ);
 				add(openWithMenu);
 				add(editFile);
 				add(downloadElement);
