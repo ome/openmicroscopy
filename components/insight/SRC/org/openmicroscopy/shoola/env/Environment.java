@@ -118,6 +118,18 @@ public class Environment
 	}
 	
 	/**
+	 * Returns the value 
+	 * @return
+	 */
+	public int runAsPlugin()
+	{
+		Integer v = (Integer) container.getRegistry().lookup(
+				LookupNames.PLUGIN);
+		if (v == null) return -1;
+		return v.intValue();
+	}
+	
+	/**
 	 * Returns the default hierarchy i.e. P/D, HCS etc.
 	 * 
 	 * @return See above.

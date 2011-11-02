@@ -329,6 +329,48 @@ public final class Container
 	}
     
     
+	/**
+     * Entry point to launch the container and bring up the whole client
+     * in the same thread as the caller's.
+     * <p>This method should only be used in a test environment &#151; we
+     * use the caller's thread to avoid regular unit tests having to deal
+     * with subtle concurrency issues.</p>
+     * <p>The absolute path to the installation directory is obtained from
+     * <code>home</code>.  If this parameter doesn't specify an absolute path,
+     * then it'll be translated into an absolute path.  Translation is system 
+     * dependent &#151; in many cases, the path is resolved against the user 
+     * directory (typically the directory in which the JVM was invoked).</p>
+     * <p>This method rolls back all executed tasks and terminates the program
+     * if an error occurs during the initialization procedure.</p>
+     * 
+     * @param home  Path to the installation directory.  If <code>null<code> or
+     *              empty, then the user directory is assumed.
+     * @return A reference to the newly created singleton Container.
+     */
+    public static Container startupInPluginMode(String home, String configFile,
+    		int plugin)
+    {
+        if (Container.getInstance() != null) return Container.getInstance();
+        
+        //Don't use the AbnormalExitHandler, let the test environment deal 
+        //with exceptions instead.  Initialize services as usual though.
+        Initializer initManager = null;
+        try {
+            singleton = new Container(home, CONFIG_FILE);
+            singleton.registry.bind(LookupNames.PLUGIN, plugin);
+            initManager = new Initializer(singleton);
+            initManager.configure();
+            initManager.doInit();
+            //startService() called by Initializer at end of doInit().
+        } catch (StartupException se) {
+            if (initManager != null) initManager.rollback();
+            singleton = null;
+            throw new RuntimeException(
+                    "Failed to intialize the Container in test mode.", se);
+        }
+        return singleton;
+    }
+    
 /* 
  * ==============================================================
  *              Follows code to enable testing.
