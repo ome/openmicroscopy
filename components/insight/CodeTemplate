@@ -86,13 +86,14 @@ public abstract class Template
 
         switch (k) {
             case 0:
-                // do something
+                methodY();
+                methodZ();
                 break;
             case 1:
-                // do something else
+                methodZ();    // never on the same line as the 'case' statement
                 break;
             default:
-                // do a different thing
+                // do something else
         }
     }
 
