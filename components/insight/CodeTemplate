@@ -34,8 +34,7 @@ import org.openmicroscopy.pkg.ClassX;
  * variable name.
  *
  * Excluding the author clause, which is optional, all other clauses
- * below are required. Just cut and paste. The second line below is
- * automatically handled by CVS, never modify it.
+ * below are required. Just cut and paste.
  *
  * @author Your Name, user at example.com
  * @since OMERO-Beta4.4
