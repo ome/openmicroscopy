@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -2418,5 +2419,19 @@ public class UIUtilities
 	{
 		return formatPartialName(name, DEFAULT_NUMBER_OF_CHARACTERS);
 	}
+	
+    
+    /**
+     * Creates a new button and formats it using settings from action.
+     * 
+     * @param a The action to use.
+     */
+    public static JButton formatButtonFromAction(Action a)
+    {
+    	JButton button = new JButton();
+    	button.setToolTipText((String) a.getValue(Action.SHORT_DESCRIPTION));
+    	button.setIcon((Icon) a.getValue(Action.SMALL_ICON));
+    	return button;
+    }
 	
 }

@@ -521,7 +521,7 @@ public class IconManager
     /** The <code>Tag</code> icon. */
     public static final int			TAG_OTHER_OWNER = 155;
     
-    /** The <code>Viewer</code> icon. */
+    /** The <code>ImageJ Viewer</code> icon. */
     public static final int          VIEWER_IJ = 156;
     
     /** 

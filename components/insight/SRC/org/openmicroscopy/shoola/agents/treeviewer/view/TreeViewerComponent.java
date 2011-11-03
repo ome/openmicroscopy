@@ -1372,6 +1372,7 @@ class TreeViewerComponent
 			case CREATE_MENU_ADMIN:
 			case PERSONAL_MENU:
 			case CREATE_MENU_SCREENS:
+			case VIEW_MENU:
 				break;
 			default:
 				throw new IllegalArgumentException("Menu not supported.");
@@ -3457,19 +3458,4 @@ class TreeViewerComponent
 		fireStateChange();
 	}
 
-	/** 
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#viewInPlugin(TreeImageDisplay, int)
-	 */
-	public void viewInPlugin(TreeImageDisplay node, int plugin)
-	{
-		if (node == null) return;
-		Object object = node.getUserObject();
-		if (object instanceof ImageData) {
-			ViewInPluginEvent event = new ViewInPluginEvent(
-					(DataObject) object, plugin);
-			TreeViewerAgent.getRegistry().getEventBus().post(event);
-		}
-	}
-	
 }

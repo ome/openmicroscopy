@@ -85,6 +85,9 @@ class TreeViewerWin
 	extends TopWindow
 {
 
+	/** The text of the <code>View</code> menu.*/
+	static final String			VIEW_MENU = "View";
+	
 	/** Identifies the <code>JXTaskPane</code> layout. */
 	static final String			JXTASKPANE_TYPE = "JXTaskPane";
 
@@ -426,11 +429,30 @@ class TreeViewerWin
         item.setText(a.getActionName());
         menuItems.add(item);
         menu.add(item);
-        a = controller.getAction(TreeViewerControl.VIEW);
-        item = new JMenuItem(a);
-        item.setText(a.getActionName());
-        menuItems.add(item);
-        menu.add(item);
+        switch (TreeViewerAgent.runAsPlugin()) {
+			case TreeViewer.IMAGE_J:
+				a = controller.getAction(TreeViewerControl.VIEW);
+		        item = new JMenuItem(a);
+		        item.setText(a.getActionName());
+				JMenu viewMenu = new JMenu(TreeViewerWin.VIEW_MENU);
+				viewMenu.setIcon(item.getIcon());
+				viewMenu.add(item);
+				menuItems.add(item);
+				a = controller.getAction(TreeViewerControl.VIEW_IN_IJ);
+		        item = new JMenuItem(a);
+		        item.setText(a.getActionName());
+		        viewMenu.add(item);
+				menuItems.add(item);
+				menu.add(viewMenu);
+				break;
+			default:
+				a = controller.getAction(TreeViewerControl.VIEW);
+		        item = new JMenuItem(a);
+		        item.setText(a.getActionName());
+		        menuItems.add(item);
+		        menu.add(item);
+		}
+        
         a = controller.getAction(TreeViewerControl.REFRESH_TREE);
         item = new JMenuItem(a);
         item.setText(a.getActionName());
@@ -726,6 +748,7 @@ class TreeViewerWin
 			case TreeViewer.FULL_POP_UP_MENU:
 			case TreeViewer.PARTIAL_POP_UP_MENU:
 			case TreeViewer.ADMIN_MENU:
+			case TreeViewer.VIEW_MENU:
 				PopupMenu popupMenu = new PopupMenu(controller, index);
 		        popupMenu.show(c, p.x, p.y);	
 		}
@@ -910,6 +933,7 @@ class TreeViewerWin
             case TreeViewer.CREATE_MENU_SCREENS:
             case TreeViewer.CREATE_MENU_TAGS:
             case TreeViewer.CREATE_MENU_ADMIN:
+            case TreeViewer.VIEW_MENU:
                 toolBar.showCreateMenu(c, p, menuID);
                 break;
             case TreeViewer.PERSONAL_MENU:

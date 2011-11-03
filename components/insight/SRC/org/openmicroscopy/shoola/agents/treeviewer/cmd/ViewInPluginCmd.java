@@ -31,9 +31,14 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
+
+import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * Views the image with the selected plug-in.
@@ -70,7 +75,14 @@ public class ViewInPluginCmd
 	{
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
-		model.viewInPlugin(browser.getLastSelectedDisplay(), plugin);
+		TreeImageDisplay node = browser.getLastSelectedDisplay();
+		if (node == null) return;
+		Object object = node.getUserObject();
+		if (object instanceof ImageData) {
+			ViewInPluginEvent event = new ViewInPluginEvent(
+					(DataObject) object, plugin);
+			TreeViewerAgent.getRegistry().getEventBus().post(event);
+		}
 	}
 
 }

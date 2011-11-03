@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -790,6 +791,20 @@ class TreeViewerControl
 	
 	/** Forwards call to the {@link TreeViewer}. */
 	void cancel() { model.cancel(); }
+	
+	/**
+	 * Brings up the menu on top of the specified component at 
+	 * the specified location.
+	 * 
+	 * @param menuID    The id of the menu.
+	 * @param invoker   The component that requested the pop-up menu.
+	 * @param loc       The point at which to display the menu, relative to the
+	 *                  <code>component</code>'s coordinates.
+	 */
+	void showMenu(int menuID, Component invoker, Point loc)
+	{
+		model.showMenu(menuID, invoker, loc);
+	}
 	
 	/**
 	 * Reacts to property changed. 

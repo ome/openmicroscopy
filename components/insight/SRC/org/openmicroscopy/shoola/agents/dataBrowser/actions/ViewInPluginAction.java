@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.ViewInPlugin
+ * org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewInPluginAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
@@ -21,24 +21,25 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.actions;
+package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 
 
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewInPluginCmd;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
@@ -48,8 +49,8 @@ import pojos.ImageData;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class ViewInPlugin 
-	extends TreeViewerAction
+public class ViewInPluginAction
+	extends DataBrowserAction
 {
 
 	/** Name of the action. */
@@ -61,55 +62,62 @@ public class ViewInPlugin
     
     /** Indicate the plugin to open.*/
     private int plugin;
-    
     /**
-     * Sets the action enabled depending on the browser's type and 
-     * the currently selected node. Sets the name of the action depending on 
-     * the <code>DataObject</code> hosted by the currently selected node.
-     * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
+     * Sets the action enabled depending on the currently selected display
+     * @see DataBrowserAction#onDisplayChange(ImageDisplay)
      */
-    protected void onDisplayChange(TreeImageDisplay selectedDisplay)
+    protected void onDisplayChange(ImageDisplay node)
     {
-        if (selectedDisplay == null || 
-        		selectedDisplay.getParentDisplay() == null ||
-        		selectedDisplay instanceof TreeImageTimeSet) {
+    	if (node == null) {
             setEnabled(false);
             return;
         }
-        setEnabled(selectedDisplay.getUserObject() instanceof ImageData);
+    	setEnabled(node.getHierarchyObject() instanceof ImageData);
     }
     
 	/**
-     * Creates a new instance.
-     * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
-     * @param plugin The selected plug-in.
-     */
-    public ViewInPlugin(TreeViewer model, int plugin)
-    {
-        super(model);
-        this.plugin = plugin;
-        name = NAME;
-        IconManager icons = IconManager.getInstance();
-        switch (plugin) {
-			case TreeViewer.IMAGE_J:
-				name = NAME_IJ;
+	 * Creates a new instance.
+	 * 
+	 * 
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
+	 */
+	public ViewInPluginAction(DataBrowser model, int plugin)
+	{
+		super(model);
+		this.plugin = plugin;
+		
+		IconManager icons = IconManager.getInstance();
+		switch (plugin) {
+			case DataBrowser.IMAGE_J:
+				putValue(Action.NAME, NAME_IJ);
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_IJ));
 		        putValue(Action.SMALL_ICON, 
 		        		icons.getIcon(IconManager.VIEWER_IJ));
 				break;
 		}
-    }
-    
-    /**
-     * Creates a  {@link ViewCmd} command to execute the action. 
+	}
+	
+	/**
+     * Views the selected images.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-    	ViewInPluginCmd cmd = new ViewInPluginCmd(model, plugin);
-        cmd.execute();
+    	Browser browser = model.getBrowser();
+    	if (browser == null) return;
+    	ImageDisplay node = browser.getLastSelectedDisplay();
+    	if (node == null) return;
+    	Object object = node.getHierarchyObject();
+    	switch (DataBrowserAgent.runAsPlugin()) {
+			case DataBrowser.IMAGE_J:
+				if (object instanceof ImageData) {
+					ViewInPluginEvent event = new ViewInPluginEvent(
+							(DataObject) object, plugin);
+					DataBrowserAgent.getRegistry().getEventBus().post(event);
+				}
+				break;
+		}
     }
-    
+
 }

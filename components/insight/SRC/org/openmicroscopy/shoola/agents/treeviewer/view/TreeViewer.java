@@ -182,6 +182,9 @@ public interface TreeViewer
 	/** Identifies the <code>Create popUp menu</code> menu. */
 	public static final int         CREATE_MENU_SCREENS = 8;
 
+	/** Identifies the <code>View pop-up menu</code> menu. */
+	public static final int         VIEW_MENU = 9;
+	
 	/** Identifies the <code>Copy and Paste</code> action. */
 	public static final int         COPY_AND_PASTE = 400;
 
@@ -487,8 +490,7 @@ public interface TreeViewer
 	 * Brings up the menu on top of the specified component at 
 	 * the specified location.
 	 * 
-	 * @param menuID    The id of the menu. One out of the following constants:
-	 *                  {@link #MANAGER_MENU}, {@link #CLASSIFIER_MENU}.
+	 * @param menuID    The id of the menu.
 	 * @param invoker   The component that requested the pop-up menu.
 	 * @param loc       The point at which to display the menu, relative to the
 	 *                  <code>component</code>'s coordinates.
@@ -1018,13 +1020,5 @@ public interface TreeViewer
 	 * @param exp The experimenter to handle.
 	 */
 	void activateUser(ExperimenterData exp);
-	
-	/**
-	 * Views the image in the specified plug-in.
-	 * 
-	 * @param node The node to handle.
-	 * @param plugin The selected plug-in.
-	 */
-	void viewInPlugin(TreeImageDisplay node, int plugin);
 	
 }
