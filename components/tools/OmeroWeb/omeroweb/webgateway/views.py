@@ -618,9 +618,7 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
         raise Http404
     image, compress_quality = pi
 
-    jpeg = get_shape_thumbnail (request, image, s, compress_quality)
-    
-    return HttpResponse(jpeg, mimetype='image/jpeg')
+    return get_shape_thumbnail (request, _conn, image, s, compress_quality)
 
 
 @serverid
@@ -647,12 +645,10 @@ def render_shape_thumbnail (request, shapeId, server_id=None, w=None, h=None, _c
         raise Http404
     image, compress_quality = pi
 
-    jpeg = get_shape_thumbnail (request, image, shape, compress_quality)
-    
-    return HttpResponse(jpeg, mimetype='image/jpeg')
+    return get_shape_thumbnail (request, _conn, image, shape, compress_quality)
 
 
-def get_shape_thumbnail (request, image, s, compress_quality):
+def get_shape_thumbnail (request, conn, image, s, compress_quality):
     """
     Render a region around the specified Shape, scale to width and height (or default size) and draw the
     shape on to the region. Returns jpeg data. 
@@ -762,6 +758,28 @@ def get_shape_thumbnail (request, image, s, compress_quality):
     if newW < MAX_WIDTH:
         newW = MAX_WIDTH
         newH = newW*2/3
+    # Don't want the region to be bigger than a 'Big Image'!
+    def getConfigValue(key):
+        try:
+            return conn.getConfigService().getConfigValue(key)
+        except:
+            logger.warn("webgateway: get_shape_thumbnail() could not get Config-Value for %s" % key)
+            pass
+    max_plane_width = getConfigValue("omero.pixeldata.max_plane_width")
+    max_plane_height = getConfigValue("omero.pixeldata.max_plane_height")
+    print 'max_plane_width, max_plane_height', max_plane_width, max_plane_height, type(max_plane_width)
+    print 'newW' , newW, 'newH', newH
+    print (newW > max_plane_width)
+    print (newH > max_plane_height)
+    if max_plane_width is None or max_plane_height is None or (newW > int(max_plane_width)) or (newH > int(max_plane_height)):
+        # generate dummy image to return
+        dummy = Image.new('RGB', (MAX_WIDTH, MAX_WIDTH*2/3), bg_color)
+        draw = ImageDraw.Draw(dummy)
+        draw.text((10,30), "Shape too large to \ngenerate thumbnail", fill=(255,0,0))
+        rv = StringIO()
+        dummy.save(rv, 'jpeg', quality=90)
+        return HttpResponse(rv.getvalue(), mimetype='image/jpeg')
+
     xOffset = (newW - w)/2
     yOffset = (newH - h)/2
     newX = int(x - xOffset)
