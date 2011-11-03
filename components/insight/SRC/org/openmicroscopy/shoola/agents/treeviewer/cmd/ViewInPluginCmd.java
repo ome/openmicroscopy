@@ -70,7 +70,7 @@ public class ViewInPluginCmd
 	{
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
-		//browser.browse(browser.getLastSelectedDisplay(), null, withThumbnails);
+		model.viewInPlugin(browser.getLastSelectedDisplay(), plugin);
 	}
 
 }

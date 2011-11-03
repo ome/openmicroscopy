@@ -412,9 +412,12 @@ class PopupMenu
 				add(browse);
 				add(browseNoThumbnails);
 				if (viewInIJ != null) {
-					JMenu menu = new JMenu("View");
+					JMenu menu = new JMenu();
+					initMenuItem(menu, "View");
+					menu.setIcon(view.getIcon());
 					menu.add(view);
 					menu.add(viewInIJ);
+					add(menu);
 				} else add(view);
 				add(openWithMenu);
 				add(editFile);

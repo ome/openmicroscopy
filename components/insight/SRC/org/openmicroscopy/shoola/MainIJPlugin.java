@@ -44,6 +44,10 @@ public class MainIJPlugin
 	implements PlugIn
 {
 
+	/**
+	 * Runs the application as an <code>ImageJ</code> plugin.
+	 * @see PlugIn#run(String)
+	 */
 	public void run(String args)
 	{
 		String homeDir = "";

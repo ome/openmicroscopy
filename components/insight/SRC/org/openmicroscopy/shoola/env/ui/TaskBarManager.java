@@ -339,8 +339,9 @@ public class TaskBarManager
 	{
 		UserCredentials lc = (UserCredentials) container.getRegistry().lookup(
 				LookupNames.USER_CREDENTIALS);
+		StringBuffer buffer = new StringBuffer();
 		try {
-			StringBuffer buffer = new StringBuffer();
+			
 			buffer.append("location=[OMERO] open=[omero:server=");
 			buffer.append(lc.getHostName());
 			buffer.append("\nuser=");
@@ -740,9 +741,9 @@ public class TaskBarManager
 		bus.register(this, ServiceActivationResponse.class);
         bus.register(this, ExitApplication.class);
         bus.register(this, SaveEventResponse.class);
-
         bus.register(this, SwitchUserGroup.class);
         bus.register(this, LogOff.class);
+        bus.register(this, ViewInPluginEvent.class);
 		if (UIUtilities.isMacOS()) {
 			try {
 				MacOSMenuHandler handler = new MacOSMenuHandler(view);
@@ -808,7 +809,7 @@ public class TaskBarManager
 	{
 		container = c;
 		view = new TaskBarView(this, IconManager.getInstance(c.getRegistry()));
-		attachListeners();												
+		attachListeners();
 	}
 	
 	/**
