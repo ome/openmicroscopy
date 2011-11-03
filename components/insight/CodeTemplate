@@ -73,13 +73,15 @@ public abstract class Template
             if (k == 3 || k == -1) { //a space between condition and operator
                 byte x = (byte) k++;    //a space between cast and symbols
                 break;
-            } else {
+            }
+            else {
                 k = methodX(par1, par2, par3); //a space after commas
             }    //brackets may be omitted if just one statement is enclosed
         }
         try {
             //some more code...
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             //exception handling code...
         }
     }
