@@ -84,6 +84,17 @@ public abstract class Template
         catch (Exception e) {
             //exception handling code...
         }
+
+        switch (k) {
+            case 0:
+                // do something
+                break;
+            case 1:
+                // do something else
+                break;
+            default:
+                // do a different thing
+        }
     }
 
 }
