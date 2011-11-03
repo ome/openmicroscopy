@@ -76,7 +76,7 @@ public abstract class Template
             }
             else {
                 k = methodX(par1, par2, par3); //a space after commas
-            }    //brackets may be omitted if just one statement is enclosed
+            }
         }
         try {
             //some more code...
