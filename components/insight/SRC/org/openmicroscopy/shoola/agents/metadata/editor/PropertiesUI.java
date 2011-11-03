@@ -802,12 +802,10 @@ class PropertiesUI
         	switch (MetadataViewerAgent.runAsPlugin()) {
 				case MetadataViewer.IMAGE_J:
 					button.addMouseListener(new MouseAdapter() {
-						
 						public void mouseReleased(MouseEvent e) {
 							showViewMenu((JComponent) e.getSource(), 
 									e.getPoint());
 						}
-						
 					});
 					break;
 				default:
