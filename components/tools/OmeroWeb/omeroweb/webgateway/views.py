@@ -820,7 +820,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
                 raise Http404
             webgateway_cache.setOmeTiffImage(request, server_id, imgs[0], tiff_data)
         if fobj is None:
-            rsp = HttpResponse(tiff_data, mimetype='application/x-ome-tiff')
+            rsp = HttpResponse(tiff_data, mimetype='image/tiff')
             rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % (str(obj.getId()) + '-'+obj.getName())
             rsp['Content-Length'] = len(tiff_data)
             return rsp
