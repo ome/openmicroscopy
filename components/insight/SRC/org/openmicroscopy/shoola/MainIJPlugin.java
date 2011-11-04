@@ -29,6 +29,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.net.URL;
+import java.security.CodeSource;
 
 //Third-party libraries
 import ij.IJ;
@@ -119,7 +122,6 @@ public class MainIJPlugin
 					"; you will need to upgrade.");
 			return;
 		}
-		
 		String homeDir = "";
 		String configFile = null;
 		
@@ -127,6 +129,14 @@ public class MainIJPlugin
 			String[] values = args.split(" ");
 			if (values.length > 0) configFile = values[0];
 			if (values.length > 1) homeDir = values[1];
+		}
+		if (homeDir.length() == 0) {
+			CodeSource src = 
+				MainIJPlugin.class.getProtectionDomain().getCodeSource();
+			try {
+				File jarFile = new File(src.getLocation().toURI().getPath());
+			    homeDir = jarFile.getParentFile().getPath();
+			} catch (Exception e) {}
 		}
 		attachListeners();
 		container = Container.startupInPluginMode(homeDir, configFile,
