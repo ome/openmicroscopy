@@ -58,6 +58,7 @@ import org.w3c.dom.NodeList;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
@@ -136,6 +137,13 @@ public class TaskBarManager
 	private static final String		CLOSE_APP_TEXT = 
 		"Do you really want to close the application?";
 		
+	/** The title displayed before closing the application. */
+	private static final String		CLOSE_PLUGIN_TITLE = "Exit Plugin";
+		
+	/** The text displayed before closing the application. */
+	private static final String		CLOSE_PLUGIN_TEXT = 
+		"Do you really want to close the plugin?";
+	
 	/** The title displayed before logging out. */
 	private static final String		LOGOUT_TITLE = "Log out";
 		
@@ -532,14 +540,22 @@ public class TaskBarManager
 	 */
 	private void doExit(boolean askQuestion)
     {
+		Environment env = (Environment) 
+			container.getRegistry().lookup(LookupNames.ENV);
+		String title = CLOSE_APP_TITLE;
+		String message = CLOSE_APP_TEXT;
+		if (env != null && env.isRunAsPlugin()) {
+			title = CLOSE_PLUGIN_TITLE;
+			message = CLOSE_PLUGIN_TEXT;
+		}
         IconManager icons = IconManager.getInstance(container.getRegistry());
         int option = MessageBox.YES_OPTION; 
         Map<Agent, AgentSaveInfo> instances = getInstancesToSave();
         CheckoutBox msg = null;
 		if (askQuestion) {
-			 msg = new CheckoutBox(view, CLOSE_APP_TITLE, CLOSE_APP_TEXT, 
-					 icons.getIcon(IconManager.QUESTION), instances);
-			 option = msg.centerMsgBox();
+			msg = new CheckoutBox(view, title, message,
+					icons.getIcon(IconManager.QUESTION), instances);
+			option = msg.centerMsgBox();
 		}
 		if (option == MessageBox.YES_OPTION) {
 			if (msg == null) {

@@ -42,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
@@ -634,10 +635,13 @@ public class DataServicesFactory
 				String message = "The following components " +
 				"could not be closed safely:\n"+buffer.toString()+"\n" +
 				"Please check.";
-
+				String title = "Exit Application";
+				Environment env = (Environment) registry.lookup(LookupNames.ENV);
+				if (env != null && env.isRunAsPlugin())
+					title = "Exit Plugin";
 				MessageBox box = new MessageBox(
 						singleton.registry.getTaskBar().getFrame(),
-						"Exit Application", message,
+						title, message,
 						IconManager.getInstance().getIcon(
 								IconManager.INFORMATION_MESSAGE_48));
 				box.setNoText("OK");

@@ -228,6 +228,14 @@ public class TreeViewerAgent
     	return -1;
     }
     
+    /** 
+     * Returns <code>true</code> if the application is used as a plugin,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isRunAsPlugin() { return runAsPlugin() > 0; }
+    
     /**
      * Handles the {@link CopyRndSettings} event.
      * 
