@@ -278,7 +278,7 @@ class UserProfile
 
     	userPicture = new UserProfileCanvas();
     	userPicture.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	userPicture.setToolTipText("Click to upload your photo.");
+    	//userPicture.setToolTipText("Click to upload your photo.");
     	
     	IconManager icons = IconManager.getInstance();
     	userPicture.setImage(USER_PHOTO);
@@ -483,7 +483,7 @@ class UserProfile
 				}
 				
 			};
-			userPicture.addMouseListener(adapter);
+			//userPicture.addMouseListener(adapter);
 			changePhoto.addMouseListener(adapter);
 			deletePhoto.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent e) {
