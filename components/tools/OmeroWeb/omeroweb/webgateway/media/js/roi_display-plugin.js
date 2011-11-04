@@ -41,12 +41,39 @@ $.fn.roi_display = function(options) {
         // for keeping track of objects - E.g. de-select all. 
         var shape_objects = new Array();
         var shape_default = {'fill-opacity':0.5, 'opacity':0.7, 'cursor':'default'}
+        var label_wrap_length = 40;     // if shape label is longer than this, wrap
         
         // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
         var paper = new ScaleRaphael(canvas_name, orig_width, orig_height);
         
+        // break long labels into multiple lines
+        var formatShapeText = function(text_string) {
+            if (text_string.length > label_wrap_length) {
+                var lines = [];
+                var words = text_string.split(" ");
+                var line = "";
+                for (var w=0; w<words.length; w++) {
+                    var word = words[w];
+                    if (line.length == 0) {
+                        line = word;
+                    }
+                    else if (word.length + line.length > label_wrap_length) {
+                        lines.push(line);
+                        line = word;
+                    }
+                    else {
+                        line += (" " + word);
+                    }
+                }
+                // handle the tail end
+                if (line.length > 0)
+                    lines.push(line);
+                return lines.join("\n");
+            }
+            return text_string;
+        }
         
-        draw_shape = function(shape) {
+        var draw_shape = function(shape) {
             var newShape = null;
             if (shape['type'] == 'Ellipse') {
               newShape = paper.ellipse(shape['cx'], shape['cy'], shape['rx'], shape['ry']);
@@ -102,7 +129,7 @@ $.fn.roi_display = function(options) {
             return newShape;
         }
         
-        get_tool_tip = function(shape) {
+        var get_tool_tip = function(shape) {
             var toolTip = "";
             if (shape['type'] == 'Ellipse') {
               toolTip = "cx:"+ shape['cx'] +" cy:"+ shape['cy'] +" rx:"+ shape['rx'] + " ry: "+  shape['ry'];
@@ -250,7 +277,13 @@ $.fn.roi_display = function(options) {
                                     var bb = newShape.getBBox();
                                     var textx = bb.x + (bb.width/2);
                                     var texty = bb.y + (bb.height/2);
-                                    var txt = paper.text(textx, texty, shape['textValue']);
+                                    var text_string = formatShapeText(shape['textValue'])
+                                    var txt = paper.text(textx, texty, text_string);    // draw a 'dummy' paragraph to work out it's dimensions
+                                    var newY = (texty-txt.getBBox().height/2)+9;
+                                    // moving the existing text to newY doesn't seem to work - instead, remove and draw a new one
+                                    txt.remove();
+                                    txt = paper.text(textx, newY, formatShapeText(shape['textValue']));
+                                    if (!roi_label_displayed) txt.hide();
                                 }
                                 var txtAttr = {'fill': '#ffffff'};
                                 if (shape['fontFamily']) {  // model: serif, sans-serif, cursive, fantasy, monospace. #5072
