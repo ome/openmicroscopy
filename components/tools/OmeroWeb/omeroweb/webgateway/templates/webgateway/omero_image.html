@@ -492,15 +492,16 @@
           color_picker += "<div class='color_picker_option' color='" + colours[c] + "' style='background: " + colours[c] + "'> </div>";
       }
       var toggle_roi_thumbs = "<input type='checkbox' id='toggle_roi_thumbs' title='Show ROI Previews' />";
+      var toggle_shape_text = "<input type='checkbox' id='toggle_shape_text' checked='true' title='Show/Hide ROI text labels' />";
       
       // thead for whole table:
-      var roi_html = "<thead><tr>";
+      var roi_html = "<thead id='roi_table_head'><tr>";
       roi_html += "<th></th>";
       roi_html += "<th></th>"; // first shape (count)
       roi_html += "<th>ID</th>";
       roi_html += "<th>Z</th>"; // no Z for ROI
       roi_html += "<th>T</th>"; // no T for ROI
-      roi_html += "<th>Text</th>";
+      roi_html += "<th>" + toggle_shape_text + " Text</th>";
       roi_html += "<th title='Pick colour of ROI outlines'><div style='white-space:nowrap;'>" + toggle_roi_thumbs + "Preview</div>"+ color_picker + "</th>";
       roi_html += "</tr></thead>";
       $roi_table.append($(roi_html));
@@ -1202,6 +1203,10 @@
         var $target = $(event.target);
         if ($target.attr('id') == "toggle_roi_thumbs") {
             update_roi_thumbs();
+            return true;
+        } else if ($target.attr('id') == "toggle_shape_text") {
+            var show_labels = ($("#toggle_shape_text").attr('checked') == true);
+            viewport.viewportimg.get(0).show_labels(show_labels);
             return true;
         } else if ($target.hasClass('shape_cell')) {
             // a shape td click selects the shape.

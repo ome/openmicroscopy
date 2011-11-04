@@ -30,7 +30,10 @@ $.fn.roi_display = function(options) {
         }
 
         var roi_json = null;          // load ROI data as json when needed
+        this.theZ = null;
+        this.theT = null;
         var rois_displayed = false;   // flag to toggle visability.
+        var roi_label_displayed = true;     // show/hide labels within shapes
         
         var selected_shape_id = null;  // html page is kept in sync with this
         var selectedClone = null;      // a highlighted shape cloned from currently selected shape
@@ -191,16 +194,16 @@ $.fn.roi_display = function(options) {
         }
 
         // load the ROIs from json call and display
-        load_rois = function(theZ, theT, display_rois) {
+        load_rois = function(display_rois) {
             if (json_url == undefined) return;
             
             $.getJSON(json_url, function(data) {
                 roi_json = data;
 
-                // plot the rois using processing.js
+                // plot the rois
                 if (display_rois) {
                   rois_displayed = true;
-                  refresh_rois(theZ, theT);
+                  refresh_rois();
                 }
                 $viewportimg.trigger("rois_loaded");
             });
@@ -214,6 +217,9 @@ $.fn.roi_display = function(options) {
         // clears paper and draws ROIs (if rois_displayed) for the given T and Z. NB: indexes are 1-based. 
         this.refresh_rois = function(theZ, theT) {
 
+            if (typeof theZ != 'undefined') this.theZ = theZ;
+            if (typeof theT != 'undefined') this.theT = theT;
+
             paper.clear();
             shape_objects.length = 0;
             if (!rois_displayed) return;
@@ -226,7 +232,7 @@ $.fn.roi_display = function(options) {
                 var shape = null;
                 for (var s=0; s<shapes.length; s++) {
                     shape = shapes[s];
-                    if ((shape['theT'] == theT-1) && (shape['theZ'] == theZ-1)) {
+                    if ((shape['theT'] == this.theT-1) && (shape['theZ'] == this.theZ-1)) {
                         var newShape = draw_shape(shape);
                         var toolTip = get_tool_tip(shape);
                         // Add text - NB: text is not 'attached' to shape in any way. 
@@ -285,11 +291,13 @@ $.fn.roi_display = function(options) {
 
         // loads the ROIs if needed and displays them
         this.show_rois = function(theZ, theT) {
+            this.theZ = theZ
+            this.theT = theT
           if (roi_json == null) {
-              load_rois(theZ, theT, true);      // load and display
+              load_rois(true);      // load and display
           } else {
               rois_displayed = true;
-              this.refresh_rois(theZ, theT);
+              this.refresh_rois();
           }
         }
         
@@ -297,6 +305,11 @@ $.fn.roi_display = function(options) {
         // hides the ROIs from display
         this.hide_rois = function() {
             rois_displayed = false;
+            this.refresh_rois();
+        }
+        
+        this.show_labels = function(visible) {
+            roi_label_displayed = visible;
             this.refresh_rois();
         }
 
