@@ -767,10 +767,6 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
             pass
     max_plane_width = getConfigValue("omero.pixeldata.max_plane_width")
     max_plane_height = getConfigValue("omero.pixeldata.max_plane_height")
-    print 'max_plane_width, max_plane_height', max_plane_width, max_plane_height, type(max_plane_width)
-    print 'newW' , newW, 'newH', newH
-    print (newW > max_plane_width)
-    print (newH > max_plane_height)
     if max_plane_width is None or max_plane_height is None or (newW > int(max_plane_width)) or (newH > int(max_plane_height)):
         # generate dummy image to return
         dummy = Image.new('RGB', (MAX_WIDTH, MAX_WIDTH*2/3), bg_color)
