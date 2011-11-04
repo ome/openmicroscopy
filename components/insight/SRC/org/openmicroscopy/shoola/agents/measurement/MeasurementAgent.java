@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
@@ -303,7 +304,12 @@ public class MeasurementAgent
      * Implemented as specified by {@link Agent}.
      * @see Agent#terminate()
      */
-	public void terminate() {}
+	public void terminate()
+	{
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env.isRunAsPlugin())
+    		MeasurementViewerFactory.onGroupSwitched(true);
+	}
 
 	/**
 	 * Listens to events.

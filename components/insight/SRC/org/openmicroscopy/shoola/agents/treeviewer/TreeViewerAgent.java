@@ -490,7 +490,9 @@ public class TreeViewerAgent
      */
     public void terminate()
     {
-    	TreeViewerFactory.terminate();
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env.isRunAsPlugin())
+    		TreeViewerFactory.terminate();
     }
 
     /** 
