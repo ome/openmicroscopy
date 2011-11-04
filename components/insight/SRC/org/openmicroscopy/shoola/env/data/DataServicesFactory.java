@@ -59,7 +59,6 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.file.IOUtil;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
 

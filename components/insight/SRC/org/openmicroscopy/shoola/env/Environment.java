@@ -130,6 +130,14 @@ public class Environment
 	}
 	
 	/**
+	 * Returns <code>true</code> if the application is run as a plugin,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isRunAsPlugin() { return runAsPlugin() > 0; }
+	
+	/**
 	 * Returns the default hierarchy i.e. P/D, HCS etc.
 	 * 
 	 * @return See above.

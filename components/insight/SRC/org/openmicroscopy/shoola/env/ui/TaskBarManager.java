@@ -583,7 +583,9 @@ public class TaskBarManager
 			DataServicesFactory f = 
 				DataServicesFactory.getInstance(container);
 			f.exitApplication(false, true);
-		} catch (Exception e) {} //ignore
+		} catch (Exception e) {
+			IJ.log(e.getMessage());
+		} //ignore
 	}
 	
 	/**  Displays information about software. */

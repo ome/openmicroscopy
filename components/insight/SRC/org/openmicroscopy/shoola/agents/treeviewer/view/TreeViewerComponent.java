@@ -88,7 +88,6 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
-import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
@@ -524,6 +523,13 @@ class TreeViewerComponent
 		if (mv != null) mv.onRndSettingsCopied(imageIds);
 	}
 	
+	void shutDown()
+	{
+		view.setVisible(false);
+		view.dispose();
+		discard();
+		model.setState(NEW);
+	}
 	/**
 	 * Returns the Model sub-component.
 	 * 
@@ -580,9 +586,9 @@ class TreeViewerComponent
 				model.getSelectedBrowser().activate();
 				model.setState(READY);
 				break;
-			case DISCARDED:
-				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED state.");
+			//case DISCARDED:
+				//throw new IllegalStateException(
+					//	"This method can't be invoked in the DISCARDED state.");
 		} 
 	}
 
@@ -781,7 +787,7 @@ class TreeViewerComponent
 	{
 		switch (model.getState()) {
 		case DISCARDED:
-			throw new IllegalStateException("This method should cannot " +
+			throw new IllegalStateException("This method cannot " +
 			"be invoked in the DISCARDED state.");
 		}
 		if (model.getSelectedBrowser() == null) return;
@@ -1469,9 +1475,11 @@ class TreeViewerComponent
 	 */
 	public JFrame getUI()
 	{
+		/*
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException("This method cannot be invoked " +
 			"in the DISCARDED state.");
+			*/
 		return view;
 	}
 

@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -57,7 +56,6 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -482,7 +480,10 @@ public class TreeViewerAgent
      * Implemented as specified by {@link Agent}.
      * @see Agent#terminate()
      */
-    public void terminate() {}
+    public void terminate()
+    {
+    	TreeViewerFactory.terminate();
+    }
 
     /** 
      * Implemented as specified by {@link Agent}. 
@@ -491,6 +492,7 @@ public class TreeViewerAgent
     public void setContext(Registry ctx)
     {
         registry = ctx;
+        
         EventBus bus = registry.getEventBus();
         bus.register(this, CopyRndSettings.class);
         bus.register(this, SaveEventRequest.class);
