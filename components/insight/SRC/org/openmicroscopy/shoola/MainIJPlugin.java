@@ -25,13 +25,23 @@ package org.openmicroscopy.shoola;
 
 
 //Java imports
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 //Third-party libraries
+import ij.IJ;
+import ij.ImageJ;
 import ij.plugin.PlugIn;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.DataServicesFactory;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Starts the application as an <code>ImageJ</code> plugin.
@@ -44,12 +54,72 @@ public class MainIJPlugin
 	implements PlugIn
 {
 
+	/** Minimum version of ImageJ required. */
+	private static final String IJ_VERSION = "1.39u";
+	
+	/** The title of the splash screens. */
+	private static final String	TITLE = "Open Microscopy Environment";
+	
+	/** Reference to the container.*/
+	private Container container;
+	
+	/** Notifies that <code>ImageJ</code> is closing.*/
+	private void onImageJClosing()
+	{
+		if (container == null) return;
+		try {
+			DataServicesFactory.getInstance(container).exitApplication(true,
+					true);
+		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+			msg.println("Exit Plugin:"+UIUtilities.printErrorText(e));
+			container.getRegistry().getLogger().info(this, msg);
+		}
+	}
+	
+	/** Attaches listeners to the IJ instance.*/
+	private void attachListeners()
+	{
+		ImageJ view = IJ.getInstance();
+		view.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				onImageJClosing();
+			}
+		});
+		if (UIUtilities.isMacOS()) {
+			try {
+				MacOSMenuHandler handler = new MacOSMenuHandler(view);
+				handler.initialize();
+				view.addPropertyChangeListener(new PropertyChangeListener() {
+					
+					public void propertyChange(PropertyChangeEvent evt) {
+						String name = evt.getPropertyName();
+						if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(
+								name))
+							onImageJClosing();
+					}
+				});
+			} catch (Throwable e) {
+				container.getRegistry().getLogger().info(this, 
+						"Cannot listen to the Quit action of the menu.");
+			}
+		}
+	}
+	
 	/**
 	 * Runs the application as an <code>ImageJ</code> plugin.
 	 * @see PlugIn#run(String)
 	 */
 	public void run(String args)
 	{
+		if (IJ.versionLessThan(IJ_VERSION))	 {
+			IJ.showMessage(TITLE,
+					"This plugin requires ImageJ\n"+IJ_VERSION+
+					"or later. Your version is "+IJ.getVersion()+
+					"; you will need to upgrade.");
+			return;
+		}
+		
 		String homeDir = "";
 		String configFile = null;
 		
@@ -58,7 +128,9 @@ public class MainIJPlugin
 			if (values.length > 0) configFile = values[0];
 			if (values.length > 1) homeDir = values[1];
 		}
-		Container.startupInPluginMode(homeDir, configFile, LookupNames.IMAGE_J);
+		attachListeners();
+		container = Container.startupInPluginMode(homeDir, configFile,
+				LookupNames.IMAGE_J);
 	}
 
 }

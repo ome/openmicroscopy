@@ -590,7 +590,7 @@ public class DataServicesFactory
 		} else ScreenLogin.registerGroup(null);
 		CacheServiceFactory.shutdown(container);
         ((OmeroImageServiceImpl) is).shutDown();
-        omeroGateway.logout(); 
+        omeroGateway.logout();
         if (executor != null) executor.shutdown();
         executor = null;
     }

@@ -359,7 +359,7 @@ public final class Container
      *              empty, then the user directory is assumed.
      * @return A reference to the newly created singleton Container.
      */
-    public static void startupInPluginMode(String home, String configFile,
+    public static Container startupInPluginMode(String home, String configFile,
     		int plugin)
     {
         if (Container.getInstance() != null) {
@@ -370,9 +370,7 @@ public final class Container
         	loginSvc.login((UserCredentials) singleton.registry.lookup(
         			LookupNames.USER_CREDENTIALS));
         	singleton.activateAgents();
-        	return;
-        	
-        	//return Container.getInstance();
+        	return Container.getInstance();
         }
         
         //Initialize services as usual though.
@@ -390,7 +388,7 @@ public final class Container
             throw new RuntimeException(
                     "Failed to intialize the Container in test mode.", se);
         }
-        //return singleton;
+        return singleton;
     }
     
 /* 
