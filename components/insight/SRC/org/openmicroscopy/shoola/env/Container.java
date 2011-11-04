@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * Oversees the functioning of the whole container, holds the container's
@@ -366,10 +367,14 @@ public final class Container
         	//reconnect.
         	LoginService loginSvc = (LoginService) singleton.registry.lookup(
         			LookupNames.LOGIN);
-        	//Review that section.
-        	loginSvc.login((UserCredentials) singleton.registry.lookup(
+        	int v = loginSvc.login((UserCredentials) singleton.registry.lookup(
         			LookupNames.USER_CREDENTIALS));
-        	singleton.activateAgents();
+        	if (v == LoginService.CONNECTED) {
+        		singleton.activateAgents();
+        	} else {
+        		UserNotifier un = singleton.registry.getUserNotifier();
+        		un.notifyInfo("Reconnect", "Unable to reconnect to server.");
+        	}
         	return Container.getInstance();
         }
         
