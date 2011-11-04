@@ -247,20 +247,21 @@ class MeasurementResults
 		        	if (index < 0) return;
 		        	MeasurementTableModel m = 
 	        			(MeasurementTableModel) results.getModel();
-		        	long ROIID;
 		        	int t, z;
 		        	try
 	        		{
-		        		ROIID = (Long) m.getValueAt(index, ROIID_COLUMN);
+		        		MeasurementObject object = 
+		        			m.getRow(index);
+		        		ROIShape shape = object.getReference();
+		        		//roiShapeID = (Long) m.getValueAt(index, ROIID_COLUMN);
+		        		long id = shape.getROI().getID();
 		        		t = (Integer) m.getValueAt(index, TIME_COLUMN)-1;
 		        		z = (Integer) m.getValueAt(index, Z_COLUMN)-1;
-	        			ROI roi = model.getROI(ROIID);
+	        			ROI roi = model.getROI(id);
 	        			if (roi == null)
 	        				return;
-	        			view.selectFigure(ROIID, t, z);
-	        		}
-	        		catch(Exception exception)
-	        		{
+	        			view.selectFigure(id, t, z);
+	        		} catch(Exception exception) {
 	        			Registry reg = MeasurementAgent.getRegistry();
 	        	    	reg.getUserNotifier().notifyWarning("ROI does not exist",
 	        	    	"ROI does not exist. Results may be out of date," +
@@ -449,7 +450,7 @@ class MeasurementResults
 				shape = (ROIShape) shapes.get(j.next());
 				figure = shape.getFigure();
 				figure.calculateMeasurements();
-				row = new MeasurementObject();
+				row = new MeasurementObject(shape);
 				//row.addElement(shape.getROI().getID());
 				if (shape.getROI().isClientSide())
 					row.addElement("--");
@@ -697,7 +698,7 @@ class MeasurementResults
 		 */
 		MeasurementObject getRow(int index)
 		{
-			if(index < values.size())
+			if (index < values.size())
 				return values.get(index);
 			return null;
 		}
