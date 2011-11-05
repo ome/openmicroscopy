@@ -514,6 +514,12 @@
           }
           return "";
       }
+      var truncate_length = 30;
+      truncate_text = function(text_string) {
+          if (text_string.length < truncate_length)
+              return text_string
+          return text_string.substring(0,truncate_length) + "...";
+      }
       // populate table. Cols are: ID, Z, T, Shape, text
       for (var r=0; r<json.length; r++) {
           var roi = json[r];
@@ -553,7 +559,7 @@
               shapesHtml += "<td class='shape_cell'>" + shape['id'] + "</td>"
               shapesHtml += "<td class='shape_cell'>" + (shape['theZ']+1) + "</td>";
               shapesHtml += "<td class='shape_cell'>" + (shape['theT']+1) + "</td>";
-              shapesHtml += "<td class='shape_cell'>" + text + "</td>";
+              shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\">"+ truncate_text(text) + "</td>";
               shapesHtml += "<td class='shape_cell'>" + shapeThumbHtml + "</td>";
               shapesHtml += "</tr>";
               if (firstShape == null) firstShape = shape['type'];
@@ -568,7 +574,7 @@
           roi_html += "<th>" + roi['id'] + "</th>";
           roi_html += "<th> "+ (minZ+1) + ((maxZ != minZ) && ("-"+(maxZ+1)) || ("")) +" </th>"; // no Z for ROI
           roi_html += "<th> "+ (minT+1) + ((maxT != minT) && ("-"+(maxT+1)) || ("")) +" </th>"; // no T for ROI
-          roi_html += "<th>"+ firstText +"</th>";
+          roi_html += "<th class='shape_text' title=\""+ firstText +"\">"+ truncate_text(firstText) +"</th>";
           roi_html += "<th>"+ roiThumbHtml +"</th>";
           roi_html += "</tr></thead>";
           
