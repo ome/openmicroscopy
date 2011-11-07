@@ -637,10 +637,13 @@ input.spin-button {
 #roi_small_table th {
     background-color: #ccc; 
     padding: 1px;
+    border: solid #eee 1px;
 }
 #roi_small_table td {
     background-color: #fff;
     text-align: center;
+    border: solid #eee 1px;
+    padding: 0px;
 }
 #roi_small_table td.icon {
     background-color: #fff;

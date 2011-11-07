@@ -572,8 +572,8 @@
           roi_html += "<th><img class='expand_arrow' src='/appmedia/webgateway/img/arrowRight_grey.png' /></th>";
           roi_html += "<th align='left'> &nbsp<img class='roi_icon' src='"+ get_shape_icon_src(firstShape) + "' /> (" + shapes.length + ")</th>"; // first shape (count)
           roi_html += "<th>" + roi['id'] + "</th>";
-          roi_html += "<th> "+ (minZ+1) + ((maxZ != minZ) && ("-"+(maxZ+1)) || ("")) +" </th>"; // no Z for ROI
-          roi_html += "<th> "+ (minT+1) + ((maxT != minT) && ("-"+(maxT+1)) || ("")) +" </th>"; // no T for ROI
+          roi_html += "<th style='white-space: nowrap'> "+ (minZ+1) + ((maxZ != minZ) && ("-"+(maxZ+1)) || ("")) +" </th>"; // no Z for ROI
+          roi_html += "<th style='white-space: nowrap'> "+ (minT+1) + ((maxT != minT) && ("-"+(maxT+1)) || ("")) +" </th>"; // no T for ROI
           roi_html += "<th class='shape_text' title=\""+ firstText +"\">"+ truncate_text(firstText) +"</th>";
           roi_html += "<th>"+ roiThumbHtml +"</th>";
           roi_html += "</tr></thead>";
@@ -850,7 +850,7 @@
     <div id="roi_table_postit" class="postit">
         <h1>ROIs</h1>
         <div id='roi_table_div'>
-            <table id='roi_small_table' border='0' cellpadding='0' cellspacing='1'></table>
+            <table id='roi_small_table' cellpadding='0' cellspacing='0'></table>
         </div>
     </div>
     
