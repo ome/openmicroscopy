@@ -77,6 +77,9 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import com.apple.audio.CANullPointerException;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -296,23 +299,19 @@ class UserProfile
     	//userPicture.setToolTipText("Click to upload your photo.");
     	
     	IconManager icons = IconManager.getInstance();
-    	Image photo = model.getUserPhoto();
-    	if (photo == null) userPicture.setImage(USER_PHOTO);
-    	else userPicture.setImage(model.getUserPhoto());
     	changePhoto = new JLabel("Change Photo");
     	changePhoto.setToolTipText("Upload your photo.");
     	changePhoto.setForeground(UIUtilities.HYPERLINK_COLOR);
     	Font font = changePhoto.getFont();
     	changePhoto.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
     	changePhoto.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	deletePhoto = new JButton(
-    			icons.getIcon(IconManager.DELETE_12));
+    	deletePhoto = new JButton(icons.getIcon(IconManager.DELETE_12));
     	boolean b = canModifyPhoto();
     	changePhoto.setVisible(b);
     	deletePhoto.setToolTipText("Delete the photo.");
     	deletePhoto.setBackground(UIUtilities.BACKGROUND_COLOR);
     	UIUtilities.unifiedButtonLookAndFeel(deletePhoto);
-    	deletePhoto.setVisible(photo != null && b);
+    	deletePhoto.setVisible(false);
     	loginArea = new JTextField();
     	boolean a = MetadataViewerAgent.isAdministrator();
     	loginArea.setEnabled(a);
@@ -894,7 +893,12 @@ class UserProfile
     		add(Box.createVerticalStrut(5), c); 
     		c.gridy++;
     		add(buildPasswordPanel(), c);
-    	} 
+    	}
+    	ExperimenterData exp = (ExperimenterData) model.getRefObject();
+    	BufferedImage photo = model.getUserPhoto(exp.getId());
+    	if (photo == null) setUserPhoto(null);
+    	else setUserPhoto(photo);
+    	deletePhoto.setVisible(photo != null && canModifyPhoto());
     }
     
 	/** Clears the password fields. */
@@ -1067,14 +1071,12 @@ class UserProfile
 	void setUserPhoto(BufferedImage image)
 	{
 		if (image == null) {
-			model.setUserPhoto(USER_PHOTO);
 			userPicture.setImage(USER_PHOTO);
 			deletePhoto.setVisible(false);
 			return;
 		}
 		BufferedImage img = Factory.scaleBufferedImage(image,
 				UserProfileCanvas.WIDTH);
-		model.setUserPhoto(img);
 		userPicture.setImage(img);
 		deletePhoto.setVisible(canModifyPhoto());
 		repaint();

@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.Color;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -224,7 +225,7 @@ class EditorModel
 	private Map<AnalysisResultsItem, EditorLoader> resultsLoader;
 	
     /** The photo of the current user.*/
-    private Image					userPhoto;
+    private Map<Long, BufferedImage>				usersPhoto;
     
 	/**
 	 * Downloads the files.
@@ -393,15 +394,17 @@ class EditorModel
     }
     
     /**
-     * Starts an asynchronous call to load the photo of the currently 
+     * Starts an asynchronous call to load the photo of the currently
      * selected user.
      */
     private void fireExperimenterPhotoLoading()
     {
     	if (refObject instanceof ExperimenterData) {
     		ExperimenterData exp = (ExperimenterData) refObject;
-    		UserPhotoLoader loader = new UserPhotoLoader(component, exp);
-    		loader.load();
+    		if (usersPhoto == null || !usersPhoto.containsKey(exp.getId())) {
+    			UserPhotoLoader loader = new UserPhotoLoader(component, exp);
+        		loader.load();
+    		}
     	}
     }
 	/**
@@ -2595,8 +2598,9 @@ class EditorModel
      */
     void uploadPicture(File photo, String format)
     { 
-    	if (refObject instanceof ExperimenterData && getUserPhoto() == null) {
-    		ExperimenterData exp = (ExperimenterData) refObject;
+    	if (refObject instanceof ExperimenterData) {
+    		//ExperimenterData exp = (ExperimenterData) refObject;
+    		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
     		UserPhotoUploader loader = new UserPhotoUploader(component, exp,
     				photo, format);
     		loader.load();
@@ -2608,11 +2612,12 @@ class EditorModel
     {
     	if (refObject instanceof ExperimenterData) {
     		try {
-    			ExperimenterData exp = (ExperimenterData) refObject;
+    			ExperimenterData exp = MetadataViewerAgent.getUserDetails();
+    			if (usersPhoto != null) usersPhoto.remove(exp.getId());
     			OmeroMetadataService svc = 
     				MetadataViewerAgent.getRegistry().getMetadataService();
-    			Collection photos = svc.loadAnnotations(FileAnnotationData.class, 
-    					FileAnnotationData.EXPERIMENTER_PHOTO_NS, exp.getId(), 
+    			Collection photos = svc.loadAnnotations(FileAnnotationData.class,
+    					FileAnnotationData.EXPERIMENTER_PHOTO_NS, exp.getId(),
     					-1);
     			if (photos == null || photos.size() == 0) return;
     			List<DeletableObject> l = new ArrayList<DeletableObject>();
@@ -2880,15 +2885,26 @@ class EditorModel
 	/**
 	 * Sets the photo associated to the current user.
 	 * 
-	 * @param userPhoto The photo to set.
+	 * @param photo The photo to set.
+	 * @param expId The identifier of the experimenter.
 	 */
-	void setUserPhoto(Image userPhoto) { this.userPhoto = userPhoto; }
+	void setUserPhoto(BufferedImage photo, long expId)
+	{ 
+		if (usersPhoto == null)
+			usersPhoto = new HashMap<Long, BufferedImage>();
+		usersPhoto.put(expId, photo) ;
+	}
 	
 	/**
 	 * Returns the photo associated to the current user.
 	 * 
+	 * @param expId The identifier of the experimenter.
 	 * @return See above.
 	 */
-	Image getUserPhoto() { return userPhoto; }
+	BufferedImage getUserPhoto(long expId)
+	{
+		if (usersPhoto == null) return null;
+		return usersPhoto.get(expId);
+	}
 	
 }
