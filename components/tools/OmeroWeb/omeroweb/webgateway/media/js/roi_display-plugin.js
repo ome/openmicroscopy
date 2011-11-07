@@ -188,6 +188,8 @@ $.fn.roi_display = function(options) {
             selected_shape_id = shape_id;
             $viewportimg.trigger("shape_click", [shape_id]);
             var sel_shape = display_selected(); 
+            var sel_x;
+            var sel_y;
             // we will only get the shape if currently displayed (current Z/T section)
             if (sel_shape===null) {
                 // otherwise we have to work it out by drawing it
@@ -203,14 +205,22 @@ $.fn.roi_display = function(options) {
                             var newShape = draw_shape(shape);
                             bb = newShape.getBBox();
                             newShape.remove();
+                            if (shape['type'] == 'Label'){
+                                // bug in BBox for text
+                                sel_x = shape['x'] + (bb.width/2);
+                                sel_y = shape['y'] + (bb.height/2);
+                            } else {
+                                sel_x = bb.x + (bb.width/2);
+                                sel_y = bb.y + (bb.height/2);
+                            }
                         }
                     }
                 }
             } else {
                 var bb = sel_shape.getBBox();
+                sel_x = bb.x + (bb.width/2);
+                sel_y = bb.y + (bb.height/2);
             }
-            var sel_x = bb.x + (bb.width/2);
-            var sel_y = bb.y + (bb.height/2);
             return {'x':sel_x, 'y':sel_y};
         }
         
