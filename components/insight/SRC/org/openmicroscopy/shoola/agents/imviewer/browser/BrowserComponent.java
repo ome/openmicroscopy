@@ -724,4 +724,15 @@ class BrowserComponent
 		if (view == null) return;
 		view.onStateChange(b);
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setViewLocation(double, double)
+	 */
+	public void setViewLocation(double rx, double ry)
+	{
+		if (view == null) return;
+		view.setViewLocation(rx, ry);
+	}
+
 }

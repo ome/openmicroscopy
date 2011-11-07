@@ -690,11 +690,18 @@ class ImViewerComponent
 				return;
 		}
 		if (model.isBigImage()) {
+			double ox = (double) model.getTiledImageSizeX();
+			double oy = (double) model.getTiledImageSizeY();
+			
 			model.setSelectedResolutionLevel(zoomIndex);
 			view.setZoomFactor(factor, zoomIndex);
-			model.getBrowser().setComponentsSize(model.getTiledImageSizeX(),
-					model.getTiledImageSizeY());
-			loadTiles(null);
+			int w = model.getTiledImageSizeX();
+			int h = model.getTiledImageSizeY();
+			double nx = (double) w/ox;
+			double ny = (double) h/oy;
+			model.getBrowser().setViewLocation(nx, ny);
+			model.getBrowser().setComponentsSize(w, h);
+			//loadTiles(null);
 			postMeasurePlane();
 			return;
 		}

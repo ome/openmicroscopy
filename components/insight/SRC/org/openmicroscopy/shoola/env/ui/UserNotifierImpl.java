@@ -388,6 +388,7 @@ public class UserNotifierImpl
 			DeleteActivityParam p = (DeleteActivityParam) activity;
 			comp = new DeleteActivity(this, manager.getRegistry(),
 					p);
+			uiRegister = p.isUIRegister();
 		} else if (activity instanceof OpenActivityParam) {
 			OpenActivityParam p = (OpenActivityParam) activity;
 			comp = new OpenObjectActivity(this, manager.getRegistry(), p);

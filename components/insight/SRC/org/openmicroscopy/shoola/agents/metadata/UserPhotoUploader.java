@@ -91,8 +91,8 @@ public class UserPhotoUploader
 	 */
 	public void load()
 	{
-		handle = adminView.uploadExperimenterPhoto(experimenter, photo, format,
-				this);
+		handle = adminView.uploadExperimenterPhoto(experimenter, photo,
+				format, this);
 	}
 	
 	/** 
