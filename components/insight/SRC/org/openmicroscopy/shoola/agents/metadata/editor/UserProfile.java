@@ -269,6 +269,21 @@ class UserProfile
     	
     }
     
+    /**
+     * Returns <code>true</code> if the user can modify the photo, 
+     * <code></code> otherwise.
+     * 
+     * @return See above.
+     */
+    private boolean canModifyPhoto()
+    {
+    	Object object = model.getRefObject();
+    	if (!(object instanceof ExperimenterData)) return false;
+    	ExperimenterData exp = (ExperimenterData) object;
+    	ExperimenterData user = MetadataViewerAgent.getUserDetails();
+    	return exp.getId() == user.getId();
+    }
+    
     /** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -292,10 +307,12 @@ class UserProfile
     	changePhoto.setBackground(UIUtilities.BACKGROUND_COLOR);
     	deletePhoto = new JButton(
     			icons.getIcon(IconManager.DELETE_12));
+    	boolean b = canModifyPhoto();
+    	changePhoto.setVisible(b);
     	deletePhoto.setToolTipText("Delete the photo.");
     	deletePhoto.setBackground(UIUtilities.BACKGROUND_COLOR);
     	UIUtilities.unifiedButtonLookAndFeel(deletePhoto);
-    	deletePhoto.setVisible(photo != null);
+    	deletePhoto.setVisible(photo != null && b);
     	loginArea = new JTextField();
     	boolean a = MetadataViewerAgent.isAdministrator();
     	loginArea.setEnabled(a);
@@ -1059,7 +1076,7 @@ class UserProfile
 				UserProfileCanvas.WIDTH);
 		model.setUserPhoto(img);
 		userPicture.setImage(img);
-		deletePhoto.setVisible(true);
+		deletePhoto.setVisible(canModifyPhoto());
 		repaint();
 	}
 	
