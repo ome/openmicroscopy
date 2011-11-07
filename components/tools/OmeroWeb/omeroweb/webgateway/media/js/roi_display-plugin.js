@@ -41,14 +41,15 @@ $.fn.roi_display = function(options) {
         // for keeping track of objects - E.g. de-select all. 
         var shape_objects = new Array();
         var shape_default = {'fill-opacity':0.5, 'opacity':0.7, 'cursor':'default'}
-        var label_wrap_length = 40;     // if shape label is longer than this, wrap
         
         // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
         var paper = new ScaleRaphael(canvas_name, orig_width, orig_height);
         
         // break long labels into multiple lines
         var formatShapeText = function(text_string) {
-            if (text_string.length > label_wrap_length) {
+            var rows = parseInt(Math.sqrt(text_string.length / 6));     // rough ratio: cols = rows * 6
+            var cols = parseInt(text_string.length/rows) + 1;
+            if (text_string.length > cols) {
                 var lines = [];
                 var words = text_string.split(" ");
                 var line = "";
@@ -57,7 +58,7 @@ $.fn.roi_display = function(options) {
                     if (line.length == 0) {
                         line = word;
                     }
-                    else if (word.length + line.length > label_wrap_length) {
+                    else if (word.length + line.length > cols) {
                         lines.push(line);
                         line = word;
                     }
