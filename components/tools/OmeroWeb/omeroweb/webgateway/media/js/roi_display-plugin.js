@@ -282,7 +282,9 @@ $.fn.roi_display = function(options) {
                                     var newY = (texty-txt.getBBox().height/2)+9;
                                     // moving the existing text to newY doesn't seem to work - instead, remove and draw a new one
                                     txt.remove();
-                                    txt = paper.text(textx, newY, formatShapeText(shape['textValue']));
+                                    txt = paper.text(textx, newY, formatShapeText(shape['textValue'])).attr({'cursor':'default'});
+                                    txt.id = shape['id'] + "_shape_text";
+                                    txt.click(handle_shape_click);  // clicking the text should do the same as clicking the shape
                                     if (!roi_label_displayed) txt.hide();
                                 }
                                 var txtAttr = {'fill': '#ffffff'};
