@@ -61,7 +61,6 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationField;
 import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.AttributeUnits;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer;
-import org.openmicroscopy.shoola.agents.measurement.util.ui.ShapeRenderer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -77,7 +76,6 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 
 /** 
  * UI component displaying various value computed on a Region of Interest.
@@ -107,10 +105,10 @@ class MeasurementResults
 	private static final int	ROIID_COLUMN = 0;
 
 	/** Time point Column no for the wizard. */
-	private static final int	TIME_COLUMN = 1;
+	private static final int	TIME_COLUMN = 2;
 	
 	/** Z-Section Column no for the wizard. */
-	private static final int	Z_COLUMN = 2;
+	private static final int	Z_COLUMN = 1;
 	
 	/** Identifies the save action. */
 	private static final int	SAVE = 0;
@@ -180,17 +178,7 @@ class MeasurementResults
 		resultsWizard.pack();
 		UIUtilities.setLocationRelativeToAndShow(this, resultsWizard);
 		columnNames.clear();
-		columnNames = new ArrayList<KeyDescription>();
-		columnNames.add(new KeyDescription(
-				AnnotationDescription.ROIID_STRING,
-										AnnotationDescription.ROIID_STRING));
-		columnNames.add(new KeyDescription(AnnotationDescription.TIME_STRING,
-										AnnotationDescription.TIME_STRING));
-		columnNames.add(new KeyDescription(
-				AnnotationDescription.ZSECTION_STRING,
-				AnnotationDescription.ZSECTION_STRING));
-		columnNames.add(new KeyDescription(AnnotationDescription.SHAPE_STRING,
-										AnnotationDescription.SHAPE_STRING));
+		populatesColumnNames();
 		AnnotationField field;
 		for (int i = 0 ; i < fields.size(); i++) {
 			field = fields.get(i);
@@ -199,6 +187,21 @@ class MeasurementResults
 		}
 		populate();
 		results.repaint();
+	}
+	
+	/** Populates column names.*/
+	private void populatesColumnNames()
+	{
+		columnNames.add(new KeyDescription(
+				AnnotationDescription.ROIID_STRING,
+										AnnotationDescription.ROIID_STRING));
+		columnNames.add(new KeyDescription(
+				AnnotationDescription.ZSECTION_STRING,
+				AnnotationDescription.ZSECTION_STRING));
+		columnNames.add(new KeyDescription(AnnotationDescription.TIME_STRING,
+				AnnotationDescription.TIME_STRING));
+		columnNames.add(new KeyDescription(AnnotationDescription.SHAPE_STRING,
+										AnnotationDescription.SHAPE_STRING));
 	}
 	
 	/** Initializes the components composing the display. */
@@ -244,20 +247,21 @@ class MeasurementResults
 		        	if (index < 0) return;
 		        	MeasurementTableModel m = 
 	        			(MeasurementTableModel) results.getModel();
-		        	long ROIID;
 		        	int t, z;
 		        	try
 	        		{
-		        		ROIID = (Long) m.getValueAt(index, ROIID_COLUMN);
+		        		MeasurementObject object = 
+		        			m.getRow(index);
+		        		ROIShape shape = object.getReference();
+		        		//roiShapeID = (Long) m.getValueAt(index, ROIID_COLUMN);
+		        		long id = shape.getROI().getID();
 		        		t = (Integer) m.getValueAt(index, TIME_COLUMN)-1;
 		        		z = (Integer) m.getValueAt(index, Z_COLUMN)-1;
-	        			ROI roi = model.getROI(ROIID);
+	        			ROI roi = model.getROI(id);
 	        			if (roi == null)
 	        				return;
-	        			view.selectFigure(ROIID, t, z);
-	        		}
-	        		catch(Exception exception)
-	        		{
+	        			view.selectFigure(id, t, z);
+	        		} catch(Exception exception) {
 	        			Registry reg = MeasurementAgent.getRegistry();
 	        	    	reg.getUserNotifier().notifyWarning("ROI does not exist",
 	        	    	"ROI does not exist. Results may be out of date," +
@@ -393,14 +397,7 @@ class MeasurementResults
 			AnnotationDescription.annotationDescription.get(AnnotationKeys.ANGLE),
 			false)); 
 		columnNames = new ArrayList<KeyDescription>();
-		columnNames.add(new KeyDescription(AnnotationDescription.ROIID_STRING,
-									AnnotationDescription.ROIID_STRING));
-		columnNames.add(new KeyDescription(AnnotationDescription.TIME_STRING,
-										AnnotationDescription.TIME_STRING));
-		columnNames.add(new KeyDescription(AnnotationDescription.ZSECTION_STRING,
-										AnnotationDescription.ZSECTION_STRING));
-		columnNames.add(new KeyDescription(AnnotationDescription.SHAPE_STRING,
-										AnnotationDescription.SHAPE_STRING));
+		populatesColumnNames();
 		for (int i = 0 ; i < fields.size(); i++)
 			columnNames.add(new KeyDescription(
 					fields.get(i).getKey().toString(),
@@ -453,10 +450,13 @@ class MeasurementResults
 				shape = (ROIShape) shapes.get(j.next());
 				figure = shape.getFigure();
 				figure.calculateMeasurements();
-				row = new MeasurementObject();
-				row.addElement(shape.getROI().getID());
-				row.addElement(shape.getCoord3D().getTimePoint()+1);
+				row = new MeasurementObject(shape);
+				//row.addElement(shape.getROI().getID());
+				if (shape.getROI().isClientSide())
+					row.addElement("--");
+				else row.addElement(shape.getROIShapeID());
 				row.addElement(shape.getCoord3D().getZSection()+1);
+				row.addElement(shape.getCoord3D().getTimePoint()+1);
 				row.addElement(shape.getFigure().getType());
 				for (int k = 0; k < fields.size(); k++) {
 					key = fields.get(k).getKey();
@@ -667,7 +667,7 @@ class MeasurementResults
 		 * 						Mustn't be <code>null</code>.
 		 * @param units The units of measurement.
 		 */
-		MeasurementTableModel(List<KeyDescription> colNames, 
+		MeasurementTableModel(List<KeyDescription> colNames,
 				MeasurementUnits units)
 		{
 			if (colNames == null)
@@ -698,7 +698,7 @@ class MeasurementResults
 		 */
 		MeasurementObject getRow(int index)
 		{
-			if(index < values.size())
+			if (index < values.size())
 				return values.get(index);
 			return null;
 		}

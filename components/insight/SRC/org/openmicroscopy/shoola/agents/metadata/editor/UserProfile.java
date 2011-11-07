@@ -29,6 +29,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -76,6 +77,9 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import com.apple.audio.CANullPointerException;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -110,12 +114,21 @@ class UserProfile
 	/** The title of the dialog displayed if a problem occurs. */
 	private static final String		PASSWORD_CHANGE_TITLE = "Change Password";
 	
+	/** The default user's photo.*/
+	private static final Image		USER_PHOTO;
+	
+	static {
+		IconManager icons = IconManager.getInstance();
+		USER_PHOTO = icons.getImageIcon(IconManager.USER_PHOTO_32).getImage();
+	}
+	
     /** The items that can be edited. */
     private Map<String, JTextField>	items;
     
     /** UI component displaying the groups, the user is a member of. */
     private JComboBox				groups;
 
+    /** Displayed the current group.*/
     private JLabel					groupLabel;
     
     /** Password field to enter the new password. */
@@ -172,6 +185,12 @@ class UserProfile
     /** Component displaying the photo of the user. */
     private UserProfileCanvas		userPicture;
     
+    /** Component used to change the user's photo.*/
+    private JLabel					changePhoto;
+    
+    /** Component used to delete the user's photo.*/
+    private JButton					deletePhoto;
+    
     /** Modifies the existing password. */
     private void changePassword()
     {
@@ -219,12 +238,22 @@ class UserProfile
         	passwordNew.requestFocus();
         	return;
         }
+        if (old.equals(newPass)) {
+        	un = MetadataViewerAgent.getRegistry().getUserNotifier();
+        	un.notifyInfo(PASSWORD_CHANGE_TITLE, 
+        			"Your new and old passwords are the same.\n" +
+        			"Please enter a new password.");
+        	passwordNew.setText("");
+        	passwordConfirm.setText("");
+        	passwordNew.requestFocus();
+        	return;
+        }
 
         if (pass == null || confirm == null || confirm.length() == 0 ||
         	!pass.equals(confirm)) {
         	un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE, 
-            			"The passwords entered do not match. " +
+            			"The passwords entered do not match.\n" +
             			"Please try again.");
             passwordNew.setText("");
             passwordConfirm.setText("");
@@ -243,6 +272,21 @@ class UserProfile
     	
     }
     
+    /**
+     * Returns <code>true</code> if the user can modify the photo, 
+     * <code></code> otherwise.
+     * 
+     * @return See above.
+     */
+    private boolean canModifyPhoto()
+    {
+    	Object object = model.getRefObject();
+    	if (!(object instanceof ExperimenterData)) return false;
+    	ExperimenterData exp = (ExperimenterData) object;
+    	ExperimenterData user = MetadataViewerAgent.getUserDetails();
+    	return exp.getId() == user.getId();
+    }
+    
     /** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -252,10 +296,22 @@ class UserProfile
 
     	userPicture = new UserProfileCanvas();
     	userPicture.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	userPicture.setToolTipText("Click to upload your picture.");
+    	//userPicture.setToolTipText("Click to upload your photo.");
+    	
     	IconManager icons = IconManager.getInstance();
-    	userPicture.setImage(
-    			icons.getImageIcon(IconManager.USER_PHOTO_32).getImage());
+    	changePhoto = new JLabel("Change Photo");
+    	changePhoto.setToolTipText("Upload your photo.");
+    	changePhoto.setForeground(UIUtilities.HYPERLINK_COLOR);
+    	Font font = changePhoto.getFont();
+    	changePhoto.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
+    	changePhoto.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	deletePhoto = new JButton(icons.getIcon(IconManager.DELETE_12));
+    	boolean b = canModifyPhoto();
+    	changePhoto.setVisible(b);
+    	deletePhoto.setToolTipText("Delete the photo.");
+    	deletePhoto.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	UIUtilities.unifiedButtonLookAndFeel(deletePhoto);
+    	deletePhoto.setVisible(false);
     	loginArea = new JTextField();
     	boolean a = MetadataViewerAgent.isAdministrator();
     	loginArea.setEnabled(a);
@@ -436,7 +492,7 @@ class UserProfile
 		});
 		ExperimenterData logUser = MetadataViewerAgent.getUserDetails();
 		if (user.getId() == logUser.getId()) {
-			userPicture.addMouseListener(new MouseAdapter() {
+			MouseAdapter adapter = new MouseAdapter() {
 				
 	    		/** Brings up a chooser to load the user image. */
 				public void mouseReleased(MouseEvent e)
@@ -444,7 +500,15 @@ class UserProfile
 					uploadPicture();
 				}
 				
-			});
+			};
+			//userPicture.addMouseListener(adapter);
+			changePhoto.addMouseListener(adapter);
+			deletePhoto.addActionListener(new ActionListener() {
+	            public void actionPerformed(ActionEvent e) {
+	            	model.deletePicture();
+	            	setUserPhoto(null);
+	            }
+	        });
 		}
     }
     
@@ -530,6 +594,26 @@ class UserProfile
     }
     
     /**
+     * Returns the component displayed the user photo.
+     * 
+     * @return See above.
+     */
+    private JPanel buildProfileCanvas()
+    {
+    	JPanel p = new JPanel();
+    	p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+    	p.add(userPicture);
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	JPanel bar = new JPanel();
+    	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	bar.setLayout(new FlowLayout(FlowLayout.LEFT));
+    	bar.add(changePhoto);
+    	bar.add(deletePhoto);
+    	p.add(bar);
+    	return p;
+    }
+    
+    /**
      * Builds the panel hosting the user's details.
      * 
      * @return See above.
@@ -561,7 +645,7 @@ class UserProfile
 		c.gridy = 0;
 		c.gridwidth = GridBagConstraints.REMAINDER;     //end row
 		c.fill = GridBagConstraints.HORIZONTAL;
-		content.add(userPicture, c);
+		content.add(buildProfileCanvas(), c);
         c.gridy++;
         c.gridx = 0;
         label = EditorUtil.getLabel(EditorUtil.DISPLAY_NAME, true);
@@ -809,7 +893,12 @@ class UserProfile
     		add(Box.createVerticalStrut(5), c); 
     		c.gridy++;
     		add(buildPasswordPanel(), c);
-    	} 
+    	}
+    	ExperimenterData exp = (ExperimenterData) model.getRefObject();
+    	BufferedImage photo = model.getUserPhoto(exp.getId());
+    	if (photo == null) setUserPhoto(null);
+    	else setUserPhoto(photo);
+    	deletePhoto.setVisible(photo != null && canModifyPhoto());
     }
     
 	/** Clears the password fields. */
@@ -981,10 +1070,16 @@ class UserProfile
 	 */
 	void setUserPhoto(BufferedImage image)
 	{
-		if (image == null) return;
-		BufferedImage img = Factory.scaleBufferedImage(image, 
+		if (image == null) {
+			userPicture.setImage(USER_PHOTO);
+			deletePhoto.setVisible(false);
+			return;
+		}
+		BufferedImage img = Factory.scaleBufferedImage(image,
 				UserProfileCanvas.WIDTH);
 		userPicture.setImage(img);
+		deletePhoto.setVisible(canModifyPhoto());
+		repaint();
 	}
 	
 	/** Sets the parent of the node. */
@@ -1003,7 +1098,7 @@ class UserProfile
 	public void actionPerformed(ActionEvent e)
 	{
 		buildGUI();
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
 	
@@ -1013,7 +1108,7 @@ class UserProfile
 	 */
 	public void insertUpdate(DocumentEvent e)
 	{
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
 
@@ -1023,7 +1118,7 @@ class UserProfile
 	 */
 	public void removeUpdate(DocumentEvent e)
 	{
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
 	
@@ -1033,7 +1128,7 @@ class UserProfile
 	 */
 	public void stateChanged(ChangeEvent e)
 	{
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
 	

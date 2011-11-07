@@ -6742,6 +6742,7 @@ class OMEROGateway
 			RoiResult tempResults;
 			int shapeIndex;
 	
+			List<Long> deleted = new ArrayList<Long>();
 			Image unloaded = new ImageI(imageID, false);
 			for (ROIData roi : roiList)
 			{
@@ -6814,6 +6815,8 @@ class OMEROGateway
 									shape.asIObject() instanceof Line)) {
 								removed.add(coord);
 								updateService.deleteObject(s);
+								deleted.add(shape.getId());
+								System.err.println("deleted: "+shape.getId());
 							}
 						}
 					}
@@ -6837,18 +6840,23 @@ class OMEROGateway
 				 */
 				si = clientCoordMap.entrySet().iterator();
 				Shape serverShape;
-				
+				long sid;
 				while (si.hasNext())
 				{
 					entry = (Entry) si.next();
 					coord = (ROICoordinate) entry.getKey();
 					shape = (ShapeData) entry.getValue();
+					
 					if (shape != null) {
 						if (!serverCoordMap.containsKey(coord))
 							serverRoi.addShape((Shape) shape.asIObject());
 						else if (shape.isDirty())
 						{
 							shapeIndex = -1;
+							if (deleted.contains(shape.getId())) {
+								serverRoi.addShape((Shape) shape.asIObject());
+								break;
+							}
 							for (int j = 0 ; j < serverRoi.sizeOfShapes() ; j++)
 							{
 								if (serverRoi != null) {
@@ -6857,16 +6865,17 @@ class OMEROGateway
 									{
 										if (serverShape.getId() != null)
 										{
-											if (serverShape.getId().getValue()
-												== shape.getId())
+											sid = serverShape.getId().getValue();
+											if (sid == shape.getId())
 											{
-											shapeIndex = j;
-											break;
+												shapeIndex = j;
+												break;
 											}
 										}
 									}
 								}
 							}
+							
 							if (shapeIndex == -1)
 							{
 								serverShape = null;
@@ -6889,7 +6898,7 @@ class OMEROGateway
 										}
 									}
 								}
-								if (shapeIndex!=-1)
+								if (shapeIndex !=-1)
 								{
 									if (!removed.contains(coord))
 										updateService.deleteObject(serverShape);
@@ -6897,7 +6906,8 @@ class OMEROGateway
 								}
 								else
 								{
-									throw new Exception("serverRoi.shapeList is corrupted");
+									throw new Exception("serverRoi.shapeList " +
+										"is corrupted");
 								}
 							}
 							else

@@ -63,6 +63,9 @@ public class DeleteActivityParam
     /** The id of the image, only useful when deleting ROI. */
     private long 		imageID;
     
+    /** Indicates to register in UI.*/
+    private boolean		uiRegister;
+    
     /**
      * Creates a new instance.
      * 
@@ -76,6 +79,7 @@ public class DeleteActivityParam
     	this.icon = icon;
     	this.objects = objects;
     	imageID = -1;
+    	uiRegister = true;
     }
     
     /**
@@ -92,6 +96,7 @@ public class DeleteActivityParam
     	objects = new ArrayList<DeletableObject>(1);
     	objects.add(object);
     	imageID = -1;
+    	uiRegister = true;
     }
     
     /**
@@ -152,5 +157,25 @@ public class DeleteActivityParam
 	 * @return See above.
 	 */
 	public List<DeletableObject> getObjects() { return objects; }
+	
+    /**
+     * Sets to <code>true</code> if the component does not need to be
+     * registered, <code>false</code> otherwise.
+     * 
+     * @param uiRegister Pass <code>true</code> to register, <code>false</code>
+     * 					 otherwise.
+     */
+    public void setUIRegister(boolean uiRegister)
+    { 
+    	this.uiRegister = uiRegister; 
+    }
+    
+    /**
+     * Returns <code>true</code> if the component does not need to be
+     * registered, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isUIRegister() { return uiRegister; }
 	
 }

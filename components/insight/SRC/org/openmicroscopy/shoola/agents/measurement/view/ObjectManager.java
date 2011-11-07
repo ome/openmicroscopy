@@ -86,8 +86,8 @@ class ObjectManager
 		COLUMN_NAMES = new Vector<String>(6);
 		COLUMN_NAMES.add("ROI");
 		COLUMN_NAMES.add(AnnotationDescription.ROIID_STRING);
-		COLUMN_NAMES.add(AnnotationDescription.TIME_STRING);
 		COLUMN_NAMES.add(AnnotationDescription.ZSECTION_STRING);
+		COLUMN_NAMES.add(AnnotationDescription.TIME_STRING);
 		COLUMN_NAMES.add(AnnotationDescription.SHAPE_STRING);
 		//columnNames.add(AnnotationDescription.annotationDescription.get(
 		//		AnnotationKeys.NAMESPACE));

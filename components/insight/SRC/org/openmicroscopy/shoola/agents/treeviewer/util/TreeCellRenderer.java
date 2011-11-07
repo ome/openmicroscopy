@@ -258,7 +258,8 @@ public class TreeCellRenderer
 		OWNER_ICON = icons.getIcon(IconManager.OWNER);
 		OWNER_NOT_ACTIVE_ICON = icons.getIcon(IconManager.OWNER_NOT_ACTIVE);
 		ROOT_ICON = icons.getIcon(IconManager.ROOT);
-		OWNER_TO_REFRESH_ICON = icons.getIcon(IconManager.OWNER_TO_REFRESH);
+		OWNER_TO_REFRESH_ICON = icons.getIcon(IconManager.REFRESH);
+		//icons.getIcon(IconManager.OWNER_TO_REFRESH);
 		FILE_TEXT_ICON = icons.getIcon(IconManager.FILE_TEXT);
 		FILE_PDF_ICON = icons.getIcon(IconManager.FILE_PDF);
 		FILE_HTML_ICON = icons.getIcon(IconManager.FILE_HTML);

@@ -421,5 +421,13 @@ public interface Browser
 	 *          <code>false</code> otherwise.
 	 */
 	void onStateChange(boolean b);
-	
+
+	/**
+	 * Sets the location of the selection region when the user zooms in or out.
+	 * 
+	 * @param rx The ratio along the X-axis.
+	 * @param ry The ratio along the Y-axis.
+	 */
+	void setViewLocation(double rx, double ry);
+
 }

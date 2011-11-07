@@ -1389,40 +1389,42 @@ class ImViewerUI
 		while (c.hasNext()) {
 			index = c.next().getIndex();
 			//if (indexes.contains(index)) {
-				s = "";
-				toolTipText = "";
-				tips = new ArrayList<String>();
-				info = model.getPlane(z, index, t);
-				comp = planes.get(index);
-				if (info != null) {
-					details = EditorUtil.transformPlaneInfo(info);
-					notSet = (List<String> )details.get(EditorUtil.NOT_SET);
-					comp.setColor(colors.get(index));
-					if (!notSet.contains(EditorUtil.DELTA_T)) {
-						s += EditorUtil.formatTimeInSeconds(
-								(Double) details.get(EditorUtil.DELTA_T));
-					}
-					if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {
-						toolTipText += EditorUtil.EXPOSURE_TIME+": ";
-						toolTipText += details.get(EditorUtil.EXPOSURE_TIME);
-						toolTipText += EditorUtil.TIME_UNIT;
-						tips.add(toolTipText);
-					}
-					toolTipText = "";
-					toolTipText += "Stage coordinates: ";
-					if (!notSet.contains(EditorUtil.POSITION_X))
-						toolTipText += 
-							"x="+details.get(EditorUtil.POSITION_X)+" ";
-					if (!notSet.contains(EditorUtil.POSITION_Y)) 
-						toolTipText += "y="+
-							details.get(EditorUtil.POSITION_Y)+" ";
-					if (!notSet.contains(EditorUtil.POSITION_Z)) 
-						toolTipText += "z="+details.get(EditorUtil.POSITION_Z);
+			s = "";
+			toolTipText = "";
+			tips = new ArrayList<String>();
+			info = model.getPlane(z, index, t);
+			comp = planes.get(index);
+			if (info != null) {
+				details = EditorUtil.transformPlaneInfo(info);
+				notSet = (List<String> )details.get(EditorUtil.NOT_SET);
+				comp.setColor(colors.get(index));
+				if (!notSet.contains(EditorUtil.DELTA_T)) {
+					s += EditorUtil.formatTimeInSeconds(
+							(Double) details.get(EditorUtil.DELTA_T));
+				}
+				if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {
+					toolTipText += EditorUtil.EXPOSURE_TIME+": ";
+					toolTipText += details.get(EditorUtil.EXPOSURE_TIME);
+					toolTipText += EditorUtil.TIME_UNIT;
 					tips.add(toolTipText);
-					comp.setToolTipText(UIUtilities.formatToolTipText(tips));
+				}
+				toolTipText = "";
+				toolTipText += "Stage coordinates: ";
+				if (!notSet.contains(EditorUtil.POSITION_X))
+					toolTipText += 
+						"x="+details.get(EditorUtil.POSITION_X)+" ";
+				if (!notSet.contains(EditorUtil.POSITION_Y)) 
+					toolTipText += "y="+
+					details.get(EditorUtil.POSITION_Y)+" ";
+				if (!notSet.contains(EditorUtil.POSITION_Z)) 
+					toolTipText += "z="+details.get(EditorUtil.POSITION_Z);
+				tips.add(toolTipText);
+				comp.setToolTipText(UIUtilities.formatToolTipText(tips));
+				if (s.trim().length() != 0) {
 					comp.setText(s);
 					panel.add(comp);
 				}
+			}
 			//}
 		}
 		statusBar.setCenterStatus(panel);

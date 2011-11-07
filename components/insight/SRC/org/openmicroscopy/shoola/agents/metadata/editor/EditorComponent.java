@@ -941,8 +941,10 @@ class EditorComponent
 		Object o = model.getRefObject();
 		if (o instanceof ExperimenterData) {
 			ExperimenterData exp = (ExperimenterData) o;
-			if (exp.getId() == experimenterID)
+			if (exp.getId() == experimenterID) {
+				model.setUserPhoto(photo, experimenterID);
 				view.setUserPhoto(photo);
+			}
 		}
 	}
 	
