@@ -281,7 +281,9 @@ class UserProfile
     	//userPicture.setToolTipText("Click to upload your photo.");
     	
     	IconManager icons = IconManager.getInstance();
-    	userPicture.setImage(USER_PHOTO);
+    	Image photo = model.getUserPhoto();
+    	if (photo == null) userPicture.setImage(USER_PHOTO);
+    	else userPicture.setImage(model.getUserPhoto());
     	changePhoto = new JLabel("Change Photo");
     	changePhoto.setToolTipText("Upload your photo.");
     	changePhoto.setForeground(UIUtilities.HYPERLINK_COLOR);
@@ -293,7 +295,7 @@ class UserProfile
     	deletePhoto.setToolTipText("Delete the photo.");
     	deletePhoto.setBackground(UIUtilities.BACKGROUND_COLOR);
     	UIUtilities.unifiedButtonLookAndFeel(deletePhoto);
-    	deletePhoto.setVisible(false);
+    	deletePhoto.setVisible(photo != null);
     	loginArea = new JTextField();
     	boolean a = MetadataViewerAgent.isAdministrator();
     	loginArea.setEnabled(a);
@@ -1048,12 +1050,14 @@ class UserProfile
 	void setUserPhoto(BufferedImage image)
 	{
 		if (image == null) {
+			model.setUserPhoto(USER_PHOTO);
 			userPicture.setImage(USER_PHOTO);
 			deletePhoto.setVisible(false);
 			return;
 		}
-		BufferedImage img = Factory.scaleBufferedImage(image, 
+		BufferedImage img = Factory.scaleBufferedImage(image,
 				UserProfileCanvas.WIDTH);
+		model.setUserPhoto(img);
 		userPicture.setImage(img);
 		deletePhoto.setVisible(true);
 		repaint();
@@ -1075,7 +1079,7 @@ class UserProfile
 	public void actionPerformed(ActionEvent e)
 	{
 		buildGUI();
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
 	
@@ -1085,7 +1089,7 @@ class UserProfile
 	 */
 	public void insertUpdate(DocumentEvent e)
 	{
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
 
@@ -1095,7 +1099,7 @@ class UserProfile
 	 */
 	public void removeUpdate(DocumentEvent e)
 	{
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
 	
@@ -1105,7 +1109,7 @@ class UserProfile
 	 */
 	public void stateChanged(ChangeEvent e)
 	{
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
 	

@@ -98,7 +98,8 @@ public class UserPhotoLoader
      */
     public void handleResult(Object result) 
     {
-    	viewer.setUserPhoto((BufferedImage) result, experimenter.getId());
+    	if (result instanceof BufferedImage)
+    		viewer.setUserPhoto((BufferedImage) result, experimenter.getId());
     } 
     
 }

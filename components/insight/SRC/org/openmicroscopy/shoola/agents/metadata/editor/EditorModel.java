@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Image;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -222,6 +223,9 @@ class EditorModel
 	/** The collection of analysis results. */
 	private Map<AnalysisResultsItem, EditorLoader> resultsLoader;
 	
+    /** The photo of the current user.*/
+    private Image					userPhoto;
+    
 	/**
 	 * Downloads the files.
 	 * 
@@ -388,6 +392,18 @@ class EditorModel
         Collections.sort(enumerations, c);
     }
     
+    /**
+     * Starts an asynchronous call to load the photo of the currently 
+     * selected user.
+     */
+    private void fireExperimenterPhotoLoading()
+    {
+    	if (refObject instanceof ExperimenterData) {
+    		ExperimenterData exp = (ExperimenterData) refObject;
+    		UserPhotoLoader loader = new UserPhotoLoader(component, exp);
+    		loader.load();
+    	}
+    }
 	/**
 	 * Creates a new instance.
 	 * 
@@ -2579,7 +2595,7 @@ class EditorModel
      */
     void uploadPicture(File photo, String format)
     { 
-    	if (refObject instanceof ExperimenterData) {
+    	if (refObject instanceof ExperimenterData && getUserPhoto() == null) {
     		ExperimenterData exp = (ExperimenterData) refObject;
     		UserPhotoUploader loader = new UserPhotoUploader(component, exp,
     				photo, format);
@@ -2614,19 +2630,6 @@ class EditorModel
 			} catch (Exception e) {
 				// TODO: handle exception
 			}
-    	}
-    }
-    
-    /**
-     * Starts an asynchronous call to load the photo of the currently 
-     * selected user.
-     */
-    void fireExperimenterPhotoLoading()
-    {
-    	if (refObject instanceof ExperimenterData) {
-    		ExperimenterData exp = (ExperimenterData) refObject;
-    		UserPhotoLoader loader = new UserPhotoLoader(component, exp);
-    		loader.load();
     	}
     }
     
@@ -2874,4 +2877,18 @@ class EditorModel
 	 */
 	JFrame getRefFrame() { return parent.getParentUI(); }
 
+	/**
+	 * Sets the photo associated to the current user.
+	 * 
+	 * @param userPhoto The photo to set.
+	 */
+	void setUserPhoto(Image userPhoto) { this.userPhoto = userPhoto; }
+	
+	/**
+	 * Returns the photo associated to the current user.
+	 * 
+	 * @return See above.
+	 */
+	Image getUserPhoto() { return userPhoto; }
+	
 }
