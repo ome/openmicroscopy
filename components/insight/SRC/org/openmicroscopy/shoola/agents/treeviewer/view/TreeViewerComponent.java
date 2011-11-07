@@ -873,7 +873,8 @@ class TreeViewerComponent
 			if (db != null) db.setSelectedNodes(new ArrayList(), null);
 			metadata.setRootObject(null, -1);
 		}
-		if (display.getUserObject() instanceof ExperimenterData &&
+		if (display != null && 
+			display.getUserObject() instanceof ExperimenterData &&
 			display.isToRefresh()) {
 			refreshTree();
 		}
