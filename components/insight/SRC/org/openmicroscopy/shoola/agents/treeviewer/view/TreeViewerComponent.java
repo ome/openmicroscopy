@@ -3259,11 +3259,15 @@ class TreeViewerComponent
 			if (ProjectData.class.equals(type) || 
 					DatasetData.class.equals(type)) {
 				view.selectPane(Browser.PROJECTS_EXPLORER);
-			} else if (ScreenData.class.equals(type)) {
+				browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+				model.setSelectedBrowser(browser);
+			} else if (ScreenData.class.equals(type) ||
+				PlateData.class.equals(type)) {
 				view.selectPane(Browser.SCREENS_EXPLORER);
+				browser = model.getBrowser(Browser.SCREENS_EXPLORER);
+				model.setSelectedBrowser(browser);
 			}
 		}
-		browser = model.getSelectedBrowser();
 		if (browser != null) {
 			NodesFinder finder = new NodesFinder(type, id);
 			browser.accept(finder);
@@ -3279,6 +3283,7 @@ class TreeViewerComponent
 			        model.getMetadataViewer().setRootObject(null, exp.getId());
 				}
 			} else {
+				/*
 				Iterator<TreeImageDisplay> i = nodes.iterator();
 				TreeImageDisplay node;
 				if (DatasetData.class.equals(type)) {
@@ -3292,6 +3297,21 @@ class TreeViewerComponent
 					while (i.hasNext()) {
 						browser.setSelectedDisplay(i.next());
 					}
+				}
+				*/
+				Iterator<TreeImageDisplay> i = nodes.iterator();
+				TreeImageDisplay node;
+				while (i.hasNext()) {
+					node = i.next();
+					browser.setSelectedDisplay(node);
+					browser.onSelectedNode(null, node, false);
+					browseContainer(node, null);
+					break;
+					/*
+					if (node.isChildrenLoaded())
+						browser.setSelectedDisplay(node);
+					else browser.refreshBrowser(type, id);
+					*/
 				}
 			}
 		}
