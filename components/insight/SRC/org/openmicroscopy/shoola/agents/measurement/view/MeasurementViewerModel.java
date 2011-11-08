@@ -473,13 +473,17 @@ class MeasurementViewerModel
      * Returns the image's magnification factor.
      * 
      * @param magnification The value to set.
+     * @param sizeX The size along the X-axis.
+     * @param sizeY The size along the Y-axis.
      */
-	void setMagnification(double magnification)
+	void setMagnification(double magnification, int sizeX, int sizeY)
 	{ 
+		if (sizeX <= 0) sizeX = getSizeX();
+		if (sizeY <= 0) sizeY = getSizeY();
 		this.magnification = magnification;
 		if (state != MeasurementViewer.NEW)
 			getDrawingView().setScaleFactor(magnification,
-					new Dimension(getSizeX(), getSizeY()));
+					new Dimension(sizeX, sizeY));
 		else 
 			getDrawingView().setScaleFactor(magnification);
 	}
