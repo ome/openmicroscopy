@@ -142,9 +142,11 @@ public interface MeasurementViewer
 	 * @param defaultZ		The selected z-section.
 	 * @param defaultT		The selected timepoint.
 	 * @param magnification	The image's magnification factor.
+	 * @param sizeX The size along the X-axis.
+     * @param sizeY The size along the Y-axis.
 	 */
 	public void setMagnifiedPlane(int defaultZ, int defaultT, 
-									double magnification);
+			double magnification, int sizeX, int sizeY);
 	
 	/**
 	 * Sets the collection of ROIs for the pixels set.

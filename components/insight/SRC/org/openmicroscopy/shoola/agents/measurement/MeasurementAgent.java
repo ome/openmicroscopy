@@ -90,7 +90,8 @@ public class MeasurementAgent
         			evt.getPixels(), evt.getImageID(), evt.getName(),
         			evt.getRequesterBounds(), evt.getDefaultZ(), 
         			evt.getDefaultT(), evt.getMagnification(), 
-        			evt.getActiveChannels(), evt.getChannelData());
+        			evt.getActiveChannels(), evt.getChannelData(),
+        			evt.getSizeX(), evt.getSizeY());
     	}
     	if (viewer != null) {
     		viewer.setIconImage(evt.getThumbnail());
@@ -112,7 +113,7 @@ public class MeasurementAgent
     									evt.getPixelsID());
     	if (viewer != null) 
     		viewer.setMagnifiedPlane(evt.getDefaultZ(), evt.getDefaultT(), 
-    							evt.getMagnification());
+    				evt.getMagnification(), evt.getSizeX(), evt.getSizeY());
     }
     
     /**

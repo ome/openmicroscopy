@@ -97,6 +97,12 @@ public class MeasurementTool
     /** Flag indicating if it is a big image or not.*/
     private boolean bigImage;
     
+    /** The size along the X-axis.*/
+    private int			sizeX;
+    
+    /** The size along the Y-axis.*/
+    private int			sizeY;
+    
     /**
      * Creates a new instance.
      * 
@@ -133,7 +139,35 @@ public class MeasurementTool
         requesterBounds = bounds;
         HCSData = false;
         bigImage = false;
+        sizeX = 0;
+        sizeY = 0;
     }
+    
+    /**
+     * Sets the size along the X-axis and Y-axis.
+     * 
+     * @param sizeX The size along the X-axis.
+     * @param sizeY The size along the Y-axis.
+     */
+    public void setSize(int sizeX, int sizeY)
+    {
+    	this.sizeX = sizeX;
+    	this.sizeY = sizeY;
+    }
+    
+    /**
+     * Returns the size along the X-axis.
+     * 
+     * @return See above.
+     */
+    public int getSizeX() { return sizeX; }
+    
+    /**
+     * Returns the size along the Y-axis.
+     * 
+     * @return See above.
+     */
+    public int getSizeY() { return sizeY; }
     
     /**
      * Sets the flag indicating if the tool is for big image data.

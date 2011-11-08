@@ -223,6 +223,10 @@ class ImViewerComponent
 		}
 		MeasurePlane event = new MeasurePlane(model.getPixelsID(), 
 				model.getDefaultZ(), model.getDefaultT(), f);
+		if (model.isBigImage()) {
+			event.setSize(model.getTiledImageSizeX(),
+					model.getTiledImageSizeY());
+		}
 		bus.post(event);
 	}
 
@@ -477,6 +481,10 @@ class ImViewerComponent
 				model.getDefaultZ(), model.getDefaultT(),
 				model.getActiveChannelsColorMap(),f, 
 				view.getBounds(), model.getChannelData());
+		if (model.isBigImage()) {
+			request.setSize(model.getTiledImageSizeX(),
+					model.getTiledImageSizeY());
+		}
 		request.setThumbnail(model.getImageIcon());
 		request.setRenderedImage(model.getBrowser().getRenderedImage());
 		request.setMeasurements(measurements);
