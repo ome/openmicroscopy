@@ -3307,11 +3307,6 @@ class TreeViewerComponent
 					browser.onSelectedNode(null, node, false);
 					browseContainer(node, null);
 					break;
-					/*
-					if (node.isChildrenLoaded())
-						browser.setSelectedDisplay(node);
-					else browser.refreshBrowser(type, id);
-					*/
 				}
 			}
 		}
