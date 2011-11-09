@@ -236,6 +236,9 @@ class ScriptComponent
 		if (component == null)
 			throw new IllegalArgumentException("No component specified.");
 		if (name == null) name = DEFAULT_TEXT;
+		if (component instanceof NumericalTextField) 
+			((NumericalTextField) component).setHorizontalAlignment(
+					JTextField.LEFT);
 		this.component = component;
 		this.name = name;
 		parentIndex = null;
