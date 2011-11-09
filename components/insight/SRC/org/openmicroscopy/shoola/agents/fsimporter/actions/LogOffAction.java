@@ -37,7 +37,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Logs off the current server.
+ * Logs off from the current server.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,7 +51,7 @@ public class LogOffAction
     public static final String NAME = "Log Off...";
     
     /** The description of the action. */
-    public static final String DESCRIPTION = "Log off the current server.";
+    public static final String DESCRIPTION = "Log off from the current server.";
     
     /** 
 	 * Sets the enabled flag depending on the state.

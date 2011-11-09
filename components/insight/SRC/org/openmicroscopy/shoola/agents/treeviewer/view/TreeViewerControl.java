@@ -78,6 +78,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.FullScreenViewerActio
 import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ImportAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.InspectorVisibilityAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.LogOffAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
@@ -338,8 +339,11 @@ class TreeViewerControl
 	/** Identifies the <code>Activated action</code>. */
 	static final Integer    USER_ACTIVATED = Integer.valueOf(66);
 	
-	/** Identifies the <code>Import</code> in the menu. */
+	/** Identifies the <code>Import</code> action. */
 	static final Integer    IMPORT_NO_SELECTION = Integer.valueOf(67);
+	
+	/** Identifies the <code>Log off</code> action. */
+	static final Integer    LOG_OFF = Integer.valueOf(68);
 	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
@@ -523,6 +527,7 @@ class TreeViewerControl
 		actionsMap.put(USER_ACTIVATED,  new ActivatedUserAction(model));
 		actionsMap.put(SEND_COMMENT,  new SendFeedbackAction(model));
 		actionsMap.put(IMPORT_NO_SELECTION, new ImportAction(model, true));
+		actionsMap.put(LOG_OFF, new LogOffAction(model));
 	}
 
 	/** 

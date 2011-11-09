@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
@@ -277,6 +278,17 @@ public class EditorAgent
     	if (evt == null) return;
     	EditorFactory.onGroupSwitched(evt.isSuccessful());
     }
+    
+	/**
+     * Handles the {@link ReconnectedEvent} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleReconnectedEvent(ReconnectedEvent evt)
+    {
+    	if (evt == null) return;
+    	EditorFactory.onGroupSwitched(true);
+    }
 	
 	/**
 	 * Handles the copying event, by passing the copied data from this event
@@ -321,6 +333,7 @@ public class EditorAgent
         bus.register(this, ShowEditorEvent.class);
         bus.register(this, CopyEvent.class);
         bus.register(this, UserGroupSwitched.class);
+        bus.register(this, ReconnectedEvent.class);
     }
 
     /**
@@ -368,6 +381,8 @@ public class EditorAgent
     	   handleCopyData((CopyEvent) e);
        else if (e instanceof UserGroupSwitched)
 			handleUserGroupSwitched((UserGroupSwitched) e);
+       else if (e instanceof ReconnectedEvent)
+			handleReconnectedEvent((ReconnectedEvent) e);
     }
 
 }

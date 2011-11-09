@@ -49,8 +49,10 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
@@ -289,6 +291,18 @@ public class ImViewerAgent
     }
     
     /**
+     * Indicates that it was possible to reconnect.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleReconnectedEvent(ReconnectedEvent evt)
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	ImViewerFactory.onGroupSwitched(true);
+    }
+    
+    /**
      * Views the passed object if the object is an image.
      * 
      * @param evt The event to handle.
@@ -440,6 +454,7 @@ public class ImViewerAgent
         bus.register(this, RndSettingsSaved.class);
         bus.register(this, FLIMResultsEvent.class);
         bus.register(this, ReloadRenderingEngine.class);
+        bus.register(this, ReconnectedEvent.class);
     }
 
     /**
@@ -502,6 +517,8 @@ public class ImViewerAgent
         	handleFLIMResultsEvent((FLIMResultsEvent) e);
         else if (e instanceof ReloadRenderingEngine) 
         	handleReloadRenderingEngineEvent((ReloadRenderingEngine) e);
+        else if (e instanceof ReconnectedEvent)
+			handleReconnectedEvent((ReconnectedEvent) e);
     }
 
 }

@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
@@ -438,6 +439,18 @@ public class TreeViewerAgent
     }
     
     /**
+     * Indicates that it was possible to reconnect.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleReconnectedEvent(ReconnectedEvent evt)
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	TreeViewerFactory.onGroupSwitched(true);
+    }
+    
+    /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
      */
@@ -487,6 +500,7 @@ public class TreeViewerAgent
         bus.register(this, BrowseContainer.class);
         bus.register(this, NodeToRefreshEvent.class);
         bus.register(this, ViewObjectEvent.class);
+        bus.register(this, ReconnectedEvent.class);
     }
 
     /**
@@ -539,6 +553,8 @@ public class TreeViewerAgent
 			handleBrowseContainer((BrowseContainer) e);
 		else if (e instanceof NodeToRefreshEvent)
 			handleNodeToRefreshEvent((NodeToRefreshEvent) e);
+		else if (e instanceof ReconnectedEvent)
+			handleReconnectedEvent((ReconnectedEvent) e);
 	}
 
 }
