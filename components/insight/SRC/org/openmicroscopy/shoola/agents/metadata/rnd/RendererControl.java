@@ -188,6 +188,7 @@ class RendererControl
 		Color c = view.getChannelColor(channel);
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		ColourPicker dialog = new ColourPicker(f, c);
+		dialog.setPreviewVisible(true);
 		dialog.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(dialog);
     }
@@ -360,8 +361,15 @@ class RendererControl
         } else if (ColourPicker.COLOUR_PROPERTY.equals(name)) { 
 			Color c = (Color) evt.getNewValue();
 			if (colorPickerIndex != -1) {
-				model.setChannelColor(colorPickerIndex, c);
+				model.setChannelColor(colorPickerIndex, c, false);
 			}
+        } else if (ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(name)) { 
+			Color c = (Color) evt.getNewValue();
+			if (colorPickerIndex != -1) {
+				model.setChannelColor(colorPickerIndex, c, true);
+			}
+		} else if (ColourPicker.CANCEL_PROPERTY.equals(name)) {
+			model.setChannelColor(colorPickerIndex, null, true);
 		} else if (Renderer.Z_SELECTED_PROPERTY.equals(name)) {
 			view.setZSection(((Integer) evt.getNewValue()).intValue());
 		} else if (Renderer.T_SELECTED_PROPERTY.equals(name)) {
