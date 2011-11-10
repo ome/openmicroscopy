@@ -58,6 +58,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.DelegationSelectionTool;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
@@ -70,6 +71,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 
+import pojos.ShapeSettingsData;
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -752,7 +754,19 @@ class MeasurementViewerUI
 	 */
     void setCellColor(Color color)
     {
-		if (roiInspector != null) roiInspector.setCellColor(color);
+    	int row = -1;
+		if (roiInspector != null) row = roiInspector.setCellColor(color);
+		Collection<Figure> l = model.getSelectedFigures();
+		if (l == null || l.size() == 0) return;
+		Iterator<Figure> i = l.iterator();
+		switch (row) {
+			case ObjectInspector.FILL_COLOR_ROW:
+				AttributeKeys.FILL_COLOR.set(i.next(), color);
+				break;
+			case ObjectInspector.LINE_COLOR_ROW:
+				AttributeKeys.STROKE_COLOR.set(i.next(), color);
+		}
+		model.getDrawingView().repaint();
 	}
     
     /**
