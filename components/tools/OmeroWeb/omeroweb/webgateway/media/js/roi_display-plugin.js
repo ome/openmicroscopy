@@ -299,6 +299,7 @@ $.fn.roi_display = function(options) {
                                     if (!roi_label_displayed) txt.hide();
                                 }
                                 var txtAttr = {'fill': '#ffffff'};
+                                if (shape['strokeColor']) { txtAttr['fill'] = shape['strokeColor'] };
                                 if (shape['fontFamily']) {  // model: serif, sans-serif, cursive, fantasy, monospace. #5072
                                     // raphael supports all these exactly - so we can pass directly.
                                     txtAttr['font-family'] = shape['fontFamily'];
