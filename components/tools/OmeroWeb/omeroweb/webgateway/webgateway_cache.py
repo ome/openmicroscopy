@@ -574,6 +574,9 @@ class WebGatewayCache (object):
         """
         
         iid = img.getId()
+        pre = str(iid)[:-4]
+        if len(pre) == 0:
+            pre = '0'
         if r:
             r = r.REQUEST
             c = FN_REGEX.sub('-',r.get('c', ''))
@@ -585,16 +588,13 @@ class WebGatewayCache (object):
             q = r.get('q', '')
             region = r.get('region', '')
             tile = r.get('tile', '')
-            pre = str(iid)[:-4]
-            if len(pre) == 0:
-                pre = '0'
             rv = 'img_%s/%s/%s/%%s-c%s-m%s-q%s-r%s-t%s' % (client_base, pre, str(iid), c, m, q, region, tile)
             if p:
                 return rv % ('%s-%s' % (p, str(t)))
             else:
                 return rv % ('%sx%s' % (str(z), str(t)))
         else:
-            return 'img_%s/%s' % (client_base, str(iid))
+            return 'img_%s/%s/%s' % (client_base, pre, str(iid))
 
     def setImage (self, r, client_base, img, z, t, obj, ctx=''):
         """
