@@ -11,9 +11,6 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
-from omero.gateway import BlitzGateway
-
-
 # Configuration
 # =================================================================
 # These values will be imported by all the other training scripts.
@@ -21,6 +18,8 @@ HOST = 'localhost'
 PORT = 4064
 USERNAME = 'username'
 PASSWORD = 'passwd'
+
+from omero.gateway import BlitzGateway
 
 if __name__ == '__main__':
     """
