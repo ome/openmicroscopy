@@ -1063,7 +1063,7 @@ class ImViewerModel
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		rnd.setChannelColor(index, c);
+		rnd.setChannelColor(index, c, false);
 	}
 
 	/**

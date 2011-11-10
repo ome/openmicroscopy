@@ -30,6 +30,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -103,6 +104,9 @@ class RendererComponent
 	/** List of active channels before switching between color mode. */
 	private List            historyActiveChannels;
 
+	/** The color changes preview.*/
+    private Map<Integer, Color>	colorChanges;
+    
 	/**
 	 * Notifies the user than an error occurred while trying to modify the 
 	 * rendering settings and dispose of the viewer 
@@ -477,10 +481,25 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setChannelColor(int, Color)
+     * @see Renderer#setChannelColor(int, Color, boolean)
      */
-	public void setChannelColor(int index, Color color)
+	public void setChannelColor(int index, Color color, boolean preview)
 	{
+		if (preview) {
+			if (colorChanges == null)
+				colorChanges = new HashMap<Integer, Color>();
+			if (color == null) {
+				color = colorChanges.get(index); //reset the color.
+				colorChanges.clear();
+			} else {
+				if (!colorChanges.containsKey(index))
+					colorChanges.put(index, model.getChannelColor(index));
+			}
+		} else {
+			if (colorChanges != null)
+				colorChanges.remove(index);
+		}
+		if (color == null) return;
 		try {
 			model.setChannelColor(index, color);
 			view.setChannelColor(index);

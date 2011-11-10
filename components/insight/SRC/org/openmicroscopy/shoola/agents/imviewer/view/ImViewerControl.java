@@ -741,6 +741,7 @@ class ImViewerControl
 		colorPickerIndex = index;
 		Color c = model.getChannelColor(index);
 		ColourPicker dialog = new ColourPicker(view, c);
+		dialog.setPreviewVisible(true);
 		dialog.addPropertyChangeListener(this);
 		UIUtilities.setLocationRelativeToAndShow(view, dialog);
 	}
@@ -975,8 +976,15 @@ class ImViewerControl
 		} else if (ColourPicker.COLOUR_PROPERTY.equals(pName)) { 
 			Color c = (Color) pce.getNewValue();
 			if (colorPickerIndex != -1) {
-				model.setChannelColor(colorPickerIndex, c);
+				model.setChannelColor(colorPickerIndex, c, false);
 			}
+		} else if (ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(pName)) { 
+			Color c = (Color) pce.getNewValue();
+			if (colorPickerIndex != -1) {
+				model.setChannelColor(colorPickerIndex, c, true);
+			}
+		} else if (ColourPicker.CANCEL_PROPERTY.equals(pName)) {
+			model.setChannelColor(colorPickerIndex, null, true);
 		} else if (UnitBarSizeDialog.UNIT_BAR_VALUE_PROPERTY.equals(pName)) {
 			double v = ((Double) pce.getNewValue()).doubleValue();
 			model.setUnitBarSize(v);
