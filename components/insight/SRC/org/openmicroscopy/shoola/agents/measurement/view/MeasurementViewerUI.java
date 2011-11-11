@@ -1090,6 +1090,12 @@ class MeasurementViewerUI
     	if (!model.isHCSData()) roiManager.rebuildTable(); 
     }
     
+    /** Sets the value in the tool bar.*/
+    void refreshToolBar()
+    {
+    	toolBar.refreshToolBar();
+    }
+    
     /** Rebuilds the results table. */
     void refreshResultsTable()
     { 
@@ -1522,6 +1528,29 @@ class MeasurementViewerUI
 			if (f != null) chooser.setCurrentDirectory(f);
 		} catch (Exception ex) {}
 		return chooser;
+	}
+	
+
+	/**
+	 * Shows or hides the Text of all shapes.
+	 * 
+	 * @param show  Pass <code>true</code> to show the text, <code>false</code>
+	 * 				otherwise. 
+	 */
+	void showText(boolean show)
+	{
+		Collection<ROIFigure> figures = model.getAllFigures();
+		if (figures.size() == 0) return;
+		Iterator<ROIFigure> i = figures.iterator();
+		ROIFigure figure;
+		while (i.hasNext()) {
+			figure = i.next();
+			if (!figure.isReadOnly()) {
+				MeasurementAttributes.SHOWTEXT.set(figure, show);
+				if (roiInspector != null) roiInspector.showText(show, figure);
+			}
+		}
+		model.getDrawingView().repaint();
 	}
 	
     /** 

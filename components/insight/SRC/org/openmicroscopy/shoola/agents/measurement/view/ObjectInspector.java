@@ -297,6 +297,26 @@ class ObjectInspector
 	}
 
 	/**
+	 * Shows or hides the text for the currently selected figure.
+	 * 
+	 * @param show  Pass <code>true</code> to show the text, <code>false</code>
+	 * 				otherwise. 
+	 * @param figure The selected figure.
+	 */
+	void showText(boolean show, ROIFigure figure)
+	{
+		if (fieldTable == null) return;
+		int n = fieldTable.getRowCount();
+		if (n > 3) {
+			FigureTableModel ftm = (FigureTableModel) 
+			fieldTable.getModel();
+			ROIFigure f = ftm.getFigure();
+			if (f != null && !f.isReadOnly() && f == figure)
+				fieldTable.getModel().setValueAt(show, SHOW_TEXT_ROW, 1);
+		}
+	}
+	
+	/**
 	 * Returns <code>true</code> if the measurement has to be shown, 
 	 * <code>false</code> otherwise.
 	 * 
