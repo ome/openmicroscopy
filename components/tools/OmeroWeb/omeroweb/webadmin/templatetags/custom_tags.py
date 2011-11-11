@@ -100,3 +100,21 @@ def get_static_webadmin_prefix(parser, token):
 
     """
     return PrefixNode.handle_token(parser, token, "STATIC_WEBADMIN_URL")
+
+@register.tag()
+def get_static_feedback_prefix(parser, token):
+    """
+    Populates a template variable with the static prefix,
+    ``settings.FEEDBACK_STATIC_URL``.
+
+    Usage::
+
+        {% get_static_feedback_prefix [as varname] %}
+
+    Examples::
+
+        {% get_static_feedback_prefix %}
+        {% get_static_feedback_prefix as STATIC_FEEDBACK_PREFIX %}
+
+    """
+    return PrefixNode.handle_token(parser, token, "STATIC_FEEDBACK_URL")

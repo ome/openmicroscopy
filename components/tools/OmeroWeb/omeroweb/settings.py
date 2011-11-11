@@ -281,7 +281,11 @@ STATICFILES_FINDERS = (
 STATIC_URL = '/static/'
 
 # Custom STATIC_URLs used by custom template tags.
+STATIC_FEEDBACK_URL = '/static/feedback/'
+# Custom STATIC_URLs used by custom template tags.
 STATIC_WEBADMIN_URL = '/static/webadmin/'
+# Custom STATIC_URLs used by custom template tags.
+STATIC_WEBCLIENT_URL = '/static/webclient/'
 
 # STATIC_ROOT: The absolute path to the directory where collectstatic will collect static 
 # files for deployment. If the staticfiles contrib app is enabled (default) the collectstatic 

@@ -1,14 +1,19 @@
 {% load i18n %}
+{% load static %}
 {% load markup %}
 {% load custom_tags %}
+
+{% get_static_prefix as STATIC_PREFIX %}
+{% get_static_feedback_prefix as STATIC_FEEDBACK_PREFIX %}
+
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-    <link rel="stylesheet" href="{% url webstatic "css/layout-feedback.css" %}" type="text/css" />
-    <link rel="shortcut icon" href="{% url webstatic "images/ome.ico" %}" type="image/x-icon" />
+    <link rel="stylesheet" href="{{ STATIC_FEEDBACK_PREFIX }}css/layout.css" type="text/css" />
+    <link rel="shortcut icon" href="{{ STATIC_FEEDBACK_PREFIX }}image/ome.ico" type="image/x-icon" />
     
     <title>{% trans "OMERO.web - support" %}</title>
     
