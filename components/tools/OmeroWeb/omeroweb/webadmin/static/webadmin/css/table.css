@@ -11,7 +11,7 @@ table.tablesorter thead tr th, table.tablesorter tfoot tr th {
     background-color: #eeeeee;
 }
 table.tablesorter thead tr .header {
-    background-image: url(/appmedia/omeroweb/images/table/bg.gif);
+    background-image: url(/static/image/table/bg.gif);
     background-repeat: no-repeat;
     background-position: center right;
     cursor: pointer;

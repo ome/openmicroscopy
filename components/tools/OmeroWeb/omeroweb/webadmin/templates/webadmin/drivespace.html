@@ -1,7 +1,11 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
+{% load static %}
 {% load markup %}
 {% load custom_tags %}
+
+{% get_static_prefix as STATIC_PREFIX %}
+{% get_static_webadmin_prefix as STATIC_WEBADMIN_PREFIX %}
 
 {% comment %}
 <!--
@@ -26,14 +30,14 @@
 {% block title %}{% trans "Drive space" %}{% endblock %}
 
 {% block css %}
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_WEBADMIN_PREFIX }}css/table.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
-    <!--[if IE]><script language="javascript" type="text/javascript" src="excanvas.js"></script><![endif]-->
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.flot.pie.js" %}"></script>
+    <!--[if IE]><script language="javascript" type="text/javascript" src="{{ STATIC_PREFIX }}javascript/excanvas.js"></script><![endif]-->
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.flot.pie.js"></script>
     
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBADMIN_PREFIX }}javascript/jquery.tablesorter.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             $("#status").html('loading...');
@@ -149,7 +153,7 @@
 {% block content %}
 <h2>{% trans "Drive space" %}</h2>
 
-<div id="placeholder"><div id="usage"><img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none; float:left"/><div id="status"></div></div></div>
+<div id="placeholder"><div id="usage"><img src="{{ STATIC_PREFIX }}image/spinner.gif" id="progress" style="display: none; float:left"/><div id="status"></div></div></div>
 
 <p>{% trans "Free space" %}: {{ driveSpace.free|filesizeformat }}</p>
 

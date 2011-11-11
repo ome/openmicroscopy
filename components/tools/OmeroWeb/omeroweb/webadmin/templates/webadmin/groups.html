@@ -1,7 +1,11 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
+{% load static %}
 {% load markup %}
 {% load custom_tags %}
+
+{% get_static_prefix as STATIC_PREFIX %}
+{% get_static_webadmin_prefix as STATIC_WEBADMIN_PREFIX %}
 
 {% comment %}
 <!--
@@ -24,15 +28,15 @@
 {% endcomment %}
 
 {% block css %}
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_WEBADMIN_PREFIX }}css/table.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block title %}{% trans "Groups" %}{% endblock %}
 
 {% block jscript %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBADMIN_PREFIX }}javascript/jquery.tablesorter.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.quicksearch.js"></script>
 
     <script type="text/javascript">
         $(document).ready(function() 
@@ -52,14 +56,14 @@
 
 {% block content %}
 
-<p><img src="{% url webstatic "images/add.png" %}" alt="add" title="add"> <a href="{% url wamanagegroupid "new" %}">{% trans "Add new group" %}</a></p>
+<p><img src="{{ STATIC_WEBADMIN_PREFIX }}image/add.png" alt="add" title="add"> <a href="{% url wamanagegroupid "new" %}">{% trans "Add new group" %}</a></p>
 
 {% if info.message %}<div class="error">{{ info.message|safe|linebreaks }}</div>{% endif %}
 
 <h2>{% trans "Groups" %}</h2>
 {% if controller.groupsCount %}
 
-<form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
+<form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{{ STATIC_PREFIX }}image/spinner.gif"></span></form>
 
 <table id="groupTable" class="tablesorter"> 
     <thead> 
@@ -76,9 +80,9 @@
             <td class="action">
                 {{ dict.group.id }}
                 {% if dict.group.isEditable %}{% if not dict.locked %}
-                    <a href="{% url wamanagegroupid "edit" dict.group.id %}"><img src="{% url webstatic "images/edit.png" %}" alt="edit" title="edit"></a>
+                    <a href="{% url wamanagegroupid "edit" dict.group.id %}"><img src="{{ STATIC_WEBADMIN_PREFIX }}image/edit.png" alt="edit" title="edit"></a>
                 {% endif %}
-                <a href="{% url wamanagegroupid "members" dict.group.id %}"><img src="{% url webstatic "images/editing.png" %}" alt="manage" title="manage members"></a>{% endif %}
+                <a href="{% url wamanagegroupid "members" dict.group.id %}"><img src="{{ STATIC_WEBADMIN_PREFIX }}image/editing.png" alt="manage" title="manage members"></a>{% endif %}
             </td>
             <td class="link">{{ dict.group.name }}</td>
             <td class="link">{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>

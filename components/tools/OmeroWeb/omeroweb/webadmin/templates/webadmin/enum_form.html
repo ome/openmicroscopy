@@ -1,7 +1,11 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
+{% load static %}
 {% load markup %}
 {% load custom_tags %}
+
+{% get_static_prefix as STATIC_PREFIX %}
+{% get_static_webadmin_prefix as STATIC_WEBADMIN_PREFIX %}
 
 {% comment %}
 <!--
@@ -50,7 +54,7 @@
     
 {% else %}
 
-<p><img src="{% url webstatic "images/add.png" %}" alt="add" title="add"> <a href="{% url wamanageenum "new" controller.klass %}">{% trans "Add new entry" %}</a></p>
+<p><img src="{{ STATIC_WEBADMIN_PREFIX }}image/add.png" alt="add" title="add"> <a href="{% url wamanageenum "new" controller.klass %}">{% trans "Add new entry" %}</a></p>
 
     <h2>{% trans "Edit" %} <strong>{{ controller.klass }}</strong></h2>
     
@@ -58,7 +62,7 @@
     <table>
       <tbody>
         {% for field in form %}
-        <tr><td class="form"><a href="{% url wamanageenum "delete" controller.klass field.name %}"><img src="{% url webstatic "images/del.png" %}" alt="delete" title="delete"></a> {{ field.label_tag }}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
+        <tr><td class="form"><a href="{% url wamanageenum "delete" controller.klass field.name %}"><img src="{{ STATIC_PREFIX }}image/del.png" alt="delete" title="delete"></a> {{ field.label_tag }}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
         {% endfor %}
       </tbody>
       <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>

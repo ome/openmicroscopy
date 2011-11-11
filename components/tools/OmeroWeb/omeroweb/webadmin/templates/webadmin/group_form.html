@@ -1,7 +1,11 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
+{% load static %}
 {% load markup %}
 {% load custom_tags %}
+
+{% get_static_prefix as STATIC_PREFIX %}
+{% get_static_webadmin_prefix as STATIC_WEBADMIN_PREFIX %}
 
 {% comment %}
 <!--
@@ -32,7 +36,7 @@
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery_1.4.2.js"></script>
     
     <script type="text/javascript">
         $(document).ready(function() 
@@ -55,7 +59,7 @@
                     ch.remove();
                 {% endif %}
                 
-                $("input[name='permissions']").click(radioClicks);                
+                $("input[name='permissions']").click(radioClicks);
                 function radioClicks()
                 {
                     var index = $(this).val();

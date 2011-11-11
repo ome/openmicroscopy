@@ -22,6 +22,7 @@
 # Version: 1.0
 #
 
+from django.templatetags.static import PrefixNode
 from django.conf import settings
 from django import forms
 from django.forms import ModelForm
@@ -57,7 +58,7 @@ class LoginForm(NonASCIIForm):
             
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22, 'autocomplete': 'off'}))
-    ssl = forms.BooleanField(required=False, help_text='<img src="/appmedia/omeroweb/images/nuvola_encrypted_grey16.png" title="Real-time encrypted data transfer can be turned on by checking the box, but it will slow down the data access. Turning it off does not affect the connection to the server which is always secure." alt="SSL"')
+    ssl = forms.BooleanField(required=False, help_text='<img src="%simage/nuvola_encrypted_grey16.png" title="Real-time encrypted data transfer can be turned on by checking the box, but it will slow down the data access. Turning it off does not affect the connection to the server which is always secure." alt="SSL"' % PrefixNode.handle_simple("STATIC_URL"))
 
 class ForgottonPasswordForm(NonASCIIForm):
     

@@ -29,70 +29,11 @@ import logging
 
 from django.conf import settings
 from django import template
+from django.templatetags.static import PrefixNode
 
 register = template.Library()
 
 logger = logging.getLogger('custom_tags')
-
-
-@register.filter
-def hash(value, key):
-    return value[key]
-
-@register.filter
-def truncateafter(value, arg):
-    """
-    Truncates a string after a given number of chars  
-    Argument: Number of chars to truncate after
-    """
-    try:
-        length = int(arg)
-    except ValueError: # invalid literal for int()
-        return value # Fail silently.
-    if not isinstance(value, basestring):
-        value = str(value)
-    if (len(value) > length):
-        return value[:length] + "..."
-    else:
-        return value
-
-@register.filter
-def truncatebefor(value, arg):
-    """
-    Truncates a string after a given number of chars  
-    Argument: Number of chars to truncate befor
-    """
-    try:
-        length = int(arg)
-    except ValueError: # invalid literal for int()
-        return value # Fail silently.
-    if not isinstance(value, basestring):
-        value = str(value)
-    if (len(value) > length):
-        return "..."+value[len(value)-length:]
-    else:
-        return value
-
-@register.filter
-def shortening(value, arg):
-    try:
-        length = int(arg)
-    except ValueError: # invalid literal for int()
-        return value # Fail silently.
-    front = length/2-3
-    end = length/2-3
-    
-    if not isinstance(value, basestring):
-        value = str(value)  
-    try: 
-        l = len(value) 
-        if l < length: 
-            return value
-        elif l >= length: 
-            return value[:front]+"..."+value[l-end:]
-    except Exception, x:
-        logger.error(traceback.format_exc())
-        return value
 
 # makes settings available in template
 @register.tag
@@ -141,3 +82,21 @@ def do_plural(parser, token):
         raise template.TemplateSyntaxError, "%r tag requires exactly three arguments" % token.contents.split()[0]
 
     return PluralNode(quantity, single, plural)
+
+@register.tag()
+def get_static_webadmin_prefix(parser, token):
+    """
+    Populates a template variable with the static prefix,
+    ``settings.WEBADMIN_STATIC_URL``.
+
+    Usage::
+
+        {% get_static_webadmin_prefix [as varname] %}
+
+    Examples::
+
+        {% get_static_webadmin_prefix %}
+        {% get_static_webadmin_prefix as STATIC_WEBADMIN_PREFIX %}
+
+    """
+    return PrefixNode.handle_token(parser, token, "STATIC_WEBADMIN_URL")

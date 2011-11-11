@@ -174,7 +174,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.open_astex_max_side": ["OPEN_ASTEX_MAX_SIDE", 400, int],
     "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int],
     "omero.web.open_astex_max_voxels": ["OPEN_ASTEX_MAX_VOXELS", 27000000, int],  # 300 x 300 x 300
-    
     "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', parse_paths],
 }
 
@@ -248,32 +247,12 @@ LANGUAGE_CODE = 'en-gb'
 
 SITE_ID = 1
 
-# If you set this to False, Django will make some optimizations so as not
-# to load the internationalization machinery.
-USE_I18N = True
-
-# Absolute path to the directory that holds media.
-# Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = os.path.join(os.path.dirname(__file__), 'media')
-
-# URL that handles the media served from MEDIA_ROOT.
-# Example: "http://media.lawrence.com"
-MEDIA_URL = '/appmedia/'
-
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/admin_appmedia/omeroweb/'
-
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '@@k%g#7=%4b6ib7yr1tloma&g0s2nni6ljf!m0h&x9c712c7yj'
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.load_template_source',
-    'django.template.loaders.app_directories.load_template_source',
-#     'django.template.loaders.eggs.load_template_source',
-)
+# If you set this to False, Django will make some optimizations so as not
+# to load the internationalization machinery.
+USE_I18N = True
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -281,11 +260,67 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.doc.XViewMiddleware',
 )
 
+# ROOT_URLCONF: A string representing the full Python import path to your root URLconf. 
+# For example: "mydjangoapps.urls". Can be overridden on a per-request basis by setting
+# the attribute urlconf on the incoming HttpRequest object.
 ROOT_URLCONF = 'omeroweb.urls'
 
-# Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-# Always use forward slashes, even on Windows.
-# Don't forget to use absolute paths, not relative paths.
+# STATICFILES_FINDERS: The list of finder backends that know how to find static files 
+# in various locations. The default will find files stored in the STATICFILES_DIRS setting 
+# (using django.contrib.staticfiles.finders.FileSystemFinder) and in a static subdirectory 
+# of each app (using django.contrib.staticfiles.finders.AppDirectoriesFinder)
+STATICFILES_FINDERS = (
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder"
+)
+
+# STATIC_URL: URL to use when referring to static files located in STATIC_ROOT. 
+# Example: "/site_media/static/" or "http://static.example.com/".
+# If not None, this will be used as the base path for media definitions and the staticfiles 
+# app. It must end in a slash if set to a non-empty value.
+STATIC_URL = '/static/'
+
+# Custom STATIC_URLs used by custom template tags.
+STATIC_WEBADMIN_URL = '/static/webadmin/'
+
+# STATIC_ROOT: The absolute path to the directory where collectstatic will collect static 
+# files for deployment. If the staticfiles contrib app is enabled (default) the collectstatic 
+# management command will collect static files into this directory.
+STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static').replace('\\','/')
+
+# TODO: this var will be redundant once the common app is merged
+STATICFILES_DIRS = (
+    ("css", os.path.join(os.path.dirname(__file__), 'common', 'static', 'css').replace('\\','/')),
+    ("image", os.path.join(os.path.dirname(__file__), 'common', 'static', 'image').replace('\\','/')),
+    ("javascript", os.path.join(os.path.dirname(__file__), 'common', 'static', 'javascript').replace('\\','/')),
+    ("applet", os.path.join(os.path.dirname(__file__), 'common', 'static', 'applet').replace('\\','/')),
+)
+
+
+# TEMPLATE_CONTEXT_PROCESSORS: A tuple of callables that are used to populate the context 
+# in RequestContext. These callables take a request object as their argument and return 
+# a dictionary of items to be merged into the context.
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.contrib.messages.context_processors.messages"
+)
+
+# TEMPLATE_LOADERS: A tuple of template loader classes, specified as strings. Each Loader class 
+# knows how to import templates from a particular source. Optionally, a tuple can be used 
+# instead of a string. The first item in the tuple should be the Loader's module, subsequent items 
+# are passed to the Loader during initialization.
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+)
+
+# TEMPLATE_DIRS: List of locations of the template source files, in search order. Note that these 
+# paths should use Unix-style forward slashes, even on Windows.
+# Put strings here, like "/home/html/django_templates" or "C:/www/django/templates". Always use 
+# forward slashes, even on Windows. Don't forget to use absolute paths, not relative paths.
 TEMPLATE_DIRS = (
     os.path.join(os.path.join(os.path.dirname(__file__), 'feedback'), 'templates').replace('\\','/'),
     os.path.join(os.path.join(os.path.dirname(__file__), 'webadmin'), 'templates').replace('\\','/'),
@@ -295,8 +330,11 @@ TEMPLATE_DIRS = (
     os.path.join(os.path.join(os.path.dirname(__file__), 'webpublic'), 'templates').replace('\\','/'),
 )
 
+# INSTALLED_APPS: A tuple of strings designating all applications that are enabled in this Django 
+# installation. Each string should be a full Python path to a Python package that contains 
+# a Django application, as created by django-admin.py startapp.
 INSTALLED_APPS = (
-    'django.contrib.admin',
+    'django.contrib.staticfiles',
     'django.contrib.markup',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -315,21 +353,28 @@ INSTALLED_APPS = (
 
 FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
 
-IGNORABLE_404_ENDS = ('*.ico')
+# IGNORABLE_404_STARTS: 
+# Default: ('/cgi-bin/', '/_vti_bin', '/_vti_inf')
+# IGNORABLE_404_ENDS: 
+# Default: ('mail.pl', 'mailform.pl', 'mail.cgi', 'mailform.cgi', 'favicon.ico', '.php')
 
-# SESSION_ENGINE is now set by the bin/omero config infrastructure
+# SESSION_FILE_PATH: If you're using file-based session storage, this sets the directory in which Django
+# will store session data. When the default value (None) is used, Django will use the standard temporary 
+# directory for the system.
 SESSION_FILE_PATH = tempfile.gettempdir()
 
-# Cookies config
+# SESSION_EXPIRE_AT_BROWSER_CLOSE: Whether to expire the session when the user closes his or her browser.
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
+
+# SESSION_COOKIE_AGE: The age of session cookies, in seconds. See How to use sessions.
 SESSION_COOKIE_AGE = 86400 # 1 day in sec (86400)
 
 # file upload settings
 FILE_UPLOAD_TEMP_DIR = tempfile.gettempdir()
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 #default 2621440
 
-DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "images", 'image128.png').replace('\\','/')
-DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "images", 'personal32.png').replace('\\','/')
+DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'common', 'static', 'image', 'image128.png').replace('\\','/')
+DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'common', 'static', 'image', 'personal32.png').replace('\\','/')
 
 # Pagination
 try:
