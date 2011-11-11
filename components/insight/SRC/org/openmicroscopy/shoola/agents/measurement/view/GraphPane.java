@@ -515,8 +515,8 @@ class GraphPane
 		zSlider.setMinimum(minZ);
 		tSlider.setMaximum(maxT);
 		tSlider.setMinimum(minT);
-		zSlider.setVisible((maxZ!=minZ));
-		tSlider.setVisible((maxT!=minT));
+		zSlider.setVisible(maxZ != minZ);
+		tSlider.setVisible(maxT != minT);
 		tSlider.setValue(model.getCurrentView().getTimePoint()+1);
 		zSlider.setValue(model.getCurrentView().getZSection()+1);
 
