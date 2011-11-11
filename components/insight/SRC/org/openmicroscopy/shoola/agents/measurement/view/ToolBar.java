@@ -31,16 +31,21 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -180,6 +185,9 @@ class ToolBar
     /** The button to bring up the assistant. */
     private JButton						assistantButton;
     
+    /** The component to show/hide the text. */
+    private JCheckBox					showTextButton;
+    
     /** The workflow panel controls what workflow elements will be added to the 
      * created figure. 
      */
@@ -202,6 +210,8 @@ class ToolBar
     /** Initializes the component composing the display. */
 	private void initComponents()
 	{
+		showTextButton = new JCheckBox("Show Text");
+		
 		lineConnectionProperties = new FigureProperties(
 				defaultConnectionAttributes);
 		ellipseTool = new DrawingObjectCreationTool(new MeasureEllipseFigure(
@@ -342,6 +352,8 @@ class ToolBar
 		p.add(buildControlsBar());
 		p.add(Box.createHorizontalStrut(5));
 		p.add(toolBar);
+		p.add(Box.createHorizontalStrut(5));
+		p.add(showTextButton);
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 	    j.setLayout(new BoxLayout(j, BoxLayout.Y_AXIS));
 	    j.add(p);
@@ -413,6 +425,36 @@ class ToolBar
 	    	polylineTool.setResetToSelect(option); 
 	}
 	
+	/** Sets the value in the tool bar.*/
+    void refreshToolBar()
+    {
+    	Collection<ROIFigure> figures = model.getAllFigures();
+		if (figures.size() > 0) {
+			Iterator<ROIFigure> i = figures.iterator();
+			ROIFigure figure;
+			boolean b = false;
+			Boolean value;
+			while (i.hasNext()) {
+				figure = i.next();
+				if (!figure.isReadOnly()) {
+					value = MeasurementAttributes.SHOWTEXT.get(figure);
+					if (value != null && value.booleanValue()) {
+						b = value.booleanValue();
+						break;
+					}
+				}
+			}
+			showTextButton.setSelected(b);
+		}
+		showTextButton.addChangeListener(new ChangeListener() {
+			
+			public void stateChanged(ChangeEvent e) {
+				view.showText(showTextButton.isSelected());
+				
+			}
+		});
+    }
+    
 	/** Invokes when figures are selected. */
 	void onFigureSelected()
 	{

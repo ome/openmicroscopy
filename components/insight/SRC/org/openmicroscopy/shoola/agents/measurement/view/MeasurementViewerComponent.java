@@ -332,6 +332,7 @@ class MeasurementViewerComponent
 		if (model.getState() != LOADING_ROI) return;
 		if (input == null) {
 			model.setState(MeasurementViewer.READY);
+			view.refreshToolBar();
 			view.rebuildManagerTable();
 			view.updateDrawingArea();
 			view.setReadyStatus();
@@ -373,6 +374,7 @@ class MeasurementViewerComponent
 			}
 			return;
 		}
+		view.refreshToolBar();
 		view.rebuildManagerTable();
 		view.updateDrawingArea();
 		view.setReadyStatus();
@@ -882,6 +884,7 @@ class MeasurementViewerComponent
 			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Load ROI", "Cannot display the ROI.");
 		}
+		view.refreshToolBar();
 		view.rebuildManagerTable();
 		view.updateDrawingArea();
 		view.setReadyStatus();

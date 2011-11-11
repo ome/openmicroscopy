@@ -156,7 +156,7 @@ class MeasurementViewerControl
     
     /** Identifies the <code>DELETE</code> action in the menu. */
     static final Integer     DELETE = Integer.valueOf(13);
-    
+
     /** 
      * Reference to the {@link MeasurementViewer} component, which, 
      * in this context, is regarded as the Model.
