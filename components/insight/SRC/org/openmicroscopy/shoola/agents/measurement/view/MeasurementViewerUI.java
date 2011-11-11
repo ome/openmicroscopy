@@ -1356,6 +1356,13 @@ class MeasurementViewerUI
 	void setStatus(String text) { statusBar.setStatus(text); }
 	
 	/**
+	 * Sets a message in the status bar.
+	 * 
+	 * @param text The text to display.
+	 */
+	void setPlaneStatus(String text) { statusBar.setPlaneStatus(text); }
+	
+	/**
 	 * Sets ready message in the status bar.
 	 */
 	void setReadyStatus() { setStatus(DEFAULT_MSG); }
