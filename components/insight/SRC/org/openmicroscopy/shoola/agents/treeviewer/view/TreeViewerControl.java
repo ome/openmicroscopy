@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateObjectWithChildren;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DownloadAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.EditorAction;
@@ -345,6 +346,9 @@ class TreeViewerControl
 	/** Identifies the <code>Log off</code> action. */
 	static final Integer    LOG_OFF = Integer.valueOf(68);
 	
+	/** Identifies the <code>Create dataset</code> in the File menu. */
+	static final Integer    CREATE_DATASET_FROM_SELECTION = Integer.valueOf(69);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -528,6 +532,9 @@ class TreeViewerControl
 		actionsMap.put(SEND_COMMENT,  new SendFeedbackAction(model));
 		actionsMap.put(IMPORT_NO_SELECTION, new ImportAction(model, true));
 		actionsMap.put(LOG_OFF, new LogOffAction(model));
+		actionsMap.put(CREATE_DATASET_FROM_SELECTION,  
+				new CreateObjectWithChildren(model, 
+						CreateObjectWithChildren.DATASET));
 	}
 
 	/** 

@@ -46,6 +46,8 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
+
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.SaveData;
@@ -3507,6 +3509,36 @@ class TreeViewerComponent
 				AdminObject.ACTIVATE_USER);
 		model.fireAdmin(admin);
 		fireStateChange();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#createDataObjectWithChildren(DataObject)
+	 */
+	public void createDataObjectWithChildren(DataObject data)
+	{
+		if (data == null) return;
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
+		TreeImageDisplay[] selection = browser.getSelectedDisplays();
+		if (selection.length == 0) return;
+		if (data instanceof DatasetData) {
+			Set images = new HashSet();
+			Object ho; 
+			for (int i = 0; i < selection.length; i++) {
+				ho = selection[i].getUserObject();
+				if (ho instanceof ImageData && isUserOwner(ho))
+					images.add(ho);
+			}
+			if (images.size() == 0) {
+				UserNotifier un = 
+					DataBrowserAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Dataset Creation", 
+						"No images to add to the dataset.");
+			}
+			model.fireDataSaving(data, images);
+		}
+		
 	}
 	
 }
