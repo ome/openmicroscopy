@@ -138,6 +138,9 @@ class PopupMenu
 	/** Button to create a new dataset. */
 	private JMenuItem			createDataset;
 	
+	/** Button to create a new dataset and add the selected images.*/
+	private JMenuItem			createDatasetFromSelection;
+	
 	/** Button to create a new tag. */
 	private JMenuItem			createTag;
 	
@@ -286,6 +289,11 @@ class PopupMenu
 						TreeViewerControl.SEND_COMMENT);
 				sendFeedbackElement = new JMenuItem(a);
 				initMenuItem(sendFeedbackElement, a.getActionName());
+				a = controller.getAction(
+						TreeViewerControl.CREATE_DATASET_FROM_SELECTION);
+				createDatasetFromSelection = new JMenuItem(a);
+				initMenuItem(createDatasetFromSelection, a.getActionName());
+				 
 				break;
 			case TreeViewer.PARTIAL_POP_UP_MENU:
 				a = controller.getAction(TreeViewerControl.REFRESH_TREE);
@@ -409,6 +417,7 @@ class PopupMenu
 				add(downloadElement);
 				add(sendFeedbackElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(createDatasetFromSelection);
 				add(importElement);
 				add(newElement);
 				add(cutElement);
