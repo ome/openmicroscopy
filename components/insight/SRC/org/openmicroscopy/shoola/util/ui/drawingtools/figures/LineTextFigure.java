@@ -162,9 +162,10 @@ public class LineTextFigure
 					(int) textBounds.getWidth()+2,
 					(int) textBounds.getHeight()+1);
 			g.setColor(FigureUtil.TEXT_COLOR);
+			/*
 			g.drawRect((int) x-1, (int) textBounds.getY(),
 					(int) textBounds.getWidth()+2,
-					(int) textBounds.getHeight()+1);
+					(int) textBounds.getHeight()+1);*/
 			int w = (int) width;
 			TextLayout layout;
 			while (measurer.getPosition() < text.length()) {
