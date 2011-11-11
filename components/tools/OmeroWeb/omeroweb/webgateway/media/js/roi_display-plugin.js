@@ -173,7 +173,7 @@ $.fn.roi_display = function(options) {
                         s.attr({'stroke': '#00a8ff'});
                     } else {
                         selectedClone = s.clone();
-                        selectedClone.attr({'stroke': '#00a8ff'});
+                        selectedClone.attr({'stroke': '#00a8ff', 'fill': null});
                     }
                 } else {
                     if (s.type == 'text') {
@@ -283,7 +283,7 @@ $.fn.roi_display = function(options) {
                                 // Show text 
                                 if (shape['type'] == 'Label') {
                                     var txt = newShape; // if shape is label itself, use it
-                                } else {
+                                } else if (roi_label_displayed) {
                                     // otherwise, add a new label in the centre of the shape.
                                     var bb = newShape.getBBox();
                                     var textx = bb.x + (bb.width/2);
@@ -294,32 +294,43 @@ $.fn.roi_display = function(options) {
                                     // moving the existing text to newY doesn't seem to work - instead, remove and draw a new one
                                     txt.remove();
                                     txt = paper.text(textx, newY, formatShapeText(shape['textValue'])).attr({'cursor':'default'});
+                                    txt_box = txt.getBBox();
+                                    var txt_w = txt_box.width*1.3;
+                                    var txt_h = txt_box.height*1.3;
+                                    var txt_bg = paper.rect(textx-txt_w/2, texty-txt_h/2, txt_w, txt_h);
+                                    txt_bg.attr({'cursor':'default', 'fill': '#FFFCB7', 'fill-opacity': 0.78, 'stroke': null});
+                                    txt.toFront();
+                                    // clicking the text (or text background) should do the same as clicking the shape
+                                    txt_bg.id = shape['id'] + "_text_bg";
+                                    txt_bg.click(handle_shape_click);
                                     txt.id = shape['id'] + "_shape_text";
-                                    txt.click(handle_shape_click);  // clicking the text should do the same as clicking the shape
-                                    if (!roi_label_displayed) txt.hide();
-                                }
-                                var txtAttr = {'fill': '#ffffff'};
-                                if (shape['strokeColor']) { txtAttr['fill'] = shape['strokeColor'] };
-                                if (shape['fontFamily']) {  // model: serif, sans-serif, cursive, fantasy, monospace. #5072
-                                    // raphael supports all these exactly - so we can pass directly.
-                                    txtAttr['font-family'] = shape['fontFamily'];
-                                }
-                                if (shape['fontSize']) {
-                                    txtAttr['font-size'] = shape['fontSize'];
-                                }
-                                if (shape['fontStyle']) { // model: Normal, Italic, Bold, Bolditalic
-                                    var fs = shape['fontStyle'];
-                                    if ((fs == 'Bold') || (fs == 'BoldItalic')) {
-                                        txtAttr['font-weight'] = 'bold';
+                                    txt.click(handle_shape_click);
+                                
+                                    var txtAttr = {'fill': '#000'};
+                                    //if (shape['strokeColor']) { txtAttr['fill'] = shape['strokeColor'] };
+                                    if (shape['fontFamily']) {  // model: serif, sans-serif, cursive, fantasy, monospace. #5072
+                                        // raphael supports all these exactly - so we can pass directly.
+                                        txtAttr['font-family'] = shape['fontFamily'];
                                     }
-                                    if ((fs == 'Italic') || (fs == 'BoldItalic')) {
-                                        txtAttr['font-style'] = 'italic';
+                                    if (shape['fontSize']) {
+                                        txtAttr['font-size'] = shape['fontSize'];
                                     }
+                                    if (shape['fontStyle']) { // model: Normal, Italic, Bold, Bolditalic
+                                        var fs = shape['fontStyle'];
+                                        if ((fs == 'Bold') || (fs == 'BoldItalic')) {
+                                            txtAttr['font-weight'] = 'bold';
+                                        }
+                                        if ((fs == 'Italic') || (fs == 'BoldItalic')) {
+                                            txtAttr['font-style'] = 'italic';
+                                        }
+                                    }
+                                    txt.attr(txtAttr);
                                 }
-                                txt.attr(txtAttr);
                             }
                             if (shape['fillColor']) { newShape.attr({'fill': shape['fillColor']}); }
+                            if (shape['fillAlpha']) { newShape.attr({'fill-opacity': shape['fillAlpha']})}
                             if (shape['strokeColor']) { newShape.attr({'stroke': shape['strokeColor']}); }
+                            if (shape['strokeAlpha']) { newShape.attr({'opacity': shape['strokeAlpha']}); }
                             else { newShape.attr({'stroke': '#ffffff'}); }  // white is default
                             if (shape['strokeWidth']) { newShape.attr({'stroke-width': shape['strokeWidth']}); }
                             newShape.click(handle_shape_click);

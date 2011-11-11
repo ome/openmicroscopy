@@ -2057,8 +2057,10 @@ def get_rois_json(request, imageId, server_id=None):
         """
         converts a bin int number into css colour, E.g. -1006567680 to '#00ff00'
         """
+        alpha = rgbint // 256 // 256 // 256 % 256
+        alpha = float(alpha) / 256
         r,g,b = (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
-        return "#%02x%02x%02x" % (r,g,b)    # format hex
+        return "#%02x%02x%02x" % (r,g,b) , alpha
             
     rois = []
     roiService = _conn.getRoiService()
@@ -2134,9 +2136,9 @@ def get_rois_json(request, imageId, server_id=None):
                 if t and t != 'none':
                     shape['transform'] = t
             if s.getFillColor() and s.getFillColor().getValue():
-                shape['fillColor'] = rgb_int2css(s.getFillColor().getValue())
+                shape['fillColor'], shape['fillAlpha'] = rgb_int2css(s.getFillColor().getValue())
             if s.getStrokeColor() and s.getStrokeColor().getValue():
-                shape['strokeColor'] = rgb_int2css(s.getStrokeColor().getValue())
+                shape['strokeColor'], shape['strokeAlpha'] = rgb_int2css(s.getStrokeColor().getValue())
             if s.getStrokeWidth() and s.getStrokeWidth().getValue():
                 shape['strokeWidth'] = s.getStrokeWidth().getValue()
             shapes.append(shape)
