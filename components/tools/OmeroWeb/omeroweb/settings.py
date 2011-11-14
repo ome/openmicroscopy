@@ -195,14 +195,17 @@ for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
     except LeaveUnset:
         pass
 
+# TEMPLATE_DEBUG: A boolean that turns on/off template debug mode. If this is True, the fancy 
+# error page will display a detailed report for any TemplateSyntaxError. This report contains 
+# the relevant snippet of the template, with the appropriate line highlighted.
+# Note that Django only displays fancy error pages if DEBUG is True, alternatively error 
+# is handled by:
+#    handler404 = "omeroweb.feedback.views.handler404"
+#    handler500 = "omeroweb.feedback.views.handler500"
 TEMPLATE_DEBUG = DEBUG
 
-# Configure logging and set place to store logs.
-INTERNAL_IPS = ()
-LOGGING_LOG_SQL = False
-
+# DEBUG: Never deploy a site into production with DEBUG turned on.
 # Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
-
 if DEBUG:
     LOGLEVEL = logging.DEBUG
     logger.setLevel(LOGLEVEL)
@@ -217,48 +220,43 @@ for key in sorted(CUSTOM_SETTINGS_MAPPINGS):
     else:
         logger.debug("%s = '***' (source:%s)", global_name, source)
 
-
-###
-### BEGIN EMDB settings
-###
-try:
-    if USE_EMAN2:
-        logger.info("Using EMAN2...")
-        from EMAN2 import *
-except:
-    logger.info("Not using EMAN2...")
-    pass
-###
-### END EMDB settings
-###
-
 # Local time zone for this installation. Choices can be found here:
-# http://www.postgresql.org/docs/8.1/appmedia/omeroweb/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
+# http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
 # although not all variations may be possible on all operating systems.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
 TIME_ZONE = 'Europe/London'
 FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 
-# Language code for this installation. All choices can be found here:
-# http://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes
-# http://blogs.law.harvard.edu/tech/stories/storyReader$15
+# LANGUAGE_CODE: A string representing the language code for this installation. This should be
+# in standard language format. For example, U.S. English is "en-us".
 LANGUAGE_CODE = 'en-gb'
 
+# SITE_ID: The ID, as an integer, of the current site in the django_site database table. 
+# This is used so that application data can hook into specific site(s) and a single database 
+# can manage content for multiple sites.
 SITE_ID = 1
 
+# SECRET_KEY: A secret key for this particular Django installation. Used to provide a seed 
+# in secret-key hashing algorithms. Set this to a random string -- the longer, the better. 
+# django-admin.py startproject creates one automatically. 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '@@k%g#7=%4b6ib7yr1tloma&g0s2nni6ljf!m0h&x9c712c7yj'
 
-# If you set this to False, Django will make some optimizations so as not
-# to load the internationalization machinery.
+# USE_I18N: A boolean that specifies whether Django's internationalization system should be enabled. 
+# This provides an easy way to turn it off, for performance. If this is set to False, Django will
+# make some optimizations so as not to load the internationalization machinery.
 USE_I18N = True
 
+# MIDDLEWARE_CLASSES: A tuple of middleware classes to use. 
+# See https://docs.djangoproject.com/en/1.3/topics/http/middleware/.
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.doc.XViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
 )
+
 
 # ROOT_URLCONF: A string representing the full Python import path to your root URLconf. 
 # For example: "mydjangoapps.urls". Can be overridden on a per-request basis by setting
@@ -355,6 +353,8 @@ INSTALLED_APPS = (
     'omeroweb.webredirect',
 )
 
+# FEEDBACK_URL: Used in feedback.sendfeedback.SendFeedback class in order to submit 
+# error or comment messages to http://qa.openmicroscopy.org.uk.
 FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
 
 # IGNORABLE_404_STARTS: 
@@ -373,21 +373,32 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
 # SESSION_COOKIE_AGE: The age of session cookies, in seconds. See How to use sessions.
 SESSION_COOKIE_AGE = 86400 # 1 day in sec (86400)
 
-# file upload settings
+# FILE_UPLOAD_TEMP_DIR: The directory to store data temporarily while uploading files.
 FILE_UPLOAD_TEMP_DIR = tempfile.gettempdir()
-FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 #default 2621440
 
+# # FILE_UPLOAD_MAX_MEMORY_SIZE: The maximum size (in bytes) that an upload will be before it gets streamed 
+# to the file system.
+FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 #default 2621440 (i.e. 2.5 MB).
+
+# DEFAULT_IMG: Used in webclient.webclient_gateway.OmeroWebGateway.defaultThumbnail in order to load default
+# image while thumbnail can't be retrieved from the server.
 DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'common', 'static', 'image', 'image128.png').replace('\\','/')
+
+# # DEFAULT_USER: Used in webclient.webclient_gateway.OmeroWebGateway.getExperimenterDefaultPhoto in order to load default
+# avatar while experimenter photo can't be retrieved from the server.
 DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'common', 'static', 'image', 'personal32.png').replace('\\','/')
 
-# Pagination
+# PAGE: Used in varous locations where large number of data is retrieved from the server.
 try:
     PAGE
 except:
     PAGE = 200
 
+# SERVER_LIST: List of servers for login page. List is configurable by bin/omero config set omero.web.server_list ...
 SERVER_LIST = ServerObjects(SERVER_LIST)
 
+# MANAGERS: A tuple in the same format as ADMINS that specifies who should get broken-link notifications when 
+# SEND_BROKEN_LINK_EMAILS=True.
 MANAGERS = ADMINS
 
 EMAIL_TEMPLATES = {
@@ -408,3 +419,22 @@ EMAIL_TEMPLATES = {
         'text_content':'New comment is available on share %s/webclient/public/?server=%i.'
     }
 }
+
+###
+### OTHER APPLICATIONS:
+###
+
+
+###
+### BEGIN EMDB settings
+###
+try:
+    if USE_EMAN2:
+        logger.info("Using EMAN2...")
+        from EMAN2 import *
+except:
+    logger.info("Not using EMAN2...")
+    pass
+###
+### END EMDB settings
+###
