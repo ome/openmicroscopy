@@ -40,7 +40,6 @@ $.fn.roi_display = function(options) {
         
         // for keeping track of objects - E.g. de-select all. 
         var shape_objects = new Array();
-        var shape_default = {'fill-opacity':0.5, 'opacity':0.7, 'cursor':'default'}
         
         // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
         var paper = new ScaleRaphael(canvas_name, orig_width, orig_height);
@@ -177,7 +176,7 @@ $.fn.roi_display = function(options) {
                     }
                 } else {
                     if (s.type == 'text') {
-                        s.attr({'stroke': '#ffffff'});
+                        s.attr({'stroke': null});   // remove stroke
                     }
                 }
             }
@@ -275,7 +274,6 @@ $.fn.roi_display = function(options) {
                         var toolTip = get_tool_tip(shape);
                         // Add text - NB: text is not 'attached' to shape in any way. 
                         if (newShape != null) {
-                            newShape.attr(shape_default);   // sets fill, stroke etc. 
                             if (shape['type'] == 'PolyLine') {
                                 newShape.attr({'fill-opacity': 0});
                             }
@@ -283,6 +281,8 @@ $.fn.roi_display = function(options) {
                                 // Show text 
                                 if (shape['type'] == 'Label') {
                                     var txt = newShape; // if shape is label itself, use it
+                                    if (shape['strokeColor']) txt.attr({'fill': shape['strokeColor']}); // this is Insight's behavior
+                                    txt.attr({'stroke': null });
                                 } else if (roi_label_displayed) {
                                     // otherwise, add a new label in the centre of the shape.
                                     var bb = newShape.getBBox();
@@ -293,7 +293,7 @@ $.fn.roi_display = function(options) {
                                     var newY = (texty-txt.getBBox().height/2)+9;
                                     // moving the existing text to newY doesn't seem to work - instead, remove and draw a new one
                                     txt.remove();
-                                    txt = paper.text(textx, newY, formatShapeText(shape['textValue'])).attr({'cursor':'default'});
+                                    txt = paper.text(textx, newY, formatShapeText(shape['textValue'])).attr({'cursor':'default', 'fill': '#000'});
                                     txt_box = txt.getBBox();
                                     var txt_w = txt_box.width*1.3;
                                     var txt_h = txt_box.height*1.3;
@@ -305,33 +305,36 @@ $.fn.roi_display = function(options) {
                                     txt_bg.click(handle_shape_click);
                                     txt.id = shape['id'] + "_shape_text";
                                     txt.click(handle_shape_click);
-                                
-                                    var txtAttr = {'fill': '#000'};
-                                    //if (shape['strokeColor']) { txtAttr['fill'] = shape['strokeColor'] };
-                                    if (shape['fontFamily']) {  // model: serif, sans-serif, cursive, fantasy, monospace. #5072
-                                        // raphael supports all these exactly - so we can pass directly.
-                                        txtAttr['font-family'] = shape['fontFamily'];
-                                    }
-                                    if (shape['fontSize']) {
-                                        txtAttr['font-size'] = shape['fontSize'];
-                                    }
-                                    if (shape['fontStyle']) { // model: Normal, Italic, Bold, Bolditalic
-                                        var fs = shape['fontStyle'];
-                                        if ((fs == 'Bold') || (fs == 'BoldItalic')) {
-                                            txtAttr['font-weight'] = 'bold';
-                                        }
-                                        if ((fs == 'Italic') || (fs == 'BoldItalic')) {
-                                            txtAttr['font-style'] = 'italic';
-                                        }
-                                    }
-                                    txt.attr(txtAttr);
+                                    
+                                    // these shape attributes are not applied to text
+                                    if (shape['fillColor']) { newShape.attr({'fill': shape['fillColor']}); }
+                                    if (shape['strokeAlpha']) { newShape.attr({'opacity': shape['strokeAlpha']}); }
+                                    if (shape['fillAlpha']) { newShape.attr({'fill-opacity': shape['fillAlpha']})}
+                                    if (shape['strokeColor']) { newShape.attr({'stroke': shape['strokeColor']}); }
+                                    else { newShape.attr({'stroke': '#ffffff'}); }  // white is default
                                 }
+                                
+                                // handle other text-specific attributes...
+                                var txtAttr = {};
+                                if (shape['fontFamily']) {  // model: serif, sans-serif, cursive, fantasy, monospace. #5072
+                                    // raphael supports all these exactly - so we can pass directly.
+                                    txtAttr['font-family'] = shape['fontFamily'];
+                                }
+                                if (shape['fontSize']) {
+                                    txtAttr['font-size'] = shape['fontSize'];
+                                }
+                                if (shape['fontStyle']) { // model: Normal, Italic, Bold, Bolditalic
+                                    var fs = shape['fontStyle'];
+                                    if ((fs == 'Bold') || (fs == 'BoldItalic')) {
+                                        txtAttr['font-weight'] = 'bold';
+                                    }
+                                    if ((fs == 'Italic') || (fs == 'BoldItalic')) {
+                                        txtAttr['font-style'] = 'italic';
+                                    }
+                                }
+                                if (txt) txt.attr(txtAttr);
                             }
-                            if (shape['fillColor']) { newShape.attr({'fill': shape['fillColor']}); }
-                            if (shape['fillAlpha']) { newShape.attr({'fill-opacity': shape['fillAlpha']})}
-                            if (shape['strokeColor']) { newShape.attr({'stroke': shape['strokeColor']}); }
-                            if (shape['strokeAlpha']) { newShape.attr({'opacity': shape['strokeAlpha']}); }
-                            else { newShape.attr({'stroke': '#ffffff'}); }  // white is default
+                            newShape.attr({'cursor':'default'});
                             if (shape['strokeWidth']) { newShape.attr({'stroke-width': shape['strokeWidth']}); }
                             newShape.click(handle_shape_click);
                             newShape.attr({ title: toolTip });
