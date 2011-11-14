@@ -20,13 +20,14 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.fsimporter.chooser;
+package org.openmicroscopy.shoola.agents.util.browser;
 
 
 //Java imports
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -50,7 +51,7 @@ import pojos.ScreenData;
  * </small>
  * @since 3.0-Beta4
  */
-class DataNode
+public class DataNode
 {
 
 	/** The default text if no screen. */
@@ -74,6 +75,9 @@ class DataNode
 	/** The orphaned nodes. */
 	private List<DataNode> children;
 	
+	/** The children of the parent node */
+	private List<DataNode> uiChildren;
+	
 	/** The parent node. */
 	private DataNode parent;
 	
@@ -85,7 +89,7 @@ class DataNode
 	 * 
 	 * @return See above.
 	 */
-	static DatasetData createDefaultDataset()
+	public static DatasetData createDefaultDataset()
 	{
 		DatasetData d = new DatasetData();
 		d.setName(DEFAULT_DATASET);
@@ -97,7 +101,7 @@ class DataNode
 	 * 
 	 * @return See above.
 	 */
-	static ProjectData createDefaultProject()
+	public static ProjectData createDefaultProject()
 	{
 		ProjectData d = new ProjectData();
 		d.setName(DEFAULT_PROJECT);
@@ -109,7 +113,7 @@ class DataNode
 	 * 
 	 * @return See above.
 	 */
-	static ScreenData createDefaultScreen()
+	public static ScreenData createDefaultScreen()
 	{
 		ScreenData d = new ScreenData();
 		d.setName(DEFAULT_SCREEN);
@@ -121,7 +125,7 @@ class DataNode
 	 * 
 	 * @param data The data to host.
 	 */
-	DataNode(DataObject data)
+	public DataNode(DataObject data)
 	{
 		if (data == null)
 			throw new IllegalArgumentException("No Object specified.");
@@ -134,7 +138,7 @@ class DataNode
 	 * @param data The data to host.
 	 * @param parent The parent of the node.
 	 */
-	DataNode(DataObject data, DataNode parent)
+	public DataNode(DataObject data, DataNode parent)
 	{
 		if (data == null)
 			throw new IllegalArgumentException("No Object specified.");
@@ -142,19 +146,12 @@ class DataNode
 		this.parent = parent;
 	}
 	
-	/**
-	 * Sets the parent of the node.
-	 * 
-	 * @param parent The value to set.
-	 */
-	void setParent(DataNode parent) { this.parent = parent; }
-	
 	/** 
 	 * Creates a new instance. 
 	 * 
 	 * @param children The orphaned nodes.
 	 */
-	DataNode(List<DataNode> children)
+	public DataNode(List<DataNode> children)
 	{
 		orphanParent = true;
 		this.data = createDefaultProject();
@@ -162,11 +159,18 @@ class DataNode
 	}
 	
 	/**
+	 * Sets the parent of the node.
+	 * 
+	 * @param parent The value to set.
+	 */
+	public void setParent(DataNode parent) { this.parent = parent; }
+	
+	/**
 	 * Sets the data node.
 	 * 
 	 * @param data The data to reset.
 	 */
-	void setData(DataObject data)
+	public void setData(DataObject data)
 	{
 		this.data = data;
 	}
@@ -176,21 +180,21 @@ class DataNode
 	 * 
 	 * @param refNode The node of reference.
 	 */
-	void setRefNode(TreeImageDisplay refNode) { this.refNode = refNode; }
+	public void setRefNode(TreeImageDisplay refNode) { this.refNode = refNode; }
 	
 	/**
 	 * Returns the node of reference.
 	 * 
 	 * @return See above.
 	 */
-	TreeImageDisplay getRefNode() { return refNode; }
+	public TreeImageDisplay getRefNode() { return refNode; }
 	
 	/**
 	 * Returns the data object.
 	 * 
 	 * @return See above.
 	 */
-	DataObject getDataObject() { return data; }
+	public DataObject getDataObject() { return data; }
 	
 	/**
 	 * Returns <code>true</code> if the object corresponding to the passed 
@@ -199,7 +203,7 @@ class DataNode
 	 * @param name The name to handle.
 	 * @return See above.
 	 */
-	boolean isNewDataObject(String name)
+	public boolean isNewDataObject(String name)
 	{
 		if (orphanParent) return false;
 		return toString().equals(name) && data.getId() <= 0;
@@ -210,14 +214,14 @@ class DataNode
 	 * 
 	 * @return See above.
 	 */
-	List<DataNode> getNewNodes() { return newNodes; }
+	public List<DataNode> getNewNodes() { return newNodes; }
 	
 	/**
 	 * Adds the specified node.
 	 * 
 	 * @param node The node to add.
 	 */
-	void addNewNode(DataNode node)
+	public void addNewNode(DataNode node)
 	{
 		if (newNodes == null) newNodes = new ArrayList<DataNode>();
 		if (node != null) {
@@ -243,7 +247,7 @@ class DataNode
 	 * 
 	 * @return See above.
 	 */
-	List<DataNode> getDatasetNodes()
+	public List<DataNode> getDatasetNodes()
 	{
 		if (children != null) return children;
 		children = new ArrayList<DataNode>();
@@ -275,11 +279,36 @@ class DataNode
 	}
 
 	/**
+	 * Returns the list of nodes hosted.
+	 * 
+	 * @return See above.
+	 */
+	public List<DataNode> getUIDatasetNodes()
+	{
+		if (orphanParent) return children;
+		if (uiChildren != null) return uiChildren;
+		uiChildren = new ArrayList<DataNode>();
+		if (data instanceof ProjectData) {
+			ProjectData project= (ProjectData) data;
+			Set<DatasetData> datasets =project.getDatasets();
+			Iterator<DatasetData> i = datasets.iterator();
+			DataNode n;
+			while (i.hasNext()) {
+				n = new DataNode(i.next());
+				uiChildren.add(n);
+				n.parent = this;
+				uiChildren.add(n);
+			}
+		}
+		return uiChildren;
+	}
+	
+	/**
 	 * Adds the new node.
 	 * 
 	 * @param node The node to add.
 	 */
-	void addNode(DataNode node)
+	public void addNode(DataNode node)
 	{
 		if (node == null) return;
 		if (children == null) children = new ArrayList<DataNode>();
@@ -293,7 +322,7 @@ class DataNode
 	 *  
 	 * @return See above.
 	 */
-	boolean isDefaultNode()
+	public boolean isDefaultNode()
 	{
 		return (isDefaultProject() || isDefaultScreen() || isDefaultDataset());
 	}
@@ -304,7 +333,7 @@ class DataNode
 	 *  
 	 * @return See above.
 	 */
-	boolean isDefaultProject()
+	public boolean isDefaultProject()
 	{ 
 		return DEFAULT_PROJECT.equals(toString().trim());
 	}
@@ -315,7 +344,7 @@ class DataNode
 	 *  
 	 * @return See above.
 	 */
-	boolean isDefaultScreen()
+	public boolean isDefaultScreen()
 	{ 
 		return DEFAULT_SCREEN.equals(toString().trim());
 	}
@@ -326,7 +355,7 @@ class DataNode
 	 *  
 	 * @return See above.
 	 */
-	boolean isDefaultDataset()
+	public boolean isDefaultDataset()
 	{ 
 		return DEFAULT_DATASET.equals(toString().trim());
 	}
@@ -336,7 +365,7 @@ class DataNode
 	 * 
 	 * @return See above.
 	 */
-	DataNode getParent() { return parent; }
+	public DataNode getParent() { return parent; }
 	
 	/**
 	 * Overridden to set the name of the object.

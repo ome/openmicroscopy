@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -203,9 +204,8 @@ public class ExperimenterDataLoader
             				withImages, exp.getId(), viewer.getUserGroupID(), 
             				this);	
             	} else {
-            		List<Long> ids = new ArrayList<Long>(1);
-            		ids.add(Long.valueOf(parent.getUserObjectId()));
-            		handle = dmView.loadContainerHierarchy(rootNodeType, ids,
+            		handle = dmView.loadContainerHierarchy(rootNodeType,
+            				Arrays.asList(parent.getUserObjectId()),
             				withImages, exp.getId(), viewer.getUserGroupID(), 
             				this);
             	}

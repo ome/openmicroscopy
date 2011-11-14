@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.browser.DataNode;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ScreenData;

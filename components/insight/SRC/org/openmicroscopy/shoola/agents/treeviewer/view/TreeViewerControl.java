@@ -966,6 +966,13 @@ class TreeViewerControl
 		} else if (DataBrowser.REMOVE_ITEMS_PROPERTY.equals(name)) {
 			DeleteCmd cmd = new DeleteCmd(model.getSelectedBrowser());
 	        cmd.execute();
+		} else if (DataBrowser.VIEW_IMAGE_NODE_PROPERTY.equals(name)) {
+			//view.get
+			Browser browser = model.getSelectedBrowser();
+			if (browser != null) {
+				TreeImageDisplay node = browser.getLastSelectedDisplay();
+				model.browse(node, (DataObject) pce.getNewValue(), false);
+			}
 		} else if (Finder.RESULTS_FOUND_PROPERTY.equals(name)) {
 			model.setSearchResult(pce.getNewValue());
 		} else if (GenericDialog.SAVE_GENERIC_PROPERTY.equals(name)) {
