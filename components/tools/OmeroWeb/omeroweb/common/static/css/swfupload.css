@@ -142,7 +142,7 @@ a.progressCancel {
     display: block;
     height: 14px;
     width: 14px;
-    background-image: url(/appmedia/omeroweb/images/cancelbutton.gif);
+    background-image: url(/static/image/cancelbutton.gif);
     background-repeat: no-repeat;
     background-position: -14px 0px;
     float: right;

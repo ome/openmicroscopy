@@ -1,7 +1,8 @@
 {% load i18n %}
+{% load static %}
 {% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
+
+{% get_static_prefix as STATIC_PREFIX %}
 
 {% comment %}
 <!--
@@ -23,7 +24,7 @@
 -->
 {% endcomment %}
 
-<script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/actions.js"></script>
     
 <div class="clear"> </div>
 

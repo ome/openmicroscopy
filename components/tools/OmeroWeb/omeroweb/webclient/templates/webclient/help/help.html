@@ -1,7 +1,9 @@
 {% extends "webclient/base/base.html" %}
 {% load i18n %}
+{% load static %}
 {% load markup %}
-{% load custom_tags %}
+
+{% get_static_prefix as STATIC_PREFIX %}
 
 {% comment %}
 <!--
@@ -24,7 +26,7 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/help.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/help.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
@@ -42,7 +44,7 @@
                 $('iframe#help_search').load();
                 
                 $("#right_panel").show();
-                $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                $("#swapMeta").html('<img tabindex="0" src="{{ STATIC_PREFIX }}image/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
                 
         })
     </script>
@@ -501,7 +503,7 @@
                 Use the calendar on the web client to browse your recent imports and other activity.
             </div>
             <div class="feature-link">
-                <a target="_blank" href="http://www.openmicroscopy.org.uk/site/products/feature-list/images/web_calendar.jpg/image_view_fullscreen">View screenshot</a>
+                <a target="_blank" href="http://www.openmicroscopy.org.uk/site/products/feature-list/image/web_calendar.jpg/image_view_fullscreen">View screenshot</a>
             </div>
         </div>
     </div>

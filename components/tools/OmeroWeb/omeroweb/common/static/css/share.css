@@ -23,7 +23,7 @@
     margin-top: -20px;
 }
 #comment {
-    background:transparent url(/appmedia/omeroweb/images/comment/comment_repeater.png) repeat-y scroll 0 0;
+    background:transparent url(/static/image/comment/comment_repeater.png) repeat-y scroll 0 0;
     width:590px;
     margin-left:50px;
 }
@@ -31,7 +31,7 @@
     font-size: 11px;
     font-style: normal;
     font-weight: bold;
-    background:transparent url(/appmedia/omeroweb/images/comment/comment_cap.png) no-repeat scroll 0 0;
+    background:transparent url(/static/image/comment/comment_cap.png) no-repeat scroll 0 0;
     height:15px;
     margin-bottom:-15px;
     padding: 10px 0 0 20px;
@@ -50,7 +50,7 @@
     margin:20px 20px;
 }
 #comment .footer {
-    background:transparent url(/appmedia/omeroweb/images/comment/comment_foot.png) no-repeat scroll 0 0;
+    background:transparent url(/static/image/comment/comment_foot.png) no-repeat scroll 0 0;
     height:45px;
     margin-top:-30px;
 }
@@ -64,14 +64,14 @@
     float: right;
 }
 #comment_rev {
-    background:transparent url(/appmedia/omeroweb/images/comment/comment_repeater_rev.png) repeat-y scroll 0 0;
+    background:transparent url(/static/image/comment/comment_repeater_rev.png) repeat-y scroll 0 0;
     width:590px;
 }
 #comment_rev .head {
     font-size: 11px;
     font-style: normal;
     font-weight: bold;
-    background:transparent url(/appmedia/omeroweb/images/comment/comment_cap_rev.png) no-repeat scroll 0 0;
+    background:transparent url(/static/image/comment/comment_cap_rev.png) no-repeat scroll 0 0;
     height:37px;
     margin-bottom:-37px;
     padding: 10px 0 0 20px;
@@ -90,7 +90,7 @@
     margin:20px 20px;
 }
 #comment_rev .footer {
-    background:transparent url(/appmedia/omeroweb/images/comment/comment_foot_rev.png) no-repeat scroll 0 0;
+    background:transparent url(/static/image/comment/comment_foot_rev.png) no-repeat scroll 0 0;
     height:45px;
     margin-top:-30px;
 }

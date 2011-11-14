@@ -17,21 +17,21 @@
     float: left; 
 }
 .small_label { 
-    background: url(/appmedia/omeroweb/images/minus.png) no-repeat; 
+    background: url(/static/image/minus.png) no-repeat; 
     height: 19px; 
     width: 19px; 
     overflow: hidden; 
     float: left; 
 } 
 .large_label { 
-    background: url(/appmedia/omeroweb/images/plus.png) no-repeat; 
+    background: url(/static/image/plus.png) no-repeat; 
     height: 19px; 
     width: 19px; 
     overflow: hidden; 
     float: left; 
 } 
 .slider_bar { 
-    background: url(/appmedia/omeroweb/images/bar.png) no-repeat; 
+    background: url(/static/image/bar.png) no-repeat; 
     height: 19px; 
     width: 100px;  
     float: left; 
@@ -39,7 +39,7 @@
     position: relative;
 } 
 .slider_handle { 
-    background: url(/appmedia/omeroweb/images/selector.png) no-repeat; 
+    background: url(/static/image/selector.png) no-repeat; 
     height: 19px; 
     width: 20px; 
     overflow: hidden; 

@@ -19,7 +19,7 @@ body {
     margin: 0;
     padding: 0;
     min-width: 1010px;
-    background: #ffffff url(/appmedia/omeroweb/images/background.png) repeat-x top left ;
+    background: #ffffff url(/static/image/background.png) repeat-x top left ;
     border-bottom: 1px solid #bbb;
 }
 body.zoom {
@@ -149,7 +149,7 @@ table.contentWrapper {
     margin: 0;
     height: 90px;
     width: 160px;
-    background: url(/appmedia/omeroweb/images/logo.png) no-repeat bottom left ;
+    background: url(/static/image/logo.png) no-repeat bottom left ;
     top: 0;
     left: 25px;
 }
@@ -159,10 +159,10 @@ table.contentWrapper {
 }
 
 .collapsibletrayhandle-right {
-    background:#F3F3F3 url(/appmedia/omeroweb/images/tray_right_shadow.png) repeat-y scroll left top;
+    background:#F3F3F3 url(/static/image/tray_right_shadow.png) repeat-y scroll left top;
 }
 .collapsibletrayhandle-left {
-    background:#fff url(/appmedia/omeroweb/images/tray_left_shadow.png) repeat-y scroll left top;
+    background:#fff url(/static/image/tray_left_shadow.png) repeat-y scroll left top;
 }
 .trayhandle {
     background-color:#F3F3F3;
@@ -189,22 +189,22 @@ table.contentWrapper {
 }
 
 .expanded-left {
-    background:transparent url(/appmedia/omeroweb/images/tray_left_button.png) no-repeat scroll;
+    background:transparent url(/static/image/tray_left_button.png) no-repeat scroll;
     height:24px;
     width:16px;
 }
 .expanded-right {
-    background:transparent url(/appmedia/omeroweb/images/tray_right_button.png) no-repeat scroll;
+    background:transparent url(/static/image/tray_right_button.png) no-repeat scroll;
     height:24px;
     width:16px;
 }
 .collapsed-left {
-    background:transparent url(/appmedia/omeroweb/images/tray_left_expand_button.png) no-repeat scroll;
+    background:transparent url(/static/image/tray_left_expand_button.png) no-repeat scroll;
     height:24px;
     width:16px;
 }
 .collapsed-right {
-    background:transparent url(/appmedia/omeroweb/images/tray_right_expand_button.png) no-repeat scroll;
+    background:transparent url(/static/image/tray_right_expand_button.png) no-repeat scroll;
     height:24px;
     width:16px;
 }

@@ -34,7 +34,7 @@
     width:100%;
 }
 
-.TB_overlayMacFFBGHack {background: url(/appmedia/omeroweb/images/macFFBgHack.png) repeat;}
+.TB_overlayMacFFBGHack {background: url(/static/image/macFFBgHack.png) repeat;}
 .TB_overlayBG {
     background-color:#000;
     filter:alpha(opacity=75);

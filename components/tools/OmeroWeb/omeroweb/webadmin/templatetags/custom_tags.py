@@ -102,6 +102,24 @@ def get_static_webadmin_prefix(parser, token):
     return PrefixNode.handle_token(parser, token, "STATIC_WEBADMIN_URL")
 
 @register.tag()
+def get_static_webclient_prefix(parser, token):
+    """
+    Populates a template variable with the static prefix,
+    ``settings.WEBCLIENT_STATIC_URL``.
+
+    Usage::
+
+        {% get_static_webclient_prefix [as varname] %}
+
+    Examples::
+
+        {% get_static_webclient_prefix %}
+        {% get_static_webclient_prefix as STATIC_WEBCLIENT_PREFIX %}
+
+    """
+    return PrefixNode.handle_token(parser, token, "STATIC_WEBCLIENT_URL")
+
+@register.tag()
 def get_static_feedback_prefix(parser, token):
     """
     Populates a template variable with the static prefix,

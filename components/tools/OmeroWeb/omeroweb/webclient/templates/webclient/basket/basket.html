@@ -1,7 +1,10 @@
 {% extends "webclient/base/base.html" %}
 {% load i18n %}
+{% load static %}
 {% load markup %}
-{% load custom_tags %}
+{% load custom_filters %}
+
+{% get_static_prefix as STATIC_PREFIX %}
 
 {% comment %}
 <!--
@@ -24,20 +27,20 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/table.css" type="text/css" media="screen"/>
     
 {% endblock %}
 
 {% block jscript %}
     
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.tablesorter.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.quicksearch.js"></script>
 
 {% endblock %}
 
 {% block script %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/actions.js"></script>
     
     <script type="text/javascript">
         var isCheckedById = function(name) { 
@@ -84,7 +87,7 @@
             $("div#metadata_details iframe").attr('height', h+31);
             $("div#content_details").css('height', h+31);
             $("#right_panel").show();
-            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+            $("#swapMeta").html('<img tabindex="0" src="{{ STATIC_PREFIX }}image/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
             
             
             $("table#dataTable tbody").selectable({
@@ -95,10 +98,10 @@
                         this.checked = true;
                     });
                     if (l == 1) {
-                        $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% url webstatic "images/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare();"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
+                        $("#toolbar").html('<input class="button" type="image" src="{{ STATIC_PREFIX }}image/reload16.png" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{{ STATIC_PREFIX }}image/folder_html16.png" alt="New share" title="New share" onclick="makeShare();"> <input class="button" type="image" src="{{ STATIC_PREFIX }}image/wp_protocol16.png" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{{ STATIC_PREFIX }}image/cut16.png" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{{ STATIC_PREFIX }}image/reset.png" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
                         loadMetadataPanel('/webclient/metadata_details/image/'+$("tr.ui-selected td input", this).first().attr("id")+'/');
                     } else {
-                        $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% url webstatic "images/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare();"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
+                        $("#toolbar").html('<input class="button" type="image" src="{{ STATIC_PREFIX }}image/reload16.png" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{{ STATIC_PREFIX }}image/folder_html16.png" alt="New share" title="New share" onclick="makeShare();"> <input class="button" type="image" src="{{ STATIC_PREFIX }}image/wp_protocol16.png" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{{ STATIC_PREFIX }}image/cut16.png" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{{ STATIC_PREFIX }}image/reset.png" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
                         loadMetadataPanel(null, ('<p>'+ l +' elements selected.</p>'));
                     }
                 },
@@ -127,11 +130,11 @@
     {% if basket.sizeOfBasket %}
 
         <div id="toolbar" class="toolbar_noborder">
-            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url basket_action %}';"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="Discuss" title="Discuss" onclick="makeDiscussion();"/> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href='{% url empty_basket %}';">
+            <input class="button" type="image" src="{{ STATIC_PREFIX }}image/reload16.png" alt="Refresh" title="Refresh" onclick="document.location.href='{% url basket_action %}';"> <input class="button" type="image" src="{{ STATIC_PREFIX }}image/wp_protocol16.png" alt="Discuss" title="Discuss" onclick="makeDiscussion();"/> <input class="button" type="image" src="{{ STATIC_PREFIX }}image/reset.png" alt="Clean" title="Clean" onclick="document.location.href='{% url empty_basket %}';">
         </div>
         <div class="clear"> </div>
 
-        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
+        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{{ STATIC_PREFIX }}image/spinner.gif"></span></form>
 
         <table id="dataTable" class="tablesorter">
             <thead> 
@@ -146,9 +149,9 @@
                     <tr id="{{ c.id }}">
                         <td class="action">
                             <img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
-                            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">      
+                            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
                         </td>
-                        <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                        <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{{ STATIC_PREFIX }}image/knotes16.png" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{{ STATIC_PREFIX }}image/kgpg12.png" alt="l" title="locked"/>{% endif %}</td>
                         <td class="roles">{{ c.getDate }}</td>                    
                     </tr>
                 {% endfor %}
@@ -172,7 +175,7 @@
             {% if not basket.sizeOfBasket %}
                 {% trans "Your basket is empty. Please add some of your bio-data from" %} <a href="{% url load_template "userdata" %}">{% trans "Data" %}</a> {% trans "or initiate a discussion." %}
             {% else %}
-                <p><img class="loader" alt="Loading" src="{% url webstatic "help/images/basket1.gif" %}"></p>
+                <p><img class="loader" alt="Loading" src="{{ STATIC_PREFIX }}help/image/basket1.gif"></p>
                 {% trans "Now you can manage items from your basket by selecting them and then clicking the button on the toolbar. To select more then one item just click and move mouse over them or use CTRL key and select each individual. Selected items are market by gray." %}
             {% endif %}
         </p></div>

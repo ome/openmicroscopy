@@ -1,8 +1,9 @@
 {% extends "webclient/base/base_container.html" %}
 {% load i18n %}
+{% load static %}
 {% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
+
+{% get_static_prefix as STATIC_PREFIX %}
 
 {% comment %}
 <!--
@@ -25,22 +26,22 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/container.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/images.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/tooltip.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/table.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.tooltip.js"></script>
     
     
 {% endblock %}
 
 {% block script %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/actions.js"></script>
     
     <script type="text/javascript">
         $(document).ready(function() 
@@ -97,7 +98,7 @@
                             url = this.value+"=on";
                         }
                     });
-                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{{ STATIC_PREFIX }}image/spinner.gif"/></p>');
                     $("div#content_details").load('{% url load_searching "form" %}?'+url);
                     return false;
                 });
@@ -118,7 +119,7 @@
                         }
                     }
                     var data = $("#batch_searching_form").serialize();
-                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{{ STATIC_PREFIX }}image/spinner.gif"/></p>');
                     $("div#content_details").load('{% url load_searching %}', data);
                     return false;
                 });
@@ -140,9 +141,9 @@
         <table>
             <tr><th>{% trans "Search for" %} *:</th><td><input class="search" type="text" name="query" value="{{ manager.criteria.query }}" size="35"/>  <span id="searching" title="Searching - <small>Performs a single character wildcard search use the <b>'?'</b> symbol. The single character wildcard search looks for terms that match that with the single character replaced. To perform a multiple character wildcard search use the <b>'*'</b> symbol. <br/><br/>
             For example, to search for <i>'text'</i> or <i>'test'</i> you can use the search: <b>'te?t'
-    </b>. Multiple character wildcard searches looks for 0 or more characters. For example, to search for <i>'test'</i>, <i>'tests'</i> or <i>'tester'</i>, you can use the search: <b>'test*'</b>. You can also use the wildcard searches in the middle or the beginning of a term.</small>"><img src="{% url webstatic "images/help16.png" %}" /></span></td></tr>
+    </b>. Multiple character wildcard searches looks for 0 or more characters. For example, to search for <i>'test'</i>, <i>'tests'</i> or <i>'tester'</i>, you can use the search: <b>'test*'</b>. You can also use the wildcard searches in the middle or the beginning of a term.</small>"><img src="{{ STATIC_PREFIX }}image/help16.png" /></span></td></tr>
             <!--<tr><th>by date:</th><td><input type="text" id="dateinput" name="date" value="" size="15"/></td></tr>-->
-            <tr><th>{% trans "Date" %}:</th><td><input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ manager.criteria.period }}" size="25"/> <span id="daterange" title="Date - <small>Enables you to specify the one particular date or range of the creation data. To select the range, separate them by '_'. If you want to change the date click on the field again and pick the date.</small>"><img src="{% url webstatic "images/help16.png" %}" /></span></td></tr>
+            <tr><th>{% trans "Date" %}:</th><td><input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ manager.criteria.period }}" size="25"/> <span id="daterange" title="Date - <small>Enables you to specify the one particular date or range of the creation data. To select the range, separate them by '_'. If you want to change the date click on the field again and pick the date.</small>"><img src="{{ STATIC_PREFIX }}image/help16.png" /></span></td></tr>
             <tr><th>{% trans "In" %} *:</th><td>
                 <ul class="criteria">
                     <li><input type="checkbox" name="datatype" value="images" CHECKED />{% trans "Images" %}</li>
@@ -170,7 +171,7 @@
     +</small><b>Example search:</b><small><pre>
     +Foo    0    0
     +Bar    2    3
-    +</pre> The above searches for images in two wells. The first well is located in row 0, column 0 (=well A01) of a plate with name Foo. The second well is located in row 2, column 3 (=well C04) of a plate with name Bar.</small>"><img src="{% url webstatic "images/help16.png" %}" /></span></td>
+    +</pre> The above searches for images in two wells. The first well is located in row 0, column 0 (=well A01) of a plate with name Foo. The second well is located in row 2, column 3 (=well C04) of a plate with name Bar.</small>"><img src="{{ STATIC_PREFIX }}image/help16.png" /></span></td>
         </table>
         {% trans "Delimiter:" %}
         <input type="radio" name="delimiter" value="," />{% trans "comma (,)"  %} <input type="radio" name="delimiter" value=";" />{% trans "semi-colon (;)" %} <input type="radio" name="delimiter" value="\t" checked="yes" />{% trans "horizontal tab" %} <input type="radio" name="delimiter" value="|" />{% trans "vertical bar (|)" %}

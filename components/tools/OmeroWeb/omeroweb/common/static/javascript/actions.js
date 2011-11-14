@@ -95,7 +95,7 @@ var loadOtherPanels = function(inst, prefix) {
         }
         
         if (cm_var.content_details.rel!==null && cm_var.content_details.url!==null){
-            $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
+            $("div#content_details").html('<p>Loading data... please wait <img src ="/static/image/spinner.gif"/></p>');
             $("div#content_details").attr('rel', cm_var.content_details.rel);
             $("div#content_details").load(cm_var.content_details.url, function() {
                 syncPanels(selected);
@@ -182,7 +182,7 @@ var loadMetadataPanel = function(src, html) {
     var description = $("div#metadata_description");
 
     $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+    $("#swapMeta").html('<img tabindex="0" src="/static/image/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">');
 
     if (src!=null) {
         description.hide();
@@ -215,22 +215,22 @@ var refreshCenterPanel = function() {
     
     if (typeof rel!=="undefined") {
         if (rel.indexOf("orphaned")>=0) {
-            $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
+            $("div#content_details").html('<p>Loading data... please wait <img src ="/static/image/spinner.gif"/></p>');
             url = '/webclient/load_data/'+rel.split('-')[0]+'/';
         } else if (rel.indexOf("share")>=0) {
-            $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
+            $("div#content_details").html('<p>Loading data... please wait <img src ="/static/image/spinner.gif"/></p>');
             url = '/webclient/load_public/'+rel.split('-')[1]+'/';
         } else if(rel.indexOf('tag')>=0) {
-            $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
+            $("div#content_details").html('<p>Loading data... please wait <img src="/static/image/spinner.gif"/></p>');
             url = '/webclient/load_tags/tag/'+rel.split('-')[1]+'/';
         } else {
-            $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
+            $("div#content_details").html('<p>Loading data... please wait <img src ="/static/image/spinner.gif"/></p>');
             url = '/webclient/load_data/'+rel.replace('-', '/')+'/';
         }
         
         var view = $("div#content_details").find("#toolbar").attr('rel') ? $("div#content_details").find("#toolbar").attr('rel') : "icon";
         
-        $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
+        $("div#content_details").html('<p>Loading data... please wait <img src ="/static/image/spinner.gif"/></p>');
         url = url+'?view='+view
         if (page!=null && page > 0) {
             url = url+"&page="+page;
@@ -245,16 +245,16 @@ function changeView(view, page) {
     if(rel.indexOf('orphaned')>=0) {
         url = '/webclient/load_data/orphaned/?view='+view;
     } else if(rel.indexOf('tag')>=0) {
-        $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
+        $("div#content_details").html('<p>Loading data... please wait <img src="/static/image/spinner.gif"/></p>');
         url = '/webclient/load_tags/tag/'+rel[1]+'/?view='+view;
     } else {
-        $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
+        $("div#content_details").html('<p>Loading data... please wait <img src="/static/image/spinner.gif"/></p>');
         url = '/webclient/load_data/dataset/'+rel[1]+'/?view='+view;
     }
     if (page!=null && page > 0) {
         url = url+"&page="+page;
     }
-    $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
+    $("div#content_details").html('<p>Loading data... please wait <img src="/static/image/spinner.gif"/></p>');
     $("div#content_details").load(url);
     return false;
 };
@@ -263,7 +263,7 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
     if (image_id == null) {
         alert("No image selected.")
     } else {
-        $($('#id_'+metadata_type).parent()).append('<img src="/appmedia/omeroweb/images/spinner.gif"/>');
+        $($('#id_'+metadata_type).parent()).append('<img src="/static/image/spinner.gif"/>');
         $.ajax({
             type: "POST",
             url: "/webclient/metadata/image/"+image_id+"/", //this.href,
@@ -283,7 +283,7 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
 
 function doPagination(view, page) {
     var rel = $("div#content_details").attr('rel').split("-");
-    $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/spinner.gif"/></p>');
+    $("div#content_details").html('<p>Loading data... please wait <img src="/static/image/spinner.gif"/></p>');
     $("div#content_details").load('/webclient/load_data/'+rel[0]+'/'+rel[1]+'/?view='+view+'&page='+page, function() {
         $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
         if(rel[0].indexOf("orphaned")<0) {
@@ -325,7 +325,7 @@ function makeDiscussion() {
 function loadMetadata(src) {
     var h = $(window).height()-200;
     $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+    $("#swapMeta").html('<img tabindex="0" src="/static/image/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
     $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details" frameborder="0"></iframe>');
     $('iframe#metadata_details').load();
 }

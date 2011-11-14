@@ -1,7 +1,9 @@
 {% extends "webclient/base/base.html" %}
 {% load i18n %}
+{% load static %}
 {% load markup %}
-{% load custom_tags %}
+
+{% get_static_prefix as STATIC_PREFIX %}
 
 {% comment %}
 <!--
@@ -24,17 +26,17 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/myaccount.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/table.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/myaccount.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.tablesorter.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.quicksearch.js"></script>
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/menu.js"></script>
     
     
     <script type="text/javascript">
@@ -46,7 +48,7 @@
                 $("div#avatar iframe").attr('height', h+31);
                 
                 $("#right_panel").show();
-                $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                $("#swapMeta").html('<img tabindex="0" src="{{ STATIC_PREFIX }}image/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
                 
                 $("#groupTable").tablesorter( {sortList: [[1,0]]} ); 
 
@@ -88,7 +90,7 @@
     <div>
         <h1>{% trans "Owned Groups" %}</h1><br/>
 
-        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
+        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{{ STATIC_PREFIX }}image/spinner.gif"></span></form>
 
         <table id="groupTable" class="tablesorter">
             <thead> 
@@ -104,7 +106,7 @@
                 <tr>
                     <td class="action">
                         {% if not dict.locked %}
-                            <a href="{% url wamanagegroupownerid "edit" dict.group.id %}"><img src="{% url webstatic "images/edit.png" %}" alt="edit" title="edit"></a>
+                            <a href="{% url wamanagegroupownerid "edit" dict.group.id %}"><img src="{{ STATIC_PREFIX }}image/edit.png" alt="edit" title="edit"></a>
                         {% endif %}                    
                     </td>
                     <td class="link">{{ dict.group.name }}</td>

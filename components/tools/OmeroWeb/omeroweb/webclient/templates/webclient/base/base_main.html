@@ -1,6 +1,9 @@
 {% load i18n %}
+{% load static %}
 {% load markup %}
-{% load custom_tags %}
+
+{% get_static_prefix as STATIC_PREFIX %}
+
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -27,24 +30,24 @@
 {% endcomment %}
 
 <head>
-    <link rel="stylesheet" href="{% url webstatic "css/layout.css" %}" type="text/css" />
-    <link rel="stylesheet" href="{% url webstatic "css/menu.css" %}" type="text/css" />
-    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/ui-1.8.12.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/layout.css" type="text/css" />
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/menu.css" type="text/css" />
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/images.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/ui-1.8.12.css" type="text/css" media="screen"/>
     
     {% block link %}{% endblock %}
 
-    <link rel="shortcut icon" href="{% url webstatic "images/ome.ico" %}" type="image/x-icon" />
+    <link rel="shortcut icon" href="{{ STATIC_PREFIX }}image/ome.ico" type="image/x-icon" />
 
     <title>{% trans "Webclient" %} {% block title %}{% endblock %}</title>
 
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/jquery-ui-1.8.12.custom.min.js" %}"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery_1.4.2.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/ui/jquery-ui-1.8.12.custom.min.js"></script>
     {% block jscript %}{% endblock %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/nav.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/popup.js" %}"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/menu.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/nav.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/popup.js"></script>
     <script type="text/javascript">
     {% if nav.error %}
         alert("{{ nav.error }}");

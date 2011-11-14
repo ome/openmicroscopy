@@ -562,7 +562,7 @@ GoogieSpell.prototype.showErrorWindow = function(elm, id) {
         };
         onsub = AJS.$b(onsub, this);
         
-        var ok_pic = AJS.IMG({'src': '/appmedia/omeroweb/images/googiespell/ok.gif', 'style': 'width: 32px; height: 16px; margin-left: 2px; margin-right: 2px; cursor: pointer;'});
+        var ok_pic = AJS.IMG({'src': '/static/image/googiespell/ok.gif', 'style': 'width: 32px; height: 16px; margin-left: 2px; margin-right: 2px; cursor: pointer;'});
         var edit_form = AJS.FORM({'style': 'margin: 0; padding: 0; cursor: default;'}, edit_input, ok_pic);
 
         edit_form.googie_action_btn = "1";
@@ -932,7 +932,7 @@ GoogieSpell.prototype.showLangWindow = function(elm, ofst_top, ofst_left) {
 }
 
 GoogieSpell.prototype.createChangeLangPic = function() {
-    var img = AJS.IMG({'src': '/appmedia/omeroweb/images/googiespell/change_lang.gif', 'alt': "Change language"});
+    var img = AJS.IMG({'src': '/static/image/googiespell/change_lang.gif', 'alt': "Change language"});
     img.googie_action_btn = "1";
     var switch_lan = AJS.SPAN({'class': 'googie_lang_3d_on', 'style': 'padding-left: 6px;'}, img);
 
@@ -960,7 +960,7 @@ GoogieSpell.prototype.createSpellDiv = function() {
     chk_spell.innerHTML = this.lang_chck_spell;
     var spell_img = null;
     if(this.show_spell_img)
-        spell_img = AJS.IMG({'src': '/appmedia/omeroweb/images/googiespell/spellc.gif'});
+        spell_img = AJS.IMG({'src': '/static/image/googiespell/spellc.gif'});
     return AJS.SPAN(spell_img, " ", chk_spell);
 }
 
@@ -986,7 +986,7 @@ GoogieSpell.prototype.flashNoSpellingErrorState = function(on_finish) {
     if(this.main_controller) {
         AJS.hideElement(this.switch_lan_pic);
 
-        var dummy = AJS.IMG({'src': '/appmedia/omeroweb/images/googiespell/blank.gif', 'style': 'height: 16px; width: 1px;'});
+        var dummy = AJS.IMG({'src': '/static/image/googiespell/blank.gif', 'style': 'height: 16px; width: 1px;'});
         var rsm = AJS.SPAN();
         rsm.innerHTML = this.lang_no_error_found;
 
@@ -1006,7 +1006,7 @@ GoogieSpell.prototype.resumeEditingState = function() {
     //Change link text to resume
     if(this.main_controller) {
         AJS.hideElement(this.switch_lan_pic);
-        var dummy = AJS.IMG({'src': '/appmedia/omeroweb/images/googiespell/blank.gif', 'style': 'height: 16px; width: 1px;'});
+        var dummy = AJS.IMG({'src': '/static/image/googiespell/blank.gif', 'style': 'height: 16px; width: 1px;'});
         var rsm = AJS.SPAN();
         rsm.innerHTML = this.lang_rsm_edt;
         AJS.RCN(this.spell_span, AJS.SPAN(dummy, rsm));
@@ -1103,7 +1103,7 @@ GoogieSpell.prototype.removeIndicator = function(elm) {
 }
 
 GoogieSpell.prototype.appendIndicator = function(elm) {
-    var img = AJS.IMG({'src': '/appmedia/omeroweb/images/googiespell/indicator.gif', 'style': 'margin-right: 5px;'});
+    var img = AJS.IMG({'src': '/static/image/googiespell/indicator.gif', 'style': 'margin-right: 5px;'});
     AJS.setWidth(img, 16);
     AJS.setHeight(img, 16);
     this.indicator = img;

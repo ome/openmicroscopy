@@ -1,8 +1,9 @@
 {% extends "webclient/base/base_frame.html" %}
 {% load i18n %}
+{% load static %}
 {% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
+
+{% get_static_prefix as STATIC_PREFIX %}
 
 {% comment %}
 <!--
@@ -25,20 +26,20 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/share.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/share.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/googiespell.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/tooltip.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
     
     
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.tooltip.js"></script>
 
     
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/googiespell/AJS.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/googiespell/googiespell.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/googiespell/cookiesupport.js"></script>
 {% endblock %}
 
 {% block script %}    

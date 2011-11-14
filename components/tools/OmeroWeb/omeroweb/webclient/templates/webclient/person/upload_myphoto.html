@@ -1,7 +1,10 @@
 {% extends "webclient/base/base_frame.html" %}
 {% load i18n %}
+{% load static %}
 {% load markup %}
-{% load custom_tags %}
+
+{% get_static_prefix as STATIC_PREFIX %}
+
 
 {% comment %}
 <!--
@@ -24,15 +27,15 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href='{% url webstatic "css/myaccount.css" %}' type="text/css" media="screen"/>
+    <link rel="stylesheet" href='{{ STATIC_PREFIX }}css/myaccount.css' type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.imgareaselect.js" %}"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.imgareaselect.js"></script>
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/menu.js"></script>
     
     {% if nav.edit_mode %}
     <script type="text/javascript">

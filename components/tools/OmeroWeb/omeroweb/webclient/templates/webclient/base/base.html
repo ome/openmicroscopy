@@ -1,7 +1,9 @@
 {% extends "webclient/base/base_main.html" %}
 {% load i18n %}
+{% load static %}
 {% load markup %}
-{% load custom_tags %}
+
+{% get_static_prefix as STATIC_PREFIX %}
 
 {% comment %}
 <!--
@@ -36,7 +38,7 @@
     <tr>
         <td id="center_panel">{% block center %}{% endblock %}</td>
         <td class="trayhandle collapsibletrayhandle-right">
-            <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="expanded-right" src="{% url webstatic "images/spacer.gif" %}" tabindex="0"></div>
+            <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="expanded-right" src="{{ STATIC_PREFIX }}image/spacer.gif" tabindex="0"></div>
         </td>
         <td id="right_panel">{% block right %}{% endblock %}</td>
     </tr>
