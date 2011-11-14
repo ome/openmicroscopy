@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package integration;
+package coverage;
 
 //Java imports
 import java.awt.Color;
