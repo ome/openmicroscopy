@@ -193,6 +193,8 @@ public interface DataBrowser
 	public static final String		OPEN_EXTERNAL_APPLICATION_PROPERTY = 
 		"openExternalApplication";
 
+	/** Bound property indicating to view the image node. */
+	public static final String		VIEW_IMAGE_NODE_PROPERTY = "viewImageNode";
 	
 	/** Indicates to lay out the nodes as thumbnails. */
 	public static final int			THUMBNAIL_VIEW = 0;
@@ -690,4 +692,10 @@ public interface DataBrowser
 	/** Lays out the nodes.*/
 	void layoutDisplay();
 	
+	/**
+	 * Views the passed node if supported.
+	 * 
+	 * @param node The node to handle.
+	 */
+	void viewDisplay(ImageDisplay node);
 }

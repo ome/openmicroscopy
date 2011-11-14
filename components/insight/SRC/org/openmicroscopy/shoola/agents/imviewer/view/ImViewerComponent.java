@@ -199,7 +199,8 @@ class ImViewerComponent
 	private void showProjectionDialog()
 	{
 		if (projDialog == null) {
-			projDialog = new ProjSavingDialog(view);
+			projDialog = new ProjSavingDialog(view, model.getParent(), 
+					model.getGrandParent());
 			projDialog.initialize(view.getProjectionType(), model.getMaxT()+1, 
 					model.getPixelsType(), model.getImageName(), 
 					model.getContainers(), model.getMaxZ()+1, 

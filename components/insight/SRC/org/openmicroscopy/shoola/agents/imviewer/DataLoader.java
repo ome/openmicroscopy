@@ -35,6 +35,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
+import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -83,6 +84,9 @@ public abstract class DataLoader
     /** Convenience reference for subclasses. */
     protected final MetadataHandlerView		mhView;
     
+    /** Convenience reference for subclasses. */
+    protected final DataManagerView        dmView;
+    
     /**
      * Creates a new instance.
      * 
@@ -100,6 +104,8 @@ public abstract class DataLoader
 					registry.getDataServicesView(DataHandlerView.class);
         mhView = (MetadataHandlerView) 
 					registry.getDataServicesView(MetadataHandlerView.class);
+        dmView = (DataManagerView) 
+		registry.getDataServicesView(DataManagerView.class);
     }
     
 	/**

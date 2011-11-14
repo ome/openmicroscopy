@@ -56,6 +56,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -66,6 +68,7 @@ import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -1470,6 +1473,44 @@ class DataBrowserComponent
 	{
 		if (model instanceof WellsModel) return;
 		model.layoutBrowser(model.getLayoutIndex());
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#viewDisplay(ImageDisplay)
+	 */
+	public void viewDisplay(ImageDisplay node)
+	{
+		if (!(node instanceof ImageNode)) return;
+		EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
+		DataObject data = null;
+		Object uo = node.getHierarchyObject();
+		ViewImage event;
+		Object go;
+		ViewImageObject object;
+		if (uo instanceof ImageData) {
+			/*
+			object = new ViewImageObject((ImageData) uo);
+			go =  view.getParentOfNodes();
+			if (go instanceof DataObject) 
+				data = (DataObject) go;
+			object.setContext(data, null);
+			bus.post(new ViewImage(object, null));
+			if (go instanceof DataObject) data = (DataObject) go;
+			*/
+			firePropertyChange(VIEW_IMAGE_NODE_PROPERTY, null, uo);
+		} else if (uo instanceof WellSampleData) {
+			object = new ViewImageObject((WellSampleData) uo);
+			WellSampleNode wsn = (WellSampleNode) node;
+			Object parent = wsn.getParentObject();
+			if (parent instanceof DataObject) {
+				go =  view.getGrandParentOfNodes();
+				if (go instanceof DataObject)
+					data = (DataObject) go;
+				object.setContext((DataObject) parent, data);
+			}
+			bus.post(new ViewImage(object, null));
+		}
 	}
 	
 	/** 

@@ -900,7 +900,7 @@ public interface ImViewer
 	public void projectImage(ProjectionRef ref);
 
 	/**
-	 * Sets the containers contained the image.
+	 * Sets the containers where the projected image could be saved.
 	 * 
 	 * @param containers The collection to set.
 	 */

@@ -2477,13 +2477,13 @@ class TreeViewerComponent
 				if (uo instanceof DataObject) 
 					po = (DataObject) uo;
 				if (gp != null) {
-					gp = gp.getParentDisplay();
-					if (gp != null) {
-						uo = gp.getUserObject();
-						if (uo instanceof DataObject) {
-							gpo = (DataObject) uo;
-						}
-					}	
+					//gp = gp.getParentDisplay();
+					//if (gp != null) {
+					uo = gp.getUserObject();
+					if (uo instanceof DataObject) {
+						gpo = (DataObject) uo;
+					}
+					//}	
 				}
 			}
 			vo.setContext(po, gpo);
