@@ -4,7 +4,7 @@
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package integration;
+package coverage;
 
 import java.io.File;
 import java.io.FileOutputStream;
