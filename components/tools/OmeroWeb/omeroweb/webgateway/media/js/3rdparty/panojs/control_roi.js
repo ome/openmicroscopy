@@ -57,11 +57,13 @@ ROIControl.prototype.viewerMoved = function(e) {
     var theT = vp.getTPos();
     var theZ = vp.getZPos();
     
-    if (vp.viewportimg.get(0).refresh_rois) {
+    if (vp.viewportimg.get(0).setRoiZoom) {
         vp.viewportimg.get(0).setRoiZoom(this.scale*100);
     }
-    if (vp.viewportimg.get(0).setRoiZoom) {
-        vp.viewportimg.get(0).refresh_rois(theZ, theT);
+    if (vp.viewportimg.get(0).refresh_rois) {
+        if ((vp.viewportimg.get(0).theT != theT) || (vp.viewportimg.get(0).theZ != theZ)) {
+            vp.viewportimg.get(0).refresh_rois(theZ, theT);
+        }
     }
 }
 
