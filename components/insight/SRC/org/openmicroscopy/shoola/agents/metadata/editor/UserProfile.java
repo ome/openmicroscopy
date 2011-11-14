@@ -77,9 +77,6 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import com.apple.audio.CANullPointerException;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
