@@ -29,6 +29,8 @@ from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.forms.widgets import HiddenInput
 
+from omeroweb.webadmin.custom_models import Server
+
 from omeroweb.custom_forms import NonASCIIForm
 
 from custom_forms import ServerModelChoiceField, \
@@ -45,14 +47,13 @@ class LoginForm(NonASCIIForm):
     
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
-        g = settings.SERVER_LIST.all()
         try:
-            if len(g) > 1:
-                self.fields['server'] = ServerModelChoiceField(g, empty_label=u"---------")
+            if len(Server) > 1:
+                self.fields['server'] = ServerModelChoiceField(Server, empty_label=u"---------")
             else:
-                self.fields['server'] = ServerModelChoiceField(g, empty_label=None)
+                self.fields['server'] = ServerModelChoiceField(Server, empty_label=None)
         except:
-            self.fields['server'] = ServerModelChoiceField(g, empty_label=u"---------")
+            self.fields['server'] = ServerModelChoiceField(Server, empty_label=u"---------")
         
         self.fields.keyOrder = ['server', 'username', 'password', 'ssl']
             
@@ -62,7 +63,7 @@ class LoginForm(NonASCIIForm):
 
 class ForgottonPasswordForm(NonASCIIForm):
     
-    server = ServerModelChoiceField(settings.SERVER_LIST.all(), empty_label=u"---------")
+    server = ServerModelChoiceField(Server, empty_label=u"---------")
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':28, 'autocomplete': 'off'}))
     email = forms.EmailField(widget=forms.TextInput(attrs={'size':28, 'autocomplete': 'off'}))
 

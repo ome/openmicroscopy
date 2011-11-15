@@ -8,6 +8,8 @@ from django.core.cache import cache
 
 from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
+from omeroweb.webadmin.custom_models import Server
+
 import settings
 import logging
 import traceback
@@ -1079,9 +1081,9 @@ def getConnection(request):
             logger.debug("Failed to log out %s" % traceback.format_exc())
         server_id = request.REQUEST.get('server',None) 
         if server_id is not None:
-            blitz = settings.SERVER_LIST.get(pk=int(server_id))
+            blitz = Server.get(pk=int(server_id))
         else:
-            blitz = settings.SERVER_LIST.get(pk=1)
+            blitz = Server.get(pk=1)
         logger.debug('attempting to connect emdb with blitz:  %s' % blitz)
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host

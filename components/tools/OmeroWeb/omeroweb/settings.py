@@ -35,7 +35,6 @@ import omero.clients
 import tempfile
 import exceptions
 
-from webadmin.custom_models import ServerObjects
 from django.utils import simplejson as json
 from portalocker import LockException
 
@@ -177,6 +176,12 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', parse_paths],
 }
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'mydatabase'
+    }
+}
 for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
 
     global_name, default_value, mapping = values
@@ -388,18 +393,15 @@ DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'common', 'static', 'image
 # avatar while experimenter photo can't be retrieved from the server.
 DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'common', 'static', 'image', 'personal32.png').replace('\\','/')
 
+# MANAGERS: A tuple in the same format as ADMINS that specifies who should get broken-link notifications when 
+# SEND_BROKEN_LINK_EMAILS=True.
+MANAGERS = ADMINS
+
 # PAGE: Used in varous locations where large number of data is retrieved from the server.
 try:
     PAGE
 except:
     PAGE = 200
-
-# SERVER_LIST: List of servers for login page. List is configurable by bin/omero config set omero.web.server_list ...
-SERVER_LIST = ServerObjects(SERVER_LIST)
-
-# MANAGERS: A tuple in the same format as ADMINS that specifies who should get broken-link notifications when 
-# SEND_BROKEN_LINK_EMAILS=True.
-MANAGERS = ADMINS
 
 EMAIL_TEMPLATES = {
     'create_share': {
@@ -419,6 +421,15 @@ EMAIL_TEMPLATES = {
         'text_content':'New comment is available on share %s/webclient/public/?server=%i.'
     }
 }
+
+# Load server list and freeze 
+from webadmin.custom_models import Server
+def load_server_list():
+    for s in SERVER_LIST:
+        server = (len(s) > 2) and unicode(s[2]) or None
+        Server(host=unicode(s[0]), port=int(s[1]), server=server)
+    Server.freeze()
+load_server_list()
 
 ###
 ### OTHER APPLICATIONS:

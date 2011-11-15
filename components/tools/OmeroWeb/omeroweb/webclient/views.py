@@ -93,6 +93,8 @@ from controller.impexp import BaseImpexp
 from controller.search import BaseSearch
 from controller.share import BaseShare
 
+from omeroweb.webadmin.custom_models import Server
+
 from omeroweb.webadmin.forms import MyAccountForm, UploadPhotoForm, LoginForm, ChangePassword
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
 from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
@@ -189,9 +191,9 @@ def sessionHelper(request):
     #    request.session['datasetInBasket'] = set()
     if request.session.get('nav') is None:
         if request.session.get('server') is not None:
-            blitz = settings.SERVER_LIST.get(pk=request.session.get('server'))
+            blitz = Server.get(pk=request.session.get('server'))
         elif request.session.get('host') is not None:
-            blitz = settings.SERVER_LIST.get(host=request.session.get('host'))
+            blitz = Server.get(host=request.session.get('host'))
         blitz = "%s:%s" % (blitz.host, blitz.port)
         request.session['nav']={"blitz": blitz, "menu": "mydata", "view": "tree", "basket": 0, "experimenter":None}
         changes = True
@@ -204,7 +206,7 @@ def sessionHelper(request):
 def login(request):
     request.session.modified = True
     if request.REQUEST.get('server'):
-        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server'))
+        blitz = Server.get(pk=request.REQUEST.get('server'))
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
@@ -251,7 +253,7 @@ def login(request):
         if request.method == 'POST':
             form = LoginForm(data=request.REQUEST.copy())
         else:
-            blitz = settings.SERVER_LIST.get(pk=request.session.get('server')) 
+            blitz = Server.get(request.session.get('server'))
             if blitz is not None:
                 initial = {'server': unicode(blitz.id)}
                 form = LoginForm(initial=initial)
@@ -401,7 +403,7 @@ def change_active_group(request, **kwargs):
        
     webgateway_views._session_logout(request, request.session.get('server'))
     
-    blitz = settings.SERVER_LIST.get(pk=server) 
+    blitz = Server.get(pk=server) 
     request.session['server'] = blitz.id
     request.session['host'] = blitz.host
     request.session['port'] = blitz.port
