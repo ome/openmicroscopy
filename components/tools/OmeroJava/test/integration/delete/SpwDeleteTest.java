@@ -6,10 +6,8 @@
  */
 package integration.delete;
 
-import integration.AbstractTest;
+import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
-import integration.XMLMockObjects;
-import integration.XMLWriter;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,13 +26,16 @@ import omero.model.WellSample;
 
 import org.testng.annotations.Test;
 
+import unit.XMLMockObjects;
+import unit.XMLWriter;
+
 /**
  * Tests for deleting screen/plate/wells
  *
  * @since 4.2.1
  */
 @Test(groups = { "delete", "integration", "ticket:2615" })
-public class SpwDeleteTest extends AbstractTest {
+public class SpwDeleteTest extends AbstractServerTest {
 
     @Test(groups = { "ticket:3102" })
     public void testScreen() throws Exception {

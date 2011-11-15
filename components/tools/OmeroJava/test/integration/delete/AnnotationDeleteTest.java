@@ -8,7 +8,7 @@ package integration.delete;
 
 import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
-import integration.AbstractTest;
+import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ import org.testng.annotations.Test;
  * @since 4.2.1
  */
 @Test(groups = { "delete", "integration", "ticket:2615" })
-public class AnnotationDeleteTest extends AbstractTest {
+public class AnnotationDeleteTest extends AbstractServerTest {
 
 	/** Reference to the <code>Rating</code> name space. */
     public final static RString RATING = rstring(

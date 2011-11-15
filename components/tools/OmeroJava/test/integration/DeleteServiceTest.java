@@ -123,6 +123,9 @@ import org.testng.annotations.Test;
 
 import pojos.FileAnnotationData;
 
+import unit.XMLMockObjects;
+import unit.XMLWriter;
+
 /** 
  * Collections of tests for the <code>Delete</code> service.
  *
@@ -138,7 +141,7 @@ import pojos.FileAnnotationData;
  */
 @Test(groups = {"delete", "integration"})
 public class DeleteServiceTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 
 	/** The namespace. */
