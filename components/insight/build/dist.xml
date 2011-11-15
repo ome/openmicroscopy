@@ -336,7 +336,7 @@
       <zipfileset prefix="${dist.zip.prefix.win.openGL}" dir="${dist.dir}"
                   includes="${dist.jar.file}"/>
       <zipfileset prefix="${dist.zip.prefix.win.openGL}/libs"
-                  dir="${base.lib.dir}/win-native" includes="*"/>
+                  dir="${native.lib.dir}/win-native" includes="*"/>
       <zipfileset file="${dist.dir}/opengl-imviewer.xml"
                   fullpath="${dist.zip.prefix.win.openGL}/${dist.app.config.dir.name}/imviewer.xml"/>
     </zip> 
@@ -394,7 +394,7 @@
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}" dir="${dist.dir}"
 	                  includes="${dist.jar.file}"/>
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/libs"
-	                  dir="${base.lib.dir}/win64-native"
+	                  dir="${native.lib.dir}/win64-native"
 	                  includes="*"/>
         <zipfileset file="${dist.dir}/opengl-imviewer.xml"
                     fullpath="${dist.zip.prefix.win64.openGL}/${dist.app.config.dir.name}/imviewer.xml"/>
@@ -465,7 +465,7 @@
       <jarfileset refid="app.libs"/>
       <javaproperty name="java.library.path" value="$JAVAROOT"/>
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
-      <jarfileset dir="${base.lib.dir}/osx-native" includes="*"/>
+      <jarfileset dir="${native.lib.dir}/osx-native" includes="*"/>
     </jarbundler>
     <copy file="${app.config.dir}/imviewer.xml"
       tofile="${dist.dir}/opengl-imviewer.xml"/>
