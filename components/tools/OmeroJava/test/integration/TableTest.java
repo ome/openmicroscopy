@@ -36,7 +36,7 @@ import omero.grid.TablePrx;
  * @since 3.0-Beta4
  */
 public class TableTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 
 	/** The default size of a buffer. */

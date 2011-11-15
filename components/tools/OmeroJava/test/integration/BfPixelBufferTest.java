@@ -39,7 +39,7 @@ import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Test;
 
 @Test(groups = {"repo", "integration"})
-public class BfPixelBufferTest extends AbstractTest {
+public class BfPixelBufferTest extends AbstractServerTest {
 
     private BfPixelBuffer bf;
     private PixelBuffer pb;

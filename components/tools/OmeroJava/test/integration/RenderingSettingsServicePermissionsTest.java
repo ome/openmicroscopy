@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class RenderingSettingsServicePermissionsTest
-	extends AbstractTest
+	extends AbstractServerTest
 {
 
 	/**

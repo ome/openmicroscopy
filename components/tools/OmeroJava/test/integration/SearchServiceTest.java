@@ -33,7 +33,7 @@ import omero.model.Project;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class SearchServiceTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 
 	/**

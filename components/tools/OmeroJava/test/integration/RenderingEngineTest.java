@@ -41,6 +41,9 @@ import omero.romio.RGBBuffer;
 import omero.romio.RegionDef;
 import sun.awt.image.IntegerInterleavedRaster;
 
+import unit.XMLMockObjects;
+import unit.XMLWriter;
+
 /** 
  * Collection of tests for the <code>RenderingEngine</code>.
  *
@@ -56,7 +59,7 @@ import sun.awt.image.IntegerInterleavedRaster;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class RenderingEngineTest
-	extends AbstractTest
+	extends AbstractServerTest
 {
 	
 	/** The red mask. */

@@ -125,7 +125,7 @@ import pojos.TextualAnnotationData;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class UpdateServiceTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 	
     /**

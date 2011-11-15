@@ -54,7 +54,7 @@ import pojos.FileAnnotationData;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class RoiServiceTest 
-	extends AbstractTest 
+	extends AbstractServerTest 
 {
 
 	/**

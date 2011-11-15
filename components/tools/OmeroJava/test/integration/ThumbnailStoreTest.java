@@ -51,7 +51,7 @@ import omero.model.Pixels;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class ThumbnailStoreTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 
 	/** Reference to the importer store. */
@@ -59,7 +59,7 @@ public class ThumbnailStoreTest
 	
 	/**
 	 * Overridden to initialize the list.
-	 * @see AbstractTest#setUp()
+	 * @see AbstractServerTest#setUp()
 	 */
     @Override
     @BeforeClass

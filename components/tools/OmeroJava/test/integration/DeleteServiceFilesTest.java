@@ -66,7 +66,7 @@ import pojos.FileAnnotationData;
 */
 @Test(groups = {"delete", "integration"})
 public class DeleteServiceFilesTest 
-   extends AbstractTest
+   extends AbstractServerTest
 {
 	
 	/** Reference to the <code>Pixels</code> class. */

@@ -79,7 +79,7 @@ import pojos.ScreenData;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class PojosServiceTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 
     /** Reference to class used to create data object. */

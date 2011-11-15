@@ -89,7 +89,7 @@ import pojos.TextualAnnotationData;
  * @since 3.0-Beta4
  */
 public class MetadataServiceTest 
-	extends AbstractTest 
+	extends AbstractServerTest 
 {
 
 	/** Identifies the file annotation. */

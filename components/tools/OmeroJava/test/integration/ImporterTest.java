@@ -74,6 +74,9 @@ import omero.model.WellReagentLink;
 import omero.model.WellSample;
 import omero.sys.ParametersI;
 
+import unit.XMLMockObjects;
+import unit.XMLWriter;
+
 /** 
  * Collection of tests to import images.
  *
@@ -89,7 +92,7 @@ import omero.sys.ParametersI;
  */
 @Test(groups = {"import", "integration"})
 public class ImporterTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 	
 	/** The collection of files that have to be deleted. */
@@ -604,7 +607,7 @@ public class ImporterTest
 
 	/**
 	 * Overridden to initialize the list.
-	 * @see AbstractTest#setUp()
+	 * @see AbstractServerTest#setUp()
 	 */
     @Override
     @BeforeClass
@@ -617,7 +620,7 @@ public class ImporterTest
     
 	/**
 	 * Overridden to delete the files.
-	 * @see AbstractTest#tearDown()
+	 * @see AbstractServerTest#tearDown()
 	 */
     @Override
     @AfterClass

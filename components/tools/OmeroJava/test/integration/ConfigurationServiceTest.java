@@ -31,7 +31,7 @@ import omero.api.IConfigPrx;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class ConfigurationServiceTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 
 	 /** Helper reference to the <code>IConfig</code> service. */
