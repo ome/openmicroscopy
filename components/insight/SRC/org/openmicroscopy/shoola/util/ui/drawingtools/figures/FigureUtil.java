@@ -131,6 +131,7 @@ public class FigureUtil
 	 */
 	static void formatLayout(Font f, AttributedString styledText, Figure figure)
 	{
+		if (styledText == null) return;
 		if (f != null) styledText.addAttribute(TextAttribute.FONT, f);
 		if (figure != null && AttributeKeys.FONT_UNDERLINE.get(figure)) 
 			styledText.addAttribute(TextAttribute.UNDERLINE,

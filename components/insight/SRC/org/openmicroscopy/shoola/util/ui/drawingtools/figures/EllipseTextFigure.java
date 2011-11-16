@@ -240,6 +240,7 @@ public class EllipseTextFigure
 		if (text != null)// && isEditable()) 
 		{	
 			text = text.trim();
+			if (text.length() == 0) return;
 			Rectangle r = getTransformedShape().getBounds();
 			// TODO: I BROKE THIS.
 			//Rectangle2D r = this.getBounds();

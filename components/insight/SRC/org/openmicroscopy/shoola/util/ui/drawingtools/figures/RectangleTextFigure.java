@@ -200,9 +200,10 @@ public class RectangleTextFigure
 	{
 		if (!(DrawingAttributes.SHOWTEXT.get(this))) return;
 		String text = getText();
-		if (text != null)// && isEditable()) 
+		if (text != null )// && isEditable()) 
 		{	
 			text = text.trim();
+			if (text.length() == 0) return;
 			Font font = AttributeKeys.FONT_FACE.get(this);
 			FontMetrics fm = g.getFontMetrics(font);
 			double textWidth = fm.stringWidth(text);
