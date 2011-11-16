@@ -1271,7 +1271,7 @@ END;$$ LANGUAGE plpgsql IMMUTABLE STRICT;
 CREATE OR REPLACE FUNCTION hex_to_argb(color VARCHAR, opacity FLOAT8) RETURNS INT8 AS '
 DECLARE
 
-    OFFSET INT8 := 4294967296;
+    OFFST INT8 := 4294967296;
     MAXINT INT8 := 2147483647;
     MININT INT8 := -2147483648;
 
@@ -1298,11 +1298,11 @@ BEGIN
     argb := argb + (gval << 8);
     argb := argb + bval;
 
-    IF argb < 0 or argb > OFFSET THEN
+    IF argb < 0 or argb > OFFST THEN
         RAISE EXCEPTION ''Overflow: % (color=%, opacity=%, argb=(%,%,%,%))'',
             argb, color, opacity, aval, rval, gval, bval;
     ELSIF argb > MAXINT THEN
-        argb := argb - OFFSET;
+        argb := argb - OFFST;
     END IF;
 
     IF argb < MININT or argb > MAXINT THEN
