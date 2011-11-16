@@ -3351,7 +3351,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
         """
         
         try:
-            if self._obj.ns is not None and self._obj.ns.val == omero.constants.namespaces.NSCOMPANIONFILE and self._obj.file.name.val.startswith("original_metadata"):
+            if self._obj.ns is not None and self._obj.ns.val == omero.constants.namespaces.NSCOMPANIONFILE and self.getFile().getName().startswith("original_metadata"):
                 return True
         except:
             logger.info(traceback.format_exc())
