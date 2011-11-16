@@ -176,12 +176,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', parse_paths],
 }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'mydatabase'
-    }
-}
 for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
 
     global_name, default_value, mapping = values
