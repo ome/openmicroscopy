@@ -281,7 +281,7 @@ public class ProjSavingDialog
 				}
 			}
 		};
-		parentsBox.addActionListener(datasetsBoxListener);
+		datasetsBox.addActionListener(datasetsBoxListener);
 		rndSettingsBox = new JCheckBox("Apply same rendering settings");
 		rndSettingsBox.setToolTipText(
 				UIUtilities.formatToolTipText(

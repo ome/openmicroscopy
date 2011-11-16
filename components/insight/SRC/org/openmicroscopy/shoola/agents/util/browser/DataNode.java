@@ -297,7 +297,6 @@ public class DataNode
 				n = new DataNode(i.next());
 				uiChildren.add(n);
 				n.parent = this;
-				uiChildren.add(n);
 			}
 		}
 		return uiChildren;
