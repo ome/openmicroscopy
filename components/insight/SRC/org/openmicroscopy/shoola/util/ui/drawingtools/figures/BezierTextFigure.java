@@ -139,6 +139,7 @@ public class BezierTextFigure
 		if (text != null)//  && isEditable()) 
 		{	
 			text = text.trim();
+			if (text.length() == 0) return;
 			Rectangle2D.Double r = getBounds();
 			Font font = AttributeKeys.FONT_FACE.get(this);
 			FontMetrics fm = g.getFontMetrics(font);
