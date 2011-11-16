@@ -73,7 +73,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
 
-import unit.AbstractTest;
+import spec.AbstractTest;
 //Application-internal dependencies
 
 /**

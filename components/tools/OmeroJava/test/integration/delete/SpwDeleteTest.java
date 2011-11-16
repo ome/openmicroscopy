@@ -26,8 +26,8 @@ import omero.model.WellSample;
 
 import org.testng.annotations.Test;
 
-import unit.XMLMockObjects;
-import unit.XMLWriter;
+import spec.XMLMockObjects;
+import spec.XMLWriter;
 
 /**
  * Tests for deleting screen/plate/wells
