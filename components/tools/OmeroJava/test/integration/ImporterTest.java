@@ -74,8 +74,8 @@ import omero.model.WellReagentLink;
 import omero.model.WellSample;
 import omero.sys.ParametersI;
 
-import unit.XMLMockObjects;
-import unit.XMLWriter;
+import spec.XMLMockObjects;
+import spec.XMLWriter;
 
 /** 
  * Collection of tests to import images.

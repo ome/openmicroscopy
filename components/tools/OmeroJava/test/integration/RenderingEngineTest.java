@@ -41,8 +41,8 @@ import omero.romio.RGBBuffer;
 import omero.romio.RegionDef;
 import sun.awt.image.IntegerInterleavedRaster;
 
-import unit.XMLMockObjects;
-import unit.XMLWriter;
+import spec.XMLMockObjects;
+import spec.XMLWriter;
 
 /** 
  * Collection of tests for the <code>RenderingEngine</code>.
