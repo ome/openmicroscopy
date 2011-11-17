@@ -410,9 +410,11 @@ $.fn.viewportImage = function(options) {
       }
     });
 
+    this.getBigImageContainer = function () {
+        return viewerBean;
+    }
+    
     this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, href, thref) {
-        $('<div id="weblitz-viewport-tiles" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
-        jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});
         var myPyramid = new BisqueISPyramid( imagewidth, imageheight, xtilesize, ytilesize);
         var myProvider = new PanoJS.TileUrlProvider('','','');
         myProvider.assembleUrl = function(xIndex, yIndex, zoom) {
@@ -426,6 +428,8 @@ $.fn.viewportImage = function(options) {
         myProvider.thumbnailUrl(thref);
         
         if (viewerBean == null) {
+            $('<div id="weblitz-viewport-tiles" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
+            jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});
             
             viewerBean = new PanoJS('weblitz-viewport-tiles', {
                 tileUrlProvider : myProvider,
@@ -438,6 +442,38 @@ $.fn.viewportImage = function(options) {
                 blankTile       : '/appmedia/webgateway/img/3rdparty/panojs/blank.gif',
                 loadingTile     : '/appmedia/webgateway/img/3rdparty/panojs/blank.gif'//'progress.gif'
             });
+            
+            viewerBean.mouseReleasedHandler = function(e) {
+                e = e ? e : window.event;
+                if (!this.pressed) return false;
+                var coords = this.resolveCoordinates(e);
+                var motion = {
+                    'x' : (coords.x - this.mark.x),
+                    'y' : (coords.y - this.mark.y)
+                };
+                var moved = this.mouse_have_moved;
+                this.release(coords);
+
+                if (!moved) return false;
+
+
+                // only if there was little movement
+                if (moved || motion.x>5 || motion.y>5) return false;
+
+                if (e.button == 2) {
+                    this.blockPropagation(e);      
+                    this.zoom(-1);    
+                } else
+                // move on one click
+                if (e.button < 2) {
+                    //if (!this.pointExceedsBoundaries(coords)) {
+                        this.resetSlideMotion();
+                        this.recenter(coords);
+                    //} 
+                }
+
+                return false;
+            }
             
             // thumbnail url overwritten
             // bird-eye view cannot relay on levels in order to load thumbail,
@@ -456,14 +492,14 @@ $.fn.viewportImage = function(options) {
             PanoJS.MSG_BEYOND_MIN_ZOOM = null;
             PanoJS.MSG_BEYOND_MAX_ZOOM = null;
             viewerBean.init();
-            if (this.thumbnail_control) this.thumbnail_control.update();
+            if (viewerBean.thumbnail_control) viewerBean.thumbnail_control.update();
+            if (!viewerBean.roi_control) viewerBean.roi_control = new ROIControl(viewerBean);
             
             // not supported elements
             jQuery('#wblitz-zoom').parent().hide();
             jQuery('#wblitz-lp-enable').parent().hide();
             jQuery('.multiselect').hide();
             jQuery('#wblitz-invaxis').attr('disable', true);
-            jQuery('#roi_controls').hide();
         } else {
             viewerBean.tileUrlProvider = myProvider;
             viewerBean.update_url();
@@ -479,7 +515,7 @@ $.fn.viewportImage = function(options) {
       wrapwidth = wrapdiv.width();
       wrapheight = wrapdiv.height();
       //orig_width = image.get(0).clientWidth;
-      //orig_height = image.get(0).clientHeight;   
+      //orig_height = image.get(0).clientHeight;
       
       if (viewerBean != null) {
           jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});
