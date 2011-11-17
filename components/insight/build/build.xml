@@ -104,9 +104,16 @@
    * properties defined by others and all child files check for the needed
    * external properties at import time.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-  <path id="jarbundler.path">
-    <pathelement location="${base.lib.dir}/jarbundler.jar"/>
+  <path id="insight.tools.path">
+      <fileset dir="${base.build.dir}/../../../lib/repository">
+            <include name="bsf*.jar"/>
+            <include name="jarbundler*.jar"/>
+            <include name="rhino*.jar"/>
+      </fileset>
   </path>
+
+  <mkdir dir="${base.lib.dir}"/>
+  <mkdir dir="${base.test.lib.dir}"/>
 
   <typedef file="${base.build.dir}/lib.xml"/>
   <import file="${base.build.dir}/app.xml"/>

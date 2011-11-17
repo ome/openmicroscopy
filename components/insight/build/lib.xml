@@ -57,6 +57,7 @@
    *        (NOTE: Later versions don't work with BSF 2.3.0.) 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <scriptdef name="checkdef" language="javascript">
+    <classpath refid="insight.tools.path" />
     <attribute name="prop" /> 
     <attribute name="ref" />
     <![CDATA[
@@ -99,6 +100,7 @@
    *        (NOTE: Later versions don't work with BSF 2.3.0.) 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <scriptdef name="checkdup" language="javascript">
+    <classpath refid="insight.tools.path" />
     <attribute name="dir" /> 
     <attribute name="targetdir" />
     <![CDATA[
@@ -515,7 +517,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <taskdef name="jarbundler"
       classname="net.sourceforge.jarbundler.JarBundler" >
-      <classpath refid="jarbundler.path" />
+      <classpath refid="insight.tools.path" />
   </taskdef>
 
 </antlib>

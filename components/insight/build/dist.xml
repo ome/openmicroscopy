@@ -20,7 +20,7 @@
   <checkdef prop="app.lib.dir"/>
   <checkdef prop="app.mainclass"/>
   <checkdef ref="app.config"/>
-  <checkdef ref="app.libs"/>
+  <!-- <checkdef ref="app.libs"/> -->
   <checkdef prop="docs.dir"/> 
   <checkdef prop="docs.userdocs.dir"/>
 <checkdef prop="app.compiled.util.dir"/>
