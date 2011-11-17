@@ -120,20 +120,18 @@ public class MeasurementViewerFactory
      * @param magnification		The image's magnification factor.
      * @param activeChannels	Collection of active channels.
      * @param channelsData		The channels metadata.
-     * @param sizeX The size along the X-axis.
-     * @param sizeY The size along the Y-axis.
      * @return See above.
      */
 	public static MeasurementViewer getViewer(PixelsData pixels, long imageID, 
 										String name, Rectangle bounds, 
 										int z, int t, double magnification,
 										Map activeChannels, List<ChannelData>
-										channelsData, int sizeX, int sizeY)
+										channelsData)
 	{
 		MeasurementViewerModel model = new MeasurementViewerModel(imageID, 
 				pixels, name, bounds, channelsData);
 		model.setPlane(z, t);
-		model.setMagnification(magnification, sizeX, sizeY);
+		model.setMagnification(magnification);
 		model.setActiveChannels(activeChannels);
 		return singleton.createROIViewer(model);
 	}
