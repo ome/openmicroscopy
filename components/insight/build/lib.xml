@@ -149,7 +149,9 @@
    *  + xerces-xml-apis-2.6.2.jar. The Apache Xerces Parser 
    * 					(http://xerces.apache.org/xerces-j/). Version: 2.6.2.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <!-- DISABLED
   <taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop" /> 
+  -->
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * TASK NAME: makexdoc
@@ -338,6 +340,7 @@
    *        (http://www.mozilla.org/rhino/).  Version: 1_5R3.
    *        (NOTE: Later versions don't work with BSF 2.3.0.)
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <!-- DISABLED
   <scriptdef name="xdoc" language="javascript">
 	  <attribute name="srcdir" />
 	  <attribute name="destdir" />
@@ -497,6 +500,7 @@
       
     ]]> 
   </scriptdef>
+  -->
   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * TASK NAME: jarbundler

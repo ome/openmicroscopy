@@ -29,4 +29,8 @@
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
+    <target name="package" depends="lifecycle.package">
+        <ant antfile="${basedir}/build/build.xml" inheritAll="false" inheritRefs="false" target="dist"/>
+    </target>
+
 </project>
