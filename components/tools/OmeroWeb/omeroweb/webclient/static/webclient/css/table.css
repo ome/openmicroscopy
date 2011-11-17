@@ -1,0 +1,5 @@
+/* tables */
+
+#dataTable tr.ui-selecting { background-color:#ccc; }
+#dataTable tr.ui-selected { background-color:#ccc; }
+

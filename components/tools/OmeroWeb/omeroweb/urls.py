@@ -35,7 +35,7 @@ handler500 = "omeroweb.feedback.views.handler500"
 # url patterns
 urlpatterns = patterns('',
     
-    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/image/ome.ico'}),
+    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/common/image/ome.ico'}),
     (r'^appmedia/webgateway/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'webgateway/media')}),
     (r'^appmedia/m/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'webmobile/media')}),
     url( r'^appmedia/omeroweb/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'common', 'static').replace('\\','/') }, name="webstatic" ),

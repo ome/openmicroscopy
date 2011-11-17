@@ -1,10 +1,8 @@
 {% load i18n %}
-{% load static %}
 {% load markup %}
-{% load custom_filters %}
-{% load custom_tags %}
+{% load common_filters %}
+{% load common_tags %}
 
-{% get_static_prefix as STATIC_PREFIX %}
 
 {% comment %}
 <!--
@@ -26,10 +24,10 @@
 -->
 {% endcomment %}
 
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/ui/jquery.ui.selectable.js"></script>
+    <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/ui/jquery.ui.selectable.js"></script>
     
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.tablesorter.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.quicksearch.js"></script>
+    <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery.tablesorter.js"></script>
+    <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery.quicksearch.js"></script>
     
     <script type="text/javascript">
         $(document).ready(function(){
@@ -77,7 +75,7 @@
                 distance: 2,
                 stop: function(){  
                     var selected = $('tr.ui-selected', this);
-                    loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{{ STATIC_PREFIX }}image/knotes16.png"/> Batch Annotate</a></p>');
+                    loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{{ STATIC_COMMON_PREFIX }}image/knotes16.png"/> Batch Annotate</a></p>');
                     $("#batchAnnotate").click(function() {
                         multipleAnnotation(selected);
                         return false;
@@ -105,7 +103,7 @@
     <div>
         {% if controller.day_items_size %}
         
-        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{{ STATIC_PREFIX }}image/spinner.gif"></span></form>
+        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{{ STATIC_COMMON_PREFIX }}image/spinner.gif"></span></form>
         
         <table id="dataTable" class="tablesorter">
             <thead> 
@@ -120,7 +118,7 @@
             {% for c in i.project %}
                 <tr id="project-{{ c.id }}">
                     <td class="action">
-                        <img id="{{ c.id }}" src="{{ STATIC_PREFIX }}image/folder32.png" alt="project" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{{ STATIC_COMMON_PREFIX }}image/folder32.png" alt="project" title="{{ c.name }}"/>
                         <input type="checkbox" name="project" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
@@ -130,7 +128,7 @@
             {% for c in i.screen %}
                 <tr id="screen-{{ c.id }}">
                     <td class="action">
-                        <img id="{{ c.id }}" src="{{ STATIC_PREFIX }}image/folder_screen32.png" alt="screen" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{{ STATIC_COMMON_PREFIX }}image/folder_screen32.png" alt="screen" title="{{ c.name }}"/>
                         <input type="checkbox" name="screen" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
@@ -140,7 +138,7 @@
             {% for c in i.dataset %}
                 <tr id="dataset-{{ c.id }}">
                     <td class="action">
-                        <img id="{{ c.id }}" src="{{ STATIC_PREFIX }}image/folder_image32.png" alt="dataset" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{{ STATIC_COMMON_PREFIX }}image/folder_image32.png" alt="dataset" title="{{ c.name }}"/>
                         <input type="checkbox" name="dataset" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
@@ -150,7 +148,7 @@
             {% for c in i.plate %}
                 <tr id="plate-{{ c.id }}">
                     <td class="action">
-                        <img id="{{ c.id }}" src="{{ STATIC_PREFIX }}image/folder_plate32.png" alt="plate" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{{ STATIC_COMMON_PREFIX }}image/folder_plate32.png" alt="plate" title="{{ c.name }}"/>
                         <input type="checkbox" name="plate" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
@@ -176,7 +174,7 @@
         {% endif %}
 
         {% if manager.c_size %}<div>
-            <p>{% trans "Legend" %}: <img src="{{ STATIC_PREFIX }}image/folder16.png" %}" title="Project" alt="project"/> - {% trans "Project" %}; <img src="{{ STATIC_PREFIX }}image/folder_image16.png" %}" title="Dataset" alt="dataset"/> - {% trans "Dataset" %}; <img src="{% url webstatic "image/folder_screen16.png" %}" title="Screen" alt="screen"/> - {% trans "Screen" %}; <img src="{% url webstatic "image/folder_plate16.png" title="Plate" alt="plate"/> - {% trans "Plate;</p>
+            <p>{% trans "Legend" %}: <img src="{{ STATIC_COMMON_PREFIX }}image/folder16.png" %}" title="Project" alt="project"/> - {% trans "Project" %}; <img src="{{ STATIC_COMMON_PREFIX }}image/folder_image16.png" %}" title="Dataset" alt="dataset"/> - {% trans "Dataset" %}; <img src="{{ STATIC_WEBCLIENT_PREFIX }}image/folder_screen16.png" %}" title="Screen" alt="screen"/> - {% trans "Screen; <img src="{% url webstatic "image/folder_plate16.png" title="Plate" alt="plate"/> - {% trans "Plate;</p>
         </div>{% endif %}
 
         {% include "webclient/history/history_paging.html" %}

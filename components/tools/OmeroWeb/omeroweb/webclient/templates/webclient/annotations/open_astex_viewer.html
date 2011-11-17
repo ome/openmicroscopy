@@ -1,8 +1,8 @@
 {% load i18n %}
-{% load static %}
 {% load markup %}
+{% load webclient_tags %}
 
-{% get_static_prefix as STATIC_PREFIX %}
+{% get_static_webclient_prefix as STATIC_WEBCLIENT_PREFIX %}
 
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -98,7 +98,7 @@
         .dynamic-slider-control.horizontal .handle {
 		width:				10px;
 		height:				19px;
-		background-image:	url("{{ STATIC_PREFIX }}image/handle.horizontal.gif");
+		background-image:	url("{{ STATIC_WEBCLIENT_PREFIX }}image/handle.horizontal.gif");
         }
 
         .dynamic-slider-control.horizontal .handle div {}
@@ -177,10 +177,10 @@
         }
     </style>
 
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery_1.4.2.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/slider/range.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/slider/slider.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/slider/timer.js"></script>
+    <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery_1.4.2.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/slider/range.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/slider/slider.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/slider/timer.js"></script>
     <script type="text/javascript">
         // pass javascript commands to the open astex viewer applet. 
         var execute_oav_command = function(command) {
@@ -376,7 +376,7 @@
         <applet
               width="100%" height="100%" name="av"
               code="MoleculeViewerApplet.class"
-              archive="{{ STATIC_PREFIX }}applet/OpenAstexViewer.jar ">
+              archive="{{ STATIC_WEBCLIENT_PREFIX }}applet/OpenAstexViewer.jar ">
          
                  <param name="script" value="
                  map load mapA '{{ data_url }}' {{ data_storage_mode }};

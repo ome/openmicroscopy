@@ -1,8 +1,8 @@
 {% load i18n %}
-{% load static %}
 {% load markup %}
+{% load webclient_tags %}
 
-{% get_static_prefix as STATIC_PREFIX %}
+{% get_static_webclient_prefix as STATIC_WEBCLIENT_PREFIX %}
 
 
 {% comment %}
@@ -33,8 +33,7 @@
     <script type="text/javascript" src="/webgateway/appmedia/js/jquery-plugin-gs_slider.js"></script>
     <script type="text/javascript" src="/webgateway/appmedia/js/gs_utils.js"></script>
 
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/ui/jquery.ui.selectable.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/actions.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/actions.js"></script>
 
     <script type="text/javascript">
 
@@ -61,7 +60,7 @@
                     cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+pl.attr('rel')+'/'+pl.attr('id').split("-")[1]+'/';
                 }
                 loadMetadataPanel(cm_var.metadata_details.iframe);
-                $("div#content_details").html('<p>Loading data... please wait <img src ="/static/image/spinner.gif"/></p>');
+                $("div#content_details").html('<p>Loading data... please wait <img src ="/static/common/image/spinner.gif"/></p>');
                 $("div#content_details").attr('rel', cm_var.content_details.rel);
                 $("div#content_details").load(cm_var.content_details.url);
                 
@@ -118,7 +117,7 @@
                     handleClickSelection(event);
                     var $selected = $('td.ui-selected', wpv.self);
                     if ($selected.length > 1) {
-                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{{ STATIC_PREFIX }}image/knotes16.png"/> Batch Annotate</a></p>');
+                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{{ STATIC_WEBCLIENT_PREFIX }}image/knotes16.png"/> Batch Annotate</a></p>');
                         $("#batchAnnotate").click(function() {
                             multipleAnnotation($selected, {{ index }});
                             return false;
@@ -139,7 +138,7 @@
                 stop: function(){  
                     var $selected = $('td.ui-selected', this);
                     if ($selected.length > 1) {
-                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{{ STATIC_PREFIX }}image/knotes16.png"/> Batch Annotate</a></p>');
+                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{{ STATIC_WEBCLIENT_PREFIX }}image/knotes16.png"/> Batch Annotate</a></p>');
                         $("#batchAnnotate").click(function() {
                             multipleAnnotation($selected, {{ index }});
                             return false;

@@ -278,6 +278,8 @@ STATICFILES_FINDERS = (
 STATIC_URL = '/static/'
 
 # Custom STATIC_URLs used by custom template tags.
+STATIC_COMMON_URL = '/static/common/'
+# Custom STATIC_URLs used by custom template tags.
 STATIC_FEEDBACK_URL = '/static/feedback/'
 # Custom STATIC_URLs used by custom template tags.
 STATIC_WEBADMIN_URL = '/static/webadmin/'
@@ -289,13 +291,11 @@ STATIC_WEBCLIENT_URL = '/static/webclient/'
 # management command will collect static files into this directory.
 STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static').replace('\\','/')
 
-# TODO: this var will be redundant once the common app is merged
-STATICFILES_DIRS = (
-    ("css", os.path.join(os.path.dirname(__file__), 'common', 'static', 'css').replace('\\','/')),
-    ("image", os.path.join(os.path.dirname(__file__), 'common', 'static', 'image').replace('\\','/')),
-    ("javascript", os.path.join(os.path.dirname(__file__), 'common', 'static', 'javascript').replace('\\','/')),
-    ("applet", os.path.join(os.path.dirname(__file__), 'common', 'static', 'applet').replace('\\','/')),
-)
+
+# STATICFILES_DIRS: This setting defines the additional locations the staticfiles app will 
+# traverse if the FileSystemFinder finder is enabled, e.g. if you use the collectstatic or 
+# findstatic management command or use the static file serving view.
+# STATICFILES_DIRS = ()
 
 
 # TEMPLATE_CONTEXT_PROCESSORS: A tuple of callables that are used to populate the context 
@@ -306,7 +306,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.static",
-    "django.contrib.messages.context_processors.messages"
+    "django.contrib.messages.context_processors.messages",
+    "common.context_processors.static",
 )
 
 # TEMPLATE_LOADERS: A tuple of template loader classes, specified as strings. Each Loader class 
@@ -350,6 +351,8 @@ INSTALLED_APPS = (
     'omeroweb.webmobile',
     'omeroweb.webpublic',
     'omeroweb.webredirect',
+    'omeroweb.common',
+    
 )
 
 # FEEDBACK_URL: Used in feedback.sendfeedback.SendFeedback class in order to submit 
@@ -381,11 +384,11 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 #default 2621440 (i.e. 2.5 MB).
 
 # DEFAULT_IMG: Used in webclient.webclient_gateway.OmeroWebGateway.defaultThumbnail in order to load default
 # image while thumbnail can't be retrieved from the server.
-DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'common', 'static', 'image', 'image128.png').replace('\\','/')
+DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'common', 'static', 'common', 'image', 'image128.png').replace('\\','/')
 
 # # DEFAULT_USER: Used in webclient.webclient_gateway.OmeroWebGateway.getExperimenterDefaultPhoto in order to load default
 # avatar while experimenter photo can't be retrieved from the server.
-DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'common', 'static', 'image', 'personal32.png').replace('\\','/')
+DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'common', 'static', 'common', 'image', 'personal32.png').replace('\\','/')
 
 # MANAGERS: A tuple in the same format as ADMINS that specifies who should get broken-link notifications when 
 # SEND_BROKEN_LINK_EMAILS=True.

@@ -1,11 +1,6 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
-{% load static %}
 {% load markup %}
-{% load custom_tags %}
-
-{% get_static_prefix as STATIC_PREFIX %}
-{% get_static_webadmin_prefix as STATIC_WEBADMIN_PREFIX %}
 
 {% comment %}
 <!--
@@ -62,7 +57,7 @@
     <table>
       <tbody>
         {% for field in form %}
-        <tr><td class="form"><a href="{% url wamanageenum "delete" controller.klass field.name %}"><img src="{{ STATIC_PREFIX }}image/del.png" alt="delete" title="delete"></a> {{ field.label_tag }}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
+        <tr><td class="form"><a href="{% url wamanageenum "delete" controller.klass field.name %}"><img src="{{ STATIC_COMMON_PREFIX }}image/del.png" alt="delete" title="delete"></a> {{ field.label_tag }}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
         {% endfor %}
       </tbody>
       <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>

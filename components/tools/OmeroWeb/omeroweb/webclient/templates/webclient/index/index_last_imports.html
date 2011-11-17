@@ -1,8 +1,6 @@
 {% load i18n %}
-{% load static %}
 {% load markup %}
 
-{% get_static_prefix as STATIC_PREFIX %}
 
 {% comment %}
 <!--
@@ -24,8 +22,6 @@
 -->
 {% endcomment %}
 
-<script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/actions.js"></script>
-    
 <div class="clear"> </div>
 
 {% if controller.lastAcquiredImages %}

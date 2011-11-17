@@ -1,8 +1,8 @@
 {% load i18n %}
-{% load static %}
 {% load markup %}
+{% load webclient_tags %}
 
-{% get_static_prefix as STATIC_PREFIX %}
+{% get_static_webclient_prefix as STATIC_WEBCLIENT_PREFIX %}
 
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -30,17 +30,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/layout.css" type="text/css" />
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/login.css" type="text/css" />
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/layout.css" type="text/css" />
+    <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/login.css" type="text/css" />
 
-    <link rel="shortcut icon" href="{{ STATIC_PREFIX }}image/ome.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="{{ STATIC_COMMON_PREFIX }}image/ome.ico" type="image/x-icon" />
 
     <title>{% trans "OMERO.web - Login" %}</title>
 
 </head>
 <body>
 <div id="login-logo">
-    <img src="{{ STATIC_PREFIX }}image/logo-client.png" />
+    <img src="{{ STATIC_WEBCLIENT_PREFIX }}image/logo.png" />
 </div>
 <div id="login">
     <form action="{% url weblogin %}{% if url %}?url={{url}}{% endif %}" method="post">

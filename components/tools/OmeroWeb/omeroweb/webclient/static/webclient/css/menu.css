@@ -1,0 +1,60 @@
+#navigation {
+    background:transparent url(/static/webclient/image/menu/menu.png) no-repeat scroll right top;
+    height:90px;
+    left:0;
+    list-style-image:none;
+    list-style-position:outside;
+    list-style-type:none;
+    margin:0;
+    overflow:hidden;
+    padding:0;
+    width:649px;
+}
+#navigation li {
+    float: right;
+    width: 59px;
+    height: 90px;
+}
+#navigation li a {
+    display: block; 
+    margin-top: -90px; 
+    padding-left:59px;
+    height: 90px; 
+    width: 59p; 
+    overflow: hidden; 
+    background: #000; 
+    opacity: 0.8; 
+}
+#navigation .home a {
+    background: url(/static/webclient/image/menu/home.png) no-repeat bottom right;
+}
+#navigation .userdata a {
+    background: url(/static/webclient/image/menu/userdata.png) no-repeat bottom right;
+}
+#navigation .usertags a {
+    background: url(/static/webclient/image/menu/userdata.png) no-repeat bottom right;
+}
+#navigation .basket a {
+    background: url(/static/webclient/image/menu/userdata.png) no-repeat bottom right;
+}
+#navigation .public a {
+    background: url(/static/webclient/image/menu/share.png) no-repeat bottom right;
+}
+#navigation .search a {
+    background: url(/static/webclient/image/menu/search.png) no-repeat bottom right;
+}
+#navigation .history a {
+    background: url(/static/webclient/image/menu/history.png) no-repeat bottom right;
+}
+#navigation .import a {
+    background: url(/static/webclient/image/menu/import.png) no-repeat bottom right;
+}
+#navigation .person a {
+    background: url(/static/webclient/image/menu/person.png) no-repeat bottom right;
+}
+#navigation .help a {
+    background: url(/static/webclient/image/menu/help.png) no-repeat bottom right;
+}
+#navigation .contact a {
+    background: url(/static/webclient/image/menu/contact.png) no-repeat bottom right;
+}

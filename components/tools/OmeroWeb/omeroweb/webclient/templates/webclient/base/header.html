@@ -1,9 +1,6 @@
 {% load i18n %}
-{% load static %}
 {% load markup %}
-{% load custom_tags %}
-
-{% get_static_prefix as STATIC_PREFIX %}
+{% load common_tags %}
 
 {% comment %}
 <!--
@@ -78,7 +75,7 @@
         <div id="queue">
             <a href="#" onClick="launchActivities();" class="align_left">ACTIVITIES:</a>
             <div id="jobstatus">0 job(s)</div>
-            <img src="{{ STATIC_PREFIX }}image/spinner.gif" id="progress" style="display: none;"/>
+            <img src="{{ STATIC_COMMON_PREFIX }}image/spinner.gif" id="progress" style="display: none;"/>
         </div>
         {% endifnotequal %}
         <div style="float:left">

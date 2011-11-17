@@ -1,8 +1,8 @@
 {% load i18n %}
-{% load static %}
 {% load markup %}
+{% load webclient_tags %}
 
-{% get_static_prefix as STATIC_PREFIX %}
+{% get_static_webclient_prefix as STATIC_WEBCLIENT_PREFIX %}
 
 {% comment %}
 <!--
@@ -25,7 +25,7 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/images.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/images.css" type="text/css" media="screen"/>
 
     <link rel="stylesheet" type="text/css" href="/webgateway/appmedia/css/3rdparty/panojs.css" media="all" />
 
@@ -78,7 +78,7 @@
 <!-- VIEWER "Preview"-->
 
 <!-- open-image link -->
-<div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% if manager.getShareId %}{% url web_image_viewer manager.getShareId manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')"><img src="{{ STATIC_PREFIX }}image/kview16.png" alt="View" title="Open full viewer"/></a></div>
+<div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% if manager.getShareId %}{% url web_image_viewer manager.getShareId manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')"><img src="{{ STATIC_WEBCLIENT_PREFIX }}image/kview16.png" alt="View" title="Open full viewer"/></a></div>
 
 <div id="preview_tab">
     <div class="miniview" id="viewport"></div>

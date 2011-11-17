@@ -22,12 +22,7 @@
 # Version: 1.0
 #
 
-import os.path
-
 from django.conf.urls.defaults import *
-from django.views.static import serve
-
-from omeroweb.webclient import views
 
 urlpatterns = patterns('django.views.generic.simple',
 

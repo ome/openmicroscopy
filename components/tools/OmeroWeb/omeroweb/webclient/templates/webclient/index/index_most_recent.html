@@ -1,8 +1,6 @@
 {% load i18n %}
-{% load static %}
 {% load markup %}
 
-{% get_static_prefix as STATIC_PREFIX %}
 
 {% comment %}
 <!--
@@ -30,7 +28,7 @@
         <tbody>
         {% for cm in controller.mostRecentSharesComments %}
             <tr><td>
-                <img src="{{ STATIC_PREFIX }}image/knotes16.png" title="comment" alt="comment"/> {{ cm.getComment.getOwner.getFullName }}</a> {% trans "commented the" %} <a href="{% url load_template "public" %}">{% trans "share" %} {{ cm.link.id }}</a> on {{ cm.getComment.creationEventDate|date:"Y-m-d H:i:s" }}
+                <img src="{{ STATIC_COMMON_PREFIX }}image/knotes16.png" title="comment" alt="comment"/> {{ cm.getComment.getOwner.getFullName }}</a> {% trans "commented the" %} <a href="{% url load_template "public" %}">{% trans "share" %} {{ cm.link.id }}</a> on {{ cm.getComment.creationEventDate|date:"Y-m-d H:i:s" }}
             </td></tr>
         {% endfor %}
         </tbody>

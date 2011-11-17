@@ -490,7 +490,7 @@ def load_template(request, menu, **kwargs):
                     init['initially_select'] = k+"-"+i.replace(":selected", "")
                 else:
                     init['initially_open'].append(k+"-"+i)
-                
+    
     try:
         manager = BaseContainer(conn)
     except AttributeError, x:
@@ -506,6 +506,7 @@ def load_template(request, menu, **kwargs):
     if len(users) > 0:
         if request.REQUEST.get('experimenter') is not None and len(request.REQUEST.get('experimenter'))>0: 
             form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu}, data=request.REQUEST.copy())
+            print form_users
             if form_users.is_valid():
                 filter_user_id = request.REQUEST.get('experimenter', None)
                 request.session.get('nav')['experimenter'] = filter_user_id

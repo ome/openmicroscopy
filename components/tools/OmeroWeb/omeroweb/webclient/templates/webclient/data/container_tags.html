@@ -1,9 +1,6 @@
 {% extends "webclient/base/base_container.html" %}
 {% load i18n %}
-{% load static %}
 {% load markup %}
-
-{% get_static_prefix as STATIC_PREFIX %}
 
 {% comment %}
 <!--
@@ -26,21 +23,22 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/container.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/table.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/container.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/table.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/table.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
 
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.cookie.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.hotkeys.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.jstree.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.cookie.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.hotkeys.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.jstree.js"></script>
 
 {% endblock %}
 
 {% block script %}
     
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/actions.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/actions.js"></script>
     <script type="text/javascript">
         $(function() 
             {
@@ -130,7 +128,7 @@
                                 "experimenter" : {
                                     "valid_children" : [ "tagset", "tagset-locked", "tag", "tag-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_PREFIX }}image/personal16.png'
+                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/personal16.png'
                                     },
                                     "create_node" : true,
                                     "start_drag" : false,
@@ -140,7 +138,7 @@
                                 "tagset" : {
                                     "valid_children" : [ "tag", "tag-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_PREFIX }}image/knotesred16.png'
+                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/knotesred16.png'
                                     },
                                     "create_node" : true,
                                     "start_drag" : false,
@@ -150,7 +148,7 @@
                                 "tagset-locked" : {
                                     "valid_children" : [ "tag", "tag-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_PREFIX }}image/knotesred_locked16.png'
+                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/knotesred_locked16.png'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -160,7 +158,7 @@
                                 "tag" : {
                                     "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_PREFIX }}image/knotes16.png'
+                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/knotes16.png'
                                     },
                                     "create_node" : true,
                                     "start_drag" : true,
@@ -171,7 +169,7 @@
                                 "tag-locked" : {
                                     "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_PREFIX }}image/knotes_locked16.png'
+                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/knotes_locked16.png'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -181,7 +179,7 @@
                                 "project" : {
                                     "valid_children" : [ "dataset", "dataset-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_PREFIX }}image/folder16.png'
+                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder16.png'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -191,7 +189,7 @@
                                 "project-locked" : {
                                     "valid_children" : [ "dataset", "dataset-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_PREFIX }}image/folder_locked16.png'
+                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_locked16.png'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -201,7 +199,7 @@
                                 "dataset" : {
                                     "valid_children" : [ "image", "image-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_PREFIX }}image/folder_image16.png'
+                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_image16.png'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -211,7 +209,7 @@
                                 "dataset-locked" : {
                                     "valid_children" : [ "image", "image-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_PREFIX }}image/folder_image_locked16.png'
+                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_image_locked16.png'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -221,7 +219,7 @@
                                 "image" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{{ STATIC_PREFIX }}image/image16.png'
+                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/image16.png'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -231,7 +229,7 @@
                                 "image-locked" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{{ STATIC_PREFIX }}image/image_locked16.png'
+                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/image_locked16.png'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -241,7 +239,7 @@
                                 "screen" : {
                                     "valid_children" : [ "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_PREFIX }}image/folder_screen16.png'
+                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_screen16.png'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -251,7 +249,7 @@
                                 "screen-locked" : {
                                     "valid_children" : [ "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_PREFIX }}image/folder_screen_locked16.png'
+                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_screen_locked16.png'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -261,7 +259,7 @@
                                 "plate" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{{ STATIC_PREFIX }}image/folder_plate16.png'
+                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_plate16.png'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -271,7 +269,7 @@
                                 "plate-locked" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{{ STATIC_PREFIX }}image/folder_plate_locked16.png'
+                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_plate_locked16.png'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -400,9 +398,9 @@
 
     <div class="toolbar">
         <div id="buttons" class="align_left">
-            <input id="refreshButton" class="button" type="image" src="{{ STATIC_PREFIX }}image/reload16.png" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
-            <input class="button" type="image" src="{{ STATIC_PREFIX }}image/view_tree16.png" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "userdata" %}'"> | 
-            <input id="deleteButton" class="button button-disabled" type="image" src="{{ STATIC_PREFIX }}image/cancel16.png" alt="Delete" title="Delete" /> 
+            <input id="refreshButton" class="button" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/reload16.png" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
+            <input class="button" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/view_tree16.png" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "userdata" %}'"> | 
+            <input id="deleteButton" class="button button-disabled" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/cancel16.png" alt="Delete" title="Delete" /> 
         </div>
     </div>
     

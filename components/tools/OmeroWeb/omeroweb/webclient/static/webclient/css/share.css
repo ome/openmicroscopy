@@ -1,0 +1,110 @@
+#shareBodyWrapper {
+    width: 100%;
+    background-color: #fff;
+    padding-bottom: 50px;
+}
+#share {
+    padding-bottom: 50px;
+    width: 750px;
+    margin: 0 auto;
+}
+#share_menu {
+    margin: 0;
+    padding: 0 10px;
+    border-bottom:1px solid #BBBBBB;
+}
+
+/* comment display page */
+#comment_wrapper {
+    width:630px;
+}
+#comment_wrapper .photo {
+    float: left;
+    margin-top: -20px;
+}
+#comment {
+    background:transparent url(/static/webclient/image/comment/comment_repeater.png) repeat-y scroll 0 0;
+    width:590px;
+    margin-left:50px;
+}
+#comment .head {
+    font-size: 11px;
+    font-style: normal;
+    font-weight: bold;
+    background:transparent url(/static/webclient/image/comment/comment_cap.png) no-repeat scroll 0 0;
+    height:15px;
+    margin-bottom:-15px;
+    padding: 10px 0 0 20px;
+}
+#comment .timestamp {
+    font-size: 10px;
+    font-style: normal;
+    color: #666666;
+}
+#comment .head cite {
+    font-size: 100%;
+    font-weight: bold;
+    font-style: normal;
+}
+#comment .body {
+    margin:20px 20px;
+}
+#comment .footer {
+    background:transparent url(/static/webclient/image/comment/comment_foot.png) no-repeat scroll 0 0;
+    height:45px;
+    margin-top:-30px;
+}
+
+#comment_wrapper_rev {
+    margin-left: 50px;
+    width:630px;
+}
+#comment_wrapper_rev .photo {
+    margin-top: -20px;
+    float: right;
+}
+#comment_rev {
+    background:transparent url(/static/webclient/image/comment/comment_repeater_rev.png) repeat-y scroll 0 0;
+    width:590px;
+}
+#comment_rev .head {
+    font-size: 11px;
+    font-style: normal;
+    font-weight: bold;
+    background:transparent url(/static/webclient/image/comment/comment_cap_rev.png) no-repeat scroll 0 0;
+    height:37px;
+    margin-bottom:-37px;
+    padding: 10px 0 0 20px;
+}
+#comment_rev .timestamp {
+    font-size: 10px;
+    font-style: normal;
+    color: #666666;
+}
+#comment_rev .head cite {
+    font-size: 100%;
+    font-weight: bold;
+    font-style: normal;
+}
+#comment_rev .body {
+    margin:20px 20px;
+}
+#comment_rev .footer {
+    background:transparent url(/static/webclient/image/comment/comment_foot_rev.png) no-repeat scroll 0 0;
+    height:45px;
+    margin-top:-30px;
+}
+
+/* Example CSS */
+
+.quote {
+    background-color:   #eee;
+    font-family:        monospace;
+    font-style:         italic;
+    border:             1px dotted #333;
+    font-size:          95%;
+    margin:             15px 20px 15px 20px;
+    padding:            6px;
+    width:              85%;
+    overflow:           auto;
+}

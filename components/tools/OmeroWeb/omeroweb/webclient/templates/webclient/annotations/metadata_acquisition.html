@@ -1,9 +1,9 @@
 {% load i18n %}
-{% load static %}
 {% load markup %}
-{% load custom_filters %}
+{% load common_filters %}
+{% load webclient_tags %}
 
-{% get_static_prefix as STATIC_PREFIX %}
+{% get_static_webclient_prefix as STATIC_WEBCLIENT_PREFIX %}
 
 {% comment %}
 <!--
@@ -26,19 +26,19 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/images.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/annotation.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/autocomplete.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/tooltip.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/images.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/annotation.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/autocomplete.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/tooltip.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
 
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.autocomplete.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.quicksearch.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.tooltip.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.editinplace.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/jquery.form.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.autocomplete.js"></script>
+    <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery.quicksearch.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.tooltip.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.editinplace.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.form.js"></script>
   
 {% endblock %}
 
@@ -132,7 +132,7 @@
                     {% if manager.global_metadata %}
                     <h1>Global Metadata</h1>
                     <div style="height:250px; overflow:auto">
-                        <form class="quicksearch" id="quicksearch_global" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_global" value="search"> <span class="loading_global"><img class="loader" alt="Loading" src="{{ STATIC_PREFIX }}image/spinner.gif"></span></form>
+                        <form class="quicksearch" id="quicksearch_global" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_global" value="search"> <span class="loading_global"><img class="loader" alt="Loading" src="{{ STATIC_COMMON_PREFIX }}image/spinner.gif"></span></form>
                         <table id="global_metadata" class="metadata_details"
                             style="word-wrap: break-word;"><tbody>
                             {% for gm in manager.global_metadata %}
@@ -147,7 +147,7 @@
                     <hr />
                     <h1>Series Metadata</h1>
                     <div style="height:250px; overflow:auto">
-                        <form class="quicksearch" id="quicksearch_series" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_series" value="search"> <span class="loading_series"><img class="loader" alt="Loading" src="{{ STATIC_PREFIX }}image/spinner.gif"></span></form>
+                        <form class="quicksearch" id="quicksearch_series" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_series" value="search"> <span class="loading_series"><img class="loader" alt="Loading" src="{{ STATIC_COMMON_PREFIX }}image/spinner.gif"></span></form>
                         <table id="series_metadata" class="metadata_details"
                             style="word-wrap: break-word;"><tbody>
                             {% for sm in manager.series_metadata %}

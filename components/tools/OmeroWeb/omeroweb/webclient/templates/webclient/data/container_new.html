@@ -1,10 +1,6 @@
 {% extends "webclient/base/base_frame.html" %}
 {% load i18n %}
-{% load static %}
 {% load markup %}
-
-{% get_static_prefix as STATIC_PREFIX %}
-
 
 {% comment %}
 <!--
@@ -27,13 +23,13 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/googiespell.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/googiespell.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/googiespell/AJS.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/googiespell/googiespell.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/googiespell/cookiesupport.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/googiespell/AJS.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/googiespell/googiespell.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/googiespell/cookiesupport.js"></script>
 {% endblock %}
 
 

@@ -1,9 +1,6 @@
 {% extends "webclient/base/base_container.html" %}
 {% load i18n %}
-{% load static %}
 {% load markup %}
-
-{% get_static_prefix as STATIC_PREFIX %}
 
 
 {% comment %}
@@ -27,10 +24,11 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/container.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/calendar.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/images.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/table.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/container.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/calendar.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/images.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/table.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/table.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
@@ -40,7 +38,7 @@
 {% block script %}
 
     
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/actions.js"></script>
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/actions.js"></script>
     
     
     <script type="text/javascript">
@@ -52,7 +50,7 @@
                 $("div#metadata_details iframe").attr('height', h+31);
                 $("div#content_details").css('height', h+31);
                 
-                $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{{ STATIC_PREFIX }}image/spinner.gif"/></p>');
+                $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{{ STATIC_COMMON_PREFIX }}image/spinner.gif"/></p>');
                 $("div#history_calendar").load('{% url load_calendar %}?experimenter={{ nav.experimenter }}');
         })
     </script>

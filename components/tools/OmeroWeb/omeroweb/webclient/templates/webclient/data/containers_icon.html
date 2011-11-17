@@ -1,8 +1,8 @@
 {% load i18n %}
-{% load static %}
 {% load markup %}
+{% load webclient_tags %}
 
-{% get_static_prefix as STATIC_PREFIX %}
+{% get_static_webclient_prefix as STATIC_WEBCLIENT_PREFIX %}
 
 {% comment %}
 <!--
@@ -24,8 +24,6 @@
 -->
 {% endcomment %}
 
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}javascript/ui/jquery.ui.selectable.js"></script>
-    
     <script type="text/javascript">
         $(document).ready(function(){
             
@@ -162,7 +160,7 @@
 {% if manager.containers.images %}
 
     <div id="toolbar" class="toolbar_noborder" rel="icon">
-        <input onclick="changeView('table',{{ manager.paging.page|default:"1" }});" class="button" type="image" src="{{ STATIC_PREFIX }}image/view_detailed16.png" alt="Change view to table" title="Change view to table"></div>
+        <input onclick="changeView('table',{{ manager.paging.page|default:"1" }});" class="button" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/view_detailed16.png" alt="Change view to table" title="Change view to table"></div>
     <div class="clear"> </div>
         
     <ul id="dataIcons">

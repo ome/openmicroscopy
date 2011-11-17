@@ -241,7 +241,7 @@ class ExperimenterQuerySetIterator(object):
                         name = "%s %s. %s (%s)" % (firstName, middleName[:1], lastName, omeName)
                     else:
                         name = "%s %s (%s)" % (firstName, lastName, omeName)
-                
+
 
                 l = len(name)
                 if l > 50:
@@ -310,6 +310,7 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
         super(ExperimenterModelMultipleChoiceField, self).__init__(queryset, None,
             cache_choices, required, widget, label, initial, help_text,
             *args, **kwargs)
+        
 
     def clean(self, value):
         if self.required and not value:
