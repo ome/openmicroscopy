@@ -19,6 +19,7 @@ from django.utils.http import urlquote
 from django.core import template_loader
 from django.core.urlresolvers import reverse
 from django.template import RequestContext as Context
+from omero.rtypes import rlong
 
 try:
     from hashlib import md5
@@ -31,6 +32,17 @@ from omero import client_wrapper, ApiUsageException
 from omero.gateway import timeit, TimeIt
 
 import Ice
+
+try:
+    import Image
+    import ImageDraw
+except: #pragma: nocover
+    try:
+        from PIL import Image
+        from PIL import ImageDraw
+    except:
+        logger.error('No PIL installed')
+    
 
 #from models import StoredConnection
 
@@ -562,6 +574,302 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, _conn=None, 
         pass
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
+
+
+@serverid
+def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=None, **kwargs):
+    """
+    For the given ROI, choose the shape to render (first time-point, mid z-section) then render 
+    a region around that shape, scale to width and height (or default size) and draw the
+    shape on to the region
+    """
+    if _conn is None:
+        _conn = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
+
+    # need to find the z indices of the first shape in T
+    roiResult = _conn.getRoiService().findByRoi(long(roiId), None)
+    if roiResult is None or roiResult.rois is None:
+        raise Http404
+    zz = set()
+    minT = None
+    shapes = {}
+    for roi in roiResult.rois:
+        imageId = roi.image.id.val
+        for s in roi.copyShapes():
+            if s is None:   # seems possible in some situations
+                continue
+            t = s.getTheT().getValue()
+            z = s.getTheZ().getValue()
+            shapes[(z,t)] = s
+            if minT is None: minT = t
+            if t < minT:
+                zz = set([z])
+                minT = t
+            elif minT == t: 
+                zz.add(z)
+    zList = list(zz)
+    zList.sort()
+    midZ = zList[len(zList)/2]
+    s = shapes[(midZ, minT)]
+    
+    pi = _get_prepared_image(request, imageId, server_id=server_id, _conn=_conn, with_session=False)
+    
+    if pi is None:
+        raise Http404
+    image, compress_quality = pi
+
+    return get_shape_thumbnail (request, _conn, image, s, compress_quality)
+
+
+@serverid
+def render_shape_thumbnail (request, shapeId, server_id=None, w=None, h=None, _conn=None, **kwargs):
+    """
+    For the given Shape, redner a region around that shape, scale to width and height (or default size) and draw the
+    shape on to the region. 
+    """
+    if _conn is None:
+        _conn = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
+
+    # need to find the z indices of the first shape in T
+    params = omero.sys.Parameters()
+    params.map = {'id':rlong(shapeId)}
+    shape = _conn.getQueryService().findByQuery("select s from Shape s join fetch s.roi where s.id = :id", params)
+
+    if shape is None:
+        raise Http404
+
+    imageId = shape.roi.image.id.val
+
+    pi = _get_prepared_image(request, imageId, server_id=server_id, _conn=_conn, with_session=False)
+    if pi is None:
+        raise Http404
+    image, compress_quality = pi
+
+    return get_shape_thumbnail (request, _conn, image, shape, compress_quality)
+
+
+def get_shape_thumbnail (request, conn, image, s, compress_quality):
+    """
+    Render a region around the specified Shape, scale to width and height (or default size) and draw the
+    shape on to the region. Returns jpeg data. 
+    
+    @param image:   ImageWrapper
+    @param s:       omero.model.Shape
+    """
+
+    MAX_WIDTH = 250
+    color = request.REQUEST.get("color", "fff")
+    colours = {"f00":(255,0,0), "0f0":(0,255,0), "00f":(0,0,255), "ff0":(255,255,0), "fff":(255,255,255), "000":(0,0,0)}
+    lineColour = colours["f00"]
+    if color in colours:
+        lineColour = colours[color]
+    bg_color = (221,221,221)        # used for padding if we go outside the image area
+    
+    def pointsStringToXYlist(string):
+        """
+        Method for converting the string returned from omero.model.ShapeI.getPoints()
+        into list of (x,y) points.
+        E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503, 190,491] points2[309,427, 366,503, 190,491]"
+        """
+        pointLists = string.strip().split("points")
+        if len(pointLists) < 2:
+            logger.error("Unrecognised ROI shape 'points' string: %s" % string)
+            return ""
+        firstList = pointLists[1]
+        xyList = []
+        for xy in firstList.strip(" []").split(", "):
+            x, y = xy.split(",")
+            xyList.append( ( int( x.strip() ), int(y.strip() ) ) )
+        return xyList
+
+    def xyListToBbox(xyList):
+        """ Returns a bounding box (x,y,w,h) that will contain the shape represented by the XY points list """
+        xList, yList = [], []
+        for xy in xyList:
+            x, y = xy
+            xList.append(x)
+            yList.append(y)
+        return (min(xList), min(yList), max(xList)-min(xList), max(yList)-min(yList))
+
+    bBox = None   # bounding box: (x, y, w, h)
+    shape = {}
+    theT = s.getTheT().getValue()
+    theZ = s.getTheZ().getValue()
+    if type(s) == omero.model.RectI:
+        shape['type'] = 'Rectangle'
+        shape['x'] = s.getX().getValue()
+        shape['y'] = s.getY().getValue()
+        shape['width'] = s.getWidth().getValue()
+        shape['height'] = s.getHeight().getValue()
+        bBox = (shape['x'], shape['y'], shape['width'], shape['height'])
+    elif type(s) == omero.model.MaskI:
+        shape['type'] = 'Mask'
+        shape['x'] = s.getX().getValue()
+        shape['y'] = s.getY().getValue()
+        shape['width'] = s.getWidth().getValue()
+        shape['height'] = s.getHeight().getValue()
+        bBox = (shape['x'], shape['y'], shape['width'], shape['height'])
+        # TODO: support for mask
+    elif type(s) == omero.model.EllipseI:
+        shape['type'] = 'Ellipse'
+        shape['cx'] = int(s.getCx().getValue())
+        shape['cy'] = int(s.getCy().getValue())
+        shape['rx'] = int(s.getRx().getValue())
+        shape['ry'] = int(s.getRy().getValue())
+        bBox = (shape['cx']-shape['rx'], shape['cy']-shape['ry'], 2*shape['rx'], 2*shape['ry'])
+    elif type(s) == omero.model.PolylineI:
+        shape['type'] = 'PolyLine'
+        shape['xyList'] = pointsStringToXYlist(s.getPoints().getValue())
+        bBox = xyListToBbox(shape['xyList'])
+    elif type(s) == omero.model.LineI:
+        shape['type'] = 'Line'
+        shape['x1'] = int(s.getX1().getValue())
+        shape['x2'] = int(s.getX2().getValue())
+        shape['y1'] = int(s.getY1().getValue())
+        shape['y2'] = int(s.getY2().getValue())
+        x = min(shape['x1'],shape['x2'])
+        y = min(shape['y1'],shape['y2'])
+        bBox = (x, y, max(shape['x1'],shape['x2'])-x, max(shape['y1'],shape['y2'])-y)
+    elif type(s) == omero.model.PointI:
+        shape['type'] = 'Point'
+        shape['cx'] = s.getCx().getValue()
+        shape['cy'] = s.getCy().getValue()
+        bBox = (shape['cx']-50, shape['cy']-50, 100, 100)
+    elif type(s) == omero.model.PolygonI:
+        shape['type'] = 'Polygon'
+        shape['xyList'] = pointsStringToXYlist(s.getPoints().getValue())
+        bBox = xyListToBbox(shape['xyList'])
+    elif type(s) == omero.model.LabelI:
+        shape['type'] = 'Label'
+        shape['x'] = s.getX().getValue()
+        shape['y'] = s.getY().getValue()
+        bBox = (shape['x']-50, shape['y']-50, 100, 100)
+    else:
+        logger.debug("Shape type not supported: %s" % str(type(s)))
+    #print shape
+    
+    # we want to render a region larger than the bounding box
+    x,y,w,h = bBox
+    requiredWidth = max(w,h*3/2)            # make the aspect ratio (w/h) = 3/2
+    requiredHeight = requiredWidth*2/3
+    newW = int(requiredWidth * 1.5)         # make the rendered region 1.5 times larger than the bounding box
+    newH = int(requiredHeight * 1.5)
+    # Don't want the region to be smaller than the thumbnail dimensions
+    if newW < MAX_WIDTH:
+        newW = MAX_WIDTH
+        newH = newW*2/3
+    # Don't want the region to be bigger than a 'Big Image'!
+    def getConfigValue(key):
+        try:
+            return conn.getConfigService().getConfigValue(key)
+        except:
+            logger.warn("webgateway: get_shape_thumbnail() could not get Config-Value for %s" % key)
+            pass
+    max_plane_width = getConfigValue("omero.pixeldata.max_plane_width")
+    max_plane_height = getConfigValue("omero.pixeldata.max_plane_height")
+    if max_plane_width is None or max_plane_height is None or (newW > int(max_plane_width)) or (newH > int(max_plane_height)):
+        # generate dummy image to return
+        dummy = Image.new('RGB', (MAX_WIDTH, MAX_WIDTH*2/3), bg_color)
+        draw = ImageDraw.Draw(dummy)
+        draw.text((10,30), "Shape too large to \ngenerate thumbnail", fill=(255,0,0))
+        rv = StringIO()
+        dummy.save(rv, 'jpeg', quality=90)
+        return HttpResponse(rv.getvalue(), mimetype='image/jpeg')
+
+    xOffset = (newW - w)/2
+    yOffset = (newH - h)/2
+    newX = int(x - xOffset)
+    newY = int(y - yOffset)
+    
+    # Need to check if any part of our region is outside the image. (assume that SOME of the region is within the image!)
+    sizeX = image.getSizeX()
+    sizeY = image.getSizeY()
+    left_xs, right_xs, top_xs, bottom_xs = 0,0,0,0
+    if newX < 0:
+        newW = newW + newX
+        left_xs = abs(newX)
+        newX = 0
+    if newY < 0:
+        newH = newH + newY
+        top_xs = abs(newY)
+        newY = 0
+    if newW+newX > sizeX:
+        right_xs = (newW+newX) - sizeX
+        newW = newW - right_xs
+    if newH+newY > sizeY:
+        bottom_xs = (newH+newY) - sizeY
+        newH = newH - bottom_xs
+
+    # now we should be getting the correct region
+    jpeg_data = image.renderJpegRegion(theZ,theT,newX, newY, newW, newH,level=None, compression=compress_quality)
+    img = Image.open(StringIO(jpeg_data))
+    
+    # add back on the xs we were forced to trim
+    if left_xs != 0 or right_xs != 0 or top_xs != 0 or bottom_xs != 0:
+        jpg_w, jpg_h = img.size
+        xs_w = jpg_w + right_xs + left_xs
+        xs_h = jpg_h + bottom_xs + top_xs
+        xs_image = Image.new('RGBA', (xs_w, xs_h), bg_color)
+        xs_image.paste(img, (left_xs, top_xs))
+        img = xs_image
+    
+    # we have our full-sized region. Need to resize to thumbnail. 
+    current_w, current_h = img.size
+    factor = float(MAX_WIDTH) / current_w
+    resizeH = current_h * factor
+    img = img.resize((MAX_WIDTH, resizeH))
+    
+    draw = ImageDraw.Draw(img)
+    if shape['type'] == 'Rectangle':
+        rectX = int(xOffset * factor)
+        rectY = int(yOffset * factor)
+        rectW = int((w+xOffset) * factor)
+        rectH = int((h+yOffset) * factor)
+        draw.rectangle((rectX, rectY, rectW, rectH), outline=lineColour)
+        draw.rectangle((rectX-1, rectY-1, rectW+1, rectH+1), outline=lineColour)    # hack to get line width of 2
+    elif shape['type'] == 'Line':
+        lineX1 = (shape['x1'] - newX + left_xs) * factor
+        lineX2 = (shape['x2'] - newX + left_xs) * factor
+        lineY1 = (shape['y1'] - newY + top_xs) * factor
+        lineY2 = (shape['y2'] - newY + top_xs) * factor
+        draw.line((lineX1, lineY1, lineX2, lineY2), fill=lineColour, width=2)
+    elif shape['type'] == 'Ellipse':
+        rectX = int(xOffset * factor)
+        rectY = int(yOffset * factor)
+        rectW = int((w+xOffset) * factor)
+        rectH = int((h+yOffset) * factor)
+        draw.ellipse((rectX, rectY, rectW, rectH), outline=lineColour)
+        draw.ellipse((rectX-1, rectY-1, rectW+1, rectH+1), outline=lineColour) # hack to get line width of 2
+    elif shape['type'] == 'Point':
+        point_radius = 2
+        rectX = (MAX_WIDTH/2) - point_radius
+        rectY = int(resizeH/2) - point_radius
+        rectW = rectX + (point_radius * 2)
+        rectH = rectY + (point_radius * 2)
+        draw.ellipse((rectX, rectY, rectW, rectH), outline=lineColour)
+        draw.ellipse((rectX-1, rectY-1, rectW+1, rectH+1), outline=lineColour) # hack to get line width of 2
+    elif 'xyList' in shape:
+        #resizedXY = [ (int(x*factor), int(y*factor)) for (x,y) in shape['xyList'] ]
+        def resizeXY(xy):
+            x,y = xy
+            return (int((x-newX + left_xs)*factor), int((y-newY + top_xs)*factor))
+        resizedXY = [ resizeXY(xy) for xy in shape['xyList'] ]
+        #draw.polygon(resizedXY, outline=lineColour)    # doesn't support 'width' of line
+        for l in range(1, len(resizedXY)):
+            x1, y1 = resizedXY[l-1]
+            x2, y2 = resizedXY[l]
+            draw.line((x1, y1, x2, y2), fill=lineColour, width=2)
+        start_x, start_y = resizedXY[0]
+        if shape['type'] != 'PolyLine':
+            draw.line((x2, y2, start_x, start_y), fill=lineColour, width=2)
+        
+    rv = StringIO()
+    compression = 0.9
+    img.save(rv, 'jpeg', quality=int(compression*100))
+    jpeg = rv.getvalue()
+    
+    return HttpResponse(jpeg, mimetype='image/jpeg')
+
 
 def _get_signature_from_request (request):
     """
