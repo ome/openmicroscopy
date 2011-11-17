@@ -1,14 +1,18 @@
 <ivy-module version="1.0">
   <info
       organisation="omero"
-      module="OmeroInsight"
+      module="insight"
       status="integration"/>
   <configurations>
     <conf name="build"/>
     <conf name="client"/>
   </configurations>
   <publications>
-    <artifact name="OmeroInsight" type="jar"/>
+    <artifact name="insight" type="jar"/>
+    <artifact name="insight" type="zip"/>
+    <artifact name="insight-win" type="zip"/>
+    <artifact name="insight-mac" type="zip"/>
+    <artifact name="insight-mac-openGL" type="zip"/>
   </publications>
   <dependencies defaultconfmapping="build,client->default">
     <!-- Internal -->

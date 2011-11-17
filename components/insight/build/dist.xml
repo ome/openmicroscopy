@@ -189,6 +189,13 @@
   	dist-win-openGL,dist-win64-openGL"
           description="Build and package the app for distribution."> 
     <property name="main-dist-prefix" value="${dist.bundle.name}-${dist.bundle.version}"/>
+
+    <!-- Touch the zip files for ivy -->
+    <zip destfile="${dist.dir}/${main-dist-prefix}-win.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
+
+    <!-- Main zip -->
     <zip destfile="${dist.dir}/${main-dist-prefix}.zip">
       <zipfileset dir="${app.config.dir}" prefix="${main-dist-prefix}/${dist.app.config.dir.name}"/>
       <zipfileset refid="app.libs" prefix="${main-dist-prefix}/${dist.app.lib.dir.name}"/>
