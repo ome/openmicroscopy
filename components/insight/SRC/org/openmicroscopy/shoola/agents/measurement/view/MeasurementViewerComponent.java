@@ -386,17 +386,17 @@ class MeasurementViewerComponent
 	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setMagnifiedPlane(int, int, double, int, int)
+     * @see MeasurementViewer#setMagnifiedPlane(int, int, double)
      */
 	public void setMagnifiedPlane(int defaultZ, int defaultT, 
-				double magnification, int sizeX, int sizeY)
+				double magnification)
 	{
 		int z = model.getDefaultZ();
 		int t = model.getDefaultT();
 		double f = model.getMagnification();
 		if (z == defaultZ && t == defaultT) {
 			if (f != magnification)
-				model.setMagnification(magnification, sizeX, sizeY);
+				model.setMagnification(magnification);
 			if (!model.isBigImage()) return;
 		}
 		model.setPlane(defaultZ, defaultT);
@@ -426,7 +426,7 @@ class MeasurementViewerComponent
 		model.getDrawingView().setDrawing(drawing);
 		drawing.addDrawingListener(controller);
 		if (f != magnification)
-			model.setMagnification(magnification, sizeX, sizeY);
+			model.setMagnification(magnification);
 	}
 
 	/** 
