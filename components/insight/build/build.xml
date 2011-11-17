@@ -104,6 +104,10 @@
    * properties defined by others and all child files check for the needed
    * external properties at import time.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <path id="jarbundler.path">
+    <pathelement location="${base.lib.dir}/jarbundler.jar"/>
+  </path>
+
   <typedef file="${base.build.dir}/lib.xml"/>
   <import file="${base.build.dir}/app.xml"/>
   <import file="${base.build.dir}/test.xml"/> 

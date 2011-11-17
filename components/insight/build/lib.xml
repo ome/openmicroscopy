@@ -510,6 +510,8 @@
    *  + jarbundler-1.6.jar: The Jar Bundler jar.  Version: 1.6.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <taskdef name="jarbundler"
-           classname="net.sourceforge.jarbundler.JarBundler" />
+      classname="net.sourceforge.jarbundler.JarBundler" >
+      <classpath refid="jarbundler.path" />
+  </taskdef>
 
 </antlib>
