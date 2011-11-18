@@ -715,4 +715,5 @@ def image_viewer (request, iid, **kwargs):
 def common_templates (request, base_template):
     """ Simply return the named template. Similar functionality to django.views.generic.simple.direct_to_template """
     template_name = 'webtest/common/%s.html' % base_template
-    return render_to_response(template_name, {})
+    from django.template import RequestContext
+    return render_to_response(template_name, context_instance=RequestContext(request))
