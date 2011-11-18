@@ -1,6 +1,5 @@
-{% extends "webclient/base/base_main.html" %}
+{% extends "common/base/base_main.html" %}
 {% load i18n %}
-{% load markup %}
 
 
 {% comment %}
@@ -23,11 +22,34 @@
 -->
 {% endcomment %}
 
-{% block header %}
-
-{% include "webclient/base/header.html" %}
-
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/layout.css" type="text/css" media="screen"/>
+    
 {% endblock %}
+
+{% block script %}
+    {{ block.super }}
+    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/nav.js"></script> <!-- handles expand  / collapse columns -->
+    
+    <script type="text/javascript">
+    {% if nav.error %}
+        alert("{{ nav.error }}");
+    {% endif %}
+    </script>
+{% endblock %}
+
+
+{% block nav_links %}
+    <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
+    {% include "webclient/base/menu.html" %}
+{% endblock %}
+
+
+{% block header_left %}
+    {% include "webclient/base/header.html" %}
+{% endblock %}
+
 
 {% block content %}
 

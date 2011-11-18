@@ -1,7 +1,12 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
-<html> <head>
-<title>Split View Figure</title>
+{% extends "common/base/base_html.html" %}
 
+{% block title %}Split View Figure{% endblock %}
+
+{% block link %}
+<script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+{% endblock %}
+
+{% block script %}
 <style type="text/css">
 
 body {
@@ -59,7 +64,6 @@ form dir {
     </style>
     <![endif]-->
 
-<script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
 <script type="text/javascript">
 
 $(document).ready(function() {
@@ -76,11 +80,10 @@ function hideHeader() {
     return false;
 }
 </script>
+{% endblock %}
 
-</head>
 
-<body>
-    
+{% block content %}
 <div id="header">
     
     <div style="float:left">
@@ -238,4 +241,4 @@ function hideHeader() {
 
 {% endif %}
 
-</body> </html>
+{% endblock %}

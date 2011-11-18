@@ -1,5 +1,4 @@
 {% load i18n %}
-{% load markup %}
 {% load webadmin_tags %}
 
 {% get_static_webadmin_prefix as STATIC_WEBADMIN_PREFIX %}
@@ -39,7 +38,7 @@
 
     <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery_1.4.2.js"></script>
     <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/popup.js"></script>
-    {% block jscript %}{% endblock %}
+    {% block script %}{% endblock %}
         
 </head>
 <body>

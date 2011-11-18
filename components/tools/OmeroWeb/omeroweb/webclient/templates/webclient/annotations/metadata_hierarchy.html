@@ -1,9 +1,6 @@
 {% load i18n %}
-{% load markup %}
 {% load common_filters %}
-{% load webclient_tags %}
 
-{% get_static_webclient_prefix as STATIC_WEBCLIENT_PREFIX %}
 
 {% comment %}
 <!--
@@ -30,7 +27,7 @@
     <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/tree.css" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block jscript %}
+{% block script %}
         
 {% endblock %}
 

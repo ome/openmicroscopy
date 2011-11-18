@@ -1,11 +1,13 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
-<html> <head>
-<title>Dataset Split View</title>
+{% extends "common/base/base_main.html" %}
 
+{% block title %}Dataset split view{% endblock %}
+
+{% block script %}
+{{ block.super }}
 <style type="text/css">
 
 body {
-    font-family: arial;
+    /** font-family: arial; **/
 }
 form dir {
     padding:0px;
@@ -18,14 +20,6 @@ form dir {
     margin: 5px;
 }
 
-#header {
-    background: #ddd;
-    padding: 10px 10px 5px 10px;
-}
-#header dir{
-    padding:0px;
-    margin:0px;
-}
 </style>
 
 
@@ -39,11 +33,11 @@ function hideHeader() {
 }
 </script>
 
-</head>
+{% endblock %}
 
-<body>
-    
-<div id="header">
+
+{% block content %}
+<div>
     <form method='post' action="">
         <div>
             <table>
@@ -108,5 +102,4 @@ function hideHeader() {
         </td>
     </tr>
 </table>
-
-</body> </html>
+{% endblock %}

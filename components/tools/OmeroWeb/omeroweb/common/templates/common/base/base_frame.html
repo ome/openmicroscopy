@@ -1,8 +1,5 @@
-{% load i18n %}
-{% load markup %}
+{% extends 'common/base/base_html.html' %}
 
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 {% comment %}
 <!--
@@ -24,27 +21,16 @@
 -->
 {% endcomment %}
 
-<html xmlns="http://www.w3.org/1999/xhtml">
 
-<head>
-    <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/ui-1.8.12.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/body.css" type="text/css" />
-        
-    {% block link %}{% endblock %}
+<!-- 'title' block goes here - (not extended for this template) -->
 
-    <link rel="shortcut icon" href="{{ STATIC_COMMON_PREFIX }}image/ome.ico" type="image/x-icon" />
 
-    <title>{% trans "Webclient" %} {% block title %}{% endblock %}</title>
+{% block script %}
+    <!-- javascript links -->
+    {% include "common/base/includes/script_src_jquery.html" %}
+    {% include "common/base/includes/jquery-ui.html" %}
+    {% include "common/base/includes/script_src_popup.html" %}
+{% endblock %}
 
-    <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery_1.4.2.js"></script>
-    <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/ui/jquery-ui-1.8.12.custom.min.js"></script>
-    {% block jscript %}{% endblock %}
 
-    <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/popup.js"></script>
-    {% block script %}{% endblock %}
-
-</head>
-<body>
-{% block content %}{{msg}}{% endblock %}
-</body>
-</html>
+<!-- 'body' block goes here - (not extended for this template) -->

@@ -1,6 +1,5 @@
 {% extends "webclient/base/base.html" %}
 {% load i18n %}
-{% load markup %}
 
 {% comment %}
 <!--
@@ -23,20 +22,20 @@
 {% endcomment %}
 
 {% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/layout.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/table.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/table.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/myaccount.css" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block jscript %}
+{% block script %}
+    {{ block.super }}
     <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery.tablesorter.js"></script>
     <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery.quicksearch.js"></script>
-{% endblock %}
 
-{% block script %}
     <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/menu.js"></script>
-    
-    
+
     <script type="text/javascript">
         $(document).ready(function() 
             {

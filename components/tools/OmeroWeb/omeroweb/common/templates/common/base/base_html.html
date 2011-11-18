@@ -25,16 +25,33 @@
 
 <head>
 
-    {% block link %}{% endblock %}
+    {% block link %}
+        <!-- block for css <link> elements etc -->
+        {% include "common/base/includes/css_link_body.html" %}
+    {% endblock %}
 
-    <title>{% block title %}Base Html{% endblock %}</title>
 
-    {% block script %}{% endblock %}
+    <!-- extend here to add page title -->
+    <title>
+        {% block title %}
+        {% endblock %}
+    </title>
+
+    {% block script %}
+        <!-- block for javascript <script> -->
+    {% endblock %}
+
+    {% block head %}
+        <!-- block for extra head elements (not css or javascript) E.g. icon, meta tags -->
+        {% include "common/base/includes/shortcut_icon.html" %}
+    {% endblock %}
 
 </head>
 <body>
 
-{% block content %}{% endblock %}</div>
+{% block body %}
+
+{% endblock %}
 
 </body>
 </html>

@@ -1,0 +1,14 @@
+body {
+    background-color: #F3F3F3;
+    color: #555555;
+    font-family: Arial,Verdana,Lucida,Helvetica,sans-serif;
+    font-size: 13px;
+    margin: 0;
+    padding: 0;
+}
+
+a:hover, a:link, a:visited {
+    border: medium none;
+    color: #1B7BC7;
+    text-decoration: none;
+}

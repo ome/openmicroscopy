@@ -1,11 +1,6 @@
+{% extends "common/base/base_html.html" %}
 {% load i18n %}
-{% load markup %}
 {% load webclient_tags %}
-
-{% get_static_webclient_prefix as STATIC_WEBCLIENT_PREFIX %}
-
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 {% comment %}
 <!--
@@ -27,18 +22,24 @@
 -->
 {% endcomment %}
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-
-<head>
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/layout.css" type="text/css" />
+{% block link %}
+    {{ block.super }}
+    {% include "common/base/includes/css_link_body.html" %}
+    <link rel="stylesheet" href="{% get_static_webclient_prefix %}css/layout.css" type="text/css" />
     <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/login.css" type="text/css" />
+{% endblock %}
 
-    <link rel="shortcut icon" href="{{ STATIC_COMMON_PREFIX }}image/ome.ico" type="image/x-icon" />
+{% block title %}
+    {% trans "OMERO.web - Login" %}
+{% endblock %}
 
-    <title>{% trans "OMERO.web - Login" %}</title>
+{% block head %}
+    {{ block.super }}
+    {% include "common/base/includes/shortcut_icon.html" %}
+{% endblock %}
 
-</head>
-<body>
+{% block body %}
+
 <div id="login-logo">
     <img src="{{ STATIC_WEBCLIENT_PREFIX }}image/logo.png" />
 </div>
@@ -75,6 +76,4 @@
 </div>
 
 <div id="login-footer"><p>OMERO.web {{ version }}.<br/>&copy; 2007-2011 University of Dundee & Open Microscopy Environment</p></div>
-
-</body>
-</html>
+{% endblock %}

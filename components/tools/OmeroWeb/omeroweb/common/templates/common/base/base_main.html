@@ -1,14 +1,6 @@
-{% load i18n %}
-{% load markup %}
-{% load webclient_tags %}
+{% extends 'common/base/base_header.html' %}
 
-{% get_static_webclient_prefix as STATIC_WEBCLIENT_PREFIX %}
-
-
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" class="noscroll">
+<!-- <html class="noscroll"> -->
 
 {% comment %}
 <!--
@@ -30,57 +22,24 @@
 -->
 {% endcomment %}
 
-<head>
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/layout.css" type="text/css" />
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/menu.css" type="text/css" />
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/images.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/ui-1.8.12.css" type="text/css" media="screen"/>
-
-    <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/body.css" type="text/css" />
-    <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/header.css" type="text/css" />
-    <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/footer.css" type="text/css" />
+{% block link %}
+{{ block.super }}
+    <style type="text/css">
+    body {
+        min-width: 1010px;
+        overflow: hidden;
+    }
+    </style>
     
-    {% block link %}{% endblock %}
+    
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/layout.css" type="text/css" />
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/images.css" type="text/css" media="screen"/>
+{% endblock %}
 
-    <link rel="shortcut icon" href="{{ STATIC_COMMON_PREFIX }}images/ome.ico" type="image/x-icon" />
-
-    <title>{% trans "Webclient" %} {% block title %}{% endblock %}</title>
-
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery_1.4.2.js"></script>
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/ui/jquery-ui-1.8.12.custom.min.js"></script>
-    {% block jscript %}{% endblock %}
-
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/menu.js"></script> <!-- handles menu animation -->
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/nav.js"></script> <!-- handles expand  / collapse columns -->
-    <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/popup.js"></script> 
-    <script type="text/javascript">
-    {% if nav.error %}
-        alert("{{ nav.error }}");
-    {% endif %}
-    </script>
-    {% block script %}{% endblock %}
-
-</head>
-<body id="{{ nav.menu }}">
-<div id="bodyWrapper">
-    <div id="headerWrapper">
-        <div id="header">
-            <div id="logo"> </div>
-            
-            {% include "common/base/includes/menu.html" %}
-            
-        </div>    
-        <div id="header2">
-            {% block header %}{% endblock %}
-            <div id="logout">
-                <a href="{% url weblogout %}">{% trans "logout" %}</a>
-            </div>
-        </div>
-    </div>
-    <div id="contentWrapper">{% block content %}{% endblock %}</div>
-</div>
-
-{% include "common/base/includes/footer.html" %}
-
-</body>
-</html>
+{% block script %}
+    {{ block.super }}
+    <!-- javascript links -->
+    {% include "common/base/includes/script_src_jquery.html" %}
+    {% include "common/base/includes/jquery-ui.html" %}
+    {% include "common/base/includes/script_src_popup.html" %}
+{% endblock %}

@@ -1,6 +1,5 @@
 {% extends "webclient/base/base_container.html" %}
 {% load i18n %}
-{% load markup %}
 
 
 {% comment %}
@@ -24,6 +23,8 @@
 {% endcomment %}
 
 {% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/layout.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/container.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/calendar.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/images.css" type="text/css" media="screen"/>
@@ -31,15 +32,10 @@
     <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/table.css" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block jscript %}
-
-{% endblock %}
 
 {% block script %}
-
-    
+    {{ block.super }}
     <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/actions.js"></script>
-    
     
     <script type="text/javascript">
         $(document).ready(function() 

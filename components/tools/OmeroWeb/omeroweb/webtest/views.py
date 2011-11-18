@@ -710,3 +710,9 @@ def image_viewer (request, iid, **kwargs):
     kwargs['viewport_server'] = '/webclient'
     
     return webgateway_views.full_viewer(request, iid, _conn=conn, **kwargs)
+
+
+def common_templates (request, base_template):
+    """ Simply return the named template. Similar functionality to django.views.generic.simple.direct_to_template """
+    template_name = 'webtest/common/%s.html' % base_template
+    return render_to_response(template_name, {})

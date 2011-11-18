@@ -1,0 +1,34 @@
+{% extends "common/base/base_header.html" %}
+
+{% block title %}
+Extends "common/base/base_header.html"
+{% endblock %}
+
+
+{% block nav_links %}
+    <li><a href="{% url common 'base_html' %}">base_html</a></li>
+    <li><a href="{% url common 'base_frame' %}">base_frame</a></li>
+    <li><a href="{% url common 'base_main' %}">base_main</a></li>
+    <li><a href="{% url common 'base_header' %}">base_header</a></li>
+{% endblock %}
+
+
+{% block header_left %}
+<a href="{% url common 'header_links' %}">header_links</a> | 
+<a href="{% url common 'header_icon' %}">header_icon</a>
+{% endblock %}
+
+
+{% block header_right %}
+    <a href="#">Extra Links</a> |
+    {{ block.super }}
+{% endblock %}
+
+
+{% block content %}
+<h1>block body</h1>
+{% endblock %}
+
+
+{% block footer_css %}{% endblock %}
+{% block footer %}{% endblock %}

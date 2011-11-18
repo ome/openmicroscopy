@@ -1,6 +1,5 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
-{% load markup %}
 
 {% comment %}
 <!--
@@ -30,7 +29,7 @@
 {% endif %}
 {% endblock %}
 
-{% block jscript %}
+{% block script %}
     <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery_1.4.2.js"></script>
     
     <script type="text/javascript">

@@ -1,5 +1,4 @@
 {% load i18n %}
-{% load markup %}
 {% load feedback_tags %}
 
 {% get_static_feedback_prefix as STATIC_FEEDBACK_PREFIX %}
@@ -12,6 +11,10 @@
 <head>
     <link rel="stylesheet" href="{{ STATIC_FEEDBACK_PREFIX }}css/layout.css" type="text/css" />
     <link rel="shortcut icon" href="{{ STATIC_FEEDBACK_PREFIX }}image/ome.ico" type="image/x-icon" />
+    
+    <link rel="stylesheet" href="{% url webstatic "common/css/body.css" %}" type="text/css" />
+    
+    <link rel="stylesheet" href="{% url webstatic "common/css/body.css" %}" type="text/css" />
     
     <title>{% trans "Web - Internal Error" %}</title>
     

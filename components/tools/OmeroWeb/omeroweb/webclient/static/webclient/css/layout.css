@@ -6,22 +6,13 @@ html.noscroll {
     overflow: hidden;
 }
 
-body {
-    font-size: 13px;
-    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
-    color: #555;
-    margin: 0;
-    padding: 0;
-    background-color: #f3f3f3;  
+.header_chooser {
+    float:left;
+    position:relative;
+    top:-2px;
+    padding:0px 5px;
 }
 
-#bodyWrapper {
-    margin: 0;
-    padding: 0;
-    min-width: 1010px;
-    background: #ffffff url(/static/webclient/image/background.png) repeat-x top left ;
-    border-bottom: 1px solid #bbb;
-}
 body.zoom {
     width: 100%;
     background: no-repeat;
@@ -36,34 +27,10 @@ body.zoom {
     color: #777777;
 }
 
-#headerWrapper {
-    border-bottom: 1px solid #bbb;
-}
-#header {
-    position: relative;
-    margin: 0 10px;
-    height:90px;
-}
-#header2 {
-    margin: 0;
-    padding: 4px 0px;
-    height: 17px;
-    position: relative;
-}
-
-#menu {
-    position: absolute;
-    top:0;
-    right: 0;
-}
-
 #content_zoom {
     margin: 10px;
 }
 
-#contentWrapper {
-    position: relative;
-}
 table.contentWrapper {
     width: 100%; 
     background: #f3f3f3;
@@ -123,13 +90,6 @@ table.contentWrapper {
     width: 100%;    
 }
 
-#logout {
-    position: absolute;
-    padding: 2px 0;
-    top: 0;
-    right: 0;
-    margin: 0 10px;
-}
 #actionWrapper {
     position: absolute;
     padding: 0;
@@ -144,15 +104,7 @@ table.contentWrapper {
     margin: 0 5px;
     float:left;
 }
-#logo {
-    position: absolute;
-    margin: 0;
-    height: 90px;
-    width: 160px;
-    background: url(/static/common/image/logo.png) no-repeat bottom left ;
-    top: 0;
-    left: 25px;
-}
+
 #dataTable img {
     /*border: 1px solid white;*/
     padding: 2px;
@@ -207,15 +159,6 @@ table.contentWrapper {
     background:transparent url(/static/webclient/image/tray_right_expand_button.png) no-repeat scroll;
     height:24px;
     width:16px;
-}
-
-#footer {
-    clear: both;
-    font-size: 11px;
-    text-align: center;
-    height: 50px;
-    padding: 10px;
-    background-color: #f3f3f3;
 }
 
 .tree {

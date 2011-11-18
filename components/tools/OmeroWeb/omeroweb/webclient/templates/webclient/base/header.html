@@ -1,5 +1,4 @@
 {% load i18n %}
-{% load markup %}
 {% load common_tags %}
 
 {% comment %}
@@ -78,11 +77,11 @@
             <img src="{{ STATIC_COMMON_PREFIX }}image/spinner.gif" id="progress" style="display: none;"/>
         </div>
         {% endifnotequal %}
-        <div style="float:left">
+        <div class="header_chooser">
             {% for field in form_active_group %} {% trans "group" %}: {{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
         </div>
         {% if form_users %}
-        <div style="float:left; padding: 0px 10px">
+        <div class="header_chooser">
             {% for field in form_users %}{{ field }}{% endfor %}&nbsp;&nbsp;&nbsp;
         </div>
         {% endif %}

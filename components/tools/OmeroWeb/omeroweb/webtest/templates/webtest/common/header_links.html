@@ -1,0 +1,18 @@
+{% extends "common/base/base_header.html" %}
+
+{% block title %}
+Extends "common/base/base_header.html"
+{% endblock %}
+
+
+{% block nav_links %}
+    <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
+    {% include "webclient/base/menu.html" %}
+    <li><a href="{% url common 'base_header' %}">base_header</a></li>
+{% endblock %}
+
+{% block thin_header %}{% endblock %}
+
+{% block content %}
+<h1>block body</h1>
+{% endblock %}

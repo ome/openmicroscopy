@@ -1,6 +1,5 @@
-{% extends "webclient/base/base_frame.html" %}
+{% extends "common/base/base_frame.html" %}
 {% load i18n %}
-{% load markup %}
 
 
 {% comment %}
@@ -24,23 +23,22 @@
 {% endcomment %}
 
 {% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/layout.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/share.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/googiespell.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/tooltip.css" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block jscript %}
-    
+{% block script %}
+    {{ block.super }}
     
     <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.tooltip.js"></script>
-
     
     <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/googiespell/AJS.js"></script>
     <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/googiespell/googiespell.js"></script>
     <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/googiespell/cookiesupport.js"></script>
-{% endblock %}
 
-{% block script %}    
     <script>
       $(document).ready(function(){
           $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
@@ -65,7 +63,7 @@
     
 {% endblock %}
 
-{% block content %}
+{% block body %}
 
 <h1>{% trans "Edit" %} {{ share.share.getShareType|lower }}:</h1>
 

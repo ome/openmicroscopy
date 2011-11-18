@@ -1,6 +1,5 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
-{% load markup %}
 
 {% comment %}
 <!--
@@ -28,7 +27,7 @@
     <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/table.css" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block jscript %}
+{% block script %}
     <!--[if IE]><script language="javascript" type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/excanvas.js"></script><![endif]-->
     <script type="text/javascript" src="{{ STATIC_WEBADMIN_PREFIX }}javascript/jquery.flot.pie.js"></script>
     

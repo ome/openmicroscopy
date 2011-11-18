@@ -1,0 +1,16 @@
+{% extends "webtest/common/base_header.html" %}
+
+{% block title %}
+Extends "webtest/common/base_header.html"
+{% endblock %}
+
+
+{% block logo %}
+<div><img src="/webtest/statictest/img/ome-logo-bw.png" height='85'/></div>
+{% endblock %}
+
+
+{% block header_left %}
+{{ block.super }}
+ | <a href="#">Extra Link for this page</a>
+{% endblock %}

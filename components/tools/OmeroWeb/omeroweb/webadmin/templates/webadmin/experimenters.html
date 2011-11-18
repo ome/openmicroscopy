@@ -1,6 +1,5 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
-{% load markup %}
 
 
 {% comment %}
@@ -29,7 +28,7 @@
 
 {% block title %}{% trans "Scientists" %}{% endblock %}
 
-{% block jscript %}
+{% block script %}
     <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery.tablesorter.js"></script>
     <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery.quicksearch.js"></script>
 

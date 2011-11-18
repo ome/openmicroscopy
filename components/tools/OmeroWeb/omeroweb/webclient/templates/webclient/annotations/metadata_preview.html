@@ -1,8 +1,5 @@
 {% load i18n %}
-{% load markup %}
-{% load webclient_tags %}
 
-{% get_static_webclient_prefix as STATIC_WEBCLIENT_PREFIX %}
 
 {% comment %}
 <!--
@@ -33,7 +30,7 @@
     <link rel="stylesheet" href="/webgateway/appmedia/css/weblitz-viewport.css" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block jscript %}
+{% block script %}
 
     <script type="text/javascript" src="/webgateway/appmedia/js/weblitz-viewport.js"></script>
     <script type="text/javascript" src="/webgateway/appmedia/js/jquery-plugin-viewportImage.js"></script>
@@ -50,10 +47,7 @@
     <script type="text/javascript" src="/webgateway/appmedia/js/3rdparty/panojs/control_thumbnail.js"></script>
     <script type="text/javascript" src="/webgateway/appmedia/js/3rdparty/panojs/control_info.js"></script>
     <script type="text/javascript" src="/webgateway/appmedia/js/3rdparty/panojs/control_svg.js"></script>
-    
-{% endblock %}
 
-{% block script %}
 
     <script type="text/javascript">
         var preview_loaded = function() {

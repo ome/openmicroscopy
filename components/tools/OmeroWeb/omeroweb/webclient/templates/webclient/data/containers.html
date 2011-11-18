@@ -1,9 +1,6 @@
 {% extends "webclient/base/base_container.html" %}
 {% load i18n %}
-{% load markup %}
 
-{% block link %}
-{% endblock %}
 
 {% comment %}
 <!--
@@ -34,15 +31,12 @@
 -->
 {% endcomment %}
 
-{% block jscript %}
 
+{% block script %}
+    {{ block.super }}
     <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.cookie.js"></script>
     <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.hotkeys.js"></script>
     <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.jstree.js"></script>   
-    
-{% endblock %}
-
-{% block script %}
     
     <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/actions.js"></script>
     <script type="text/javascript">

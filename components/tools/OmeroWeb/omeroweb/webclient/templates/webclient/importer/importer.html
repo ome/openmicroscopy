@@ -1,6 +1,5 @@
 {% extends "webclient/base/base.html" %}
 {% load i18n %}
-{% load markup %}
 
 
 {% comment %}
@@ -27,7 +26,7 @@
     <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/swfupload.css" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block jscript %}
+{% block script %}
 
     <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/swfupload/swfupload.js"></script>
     <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/swfupload/swfupload.cookies.js"></script>
