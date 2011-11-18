@@ -845,14 +845,13 @@ OMERO Diagnostics %s
 
     def check_ice(self):
         """
-        Checks for Ice version 3.3
+        Checks for Ice version 3.4
 
-        See ticket:2514
+        See ticket:2514, ticket:1260
         """
-        pattern = "3.3."
 
         import Ice, sys, re
-        pat = "^3[.]3[.].*"
+        pat = "^3[.]4[.].*"
         pattern = re.compile(pat)
         vers = Ice.stringVersion()
         if pattern.match(vers) is None:
