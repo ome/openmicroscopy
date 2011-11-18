@@ -80,7 +80,7 @@ public class ChannelProcessorTest
 	@BeforeMethod
 	protected void setUp() throws Exception
 	{
-		ServiceFactoryPrx sf = new TestServiceFactory();
+		ServiceFactoryPrx sf = new TestServiceFactory().proxy();
         wrapper = new OMEROWrapper(new ImportConfig());
         store = new OMEROMetadataStoreClient();
         store.initialize(sf);
