@@ -27,8 +27,12 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.WindowConstants;
 
 //Third-party libraries
 
@@ -66,6 +70,12 @@ public class ColourPicker
     /** Bounds property indicating that a new color is selected. */
     public static final String COLOUR_PROPERTY = "colour";
     
+    /** Bounds property indicating that a new color is selected. */
+    public static final String COLOUR_PREVIEW_PROPERTY = "colourPreview";
+    
+    /** Bounds property indicating to close the dialog. */
+    public static final String CANCEL_PROPERTY = "closeColourPicker";
+    
     /** The title of the window. */
     private static final String TITLE = "Colour Picker Window";
     
@@ -88,6 +98,15 @@ public class ColourPicker
         setAlwaysOnTop(true);
     }
     
+    /** Attaches the listeners.*/
+    private void attachListeners()
+    {
+    	setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) { cancel(); }
+		});
+    }
+    
     /** Notifies the user that an invalid color component has been entered. */
     static void invalidColorValue()
     {
@@ -104,10 +123,12 @@ public class ColourPicker
     void cancel()
     {
         setVisible(false);
-        dispose(); 
+        dispose();
+        firePropertyChange(CANCEL_PROPERTY, Boolean.valueOf(false),
+        		Boolean.valueOf(true));
     }
 
-    /**  Returns the current colour to the user. */
+    /**  Returns the current colour to the user.*/
     void accept()
     {
         Color c = model.getColour();
@@ -120,6 +141,23 @@ public class ColourPicker
         	firePropertyChange(COLOUR_PROPERTY, null, 
         			new ColourObject(c, description));	
         cancel();
+    }
+    
+    /**  Returns the current colour to the user.*/
+    void preview()
+    {
+        Color c = model.getColour();
+        String description = tabbedPane.getDescription();
+        if (model.isOriginalColor(model.getColour()) && description == null) 
+        	return;
+        firePropertyChange(COLOUR_PREVIEW_PROPERTY, model.getOriginalColor(),
+        		c);
+    }
+    
+    /** Resets the color to the original.*/
+    void reset()
+    {
+    	firePropertyChange(COLOUR_PROPERTY, null, model.getOriginalColor());
     }
     
 	/** 
@@ -148,7 +186,7 @@ public class ColourPicker
 		gbc.weighty = 30;
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.BOTH;
-			
+		attachListeners();
 		getContentPane().add(tabbedPane, gbc);
         pack();
 	}
@@ -197,4 +235,17 @@ public class ColourPicker
 		tabbedPane.setColorDescription(description);
 	}
 	
+	/**
+	 * Shows or hides the preview button.
+	 * 
+	 * @param visible Pass <code>true</code> to show the preview button,
+	 * 				  <code>false</code> otherwise.
+	 */
+	public void setPreviewVisible(boolean visible)
+	{
+		tabbedPane.setPreviewVisible(visible);
+		tabbedPane.repaint();
+		pack();
+	}
+
 }

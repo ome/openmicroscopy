@@ -84,6 +84,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -1054,12 +1055,7 @@ public class ImportDialog
 		cancelButton.setToolTipText("Close the dialog and do not import.");
 		cancelButton.setActionCommand(""+CANCEL);
 		cancelButton.addActionListener(this);
-		
-		cancelButton = new JButton("Close");
-		cancelButton.setToolTipText("Close the dialog and do not import.");
-		cancelButton.setActionCommand(""+CANCEL);
-		cancelButton.addActionListener(this);
-		
+
 		cancelImportButton = new JButton("Cancel All");
 		cancelImportButton.setToolTipText("Cancel all ongoing imports.");
 		cancelImportButton.setActionCommand(""+CANCEL_ALL_IMPORT);
@@ -2311,6 +2307,8 @@ public class ImportDialog
 	{
 		if (bar == null) return;
 		toolBar.add(bar);
+		//invoke when master
+		cancelButton.setVisible(false);
 	}
 	
 	/**

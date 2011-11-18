@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -202,6 +203,18 @@ public class MetadataViewerAgent
     	MetadataViewerFactory.onGroupSwitched(evt.isSuccessful());
     }
     
+    /**
+     * Indicates that it was possible to reconnect.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleReconnectedEvent(ReconnectedEvent evt)
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	MetadataViewerFactory.onGroupSwitched(true);
+    }
+    
     /** Creates a new instance. */
     public MetadataViewerAgent() {}
     
@@ -225,6 +238,7 @@ public class MetadataViewerAgent
     {
         registry = ctx;
         registry.getEventBus().register(this, UserGroupSwitched.class);
+        registry.getEventBus().register(this, ReconnectedEvent.class);
     }
 
     /**
@@ -261,6 +275,8 @@ public class MetadataViewerAgent
 	{
 		if (e instanceof UserGroupSwitched)
 			handleUserGroupSwitched((UserGroupSwitched) e);
+		else if (e instanceof ReconnectedEvent)
+			handleReconnectedEvent((ReconnectedEvent) e);
 	}
 	
 }

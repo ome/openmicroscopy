@@ -27,9 +27,13 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextLayout;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.text.AttributedCharacterIterator;
+import java.text.AttributedString;
 
 // Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -43,6 +47,7 @@ import org.jhotdraw.geom.Insets2D;
 
 // Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool;
 
@@ -67,25 +72,8 @@ public class RectangleTextFigure
 	/** Flag indicating if the figure is editable or not. */
 	private boolean 				editable;
 
-	/** Cache of the TextFigure's layout. */
-	transient private  	TextLayout	textLayout;
-	
 	/** The bounds of the text. */
 	private Rectangle2D.Double		textBounds;
-
-	/**
-	 * Returns the layout used to lay out the text.
-	 * 
-	 * @return See above.
-	 */
-	private TextLayout getTextLayout()
-	{
-		if (textLayout == null) 
-			textLayout = FigureUtil.createLayout(getText(), 
-								getFontRenderContext(), getFont(), 
-								AttributeKeys.FONT_UNDERLINE.get(this));
-		return textLayout;
-	}
 	
 	/** Creates a new instance. */
 	public RectangleTextFigure()
@@ -119,7 +107,6 @@ public class RectangleTextFigure
 		setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
 		setAttribute(AttributeKeys.TEXT, text);
 		//setAttribute(DrawingAttributes.SHOWTEXT, true);
-		textLayout = null;
 		textBounds = null;
 		editable = true;
 		fromAttributeUpdate = false;
@@ -213,22 +200,52 @@ public class RectangleTextFigure
 	{
 		if (!(DrawingAttributes.SHOWTEXT.get(this))) return;
 		String text = getText();
-		if (text != null)// && isEditable()) 
+		if (text != null )// && isEditable()) 
 		{	
 			text = text.trim();
-			TextLayout layout = getTextLayout();
+			if (text.length() == 0) return;
 			Font font = AttributeKeys.FONT_FACE.get(this);
 			FontMetrics fm = g.getFontMetrics(font);
 			double textWidth = fm.stringWidth(text);
-			double textHeight = fm.getAscent();
-			double x = rectangle.x+rectangle.width/2-textWidth/2;
-			double y = rectangle.y+textHeight/2+rectangle.height/2;
-			Font viewFont = font.deriveFont(
+			
+			//Determine with and height of the text.
+			double width = textWidth;
+			if (textWidth > FigureUtil.TEXT_WIDTH)
+				width = FigureUtil.TEXT_WIDTH;
+			double textHeight = (textWidth/width+1)*(fm.getAscent()
+					+fm.getDescent()+fm.getLeading());
+			double x = rectangle.x+rectangle.width/2-width/2;
+			double y = rectangle.y+textHeight/2;
+			font = font.deriveFont(
 					AttributeKeys.FONT_SIZE.get(this).intValue());
-			g.setFont(viewFont);
-			g.setColor(AttributeKeys.TEXT_COLOR.get(this));
-			textBounds = new Rectangle2D.Double(x, y, textWidth, textHeight);
-			layout.draw(g, (float) textBounds.x, (float) textBounds.y);
+			textBounds = new Rectangle2D.Double(x, y, width, textHeight);
+			FontRenderContext frc = g.getFontRenderContext();
+
+			// prepare font calculations
+			AttributedString styledText = new AttributedString(text);
+			FigureUtil.formatLayout(font, styledText, this);
+			AttributedCharacterIterator i = styledText.getIterator();
+			LineBreakMeasurer measurer = new LineBreakMeasurer(i, frc);
+
+			// draw
+			g.setColor(UIUtilities.TOOLTIP_COLOR);
+			g.fillRect((int) x-1, (int) textBounds.getY(),
+					(int) textBounds.getWidth()+2,
+					(int) textBounds.getHeight()+1);
+			g.setColor(FigureUtil.TEXT_COLOR);
+			/*
+			g.drawRect((int) x-1, (int) textBounds.getY(),
+					(int) textBounds.getWidth()+2,
+					(int) textBounds.getHeight()+1);
+					*/
+			int w = (int) width;
+			TextLayout layout;
+			while (measurer.getPosition() < text.length()) {
+				layout = measurer.nextLayout(w);
+				y += layout.getAscent();
+				layout.draw(g, (float) x, (float) y);
+				y += layout.getDescent()+layout.getLeading();
+			}
 		}	
 	}
 
@@ -252,7 +269,6 @@ public class RectangleTextFigure
 	public void invalidate() 
 	{
 		super.invalidate();
-		textLayout = null;
 	}
 
 	/** 
@@ -262,7 +278,6 @@ public class RectangleTextFigure
 	public void validate() 
 	{
 		super.validate();
-		textLayout = null;
 	}
 	
 	/**

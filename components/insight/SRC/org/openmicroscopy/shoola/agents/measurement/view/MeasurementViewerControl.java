@@ -156,7 +156,7 @@ class MeasurementViewerControl
     
     /** Identifies the <code>DELETE</code> action in the menu. */
     static final Integer     DELETE = Integer.valueOf(13);
-    
+
     /** 
      * Reference to the {@link MeasurementViewer} component, which, 
      * in this context, is regarded as the Model.
@@ -470,10 +470,9 @@ class MeasurementViewerControl
     void showColorPicker(Color color)
     {
 		if (color == null) return;
-		ColourPicker colourPicker = new ColourPicker(view, color);
-		colourPicker.addPropertyChangeListener(ColourPicker.COLOUR_PROPERTY, 
-												this);
-		UIUtilities.setLocationRelativeTo(view, colourPicker);
+		ColourPicker picker = new ColourPicker(view, color);
+		picker.addPropertyChangeListener(ColourPicker.COLOUR_PROPERTY, this);
+		UIUtilities.setLocationRelativeTo(view, picker);
 	}
     
     /** Analyzes the selected figures. */

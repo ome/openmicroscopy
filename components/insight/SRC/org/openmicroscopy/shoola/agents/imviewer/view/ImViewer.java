@@ -359,8 +359,10 @@ public interface ImViewer
 	 * 
 	 * @param index The OME index of the channel.
 	 * @param c     The color to set.
+	 * @param preview Pass <code>true</code> to indicate that it is a color
+	 * 					preview, <code>false</code> otherwise.
 	 */
-	public void setChannelColor(int index, Color c);
+	public void setChannelColor(int index, Color c, boolean preview);
 
 	/**
 	 * Selects or deselects the specified channel.
@@ -898,7 +900,7 @@ public interface ImViewer
 	public void projectImage(ProjectionRef ref);
 
 	/**
-	 * Sets the containers contained the image.
+	 * Sets the containers where the projected image could be saved.
 	 * 
 	 * @param containers The collection to set.
 	 */
