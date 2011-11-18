@@ -11,6 +11,7 @@
 
 #include <omero/ModelF.ice>
 #include <omero/RTypes.ice>
+#include <omero/System.ice>
 #include <Ice/BuiltinSequences.ice>
 
 /*
@@ -22,36 +23,6 @@
  * yet defined.
  */
 module omero {
-
-    /*
-     * Some collections were initially defined under omero::sys
-     */
-    module sys {
-
-        ["java:type:java.util.ArrayList<Long>:java.util.List<Long>"]
-            sequence<long> LongList;
-
-        ["java:type:java.util.ArrayList<Integer>:java.util.List<Integer>"]
-            sequence<int> IntList;
-
-        ["java:type:java.util.HashMap<Long,Long>:java.util.Map<Long,Long>"]
-            dictionary<long, long> CountMap;
-
-        /**
-         * ParamMap replaces the ome.parameters.QueryParam
-         * type, since the use of varargs is not possible.
-         **/
-        ["java:type:java.util.HashMap"]
-            dictionary<string,omero::RType> ParamMap;
-
-        /**
-         * IdByteMap is used by the ThumbnailService for the multiple thumbnail
-         * retrieval methods.
-         **/
-        ["java:type:java.util.HashMap"]
-            dictionary<long,Ice::ByteSeq> IdByteMap;
-
-    };
 
     module api {
 

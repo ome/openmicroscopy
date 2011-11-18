@@ -11,6 +11,7 @@
 
 #include <omero/ModelF.ice>
 #include <omero/RTypes.ice>
+#include <omero/System.ice>
 #include <omero/Collections.ice>
 #include <omero/Repositories.ice>
 #include <omero/ServerErrors.ice>

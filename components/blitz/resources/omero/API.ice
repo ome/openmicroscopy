@@ -13,6 +13,7 @@
 #include <omero/ModelF.ice>
 #include <omero/ServicesF.ice>
 #include <omero/System.ice>
+#include <omero/Collections.ice>
 #include <Glacier2/Session.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>

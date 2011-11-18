@@ -81,6 +81,7 @@ DECLARATION BLOCK:
 [$ice] \#include <omero/model/IObject.ice>
 [$ice] \#include <omero/RTypes.ice>
 [$ice] \#include <omero/System.ice>
+[$ice] \#include <omero/Collections.ice>
 #if( $type.superclass )
 #set( $parent = $type.superclass.replaceFirst(".*ome.model..+?[.]","") )
 [$ice] \#include <omero/model/${parent}.ice>
