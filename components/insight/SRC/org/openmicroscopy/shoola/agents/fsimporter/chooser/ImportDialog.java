@@ -1055,12 +1055,7 @@ public class ImportDialog
 		cancelButton.setToolTipText("Close the dialog and do not import.");
 		cancelButton.setActionCommand(""+CANCEL);
 		cancelButton.addActionListener(this);
-		
-		cancelButton = new JButton("Close");
-		cancelButton.setToolTipText("Close the dialog and do not import.");
-		cancelButton.setActionCommand(""+CANCEL);
-		cancelButton.addActionListener(this);
-		
+
 		cancelImportButton = new JButton("Cancel All");
 		cancelImportButton.setToolTipText("Cancel all ongoing imports.");
 		cancelImportButton.setActionCommand(""+CANCEL_ALL_IMPORT);
@@ -2312,6 +2307,8 @@ public class ImportDialog
 	{
 		if (bar == null) return;
 		toolBar.add(bar);
+		//invoke when master
+		cancelButton.setVisible(false);
 	}
 	
 	/**
