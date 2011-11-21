@@ -21,7 +21,9 @@ omero.rtypes as well as the omero/rtypes.{h,cpp} files.
 
 import omero, Ice
 import omero_RTypes_ice
+Ice.updateModules()
 import omero_Scripts_ice
+Ice.updateModules()
 
 def rtype(val):
     """

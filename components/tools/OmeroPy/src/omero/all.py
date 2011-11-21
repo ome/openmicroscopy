@@ -6,43 +6,84 @@
 
 """
 
+import Ice
 import omero
 if omero.__import_style__ is None:
     omero.__import_style__ = "all"
-    import omero_API_ice
-    import omero_ServicesF_ice
-    import omero_Repositories_ice
-    import omero_SharedResources_ice
-    import omero_Scripts_ice
-    import omero_Tables_ice
-    import omero_api_Gateway_ice
-    import omero_api_IAdmin_ice
-    import omero_api_IConfig_ice
-    import omero_api_IContainer_ice
-    import omero_api_IDelete_ice
-    import omero_api_ILdap_ice
-    import omero_api_IMetadata_ice
-    import omero_api_IPixels_ice
-    import omero_api_IProjection_ice
-    import omero_api_IQuery_ice
-    import omero_api_IRenderingSettings_ice
-    import omero_api_IRepositoryInfo_ice
-    import omero_api_IRoi_ice
-    import omero_api_IScript_ice
-    import omero_api_ISession_ice
-    import omero_api_IShare_ice
-    import omero_api_ITimeline_ice
-    import omero_api_ITypes_ice
-    import omero_api_IUpdate_ice
-    import omero_api_Exporter_ice
-    import omero_api_JobHandle_ice
-    import omero_api_MetadataStore_ice
-    import omero_api_RawFileStore_ice
-    import omero_api_RawPixelsStore_ice
-    import omero_api_RenderingEngine_ice
-    import omero_api_Search_ice
-    import omero_api_ThumbnailStore_ice
-    import omero_Constants_ice
-    import omero_sys_ParametersI
-    import omero_model_PermissionsI
     import omero.rtypes
+    import omero_System_ice
+    Ice.updateModules()
+    import omero_Collections_ice
+    Ice.updateModules()
+    import omero_ServicesF_ice
+    Ice.updateModules()
+    import omero_API_ice
+    Ice.updateModules()
+    import omero_Repositories_ice
+    Ice.updateModules()
+    import omero_SharedResources_ice
+    Ice.updateModules()
+    import omero_Scripts_ice
+    Ice.updateModules()
+    import omero_Tables_ice
+    Ice.updateModules()
+    import omero_api_Gateway_ice
+    Ice.updateModules()
+    import omero_api_IAdmin_ice
+    Ice.updateModules()
+    import omero_api_IConfig_ice
+    Ice.updateModules()
+    import omero_api_IContainer_ice
+    Ice.updateModules()
+    import omero_api_IDelete_ice
+    Ice.updateModules()
+    import omero_api_ILdap_ice
+    Ice.updateModules()
+    import omero_api_IMetadata_ice
+    Ice.updateModules()
+    import omero_api_IPixels_ice
+    Ice.updateModules()
+    import omero_api_IProjection_ice
+    Ice.updateModules()
+    import omero_api_IQuery_ice
+    Ice.updateModules()
+    import omero_api_IRenderingSettings_ice
+    Ice.updateModules()
+    import omero_api_IRepositoryInfo_ice
+    Ice.updateModules()
+    import omero_api_IRoi_ice
+    Ice.updateModules()
+    import omero_api_IScript_ice
+    Ice.updateModules()
+    import omero_api_ISession_ice
+    Ice.updateModules()
+    import omero_api_IShare_ice
+    Ice.updateModules()
+    import omero_api_ITimeline_ice
+    Ice.updateModules()
+    import omero_api_ITypes_ice
+    Ice.updateModules()
+    import omero_api_IUpdate_ice
+    Ice.updateModules()
+    import omero_api_Exporter_ice
+    Ice.updateModules()
+    import omero_api_JobHandle_ice
+    Ice.updateModules()
+    import omero_api_MetadataStore_ice
+    Ice.updateModules()
+    import omero_api_RawFileStore_ice
+    Ice.updateModules()
+    import omero_api_RawPixelsStore_ice
+    Ice.updateModules()
+    import omero_api_RenderingEngine_ice
+    Ice.updateModules()
+    import omero_api_Search_ice
+    Ice.updateModules()
+    import omero_api_ThumbnailStore_ice
+    Ice.updateModules()
+    import omero_Constants_ice
+    Ice.updateModules()
+    import omero_sys_ParametersI
+    Ice.updateModules()
+    import omero_model_PermissionsI
+    Ice.updateModules()
