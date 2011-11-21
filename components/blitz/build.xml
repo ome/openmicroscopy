@@ -216,6 +216,18 @@
 				<present present="both" targetdir="${src.dir}/cpp"/>
 			</fileset>
 		</delete>
+                <!-- Checking the slice2* version before continuing. See #1185 -->
+                <exec outputproperty="executable.ice.version" executable="slice2java">
+                    <arg value="--version"/>
+                </exec>
+                <if><not><matches pattern="^${ice.compatibility}" string="${executable.ice.version}"/></not>
+                    <then><fail>WRONG ICE VERSION!
+
+                        slice2java version = ${executable.ice.version}
+                        Expected version = ${ice.compatibility}
+
+                    </fail></then>
+                </if>
 		<scons_py>
 			<arg value="-Q"/>
 		</scons_py>
