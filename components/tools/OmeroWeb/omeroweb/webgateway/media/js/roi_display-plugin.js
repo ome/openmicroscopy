@@ -306,12 +306,6 @@ $.fn.roi_display = function(options) {
                                     txt.id = shape['id'] + "_shape_text";
                                     txt.click(handle_shape_click);
                                     
-                                    // these shape attributes are not applied to text
-                                    if (shape['fillColor']) { newShape.attr({'fill': shape['fillColor']}); }
-                                    if (shape['strokeAlpha']) { newShape.attr({'opacity': shape['strokeAlpha']}); }
-                                    if (shape['fillAlpha']) { newShape.attr({'fill-opacity': shape['fillAlpha']})}
-                                    if (shape['strokeColor']) { newShape.attr({'stroke': shape['strokeColor']}); }
-                                    else { newShape.attr({'stroke': '#ffffff'}); }  // white is default
                                 }
                                 
                                 // handle other text-specific attributes...
@@ -333,6 +327,14 @@ $.fn.roi_display = function(options) {
                                     }
                                 }
                                 if (txt) txt.attr(txtAttr);
+                            }
+                            if (shape['type'] != 'Label') {
+                                // these shape attributes are not applied to text
+                                if (shape['fillColor']) { newShape.attr({'fill': shape['fillColor']}); }
+                                if (shape['strokeAlpha']) { newShape.attr({'opacity': shape['strokeAlpha']}); }
+                                if (shape['fillAlpha']) { newShape.attr({'fill-opacity': shape['fillAlpha']})}
+                                if (shape['strokeColor']) { newShape.attr({'stroke': shape['strokeColor']}); }
+                                else { newShape.attr({'stroke': '#ffffff'}); }  // white is default
                             }
                             newShape.attr({'cursor':'default'});
                             if (shape['strokeWidth']) { newShape.attr({'stroke-width': shape['strokeWidth']}); }
