@@ -97,6 +97,28 @@
         </condition>
         <property name="ice.home" value="/usr/share/Ice"/>
 
+        <!-- Checking ice compatibility and choose the proper version -->
+        <if>
+            <equals arg1="3.3" arg2="${ice.compatibility}"/>
+            <then>
+                <property name="versions.ice" value="${versions.ice33}"/>
+            </then>
+            <elseif>
+                <equals arg1="3.4" arg2="${ice.compatibility}"/>
+                <then>
+                    <property name="versions.ice" value="${versions.ice34}"/>
+                </then>
+            </elseif>
+            <else>
+                <fail> Bad configuraiton!
+
+                    *******************************************************
+                    Unknown Ice compatibility setting: ${ice.compatibility}
+                    *******************************************************
+                </fail>
+            </else>
+        </if>
+
         <!--
           The idea for this macro is taken from maven2. Use deps-buildlist
           to create deps.build.path if you do not have one specified.

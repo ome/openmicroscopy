@@ -34,6 +34,7 @@ from omero.cli import VERSION
 from omero.plugins.prefs import with_config
 
 from omero_ext.which import whichall
+from omero_version import ice_compatibility
 
 try:
     import win32service
@@ -851,8 +852,7 @@ OMERO Diagnostics %s
         """
 
         import Ice, sys, re
-        pat = "^3[.]4[.].*"
-        pattern = re.compile(pat)
+        pattern = re.compile("^%s" % ice_compatibility)
         vers = Ice.stringVersion()
         if pattern.match(vers) is None:
             self.ctx.die(164, "IcePy Version is not compatible with %s: %s" % (pat, vers))
