@@ -292,8 +292,10 @@ public interface Renderer
 	 * 
 	 * @param index The index of the channel.
 	 * @param color The color to set.
+	 * @param preview Pass <code>true</code> to indicate that it is a color
+	 * 					preview, <code>false</code> otherwise.
 	 */
-	void setChannelColor(int index, Color color);
+	void setChannelColor(int index, Color color, boolean preview);
 
 	/**
 	 * Sets the color model.

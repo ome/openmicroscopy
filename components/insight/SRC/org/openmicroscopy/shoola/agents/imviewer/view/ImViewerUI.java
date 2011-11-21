@@ -1212,7 +1212,9 @@ class ImViewerUI
 				}
 			}
 			f = Math.round(factor)/100.0;
-			bigImageMagnification = f;
+			bigImageMagnification = 
+				(double) model.getTiledImageSizeX()/model.getMaxX();
+			//bigImageMagnification = f;
 			//model.setZoomFactor(f, false);
 			statusBar.setRigthStatus("x: "+f);
 		}

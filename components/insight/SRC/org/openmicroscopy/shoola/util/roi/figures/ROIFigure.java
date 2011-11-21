@@ -74,7 +74,7 @@ public interface ROIFigure
 			FONT_SIZE);
 	
 	/** The default text. */
-	public static final String DEFAULT_TEXT = "Text";
+	public static final String DEFAULT_TEXT = "";
 	
 	/** Identified the <code>IDLE</code> status. */
 	public static final int IDLE = 0;
@@ -212,5 +212,5 @@ public interface ROIFigure
 	 * @return See above.
 	 */
 	public List<FigureListener> getFigureListeners();
-}
 
+}

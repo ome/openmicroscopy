@@ -46,7 +46,6 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.actions.BrowserAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.CollapseAction;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.DataObject;
 import pojos.DatasetData;

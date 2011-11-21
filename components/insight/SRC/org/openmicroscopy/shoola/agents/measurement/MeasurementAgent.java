@@ -39,8 +39,10 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -112,7 +114,7 @@ public class MeasurementAgent
     									evt.getPixelsID());
     	if (viewer != null) 
     		viewer.setMagnifiedPlane(evt.getDefaultZ(), evt.getDefaultT(), 
-    							evt.getMagnification());
+    				evt.getMagnification());
     }
     
     /**
@@ -215,7 +217,19 @@ public class MeasurementAgent
     	if (evt == null) return;
     	MeasurementViewerFactory.onGroupSwitched(evt.isSuccessful());
     }
-        
+    
+    /**
+     * Indicates that it was possible to reconnect.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleReconnectedEvent(ReconnectedEvent evt)
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	MeasurementViewerFactory.onGroupSwitched(true);
+    }
+    
     /**
      * Handles the {@link ActivityProcessEvent} event.
      * 
@@ -277,6 +291,7 @@ public class MeasurementAgent
 		bus.register(this, ImageRendered.class);
 		bus.register(this, UserGroupSwitched.class);
 		bus.register(this, ActivityProcessEvent.class);
+		bus.register(this, ReconnectedEvent.class);
 	}
 
     /**
@@ -329,6 +344,8 @@ public class MeasurementAgent
 			handleUserGroupSwitched((UserGroupSwitched) e);
 		else if (e instanceof ActivityProcessEvent)
 			handleActivityFinished((ActivityProcessEvent) e);
+		else if (e instanceof ReconnectedEvent)
+			handleReconnectedEvent((ReconnectedEvent) e);
 	}
 	
 }

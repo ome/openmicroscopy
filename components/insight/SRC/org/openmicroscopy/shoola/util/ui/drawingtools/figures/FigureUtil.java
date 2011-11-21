@@ -24,11 +24,17 @@ package org.openmicroscopy.shoola.util.ui.drawingtools.figures;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
+import java.text.AttributedString;
 import java.util.HashMap;
+import java.util.Map;
+
+import org.jhotdraw.draw.AttributeKeys;
+import org.jhotdraw.draw.Figure;
 
 
 //Third-party libraries
@@ -84,6 +90,12 @@ public class FigureUtil
 	/** The default tab size. */
 	static final int 			TAB_SIZE = 8;
 
+	/** The default number of columns for text. */
+	static final int 			TEXT_WIDTH = 100;
+	
+	/** The default background color.*/
+	static final Color TEXT_COLOR = Color.BLACK;
+	
 	/**
 	 * Creates a layout for the text.
 	 * 
@@ -99,13 +111,31 @@ public class FigureUtil
 	{
 		if (text == null || text.trim().length() == 0) text = " ";
 
-		HashMap<TextAttribute, Object> 
+		Map<TextAttribute, Object> 
 			textAttributes = new HashMap<TextAttribute, Object>();
 		textAttributes.put(TextAttribute.FONT, f);
+		textAttributes.put(TextAttribute.SIZE, 40);
 		if (underlined) 
 			textAttributes.put(TextAttribute.UNDERLINE,
 					TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
-		return new TextLayout(text, textAttributes, frc);
+		TextLayout layout = new TextLayout(text, textAttributes, frc);
+		return layout;
+	}
+	
+	/**
+	 * Formats the layout parameters.
+	 * 
+	 * @param f The font.
+	 * @param styledText Host the parameters to set.
+	 * @param figure The figure to handle.
+	 */
+	static void formatLayout(Font f, AttributedString styledText, Figure figure)
+	{
+		if (styledText == null) return;
+		if (f != null) styledText.addAttribute(TextAttribute.FONT, f);
+		if (figure != null && AttributeKeys.FONT_UNDERLINE.get(figure)) 
+			styledText.addAttribute(TextAttribute.UNDERLINE,
+					TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
 	}
 	
 }

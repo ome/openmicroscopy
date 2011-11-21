@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -216,6 +217,19 @@ public class DataBrowserAgent
     	DataBrowserFactory.onGroupSwitched(evt.isSuccessful());
     }
     
+    /**
+     * Handles the {@link ReconnectedEvent} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleReconnectedEvent(ReconnectedEvent evt)
+    {
+    	if (evt == null) return;
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	DataBrowserFactory.onGroupSwitched(true);
+    }
+    
 	/** Creates a new instance. */
 	public DataBrowserAgent() {}
 	
@@ -243,6 +257,7 @@ public class DataBrowserAgent
         bus.register(this, CopyRndSettings.class);
         bus.register(this, CopyItems.class);
         bus.register(this, UserGroupSwitched.class);
+        bus.register(this, ReconnectedEvent.class);
     }
     
     /**
@@ -277,6 +292,8 @@ public class DataBrowserAgent
 			handleCopyItems((CopyItems) e);
     	else if (e instanceof UserGroupSwitched)
 			handleUserGroupSwitched((UserGroupSwitched) e);
+    	else if (e instanceof ReconnectedEvent)
+			handleReconnectedEvent((ReconnectedEvent) e);
     }
     
 }
