@@ -11,7 +11,6 @@ import unittest, time
 import integration.library as lib
 import omero
 from omero.rtypes import *
-import omero_api_Repository_ice
 
 class TestRepository(lib.ITest):
 

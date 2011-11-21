@@ -36,7 +36,6 @@ to each channel independently, as specified in the parameters.
 import omero
 from omero.gateway import BlitzGateway
 import omero.scripts as scripts
-import omero_api_IRoi_ice
 from omero.rtypes import *
 import omero.util.script_utils as script_utils
 

@@ -40,7 +40,6 @@ import getopt, sys, os, subprocess
 from struct import *
 
 import omero.clients
-import omero_Constants_ice
 from omero.rtypes import *
 import omero.util.pixelstypetopython as pixelstypetopython
 from omero.util.OmeroPopo import EllipseData as EllipseData

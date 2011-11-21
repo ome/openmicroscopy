@@ -18,8 +18,6 @@ import omero.util
 import omero.util.concurrency
 from omero_ext.functional import wraps
 
-import omero_Scripts_ice
-
 def pass_through(arg):
     return arg
 

@@ -40,8 +40,6 @@ python openInChimera.py -h localhost -u root -p omero -i 151 -o /Users/will/Desk
 import omero
 import omero.scripts
 import getopt, sys, os, subprocess
-import omero_api_IScript_ice
-import omero_SharedResources_ice
 from omero.rtypes import *
 import omero.util.script_utils as scriptUtil
 

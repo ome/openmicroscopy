@@ -13,13 +13,15 @@
 
 import os
 import sys
-import Ice, Glacier2
+import Ice, Glacier2, IceImport
 import time
 import traceback
 import exceptions
 import subprocess
 import getpass
 import omero.java
+
+IceImport.load("Glacier2_Router_ice")
 
 from omero.util import get_user
 from omero.util.sessions import SessionsStore

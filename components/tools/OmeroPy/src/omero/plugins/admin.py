@@ -452,7 +452,6 @@ Examples:
         if self.ctx.rv == 0 and not node_only:
             try:
                 import Ice
-                import omero_ServerErrors_ice
                 ic = Ice.initialize([self._intcfg()])
                 try:
                     sm = self.session_manager(ic)

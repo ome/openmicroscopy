@@ -57,8 +57,6 @@ import omero.scripts as scripts
 import omero.util.script_utils as scriptUtil
 import omero
 import getopt, sys, os, subprocess
-import omero_api_Gateway_ice
-import omero_api_IScript_ice
 import numpy
 import omero.util.pixelstypetopython as pixelstypetopython
 from struct import *

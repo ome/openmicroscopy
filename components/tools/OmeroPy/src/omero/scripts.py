@@ -23,7 +23,6 @@ import logging
 import exceptions
 
 import omero
-import omero_Scripts_ice
 import omero.callbacks
 import omero.util.concurrency
 import omero.util.temp_files

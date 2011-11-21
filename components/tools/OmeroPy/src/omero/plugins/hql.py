@@ -113,8 +113,7 @@ To quit, enter 'q' or just enter.
             continue
 
     def display(self, rv, cols = None):
-        import omero_model_Details_ice
-        import omero_model_IObject_ice
+        import omero.all
         import omero.rtypes
         from omero.model import IObject
         from omero.model import Details

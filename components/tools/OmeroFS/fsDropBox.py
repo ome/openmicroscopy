@@ -22,13 +22,13 @@ import path as pathModule
 import omero
 import omero.rtypes
 import omero_ext.uuid as uuid # see ticket:3774
-import Ice
+import Ice, IceImport
 import IceGrid
 import Glacier2
 
 from omero.util import configure_server_logging
 
-import omero_FS_ice
+IceImport.load("omero_FS_ice")
 monitors = Ice.openModule('omero.grid.monitors')
 
 from omero.clients import ObjectFactory

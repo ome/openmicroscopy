@@ -7,8 +7,8 @@
  *
  */
 """
-import Ice
-import omero_model_Permissions_ice
+import Ice, IceImport
+IceImport.load("omero_model_Permissions_ice")
 _omero = Ice.openModule("omero")
 _omero_model = Ice.openModule("omero.model")
 __name__ = "omero.model"

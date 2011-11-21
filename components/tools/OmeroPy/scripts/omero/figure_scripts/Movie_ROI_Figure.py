@@ -43,7 +43,6 @@ import omero.util.figureUtil as figUtil
 import omero.util.script_utils as scriptUtil
 from omero.model import ImageI
 from omero.rtypes import *      # includes wrap()
-import omero_api_IRoi_ice
 # import util.figureUtil as figUtil    # need to comment out for upload to work. But need import for script to work!!
 import getopt, sys, os, subprocess
 import StringIO

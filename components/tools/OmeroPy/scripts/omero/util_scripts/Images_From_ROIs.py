@@ -35,7 +35,6 @@ the regions within the ROIs, and saves them back to the server.
 
 import omero
 import omero.scripts as scripts
-#import omero_api_IRoi_ice
 from omero.gateway import BlitzGateway
 from omero.rtypes import *
 import omero.util.script_utils as script_utils

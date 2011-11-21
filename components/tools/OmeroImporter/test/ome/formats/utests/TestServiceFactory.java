@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import Glacier2.AMI_Session_destroy;
-import Ice.AMI_Object_ice_flushBatchRequests;
-import Ice.AMI_Object_ice_invoke;
 import Ice.ByteSeqHolder;
 import Ice.Communicator;
 import Ice.Connection;

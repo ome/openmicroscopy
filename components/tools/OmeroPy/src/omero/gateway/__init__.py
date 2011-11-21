@@ -45,8 +45,6 @@ except: #pragma: nocover
 from cStringIO import StringIO
 from math import sqrt
 
-import omero_Constants_ice  
-import omero_ROMIO_ice
 from omero.rtypes import rstring, rint, rlong, rbool, rtime, rlist, rdouble, unwrap
 
 def omero_type(val):

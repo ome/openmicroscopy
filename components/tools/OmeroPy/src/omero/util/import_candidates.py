@@ -10,7 +10,6 @@
 
 import sys, os
 import omero
-import omero_ServerErrors_ice
 
 from omero.util.temp_files import create_path, remove_path
 from omero.cli import CLI
