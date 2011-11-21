@@ -620,6 +620,9 @@ java component.
                     <exclude name="local.properties"/>
                 </fileset>
             </copy>
+
+            <replace dir="${dist.dir}/etc" token="@ICE_LIB_VERSION@" value="${versions.ice_lib}"/>
+
             <copy todir="${dist.dir}">
                 <fileset dir="${omero.home}">
                     <include name="sql/**"/>

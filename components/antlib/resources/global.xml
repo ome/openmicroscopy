@@ -102,11 +102,13 @@
             <equals arg1="3.3" arg2="${ice.compatibility}"/>
             <then>
                 <property name="versions.ice" value="${versions.ice33}"/>
+                <property name="versions.ice_lib" value="${versions.ice33_lib}"/>
             </then>
             <elseif>
                 <equals arg1="3.4" arg2="${ice.compatibility}"/>
                 <then>
                     <property name="versions.ice" value="${versions.ice34}"/>
+                    <property name="versions.ice_lib" value="${versions.ice34_lib}"/>
                 </then>
             </elseif>
             <else>
