@@ -57,20 +57,20 @@ public interface PixelBuffer extends Closeable
      * Retrieves the in memory size of a 2D image plane in this pixel buffer.
      * @return 2D image plane size in bytes (sizeX*sizeY*ByteWidth).
      */
-    public Integer getPlaneSize();
+    public Long getPlaneSize();
 
     /**
      * Retrieves the in memory size of a row or scanline of pixels in this
      * pixel buffer.
      * @return row or scanline size in bytes (sizeX*ByteWidth)
      */
-    public Integer getRowSize();
+    public Long getRowSize();
     
     /**
      * Retrieves the in memory size of a column of pixels in this pixel buffer.
      * @return column size in bytes (sizeY*ByteWidth)
      */
-    public Integer getColSize();
+    public Long getColSize();
 
     /**
      * Retrieves the in memory size of the entire number of optical sections
@@ -78,7 +78,7 @@ public interface PixelBuffer extends Closeable
      * this pixel buffer.
      * @return stack size in bytes (sizeX*sizeY*sizeZ*ByteWidth).
      */
-    public Integer getStackSize();
+    public Long getStackSize();
 
     /**
      * Retrieves the in memory size of the entire number of optical sections for
@@ -86,14 +86,14 @@ public interface PixelBuffer extends Closeable
      * pixel buffer.
      * @return timepoint size in bytes (sizeX*sizeY*sizeZ*sizeC*ByteWidth).
      */
-    public Integer getTimepointSize();
+    public Long getTimepointSize();
 
     /**
      * Retrieves the in memory size of the entire pixel buffer.
      * @return total size of the pixel size in bytes
      * (sizeX*sizeY*sizeZ*sizeC*sizeT*ByteWidth).
      */
-    public Integer getTotalSize();
+    public Long getTotalSize();
 
     /**
      * Retrieves a the size of a hypercube from this pixel buffer.
@@ -103,7 +103,7 @@ public interface PixelBuffer extends Closeable
      * @return the size. 
      * @throws IOException if there is a problem reading from the pixel buffer.
      */
-    public Integer getHypercubeSize(List<Integer> offset, List<Integer> size, 
+    public Long getHypercubeSize(List<Integer> offset, List<Integer> size,
             List<Integer> step) throws DimensionsOutOfBoundsException;
 
     /**
