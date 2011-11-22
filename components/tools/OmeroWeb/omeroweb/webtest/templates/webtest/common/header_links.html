@@ -21,8 +21,13 @@ Extends "common/base/base_header.html"
         <ul>
             <li>Includes "webclient/base/menu.html" links within the 'nav_links' block (main top links)</li>
             <li>Over-writes the 'thin_header' block to remove the thin header</li>
+            <li>Over-writes the 'footer' block (and 'footer_css') to remove footer and it's css</li>
             <li>Adds this text to the 'content' block</li>
         </ul>
     </p>
     
 {% endblock %}
+
+
+{% block footer_css %}{% endblock %}
+{% block footer %}{% endblock %}
