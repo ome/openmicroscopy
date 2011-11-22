@@ -31,7 +31,7 @@ datasetId = 33
 # Create a name for the Original File (should be unique)
 # =================================================================
 from random import random
-name = "TablesDemo:%s" % str(random())
+tablename = "TablesDemo:%s" % str(random())
 
 col1 = omero.grid.LongColumn('Uid', 'testLong', [])
 col2 = omero.grid.StringColumn('MyStringColumnInit', '', 64, [])
@@ -42,7 +42,7 @@ columns = [col1, col2]
 # Create and initialize a new table.
 # =================================================================
 repositoryId = 1
-table = conn.c.sf.sharedResources().newTable(repositoryId, name)
+table = conn.c.sf.sharedResources().newTable(repositoryId, tablename)
 table.initialize(columns)
 
 
@@ -61,12 +61,14 @@ table.close()           # when we're done, close.
 # Get the table as an original file...
 # =================================================================
 orig_file = table.getOriginalFile()
+orig_file_id = orig_file.id.val
 # ...so you can attach this data to an object. E.g. Dataset
 fileAnn = omero.model.FileAnnotationI()
-fileAnn.setFile(orig_file)
+fileAnn.setFile(omero.model.OriginalFileI(orig_file_id, False))     # use unloaded OriginalFileI
+fileAnn = conn.getUpdateService().saveAndReturnObject(fileAnn)
 link = omero.model.DatasetAnnotationLinkI()
 link.setParent(omero.model.DatasetI(datasetId, False))
-link.setChild(fileAnn)
+link.setChild(omero.model.FileAnnotationI(fileAnn.id.val, False))
 conn.getUpdateService().saveAndReturnObject(link)
 
 
@@ -119,6 +121,13 @@ for col in data.columns:
     for v in col.values:
         print "   ", v
 openTable.close()           # we're done
+
+
+# In future, to get the table back from Original File
+# =================================================================
+orig_table_file = conn.getObject("OriginalFile", attributes={'name': tablename})    # if name is unique
+savedTable = conn.c.sf.sharedResources().openTable(orig_table_file._obj)
+print "Opened table with row-count:", savedTable.getNumberOfRows()
 
 
 # Close connection:
