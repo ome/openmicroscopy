@@ -927,7 +927,7 @@ def open_astex_viewer(request, obj_type, obj_id, **kwargs):
 
     return render_to_response('webclient/annotations/open_astex_viewer.html', {'data_url': data_url, "image": image,
         "sizeOptions":sizeOptions, "contourSliderInit":contourSliderInit, "contourSliderIncr":contourSliderIncr,
-        "data_storage_mode": data_storage_mode,'pixelRange':pixelRange})
+        "data_storage_mode": data_storage_mode,'pixelRange':pixelRange}, context_instance=Context(request))
 
 
 @isUserConnected
