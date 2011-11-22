@@ -14,19 +14,19 @@ Extends "common/base/base_header.html"
 
 
 {% block header_left %}
-<a href="{% url common 'header_links' %}">header_links</a> | 
-<a href="{% url common 'header_icon' %}">header_icon</a>
+    <a href="{% url common 'header_links' %}">header_links</a> | 
+    <a href="{% url common 'header_icon' %}">header_icon</a>
 {% endblock %}
 
 
 {% block header_right %}
     <a href="#">Extra Links</a> |
-    {{ block.super }}
+    {% include 'webclient/base/logout.html' %}
 {% endblock %}
 
 
 {% block content %}
-<h1>block body</h1>
+    <h1>block body</h1>
 {% endblock %}
 
 
