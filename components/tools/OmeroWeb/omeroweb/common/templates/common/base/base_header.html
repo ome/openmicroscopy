@@ -69,7 +69,15 @@
         {% endblock %}
 
         {% block footer %}
-        {% include "common/base/includes/footer.html" %}
+            <div id="footer">
+                <div>
+                    {% block footer_content %}
+                    {% endblock %}
+                </div>
+                {% block copywrite %}
+                    <p>&copy; 2007-2011 University of Dundee & Open Microscopy Environment</p>
+                {% endblock %}
+            </div>
         {% endblock %}
 
 {% endblock %}
