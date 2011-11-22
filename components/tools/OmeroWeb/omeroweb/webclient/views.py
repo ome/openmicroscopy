@@ -3170,7 +3170,8 @@ def script_ui(request, scriptId, **kwargs):
 
     paramData["inputs"] = inputs
 
-    return render_to_response('webclient/scripts/script_ui.html', {'paramData': paramData, 'scriptId': scriptId})
+    return render_to_response('webclient/scripts/script_ui.html', {'paramData': paramData, 'scriptId': scriptId}, 
+        context_instance=Context(request))
 
 @isUserConnected
 def script_run(request, scriptId, **kwargs):
