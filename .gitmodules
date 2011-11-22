@@ -1,0 +1,3 @@
+[submodule "components/bioformats"]
+	path = components/bioformats
+	url = git@dev.loci.wisc.edu:bio-formats.git
