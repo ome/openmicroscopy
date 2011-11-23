@@ -84,6 +84,7 @@ ThumbnailControl.prototype.init = function() {
   this.thumbscale = this.tw / this.viewer.imageSize().width;
 
   this.viewer.notifyViewerZoomed();
+  this.viewer.notifyViewerMoved();
 }
 
 ThumbnailControl.prototype.createDOMElements = function() {
@@ -170,6 +171,7 @@ ThumbnailControl.prototype.toggleMinimize = function(e) {
 }
 
 ThumbnailControl.prototype.viewerMoved = function(e) {
+    if (this.dom_image.onload) return
     if (!this.dom_roi || typeof this.dom_roi == 'undefined') return;
     var img_x = -1.0 * (e.x / this.scale);
     var img_y = -1.0 * (e.y / this.scale);  
