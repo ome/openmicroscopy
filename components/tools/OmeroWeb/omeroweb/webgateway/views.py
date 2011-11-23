@@ -1095,6 +1095,14 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             if len(imgs) == 0:
                 raise Http404
         name = '%s-%s' % (obj.getParent().getName(), obj.getName())
+    elif ctx == 'w':
+        obj = _conn.getObject("Well", cid)
+        if obj is None:
+            raise Http404
+        imgs.extend([x.getImage() for x in obj.listChildren()])
+        plate = obj.getParent()
+        coord = "%s%s" % (plate.getRowLabels()[obj.row],plate.getColumnLabels()[obj.column])
+        name = '%s-%s-%s' % (plate.getParent().getName(), plate.getName(), coord)
     else:
         obj = _conn.getObject("Image", cid)
         if obj is None:
@@ -1110,12 +1118,17 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
         tiff_data = webgateway_cache.getOmeTiffImage(request, server_id, imgs[0])
         if tiff_data is None:
-            tiff_data = imgs[0].exportOmeTiff()
+            try:
+                tiff_data = imgs[0].exportOmeTiff()
+            except:
+                logger.debug('Failed to export image (2)', exc_info=True)
+                tiff_data = None
             if tiff_data is None:
+                webgateway_tempfile.abort(fpath)
                 raise Http404
             webgateway_cache.setOmeTiffImage(request, server_id, imgs[0], tiff_data)
         if fobj is None:
-            rsp = HttpResponse(tiff_data, mimetype='application/x-ome-tiff')
+            rsp = HttpResponse(tiff_data, mimetype='image/tiff')
             rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % (str(obj.getId()) + '-'+obj.getName())
             rsp['Content-Length'] = len(tiff_data)
             return rsp
@@ -1569,8 +1582,12 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
         return HttpResponseServerError('""', mimetype='application/javascript')
     grid = []
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
+    thumbsize = int(request.REQUEST.get('size', 64))
+    logger.debug(thumbsize)
+
     def urlprefix(iid):
-        return reverse(prefix, args=(iid,64))
+<<<<<<< HEAD
+        return reverse(prefix, args=(iid,thumbsize))
     xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
     plate.setGridSizeConstraints(8,12)
     for row in plate.getWellGrid(field):
@@ -1590,6 +1607,34 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
     return {'grid': grid,
             'collabels': plate.getColumnLabels(),
             'rowlabels': plate.getRowLabels()}
+=======
+        return reverse(prefix, args=(iid,thumbsize))
+    xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
+
+    rv = webgateway_cache.getJson(request, server_id, plate, 'plategrid-%d-%d' % (field, thumbsize))
+    if rv is None:
+        plate.setGridSizeConstraints(8,12)
+        for row in plate.getWellGrid(field):
+            tr = []
+            for e in row:
+                if e:
+                    i = e.getImage()
+                    if i:
+                        t = i.simpleMarshal(xtra=xtra)
+                        t['wellId'] = e.getId()
+                        t['field'] = field
+                        tr.append(t)
+                        continue
+                tr.append(None)
+            grid.append(tr)
+        rv = {'grid': grid,
+              'collabels': plate.getColumnLabels(),
+              'rowlabels': plate.getRowLabels()}
+        webgateway_cache.setJson(request, server_id, plate, simplejson.dumps(rv), 'plategrid-%d-%d' % (field, thumbsize))
+    else:
+        rv = simplejson.loads(rv)
+    return rv
+>>>>>>> feature/merge_41_to_dev
 
 @jsonp
 def listImages_json (request, did, server_id=None, _conn=None, **kwargs):

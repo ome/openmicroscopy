@@ -289,11 +289,14 @@ jQuery._WeblitzViewport = function (container, server, options) {
         _this.self.trigger('imageChange', [_this]);
       };
       
-      showLoading();
       if (_this.loadedImg.tiles) {
+          showLoading();
           rcb()
           _this.viewportimg.get(0).setUpTiles(_this.loadedImg.size.width, _this.loadedImg.size.height, _this.loadedImg.tile_size.width, _this.loadedImg.tile_size.height, _this.loadedImg.init_zoom, _this.loadedImg.levels, href, thref);
       } else {
+	  if (href != _this.viewportimg.attr('src')) {
+          showLoading();
+	  }
           _this.viewportimg.load(rcb);
           _this.viewportimg.attr('src', href);
       }      
