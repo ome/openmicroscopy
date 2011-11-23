@@ -1398,7 +1398,7 @@ class _BlitzGateway (object):
             self._proxies['config'] = ProxyObjectWrapper(self, 'getConfigService')
             self._proxies['container'] = ProxyObjectWrapper(self, 'getContainerService')
             self._proxies['delete'] = ProxyObjectWrapper(self, 'getDeleteService')
-            self._proxies['export'] = ProxyObjectWrapper(self, 'createExporter')
+            #self._proxies['export'] = ProxyObjectWrapper(self, 'createExporter')
             self._proxies['ldap'] = ProxyObjectWrapper(self, 'getLdapService')
             self._proxies['metadata'] = ProxyObjectWrapper(self, 'getMetadataService')
             self._proxies['query'] = ProxyObjectWrapper(self, 'getQueryService')
@@ -2012,8 +2012,8 @@ class _BlitzGateway (object):
         
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
-        return self._proxies['export']
+        return ProxyObjectWrapper(self, 'createExporter')
+        #return self._proxies['export']
 
     #############################
     # Top level object fetchers #
@@ -2891,21 +2891,23 @@ class _BlitzGateway (object):
                 return KNOWN_WRAPPERS.get(obj_type.lower(), None)
             types = [getWrapper(o) for o in obj_types]
         search = self.createSearchService()
-        if created:
-            search.onlyCreatedBetween(created[0], created[1]);
-        if text[0] in ('?','*'):
-            search.setAllowLeadingWildcard(True)
-        rv = []
-        for t in types:
-            def actualSearch ():
-                search.onlyType(t().OMERO_CLASS)
-                search.byFullText(text)
-            timeit(actualSearch)()
-            if search.hasNext():
-                def searchProcessing ():
-                    rv.extend(map(lambda x: t(self, x), search.results()))
-                timeit(searchProcessing)()
-        search.close()
+        try:
+            if created:
+                search.onlyCreatedBetween(created[0], created[1]);
+            if text[0] in ('?','*'):
+                search.setAllowLeadingWildcard(True)
+            rv = []
+            for t in types:
+                def actualSearch ():
+                    search.onlyType(t().OMERO_CLASS)
+                    search.byFullText(text)
+                timeit(actualSearch)()
+                if search.hasNext():
+                    def searchProcessing ():
+                        rv.extend(map(lambda x: t(self, x), search.results()))
+                    timeit(searchProcessing)()
+        finally:
+            search.close()
         return rv
 
 
@@ -3003,17 +3005,23 @@ class ProxyObjectWrapper (object):
     Handles creation of service when requested. 
     """
     
-    def __init__ (self, conn, func_str):
+    def __init__ (self, conn, func_str, cast_to=None, service_name=None):
         """
         Initialisation of proxy object wrapper. 
         
-        @param conn:        The L{BlitzGateway} connection
-        @type conn:         L{BlitzGateway}
-        @param func_str:    The name of the service creation method. E.g 'getAdminService'
-        @type func_str:     String
+        @param conn:         The L{BlitzGateway} connection
+        @type conn:          L{BlitzGateway}
+        @param func_str:     The name of the service creation method. E.g 'getAdminService'
+        @type func_str:      String
+        @param cast_to:      the checkedCast function to call with service name (only if func_str is None)
+        @type cast_to:       function
+        @param service_name: Service name to use with cast_to (only if func_str is None)
+        
         """
         self._obj = None
         self._func_str = func_str
+        self._cast_to = cast_to
+        self._service_name = service_name
         self._resyncConn(conn)
         self._tainted = False
     
@@ -3026,7 +3034,7 @@ class ProxyObjectWrapper (object):
         @rtype:     L{ProxyObjectWrapper}
         """
         
-        return ProxyObjectWrapper(self._conn, self._func_str)
+        return ProxyObjectWrapper(self._conn, self._func_str, self._cast_to, self._service_name)
 
     def _connect (self, forcejoin=False): #pragma: no cover
         """
@@ -3084,10 +3092,15 @@ class ProxyObjectWrapper (object):
         
         self._conn = conn
         self._sf = conn.c.sf
-        self._create_func = getattr(self._sf, self._func_str)
+        def cf ():
+            if self._func_str is None:
+                return self._cast_to(self._sf.getByName(self._service_name))
+            else:
+                return getattr(self._sf, self._func_str)()
+        self._create_func = cf
         if self._obj is not None:
             try:
-                logger.debug("## - refreshing %s" % (self._func_str))
+                logger.debug("## - refreshing %s" % (self._func_str or self._service_name))
                 obj = conn.c.ic.stringToProxy(str(self._obj))
                 self._obj = self._obj.checkedCast(obj)
             except Ice.ObjectNotExistException:
@@ -4237,17 +4250,17 @@ _
         """
         Returns a list of labels for the columns on this plate. E.g. [1, 2, 3...] or ['A', 'B', 'C'...] etc
         """
-        if self.columnNamingConvention is not None and self.columnNamingConvention.lower()=='number':
-            return range(1, self.getGridSize()['columns']+1)
-        else:
+        if self.columnNamingConvention and self.columnNamingConvention.lower()=='letter':
             # this should simply be precalculated!
             return [_letterGridLabel(x) for x in range(self.getGridSize()['columns'])]
+        else:
+            return range(1, self.getGridSize()['columns']+1)
 
     def getRowLabels (self):
         """
         Returns a list of labels for the rows on this plate. E.g. [1, 2, 3...] or ['A', 'B', 'C'...] etc
         """
-        if self.rowNamingConvention is not None and self.rowNamingConvention.lower()=='number':
+        if self.rowNamingConvention and self.rowNamingConvention.lower()=='number':
             return range(1, self.getGridSize()['rows']+1)
         else:
             # this should simply be precalculated!
