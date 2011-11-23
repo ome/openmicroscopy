@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.actions.SaveAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.SendFeedbackAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewInPluginAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewOtherAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
@@ -150,8 +151,11 @@ class DataBrowserControl
 	 */
 	static final Integer    SET_OWNER_RND_SETTINGS = Integer.valueOf(15);
 	
-	/** Identifies the <code>Send Feedback action</code>.  */
+	/** Identifies the <code>Send Feedback action</code>. */
 	static final Integer    SEND_FEEDBACK = Integer.valueOf(16);
+	
+	/** Identifies the <code>View in ImageJ action</code>.*/
+	static final Integer    VIEW_IN_IJ = Integer.valueOf(17);
 	
 	/** 
 	 * Reference to the {@link DataBrowser} component, which, in this context,
@@ -168,6 +172,8 @@ class DataBrowserControl
     /** Helper method to create all the UI actions. */
     private void createActions()
     {
+    	actionsMap.put(VIEW_IN_IJ, new ViewInPluginAction(model, 
+    			DataBrowser.IMAGE_J));
     	actionsMap.put(VIEW, new ViewAction(model));
     	actionsMap.put(COPY_OBJECT, new ManageObjectAction(model,
     								ManageObjectAction.COPY));

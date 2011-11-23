@@ -319,7 +319,12 @@ public class EditorAgent
      * Implemented as specified by {@link Agent}. 
      * @see Agent#terminate()
      */
-    public void terminate() {}
+    public void terminate()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env.isRunAsPlugin())
+    		EditorFactory.onGroupSwitched(true);	
+    }
 
     /** 
      * Implemented as specified by {@link Agent}. 

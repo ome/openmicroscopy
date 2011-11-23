@@ -54,7 +54,6 @@ import javax.swing.filechooser.FileFilter;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
@@ -71,6 +70,7 @@ import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -191,6 +191,9 @@ class EditorControl
 	
 	/** Action ID to view the image.*/
 	static final int	VIEW_IMAGE = 22;
+	
+	/** Action ID to view the image.*/
+	static final int	VIEW_IMAGE_IN_IJ = 23;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -741,8 +744,22 @@ class EditorControl
 		        }
 				if (img != null) {
 					ViewImageObject vio = new ViewImageObject(img);
-					EditorAgent.getRegistry().getEventBus().post(
+					MetadataViewerAgent.getRegistry().getEventBus().post(
 							new ViewImage(vio, null));
+				}
+				break;
+			case VIEW_IMAGE_IN_IJ:
+				Object object = view.getRefObject();
+				ImageData image = null;
+				if (object instanceof ImageData) {
+					image = (ImageData) object;
+		        } else if (object instanceof WellSampleData) {
+		        	image = ((WellSampleData) object).getImage();
+		        }
+				if (image != null) {
+					ViewInPluginEvent event = new ViewInPluginEvent(
+							(DataObject) object, MetadataViewer.IMAGE_J);
+					MetadataViewerAgent.getRegistry().getEventBus().post(event);
 				}
 		}
 	}

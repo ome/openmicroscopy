@@ -48,33 +48,41 @@ public class LookupNames
 {
 
 	/** 
-	 * Field to indicating the value associated to the
-	 * <code>Tree Viewer</code> as an entry point.
+	 * Field associated to the <code>ImageJ</code> plugin.
 	 */
-	public static final int TREE_VIEWER_ENTRY = 0;	
+	public static final int IMAGE_J = 100;
+	
+	/** Field to access the plugin.*/
+	public static final String PLUGIN = "Plugin";
 	
 	/** 
-	 * Field to indicating the value associated to the
+	 * Field indicating the value associated to the
+	 * <code>Tree Viewer</code> as an entry point.
+	 */
+	public static final int TREE_VIEWER_ENTRY = 0;
+	
+	/** 
+	 * Field indicating the value associated to the
 	 * <code>Editor</code> as an entry point.
 	 */
 	public static final int EDITOR_ENTRY = 1;
 	
 	/** 
-	 * Field to indicating the value associated to the
+	 * Field indicating the value associated to the
 	 * <code>Importer</code> as an entry point.
 	 */
 	public static final int IMPORTER_ENTRY = 2;
 	
-	/** Field to indicating the P/D is the default hierarchy.*/
+	/** Field indicating the P/D is the default hierarchy.*/
 	public static final int PD_ENTRY = 0;
 	
-	/** Field to indicating the SPW is the default hierarchy.*/
+	/** Field indicating the SPW is the default hierarchy.*/
 	public static final int HCS_ENTRY = 1;
 	
-	/** Field to indicating the Tag is the default hierarchy.*/
+	/** Field indicating the Tag is the default hierarchy.*/
 	public static final int TAG_ENTRY = 2;
 	
-	/** Field to indicating the Attachment is the default hierarchy.*/
+	/** Field indicating the Attachment is the default hierarchy.*/
 	public static final int ATTACHMENT_ENTRY = 3;
 	
     /** Field to access the <code>Version</code> information. */

@@ -174,6 +174,9 @@ class PopupMenu
 	/** Button to send feedback. */
 	private JMenuItem			sendFeedbackElement;	
 	
+	/** Button to view an Image using ImageJ. */
+	private JMenuItem			viewInIJ;
+	
 	/** Reference to the Control. */
 	private TreeViewerControl   controller;
 
@@ -212,6 +215,16 @@ class PopupMenu
 		populateMenu();
 		TreeViewerAction a;
 		switch (index) {
+			case TreeViewer.VIEW_MENU:
+				if (TreeViewerAgent.runAsPlugin() == TreeViewer.IMAGE_J) {
+					a = controller.getAction(TreeViewerControl.VIEW);
+					view = new JMenuItem(a);
+					initMenuItem(view, a.getActionName());
+					a = controller.getAction(TreeViewerControl.VIEW_IN_IJ);
+					viewInIJ = new JMenuItem(a);
+					initMenuItem(viewInIJ, a.getActionName());
+				}
+				break;
 			case TreeViewer.FULL_POP_UP_MENU:
 				a = controller.getAction(TreeViewerControl.BROWSE);
 				browse = new JMenuItem(a);
@@ -223,6 +236,11 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.VIEW);
 				view = new JMenuItem(a);
 				initMenuItem(view, a.getActionName());
+				if (TreeViewerAgent.runAsPlugin() == TreeViewer.IMAGE_J) {
+					a = controller.getAction(TreeViewerControl.VIEW_IN_IJ);
+					viewInIJ = new JMenuItem(a);
+					initMenuItem(viewInIJ, a.getActionName());
+				}
 				a = controller.getAction(
 						TreeViewerControl.EDITOR_WITH_SELECTION);
 				editFile = new JMenuItem(a);
@@ -411,7 +429,14 @@ class PopupMenu
 			case TreeViewer.FULL_POP_UP_MENU:
 				add(browse);
 				add(browseNoThumbnails);
-				add(view);
+				if (viewInIJ != null) {
+					JMenu menu = new JMenu();
+					initMenuItem(menu, TreeViewerWin.VIEW_MENU);
+					menu.setIcon(view.getIcon());
+					menu.add(view);
+					menu.add(viewInIJ);
+					add(menu);
+				} else add(view);
 				add(openWithMenu);
 				add(editFile);
 				add(downloadElement);
@@ -469,6 +494,12 @@ class PopupMenu
 				add(copyElement);
 				add(pasteElement);
 				add(deleteElement);
+				break;
+			case TreeViewer.VIEW_MENU:
+				if (viewInIJ != null) {
+					add(view);
+					add(viewInIJ);
+				}
 		}
 	}
 

@@ -33,7 +33,9 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
+import org.openmicroscopy.shoola.agents.editor.view.EditorFactory;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
@@ -77,6 +79,22 @@ public class DataBrowserAgent
      * @return A reference to the <code>Registry</code>.
      */
     public static Registry getRegistry() { return registry; }
+    
+    /**
+     * Returns the identifier of the plugin to run.
+     * 
+     * @return See above.
+     */
+    public static int runAsPlugin()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env == null) return -1;
+    	switch (env.runAsPlugin()) {
+			case LookupNames.IMAGE_J:
+				return DataBrowser.IMAGE_J;
+		}
+    	return -1;
+    }
     
     /**
 	 * Helper method returning the current user's details.
@@ -243,7 +261,12 @@ public class DataBrowserAgent
      * Implemented as specified by {@link Agent}. 
      * @see Agent#terminate()
      */
-    public void terminate() {}
+    public void terminate()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env.isRunAsPlugin())
+    		DataBrowserFactory.onGroupSwitched(true);
+    }
 
     /** 
      * Implemented as specified by {@link Agent}. 

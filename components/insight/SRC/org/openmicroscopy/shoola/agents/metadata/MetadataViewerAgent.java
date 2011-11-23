@@ -32,6 +32,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
@@ -72,6 +73,22 @@ public class MetadataViewerAgent
      * @return A reference to the <code>Registry</code>
      */
     public static Registry getRegistry() { return registry; }
+    
+    /**
+     * Returns the identifier of the plugin to run.
+     * 
+     * @return See above.
+     */
+    public static int runAsPlugin()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env == null) return -1;
+    	switch (env.runAsPlugin()) {
+			case LookupNames.IMAGE_J:
+				return MetadataViewer.IMAGE_J;
+		}
+    	return -1;
+    }
     
 	/**
 	 * Helper method returning the current user's details.
@@ -228,7 +245,12 @@ public class MetadataViewerAgent
      * Implemented as specified by {@link Agent}. 
      * @see Agent#terminate()
      */
-    public void terminate() {}
+    public void terminate()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env.isRunAsPlugin())
+    		MetadataViewerFactory.onGroupSwitched(true);
+    }
 
     /** 
      * Implemented as specified by {@link Agent}. 
