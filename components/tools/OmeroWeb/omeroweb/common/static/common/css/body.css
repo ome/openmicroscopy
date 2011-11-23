@@ -12,3 +12,19 @@ a:hover, a:link, a:visited {
     color: #1B7BC7;
     text-decoration: none;
 }
+
+h1 {
+    font-size: 15px;
+    text-align: left;
+    margin: 0;
+    padding: 10px 0;
+}
+h2 {
+    font-size: 13px;
+    text-align: left;
+}
+
+p {
+    margin: 0px;
+    padding: 5px;
+}
