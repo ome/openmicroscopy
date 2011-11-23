@@ -167,6 +167,9 @@ class ImViewerComponent
     /** The list of component added to the main viewer. */
     private List<JComponent>				layers;
     
+    /** The color changes preview.*/
+    private Map<Integer, Color>				colorChanges;
+    
 	/**
 	 * Creates and returns an image including the ROI
 	 * 
@@ -196,7 +199,8 @@ class ImViewerComponent
 	private void showProjectionDialog()
 	{
 		if (projDialog == null) {
-			projDialog = new ProjSavingDialog(view);
+			projDialog = new ProjSavingDialog(view, model.getParent(), 
+					model.getGrandParent());
 			projDialog.initialize(view.getProjectionType(), model.getMaxT()+1, 
 					model.getPixelsType(), model.getImageName(), 
 					model.getContainers(), model.getMaxZ()+1, 
@@ -223,6 +227,10 @@ class ImViewerComponent
 		}
 		MeasurePlane event = new MeasurePlane(model.getPixelsID(), 
 				model.getDefaultZ(), model.getDefaultT(), f);
+		if (model.isBigImage()) {
+			event.setSize(model.getTiledImageSizeX(),
+					model.getTiledImageSizeY());
+		}
 		bus.post(event);
 	}
 
@@ -477,6 +485,10 @@ class ImViewerComponent
 				model.getDefaultZ(), model.getDefaultT(),
 				model.getActiveChannelsColorMap(),f, 
 				view.getBounds(), model.getChannelData());
+		if (model.isBigImage()) {
+			request.setSize(model.getTiledImageSizeX(),
+					model.getTiledImageSizeY());
+		}
 		request.setThumbnail(model.getImageIcon());
 		request.setRenderedImage(model.getBrowser().getRenderedImage());
 		request.setMeasurements(measurements);
@@ -932,9 +944,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setChannelColor(int, Color)
+	 * @see ImViewer#setChannelColor(int, Color, boolean)
 	 */
-	public void setChannelColor(int index, Color c)
+	public void setChannelColor(int index, Color c, boolean preview)
 	{
 		switch (model.getState()) {
 			case NEW:
@@ -943,6 +955,21 @@ class ImViewerComponent
 						"This method can't be invoked in the DISCARDED, " +
 						"NEW or LOADING_RENDERING_CONTROL state.");
 		}
+		if (preview) {
+			if (colorChanges == null)
+				colorChanges = new HashMap<Integer, Color>();
+			if (c == null) {
+				c = colorChanges.get(index); //reset the color.
+				colorChanges.clear();
+			} else {
+				if (!colorChanges.containsKey(index))
+					colorChanges.put(index, model.getChannelColor(index));
+			}
+		} else {
+			if (colorChanges != null)
+				colorChanges.remove(index);
+		}
+		if (c == null) return;
 		try {
 			model.setChannelColor(index, c);
 			view.setChannelColor(index, c);
@@ -950,7 +977,6 @@ class ImViewerComponent
 				setChannelActive(index, true);
 				view.setChannelActive(index, ImViewerUI.ALL_VIEW);
 			}
-
 			if (GREY_SCALE_MODEL.equals(model.getColorModel()))
 				setColorModel(ColorModelAction.RGB_MODEL);
 			//else 

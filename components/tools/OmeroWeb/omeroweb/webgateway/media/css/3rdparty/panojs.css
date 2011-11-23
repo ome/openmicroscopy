@@ -6,7 +6,7 @@
   position: relative;
   top: 0;
   left: 0;
-  background-color: #434343;
+  background-color: #DDD;
   overflow: hidden;     
  
   /* NOTE: the size and width should be set dynamically when initialized */

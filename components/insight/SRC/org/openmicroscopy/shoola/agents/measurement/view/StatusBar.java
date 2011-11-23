@@ -78,6 +78,9 @@ class StatusBar
     /** The label displaying the progress icon. */
     private JLabel              progressLabel;
     
+    /** The label displaying the currently selected plane.*/
+    private JLabel				planeLabel;
+    
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -87,6 +90,7 @@ class StatusBar
 	    statusButton.setBorder(null);
 	    UIUtilities.unifiedButtonLookAndFeel(statusButton);
 	    status = new JLabel();
+	    planeLabel = new JLabel();
 	    progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
         progressLabel = new JLabel(icons.getIcon(IconManager.PROGRESS));
@@ -99,7 +103,9 @@ class StatusBar
         setBorder(BorderFactory.createEtchedBorder());
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(statusButton);
+        //p.add(statusButton);
+        //p.add(Box.createRigidArea(H_SPACER_SIZE));
+        p.add(planeLabel);
         p.add(Box.createRigidArea(H_SPACER_SIZE));
         p.add(status);
         add(UIUtilities.buildComponentPanel(p));
@@ -122,6 +128,13 @@ class StatusBar
 	    initComponents();
 	    buildUI();
 	}
+	
+	/** 
+	 * Sets the status message.
+	 * 
+	 * @param s The message to display.
+	 */
+	public void setPlaneStatus(String s) { planeLabel.setText(s); }
 	
 	/** 
 	 * Sets the status message.

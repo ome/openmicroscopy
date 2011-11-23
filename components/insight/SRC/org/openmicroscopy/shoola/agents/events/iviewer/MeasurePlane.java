@@ -59,6 +59,12 @@ public class MeasurePlane
     /** The magnification factor of the currently viewed plane. */
     private double		magnification;
     
+    /** The size along the X-axis.*/
+    private int			sizeX;
+    
+    /** The size along the Y-axis.*/
+    private int			sizeY;
+    
     /**
      * Creates a new instance.
      * 
@@ -76,7 +82,35 @@ public class MeasurePlane
          this.defaultZ = defaultZ;
          this.magnification = magnification;
          this.pixelsID = pixelsID;
+         sizeX = 0;
+         sizeY = 0;
     }
+    
+    /**
+     * Sets the size along the X-axis and Y-axis.
+     * 
+     * @param sizeX The size along the X-axis.
+     * @param sizeY The size along the Y-axis.
+     */
+    public void setSize(int sizeX, int sizeY)
+    {
+    	this.sizeX = sizeX;
+    	this.sizeY = sizeY;
+    }
+    
+    /**
+     * Returns the size along the X-axis.
+     * 
+     * @return See above.
+     */
+    public int getSizeX() { return sizeX; }
+    
+    /**
+     * Returns the size along the Y-axis.
+     * 
+     * @return See above.
+     */
+    public int getSizeY() { return sizeY; }
     
     /**
      * Returns the pixels set ID.

@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.util.proj;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -33,9 +34,9 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +44,7 @@ import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -51,7 +53,6 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
@@ -66,12 +67,15 @@ import info.clearthought.layout.TableLayout;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.CreateFolderDialog;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
+import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ProjectData;
 
 /** 
  * Dialog used to set the extra parameters required to project the image.
@@ -96,6 +100,12 @@ public class ProjSavingDialog
 	
 	/** Bound property indicating to load all the datasets. */
 	public static final String	LOAD_ALL_PROPERTY = "loadAll";
+	
+	/** The default text. */
+	private static final String	PROJECT_TXT = "Project";
+	
+	/** The default text. */
+	private static final String	DATASET_TXT = "Dataset";
 	
 	/** The title of the dialog. */
 	private static final String	TITLE = "Projection";
@@ -126,15 +136,9 @@ public class ProjSavingDialog
 	
 	/** Button to create a new dataset. */
 	private JButton		 				newFolderButton;
-	
-	/** Button to load the other containers. */
-	private JButton		 				otherButton;
-	
+
 	/** The component hosting the datasets containing the image. */
 	private JPanel						selectionPane;
-	
-	/** Keep track of the selected dataset. */
-	private Map<JCheckBox, DatasetData> selection;
 	
 	/** Component to select the time interval. */
 	private TextualTwoKnobsSlider		timeSelection;
@@ -157,8 +161,29 @@ public class ProjSavingDialog
 	/** Used to sort the containers. */
 	private ViewerSorter 				sorter;
 	
-	/** The component hosting the datasets. */
-	private JScrollPane 				pane;
+	/** Component used to select the dataset. */
+	private JComboBox					datasetsBox;
+	
+	/** Component used to select the project. */
+	private JComboBox					parentsBox;
+	
+	/** The listener linked to the parents box. */
+	private ActionListener				parentsBoxListener;
+	
+	/** The listener linked to the datasets box. */
+	private ActionListener				datasetsBoxListener;
+	
+	/** The selected container where to import the data. */
+	private DataObject					selectedContainer;
+	
+	/** The selected container where to import the data. */
+	private DataObject					selectedGrandParentContainer;
+	
+	/** The selected dataset.*/
+	private DatasetData					selectedDataset;
+	
+	/** The container indicating where to save the projected image.*/
+	private JLabel						containerLabel;
 	
 	/** Sets the properties of the dialog. */
 	private void setProperties()
@@ -167,20 +192,96 @@ public class ProjSavingDialog
 		setModal(true);
 	}
 	
+	/** Displays where to save the image.*/
+	private void setLabelText()
+	{
+		StringBuffer buffer = new StringBuffer();
+		if (parentsBox.getItemCount() > 0) {
+			DataNode node = (DataNode) parentsBox.getSelectedItem();
+			if (!node.isDefaultProject())
+				buffer.append(node.toString()+"/");
+		}
+		if (selectedDataset != null)
+			buffer.append(selectedDataset.getName());
+		containerLabel.setText(buffer.toString());
+	}
+	
+	/** Populates the datasets box depending on the selected project. */
+	private void populateDatasetsBox()
+	{
+		DataNode n = (DataNode) parentsBox.getSelectedItem();
+		List<DataNode> list = n.getUIDatasetNodes();
+		List l;
+		if (list == null || list.size() == 0) {
+			l = new ArrayList();
+			l.add(DataNode.createDefaultDataset());
+		} else l = sorter.sort(list);
+		
+		datasetsBox.removeActionListener(datasetsBoxListener);
+		datasetsBox.removeAllItems();
+		
+		datasetsBox.setModel(new DefaultComboBoxModel(l.toArray()));
+		if (selectedContainer != null && 
+			selectedContainer instanceof DatasetData) {
+			DatasetData d = (DatasetData) selectedContainer;
+			Iterator<DataNode> i = l.iterator();
+			while (i.hasNext()) {
+				n = i.next();
+				if (n.getDataObject().getId() == d.getId()) {
+					datasetsBox.setSelectedItem(n);
+					selectedDataset = (DatasetData) n.getDataObject();
+					break;
+				}
+			}
+		} else { // no node selected
+			if (l.size() > 1) {
+				Iterator<DataNode> i = l.iterator();
+				while (i.hasNext()) {
+					n = i.next();
+					if (!n.isDefaultDataset()) {
+						datasetsBox.setSelectedItem(n);
+						break;
+					}
+				}
+			}
+		}
+		datasetsBox.addActionListener(datasetsBoxListener);
+		setLabelText();
+	}
+	
 	/**
 	 * Initializes the components.
 	 * 
 	 * @param imageName	The name of the image.
 	 * @param type		The type of projection.
-	 * @param datasets	The collection of datasets hosting the image.
 	 * @param maxZ		The maximum number of z-sections.
 	 * @param startZ	The lower bound of the z-section interval.
 	 * @param endZ		The upper bound of the z-section interval.
 	 */
-	private void initComponents(String imageName, String type, 
-								Collection datasets, int maxZ, int startZ, 
-								int endZ)
+	private void initComponents(String imageName, String type, int maxZ,
+			int startZ, int endZ)
 	{
+		containerLabel = new JLabel();
+		parentsBox = new JComboBox();
+		parentsBoxListener = new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				populateDatasetsBox();
+			}
+		};
+		parentsBox.addActionListener(parentsBoxListener);
+		datasetsBox = new JComboBox();
+		datasetsBoxListener = new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				DataNode node = (DataNode) datasetsBox.getSelectedItem();
+				if (node != null) {
+					selectedDataset = (DatasetData) node.getDataObject();
+					setLabelText();
+				}
+			}
+		};
+		datasetsBox.addActionListener(datasetsBoxListener);
 		rndSettingsBox = new JCheckBox("Apply same rendering settings");
 		rndSettingsBox.setToolTipText(
 				UIUtilities.formatToolTipText(
@@ -217,12 +318,6 @@ public class ProjSavingDialog
 		
 		selectionPane =  new JPanel();
 		selectionPane.setLayout(new BoxLayout(selectionPane, BoxLayout.Y_AXIS));
-    	
-		otherButton = new JButton("All datasets");
-		otherButton.setToolTipText(UIUtilities.formatToolTipText(
-				"Load all the datasets available."));
-		otherButton.setActionCommand(""+OTHER);
-		otherButton.addActionListener(this);
 		
 		closeButton = new JButton("Cancel");
 		closeButton.setToolTipText(UIUtilities.formatToolTipText(
@@ -234,7 +329,7 @@ public class ProjSavingDialog
 				"Project the image."));
 		projectButton.setActionCommand(""+PROJECT);
 		projectButton.addActionListener(this);
-		newFolderButton = new JButton("New...");
+		newFolderButton = new JButton("New Dataset...");
 		newFolderButton.setToolTipText(UIUtilities.formatToolTipText(
 				"Create a new Dataset."));
 		newFolderButton.setActionCommand(""+NEWFOLDER);
@@ -247,21 +342,6 @@ public class ProjSavingDialog
 		nameField.setText(buffer.toString());
 		nameField.getDocument().addDocumentListener(this);
 		//Display datasets
-		selection = new LinkedHashMap<JCheckBox, DatasetData>();
-		if (datasets != null && datasets.size() > 0) {
-			List l = sorter.sort(datasets);
-			Iterator j = l.iterator();
-			JCheckBox box;
-			DatasetData d;
-			index = 0;
-			while (j.hasNext()) {
-				d = (DatasetData) j.next();
-				box = new JCheckBox(d.getName());
-				selection.put(box, d);
-				if (index == 0) box.setSelected(true);
-				index++;
-			}
-		}
 		getRootPane().setDefaultButton(projectButton);
 		
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -331,11 +411,47 @@ public class ProjSavingDialog
 	private JPanel buildControls()
 	{
 		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(otherButton);
+		p.setBorder(new TitledBorder(""));
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(selectionPane);
 		p.add(Box.createHorizontalStrut(5));
 		p.add(newFolderButton);
 		return p;
+	}
+	
+	/**
+	 * Creates a row.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel createRow()
+	{
+		JPanel row = new JPanel();
+		row.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+		row.setBorder(null);
+		return row;
+	}
+	
+	/**
+	 * Returns the file queue and indicates where the files will be imported.
+	 * 
+	 * @return See above.
+	 */
+	private void buildLocationPane()
+	{
+		selectionPane.removeAll();
+		JPanel row = createRow();
+		selectionPane.add(row);
+		selectionPane.add(Box.createVerticalStrut(2));
+		row = createRow();
+		row.add(UIUtilities.setTextFont(PROJECT_TXT));
+		row.add(parentsBox);
+		selectionPane.add(row);
+		selectionPane.add(Box.createVerticalStrut(8));
+		row = createRow();
+		row.add(UIUtilities.setTextFont(DATASET_TXT));
+		row.add(datasetsBox);
+		selectionPane.add(row);
 	}
 	
 	/**
@@ -359,16 +475,10 @@ public class ProjSavingDialog
         content.add(nameField, "1, 1, FULL, CENTER");
         content.add(new JLabel(), "0, 2, 1, 2");
         content.add(UIUtilities.setTextFont("Save in "), "0, 3, LEFT, CENTER");
-        content.add(UIUtilities.setTextFont("datasets "), "0, 4, LEFT, CENTER");
-        content.add(UIUtilities.buildComponentPanel(buildControls()), 
-        		"0, 5, l, c");
-        pane = new JScrollPane(selectionPane);
-    	content.add(pane, "1, 3, 1, 6");
-        if (selection != null) {
-        	Iterator i = selection.keySet().iterator();
-        	while (i.hasNext()) 
-        		selectionPane.add((JComponent) i.next());
-        }
+        content.add(containerLabel, "1, 3, LEFT, CENTER");
+        //content.add(UIUtilities.buildComponentPanel(buildControls()), 
+        //		"0, 5, l, c");
+    	content.add(buildControls(), "1, 4, 1, 6");
         content.add(new JLabel(), "0, 7, 1, 7");
         content.add(UIUtilities.setTextFont("Parameters "), "0, 8," +
         		"LEFT, CENTER");
@@ -412,6 +522,11 @@ public class ProjSavingDialog
 	 */
 	private void createDataset(String name)
 	{
+		DatasetData d = new DatasetData();
+		d.setName(name);
+		selectedDataset = d;
+		setLabelText();
+		/*
 		JCheckBox newBox = new JCheckBox(name);
 		newBox.setSelected(true);
 		DatasetData d = new DatasetData();
@@ -431,6 +546,7 @@ public class ProjSavingDialog
 		selectionPane.revalidate();
 		selectionPane.repaint();
 		newFolderButton.setEnabled(false);
+		*/
 	}
 	
 	/** Closes and disposes. */
@@ -455,7 +571,7 @@ public class ProjSavingDialog
     /** Projects the image. */
     private void project()
     {
-    	List<DatasetData> datasets = new ArrayList<DatasetData>();
+    	/*
 		Iterator<JCheckBox> i = selection.keySet().iterator();
 		JCheckBox box;
 		while (i.hasNext()) {
@@ -463,9 +579,9 @@ public class ProjSavingDialog
 			if (box.isSelected())
 				datasets.add(selection.get(box));
 		}
+		*/
 		int startT = 0, endT = 0;
 		if (maxT > 0) {
-			
 			startT = (int) timeSelection.getStartValue()-1;
 			endT = (int) timeSelection.getEndValue()-1;
 		}
@@ -478,7 +594,12 @@ public class ProjSavingDialog
 		}
 		*/
 		ProjectionRef ref = new ProjectionRef();
-		ref.setDatasets(datasets);
+		ref.setDatasets(Arrays.asList(selectedDataset));
+		if (selectedDataset.getId() <= 0) {
+			DataNode node = (DataNode) parentsBox.getSelectedItem();
+			if (!node.isDefaultNode()) 
+				ref.setProject((ProjectData) node.getDataObject());
+		}
 		ref.setImageName(nameField.getText());
 		ref.setTInterval(startT, endT);
 		double s = zrangeSelection.getStartValue();
@@ -488,36 +609,20 @@ public class ProjSavingDialog
 		firePropertyChange(PROJECTION_PROPERTY, null, ref);
 		close();
     }
-    
-    /**
-     * Returns the list of the already selected datasets.
-     * 
-     * @return See above.
-     */
-    private List<String> getSelectedDatasets()
-    {
-    	List<String> selected = new ArrayList<String>();
-    	if (selection == null) return selected;
-    	Iterator i = selection.entrySet().iterator();
-		Entry entry;
-		JCheckBox box;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			box = (JCheckBox) entry.getKey();
-			if (box.isSelected())
-				selected.add(((DatasetData) entry.getValue()).getName());
-		}
-		return selected;
-    }
-    
+
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param owner	The owner of the frame.
+	 * @param selectedContainer The default container.
+	 * @param selectedGrandParentContainer The container hosting the dataset.
 	 */
-	public ProjSavingDialog(JFrame owner)
+	public ProjSavingDialog(JFrame owner, DataObject selectedContainer, 
+			DataObject selectedGrandParentContainer)
 	{
 		super(owner);
+		this.selectedContainer = selectedContainer;
+		this.selectedGrandParentContainer = selectedGrandParentContainer;
 		setProperties();
 		sorter = new ViewerSorter();
 	}
@@ -529,19 +634,20 @@ public class ProjSavingDialog
 	 * @param maxT			The maximum number of time-points.
 	 * @param pixelsType	The type of pixels of the original image.
 	 * @param imageName		The name of the original image.
-	 * @param datasets		The datasets containing the image.
+	 * @param containers	The containers containing the image.
 	 * @param maxZ			The maximum number of z-sections.
 	 * @param startZ		The lower bound of the z-section interval.
 	 * @param endZ			The upper bound of the z-section interval.
 	 */
 	public void initialize(int algorithm, int maxT, String pixelsType, 
-						String imageName, Collection datasets, int maxZ, 
+						String imageName, Collection containers, int maxZ, 
 						int startZ, int endZ)
 	{
 		this.maxT = maxT;
 		this.algorithm = algorithm;
-		initComponents(imageName, pixelsType, datasets, maxZ, startZ, endZ);
+		initComponents(imageName, pixelsType, maxZ, startZ, endZ);
 		buildGUI();
+		setContainers(containers);
 	}
 	
 	/**
@@ -556,12 +662,64 @@ public class ProjSavingDialog
 	}
 	
 	/** 
-	 * Sets the available datasets.
+	 * Sets the available containers.
 	 * 
-	 * @param datasets The value to set.
+	 * @param containers The value to set.
 	 */
-	public void setContainers(Collection datasets)
+	public void setContainers(Collection containers)
 	{
+		if (containers == null || containers.size() == 0) return;
+		parentsBox.removeActionListener(parentsBoxListener);
+		parentsBox.removeAllItems();
+		parentsBox.addActionListener(parentsBoxListener);
+		datasetsBox.removeAllItems();
+		List<DataNode> topList = new ArrayList<DataNode>();
+		List<DataNode> datasetsList = new ArrayList<DataNode>();
+		DataObject ho;
+		DataNode n;
+		if (containers != null && containers.size() > 0) {
+			Iterator<DataObject> i = containers.iterator();
+			while (i.hasNext()) {
+				ho = i.next();
+				if (ho instanceof ProjectData) {
+					n = new DataNode((DataObject) ho);
+					topList.add(n); 
+				} else if (ho instanceof DatasetData) {
+					n = new DataNode((DataObject) ho);
+					datasetsList.add(n);
+				}
+			}
+		}
+		List sortedList = new ArrayList();
+		if (topList.size() > 0) {
+			sortedList = sorter.sort(topList);
+		}
+		
+		//check if new top nodes
+		List finalList = new ArrayList();
+		if (datasetsList.size() > 0)
+			finalList.add(new DataNode(datasetsList));
+		finalList.addAll(sortedList);
+		parentsBox.removeActionListener(parentsBoxListener);
+		parentsBox.setModel(new DefaultComboBoxModel(finalList.toArray()));
+		
+		if (selectedGrandParentContainer != null &&
+				selectedGrandParentContainer instanceof ProjectData) {
+			
+			for (int i = 0; i < parentsBox.getItemCount(); i++) {
+				n = (DataNode) parentsBox.getItemAt(i);
+				if (n.getDataObject().getId() == 
+					selectedGrandParentContainer.getId()) {
+					parentsBox.setSelectedIndex(i);
+					break;
+				}
+			}
+		}
+		parentsBox.addActionListener(parentsBoxListener);
+		populateDatasetsBox();
+		buildLocationPane();
+		
+		/*
 		if (datasets == null) return;
 		List<String> selected = getSelectedDatasets();
 		JCheckBox box;
@@ -588,6 +746,7 @@ public class ProjSavingDialog
         	selectionPane.repaint();
         	pane.revalidate();
 		}
+		*/
 	}
 	
 	/**

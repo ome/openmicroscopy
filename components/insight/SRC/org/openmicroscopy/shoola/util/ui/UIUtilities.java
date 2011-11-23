@@ -107,6 +107,10 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 public class UIUtilities
 {
 
+	/** The default background color.*/
+	public static final Color TOOLTIP_COLOR = new Color(255, 252, 180, 200);
+	
+	
 	/** The default number of characters for the partial name.*/
 	public static final int DEFAULT_NUMBER_OF_CHARACTERS = 30;
 	

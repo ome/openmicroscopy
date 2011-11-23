@@ -437,6 +437,8 @@ class TreeViewerWin
         menu.add(item);
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.LOG_OFF)));
+        menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.EXIT)));
         return menu;
     }

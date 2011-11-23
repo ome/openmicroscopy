@@ -332,6 +332,7 @@ class MeasurementViewerComponent
 		if (model.getState() != LOADING_ROI) return;
 		if (input == null) {
 			model.setState(MeasurementViewer.READY);
+			view.refreshToolBar();
 			view.rebuildManagerTable();
 			view.updateDrawingArea();
 			view.setReadyStatus();
@@ -373,6 +374,7 @@ class MeasurementViewerComponent
 			}
 			return;
 		}
+		view.refreshToolBar();
 		view.rebuildManagerTable();
 		view.updateDrawingArea();
 		view.setReadyStatus();
@@ -393,7 +395,8 @@ class MeasurementViewerComponent
 		int t = model.getDefaultT();
 		double f = model.getMagnification();
 		if (z == defaultZ && t == defaultT) {
-			if (f != magnification) model.setMagnification(magnification);
+			if (f != magnification)
+				model.setMagnification(magnification);
 			if (!model.isBigImage()) return;
 		}
 		model.setPlane(defaultZ, defaultT);
@@ -422,7 +425,8 @@ class MeasurementViewerComponent
 		}
 		model.getDrawingView().setDrawing(drawing);
 		drawing.addDrawingListener(controller);
-		if (f != magnification) model.setMagnification(magnification);
+		if (f != magnification)
+			model.setMagnification(magnification);
 	}
 
 	/** 
@@ -880,6 +884,7 @@ class MeasurementViewerComponent
 			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Load ROI", "Cannot display the ROI.");
 		}
+		view.refreshToolBar();
 		view.rebuildManagerTable();
 		view.updateDrawingArea();
 		view.setReadyStatus();

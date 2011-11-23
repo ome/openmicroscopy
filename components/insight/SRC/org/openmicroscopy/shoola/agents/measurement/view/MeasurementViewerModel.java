@@ -320,6 +320,30 @@ class MeasurementViewerModel
 	}
 	
 	/**
+	 * Returns all the figures hosted by the <code>ROIComponent</code>.
+	 * 
+	 * @return See above.
+	 */
+	Collection<ROIFigure> getAllFigures()
+	{
+		TreeMap<Long, ROI> rois = roiComponent.getROIMap();
+		List<ROIFigure> all = new ArrayList<ROIFigure>();
+		if (rois == null) return all;
+		Iterator i = rois.entrySet().iterator();
+		Entry entry;
+		ROI roi;
+		List<ROIFigure> l;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			roi = (ROI) entry.getValue();
+			l = roi.getAllFigures();
+			if (l != null && l.size() > 0)
+				all.addAll(l);
+		}
+		return all;
+	}
+	
+	/**
      * Returns the name used to log in.
      * 
      * @return See above.
@@ -476,10 +500,12 @@ class MeasurementViewerModel
      */
 	void setMagnification(double magnification)
 	{ 
+		int sizeX = getSizeX();
+		int sizeY = getSizeY();
 		this.magnification = magnification;
 		if (state != MeasurementViewer.NEW)
 			getDrawingView().setScaleFactor(magnification,
-					new Dimension(getSizeX(), getSizeY()));
+					new Dimension(sizeX, sizeY));
 		else 
 			getDrawingView().setScaleFactor(magnification);
 	}

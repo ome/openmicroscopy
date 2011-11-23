@@ -144,7 +144,7 @@ public interface MeasurementViewer
 	 * @param magnification	The image's magnification factor.
 	 */
 	public void setMagnifiedPlane(int defaultZ, int defaultT, 
-									double magnification);
+			double magnification);
 	
 	/**
 	 * Sets the collection of ROIs for the pixels set.

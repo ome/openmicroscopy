@@ -1799,51 +1799,6 @@ class PlateWrapper (OmeroWebObjectWrapper, omero.gateway.PlateWrapper):
             self.annotation_counter = kwargs['annotation_counter']
         if kwargs.has_key('link'):
             self.link = kwargs.has_key('link') and kwargs['link'] or None
-    
-    def _loadPlateAcquisitions(self):
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["pid"] = self._obj.id
-        sql = "select pa from PlateAcquisition as pa join fetch pa.plate as p where p.id=:pid"
-        self._obj._plateAcquisitionsSeq = self._conn.getQueryService().findAllByQuery(sql, p)
-        self._obj._plateAcquisitionsLoaded = True
-    
-    def countPlateAcquisitions(self):
-        if self._obj.sizeOfPlateAcquisitions() < 0:
-            self._loadPlateAcquisitions()
-        return self._obj.sizeOfPlateAcquisitions()
-    
-    def listPlateAcquisitions(self):
-        if not self._obj._plateAcquisitionsLoaded:
-            self._loadPlateAcquisitions()
-        for pa in self._obj.copyPlateAcquisitions():
-            yield PlateAcquisitionWrapper(self._conn, pa)
-    
-    def getFields (self, pid=None):
-        """
-        Returns tuple of min and max of indexed collection of well samples 
-        per plate acquisition if exists
-        """
-        
-        q = self._conn.getQueryService()
-        sql = "select minIndex(ws), maxIndex(ws) from Well w " \
-            "join w.wellSamples ws where w.plate.id=:oid"
-        
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = self._obj.id
-        if pid is not None:
-            sql += " and ws.plateAcquisition.id=:pid"
-            p.map["pid"] = rlong(pid)
-        
-        fields = None
-        try:
-            res = [r for r in unwrap(q.projection(sql, p))[0] if r != None]
-            if len(res) == 2:
-                fields = tuple(res)
-        except:
-            pass
-        return fields
 
 omero.gateway.PlateWrapper = PlateWrapper
 
@@ -1864,7 +1819,7 @@ class WellWrapper (OmeroWebObjectWrapper, omero.gateway.WellWrapper):
 
 omero.gateway.WellWrapper = WellWrapper
 
-class PlateAcquisitionWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+class PlateAcquisitionWrapper (OmeroWebObjectWrapper, omero.gateway.PlateAcquisitionWrapper):
     
     """
     omero_model_PlateI class wrapper overwrite omero.gateway.PlateWrapper
@@ -1873,42 +1828,12 @@ class PlateAcquisitionWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectW
     
     annotation_counter = None
 
-    def __bstrap__ (self):
-        self.OMERO_CLASS = 'PlateAcquisition'
-    
     def __prepare__ (self, **kwargs):
         super(PlateAcquisitionWrapper, self).__prepare__(**kwargs)
         if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
 
-    def getName (self):
-        name = super(PlateAcquisitionWrapper, self).getName()
-        if name is None:
-            if self.startTime is not None and self.endTime is not None:
-                name = "%s - %s" % (datetime.fromtimestamp(self.startTime/1000), datetime.fromtimestamp(self.endTime/1000))
-            else:
-                name = "Plate %i" % self.id
-        return name
-    name = property(getName)
-    
-    def getFields (self):
-        """
-        Returns max of indexed collection of well samples
-        """
-        
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = self._obj.id
-        
-        q = self._conn.getQueryService()
-        sql = "select maxIndex(pa.wellSamples)+1 from PlateAcquisition as pa "\
-            "where pa.id=:oid"
-        try:
-            index = unwrap(q.projection(sql, p))[0][0]
-        except:
-            index = -1
-        return index
-
+omero.gateway.PlateAcquisitionWrapper = PlateAcquisitionWrapper
 
 class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.ScreenWrapper):
     """
@@ -2031,6 +1956,4 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         
         return omero.gateway.ExperimenterWrapper(self, self.owner)
 
-# IMPORTANT to update the map of wrappers 'project', 'dataset', 'image' etc. returned by getObjects()
 omero.gateway.refreshWrappers()
-omero.gateway.KNOWN_WRAPPERS.update({"plateacquisition":PlateAcquisitionWrapper})

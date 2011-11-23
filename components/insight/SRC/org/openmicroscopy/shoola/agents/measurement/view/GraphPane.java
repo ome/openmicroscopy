@@ -221,8 +221,9 @@ class GraphPane
 	
 		state = ANALYSING;
 		buildGraphsAndDisplay();
+		formatPlane();
 		state = READY;
-		if (shape!=null)
+		if (shape != null)
 			view.selectFigure(shape.getFigure());
 	}
 	
@@ -234,13 +235,14 @@ class GraphPane
 		zSlider.setPaintTicks(false);
 		zSlider.setPaintLabels(false);
 		zSlider.setMajorTickSpacing(1);
-		zSlider.addMouseListener(new MouseAdapter()
+		MouseAdapter ma = new MouseAdapter()
 		{
 			public void mouseReleased(MouseEvent e)
 			{
 				handleSliderReleased();
 			}
-		});
+		};
+		zSlider.addMouseListener(ma);
 		zSlider.setShowArrows(true);
 		zSlider.setVisible(false);
 		zSlider.setEndLabel("Z");		
@@ -252,19 +254,12 @@ class GraphPane
 		tSlider.setPaintLabels(false);
 		tSlider.setMajorTickSpacing(1);
 		tSlider.setSnapToTicks(true);
-		tSlider.addMouseListener(new MouseAdapter()
-		{
-			public void mouseReleased(MouseEvent e)
-			{
-				handleSliderReleased();
-			}
-		});
+		tSlider.addMouseListener(ma);
 		tSlider.setShowArrows(true);
 		tSlider.setVisible(false);
 		tSlider.setEndLabel("T");
 		tSlider.setShowEndLabel(true);
 		mainPanel = new JPanel();
-		
 	}
 	
 	/** Builds and lays out the UI. */
@@ -413,6 +408,21 @@ class GraphPane
 		mainPanel.repaint();
 	}
 	
+	/** Indicates the selected plane.*/
+	private void formatPlane()
+	{
+		if (!zSlider.isVisible() && !tSlider.isVisible()) {
+			view.setPlaneStatus("");
+			return;
+		}
+		StringBuffer buffer = new StringBuffer();
+		if (zSlider.isVisible())
+			buffer.append("Z="+zSlider.getValue()+" ");
+		if (tSlider.isVisible())
+			buffer.append("T="+tSlider.getValue());
+		view.setPlaneStatus(buffer.toString());
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -515,11 +525,11 @@ class GraphPane
 		zSlider.setMinimum(minZ);
 		tSlider.setMaximum(maxT);
 		tSlider.setMinimum(minT);
-		zSlider.setVisible((maxZ!=minZ));
-		tSlider.setVisible((maxT!=minT));
+		zSlider.setVisible(maxZ != minZ);
+		tSlider.setVisible(maxT != minT);
 		tSlider.setValue(model.getCurrentView().getTimePoint()+1);
 		zSlider.setValue(model.getCurrentView().getZSection()+1);
-
+		formatPlane();
 		buildGraphsAndDisplay();
 	}
 	

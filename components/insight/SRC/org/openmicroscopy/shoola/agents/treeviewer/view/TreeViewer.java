@@ -1014,5 +1014,13 @@ public interface TreeViewer
 	 * @param exp The experimenter to handle.
 	 */
 	void activateUser(ExperimenterData exp);
+
+	/** 
+	 * Creates the specified data object and links the selected children
+	 * to it.
+	 * 
+	 * @param data The object to create.
+	 */
+	void createDataObjectWithChildren(DataObject data);
 	
 }

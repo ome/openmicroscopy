@@ -46,6 +46,8 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
+
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.SaveData;
@@ -2475,13 +2477,13 @@ class TreeViewerComponent
 				if (uo instanceof DataObject) 
 					po = (DataObject) uo;
 				if (gp != null) {
-					gp = gp.getParentDisplay();
-					if (gp != null) {
-						uo = gp.getUserObject();
-						if (uo instanceof DataObject) {
-							gpo = (DataObject) uo;
-						}
-					}	
+					//gp = gp.getParentDisplay();
+					//if (gp != null) {
+					uo = gp.getUserObject();
+					if (uo instanceof DataObject) {
+						gpo = (DataObject) uo;
+					}
+					//}	
 				}
 			}
 			vo.setContext(po, gpo);
@@ -3259,11 +3261,15 @@ class TreeViewerComponent
 			if (ProjectData.class.equals(type) || 
 					DatasetData.class.equals(type)) {
 				view.selectPane(Browser.PROJECTS_EXPLORER);
-			} else if (ScreenData.class.equals(type)) {
+				browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+				model.setSelectedBrowser(browser);
+			} else if (ScreenData.class.equals(type) ||
+				PlateData.class.equals(type)) {
 				view.selectPane(Browser.SCREENS_EXPLORER);
+				browser = model.getBrowser(Browser.SCREENS_EXPLORER);
+				model.setSelectedBrowser(browser);
 			}
 		}
-		browser = model.getSelectedBrowser();
 		if (browser != null) {
 			NodesFinder finder = new NodesFinder(type, id);
 			browser.accept(finder);
@@ -3279,6 +3285,7 @@ class TreeViewerComponent
 			        model.getMetadataViewer().setRootObject(null, exp.getId());
 				}
 			} else {
+				/*
 				Iterator<TreeImageDisplay> i = nodes.iterator();
 				TreeImageDisplay node;
 				if (DatasetData.class.equals(type)) {
@@ -3292,6 +3299,16 @@ class TreeViewerComponent
 					while (i.hasNext()) {
 						browser.setSelectedDisplay(i.next());
 					}
+				}
+				*/
+				Iterator<TreeImageDisplay> i = nodes.iterator();
+				TreeImageDisplay node;
+				while (i.hasNext()) {
+					node = i.next();
+					browser.setSelectedDisplay(node);
+					browser.onSelectedNode(null, node, false);
+					browseContainer(node, null);
+					break;
 				}
 			}
 		}
@@ -3492,6 +3509,36 @@ class TreeViewerComponent
 				AdminObject.ACTIVATE_USER);
 		model.fireAdmin(admin);
 		fireStateChange();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#createDataObjectWithChildren(DataObject)
+	 */
+	public void createDataObjectWithChildren(DataObject data)
+	{
+		if (data == null) return;
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
+		TreeImageDisplay[] selection = browser.getSelectedDisplays();
+		if (selection.length == 0) return;
+		if (data instanceof DatasetData) {
+			Set images = new HashSet();
+			Object ho; 
+			for (int i = 0; i < selection.length; i++) {
+				ho = selection[i].getUserObject();
+				if (ho instanceof ImageData && isUserOwner(ho))
+					images.add(ho);
+			}
+			if (images.size() == 0) {
+				UserNotifier un = 
+					DataBrowserAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Dataset Creation", 
+						"No images to add to the dataset.");
+			}
+			model.fireDataSaving(data, images);
+		}
+		
 	}
 	
 }

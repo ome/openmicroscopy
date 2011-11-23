@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateObjectWithChildren;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DownloadAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.EditorAction;
@@ -78,6 +79,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.FullScreenViewerActio
 import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ImportAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.InspectorVisibilityAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.LogOffAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
@@ -338,8 +340,14 @@ class TreeViewerControl
 	/** Identifies the <code>Activated action</code>. */
 	static final Integer    USER_ACTIVATED = Integer.valueOf(66);
 	
-	/** Identifies the <code>Import</code> in the menu. */
+	/** Identifies the <code>Import</code> action. */
 	static final Integer    IMPORT_NO_SELECTION = Integer.valueOf(67);
+	
+	/** Identifies the <code>Log off</code> action. */
+	static final Integer    LOG_OFF = Integer.valueOf(68);
+	
+	/** Identifies the <code>Create dataset</code> in the File menu. */
+	static final Integer    CREATE_DATASET_FROM_SELECTION = Integer.valueOf(69);
 	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
@@ -523,6 +531,10 @@ class TreeViewerControl
 		actionsMap.put(USER_ACTIVATED,  new ActivatedUserAction(model));
 		actionsMap.put(SEND_COMMENT,  new SendFeedbackAction(model));
 		actionsMap.put(IMPORT_NO_SELECTION, new ImportAction(model, true));
+		actionsMap.put(LOG_OFF, new LogOffAction(model));
+		actionsMap.put(CREATE_DATASET_FROM_SELECTION,  
+				new CreateObjectWithChildren(model, 
+						CreateObjectWithChildren.DATASET));
 	}
 
 	/** 
@@ -954,6 +966,13 @@ class TreeViewerControl
 		} else if (DataBrowser.REMOVE_ITEMS_PROPERTY.equals(name)) {
 			DeleteCmd cmd = new DeleteCmd(model.getSelectedBrowser());
 	        cmd.execute();
+		} else if (DataBrowser.VIEW_IMAGE_NODE_PROPERTY.equals(name)) {
+			//view.get
+			Browser browser = model.getSelectedBrowser();
+			if (browser != null) {
+				TreeImageDisplay node = browser.getLastSelectedDisplay();
+				model.browse(node, (DataObject) pce.getNewValue(), false);
+			}
 		} else if (Finder.RESULTS_FOUND_PROPERTY.equals(name)) {
 			model.setSearchResult(pce.getNewValue());
 		} else if (GenericDialog.SAVE_GENERIC_PROPERTY.equals(name)) {

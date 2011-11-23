@@ -740,6 +740,9 @@ jQuery._WeblitzViewport = function (container, server, options) {
   }
 
   this.getZoom = function () {
+    if (_this.loadedImg.tiles) 
+        return _this.viewportimg.get(0).getBigImageContainer().currentScale()*100;
+        
     return _this.loadedImg.current.zoom;
   }
 

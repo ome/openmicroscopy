@@ -73,6 +73,12 @@ class ObjectInspector
 	/** Index to identify tab */
 	public final static int		INDEX = MeasurementViewerUI.INSPECTOR_INDEX;
 
+	/** The row hosting the fill color. */
+	static final int FILL_COLOR_ROW = 5;
+	
+	/** The row hosting the fill color. */
+	static final int LINE_COLOR_ROW = 6;
+	
 	/** Collection of column names. */
 	private static final List<String>			COLUMN_NAMES;
 	
@@ -260,14 +266,16 @@ class ObjectInspector
 	
 	/**
 	 * Sets the passed color to the currently selected cell.
+	 * Returns the selected row.
 	 * 
 	 * @param c The color to set.
 	 */
-	void setCellColor(Color c)
+	int setCellColor(Color c)
 	{
 		int col = fieldTable.getSelectedColumn();
 		int row = fieldTable.getSelectedRow();
 		fieldTable.getModel().setValueAt(c, row, col);
+		return row;
 	}
 
 	/**
@@ -288,6 +296,26 @@ class ObjectInspector
 		return false;
 	}
 
+	/**
+	 * Shows or hides the text for the currently selected figure.
+	 * 
+	 * @param show  Pass <code>true</code> to show the text, <code>false</code>
+	 * 				otherwise. 
+	 * @param figure The selected figure.
+	 */
+	void showText(boolean show, ROIFigure figure)
+	{
+		if (fieldTable == null) return;
+		int n = fieldTable.getRowCount();
+		if (n > 3) {
+			FigureTableModel ftm = (FigureTableModel) 
+			fieldTable.getModel();
+			ROIFigure f = ftm.getFigure();
+			if (f != null && !f.isReadOnly() && f == figure)
+				fieldTable.getModel().setValueAt(show, SHOW_TEXT_ROW, 1);
+		}
+	}
+	
 	/**
 	 * Returns <code>true</code> if the measurement has to be shown, 
 	 * <code>false</code> otherwise.

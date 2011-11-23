@@ -356,37 +356,7 @@ class DataBrowserControl
 	 * 
 	 * @param node The node to handle.
 	 */
-	void viewDisplay(ImageDisplay node)
-	{
-		if (node instanceof ImageNode) {
-			EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
-			DataObject data = null;
-			Object uo = node.getHierarchyObject();
-			ViewImage event;
-			Object go;
-			ViewImageObject object;
-			if (uo instanceof ImageData) {
-				object = new ViewImageObject((ImageData) uo);
-				go =  view.getParentOfNodes();
-				if (go instanceof DataObject) 
-					data = (DataObject) go;
-				object.setContext(data, null);
-				bus.post(new ViewImage(object, null));
-				if (go instanceof DataObject) data = (DataObject) go;
-			} else if (uo instanceof WellSampleData) {
-				object = new ViewImageObject((WellSampleData) uo);
-				WellSampleNode wsn = (WellSampleNode) node;
-				Object parent = wsn.getParentObject();
-				if (parent instanceof DataObject) {
-					go =  view.getGrandParentOfNodes();
-					if (go instanceof DataObject)
-						data = (DataObject) go;
-					object.setContext((DataObject) parent, data);
-				}
-				bus.post(new ViewImage(object, null));
-			}
-		}
-	}
+	void viewDisplay(ImageDisplay node) { model.viewDisplay(node); }
 	
 	/**
 	 * Loads data, filters nodes or sets the selected node.

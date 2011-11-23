@@ -1161,5 +1161,20 @@ class TreeViewerModel
 		ParentLoader loader = new ParentLoader(component, data);
 		loader.load();
 	}
+	
+	/**
+	 * Starts an asynchronous retrieval 
+	 * 
+	 * @param data 		The <code>DataObject</code> to create.
+	 * @param children	The children to add to the <code>DataObject</code>.
+	 */
+	void fireDataSaving(DataObject data, Collection children)
+	{
+		if (data instanceof DatasetData) {	
+			DataObjectCreator loader = new DataObjectCreator(component, data, 
+					null, children);
+			loader.load();
+		}
+	}
 
 }

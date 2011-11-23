@@ -624,7 +624,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             else:
                 template = "webclient/data/container_subtree.html"
         elif kw.has_key('plate'):
-            fields = manager.plate.getFields(kw.get('acquisition', None))
+            fields = manager.plate.getNumberOfFields(kw.get('acquisition', None))
             if fields is not None:
                 form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
                 if index == 0:
@@ -2906,16 +2906,19 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
     """ This view is responsible for showing well data within plate """
     
     conn = None
-    kwargs['viewport_server'] = '/webclient'
     try:
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
-     
+    
     if conn is None:
         raise Exception("Connection not available")
-
+    
+    def urlprefix(iid):
+        return reverse('render_thumbnail', args=(iid,))
+    kwargs['urlprefix'] = urlprefix
+    
     return webgateway_views.plateGrid_json(request, pid, field=field, server_id=None, _conn=None, **kwargs)
 
 @isUserConnected

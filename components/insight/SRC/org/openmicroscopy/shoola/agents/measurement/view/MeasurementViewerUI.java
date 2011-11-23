@@ -58,6 +58,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.DelegationSelectionTool;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
@@ -69,7 +70,6 @@ import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -752,7 +752,19 @@ class MeasurementViewerUI
 	 */
     void setCellColor(Color color)
     {
-		if (roiInspector != null) roiInspector.setCellColor(color);
+    	int row = -1;
+		if (roiInspector != null) row = roiInspector.setCellColor(color);
+		Collection<Figure> l = model.getSelectedFigures();
+		if (l == null || l.size() == 0) return;
+		Iterator<Figure> i = l.iterator();
+		switch (row) {
+			case ObjectInspector.FILL_COLOR_ROW:
+				AttributeKeys.FILL_COLOR.set(i.next(), color);
+				break;
+			case ObjectInspector.LINE_COLOR_ROW:
+				AttributeKeys.STROKE_COLOR.set(i.next(), color);
+		}
+		model.getDrawingView().repaint();
 	}
     
     /**
@@ -1076,6 +1088,12 @@ class MeasurementViewerUI
     	if (!model.isHCSData()) roiManager.rebuildTable(); 
     }
     
+    /** Sets the value in the tool bar.*/
+    void refreshToolBar()
+    {
+    	toolBar.refreshToolBar();
+    }
+    
     /** Rebuilds the results table. */
     void refreshResultsTable()
     { 
@@ -1338,6 +1356,13 @@ class MeasurementViewerUI
 	void setStatus(String text) { statusBar.setStatus(text); }
 	
 	/**
+	 * Sets a message in the status bar.
+	 * 
+	 * @param text The text to display.
+	 */
+	void setPlaneStatus(String text) { statusBar.setPlaneStatus(text); }
+	
+	/**
 	 * Sets ready message in the status bar.
 	 */
 	void setReadyStatus() { setStatus(DEFAULT_MSG); }
@@ -1508,6 +1533,29 @@ class MeasurementViewerUI
 			if (f != null) chooser.setCurrentDirectory(f);
 		} catch (Exception ex) {}
 		return chooser;
+	}
+	
+
+	/**
+	 * Shows or hides the Text of all shapes.
+	 * 
+	 * @param show  Pass <code>true</code> to show the text, <code>false</code>
+	 * 				otherwise. 
+	 */
+	void showText(boolean show)
+	{
+		Collection<ROIFigure> figures = model.getAllFigures();
+		if (figures.size() == 0) return;
+		Iterator<ROIFigure> i = figures.iterator();
+		ROIFigure figure;
+		while (i.hasNext()) {
+			figure = i.next();
+			if (!figure.isReadOnly()) {
+				MeasurementAttributes.SHOWTEXT.set(figure, show);
+				if (roiInspector != null) roiInspector.showText(show, figure);
+			}
+		}
+		model.getDrawingView().repaint();
 	}
 	
     /** 

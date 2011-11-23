@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 
 //Java imports
+import java.util.Arrays;
 import java.util.Collection;
 
 //Third-party libraries
@@ -31,7 +32,10 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Loads the containers containing the passed image.
@@ -85,8 +89,11 @@ public class ContainerLoader
      */
     public void load()
     {
-        long userID = ImViewerAgent.getUserDetails().getId();
-        handle = mhView.loadContainers(ImageData.class, imageID, userID, this);
+    	ExperimenterData exp = ImViewerAgent.getUserDetails();
+        handle = dmView.loadContainerHierarchy(ProjectData.class, null,
+				false, exp.getId(), exp.getDefaultGroup().getId(),
+				this);
+        //handle = mhView.loadContainers(ImageData.class, imageID, userID, this);
     }
 
     /**

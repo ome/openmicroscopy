@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.List;
 
 //Third-party libraries
@@ -58,6 +59,9 @@ public class DataObjectCreator
     /** The parent of the data object to create. */
     private DataObject      parent;
     
+    /** The children to add to the object.*/
+    private Collection      children;
+    
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  	handle;
     
@@ -73,11 +77,27 @@ public class DataObjectCreator
     public DataObjectCreator(TreeViewer viewer, DataObject userObject, 
                             DataObject parent)
     {
+        this(viewer, userObject, parent, null);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer        The Editor this data loader is for.
+     *                      Mustn't be <code>null</code>.
+     * @param userObject    The {@link DataObject} to handle. 
+     * @param parent        The parent of the object to create,
+     *                      <code>null</code> if no parent.
+     */
+    public DataObjectCreator(TreeViewer viewer, DataObject userObject, 
+                            DataObject parent, Collection children)
+    {
         super(viewer);
         if (userObject == null)
             throw new IllegalArgumentException("No object to create.");
         this.parent = parent;
         this.userObject = userObject;
+        this.children = children;
     }
     
     /** 
@@ -86,7 +106,10 @@ public class DataObjectCreator
      */
     public void load()
     {
-        handle = dmView.createDataObject(userObject, parent, this);
+    	if (children == null || children.size() == 0)
+    		handle = dmView.createDataObject(userObject, parent, this);
+    	else 
+    		handle = mhView.createDataObject(parent, userObject, children, this);
     }
 
     /**
