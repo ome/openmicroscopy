@@ -1865,8 +1865,9 @@ public class OMEROMetadataStoreClient
             // FIXME: This relies on the legacy repo being the omero data dir
             //        With a different repository this will have to change.
             OriginalFilesService ofs = new OriginalFilesService(repositoryRoot.getAbsolutePath());
-            // FIXME: Hard-coded example - should come from config, in two parts (admin + user)?
-            String template = "%groupname%/%username%" + "/%year%/%monthname%/%date%/NewStuff";
+            String template = getConfigValue("omero.fslite.path");
+            // FIXME: For the moment hardcode the username as a prefix
+            template = "%username%/" + template;
             String user = iAdmin.getExperimenter(eventContext.userId).getOmeName().getValue();
             String group = iAdmin.getDefaultGroup(eventContext.userId).getName().getValue();
             // FIXME: The OriginalFileStore is pretty dumb, should it be passed a context

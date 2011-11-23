@@ -101,23 +101,31 @@ public class AbstractFileSystemService {
         Calendar now = Calendar.getInstance();
         DateFormatSymbols dfs = new DateFormatSymbols();
         String path = FilenameUtils.concat(root, MANAGED_REPO_PATH);
+        String dir = "";
         String[] elements = template.split("/");
-        for(String part : elements) {
-            if (part.equals("%groupname%")) path = FilenameUtils.concat(path, group);
-            else if (part.equals("%username%")) path = FilenameUtils.concat(path, user);
-            else if (part.equals("%year%")) path = FilenameUtils.concat(path, 
-                    Integer.toString(now.get(Calendar.YEAR)));
-            else if (part.equals("%month%")) path = FilenameUtils.concat(path, 
-                    Integer.toString(now.get(Calendar.MONTH)+1));
-            else if (part.equals("%monthname%")) path = FilenameUtils.concat(path, 
-                    dfs.getMonths()[now.get(Calendar.MONTH)]);
-            else if (part.equals("%date%")) path = FilenameUtils.concat(path, 
-                    Integer.toString(now.get(Calendar.DAY_OF_MONTH)));
-            else if (!part.endsWith("%") && !part.startsWith("%")) path = FilenameUtils.concat(path,
-                    part);
-            else ; // FIXME: ignore, add some null element, log, raise an exception?
+        for (String part : elements) {
+            if (part.equals("%fileid%"))
+                dir = id.toString();
+            else if (part.equals("%groupname%"))
+                dir = group;
+            else if (part.equals("%username%"))
+                dir = user;
+            else if (part.equals("%year%"))
+                dir = Integer.toString(now.get(Calendar.YEAR));
+            else if (part.equals("%month%"))
+                dir = Integer.toString(now.get(Calendar.MONTH)+1);
+            else if (part.equals("%monthname%"))
+                dir = dfs.getMonths()[now.get(Calendar.MONTH)];
+            else if (part.equals("%day%"))
+                dir = Integer.toString(now.get(Calendar.DAY_OF_MONTH));
+            else if (!part.endsWith("%") && !part.startsWith("%"))
+                dir = part;
+            else {
+                log.warn("Ignored unrecognised token in template: " + part);
+                dir = "";
+            }
+            path = FilenameUtils.concat(path, dir);
         }
-        path = FilenameUtils.concat(path, id.toString());
         return path;
     }
 
