@@ -20,8 +20,11 @@ finally:
 
 sys = __import__("sys")
 import exceptions, traceback, threading, logging
-import Ice, Glacier2
+import IceImport, Ice
 import omero_ext.uuid as uuid # see ticket:3774
+
+IceImport.load("Glacier2_Router_ice")
+import Glacier2
 
 class BaseClient(object):
     """

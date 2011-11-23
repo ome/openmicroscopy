@@ -11,6 +11,7 @@ import omero
 if omero.__import_style__ is None:
     omero.__import_style__ = "all"
     import omero.rtypes
+    import omero.callbacks
     IceImport.load("omero_System_ice")
     IceImport.load("omero_Collections_ice")
     IceImport.load("omero_ServicesF_ice")
