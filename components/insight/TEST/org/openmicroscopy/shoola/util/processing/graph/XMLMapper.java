@@ -83,7 +83,7 @@ public class XMLMapper
 		{
 			XMLElement elementNode = queue.removeFirst();
 			addNode(elementNode);
-			Vector v = elementNode.getChildren();
+			ArrayList v = elementNode.getChildren();
 			for(int i = 0 ; i < v.size() ; i++)
 				queue.addLast((XMLElement) v.get(i));
 		}
