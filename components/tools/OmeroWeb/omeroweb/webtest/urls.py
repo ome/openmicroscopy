@@ -52,5 +52,5 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^add_annotations/$', views.add_annotations, name="webtest_add_annotations"),
     
     # examples of using the 'common' templates
-    url(r'^common/(?P<base_template>[a-z_]+)/', views.common_templates, name='common'),
+    url(r'^common/(?P<base_template>[a-z0-9_]+)/', views.common_templates, name='common'),
 )

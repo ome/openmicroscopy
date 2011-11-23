@@ -1,7 +1,7 @@
-{% extends "common/base/base_header.html" %}
+{% extends "common/base/container2.html" %}
 
 {% block title %}
-Extends "common/base/base_header.html"
+Extends "common/base/container2.html"
 {% endblock %}
 
 
@@ -27,11 +27,10 @@ Extends "common/base/base_header.html"
 {% endblock %}
 
 
-{% block content %}
-    <h1>block content</h1>
-    
+{% block center %}
+    <h1>block center</h1>
     <p>
-        This page extends "common/base/base_header.html" and makes the following changes:
+        This page extends "common/base/container2.html" and makes the following changes:
         <ul>
             <li>Adds links to the 'nav_links' block (main top links)</li>
             <li>Adds a couple of links to the 'header_left' block (thin_header)</li>
@@ -44,7 +43,11 @@ Extends "common/base/base_header.html"
         The links in the thin header (left) take you to other pages that also extend common/base/base_header OR extend this one, 
         showing other options for customising things.
     </p>
-    
+{% endblock %}
+
+
+{% block right %}
+    <h1>block right</h1>
 {% endblock %}
 
 {% block footer_content %}
