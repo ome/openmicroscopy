@@ -1,0 +1,63 @@
+{% extends "common/base/base_main.html" %}
+{% load i18n %}
+
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% block link %}
+    {{ block.super }}
+    <style type="text/css">
+    body {
+        min-width: 1010px;
+        overflow: hidden;
+    }
+    </style>
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/layout.css" type="text/css" />
+    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/images.css" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block script %}
+    {{ block.super }}
+    <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/nav.js"></script> <!-- handles expand  / collapse columns -->
+    
+    <script type="text/javascript">
+    {% if nav.error %}
+        alert("{{ nav.error }}");
+    {% endif %}
+    </script>
+{% endblock %}
+
+
+{% block content %}
+
+<table cellspacing="0" cellpadding="0" class="contentWrapper">
+    <tbody>
+    <tr>
+        <td id="center_panel">{% block center %}{% endblock %}</td>
+        <td class="trayhandle collapsibletrayhandle-right">
+            <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="expanded-right" src="{{ STATIC_COMMON_PREFIX }}image/spacer.gif" tabindex="0"></div>
+        </td>
+        <td id="right_panel">{% block right %}{% endblock %}</td>
+    </tr>
+    </tbody>
+</table>
+
+{% endblock %}

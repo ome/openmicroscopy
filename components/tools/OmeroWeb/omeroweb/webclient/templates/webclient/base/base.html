@@ -1,4 +1,4 @@
-{% extends "common/base/base_main.html" %}
+{% extends "common/base/container2.html" %}
 {% load i18n %}
 
 
@@ -22,29 +22,6 @@
 -->
 {% endcomment %}
 
-{% block link %}
-    {{ block.super }}
-    <style type="text/css">
-    body {
-        min-width: 1010px;
-        overflow: hidden;
-    }
-    </style>
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/layout.css" type="text/css" />
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/images.css" type="text/css" media="screen"/>
-{% endblock %}
-
-{% block script %}
-    {{ block.super }}
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/nav.js"></script> <!-- handles expand  / collapse columns -->
-    
-    <script type="text/javascript">
-    {% if nav.error %}
-        alert("{{ nav.error }}");
-    {% endif %}
-    </script>
-{% endblock %}
-
 
 {% block nav_links %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
@@ -56,26 +33,11 @@
     {% include "webclient/base/header.html" %}
 {% endblock %}
 
+
 {% block header_right %}
     {% include "webclient/base/logout.html" %}
 {% endblock %}
 
-
-{% block content %}
-
-<table cellspacing="0" cellpadding="0" class="contentWrapper">
-    <tbody>
-    <tr>
-        <td id="center_panel">{% block center %}{% endblock %}</td>
-        <td class="trayhandle collapsibletrayhandle-right">
-            <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="expanded-right" src="{{ STATIC_COMMON_PREFIX }}image/spacer.gif" tabindex="0"></div>
-        </td>
-        <td id="right_panel">{% block right %}{% endblock %}</td>
-    </tr>
-    </tbody>
-</table>
-
-{% endblock %}
 
 {% block footer_content %}
     {% include "webclient/base/footer_links.html" %}
