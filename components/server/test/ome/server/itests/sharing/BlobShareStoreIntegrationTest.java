@@ -4,7 +4,7 @@
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package ome.server.utests.sharing;
+package ome.server.itests.sharing;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
  * @since 3.0-Beta2
  */
 @Test(groups = "sharing")
-public class BlobShareStoreTest extends AbstractManagedContextTest {
+public class BlobShareStoreIntegrationTest extends AbstractManagedContextTest {
 
     OmeroContext ctx;
     BlobShareStore store;
