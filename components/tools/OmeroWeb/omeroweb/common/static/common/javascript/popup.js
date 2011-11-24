@@ -1,11 +1,6 @@
 /*
- * Help
- *
- * !/usr/bin/env python
- * 
- * 
- * 
- * Copyright (c) 2008 University of Dundee. 
+ * Copyright (c) 2008-2011 University of Dundee. & Open Microscopy Environment.
+ * All rights reserved.
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -21,8 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  * Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
- * 
- * Version: 1.0
  */
 
 

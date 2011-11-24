@@ -37,7 +37,7 @@ a:hover {
     padding: 4px 0px;
     height: 17px;
     position: relative;
-    background: url(/static/webclient/image/background.png) repeat-x scroll left bottom #FFFFFF;
+    background: url(/static/common/image/header_bg.png) repeat-x scroll left bottom #FFFFFF;
     border-bottom: 1px solid #bbb;
 }
 

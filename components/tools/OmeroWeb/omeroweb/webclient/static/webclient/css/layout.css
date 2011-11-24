@@ -116,19 +116,6 @@ iframe {
     overflow: auto;
 }
 
-table {
-}
-
-td {
-    vertical-align:top;
-}
-
-th {
-    font-weight: bold;
-    vertical-align:top;
-    text-align: left;
-}
-
 input {
     margin: 0;
     border: 1px solid #bbb;

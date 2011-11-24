@@ -28,3 +28,13 @@ p {
     margin: 0px;
     padding: 5px;
 }
+
+td {
+    vertical-align:top;
+}
+
+th {
+    font-weight: bold;
+    vertical-align:top;
+    text-align: left;
+}
