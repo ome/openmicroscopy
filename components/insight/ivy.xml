@@ -28,6 +28,7 @@
     <dependency org="insight" name="commons-validator" rev="${versions.commons-validator}"/>
     <dependency org="insight" name="gicentreUtils" rev="${versions.gicentreUtils}"/>
     <dependency org="insight" name="gluegen-rt" rev="${versions.jogl}"/>
+    <dependency org="insight" name="ij" rev="${versions.ij}"/>
     <dependency org="insight" name="jaxrpc" rev="${versions.jaxrpc}"/>
     <dependency org="insight" name="jcommon" rev="${versions.jcommon}"/>
     <dependency org="insight" name="jfreechart" rev="${versions.jfreechart}"/>
