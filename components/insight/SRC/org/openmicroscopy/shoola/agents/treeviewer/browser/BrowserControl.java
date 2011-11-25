@@ -313,11 +313,14 @@ class BrowserControl
         }
      	//more than one node selected.
     	TreeImageDisplay previous = model.getLastSelectedDisplay();
-    	Object ho = previous.getUserObject();
-    	Class ref = ho.getClass();
-    	
+        Class ref = null;
+        Object ho = null;
+        if (previous != null) {
+        	ho = previous.getUserObject();
+        	ref = ho.getClass();
+        }
+        
     	List<TreeImageDisplay> l = new ArrayList<TreeImageDisplay>();
-    	
     	TagAnnotationData tag;
     	String ns = null;
     	if (TagAnnotationData.class.equals(ref)) {
