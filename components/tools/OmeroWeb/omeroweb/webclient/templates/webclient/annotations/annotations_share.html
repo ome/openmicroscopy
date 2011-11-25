@@ -303,7 +303,7 @@
                         {% if manager.comments %}
                             {% for cm in manager.comments %}
                             <div class="ann_comment_wrapper">
-                                <div class="avatar"><img src="{% url load_photo cm.getOwner.id %}" alt="{{ cm.getOwner.getFullName }}" title="{{ cm.getOwner.getFullName }}" width="20" height="20" /></div>
+                                <div class="avatar"><img src="{% url avatar cm.getOwner.id %}" alt="{{ cm.getOwner.getFullName }}" title="{{ cm.getOwner.getFullName }}" width="20" height="20" /></div>
                                 <div>
                                     <span class="ann_comment_header">{{ cm.getOwner.getFullName }} {% trans "at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }}</span>
                                     {% if cm.canDelete %}

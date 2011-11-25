@@ -44,9 +44,6 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^logout/$', views.logout, name="weblogout" ),
     url( r'^active_group/$', views.change_active_group, name="change_active_group" ),
     
-    url ( r'^myaccount/(?:(?P<action>((?i)save))/)?$', views.manage_myaccount, name="myaccount"),
-    url ( r'^upload_myphoto/(?:(?P<action>((?i)upload|crop|editphoto))/)?$', views.upload_myphoto, name="upload_myphoto"),
-    
     # load basket
     url( r'^basket/empty/$', views.empty_basket, name="empty_basket"),
     url( r'^basket/update/$', views.update_basket, name="update_basket"),
@@ -119,9 +116,7 @@ urlpatterns = patterns('django.views.generic.simple',
     
     url( r'^help_search/$', 'direct_to_template', {'template': 'webclient/help/help_search.html'}, name="help_search" ),
     
-    url( r'^myphoto/$', views.myphoto, name="myphoto"),
-    url( r'^change_password/$', views.change_password, name="change_password"),
-    url( r'^userphoto/(?P<oid>[0-9]+)/$', views.load_photo, name="load_photo"),
+    url( r'^avatar/(?P<oid>[0-9]+)/$', views.avatar, name="avatar"),
     
     url( r'^spellchecker/$', views.spellchecker, name="spellchecker"), 
     

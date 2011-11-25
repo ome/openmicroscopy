@@ -216,7 +216,7 @@
             <div class="lncomments">            
                 {% for tann in text_annotations %}
                 <div class="ann_comment_wrapper">
-                    <div class="avatar"><img src="{% url load_photo tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" width="40" height="40" /></div>
+                    <div class="avatar"><img src="{% url avatar tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" width="40" height="40" /></div>
                     <div><span class="ann_comment_header">{{ tann.getOwner.getFullName }} posted comment at {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span><br/>
                         {{ tann.textValue|safe|linebreaks }}
                     </div>

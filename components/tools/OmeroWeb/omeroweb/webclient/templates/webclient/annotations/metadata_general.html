@@ -826,7 +826,7 @@
                     <div class="lncomments">            
                         {% for tann in manager.text_annotations %}
                         <div class="ann_comment_wrapper">
-                            <div class="avatar"><img src="{% url load_photo tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" width="20" height="20" /></div>
+                            <div class="avatar"><img src="{% url avatar tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" width="20" height="20" /></div>
                             <div>
                                 <span class="ann_comment_header">{{ tann.getOwner.getFullName }} {% trans "at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
                                 {% if tann.canDelete %}
