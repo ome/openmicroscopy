@@ -1,6 +1,7 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
 
+
 {% comment %}
 <!--
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
@@ -21,20 +22,23 @@
 -->
 {% endcomment %}
 
-{% block css %}
+{% block link %}
+    {{ block.super }}
     <link rel="stylesheet" href="{{ STATIC_WEBADMIN_PREFIX }}css/picklist.css" type="text/css" media="screen"/>
+
 {% endblock %}
 
 {% block title %}
-{% if eid %}
-    {% trans "Edit scientist" %}
-{% else %}
-    {% trans "Add scientist" %}
-{% endif %}
+    {% if eid %}
+        {% trans "Edit scientist" %}
+    {% else %}
+        {% trans "Add scientist" %}
+    {% endif %}
+
 {% endblock %}
 
 {% block script %}
-    
+    {{ block.super }}
     <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery_1.4.2.js"></script>
     
     <script type="text/javascript">
@@ -86,15 +90,15 @@
 
 {% endblock %}
 
-{% block content %}
+{% block center_details %}
 
-{% if info.message %}<div class="error">{{ info.message|safe|linebreaks }}</div>{% endif %}
+{{ block.super }}
 
 <div>
 {% if eid %}
-    <h2>{% trans "Edit scientist" %}</h2>
+    <h1>{% trans "Edit scientist" %}</h1>
 {% else %}
-    <h2>{% trans "Add scientist" %}</h2>
+    <h1>{% trans "Add scientist" %}</h1>
 {% endif %}
 
 <p>{% trans "Fields marked with and asterisk (*) are mandatory." %}</p>
@@ -155,5 +159,11 @@
 
 </div>
 
+
+{% endblock %}
+
+
+{% block metadata_details %}
+{{ block.super }}
 
 {% endblock %}
