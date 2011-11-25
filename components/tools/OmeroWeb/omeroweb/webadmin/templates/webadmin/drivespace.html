@@ -23,12 +23,19 @@
 
 {% block title %}{% trans "Drive space" %}{% endblock %}
 
-{% block css %}
+{% block link %}
+    {{ block.super }}
     <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/table.css" type="text/css" media="screen"/>
+    <style type="text/css">
+    #right_panel {
+        width: 50%;
+    }
+    </style>
 {% endblock %}
 
 {% block script %}
-    <!--[if IE]><script language="javascript" type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/excanvas.js"></script><![endif]-->
+    {{ block.super }}
+    <!--[if IE]><script language="javascript" type="text/javascript" src="{{ STATIC_WEBADMIN_PREFIX }}javascript/excanvas.js"></script><![endif]-->
     <script type="text/javascript" src="{{ STATIC_WEBADMIN_PREFIX }}javascript/jquery.flot.pie.js"></script>
     
     <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery.tablesorter.js"></script>
@@ -136,26 +143,41 @@
             });
             
             if(keyArray.length > 0) {
-                $("#drivespaceTable").tablesorter( {sortList: [[1,1]]} ); 
+                $("#drivespaceTable").tablesorter( {
+                    //sortList: [[1,0]]
+                    headers: {1: { sorter: 'digit' } }
+                    } );
             }
+            
         });
         
         
     </script>
 {% endblock %}
 
-{% block content %}
-<h2>{% trans "Drive space" %}</h2>
+{% block center_details %}
+{{ block.super }}
 
-<div id="placeholder"><div id="usage"><img src="{{ STATIC_COMMON_PREFIX }}image/spinner.gif" id="progress" style="display: none; float:left"/><div id="status"></div></div></div>
+<h1>{% trans "Drive space" %}</h1>
 
-<p>{% trans "Free space" %}: {{ driveSpace.free|filesizeformat }}</p>
+<div>{% trans "Free space" %}: {{ driveSpace.free|filesizeformat }}</div>
 
-<div class="myform">{% trans "Drive space usage" %}:</div>
+<h2>{% trans "Drive space usage" %}:</h2>
 
 <table id="drivespaceTable" class="tablesorter">
     <thead>
         <tr><th>User</th><th>Usage [Bytes]</th></tr>
     </thead>
 </table>
+{% endblock %}
+
+
+{% block metadata_details %}
+
+<h1>{% trans "Piechart" %}</h1>
+
+
+<div id="placeholder"><div id="usage"><img src="{{ STATIC_COMMON_PREFIX }}image/spinner.gif" id="progress" style="display: none; float:left"/><div id="status"></div></div></div>
+
+
 {% endblock %}

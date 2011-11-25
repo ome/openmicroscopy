@@ -1,7 +1,6 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
 
-
 {% comment %}
 <!--
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
@@ -24,11 +23,18 @@
 
 {% block title %}{% trans "My account" %}{% endblock %}
 
-{% block css %}
+{% block link %}
+    {{ block.super }}
     <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/table.css" type="text/css" media="screen"/>
+    <style type="text/css">
+    #right_panel {
+        width: 50%;
+    }
+    </style>
 {% endblock %}
 
 {% block script %}
+    {{ block.super }}
 
     <script type="text/javascript" src="{{ STATIC_WEBADMIN_PREFIX }}javascript/jquery.imgareaselect.js"></script>
     
@@ -100,30 +106,73 @@
     
 {% endblock %}
 
-{% block content %}
-<div>
-<h1>{% trans "My account" %}</h1>
+{% block center_details %}
+{{ block.super }}
+    <div>
+    <h1>{% trans "My account" %}</h1>
 
-<p>{% trans "Fields marked with and asterisk (*) are mandatory." %}</p>
-<br/>
+    <p>{% trans "Fields marked with and asterisk (*) are mandatory." %}</p>
+    <br/>
 
-<div class="myform">
-<form action="{% url wamyaccount "save" %}" method="POST">
-<table>
-  <tbody>
-    {% for field in form %}
-    <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
-    {% endfor %}
-    {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>
-    {% else %}<tr><td class="form">Password: </td><td colspan="2"><a href="{% url wamanagechangepasswordid eventContext.userId %}">change password</a></td></tr>
+    <div class="myform">
+    <form action="{% url wamyaccount "save" %}" method="POST">
+    <table>
+      <tbody>
+        {% for field in form %}
+        <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
+        {% endfor %}
+        {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>
+        {% else %}<tr><td class="form">Password: </td><td colspan="2"><a href="{% url wamanagechangepasswordid eventContext.userId %}">change password</a></td></tr>
+        {% endif %}
+      </tbody>
+      <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+    </table>
+    </form>
+    </div>
+
+
+    {% if myaccount.groupsCount %}
+    <div class="clear"></div>
+    <div>
+        <h1>{% trans "Owned Groups" %}</h1><br/>
+    
+        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{{ STATIC_COMMON_PREFIX }}image/spinner.gif"></span></form>
+    
+        <table id="groupTable" class="tablesorter"> 
+            <thead> 
+                <tr> 
+                    <th class="action">{% trans "Actions" %}</th> 
+                    <th class="link">{% trans "Name" %}</th> 
+                    <th class="link">{% trans "Permissions" %}</th> 
+                    <th class="desc">{% trans "Description" %}</th>
+                </tr> 
+            </thead> 
+            <tbody>
+            {% for dict in myaccount.groups %}
+                <tr>
+                    <td class="action">
+                        {% if not dict.locked %}
+                            <a href="{% url wamanagegroupownerid "edit" dict.group.id %}"><img src="{{ STATIC_WEBADMIN_PREFIX }}image/edit.png" alt="edit" title="edit"></a>
+                        {% endif %}                    
+                    </td>
+                    <td class="link">{{ dict.group.name }}</td>
+                    <td class="link">{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
+                    <td class="desc">{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+    </div>
     {% endif %}
-  </tbody>
-  <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-</table>
-</form>
-</div>
 
-<div class="photo">
+</div>
+{% endblock %}
+
+{% block metadata_details %}
+
+<div>
+    <div>
     {% if edit_mode %}
     
     <img src="{% url wamyphoto %}" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
@@ -151,9 +200,11 @@
             {% endif %}
         </center></p>
     {% endif %}
-
+    </div>
+    
+    
     <h1>Upload your photo</h1>
-    <div class="body">
+    <div>
       <p>
         <form enctype="multipart/form-data" method="post" action="{% url wamyaccount "upload" %}">
             <table>
@@ -170,40 +221,4 @@
     </div>
 </div>
 
-{% if myaccount.groupsCount %}
-<div class="clear"></div>
-<div>
-    <h1>{% trans "Owned Groups" %}</h1><br/>
-    
-    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{{ STATIC_COMMON_PREFIX }}image/spinner.gif"></span></form>
-    
-    <table id="groupTable" class="tablesorter"> 
-        <thead> 
-            <tr> 
-                <th class="action">{% trans "Actions" %}</th> 
-                <th class="link">{% trans "Name" %}</th> 
-                <th class="link">{% trans "Permissions" %}</th> 
-                <th class="desc">{% trans "Description" %}</th>
-            </tr> 
-        </thead> 
-        <tbody>
-        {% for dict in myaccount.groups %}
-            <tr>
-                <td class="action">
-                    {% if not dict.locked %}
-                        <a href="{% url wamanagegroupownerid "edit" dict.group.id %}"><img src="{{ STATIC_WEBADMIN_PREFIX }}image/edit.png" alt="edit" title="edit"></a>
-                    {% endif %}                    
-                </td>
-                <td class="link">{{ dict.group.name }}</td>
-                <td class="link">{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
-                <td class="desc">{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
-            </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
-</div>
-{% endif %}
-
-</div>
 {% endblock %}
