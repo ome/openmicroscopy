@@ -18,6 +18,7 @@ import java.util.List;
 import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.IFormatReader;
+import ome.io.nio.RomioPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
 
 import org.apache.commons.logging.Log;
@@ -81,7 +82,8 @@ public class BfPixelsWrapper {
         }
         for (int t = 0; t < sizeT; t++) {
             try {
-                byte[] buffer = new byte[getTimepointSize()];
+                int size = RomioPixelBuffer.safeLongToInteger(getTimepointSize());
+                byte[] buffer = new byte[size];
                 getTimepoint(t,buffer);
                 md.update(ByteBuffer.wrap(buffer));
             } catch (DimensionsOutOfBoundsException e) {
@@ -187,23 +189,23 @@ public class BfPixelsWrapper {
         return getSizeY() * pixelSize;
     }
 
-    public Integer getPlaneSize() {
-        return getSizeY() * getRowSize();
+    public Long getPlaneSize() {
+        return (long) getSizeY() * (long) getRowSize();
     }
 
-    public Integer getStackSize() {
+    public Long getStackSize() {
         return getSizeZ() * getPlaneSize();
     }
 
-    public Integer getTimepointSize() {
+    public Long getTimepointSize() {
         return getSizeC() * getStackSize();
     }
 
-    public Integer getTotalSize() {
+    public Long getTotalSize() {
         return getSizeT() * getTimepointSize();
     }
 
-    public Integer getHypercubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
+    public Long getHypercubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
             throws DimensionsOutOfBoundsException {
         // only works for 5d at present
         checkCubeBounds(offset, size, step);
@@ -212,8 +214,8 @@ public class BfPixelsWrapper {
         int zStripes = (size.get(2) + step.get(2) - 1) / step.get(2);
         int yStripes = (size.get(1) + step.get(1) - 1) / step.get(1);
         int xStripes = (size.get(0) + step.get(0) - 1) / step.get(0);
-        int tileRowSize = pixelSize * xStripes;
-        int cubeSize = tileRowSize * yStripes * zStripes * cStripes * tStripes;
+        long tileRowSize = (long) pixelSize * xStripes;
+        long cubeSize = tileRowSize * yStripes * zStripes * cStripes * tStripes;
 
         return cubeSize;
     }
@@ -251,7 +253,8 @@ public class BfPixelsWrapper {
         try {
             if (buffer.length != getColSize())
                 throw new RuntimeException("Buffer size incorrect.");
-            byte[] plane = new byte[getPlaneSize()];
+            int size = RomioPixelBuffer.safeLongToInteger(getPlaneSize());
+            byte[] plane = new byte[size];
             getWholePlane(z,c,t,plane);
             for(int y = 0; y < reader.getSizeY(); y++) {
                 System.arraycopy(plane, (y*getRowSize())+(x*pixelSize),
@@ -293,7 +296,8 @@ public class BfPixelsWrapper {
         try {
             if (buffer.length != getRowSize())
                 throw new RuntimeException("Buffer size incorrect.");
-            byte[] plane = new byte[getPlaneSize()];
+            int size = RomioPixelBuffer.safeLongToInteger(getPlaneSize());
+            byte[] plane = new byte[size];
             getWholePlane(z,c,t,plane);
             System.arraycopy(plane, y*getRowSize(), buffer, 0, getRowSize());
         } catch (FormatException e) {
@@ -308,11 +312,12 @@ public class BfPixelsWrapper {
         try {
             if (buffer.length != getStackSize())
                 throw new RuntimeException("Buffer size incorrect.");
-            byte[] plane = new byte[getPlaneSize()];
+            int size = RomioPixelBuffer.safeLongToInteger(getPlaneSize());
+            byte[] plane = new byte[size];
             for(int z = 0; z < sizeZ; z++)
             {
                 getWholePlane(z,c,t,plane);
-                System.arraycopy(plane, 0, buffer, z*getPlaneSize(), getPlaneSize());
+                System.arraycopy(plane, 0, buffer, z*size, size);
             }
         } catch (FormatException e) {
             throw new RuntimeException(e);
@@ -325,11 +330,12 @@ public class BfPixelsWrapper {
         checkBounds(null, null, null, null, t);
         if (buffer.length != getTimepointSize())
             throw new RuntimeException("Buffer size incorrect.");
-        byte[] stack = new byte[getStackSize()];
+        int size = RomioPixelBuffer.safeLongToInteger(getStackSize());
+        byte[] stack = new byte[size];
         for(int c = 0; c < sizeC; c++)
         {
             getStack(c, t, stack);
-            System.arraycopy(stack, 0, buffer, c*getStackSize(), getStackSize());
+            System.arraycopy(stack, 0, buffer, c*size, size);
         }
         return buffer;
     }
@@ -369,16 +375,17 @@ public class BfPixelsWrapper {
             planeNumber = reader.getIndex(z, c, t);
             reader.openBytes(planeNumber, plane);
         } else {
-            byte[] fullPlane = new byte[getPlaneSize()*rgbChannels];
+            int size = RomioPixelBuffer.safeLongToInteger(getPlaneSize());
+            byte[] fullPlane = new byte[size*rgbChannels];
             planeNumber = reader.getIndex(z, 0, t);
             reader.openBytes(planeNumber, fullPlane);
             if(reader.isInterleaved()) {
-                for(int p = 0; p < getPlaneSize(); p += pixelSize) {
+                for(int p = 0; p < size; p += pixelSize) {
                     System.arraycopy(fullPlane, c*pixelSize + p*rgbChannels,
                         plane, p, pixelSize);
                 }
             } else {
-                System.arraycopy(fullPlane, c*getPlaneSize(), plane, 0, getPlaneSize());
+                System.arraycopy(fullPlane, c*size, plane, 0, size);
             }
         }
         return plane;
@@ -413,7 +420,8 @@ public class BfPixelsWrapper {
         int cubeOffset = 0;
         int xStripes = (size.get(0) + step.get(0) - 1) / step.get(0);
         int tileRowSize = pixelSize * xStripes;
-        byte[] plane = new byte[getPlaneSize()];
+        int planeSize = RomioPixelBuffer.safeLongToInteger(getPlaneSize());
+        byte[] plane = new byte[planeSize];
         for(int t = offset.get(4); t < size.get(4)+offset.get(4); t += step.get(4))
         {
             for(int c = offset.get(3); c < size.get(3)+offset.get(3); c += step.get(3))
