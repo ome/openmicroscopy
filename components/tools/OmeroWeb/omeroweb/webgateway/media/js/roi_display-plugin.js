@@ -50,7 +50,18 @@ $.fn.roi_display = function(options) {
             var cols = parseInt(text_string.length/rows) + 1;
             if (text_string.length > cols) {
                 var lines = [];
-                var words = text_string.split(" ");
+                var full_words = text_string.split(" ");
+                var words = [];
+                // first handle any words that are too long
+                for (var w=0; w<full_words.length; w++) {
+                    var full_word = full_words[w];
+                    while (full_word.length > cols) {
+                        words.push(full_word.substring(0, cols));
+                        full_word = full_word.substring(cols);
+                    }
+                    words.push(full_word);
+                }
+                // now stitch words back into lines
                 var line = "";
                 for (var w=0; w<words.length; w++) {
                     var word = words[w];

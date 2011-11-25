@@ -628,7 +628,7 @@ input.spin-button {
 
 /* Styles for the ROI table */
 #roi_table_postit {
-    width:320px;
+    width:340px;
 }
 #roi_table_div {
     overflow-y: scroll;
@@ -642,6 +642,8 @@ input.spin-button {
 #roi_small_table td {
     background-color: #fff;
     text-align: center;
+    max-width:100px;
+    word-wrap:break-word;
     border: solid #eee 1px;
     padding: 0px;
 }
