@@ -309,6 +309,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.messages.context_processors.messages",
     "common.context_processors.static",
     "webclient.context_processors.static",
+    "webadmin.context_processors.static",
 )
 
 # TEMPLATE_LOADERS: A tuple of template loader classes, specified as strings. Each Loader class 
