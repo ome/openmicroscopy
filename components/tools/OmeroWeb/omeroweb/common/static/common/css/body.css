@@ -29,12 +29,69 @@ p {
     padding: 5px;
 }
 
-td {
-    vertical-align:top;
+table {
+    border: 0px;
+    table-layout: auto;
 }
-
 th {
     font-weight: bold;
+    vertical-align:middle;
+    text-align: left;
+}
+td {
     vertical-align:top;
     text-align: left;
+}
+
+form table {
+    border: 0px;
+    table-layout: auto;
+}
+
+form td {
+    padding: 2px;
+}
+
+form th {
+    border: 0px;
+}
+
+input {
+    margin: 0;
+    border: 1px solid #bbb;
+    background-color: #fff;
+}
+select {
+    margin: 0;
+    background-color: #fff;
+    border: 1px solid #bbb;
+}
+textarea {
+    margin: 0;
+    background-color: #fff;
+    border: 1px solid #bbb;
+}
+
+ul.errorlist {
+    list-style: none;
+    color: #e3646f;
+    margin: 0;
+    padding: 10px 0 0;
+    text-align: center;
+}
+ul.errorlist li {
+    border-style:none;
+    border-width:0;
+}
+
+
+label {
+    font-weight: bold;
+}
+
+.clear {
+    clear: both;
+    width: 0px;
+    margin: 0px;
+    padding: 0px;
 }

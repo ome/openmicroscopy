@@ -1,8 +1,4 @@
-html {
-}
-
 html.noscroll {
-    
     overflow: hidden;
 }
 
@@ -99,31 +95,12 @@ img.action {
     padding-right: 3px;
 }
 
-a {
-    color: #1b7bc7;
-    text-decoration: none;
-    border: none;
-    cursor:pointer;
-}
-a:hover,a:link,a:visited {
-    color: #1b7bc7;
-    text-decoration: none;
-    border: none;
-}
-
 iframe {
     border:0;
     overflow: auto;
 }
 
-input {
-    margin: 0;
-    border: 1px solid #bbb;
-    background-color: #fff;
-    font-size: 12px;
-    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
-    color: #444;
-}
+
 input.button {
     border: 0;
     background-color: transparent;
@@ -134,44 +111,7 @@ input.button-disabled {
     cursor:default !important;
 }
 
-select {
-    margin: 0;
-    background-color: #fff;
-    border: 1px solid #bbb;
-    font-size: 12px;
-    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
-    color: #444;
-}
-textarea {
-    margin: 0;
-    background-color: #fff;
-    border: 1px solid #bbb;
-}
 
-form table {
-    border: 0px;
-    table-layout: auto;
-}
-
-form td {
-    padding: 2px;
-}
-
-form th {
-    border: 0px;
-}
-
-ul.errorlist {
-    list-style: none;
-    color: #e3646f;
-    margin: 0;
-    padding: 10px 0 0;
-    text-align: center;
-}
-ul.errorlist li {
-    border-style:none;
-    border-width:0;
-}
 
 ul.criteria li{
     list-style: none;
@@ -180,12 +120,6 @@ ul.criteria li{
     margin-right: 5px;
 }
 
-.clear {
-    clear: both;
-    width: 0px;
-    margin: 0px;
-    padding: 0px;
-}
 .separate70 {
     clear: both;
     height: 70px;
@@ -211,9 +145,7 @@ ul.criteria li{
     border-bottom:1px solid #BBBBBB;
 }
 
-label {
-    font-weight: bold;
-}
+
 .box {
     float:left;
     margin:15px 0 10px 0;
