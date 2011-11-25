@@ -64,13 +64,13 @@ public interface PixelBuffer extends Closeable
      * pixel buffer.
      * @return row or scanline size in bytes (sizeX*ByteWidth)
      */
-    public Long getRowSize();
+    public Integer getRowSize();
     
     /**
      * Retrieves the in memory size of a column of pixels in this pixel buffer.
      * @return column size in bytes (sizeY*ByteWidth)
      */
-    public Long getColSize();
+    public Integer getColSize();
 
     /**
      * Retrieves the in memory size of the entire number of optical sections
