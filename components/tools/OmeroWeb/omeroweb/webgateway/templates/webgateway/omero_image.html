@@ -1224,8 +1224,10 @@
             handleShapeRowClick($shapeRow);
         } else if ($target.get(0).nodeName.toLowerCase() == 'th'){
             // a ROI (th) click toggles the ROI-shapes 'tbody' below
-            var $roiThead = $target.parent().parent();
-            toggle_th($roiThead);
+            if ($target.parent().hasClass('roi_row')) {
+                var $roiThead = $target.parent().parent();
+                toggle_th($roiThead);
+            }
         } else if ($target.hasClass('color_picker_option')) {
             // change the colour of lines drawn on roi_thumbs
             var line_color = $target.attr('color').substring(1);  // '#f00' -> 'f00'
