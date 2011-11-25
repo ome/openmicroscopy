@@ -62,6 +62,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -1632,9 +1633,20 @@ class BrowserUI
 		List<TreeImageSet> toKeep = new ArrayList<TreeImageSet>();
 		int number;
 		int total;
+		DefaultMutableTreeNode childNode;
+		List<DefaultMutableTreeNode> remove = 
+			new ArrayList<DefaultMutableTreeNode>();
 		for (int j = 0; j < n; j++) {
-			node = (TreeImageSet) expNode.getChildAt(j);
-			if (node instanceof TreeImageTimeSet) {
+			childNode = (DefaultMutableTreeNode) expNode.getChildAt(j);
+			Object o = childNode.getUserObject();
+			if (o instanceof String) {
+				String s = (String) o;
+				if (EMPTY_MSG.equals(s)) {
+					remove.add(childNode);
+				}
+			}
+			if (childNode instanceof TreeImageTimeSet) {
+				node = (TreeImageTimeSet) childNode;
 				if (((TreeImageTimeSet) node).getType() == index) {
 					if (value instanceof Integer) {
 						//Check if the number is 0
@@ -1645,8 +1657,7 @@ class BrowserUI
 							buildEmptyNode(node);
 							node.setChildrenLoaded(Boolean.valueOf(false));
 						}
-					}
-					else if (value instanceof List) {
+					} else if (value instanceof List) {
 						l = (List) value;
 						total = 0;
 						i = node.getChildrenDisplay().iterator();
@@ -1672,12 +1683,21 @@ class BrowserUI
 					}
 					dtm.reload(node);
 				}
-			} else if (node instanceof TreeFileSet) {
+			} else if (childNode instanceof TreeFileSet) {
+				node = (TreeFileSet) childNode;
 				if (((TreeFileSet) node).getType() == index) {
 					if (value instanceof Long) 
 						node.setNumberItems((Long) value);
 				}
 			}
+		}
+		if (remove.size() > 0) {
+			Iterator<DefaultMutableTreeNode> j = remove.iterator();
+			while (j.hasNext()) {
+				expNode.remove(j.next());
+				dtm.reload(expNode);
+			}
+			
 		}
 	}
 		
