@@ -47,16 +47,16 @@
 
 {% block content %}
 
-<table cellspacing="0" cellpadding="0" class="contentWrapper">
-    <tbody>
-    <tr>
-        <td id="center_panel">{% block center %}{% endblock %}</td>
-        <td class="trayhandle collapsibletrayhandle-right">
-            <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="expanded-right" src="{{ STATIC_COMMON_PREFIX }}image/spacer.gif" tabindex="0"></div>
-        </td>
-        <td id="right_panel">{% block right %}{% endblock %}</td>
-    </tr>
-    </tbody>
-</table>
+<div id="center_container" style="left: 0px">
+    <div id="center_panel" style="left: 0px">
+        {% block center %}{% endblock %}
+    </div>
+    <div id="trayhandle_right" class="collapsibletrayhandle-right">
+        <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="collapsed-right" src="{{ STATIC_COMMON_PREFIX }}image/spacer.gif"></div>
+    </div>
+</div>
+<div id="right_panel">
+    {% block right %}{% endblock %}
+</div>
 
 {% endblock %}

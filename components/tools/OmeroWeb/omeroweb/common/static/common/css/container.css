@@ -9,21 +9,24 @@ table.contentWrapper {
     width: 100%; 
     background: #f3f3f3;
     table-layout:fixed;
+    height:100%;
 }
 
 #left_panel {
-    width:350px;
     background-color: #ffffff;
-    vertical-align: top;
+    position:absolute;
+    left:0px; top:0px; bottom:0px;
+    width:350px;
 }
 #center_panel {
     background-color: #ffffff;
-    vertical-align: top;
+    position:absolute;
+    left:20px; right:20px; top:0px; bottom:0px
 }
 #right_panel {
-    width:370px;
     background-color: #f3f3f3;
-    display: none;
+    position:absolute; width:370px;
+    right:0px; top:0px; bottom:0px;
 }
 
 .collapsibletrayhandle-right {
@@ -32,27 +35,28 @@ table.contentWrapper {
 .collapsibletrayhandle-left {
     background:#fff url(/static/common/image/tray_left_shadow.png) repeat-y scroll left top;
 }
-.trayhandle {
-    background-color:#F3F3F3;
-    padding:5px 1px 1px;
-    vertical-align:top;
-    width:18px;
+
+#trayhandle_left {
+    position:absolute; top:0px; left:0px; bottom:0px;
+    width:20px;
 }
-.trayhandle-left {
-    background-color:#ffffff;
-    padding:5px 1px 1px;
-    vertical-align:top;
-    width:18px;
+#trayhandle_right {
+    position:absolute;
+    top:0px; right:0px; bottom:0px;
+    width:20px;
 }
+#center_container {
+    position:absolute;
+    left:350px; right:370px; top:0px; bottom:0px;
+}
+
 #lhid_trayhandle_icon_right {
     cursor:pointer;
-    left:-1px;
     position:relative;
 }
 
 #lhid_trayhandle_icon_left {
     cursor:pointer;
-    left:-1px;
     position:relative;
 }
 
@@ -67,7 +71,7 @@ table.contentWrapper {
     width:16px;
 }
 .collapsed-left {
-    background:transparent url(/static/common/image/`tray_left_expand_button.png) no-repeat scroll;
+    background:transparent url(/static/common/image/tray_left_expand_button.png) no-repeat scroll;
     height:24px;
     width:16px;
 }

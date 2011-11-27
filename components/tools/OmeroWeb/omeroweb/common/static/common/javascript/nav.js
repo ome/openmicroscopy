@@ -23,6 +23,32 @@
  * layouts in the container base templates.
  */
 
+var hide_left_panel = function() {
+    $("#left_panel").hide();
+    $("#center_container").css('left', '0px');
+    $("#swapTree").children('img').removeClass("expanded-left").addClass("collapsed-left");
+}
+
+var show_left_panel = function() {
+    $("#left_panel").show();
+    var lp_width = parseInt($("#left_panel").css('width'));
+    $("#center_container").css('left', + lp_width + 'px');
+    $("#swapTree").children('img').removeClass("collapsed-left").addClass("expanded-left");
+}
+
+var hide_right_panel = function() {
+    $("#right_panel").hide();
+    $("#center_container").css('right', '0px');
+    $("#swapMeta").children('img').removeClass("collapsed-right").addClass("expanded-right");
+}
+
+var show_right_panel = function() {
+    $("#right_panel").show();
+    var rp_width = parseInt($("#right_panel").css('width'));
+    $("#center_container").css('right', rp_width + 'px');
+    $("#swapMeta").children('img').removeClass("expanded-right").addClass("collapsed-right");
+}
+
 $(document).ready(function() 
     {
         $('#swapTree').click(function() { 
@@ -31,12 +57,10 @@ $(document).ready(function()
                 flag_l = false
             }
             if (flag_l) {
-                $("#left_panel").hide();
-                $("#swapTree").children('img').removeClass("expanded-left").addClass("collapsed-left");
+                hide_left_panel();
                 flag_l = false;
             } else {
-                $("#left_panel").show();
-                $("#swapTree").children('img').removeClass("collapsed-left").addClass("expanded-left"); 
+                show_left_panel();
                 flag_l = true;
             }
         });
@@ -47,12 +71,10 @@ $(document).ready(function()
                 flag_r = false
             }
             if (flag_r) {                        
-                $("#right_panel").hide();
-                $("#swapMeta").children('img').removeClass("collapsed-right").addClass("expanded-right"); 
+                hide_right_panel();
                 flag_r = false;                        
             } else {
-                $("#right_panel").show();
-                $("#swapMeta").children('img').removeClass("expanded-right").addClass("collapsed-right"); 
+                show_right_panel();
                 flag_r = true; 
             }
         });
