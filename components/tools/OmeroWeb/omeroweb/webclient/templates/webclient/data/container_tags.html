@@ -39,11 +39,7 @@
     <script type="text/javascript">
         $(function() 
             {
-                var h = $(window).height()-200;
-                $("div#tree_details").css('height', h);
-                $("div#metadata_details").css('height', h+31);
-                $("div#metadata_details iframe").attr('height', h+31);
-                $("div#content_details").css('height', h+31);
+                //var h = $(window).height()-200;
                 
                 var buttonsShowHide = function(selected) { 
                     var toolbar_config = new Object();
@@ -400,11 +396,7 @@
             <input id="deleteButton" class="button button-disabled" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/cancel16.png" alt="Delete" title="Delete" /> 
         </div>
     </div>
-    
-    
 
-</div>
-<div class="clear"> </div>
 
 <div id="tree_details">
     <div class="dataTree" id="dataTree"></div>

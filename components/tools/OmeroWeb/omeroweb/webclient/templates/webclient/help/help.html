@@ -34,7 +34,6 @@
         $(document).ready(function() 
             {
                 var h = $(window).height()-200;
-                $("div#help_details").css('height', h+11);
                 $("div#help_search").html('<iframe width="370" height="'+(h+11)+'" src="{% url help_search %}" id="help_search" name="help_search"></iframe>');
                 $('iframe#help_search').load();
                 
@@ -48,6 +47,7 @@
 
 {% block center %}
 
+<div id="content_details">
 <div id="help_details">
     
     <h1>{% trans "Help" %}</h1>
@@ -655,7 +655,7 @@
     </div>
     
 </div>
-
+</div>
 {% endblock %}
 
 
