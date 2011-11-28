@@ -47,11 +47,8 @@ body.zoom {
 .align_center {
     text-align: center;
 }
-.fill_overflow {
-    position: absolute;
-    top:0; left:0; bottom:0px; right:0px;
+.padding {
     padding: 10px;
-    overflow: auto;
 }
 #view_grey  {
     height:20px;
@@ -162,7 +159,7 @@ ul.criteria li{
     overflow: auto;
 }
 #metadata_details {
-    overflow: hidden;
+    overflow: auto;
     position: absolute;
     top:0px; bottom:0px; left:0px; right:0px;
 }

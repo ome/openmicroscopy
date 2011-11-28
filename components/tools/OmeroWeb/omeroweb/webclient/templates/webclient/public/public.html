@@ -32,12 +32,6 @@
     <script type="text/javascript">
         $(function() 
             {
-                var h = $(window).height()-200;
-                $("div#tree_details").css('height', h);
-                $("div#metadata_details").css('height', h+31);
-                $("div#metadata_details iframe").attr('height', h+31);
-                $("div#content_details").css('height', h+31);
-                
                 var buttonsShowHide = function(selected) { 
                     var toolbar_config = new Object();
                     if(selected.length > 0) {

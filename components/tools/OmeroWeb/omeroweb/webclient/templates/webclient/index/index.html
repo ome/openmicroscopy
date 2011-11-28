@@ -34,12 +34,6 @@
     <script type="text/javascript">
         $(document).ready(function() 
             {
-                var h = $(window).height()-200;
-                $("div#import_details").css('height', h+31);
-                $("div#metadata_details").css('height', h+31);
-                $("#right_panel").show();
-                $("#swapMeta").html('<img tabindex="0" src="{{ STATIC_COMMON_PREFIX }}image/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                
                 $("div#import_details").html('<p>Loading imported images... please wait <img src="{{ STATIC_COMMON_PREFIX }}image/spinner.gif"/></p>');
                 $("div#import_details").load("{% url index_last_imports %}");
 

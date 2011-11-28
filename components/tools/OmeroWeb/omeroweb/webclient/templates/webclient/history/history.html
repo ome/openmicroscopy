@@ -24,8 +24,6 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/layout.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/container.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/calendar.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/table.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/table.css" type="text/css" media="screen"/>
@@ -47,7 +45,7 @@
 
 {% block left %}
 
-<div id="history_calendar" class="fill_overflow"> </div>
+<div id="history_calendar" class="padding"> </div>
 
 {% endblock %}
 

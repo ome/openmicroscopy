@@ -49,6 +49,11 @@ var show_right_panel = function() {
     $("#swapMeta").children('img').removeClass("expanded-right").addClass("collapsed-right");
 }
 
+var set_right_panel_width = function(pixels) {
+    $("#right_panel").css('width', pixels+'px');
+    show_right_panel();
+}
+
 $(document).ready(function() 
     {
         $('#swapTree').click(function() { 
