@@ -47,7 +47,9 @@ body.zoom {
 .align_center {
     text-align: center;
 }
-#searching {
+.fill_overflow {
+    position: absolute;
+    top:0; left:0; bottom:0px; right:0px;
     padding: 10px;
     overflow: auto;
 }

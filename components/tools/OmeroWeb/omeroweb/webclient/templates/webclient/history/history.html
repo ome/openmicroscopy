@@ -39,12 +39,6 @@
     <script type="text/javascript">
         $(document).ready(function() 
             {
-                var h = $(window).height()-200;
-                $("div#history_calendar").css('height', h+31);
-                $("div#metadata_details").css('height', h+31);
-                $("div#metadata_details iframe").attr('height', h+31);
-                $("div#content_details").css('height', h+31);
-                
                 $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{{ STATIC_COMMON_PREFIX }}image/spinner.gif"/></p>');
                 $("div#history_calendar").load('{% url load_calendar %}?experimenter={{ nav.experimenter }}');
         })
@@ -53,7 +47,7 @@
 
 {% block left %}
 
-<div id="history_calendar" style="overflow: auto;"> </div>
+<div id="history_calendar" class="fill_overflow"> </div>
 
 {% endblock %}
 

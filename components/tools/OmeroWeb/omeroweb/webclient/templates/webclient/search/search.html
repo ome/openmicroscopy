@@ -39,12 +39,6 @@
     <script type="text/javascript">
         $(document).ready(function() 
             {
-                var h = $(window).height()-200;
-                $("div#searching").css('height', h+11);
-                $("div#metadata_details").css('height', h+31);
-                $("div#metadata_details iframe").attr('height', h+31);
-                $("div#content_details").css('height', h+31);
-                
                 $('#dateperiodinput').datepicker({
                     changeMonth: true, 
                     changeYear: true,
@@ -52,7 +46,7 @@
                     dateFormat: 'yy-mm-dd', 
                 });
                 
-                $("#searching, #daterange").tooltip({ 
+                $(".searching_info, #daterange").tooltip({ 
                     track: true, 
                     delay: 0, 
                     showURL: false, 
@@ -123,7 +117,7 @@
 
 {% block left %}
 
-<div id="searching">
+<div id="searching" class="fill_overflow">
     <div>
         <p>{% trans "Searching feature enables you to search within the images, datasets, projects, plates and screens stored on the server. It supports single and multiple character wildcard searches." %}</p>
     </div>
@@ -132,7 +126,7 @@
     <p>
     <form id="searching_form">
         <table>
-            <tr><th>{% trans "Search for" %} *:</th><td><input class="search" type="text" name="query" value="{{ manager.criteria.query }}" size="35"/>  <span id="searching" title="Searching - <small>Performs a single character wildcard search use the <b>'?'</b> symbol. The single character wildcard search looks for terms that match that with the single character replaced. To perform a multiple character wildcard search use the <b>'*'</b> symbol. <br/><br/>
+            <tr><th>{% trans "Search for" %} *:</th><td><input class="search" type="text" name="query" value="{{ manager.criteria.query }}" size="35"/>  <span class="searching_info" title="Searching - <small>Performs a single character wildcard search use the <b>'?'</b> symbol. The single character wildcard search looks for terms that match that with the single character replaced. To perform a multiple character wildcard search use the <b>'*'</b> symbol. <br/><br/>
             For example, to search for <i>'text'</i> or <i>'test'</i> you can use the search: <b>'te?t'
     </b>. Multiple character wildcard searches looks for 0 or more characters. For example, to search for <i>'test'</i>, <i>'tests'</i> or <i>'tester'</i>, you can use the search: <b>'test*'</b>. You can also use the wildcard searches in the middle or the beginning of a term.</small>"><img src="{{ STATIC_WEBCLIENT_PREFIX }}image/help16.png" /></span></td></tr>
             <!--<tr><th>by date:</th><td><input type="text" id="dateinput" name="date" value="" size="15"/></td></tr>-->
@@ -160,7 +154,7 @@
     <form id="batch_searching_form">
         <table>
             <tr><th>{% trans "Search for" %}</th>
-            <td><textarea name="batch_query" cols="30" rows="5" wrap="hard"></textarea><span id="searching" title="Batch search - <small>Each line of the textbox should consist of exactly 3 elements(/columns). The elements should contain the following information in order: plate name, row, column. The columns are separated by a delimiter which can be selected below the textbox.<br/><br/>
+            <td><textarea name="batch_query" cols="30" rows="5" wrap="hard"></textarea><span class="searching_info" title="Batch search - <small>Each line of the textbox should consist of exactly 3 elements(/columns). The elements should contain the following information in order: plate name, row, column. The columns are separated by a delimiter which can be selected below the textbox.<br/><br/>
     +</small><b>Example search:</b><small><pre>
     +Foo    0    0
     +Bar    2    3
