@@ -7,9 +7,7 @@
 package ome.io.nio;
 
 import java.io.File;
-import java.text.DateFormatSymbols;
 import java.util.Formatter;
-import java.util.Calendar;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
@@ -30,9 +28,6 @@ public class AbstractFileSystemService {
     public final static String PIXELS_PATH = "Pixels" + File.separator;
 
     public final static String FILES_PATH = "Files" + File.separator;
-
-    // FIXME: This should ultimately come from somewhere else
-    public final static String MANAGED_REPO_PATH = "ManagedRepository" + File.separator;
 
     public final static String THUMBNAILS_PATH = "Thumbnails" + File.separator;
 
@@ -84,49 +79,6 @@ public class AbstractFileSystemService {
      */
     public /*protected*/ String getPixelsPath(Long id) {
         return getPath(PIXELS_PATH, id);
-    }
-
-    /**
-     * Returns a numbered path relative to the root of this service
-     * using FS template. For example, given an id of 123456 this
-     * may return "ROOT/ManagedRepository/myGroup/me/2011/01/01/123456"
-     *
-     * @param id
-     * @param template
-     * @param user
-     * @param group
-     * @return
-     */
-    public  String getFilesPath(Long id, String template, String user, String group) {
-        Calendar now = Calendar.getInstance();
-        DateFormatSymbols dfs = new DateFormatSymbols();
-        String path = FilenameUtils.concat(root, MANAGED_REPO_PATH);
-        String dir = "";
-        String[] elements = template.split("/");
-        for (String part : elements) {
-            if (part.equals("%fileid%"))
-                dir = id.toString();
-            else if (part.equals("%groupname%"))
-                dir = group;
-            else if (part.equals("%username%"))
-                dir = user;
-            else if (part.equals("%year%"))
-                dir = Integer.toString(now.get(Calendar.YEAR));
-            else if (part.equals("%month%"))
-                dir = Integer.toString(now.get(Calendar.MONTH)+1);
-            else if (part.equals("%monthname%"))
-                dir = dfs.getMonths()[now.get(Calendar.MONTH)];
-            else if (part.equals("%day%"))
-                dir = Integer.toString(now.get(Calendar.DAY_OF_MONTH));
-            else if (!part.endsWith("%") && !part.startsWith("%"))
-                dir = part;
-            else {
-                log.warn("Ignored unrecognised token in template: " + part);
-                dir = "";
-            }
-            path = FilenameUtils.concat(path, dir);
-        }
-        return path;
     }
 
     /**
