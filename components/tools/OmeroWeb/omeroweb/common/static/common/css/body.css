@@ -20,7 +20,7 @@ body {
     left:0px;
     bottom:0px;
     background: white;
-    
+    overflow:auto;
 }
 
 a:hover, a:link, a:visited {

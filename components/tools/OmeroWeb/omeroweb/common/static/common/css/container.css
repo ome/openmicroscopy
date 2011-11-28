@@ -17,16 +17,20 @@ table.contentWrapper {
     position:absolute;
     left:0px; top:0px; bottom:0px;
     width:350px;
+    overflow: auto;
 }
 #center_panel {
     background-color: #ffffff;
     position:absolute;
-    left:20px; right:20px; top:0px; bottom:0px
+    left:20px; right:20px; top:0px; bottom:0px;
+    overflow: auto;
 }
 #right_panel {
     background-color: #f3f3f3;
-    position:absolute; width:370px;
+    position:absolute;
+    width:370px;
     right:0px; top:0px; bottom:0px;
+    overflow: auto;
 }
 
 .collapsibletrayhandle-right {
