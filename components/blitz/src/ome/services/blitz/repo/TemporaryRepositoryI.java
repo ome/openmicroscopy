@@ -32,7 +32,7 @@ public class TemporaryRepositoryI extends AbstractRepositoryI {
 
     public TemporaryRepositoryI(Ice.ObjectAdapter oa, Registry reg,
             Executor ex, SqlAction sql, String sessionUuid) {
-        super(oa, reg, ex, sql, sessionUuid, System.getProperty("java.io.tmpdir"));
+        super(oa, reg, ex, sql, sessionUuid, System.getProperty("java.io.tmpdir"), "");
     }
 
     /**

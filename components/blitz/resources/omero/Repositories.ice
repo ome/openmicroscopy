@@ -155,6 +155,8 @@ module omero {
             void transfer(string srcPath, Repository* target, string targetPath) 
                     throws ServerError;
 
+            string getCurrentRepoDir(long fileId) throws ServerError;
+
             /* TODO for both methods: These methods should both be removed
               in favour of a full implementation of thumbs()*/
             /**

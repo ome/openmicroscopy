@@ -32,7 +32,7 @@ public class ScriptRepositoryI extends AbstractRepositoryI {
 
     public ScriptRepositoryI(ObjectAdapter oa, Registry reg, Executor ex, SqlAction sql,
             String sessionUuid, ScriptRepoHelper helper) {
-        super(oa, reg, ex, sql, sessionUuid, helper.getScriptDir());
+        super(oa, reg, ex, sql, sessionUuid, helper.getScriptDir(), "");
         this.helper = helper;
     }
 

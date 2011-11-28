@@ -74,7 +74,6 @@ import ome.formats.model.ReferenceProcessor;
 import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
-import ome.io.nio.OriginalFilesService;
 import ome.system.UpgradeCheck;
 import ome.util.LSID;
 import ome.xml.model.AffineTransform;
@@ -1862,18 +1861,7 @@ public class OMEROMetadataStoreClient
             log.debug("Target: " + target.getAbsolutePath());
             log.debug("Keys: " + Arrays.toString(originalFileMap.keySet().toArray()));
             Long defaultId = originalFileMap.get(target.getAbsolutePath()).getId().getValue();
-            // FIXME: This relies on the legacy repo being the omero data dir
-            //        With a different repository this will have to change.
-            OriginalFilesService ofs = new OriginalFilesService(repositoryRoot.getAbsolutePath());
-            String template = getConfigValue("omero.fslite.path");
-            // FIXME: For the moment hardcode the username as a prefix
-            template = "%username%/" + template;
-            String user = iAdmin.getExperimenter(eventContext.userId).getOmeName().getValue();
-            String group = iAdmin.getDefaultGroup(eventContext.userId).getName().getValue();
-            // FIXME: The OriginalFileStore is pretty dumb, should it be passed a context
-            //        or simply strings? Should it get hold of the template directly?
-            //        Or, better, should the getPath be a (managed) repository service?
-            filePath = ofs.getFilesPath(defaultId, template, user, group);
+            filePath = repo.getCurrentRepoDir(defaultId);
             directory = new File(filePath);
             repo.makeDir(directory.getAbsolutePath());
         }

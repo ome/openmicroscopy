@@ -33,8 +33,10 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -81,6 +83,7 @@ import omero.grid.RepositoryListConfig;
 import omero.grid.RepositoryPrx;
 import omero.grid._RepositoryDisp;
 import omero.model.DimensionOrder;
+import omero.model.Experimenter;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -90,6 +93,7 @@ import omero.model.Pixels;
 import omero.model.PixelsType;
 import omero.util.IceMapper;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -119,9 +123,14 @@ public class PublicRepositoryI extends _RepositoryDisp {
     /* String used as key in params field of db for indexing image series number */
     private final static String IMAGE_NO_KEY = "image_no";
 
+    // FIXME: This should ultimately come from somewhere else
+    private final static String MANAGED_REPO_PATH = "ManagedRepository" + File.separator;
+
     private final long id;
 
     private final File root;
+
+    private final String template;
 
     private final Executor executor;
 
@@ -137,9 +146,10 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     private String repoUuid;
 
-    public PublicRepositoryI(File root, long repoObjectId, Executor executor,
+    public PublicRepositoryI(File root, String template, long repoObjectId, Executor executor,
             SqlAction sql, Principal principal) throws Exception {
         this.id = repoObjectId;
+        this.template = template;
         this.executor = executor;
         this.sql = sql;
         this.principal = principal;
@@ -150,6 +160,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         this.root = root.getAbsoluteFile();
         this.repoUuid = null;
+        log.info("Repository template: " + this.template);
     }
 
     public OriginalFile root(Current __current) throws ServerError {
@@ -810,6 +821,59 @@ public class PublicRepositoryI extends _RepositoryDisp {
     public void rename(String path, Current __current) throws ServerError {
         // TODO Auto-generated method stub
 
+    }
+
+    /**
+     * Return a template based directory path.
+     * (an option here would be to create the dir if it doesn't exist??)
+     */
+    public String getCurrentRepoDir(long fileId, Current __current) throws ServerError {
+        Calendar now = Calendar.getInstance();
+        DateFormatSymbols dfs = new DateFormatSymbols();
+        //FIXME: MANAGED_REPO_PATH should be passed in as config.
+        String path = FilenameUtils.concat(root.getAbsolutePath(), MANAGED_REPO_PATH);
+
+        //FIXME: this seems a long-winded way to get the username. Is there an easier way?
+        Principal currentUser = currentUser(__current);
+        ome.model.meta.Experimenter exp = (ome.model.meta.Experimenter) executor.execute(
+                currentUser, new Executor.SimpleWork(this, "getCurrentRepoDir") {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                long id = sf.getAdminService().getEventContext().getCurrentUserId();
+                ome.model.meta.Experimenter exp = sf.getAdminService().getExperimenter(id);
+                return exp;
+            }
+        });
+        IceMapper mapper = new IceMapper();
+        Experimenter rv = (Experimenter) mapper.map(exp);
+        String name = rv.getOmeName().getValue();
+
+        //FIXME: Force user prefix for now
+        path = FilenameUtils.concat(path, name);
+        String dir;
+        String[] elements = template.split("/");
+        for (String part : elements) {
+            if (part.equals("%fileid%"))
+                dir = Long.toString(fileId);
+            else if (part.equals("%groupname%"))
+                dir = principal.getGroup();
+            else if (part.equals("%year%"))
+                dir = Integer.toString(now.get(Calendar.YEAR));
+            else if (part.equals("%month%"))
+                dir = Integer.toString(now.get(Calendar.MONTH)+1);
+            else if (part.equals("%monthname%"))
+                dir = dfs.getMonths()[now.get(Calendar.MONTH)];
+            else if (part.equals("%day%"))
+                dir = Integer.toString(now.get(Calendar.DAY_OF_MONTH));
+            else if (!part.endsWith("%") && !part.startsWith("%"))
+                dir = part;
+            else {
+                log.warn("Ignored unrecognised token in template: " + part);
+                dir = "";
+            }
+            path = FilenameUtils.concat(path, dir);
+        }
+        return path;
     }
 
     public RenderingEnginePrx render(String path, Current __current)
