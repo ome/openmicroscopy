@@ -26,11 +26,6 @@
 {% block link %}
     {{ block.super }}
     <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/table.css" type="text/css" media="screen"/>
-    <style type="text/css">
-    #right_panel {
-        width: 50%;
-    }
-    </style>
 {% endblock %}
 
 {% block script %}
@@ -65,6 +60,7 @@
     
     $(document).ready(function () { 
         
+        set_right_panel_width(500);
         $("#groupTable").tablesorter( {sortList: [[1,0]]} ); 
 
         $('input#id_search').quicksearch('table#groupTable tbody tr', {

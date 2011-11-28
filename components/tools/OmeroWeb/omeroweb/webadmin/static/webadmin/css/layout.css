@@ -1,6 +1,5 @@
 /* main layout */
-.overflow {
-    overflow: auto;
+.padding {
     padding:10px;
 }
 
@@ -22,7 +21,7 @@ textarea {
 
 /* metadata panel */
 #right_panel {
-    width: 250px;
+    /*width: 250px;*/
 }
 
 /* table */

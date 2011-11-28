@@ -28,20 +28,6 @@
     <link rel="stylesheet" href="{{ STATIC_WEBADMIN_PREFIX }}css/layout.css" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block script %}
-    {{ block.super }}
-    <script type="text/javascript">
-        $(document).ready(function() 
-            {
-                var h = $(window).height()-200;
-                $("div#center_details").css('height', h+31);
-                $("div#metadata_details").css('height', h+31);
-                $("#right_panel").show();
-                $("#swapMeta").html('<img tabindex="0" src="{{ STATIC_COMMON_PREFIX }}image/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                
-        })
-    </script>
-{% endblock %}
 
 {% block nav_links %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
@@ -67,7 +53,7 @@
 {% endblock %}
 
 {% block center %}
-    <div id="center_details" class="overflow">
+    <div id="center_details" class="padding">
         {% if info.message %}<div class="error">{{ info.message|safe|linebreaks }}</div>{% endif %}
         {% block center_details %}{% endblock %}
     </div>
