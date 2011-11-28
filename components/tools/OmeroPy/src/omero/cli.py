@@ -184,7 +184,7 @@ class NewFileType(FileType):
     overwrite existing files.
     """
     def __call__(self, string):
-        if os.path.exists(string):
+        if string != "-" and os.path.exists(string):
             raise ValueError("File exists: %s" % string)
         return FileType.__call__(self, string)
 
