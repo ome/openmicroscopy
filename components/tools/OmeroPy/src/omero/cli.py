@@ -189,6 +189,17 @@ class NewFileType(FileType):
         return FileType.__call__(self, string)
 
 
+class ExistingFile(FileType):
+    """
+    Extension of the argparse.FileType that requires
+    an existing file.
+    """
+    def __call__(self, string):
+        if not os.path.exists(string):
+            raise ValueError("File does not exist: %s" % string)
+        return FileType.__call__(self, string)
+
+
 class DirectoryType(FileType):
     """
     Extension of the argparse.FileType to only allow
