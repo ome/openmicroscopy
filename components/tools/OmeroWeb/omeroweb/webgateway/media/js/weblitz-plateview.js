@@ -44,7 +44,7 @@ jQuery._WeblitzPlateview = function (container, options) {
       baseurl: '',
       width: 64,
       height: 48,
-      useParentPrefix: false,
+      useParentPrefix: true,
     }, options);
 
   opts.size = Math.max(opts.width, opts.height);
