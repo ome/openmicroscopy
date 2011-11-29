@@ -192,7 +192,6 @@
                     var confirm_remove = confirm_dialog('Remove '+ dType + '?',
                         function() {
                             if(confirm_remove.data("clicked_button") == "OK") {
-                                console.log('Remove '+ dType);
                                 $.ajax({
                                     type: "POST",
                                     url: url,
@@ -238,7 +237,6 @@
                     var confirm_remove = confirm_dialog('Delete '+ dType + '?',
                         function() {
                             if(confirm_remove.data("clicked_button") == "OK") {
-                                console.log("Delete ", dType);
                                 $.ajax({
                                     type: "POST",
                                     url: url,

@@ -60,7 +60,7 @@ function openCenteredWindow(url) {
  * Confirm dialog using jquery-ui dialog. http://jqueryui.com/demos/dialog/
  * This code provides a short-cut that doens't need html elements on the page
  * Basic usage (text only - Default buttons are 'OK' and 'Cancel'):
- *    var OK_dialog = confirm_dialog2("Can you confirm that you want to proceed?", function() {
+ *    var OK_dialog = confirm_dialog("Can you confirm that you want to proceed?", function() {
  *        var clicked_button_text = OK_dialog.data("clicked_button");
  *        alert(clicked_button_text);
  *    });
