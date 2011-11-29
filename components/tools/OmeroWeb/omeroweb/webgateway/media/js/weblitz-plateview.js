@@ -73,14 +73,14 @@ jQuery._WeblitzPlateview = function (container, options) {
           tr.append('<th>'+data.rowlabels[i]+'</th>');
           for (j in data.grid[i]) {
               if (data.grid[i][j] == null) {
-		  tr.append('<td style="width:'+opts.width+'px;height:'+opts.height+'px;line-height:'+opts.height+'px;"><div class="placeholder">&nbsp;</div></td>');
+		  tr.append('<td><div class="placeholder" style="width:'+opts.width+'px;height:'+opts.height+'px;line-height:'+opts.height+'px;">&nbsp;</div></td>');
 	      } else {
                   data.grid[i][j]._wellpos = data.rowlabels[i]+data.collabels[j];
                   var parentPrefix = '';
                   if (opts.useParentPrefix) {
                       parentPrefix = thisid+'-';
                   }
-		  var td = $('<td class="well" style="width:'+opts.width+'px;height:'+opts.height+'px;" id="'+parentPrefix+'well-'+data.grid[i][j].wellId+'"><div class="waiting"></div><img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" src="'+ data.grid[i][j].thumb_url+'" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
+		  var td = $('<td class="well" id="'+parentPrefix+'well-'+data.grid[i][j].wellId+'"><div class="waiting" style="width:'+opts.width+'px;height:'+opts.height+'px;"></div><img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" src="'+ data.grid[i][j].thumb_url+'" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
 		  $('img', td)
 		      .click(tclick(data.grid[i][j]))
 		      .load(function() { 
