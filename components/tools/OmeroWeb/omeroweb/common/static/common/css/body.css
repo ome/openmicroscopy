@@ -111,3 +111,6 @@ label {
     margin: 0px;
     padding: 0px;
 }
+
+/* used by the dialog in popup.js */
+.ui-dialog-titlebar { background: gray; color: white }

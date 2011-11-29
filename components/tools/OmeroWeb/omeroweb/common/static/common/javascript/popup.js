@@ -54,3 +54,58 @@ function openCenteredWindow(url) {
     if(!myWindow.closed) myWindow.focus();
     return false;
 }
+
+
+/*
+ * Confirm dialog using jquery-ui dialog. http://jqueryui.com/demos/dialog/
+ * This code provides a short-cut that doens't need html elements on the page
+ * Basic usage (text only - Default buttons are 'OK' and 'Cancel'):
+ *    var OK_dialog = confirm_dialog2("Can you confirm that you want to proceed?", function() {
+ *        var clicked_button_text = OK_dialog.data("clicked_button");
+ *        alert(clicked_button_text);
+ *    });
+ *
+ * Also possible to specify title, buttons, width, height:
+ *    var btn_labels = ["Yes", "No", "Maybe", "Later"];
+ *    var title_dialog = confirm_dialog("Can you confirm that you want to proceed?", "Dialog Title", btn_labels, 300, 200);
+ */
+var confirm_dialog = function(dialog_text, callback, title, button_labels, width, height) {
+
+    if (typeof title == "undefined") var title = "Confirm";
+    if (typeof width == "undefined") var width = 350;
+    if (typeof height == "undefined") var height = 140;
+
+    var $dialog = $("#confirm_dialog");
+    if ($dialog.length > 0) {       // get rid of any old dialogs
+        $dialog.remove();
+    }
+    $dialog = $("<div id='confirm_dialog'></div>");
+    $('body').append($dialog);
+
+    $dialog.attr("title", title).hide();
+    $dialog.html("<p>"+ dialog_text +"</p>");
+
+    if (typeof button_labels == "undefined") {
+        button_labels = ['OK', 'Cancel']
+    }
+    var btns = {}
+    for (var i=0; i<button_labels.length; i++) {
+        var b = button_labels[i];
+        btns[b] = function(event) {
+            var btxt = $(event.target).text();
+            $dialog.data("clicked_button", btxt);
+            $( this ).dialog( "close" );
+        }
+    }
+
+    $dialog.dialog({
+        resizable: true,
+        height: height,
+        width: width,
+        modal: true,
+        buttons: btns
+    });
+    $dialog.bind("dialogclose", callback);
+
+    return $dialog;
+};
