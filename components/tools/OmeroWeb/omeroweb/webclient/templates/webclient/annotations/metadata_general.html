@@ -189,25 +189,30 @@
                     var parentId = $.trim($("#parent-id").text());
                     var url = "/webclient/action/remove/"+ dType +"/"+ annId +"/";
                     var $parent = $(event.target).parents("."+domClass);
-                    if (confirm('Remove '+ dType + '?')) {
-                        $.ajax({
-                            type: "POST",
-                            url: url,
-                            data: {'parent':parentId},
-                            contentType:'json',
-                            success: function(r){
-                                if(eval(r.bad)) {
-                                    alert(r.errs);
-                                } else {
-                                    // simply remove the item (parent class div)
-                                    $parent.remove();
-                                }
-                            },
-                            error: function(response) {
-                                alert("Internal server error. Cannot remove object.");
+                    var confirm_remove = confirm_dialog('Remove '+ dType + '?',
+                        function() {
+                            if(confirm_remove.data("clicked_button") == "OK") {
+                                console.log('Remove '+ dType);
+                                $.ajax({
+                                    type: "POST",
+                                    url: url,
+                                    data: {'parent':parentId},
+                                    contentType:'json',
+                                    success: function(r){
+                                        if(eval(r.bad)) {
+                                            alert(r.errs);
+                                        } else {
+                                            // simply remove the item (parent class div)
+                                            $parent.remove();
+                                        }
+                                    },
+                                    error: function(response) {
+                                        alert("Internal server error. Cannot remove object.");
+                                    }
+                                });
                             }
-                        });
-                    }
+                        }
+                    );
                     return false;
                 }
 
@@ -230,25 +235,30 @@
                     var parentId = $.trim($("#parent-id").text());
                     var url = "/webclient/action/delete/"+ dType +"/"+ annId +"/";
                     var $parent = $(event.target).parents("."+domClass);
-                    if (confirm('Delete '+ dType + '?')) {
-                        $.ajax({
-                            type: "POST",
-                            url: url,
-                            contentType:'json',
-                            success: function(r){
-                                if(eval(r.bad)) {
-                                    alert(r.errs);
-                                } else {
-                                    // simply remove the item (parent class div)
-                                    $parent.remove();
-                                    window.parent.refreshProgressBar();
-                                }
-                            },
-                            error: function(response) {
-                                alert("Internal server error. Cannot remove object.");
+                    var confirm_remove = confirm_dialog('Delete '+ dType + '?',
+                        function() {
+                            if(confirm_remove.data("clicked_button") == "OK") {
+                                console.log("Delete ", dType);
+                                $.ajax({
+                                    type: "POST",
+                                    url: url,
+                                    contentType:'json',
+                                    success: function(r){
+                                        if(eval(r.bad)) {
+                                            alert(r.errs);
+                                        } else {
+                                            // simply remove the item (parent class div)
+                                            $parent.remove();
+                                            window.parent.refreshProgressBar();
+                                        }
+                                    },
+                                    error: function(response) {
+                                        alert("Internal server error. Cannot delete object.");
+                                    }
+                                });
                             }
-                        });
-                    }
+                        }
+                    );
                     return false;
                 }
                 
