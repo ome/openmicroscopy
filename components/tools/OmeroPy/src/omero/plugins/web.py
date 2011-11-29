@@ -174,18 +174,18 @@ FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s
     Allow from all
 </Directory>
 
-<Directory "%(MEDIA)s">
+<Directory "%(STATIC)s">
     Options -Indexes FollowSymLinks
     Order allow,deny
     Allow from all
 </Directory>
 
-Alias /appmedia %(MEDIA)s
+Alias /static %(STATIC)s
 Alias / "%(ROOT)s/var/omero.fcgi/"
 """
                 d = {
                     "ROOT":self.ctx.dir,
-                    "MEDIA":self.ctx.dir / "lib" / "python" / "omeroweb" / "media",
+                    "STATIC":self.ctx.dir / "lib" / "python" / "omeroweb" / "static",
                     "OMEROWEBROOT":self.ctx.dir / "lib" / "python" / "omeroweb",
                     "FASTCGI_EXTERNAL":fastcgi_external,
                     "NOW":str(datetime.now()),
