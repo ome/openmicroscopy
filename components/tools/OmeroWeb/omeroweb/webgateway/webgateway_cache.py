@@ -16,13 +16,13 @@ import omero
 import logging
 from random import random
 import datetime
-
+from types import StringTypes
 
 logger = logging.getLogger('cache')
 
 import struct, time, os, re, shutil, stat
 size_of_double = len(struct.pack('d',0))
-string_type = type('')
+#string_type = type('')
 
 CACHE=getattr(settings, 'WEBGATEWAY_CACHE', None)
 TMPROOT=getattr(settings, 'WEBGATEWAY_TMPROOT', None)
@@ -108,9 +108,7 @@ class FileCache(CacheBase):
         fname = self._key_to_file(key)
         try:
             f = open(fname, 'rb')
-            exp = struct.unpack('d',f.read(size_of_double))[0]
-            now = time.time()
-            if exp < now:
+            if not self._check_entry(f):
                 f.close()
                 self._delete(fname)
             else:
@@ -129,7 +127,7 @@ class FileCache(CacheBase):
         @param invalidateGroup:     Not used? 
         """
         
-        if type(value) != string_type:
+        if not isinstance(value, StringTypes):
             raise ValueError("%s not a string, can't cache" % type(value))
         fname = self._key_to_file(key)
         dirname = os.path.dirname(fname)
@@ -151,9 +149,13 @@ class FileCache(CacheBase):
                 os.makedirs(dirname)
 
             f = open(fname, 'wb')
-            exp = time.time() + timeout + (timeout / 5 * random()) 
+            if timeout > 0:
+                exp = time.time() + timeout + (timeout / 5 * random())
+            else:
+                exp = 0
             f.write(struct.pack('d', exp))
             f.write(value)
+            f.close()
         except (IOError, OSError): #pragma: nocover
             pass
 
@@ -201,19 +203,30 @@ class FileCache(CacheBase):
         Verifies if a specific cache entry (provided as absolute file path) is expired.
         If expired, it gets deleted and method returns false.
         If not expired, returns True.
+
+        If fname is a file object, fpos will advance size_of_double bytes.
         
-        @param fname:   File path
+        @param fname:   File path or file object
+        @rtype Boolean
+        @return True if entry is valid, False if expired
         """
         try:
-            f = open(fname, 'rb')
-            exp = struct.unpack('d',f.read(size_of_double))[0]
-            now = time.time()
-            if exp < now:
-                f.close()
-                self._delete(fname)
-                return False
+            if isinstance(fname, StringTypes):
+                f = open(fname, 'rb')
+                exp = struct.unpack('d',f.read(size_of_double))[0]
             else:
-                return True
+                f = None
+                exp = struct.unpack('d',fname.read(size_of_double))[0]
+            if self._default_timeout > 0 and exp > 0:
+                now = time.time()
+                if exp < now:
+                    if f is not None:
+                        f.close()
+                        self._delete(fname)
+                    return False
+                else:
+                    return True
+            return True
         except (IOError, OSError, EOFError, struct.error): #pragma: nocover
             return False
 
@@ -485,11 +498,13 @@ class WebGatewayCache (object):
         @param iid:             image ID
         @param size:            size of the thumbnail - tuple. E.g. (100,)
         """
-        
+        pre = str(iid)[:-4]
+        if len(pre) == 0:
+            pre = '0'
         if size is not None and len(size):
-            return 'thumb_user_%s/%s/%s/%s' % (client_base, str(iid), user_id, 'x'.join([str(x) for x in size]))
+            return 'thumb_user_%s/%s/%s/%s/%s' % (client_base, pre, str(iid), user_id, 'x'.join([str(x) for x in size]))
         else:
-            return 'thumb_user_%s/%s/%s' % (client_base, str(iid), user_id)
+            return 'thumb_user_%s/%s/%s/%s' % (client_base, pre, str(iid), user_id)
 
     def setThumb (self, r, client_base, user_id, iid, obj, size=()):
         """
@@ -559,6 +574,9 @@ class WebGatewayCache (object):
         """
         
         iid = img.getId()
+        pre = str(iid)[:-4]
+        if len(pre) == 0:
+            pre = '0'
         if r:
             r = r.REQUEST
             c = FN_REGEX.sub('-',r.get('c', ''))
@@ -570,13 +588,13 @@ class WebGatewayCache (object):
             q = r.get('q', '')
             region = r.get('region', '')
             tile = r.get('tile', '')
-            rv = 'img_%s/%s/%%s-c%s-m%s-q%s-r%s-t%s' % (client_base, str(iid), c, m, q, region, tile)
+            rv = 'img_%s/%s/%s/%%s-c%s-m%s-q%s-r%s-t%s' % (client_base, pre, str(iid), c, m, q, region, tile)
             if p:
                 return rv % ('%s-%s' % (p, str(t)))
             else:
                 return rv % ('%sx%s' % (str(z), str(t)))
         else:
-            return 'img_%s/%s/' % (client_base, str(iid))
+            return 'img_%s/%s/%s' % (client_base, pre, str(iid))
 
     def setImage (self, r, client_base, img, z, t, obj, ctx=''):
         """
@@ -616,7 +634,7 @@ class WebGatewayCache (object):
             logger.debug('cached: %s' % k)
         return r
 
-    def clearImage (self, r, client_base, user_id, img):
+    def clearImage (self, r, client_base, user_id, img, skipJson=False):
         """
         Clears image data from cache using default rendering settings (r=None) T and Z indexes ( = 0).
         TODO: Doesn't clear any data stored WITH r, t, or z specified in cache key? 
@@ -635,7 +653,8 @@ class WebGatewayCache (object):
         # do the thumb too
         self.clearThumb(r, client_base, user_id, img.getId())
         # and json data
-        self.clearJson(client_base, img)
+        if not skipJson:
+            self.clearJson(client_base, img)
         return True
 
     def setSplitChannelImage (self, r, client_base, img, z, t, obj):
@@ -680,13 +699,50 @@ class WebGatewayCache (object):
         else:
             return 'json_%s/single/%s' % (client_base, ctx)
 
-    def clearJson (self, client_base, obj):
+    def getJson (self, r, client_base, obj, ctx=''):
         """
-        Only handles Dataset obj, calling L{clearDatasetContents}
+        Gets data from the json cache
+        
+        @param r:               http request - not used
+        @param client_base:     server_id for cache key
+        @param obj:             ObjectWrapper for cache key
+        @param ctx:             context string used for cache key
+        @rtype:                 String or None
         """
-        logger.debug('clearjson')
-        if obj.OMERO_CLASS == 'Dataset':
-            self.clearDatasetContents(None, client_base, obj)
+        k = self._jsonKey(r, client_base, obj, ctx)
+        r = self._json_cache.get(k)
+        if r is None:
+            logger.debug('  fail: %s' % k)
+        else:
+            logger.debug('cached: %s' % k)
+        return r
+
+    def setJson (self, r, client_base, obj, data, ctx=''):
+        """
+        Adds data to the json cache
+        
+        @param r:               http request - not used
+        @param client_base:     server_id for cache key
+        @param obj:             ObjectWrapper for cache key
+        @param data:            Data to cache
+        @param ctx:             context string used for cache key
+        @rtype:                 True
+        """
+        k = self._jsonKey(r, client_base, obj, ctx)
+        self._cache_set(self._json_cache, k, data)
+        return True
+
+    def clearJson (self, client_base, obj, ctx=''):
+        """
+        TODO: document
+        WAS: Only handles Dataset obj, calling L{clearDatasetContents}
+        """
+        k = self._jsonKey(None, client_base, obj, ctx)
+        self._cache_clear(self._json_cache, k)
+        return True
+        #logger.debug('clearjson')
+        #if obj.OMERO_CLASS == 'Dataset':
+        #    self.clearDatasetContents(None, client_base, obj)
     
     def setDatasetContents (self, r, client_base, ds, data):
         """
@@ -698,10 +754,7 @@ class WebGatewayCache (object):
         @param data:            Data to cache
         @rtype:                 True
         """
-        
-        k = self._jsonKey(r, client_base, ds, 'contents')
-        self._cache_set(self._json_cache, k, data)
-        return True
+        return self.setJson(r, client_base, ds, data, 'contents')
 
     def getDatasetContents (self, r, client_base, ds):
         """
@@ -712,14 +765,7 @@ class WebGatewayCache (object):
         @param ds:              ObjectWrapper for cache key
         @rtype:                 String or None
         """
-        
-        k = self._jsonKey(r, client_base, ds, 'contents')
-        r = self._json_cache.get(k)
-        if r is None:
-            logger.debug('  fail: %s' % k)
-        else:
-            logger.debug('cached: %s' % k)
-        return r
+        return self.getJson(r, client_base, ds, 'contents')
 
     def clearDatasetContents (self, r, client_base, ds):
         """
@@ -820,6 +866,13 @@ class WebGatewayTempFile (object):
         file(os.path.join(dn, '.timestamp'), 'w').write(stamp)
         return dn, key
 
+    def abort (self, fn):
+        logger.debug(fn)
+        logger.debug(os.path.dirname(fn))
+        logger.debug(self._dir)
+        if fn.startswith(self._dir):
+            shutil.rmtree(os.path.dirname(fn), ignore_errors=True)
+
     def new (self, name, key=None):
         """
         Creates a new directory if needed, see L{newdir} and checks whether this contains a file 'name'. If not, a 
@@ -833,7 +886,7 @@ class WebGatewayTempFile (object):
         if not self._dir:
             return None, None, None
         dn, stamp = self.newdir(key)
-        name = name.replace('/','_').decode('utf8').encode('ascii', 'ignore')
+        name = name.replace('/','_').replace('#','_').decode('utf8').encode('ascii', 'ignore')
         fn = os.path.join(dn, name)
         rn = os.path.join(stamp, name)
         lf = os.path.join(dn, '.lock')
