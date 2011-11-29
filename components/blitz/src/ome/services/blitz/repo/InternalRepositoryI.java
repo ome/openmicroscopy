@@ -29,8 +29,8 @@ public class InternalRepositoryI extends AbstractRepositoryI {
     private final static Log log = LogFactory.getLog(InternalRepositoryI.class);
 
     public InternalRepositoryI(ObjectAdapter oa, Registry reg, Executor ex,
-            SqlAction sql, String sessionUuid, String repoDir, String template) {
-        super(oa, reg, ex, sql, sessionUuid, repoDir, "");
+            SqlAction sql, String sessionUuid, String repoDir) {
+        super(oa, reg, ex, sql, sessionUuid, repoDir);
     }
 
     /**
