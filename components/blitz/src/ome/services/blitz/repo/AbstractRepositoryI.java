@@ -68,12 +68,17 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
     private String repoUuid;
 
-    private String template;
+    private String template = "";
 
     private volatile AtomicReference<State> state = new AtomicReference<State>();
 
     private enum State {
         ACTIVE, EAGER, WAITING, CLOSED;
+    }
+
+    public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
+            SqlAction sql, String sessionUuid, String repoDir) {
+        this(oa, reg, ex, sql, sessionUuid, new FileMaker(repoDir));
     }
 
     public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
@@ -83,6 +88,12 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
     public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
             SqlAction sql, String sessionUuid, FileMaker fileMaker, String template) {
+        this(oa, reg, ex, sql, sessionUuid, fileMaker);
+        this.template = template;
+    }
+
+    public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
+            SqlAction sql, String sessionUuid, FileMaker fileMaker) {
         this.state.set(State.EAGER);
         this.p = new Principal(sessionUuid, "system", "Internal");
         this.oa = oa;
@@ -90,7 +101,6 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
         this.reg = reg;
         this.sql = sql;
         this.fileMaker = fileMaker;
-        this.template = template;
         log.info("Initializing repository in " + fileMaker.getDir());
     }
 
