@@ -129,10 +129,19 @@ class FileCacheTest(unittest.TestCase):
 
     def testTimeouts (self):
         self.assertEqual(self.cache.get('date/test/1'), None, 'Key already exists in cache')
-        self.cache.set('date/test/1', '1', 3)
+        self.cache.set('date/test/1', '1', timeout=3)
         self.assertEqual(self.cache.get('date/test/1'), '1', 'Key not properly cached')
         time.sleep(4)
         self.assertEqual(self.cache.get('date/test/1'), None, 'Timeout failed')
+        # if _default_timeout is 0, timeouts are simply not checked
+        self.cache.wipe()
+        self.cache._default_timeout = 0
+        self.assertEqual(self.cache.get('date/test/1'), None, 'Key already exists in cache')
+        self.cache.set('date/test/1', '1', timeout=3)
+        self.assertEqual(self.cache.get('date/test/1'), '1', 'Key not properly cached')
+        time.sleep(4)
+        self.assert_(self.cache.has_key('date/test/1'))
+        self.assertEqual(self.cache.get('date/test/1'), '1', 'Key got timedout and should not')
 
     def testMaxSize (self):
         empty_size, cache_block = _testCacheFSBlockSize(self.cache)
@@ -145,6 +154,13 @@ class FileCacheTest(unittest.TestCase):
             self.assertEqual(self.cache.get('date/test/%d' % i), 'abcdefgh'*127*cache_block,
                              'Key %d not properly cached' % i)
         self.assertEqual(self.cache.get('date/test/5'), None, 'Size limit failed')
+        self.cache._max_size = 0
+        self.cache.wipe()
+        for i in range(6):
+            self.cache.set('date/test/%d' % i, 'abcdefgh'*127*cache_block)
+        for i in range(6):
+            self.assertEqual(self.cache.get('date/test/%d' % i), 'abcdefgh'*127*cache_block,
+                             'Key %d not properly cached' % i)
 
     def testMaxEntries (self):
         self.cache._max_entries = 2
@@ -154,6 +170,14 @@ class FileCacheTest(unittest.TestCase):
         self.assertEqual(self.cache.get('date/test/1'), '1', 'Key not properly cached')
         self.assertEqual(self.cache.get('date/test/2'), '2', 'Key not properly cached')
         self.assertEqual(self.cache.get('date/test/3'), None, 'File number limit failed')
+        self.cache.wipe()
+        self.cache._max_entries = 0
+        self.cache.set('date/test/1', '1')
+        self.cache.set('date/test/2', '2')
+        self.cache.set('date/test/3', '3')
+        self.assertEqual(self.cache.get('date/test/1'), '1', 'Key not properly cached')
+        self.assertEqual(self.cache.get('date/test/2'), '2', 'Key not properly cached')
+        self.assertEqual(self.cache.get('date/test/3'), '3', 'Key not properly cached')
 
     def testPurge (self):
         self.cache._max_entries = 2

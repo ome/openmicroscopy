@@ -109,7 +109,7 @@
         }
         
         $(document).ready(function() {
-            wpv = $.WeblitzPlateview($('#spw'), {baseurl: '/webclient'});
+            wpv = $.WeblitzPlateview($('#spw'), {baseurl: '/webclient', useParentPrefix: false});
             wpv.self.bind('thumbLoad', function (ev, pelm, elm) {
                 elm.bind('click', function(event){
                     handleClickSelection(event);
