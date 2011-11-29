@@ -249,6 +249,14 @@
                     makeDiscussion();
                     break;
                 case "removecontentButton":
+                    var confirm_remove = confirm_dialog('Remove Image?',
+                        function() {
+                            if(confirm_remove.data("clicked_button") == "OK") {
+                                var jstree = $.jstree._focused();
+                                $("#datashareTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
+                            }
+                        }
+                    );
                     if (confirm("Remove image?")) {
                         var jstree = $.jstree._focused();
                         $("#datashareTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
