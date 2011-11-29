@@ -15,9 +15,11 @@ import omero
 import omero.clients
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
 from django.utils import simplejson
+from django.utils.encoding import smart_str
 from django.utils.http import urlquote
 from django.core import template_loader
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.template import RequestContext as Context
 from omero.rtypes import rlong
 
@@ -262,22 +264,63 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     """
     
     r = request.REQUEST
+    
+    ## blitz will hold the settings.SERVER_LIST server entry, if we're using one
+    blitz = None
+
+    ####
+    ## Host and Port from request - server_id or 0, server = 0
+    server = None
+    host = r.get('host', None)
+    port = r.get('port', None)
+
+    if host is None or port is None:
+        ## Server from request - server_id or server.host, server = r.server OR
+        ## Server from session - server_id or session.server.host, server = session.server
+        server = r.get('server', request.session.get('server', None))
+        if server is not None:
+            with_session = True
+            blitz = settings.SERVER_LIST.get(server)
+
+        ## Use server_id arg- server_id = server_id, server = serverlist.find(server=server_id)
+        if blitz is None and server_id is not None:
+            blitz = settings.SERVER_LIST.find(server=server_id)
+            if len(blitz):
+                blitz = blitz[0]
+            else:
+                blitz = None
+
+        if blitz is not None:
+            server = blitz.id
+            host = blitz.host
+            port = blitz.port
+            server_id = server_id or blitz.server
+
     if server_id is None:
-        # If no server id is passed, the db entry will not be used and instead we'll depend on the
-        # request.session and request.REQUEST values
-        with_session = True
-        server_id = request.session.get('server',None)
-        if server_id is None:
-            return None
+        server_id = '0'
+
+    # If we couldn't resolve host and port at this point, give up
+    if host is None or port is None:
+        return None
+
+    #blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
+    #request.session['server'] = blitz.id
+    #request.session['host'] = blitz.host
+    #request.session['port'] = blitz.port
+    #request.session['username'] = smart_str(request.REQUEST.get('username'))
+    #request.session['password'] = smart_str(request.REQUEST.get('password'))
+    #request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
+
     
     browsersession_connection_key = 'cuuid#%s'%server_id
     browsersession_key = request.session.session_key
     blitz_session = None
 
+    ## TODO: stop storing username and password, right now we need it for shares
     username = request.session.get('username', r.get('username', None))
     passwd = request.session.get('password', r.get('password', None))
-    host = request.session.get('host', r.get('host', None))
-    port = request.session.get('port', r.get('port', None))
+#    host = request.session.get('host', r.get('host', None))
+#    port = request.session.get('port', r.get('port', None))
     secure = request.session.get('ssl', r.get('ssl', False))
     logger.debug(':: (session) %s %s %s' % (str(request.session.get('username', None)),
                                             str(request.session.get('host', None)),
@@ -375,6 +418,12 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                     # Because it was a login, store some data
                     if not force_key:
                         request.session[browsersession_connection_key] = blitzcon._sessionUuid
+                        request.session['server'] = server
+                        request.session['host'] = host
+                        request.session['port'] = port
+                        request.session['username'] = smart_str(username)
+                        request.session['password'] = smart_str(passwd)
+                        request.session['ssl'] = secure
                     logger.debug('blitz session key: ' + blitzcon._sessionUuid)
                     logger.debug('stored as session.' + ckey)
                     blitzcon.user.logIn()
