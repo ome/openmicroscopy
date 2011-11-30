@@ -176,7 +176,6 @@ ul.criteria li{
 #tree_details {
     position: absolute;
     top:31px; left:0px; right:0px; bottom:0px;
-    padding:5px;
     background-color:#fff;
     border-bottom: 1px solid #bbb;
     overflow: auto;
