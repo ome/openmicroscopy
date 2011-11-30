@@ -294,6 +294,13 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         return id.longValue();
     }
+
+    @RolesAllowed("user")
+    public String getPixelsPath() {
+        errorIfNotLoaded();
+
+        return buffer.getPath();
+    }
     
     @RolesAllowed("user")
     public synchronized void prepare(Set<Long> pixelsIds)

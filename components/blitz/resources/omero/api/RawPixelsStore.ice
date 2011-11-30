@@ -59,6 +59,12 @@ module omero {
                 idempotent long getPixelsId() throws ServerError;
 
                 /**
+                 * Returns the current Pixels path.
+                 * @return See above.
+                 **/
+                idempotent string getPixelsPath() throws ServerError;
+
+                /**
                  * Prepares the stateful service with a cache of loaded Pixels objects.
                  * This method is designed to combat query overhead, where many sets of
                  * Pixels are to be read from or written to, by loading all the Pixels
