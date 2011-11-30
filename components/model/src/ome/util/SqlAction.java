@@ -7,6 +7,8 @@
 
 package ome.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -294,6 +296,16 @@ public interface SqlAction {
         protected abstract SimpleJdbcOperations _jdbc();
 
         protected abstract String _lookup(String key);
+
+        final protected Log log = LogFactory.getLog(getClass());
+
+        protected String printThrowable(Throwable t) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            t.printStackTrace(pw);
+            pw.close();
+            return sw.toString();
+        }
 
         //
         // SECURITY
