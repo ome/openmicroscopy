@@ -113,7 +113,7 @@
             {% for c in manager.containers.projects %}
                 <tr id="project-{{ c.id }}">
                     <td class="action">
-                        <img id="{{ c.id }}" src="{{ STATIC_WEBCLIENT_PREFIX }}image/folder32.png" alt="project" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{{ STATIC_COMMON_PREFIX }}image/folder32.png" alt="project" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="roles">{{ c.getDate }}</td>                    
@@ -131,7 +131,7 @@
             {% for c in manager.containers.datasets %}
                 <tr id="dataset-{{ c.id }}">
                     <td class="action">
-                        <img id="{{ c.id }}" src="{{ STATIC_WEBCLIENT_PREFIX }}image/folder_image32.png" alt="dataset" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{{ STATIC_COMMON_PREFIX }}image/folder_image32.png" alt="dataset" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="roles">{{ c.getDate }}</td>                    

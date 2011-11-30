@@ -130,7 +130,7 @@
                     autoOpen: false,
                     resizable: true,
                     height: 210,
-                    width:400,
+                    width:420,
                     modal: true,
                     buttons: {
                         "Yes": function() {
@@ -529,7 +529,7 @@
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
                     var selected = data.inst.get_selected();
                     if (selected.length > 1) {
-                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{{ STATIC_WEBCLIENT_PREFIX }}image/knotes16.png"/> Batch Annotate</a></p>');
+                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{{ STATIC_COMMON_PREFIX }}image/knotes16.png"/> Batch Annotate</a></p>');
                         $("#batchAnnotate").click(function() {
                             multipleAnnotation(selected);
                             return false;
