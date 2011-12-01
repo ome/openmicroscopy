@@ -492,15 +492,16 @@
           color_picker += "<div class='color_picker_option' color='" + colours[c] + "' style='background: " + colours[c] + "'> </div>";
       }
       var toggle_roi_thumbs = "<input type='checkbox' id='toggle_roi_thumbs' title='Show ROI Previews' />";
+      var toggle_shape_text = "<input type='checkbox' id='toggle_shape_text' checked='true' title='Show/Hide ROI text labels' />";
       
       // thead for whole table:
-      var roi_html = "<thead><tr>";
+      var roi_html = "<thead id='roi_table_head'><tr>";
       roi_html += "<th></th>";
       roi_html += "<th></th>"; // first shape (count)
       roi_html += "<th>ID</th>";
       roi_html += "<th>Z</th>"; // no Z for ROI
       roi_html += "<th>T</th>"; // no T for ROI
-      roi_html += "<th>Text</th>";
+      roi_html += "<th>" + toggle_shape_text + " Text</th>";
       roi_html += "<th title='Pick colour of ROI outlines'><div style='white-space:nowrap;'>" + toggle_roi_thumbs + "Preview</div>"+ color_picker + "</th>";
       roi_html += "</tr></thead>";
       $roi_table.append($(roi_html));
@@ -512,6 +513,12 @@
               return "/appmedia/webgateway/img/" + shape_icons[type];
           }
           return "";
+      }
+      var truncate_length = 30;
+      truncate_text = function(text_string) {
+          if (text_string.length < truncate_length)
+              return text_string
+          return text_string.substring(0,truncate_length) + "...";
       }
       // populate table. Cols are: ID, Z, T, Shape, text
       for (var r=0; r<json.length; r++) {
@@ -552,7 +559,7 @@
               shapesHtml += "<td class='shape_cell'>" + shape['id'] + "</td>"
               shapesHtml += "<td class='shape_cell'>" + (shape['theZ']+1) + "</td>";
               shapesHtml += "<td class='shape_cell'>" + (shape['theT']+1) + "</td>";
-              shapesHtml += "<td class='shape_cell'>" + text + "</td>";
+              shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\"><p>"+ truncate_text(text) + "</p></td>";
               shapesHtml += "<td class='shape_cell'>" + shapeThumbHtml + "</td>";
               shapesHtml += "</tr>";
               if (firstShape == null) firstShape = shape['type'];
@@ -565,9 +572,9 @@
           roi_html += "<th><img class='expand_arrow' src='/appmedia/webgateway/img/arrowRight_grey.png' /></th>";
           roi_html += "<th align='left'> &nbsp<img class='roi_icon' src='"+ get_shape_icon_src(firstShape) + "' /> (" + shapes.length + ")</th>"; // first shape (count)
           roi_html += "<th>" + roi['id'] + "</th>";
-          roi_html += "<th> "+ (minZ+1) + ((maxZ != minZ) && ("-"+(maxZ+1)) || ("")) +" </th>"; // no Z for ROI
-          roi_html += "<th> "+ (minT+1) + ((maxT != minT) && ("-"+(maxT+1)) || ("")) +" </th>"; // no T for ROI
-          roi_html += "<th>"+ firstText +"</th>";
+          roi_html += "<th style='white-space: nowrap'> "+ (minZ+1) + ((maxZ != minZ) && ("-"+(maxZ+1)) || ("")) +" </th>"; // no Z for ROI
+          roi_html += "<th style='white-space: nowrap'> "+ (minT+1) + ((maxT != minT) && ("-"+(maxT+1)) || ("")) +" </th>"; // no T for ROI
+          roi_html += "<th class='shape_text' title=\""+ firstText +"\"><p>"+ truncate_text(firstText) +"</p></th>";
           roi_html += "<th>"+ roiThumbHtml +"</th>";
           roi_html += "</tr></thead>";
           
@@ -843,7 +850,7 @@
     <div id="roi_table_postit" class="postit">
         <h1>ROIs</h1>
         <div id='roi_table_div'>
-            <table id='roi_small_table' border='0' cellpadding='0' cellspacing='1'></table>
+            <table id='roi_small_table' cellpadding='0' cellspacing='0'></table>
         </div>
     </div>
     
@@ -1203,9 +1210,17 @@
         if ($target.attr('id') == "toggle_roi_thumbs") {
             update_roi_thumbs();
             return true;
+        } else if ($target.attr('id') == "toggle_shape_text") {
+            var show_labels = ($("#toggle_shape_text").attr('checked') == true);
+            viewport.viewportimg.get(0).show_labels(show_labels);
+            return true;
         } else if ($target.hasClass('shape_cell')) {
             // a shape td click selects the shape.
             var $shapeRow = $target.parent();
+            handleShapeRowClick($shapeRow);
+        } else if ($target.parent().hasClass('shape_cell')) {
+            // a shape <p> click selects the shape.
+            var $shapeRow = $target.parent().parent();
             handleShapeRowClick($shapeRow);
         } else if ($target.hasClass('shape_icon')) {
             // need to get to the row
@@ -1213,8 +1228,16 @@
             handleShapeRowClick($shapeRow);
         } else if ($target.get(0).nodeName.toLowerCase() == 'th'){
             // a ROI (th) click toggles the ROI-shapes 'tbody' below
-            var $roiThead = $target.parent().parent();
-            toggle_th($roiThead);
+            if ($target.parent().hasClass('roi_row')) {
+                var $roiThead = $target.parent().parent();
+                toggle_th($roiThead);
+            }
+        } else if ($target.parent().get(0).nodeName.toLowerCase() == "th"){
+            // a ROI (th <p>) click toggles the ROI-shapes 'tbody' below
+            if ($target.parent().parent().hasClass('roi_row')) {
+                var $roiThead = $target.parent().parent().parent();
+                toggle_th($roiThead);
+            }
         } else if ($target.hasClass('color_picker_option')) {
             // change the colour of lines drawn on roi_thumbs
             var line_color = $target.attr('color').substring(1);  // '#f00' -> 'f00'
