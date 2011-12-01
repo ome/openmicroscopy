@@ -1,6 +1,7 @@
 /* main layout */
 .padding {
-    padding:10px;
+    margin: 0 auto;
+    width: 900px;
 }
 
 .add_button {
@@ -18,13 +19,6 @@ textarea {
     background-color: #f5f5f5;
 }
 
-
-/* metadata panel */
-#right_panel {
-    /*width: 250px;*/
-}
-
-/* table */
 img.action {
     padding-left: 3px;
     padding-right: 3px;
@@ -47,9 +41,11 @@ ul.errorlist {
 }
 
 #center_details form {
-    max-width: 700px;
+    max-width: 850px;
 }
 
+
+/* table */
 td.form {
     text-align: left;
     padding: 2px 20px 2px 30px;
@@ -83,4 +79,9 @@ img.imgzoom {
 div.hidden {
     display: none;
 }
-
+div.float_right {
+    float: right;
+}
+div.float_left {
+    float: left;
+}

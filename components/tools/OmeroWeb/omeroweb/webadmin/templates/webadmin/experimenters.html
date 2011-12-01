@@ -102,21 +102,12 @@
 
 {% block metadata_details %}
 
+    <h1>{% trans "Legend" %}:</h1>
+    <div><img src="{{ STATIC_WEBADMIN_PREFIX }}image/admin.png" alt="admin" title="admin"> - Admin; <img src="{{ STATIC_WEBADMIN_PREFIX }}image/guest.png" alt="guest" title="guest"> - Guest; <img src="{{ STATIC_WEBADMIN_PREFIX }}image/ldap.png" alt="ldap" title="ldap"> - ldap; <img src="{{ STATIC_WEBADMIN_PREFIX }}image/active.png" alt="active" title="active"> - active; <img src="{{ STATIC_WEBADMIN_PREFIX }}image/notactive.png" alt="notactive" title="notactive"> - not active</div>
+    
     <h1>{% trans "Summary" %}</h1>
-    <p>Currently there are <strong>{{ controller.experimentersCount.experimenters }} {% plural controller.experimentersCount.experimenters 'account' 'accounts' %}</strong> in total including following roles:
-        <ul>
-            <li>{{ controller.experimentersCount.active }} active</li>
-            <li>{{ controller.experimentersCount.admin }} admin</li>
-            <li>{{ controller.experimentersCount.guest }} guest</li>
-            <li>{{ controller.experimentersCount.ldap }} ldap</li>
-        </ul>
+    <p>Currently there are <strong>{{ controller.experimentersCount.experimenters }} {% plural controller.experimentersCount.experimenters 'account' 'accounts' %}</strong> in total including following roles: {{ controller.experimentersCount.active }} active, {{ controller.experimentersCount.admin }} admin, {{ controller.experimentersCount.guest }} guest, {{ controller.experimentersCount.ldap }} ldap.
     </p>
 
-    <h1>{% trans "Legend" %}:</h1>
-    <div><img src="{{ STATIC_WEBADMIN_PREFIX }}image/admin.png" alt="admin" title="admin"> - Admin</div>
-    <div><img src="{{ STATIC_WEBADMIN_PREFIX }}image/guest.png" alt="guest" title="guest"> - Guest</div>
-    <div><img src="{{ STATIC_WEBADMIN_PREFIX }}image/ldap.png" alt="ldap" title="ldap"> - ldap</div>
-    <div><img src="{{ STATIC_WEBADMIN_PREFIX }}image/active.png" alt="active" title="active"> - active</div>
-    <div><img src="{{ STATIC_WEBADMIN_PREFIX }}image/notactive.png" alt="notactive" title="notactive"> - not active</div>
-
+    
 {% endblock %}

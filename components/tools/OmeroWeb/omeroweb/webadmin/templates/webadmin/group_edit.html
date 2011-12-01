@@ -60,6 +60,9 @@
 <div>
 <h1>{% trans "Edit members of" %} '{{ controller.group.name }}'</h1>
 
+<p>(*username) - * {% trans "mark user active group" %}.<br/>{% trans "To remove experimenter with * from this group first change the active group." %}</p>
+<br/>
+
 <form action="{% url wamanagegroupid "update" controller.group.id %}" method="POST">
 <table border="0" cellspacing="0" cellpadding="0" class="formTable">
     <tbody>
@@ -95,10 +98,4 @@
 </form>
 <br/>
 </div>
-{% endblock %}
-
-{% block metadata_details %}
-{{ block.super }}
-<p>(*username) - * {% trans "mark user active group" %}.<br/>{% trans "To remove experimenter with * from this group first change the active group." %}</p>
-
 {% endblock %}
