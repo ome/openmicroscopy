@@ -559,7 +559,7 @@
               shapesHtml += "<td class='shape_cell'>" + shape['id'] + "</td>"
               shapesHtml += "<td class='shape_cell'>" + (shape['theZ']+1) + "</td>";
               shapesHtml += "<td class='shape_cell'>" + (shape['theT']+1) + "</td>";
-              shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\">"+ truncate_text(text) + "</td>";
+              shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\"><p>"+ truncate_text(text) + "</p></td>";
               shapesHtml += "<td class='shape_cell'>" + shapeThumbHtml + "</td>";
               shapesHtml += "</tr>";
               if (firstShape == null) firstShape = shape['type'];
@@ -574,7 +574,7 @@
           roi_html += "<th>" + roi['id'] + "</th>";
           roi_html += "<th style='white-space: nowrap'> "+ (minZ+1) + ((maxZ != minZ) && ("-"+(maxZ+1)) || ("")) +" </th>"; // no Z for ROI
           roi_html += "<th style='white-space: nowrap'> "+ (minT+1) + ((maxT != minT) && ("-"+(maxT+1)) || ("")) +" </th>"; // no T for ROI
-          roi_html += "<th class='shape_text' title=\""+ firstText +"\">"+ truncate_text(firstText) +"</th>";
+          roi_html += "<th class='shape_text' title=\""+ firstText +"\"><p>"+ truncate_text(firstText) +"</p></th>";
           roi_html += "<th>"+ roiThumbHtml +"</th>";
           roi_html += "</tr></thead>";
           
@@ -1218,6 +1218,10 @@
             // a shape td click selects the shape.
             var $shapeRow = $target.parent();
             handleShapeRowClick($shapeRow);
+        } else if ($target.parent().hasClass('shape_cell')) {
+            // a shape <p> click selects the shape.
+            var $shapeRow = $target.parent().parent();
+            handleShapeRowClick($shapeRow);
         } else if ($target.hasClass('shape_icon')) {
             // need to get to the row
             var $shapeRow = $target.parent().parent();
@@ -1226,6 +1230,12 @@
             // a ROI (th) click toggles the ROI-shapes 'tbody' below
             if ($target.parent().hasClass('roi_row')) {
                 var $roiThead = $target.parent().parent();
+                toggle_th($roiThead);
+            }
+        } else if ($target.parent().get(0).nodeName.toLowerCase() == "th"){
+            // a ROI (th <p>) click toggles the ROI-shapes 'tbody' below
+            if ($target.parent().parent().hasClass('roi_row')) {
+                var $roiThead = $target.parent().parent().parent();
                 toggle_th($roiThead);
             }
         } else if ($target.hasClass('color_picker_option')) {
