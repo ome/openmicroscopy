@@ -90,7 +90,7 @@ img.action {
 iframe {
     border:0;
     position: absolute;
-    top:0px; bottom:0px; left:0px; right:0px;
+    top:26px; bottom:0px; left:0px; right:0px;
     overflow: auto;
     height: 100%;
 }
