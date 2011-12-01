@@ -30,20 +30,61 @@ $.fn.roi_display = function(options) {
         }
 
         var roi_json = null;          // load ROI data as json when needed
+        this.theZ = null;
+        this.theT = null;
         var rois_displayed = false;   // flag to toggle visability.
+        var roi_label_displayed = true;     // show/hide labels within shapes
         
         var selected_shape_id = null;  // html page is kept in sync with this
         var selectedClone = null;      // a highlighted shape cloned from currently selected shape
         
         // for keeping track of objects - E.g. de-select all. 
         var shape_objects = new Array();
-        var shape_default = {'fill-opacity':0.5, 'opacity':0.7, 'cursor':'default'}
         
         // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
         var paper = new ScaleRaphael(canvas_name, orig_width, orig_height);
         
+        // break long labels into multiple lines
+        var formatShapeText = function(text_string) {
+            var rows = parseInt(Math.sqrt(text_string.length / 6));     // rough ratio: cols = rows * 6
+            var cols = parseInt(text_string.length/rows) + 1;
+            if (text_string.length > cols) {
+                var lines = [];
+                var full_words = text_string.split(" ");
+                var words = [];
+                // first handle any words that are too long
+                for (var w=0; w<full_words.length; w++) {
+                    var full_word = full_words[w];
+                    while (full_word.length > cols) {
+                        words.push(full_word.substring(0, cols));
+                        full_word = full_word.substring(cols);
+                    }
+                    words.push(full_word);
+                }
+                // now stitch words back into lines
+                var line = "";
+                for (var w=0; w<words.length; w++) {
+                    var word = words[w];
+                    if (line.length == 0) {
+                        line = word;
+                    }
+                    else if (word.length + line.length > cols) {
+                        lines.push(line);
+                        line = word;
+                    }
+                    else {
+                        line += (" " + word);
+                    }
+                }
+                // handle the tail end
+                if (line.length > 0)
+                    lines.push(line);
+                return lines.join("\n");
+            }
+            return text_string;
+        }
         
-        draw_shape = function(shape) {
+        var draw_shape = function(shape) {
             var newShape = null;
             if (shape['type'] == 'Ellipse') {
               newShape = paper.ellipse(shape['cx'], shape['cy'], shape['rx'], shape['ry']);
@@ -99,7 +140,7 @@ $.fn.roi_display = function(options) {
             return newShape;
         }
         
-        get_tool_tip = function(shape) {
+        var get_tool_tip = function(shape) {
             var toolTip = "";
             if (shape['type'] == 'Ellipse') {
               toolTip = "cx:"+ shape['cx'] +" cy:"+ shape['cy'] +" rx:"+ shape['rx'] + " ry: "+  shape['ry'];
@@ -142,11 +183,11 @@ $.fn.roi_display = function(options) {
                         s.attr({'stroke': '#00a8ff'});
                     } else {
                         selectedClone = s.clone();
-                        selectedClone.attr({'stroke': '#00a8ff'});
+                        selectedClone.attr({'stroke': '#00a8ff', 'fill': null});
                     }
                 } else {
                     if (s.type == 'text') {
-                        s.attr({'stroke': '#ffffff'});
+                        s.attr({'stroke': null});   // remove stroke
                     }
                 }
             }
@@ -157,6 +198,8 @@ $.fn.roi_display = function(options) {
             selected_shape_id = shape_id;
             $viewportimg.trigger("shape_click", [shape_id]);
             var sel_shape = display_selected(); 
+            var sel_x;
+            var sel_y;
             // we will only get the shape if currently displayed (current Z/T section)
             if (sel_shape===null) {
                 // otherwise we have to work it out by drawing it
@@ -172,14 +215,22 @@ $.fn.roi_display = function(options) {
                             var newShape = draw_shape(shape);
                             bb = newShape.getBBox();
                             newShape.remove();
+                            if (shape['type'] == 'Label'){
+                                // bug in BBox for text
+                                sel_x = shape['x'] + (bb.width/2);
+                                sel_y = shape['y'] + (bb.height/2);
+                            } else {
+                                sel_x = bb.x + (bb.width/2);
+                                sel_y = bb.y + (bb.height/2);
+                            }
                         }
                     }
                 }
             } else {
                 var bb = sel_shape.getBBox();
+                sel_x = bb.x + (bb.width/2);
+                sel_y = bb.y + (bb.height/2);
             }
-            var sel_x = bb.x + (bb.width/2);
-            var sel_y = bb.y + (bb.height/2);
             return {'x':sel_x, 'y':sel_y};
         }
         
@@ -191,16 +242,16 @@ $.fn.roi_display = function(options) {
         }
 
         // load the ROIs from json call and display
-        load_rois = function(theZ, theT, display_rois) {
+        load_rois = function(display_rois) {
             if (json_url == undefined) return;
             
             $.getJSON(json_url, function(data) {
                 roi_json = data;
 
-                // plot the rois using processing.js
+                // plot the rois
                 if (display_rois) {
                   rois_displayed = true;
-                  refresh_rois(theZ, theT);
+                  refresh_rois();
                 }
                 $viewportimg.trigger("rois_loaded");
             });
@@ -214,6 +265,9 @@ $.fn.roi_display = function(options) {
         // clears paper and draws ROIs (if rois_displayed) for the given T and Z. NB: indexes are 1-based. 
         this.refresh_rois = function(theZ, theT) {
 
+            if (typeof theZ != 'undefined') this.theZ = theZ;
+            if (typeof theT != 'undefined') this.theT = theT;
+
             paper.clear();
             shape_objects.length = 0;
             if (!rois_displayed) return;
@@ -226,12 +280,11 @@ $.fn.roi_display = function(options) {
                 var shape = null;
                 for (var s=0; s<shapes.length; s++) {
                     shape = shapes[s];
-                    if ((shape['theT'] == theT-1) && (shape['theZ'] == theZ-1)) {
+                    if ((shape['theT'] == this.theT-1) && (shape['theZ'] == this.theZ-1)) {
                         var newShape = draw_shape(shape);
                         var toolTip = get_tool_tip(shape);
                         // Add text - NB: text is not 'attached' to shape in any way. 
                         if (newShape != null) {
-                            newShape.attr(shape_default);   // sets fill, stroke etc. 
                             if (shape['type'] == 'PolyLine') {
                                 newShape.attr({'fill-opacity': 0});
                             }
@@ -239,14 +292,35 @@ $.fn.roi_display = function(options) {
                                 // Show text 
                                 if (shape['type'] == 'Label') {
                                     var txt = newShape; // if shape is label itself, use it
-                                } else {
+                                    if (shape['strokeColor']) txt.attr({'fill': shape['strokeColor']}); // this is Insight's behavior
+                                    txt.attr({'stroke': null });
+                                } else if (roi_label_displayed) {
                                     // otherwise, add a new label in the centre of the shape.
                                     var bb = newShape.getBBox();
                                     var textx = bb.x + (bb.width/2);
                                     var texty = bb.y + (bb.height/2);
-                                    var txt = paper.text(textx, texty, shape['textValue']);
+                                    var text_string = formatShapeText(shape['textValue'])
+                                    var txt = paper.text(textx, texty, text_string);    // draw a 'dummy' paragraph to work out it's dimensions
+                                    var newY = (texty-txt.getBBox().height/2)+9;
+                                    // moving the existing text to newY doesn't seem to work - instead, remove and draw a new one
+                                    txt.remove();
+                                    txt = paper.text(textx, newY, formatShapeText(shape['textValue'])).attr({'cursor':'default', 'fill': '#000'});
+                                    txt_box = txt.getBBox();
+                                    var txt_w = txt_box.width*1.3;
+                                    var txt_h = txt_box.height*1.3;
+                                    var txt_bg = paper.rect(textx-txt_w/2, texty-txt_h/2, txt_w, txt_h);
+                                    txt_bg.attr({'cursor':'default', 'fill': '#FFFCB7', 'fill-opacity': 0.78, 'stroke': null});
+                                    txt.toFront();
+                                    // clicking the text (or text background) should do the same as clicking the shape
+                                    txt_bg.id = shape['id'] + "_text_bg";
+                                    txt_bg.click(handle_shape_click);
+                                    txt.id = shape['id'] + "_shape_text";
+                                    txt.click(handle_shape_click);
+                                    
                                 }
-                                var txtAttr = {'fill': '#ffffff'};
+                                
+                                // handle other text-specific attributes...
+                                var txtAttr = {};
                                 if (shape['fontFamily']) {  // model: serif, sans-serif, cursive, fantasy, monospace. #5072
                                     // raphael supports all these exactly - so we can pass directly.
                                     txtAttr['font-family'] = shape['fontFamily'];
@@ -263,11 +337,17 @@ $.fn.roi_display = function(options) {
                                         txtAttr['font-style'] = 'italic';
                                     }
                                 }
-                                txt.attr(txtAttr);
+                                if (txt) txt.attr(txtAttr);
                             }
-                            if (shape['fillColor']) { newShape.attr({'fill': shape['fillColor']}); }
-                            if (shape['strokeColor']) { newShape.attr({'stroke': shape['strokeColor']}); }
-                            else { newShape.attr({'stroke': '#ffffff'}); }  // white is default
+                            if (shape['type'] != 'Label') {
+                                // these shape attributes are not applied to text
+                                if (shape['fillColor']) { newShape.attr({'fill': shape['fillColor']}); }
+                                if (shape['strokeAlpha']) { newShape.attr({'opacity': shape['strokeAlpha']}); }
+                                if (shape['fillAlpha']) { newShape.attr({'fill-opacity': shape['fillAlpha']})}
+                                if (shape['strokeColor']) { newShape.attr({'stroke': shape['strokeColor']}); }
+                                else { newShape.attr({'stroke': '#ffffff'}); }  // white is default
+                            }
+                            newShape.attr({'cursor':'default'});
                             if (shape['strokeWidth']) { newShape.attr({'stroke-width': shape['strokeWidth']}); }
                             newShape.click(handle_shape_click);
                             newShape.attr({ title: toolTip });
@@ -285,11 +365,13 @@ $.fn.roi_display = function(options) {
 
         // loads the ROIs if needed and displays them
         this.show_rois = function(theZ, theT) {
+            this.theZ = theZ
+            this.theT = theT
           if (roi_json == null) {
-              load_rois(theZ, theT, true);      // load and display
+              load_rois(true);      // load and display
           } else {
               rois_displayed = true;
-              this.refresh_rois(theZ, theT);
+              this.refresh_rois();
           }
         }
         
@@ -297,6 +379,11 @@ $.fn.roi_display = function(options) {
         // hides the ROIs from display
         this.hide_rois = function() {
             rois_displayed = false;
+            this.refresh_rois();
+        }
+        
+        this.show_labels = function(visible) {
+            roi_label_displayed = visible;
             this.refresh_rois();
         }
 

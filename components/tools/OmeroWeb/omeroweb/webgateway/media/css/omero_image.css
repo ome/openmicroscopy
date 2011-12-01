@@ -628,7 +628,7 @@ input.spin-button {
 
 /* Styles for the ROI table */
 #roi_table_postit {
-    width:320px;
+    width:340px;
 }
 #roi_table_div {
     overflow-y: scroll;
@@ -637,10 +637,29 @@ input.spin-button {
 #roi_small_table th {
     background-color: #ccc; 
     padding: 1px;
+    max-width:100px;
+    border: solid #eee 1px;
+}
+#roi_small_table th p {
+    text-align: center;
+    max-width:100px;
+    word-wrap:break-word;
+    padding: 0px;
+    margin: 0px;
 }
 #roi_small_table td {
     background-color: #fff;
+    max-width:100px;
     text-align: center;
+    border: solid #eee 1px;
+    padding: 0px;
+}
+#roi_small_table td p {
+    text-align: center;
+    max-width:100px;
+    word-wrap:break-word;
+    padding: 0px;
+    margin: 0px;
 }
 #roi_small_table td.icon {
     background-color: #fff;
