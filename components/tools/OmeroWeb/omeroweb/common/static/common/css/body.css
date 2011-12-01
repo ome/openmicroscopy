@@ -45,6 +45,10 @@ p {
     padding: 5px;
 }
 
+img {
+    border: 0px;
+}
+
 table {
     border: 0px;
     table-layout: auto;
