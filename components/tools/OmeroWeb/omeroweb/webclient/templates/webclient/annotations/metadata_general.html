@@ -34,9 +34,8 @@
                     } else {
                         $(this).show();
                     }
-                  return this;
+                    return this;
                 };
-
                 $("#comments_container").hide_if_empty();
                 $("#fileanns_container").hide_if_empty();
                 $("#tags_container").hide_if_empty();
@@ -146,6 +145,18 @@
                     return false;
                 })
                 {% endif %}
+                
+                var ajax_json_helper = function(config) {
+                    
+                    config['error'] = function(data) {
+                        
+                        console.log('not connected');
+                        login_dialog("{% url weblogin %}", function() {
+                            $.ajax(config);
+                        });
+                    }
+                    $.ajax(config);
+                }
 
                 // handle deleting of Tag, File, Comment
                 // on successful delete via AJAX, the parent .domClass is hidden
@@ -161,7 +172,7 @@
                     var confirm_remove = confirm_dialog('Remove '+ dType + '?',
                         function() {
                             if(confirm_remove.data("clicked_button") == "OK") {
-                                $.ajax({
+                                ajax_json_helper({
                                     type: "POST",
                                     url: url,
                                     data: {'parent':parentId},
@@ -171,6 +182,7 @@
                                             alert(r.errs);
                                         } else {
                                             // simply remove the item (parent class div)
+                                            console.log("Success function");
                                             $parent.remove();
                                             $annContainer.hide_if_empty();
                                         }
