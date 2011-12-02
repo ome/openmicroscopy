@@ -147,3 +147,45 @@ var confirm_dialog = function(dialog_text, callback, title, button_labels, width
 
     return $dialog;
 };
+
+
+/*
+ * A dialog for logging-in on the fly (without redirect to login page)
+ * On 'Connect' we post username & password to login url and on callback, the specified function is called
+ */
+var login_dialog = function(login_url, callback) {
+
+    var $dialog = $("#login_dialog");
+    if ($dialog.length > 0) {       // get rid of any old dialogs
+        $dialog.remove();
+    }
+    $dialog = $("<div id='login_dialog'></div>");
+    $('body').append($dialog);
+
+    $dialog.attr("title", "Login").hide();
+    $dialog.html("<form>Username:<input type='text' name='username' id='login_username' /><br />Password:<input type='text' name='password' id='login_password'/>");
+
+    $dialog.dialog({
+        resizable: true,
+        height: 200,
+        width: 300,
+        modal: true,
+        buttons: {
+            "Cancel": function() {
+                $( this ).dialog( "close" );
+            },
+            "Connect": function() {
+                var username = $("#login_username").val();
+                var password = $("#login_password").val();
+                $.post(login_url, {'password':password, 'username':username},  function(data) {
+                    console.log("logged-in...");
+                    callback();
+                });
+                $( this ).dialog( "close" );
+            }
+        }
+    });
+    $dialog.bind("dialogclose", callback);
+
+    return $dialog;
+};
