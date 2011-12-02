@@ -177,8 +177,8 @@ var login_dialog = function(login_url, callback) {
             "Connect": function() {
                 var username = $("#login_username").val();
                 var password = $("#login_password").val();
-                $.post(login_url, {'password':password, 'username':username},  function(data) {
-                    console.log("logged-in...");
+                $.post(login_url, {'password':password, 'username':username, 'noredirect':'true'},  function(data) {
+                    //console.log("logged-in...");
                     callback();
                 });
                 $( this ).dialog( "close" );
