@@ -157,7 +157,7 @@
                     
                     config['error'] = function(data) {
                         
-                        console.log('not connected');
+                        //console.log('not connected');
                         login_dialog("{% url weblogin %}", function() {
                             $.ajax(config);
                         });
@@ -189,7 +189,7 @@
                                             alert(r.errs);
                                         } else {
                                             // simply remove the item (parent class div)
-                                            console.log("Success function");
+                                            //console.log("Success function");
                                             $parent.remove();
                                             $annContainer.hide_if_empty();
                                         }
