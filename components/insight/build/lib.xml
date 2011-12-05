@@ -34,7 +34,7 @@
  * 					(http://xerces.apache.org/xerces-j/). Version: 2.6.2.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <antlib>
-  
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * TASK NAME: checkdef
    * 
@@ -49,33 +49,41 @@
    *  prop      The name of the property to check.                  No
    *  ref       The name of the reference to check.                 No
    *
-   * EXTERNAL DEPENDENCIES:
-   *  + bsf-2.3.0-rc1.jar: The Bean Scripting Framework from Jakarta
-   *        (http://jakarta.apache.org/bsf/).  Version: 2.3.0-rc1.
-   *  + rhino-1_5R3.jar: The Rhino JavaScript engine from Mozilla
-   *        (http://www.mozilla.org/rhino/).  Version: 1_5R3.
-   *        (NOTE: Later versions don't work with BSF 2.3.0.) 
+   * EXTERNAL DEPENDENCIES: None.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
-  <scriptdef name="checkdef" language="javascript">
-    <classpath refid="insight.tools.path" />
-    <attribute name="prop" /> 
-    <attribute name="ref" />
-    <![CDATA[
-    
-      function check(name, value) 
-      {
-        if (value != null && (""+value).length != 0) return;
-        throw new Packages.org.apache.tools.ant.BuildException(
-                                                    name+" has not been set."); 
-      }
-    
-      var prop = attributes.get("prop"),
-          ref = attributes.get("ref");
-      if (prop != null) check(prop, project.getProperty(prop));
-      if (ref != null) check(ref, project.getReference(ref));
-       
-    ]]> 
-  </scriptdef>
+  <macrodef name="checkdef">
+    <attribute name="prop" default=""/>
+    <attribute name="ref" default=""/>
+    <sequential>
+      <!-- Check prop -->
+      <if>
+        <not><equals arg1="@{prop}" arg2=""/></not>
+        <then>
+          <if>
+            <or>
+              <not><isset property="@{prop}"/></not>
+              <equals arg1="@{prop}" arg2=""/>
+            </or>
+            <then>
+              <fail>@{prop} has not been set.</fail>
+            </then>
+          </if>
+        </then>
+      </if>
+      <!-- Check ref -->
+      <if>
+        <not><equals arg1="@{ref}" arg2=""/></not>
+        <then>
+          <if>
+            <not><isreference refid="@{ref}"/></not>
+            <then>
+              <fail>@{ref} has not been set.</fail>
+            </then>
+          </if>
+        </then>
+      </if>
+    </sequential>
+  </macrodef>
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * TASK NAME: checkdup

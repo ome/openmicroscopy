@@ -106,6 +106,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <path id="insight.tools.path">
       <fileset dir="${base.build.dir}/../../../lib/repository">
+            <include name="ant-contrib-*.jar"/>
             <include name="bsf*.jar"/>
             <include name="jarbundler*.jar"/>
             <include name="rhino*.jar"/>
@@ -114,6 +115,11 @@
 
   <mkdir dir="${base.lib.dir}"/>
   <mkdir dir="${base.test.lib.dir}"/>
+
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties"
+           classpathref="insight.tools.path"/>
+  <taskdef resource="net/sf/antcontrib/antlib.xml"
+           classpathref="insight.tools.path"/>
 
   <typedef file="${base.build.dir}/lib.xml"/>
   <import file="${base.build.dir}/app.xml"/>
