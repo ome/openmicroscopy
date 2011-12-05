@@ -297,8 +297,8 @@
 
 <!-- use Django to format a link template - javascript replaces '0' for ID where needed -->
 <div id="original_file_link" style="display:none">{% url get_original_file 0 %}</div>
-<div id="python_icon_src" style="display:none">{{ STATIC_WEBCLIENT_PREFIX }}image/tango_text-x-python16.png</div>
-<div id="delete_icon_src" style="display:none">{{ STATIC_WEBCLIENT_PREFIX }}image/nuvola_apply22.png</div>
+<div id="python_icon_src" style="display:none">{% static "webclient/image/tango_text-x-python16.png" %}</div>
+<div id="delete_icon_src" style="display:none">{% static "webclient/image/nuvola_apply22.png" %}</div>
 <div id="download_annotation_link" style="display:none">{% url download_annotation 'download' 0 %}</div>
 <div id="full_viewer_link" style="display:none">{% url webgateway.views.full_viewer 0 %}</div>
 

@@ -121,7 +121,7 @@
                                 "experimenter" : {
                                     "valid_children" : [ "tagset", "tagset-locked", "tag", "tag-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/personal16.png'
+                                        "image" : '{% static "webclient/image/personal16.png" %}'
                                     },
                                     "create_node" : true,
                                     "start_drag" : false,
@@ -131,7 +131,7 @@
                                 "tagset" : {
                                     "valid_children" : [ "tag", "tag-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/knotesred16.png'
+                                        "image" : '{% static "webclient/image/knotesred16.png" %}'
                                     },
                                     "create_node" : true,
                                     "start_drag" : false,
@@ -141,7 +141,7 @@
                                 "tagset-locked" : {
                                     "valid_children" : [ "tag", "tag-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/knotesred_locked16.png'
+                                        "image" : '{% static "webclient/image/knotesred_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -162,7 +162,7 @@
                                 "tag-locked" : {
                                     "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/knotes_locked16.png'
+                                        "image" : '{% static "webclient/image/knotes_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -172,7 +172,7 @@
                                 "project" : {
                                     "valid_children" : [ "dataset", "dataset-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder16.png'
+                                        "image" : '{% static "webclient/image/folder16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -182,7 +182,7 @@
                                 "project-locked" : {
                                     "valid_children" : [ "dataset", "dataset-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_locked16.png'
+                                        "image" : '{% static "webclient/image/folder_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -192,7 +192,7 @@
                                 "dataset" : {
                                     "valid_children" : [ "image", "image-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_image16.png'
+                                        "image" : '{% static "webclient/image/folder_image16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -202,7 +202,7 @@
                                 "dataset-locked" : {
                                     "valid_children" : [ "image", "image-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_image_locked16.png'
+                                        "image" : '{% static "webclient/image/folder_image_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -212,7 +212,7 @@
                                 "image" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/image16.png'
+                                        "image" : '{% static "webclient/image/image16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -222,7 +222,7 @@
                                 "image-locked" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/image_locked16.png'
+                                        "image" : '{% static "webclient/image/image_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -232,7 +232,7 @@
                                 "screen" : {
                                     "valid_children" : [ "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_screen16.png'
+                                        "image" : '{% static "webclient/image/folder_screen16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -242,7 +242,7 @@
                                 "screen-locked" : {
                                     "valid_children" : [ "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_screen_locked16.png'
+                                        "image" : '{% static "webclient/image/folder_screen_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -252,7 +252,7 @@
                                 "plate" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_plate16.png'
+                                        "image" : '{% static "webclient/image/folder_plate16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -262,7 +262,7 @@
                                 "plate-locked" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_plate_locked16.png'
+                                        "image" : '{% static "webclient/image/folder_plate_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,

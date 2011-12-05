@@ -193,7 +193,7 @@
                             "experimenter" : {
                                 "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "screen", "screen-locked", "plate", "plate-locked" ],
                                 "icon" : {
-                                    "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/personal16.png'
+                                    "image" : '{% static "webclient/image/personal16.png" %}'
                                 },
                                 "create_node" : true,
                                 "start_drag" : false,
@@ -204,7 +204,7 @@
                             "project" : {
                                 "valid_children" : [ "dataset" ],
                                 "icon" : {
-                                    "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder16.png'
+                                    "image" : '{% static "webclient/image/folder16.png" %}'
                                 },
                                 "create_node" : true,
                                 "start_drag" : false,
@@ -215,7 +215,7 @@
                             "project-locked" : {
                                 "valid_children" : [ "dataset", "dataset-locked" ],
                                 "icon" : {
-                                    "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_locked16.png'
+                                    "image" : '{% static "webclient/image/folder_locked16.png" %}'
                                 },
                                 "create_node" : true,
                                 "start_drag" : false,
@@ -226,7 +226,7 @@
                             "dataset" : {
                                 "valid_children" : [ "image", "image-locked" ],
                                 "icon" : {
-                                    "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_image16.png'
+                                    "image" : '{% static "webclient/image/folder_image16.png" %}'
                                 },
                                 "create_node" : false,
                                 "start_drag" : true,
@@ -237,7 +237,7 @@
                             "dataset-locked" : {
                                 "valid_children" : [ "image", "image-locked" ],
                                 "icon" : {
-                                    "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_image_locked16.png'
+                                    "image" : '{% static "webclient/image/folder_image_locked16.png" %}'
                                 },
                                 "create_node" : false,
                                 "start_drag" : false,
@@ -248,7 +248,7 @@
                             "image" : {
                                 "valid_children" : "none",
                                 "icon" : {
-                                    "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/image16.png'
+                                    "image" : '{% static "webclient/image/image16.png" %}'
                                 },
                                 "create_node" : false,
                                 "start_drag" : true,
@@ -259,7 +259,7 @@
                             "image-locked" : {
                                 "valid_children" : "none",
                                 "icon" : {
-                                    "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/image_locked16.png'
+                                    "image" : '{% static "webclient/image/image_locked16.png" %}'
                                 },
                                 "create_node" : false,
                                 "start_drag" : false,
@@ -270,7 +270,7 @@
                             "screen" : {
                                 "valid_children" : [ "plate", "plate-locked" ],
                                 "icon" : {
-                                    "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_screen16.png'
+                                    "image" : '{% static "webclient/image/folder_screen16.png" %}'
                                 },
                                 "create_node" : true,
                                 "start_drag" : false,
@@ -281,7 +281,7 @@
                             "screen-locked" : {
                                 "valid_children" : [ "plate", "plate-locked" ],
                                 "icon" : {
-                                    "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_screen_locked16.png'
+                                    "image" : '{% static "webclient/image/folder_screen_locked16.png" %}'
                                 },
                                 "create_node" : true,
                                 "start_drag" : false,
@@ -292,7 +292,7 @@
                             "plate" : {
                                 "valid_children" : "acquisition",
                                 "icon" : {
-                                    "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_plate16.png'
+                                    "image" : '{% static "webclient/image/folder_plate16.png" %}'
                                 },
                                 "create_node" : false,
                                 "start_drag" : true,
@@ -303,7 +303,7 @@
                             "plate-locked" : {
                                 "valid_children" : "acquisition",
                                 "icon" : {
-                                    "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_plate_locked16.png'
+                                    "image" : '{% static "webclient/image/folder_plate_locked16.png" %}'
                                 },
                                 "create_node" : false,
                                 "start_drag" : false,
@@ -314,7 +314,7 @@
                             "acquisition" : {
                                 "valid_children" : "none",
                                 "icon" : {
-                                    "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/image16.png'
+                                    "image" : '{% static "webclient/image/image16.png" %}'
                                 },
                                 "create_node" : false,
                                 "start_drag" : false,
@@ -325,7 +325,7 @@
                             "acquisition-locked" : {
                                 "valid_children" : "none",
                                 "icon" : {
-                                    "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/image16.png'
+                                    "image" : '{% static "webclient/image/image16.png" %}'
                                 },
                                 "create_node" : false,
                                 "start_drag" : false,
@@ -336,7 +336,7 @@
                             "orphaned" : {
                                 "valid_children" : [ "image", "image_locked" ],
                                 "icon" : {
-                                    "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_yellow16.png'
+                                    "image" : '{% static "webclient/image/folder_yellow16.png" %}'
                                 },
                                 "create_node" : false,
                                 "start_drag" : false,
@@ -368,21 +368,21 @@
                                                             
                             config["create"] = {
                                 "label" : "Create new",
-                                "icon"  : '{{ STATIC_WEBCLIENT_PREFIX }}image/window_new16.png',
+                                "icon"  : '{% static "webclient/image/window_new16.png" %}',
                                 "submenu": {
                                     "project": {
                                         "label" : "Project",
-                                        "icon"  : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder16.png',
+                                        "icon"  : '{% static "webclient/image/folder16.png" %}',
                                         "action": function (obj) { this.create(obj, null, {"attr": {"rel": "project"}, "data":"New project"}, false, true); }
                                     },
                                     "dataset": {
                                         "label" : "Dataset",
-                                        "icon"  : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_image16.png',
+                                        "icon"  : '{% static "webclient/image/folder_image16.png" %}',
                                         "action": function (obj) { this.create(obj, null, {"attr":{"rel": "dataset"}, "data":"New dataset"}, false, true); }
                                       },
                                       "screen": {
                                         "label" : "Screen",
-                                        "icon"  : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_screen16.png',
+                                        "icon"  : '{% static "webclient/image/folder_screen16.png" %}',
                                         "action": function (obj) { this.create(obj, null, {"attr":{"rel": "screen"}, "data":"New screen"}, false, true); }
                                       }
                                 }
@@ -394,28 +394,28 @@
                                 "submenu"   : {
                                     "copy"  : {
                                         "label" : "Copy",
-                                        "icon"  : '{{ STATIC_WEBCLIENT_PREFIX }}image/eclipse_copy_edit16.png',
+                                        "icon"  : '{% static "webclient/image/eclipse_copy_edit16.png" %}',
                                         "action": function() {
                                             this.copy(this.get_selected());
                                         }
                                     },
                                     "cut"   :{
                                         "label" : "Cut",
-                                        "icon"  : '{{ STATIC_WEBCLIENT_PREFIX }}image/cut16.png',
+                                        "icon"  : '{% static "webclient/image/cut16.png" %}',
                                         "action": function() {
                                             this.cut(this.get_selected());
                                         }
                                     },
                                     "paste": {
                                         "label" : "Paste",
-                                        "icon"  : '{{ STATIC_WEBCLIENT_PREFIX }}image/eclipse_paste_edit16.png',
+                                        "icon"  : '{% static "webclient/image/eclipse_paste_edit16.png" %}',
                                         "action": function() {
                                             this.paste(this.get_selected());
                                         }
                                     },
                                     "unlink"    : {
                                         "label" : "Remove",
-                                        "icon"  : '{{ STATIC_WEBCLIENT_PREFIX }}image/minus_15.png',
+                                        "icon"  : '{% static "webclient/image/minus_15.png" %}',
                                         "action": function(){
                                             var tree = this;
                                             //empty clipboard
@@ -430,13 +430,13 @@
                             
                             config["delete"] = {
                                 "label" : "Delete",
-                                "icon"  : '{{ STATIC_WEBCLIENT_PREFIX }}image/cancel16.png',
+                                "icon"  : '{% static "webclient/image/cancel16.png" %}',
                                 "action": function(){ this.remove(this.get_selected()) }
                             };
                             
                             config["basket"] = {
                                 "label" : "Add to Basket",
-                                "icon"  : '{{ STATIC_WEBCLIENT_PREFIX }}image/basket16.png',                                    
+                                "icon"  : '{% static "webclient/image/basket16.png" %}',                                    
                                 "action": function(){
                                     addToBasket(this.get_selected());
                                 }

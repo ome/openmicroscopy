@@ -95,7 +95,7 @@
                                 "experimenter" : {
                                     "valid_children" : [ "share", "share-locked", "discussion", "discussion-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/personal16.png'
+                                        "image" : '{% static "webclient/image/personal16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -105,7 +105,7 @@
                                 "share" : {
                                     "valid_children" : [ "image", "image-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_html16.png'
+                                        "image" : '{% static "webclient/image/folder_html16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -115,7 +115,7 @@
                                 "share-locked" : {
                                     "valid_children" : [ "image", "image-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_html_locked16.png'
+                                        "image" : '{% static "webclient/image/folder_html_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -125,7 +125,7 @@
                                 "share-disabled" : {
                                     "valid_children" : [ "image", "image-locked" ],
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/folder_html_locked16.png'
+                                        "image" : '{% static "webclient/image/folder_html_locked16.png" %}'
                                     },
                                     "select_node" : false,
                                     "create_node" : false,
@@ -136,7 +136,7 @@
                                 "discussion" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/wp_protocol16.png'
+                                        "image" : '{% static "webclient/image/wp_protocol16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -146,7 +146,7 @@
                                 "discussion-locked" : {
                                     "valid_children" :  "none",
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/wp_protocol_locked16.png'
+                                        "image" : '{% static "webclient/image/wp_protocol_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -156,7 +156,7 @@
                                 "image" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/image16.png'
+                                        "image" : '{% static "webclient/image/image16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -166,7 +166,7 @@
                                 "image-locked" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{{ STATIC_WEBCLIENT_PREFIX }}image/image_locked16.png'
+                                        "image" : '{% static "webclient/image/image_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
