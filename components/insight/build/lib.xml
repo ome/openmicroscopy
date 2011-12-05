@@ -100,45 +100,28 @@
    *  dir       The origin directory.                               Yes
    *  targetdir The directory to compare.                           Yes
    *
-   * EXTERNAL DEPENDENCIES:
-   *  + bsf-2.3.0-rc1.jar: The Bean Scripting Framework from Jakarta
-   *        (http://jakarta.apache.org/bsf/).  Version: 2.3.0-rc1.
-   *  + rhino-1_5R3.jar: The Rhino JavaScript engine from Mozilla
-   *        (http://www.mozilla.org/rhino/).  Version: 1_5R3.
-   *        (NOTE: Later versions don't work with BSF 2.3.0.) 
+   * EXTERNAL DEPENDENCIES: None.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
-  <scriptdef name="checkdup" language="javascript">
-    <classpath refid="insight.tools.path" />
-    <attribute name="dir" /> 
+  <macrodef name="checkdup">
+    <attribute name="dir" />
     <attribute name="targetdir" />
-    <![CDATA[
-       
-      var dir = attributes.get("dir"),
-          targetdir = attributes.get("targetdir");    
-      if (dir == null) 
-        throw new Packages.org.apache.tools.ant.BuildException(
-                                                  "Undefined dir attribute.");
-      if (targetdir == null) 
-        throw new Packages.org.apache.tools.ant.BuildException(
-                                            "Undefined targetdir attribute.");
+    <sequential>
+      <fileset dir="@{dir}" id="checkdup.id">
+        <present present="both" targetdir="@{targetdir}"/>
+       </fileset>
+       <pathconvert pathsep="\n" property="checkdup.found" refid="checkdup.id"/>
+       <if>
+         <not><equals arg1="${checkdup.found}" arg2=""/></not>
+         <then>
+           <fail> DUPLICATES FOUND!
 
-      var fileset = new Packages.org.apache.tools.ant.types.FileSet(),
-          present = new Packages.org.apache.tools.ant.types.selectors.
-                    PresentSelector(), 
-          matchedFiles = "";  
-      fileset.setProject(project); 
-      fileset.setDir(new java.io.File(dir));
-      fileset.addPresent(present);
-      present.setTargetdir(new java.io.File(targetdir)); 
-  
-      matchedFiles = fileset.toString();
-      if (matchedFiles.length() != 0)
-        throw new Packages.org.apache.tools.ant.BuildException(
-        "Files were found in "+dir+" that have the same name and relative "+
-        "path as existing files in "+targetdir+":\n"+matchedFiles); 
-
-    ]]> 
-  </scriptdef>
+Files were found that have the same name and relative as files in @{targetdir}:
+${checkdup.found}
+           </fail>
+         </then>
+      </if>
+    </sequential>
+  </macrodef>
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * TASK NAME: fop
