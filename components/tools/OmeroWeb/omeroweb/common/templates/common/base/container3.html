@@ -37,13 +37,13 @@
         overflow: hidden;
     }
     </style>
-    <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/container.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "common/css/container.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block script %}
 {{ block.super }}
 
-    <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/nav.js"></script> <!-- handles expand  / collapse columns -->
+    <script type="text/javascript" src="{% static "common/javascript/nav.js" %}"></script> <!-- handles expand  / collapse columns -->
     
     <script type="text/javascript">
     {% if nav.error %}
@@ -64,13 +64,13 @@
 </div>
 <div id="center_container">
     <div id="trayhandle_left" class="collapsibletrayhandle-left">
-        <div id="swapTree"><img id="lhid_trayhandle_icon_left" class="expanded-left" src="{{ STATIC_COMMON_PREFIX }}image/spacer.gif"></div>
+        <div id="swapTree"><img id="lhid_trayhandle_icon_left" class="expanded-left" src="{% static "common/image/spacer.gif" %}"></div>
     </div>
     <div id="center_panel">
         {% block center %}{% endblock %}
     </div>
     <div id="trayhandle_right" class="collapsibletrayhandle-right">
-        <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="collapsed-right" src="{{ STATIC_COMMON_PREFIX }}image/spacer.gif"></div>
+        <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="collapsed-right" src="{% static "common/image/spacer.gif" %}"></div>
     </div>
 </div>
 <div id="right_panel">

@@ -66,9 +66,9 @@
                         <div class="calendar_numerical_day"><input class="button" type="submit" onClick="load_details('{{ controller.year }}', '{{ controller.month }}', '{{ day.cell.day }}')" name="{{ day.cell.day }}" value="{{ day.cell.day }}"/></div>
                         <div class="calendar_items">
                             {% if day.cell.counter.imgCounter or day.cell.counter.dsCounter or  day.cell.counter.prCounter or day.cell.counter.rdCounter %}<table>
-                                <tr><td>{% if day.cell.counter.imgCounter %}<img src="{{ STATIC_WEBCLIENT_PREFIX }}image/image16.png" />({{ day.cell.counter.imgCounter }}){% endif %}</td></tr>
-                                <tr><td>{% if day.cell.counter.dsCounter %}<img src="{{ STATIC_WEBCLIENT_PREFIX }}image/folder_image16.png" />({{ day.cell.counter.dsCounter }}){% endif %}</td></tr>
-                                <tr><td>{% if day.cell.counter.prCounter %}<img src="{{ STATIC_WEBCLIENT_PREFIX }}image/folder16.png" />({{ day.cell.counter.prCounter }}){% endif %}</td></tr>
+                                <tr><td>{% if day.cell.counter.imgCounter %}<img src="{% static "webclient/image/image16.png" %}" />({{ day.cell.counter.imgCounter }}){% endif %}</td></tr>
+                                <tr><td>{% if day.cell.counter.dsCounter %}<img src="{% static "webclient/image/folder_image16.png" %}" />({{ day.cell.counter.dsCounter }}){% endif %}</td></tr>
+                                <tr><td>{% if day.cell.counter.prCounter %}<img src="{% static "webclient/image/folder16.png" %}" />({{ day.cell.counter.prCounter }}){% endif %}</td></tr>
                             </table>{% endif %}
                         </div>
                 </td>

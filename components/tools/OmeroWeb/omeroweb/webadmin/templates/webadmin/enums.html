@@ -23,7 +23,7 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/table.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block title %}{% trans "Scientists" %}{% endblock %}
@@ -31,8 +31,8 @@
 {% block script %}
     {{ block.super }}
     
-    <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery.tablesorter.js"></script>
-    <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery.quicksearch.js"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function() 
@@ -57,7 +57,7 @@
 <h2>{% trans "Enumerations" %}</h2>
 {% if controller.enumsCount %}
 
-<form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{{ STATIC_COMMON_PREFIX }}image/spinner.gif"></span></form>
+<form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "common/image/spinner.gif" %}"></span></form>
 
 
 <table id="enumsTable" class="tablesorter"> 
@@ -72,8 +72,8 @@
     {% for key, list in controller.enums.items %}
         <tr>
           <td class="action">
-            <a href="{% url wamanageenum "edit" key %}"><img src="{{ STATIC_WEBADMIN_PREFIX }}image/edit.png" alt="edit" title="edit"></a> 
-            {% if controller.check %}<img src="{{ STATIC_WEBCLIENT_PREFIX }}image/reset-grey.png" alt="ok" title="ok">{% else %}<a href="{% url wamanageenum "reset" key %}" onClick="return confirm('Reset {{ key }}?');"><img src="{{ STATIC_WEBCLIENT_PREFIX }}image/reset.png" alt="reset" title="reset"></a>{% endif %}
+            <a href="{% url wamanageenum "edit" key %}"><img src="{% static "webadmin/image/edit.png" %}" alt="edit" title="edit"></a> 
+            {% if controller.check %}<img src="{% static "webclient/image/reset-grey.png" %}" alt="ok" title="ok">{% else %}<a href="{% url wamanageenum "reset" key %}" onClick="return confirm('Reset {{ key }}?');"><img src="{% static "webclient/image/reset.png" %}" alt="reset" title="reset"></a>{% endif %}
           </td>
           <td class="link"><a href="{% url wamanageenum "edit" key %}">{{ key|default_if_none:"-" }}</a></td>
           <td class="link">{{ list.0.getType }}</td>
@@ -91,7 +91,7 @@
 {% block metadata_details %}
 
     <h1>{% trans "Legend" %}:</h1>
-    <div><img src="{{ STATIC_WEBCLIENT_PREFIX }}image/reset.png" alt="reset" title="reset"> - enumeration values was changed and this button allows to reset to default values;</div>
-    <div><img src="{{ STATIC_WEBCLIENT_PREFIX }}image/reset-grey.png" alt="origin" title="origin"> - enumeration values are original, there is no reason to reset them;</div>
+    <div><img src="{% static "webclient/image/reset.png" %}" alt="reset" title="reset"> - enumeration values was changed and this button allows to reset to default values;</div>
+    <div><img src="{% static "webclient/image/reset-grey.png" %}" alt="origin" title="origin"> - enumeration values are original, there is no reason to reset them;</div>
 
 {% endblock %}

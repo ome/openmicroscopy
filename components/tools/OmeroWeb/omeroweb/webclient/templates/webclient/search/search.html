@@ -24,17 +24,17 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/container.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/tooltip.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/table.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/table.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/container.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.tooltip.js"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
 
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/actions.js"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function() 
@@ -138,7 +138,7 @@
                             Multiple character wildcard searches looks for 0 or more characters.
                             For example, to search for <i>'test'</i>, <i>'tests'</i> or <i>'tester'</i>, you can use the search: <b>'test*'</b>.
                             You can also use the wildcard searches in the middle or the beginning of a term.</small>">
-                        <img src="{{ STATIC_COMMON_PREFIX }}image/help16.png" />
+                        <img src="{% static "common/image/help16.png" %}" />
                     </span>
                 </td>
             </tr>
@@ -150,7 +150,7 @@
                     <span id="daterange"
                         title="Date - <small>Enables you to specify the one particular date or range of the creation data. To select the range, separate them by '_'.
                             If you want to change the date click on the field again and pick the date.</small>">
-                        <img src="{{ STATIC_COMMON_PREFIX }}image/help16.png" />
+                        <img src="{% static "common/image/help16.png" %}" />
                     </span>
                 </td>
             </tr>
@@ -194,7 +194,7 @@
 +</pre> The above searches for images in two wells.
                             The first well is located in row 0, column 0 (=well A01) of a plate with name Foo.
                             The second well is located in row 2, column 3 (=well C04) of a plate with name Bar.</small>">
-                        <img src="{{ STATIC_COMMON_PREFIX }}image/help16.png" />
+                        <img src="{% static "common/image/help16.png" %}" />
                     </span>
                 </td>
         </table>

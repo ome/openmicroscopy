@@ -23,8 +23,8 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/layout.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/help.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/help.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 
@@ -38,7 +38,7 @@
                 $('iframe#help_search').load();
                 
                 $("#right_panel").show();
-                $("#swapMeta").html('<img tabindex="0" src="{{ STATIC_COMMON_PREFIX }}image/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                $("#swapMeta").html('<img tabindex="0" src="{% static "common/image/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
                 
         })
     </script>

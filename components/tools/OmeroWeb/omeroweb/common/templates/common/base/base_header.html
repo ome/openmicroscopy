@@ -24,9 +24,9 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/header.css" type="text/css" />
+    <link rel="stylesheet" href="{% static "common/css/header.css" %}" type="text/css" />
     
-    {% block footer_css %}<link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/footer.css" type="text/css" />{% endblock %}
+    {% block footer_css %}<link rel="stylesheet" href="{% static "common/css/footer.css" %}" type="text/css" />{% endblock %}
     
 {% endblock %}
 

@@ -277,15 +277,6 @@ STATICFILES_FINDERS = (
 # app. It must end in a slash if set to a non-empty value.
 STATIC_URL = '/static/'
 
-# Custom STATIC_URLs used by custom template tags.
-STATIC_COMMON_URL = '/static/common/'
-# Custom STATIC_URLs used by custom template tags.
-STATIC_FEEDBACK_URL = '/static/feedback/'
-# Custom STATIC_URLs used by custom template tags.
-STATIC_WEBADMIN_URL = '/static/webadmin/'
-# Custom STATIC_URLs used by custom template tags.
-STATIC_WEBCLIENT_URL = '/static/webclient/'
-
 # STATIC_ROOT: The absolute path to the directory where collectstatic will collect static 
 # files for deployment. If the staticfiles contrib app is enabled (default) the collectstatic 
 # management command will collect static files into this directory.
@@ -306,10 +297,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.static",
-    "django.contrib.messages.context_processors.messages",
-    "common.context_processors.static",
-    "webclient.context_processors.static",
-    "webadmin.context_processors.static",
+    "django.contrib.messages.context_processors.messages"
 )
 
 # TEMPLATE_LOADERS: A tuple of template loader classes, specified as strings. Each Loader class 

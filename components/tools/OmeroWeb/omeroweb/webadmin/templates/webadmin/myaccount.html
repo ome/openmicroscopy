@@ -25,16 +25,16 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{{ STATIC_COMMON_PREFIX }}css/table.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block script %}
     {{ block.super }}
 
-    <script type="text/javascript" src="{{ STATIC_WEBADMIN_PREFIX }}javascript/jquery.imgareaselect.js"></script>
+    <script type="text/javascript" src="{% static "webadmin/javascript/jquery.imgareaselect.js" %}"></script>
     
-    <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery.tablesorter.js"></script>
-    <script type="text/javascript" src="{{ STATIC_COMMON_PREFIX }}javascript/jquery.quicksearch.js"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
     
     <script type="text/javascript">
     
@@ -180,7 +180,7 @@
     <div>
         <h1>{% trans "Owned Groups" %}</h1><br/>
     
-        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{{ STATIC_COMMON_PREFIX }}image/spinner.gif"></span></form>
+        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "common/image/spinner.gif" %}"></span></form>
     
         <table id="groupTable" class="tablesorter"> 
             <thead> 
@@ -196,7 +196,7 @@
                 <tr>
                     <td class="action">
                         {% if not dict.locked %}
-                            <a href="{% url wamanagegroupownerid "edit" dict.group.id %}"><img src="{{ STATIC_WEBADMIN_PREFIX }}image/edit.png" alt="edit" title="edit"></a>
+                            <a href="{% url wamanagegroupownerid "edit" dict.group.id %}"><img src="{% static "webadmin/image/edit.png" %}" alt="edit" title="edit"></a>
                         {% endif %}                    
                     </td>
                     <td class="link">{{ dict.group.name }}</td>

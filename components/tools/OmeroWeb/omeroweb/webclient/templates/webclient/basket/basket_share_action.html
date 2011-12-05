@@ -23,23 +23,23 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/layout.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
     
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/googiespell.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{{ STATIC_WEBCLIENT_PREFIX }}css/tooltip.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/googiespell.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.tooltip.js"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
     
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/ui/jquery.ui.datepicker.js"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ui/jquery.ui.datepicker.js" %}"></script>
 
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/googiespell/AJS.js"></script>
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/googiespell/googiespell.js"></script>
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/googiespell/cookiesupport.js"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/AJS.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/googiespell.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/cookiesupport.js" %}"></script>
 
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/actions.js"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
     <script>
       $(document).ready(function(){
           $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});

@@ -24,7 +24,7 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{{ STATIC_WEBADMIN_PREFIX }}css/picklist.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webadmin/css/picklist.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block title %}Edit in group{% endblock %}
@@ -32,7 +32,7 @@
 {% block script %}
 {{ block.super }}
 
-    <script type="text/javascript" src="{{ STATIC_WEBADMIN_PREFIX }}javascript/jquery.multiselects.js"></script>
+    <script type="text/javascript" src="{% static "webadmin/javascript/jquery.multiselects.js" %}"></script>
     <script type="text/javascript">
     jQuery(function($){
         // (OPTIONAL) adjust the width of the select box to the bigger of the two

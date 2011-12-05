@@ -34,11 +34,11 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.cookie.js"></script>
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.hotkeys.js"></script>
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/jquery.jstree.js"></script>   
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.cookie.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.hotkeys.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.js" %}"></script>   
     
-    <script type="text/javascript" src="{{ STATIC_WEBCLIENT_PREFIX }}javascript/actions.js"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
     <script type="text/javascript">
         String.prototype.capitalize = function() {
             return this.charAt(0).toUpperCase() + this.slice(1);
@@ -529,7 +529,7 @@
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
                     var selected = data.inst.get_selected();
                     if (selected.length > 1) {
-                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{{ STATIC_COMMON_PREFIX }}image/knotes16.png"/> Batch Annotate</a></p>');
+                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% static "common/image/knotes16.png" %}"/> Batch Annotate</a></p>');
                         $("#batchAnnotate").click(function() {
                             multipleAnnotation(selected);
                             return false;
@@ -785,19 +785,19 @@
     <!-- toolbar above tree -->
     <div class="toolbar">
         <div id="buttons" class="align_left">
-            <input id="refreshButton" class="button" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/reload16.png" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
-            <input class="button" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/view_tag16.png" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "usertags" %}'"> | 
+            <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
+            <input class="button" type="image" src="{% static "webclient/image/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "usertags" %}'"> | 
             
-            <input id="addprojectButton" class="button button-disabled" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/folder16.png" alt="Create new project" title="Create new Project" /> 
-            <input id="adddatasetButton" class="button button-disabled" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/folder_image16.png" alt="Create new dataset" title="Create new Dataset" /> 
-            <input id="addscreenButton" class="button button-disabled" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/folder_screen16.png" alt="Create new screen" title="Create new Screen" /> |
+            <input id="addprojectButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder16.png" %}" alt="Create new project" title="Create new Project" /> 
+            <input id="adddatasetButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_image16.png" %}" alt="Create new dataset" title="Create new Dataset" /> 
+            <input id="addscreenButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_screen16.png" %}" alt="Create new screen" title="Create new Screen" /> |
             
-            <input id="copyButton" class="button button-disabled" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/eclipse_copy_edit16.png" alt="Copy" title="Copy" /> 
-            <input id="cutButton" class="button button-disabled" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/cut16.png" alt="Cut" title="Cut" /> 
-            <input id="pasteButton" class="button button-disabled" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/eclipse_paste_edit16.png" alt="Paste" title="Paste" /> 
-            <input id="unlinkButton" class="button button-disabled" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/minus_15.png" alt="Remove" title="Remove" />
-            <input id="deleteButton" class="button button-disabled" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/cancel16.png" alt="Delete" title="Delete" /> 
-            <input id="basketButton" class="button button-disabled" type="image" src="{{ STATIC_WEBCLIENT_PREFIX }}image/basket16.png" alt="Add to basket" title="Add to basket">
+            <input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" /> 
+            <input id="cutButton" class="button button-disabled" type="image" src="{% static "webclient/image/cut16.png" %}" alt="Cut" title="Cut" /> 
+            <input id="pasteButton" class="button button-disabled" type="image" src="{% static "webclient/image/eclipse_paste_edit16.png" %}" alt="Paste" title="Paste" /> 
+            <input id="unlinkButton" class="button button-disabled" type="image" src="{% static "webclient/image/minus_15.png" %}" alt="Remove" title="Remove" />
+            <input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/cancel16.png" %}" alt="Delete" title="Delete" /> 
+            <input id="basketButton" class="button button-disabled" type="image" src="{% static "webclient/image/basket16.png" %}" alt="Add to basket" title="Add to basket">
         </div>
     </div>
 
@@ -911,9 +911,9 @@
     <div id="toolbar-right" class="dropdown" style="padding-top: 7px">
         <!-- Script launcher -->
         <a id="scriptButton" href="{% url list_scripts %}">
-            <img src="{{ STATIC_WEBCLIENT_PREFIX }}image/nuvola_script-run16.png" />
+            <img src="{% static "webclient/image/nuvola_script-run16.png" %}" />
         </a>
-        <img id="scriptSpinner" style="display:none" src="{{ STATIC_COMMON_PREFIX }}image/spinner.gif" />
+        <img id="scriptSpinner" style="display:none" src="{% static "common/image/spinner.gif" %}" />
         <ul id="scriptList" class="sub_menu">
             <!-- script list-items loaded here by AJAX -->
         </ul>
