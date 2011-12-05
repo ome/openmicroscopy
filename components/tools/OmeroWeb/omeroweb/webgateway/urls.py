@@ -240,7 +240,6 @@ Returns 'true' if switch went OK.
 """
 
 urlpatterns = patterns('',
-    appmedia,
     render_image,
     render_image_region,
     render_split_channel,

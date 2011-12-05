@@ -38,7 +38,7 @@ $.fn.viewportImage = function(options) {
     
     var panbars = options == null || options.panbars;
     var mediaroot = options == null ? null : options.mediaroot;
-    mediaroot = mediaroot || '/static';
+    mediaroot = mediaroot || '/appmedia';
     
     if (panbars) { 
     /* Panning sides */
