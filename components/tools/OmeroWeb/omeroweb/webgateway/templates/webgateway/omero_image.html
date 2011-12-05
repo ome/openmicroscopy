@@ -20,43 +20,43 @@
 
 {% block extra_css %}
 {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/jquery-plugin-postit.css" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/jquery-plugin-rangewidget.css" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/farbtastic.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/jquery-plugin-colorbtn.css" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/JQuerySpinBtn.css" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/jquery-ui-1.7.2.custom.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/omero_image.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/panojs.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}webgateway/css/jquery-plugin-postit.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}webgateway/css/jquery-plugin-rangewidget.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}webgateway/css/3rdparty/farbtastic.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}webgateway/css/jquery-plugin-colorbtn.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}webgateway/css/3rdparty/JQuerySpinBtn.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}webgateway/css/3rdparty/jquery-ui-1.7.2.custom.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}webgateway/css/omero_image.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}webgateway/css/3rdparty/panojs.css" media="all" />
 {% endblock %}
 
 {% block extra_js %}
 {{ block.super }}
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/jquery-ui-1.7.2.custom.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-smartdialog.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/JQuerySpinBtn.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-colorbtn.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-postit.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/jqDnR.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/jquery.selectboxes.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-rangewidget.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/farbtastic.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/gs_utils.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/jquery-ui-1.7.2.custom.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/jquery-plugin-smartdialog.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/JQuerySpinBtn.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/jquery-plugin-colorbtn.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/jquery-plugin-postit.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/jqDnR.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/jquery.selectboxes.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/jquery-plugin-rangewidget.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/farbtastic.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/gs_utils.js"></script>
     <!-- for display of ROIs over the image -->
-    <script type="text/javascript" src="/appmedia/webgateway/js/roi_display-plugin.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/raphael.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/scale.raphael.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/roi_display-plugin.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/raphael.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/scale.raphael.js"></script>
 
     <!-- big images -->
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/utils.js"></script>    
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/PanoJS.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/controls.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/pyramid_Bisque.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/pyramid_imgcnv.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/pyramid_Zoomify.js"></script>        
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_thumbnail.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_info.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_svg.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/panojs/utils.js"></script>    
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/panojs/PanoJS.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/panojs/controls.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/panojs/pyramid_Bisque.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/panojs/pyramid_imgcnv.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/panojs/pyramid_Zoomify.js"></script>        
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/panojs/control_thumbnail.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/panojs/control_info.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}webgateway/js/3rdparty/panojs/control_svg.js"></script>
     
 {% endblock %}
 
@@ -419,11 +419,11 @@
     $('#wblitz-z-count').html(viewport.getZCount());
 
     if(viewport.loadedImg.rdefs.invertAxis) {
-      $('#z-axis-legend').attr('src', '/appmedia/webgateway/img/t_axis_revert.gif');
-      $('#t-axis-legend').attr('src', '/appmedia/webgateway/img/z_axis_revert.gif');
+      $('#z-axis-legend').attr('src', '{{ STATIC_URL }}webgateway/img/t_axis_revert.gif');
+      $('#t-axis-legend').attr('src', '{{ STATIC_URL }}webgateway/img/z_axis_revert.gif');
     } else {
-      $('#z-axis-legend').attr('src', '/appmedia/webgateway/img/z_axis.gif');
-      $('#t-axis-legend').attr('src', '/appmedia/webgateway/img/t_axis.gif');
+      $('#z-axis-legend').attr('src', '{{ STATIC_URL }}webgateway/img/z_axis.gif');
+      $('#t-axis-legend').attr('src', '{{ STATIC_URL }}webgateway/img/t_axis.gif');
     };
 
     if (viewport.hasLinePlot() || $('#wblitz-lp-enable').attr('checked')) {
@@ -719,7 +719,7 @@
             Link to this page:
           </td>
           <td class="left">
-            <img class="popclose" src="/appmedia/webgateway/img/close.gif" alt="close" />
+            <img class="popclose" src="{{ STATIC_URL }}webgateway/img/close.gif" alt="close" />
           </td>
         </tr>
         <tr>
@@ -779,7 +779,7 @@
     <div id="rdef-postit" class="postit" style="width: 480px">
       <h1> Rendering Details </h1>
         <div id="rdef-active-area">
-        <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="/appmedia/webgateway/img/question.png" alt="Show help on channel window ranges" /></a>
+        <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="{{ STATIC_URL }}webgateway/img/question.png" alt="Show help on channel window ranges" /></a>
         <label for="rd-wblitz-rmodel">Render as Color</label>
         <input id="rd-wblitz-rmodel" type="checkbox" onchange="return rdChanSelHelper(this);" />
         <table cellspacing="0">
@@ -921,8 +921,8 @@
             
         <!-- Image Viewport -->
         <div id="weblitz-viewport"></div>
-        <img id="z-axis-legend" src="/appmedia/webgateway/img/z_axis.gif" />
-        <img id="t-axis-legend" src="/appmedia/webgateway/img/t_axis.gif" />
+        <img id="z-axis-legend" src="{{ STATIC_URL }}webgateway/img/z_axis.gif" />
+        <img id="t-axis-legend" src="{{ STATIC_URL }}webgateway/img/t_axis.gif" />
         <div class="figure-box-holder">
         </div>
       </div>

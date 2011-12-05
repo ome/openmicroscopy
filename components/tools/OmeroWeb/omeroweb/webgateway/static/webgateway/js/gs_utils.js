@@ -12,7 +12,7 @@
  * Author: Carlos Neves <carlos(at)glencoesoftware.com>
  */
 
-var gs_script_location_prefix='/appmedia/webgateway/js/3rdparty/';
+var gs_script_location_prefix='3rdparty/';
 
 /**
  * Given a string that may contain an RGB, RRGGBB or the previous with a # prefix,

@@ -119,11 +119,11 @@ div.menu .compound * {
 }
 
 .menu li.tree {
-  list-style-image: url('/appmedia/webgateway/img/blue_arrow_right.gif');
+  list-style-image: url('../img/blue_arrow_right.gif');
 }
 
 .menu li.open { 
-  list-style-image: url('/appmedia/webgateway/img/blue_arrow_down.gif');
+  list-style-image: url('../img/blue_arrow_down.gif');
 }
 
 .menu li.notree {
@@ -212,11 +212,11 @@ a, .a-like {
   bottom: 0px;
   height: 16px;
   width: 16px;
-  background: url('/appmedia/webgateway/img/blue_arrow_down.gif') no-repeat center;
+  background: url('../img/blue_arrow_down.gif') no-repeat center;
 }
 
 .expanded .fd-toggle {
-  background: url('/appmedia/webgateway/img/blue_arrow_up.gif') no-repeat center;
+  background: url('../img/blue_arrow_up.gif') no-repeat center;
 }
 
 .image-thumb {
@@ -341,7 +341,7 @@ tr.image-thumb td p {
 
 .blockUI h1 {
   color: #FE5916;
-  background: #B2AEA8 url(/appmedia/webgateway/img/ajax-loader-ovl.gif) no-repeat bottom;
+  background: #B2AEA8 url(../img/ajax-loader-ovl.gif) no-repeat bottom;
   margin: 0px;
   height: 2em;
 }
@@ -364,7 +364,7 @@ tr.image-thumb td p {
 }
 
 .ui-autocomplete-loading {
-  background: white url('3rdparty/images/ui-anim_basic_16x16.gif') right center no-repeat;
+  background: white url('../img/3rdparty/images/ui-anim_basic_16x16.gif') right center no-repeat;
 }
 
 .ui-autocomplete {

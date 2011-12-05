@@ -10,15 +10,15 @@
 
 *******************************************************************************/
 
-PanoJS.CONTROL_IMAGE_ZOOMIN   = "/appmedia/webgateway/img/3rdparty/panojs/32px_plus.png";
-PanoJS.CONTROL_IMAGE_ZOOM11   = "/appmedia/webgateway/img/3rdparty/panojs/32px_11.png";
-PanoJS.CONTROL_IMAGE_ZOOMOUT  = "/appmedia/webgateway/img/3rdparty/panojs/32px_minus.png";
-PanoJS.CONTROL_IMAGE_MAXIMIZE = "/appmedia/webgateway/img/3rdparty/panojs/32px_show.png";
+PanoJS.CONTROL_IMAGE_ZOOMIN   = "32px_plus.png";
+PanoJS.CONTROL_IMAGE_ZOOM11   = "32px_11.png";
+PanoJS.CONTROL_IMAGE_ZOOMOUT  = "32px_minus.png";
+PanoJS.CONTROL_IMAGE_MAXIMIZE = "32px_show.png";
 
-PanoJS.CONTROL_IMAGE_ZOOMIN_TOUCH   = "/appmedia/webgateway/img/3rdparty/panojs/64px_plus.png";
-PanoJS.CONTROL_IMAGE_ZOOM11_TOUCH   = "/appmedia/webgateway/img/3rdparty/panojs/64px_11.png";
-PanoJS.CONTROL_IMAGE_ZOOMOUT_TOUCH  = "/appmedia/webgateway/img/3rdparty/panojs/64px_minus.png";
-PanoJS.CONTROL_IMAGE_MAXIMIZE_TOUCH = "/appmedia/webgateway/img/3rdparty/panojs/64px_show.png";
+PanoJS.CONTROL_IMAGE_ZOOMIN_TOUCH   = "64px_plus.png";
+PanoJS.CONTROL_IMAGE_ZOOM11_TOUCH   = "64px_11.png";
+PanoJS.CONTROL_IMAGE_ZOOMOUT_TOUCH  = "64px_minus.png";
+PanoJS.CONTROL_IMAGE_MAXIMIZE_TOUCH = "64px_show.png";
 
 PanoJS.CONTROL_STYLE = "position: absolute; z-index: 30; "; //opacity:0.5; filter:alpha(opacity=50); ";
 

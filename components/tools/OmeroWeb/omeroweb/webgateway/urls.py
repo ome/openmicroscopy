@@ -13,12 +13,6 @@
 
 from django.conf.urls.defaults import *
 
-appmedia = (r'^appmedia/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'webgateway/media'})
-""" 
-path to media files for webgateway 
-    - path: path to media file
-"""
-
 render_image = (r'^render_image/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', 'webgateway.views.render_image')
 """
 Returns a jpeg of the OMERO image. See L{views.render_image}. Rendering settings can be specified

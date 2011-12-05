@@ -38,7 +38,7 @@ $.fn.viewportImage = function(options) {
     
     var panbars = options == null || options.panbars;
     var mediaroot = options == null ? null : options.mediaroot;
-    mediaroot = mediaroot || '/appmedia';
+    mediaroot = mediaroot || '/static';
     
     if (panbars) { 
     /* Panning sides */
@@ -435,8 +435,9 @@ $.fn.viewportImage = function(options) {
                 imageWidth      : myPyramid.width,
                 imageHeight     : myPyramid.height,
                 initialZoom     : init_zoom,
-                blankTile       : '/appmedia/webgateway/img/3rdparty/panojs/blank.gif',
-                loadingTile     : '/appmedia/webgateway/img/3rdparty/panojs/blank.gif'//'progress.gif'
+                staticBaseURL   : mediaroot+'/webgateway/img/3rdparty/panojs/',
+                blankTile       : mediaroot+'/webgateway/img/3rdparty/panojs/blank.gif',
+                loadingTile     : mediaroot+'/webgateway/img/3rdparty/panojs/blank.gif'//'progress.gif'
             });
             
             // thumbnail url overwritten
