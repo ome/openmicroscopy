@@ -1070,6 +1070,7 @@ public class ImportDialog
 		refreshButton = new JButton("Refresh");
 		refreshButton.setToolTipText("Reloads the files view.");
 		refreshButton.setActionCommand(""+REFRESH);
+		refreshButton.setBorderPainted(false);
 		refreshButton.addActionListener(this);
 		resetButton = new JButton("Reset");
 		resetButton.setToolTipText("Reset the name of all files to either " +
