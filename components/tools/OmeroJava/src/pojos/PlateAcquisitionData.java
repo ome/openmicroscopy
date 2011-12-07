@@ -222,7 +222,8 @@ public class PlateAcquisitionData
     	if (date.length() == 0 && end.length() != 0)
     		return dateEnd+" "+end;
     	if (dateEnd.length() == 0) {
-    		value = date+" "+start+" - "+end;
+    		value = date+" "+start;
+    		if (end.length() > 0) value += " - "+end;
     	} else {
     		value = date+" "+start+" - "+dateEnd+" "+end;
     	}

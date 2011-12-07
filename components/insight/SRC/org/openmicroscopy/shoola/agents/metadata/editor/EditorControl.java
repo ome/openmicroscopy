@@ -665,6 +665,7 @@ class EditorControl
 		}
 		
 		int index = Integer.parseInt(e.getActionCommand());
+		
 		switch (index) {
 			case ADD_LOCAL_DOCS:
 				selectFileToAttach();

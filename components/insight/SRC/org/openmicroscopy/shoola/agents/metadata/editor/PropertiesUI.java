@@ -1267,6 +1267,7 @@ class PropertiesUI
 		value = OMEWikiComponent.prepare(value.trim(), true);
 		if (DEFAULT_DESCRIPTION_TEXT.equals(name) && 
 				DEFAULT_DESCRIPTION_TEXT.equals(value)) return false;
+		
 		return !(name.equals(value));
 	}
 	
@@ -1352,6 +1353,7 @@ class PropertiesUI
 	{
 		Object src = e.getSource();
 		if (src == namePane) {
+			/*
 			editField(namePanel, namePane, editName, false);
 			String text = namePane.getText();
 			editName.setEnabled(true);
@@ -1360,7 +1362,18 @@ class PropertiesUI
 				namePane.setText(modifiedName);
 				namePane.getDocument().addDocumentListener(this);
 			}
+			*/
 			//namePane.setCaretPosition(0);
+			String text = namePane.getText();
+			editName.setEnabled(true);
+			namePane.setEditable(false);
+			if (text == null || text.trim().length() == 0) {
+				namePane.getDocument().removeDocumentListener(this);
+				namePane.setText(modifiedName);
+				namePane.getDocument().addDocumentListener(this);
+				firePropertyChange(EditorControl.SAVE_PROPERTY, 
+						Boolean.valueOf(false), Boolean.valueOf(true));
+			}
 		} else if (src == descriptionPane) {
 			/*
 			editField(descriptionPanel, descriptionPane, editDescription, 

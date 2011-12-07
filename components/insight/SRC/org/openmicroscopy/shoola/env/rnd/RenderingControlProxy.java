@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import pojos.ChannelData;
@@ -299,7 +300,8 @@ class RenderingControlProxy
     {
     	if (isBigImage()) return;
     	invalidateCache();
-    	context.getCacheService().removeCache(cacheID);
+    	if (cacheID >=0)
+    		context.getCacheService().removeCache(cacheID);
     }
     
     /**
@@ -329,8 +331,17 @@ class RenderingControlProxy
     	}
     	*/
     	if (pDef.slice == omero.romio.XY.value) {
-    		cacheID = context.getCacheService().createCache(
-					CacheService.IN_MEMORY, cacheSize/imageSize);
+    		try {
+    			cacheID = context.getCacheService().createCache(
+    					CacheService.IN_MEMORY, cacheSize/imageSize);
+			} catch (Exception e) {
+				//log the error for example if the cache manager could not
+				//be initialized.
+				LogMessage msg = new LogMessage();
+				msg.print("Initialize cache");
+				msg.print(e);
+				context.getLogger().error(this, msg);
+			}
     	}
     }
   
@@ -465,7 +476,10 @@ class RenderingControlProxy
 			}
             tmpSolutionForNoiseReduction();
 		} catch (Exception e) {
-			// TODO: handle exception
+			LogMessage msg = new LogMessage();
+			msg.print("Initialize proxy");
+			msg.print(e);
+			context.getLogger().error(this, msg);
 		}
     }
     
