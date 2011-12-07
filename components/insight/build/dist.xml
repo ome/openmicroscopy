@@ -194,6 +194,12 @@
     <zip destfile="${dist.dir}/${main-dist-prefix}-win.zip">
       <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
     </zip>
+    <zip destfile="${dist.dir}/${main-dist-prefix}-win-openGL.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
+    <zip destfile="${dist.dir}/${main-dist-prefix}-win-openGL-64.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
 
     <!-- Main zip -->
     <zip destfile="${dist.dir}/${main-dist-prefix}.zip">
