@@ -93,9 +93,9 @@ from controller.impexp import BaseImpexp
 from controller.search import BaseSearch
 from controller.share import BaseShare
 
-from omeroweb.webadmin.forms import MyAccountForm, UploadPhotoForm, LoginForm, ChangePassword
-from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
-from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
+from omeroweb.webadmin.custom_models import Server
+
+from omeroweb.webadmin.forms import LoginForm
 from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck
 
 from omeroweb.webgateway.views import getBlitzConnection
@@ -189,9 +189,9 @@ def sessionHelper(request):
     #    request.session['datasetInBasket'] = set()
     if request.session.get('nav') is None:
         if request.session.get('server') is not None:
-            blitz = settings.SERVER_LIST.get(pk=request.session.get('server'))
+            blitz = Server.get(pk=request.session.get('server'))
         elif request.session.get('host') is not None:
-            blitz = settings.SERVER_LIST.get(host=request.session.get('host'))
+            blitz = Server.get(host=request.session.get('host'))
         blitz = "%s:%s" % (blitz.host, blitz.port)
         request.session['nav']={"blitz": blitz, "menu": "mydata", "view": "tree", "basket": 0, "experimenter":None}
         changes = True
@@ -204,7 +204,7 @@ def sessionHelper(request):
 def login(request):
     request.session.modified = True
     if request.REQUEST.get('server'):
-        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server'))
+        blitz = Server.get(pk=request.REQUEST.get('server'))
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
@@ -251,7 +251,7 @@ def login(request):
         if request.method == 'POST':
             form = LoginForm(data=request.REQUEST.copy())
         else:
-            blitz = settings.SERVER_LIST.get(pk=request.session.get('server')) 
+            blitz = Server.get(request.session.get('server'))
             if blitz is not None:
                 initial = {'server': unicode(blitz.id)}
                 form = LoginForm(initial=initial)
@@ -401,7 +401,7 @@ def change_active_group(request, **kwargs):
        
     webgateway_views._session_logout(request, request.session.get('server'))
     
-    blitz = settings.SERVER_LIST.get(pk=server) 
+    blitz = Server.get(pk=server) 
     request.session['server'] = blitz.id
     request.session['host'] = blitz.host
     request.session['port'] = blitz.port
@@ -488,7 +488,7 @@ def load_template(request, menu, **kwargs):
                     init['initially_select'] = k+"-"+i.replace(":selected", "")
                 else:
                     init['initially_open'].append(k+"-"+i)
-                
+    
     try:
         manager = BaseContainer(conn)
     except AttributeError, x:
@@ -925,7 +925,7 @@ def open_astex_viewer(request, obj_type, obj_id, **kwargs):
 
     return render_to_response('webclient/annotations/open_astex_viewer.html', {'data_url': data_url, "image": image,
         "sizeOptions":sizeOptions, "contourSliderInit":contourSliderInit, "contourSliderIncr":contourSliderIncr,
-        "data_storage_mode": data_storage_mode,'pixelRange':pixelRange})
+        "data_storage_mode": data_storage_mode,'pixelRange':pixelRange}, context_instance=Context(request))
 
 
 @isUserConnected
@@ -2257,147 +2257,6 @@ def update_basket(request, **kwargs):
         return handlerInternalError("Request method error in Basket.")
 
 @isUserConnected
-def manage_myaccount(request, action=None, **kwargs):
-    template = "webclient/person/myaccount.html"
-    request.session.modified = True
-    
-    request.session['nav']['menu'] = 'person'
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-        
-    controller = BaseExperimenter(conn)
-    controller.getMyDetails()
-    controller.getOwnedGroups()
-    
-    groups = list(conn.getGroupsMemberOf())
-    groups.sort(key=lambda x: x.getName().lower())
-    
-    eContext = dict()
-    eContext['context'] = conn.getEventContext()
-    eContext['user'] = conn.getUser()
-    eContext['allGroups']  = groups
-    
-    form = MyAccountForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
-                                'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
-                                'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
-                                'default_group':controller.defaultGroup, 'groups':controller.otherGroups})
-    
-    if action == "save":
-        form = MyAccountForm(data=request.POST.copy(), initial={'groups':controller.otherGroups})
-        if form.is_valid():
-            firstName = form.cleaned_data['first_name']
-            middleName = form.cleaned_data['middle_name']
-            lastName = form.cleaned_data['last_name']
-            email = form.cleaned_data['email']
-            institution = form.cleaned_data['institution']
-            defaultGroup = form.cleaned_data['default_group']
-            controller.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution)
-            return HttpResponseRedirect(reverse("myaccount"))
-
-    form_active_group = ActiveGroupForm(initial={'activeGroup':eContext['context'].groupId, 'mygroups': eContext['allGroups'], 'url':url})
-    
-    context = {'nav':request.session['nav'], 'eContext': eContext, 'controller':controller, 'form':form, 'ldapAuth': controller.ldapAuth, 'form_active_group':form_active_group}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
-
-@isUserConnected
-def change_password(request, **kwargs):
-    template = "webclient/person/password.html"
-    request.session.modified = True
-    
-    request.session['nav']['menu'] = 'person'
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    error = None
-    if request.method != 'POST':
-        password_form = ChangePassword()
-    else:
-        password_form = ChangePassword(data=request.POST.copy())
-                    
-        if password_form.is_valid():
-            old_password = password_form.cleaned_data['old_password']
-            password = password_form.cleaned_data['password']
-            try:
-                conn.changeMyPassword(password, old_password) 
-            except Exception, x:
-                error = x.message
-            else:
-                request.session['password'] = password
-                return HttpJavascriptResponse("Password was changed successfully")                
-                
-    context = {'nav':request.session['nav'], 'password_form':password_form, 'error':error}
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
-
-@isUserConnected
-def upload_myphoto(request, action=None, **kwargs):
-    template = "webclient/person/upload_myphoto.html"
-    request.session.modified = True
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    photo_size = conn.getExperimenterPhotoSize()
-    form_file = UploadPhotoForm()
-
-    request.session['nav']['edit_mode'] = False    
-    if action == "upload":
-        if request.method == 'POST':
-            form_file = UploadPhotoForm(request.POST, request.FILES)
-            if form_file.is_valid():
-                controller = BaseUploadFile(conn)
-                controller.attach_photo(request.FILES['photo'])
-                return HttpResponseRedirect(reverse("upload_myphoto"))
-    elif action == "crop": 
-        x1 = long(request.REQUEST.get('x1'))
-        x2 = long(request.REQUEST.get('x2'))
-        y1 = long(request.REQUEST.get('y1'))
-        y2 = long(request.REQUEST.get('y2'))
-        box = (x1,y1,x2,y2)
-        conn.cropExperimenterPhoto(box)
-        return HttpResponseRedirect(reverse("upload_myphoto"))
-    elif action == "editphoto":
-        if photo_size is not None:
-            request.session['nav']['edit_mode'] = True
-
-    context = {'nav':request.session['nav'], 'form_file':form_file, 'photo_size':photo_size}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
-
-@isUserConnected
 def help(request, **kwargs):
     template = "webclient/help.html"
     request.session.modified = True
@@ -2759,7 +2618,7 @@ def status_action (request, action=None, **kwargs):
 # User Photo
 
 @isUserConnected
-def load_photo(request, oid=None, **kwargs):
+def avatar(request, oid=None, **kwargs):
     conn = None
     try:
         conn = kwargs["conn"]
@@ -2768,18 +2627,6 @@ def load_photo(request, oid=None, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     photo = conn.getExperimenterPhoto(oid)
-    return HttpResponse(photo, mimetype='image/jpeg')
-
-@isUserConnected
-def myphoto(request, **kwargs):
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    photo = conn.getExperimenterPhoto()
     return HttpResponse(photo, mimetype='image/jpeg')
 
 ####################################################################################
@@ -3171,7 +3018,8 @@ def script_ui(request, scriptId, **kwargs):
 
     paramData["inputs"] = inputs
 
-    return render_to_response('webclient/scripts/script_ui.html', {'paramData': paramData, 'scriptId': scriptId})
+    return render_to_response('webclient/scripts/script_ui.html', {'paramData': paramData, 'scriptId': scriptId}, 
+        context_instance=Context(request))
 
 @isUserConnected
 def script_run(request, scriptId, **kwargs):

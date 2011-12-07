@@ -1,7 +1,5 @@
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
+
 
 {% comment %}
 <!--
@@ -23,8 +21,6 @@
 -->
 {% endcomment %}
 
-<script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
-    
 <div class="clear"> </div>
 
 {% if controller.lastAcquiredImages %}

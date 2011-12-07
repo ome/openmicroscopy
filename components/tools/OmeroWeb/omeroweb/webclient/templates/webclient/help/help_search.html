@@ -1,8 +1,6 @@
-{% extends "webclient/base/base_frame.html" %}
+{% extends "common/base/base_frame.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
+
 
 {% comment %}
 <!--
@@ -25,7 +23,7 @@
 {% endcomment %}
 
 {% block script %}
-
+    {{ block.super }}
     <script src="http://www.google.com/jsapi" type="text/javascript"></script>
     <script type="text/javascript">
       google.load('search', '1', {language : 'en'});
@@ -41,7 +39,7 @@
 {% endblock %}
 
 
-{% block content %}
+{% block body %}
 
 <h1>{% trans "HELP" %}</h1>
 

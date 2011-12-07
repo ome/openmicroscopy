@@ -73,6 +73,8 @@ from omeroweb.webclient.views import _session_logout
 from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck, getGuestConnection
 from omeroweb.webgateway.views import getBlitzConnection
 
+from omeroweb.webadmin.custom_models import Server
+
 logger = logging.getLogger('views-admin')
 
 connectors = {}
@@ -194,7 +196,7 @@ def forgotten_password(request, **kwargs):
     if request.method == 'POST':
         form = ForgottonPasswordForm(data=request.REQUEST.copy())
         if form.is_valid():
-            blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server'))
+            blitz = Server.get(pk=request.REQUEST.get('server'))
             try:
                 conn = getGuestConnection(blitz.host, blitz.port)
                 if not conn.isForgottenPasswordSet():
@@ -225,7 +227,7 @@ def login(request):
     request.session.modified = True
     
     if request.method == 'POST' and request.REQUEST.get('server'):        
-        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
+        blitz = Server.get(pk=request.REQUEST.get('server')) 
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
@@ -263,7 +265,7 @@ def login(request):
         if request.method == 'POST':
             form = LoginForm(data=request.REQUEST.copy())
         else:
-            blitz = settings.SERVER_LIST.get(pk=request.session.get('server')) 
+            blitz = Server.get(pk=request.session.get('server')) 
             if blitz is not None:
                 initial = {'server': unicode(blitz.id)}
                 try:

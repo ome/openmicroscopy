@@ -1,7 +1,6 @@
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
+
+
 <html>
 
 {% comment %}
@@ -27,8 +26,8 @@
 <head>
     <title>Activities</title>
 
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic 'javascript/popup.js' %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery_1.4.2.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/popup.js" %}"></script>
 
     <script type="text/javascript">
 
@@ -298,8 +297,8 @@
 
 <!-- use Django to format a link template - javascript replaces '0' for ID where needed -->
 <div id="original_file_link" style="display:none">{% url get_original_file 0 %}</div>
-<div id="python_icon_src" style="display:none">{% url webstatic 'images/tango_text-x-python16.png' %}</div>
-<div id="delete_icon_src" style="display:none">{% url webstatic 'images/nuvola_apply22.png' %}</div>
+<div id="python_icon_src" style="display:none">{% static "webclient/image/tango_text-x-python16.png" %}</div>
+<div id="delete_icon_src" style="display:none">{% static "webclient/image/nuvola_apply22.png" %}</div>
 <div id="download_annotation_link" style="display:none">{% url download_annotation 'download' 0 %}</div>
 <div id="full_viewer_link" style="display:none">{% url webgateway.views.full_viewer 0 %}</div>
 
@@ -309,7 +308,7 @@
         <input style="float:right" class="button" type="submit" value="Clear List" alt="Clean" title="Clean" onclick="document.location.href='{% url status "clean" %}';">
         <div>
             <a href="#" id='refresh_page' style="text-decoration:none; position:absolute; top:3px; left:3px; font-size: 90%; color:#666" title="Refresh the Activities list">
-                <img src="{% url webstatic 'images/reload16.png' %}" style="position:relative; top:3px; left:0px; float:left" border='0' />
+                <img src="{% static "webclient/image/reload16.png" %}" style="position:relative; top:3px; left:0px; float:left" border='0' />
                 <div style="margin: 3px; position:absolute; top:0px; left:17px">Refresh</div>
             </a>
         </div>

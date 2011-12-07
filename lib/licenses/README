@@ -151,7 +151,7 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   License File: apache-v2.0.txt
 
 
-  Artifacts:    django-lib-*.*
+  Artifacts:    Django-*
   Project:      Django, a high-level Python Web framework
   Web Site:     htttp://djangoproject.com
   License:      BSD

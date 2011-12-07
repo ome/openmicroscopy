@@ -1,7 +1,5 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
 
 {% comment %}
 <!--
@@ -25,15 +23,18 @@
 
 {% block title %}{% trans "Drive space" %}{% endblock %}
 
-{% block css %}
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block jscript %}
-    <!--[if IE]><script language="javascript" type="text/javascript" src="excanvas.js"></script><![endif]-->
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.flot.pie.js" %}"></script>
+{% block script %}
+    {{ block.super }}
+    <!--[if IE]><script language="javascript" type="text/javascript" src="{% static "webadmin/javascript/excanvas.js" %}"></script><![endif]-->
+    <script language="javascript" type="text/javascript" src="{% static "webadmin/javascript/jquery.flot.js" %}"></script>
+    <script type="text/javascript" src="{% static "webadmin/javascript/jquery.flot.pie.js" %}"></script>
     
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             $("#status").html('loading...');
@@ -55,7 +56,7 @@
                         if (!data.loading) {
                             usage = false;
                             $("#usage").remove();
-                            $("#placeholder").css('width',600).css('height',300);
+                            $("#placeholder").css('width',700).css('height',300);
                         }
                         
                         offsetQuery = "offset="+(data.offset);
@@ -64,7 +65,7 @@
                         jQuery.each(data.usage, function(i, val) {
                         
                             if($('tr#'+i).length == 0) {
-                                l.append('<tr id="'+i+'"><td>' + val.label + '(id:'+i+')</td><td id="usage">' + val.data + '</td></tr>');
+                                l.append('<tr id="'+i+'"><td class="link">' + val.label + '(id:'+i+')</td><td id="usage" class="link">' + val.data + '</td></tr>');
                                 piechart_data[val.label] = val.data;
                             } else {
                                 piechart_data[val.label] += val.data;
@@ -111,49 +112,58 @@
                 }
             }
             
+
             $.plot($("#placeholder"), chart_data, 
             {
-                pie: { 
-                    show: true, 
-                    pieStrokeLineWidth: 0, 
-                    pieStrokeColor: '#FFF', 
-                    //pieChartRadius: 100,          // by default it calculated by 
-                    //centerOffsetTop:30,
-                    //centerOffsetLeft:30,          // if 'auto' and legend position is "nw" then centerOffsetLeft is equal a width of legend.
-                    showLabel: true,                //use ".pieLabel div" to format looks of labels
-                    labelOffsetFactor: 6/6,         // part of radius (default 5/6)
-                    //labelOffset: 0                // offset in pixels if > 0 then labelOffsetFactor is ignored
-                    labelBackgroundOpacity: 0.55,   // default is 0.85
-                    labelFormatter: function(serie){// default formatter is "serie.label"
-                        //return serie.label;
-                        //return serie.data;
-                        return Math.round(serie.percent)+'%';
+                
+                series: {
+                    pie: {
+                        show: true,
+                        radius: 1,
+                        tilt: 0.7,
+                        label: {
+                            show: true,
+                            radius: 0.9,
+                            formatter: function(label, series){
+                                return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+Math.round(series.percent)+'%</div>';
+                            },
+                            background: { opacity: 0 }
+                        }
                     }
                 },
                 legend: {
-                    show: true, 
-                    position: "ne", 
-                    backgroundOpacity: 0
+                    show: true
                 }
             });
             
             if(keyArray.length > 0) {
-                $("#drivespaceTable").tablesorter( {sortList: [[1,1]]} ); 
+                $("#drivespaceTable").tablesorter( {
+                    //sortList: [[1,0]]
+                    headers: {1: { sorter: 'digit' } }
+                    } );
             }
+            
         });
         
         
     </script>
 {% endblock %}
 
-{% block content %}
-<h2>{% trans "Drive space" %}</h2>
+{% block center_details %}
+{{ block.super }}
 
-<div id="placeholder"><div id="usage"><img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none; float:left"/><div id="status"></div></div></div>
+<h1>{% trans "Drive space" %}</h1>
 
-<p>{% trans "Free space" %}: {{ driveSpace.free|filesizeformat }}</p>
+<h1>{% trans "Piechart" %}</h1>
 
-<div class="myform">{% trans "Drive space usage" %}:</div>
+<div id="usage"><img src="{% static "common/image/spinner.gif" %}" id="progress" style="display: none; float:left"/><div id="status"></div></div>
+<div id="placeholder"></div>
+
+
+<h2>{% trans "Drive space usage" %}:</h2>
+
+<div>{% trans "Free space" %}: {{ driveSpace.free|filesizeformat }}</div>
+
 
 <table id="drivespaceTable" class="tablesorter">
     <thead>
@@ -161,3 +171,4 @@
     </thead>
 </table>
 {% endblock %}
+

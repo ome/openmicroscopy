@@ -16,30 +16,29 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <link rel="shortcut icon" href="{% block favicon_href %}/appmedia/webgateway/img/favicon.ico{% endblock %}" type="image/x-icon" />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="imagetoolbar" content="no" />
-    <link rel="SHORTCUT ICON" href="/media/favicon.ico" />    <link rel="SHORTCUT ICON" href="/media/favicon.ico" />
     <title>{% block title %}{% endblock %}</title>
     {% block css %}
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/weblitz-viewport.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/jquery-plugin-gs_slider.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/weblitz-viewport.css" %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/jquery-plugin-gs_slider.css" %}" media="all" />
 
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/base.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/snippet_header_logo.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/base.css" %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/snippet_header_logo.css" %}" media="all" />
     {% endblock %}
     {% for href in extra_css %}
     <link rel="stylesheet" type="text/css" href="{{ href }}" />
     {% endfor %}
     {% block extra_css %}{% endblock %}
     {% block js %}
-	<script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/jquery-1.3.2.js"></script>
-	<script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/aop.js"></script>
+	<script type="text/javascript" src="{% static "webgateway/js/3rdparty/jquery-1.3.2.js" %}"></script>
+	<script type="text/javascript" src="{% static "webgateway/js/3rdparty/aop.js" %}"></script>
 
-        <script type="text/javascript" src="/appmedia/webgateway/js/gs_utils.js"></script>
-	<script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-viewportImage.js"></script>
-	<script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-gs_slider.js"></script>
-	<script type="text/javascript" src="/appmedia/webgateway/js/weblitz-viewport.js"></script>
+        <script type="text/javascript" src="{% static "webgateway/js/gs_utils.js" %}"></script>
+	<script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-viewportImage.js" %}"></script>
+	<script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-gs_slider.js" %}"></script>
+	<script type="text/javascript" src="{% static "webgateway/js/weblitz-viewport.js" %}"></script>
     {% endblock %}
     {% for src in extra_js %}
     <script type="text/javascript" src="{{ src }}"></script>

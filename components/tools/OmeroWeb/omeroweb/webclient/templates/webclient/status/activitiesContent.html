@@ -1,7 +1,6 @@
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
+{% load common_filters %}
+
 
 {% comment %}
 <!--
@@ -37,8 +36,8 @@
             {% ifequal j.job_type "delete" %}
                 <tr id="{{ j.id }}">
                     <td width="25px">
-                        {% ifequal j.status "in progress" %}<img class="icon" src="{% url webstatic 'images/spinner.gif' %}" />
-                        {% else %} <img class="icon" src="{% url webstatic 'images/nuvola_apply22.png' %}" />
+                        {% ifequal j.status "in progress" %}<img class="icon" src="{% static "common/image/spinner.gif" %}" />
+                        {% else %} <img class="icon" src="{% static "webclient/image/nuvola_apply22.png" %}" />
                         {% endifequal %}
                     </td>
                     <td width="50%">
@@ -75,7 +74,7 @@
                             {% if j.dreport %}{{ j.derror }} error(s) ({{ j.dreport }}){% endif %}
                     </td>
                     <td width="16px">
-                        <img id="{{ j.key }}" title="Remove from list" src="{% url webstatic 'images/nuvola_cancel16.png' %}" class="remove" />
+                        <img id="{{ j.key }}" title="Remove from list" src="{% static "webclient/image/nuvola_cancel16.png" %}" class="remove" />
                     </td>
                     <td width="40px">{{ j.start_time|date:"H:i" }}</td>
                 </tr>
@@ -86,8 +85,8 @@
             {% ifequal j.job_type "script" %}
                 <tr class="script" id="{{ j.id }}">
                     <td width="25px">
-                        {% ifequal j.status "in progress" %}<img class="icon" src="{% url webstatic 'images/spinner.gif' %}" />
-                        {% else %} <img class="icon" src="{% url webstatic 'images/tango_text-x-python16.png' %}" />
+                        {% ifequal j.status "in progress" %}<img class="icon" src="{% static "common/image/spinner.gif" %}" />
+                        {% else %} <img class="icon" src="{% static "webclient/image/tango_text-x-python16.png" %}" />
                         {% endifequal %}
                     </td>
                     <td width="50%">
@@ -103,7 +102,7 @@
                                 Failure
                                 {% comment %}
                                 <!-- Don't allow submitting now. TODO: launch submit page -->
-                                <img src="{% url webstatic 'images/info16.png' %}"/>
+                                <img src="{% static "webclient/image/info16.png" %}"/>
                                 <input type='submit' title="Send Error as Feeback to the OME team" jobKey="{{ j.key }}"
                                 {% if j.error_sent %}
                                     value='Thank you' disabled='true'
@@ -181,7 +180,7 @@
                         {% endif %}
                     </td>
                     <td width="16px">
-                        <img id="{{ j.key }}" title="Remove from list" src="{% url webstatic 'images/nuvola_cancel16.png' %}" class="remove" />
+                        <img id="{{ j.key }}" title="Remove from list" src="{% static "webclient/image/nuvola_cancel16.png" %}" class="remove" />
                     </td>
                     <td width="40px">{{ j.start_time|date:"H:i" }}</td>
                 </tr>

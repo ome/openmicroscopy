@@ -1,7 +1,6 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+
 
 {% comment %}
 <!--
@@ -23,21 +22,24 @@
 -->
 {% endcomment %}
 
-{% block css %}
-    <link rel="stylesheet" href="{% url webstatic "css/picklist.css" %}" type="text/css" media="screen"/>
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webadmin/css/picklist.css" %}" type="text/css" media="screen"/>
+
 {% endblock %}
 
 {% block title %}
-{% if eid %}
-    {% trans "Edit scientist" %}
-{% else %}
-    {% trans "Add scientist" %}
-{% endif %}
+    {% if eid %}
+        {% trans "Edit scientist" %}
+    {% else %}
+        {% trans "Add scientist" %}
+    {% endif %}
+
 {% endblock %}
 
-{% block jscript %}
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+{% block script %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static "common/javascript/jquery_1.4.2.js" %}"></script>
     
     <script type="text/javascript">
     $(document).ready(function() 
@@ -88,15 +90,15 @@
 
 {% endblock %}
 
-{% block content %}
+{% block center_details %}
 
-{% if info.message %}<div class="error">{{ info.message|safe|linebreaks }}</div>{% endif %}
+{{ block.super }}
 
 <div>
 {% if eid %}
-    <h2>{% trans "Edit scientist" %}</h2>
+    <h1>{% trans "Edit scientist" %}</h1>
 {% else %}
-    <h2>{% trans "Add scientist" %}</h2>
+    <h1>{% trans "Add scientist" %}</h1>
 {% endif %}
 
 <p>{% trans "Fields marked with and asterisk (*) are mandatory." %}</p>
@@ -159,3 +161,4 @@
 
 
 {% endblock %}
+

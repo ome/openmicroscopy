@@ -1,0 +1,75 @@
+{% extends "common/base/container2.html" %}
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% block title %}
+Extends "common/base/container2.html"
+{% endblock %}
+
+
+{% block nav_links %}
+    <li><a href="{% url common 'base_html' %}">base_html</a></li>
+    <li><a href="{% url common 'base_frame' %}">base_frame</a></li>
+    <li><a href="{% url common 'base_main' %}">base_main</a></li>
+    <li><a href="{% url common 'base_header' %}">base_header</a></li>
+    <li><a href="{% url common 'container2' %}">container2</a></li>
+    <li><a href="{% url common 'container3' %}">container3</a></li>
+{% endblock %}
+
+
+{% block header_left %}
+    <a href="{% url common 'header_links' %}">header_links</a> | 
+    <a href="{% url common 'header_icon' %}">header_icon</a>
+{% endblock %}
+
+
+{% block header_right %}
+    <a href="#">Extra Links</a> |
+    {% include 'webclient/base/logout.html' %}
+{% endblock %}
+
+
+{% block center %}
+    <h1>block center</h1>
+    <p>
+        This page extends "common/base/container2.html" and makes the following changes:
+        <ul>
+            <li>Adds links to the 'nav_links' block (main top links)</li>
+            <li>Adds a couple of links to the 'header_left' block (thin_header)</li>
+            <li>Adds an extra link and includes the 'webclient/base/logout.html' link in the 'header_right' block</li>
+            <li>Adds this text to the 'content' block</li>
+        </ul>
+    </p>
+    
+    <p>
+        The links in the thin header (left) take you to other pages that also extend common/base/base_header OR extend this one, 
+        showing other options for customising things.
+    </p>
+{% endblock %}
+
+
+{% block right %}
+    <h1>block right</h1>
+{% endblock %}
+
+{% block footer_content %}
+    {% include "webclient/base/footer_links.html" %}
+{% endblock %}

@@ -1,7 +1,6 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+
 
 {% comment %}
 <!--
@@ -31,8 +30,8 @@
 {% endif %}
 {% endblock %}
 
-{% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+{% block script %}
+    {{ block.super }}
     
     <script type="text/javascript">
         $(document).ready(function() 
@@ -70,10 +69,21 @@
     </script>
 {% endblock %}
 
-{% block content %}
+{% block center_details %}
+{{ block.super }}
 
 <div>
 <h2>{% trans "Edit group permissions" %}</h2>
+
+<h2>{% trans "Permission Levels" %}</h2>
+<ul>
+    <li>{% trans "<strong>Private</strong>: All data in this group is only visible to the user who owns it and the group owner. Other users cannot see who else is in the group or view their data. The group owner can view the data for other group members but not make any edits (same as read-only behaviour)." %}</li>
+    <li>{% trans "<strong>Collaborative - read-only</strong>: Users in groups with this permission setting can view each others' data, but cannot edit or annotate another user's data. You can view another users' images but not comment, rate or tag their images." %}</li>
+    <li>{% trans "<strong>Collaborative</strong>: Users in a collaborative group can view and annotate the data belonging to other users. You can tag another user's images or use their tags to annotate your own images. You can add comments to their images and save your own rendering settings for each image. However, you cannot edit the names of their images, projects, datasets or tags etc." %}</li>
+</ul>
+
+<p><div class="error">{% trans "<strong>WARNING</strong>: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative (or Collaborative - Read-only)</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group. " %}</div></p>
+
 
 {% if gid %}
     <form action="{% url wamanagegroupownerid "save" gid %}" method="POST" id="">
@@ -100,3 +110,4 @@
 
 </div>
 {% endblock %}
+

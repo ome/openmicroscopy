@@ -1,0 +1,84 @@
+{% extends 'common/base/base_html.html' %}
+{% load i18n %}
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "common/css/header.css" %}" type="text/css" />
+    
+    {% block footer_css %}<link rel="stylesheet" href="{% static "common/css/footer.css" %}" type="text/css" />{% endblock %}
+    
+{% endblock %}
+
+
+{% block body %}
+
+
+        <div id="top_header">
+            {% block logo %}
+                <div id="logo"> </div>
+            {% endblock %}
+            
+            <div id="menu">
+                <ul id="navigation">
+                    {% block nav_links %}
+                    {% endblock %}
+                </ul>
+            </div>
+            
+        </div>
+        
+        {% block thin_header %}
+        <div id="thin_header">
+
+            <div id="header_left">
+                {% block header_left %}
+                {% endblock %}
+            </div>
+
+            <div id="header_right">
+                {% block header_right %}
+                {% endblock %}
+            </div>
+
+        </div>
+        {% endblock %}
+
+        <div id="content">
+        {% block content %}
+        {% endblock %}
+        </div>
+
+        {% block footer %}
+            <div id="footer">
+                <div>
+                    {% block footer_content %}
+                    {% endblock %}
+                </div>
+                {% block copywrite %}
+                    <p>&copy; 2007-2011 University of Dundee & Open Microscopy Environment</p>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+{% endblock %}
