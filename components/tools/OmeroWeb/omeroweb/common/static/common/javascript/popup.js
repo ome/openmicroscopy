@@ -189,3 +189,26 @@ var login_dialog = function(login_url, callback) {
 
     return $dialog;
 };
+
+
+$.fn.load_helper = function(url, login_url, callback) {
+    return this.each(function(){
+
+        var self = $(this);
+        
+        $.ajax({
+            type: "GET",
+            url: url,
+            contentType:'html',
+            success: function(html){
+                self.html(html);
+                if (typeof callback != 'undefined') callback();
+            },
+            error: function(response) {
+                login_dialog(login_url, function(){
+                    self.load(url, callback);
+                });
+            }
+        });
+    });
+}
