@@ -31,12 +31,15 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
@@ -52,7 +55,9 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
@@ -70,6 +75,8 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -198,6 +205,9 @@ class PropertiesUI
 	/** Description pane.*/
 	private JScrollPane			pane;
 
+	/** The menu displaying the view options.*/
+	private JPopupMenu			viewMenu;
+	
 	/** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -736,6 +746,33 @@ class PropertiesUI
     }
     
     /**
+     * Creates or recycles the menu.
+     * 
+     * @param invoker The component invoking the menu.
+     * @param loc The location of the mouse clicked.
+     */
+    private void showViewMenu(JComponent invoker, Point loc)
+    {
+    	if (viewMenu == null) {
+    		viewMenu = new JPopupMenu();
+    		IconManager icons = IconManager.getInstance();
+        	JMenuItem button = new JMenuItem(icons.getIcon(IconManager.VIEW));
+        	button.setText(ViewAction.NAME);
+        	button.setToolTipText(ViewAction.DESCRIPTION);
+        	button.setActionCommand(""+EditorControl.VIEW_IMAGE);
+        	button.addActionListener(controller);
+        	viewMenu.add(button);
+        	button = new JMenuItem(icons.getIcon(IconManager.VIEWER_IJ));
+        	button.setText(ViewAction.NAME_IJ);
+        	button.setToolTipText(ViewAction.DESCRIPTION_IJ);
+        	button.setActionCommand(""+EditorControl.VIEW_IMAGE_IN_IJ);
+        	button.addActionListener(controller);
+        	viewMenu.add(button);
+    	}
+    	viewMenu.show(invoker, loc.x, loc.y);
+    }
+    
+    /**
      * Builds the properties component.
      * 
      * @return See above.
@@ -761,10 +798,21 @@ class PropertiesUI
         if (view) {
         	IconManager icons = IconManager.getInstance();
         	button = new JButton(icons.getIcon(IconManager.VIEW));
-        	button.setToolTipText("Open the Image Viewer");
-        	button.setActionCommand(""+EditorControl.VIEW_IMAGE);
-        	button.addActionListener(controller);
         	UIUtilities.unifiedButtonLookAndFeel(button);
+        	switch (MetadataViewerAgent.runAsPlugin()) {
+				case MetadataViewer.IMAGE_J:
+					button.addMouseListener(new MouseAdapter() {
+						public void mouseReleased(MouseEvent e) {
+							showViewMenu((JComponent) e.getSource(), 
+									e.getPoint());
+						}
+					});
+					break;
+				default:
+					button.setToolTipText(ViewAction.DESCRIPTION);
+		        	button.setActionCommand(""+EditorControl.VIEW_IMAGE);
+		        	button.addActionListener(controller);;
+			}
         }
         
         JPanel p = new JPanel();

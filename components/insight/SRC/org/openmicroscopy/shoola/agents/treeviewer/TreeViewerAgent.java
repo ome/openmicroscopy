@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -58,7 +57,6 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -214,6 +212,30 @@ public class TreeViewerAgent
 		}
     	return Browser.PROJECTS_EXPLORER;
     }
+    
+    /**
+     * Returns the identifier of the plugin to run.
+     * 
+     * @return See above.
+     */
+    public static int runAsPlugin()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env == null) return -1;
+    	switch (env.runAsPlugin()) {
+			case LookupNames.IMAGE_J:
+				return TreeViewer.IMAGE_J;
+		}
+    	return -1;
+    }
+    
+    /** 
+     * Returns <code>true</code> if the application is used as a plugin,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isRunAsPlugin() { return runAsPlugin() > 0; }
     
     /**
      * Handles the {@link CopyRndSettings} event.
@@ -479,7 +501,12 @@ public class TreeViewerAgent
      * Implemented as specified by {@link Agent}.
      * @see Agent#terminate()
      */
-    public void terminate() {}
+    public void terminate()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env.isRunAsPlugin())
+    		TreeViewerFactory.terminate();
+    }
 
     /** 
      * Implemented as specified by {@link Agent}. 
@@ -488,6 +515,7 @@ public class TreeViewerAgent
     public void setContext(Registry ctx)
     {
         registry = ctx;
+        
         EventBus bus = registry.getEventBus();
         bus.register(this, CopyRndSettings.class);
         bus.register(this, SaveEventRequest.class);

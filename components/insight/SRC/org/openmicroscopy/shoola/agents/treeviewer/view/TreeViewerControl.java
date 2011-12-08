@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -99,6 +100,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.UploadScriptAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewImageAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewInPlugin;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewOtherAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
@@ -342,12 +344,15 @@ class TreeViewerControl
 	
 	/** Identifies the <code>Import</code> action. */
 	static final Integer    IMPORT_NO_SELECTION = Integer.valueOf(67);
-	
+
 	/** Identifies the <code>Log off</code> action. */
 	static final Integer    LOG_OFF = Integer.valueOf(68);
 	
 	/** Identifies the <code>Create dataset</code> in the File menu. */
 	static final Integer    CREATE_DATASET_FROM_SELECTION = Integer.valueOf(69);
+
+	/** Identifies the <code>View In ImageJ</code> in the menu. */
+	static final Integer    VIEW_IN_IJ = Integer.valueOf(70);
 	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
@@ -535,6 +540,7 @@ class TreeViewerControl
 		actionsMap.put(CREATE_DATASET_FROM_SELECTION,  
 				new CreateObjectWithChildren(model, 
 						CreateObjectWithChildren.DATASET));
+		actionsMap.put(VIEW_IN_IJ, new ViewInPlugin(model, TreeViewer.IMAGE_J));
 	}
 
 	/** 
@@ -797,6 +803,20 @@ class TreeViewerControl
 	
 	/** Forwards call to the {@link TreeViewer}. */
 	void cancel() { model.cancel(); }
+	
+	/**
+	 * Brings up the menu on top of the specified component at 
+	 * the specified location.
+	 * 
+	 * @param menuID    The id of the menu.
+	 * @param invoker   The component that requested the pop-up menu.
+	 * @param loc       The point at which to display the menu, relative to the
+	 *                  <code>component</code>'s coordinates.
+	 */
+	void showMenu(int menuID, Component invoker, Point loc)
+	{
+		model.showMenu(menuID, invoker, loc);
+	}
 	
 	/**
 	 * Reacts to property changed. 
