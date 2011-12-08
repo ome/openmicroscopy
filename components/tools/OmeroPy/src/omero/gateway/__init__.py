@@ -5225,12 +5225,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         return self._obj.sizeOfPixels() > 0
 
 
-    def _getRDef (self, pid):
+    def _getRDef (self):
         """
         Return a rendering def ID based on custom logic.
         
-        @param pid:         Pixels ID
-        @type pid:          Long
         @return:            Rendering definition ID or None if no custom
                             logic has found a rendering definition.
         """
@@ -5240,20 +5238,18 @@ class _ImageWrapper (BlitzObjectWrapper):
         rdid = ann.getValue()
         if rdid is None:
             return
-        logger.debug('_getRDef: %s, %s' % (str(pid), str(rdid)))
+        logger.debug('_getRDef: %s' % (str(rdid)))
         logger.debug('now load render options: %s' % str(self._loadRenderOptions()))
         self.loadRenderOptions()
         return rdid
 
-    def _onResetDefaults(self, pid, rdid):
+    def _onResetDefaults(self, rdid):
         """
         Called whenever a reset defaults is called by the preparation of
         the rendering engine or the thumbnail bean.
         
-        @param pid:         Pixels ID
-        @type pid:          Long
-        @param pid:         Current Rendering Def ID
-        @type pid:          Long
+        @param rdid:         Current Rendering Def ID
+        @type rdid:          Long
         """
         rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
         if rdefns is None:
@@ -5276,12 +5272,12 @@ class _ImageWrapper (BlitzObjectWrapper):
         pid = self.getPrimaryPixels().id
         re = self._conn.createRenderingEngine()
         re.lookupPixels(pid)
-        rdid = self._getRDef(pid)
+        rdid = self._getRDef()
         if rdid is None:
             if not re.lookupRenderingDef(pid):
                 re.resetDefaults()
                 re.lookupRenderingDef(pid)
-                self._onResetDefaults(pid, re.getRenderingDefId())
+                self._onResetDefaults(re.getRenderingDefId())
         else:
             re.loadRenderingDef(rdid)
         re.load()
@@ -5475,8 +5471,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         pid = self.getPrimaryPixels().id
         tb = self._conn.createThumbnailStore()
-        rdid = self._getRDef(pid)
+        rdid = self._getRDef()
+
         has_rendering_settings = tb.setPixelsId(pid)
+        logger.debug("tb.setPixelsId(%d) = %s " % (pid, str(has_rendering_settings)))
         if rdid is None:
             if not has_rendering_settings:
                 try:
@@ -5490,7 +5488,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 except omero.ApiUsageException:         # E.g. No rendering def (because of missing pyramid!)
                     logger.info( "ApiUsageException: getRenderingDefId() failed in _prepareTB")
                     return tb
-                self._onResetDefaults(pid, rdid)
+                self._onResetDefaults(rdid)
         else:
             tb.setRenderingDefId(rdid)
         return tb
