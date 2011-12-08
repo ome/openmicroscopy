@@ -4723,13 +4723,11 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
               'detectorSettings|DetectorSettingsWrapper',
               'lightSourceSettings|LightSettingsWrapper',
               'filterSet|FilterSetWrapper',
-              'secondaryEmissionFilter|FilterWrapper',
-              'secondaryExcitationFilter',
               'samplesPerPixel',
               '#photometricInterpretation',
               'mode',
               'pockelCellSetting',
-              'shapes',
+              '()lightPath|',
               'version')
 
     def __loadedHotSwap__ (self):
@@ -4749,16 +4747,18 @@ class _LightPathWrapper (BlitzObjectWrapper):
     """
     base Light Source class wrapper, extends BlitzObjectWrapper.
     """
-    _attrs = ('dichroic|DichroicWrapper',)
+    _attrs = ('dichroic|DichroicWrapper',
+              '()emissionFilters|',
+              '()excitationFilters|')
     
     def __bstrap__ (self):
         self.OMERO_CLASS = 'LightPath'
 
-    def copyExcitationFilters(self):
+    def getExcitationFilters(self):
         """ Returns list of excitation L{FilterWrapper}s """
         return [FilterWrapper(self._conn, link.child) for link in self.copyExcitationFilterLink()]
 
-    def copyEmissionFilters(self):
+    def getEmissionFilters(self):
         """ Returns list of emission L{FilterWrapper}s """
         return [FilterWrapper(self._conn, link.child) for link in self.copyEmissionFilterLink()]
 
