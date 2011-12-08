@@ -107,7 +107,9 @@ public class TableResult
 	public int getColumnIndex(int index)
 	{ 
 		if (indexes == null) return -1;
-		return indexes.get(index); 
+		Integer value = indexes.get(index);
+		if (value == null) return -1;
+		return value.intValue(); 
 	}
 
 	/**
