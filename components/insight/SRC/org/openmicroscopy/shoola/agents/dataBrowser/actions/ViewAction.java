@@ -55,7 +55,7 @@ public class ViewAction
 {
 
 	/** The default name of the action. */
-    private static final String NAME = "View";
+    private static final String NAME = "View...";
     
     /** Description of the action. */
     private static final String DESCRIPTION = "View the selected image.";

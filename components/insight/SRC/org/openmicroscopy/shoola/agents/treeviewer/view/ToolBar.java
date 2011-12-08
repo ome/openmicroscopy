@@ -28,10 +28,12 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -134,9 +136,32 @@ class ToolBar
         JButton b = new JButton(controller.getAction(TreeViewerControl.BROWSE));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
-        b = new JButton(controller.getAction(TreeViewerControl.VIEW));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
+        switch (TreeViewerAgent.runAsPlugin()) {
+			case TreeViewer.IMAGE_J:
+				b = UIUtilities.formatButtonFromAction(
+						controller.getAction(TreeViewerControl.VIEW));
+				UIUtilities.unifiedButtonLookAndFeel(b);
+				b.addMouseListener(new MouseAdapter() {
+					
+					/**
+					 * Displays the menu when the user releases the mouse.
+					 * @see MouseListener#mouseReleased(MouseEvent)
+					 */
+					public void mouseReleased(MouseEvent e)
+					{
+						controller.showMenu(TreeViewer.VIEW_MENU, 
+								(JComponent) e.getSource(), e.getPoint());
+					}
+				});
+				bar.add(b);
+				break;
+			default:
+				b = new JButton(controller.getAction(TreeViewerControl.VIEW));
+		        UIUtilities.unifiedButtonLookAndFeel(b);
+		        bar.add(b);
+				break;
+		}
+        
         b = new JButton(controller.getAction(TreeViewerControl.REFRESH_TREE));
         UIUtilities.unifiedButtonLookAndFeel(b);
         //bar.add(b);

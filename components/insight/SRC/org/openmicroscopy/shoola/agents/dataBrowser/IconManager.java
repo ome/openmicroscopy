@@ -209,13 +209,15 @@ public class IconManager
     public static final int         FILTER_BY_MENU = 50;
     
     /** The <code>Send comment</code> icon. */
-    public static final int			  SEND_COMMENT = 51;
+    public static final int			SEND_COMMENT = 51;
     
+    /** The <code>ImageJ Viewer</code> icon. */
+    public static final int          VIEWER_IJ = 52;
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 51;
+    private static final int          MAX_ID = 52;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -274,6 +276,7 @@ public class IconManager
         relPaths[TAG_FILTER] = "eclipse_filter_ps16.png";
         relPaths[FILTER_BY_MENU] = "eclipse_view_menu16.png";
         relPaths[SEND_COMMENT] = "nuvola_mail_send16.png";
+        relPaths[VIEWER_IJ] = "imageJ16.png";
     }
     
     /** The sole instance. */

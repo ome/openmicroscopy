@@ -669,10 +669,11 @@ class BrowserComponent
      */
     public long getRootID()
     {
-        if (model.getState() == DISCARDED)
+        if (model.getState() == DISCARDED) return -1;
+        	/*
 		    throw new IllegalStateException(
-                    "This method can't only be invoked in the DISCARDED " +
-                    "state.");
+                    "This method can't be invoked in the DISCARDED " +
+                    "state.");*/
         return model.getRootID();
     }
 

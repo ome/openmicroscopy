@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import ij.IJ;
+
 import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -289,6 +291,12 @@ public class TreeViewerFactory
 		return singleton.getTreeViewer(model, bounds);
 	}
 
+	/** Close all the instances.*/
+	public static void terminate()
+	{
+		singleton.shutDown();
+	}
+	
 	/** Writes the external applications used to open document. */
 	public static void writeExternalApplications()
 	{
@@ -363,6 +371,20 @@ public class TreeViewerFactory
 		comparator = new StringComparator();
 	}
 
+	private void shutDown()
+	{
+		Set<TreeViewer> viewers = singleton.viewers;
+		Iterator<TreeViewer> i = viewers.iterator();
+		TreeViewer viewer;
+		while (i.hasNext()) {
+			viewer = i.next();
+			((TreeViewerComponent) viewer).shutDown();
+			//viewer.removeChangeListener(this);
+			//viewer.discard();
+		}
+		viewers.clear();
+	}
+	
 	/**
 	 * Creates or recycles a viewer component for the specified 
 	 * <code>model</code>.

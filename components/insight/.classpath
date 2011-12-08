@@ -66,5 +66,6 @@
 	<classpathentry kind="lib" path="LIB/ai_path.jar"/>
 	<classpathentry kind="lib" path="LIB/nanoxml-2.2.3.jar"/>
 	<classpathentry kind="lib" path="LIB/physics.jar"/>
+	<classpathentry kind="lib" path="LIB/ij-1.41.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
