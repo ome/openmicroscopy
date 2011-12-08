@@ -36,17 +36,41 @@
 
         <div id="top_header">
             {% block logo %}
-                <div id="logo"> </div>
+                <div id="logo">
+                    <img src="{% static "common/image/logo.png" %}" height="50" />
+                </div>
             {% endblock %}
+            
+            <div id="util_links">
+            {% block util_links %}
+            
+            {% endblock %}
+            </div>
             
             <div id="menu">
                 <ul id="navigation">
-                    {% block nav_links %}
-                    {% endblock %}
+                    
                 </ul>
             </div>
             
         </div>
+        
+        {% block middle_header %}
+        <div id="middle_header">
+
+            <div id="nav_links">
+                {% block nav_links %}
+                {% endblock %}
+            </div>
+            
+            <div id="toolbar_links">
+                {% block toolbar_links %}
+                {% endblock %}
+            </div>
+        
+        </div>
+        {% endblock %}
+        
         
         {% block thin_header %}
         <div id="thin_header">

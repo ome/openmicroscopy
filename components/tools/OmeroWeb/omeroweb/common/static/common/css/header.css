@@ -1,17 +1,21 @@
 #top_header {
     background: #fff;
     position: relative;
-    height:75px;
+    height:52px;
 }
 
 #logo {
-    background: url(../image/logo.png) no-repeat scroll left bottom transparent;
-    height: 73px;
-    left: 25px;
+    height: 52px;
+    left: 10px;
     margin: 0;
     position: absolute;
     top: 0;
     width: 160px;
+}
+
+#util_links {
+    position: absolute;
+    top: 2px; right: 3px;
 }
 
 #menu {
@@ -26,16 +30,51 @@
     font-size: 110%;
 }
 
+#nav_links {
+    margin: 6px 10px;
+    position: absolute;
+    right: 0;
+    top: 1px;
+}
+
+#toolbar_links {
+    margin: 6px 10px;
+    position: absolute;
+    left: 0;
+    top: 1px;
+}
+
+#nav_links li {
+    float:right;
+    margin: 0px 5px;
+    display: block;
+    font-size: 100%;
+}
+
 a:hover {
     border: medium none;
     color: #1B7BC7;
     text-decoration: underline;
 }
 
+#middle_header {
+    color: white;
+    margin: 0;
+    padding: 4px 0px;
+    height: 19px;
+    position: relative;
+    background: #444;
+    border-bottom: 1px solid #bbb;
+}
+
+#middle_header a {
+    color: white;
+}
+
 #thin_header {
     margin: 0;
     padding: 4px 0px;
-    height: 17px;
+    height: 15px;
     position: relative;
     background: url(../image/header_bg.png) repeat-x scroll left bottom #FFFFFF;
     border-bottom: 1px solid #bbb;
