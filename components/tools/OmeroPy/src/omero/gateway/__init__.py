@@ -903,10 +903,16 @@ class BlitzObjectWrapper (object):
               'description': self.getDescription(),
               }
         if hasattr(self, '_attrs'):
-            # 'key' -> key = _obj[key]
-            # '#key' -> key = _obj[key].value.val
-            # 'key;title' -> title = _obj[key]
-            # 'key|wrapper' -> key = omero.gateway.wrapper(_obj[key]).simpleMarshal
+            # for each of the lines in _attrs an instance variable named
+            #  'key' or 'title' where the line value can be:
+            #   'key' -> _obj[key]
+            #   '#key' -> _obj[key].value.val
+            #   '()key' -> _obj.getKey()
+            #   '()#key' -> _obj.getKey().value.val
+            # suffix to the above we can have:
+            #   'key;title' - will use 'title' as the variable name, instead of 'key'
+            #   'key|wrapper' ->  omero.gateway.wrapper(_obj[key]).simpleMarshal()
+            #   'key|' ->  key.simpleMarshal() (useful with ()key )
             for k in self._attrs:
                 if ';' in k:
                     s = k.split(';')
@@ -914,26 +920,44 @@ class BlitzObjectWrapper (object):
                     rk = ';'.join(s[1:])
                 else:
                     rk = k
-                rk = rk.replace('#', '')
                 if '|' in k:
                     s = k.split('|')
-                    k2 = s[0]
-                    w = '|'.join(s[1:])
                     if rk == k:
-                        rk = k2
-                    k = k2
-                    v = getattr(self, k)
-                    if v is not None:
-                        v = getattr(omero.gateway, w)(self._conn, v).simpleMarshal()
+                        rk = s[0]
+                    k = s[0]
+                    wrapper = '|'.join(s[1:])
                 else:
-                    if k.startswith('#'):
-                        v = getattr(self, k[1:])
-                        if v is not None:
-                            v = v._value
+                    wrapper = None
+                    
+                if k.startswith('()'):
+                    if k == rk:
+                        rk = k[2:]
+                    k = k[2:]
+                    getter = True
+                else:
+                    getter = False
+
+                if k.startswith('#'):
+                    k = k[1:]
+                    unwrap = True
+                else:
+                    unwrap = False
+
+                if getter:
+                    v = getattr(self, 'get'+k[0].upper()+k[1:])()
+                else:
+                    v = getattr(self, k)
+                if unwrap and v is not None:
+                    v = v._value
+                if wrapper is not None and v is not None:
+                    if wrapper == '':
+                        if isinstance(v, ListType):
+                            v = map(lambda x: x.simpleMarshal(), v)
+                        else:
+                            v = v.simpleMarshal()
                     else:
-                        v = getattr(self, k)
-                    if hasattr(v, 'val'):
-                        v = v.val
+                        v = getattr(omero.gateway, wrapper)(self._conn, v).simpleMarshal()
+
                 rv[rk] = v
         if xtra: # TODO check if this can be moved to a more specific place
             if xtra.has_key('childCount'):
