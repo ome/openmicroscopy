@@ -48,8 +48,13 @@
 {% endblock %}
 
 
+{% block util_links %}
+    {% include "webclient/base/logout.html" %}
+{% endblock %}
+
+
 {% block header_right %}
-    {{ info.today }} {% include "webclient/base/logout.html" %}
+    {{ info.today }}
 {% endblock %}
 
 {% block content %}

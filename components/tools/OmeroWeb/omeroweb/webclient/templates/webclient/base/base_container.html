@@ -43,13 +43,18 @@
 {% endblock %}
 
 
+{% block util_links %}
+    {% include "webclient/base/logout.html" %}
+{% endblock %}
+
+
 {% block nav_links %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
     {% include "webclient/base/menu.html" %}
 {% endblock %}
 
 
-{% block header_left %}
+{% block toolbar_links %}
 
         <!-- left-hand side of toolbar (BASKET, STATUS, group chooser) -->
         {% include "webclient/base/header.html" %}
@@ -58,7 +63,7 @@
 
 
 {% block header_right %}
-    {% include "webclient/base/logout.html" %}
+    
 {% endblock %}
 
 
