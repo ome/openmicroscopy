@@ -98,10 +98,14 @@ class Server(ServerBase):
             if cls._registry.has_key(pk):
                 r = cls._registry[pk]
         return r
-
+    
     @classmethod
-    def find(cls, server_host):
+    def find(cls, **kwargs):
+        rv = []
         for s in cls._registry.values():
-            if unicode(s.host) == unicode(server_host):
-                return s
-        return None
+            for k,v in kwargs.items():
+                if getattr(s, k) != v:
+                    continue
+                rv.append(s)
+        return rv
+
