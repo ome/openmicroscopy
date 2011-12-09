@@ -164,12 +164,34 @@ def isUserConnected (f):
                     logger.error(traceback.format_exc())
         
         sessionHelper(request)
+        navHelper(request, conn)
         kwargs["error"] = request.REQUEST.get('error')
         kwargs["conn"] = conn
         kwargs["conn_share"] = conn_share
         kwargs["url"] = url
         return f(request, *args, **kwargs)
     return wrapped
+
+
+def navHelper(request, conn):
+    
+    from django.conf import settings
+    tab_links = settings.TAB_LINKS
+    url_path = request.META.get('PATH_INFO')
+    links = []
+    for tl in tab_links:
+        try:
+            label = tl[0]
+            link = reverse(tl[1])
+            current = ( url_path.strip("/").startswith(tl[2].strip("/")) )
+            links.append( (label, link, current) )
+        except:
+            logger.error("Failed to reverse() tab_link: %s" % tl)
+    if request.session.get('nav') is None:
+        request.session['nav'] = {}
+    request.session['nav']['tab_links'] = links
+    request.session.modified = True
+
 
 def sessionHelper(request):
     """

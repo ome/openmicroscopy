@@ -15,19 +15,24 @@
 
 #util_links {
     position: absolute;
-    top: 2px; right: 3px;
+    top: 3px; right: 5px;
 }
 
-#menu {
+#tabs {
     position: absolute;
-    bottom: 0px;
-    right: 0px;
+    bottom: 2px;
+    right: 3px;
 }
-#navigation li {
-    float:right;
-    display: block;
-    margin: 10px;
-    font-size: 110%;
+#tabs a {
+    border: solid #444 1px;
+    font-size: 120%;
+    padding: 3px 8px;
+    margin: 0px 3px 0px 0px;
+    border-radius: 6px 6px 0px 0px;
+}
+#tabs a.current_tab {
+    background: #444;
+    color: #ddd;
 }
 
 #nav_links {

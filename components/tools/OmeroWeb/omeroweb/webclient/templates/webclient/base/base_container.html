@@ -44,6 +44,7 @@
 
 
 {% block util_links %}
+    <a href="{% url wamyaccount "edit" %}" title="Edit Account">{{ eContext.user.getFullName }}</a> &nbsp
     {% include "webclient/base/logout.html" %}
 {% endblock %}
 
@@ -59,11 +60,6 @@
         <!-- left-hand side of toolbar (BASKET, STATUS, group chooser) -->
         {% include "webclient/base/header.html" %}
 
-{% endblock %}
-
-
-{% block header_right %}
-    
 {% endblock %}
 
 

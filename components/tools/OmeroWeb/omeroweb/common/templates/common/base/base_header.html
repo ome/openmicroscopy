@@ -47,10 +47,12 @@
             {% endblock %}
             </div>
             
-            <div id="menu">
-                <ul id="navigation">
-                    
-                </ul>
+            <div id="tabs">
+                    {% if nav.tab_links %}
+                        {% for link in nav.tab_links %}
+                            <a href="{{ link.1 }}" {% if link.2 %}class='current_tab'{% endif %}>{{ link.0 }}</a>
+                        {% endfor %}
+                    {% endif %}
             </div>
             
         </div>
