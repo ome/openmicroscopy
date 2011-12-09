@@ -145,13 +145,16 @@ class DropBox(Ice.Application):
                     self.callbackOnInterrupt()
                     log.info("Creating test client for user: %s", user)
                     testUser = user
-                    mClient[user] = fsDropBoxMonitorClient.TestMonitorClient(user, monitorParameters[user]['watchDir'], self.communicator())
+                    mClient[user] = fsDropBoxMonitorClient.TestMonitorClient(user, monitorParameters[user]['watchDir'], self.communicator(),\
+                                    worker_wait=monitorParameters[user]['fileWait'], worker_batch=monitorParameters[user]['fileBatch'])
                 else:
                     log.info("Creating client for user: %s", user)
                     if user == 'default':
-                        mClient[user] = fsDropBoxMonitorClient.MonitorClientI(monitorParameters[user]['watchDir'], self.communicator())
+                        mClient[user] = fsDropBoxMonitorClient.MonitorClientI(monitorParameters[user]['watchDir'], self.communicator(),\
+                                        worker_wait=monitorParameters[user]['fileWait'], worker_batch=monitorParameters[user]['fileBatch'])
                     else:
-                        mClient[user] = fsDropBoxMonitorClient.SingleUserMonitorClient(user, monitorParameters[user]['watchDir'], self.communicator())
+                        mClient[user] = fsDropBoxMonitorClient.SingleUserMonitorClient(user, monitorParameters[user]['watchDir'], self.communicator(),\
+                                        worker_wait=monitorParameters[user]['fileWait'], worker_batch=monitorParameters[user]['fileBatch'])
 
                 identity = self.communicator().stringToIdentity(clientIdString + "." + user)
                 adapter.add(mClient[user], identity)
@@ -369,6 +372,8 @@ class DropBox(Ice.Application):
             throttleImport = list(props.getPropertyWithDefault("omero.fs.throttleImport","5").split(';'))
             timeToLive = list(props.getPropertyWithDefault("omero.fs.timeToLive","0").split(';'))
             timeToIdle = list(props.getPropertyWithDefault("omero.fs.timeToIdle","600").split(';'))
+            fileWait = list(props.getPropertyWithDefault("omero.fs.fileWait","60").split(';'))
+            fileBatch = list(props.getPropertyWithDefault("omero.fs.fileBatch","10").split(';'))
             readers = list(props.getPropertyWithDefault("omero.fs.readers","").split(';'))
             importArgs = list(props.getPropertyWithDefault("omero.fs.importArgs","").split(';'))
 
@@ -442,6 +447,16 @@ class DropBox(Ice.Application):
                         monitorParams[importUser[i]]['timeToIdle'] = long(timeToIdle[i].strip(string.whitespace))*1000
                     except:
                         monitorParams[importUser[i]]['timeToIdle'] = 600000L # milliseconds
+
+                    try:
+                        monitorParams[importUser[i]]['fileWait'] = int(fileWait[i].strip(string.whitespace))
+                    except:
+                        monitorParams[importUser[i]]['fileWait'] = 60 # seconds
+
+                    try:
+                        monitorParams[importUser[i]]['fileBatch'] = int(fileBatch[i].strip(string.whitespace))
+                    except:
+                        monitorParams[importUser[i]]['fileBatch'] = 10 # number
 
                     try:
                         readersFile = readers[i].strip(string.whitespace)
