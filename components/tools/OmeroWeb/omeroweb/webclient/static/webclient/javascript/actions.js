@@ -18,7 +18,7 @@ var loadOtherPanels = function(inst, prefix) {
                 if(oid!==crel) {
                     cm_var['metadata_details']['html'] = '<p>This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container.</p>';
                     cm_var['content_details']['rel'] = oid;
-                    cm_var['content_details']['url'] = prefix+orel+'/?view=icon';
+                    cm_var['content_details']['url'] = prefix+'load_data/'+orel+'/?view=icon';
                 } else {
                     cm_var['metadata_details']['html'] = '<p>This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container.</p>';
                     cm_var['content_details']['empty'] = true;
@@ -28,12 +28,12 @@ var loadOtherPanels = function(inst, prefix) {
                 if(orel=="image") {
                     var pr = selected.parent().parent();
                     if (pr.length>0 && pr.attr('rel').replace("-locked", "")==="share") {
-                        cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/'+pr.attr("id").split("-")[1]+'/';
+                        cm_var['metadata_details']['iframe'] = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/'+pr.attr("id").split("-")[1]+'/';
                     } else {
-                        cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
+                        cm_var['metadata_details']['iframe'] = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
                     }
                 } else {
-                    cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
+                    cm_var['metadata_details']['iframe'] = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
                 }
                 
                 // CONTENT panel
@@ -42,40 +42,40 @@ var loadOtherPanels = function(inst, prefix) {
                 } else if($.inArray(orel, ["plate"]) > -1) {
                     if (inst.is_leaf(selected)) {
                         cm_var['content_details']['rel'] = oid;
-                        cm_var['content_details']['url'] = prefix+orel+'/'+oid.split("-")[1]+'/';
+                        cm_var['content_details']['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/';
                     } else {
                         cm_var['content_details']['empty'] = true;
                     }
                 } else if($.inArray(orel, ["acquisition"]) > -1 && oid!==crel) {
                     var plate = inst._get_parent(selected).attr('id').replace("-", "/");
                     cm_var['content_details']['rel'] = oid;
-                    cm_var['content_details']['url'] = prefix+plate+'/'+orel+'/'+oid.split("-")[1]+'/';
+                    cm_var['content_details']['url'] = prefix+'load_data/'+plate+'/'+orel+'/'+oid.split("-")[1]+'/';
                 } else if($.inArray(orel, ["dataset", "tag"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
-                    cm_var['content_details']['url'] = prefix+orel+'/'+oid.split("-")[1]+'/?view=icon';
+                    cm_var['content_details']['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?view=icon';
                     
                 } else if($.inArray(orel, ["share"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
-                    cm_var['content_details']['url'] = prefix+oid.split("-")[1]+'/?view=icon';
+                    cm_var['content_details']['url'] = prefix+'load_data/'+oid.split("-")[1]+'/?view=icon';
                     
                 } else if($.inArray(orel, ["tag"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
-                    cm_var['content_details']['url'] = "/webclient/load_tags/?view=icon&o_type=tag&o_id="+oid.split("-")[1];
+                    cm_var['content_details']['url'] = prefix+'load_tags/?view=icon&o_type=tag&o_id='+oid.split("-")[1];
                 } else if(orel=="image") {
                     var pr = selected.parent().parent();
                     if (pr.length>0 && pr.attr('id')!==crel) {
                         if(pr.attr('rel').replace("-locked", "")==="share" && pr.attr('id')!==crel) {
                             cm_var['content_details']['rel'] = pr.attr('id');
-                            cm_var['content_details']['url'] = prefix+pr.attr('id').split("-")[1]+'/?view=icon';
+                            cm_var['content_details']['url'] = prefix+'load_data/'+pr.attr('id').split("-")[1]+'/?view=icon';
                         } else if (pr.attr('rel').replace("-locked", "")!=="tag") {
                             cm_var['content_details']['rel'] = pr.attr('id');
-                            cm_var['content_details']['url'] = prefix+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
+                            cm_var['content_details']['url'] = prefix+'load_data/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
                         } else if (pr.attr('rel').replace("-locked", "")!=="orphaned") {
                             cm_var['content_details']['rel'] = pr.attr('id');
-                            cm_var['content_details']['url'] = prefix+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
+                            cm_var['content_details']['url'] = prefix+'load_data/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
                         } else {
                             cm_var['content_details']['rel'] = pr.attr("id");
-                            cm_var['content_details']['url'] = prefix+pr.attr('rel').replace("-locked", "")+'/?view=icon';
+                            cm_var['content_details']['url'] = prefix+'load_data/'+pr.attr('rel').replace("-locked", "")+'/?view=icon';
                         }
                     }
                 } 
@@ -95,7 +95,7 @@ var loadOtherPanels = function(inst, prefix) {
         }
         
         if (cm_var.content_details.rel!==null && cm_var.content_details.url!==null){
-            $("div#content_details").html('<p>Loading data... please wait <img src ="/static/common/image/spinner.gif"/></p>');
+            $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/common/image/spinner.gif"/></p>');
             $("div#content_details").attr('rel', cm_var.content_details.rel);
             $("div#content_details").load(cm_var.content_details.url, function() {
                 syncPanels(selected);
@@ -133,7 +133,7 @@ var calculateCartTotal = function(total){
     $('#cartTotal').html(total); 
 };
 
-var addToBasket = function(selected) {
+var addToBasket = function(selected, prefix) {
     var productListQuery = new Array("action=add");
     if (selected != null && selected.length > 0) {
         selected.each(function(i) {
@@ -145,7 +145,7 @@ var addToBasket = function(selected) {
     }
     $.ajax({
         type: "POST",
-        url: "/webclient/basket/update/", //this.href,
+        url: prefix, //this.href,
         data: productListQuery.join("&"),
         contentType:'html',
         success: function(responce){
@@ -161,13 +161,13 @@ var addToBasket = function(selected) {
     });
 };
 
-var multipleAnnotation = function(selected, index){
+var multipleAnnotation = function(selected, index, prefix){
     if (selected != null && selected.length > 0) {
         var productListQuery = new Array(); 
         selected.each( function(i){
             productListQuery[i] = $(this).attr('id').replace("-","=");
         });
-        var query = "/webclient/metadata_details/multiaction/annotatemany/?"+productListQuery.join("&")
+        var query = prefix+"metadata_details/multiaction/annotatemany/?"+productListQuery.join("&")
         if (index != null && index > -1) {
             query += "&index="+index;
         }
@@ -182,7 +182,7 @@ var loadMetadataPanel = function(src, html) {
     var description = $("div#metadata_description");
 
     $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="/static/common/image/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+    $("#swapMeta").html('<img tabindex="0" src="../../static/common/image/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
 
     if (src!=null) {
         description.hide();
@@ -215,22 +215,22 @@ var refreshCenterPanel = function() {
     
     if (typeof rel!=="undefined") {
         if (rel.indexOf("orphaned")>=0) {
-            $("div#content_details").html('<p>Loading data... please wait <img src ="/static/common/image/spinner.gif"/></p>');
+            $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/common/image/spinner.gif"/></p>');
             url = '/webclient/load_data/'+rel.split('-')[0]+'/';
         } else if (rel.indexOf("share")>=0) {
-            $("div#content_details").html('<p>Loading data... please wait <img src ="/static/common/image/spinner.gif"/></p>');
+            $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/common/image/spinner.gif"/></p>');
             url = '/webclient/load_public/'+rel.split('-')[1]+'/';
         } else if(rel.indexOf('tag')>=0) {
-            $("div#content_details").html('<p>Loading data... please wait <img src="/static/common/image/spinner.gif"/></p>');
+            $("div#content_details").html('<p>Loading data... please wait <img src="../../static/common/image/spinner.gif"/></p>');
             url = '/webclient/load_tags/tag/'+rel.split('-')[1]+'/';
         } else {
-            $("div#content_details").html('<p>Loading data... please wait <img src ="/static/common/image/spinner.gif"/></p>');
+            $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/common/image/spinner.gif"/></p>');
             url = '/webclient/load_data/'+rel.replace('-', '/')+'/';
         }
         
         var view = $("div#content_details").find("#toolbar").attr('rel') ? $("div#content_details").find("#toolbar").attr('rel') : "icon";
         
-        $("div#content_details").html('<p>Loading data... please wait <img src ="/static/common/image/spinner.gif"/></p>');
+        $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/common/image/spinner.gif"/></p>');
         url = url+'?view='+view
         if (page!=null && page > 0) {
             url = url+"&page="+page;
@@ -245,16 +245,16 @@ function changeView(view, page) {
     if(rel.indexOf('orphaned')>=0) {
         url = '/webclient/load_data/orphaned/?view='+view;
     } else if(rel.indexOf('tag')>=0) {
-        $("div#content_details").html('<p>Loading data... please wait <img src="/static/common/image/spinner.gif"/></p>');
+        $("div#content_details").html('<p>Loading data... please wait <img src="../../static/common/image/spinner.gif"/></p>');
         url = '/webclient/load_tags/tag/'+rel[1]+'/?view='+view;
     } else {
-        $("div#content_details").html('<p>Loading data... please wait <img src="/static/common/image/spinner.gif"/></p>');
+        $("div#content_details").html('<p>Loading data... please wait <img src="../../static/common/image/spinner.gif"/></p>');
         url = '/webclient/load_data/dataset/'+rel[1]+'/?view='+view;
     }
     if (page!=null && page > 0) {
         url = url+"&page="+page;
     }
-    $("div#content_details").html('<p>Loading data... please wait <img src="/static/common/image/spinner.gif"/></p>');
+    $("div#content_details").html('<p>Loading data... please wait <img src="../../static/common/image/spinner.gif"/></p>');
     $("div#content_details").load(url);
     return false;
 };
@@ -263,7 +263,7 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
     if (image_id == null) {
         alert("No image selected.")
     } else {
-        $($('#id_'+metadata_type).parent()).append('<img src="/static/common/image/spinner.gif"/>');
+        $($('#id_'+metadata_type).parent()).append('<img src="../../static/common/image/spinner.gif"/>');
         $.ajax({
             type: "POST",
             url: "/webclient/metadata/image/"+image_id+"/", //this.href,
@@ -283,7 +283,7 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
 
 function doPagination(view, page) {
     var rel = $("div#content_details").attr('rel').split("-");
-    $("div#content_details").html('<p>Loading data... please wait <img src="/static/common/image/spinner.gif"/></p>');
+    $("div#content_details").html('<p>Loading data... please wait <img src="../../static/common/image/spinner.gif"/></p>');
     $("div#content_details").load('/webclient/load_data/'+rel[0]+'/'+rel[1]+'/?view='+view+'&page='+page, function() {
         $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
         if(rel[0].indexOf("orphaned")<0) {
@@ -294,7 +294,7 @@ function doPagination(view, page) {
     return false;
 }
 
-function makeShare() {
+function makeShare(prefix) {
     if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
         alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
     } else { 
@@ -311,7 +311,7 @@ function makeShare() {
         }
     }
     
-    src = '/webclient/basket/toshare/?'+productListQuery+'';
+    src = prefix+'?'+productListQuery+'';
     loadMetadata(src);
     return false;
 }
@@ -325,7 +325,7 @@ function makeDiscussion() {
 function loadMetadata(src) {
     var h = $(window).height()-200;
     $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="/static/common/image/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+    $("#swapMeta").html('<img tabindex="0" src="../../static/common/image/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
     $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details" frameborder="0"></iframe>');
     $('iframe#metadata_details').load();
 }

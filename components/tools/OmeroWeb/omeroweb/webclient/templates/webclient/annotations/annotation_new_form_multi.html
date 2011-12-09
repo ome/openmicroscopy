@@ -28,7 +28,6 @@
     {{ block.super }}
     <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/googiespell.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "webclient/css/annotation.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "webclient/css/autocomplete.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
@@ -41,10 +40,6 @@
     <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
     
-    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/AJS.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/googiespell.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/cookiesupport.js" %}"></script>
-
     <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
     
     <script type="text/javascript">
@@ -132,11 +127,7 @@
     </table>
     <input type="submit" value="{% trans 'Save' %}" />
     </form>
-    
-    <script type="text/javascript">
-        var googie_spell = new GoogieSpell("static_core/googiespell/", "{% url spellchecker %}"+"?lang=");
-        googie_spell.decorateTextarea("id_content", null, "600px");
-    </script>
+
     {% endif %}
 </div>
 

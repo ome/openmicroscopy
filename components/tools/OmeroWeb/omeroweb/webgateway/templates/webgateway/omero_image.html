@@ -421,11 +421,11 @@
     $('#wblitz-z-count').html(viewport.getZCount());
 
     if(viewport.loadedImg.rdefs.invertAxis) {
-      $('#z-axis-legend').attr('src', '{{ STATIC_URL }}webgateway/img/t_axis_revert.gif');
-      $('#t-axis-legend').attr('src', '{{ STATIC_URL }}webgateway/img/z_axis_revert.gif');
+      $('#z-axis-legend').attr('src', '{% static "webgateway/img/t_axis_revert.gif" %}');
+      $('#t-axis-legend').attr('src', '{% static "webgateway/img/z_axis_revert.gif" %}');
     } else {
-      $('#z-axis-legend').attr('src', '{{ STATIC_URL }}webgateway/img/z_axis.gif');
-      $('#t-axis-legend').attr('src', '{{ STATIC_URL }}webgateway/img/t_axis.gif');
+      $('#z-axis-legend').attr('src', '{% static "webgateway/img/z_axis.gif" %}');
+      $('#t-axis-legend').attr('src', '{% static "webgateway/img/t_axis.gif" %}');
     };
 
     if (viewport.hasLinePlot() || $('#wblitz-lp-enable').attr('checked')) {

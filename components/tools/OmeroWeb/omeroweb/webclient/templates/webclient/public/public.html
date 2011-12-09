@@ -207,7 +207,7 @@
                 })
                 .bind("select_node.jstree", function (e, data) {
                     buttonsShowHide(data.rslt.obj);
-                    loadOtherPanels(data.inst, '{% url load_public %}');
+                    loadOtherPanels(data.inst, '{% url webindex %}');
                     syncPanels(data.inst.get_selected());
                 })
                 .bind("remove.jstree", function (e, data) {

@@ -98,7 +98,13 @@ var Metadata = function () {
  * @constructor 
  */
 
+String.prototype.endsWith = function(pattern) {
+ var d = this.length - pattern.length;
+ return d >= 0 && this.lastIndexOf(pattern) === d;
+};
+
 jQuery._WeblitzViewport = function (container, server, options) {
+  if (server.endsWith("/")) server = server.substring(0, server.length - 1);
   this.self = jQuery(container);
   this.origHTML = this.self.html();
   this.self.html("");
@@ -273,10 +279,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
         href = server + '/render_image_region/' + _this.getRelUrl();
         // temporary solution for sharing. ShareId must me passed in a different way.
         var serverPrefix = server.split("/");
-        
-        
-        thref = "/" + serverPrefix[1] + '/render_birds_eye_view/' + _this.loadedImg.id + '/?' + _this.getQuery();
-        if (serverPrefix.length > 2) thref += (serverPrefix[2] + "/");
+        thref = server + '/render_birds_eye_view/' + _this.loadedImg.id + '/?' + _this.getQuery();
       } else if (_this.loadedImg.rdefs.projection.toLowerCase() != 'split') {
         href = server + '/render_image/' + _this.getRelUrl();
       } else {

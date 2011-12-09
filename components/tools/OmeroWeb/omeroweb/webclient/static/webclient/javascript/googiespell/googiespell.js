@@ -932,7 +932,7 @@ GoogieSpell.prototype.showLangWindow = function(elm, ofst_top, ofst_left) {
 }
 
 GoogieSpell.prototype.createChangeLangPic = function() {
-    var img = AJS.IMG({'src': '/static/webclient/image/googiespell/change_lang.gif', 'alt': "Change language"});
+    var img = AJS.IMG({'src': '../image/googiespell/change_lang.gif', 'alt': "Change language"});
     img.googie_action_btn = "1";
     var switch_lan = AJS.SPAN({'class': 'googie_lang_3d_on', 'style': 'padding-left: 6px;'}, img);
 

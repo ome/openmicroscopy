@@ -52,10 +52,10 @@
     <script type="text/javascript">
         var preview_loaded = function() {
             {% if manager.getShareId %}
-            var viewport = $.WeblitzViewport($("#viewport"), "/webclient/{{ manager.getShareId }}", {'mediaroot': '{{ STATIC_URL }}' } );
+            var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}{{ manager.getShareId }}", {'mediaroot': '{{ STATIC_URL }}' } );
             viewport.load({{ imageId }}, null, location.search);
             {% else %}
-            var viewport = $.WeblitzViewport($("#viewport"), "/webclient", {'mediaroot': '{{ STATIC_URL }}' } );
+            var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}", {'mediaroot': '{{ STATIC_URL }}' } );
             viewport.load({{ manager.image.id }});
             {% endif %}
         }

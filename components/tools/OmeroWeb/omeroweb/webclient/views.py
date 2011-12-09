@@ -133,10 +133,7 @@ def isUserConnected (f):
         server = string_to_dict(request.REQUEST.get('path')).get('server',request.REQUEST.get('server', None))
         url = request.REQUEST.get('url')
         if url is None or len(url) == 0:
-            if request.META.get('QUERY_STRING'):
-                url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
-            else:
-                url = '%s' % (request.META.get('PATH_INFO'))
+            url = request.get_full_path()
         
         conn = None
         try:
@@ -2774,14 +2771,14 @@ def image_viewer (request, iid, share_id=None, **kwargs):
     
     conn = None
     if share_id is not None:
-        kwargs['viewport_server'] = '/webclient/%s' % share_id
+        kwargs['viewport_server'] = reverse('webindex') + ("%s/" % share_id)
         try:
             conn = kwargs["conn_share"]
         except:
             logger.error(traceback.format_exc())
             return handlerInternalError("Connection is not available. Please contact your administrator.")
     else:
-        kwargs['viewport_server'] = '/webclient'
+        kwargs['viewport_server'] = reverse('webindex')
         try:
             conn = kwargs["conn"]
         except:

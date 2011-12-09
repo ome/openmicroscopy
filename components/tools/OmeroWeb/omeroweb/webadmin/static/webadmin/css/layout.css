@@ -73,7 +73,7 @@ img.imgzoom {
     width: 600px;
 }
 #piechart.loading {
-  background: url(/static/common/image/spinner.gif) no-repeat center center;
+  background: url(../image/spinner.gif) no-repeat center center;
 }
 
 div.hidden {
