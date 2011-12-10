@@ -177,16 +177,24 @@ def navHelper(request, conn):
     
     from django.conf import settings
     tab_links = settings.TAB_LINKS
-    url_path = request.META.get('PATH_INFO')
+    url_path = request.get_full_path()
     links = []
     for tl in tab_links:
         try:
             label = tl[0]
-            link = reverse(tl[1])
-            current = ( url_path.strip("/").startswith(tl[2].strip("/")) )
-            links.append( (label, link, current) )
+            link_id = tl[1]
+            parent_id = tl[2]
+            link = reverse(link_id)
+            current = ( url_path.strip("/").startswith(tl[2].strip("/")) )  # Does current path startwith E.g. 'webclient'?
+            if (link.strip("/").startswith('webadmin') and not conn.isAdmin()):
+                pass    # Don't show 'webadmin' tab for non-Admin users
+            else:
+                links.append( (label, link, parent_id, current) )
         except:
             logger.error("Failed to reverse() tab_link: %s" % tl)
+    # Don't show tabs if there's only 1
+    if len(links) == 1:
+        links = []
     if request.session.get('nav') is None:
         request.session['nav'] = {}
     request.session['nav']['tab_links'] = links

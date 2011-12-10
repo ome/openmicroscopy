@@ -174,6 +174,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int],
     "omero.web.open_astex_max_voxels": ["OPEN_ASTEX_MAX_VOXELS", 27000000, int],  # 300 x 300 x 300
     "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', parse_paths],
+    # tabs are ['Link Label', url=reverse("url_string"), "parent_id"].
+    # All pages under 'webclient' have <div id='parent_id'>webclient</div>. Javascript then highlights 'webclient' tab
     "omero.web.ui.tab_links": ["TAB_LINKS", '[["Webclient", "userdata", "webclient"], ["Admin", "waindex", "webadmin"]]', json.loads],
     
     # sharing no longer use this variable. replaced by request.build_absolute_uri

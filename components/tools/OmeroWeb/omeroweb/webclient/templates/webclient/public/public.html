@@ -275,14 +275,13 @@
 {% endblock %}
 
 
-{% block header_left %}
-    <a href="{% url load_template 'userdata' %}">{% trans "Projects+Screens" %}</a> | 
-    <a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a> |
-    <a href="{% url load_template 'public' %}">{% trans "Public" %}</a>
-{% endblock %}
-
-
 {% block left %}
+
+    <div class="panel_tabs">
+        <a href="{% url load_template 'userdata' %}">{% trans "Projects+Screens" %}</a>
+        <a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a>
+        <a href="{% url load_template 'public' %}">{% trans "Public" %}</a>
+    </div>
 
     <div class="toolbar">
         <div id="buttons" class="align_left">

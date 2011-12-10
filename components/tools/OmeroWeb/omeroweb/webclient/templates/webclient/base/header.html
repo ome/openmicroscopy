@@ -77,11 +77,3 @@
             <img src="{% static "common/image/spinner.gif" %}" id="progress" style="display: none;"/>
         </div>
         {% endifnotequal %}
-        <div class="header_chooser">
-            {% for field in form_active_group %} {% trans "group" %}: {{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
-        </div>
-        {% if form_users %}
-        <div class="header_chooser">
-            {% for field in form_users %}{{ field }}{% endfor %}&nbsp;&nbsp;&nbsp;
-        </div>
-        {% endif %}

@@ -31,7 +31,7 @@
 
 
 {% block util_links %}
-    <a href="{% url wamyaccount "edit" %}" title="Edit Account">{{ eContext.user.getFullName }}</a> &nbsp
+    <a href="{% url load_template 'help' %}">{% trans "Help" %}</a> &nbsp
     {% include "webclient/base/logout.html" %}
 {% endblock %}
 

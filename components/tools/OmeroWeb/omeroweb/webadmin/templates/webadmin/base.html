@@ -31,7 +31,7 @@
 
 {% block nav_links %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-    <li><a href="{% url wamyaccount "edit" %}"{% if info.myaccount %} class="menu" {% endif %}>{% trans "My Account" %}</a></li>
+    <li><a href="{% url wamyaccount "edit" %}"{% if info.myaccount %} class="menu" {% endif %}>{% trans "Profile" %}</a></li>
     {% if eventContext.isAdmin %}
     <li><a href="{% url wagroups %}"{% if info.groups %} class="menu" {% endif %}>{% trans "Groups" %}</a></li>
     <li><a href="{% url waexperimenters %}"{% if info.experimenters %} class="menu" {% endif %}>{% trans "Scientists" %}</a></li>
@@ -47,9 +47,8 @@
 
 
 {% block util_links %}
-    <a href="{% url wamyaccount "edit" %}" title="Edit Account">{{ eContext.user.getFullName }}</a> &nbsp
-    {% include "webclient/base/logout.html" %} &nbsp
-    <a href="{% url load_template 'help' %}">{% trans "Help" %}</a>
+    <a href="{% url load_template 'help' %}">{% trans "Help" %}</a> &nbsp
+    {% include "webclient/base/logout.html" %}
 {% endblock %}
 
 

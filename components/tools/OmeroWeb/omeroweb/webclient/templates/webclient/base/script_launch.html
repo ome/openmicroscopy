@@ -1,7 +1,3 @@
-{% extends 'common/base/base_header.html' %}
-
-<!-- <html class="noscroll"> -->
-
 {% comment %}
 <!--
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
@@ -22,14 +18,16 @@
 -->
 {% endcomment %}
 
-{% block link %}
-{{ block.super }}
 
-{% endblock %}
+    <div class="dropdown toolbar_button">
+        <!-- Script launcher -->
+        <a id="scriptButton" href="{% url list_scripts %}">
+            <img src="{% static "webclient/image/nuvola_script-run16.png" %}" />
+        </a>
+        <img id="scriptSpinner" style="display:none" src="{% static "common/image/spinner.gif" %}" />
+        <ul id="scriptList" class="sub_menu">
+            <!-- script list-items loaded here by AJAX -->
+        </ul>
+    </div>
+    <div style="clear:both"></div>
 
-{% block script %}
-    {{ block.super }}
-    <!-- javascript links -->
-    {% include "common/base/includes/jquery-ui.html" %}
-    {% include "common/base/includes/script_src_popup.html" %}
-{% endblock %}

@@ -116,5 +116,10 @@ label {
     padding: 0px;
 }
 
+/* hidden div to specify which parent tab is 'current' */
+#parent_id {
+    display: none;
+}
+
 /* used by the dialog in popup.js */
 .ui-dialog-titlebar { background: gray; color: white }

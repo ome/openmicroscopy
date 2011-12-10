@@ -1,6 +1,5 @@
-{% extends 'common/base/base_header.html' %}
-
-<!-- <html class="noscroll"> -->
+{% load i18n %}
+{% load common_tags %}
 
 {% comment %}
 <!--
@@ -22,14 +21,11 @@
 -->
 {% endcomment %}
 
-{% block link %}
-{{ block.super }}
-
-{% endblock %}
-
-{% block script %}
-    {{ block.super }}
-    <!-- javascript links -->
-    {% include "common/base/includes/jquery-ui.html" %}
-    {% include "common/base/includes/script_src_popup.html" %}
-{% endblock %}
+<div class="header_chooser">
+    {% for field in form_active_group %} {% trans "Group" %}: {{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
+</div>
+{% if form_users %}
+<div class="header_chooser">
+    {% for field in form_users %}{{ field }}{% endfor %}&nbsp;&nbsp;&nbsp;
+</div>
+{% endif %}

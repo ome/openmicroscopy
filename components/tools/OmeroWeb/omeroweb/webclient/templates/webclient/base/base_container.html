@@ -43,8 +43,14 @@
 {% endblock %}
 
 
+{% block script %}
+    {{ block.super }}
+    {% include "webclient/base/script_launch_head.html" %}
+{% endblock %}
+
+
 {% block util_links %}
-    <a href="{% url wamyaccount "edit" %}" title="Edit Account">{{ eContext.user.getFullName }}</a> &nbsp
+    <a href="{% url load_template 'help' %}">{% trans "Help" %}</a> &nbsp
     {% include "webclient/base/logout.html" %}
 {% endblock %}
 
@@ -56,10 +62,14 @@
 
 
 {% block toolbar_links %}
+    {% include "webclient/base/header.html" %}
+{% endblock %}
 
-        <!-- left-hand side of toolbar (BASKET, STATUS, group chooser) -->
-        {% include "webclient/base/header.html" %}
 
+{% block header_left %}
+    <!-- left-hand side of toolbar (group chooser) -->
+    {% include "webclient/base/group_user.html" %}
+    {% include "webclient/base/script_launch.html" %}
 {% endblock %}
 
 
