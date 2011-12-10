@@ -84,3 +84,16 @@ table.contentWrapper {
     height:24px;
     width:16px;
 }
+
+#dragLeft {
+    cursor: e-resize;
+    position:absolute;
+    bottom:0px;
+    background:transparent url(../image/drag_handle.png) no-repeat scroll;
+}
+#dragRight {
+    cursor: e-resize;
+    position:absolute;
+    bottom:0px;
+    background:transparent url(../image/drag_handle.png) no-repeat scroll;
+}
