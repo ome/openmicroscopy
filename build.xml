@@ -803,6 +803,35 @@ omero.version=${omero.version}
         </if>
     </target>
 
+    <target name="keystore" depends="init" description="Create keystore">
+        <genkey alias="${jarsign.alias}"
+            keystore="${jarsign.keystore}"
+            storepass="${jarsign.storepass}"
+            validity="${jarsign.validity}">
+            <dname>
+                <param name="CN" value="omedev"/>
+                <param name="OU" value="Open Microscopy Team"/>
+                <param name="O"  value="openmicroscopy.org"/>
+                <param name="C"  value="UK"/>
+            </dname>
+        </genkey>
+    </target>
+
+    <target name="release-webstart" depends="init">
+        <unzip src="components/insight/OUT/dist/OMERO.insight-${omero.version}.zip" dest="${dist.dir}/lib/insight">
+            <patternset>
+                <include name="**/*.jar"/>
+            </patternset>
+            <flattenmapper/>
+        </unzip>
+        <signjar alias="${jarsign.alias}" keystore="${jarsign.keystore}" storepass="${jarsign.storepass}" preservelastmodified="true">
+            <path>
+                <fileset dir="${dist.dir}/lib/insight"/>
+            </path>
+        </signjar>
+        <copy file="components/insight/SRC/org/openmicroscopy/shoola/env/ui/graphx/omeabout-bk.png" tofile="${dist.dir}/lib/insight/ome.png"/>
+    </target>
+
     <target name="version">
         <trycatch>
             <try>
