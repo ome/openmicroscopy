@@ -323,23 +323,30 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             String sendUrl = config.getTokenUrl();
 
             if (isSend(i)) {
-                postList.add(new StringPart("selected_file", errorContainer.getSelectedFile().getName()));
-                postList.add(new StringPart("absolute_path", errorContainer.getAbsolutePath()));
+                if (!sendFiles)
+                {
+                    errorContainer.clearFiles();
+                }
 
                 if (sendLogs)
                 {
                     errorContainer.addFile(config.getLogFile());
                 }
 
-                String[] files = errorContainer.getFiles();
+                if (sendFiles)
+                {
+                    postList.add(new StringPart("selected_file", errorContainer.getSelectedFile().getName()));
+                    postList.add(new StringPart("absolute_path", errorContainer.getAbsolutePath()));
+                    String[] files = errorContainer.getFiles();
 
-                if (files != null && files.length > 0) {
-                    for (String f : errorContainer.getFiles()) {
-                        File file = new File(f);
-                        postList.add(new StringPart("additional_files", file.getName()));
-                        if (file.getParent() != null)
-                            postList.add(new StringPart("additional_files_path", file.getParent() + "/"));
-                        postList.add(new StringPart("additional_files_size", ((Long) file.length()).toString()));
+                    if (files != null && files.length > 0) {
+                        for (String f : errorContainer.getFiles()) {
+                            File file = new File(f);
+                            postList.add(new StringPart("additional_files", file.getName()));
+                            if (file.getParent() != null)
+                                postList.add(new StringPart("additional_files_path", file.getParent() + "/"));
+                            postList.add(new StringPart("additional_files_size", ((Long) file.length()).toString()));
+                        }
                     }
                 }
             }
@@ -349,7 +356,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                 String serverReply = messenger.executePost();
 
                 // TODO add code here for sendLogs
-                if (sendFiles) {
+                if (sendFiles || sendLogs) {
                     onSending(i);
                     errorContainer.setToken(serverReply);
 
