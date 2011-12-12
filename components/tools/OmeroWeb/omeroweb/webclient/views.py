@@ -1550,10 +1550,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 members = form.cleaned_data['members']
                 #guests = request.REQUEST['guests']
                 enable = toBoolean(form.cleaned_data['enable'])
-                try:
-                    host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
-                except:
-                    host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
+                host = request.build_absolute_uri(reverse("load_template", args=["public"]))
                 manager.updateShareOrDiscussion(host, request.session.get('server'), message, members, enable, expiration)
                 return HttpResponseRedirect(url)
             else:
@@ -1564,10 +1561,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form_sharecomments.is_valid():
                 logger.debug("Create share comment: %s" % (str(form_sharecomments.cleaned_data)))
                 comment = form_sharecomments.cleaned_data['comment']
-                try:
-                    host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
-                except:
-                    host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
+                host = request.build_absolute_uri(reverse("load_template", args=["public"]))
                 manager.addComment(host, request.session['server'], comment)
                 return HttpResponseRedirect(url)
             else:
@@ -2118,10 +2112,7 @@ def basket_action (request, action=None, **kwargs):
             members = form.cleaned_data['members']
             #guests = request.REQUEST['guests']
             enable = toBoolean(form.cleaned_data['enable'])
-            try:
-                host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
-            except:
-                host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
+            host = request.build_absolute_uri(reverse("load_template", args=["public"]))
             share = BaseShare(conn)
             share.createShare(host, request.session.get('server'), images, message, members, enable, expiration)
             return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
@@ -2148,10 +2139,7 @@ def basket_action (request, action=None, **kwargs):
             members = form.cleaned_data['members']
             #guests = request.REQUEST['guests']
             enable = toBoolean(form.cleaned_data['enable'])
-            try:
-                host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
-            except:
-                host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
+            host = request.build_absolute_uri(reverse("load_template", args=["public"]))
             share = BaseShare(conn)
             share.createDiscussion(host, request.session.get('server'), message, members, enable, expiration)
             return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 

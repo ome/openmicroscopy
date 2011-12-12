@@ -150,7 +150,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.database_port": ["DATABASE_PORT", None, leave_none_unset],
     "omero.web.database_user": ["DATABASE_USER", None, leave_none_unset],
     "omero.web.admins": ["ADMINS", '[]', json.loads],
-    "omero.web.application_host": ["APPLICATION_HOST", "http://localhost:4080", remove_slash],
     "omero.web.application_server": ["APPLICATION_SERVER", DEFAULT_SERVER_TYPE, check_server_type],
     "omero.web.application_server.host": ["APPLICATION_SERVER_HOST", "0.0.0.0", str],
     "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
@@ -174,6 +173,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int],
     "omero.web.open_astex_max_voxels": ["OPEN_ASTEX_MAX_VOXELS", 27000000, int],  # 300 x 300 x 300
     "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', parse_paths],
+    
+    # sharing no longer use this variable. replaced by request.build_absolute_uri
+    # after testing this line should be removed.
+    # "omero.web.application_host": ["APPLICATION_HOST", None, remove_slash], 
+    
 }
 
 for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
@@ -392,20 +396,20 @@ except:
 
 EMAIL_TEMPLATES = {
     'create_share': {
-        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href="%s/webclient/public/?server=%i">%s/webclient/public/?server=%i</a>.</p><p>%s</p>', 
-        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %s/webclient/public/?server=%i. /n %s'
+        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href="%s?server=%i">%s?server=%i</a>.</p><p>%s</p>', 
+        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %s?server=%i. /n %s'
     },
     'add_member_to_share': {
-        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href="%s/webclient/public/?server=%i">%s/webclient/public/?server=%i</a>.</p><p>%s</p>', 
-        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %s/webclient/public/?server=%i. /n %s'
+        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href="%s?server=%i">%s?server=%i</a>.</p><p>%s</p>', 
+        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %s?server=%i. /n %s'
     },
     'remove_member_from_share': {
-        'html_content':'<p>You were removed from the share <a href="%s/webclient/public/?server=%i">%s/webclient/public/?server=%i</a>. This share is no longer available for you.</p>',
-        'text_content':'You were removed from the share %s/webclient/public/?server=%i. This share is no longer available for you.'
+        'html_content':'<p>You were removed from the share <a href="%s?server=%i">%s?server=%i</a>. This share is no longer available for you.</p>',
+        'text_content':'You were removed from the share %s?server=%i. This share is no longer available for you.'
     },
     'add_comment_to_share': {
-        'html_content':'<p>New comment is available on share <a href="%s/webclient/public/?server=%i">%s/webclient/public/?server=%i</a>.</p>',
-        'text_content':'New comment is available on share %s/webclient/public/?server=%i.'
+        'html_content':'<p>New comment is available on share <a href="%s?server=%i">%s?server=%i</a>.</p>',
+        'text_content':'New comment is available on share %s?server=%i.'
     }
 }
 
