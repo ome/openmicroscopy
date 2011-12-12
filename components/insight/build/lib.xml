@@ -3,35 +3,6 @@
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
  * Library of custom Ant tasks. 
  *
- * DEPENDENCIES
- * This section lists all the libraries that need to be available to Ant in 
- * order to run the various targets of our build.  These are both the libs
- * listed in the 'EXTERNAL DEPENDENCIES' sections of the tasks defined within
- * this file and other additional libs required by some Ant optional tasks
- * used within child build files.  Here's the list then (files are kept under
- * the tools directory):
- *
- *  + junit-3.8.1.jar: The JUnit Testing Framework 
- *        (http://www.junit.org/).  Version: 3.8.1.
- *  + xalan-2.6.0.jar: The Xalan-J XSLT library from Apache
- *        (http://xml.apache.org/xalan-j/).  Version: 2_6_0.
- *  + jarbundler-1.6.jar: The Jar Bundler utility to make Mac OS X application
- *        bundles (http://informagen.com/JarBundler/).  Version: 1.6. 
- *  + bsf-2.3.0-rc1.jar: The Bean Scripting Framework from Jakarta
- *        (http://jakarta.apache.org/bsf/).  Version: 2.3.0-rc1.
- *  + rhino-1_5R3.jar: The Rhino JavaScript engine from Mozilla
- *        (http://www.mozilla.org/rhino/).  Version: 1_5R3.
- *        (NOTE: Later versions don't work with BSF 2.3.0.) 
- *  + fop-0.20.5.jar: The Formatting Objects Processor (FOP) from the Apache 
- *        XML Project (http://xml.apache.org/fop/).  Version: 0.20.5.
- *  + avalon-framework-cvs-20020806.jar: The Apache Avalon Framework, bunlded
- *        with the FOP distribution.  Version: unknown.
- *  + batik.jar: The Apache Batik SVG Toolkit, bundled wiht the FOP 
- *        distribution.  Version: unknown.
- *  + xerces-2.6.2.jar: The Apache Xerces Parser 
- * 					(http://xerces.apache.org/xerces-j/). Version: 2.6.2.
- *  + xerces-xml-apis-2.6.2.jar. The Apache Xerces Parser 
- * 					(http://xerces.apache.org/xerces-j/). Version: 2.6.2.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <antlib>
 
@@ -131,16 +102,7 @@ ${checkdup.found}
    * The FOP task comes from http://xml.apache.org/fop/.  See their docs for
    * parameters and usage.
    *
-   * EXTERNAL DEPENDENCIES:
-   *  + fop-0.20.5.jar: The FOP jar.  Version: 0.20.5.
-   *  + avalon-framework-cvs-20020806.jar: The Apache Avalon Framework, bundled
-   *        with the FOP distribution.  Version: unknown.
-   *  + batik.jar: The Apache Batik SVG Toolkit, bundled wiht the FOP 
-   *        distribution.  Version: unknown. 
-   *  + xerces-2.6.2.jar: The Apache Xerces Parser 
-   * 					(http://xerces.apache.org/xerces-j/). Version: 2.6.2.
-   *  + xerces-xml-apis-2.6.2.jar. The Apache Xerces Parser 
-   * 					(http://xerces.apache.org/xerces-j/). Version: 2.6.2.
+   * EXTERNAL DEPENDENCIES: fop, avalon-framework, batik, xerces
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <!-- DISABLED
   <taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop" /> 
@@ -326,12 +288,7 @@ ${checkdup.found}
    *            'style.css' file, then that file will be used 
    *            instead.
    *
-   * EXTERNAL DEPENDENCIES:
-   *  + bsf-2.3.0-rc1.jar: The Bean Scripting Framework from Jakarta
-   *        (http://jakarta.apache.org/bsf/).  Version: 2.3.0-rc1.
-   *  + rhino-1_5R3.jar: The Rhino JavaScript engine from Mozilla
-   *        (http://www.mozilla.org/rhino/).  Version: 1_5R3.
-   *        (NOTE: Later versions don't work with BSF 2.3.0.)
+   * EXTERNAL DEPENDENCIES: bsf and rhino.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <!-- DISABLED
   <scriptdef name="xdoc" language="javascript">
@@ -503,8 +460,7 @@ ${checkdup.found}
    * The Jar Bundler task comes from http://informagen.com/JarBundler/.  
    * See their docs for parameters and usage.
    *
-   * EXTERNAL DEPENDENCIES:
-   *  + jarbundler-1.6.jar: The Jar Bundler jar.  Version: 1.6.
+   * EXTERNAL DEPENDENCIES: jarbundler
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <taskdef name="jarbundler"
       classname="net.sourceforge.jarbundler.JarBundler" >
