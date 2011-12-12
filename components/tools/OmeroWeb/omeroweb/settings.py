@@ -153,6 +153,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.application_server": ["APPLICATION_SERVER", DEFAULT_SERVER_TYPE, check_server_type],
     "omero.web.application_server.host": ["APPLICATION_SERVER_HOST", "0.0.0.0", str],
     "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
+    "omero.web.static_url": ["STATIC_URL", "/static/", str],
     "omero.web.cache_backend": ["CACHE_BACKEND", None, leave_none_unset],
     "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
     "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
@@ -279,7 +280,7 @@ STATICFILES_FINDERS = (
 # Example: "/site_media/static/" or "http://static.example.com/".
 # If not None, this will be used as the base path for media definitions and the staticfiles 
 # app. It must end in a slash if set to a non-empty value.
-STATIC_URL = '/static/'
+# This var is configurable by omero.web.static_url STATIC_URL = '/static/'
 
 # STATIC_ROOT: The absolute path to the directory where collectstatic will collect static 
 # files for deployment. If the staticfiles contrib app is enabled (default) the collectstatic 
