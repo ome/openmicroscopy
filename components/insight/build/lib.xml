@@ -34,7 +34,7 @@
  * 					(http://xerces.apache.org/xerces-j/). Version: 2.6.2.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <antlib>
-  
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * TASK NAME: checkdef
    * 
@@ -49,32 +49,41 @@
    *  prop      The name of the property to check.                  No
    *  ref       The name of the reference to check.                 No
    *
-   * EXTERNAL DEPENDENCIES:
-   *  + bsf-2.3.0-rc1.jar: The Bean Scripting Framework from Jakarta
-   *        (http://jakarta.apache.org/bsf/).  Version: 2.3.0-rc1.
-   *  + rhino-1_5R3.jar: The Rhino JavaScript engine from Mozilla
-   *        (http://www.mozilla.org/rhino/).  Version: 1_5R3.
-   *        (NOTE: Later versions don't work with BSF 2.3.0.) 
+   * EXTERNAL DEPENDENCIES: None.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
-  <scriptdef name="checkdef" language="javascript">
-    <attribute name="prop" /> 
-    <attribute name="ref" />
-    <![CDATA[
-    
-      function check(name, value) 
-      {
-        if (value != null && (""+value).length != 0) return;
-        throw new Packages.org.apache.tools.ant.BuildException(
-                                                    name+" has not been set."); 
-      }
-    
-      var prop = attributes.get("prop"),
-          ref = attributes.get("ref");
-      if (prop != null) check(prop, project.getProperty(prop));
-      if (ref != null) check(ref, project.getReference(ref));
-       
-    ]]> 
-  </scriptdef>
+  <macrodef name="checkdef">
+    <attribute name="prop" default=""/>
+    <attribute name="ref" default=""/>
+    <sequential>
+      <!-- Check prop -->
+      <if>
+        <not><equals arg1="@{prop}" arg2=""/></not>
+        <then>
+          <if>
+            <or>
+              <not><isset property="@{prop}"/></not>
+              <equals arg1="@{prop}" arg2=""/>
+            </or>
+            <then>
+              <fail>@{prop} has not been set.</fail>
+            </then>
+          </if>
+        </then>
+      </if>
+      <!-- Check ref -->
+      <if>
+        <not><equals arg1="@{ref}" arg2=""/></not>
+        <then>
+          <if>
+            <not><isreference refid="@{ref}"/></not>
+            <then>
+              <fail>@{ref} has not been set.</fail>
+            </then>
+          </if>
+        </then>
+      </if>
+    </sequential>
+  </macrodef>
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * TASK NAME: checkdup
@@ -91,44 +100,28 @@
    *  dir       The origin directory.                               Yes
    *  targetdir The directory to compare.                           Yes
    *
-   * EXTERNAL DEPENDENCIES:
-   *  + bsf-2.3.0-rc1.jar: The Bean Scripting Framework from Jakarta
-   *        (http://jakarta.apache.org/bsf/).  Version: 2.3.0-rc1.
-   *  + rhino-1_5R3.jar: The Rhino JavaScript engine from Mozilla
-   *        (http://www.mozilla.org/rhino/).  Version: 1_5R3.
-   *        (NOTE: Later versions don't work with BSF 2.3.0.) 
+   * EXTERNAL DEPENDENCIES: None.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
-  <scriptdef name="checkdup" language="javascript">
-    <attribute name="dir" /> 
+  <macrodef name="checkdup">
+    <attribute name="dir" />
     <attribute name="targetdir" />
-    <![CDATA[
-       
-      var dir = attributes.get("dir"),
-          targetdir = attributes.get("targetdir");    
-      if (dir == null) 
-        throw new Packages.org.apache.tools.ant.BuildException(
-                                                  "Undefined dir attribute.");
-      if (targetdir == null) 
-        throw new Packages.org.apache.tools.ant.BuildException(
-                                            "Undefined targetdir attribute.");
+    <sequential>
+      <fileset dir="@{dir}" id="checkdup.id">
+        <present present="both" targetdir="@{targetdir}"/>
+       </fileset>
+       <pathconvert pathsep="\n" property="checkdup.found" refid="checkdup.id"/>
+       <if>
+         <not><equals arg1="${checkdup.found}" arg2=""/></not>
+         <then>
+           <fail> DUPLICATES FOUND!
 
-      var fileset = new Packages.org.apache.tools.ant.types.FileSet(),
-          present = new Packages.org.apache.tools.ant.types.selectors.
-                    PresentSelector(), 
-          matchedFiles = "";  
-      fileset.setProject(project); 
-      fileset.setDir(new java.io.File(dir));
-      fileset.addPresent(present);
-      present.setTargetdir(new java.io.File(targetdir)); 
-  
-      matchedFiles = fileset.toString();
-      if (matchedFiles.length() != 0)
-        throw new Packages.org.apache.tools.ant.BuildException(
-        "Files were found in "+dir+" that have the same name and relative "+
-        "path as existing files in "+targetdir+":\n"+matchedFiles); 
-
-    ]]> 
-  </scriptdef>
+Files were found that have the same name and relative as files in @{targetdir}:
+${checkdup.found}
+           </fail>
+         </then>
+      </if>
+    </sequential>
+  </macrodef>
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * TASK NAME: fop
@@ -149,7 +142,9 @@
    *  + xerces-xml-apis-2.6.2.jar. The Apache Xerces Parser 
    * 					(http://xerces.apache.org/xerces-j/). Version: 2.6.2.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <!-- DISABLED
   <taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop" /> 
+  -->
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * TASK NAME: makexdoc
@@ -338,6 +333,7 @@
    *        (http://www.mozilla.org/rhino/).  Version: 1_5R3.
    *        (NOTE: Later versions don't work with BSF 2.3.0.)
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <!-- DISABLED
   <scriptdef name="xdoc" language="javascript">
 	  <attribute name="srcdir" />
 	  <attribute name="destdir" />
@@ -497,6 +493,7 @@
       
     ]]> 
   </scriptdef>
+  -->
   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * TASK NAME: jarbundler
@@ -510,6 +507,8 @@
    *  + jarbundler-1.6.jar: The Jar Bundler jar.  Version: 1.6.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <taskdef name="jarbundler"
-           classname="net.sourceforge.jarbundler.JarBundler" />
+      classname="net.sourceforge.jarbundler.JarBundler" >
+      <classpath refid="insight.tools.path" />
+  </taskdef>
 
 </antlib>

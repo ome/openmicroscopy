@@ -20,7 +20,7 @@
   <checkdef prop="app.lib.dir"/>
   <checkdef prop="app.mainclass"/>
   <checkdef ref="app.config"/>
-  <checkdef ref="app.libs"/>
+  <!-- <checkdef ref="app.libs"/> -->
   <checkdef prop="docs.dir"/> 
   <checkdef prop="docs.userdocs.dir"/>
 <checkdef prop="app.compiled.util.dir"/>
@@ -189,6 +189,19 @@
   	dist-win-openGL,dist-win64-openGL"
           description="Build and package the app for distribution."> 
     <property name="main-dist-prefix" value="${dist.bundle.name}-${dist.bundle.version}"/>
+
+    <!-- Touch the zip files for ivy -->
+    <zip destfile="${dist.dir}/${main-dist-prefix}-win.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
+    <zip destfile="${dist.dir}/${main-dist-prefix}-win-openGL.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
+    <zip destfile="${dist.dir}/${main-dist-prefix}-win-openGL-64.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
+
+    <!-- Main zip -->
     <zip destfile="${dist.dir}/${main-dist-prefix}.zip">
       <zipfileset dir="${app.config.dir}" prefix="${main-dist-prefix}/${dist.app.config.dir.name}"/>
       <zipfileset refid="app.libs" prefix="${main-dist-prefix}/${dist.app.lib.dir.name}"/>
@@ -336,7 +349,7 @@
       <zipfileset prefix="${dist.zip.prefix.win.openGL}" dir="${dist.dir}"
                   includes="${dist.jar.file}"/>
       <zipfileset prefix="${dist.zip.prefix.win.openGL}/libs"
-                  dir="${base.lib.dir}/win-native" includes="*"/>
+                  dir="${native.lib.dir}/win-native" includes="*"/>
       <zipfileset file="${dist.dir}/opengl-imviewer.xml"
                   fullpath="${dist.zip.prefix.win.openGL}/${dist.app.config.dir.name}/imviewer.xml"/>
     </zip> 
@@ -394,7 +407,7 @@
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}" dir="${dist.dir}"
 	                  includes="${dist.jar.file}"/>
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/libs"
-	                  dir="${base.lib.dir}/win64-native"
+	                  dir="${native.lib.dir}/win64-native"
 	                  includes="*"/>
         <zipfileset file="${dist.dir}/opengl-imviewer.xml"
                     fullpath="${dist.zip.prefix.win64.openGL}/${dist.app.config.dir.name}/imviewer.xml"/>
@@ -465,7 +478,7 @@
       <jarfileset refid="app.libs"/>
       <javaproperty name="java.library.path" value="$JAVAROOT"/>
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
-      <jarfileset dir="${base.lib.dir}/osx-native" includes="*"/>
+      <jarfileset dir="${native.lib.dir}/osx-native" includes="*"/>
     </jarbundler>
     <copy file="${app.config.dir}/imviewer.xml"
       tofile="${dist.dir}/opengl-imviewer.xml"/>
