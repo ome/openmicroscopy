@@ -72,8 +72,8 @@
             <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight-win-openGL.zip"/>
         </copy>
         <copy todir="${target.dir}">
-            <fileset dir="${basedir}/OUT/dist" includes="*-win-openGL-64.zip"/>
-            <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight-win-openGL-64.zip"/>
+            <fileset dir="${basedir}/OUT/dist" includes="*-win64-openGL.zip"/>
+            <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight-win64-openGL.zip"/>
         </copy>
         <copy todir="${target.dir}">
             <fileset dir="${basedir}/OUT/dist" includes="*-mac.zip"/>

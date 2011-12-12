@@ -105,6 +105,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist-init" depends="app.clean,test.clean,test">
     <mkdir dir="${dist.dir}"/>
+    <property name="main-dist-prefix" value="${dist.bundle.name}-${dist.bundle.version}"/>
   </target>
   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -114,6 +115,16 @@
     <condition property="dist.exe4j.exists">
       <available file="${dist.exe4j.home}/bin/ant.jar"/>
     </condition>
+    <!-- Touch the zip files for ivy -->
+    <zip destfile="${dist.dir}/${main-dist-prefix}-win.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
+    <zip destfile="${dist.dir}/${main-dist-prefix}-win-openGL.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
+    <zip destfile="${dist.dir}/${main-dist-prefix}-win64-openGL.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
   </target>
 
   <target name="exe4j-echo-on-missing" unless="dist.exe4j.exists">
@@ -188,18 +199,6 @@
           depends="jar, jar-util, dist-osx-openGL, dist-osx, dist-win, 
   	dist-win-openGL,dist-win64-openGL"
           description="Build and package the app for distribution."> 
-    <property name="main-dist-prefix" value="${dist.bundle.name}-${dist.bundle.version}"/>
-
-    <!-- Touch the zip files for ivy -->
-    <zip destfile="${dist.dir}/${main-dist-prefix}-win.zip">
-      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
-    </zip>
-    <zip destfile="${dist.dir}/${main-dist-prefix}-win-openGL.zip">
-      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
-    </zip>
-    <zip destfile="${dist.dir}/${main-dist-prefix}-win-openGL-64.zip">
-      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
-    </zip>
 
     <!-- Main zip -->
     <zip destfile="${dist.dir}/${main-dist-prefix}.zip">
