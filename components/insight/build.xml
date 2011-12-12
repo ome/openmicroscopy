@@ -58,9 +58,30 @@
             Copies and renames the zips from the insight internal build (OUT/dist)
             to target, stripping version numbers so Ivy can find them.
         </description>
+        <!-- Hard coding paths for the moment to work around hudson regex issues -->
         <copy todir="${target.dir}">
-            <fileset dir="${basedir}/OUT/dist" includes="*.zip"/>
-            <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight\1.zip"/>
+            <fileset dir="${basedir}/OUT/dist" includes="*.zip" excludes="*-mac*.zip,*-win*.zip"/>
+            <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight.zip"/>
+        </copy>
+        <copy todir="${target.dir}">
+            <fileset dir="${basedir}/OUT/dist" includes="*-win.zip"/>
+            <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight-win.zip"/>
+        </copy>
+        <copy todir="${target.dir}">
+            <fileset dir="${basedir}/OUT/dist" includes="*-win-openGL.zip"/>
+            <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight-win-openGL.zip"/>
+        </copy>
+        <copy todir="${target.dir}">
+            <fileset dir="${basedir}/OUT/dist" includes="*-win-openGL-64.zip"/>
+            <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight-win-openGL-64.zip"/>
+        </copy>
+        <copy todir="${target.dir}">
+            <fileset dir="${basedir}/OUT/dist" includes="*-mac.zip"/>
+            <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight-mac.zip"/>
+        </copy>
+        <copy todir="${target.dir}">
+            <fileset dir="${basedir}/OUT/dist" includes="*-mac-openGL.zip"/>
+            <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight-mac-openGL.zip"/>
         </copy>
     </target>
 
