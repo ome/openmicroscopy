@@ -312,7 +312,7 @@ java component.
             <zipfileset dir="${blitz.comp}/target"      prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${blitz.comp}/generated"   prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${OmeroImporter.comp}/src" prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
-            <zipfileset dir="${insight.comp}/src"       prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
+            <zipfileset dir="${insight.comp}/SRC"       prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${OmeroJava.comp}/src"     prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
         </zip>
