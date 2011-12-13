@@ -68,11 +68,14 @@
 		<defineClasspath/>
                 <defineVariables/>
 		<makeDirectories/>
-		<copyResource file="${root.dir}/lib/log4j-build.xml"/>
 		<copyResource file="${root.dir}/etc/local.properties"/>
 		<copyResource file="${root.dir}/etc/hibernate.properties"/>
-		<copyResource file="${root.dir}/etc/log4j.xml"/>
 		<copyResource file="${root.dir}/etc/omero.properties"/>
+                <!-- Handling log4j*xml separately -->
+                <copy file="${root.dir}/lib/log4j-build.xml" tofile="${resrc.dest}/log4j.xml" failonerror="true" />
+                <copy file="${root.dir}/lib/log4j-build.xml" tofile="${classes.dir}/log4j.xml" failonerror="true" />
+                <!-- See #2187 for more information-->
+
 		<echo file="${classes.dir}/omero.properties" append="true">
 omero.version=${omero.version}
 		</echo>
@@ -320,6 +323,7 @@ omero.version=${omero.version}
 			<fileset dir="${classes.dir}">
 				<exclude name="local.properties"/>
 				<exclude name="log4j.xml"/>
+				<exclude name="log4j-build.xml"/>
 			</fileset>
 		</jar>
 	</target>

@@ -138,7 +138,7 @@
         </macrodef>
 
 	<macrodef name="publishArtifact">
-		<attribute name="pattern" default="${target.dir}/[module].[ext]"/>
+		<attribute name="pattern" default="${target.dir}/[artifact].[ext]"/>
 		<sequential>
 		<delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
 		<ivy:publish settingsRef="ivy.${ant.project.name}" artifactspattern="@{pattern}" resolver="${omero.resolver}" pubrevision="${omero.version}" pubdate="${now}" status="integration" overwrite="true"/>

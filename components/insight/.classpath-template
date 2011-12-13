@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="**/.svn" kind="src" path="SRC"/>
+	<classpathentry excluding="**/.svn" kind="src" path="resources"/>
+	<classpathentry excluding="**/.svn" kind="src" path="target/generated/src"/>
+	<classpathentry excluding="**/.svn" kind="src" path="target/generated/resources"/>
+	<classpathentry excluding="**/.svn" kind="src" output="target/test-classes" path="TEST"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+        <classpathentry kind="con" path="org.testng.TESTNG_CONTAINER"/>
+	<classpathentry kind="output" path="target/classes"/>
+        <!--
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/jburel/Documents/workspace/InsightTrunkMain/LIB/osx-native"/>
+		</attributes>
+	</classpathentry>
+        -->
+</classpath>
