@@ -801,11 +801,11 @@ def load_searching(request, form=None, **kwargs):
         date = request.REQUEST.get('dateperiodinput', None)
         if date is not None:
             date = smart_str(date)
-        
+
         # by default, if user has not specified any types:
         if len(onlyTypes) == 0:
             onlyTypes = ['images']
-        
+
         # search is carried out and results are stored in manager.containers.images etc.
         manager.search(query_search, onlyTypes, date)
     else:
