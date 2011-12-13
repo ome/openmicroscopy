@@ -76,11 +76,17 @@ form th {
     border: 0px;
 }
 
-input {
-    margin: 0;
+input[type="text"]{
     border: 1px solid #bbb;
     background-color: #fff;
 }
+input{
+    margin: 0;
+    font-size: 12px;
+    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
+    color: #444;
+}
+
 select {
     margin: 0;
     background-color: #fff;

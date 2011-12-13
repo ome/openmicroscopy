@@ -567,6 +567,12 @@ def load_template(request, menu, **kwargs):
                 else:
                     init['initially_open'].append(k+"-"+i)          # E.g. ['project-51', 'dataset-502']
     
+    
+    # search support
+    if menu == "search":
+        init['query'] = request.REQUEST.get('search_query')
+    
+    
     try:
         manager = BaseContainer(conn)
     except AttributeError, x:
@@ -778,7 +784,6 @@ def load_searching(request, form=None, **kwargs):
     # form = 'form' if we are searching. Get query from request...
     if form is not None: 
         query_search = request.REQUEST.get('query').replace("+", " ")
-        print "".replace("+", " ")
         template = "webclient/search/search_details.html"
 
         onlyTypes = list()
@@ -796,6 +801,10 @@ def load_searching(request, form=None, **kwargs):
         date = request.REQUEST.get('dateperiodinput', None)
         if date is not None:
             date = smart_str(date)
+        
+        # by default, if user has not specified any types:
+        if len(onlyTypes) == 0:
+            onlyTypes = ['images']
         
         # search is carried out and results are stored in manager.containers.images etc.
         manager.search(query_search, onlyTypes, date)

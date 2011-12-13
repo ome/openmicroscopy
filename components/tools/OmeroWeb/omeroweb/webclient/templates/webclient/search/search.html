@@ -89,7 +89,13 @@
                     $("div#content_details").load('{% url load_searching "form" %}?'+url);
                     return false;
                 });
-                
+
+
+            {% if init.query %}
+                $("div#content_details").load('{% url load_searching "form" %}?query={{ init.query }}');
+            {% endif %}
+
+
                 $("#batch_search_button").click(function() {
                     var batch_query = $("textarea[name='batch_query']").val();
                     if (batch_query == "") {
