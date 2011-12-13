@@ -89,10 +89,7 @@ def isAdminConnected (f):
         #this check the connection exist, if not it will redirect to login page
         url = request.REQUEST.get('url')
         if url is None or len(url) == 0:
-            if request.META.get('QUERY_STRING'):
-                url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
-            else:
-                url = '%s' % (request.META.get('PATH_INFO'))
+            url = request.get_full_path()
         
         conn = None
         try:
@@ -117,10 +114,7 @@ def isOwnerConnected (f):
         #this check the connection exist, if not it will redirect to login page
         url = request.REQUEST.get('url')
         if url is None or len(url) == 0:
-            if request.META.get('QUERY_STRING'):
-                url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
-            else:
-                url = '%s' % (request.META.get('PATH_INFO'))
+            url = request.get_full_path()
         
         conn = None
         try:
@@ -149,10 +143,7 @@ def isUserConnected (f):
         #this check connection exist, if not it will redirect to login page
         url = request.REQUEST.get('url')
         if url is None or len(url) == 0:
-            if request.META.get('QUERY_STRING'):
-                url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
-            else:
-                url = '%s' % (request.META.get('PATH_INFO'))
+            url = request.get_full_path()
         
         conn = None
         try:
