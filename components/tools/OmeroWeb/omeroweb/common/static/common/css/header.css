@@ -35,21 +35,21 @@
     color: #ddd;
 }
 
-#nav_links {
+#middle_header_right {
     margin: 6px 10px;
     position: absolute;
     right: 0;
     top: 1px;
 }
 
-#toolbar_links {
+#middle_header_left {
     margin: 6px 10px;
     position: absolute;
     left: 0;
     top: 1px;
 }
 
-#nav_links li {
+#middle_header_right li {
     float:right;
     margin: 0px 5px;
     display: block;
@@ -85,14 +85,14 @@ a:hover {
     border-bottom: 1px solid #bbb;
 }
 
-#header_right {
+#thin_header_right {
     margin: 6px 10px;
     position: absolute;
     right: 0;
     top: 0;
 }
 
-#header_left {
+#thin_header_left {
     margin: 2px 10px;
     position: absolute;
     left: 0;

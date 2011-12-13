@@ -29,7 +29,7 @@
 {% endblock %}
 
 
-{% block nav_links %}
+{% block middle_header_right %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
     <li><a href="{% url wamyaccount "edit" %}"{% if info.myaccount %} class="menu" {% endif %}>{% trans "Profile" %}</a></li>
     {% if eventContext.isAdmin %}
@@ -41,7 +41,7 @@
 {% endblock %}
 
 
-{% block header_left %}
+{% block thin_header_left %}
     <strong>{% trans "Hello" %} {{ eventContext.userName }}!</strong> {% trans "Role" %}: <strong>{% if eventContext.isAdmin %}admin{% else %}user{% endif %}</strong> </strong>{% trans "Version" %}: <strong>OMERO {{ eventContext.version }}.</strong>
 {% endblock %}
 
@@ -52,7 +52,7 @@
 {% endblock %}
 
 
-{% block header_right %}
+{% block thin_header_right %}
     {{ info.today }}
 {% endblock %}
 

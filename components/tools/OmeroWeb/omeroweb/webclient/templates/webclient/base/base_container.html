@@ -55,18 +55,18 @@
 {% endblock %}
 
 
-{% block nav_links %}
+{% block middle_header_right %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
     {% include "webclient/base/menu.html" %}
 {% endblock %}
 
 
-{% block toolbar_links %}
+{% block middle_header_left %}
     {% include "webclient/base/header.html" %}
 {% endblock %}
 
 
-{% block header_left %}
+{% block thin_header_left %}
     <!-- left-hand side of toolbar (group chooser) -->
     {% include "webclient/base/group_user.html" %}
     {% include "webclient/base/script_launch.html" %}
