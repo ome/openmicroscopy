@@ -23,11 +23,11 @@
     where all our jars will be published -->
     <chain name="omero-resolver" returnFirst="true">
       <filesystem name="main">
-        <artifact pattern="${ivy.settings.dir}/../target/repository/[module]-[revision].[type]" />
+        <artifact pattern="${ivy.settings.dir}/../target/repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../target/repository/[module]-[revision].ivy"/>
       </filesystem>
       <filesystem name="repo">
-        <artifact pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].[type]" />
+        <artifact pattern="${ivy.settings.dir}/../lib/repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].ivy"/>
       </filesystem>
       <url name="com.springsource.repository.bundles.release">
@@ -50,7 +50,7 @@
    <!-- Resolver for all the test jars which should not be shipped -->
     <chain name="test-resolver" returnFirst="true">
       <filesystem name="test">
-        <artifact pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].[type]" />
+        <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].ivy"/>
       </filesystem>
       <resolver ref="omero-resolver"/>
