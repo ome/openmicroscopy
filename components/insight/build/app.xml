@@ -51,8 +51,8 @@
   <patternset id="app.sources">
     <include name="**/*.java"/>
   </patternset>
-  <fileset id="app.libs" dir="${base.lib.dir}" includes="*.jar"/>
-  <fileset id="app.libs.opengl" dir="${base.lib.dir}" includes="*.jar"/>
+  <fileset id="app.libs" dir="${base.runtimelib.dir}" includes="*.jar"/>
+  <fileset id="app.libs.opengl" dir="${base.runtimelib.dir}" includes="*.jar"/>
   <fileset id="app.resources" dir="${base.src.dir}" excludes="**/*.java"/>
   <fileset id="app.config" dir="${base.config.dir}"/> 
   <path id="app.compile.classpath">

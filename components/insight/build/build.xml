@@ -71,6 +71,7 @@
   <property name="base.config.dir" location="config"/>
   <property name="base.launch.dir" location="launch"/> 
   <property name="base.lib.dir" location="target/libs"/>
+  <property name="base.runtimelib.dir" location="target/libs/runtime"/>
   <property name="base.src.dir" location="SRC"/>
   <property name="base.test.dir" location="TEST"/> 
   <property name="base.test.lib.dir" location="${base.lib.dir}/test"/>
@@ -114,6 +115,7 @@
   </path>
 
   <mkdir dir="${base.lib.dir}"/>
+  <mkdir dir="${base.runtimelib.dir}"/>
   <mkdir dir="${base.test.lib.dir}"/>
 
   <taskdef resource="net/sf/antcontrib/antcontrib.properties"

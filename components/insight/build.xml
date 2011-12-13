@@ -44,6 +44,10 @@
     <target name="package" depends="lifecycle.package">
         <!-- Setup test directory for internal build's classpath -->
         <mkdir dir="${target.dir}/libs/test"/>
+        <mkdir dir="${target.dir}/libs/runtime"/>
+        <ivy:retrieve settingsRef="ivy.${ant.project.name}"
+            pattern="${deps.lib.dir}/runtime/[artifact].[ext]"
+            conf="client" log="quiet" sync="false" symlink="true"/>
         <insightBuild target="dist"/>
         <antcall target="copy-zips" inheritAll="true" inheritRefs="true"/>
     </target>
