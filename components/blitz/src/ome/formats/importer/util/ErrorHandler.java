@@ -201,7 +201,14 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
     protected int totalErrors = 0;
 
+    // These values are used within the sendErrors loop. They are *very* not
+    // thread-safe.
+
+    private HtmlMessenger messenger;
+
     private FileUploader fileUploader;
+
+    private String serverReply;
 
     /**
      * Initialize
@@ -352,18 +359,12 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             }
 
             try {
-                HtmlMessenger messenger = new HtmlMessenger(sendUrl, postList);
-                String serverReply = messenger.executePost();
 
-                // TODO add code here for sendLogs
+                executePost(sendUrl, postList);
+
                 if (sendFiles || sendLogs) {
                     onSending(i);
-                    errorContainer.setToken(serverReply);
-
-                    fileUploader = new FileUploader(messenger.getHttpClient());
-                    fileUploader.addObserver(this);
-
-                    fileUploader.uploadFiles(config.getUploaderUrl(), 2000, errorContainer);
+                    uploadFile(errorContainer);
                     onSent(i);
                 } else {
                     onNotSending(i, serverReply);
@@ -374,18 +375,47 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             }
 
         }
+
         if (cancelUploads) {
             finishCancelled();
         }
+
         if (fileUploadErrors) {
-		finishWithErroredFiles();
-		notifyObservers(new ImportEvent.ERRORS_COMPLETE());
+            finishWithErroredFiles();
+            notifyObservers(new ImportEvent.ERRORS_COMPLETE());
         } else {
             finishComplete();
             notifyObservers(new ImportEvent.ERRORS_COMPLETE());
         }
     }
 
+    /**
+     * Execute a post with the given post list. This can be overwritten in order
+     * to test error handling without touching QA. The server reply should be
+     * non-null, but is otherwise unimportant.
+     *
+     * @param sendUrl
+     * @param postList
+     * @throws HtmlMessengerException
+     */
+    public void executePost(String sendUrl, List<Part> postList)
+            throws HtmlMessengerException {
+        messenger = new HtmlMessenger(sendUrl, postList);
+        serverReply = messenger.executePost();
+    }
+
+    /**
+     * Upload a single {@link ErrorContainer}. This can be overwritten in order
+     * to test error handling without touching QA.
+     *
+     * @param errorContainer
+     */
+    public void uploadFile(ErrorContainer errorContainer) {
+        errorContainer.setToken(serverReply);
+        fileUploader = new FileUploader(messenger.getHttpClient());
+        fileUploader.addObserver(this);
+        fileUploader.uploadFiles(config.getUploaderUrl(), 2000, errorContainer);
+    }
 
     /**
      * Add detailed error to error container array
