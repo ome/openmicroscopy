@@ -286,7 +286,6 @@ class MonitorWorker(threading.Thread):
                         ids.add(entry.fileId)
                         if len(ids) >= self.batch:
                             break;
-                        start = time.time() # Reset timer
             except Queue.Empty:
                 pass
 

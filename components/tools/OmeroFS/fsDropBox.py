@@ -372,7 +372,6 @@ class DropBox(Ice.Application):
             throttleImport = list(props.getPropertyWithDefault("omero.fs.throttleImport","5").split(';'))
             timeToLive = list(props.getPropertyWithDefault("omero.fs.timeToLive","0").split(';'))
             timeToIdle = list(props.getPropertyWithDefault("omero.fs.timeToIdle","600").split(';'))
-            fileWait = list(props.getPropertyWithDefault("omero.fs.fileWait","60").split(';'))
             fileBatch = list(props.getPropertyWithDefault("omero.fs.fileBatch","10").split(';'))
             readers = list(props.getPropertyWithDefault("omero.fs.readers","").split(';'))
             importArgs = list(props.getPropertyWithDefault("omero.fs.importArgs","").split(';'))
@@ -432,6 +431,7 @@ class DropBox(Ice.Application):
                         monitorParams[importUser[i]]['dirImportWait'] = int(dirImportWait[i].strip(string.whitespace))
                     except:
                         monitorParams[importUser[i]]['dirImportWait'] = 60 # seconds
+                    monitorParams[importUser[i]]['fileWait'] = monitorParams[importUser[i]]['dirImportWait']*0.25
 
                     try:
                         monitorParams[importUser[i]]['throttleImport'] = int(throttleImport[i].strip(string.whitespace))
@@ -447,11 +447,6 @@ class DropBox(Ice.Application):
                         monitorParams[importUser[i]]['timeToIdle'] = long(timeToIdle[i].strip(string.whitespace))*1000
                     except:
                         monitorParams[importUser[i]]['timeToIdle'] = 600000L # milliseconds
-
-                    try:
-                        monitorParams[importUser[i]]['fileWait'] = int(fileWait[i].strip(string.whitespace))
-                    except:
-                        monitorParams[importUser[i]]['fileWait'] = 60 # seconds
 
                     try:
                         monitorParams[importUser[i]]['fileBatch'] = int(fileBatch[i].strip(string.whitespace))
