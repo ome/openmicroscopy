@@ -155,7 +155,7 @@
                  pathsep=" " 
                  dirsep="/" 
                  refid="app.libs">
-      <map from="${base.lib.dir}" to="${dist.app.lib.dir.name}"/>                
+      <map from="${base.runtimelib.dir}" to="${dist.app.lib.dir.name}"/>                
     </pathconvert>      
     <jar destfile="${dist.dir}/${dist.jar.file}">
       <fileset dir="${app.compiled.dir}"/>
@@ -171,11 +171,11 @@
         pathsep=" " 
 	                 dirsep="/" 
 	                 refid="app.libs">
-	    <map from="${base.lib.dir}" to="${dist.app.lib.dir.name}"/>                
+	    <map from="${base.runtimelib.dir}" to="${dist.app.lib.dir.name}"/>                
 	    </pathconvert>   
 	    <jar destfile="${dist.dir}/${dist.util.name}-${dist.bundle.version}.jar">
 	      <fileset dir="${app.compiled.util.dir}"/>
-	    	<fileset dir="${base.lib.dir}" includes="${ivy.module}.jar"/>
+	    	<fileset dir="${base.runtimelib.dir}" includes="${ivy.module}.jar"/>
 	    	<manifest>
 	    	        <attribute name="Created-By" value="OMERO Development Team"/>
 	    	      </manifest> 

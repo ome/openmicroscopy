@@ -124,6 +124,7 @@
   </fileset>
   <path id="test.compile.classpath">
     <path refid="app.run.classpath" /> 
+    <fileset dir="${base.lib.dir}" includes="*.jar" /> 
     <fileset dir="${test.lib.dir}" includes="*.jar" /> 
   </path> 
   <path id="test.classpath">
