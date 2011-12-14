@@ -230,13 +230,19 @@ class WebGatewayCacheTest(unittest.TestCase):
 
     def testCacheSettings (self):
         uid = 123
-        empty_size, cache_block = _testCacheFSBlockSize(self.wcache._thumb_cache)
-        max_size = empty_size + 4 * cache_block + 1
-        self.wcache._updateCacheSettings(self.wcache._thumb_cache, timeout=2, max_entries=5, max_size=max_size )
+        #empty_size, cache_block = _testCacheFSBlockSize(self.wcache._thumb_cache)
+        self.wcache._updateCacheSettings(self.wcache._thumb_cache, timeout=2, max_entries=5, max_size=0 )
+        cachestr = 'abcdefgh'*127
+        self.wcache._thumb_cache.wipe()
         for i in range(6):
-            self.wcache.setThumb(self.request, 'test', uid, i, 'abcdefgh'*127*cache_block)
+            self.wcache.setThumb(self.request, 'test', uid, i, cachestr)
+        max_size = self.wcache._thumb_cache._du()
+        self.wcache._updateCacheSettings(self.wcache._thumb_cache, timeout=2, max_entries=5, max_size=max_size )
+        self.wcache._thumb_cache.wipe()
+        for i in range(6):
+            self.wcache.setThumb(self.request, 'test', uid, i, cachestr)
         for i in range(4):
-            self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, i), 'abcdefgh'*127*cache_block,
+            self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, i), cachestr,
                              'Key %d not properly cached' % i)
         self.assertEqual(self.wcache.getThumb(self.request, 'test', uid, 5), None, 'Size limit failed')
         for i in range(10):
