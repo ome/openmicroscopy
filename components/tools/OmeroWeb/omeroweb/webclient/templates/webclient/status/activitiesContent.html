@@ -42,10 +42,10 @@
                     </td>
                     <td width="50%">
                         {% if j.delmany %}
-                            <h4>
+                            <div class="activity_title">
                                 Delete {{ j.delmany }} {{ j.dtype }}s:
                                 <span class="status">{{ j.status }}</span>
-                            </h4>
+                            </div>
                             <div class="message">
                             {% for iid in j.did %}
                                 {% ifequal j.status "failed" %}
@@ -56,10 +56,10 @@
                             {% endfor %}
                             </div>
                         {% else %}
-                            <h4>
+                            <div class="activity_title">
                                 Delete {{ j.dtype }}:
                                 <span class="status">{{ j.status }}</span>
-                            </h4>
+                            </div>
                             <div class="message">
                             {% ifequal j.status "failed" %}
                                 <a onclick="loadMetadata('{% url load_metadata_details j.dtype j.did %}');">{{ j.dtype }} {{ j.did }}</a>
@@ -90,10 +90,10 @@
                         {% endifequal %}
                     </td>
                     <td width="50%">
-                        <h4>
+                        <div class="activity_title">
                             {{ j.job_name }}:
                             <span class="status">{{ j.status }}</span>
-                        </h4>
+                        </div>
                         <div class="message">{{ j.Message }}</div>
                     </td>
                     <td class="results" align="middle">

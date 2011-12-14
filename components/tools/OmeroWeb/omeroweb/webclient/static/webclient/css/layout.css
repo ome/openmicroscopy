@@ -202,3 +202,29 @@ ul.criteria li{
 .hiddenField {
     display: none;
 }
+
+#activities_panel {
+    color: #000;
+    position: absolute;
+    top: 18px;
+    z-index: 20;
+    background: #fff;
+    border: solid 1px #444444;
+    padding: 5px;
+    max-height: 500px;
+    overflow: auto;
+    width: 500px;
+}
+#activities_panel .activity_title {
+    font-weight:bold;
+}
+#activities_panel .message {
+    color: #666;
+}
+
+#activities_panel tr.even {
+  background-color: #ddf;
+}
+#activities_panel tr.odd {
+  background-color: #fff;
+}

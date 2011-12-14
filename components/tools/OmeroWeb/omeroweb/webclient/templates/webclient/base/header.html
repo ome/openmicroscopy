@@ -24,8 +24,19 @@
 {% ifnotequal nav.menu "status" %}
 <script>
     
+    jQuery.fn.alternateRowColors = function() {
+        var $rows = $(this).children().children('tr');
+        $rows.not('.hidden').filter(':odd').removeClass('even').addClass('odd');
+        $rows.not('.hidden').filter(':even').removeClass('odd').addClass('even');
+      return this;
+    };
+    
     var launchActivities = function() {
-        activities_Window = popupActivites('{% url status %}');
+        //activities_Window = popupActivites('{% url status %}');
+        $("#activities_panel").toggle();
+        $("#activities_content").load("{% url status %}?content_only=true", function() {
+            $("#jobsTable").alternateRowColors();
+        });
     }
 
     // this is called by the setInterval loop below
@@ -63,6 +74,7 @@
     }
     $(document).ready(function() {
         refreshProgressBar();
+        $("#activities_panel").hide();
     });
 </script>
 {% endifnotequal %}
@@ -75,5 +87,15 @@
             <a href="#" onClick="launchActivities();" class="align_left">ACTIVITIES:</a>
             <div id="jobstatus">0 job(s)</div>
             <img src="{% static "common/image/spinner.gif" %}" id="progress" style="display: none;"/>
+            
+            <div id="activities_panel">
+                <div>
+                    Activities
+                </div>
+                
+                <div id="activities_content">
+                </div>
+                
+            </div>
         </div>
         {% endifnotequal %}
