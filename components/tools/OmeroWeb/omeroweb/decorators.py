@@ -110,14 +110,29 @@ class login_required(object):
             logger.error('Error retrieving share connection.', exc_info=True)
             return None
 
+    def get_login_url(self):
+        """The URL that should be redirected to if not logged in."""
+        return reverse('weblogin')
+    login_url = property(get_login_url)
+
+    def on_not_logged_in(self, request, url):
+        """Called whenever the user is not logged in."""
+        path = string_to_dict(request.REQUEST.get('path'))
+        server = path.get('server', request.REQUEST.get('server'))
+        if request.is_ajax():
+            return HttpResponseServerError(self.login_url)
+        self.cleanup_session(request, request.REQUEST.get('server'))
+        if server is not None:
+            return HttpLoginRedirect('%s?url=%s&server=%s' % \
+                    (self.login_url, url, server))
+        return HttpLoginRedirect('%s?url=%s' % (self.login_url, url))
+
     def __call__(ctx, f):
         """
         Tries to prepare a logged in connection , then calls function and
         returns the result.
         """
         def wrapped(request, *args, **kwargs):
-            path = string_to_dict(request.REQUEST.get('path'))
-            server = path.get('server', request.REQUEST.get('server'))
             url = request.REQUEST.get('url')
             if url is None or len(url) == 0:
                 url = request.get_full_path()
@@ -129,14 +144,7 @@ class login_required(object):
                 logger.error('Error retrieving connection.', exc_info=True)
             
             if conn is None:
-                weblogin_url = reverse('weblogin')
-                if request.is_ajax():
-                    return HttpResponseServerError(weblogin_url)
-                ctx.cleanup_session(request, request.REQUEST.get('server'))
-                if server is not None:
-                    return HttpLoginRedirect('%s?url=%s&server=%s' % \
-                            (weblogin_url, url, server))
-                return HttpLoginRedirect('%s?url=%s' % (weblogin_url, url))
+                return ctx.on_not_logged_in(request, url)
 
             share_id = kwargs.get('share_id')
             conn_share = ctx.prepare_share_connection(request, share_id)
