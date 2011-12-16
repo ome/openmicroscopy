@@ -30,12 +30,8 @@ from django.utils.http import urlencode
 from django.core.urlresolvers import reverse
 
 from omeroweb.webclient.webclient_utils import string_to_dict
-from omeroweb.webclient.webclient_http import HttpJavascriptRedirect, \
-                                              HttpJavascriptResponse, \
-                                              HttpLoginRedirect
+from omeroweb.webclient.webclient_http import HttpLoginRedirect
 from omeroweb.webgateway.views import getBlitzConnection
-from omeroweb.webgateway import views as webgateway_views
-from omeroweb.webadmin.custom_models import Server
 
 logger = logging.getLogger('omeroweb.decorators')
 
@@ -55,50 +51,6 @@ class login_required(object):
         self.useragent = useragent
         self.isAdmin = isAdmin
         self.isGroupOwner = isGroupOwner
-
-    def prepare_session(self, request):
-        """Prepares various session variables."""
-        changes = False
-        if request.session.get('callback') is None:
-            request.session['callback'] = dict()
-            changes = True
-        if request.session.get('shares') is None:
-            request.session['shares'] = dict()
-            changes = True
-        if request.session.get('imageInBasket') is None:
-            request.session['imageInBasket'] = set()
-            changes = True
-        if request.session.get('nav') is None:
-            if request.session.get('server') is not None:
-                blitz = Server.get(pk=request.session.get('server'))
-            elif request.session.get('host') is not None:
-                blitz = Server.get(host=request.session.get('host'))
-            blitz = '%s:%s' % (blitz.host, blitz.port)
-            request.session['nav'] = {'blitz': blitz, 'menu': 'mydata',
-                    'view': 'tree', 'basket': 0,'experimenter': None}
-            changes = True
-        if changes:
-            request.session.modified = True
-
-    def cleanup_session(self, request, server_id):
-        """
-        Cleans up session variables and performs L{omero.gateway.BlitzGateway}
-        logout semantics.
-        """
-        webgateway_views._session_logout(request, server_id)
-        try:
-            for key in request.session.get('shares', list()):
-                session_key = 'S:%s#%s#%s' % \
-                        (request.session.session_key,server_id, key)
-                webgateway_views._session_logout(
-                        request,server_id, force_key=session_key)
-            for k in request.session:
-                try:
-                    del request.session[k]      
-                except KeyError:
-                    pass
-        except:
-            logger.error('Error performing session logout.', exc_info=True)
 
     def prepare_share_connection(self, request, share_id):
         """Prepares the share connection if we have a valid share ID."""
@@ -125,13 +77,20 @@ class login_required(object):
         server = path.get('server', request.REQUEST.get('server'))
         if request.is_ajax():
             return HttpResponseServerError(self.login_url)
-        self.cleanup_session(request, request.REQUEST.get('server'))
         args = {'url': url}
         if server is not None:
             args['server'] = server
         if error is not None:
             args['error'] = error
         return HttpLoginRedirect('%s?%s' % (self.login_url, urlencode(args)))
+
+    def on_logged_in(self, request):
+        """Called whenever the users is successfully logged in."""
+        pass
+
+    def on_share_connection_prepared(self, request):
+        """Called whenever a share connection is successfully prepared."""
+        pass
 
     def verify_is_admin(self, conn):
         """
@@ -176,12 +135,14 @@ class login_required(object):
             
             if conn is None:
                 return ctx.on_not_logged_in(request, url, error)
+            else:
+                ctx.on_logged_in(request)
             ctx.verify_is_admin(conn)
             ctx.verify_is_group_owner(conn, kwargs.get('gid'))
 
             share_id = kwargs.get('share_id')
             conn_share = ctx.prepare_share_connection(request, share_id)
-            ctx.prepare_session(request)
+            ctx.on_share_connection_prepared(request)
             kwargs['error'] = request.REQUEST.get('error')
             kwargs['conn'] = conn
             kwargs['conn_share'] = conn_share
