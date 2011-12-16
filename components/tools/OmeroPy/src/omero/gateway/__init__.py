@@ -1497,7 +1497,6 @@ class _BlitzGateway (object):
             else:
                 self.c = omero.client(host=str(self.host))
         else:
-            #self.c = omero.client(pmap=['--Ice.Config='+','.join(self.ice_config)])
             self.c = omero.client(args=['--Ice.Config='+','.join(self.ice_config)])
   
         if hasattr(self.c, "setAgent"):
