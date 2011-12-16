@@ -27,8 +27,14 @@ import logging
 
 import omeroweb.decorators
 
+from django.http import HttpResponseServerError, Http404
+from django.utils.http import urlencode
+from django.core.urlresolvers import reverse
+
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webadmin.custom_models import Server
+from omeroweb.webclient.webclient_http import HttpLoginRedirect
+from omeroweb.webclient.webclient_utils import string_to_dict
 
 logger = logging.getLogger('omeroweb.webclient.decorators')
 
@@ -44,6 +50,11 @@ class login_required(omeroweb.decorators.login_required):
         """
         super(login_required, self).__init__(useragent, isAdmin, isGroupOwner)
 
+    def get_login_url(self):
+        """The URL that should be redirected to if not logged in."""
+        return reverse('weblogin')
+    login_url = property(get_login_url)
+
     def on_share_connection_prepared(self, request):
         """Called whenever a share connection is successfully prepared."""
         super(login_required, self).on_share_connection_prepared(request)
@@ -51,12 +62,18 @@ class login_required(omeroweb.decorators.login_required):
 
     def on_not_logged_in(self, request, url, error=None):
         """Called whenever the user is not logged in."""
-        rv = super(login_required, self).on_not_logged_in(request, url, error)
-        try:
-            server_id = request.REQUEST.get('server')
-            self.cleanup_session(request, server_id)
-        finally:
-            return rv
+        path = string_to_dict(request.REQUEST.get('path'))
+        server_id = request.REQUEST.get('server')
+        server = path.get('server', server_id)
+        if request.is_ajax():
+            return HttpResponseServerError(self.login_url)
+        self.cleanup_session(request, server_id)
+        args = {'url': url}
+        if server is not None:
+            args['server'] = server
+        if error is not None:
+            args['error'] = error
+        return HttpLoginRedirect('%s?%s' % (self.login_url, urlencode(args)))
 
     def prepare_session(self, request):
         """Prepares various session variables."""
