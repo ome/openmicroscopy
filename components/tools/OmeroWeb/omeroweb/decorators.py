@@ -26,6 +26,7 @@ Decorators for use with OMERO.web applications.
 import logging
 
 from django.http import HttpResponseServerError
+from django.utils.http import urlencode
 from django.core.urlresolvers import reverse
 
 from omeroweb.webclient.webclient_utils import string_to_dict
@@ -46,11 +47,11 @@ class login_required(object):
     configurable by various options.
     """
 
-    def __init__(self):
+    def __init__(self, useragent='OMERO.web'):
         """
         Initialises the decorator.
         """
-        pass
+        self.useragent = useragent
 
     def prepare_session(self, request):
         """Prepares various session variables."""
@@ -115,17 +116,19 @@ class login_required(object):
         return reverse('weblogin')
     login_url = property(get_login_url)
 
-    def on_not_logged_in(self, request, url):
+    def on_not_logged_in(self, request, url, error=None):
         """Called whenever the user is not logged in."""
         path = string_to_dict(request.REQUEST.get('path'))
         server = path.get('server', request.REQUEST.get('server'))
         if request.is_ajax():
             return HttpResponseServerError(self.login_url)
         self.cleanup_session(request, request.REQUEST.get('server'))
+        args = {'url': url}
         if server is not None:
-            return HttpLoginRedirect('%s?url=%s&server=%s' % \
-                    (self.login_url, url, server))
-        return HttpLoginRedirect('%s?url=%s' % (self.login_url, url))
+            args['server'] = server
+        if error is not None:
+            args['error'] = error
+        return HttpLoginRedirect('%s?%s' % (self.login_url, urlencode(args)))
 
     def __call__(ctx, f):
         """
@@ -138,13 +141,15 @@ class login_required(object):
                 url = request.get_full_path()
 
             conn = None
+            error = None
             try:
-                conn = getBlitzConnection(request, useragent='OMERO.web')
-            except:
+                conn = getBlitzConnection(request, useragent=ctx.useragent)
+            except Exception, x:
                 logger.error('Error retrieving connection.', exc_info=True)
+                error = str(x)
             
             if conn is None:
-                return ctx.on_not_logged_in(request, url)
+                return ctx.on_not_logged_in(request, url, error)
 
             share_id = kwargs.get('share_id')
             conn_share = ctx.prepare_share_connection(request, share_id)
