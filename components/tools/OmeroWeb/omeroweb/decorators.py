@@ -25,7 +25,7 @@ Decorators for use with OMERO.web applications.
 
 import logging
 
-from django.http import HttpResponseServerError
+from django.http import HttpResponseServerError, Http404
 from django.utils.http import urlencode
 from django.core.urlresolvers import reverse
 
@@ -47,11 +47,14 @@ class login_required(object):
     configurable by various options.
     """
 
-    def __init__(self, useragent='OMERO.web'):
+    def __init__(self, useragent='OMERO.web', isAdmin=False,
+                 isGroupOwner=False):
         """
         Initialises the decorator.
         """
         self.useragent = useragent
+        self.isAdmin = isAdmin
+        self.isGroupOwner = isGroupOwner
 
     def prepare_session(self, request):
         """Prepares various session variables."""
@@ -130,6 +133,29 @@ class login_required(object):
             args['error'] = error
         return HttpLoginRedirect('%s?%s' % (self.login_url, urlencode(args)))
 
+    def verify_is_admin(self, conn):
+        """
+        If we have been requested to by the isAdmin flag, verify the user
+        is an admin and raise an exception if they are not.
+        """
+        if self.isAdmin and not conn.isAdmin():
+            raise Http404
+
+    def verify_is_group_owner(self, conn, gid):
+        """
+        If we have been requested to by the isGroupOwner flag, verify the user
+        is the owner of the provided group. If no group is provided the user's
+        active session group ownership will be verified.
+        """
+        if not self.isGroupOwner:
+            return
+        if gid is not None:
+            if not conn.isOwner(gid):
+                raise Http404
+        else:
+            if not conn.isOwner():
+                raise Http404
+
     def __call__(ctx, f):
         """
         Tries to prepare a logged in connection , then calls function and
@@ -150,6 +176,8 @@ class login_required(object):
             
             if conn is None:
                 return ctx.on_not_logged_in(request, url, error)
+            ctx.verify_is_admin(conn)
+            ctx.verify_is_group_owner(conn, kwargs.get('gid'))
 
             share_id = kwargs.get('share_id')
             conn_share = ctx.prepare_share_connection(request, share_id)
