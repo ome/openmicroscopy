@@ -25,13 +25,8 @@ Decorators for use with OMERO.web applications.
 
 import logging
 
-from django.http import HttpResponseServerError, Http404
-from django.utils.http import urlencode
-from django.core.urlresolvers import reverse
+from django.http import Http404
 
-from omeroweb.webclient.webclient_utils import string_to_dict
-from omeroweb.webclient.webclient_http import HttpLoginRedirect
-from omeroweb.webgateway.views import getBlitzConnection
 
 logger = logging.getLogger('omeroweb.decorators')
 
@@ -66,23 +61,9 @@ class login_required(object):
             logger.error('Error retrieving share connection.', exc_info=True)
             return None
 
-    def get_login_url(self):
-        """The URL that should be redirected to if not logged in."""
-        return reverse('weblogin')
-    login_url = property(get_login_url)
-
     def on_not_logged_in(self, request, url, error=None):
         """Called whenever the user is not logged in."""
-        path = string_to_dict(request.REQUEST.get('path'))
-        server = path.get('server', request.REQUEST.get('server'))
-        if request.is_ajax():
-            return HttpResponseServerError(self.login_url)
-        args = {'url': url}
-        if server is not None:
-            args['server'] = server
-        if error is not None:
-            args['error'] = error
-        return HttpLoginRedirect('%s?%s' % (self.login_url, urlencode(args)))
+        raise Http404
 
     def on_logged_in(self, request):
         """Called whenever the users is successfully logged in."""
@@ -128,6 +109,9 @@ class login_required(object):
             conn = None
             error = None
             try:
+                # Lazy import due to the potential usage of the decorator in
+                # the omeroweb.webgateway.views package.
+                from omeroweb.webgateway.views import getBlitzConnection
                 conn = getBlitzConnection(request, useragent=ctx.useragent)
             except Exception, x:
                 logger.error('Error retrieving connection.', exc_info=True)
