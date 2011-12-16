@@ -68,11 +68,16 @@ class ServerObjects(object):
                     return b
         return None
     
-    def find(self, **kwargs):
+    def find(self, server_id=None, host=None, port=None, server=None ):
         rv = []
+        args = {'id': server_id,
+                'host': host,
+                'port': port,
+                'server': server,
+                }
         for b in self.blitz_list:
-            for k,v in kwargs.items():
-                if getattr(b, k) != v:
+            for k,v in args.items():
+                if v is None or getattr(b, k) != v:
                     continue
                 rv.append(b)
         return rv
