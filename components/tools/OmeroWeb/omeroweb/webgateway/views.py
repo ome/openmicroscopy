@@ -303,15 +303,6 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     if host is None or port is None:
         return None
 
-    #blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
-    #request.session['server'] = blitz.id
-    #request.session['host'] = blitz.host
-    #request.session['port'] = blitz.port
-    #request.session['username'] = smart_str(request.REQUEST.get('username'))
-    #request.session['password'] = smart_str(request.REQUEST.get('password'))
-    #request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
-
-    
     browsersession_connection_key = 'cuuid#%s'%server_id
     browsersession_key = request.session.session_key
     blitz_session = None
@@ -319,8 +310,6 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     ## TODO: stop storing username and password, right now we need it for shares
     username = request.session.get('username', r.get('username', None))
     passwd = request.session.get('password', r.get('password', None))
-#    host = request.session.get('host', r.get('host', None))
-#    port = request.session.get('port', r.get('port', None))
     secure = request.session.get('ssl', r.get('ssl', False))
     logger.debug(':: (session) %s %s %s' % (str(request.session.get('username', None)),
                                             str(request.session.get('host', None)),
@@ -330,8 +319,6 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                                             str(r.get('port', None))))
     #logger.debug(':: %s %s :: %s' % (str(username), str(passwd), str(browsersession_connection_key)))
 
-#    if r.has_key('logout'):
-#        logger.debug('logout required by HTTP GET or POST')
     if r.has_key('bsession'):
         blitz_session = r['bsession']
         request.session[browsersession_connection_key] = blitz_session
@@ -402,9 +389,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                     return None
                 logger.debug('Failed connection, logging out')
                 _session_logout(request, server_id)
-                #return blitzcon
                 return None
-                #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored)
             else:
                 ####
                 # Success, new connection created
@@ -434,26 +419,16 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
         # session could expire or be closed by another client. webclient needs to recreate connection with new uuid
         # otherwise it will forward user to login screen.
         logger.info("Failed keepalive for connection %s" % ckey)
-        #del request.session[browsersession_connection_key]
         del connectors[ckey]
-        #_session_logout(request, server_id)
-        #return blitzcon
         return getBlitzConnection(request, server_id, with_session, retry=False, group=group, try_super=try_super, useragent=useragent)
     if blitzcon and ckey.startswith('C:') and not blitzcon.isConnected():
         logger.info("Something killed the base connection, recreating")
         del connectors[ckey]
         return None
-        #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored, useragent=useragent)
     if r.has_key('logout') and not ckey.startswith('C:'):
         logger.debug('logout required by HTTP GET or POST : killing current connection')
         _session_logout(request, server_id)
         return None
-        #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored, useragent=useragent)
-#    # After keepalive the user session may have been replaced with an 'anonymous' one...
-#    if not force_key and blitzcon and request.session.get(browsersession_connection_key, None) != blitzcon._sessionUuid:
-#        logger.debug('Cleaning the user proxy %s!=%s' % (str(request.session.get(browsersession_connection_key, None)), str(blitzcon._sessionUuid)))
-#        blitzcon.user = UserProxy(blitzcon)
-
     return blitzcon
 
 def _split_channel_info (rchannels):
