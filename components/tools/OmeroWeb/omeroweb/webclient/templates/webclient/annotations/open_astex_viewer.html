@@ -94,7 +94,7 @@
         .dynamic-slider-control.horizontal .handle {
 		width:				10px;
 		height:				19px;
-		background-image:	url("{{ STATIC_WEBCLIENT_PREFIX }}image/handle.horizontal.gif");
+		background-image:	url("{% static 'webclient/image/handle.horizontal.gif' %}");
         }
 
         .dynamic-slider-control.horizontal .handle div {}
@@ -372,7 +372,7 @@
         <applet
               width="100%" height="100%" name="av"
               code="MoleculeViewerApplet.class"
-              archive="{{ STATIC_WEBCLIENT_PREFIX }}applet/OpenAstexViewer.jar ">
+              archive="{% static 'webclient/applet/OpenAstexViewer.jar' %}">
          
                  <param name="script" value="
                  map load mapA '{{ data_url }}' {{ data_storage_mode }};
