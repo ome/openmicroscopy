@@ -172,6 +172,17 @@ def isUserConnected (f):
     return wrapped
 
 def sessionHelper(request):
+    """
+    Makes sure that various dictionaries exist under request.session, so that we don't have to check each time.
+    they are used. These are:
+    - 'callback'    Used to hold job handles and extra data for delete and scripts. Added in manage_action_containers and script_run,
+                    Accessed in progress and status views.
+    - 'shares'      Reset in login and change_active_group, added to in get_share_connection. Not accessed Anyware??
+    - 'imageInBasket'   Reset in login, change_active_group and empty_basket. Changed in update_basket. Used in controller/basket.py load_basket().
+    - 'nav'         This is a collection of parameters required for rendering various templates. Passed to the template context
+                    using context = {'nav':request.session['nav']... etc.
+    
+    """
     changes = False
     if request.session.get('callback') is None:
         request.session['callback'] = dict()
@@ -199,6 +210,14 @@ def sessionHelper(request):
 # views controll
 
 def login(request):
+    """
+    Webclient Login - Also can be used by other Apps to log in to OMERO. 
+    Uses the 'server' id from request to lookup the server-id (index), host and port from settings. E.g. "localhost", 4064.
+    Stores these details, along with username, password etc in the request.session.
+    Resets other data parameters in the request.session.
+    Tries to get connection to OMERO and if this works, then we are redirected to the 'index' page or url specified in REQUEST.
+    If we can't connect, the login page is returned with appropriate error messages.
+    """
     request.session.modified = True
     if request.REQUEST.get('server'):
         blitz = Server.get(pk=request.REQUEST.get('server'))
@@ -266,6 +285,11 @@ def login(request):
 
 @isUserConnected
 def index(request, **kwargs):
+    """
+    The webclient home page. 
+    Viewing this page doesn't perform any action. All we do here is assemble various data for display, including form for changing current group.
+    Last imports, tag cloud etc are retrived via separate AJAX calls.
+    """
     template = "webclient/index/index.html"
     
     request.session['nav']['error'] = request.REQUEST.get('error')
@@ -302,6 +326,8 @@ def index(request, **kwargs):
 
 @isUserConnected
 def index_context(request, **kwargs):
+    """ NOT USED? TODO: remove this, url and template """
+
     template = "webclient/index/index_context.html"
     conn = None
     try:
@@ -321,6 +347,9 @@ def index_context(request, **kwargs):
 
 @isUserConnected
 def index_last_imports(request, **kwargs):
+    """
+    Gets the most recent imports - Used in an AJAX call by home page.
+    """
     template = "webclient/index/index_last_imports.html"
     conn = None
     try:
@@ -340,6 +369,8 @@ def index_last_imports(request, **kwargs):
 
 @isUserConnected
 def index_most_recent(request, **kwargs):
+    """ Gets the most recent 'shares' and 'share' comments. Used by the homepage via AJAX call """
+
     template = "webclient/index/index_most_recent.html"
     conn = None
     try:
@@ -359,6 +390,8 @@ def index_most_recent(request, **kwargs):
 
 @isUserConnected
 def index_tag_cloud(request, **kwargs):
+    """ Gets the most used Tags. Used by the homepage via AJAX call """
+
     template = "webclient/index/index_tag_cloud.html"
     conn = None
     try:
@@ -378,6 +411,12 @@ def index_tag_cloud(request, **kwargs):
 
 @isUserConnected
 def change_active_group(request, **kwargs):
+    """
+    Changes the active group of the OMERO connection, using conn.changeActiveGroup() with 'active_group' from request.REQUEST.
+    First we log out and log in again, to force closing of any processes?
+    TODO: This requires usage of request.session.get('password'), which should be avoided.
+    Finally this redirects to the 'url'.
+    """
     try:
         conn = kwargs["conn"]
     except:
@@ -426,6 +465,11 @@ def change_active_group(request, **kwargs):
     return HttpResponseRedirect(url)
 
 def _session_logout (request, server_id):
+    """ 
+    Delegates to the webgateway _session_logout, while also using this to log out any share sessions.
+    Used internally by logout and 
+    """
+
     webgateway_views._session_logout(request, server_id)
      
     try:
@@ -441,6 +485,7 @@ def _session_logout (request, server_id):
     
 @isUserConnected
 def logout(request, **kwargs):
+    """ Logout of the session and redirects to the homepage (will redirect to login first) """
     _session_logout(request, request.session.get('server'))
     #request.session.set_expiry(1)
     return HttpResponseRedirect(reverse("webindex"))
@@ -449,6 +494,11 @@ def logout(request, **kwargs):
 ###########################################################################
 @isUserConnected
 def load_template(request, menu, **kwargs):
+    """
+    This view handles most of the top-level pages, as specified by 'menu' E.g. userdata, usertags, history, search etc.
+    Query string 'path' that specifies an object to display in the data tree is parsed.
+    We also prepare the list of users in the current group, for the switch-user form. Change-group form is also prepared.
+    """
     request.session.modified = True
         
     if menu == 'userdata':
@@ -478,13 +528,14 @@ def load_template(request, menu, **kwargs):
     
     #tree support
     init = {'initially_open':[], 'initially_select': None}
+    # E.g. path=project=51|dataset=502|image=607:selected
     for k,v in string_to_dict(request.REQUEST.get('path')).items():
         if k.lower() in ('project', 'dataset', 'image', 'screen', 'plate'):
             for i in v.split(","):
                 if ":selected" in str(i) and init['initially_select'] is None:
-                    init['initially_select'] = k+"-"+i.replace(":selected", "")
+                    init['initially_select'] = k+"-"+i.replace(":selected", "")     # E.g. image-607
                 else:
-                    init['initially_open'].append(k+"-"+i)
+                    init['initially_open'].append(k+"-"+i)          # E.g. ['project-51', 'dataset-502']
     
     try:
         manager = BaseContainer(conn)
@@ -499,7 +550,7 @@ def load_template(request, menu, **kwargs):
     users.sort(key=lambda x: x.getOmeName().lower())
     empty_label = "*%s (%s)" % (conn.getUser().getFullName(), conn.getUser().omeName)
     if len(users) > 0:
-        if request.REQUEST.get('experimenter') is not None and len(request.REQUEST.get('experimenter'))>0: 
+        if request.REQUEST.get('experimenter') is not None and len(request.REQUEST.get('experimenter'))>0:
             form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu}, data=request.REQUEST.copy())
             if form_users.is_valid():
                 filter_user_id = request.REQUEST.get('experimenter', None)
@@ -528,6 +579,12 @@ def load_template(request, menu, **kwargs):
 
 @isUserConnected
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, **kwargs):
+    """
+    This loads data for the tree, via AJAX calls. 
+    The template is specified by query string. E.g. icon, table, tree.
+    By default this loads Projects and Datasets.
+    E.g. /load_data?view=tree provides data for the tree as <li>.
+    """
     request.session.modified = True
     
     # check menu
@@ -552,7 +609,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    # get url to redirect
+    # get url to redirect. Not sure what this is used for?
     url = None
     if o1_type is None and o1_id is None:
         args = [line for line in [o1_type, o1_id, o2_type, o2_id, o3_type, o3_id] if line is not None]
@@ -578,25 +635,26 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     except:
         index = 0
         
-    # prepare data
+    # prepare data. E.g. kw = {}  or  {'dataset': 301L}  or  {'project': 151L, 'dataset': 301L}
     kw = dict()
     if o1_type is not None:
         if o1_id is not None and o1_id > 0:
             kw[str(o1_type)] = long(o1_id)
         else:
             kw[str(o1_type)] = bool(o1_id)
-    
     if o2_type is not None and o2_id > 0:
         kw[str(o2_type)] = long(o2_id)
     if o3_type is not None and o3_id > 0:
         kw[str(o3_type)] = long(o3_id)   
+
     try:
+        # we set up the manager with the datatypes & ids we require. Manager loads data below
         manager= BaseContainer(conn, **kw)
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return HttpJavascriptResponse("Object does not exist. Refresh the page.")
         #return handlerInternalError(x)
-
+    
     # prepare forms
     filter_user_id = request.session.get('nav')['experimenter']
     form_well_index = None
@@ -647,6 +705,9 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
 
 @isUserConnected
 def load_searching(request, form=None, **kwargs):
+    """
+    Handles AJAX calls to search 
+    """
     request.session.modified = True
     
     # check menu
@@ -686,6 +747,7 @@ def load_searching(request, form=None, **kwargs):
         page = 1
     
     manager = BaseSearch(conn)
+    # form = 'form' if we are searching. Get query from request...
     if form is not None: 
         query_search = request.REQUEST.get('query').replace("+", " ")
         print "".replace("+", " ")
@@ -707,10 +769,13 @@ def load_searching(request, form=None, **kwargs):
         if date is not None:
             date = smart_str(date)
         
+        # search is carried out and results are stored in manager.containers.images etc.
         manager.search(query_search, onlyTypes, date)
     else:
+        # simply display the search home page.
         template = "webclient/search/search.html"
     
+    # batch query for searching wells in plates
     batch_query = request.REQUEST.get('batch_query')
     if batch_query is not None:
         delimiter = request.REQUEST.get('delimiter')
@@ -729,6 +794,12 @@ def load_searching(request, form=None, **kwargs):
 
 @isUserConnected
 def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
+    """ 
+    Loads data for the tag tree and center panel.
+    Either get the P/D/I etc under tags, or the images etc under a tagged Dataset or Project.
+    @param o_type       'tag' or 'project', 'dataset'.
+    """
+
     request.session.modified = True
     
     if request.REQUEST.get("o_type") is not None and len(request.REQUEST.get("o_type")) > 0:
@@ -823,6 +894,8 @@ def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
 
 @isUserConnected
 def autocomplete_tags(request, **kwargs):
+    """ Autocomplete for tag. Not used now? TODO: remove this? """
+
     conn = None
     try:
         conn = kwargs["conn"]
@@ -838,6 +911,12 @@ def autocomplete_tags(request, **kwargs):
 
 @isUserConnected
 def open_astex_viewer(request, obj_type, obj_id, **kwargs):
+    """
+    Opens the Open Astex Viewer applet, to display volume masks in a couple of formats:
+    - mrc.map files that are attached to images. obj_type = 'file'
+    - Convert OMERO image to mrc on the fly. obj_type = 'image_8bit' or 'image'
+        In this case, we may use 'scipy' to scale the image volume. 
+    """
     conn = None
     try:
         conn = kwargs["conn"]        
@@ -927,6 +1006,11 @@ def open_astex_viewer(request, obj_type, obj_id, **kwargs):
 
 @isUserConnected
 def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
+    """
+    This page is the right-hand panel 'general metadata', first tab only.
+    Shown for Projects, Datasets, Images, Screens, Plates, Wells, Tags etc.
+    The data and annotations are loaded by the manager. Display of appropriate data is handled by the template.
+    """
     conn = None
     try:
         conn = kwargs["conn"]        
@@ -948,6 +1032,7 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
         logger.error(traceback.format_exc())
 
     try:
+        # the index of a field within a well
         index = int(request.REQUEST['index'])
     except:
         index = 0
@@ -986,7 +1071,10 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
 
 @isUserConnected
 def load_metadata_preview(request, imageId, share_id=None, **kwargs):
-
+    """
+    This is the image 'Preview' tab for the right-hand panel. 
+    Currently this doesn't do much except launch the view-port plugin using the image Id (and share Id if necessary)
+    """
     conn = None
     try:
         conn = kwargs["conn"]        
@@ -1006,7 +1094,13 @@ def load_metadata_preview(request, imageId, share_id=None, **kwargs):
         url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
-    
+
+    try:
+        # the index of a field within a well
+        index = int(request.REQUEST['index'])
+    except:
+        index = 0
+
     try:
         template = "webclient/annotations/metadata_preview.html"
         if conn_share is not None:
@@ -1026,6 +1120,11 @@ def load_metadata_preview(request, imageId, share_id=None, **kwargs):
 
 @isUserConnected
 def load_metadata_hierarchy(request, c_type, c_id, **kwargs):
+    """
+    This loads the ancestors of the specified object and displays them in a static tree.
+    Used by an AJAX call from the metadata_general panel.
+    """
+
     conn = None
     try:
         conn = kwargs["conn"]        
@@ -1070,6 +1169,10 @@ def load_metadata_hierarchy(request, c_type, c_id, **kwargs):
 
 @isUserConnected
 def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):  
+    """
+    The acquisition tab of the right-hand panel. Only loaded for images.
+    TODO: urls regex should make sure that c_type is only 'image' OR 'well'
+    """
     conn = None
     try:
         conn = kwargs["conn"]        
@@ -1232,6 +1335,7 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
                                     'pulses': list(conn.getEnumerationEntries("PulseI"))})
                     form_lasers.append(form_laser)
 
+    # TODO: remove this 'if' since we should only have c_type = 'image'?
     if c_type in ("share", "discussion", "tag"):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
@@ -1251,6 +1355,9 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
 
 @isUserConnected
 def manage_annotation_multi(request, action=None, **kwargs):   
+    """
+    Handles setup OR sumbission of batch annotation form.
+    """
     template = "webclient/annotations/annotation_new_form_multi.html"
      
     conn = None
@@ -1305,13 +1412,16 @@ def manage_annotation_multi(request, action=None, **kwargs):
     
     form_multi = None
     if action == "annotatemany":
+        # we simply set up the annotation form, passing the objects to be annotated.
         selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), 'wells':request.REQUEST.getlist('well')}
         form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells})
     else:
+        # Handle form submission...
         if request.method == 'POST':
             form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}, data=request.REQUEST.copy(), files=request.FILES)
             if form_multi.is_valid():
                 
+                # In each case below, we pass the {'object_type': [ids]} map
                 content = form_multi.cleaned_data['content']
                 if content is not None and content != "":
                     manager.createCommentAnnotations(content, oids)
@@ -1344,6 +1454,17 @@ def manage_annotation_multi(request, action=None, **kwargs):
 
 @isUserConnected
 def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
+    """
+    Handles many different actions on various objects.
+    
+    @param action:      "new", "newcomment", "newtagonly", "newtag", "newfile", "newsharecomment",  (these prepare forms for annotation etc.)
+                            "addnewcontainer", "addnew", (create new P/D, Screen etc.)
+                            "edit", "save",
+                            "editname", "savename", "editdescription", "savedescription",  (used as GET and POST for in-line editing)
+                            "paste", "move", "remove", "removefromshare", 
+                            "addcomment", "addtag", "addtagonly", "addfile", "usefile", "delete", "deletemany"
+    @param o_type:      "dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset","share", "sharecomment"
+    """
     template = None
     
     conn = None
@@ -1360,6 +1481,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     else:
         menu = request.session['nav']['menu']
     
+    # Url is often used to redirect after performing action.
     url = None
     try:
         url = kwargs["url"]
@@ -1389,28 +1511,34 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         
     form = None
     if action == 'new':
+        # form to create new Project, Dataset or Screen. - TODO: not used now?
         template = "webclient/data/container_new.html"
         form = ContainerForm()
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
     elif action == 'newcomment':
+        # form for Comment - TODO: not used now?
         template = "webclient/annotations/annotation_new_form.html"
         form_comment = CommentAnnotationForm()
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'index':index}
     elif action == 'newtagonly':
+        # form only allows creating new tag. TODO: not used now?
         template = "webclient/annotations/annotation_new_form.html"
         form_tag = TagAnnotationForm()
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag}
     elif action == 'newtag':
+        # form allows creating new tag AND adding existing tags
         template = "webclient/annotations/annotation_new_form.html"
         form_tag = TagAnnotationForm()
         form_tags = TagListForm(initial={'tags':manager.getTagsByObject()})
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'form_tags':form_tags, 'index':index}
     elif action == 'newfile':
+        # form for attaching new file (upload) or existing one.
         template = "webclient/annotations/annotation_new_form.html"
         form_file = UploadFileForm()
         form_files = FileListForm(initial={'files':manager.getFilesByObject()})
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'form_files':form_files, 'index':index}
     elif action == 'newsharecomment':
+        # TODO: not used now?
         template = "webclient/annotations/annotation_new_form.html"
         if manager.share.isExpired():
             form_sharecomments = None
@@ -1418,9 +1546,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             form_sharecomments = ShareCommentForm()
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}  
     elif action == 'addnewcontainer':
+        # Used within the jsTree to add a new Project, Dataset etc under a specified parent OR top-level
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
-        if o_type is not None and hasattr(manager, o_type) and o_id > 0:        
+        if o_type is not None and hasattr(manager, o_type) and o_id > 0: 
+            # E.g. Parent o_type is 'project'...
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
                 logger.debug("Create new in %s: %s" % (o_type, str(form.cleaned_data)))
@@ -1438,6 +1568,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 json = simplejson.dumps(rdict, ensure_ascii=False)
                 return HttpResponse( json, mimetype='application/javascript')
         elif request.REQUEST.get('folder_type') in ("project", "screen", "dataset"):
+            # No parent specified. We can create orphaned 'project', 'dataset' etc.
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
                 logger.debug("Create new: %s" % (str(form.cleaned_data)))
@@ -1457,6 +1588,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'addnew':
+        # Handles submission from 'container_new.html'. TODO: not used now?
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["action", "new"]))
         if o_type == "project" and o_id > 0:
@@ -1483,6 +1615,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     template = "webclient/data/container_new.html"
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
     elif action == 'edit':
+        # form for editing an Object. E.g. Project etc. TODO: not used now? 
         if o_type == "share" and o_id > 0:
             template = "webclient/public/share_form.html"
             manager.getMembers(o_id)
@@ -1504,6 +1637,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             form = ContainerForm(initial={'name': obj.name, 'description':obj.description})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
     elif action == 'save':
+        # Handles submission of the 'edit' form above. TODO: not used now?
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))        
         if o_type in ("project", "dataset", "image", "screen", "plate", "well"):
@@ -1568,6 +1702,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 template = "webclient/annotations/annotation_new_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}
     elif action == 'editname':
+        # start editing 'name' in-line
         if hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
             template = "webclient/ajax_form/container_form_ajax.html"
@@ -1576,6 +1711,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'savename':
+        # Save name edit in-line
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
         if hasattr(manager, o_type) and o_id > 0:
@@ -1597,6 +1733,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'editdescription':
+        # start editing description in-line
         if hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
             template = "webclient/ajax_form/container_form_ajax.html"
@@ -1605,6 +1742,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'savedescription':
+        # Save editing of description in-line
         if not request.method == 'POST':
             return HttpResponseServerError("Action '%s' on the '%s' id:%s cannot be complited" % (action, o_type, o_id))
         if hasattr(manager, o_type) and o_id > 0:
@@ -1626,6 +1764,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'paste':
+        # Handles 'paste' action from the jsTree. Destination in POST
         destination = request.REQUEST['destination'].split('-')
         rv = manager.paste(destination)
         if rv:
@@ -1637,6 +1776,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             json = simplejson.dumps(rdict, ensure_ascii=False)
             return HttpResponse( json, mimetype='application/javascript')
     elif action == 'move':
+        # Handles drag-and-drop moving of objects in jsTree. 
+        # Also handles 'remove' of Datasets (moves to 'Experimenter' parent)
         parent = request.REQUEST['parent'].split('-')
         #source = request.REQUEST['source'].split('-')
         destination = request.REQUEST['destination'].split('-')
@@ -1656,8 +1797,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         json = simplejson.dumps(rdict, ensure_ascii=False)
         return HttpResponse( json, mimetype='application/javascript')
     elif action == 'remove':
+        # Handles 'remove' of Images from jsTree, removal of comment, tag from Object etc.
         parent = request.REQUEST['parent'].split('-')
-        #source = request.REQUEST['source'].split('-')
         try:
             manager.remove(parent)            
         except Exception, x:
@@ -1682,6 +1823,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         json = simplejson.dumps(rdict, ensure_ascii=False)
         return HttpResponse( json, mimetype='application/javascript')
     elif action == 'addcomment':
+        # Handles Adding of comment to Project etc. in the 'metadata_general' page
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("load_metadata_details", args=[o_type, o_id]))
         form_comment = CommentAnnotationForm(data=request.REQUEST.copy())
@@ -1693,6 +1835,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'index':index}
     elif action == 'addtag':
+        # Handles creation of a new tag from the 'newtag' form above
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newtag", o_type, o_id]))
         form_tag = TagAnnotationForm(data=request.REQUEST.copy())
@@ -1705,6 +1848,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'index':index}
     elif action == 'addtagonly':
+        # Creates a new tag. Submitted from the 'newtagonly' form above. TODO: not used now?
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newtagonly"]))
         form_tag = TagAnnotationForm(data=request.REQUEST.copy())
@@ -1717,6 +1861,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag}
     elif action == 'usetag':
+        # Adds an existing tag to object. Submitted from the 'newtag' form above.
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["usetag", o_type, o_id]))
         tag_list = manager.getTagsByObject()
@@ -1729,6 +1874,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tags':form_tags, 'index':index}
     elif action == 'addfile':
+        # Uploads a new file, to attach as file annotation
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newfile", o_type, o_id]))
         form_file = UploadFileForm(request.REQUEST.copy(), request.FILES)
@@ -1740,6 +1886,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'index':index}
     elif action == 'usefile':
+        # Attatches an existing file.
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["usefile", o_type, o_id]))
         file_list = manager.getFilesByObject()
@@ -1752,6 +1899,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files, 'index':index}
     elif action == 'delete':
+        # Handles delete of a file attached to object.
         child = toBoolean(request.REQUEST.get('child'))
         anns = toBoolean(request.REQUEST.get('anns'))
         try:
@@ -1767,6 +1915,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         json = simplejson.dumps(rdict, ensure_ascii=False)
         return HttpResponse( json, mimetype='application/javascript')
     elif action == 'deletemany':
+        # Handles multi-delete from jsTree.
         object_ids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate'), 'well':request.REQUEST.getlist('well')}
         child = toBoolean(request.REQUEST.get('child'))
         anns = toBoolean(request.REQUEST.get('anns'))
@@ -1800,6 +1949,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
 
 @isUserConnected
 def get_original_file(request, fileId, **kwargs):
+    """ Returns the specified original file as an http response. Used for displaying text or png/jpeg etc files in browser """
 
     conn = None
     try:
@@ -1977,6 +2127,8 @@ def archived_files(request, iid, **kwargs):
 
 @isUserConnected
 def download_annotation(request, action, iid, **kwargs):
+    """ Returns the file annotation as an http response for download """
+
     conn = None
     try:
         conn = kwargs["conn"]
@@ -1996,6 +2148,8 @@ def download_annotation(request, action, iid, **kwargs):
 
 @isUserConnected
 def load_public(request, share_id=None, **kwargs):
+    """ Loads data for the tree in the 'public' main page. """
+
     request.session.modified = True
     
     # SUBTREE TODO:
@@ -2071,6 +2225,12 @@ def load_public(request, share_id=None, **kwargs):
 
 @isUserConnected
 def basket_action (request, action=None, **kwargs):
+    """
+    Various actions for creating a 'share' or 'discussion' (no images).
+    
+    @param action:      'toshare', 'createshare'    (form to create share and handling the action itself)
+                        'todiscuss', 'createdisc'    (form to create discussion and handling the action itself)
+    """
     request.session.modified = True
     
     request.session['nav']['menu'] = 'basket'
@@ -2163,6 +2323,8 @@ def basket_action (request, action=None, **kwargs):
 
 @isUserConnected
 def empty_basket(request, **kwargs):
+    """ Empty the basket of images """
+
     try:
         del request.session['imageInBasket']
     except KeyError:
@@ -2180,6 +2342,8 @@ def empty_basket(request, **kwargs):
 
 @isUserConnected
 def update_basket(request, **kwargs):
+    """ Add or remove images to the set in the basket """
+
     action = None
     if request.method == 'POST':
         request.session.modified = True        
@@ -2243,6 +2407,8 @@ def update_basket(request, **kwargs):
 
 @isUserConnected
 def help(request, **kwargs):
+    """ Displays help page. Includes the choosers for changing current group and current user. """
+
     template = "webclient/help.html"
     request.session.modified = True
         
@@ -2271,6 +2437,11 @@ def help(request, **kwargs):
 
 @isUserConnected
 def load_calendar(request, year=None, month=None, **kwargs):
+    """ 
+    Loads the calendar which is displayed in the left panel of the history page. 
+    Shows current month by default. Filter by experimenter 
+    """
+
     template = "webclient/history/calendar.html"
     
     conn = None
@@ -2297,7 +2468,8 @@ def load_calendar(request, year=None, month=None, **kwargs):
 
 @isUserConnected
 def load_history(request, year, month, day, **kwargs):
-    
+    """ The data for a particular date that is loaded into the center panel """
+
     template = "webclient/history/history_details.html"
     
     conn = None
@@ -2604,6 +2776,8 @@ def status_action (request, action=None, **kwargs):
 
 @isUserConnected
 def avatar(request, oid=None, **kwargs):
+    """ Returns the experimenter's photo """
+
     conn = None
     try:
         conn = kwargs["conn"]
@@ -2619,6 +2793,8 @@ def avatar(request, oid=None, **kwargs):
 
 @isUserConnected
 def render_birds_eye_view (request, iid, size=200, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+
     conn = None
     if share_id is not None:
         try:
@@ -2643,6 +2819,8 @@ def render_birds_eye_view (request, iid, size=200, share_id=None, **kwargs):
 
 @isUserConnected
 def render_thumbnail (request, iid, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+
     conn = None
     if share_id is not None:
         try:
@@ -2664,6 +2842,8 @@ def render_thumbnail (request, iid, share_id=None, **kwargs):
 
 @isUserConnected
 def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+
     conn = None
     if share_id is not None:
         try:
@@ -2687,7 +2867,7 @@ def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
 def render_image (request, iid, z, t, share_id=None, **kwargs):
     """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
         Many options are available from the request dict.
-    I am assuming a single Pixels object on image with id='iid'. May be wrong """
+    I am assuming a single Pixels object on image with imageId='iid'. May be wrong """
 
     conn = None
     if share_id is not None:
@@ -2712,7 +2892,7 @@ def render_image (request, iid, z, t, share_id=None, **kwargs):
 def render_image_region (request, iid, z, t, server_id=None, share_id=None, _conn=None, **kwargs):
     """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
         Many options are available from the request dict.
-    I am assuming a single Pixels object on image with id='iid'. May be wrong """
+    I am assuming a single Pixels object on image with imageId='iid'. May be wrong """
 
     conn = None
     if share_id is not None:
@@ -2755,7 +2935,7 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
 
 @isUserConnected
 def image_viewer (request, iid, share_id=None, **kwargs):
-    """ This view is responsible for showing pixel data as images """
+    """ This view is responsible for showing pixel data as images. Delegates to webgateway, using share connection if appropriate """
     
     conn = None
     if share_id is not None:
@@ -2781,7 +2961,7 @@ def image_viewer (request, iid, share_id=None, **kwargs):
 
 @isUserConnected
 def imageData_json (request, iid, share_id=None, **kwargs):
-    """ Get a dict with image information """
+    """ Get a dict with image information. Delegates to webgateway, using share connection if appropriate """
     conn = None
     if share_id is not None:
         try:
@@ -2803,7 +2983,7 @@ def imageData_json (request, iid, share_id=None, **kwargs):
 
 @isUserConnected
 def render_row_plot (request, iid, z, t, y, share_id=None, w=1, **kwargs):
-    """ Get a dict with image information """
+    """ Plot of intenisty for a row of pixels. Delegates to webgateway, using share connection if appropriate """
     conn = None
     if share_id is not None:
         try:
@@ -2826,7 +3006,7 @@ def render_row_plot (request, iid, z, t, y, share_id=None, w=1, **kwargs):
 
 @isUserConnected
 def render_col_plot (request, iid, z, t, x, share_id=None, w=1, **kwargs):
-    """ Get a dict with image information """
+    """ Plot of intenisty for a row of pixels. Delegates to webgateway, using share connection if appropriate """
     conn = None
     if share_id is not None:
         try:
@@ -2849,7 +3029,8 @@ def render_col_plot (request, iid, z, t, x, share_id=None, w=1, **kwargs):
 
 @isUserConnected
 def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
-    """ Get a dict with image information """
+    """ Jpeg of each channel as a separate panel. Delegates to webgateway, using share connection if appropriate """
+
     conn = None
     if share_id is not None:
         try:
