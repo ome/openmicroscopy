@@ -472,7 +472,8 @@ public class PostgresSqlAction extends SqlAction.Impl {
         } catch (EmptyResultDataAccessException e) {
             return null;
         } catch (UncategorizedSQLException e) {
-            throw new InternalException("Potential jdbc jar error."); //$NON-NLS-1$
+            handlePotentialPgArrayJarError(e);
+            return null;
         }
     }
 
@@ -498,7 +499,8 @@ public class PostgresSqlAction extends SqlAction.Impl {
         } catch (EmptyResultDataAccessException e) {
             return null;
         } catch (UncategorizedSQLException e) {
-            throw new InternalException("Potential jdbc jar error."); //$NON-NLS-1$
+            handlePotentialPgArrayJarError(e);
+            return null;
         }
     }
 
@@ -564,7 +566,8 @@ public class PostgresSqlAction extends SqlAction.Impl {
         } catch (EmptyResultDataAccessException e) {
             return null;
         } catch (UncategorizedSQLException e) {
-            throw new InternalException("Potential jdbc jar error."); //$NON-NLS-1$
+            handlePotentialPgArrayJarError(e);
+            return null;
         }
     }
 
@@ -590,7 +593,8 @@ public class PostgresSqlAction extends SqlAction.Impl {
         } catch (EmptyResultDataAccessException e) {
             return null;
         } catch (UncategorizedSQLException e) {
-            throw new InternalException("Potential jdbc jar error."); //$NON-NLS-1$
+            handlePotentialPgArrayJarError(e);
+            return null;
         }
     }
 
@@ -616,11 +620,28 @@ public class PostgresSqlAction extends SqlAction.Impl {
         } catch (EmptyResultDataAccessException e) {
             return null;
         } catch (UncategorizedSQLException e) {
-            throw new InternalException("Potential jdbc jar error."); //$NON-NLS-1$
+            handlePotentialPgArrayJarError(e);
+            return null;
         }
     }
 
     //
     // End PgArrayHelper
     //
+
+    //
+    // Helpers
+    //
+
+    /**
+     * If postgresql is installed with an older jdbc jar that is on the
+     * bootstrap classpath, then it's possible that the use of pgarrays will
+     * fail (I think). See #7432
+     */
+    protected void handlePotentialPgArrayJarError(UncategorizedSQLException e) {
+        log.error(e);
+        throw new InternalException(
+                "Potential jdbc jar error during pgarray access (See #7432)\n"
+                + printThrowable(e));
+    }
 }
