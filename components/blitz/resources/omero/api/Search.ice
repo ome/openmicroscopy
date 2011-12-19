@@ -11,6 +11,7 @@
 
 #include <omero/ServicesF.ice>
 #include <omero/System.ice>
+#include <omero/Collections.ice>
 
 module omero {
 

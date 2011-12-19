@@ -24,6 +24,10 @@ javac.maxmem=500000000
 javadoc.maxmem=500000000
 exe4j.home=/opt/exe4j
 
+# Which version of Ice this build of OMERO is
+# compatible with.
+ice.compatibility=3.4
+
 # This will be set by antlib/resources/global.xml
 # to a best guess if not specified either first
 # in the environment via ICE_HOME or second, in

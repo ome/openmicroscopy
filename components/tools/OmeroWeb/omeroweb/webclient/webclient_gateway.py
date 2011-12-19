@@ -49,8 +49,6 @@ import Glacier2
 import omero.gateway
 import omero.scripts
 
-import omero_api_IScript_ice
-
 from omero.rtypes import *
 from omero.model import FileAnnotationI, TagAnnotationI, \
                         DatasetI, ProjectI, ImageI, ScreenI, PlateI, \

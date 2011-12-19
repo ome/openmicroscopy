@@ -34,6 +34,7 @@ from omero.cli import VERSION
 from omero.plugins.prefs import with_config
 
 from omero_ext.which import whichall
+from omero_version import ice_compatibility
 
 try:
     import win32service
@@ -451,7 +452,6 @@ Examples:
         if self.ctx.rv == 0 and not node_only:
             try:
                 import Ice
-                import omero_ServerErrors_ice
                 ic = Ice.initialize([self._intcfg()])
                 try:
                     sm = self.session_manager(ic)
@@ -845,15 +845,13 @@ OMERO Diagnostics %s
 
     def check_ice(self):
         """
-        Checks for Ice version 3.3
+        Checks for Ice version 3.4
 
-        See ticket:2514
+        See ticket:2514, ticket:1260
         """
-        pattern = "3.3."
 
         import Ice, sys, re
-        pat = "^3[.]3[.].*"
-        pattern = re.compile(pat)
+        pattern = re.compile("^%s" % ice_compatibility)
         vers = Ice.stringVersion()
         if pattern.match(vers) is None:
             self.ctx.die(164, "IcePy Version is not compatible with %s: %s" % (pat, vers))

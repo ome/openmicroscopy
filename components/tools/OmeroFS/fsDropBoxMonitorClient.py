@@ -23,10 +23,8 @@ import omero.rtypes
 
 import Ice
 import IceGrid
+import IceImport
 import Glacier2
-
-import omero_FS_ice
-monitors = Ice.openModule('omero.grid.monitors')
 
 from omero.clients import ObjectFactory
 from omero.util import make_logname, ServerContext, Resources
@@ -34,6 +32,9 @@ from omero.util.decorators import remoted, locked, perf
 from omero.util.import_candidates import as_dictionary
 from omero.util.concurrency import Timer, get_event
 from omero.util.temp_files import create_path, remove_path
+
+IceImport.load("omero_FS_ice")
+monitors = Ice.openModule('omero.grid.monitors')
 
 class MonitorState(object):
     """

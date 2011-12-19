@@ -12,7 +12,6 @@ import sys
 
 import Ice
 import omero
-import omero_System_ice
 from omero.rtypes import *
 
 _omero = Ice.openModule("omero")
