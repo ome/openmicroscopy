@@ -83,6 +83,12 @@ public class ErrorContainer
         }
     }
 
+    /** Clear the list of files to upload. */
+    public void clearFiles()
+    {
+        filesArray.clear();
+    }
+
     /**
      * @return Returns the java_version.
      */

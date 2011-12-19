@@ -54,7 +54,10 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
             }
 
             if (errors.size() > 0) {
-
+                // Note: it wasn't the intent to have these variables set
+                // here. This requires that subclasses know to call
+                // super.onUpdate(). To prevent that, one could make this method
+                // final and have an onOnUpdate, etc.
                 sendFiles = ((ImportEvent.DEBUG_SEND) event).sendFiles;
                 sendLogs = ((ImportEvent.DEBUG_SEND) event).sendLogs;
                 log.info("Sending error report "
