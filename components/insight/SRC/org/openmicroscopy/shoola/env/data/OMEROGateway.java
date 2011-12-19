@@ -70,7 +70,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
-import ome.conditions.ResourceError;
+import omero.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
