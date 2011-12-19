@@ -551,11 +551,9 @@ def load_template(request, menu, **kwargs):
     empty_label = "*%s (%s)" % (conn.getUser().getFullName(), conn.getUser().omeName)
     if len(users) > 0:
         if request.REQUEST.get('experimenter') is not None and len(request.REQUEST.get('experimenter'))>0:
-            form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu}, data=request.REQUEST.copy())
-            if form_users.is_valid():
-                filter_user_id = request.REQUEST.get('experimenter', None)
-                request.session.get('nav')['experimenter'] = filter_user_id
-                form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
+            filter_user_id = request.REQUEST.get('experimenter', None)
+            request.session.get('nav')['experimenter'] = filter_user_id
+            form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
         else:
             if request.REQUEST.get('experimenter') == "":
                 request.session.get('nav')['experimenter'] = None
