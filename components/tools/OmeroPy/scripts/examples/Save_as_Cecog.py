@@ -43,7 +43,6 @@ import omero
 import omero.scripts as scripts
 import omero.constants
 from omero.rtypes import *
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.util.script_utils as script_utils
 
 from zipfile import ZipFile

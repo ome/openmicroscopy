@@ -15,7 +15,6 @@ import os
 from path import path
 
 import omero
-import omero_ServerErrors_ice
 
 from omero.cli import CLI, NonZeroReturnCode
 from omero.plugins.admin import AdminControl

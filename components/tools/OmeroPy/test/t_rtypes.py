@@ -8,7 +8,6 @@
 """
 
 import unittest, omero
-import omero_Scripts_ice # For Color
 import omero_model_ImageI # For Image
 from omero.rtypes import *
 

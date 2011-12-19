@@ -384,7 +384,6 @@ class ScriptControl(BaseControl):
         self.ctx.out("\t***  done ***")
 
     def list(self, args):
-        import omero_api_IScript_ice
         client = self.ctx.conn(args)
         sf = client.sf
         svc = sf.getScriptService()
@@ -406,7 +405,6 @@ class ScriptControl(BaseControl):
         client = self.ctx.conn(args)
         script_id, ofile = self._file(args, client)
         import omero
-        import omero_api_IScript_ice
         svc = client.sf.getScriptService()
 
         try:
@@ -558,7 +556,6 @@ class ScriptControl(BaseControl):
             self.ctx.die(123, "Usage: <original file id>")
 
         ofile = long(args.args[0])
-        import omero_api_IScript_ice
         client = self.ctx.conn(args)
         try:
             client.sf.getScriptService().deleteScript(ofile)

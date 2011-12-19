@@ -118,8 +118,8 @@ java component.
 
     <target name="build-ice" depends="check-scons" description="Installs the Ice code generation executables" unless="slice2java.exe">
         <if><not><available file="${target.dir}/Ice"/></not><then>
-	    <mkdir dir="${target.dir}/Ice"/>
-	    <untar compression="gzip" src="${lib.dir}/repository/ice-includes-3.3.0.tar.gz" dest="target/Ice"/>
+            <mkdir dir="${target.dir}/Ice"/>
+            <untar compression="gzip" src="${lib.dir}/repository/ice-includes-${versions.ice}.tar.gz" dest="target/Ice"/>
         </then></if>
     </target>
 
@@ -636,6 +636,9 @@ java component.
                     <exclude name="local.properties"/>
                 </fileset>
             </copy>
+
+            <replace dir="${dist.dir}/etc" token="@ICE_LIB_VERSION@" value="${versions.ice_lib}"/>
+
             <copy todir="${dist.dir}">
                 <fileset dir="${omero.home}">
                     <include name="sql/**"/>
