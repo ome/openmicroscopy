@@ -73,6 +73,20 @@
  */
 
 ###
+### OmeroMatlab
+###
+function [arg1, arg2] = myfunc %%% If a function; otherwise omit.
+% Function/file documentation ...
+%
+% Examples:
+% See also:
+%
+
+% Copyright (C) <year> University of Dundee & Open Microscopy Environment.
+%                      All rights reversed.
+% Use is subject to license terms supplied in LICENSE.txt
+
+###
 ### OmeroPy
 ###
 
