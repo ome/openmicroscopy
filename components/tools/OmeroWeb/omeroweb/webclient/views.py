@@ -2599,7 +2599,7 @@ def getObjectUrl(conn, obj):
 ######################
 # Activities window & Progressbar
 @isUserConnected
-def progress(request, **kwargs):
+def activities(request, **kwargs):
     """
     Refresh callbacks (delete, scripts etc) and provide json to update Activities window & Progressbar.
     The returned json contains details for ALL callbacks in web session, regardless of their status.
@@ -2723,11 +2723,38 @@ def progress(request, **kwargs):
             rv[cbString] = copy.copy(request.session['callback'][cbString])
             rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
 
-    rv['inprogress'] = in_progress
-    rv['failure'] = failure
-    rv['jobs'] = len(request.session['callback'])
+    
+    if 'template' in kwargs and kwargs['template'] == 'json':
+        rv['inprogress'] = in_progress
+        rv['failure'] = failure
+        rv['jobs'] = len(request.session['callback'])
+        return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript') # json
+        
+    jobs = []
+    for key, data in rv.items():
+        # E.g. key: ProcessCallback/39f77932-c447-40d8-8f99-910b5a531a25 -t:tcp -h 10.211.55.2 -p 54727:tcp -h 10.37.129.2 -p 54727:tcp -h 10.12.2.21 -p 54727
+        # create id we can use as html id, E.g. 39f77932-c447-40d8-8f99-910b5a531a25
+        if len(key.split(" ")) > 0:
+            htmlId = key.split(" ")[0]
+            if len(htmlId.split("/")) > 1:
+                htmlId = htmlId.split("/")[1]
+        rv[key]['id'] = htmlId
+        rv[key]['key'] = key
+        jobs.append(rv[key])
 
-    return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript') # json
+    jobs.sort(key=lambda x:x['start_time'], reverse=True)
+    context = {'sizeOfJobs':len(request.session['callback']),
+            'jobs':jobs,
+            'inprogress':in_progress,
+            'failure':failure}
+
+    template = "webclient/status/statusWindow.html"
+    if request.REQUEST.get('content_only'):
+        template = "webclient/status/activitiesContent.html"
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
 
 
 @isUserConnected

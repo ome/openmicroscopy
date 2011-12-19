@@ -26,6 +26,10 @@
 -->
 {% endcomment %}
 
+<html>
+<div id="sizeOfJobs" style="display:none">{{ sizeOfJobs }}</div>
+<div id="inprogress" style="display:none">{{ inprogress }}</div>
+<div id="failure" style="display:none">{{ failure }}</div>
 
 <table id="jobsTable" width="100%" cellpadding="6" cellspacing="0" border="0">
 
@@ -123,7 +127,7 @@
                                     </a>
                                         <ul class="resultOptions">
                                             {% if v.browse_url %}
-                                                <li><a href='#' onClick="return browseParent('{{ v.browse_url}}');" title="Navigate to {{ v.type }} in the main window">
+                                                <li><a href='{{ v.browse_url}}' title="Navigate to {{ v.type }} in the main window">
                                                     Go to {% ifequal v.type "FileAnnotation" %} Attachment {% else %} {{ v.type }} {% endifequal %}
                                                 </a></li>
                                             {% endif %}
@@ -188,3 +192,5 @@
         {% endfor %}
     </tbody>
 </table>
+
+</html>

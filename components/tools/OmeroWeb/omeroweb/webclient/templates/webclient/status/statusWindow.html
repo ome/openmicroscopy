@@ -223,7 +223,7 @@
             // make an AJAX call to update all 'in progress' callbacks in the web session and return current status
             var i = setInterval(function (){
                 $.ajaxSetup({ cache: false });
-                $.getJSON("{% url progress %}", function(data) {
+                $.getJSON("{% url activities %}", function(data) {
                     update_ui(data);
                     if (data.inprogress == 0) {
                         clearInterval(i);

@@ -213,7 +213,7 @@ ul.criteria li{
     padding: 5px;
     max-height: 500px;
     overflow: auto;
-    width: 500px;
+    min-width: 500px;
 }
 #activities_panel .activity_title {
     font-weight:bold;
@@ -227,4 +227,42 @@ ul.criteria li{
 }
 #activities_panel tr.odd {
   background-color: #fff;
+}
+
+#activities_panel tr.hidden {
+    display: none;
+}
+#activities_panel tr.even {
+  background-color: #eef;
+}
+#activities_panel tr.odd {
+  background-color: #fff;
+}
+#activities_panel td a {
+    text-decoration: none;
+    color: #000;
+}
+#activities_panel .key {
+    color: gray;
+}
+#activities_panel .result {
+    position: relative;
+    list-style:none;
+}
+#activities_panel .resultOptions {
+    visibility: hidden;
+    position: absolute; top: 100%; left: 25%; z-index:50;
+    margin: 0; padding: 0; list-style:none; border:solid gray 1px;
+    background: white;
+}
+#activities_panel .resultOptions li {
+    padding: 3px 5px;
+    width: 100px;
+}
+#activities_panel .resultOptions li:hover          { background: #ddf;}
+#activities_panel .script_error {
+    color: red;
+}
+#activities_content {
+    width: 480px;
 }

@@ -50,8 +50,9 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^basket/update/$', views.update_basket, name="update_basket"),
     url( r'^basket/(?:(?P<action>[a-zA-Z]+)/)?$', views.basket_action, name="basket_action"),
     
-    # update, display processes, E.g. delete queues, scripts etc.
-    url( r'^progress/', views.progress, name="progress"),
+    # update, display activities, E.g. delete queues, scripts etc.
+    url( r'^activities/', views.activities, name="activities"),
+    url( r'^activities_json/', views.activities, {'template':'json'}, name="activities_json"),
     url( r'^status/(?:(?P<action>[a-zA-Z]+)/)?$', views.status_action, name="status"),
     
     # loading data    
