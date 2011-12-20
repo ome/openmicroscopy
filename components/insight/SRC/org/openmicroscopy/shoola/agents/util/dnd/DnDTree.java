@@ -44,7 +44,6 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -90,14 +89,23 @@ public class DnDTree
 	/** The dragging source.*/
 	private DragSource dragSource;
 	
-	/** The target.*/
-	private DropTarget dropTarget;
-	
 	/** The node selected as a target.*/
 	private TreeNode dropTargetNode;
 	
 	/** The node currently dragged.*/
 	private TreeNode draggedNode;
+	
+	/**
+	 * Returns the cursor corresponding to the dragged action.
+	 * 
+	 * @param action The action to handle.
+	 * @return See above.
+	 */
+	private Cursor getCursor(int action)
+	{
+		return (action == DnDConstants.ACTION_MOVE) ?
+			DragSource.DefaultMoveDrop : DragSource.DefaultCopyDrop;
+	}
 	
 	/** Creates a new instance.*/
 	public DnDTree()
@@ -106,7 +114,7 @@ public class DnDTree
 		dropTargetNode = null;
 		draggedNode = null;
 		dragSource = new DragSource();
-		dropTarget = new DropTarget(this, this);
+		new DropTarget(this, this);
 		dragSource.createDefaultDragGestureRecognizer(this,
 			DnDConstants.ACTION_MOVE, this);
 	}
@@ -187,14 +195,17 @@ public class DnDTree
 	 */
 	public void drop(DropTargetDropEvent dtde)
 	{
+		Transferable transferable = dtde.getTransferable();
+		if (!transferable.isDataFlavorSupported(localFlavor)) {
+			dtde.rejectDrop();
+			return;
+		}
 		Point dropPoint = dtde.getLocation();
 		TreePath path = getPathForLocation(dropPoint.x, dropPoint.y);
-		DefaultTreeModel dtm = (DefaultTreeModel) getModel();
 		boolean dropped = false;
 		try {
 			dtde.acceptDrop (DnDConstants.ACTION_MOVE);
-			Object droppedObject = dtde.getTransferable().getTransferData(
-					localFlavor);
+			Object droppedObject = transferable.getTransferData(localFlavor);
 			TreeImageDisplay droppedNode = null; 
 			if (droppedObject instanceof TreeImageDisplay) {
 				// remove from old location
@@ -215,24 +226,13 @@ public class DnDTree
 				if (dropNode.isLeaf()) {
 					parent = (TreeImageDisplay) dropNode.getParent();
 				}
-				//First check that we can insert.
-				/*
-				if (canBeMoved(droppedNode, parent)) {
-					dtm.removeNodeFromParent(droppedNode);
-					dtm.insertNodeInto(droppedNode, parent,
-							parent.getChildCount());
-				}
-				*/
 				ObjectToTransfer transfer = new ObjectToTransfer(parent, 
 						droppedNode);
 				firePropertyChange(DRAGGED_PROPERTY, null, transfer);
 			}
 			
 			dropped = true;
-		} catch (Exception e) {
-			//handle error.
-			e.printStackTrace();
-		}
+		} catch (Exception e) {}
 		dtde.dropComplete (dropped);
 		repaint();
 	}
@@ -241,15 +241,15 @@ public class DnDTree
 	 * Starts dragging the node.
 	 * @see DragGestureListener#dragGestureRecognized(DragGestureEvent)
 	 */
-	public void dragGestureRecognized(DragGestureEvent dge)
+	public void dragGestureRecognized(DragGestureEvent e)
 	{
-		Point clickPoint = dge.getDragOrigin();
+		Point clickPoint = e.getDragOrigin();
 		TreePath path = getPathForLocation(clickPoint.x, clickPoint.y);
 		if (path == null) return;
 		draggedNode = (TreeNode) path.getLastPathComponent();
 		if (draggedNode == null) return;
 		Transferable trans = new TransferableNode(draggedNode);
-		dragSource.startDrag (dge, Cursor.getDefaultCursor(), trans, this);
+		dragSource.startDrag(e, getCursor(e.getDragAction()), trans, this);
 	}
 
 	/**
