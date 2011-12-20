@@ -25,7 +25,17 @@ Extends "common/base/base_header.html"
 {% endblock %}
 
 
-{% block nav_links %}
+{% block link %}
+    {{ block.super }}
+    <style type="text/css">
+        #content {
+            top: 80px;
+        }
+    </style>
+{% endblock %}
+
+
+{% block middle_header_right %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
     {% include "webclient/base/menu.html" %}
     <li><a href="{% url common 'base_header' %}">base_header</a></li>
