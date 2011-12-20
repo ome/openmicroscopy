@@ -160,6 +160,39 @@ class TreeViewerComponent
 	/** The dialog presenting the list of available users. */
 	private UserManagerDialog	switchUserDialog;
 	
+	
+	/**
+	 * Returns <code>true</code> if the node can be transfered,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param target The target of the D&D action.
+	 * @param src    The node to transfer.
+	 * @return See above.
+	 */
+	private boolean isTransferable(Object target, Object src)
+	{
+		if (target instanceof ProjectData && src instanceof DatasetData)
+			return true;
+		else if (target instanceof DatasetData && src instanceof ImageData)
+			return true;
+		else if (target instanceof ScreenData && src instanceof PlateData)
+			return true;
+		else if (target instanceof GroupData && src instanceof ExperimenterData)
+			return true;
+		else if (target instanceof TagAnnotationData
+				&& src instanceof TagAnnotationData) {
+			TagAnnotationData tagSet = (TagAnnotationData) target;
+			TagAnnotationData tag = (TagAnnotationData) src;
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+					tagSet.getNameSpace())) {
+				return (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+						tag.getNameSpace()));
+			}
+			return false;
+		}
+		return false;
+	}
+	
 	/**
 	 * Downloads the files.
 	 * 
@@ -3538,7 +3571,40 @@ class TreeViewerComponent
 			}
 			model.fireDataSaving(data, images);
 		}
-		
 	}
 	
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#transfer(TreeImageDisplay, List)
+	 */
+	public void transfer(TreeImageDisplay target, List<TreeImageDisplay> nodes)
+	{
+		if (target == null || nodes == null || nodes.size() == 0) return;
+		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+		Object ot = target.getUserObject();
+		if (!isUserOwner(ot)) {
+			un.notifyInfo("Transfer", 
+					"You must be the owner of the container.");
+			return;
+		}
+		List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();
+		Iterator<TreeImageDisplay> i = nodes.iterator();
+		TreeImageDisplay n;
+		Object os;
+		while (i.hasNext()) {
+			n = i.next();
+			os = n.getUserObject();
+			if (isTransferable(ot, os)) {
+				if (ot instanceof GroupData) {
+					if (TreeViewerAgent.isAdministrator())
+						list.add(n);
+				} else {
+					if (isUserOwner(os)) list.add(n);
+				}
+			}
+		}
+		if (list.size() == 0) return;
+		model.transfer(target, list);
+	}
+
 }

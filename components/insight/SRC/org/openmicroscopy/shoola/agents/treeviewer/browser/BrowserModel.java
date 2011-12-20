@@ -947,5 +947,16 @@ class BrowserModel
 		if (nodes == null || nodes.length <= 1) return false;
 		return true;
 	}
+
+	/**
+	 * Transfers the nodes.
+	 * 
+	 * @param target The target.
+	 * @param nodes The nodes to transfer.
+	 */
+	void transfer(TreeImageDisplay target, List<TreeImageDisplay> nodes)
+	{
+		parent.transfer(target, nodes);
+	}
 	
 }

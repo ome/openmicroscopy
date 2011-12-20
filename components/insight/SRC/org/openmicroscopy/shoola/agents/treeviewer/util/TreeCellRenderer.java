@@ -32,6 +32,7 @@ import java.awt.FontMetrics;
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeNode;
 
 //Third-party libraries
 
@@ -42,6 +43,7 @@ import org.openmicroscopy.shoola.agents.util.browser.SmartFolder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -291,6 +293,12 @@ public class TreeCellRenderer
     /** Filter to identify protocol file. */
     private EditorFileFilter 	filter;
     
+    /** Flag indicating if the node to render is the target node.*/
+    private boolean isTargetNode;
+    
+    /** Flag indicating if the target node is a leaf.*/
+    private boolean isTargetNodeLeaf;
+	
     /**
      * Sets the icon and the text corresponding to the user's object.
      * 
@@ -472,6 +480,12 @@ public class TreeCellRenderer
     /** Creates a new instance. */
     public TreeCellRenderer() { this(true); }
     
+    void reset()
+    {
+    	isTargetNode = false;
+    	isTargetNodeLeaf = false;
+    }
+    
     /**
      * Overridden to set the icon and the text.
      * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object, 
@@ -483,6 +497,16 @@ public class TreeCellRenderer
     {
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
                                                 row, hasFocus);
+        isTargetNode = false;
+        isTargetNodeLeaf = false;
+        if (tree instanceof DnDTree) {
+        	DnDTree dndTree = (DnDTree) tree;
+        	isTargetNode = (value == dndTree.getDropTargetNode());
+        }
+        if (value instanceof TreeNode) {
+        	isTargetNodeLeaf = (isTargetNode && ((TreeNode) value).isLeaf());
+        }
+		
         setIcon(FILE_TEXT_ICON);
         if (!(value instanceof TreeImageDisplay)) return this;
         TreeImageDisplay  node = (TreeImageDisplay) value;
