@@ -294,8 +294,11 @@ jQuery._WeblitzViewport = function (container, server, options) {
       
       if (_this.loadedImg.tiles) {
           showLoading();
-          rcb()
-          _this.viewportimg.get(0).setUpTiles(_this.loadedImg.size.width, _this.loadedImg.size.height, _this.loadedImg.tile_size.width, _this.loadedImg.tile_size.height, _this.loadedImg.init_zoom, _this.loadedImg.levels, href, thref);
+          rcb();
+          // if the url query had x and y, pass these to setUpTiles() so we can recenter
+          var cx = _this.loadedImg.current.query.x;
+          var cy = _this.loadedImg.current.query.y;
+          _this.viewportimg.get(0).setUpTiles(_this.loadedImg.size.width, _this.loadedImg.size.height, _this.loadedImg.tile_size.width, _this.loadedImg.tile_size.height, _this.loadedImg.init_zoom, _this.loadedImg.levels, href, thref, cx, cy);
       } else {
 	  if (href != _this.viewportimg.attr('src')) {
           showLoading();
@@ -897,8 +900,22 @@ jQuery._WeblitzViewport = function (container, server, options) {
       query.push('z=' + (this.loadedImg.current.z+1));
     }
     /* Image offset */
-    query.push('x=' + this.viewportimg.get(0).getXOffset());
-    query.push('y=' + this.viewportimg.get(0).getYOffset());
+    if ((_this.loadedImg.tiles) && (_this.viewportimg.get(0).getBigImageContainer() )) {
+        // if this is a 'big image', calculate the current center of the viewport
+        var big_viewer = _this.viewportimg.get(0).getBigImageContainer();
+        var big_x = big_viewer.x * -1;
+        var big_y = big_viewer.y * -1;
+        var big_w = big_viewer.width / 2;
+        var big_h = big_viewer.height / 2;
+        var big_scale = big_viewer.currentScale();
+        var big_center_x = (big_x + big_w) / big_scale;
+        var big_center_y = (big_y + big_h) / big_scale;
+        query.push('x=' + big_center_x);
+        query.push('y=' + big_center_y);
+    } else {
+        query.push('x=' + this.viewportimg.get(0).getXOffset());
+        query.push('y=' + this.viewportimg.get(0).getYOffset());
+    }
     /* Line plot */
     if (this.hasLinePlot()) {
       query.push('lp=' + (linePlot.isHorizontal()?'h':'v') + linePlot.position);

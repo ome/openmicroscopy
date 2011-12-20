@@ -414,7 +414,7 @@ $.fn.viewportImage = function(options) {
         return viewerBean;
     }
     
-    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, href, thref) {
+    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, href, thref, init_cx, init_cy) {
         var myPyramid = new BisqueISPyramid( imagewidth, imageheight, xtilesize, ytilesize);
         var myProvider = new PanoJS.TileUrlProvider('','','');
         myProvider.assembleUrl = function(xIndex, yIndex, zoom) {
@@ -493,6 +493,9 @@ $.fn.viewportImage = function(options) {
             PanoJS.MSG_BEYOND_MIN_ZOOM = null;
             PanoJS.MSG_BEYOND_MAX_ZOOM = null;
             viewerBean.init();
+            if ((typeof init_cx != 'undefined') && (typeof init_cy != 'undefined')) {
+                viewerBean.recenter({'x':parseInt(init_cx), 'y':parseInt(init_cy)}, true, true);
+            }
             if (viewerBean.thumbnail_control) viewerBean.thumbnail_control.update();
             if (!viewerBean.roi_control) viewerBean.roi_control = new ROIControl(viewerBean);
             
