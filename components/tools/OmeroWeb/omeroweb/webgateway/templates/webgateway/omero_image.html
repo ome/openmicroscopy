@@ -1198,7 +1198,7 @@
         var vpb = viewport.viewportimg.get(0).getBigImageContainer();
         if (vpb!= null && viewport.loadedImg.tiles) {
             var scale = vpb.currentScale();
-            vpb.recenter({x:selected_xy['x']*scale ,y:selected_xy['y']*scale}, true);
+            vpb.recenter({x:selected_xy['x']*scale ,y:selected_xy['y']*scale}, true, true);
         }
         var z = parseInt( $shapeRow.find('td:nth-child(4)').text() );
         var t = parseInt( $shapeRow.find('td:nth-child(5)').text() );
