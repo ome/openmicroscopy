@@ -827,9 +827,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * Return a template based directory path.
      * (an option here would be to create the dir if it doesn't exist??)
      */
-    public String getCurrentRepoDir(long fileId, Current __current) throws ServerError {
-        Calendar now = Calendar.getInstance();
-        DateFormatSymbols dfs = new DateFormatSymbols();
+    public String getCurrentRepoDir(String uniquePath, Current __current) throws ServerError {
         //FIXME: MANAGED_REPO_PATH should be passed in as config.
         String path = FilenameUtils.concat(root.getAbsolutePath(), MANAGED_REPO_PATH);
 
@@ -845,57 +843,56 @@ public class PublicRepositoryI extends _RepositoryDisp {
             }
         });
 
-        final long id = fileId;
-        ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
-                .execute(currentUser, new Executor.SimpleWork(this, "getCurrentRepoDir") {
-            @Transactional(readOnly = true)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getQueryService().find(ome.model.core.OriginalFile.class, id);
-            }
-        });
-
         IceMapper mapper = new IceMapper();
         Experimenter rv = (Experimenter) mapper.map(exp);
         String name = rv.getOmeName().getValue();
-        OriginalFileI of = (OriginalFileI) mapper.map(oFile);
-        String lastPart = FilenameUtils.getName(
-                FilenameUtils.getFullPathNoEndSeparator(of.getPath().getValue()));
 
         //FIXME: Force user prefix for now
         path = FilenameUtils.concat(path, name);
         String dir;
         String[] elements = template.split("/");
         for (String part : elements) {
-            if (part.equals("%fileid%"))
-                dir = Long.toString(fileId);
-            else if (part.equals("%groupname%"))
-                dir = principal.getGroup();
-            else if (part.equals("%year%"))
-                dir = Integer.toString(now.get(Calendar.YEAR));
-            else if (part.equals("%month%"))
-                dir = Integer.toString(now.get(Calendar.MONTH)+1);
-            else if (part.equals("%monthname%"))
-                dir = dfs.getMonths()[now.get(Calendar.MONTH)];
-            else if (part.equals("%day%"))
-                dir = Integer.toString(now.get(Calendar.DAY_OF_MONTH));
-            else if (!part.endsWith("%") && !part.startsWith("%"))
-                dir = part;
-            else {
-                log.warn("Ignored unrecognised token in template: " + part);
-                dir = "";
+            String[] subelements = part.split("-");
+            dir = getStringFromToken(subelements[0]);
+            for (int i = 1; i < subelements.length; i++) {
+                dir = dir + "-" + getStringFromToken(subelements[i]);
             }
             path = FilenameUtils.concat(path, dir);
         }
 
         int version = 0;
-        String endPart = lastPart;
+        String uniquePathElement = FilenameUtils.getName(uniquePath);
+        String endPart = uniquePathElement;
         while (new File(path, endPart).exists()) {
             version++;
-            endPart = lastPart + "-" + Integer.toString(version);
+            endPart = uniquePathElement + "-" + Integer.toString(version);
         }
         path = FilenameUtils.concat(path, endPart);
 
         return path;
+    }
+
+    // Helper method to provide a little more flexibility
+    // when building a path from a template
+    private String getStringFromToken(String token) {
+        Calendar now = Calendar.getInstance();
+        DateFormatSymbols dfs = new DateFormatSymbols();
+        String rv;
+        if (token.equals("%year%"))
+            rv = Integer.toString(now.get(Calendar.YEAR));
+        else if (token.equals("%month%"))
+            rv = Integer.toString(now.get(Calendar.MONTH)+1);
+        else if (token.equals("%monthname%"))
+            rv = dfs.getMonths()[now.get(Calendar.MONTH)];
+        else if (token.equals("%day%"))
+            rv = Integer.toString(now.get(Calendar.DAY_OF_MONTH));
+        else if (!token.endsWith("%") && !token.startsWith("%"))
+            rv = token;
+        else {
+            log.warn("Ignored unrecognised token in template: " + token);
+            rv = "";
+        }
+        return rv;
     }
 
     public RenderingEnginePrx render(String path, Current __current)

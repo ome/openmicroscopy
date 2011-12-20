@@ -207,6 +207,7 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.util.TempFileManager;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -1851,17 +1852,32 @@ public class OMEROMetadataStoreClient
         File repositoryRoot;
         File directory;
         String filePath = null;
+        String newBasePath;
+
+        // This only works with normalised paths. Can this be assumed here?
+        // This also assumes the target file is not a tmp file!!
+        String basePath = FilenameUtils.getFullPathNoEndSeparator(target.getAbsolutePath());
+        for (File file : files)
+        {
+            if (!file.getAbsolutePath().startsWith(basePath))
+            {
+                newBasePath = FilenameUtils.getFullPathNoEndSeparator(file.getAbsolutePath());
+                if(basePath.startsWith(newBasePath))
+                {
+                    basePath = newBasePath;
+                }
+            }
+        }
+
         try
         {
             OriginalFile ofRoot = repo.root();
             repositoryRoot = new File(ofRoot.getPath().getValue(),
                             ofRoot.getName().getValue());
 
-            // FIXME: Is the first id guaranteed to be the key one?
             log.debug("Target: " + target.getAbsolutePath());
             log.debug("Keys: " + Arrays.toString(originalFileMap.keySet().toArray()));
-            Long defaultId = originalFileMap.get(target.getAbsolutePath()).getId().getValue();
-            filePath = repo.getCurrentRepoDir(defaultId);
+            filePath = repo.getCurrentRepoDir(basePath);
             directory = new File(filePath);
             repo.makeDir(directory.getAbsolutePath());
         }
