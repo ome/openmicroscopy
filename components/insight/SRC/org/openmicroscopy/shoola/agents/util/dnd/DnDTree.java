@@ -25,8 +25,14 @@ package org.openmicroscopy.shoola.agents.util.dnd;
 
 
 //Java imports
+import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.SystemColor;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
@@ -42,6 +48,10 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
+import java.awt.image.BufferedImage;
+
+import javax.swing.Icon;
+import javax.swing.JLabel;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -74,6 +84,9 @@ public class DnDTree
 	/** The flavor.*/
 	static DataFlavor localFlavor;
 	
+	/** The default color.*/
+	private static Color DEFAULT_COLOR = new Color(255, 255, 255, 0);
+	
 	static {
 		try {
 			localFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType);
@@ -95,6 +108,15 @@ public class DnDTree
 	/** The node currently dragged.*/
 	private TreeNode draggedNode;
 	
+	/** The path being dragged.*/
+	private TreePath		pathSource;
+	
+	/** The image representing the dragged object.*/
+	private BufferedImage	imgGhost;
+	
+	/** The point, in the dragged image, the mouse clicked occurred.*/
+	private Point			ptOffset;
+	
 	/**
 	 * Returns the cursor corresponding to the dragged action.
 	 * 
@@ -107,14 +129,52 @@ public class DnDTree
 			DragSource.DefaultMoveDrop : DragSource.DefaultCopyDrop;
 	}
 	
+	/** 
+	 * Creates a ghost image.
+	 * 
+	 * @param path The selected path.
+	 * @param p The origin of the dragging.
+	 */
+	private void createGhostImage(TreePath path, Point p)
+	{
+		Rectangle r = getPathBounds(path);
+		ptOffset.setLocation(p.x-r.x, p.y-r.y);
+			
+		// Get the cell renderer (which is a JLabel) for the path being dragged
+		JLabel lbl = (JLabel) getCellRenderer().getTreeCellRendererComponent(
+		this, path.getLastPathComponent(), false, isExpanded(path),
+		getModel().isLeaf(path.getLastPathComponent()), 0, false);
+		lbl.setSize((int) r.getWidth(), (int) r.getHeight()); 
+		// Get a buffered image of the selection for dragging a ghost image
+		imgGhost = new BufferedImage((int) r.getWidth(), (int) r.getHeight(), 
+				BufferedImage.TYPE_INT_ARGB_PRE);
+		Graphics2D g2 = imgGhost.createGraphics();
+
+		// Ask the cell renderer to paint itself into the BufferedImage
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, 0.5f));
+		lbl.paint(g2);
+
+		Icon icon = lbl.getIcon();
+		int nStartOfText = (icon == null) ? 0 : 
+			icon.getIconWidth()+lbl.getIconTextGap();
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OVER, 
+				0.5f));
+		g2.setPaint(new GradientPaint(nStartOfText, 0, 
+				SystemColor.controlShadow, getWidth(), 0, DEFAULT_COLOR));
+		g2.fillRect(nStartOfText, 0, getWidth(), imgGhost.getHeight());
+		g2.dispose();
+	}
+	
 	/** Creates a new instance.*/
 	public DnDTree()
 	{
 		super();
+		ptOffset = new Point();
 		dropTargetNode = null;
 		draggedNode = null;
 		dragSource = new DragSource();
-		new DropTarget(this, this);
+		DropTarget target = new DropTarget(this, this);
+		target.setDefaultActions(DnDConstants.ACTION_COPY_OR_MOVE);
 		dragSource.createDefaultDragGestureRecognizer(this,
 			DnDConstants.ACTION_MOVE, this);
 	}
@@ -131,7 +191,14 @@ public class DnDTree
 	 * no-operation in our case.
 	 * {@link DragSourceListener#dragDropEnd(DragSourceDragEvent)}
 	 */
-	public void dragDropEnd(DragSourceDropEvent dsde) {}
+	public void dragDropEnd(DragSourceDropEvent dsde)
+	{
+		if (dsde.getDropSuccess() &&
+				dsde.getDropAction() == DnDConstants.ACTION_MOVE)
+		{
+			pathSource = null;
+		}
+	}
 
 	/**
 	 * Implemented as specified by {@link DragSourceListener} I/F but
@@ -236,20 +303,24 @@ public class DnDTree
 		dtde.dropComplete (dropped);
 		repaint();
 	}
-
+	
 	/**
 	 * Starts dragging the node.
 	 * @see DragGestureListener#dragGestureRecognized(DragGestureEvent)
 	 */
 	public void dragGestureRecognized(DragGestureEvent e)
 	{
-		Point clickPoint = e.getDragOrigin();
-		TreePath path = getPathForLocation(clickPoint.x, clickPoint.y);
+		Point p = e.getDragOrigin();
+		TreePath path = getPathForLocation(p.x, p.y);
 		if (path == null) return;
 		draggedNode = (TreeNode) path.getLastPathComponent();
 		if (draggedNode == null) return;
+		createGhostImage(path, p);
+		setSelectionPath(path);
+		pathSource = path;
 		Transferable trans = new TransferableNode(draggedNode);
-		dragSource.startDrag(e, getCursor(e.getDragAction()), trans, this);
+		//dragSource.startDrag(e, getCursor(e.getDragAction()), trans, this);
+		e.startDrag(null, imgGhost, new Point(5, 5), trans, this);
 	}
 
 	/**

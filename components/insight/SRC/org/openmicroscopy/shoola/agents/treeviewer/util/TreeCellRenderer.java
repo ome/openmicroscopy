@@ -29,6 +29,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
+
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -296,8 +298,9 @@ public class TreeCellRenderer
     /** Flag indicating if the node to render is the target node.*/
     private boolean isTargetNode;
     
-    /** Flag indicating if the target node is a leaf.*/
-    private boolean isTargetNodeLeaf;
+    /** The color used when dragging.*/
+    private Color draggedColor;
+    
 	
     /**
      * Sets the icon and the text corresponding to the user's object.
@@ -475,16 +478,14 @@ public class TreeCellRenderer
     {
         numberChildrenVisible = b;
         filter = new EditorFileFilter();
+        draggedColor = new Color(backgroundSelectionColor.getRed(),
+				backgroundSelectionColor.getGreen(),
+				backgroundSelectionColor.getBlue(), 100);
     }
     
     /** Creates a new instance. */
     public TreeCellRenderer() { this(true); }
-    
-    void reset()
-    {
-    	isTargetNode = false;
-    	isTargetNodeLeaf = false;
-    }
+
     
     /**
      * Overridden to set the icon and the text.
@@ -498,15 +499,11 @@ public class TreeCellRenderer
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
                                                 row, hasFocus);
         isTargetNode = false;
-        isTargetNodeLeaf = false;
         if (tree instanceof DnDTree) {
         	DnDTree dndTree = (DnDTree) tree;
         	isTargetNode = (value == dndTree.getDropTargetNode());
         }
-        if (value instanceof TreeNode) {
-        	isTargetNodeLeaf = (isTargetNode && ((TreeNode) value).isLeaf());
-        }
-		
+
         setIcon(FILE_TEXT_ICON);
         if (!(value instanceof TreeImageDisplay)) return this;
         TreeImageDisplay  node = (TreeImageDisplay) value;
@@ -551,5 +548,13 @@ public class TreeCellRenderer
         setEnabled(node.isSelectable());
         return this;
     }
+    
+    public void paintComponent (Graphics g) {
+		super.paintComponent(g);
+		if (isTargetNode) {
+			g.setColor(draggedColor); 
+			g.fillRoundRect(0, 0, getSize().width-1, getSize().height-1, 1, 1);
+		}
+	}
   
 }
