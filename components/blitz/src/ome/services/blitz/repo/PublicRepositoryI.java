@@ -2,7 +2,7 @@
  * ome.services.blitz.repo.PublicRepositoryI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -844,9 +844,22 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 return exp;
             }
         });
+
+        final long id = fileId;
+        ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
+                .execute(currentUser, new Executor.SimpleWork(this, "getCurrentRepoDir") {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return sf.getQueryService().find(ome.model.core.OriginalFile.class, id);
+            }
+        });
+
         IceMapper mapper = new IceMapper();
         Experimenter rv = (Experimenter) mapper.map(exp);
         String name = rv.getOmeName().getValue();
+        OriginalFileI of = (OriginalFileI) mapper.map(oFile);
+        String lastPart = FilenameUtils.getName(
+                FilenameUtils.getFullPathNoEndSeparator(of.getPath().getValue()));
 
         //FIXME: Force user prefix for now
         path = FilenameUtils.concat(path, name);
@@ -873,6 +886,15 @@ public class PublicRepositoryI extends _RepositoryDisp {
             }
             path = FilenameUtils.concat(path, dir);
         }
+
+        int version = 0;
+        String endPart = lastPart;
+        while (new File(path, endPart).exists()) {
+            version++;
+            endPart = lastPart + "-" + Integer.toString(version);
+        }
+        path = FilenameUtils.concat(path, endPart);
+
         return path;
     }
 
