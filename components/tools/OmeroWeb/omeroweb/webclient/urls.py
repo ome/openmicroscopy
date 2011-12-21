@@ -53,7 +53,7 @@ urlpatterns = patterns('django.views.generic.simple',
     # update, display activities, E.g. delete queues, scripts etc.
     url( r'^activities/', views.activities, name="activities"),
     url( r'^activities_json/', views.activities, {'template':'json'}, name="activities_json"),
-    url( r'^status/(?:(?P<action>[a-zA-Z]+)/)?$', views.status_action, name="status"),
+    url( r'^activities_update/(?:(?P<action>clean)/)?$', views.activities_update, name="activities_update"),
     
     # loading data    
     url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|image|screen|plate|well|orphaned))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|acquisition|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    

@@ -32,19 +32,21 @@
     };
     
     var showActivities = function() {
-        //activities_Window = popupActivites('{% url status %}');
         $("#activities_panel").toggle();
         if ($("#activities_panel").is(":visible")) {
-            $("#activities_content").prepend( $('<img src="{% static "common/image/spinner.gif" %}"/>') );
             refreshActivities();
         }
     }
     
     var setupResultOptions = function() {
+        $(".result a.browse").click(function() {
+            var href = $(this).attr('href');
+            if (href) {
+                window.location.href = href;
+            }
+        });
         $(".result").children('a').click(function(e){
-            console.log('show menu');
             $(this).parent().find('ul').css('visibility', 'visible');
-            e.preventDefault();
             return false;
         });
         // on hover-out of the menu itself, hide drop-down menus
@@ -58,30 +60,24 @@
     // this is called by the setInterval loop below
     var activitiesUpdate = function(i) {
         $.get("{% url activities %}", function(data) {
+            $('#activities_spinner').hide();
             var inprogress = $("#inprogress", data).text();
+            var failure = $("#failure", data).text();
+            
+            // if we've got no jobs still running, stop checking
             if ((typeof inprogress == 'undefined') || (inprogress.length == 0)) {
-                console.log(inprogress, 'stopping');
                 if (i != undefined) clearInterval(i);
+                showJobCount(0);
                 return;
             }
             inprogress = parseInt( inprogress );
-            var failure = $("#failure", data).text();
-            console.log(inprogress);
             if (inprogress==0) {
                 if (i != undefined) clearInterval(i);
-                $("#progress").hide();
-                if(failure>0) {
-                    $("#jobstatus").html(failure + ' job(s) failed');
-                } else {
-                    $("#jobstatus").html('0 job(s)');
-                }
             }
-            else {
-                $("#progress").show();
-                $("#jobstatus").html(inprogress + ' job(s) in progress');
-            }
-            $("#activities_content").empty()
-            $("#activities_content").append( $("table", data) );
+            
+            // display what we recieved, bind events etc
+            $("#activities_content").empty();
+            $("#activities_content").append( $("table", $(data)) );
             $("#jobsTable").alternateRowColors();
             setupResultOptions();
             $(".remove").click(function() {
@@ -89,7 +85,7 @@
                 var $jobRow = $(this).parent().parent();
                 $.ajax({
                     type: "POST",
-                    url: "{% url status 'clean' %}",
+                    url: "{% url activities_update action='clean' %}",
                     data: {'jobKey':jobKey},
                     contentType:'json',
                     success: function(r){
@@ -102,38 +98,87 @@
             });
         });
     }
+    
+    var showJobCount = function(count) {
+        if ((typeof count == 'undefined') || (count == '0') || (count == 0)) {
+            $("#launch_activities").css('opacity', 0.25);
+            $('#jobstatus').hide();
+        } else {
+            $("#launch_activities").css('opacity', 1.0);
+            $('#jobstatus').text(count + '').show();
+        }
+    }
+    
+    var calculateCartTotal = function(total){
+        if ((typeof total == 'undefined') || (total == '0') || (total == 0)) {
+            $("#launch_basket").css('opacity', 0.25);
+            $('#cartTotal').hide();
+        } else {
+            $("#launch_basket").css('opacity', 1.0);
+            $('#cartTotal').text(total + '').show();
+        }
+    };
 
     var refreshActivities = function() {
-        activitiesUpdate();
+        $('#activities_spinner').show();    // only show this before the first ajax update
         var i = setInterval(function (){
                 activitiesUpdate(i);
         }, 5000);
+        activitiesUpdate(i);
     }
     $(document).ready(function() {
+        showJobCount(0);
         refreshActivities();
         $("#activities_panel").hide();
+        $("#activities_spinner").hide();
+        
+        // add click handler to entire body, to close the activities panel 
+        $('body').click(function(event) {
+            var target = $(event.target);
+            if (target.attr('id') != 'launch_activities') {
+                $("#activities_panel").hide();
+            }
+        }); // BUT also stop any events bubbling up from panel itself
+        $("#activities_panel").click(function(event) {
+            return false;
+        });
+        $("#launch_activities").click(function(event) {
+            showActivities();
+            return false;
+        });
+        
+        showJobCount(0);
+        calculateCartTotal({{ nav.basket }});
+        
     });
 </script>
 
 {% endifnotequal %}
 
-        {% ifnotequal nav.menu "basket" %}
-        <div id="baskets"><a href="{% url basket_action %}">{% trans "BASKET:" %}</a> <span id="cartTotal">{{ nav.basket }}</span> {% plural nav.basket 'item' 'items' %}</div>
-        {% endifnotequal %}
-        {% ifnotequal nav.menu "status" %}
+
+        <div id="baskets">
+            <a id="launch_basket" href="{% url basket_action %}" title="Basket">
+                <img src="{% static "common/image/basket_light_24.png" %}"/>
+                <div id="cartTotal">0</div>
+            </a>
+        </div>
+        
+        
         <div id="queue">
-            <a href="#" onClick="showActivities();" class="align_left">ACTIVITIES:</a>
-            <div id="jobstatus">0 job(s)</div>
-            <img src="{% static "common/image/spinner.gif" %}" id="progress" style="display: none;"/>
+            <a id='launch_activities' class="align_left" title="Activities">
+                <img src="{% static "common/image/activity_light_24.png" %}"/>
+            </a>
+            <div id="jobstatus">0</div>
             
             <div id="activities_panel">
-                <div>
+                <h3>
                     Activities
-                </div>
+                </h3>
+                <img id='activities_spinner' src="{% static "common/image/spinner.gif" %}"/>
+                
                 
                 <div id="activities_content">
                 </div>
                 
             </div>
         </div>
-        {% endifnotequal %}

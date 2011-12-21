@@ -129,10 +129,6 @@ var syncPanels = function(get_selected) {
     });
 }
 
-var calculateCartTotal = function(total){
-    $('#cartTotal').html(total); 
-};
-
 var addToBasket = function(selected, prefix) {
     var productListQuery = new Array("action=add");
     if (selected != null && selected.length > 0) {

@@ -63,13 +63,20 @@ body.zoom {
     top: 0;
     left: 0;
 }
-#baskets {
+
+#queue, #baskets {
+    position: relative;
     margin: 0 5px;
     float:left;
 }
-#queue, #jobstatus {
-    margin: 0 5px;
-    float:left;
+#jobstatus, #cartTotal {
+    font-size: 80%;
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    padding: 1px 2px;
+    background: red;
+    border-radius: 4px;
 }
 
 #dataTable img {
@@ -210,10 +217,18 @@ ul.criteria li{
     z-index: 20;
     background: #fff;
     border: solid 1px #444444;
-    padding: 5px;
     max-height: 500px;
     overflow: auto;
     min-width: 500px;
+}
+#activities_panel h3 {
+    padding: 5px 5px;
+    margin: 0px;
+    font-weight: normal;
+    border-bottom: solid gray 1px;
+}
+#activities_panel .message {
+    width: 200px;
 }
 #activities_panel .activity_title {
     font-weight:bold;
@@ -240,7 +255,10 @@ ul.criteria li{
 }
 #activities_panel td a {
     text-decoration: none;
-    color: #000;
+    color: #00f;
+}
+#activities_panel td {
+    word-wrap: break-word;
 }
 #activities_panel .key {
     color: gray;
@@ -263,6 +281,8 @@ ul.criteria li{
 #activities_panel .script_error {
     color: red;
 }
-#activities_content {
-    width: 480px;
+#activities_spinner {
+    position: absolute;
+    top: 5px;
+    right: 5px;
 }

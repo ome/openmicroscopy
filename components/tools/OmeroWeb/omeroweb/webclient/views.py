@@ -2748,9 +2748,7 @@ def activities(request, **kwargs):
             'inprogress':in_progress,
             'failure':failure}
 
-    template = "webclient/status/statusWindow.html"
-    if request.REQUEST.get('content_only'):
-        template = "webclient/status/activitiesContent.html"
+    template = "webclient/activities/activitiesContent.html"
     t = template_loader.get_template(template)
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
@@ -2758,18 +2756,13 @@ def activities(request, **kwargs):
 
 
 @isUserConnected
-def status_action (request, action=None, **kwargs):
+def activities_update (request, action, **kwargs):
     """
-    Opens the Activites window, using data from jobs in the request.session['callback'].
-    Once this window is open, AJAX calls are used to poll the request.session['callback'] and update the page
-
     If the above 'action' == 'clean' then we clear jobs from request.session['callback']
     either a single job (if 'jobKey' is specified in POST) or all jobs (apart from those in progress)
     """
 
     request.session.modified = True
-
-    request.session['nav']['menu'] = 'status'
 
     if action == "clean":
         if 'jobKey' in request.POST:
@@ -2788,53 +2781,6 @@ def status_action (request, action=None, **kwargs):
                     del request.session['callback'][key]
         return HttpResponseRedirect(reverse("status"))
 
-    elif action == "update":
-        # try to update the 'attribute' of the job with 'new_value' (or None)
-        if 'jobKey' in request.POST:
-            jobId = request.POST.get('jobKey')
-            rv = {'updated':False}
-            if jobId in request.session['callback']:
-                if 'attribute' in request.POST:
-                    attribute = request.POST.get('attribute')
-                    new_value = request.POST.get('new_value', None)
-                    request.session['callback'][jobId][attribute] = new_value
-                    request.session.modified = True
-                    rv['updated'] = True
-            return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript')
-
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
-    template = "webclient/status/statusWindow.html"
-    if request.REQUEST.get('content_only'):
-        template = "webclient/status/activitiesContent.html"
-
-    _purgeCallback(request)
-
-    jobs = []
-    for key, data in request.session['callback'].items():
-        # E.g. key: ProcessCallback/39f77932-c447-40d8-8f99-910b5a531a25 -t:tcp -h 10.211.55.2 -p 54727:tcp -h 10.37.129.2 -p 54727:tcp -h 10.12.2.21 -p 54727
-        # create id we can use as html id, E.g. 39f77932-c447-40d8-8f99-910b5a531a25
-        data['id'] = key
-        if len(key.split(" ")) > 0:
-            data['id'] = key.split(" ")[0]
-            if len(data['id'].split("/")) > 1:
-                data['id'] = data['id'].split("/")[1]
-        data['key'] = key
-        jobs.append(data)
-
-    jobs.sort(key=lambda x:x['start_time'], reverse=True)
-    context = {'sizeOfJobs':len(request.session['callback']), 'jobs':jobs }
-
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
-            
 ####################################################################################
 # User Photo
 
