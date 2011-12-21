@@ -93,8 +93,7 @@ public abstract class AbstractServantTest extends TestCase {
         // Shared
         OmeroContext inner = OmeroContext.getManagedServerContext();
         ctx = new OmeroContext(new String[] { "classpath:omero/test2.xml",
-                "classpath:ome/services/blitz-servantDefinitions.xml", // geomTool
-                "classpath:ome/services/messaging.xml", // Notify geomTool
+                "classpath:ome/services/messaging.xml",
                 "classpath:ome/services/spec.xml", // for DeleteI
                 "classpath:ome/config.xml", // for ${} in servantDefs.
                 "classpath:ome/services/throttling/throttling.xml"
@@ -116,8 +115,7 @@ public abstract class AbstractServantTest extends TestCase {
         user_initializer = new AopContextInitializer(
                 new ServiceFactory(ctx), user.login.p, new AtomicBoolean(true));
 
-        user_delete = (DeleteI) ctx.getBean("DeleteI");
-        user_delete.setServiceFactory(user_sf);
+        user_delete = delete(user_sf);
         user_update = new UpdateI(sf.getUpdateService(), be);
         user_query = new QueryI(sf.getQueryService(), be);
         user_admin = new AdminI(sf.getAdminService(), be);
@@ -136,8 +134,7 @@ public abstract class AbstractServantTest extends TestCase {
         root_initializer = new AopContextInitializer(
                 new ServiceFactory(ctx), root.login.p, new AtomicBoolean(true));
 
-        root_delete = (DeleteI) ctx.getBean("DeleteI");
-        root_delete.setServiceFactory(root_sf);
+        root_delete = delete(root_sf);
         root_update = new UpdateI(sf.getUpdateService(), be);
         root_query = new QueryI(sf.getQueryService(), be);
         root_admin = new AdminI(sf.getAdminService(), be);
@@ -149,6 +146,16 @@ public abstract class AbstractServantTest extends TestCase {
         configure(root_admin, root_initializer);
         configure(root_config, root_initializer);
         configure(root_share, root_initializer);
+    }
+
+    protected DeleteI delete(ServiceFactoryI sfi) throws Exception {
+        String out = ctx.getProperty("omero.threads.cancel_timeout");
+        int timeout = Integer.valueOf(out);
+        DeleteI d = new DeleteI(sf.getDeleteService(), be,
+                ctx.getBean("threadPool", ThreadPool.class),
+                timeout, ctx.getProperty("omero.data.dir"));
+        d.setServiceFactory(sfi);
+        return d;
     }
 
     protected void configure(AbstractAmdServant servant,
