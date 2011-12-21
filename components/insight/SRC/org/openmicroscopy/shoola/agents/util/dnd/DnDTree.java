@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.util.dnd;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -66,6 +67,8 @@ import javax.swing.tree.TreePath;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
+
+import com.sun.java.swing.SwingUtilities2;
 
 /** 
  * Adds Drag and Drop facility to the tree.
@@ -113,19 +116,7 @@ public class DnDTree
 	private BufferedImage	imgGhost;
 	
 	/** The point, in the dragged image, the mouse clicked occurred.*/
-	private Point			ptOffset;
-	
-	/**
-	 * Returns the cursor corresponding to the dragged action.
-	 * 
-	 * @param action The action to handle.
-	 * @return See above.
-	 */
-	private Cursor getCursor(int action)
-	{
-		return (action == DnDConstants.ACTION_MOVE) ?
-			DragSource.DefaultMoveDrop : DragSource.DefaultCopyDrop;
-	}
+	//private Point			ptOffset;
 	
 	/** 
 	 * Creates a ghost image.
@@ -133,15 +124,73 @@ public class DnDTree
 	 * @param path The selected path.
 	 * @param p The origin of the dragging.
 	 */
-	private void createGhostImage(TreePath path, Point p)
+	private void createGhostImage(Point p)
 	{
-		Rectangle r = getPathBounds(path);
-		ptOffset.setLocation(p.x-r.x, p.y-r.y);
+		TreePath[] paths = getSelectionPaths();
+		if (paths == null || paths.length == 0) return;
+		Rectangle rect = new Rectangle();
+		rect.x = Integer.MAX_VALUE;
+		rect.y = Integer.MIN_VALUE;
+		TreePath path;// = paths[0];
+		Rectangle r;// = getPathBounds(path);
+		int[] values = new int[paths.length];
+		int y = 0;
+		for (int i = 0; i < paths.length; i++) {
+			values[i] = y;
+			path = paths[i];
+			r = getPathBounds(path);
+			if (rect.width < r.width) rect.width = r.width;
+			rect.height += r.height;
+			rect.x = Math.min(rect.x, r.x);
+			rect.y = Math.max(rect.y, r.y);
+			y += r.height;
+		}
+		imgGhost = new BufferedImage((int) rect.getWidth(),
+				(int) rect.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
+		Graphics2D g2 = imgGhost.createGraphics();
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, 0.5f));
+		JLabel label;
+		Icon icon = null;
+		int offset = -1;
+		int v;
+		for (int i = 0; i < paths.length; i++) {
+			path = paths[i];
+			r = getPathBounds(path);
+			label = (JLabel) getCellRenderer().getTreeCellRendererComponent(
+					this, path.getLastPathComponent(), false, isExpanded(path),
+					getModel().isLeaf(path.getLastPathComponent()), 0, false);
+			//label.setSize((int) r.getWidth(), (int) r.getHeight());
 			
+			//label.paint(g2);
+			icon = label.getIcon();
+			if (icon != null) {
+				icon.paintIcon(label, g2, 0, values[i]);
+			}
+			v = (icon == null) ? 0 : icon.getIconWidth();
+			v += label.getIconTextGap();
+			//label.setBounds(v, values[i], rect.width, r.height);
+			//label.paint(g2);]
+			g2.setColor(label.getForeground());
+			g2.setFont(label.getFont());
+			FontMetrics fm = g2.getFontMetrics();
+			g2.drawString(label.getText(), v, values[i]+fm.getAscent()+1);
+			if (offset < 0) {
+				offset = (icon == null) ? 0 : icon.getIconWidth();
+				offset += label.getIconTextGap();
+			}
+		}
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OVER, 
+				0.5f));
+		g2.setPaint(new GradientPaint(offset, 0, 
+				SystemColor.controlShadow, getWidth(), 0, DEFAULT_COLOR));
+		g2.fillRect(offset, 0, getWidth(), imgGhost.getHeight());
+		g2.dispose();
+		/*
 		// Get the cell renderer (which is a JLabel) for the path being dragged
 		JLabel lbl = (JLabel) getCellRenderer().getTreeCellRendererComponent(
 		this, path.getLastPathComponent(), false, isExpanded(path),
 		getModel().isLeaf(path.getLastPathComponent()), 0, false);
+		
 		lbl.setSize((int) r.getWidth(), (int) r.getHeight()); 
 		// Get a buffered image of the selection for dragging a ghost image
 		imgGhost = new BufferedImage((int) r.getWidth(), (int) r.getHeight(), 
@@ -161,6 +210,7 @@ public class DnDTree
 				SystemColor.controlShadow, getWidth(), 0, DEFAULT_COLOR));
 		g2.fillRect(nStartOfText, 0, getWidth(), imgGhost.getHeight());
 		g2.dispose();
+		*/
 	}
 	
 	/** Creates a new instance.*/
@@ -168,7 +218,7 @@ public class DnDTree
 	{
 		super();
 		setDragEnabled(true);
-		ptOffset = new Point();
+		//ptOffset = new Point();
 		dropTargetNode = null;
 		dragSource = new DragSource();
 		DropTarget target = new DropTarget(this, this);
@@ -320,7 +370,7 @@ public class DnDTree
 		if (path == null) return;
 		TreeNode draggedNode = (TreeNode) path.getLastPathComponent();
 		if (draggedNode == null) return;
-		createGhostImage(path, p);
+		createGhostImage(p);
 		//setSelectionPath(path);
 		//pathSource = path;
 		TreePath[] paths = getSelectionPaths();
@@ -330,7 +380,11 @@ public class DnDTree
 		}
 		Transferable trans = new TransferableNode(nodes);
 		//dragSource.startDrag(e, getCursor(e.getDragAction()), trans, this);
-		e.startDrag(null, imgGhost, new Point(5, 5), trans, this);
+		try {
+			e.startDrag(null, imgGhost, new Point(5, 5), trans, this);
+		} catch (Exception ex) {
+			//already an on-going dragging action.
+		}
 	}
 
 	/**
