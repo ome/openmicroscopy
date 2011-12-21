@@ -84,32 +84,11 @@ import org.testng.annotations.Test;
  * not available from {@link ome.api.IDelete}
  */
 @Test(groups = { "integration", "chgrp" })
-public class ChgrpITest extends AbstractServantTest {
-
-    Mock adapterMock;
-
-    Ice.Communicator ic;
+public class ChgrpITest extends AbstractGraphTest {
 
     long oldGroupId = -1L;
 
     long newGroupId = -2L;
-
-    @Override
-    @BeforeClass
-    protected void setUp() throws Exception {
-        super.setUp();
-        adapterMock = (Mock) user.ctx.getBean("adapterMock");
-        adapterMock.setDefaultStub(new FakeAdapter());
-        ic = ctx.getBean("Ice.Communicator", Ice.Communicator.class);
-
-        // Register ChgrpI, etc. This happens automatically on the server.
-        RequestObjectFactoryRegistry rofr = new RequestObjectFactoryRegistry(
-                user.ctx.getBean(ExtendedMetadata.class),
-                user.ctx.getBean(Roles.class)
-                );
-        rofr.setApplicationContext(ctx);
-        rofr.setIceCommunicator(ic);
-    }
 
     @BeforeMethod
     protected void setupNewGroup() throws Exception {
@@ -716,13 +695,6 @@ public class ChgrpITest extends AbstractServantTest {
     // Helpers
     //
 
-    private void block(HandleI handle, int loops, long pause)
-            throws InterruptedException {
-        for (int i = 0; i < loops && null == handle.getResponse(); i++) {
-            Thread.sleep(pause);
-        }
-    }
-
     private void changeToOldGroup() throws ServerError {
         IObject old =
             user_sf.setSecurityContext(
@@ -735,40 +707,6 @@ public class ChgrpITest extends AbstractServantTest {
             user_sf.setSecurityContext(
                     new ExperimenterGroupI(newGroupId, false), null);
         old.getId().getValue();
-    }
-
-    private void assertSuccess(HandleI handle) {
-        Response rsp = handle.getResponse();
-        assertNotNull(rsp);
-        if (rsp instanceof ERR) {
-            ERR err = (ERR) rsp;
-            fail(err.category + ":" + err.name + ":" + err.parameters);
-        }
-        assertFalse(handle.getStatus().flags.contains(State.FAILURE));
-    }
-
-    private void assertFailure(HandleI handle) {
-        Response rsp = handle.getResponse();
-        assertNotNull(rsp);
-        if (rsp instanceof OK) {
-            OK ok = (OK) rsp;
-            fail(ok.toString());
-        }
-        assertTrue(handle.getStatus().flags.contains(State.FAILURE));
-    }
-
-    private void assertDoesExist(String table, long id) throws Exception {
-        List<List<RType>> ids = assertProjection(
-                "select x.id from " +table+" x where x.id = :id",
-                new ParametersI().addId(id));
-        assertEquals(1, ids.size());
-    }
-
-    private void assertDoesNotExist(String table, long id) throws Exception {
-        List<List<RType>> ids = assertProjection(
-                "select x.id from " +table+" x where x.id = :id",
-                new ParametersI().addId(id));
-        assertEquals(0, ids.size());
     }
 
     private HandleI doChgrp(ChgrpI chgrp) throws Exception {

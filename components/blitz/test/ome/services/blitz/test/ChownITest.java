@@ -66,30 +66,9 @@ import org.testng.annotations.Test;
  * not available from {@link ome.api.IDelete}
  */
 @Test(groups = { "integration", "chown" })
-public class ChownITest extends AbstractServantTest {
-
-    Mock adapterMock;
-
-    Ice.Communicator ic;
+public class ChownITest extends AbstractGraphTest {
 
     long newUserId = 0L;
-
-    @Override
-    @BeforeClass
-    protected void setUp() throws Exception {
-        super.setUp();
-        adapterMock = (Mock) user.ctx.getBean("adapterMock");
-        adapterMock.setDefaultStub(new FakeAdapter());
-        ic = ctx.getBean("Ice.Communicator", Ice.Communicator.class);
-
-        // Register ChownI, etc. This happens automatically on the server.
-        RequestObjectFactoryRegistry rofr = new RequestObjectFactoryRegistry(
-                user.ctx.getBean(ExtendedMetadata.class),
-                user.ctx.getBean(Roles.class)
-                );
-        rofr.setApplicationContext(ctx);
-        rofr.setIceCommunicator(ic);
-    }
 
     @BeforeMethod
     protected void setupNewGroup() throws Exception {
@@ -694,39 +673,8 @@ public class ChownITest extends AbstractServantTest {
     // Helpers
     //
 
-    private void block(HandleI handle, int loops, long pause)
-            throws InterruptedException {
-        for (int i = 0; i < loops && null == handle.getResponse(); i++) {
-            Thread.sleep(pause);
-        }
-    }
-
     private void changeToNewGroup() throws ServerError {
         user_sf.setSecurityContext(new ExperimenterGroupI(newUserId, false), null);
-    }
-
-    private void assertSuccess(HandleI handle) {
-        assertNotNull(handle.getResponse());
-        assertFalse(handle.getStatus().flags.contains(State.FAILURE));
-    }
-
-    private void assertFailure(HandleI handle) {
-        assertNotNull(handle.getResponse());
-        assertTrue(handle.getStatus().flags.contains(State.FAILURE));
-    }
-
-    private void assertDoesExist(String table, long id) throws Exception {
-        List<List<RType>> ids = assertProjection(
-                "select x.id from " +table+" x where x.id = :id",
-                new ParametersI().addId(id));
-        assertEquals(1, ids.size());
-    }
-
-    private void assertDoesNotExist(String table, long id) throws Exception {
-        List<List<RType>> ids = assertProjection(
-                "select x.id from " +table+" x where x.id = :id",
-                new ParametersI().addId(id));
-        assertEquals(0, ids.size());
     }
 
     private HandleI doChown(ChownI chown) throws Exception {
