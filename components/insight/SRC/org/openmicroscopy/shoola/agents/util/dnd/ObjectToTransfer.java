@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.util.dnd;
 
 
 //Java imports
+import java.awt.dnd.DnDConstants;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +49,9 @@ public class ObjectToTransfer
 	
 	/** The target node.*/
 	private TreeImageDisplay target;
+	
+	/** The drop action.*/
+	private int dropAction;
 	
 	/**
 	 * Creates a new instance.
@@ -74,6 +78,21 @@ public class ObjectToTransfer
 		this.target = target;
 		this.nodes = nodes;
 	}
+	
+	/**
+	 * Sets the drop action. One of the constants defined by 
+	 * <code>java.awt.dnd.DnDConstants</code>.
+	 * 
+	 * @param dropAction The value to set.
+	 */
+	public void setDropAction(int dropAction) { this.dropAction = dropAction; }
+
+	/**
+	 * Returns the drop action.
+	 * 
+	 * @return
+	 */
+	public int getDropAction() { return dropAction; }
 	
 	/**
 	 * Returns the target.

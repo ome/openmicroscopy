@@ -953,10 +953,12 @@ class BrowserModel
 	 * 
 	 * @param target The target.
 	 * @param nodes The nodes to transfer.
+	 * @param transferAction The transfer action.
 	 */
-	void transfer(TreeImageDisplay target, List<TreeImageDisplay> nodes)
+	void transfer(TreeImageDisplay target, List<TreeImageDisplay> nodes,
+			int transferAction)
 	{
-		parent.transfer(target, nodes);
+		parent.transfer(target, nodes, transferAction);
 	}
 	
 }

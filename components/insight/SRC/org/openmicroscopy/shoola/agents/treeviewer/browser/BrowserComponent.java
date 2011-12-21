@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.ContainerFinder;
 import org.openmicroscopy.shoola.agents.util.browser.NodeSelectionVisitor;
@@ -1900,6 +1901,17 @@ class BrowserComponent
 		if (model.getState() == DISCARDED) return null;
 		if (userID < 0) return null;
 		return view.getNodesForUser(userID);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#rejectTransfer()
+	 */
+	public void rejectTransfer()
+	{
+		TreeCellRenderer renderer = (TreeCellRenderer) 
+			view.getTreeDisplay().getCellRenderer();
+		renderer.reset();
 	}
 
 }

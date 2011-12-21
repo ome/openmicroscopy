@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.util.dnd;
 //Java imports
 import java.awt.AlphaComposite;
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
@@ -53,7 +52,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTree;
@@ -67,8 +65,6 @@ import javax.swing.tree.TreePath;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
-
-import com.sun.java.swing.SwingUtilities2;
 
 /** 
  * Adds Drag and Drop facility to the tree.
@@ -321,7 +317,6 @@ public class DnDTree
 		try {
 			dtde.acceptDrop(DnDConstants.ACTION_MOVE);
 			Object droppedObject = transferable.getTransferData(localFlavor);
-			TreeImageDisplay droppedNode = null;
 			List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>();
 			if (droppedObject instanceof List) {
 				List l = (List) droppedObject;
@@ -351,6 +346,7 @@ public class DnDTree
 					parent = (TreeImageDisplay) dropNode.getParent();
 				}
 				ObjectToTransfer transfer = new ObjectToTransfer(parent, nodes);
+				transfer.setDropAction(DnDConstants.ACTION_MOVE);
 				firePropertyChange(DRAGGED_PROPERTY, null, transfer);
 			}
 			dropped = true;

@@ -2018,7 +2018,8 @@ class BrowserUI
 		String name = evt.getPropertyName();
 		if (DnDTree.DRAGGED_PROPERTY.equals(name)) {
 			ObjectToTransfer transfer = (ObjectToTransfer) evt.getNewValue();
-			model.transfer(transfer.getTarget(), transfer.getNodes());
+			model.transfer(transfer.getTarget(), transfer.getNodes(), 
+					transfer.getDropAction());
 		}
 	}
 

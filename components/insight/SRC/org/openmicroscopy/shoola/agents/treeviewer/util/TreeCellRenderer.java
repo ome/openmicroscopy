@@ -30,11 +30,9 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeNode;
 
 //Third-party libraries
 
@@ -486,10 +484,16 @@ public class TreeCellRenderer
     /** Creates a new instance. */
     public TreeCellRenderer() { this(true); }
 
+    /** Resets.*/
+    public void reset()
+    {
+    	isTargetNode = false;
+    	repaint();
+    }
     
     /**
      * Overridden to set the icon and the text.
-     * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object, 
+     * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object,
      * 								boolean, boolean, boolean, int, boolean)
      */
     public Component getTreeCellRendererComponent(JTree tree, Object value,
@@ -549,10 +553,15 @@ public class TreeCellRenderer
         return this;
     }
     
-    public void paintComponent (Graphics g) {
+    /**
+     * Overridden to highlight the destination of the target.
+     * @see paintComponent(Graphics)
+     */
+    public void paintComponent(Graphics g)
+    {
 		super.paintComponent(g);
 		if (isTargetNode) {
-			g.setColor(draggedColor); 
+			g.setColor(draggedColor);
 			g.fillRoundRect(0, 0, getSize().width-1, getSize().height-1, 1, 1);
 		}
 	}

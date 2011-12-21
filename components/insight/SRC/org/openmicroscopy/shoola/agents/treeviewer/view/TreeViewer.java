@@ -1028,7 +1028,9 @@ public interface TreeViewer
 	 * 
 	 * @param target The target.
 	 * @param nodes The nodes to transfer.
+	 * @param transferAction The transfer action.
 	 */
-	void transfer(TreeImageDisplay target, List<TreeImageDisplay> nodes);
+	void transfer(TreeImageDisplay target, List<TreeImageDisplay> nodes, int
+			transferAction);
 	
 }
