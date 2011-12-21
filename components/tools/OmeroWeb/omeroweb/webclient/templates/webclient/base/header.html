@@ -76,6 +76,7 @@
             }
             
             // display what we recieved, bind events etc
+            showJobCount(inprogress);
             $("#activities_content").empty();
             $("#activities_content").append( $("table", $(data)) );
             $("#jobsTable").alternateRowColors();
