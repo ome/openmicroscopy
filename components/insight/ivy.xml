@@ -65,5 +65,8 @@
     <dependency org="loci" name="bufr" rev="1.1.00"/>
     <dependency org="loci" name="grib" rev="5.1.03"/>
     <dependency org="loci" name="netcdf" rev="4.0"/>
+    <dependency org="importer" name="slf4j-api" rev="${versions.slf4j}"/>
+    <dependency org="importer" name="slf4j-log4j12" rev="${versions.slf4j}"/>
+    
   </dependencies>
 </ivy-module>
