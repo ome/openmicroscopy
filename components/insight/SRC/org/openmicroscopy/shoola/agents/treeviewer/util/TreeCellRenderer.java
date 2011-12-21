@@ -483,13 +483,6 @@ public class TreeCellRenderer
     
     /** Creates a new instance. */
     public TreeCellRenderer() { this(true); }
-
-    /** Resets.*/
-    public void reset()
-    {
-    	isTargetNode = false;
-    	repaint();
-    }
     
     /**
      * Overridden to set the icon and the text.
@@ -539,7 +532,6 @@ public class TreeCellRenderer
         setForeground(c);
         if (!sel) setBorderSelectionColor(getBackground());
         else setTextColor(getBackgroundSelectionColor());
-        
         if (getIcon() != null) w += getIcon().getIconWidth();
         else w += SIZE.width;
         w += getIconTextGap();
@@ -559,10 +551,10 @@ public class TreeCellRenderer
      */
     public void paintComponent(Graphics g)
     {
-		super.paintComponent(g);
+    	super.paintComponent(g);
 		if (isTargetNode) {
 			g.setColor(draggedColor);
-			g.fillRoundRect(0, 0, getSize().width-1, getSize().height-1, 1, 1);
+			g.fillRoundRect(0, 0, getSize().width-1, getSize().height-1, 2, 2);
 		}
 	}
   

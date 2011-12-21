@@ -223,6 +223,12 @@ public class DnDTree
 			DnDConstants.ACTION_MOVE, this);
 	}
 
+    /** Resets.*/
+    public void reset()
+    {
+    	dropTargetNode = null;
+    }
+    
 	/**
 	 * Returns the drop target node.
 	 * 

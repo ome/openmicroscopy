@@ -3618,6 +3618,7 @@ class TreeViewerComponent
 		if (!isUserOwner(ot)) {
 			un.notifyInfo("DnD", 
 					"You must be the owner of the container.");
+			browser.rejectTransfer();
 			return;
 		}
 		List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();

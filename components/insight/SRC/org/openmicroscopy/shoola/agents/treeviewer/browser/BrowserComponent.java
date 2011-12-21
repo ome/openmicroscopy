@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
+import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -1909,9 +1910,10 @@ class BrowserComponent
 	 */
 	public void rejectTransfer()
 	{
-		TreeCellRenderer renderer = (TreeCellRenderer) 
-			view.getTreeDisplay().getCellRenderer();
-		renderer.reset();
+		JTree tree = view.getTreeDisplay();
+		if (tree instanceof DnDTree) {
+			((DnDTree) tree).reset();
+		}
 	}
 
 }
