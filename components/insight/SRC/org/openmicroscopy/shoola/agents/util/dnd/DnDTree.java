@@ -351,8 +351,9 @@ public class DnDTree
 				if (dropNode.isLeaf() && dropNode instanceof TreeImageNode) {
 					parent = (TreeImageDisplay) dropNode.getParent();
 				}
-				ObjectToTransfer transfer = new ObjectToTransfer(parent, nodes);
-				transfer.setDropAction(DnDConstants.ACTION_MOVE);
+				int action = DnDConstants.ACTION_MOVE;
+				ObjectToTransfer transfer = new ObjectToTransfer(parent, nodes, 
+						action);
 				firePropertyChange(DRAGGED_PROPERTY, null, transfer);
 			}
 			dropped = true;

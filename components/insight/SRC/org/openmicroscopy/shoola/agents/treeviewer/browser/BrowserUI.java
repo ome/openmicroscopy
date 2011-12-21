@@ -29,6 +29,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.dnd.DnDConstants;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -2018,8 +2019,11 @@ class BrowserUI
 		String name = evt.getPropertyName();
 		if (DnDTree.DRAGGED_PROPERTY.equals(name)) {
 			ObjectToTransfer transfer = (ObjectToTransfer) evt.getNewValue();
-			model.transfer(transfer.getTarget(), transfer.getNodes(), 
-					transfer.getDropAction());
+			int action = TreeViewer.CUT_AND_PASTE;
+			if (transfer.getDropAction() == DnDConstants.ACTION_COPY)
+				action = TreeViewer.COPY_AND_PASTE;
+			model.transfer(transfer.getTarget(), transfer.getNodes(),
+					action);
 		}
 	}
 

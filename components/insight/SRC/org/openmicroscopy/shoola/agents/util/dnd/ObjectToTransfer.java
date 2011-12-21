@@ -57,35 +57,16 @@ public class ObjectToTransfer
 	 * Creates a new instance.
 	 * 
 	 * @param target The node where to add the
-	 * @param node  The node to transfer.
-	 */
-	public ObjectToTransfer(TreeImageDisplay target, TreeImageDisplay node)
-	{
-		this.target = target;
-		nodes = new ArrayList<TreeImageDisplay>();
-		if (node != null) nodes.add(node);
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param target The node where to add the
 	 * @param nodes  The nodes to transfer.
+	 * @param dropAction The value to set. One of the constants defined by 
+	 * <code>java.awt.dnd.DnDConstants</code>.
 	 */
 	public ObjectToTransfer(TreeImageDisplay target,
-			List<TreeImageDisplay> nodes)
+			List<TreeImageDisplay> nodes, int dropAction)
 	{
 		this.target = target;
 		this.nodes = nodes;
 	}
-	
-	/**
-	 * Sets the drop action. One of the constants defined by 
-	 * <code>java.awt.dnd.DnDConstants</code>.
-	 * 
-	 * @param dropAction The value to set.
-	 */
-	public void setDropAction(int dropAction) { this.dropAction = dropAction; }
 
 	/**
 	 * Returns the drop action.
