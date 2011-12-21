@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 
 //Java imports
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -56,8 +54,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
-import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
-import org.openmicroscopy.shoola.agents.util.dnd.ObjectToTransfer;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.DatasetData;
 import pojos.ExperimenterData;

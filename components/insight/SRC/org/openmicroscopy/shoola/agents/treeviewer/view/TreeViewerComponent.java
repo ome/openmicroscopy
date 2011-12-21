@@ -3582,8 +3582,17 @@ class TreeViewerComponent
 		if (target == null || nodes == null || nodes.size() == 0) return;
 		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 		Object ot = target.getUserObject();
+		Browser browser = model.getSelectedBrowser();
+		if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+			if (!(ot instanceof GroupData) ||
+					!TreeViewerAgent.isAdministrator()) {
+				un.notifyInfo("DnD", "Only administrator can perform" +
+						"such action.");
+				return;
+			}
+		}
 		if (!isUserOwner(ot)) {
-			un.notifyInfo("Transfer", 
+			un.notifyInfo("DnD", 
 					"You must be the owner of the container.");
 			return;
 		}
@@ -3603,7 +3612,11 @@ class TreeViewerComponent
 				}
 			}
 		}
-		if (list.size() == 0) return;
+		if (list.size() == 0) {
+			un.notifyInfo("DnD", 
+			"You are not allowed to move the selected items.");
+			return;
+		}
 		model.transfer(target, list);
 	}
 

@@ -49,6 +49,9 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -62,6 +65,7 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 
 /** 
  * Adds Drag and Drop facility to the tree.
@@ -104,12 +108,6 @@ public class DnDTree
 	
 	/** The node selected as a target.*/
 	private TreeNode dropTargetNode;
-	
-	/** The node currently dragged.*/
-	private TreeNode draggedNode;
-	
-	/** The path being dragged.*/
-	private TreePath		pathSource;
 	
 	/** The image representing the dragged object.*/
 	private BufferedImage	imgGhost;
@@ -169,9 +167,9 @@ public class DnDTree
 	public DnDTree()
 	{
 		super();
+		setDragEnabled(true);
 		ptOffset = new Point();
 		dropTargetNode = null;
-		draggedNode = null;
 		dragSource = new DragSource();
 		DropTarget target = new DropTarget(this, this);
 		target.setDefaultActions(DnDConstants.ACTION_COPY_OR_MOVE);
@@ -196,7 +194,7 @@ public class DnDTree
 		if (dsde.getDropSuccess() &&
 				dsde.getDropAction() == DnDConstants.ACTION_MOVE)
 		{
-			pathSource = null;
+			//pathSource = null;
 		}
 	}
 
@@ -271,36 +269,43 @@ public class DnDTree
 		TreePath path = getPathForLocation(dropPoint.x, dropPoint.y);
 		boolean dropped = false;
 		try {
-			dtde.acceptDrop (DnDConstants.ACTION_MOVE);
+			dtde.acceptDrop(DnDConstants.ACTION_MOVE);
 			Object droppedObject = transferable.getTransferData(localFlavor);
-			TreeImageDisplay droppedNode = null; 
-			if (droppedObject instanceof TreeImageDisplay) {
-				// remove from old location
-				droppedNode = (TreeImageDisplay) droppedObject;
+			TreeImageDisplay droppedNode = null;
+			List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>();
+			if (droppedObject instanceof List) {
+				List l = (List) droppedObject;
+				Iterator i = l.iterator();
+				Object o;
+				while (i.hasNext()) {
+					o = i.next();
+					if (o instanceof TreeImageDisplay) {
+						nodes.add((TreeImageDisplay) o);
+					}
+				}
+			} else if (droppedObject instanceof TreeImageDisplay) {
+				nodes.add((TreeImageDisplay) droppedObject);
 			}
-			if (droppedNode == null) {
+			
+			if (nodes.size() == 0) {
 				dropped = true;
-				dtde.dropComplete (dropped);
+				dtde.dropComplete(dropped);
 				return;
 			}
-			// insert into spec'd path. if dropped into a parent 
-			// make it last child of that parent 
 			TreeImageDisplay parent;
 			DefaultMutableTreeNode dropNode =
 				(DefaultMutableTreeNode) path.getLastPathComponent();
 			if (dropNode instanceof TreeImageDisplay) {
 				parent = (TreeImageDisplay) dropNode;
-				if (dropNode.isLeaf()) {
+				if (dropNode.isLeaf() && dropNode instanceof TreeImageNode) {
 					parent = (TreeImageDisplay) dropNode.getParent();
 				}
-				ObjectToTransfer transfer = new ObjectToTransfer(parent, 
-						droppedNode);
+				ObjectToTransfer transfer = new ObjectToTransfer(parent, nodes);
 				firePropertyChange(DRAGGED_PROPERTY, null, transfer);
 			}
-			
 			dropped = true;
 		} catch (Exception e) {}
-		dtde.dropComplete (dropped);
+		dtde.dropComplete(dropped);
 		repaint();
 	}
 	
@@ -313,12 +318,17 @@ public class DnDTree
 		Point p = e.getDragOrigin();
 		TreePath path = getPathForLocation(p.x, p.y);
 		if (path == null) return;
-		draggedNode = (TreeNode) path.getLastPathComponent();
+		TreeNode draggedNode = (TreeNode) path.getLastPathComponent();
 		if (draggedNode == null) return;
 		createGhostImage(path, p);
-		setSelectionPath(path);
-		pathSource = path;
-		Transferable trans = new TransferableNode(draggedNode);
+		//setSelectionPath(path);
+		//pathSource = path;
+		TreePath[] paths = getSelectionPaths();
+		List<TreeNode> nodes = new ArrayList<TreeNode>();
+		for (int i = 0; i < paths.length; i++) {
+			nodes.add((TreeNode) paths[i].getLastPathComponent());
+		}
+		Transferable trans = new TransferableNode(nodes);
 		//dragSource.startDrag(e, getCursor(e.getDragAction()), trans, this);
 		e.startDrag(null, imgGhost, new Point(5, 5), trans, this);
 	}
