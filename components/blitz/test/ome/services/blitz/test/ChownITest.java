@@ -83,11 +83,12 @@ public class ChownITest extends AbstractServantTest {
         ic = ctx.getBean("Ice.Communicator", Ice.Communicator.class);
 
         // Register ChownI, etc. This happens automatically on the server.
-        new RequestObjectFactoryRegistry(
+        RequestObjectFactoryRegistry rofr = new RequestObjectFactoryRegistry(
                 user.ctx.getBean(ExtendedMetadata.class),
                 user.ctx.getBean(Roles.class)
-                ).setIceCommunicator(ic);
-
+                );
+        rofr.setApplicationContext(ctx);
+        rofr.setIceCommunicator(ic);
     }
 
     @BeforeMethod

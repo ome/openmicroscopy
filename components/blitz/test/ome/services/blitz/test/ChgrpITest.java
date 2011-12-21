@@ -30,8 +30,11 @@ import omero.api.IDeletePrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.cmd.Chgrp;
+import omero.cmd.ERR;
 import omero.cmd.HandleI;
+import omero.cmd.OK;
 import omero.cmd.RequestObjectFactoryRegistry;
+import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.graphs.ChgrpI;
 import omero.model.AnnotationAnnotationLink;
@@ -87,7 +90,9 @@ public class ChgrpITest extends AbstractServantTest {
 
     Ice.Communicator ic;
 
-    long newGroupId = 0L;
+    long oldGroupId = -1L;
+
+    long newGroupId = -2L;
 
     @Override
     @BeforeClass
@@ -98,19 +103,22 @@ public class ChgrpITest extends AbstractServantTest {
         ic = ctx.getBean("Ice.Communicator", Ice.Communicator.class);
 
         // Register ChgrpI, etc. This happens automatically on the server.
-        new RequestObjectFactoryRegistry(
+        RequestObjectFactoryRegistry rofr = new RequestObjectFactoryRegistry(
                 user.ctx.getBean(ExtendedMetadata.class),
                 user.ctx.getBean(Roles.class)
-                ).setIceCommunicator(ic);
-
+                );
+        rofr.setApplicationContext(ctx);
+        rofr.setIceCommunicator(ic);
     }
 
     @BeforeMethod
     protected void setupNewGroup() throws Exception {
+        oldGroupId = user.getCurrentEventContext().getCurrentGroupId();
         newGroupId = root.newGroup();
         root.addUserToGroup(
                 user.getCurrentEventContext().getCurrentUserId(), newGroupId);
         user.getCurrentEventContext(); // RELOAD.
+        changeToOldGroup();
     }
 
     ChgrpI newChgrp(String type, long id, long grp) {
@@ -715,17 +723,37 @@ public class ChgrpITest extends AbstractServantTest {
         }
     }
 
+    private void changeToOldGroup() throws ServerError {
+        IObject old =
+            user_sf.setSecurityContext(
+                    new ExperimenterGroupI(oldGroupId, false), null);
+        old.getId().getValue();
+    }
+
     private void changeToNewGroup() throws ServerError {
-        user_sf.setSecurityContext(new ExperimenterGroupI(newGroupId, false), null);
+        IObject old =
+            user_sf.setSecurityContext(
+                    new ExperimenterGroupI(newGroupId, false), null);
+        old.getId().getValue();
     }
 
     private void assertSuccess(HandleI handle) {
-        assertNotNull(handle.getResponse());
+        Response rsp = handle.getResponse();
+        assertNotNull(rsp);
+        if (rsp instanceof ERR) {
+            ERR err = (ERR) rsp;
+            fail(err.category + ":" + err.name + ":" + err.parameters);
+        }
         assertFalse(handle.getStatus().flags.contains(State.FAILURE));
     }
 
     private void assertFailure(HandleI handle) {
-        assertNotNull(handle.getResponse());
+        Response rsp = handle.getResponse();
+        assertNotNull(rsp);
+        if (rsp instanceof OK) {
+            OK ok = (OK) rsp;
+            fail(ok.toString());
+        }
         assertTrue(handle.getStatus().flags.contains(State.FAILURE));
     }
 
