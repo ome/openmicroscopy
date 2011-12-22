@@ -1,7 +1,6 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+
 
 {% comment %}
 <!--
@@ -23,17 +22,17 @@
 -->
 {% endcomment %}
 
-{% block css %}
-    <link rel="stylesheet" href="{% url webstatic "css/picklist.css" %}" type="text/css" media="screen"/>
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webadmin/css/picklist.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block title %}Edit in group{% endblock %}
 
-{% block jscript %}
+{% block script %}
+{{ block.super }}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.multiselects.js" %}"></script>
-    
+    <script type="text/javascript" src="{% static "webadmin/javascript/jquery.multiselects.js" %}"></script>
     <script type="text/javascript">
     jQuery(function($){
         // (OPTIONAL) adjust the width of the select box to the bigger of the two
@@ -54,12 +53,15 @@
 
 {% endblock %}
 
-{% block content %}
+{% block center_details %}
+
+{{ block.super }}
+
 <div>
-<h2>{% trans "Edit members of" %} '{{ controller.group.name }}'</h2>
+<h1>{% trans "Edit members of" %} '{{ controller.group.name }}'</h1>
 
-<p>* - {% trans "active group" %}.<br/>{% trans "To remove experimenter with * from this group first change the active group." %}</p>
-
+<p>(*username) - * {% trans "mark user active group" %}.<br/>{% trans "To remove experimenter with * from this group first change the active group." %}</p>
+<br/>
 
 <form action="{% url wamanagegroupid "update" controller.group.id %}" method="POST">
 <table border="0" cellspacing="0" cellpadding="0" class="formTable">

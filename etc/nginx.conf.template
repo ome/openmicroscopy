@@ -22,14 +22,9 @@ http {
         fastcgi_temp_path %(ROOT)s/var/nginx_tmp;
         proxy_temp_path %(ROOT)s/var/nginx_tmp;
 
-         # weblitz django apps serve media from here
-        location /appmedia {
-            alias %(OMEROWEBROOT)s/media;
-        }
-
-        # django's admin media
-        location /media {
-            alias %(OMEROWEBROOT)s/media/django_admin_media;
+         # weblitz django apps serve static content from here
+        location /static {
+            alias %(OMEROWEBROOT)s/static;
         }
 
         location / {

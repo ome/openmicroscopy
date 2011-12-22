@@ -67,6 +67,8 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 
+from omeroweb.webadmin.custom_models import Server
+
 try:
     PAGE = settings.PAGE
 except:
@@ -1238,9 +1240,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         recps = list()
         for m in recipients:
             try:
-                e = (m.email, m.email.val)[isinstance(m.email, omero.RString)]
-                if e is not None and e!="":
-                    recps.append(e)
+                if m.email is not None and m.email!="":
+                    recps.append(m.email)
             except:
                 logger.error(traceback.format_exc())
         logger.info(recps)
@@ -1269,10 +1270,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             except Exception, x:
                 logger.error(traceback.format_exc())
             else:
-                blitz = settings.SERVER_LIST.get(pk=blitz_id)
+                blitz = Server.get(pk=blitz_id)
                 t = settings.EMAIL_TEMPLATES["add_comment_to_share"]
-                message = t['text_content'] % (settings.APPLICATION_HOST, blitz_id)
-                message_html = t['html_content'] % (settings.APPLICATION_HOST, blitz_id, settings.APPLICATION_HOST, blitz_id)
+                message = t['text_content'] % (host, blitz_id)
+                message_html = t['html_content'] % (host, blitz_id, host, blitz_id)
                 try:
                     title = 'OMERO.web - new comment for share %i' % share_id
                     text_content = message
@@ -1320,8 +1321,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 logger.error(traceback.format_exc())
             else:
                 t = settings.EMAIL_TEMPLATES["create_share"]
-                message = t['text_content'] % (settings.APPLICATION_HOST, blitz_id, self.getUser().getFullName())
-                message_html = t['html_content'] % (settings.APPLICATION_HOST, blitz_id, settings.APPLICATION_HOST, blitz_id, self.getUser().getFullName())
+                message = t['text_content'] % (host, blitz_id, self.getUser().getFullName())
+                message_html = t['html_content'] % (host, blitz_id, host, blitz_id, self.getUser().getFullName())
                 
                 try:
                     title = 'OMERO.web - new share %i' % sid
@@ -1351,10 +1352,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             except Exception, x:
                 logger.error(traceback.format_exc())
             else:
-                blitz = settings.SERVER_LIST.get(pk=blitz_id)
+                blitz = Server.get(pk=blitz_id)
                 t = settings.EMAIL_TEMPLATES["add_member_to_share"]
-                message = t['text_content'] % (settings.APPLICATION_HOST, blitz_id, self.getUser().getFullName())
-                message_html = t['html_content'] % (settings.APPLICATION_HOST, blitz_id, settings.APPLICATION_HOST, blitz_id, self.getUser().getFullName())
+                message = t['text_content'] % (host, blitz_id, self.getUser().getFullName())
+                message_html = t['html_content'] % (host, blitz_id, host, blitz_id, self.getUser().getFullName())
                 try:
                     title = 'OMERO.web - update share %i' % share_id
                     text_content = message
@@ -1372,10 +1373,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             except Exception, x:
                 logger.error(traceback.format_exc())
             else:
-                blitz = settings.SERVER_LIST.get(pk=blitz_id)
+                blitz = Server.get(pk=blitz_id)
                 t = settings.EMAIL_TEMPLATES["remove_member_from_share"]
-                message = t['text_content'] % (settings.APPLICATION_HOST, blitz_id)
-                message_html = t['html_content'] % (settings.APPLICATION_HOST, blitz_id, settings.APPLICATION_HOST, blitz_id)
+                message = t['text_content'] % (host, blitz_id)
+                message_html = t['html_content'] % (host, blitz_id, host, blitz_id)
                 
                 try:
                     title = 'OMERO.web - update share %i' % share_id

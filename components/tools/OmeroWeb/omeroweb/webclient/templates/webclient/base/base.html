@@ -1,7 +1,6 @@
-{% extends "webclient/base/base_main.html" %}
+{% extends "common/base/container2.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+
 
 {% comment %}
 <!--
@@ -23,24 +22,30 @@
 -->
 {% endcomment %}
 
-{% block header %}
 
-{% include "webclient/base/header.html" %}
-
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block content %}
 
-<table cellspacing="0" cellpadding="0" class="contentWrapper">
-    <tbody>
-    <tr>
-        <td id="center_panel">{% block center %}{% endblock %}</td>
-        <td class="trayhandle collapsibletrayhandle-right">
-            <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="expanded-right" src="{% url webstatic "images/spacer.gif" %}" tabindex="0"></div>
-        </td>
-        <td id="right_panel">{% block right %}{% endblock %}</td>
-    </tr>
-    </tbody>
-</table>
+{% block nav_links %}
+    <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
+    {% include "webclient/base/menu.html" %}
+{% endblock %}
 
+
+{% block header_left %}
+    {% include "webclient/base/header.html" %}
+{% endblock %}
+
+
+{% block header_right %}
+    {% include "webclient/base/logout.html" %}
+{% endblock %}
+
+
+{% block footer_content %}
+    {% include "webclient/base/footer_links.html" %}
 {% endblock %}

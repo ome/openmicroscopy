@@ -1,7 +1,6 @@
 {% extends "webclient/base/base.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+{% load common_filters %}
 
 {% comment %}
 <!--
@@ -24,20 +23,18 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/table.css" %}" type="text/css" media="screen"/>
     
-{% endblock %}
-
-{% block jscript %}
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
-
 {% endblock %}
 
 {% block script %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static "common/javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
 
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
     
     <script type="text/javascript">
         var isCheckedById = function(name) { 
@@ -59,7 +56,7 @@
 
                 $.ajax({
                     type: "POST",
-                    url: "/webclient/basket/update/", //this.href,
+                    url: '{% url basket_action "update" %}', //this.href,
                     data: productListQuery,
                     contentType:'html',
                     cache:false,
@@ -67,7 +64,7 @@
                         if(responce.match(/(Error: ([A-z]+))/gi)) {
                             alert(responce)
                         } else {
-                            window.location = "/webclient/basket/";
+                            window.location = '{% url basket_action %}';
                         }
                     },
                     error: function(responce) {
@@ -78,14 +75,6 @@
         };
         
         $(document).ready(function(){
-
-            var h = $(window).height()-200;
-            $("div#metadata_details").css('height', h+31);
-            $("div#metadata_details iframe").attr('height', h+31);
-            $("div#content_details").css('height', h+31);
-            $("#right_panel").show();
-            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-            
             
             $("table#dataTable tbody").selectable({
                 filter: 'tr',
@@ -95,10 +84,10 @@
                         this.checked = true;
                     });
                     if (l == 1) {
-                        $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% url webstatic "images/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare();"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
-                        loadMetadataPanel('/webclient/metadata_details/image/'+$("tr.ui-selected td input", this).first().attr("id")+'/');
+                        $("#toolbar").html('<input class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% static "webclient/image/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare(\'{% url basket_action "toshare" %}\');"> <input class="button" type="image" src="{% static "webclient/image/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% static "webclient/image/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% static "webclient/image/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
+                        loadMetadataPanel('{% url load_metadata_details %}image/'+$("tr.ui-selected td input", this).first().attr("id")+'/');
                     } else {
-                        $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% url webstatic "images/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare();"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
+                        $("#toolbar").html('<input class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% static "webclient/image/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare(\'{% url basket_action "toshare" %}\');"> <input class="button" type="image" src="{% static "webclient/image/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% static "webclient/image/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% static "webclient/image/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
                         loadMetadataPanel(null, ('<p>'+ l +' elements selected.</p>'));
                     }
                 },
@@ -123,15 +112,21 @@
 {% block center %}
 
 <div id="content_details">
-    <h1>Basket</h1>
+    <h1>Basket Test</h1>
     {% if basket.sizeOfBasket %}
 
         <div id="toolbar" class="toolbar_noborder">
-            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url basket_action %}';"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="Discuss" title="Discuss" onclick="makeDiscussion();"/> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href='{% url empty_basket %}';">
+            <input class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url basket_action %}';">
+            <input class="button" type="image" src="{% static "webclient/image/wp_protocol16.png" %}" alt="Discuss" title="Discuss" onclick="makeDiscussion();"/>
+            <input class="button" type="image" src="{% static "webclient/image/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href='{% url empty_basket %}';">
         </div>
         <div class="clear"> </div>
 
-        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
+        <form class="quicksearch" id="quicksearch" action="#">
+            <label for="id_search">Filter:</label>
+            <input type="text" id="id_search" value="search">
+            <span class="loading"><img class="loader" alt="Loading" src="{% static "common/image/spinner.gif" %}"></span>
+        </form>
 
         <table id="dataTable" class="tablesorter">
             <thead> 
@@ -146,16 +141,14 @@
                     <tr id="{{ c.id }}">
                         <td class="action">
                             <img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
-                            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">      
+                            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
                         </td>
-                        <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                        <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% static "common/image/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% static "webclient/image/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
                         <td class="roles">{{ c.getDate }}</td>                    
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-
-        </div>
 
     {% else %}
         <p>{% trans "Basket is empty." %}</p>
@@ -167,15 +160,21 @@
 {% block right %}
     
     <div id="metadata_details">
-        <div id="metadata_description"><h1>{% trans "Basket" %}</h1>
-        <p>{% trans "This page shows the current contents of your basket." %}
-            {% if not basket.sizeOfBasket %}
-                {% trans "Your basket is empty. Please add some of your bio-data from" %} <a href="{% url load_template "userdata" %}">{% trans "Data" %}</a> {% trans "or initiate a discussion." %}
-            {% else %}
-                <p><img class="loader" alt="Loading" src="{% url webstatic "help/images/basket1.gif" %}"></p>
-                {% trans "Now you can manage items from your basket by selecting them and then clicking the button on the toolbar. To select more then one item just click and move mouse over them or use CTRL key and select each individual. Selected items are market by gray." %}
-            {% endif %}
-        </p></div>
+        <div id="metadata_description">
+            <h1>{% trans "Basket" %}</h1>
+                <p>{% trans "This page shows the current contents of your basket." %}
+                    {% if not basket.sizeOfBasket %}
+                        {% trans "Your basket is empty. Please add some of your bio-data from" %}
+                        <a href="{% url load_template "userdata" %}">{% trans "Data" %}</a>
+                        {% trans "or initiate a discussion." %}
+                    {% else %}
+                        <p><img class="loader" alt="Loading" src="{% static "webclient/image/help/basket1.gif" %}" /></p>
+                        {% trans "Now you can manage items from your basket by selecting them and then clicking the button on the toolbar.
+                        To select more then one item just click and move mouse over them or use CTRL key and select each individual.
+                        Selected items are market by gray." %}
+                    {% endif %}
+                </p>
+        </div>
         <iframe width="370" name="metadata_details" frameborder="0"></iframe>
     </div>
     

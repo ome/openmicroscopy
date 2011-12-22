@@ -1,6 +1,5 @@
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+
 
 {% comment %}
 <!--
@@ -23,43 +22,40 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
 
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/panojs.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/3rdparty/panojs.css" %}" media="all" />
 
-    <link rel="stylesheet" href="/appmedia/webgateway/css/jquery-plugin-gs_slider.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="/appmedia/webgateway/css/weblitz-viewport.css" type="text/css" media="screen"/>
-{% endblock %}
-
-{% block jscript %}
-
-    <script type="text/javascript" src="/appmedia/webgateway/js/weblitz-viewport.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-viewportImage.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-gs_slider.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/gs_utils.js"></script>
-    
-    <!-- big images -->
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/utils.js"></script>    
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/PanoJS.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/controls.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/pyramid_Bisque.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/pyramid_imgcnv.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/pyramid_Zoomify.js"></script>        
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_thumbnail.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_info.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_svg.js"></script>
-    
+    <link rel="stylesheet" href="{% static "webgateway/css/jquery-plugin-gs_slider.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webgateway/css/weblitz-viewport.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block script %}
 
+    <script type="text/javascript" src="{% static "webgateway/js/weblitz-viewport.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-viewportImage.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-gs_slider.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/gs_utils.js" %}"></script>
+    
+    <!-- big images -->
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/utils.js" %}"></script>    
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/PanoJS.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/controls.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/pyramid_Bisque.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/pyramid_imgcnv.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/pyramid_Zoomify.js" %}"></script>        
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/control_thumbnail.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/control_info.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/control_svg.js" %}"></script>
+
+
     <script type="text/javascript">
         var preview_loaded = function() {
             {% if manager.getShareId %}
-            var viewport = $.WeblitzViewport($("#viewport"), "/webclient/{{ manager.getShareId }}" );
+            var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}{{ manager.getShareId }}", {'mediaroot': '{{ STATIC_URL }}' } );
             viewport.load({{ imageId }}, null, location.search);
             {% else %}
-            var viewport = $.WeblitzViewport($("#viewport"), "/webclient" );
+            var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}", {'mediaroot': '{{ STATIC_URL }}' } );
             viewport.load({{ manager.image.id }});
             {% endif %}
         }
@@ -76,7 +72,7 @@
 <!-- VIEWER "Preview"-->
 
 <!-- open-image link -->
-<div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% if manager.getShareId %}{% url web_image_viewer manager.getShareId manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')"><img src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
+<div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% if manager.getShareId %}{% url web_image_viewer manager.getShareId manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')"><img src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
 
 <div id="preview_tab">
     <div class="miniview" id="viewport"></div>

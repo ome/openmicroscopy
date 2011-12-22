@@ -3,6 +3,8 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
+from omeroweb.webadmin.custom_models import Server
+
 import settings
 import logging
 import traceback
@@ -117,7 +119,7 @@ def change_active_group(request, groupId, **kwargs):
        
     webgateway_views._session_logout(request, request.session.get('server'))
     
-    blitz = settings.SERVER_LIST.get(pk=server) 
+    blitz = Server.get(pk=server) 
     request.session['server'] = blitz.id
     request.session['host'] = blitz.host
     request.session['port'] = blitz.port
@@ -472,7 +474,7 @@ def add_comment(request, obj_type, obj_id, **kwargs):
 
 def login (request):
     if request.method == 'POST' and request.REQUEST['server']:
-        blitz = settings.SERVER_LIST.get(pk=request.REQUEST['server'])
+        blitz = Server.get(pk=request.REQUEST['server'])
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
@@ -483,7 +485,7 @@ def login (request):
     url = request.REQUEST.get("url")
     
     if conn is None:
-        return render_to_response('webmobile/login.html', {'gw':settings.SERVER_LIST, 'url': url})
+        return render_to_response('webmobile/login.html', {'gw':Server, 'url': url})
         
     if url is not None and len(url) != 0:
         return HttpResponseRedirect(url)

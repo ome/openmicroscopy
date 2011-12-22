@@ -1,8 +1,5 @@
+{% extends "common/base/base_html.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 {% comment %}
 <!--
@@ -24,20 +21,25 @@
 -->
 {% endcomment %}
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+{% block link %}
+    {{ block.super }}
+    {% include "common/base/includes/css_link_body.html" %}
+    <link rel="stylesheet" href="{% static "common/css/login.css" %}" type="text/css" />
+{% endblock %}
 
-<head>
-    <link rel="stylesheet" href="{% url webstatic "css/layout-admin.css" %}" type="text/css" />
-    <link rel="stylesheet" href="{% url webstatic "css/login.css" %}" type="text/css" />
+{% block title %}
+    {% trans "OMERO.web - Login" %}
+{% endblock %}
 
-    <link rel="shortcut icon" href="{% url webstatic "images/ome.ico" %}" type="image/x-icon" />
+{% block head %}
+    {{ block.super }}
+    {% include "common/base/includes/shortcut_icon.html" %}
+{% endblock %}
 
-    <title>{% trans "WebAdmin - Login" %}</title>
-    
-</head>
-<body>
+{% block body %}
+
 <div id="login-logo">
-    <img src="{% url webstatic "images/logo-admin.png" %}" />
+    <img src="{% static "webadmin/image/logo.png" %}" />
 </div>
 <div id="login">
     <form action="{% url walogin %}" method="post">
@@ -71,10 +73,8 @@
     </form>
 </div>
 
-<div id="bottom">
+<div id="login-footer">
     <center><a href="{% url waforgottenpassword %}">Forgotten password</a></center>
     <p>OMERO.web {{ version }}.<br/>&copy; 2007-2011 University of Dundee & Open Microscopy Environment</p>
 </div>
-
-</body>
-</html>
+{% endblock %}

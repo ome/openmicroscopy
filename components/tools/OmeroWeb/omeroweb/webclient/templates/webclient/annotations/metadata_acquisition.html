@@ -1,6 +1,6 @@
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+{% load common_filters %}
+
 
 {% comment %}
 <!--
@@ -23,23 +23,19 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/autocomplete.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
-{% endblock %}
-
-{% block jscript %}
-
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.autocomplete.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.editinplace.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.form.js" %}"></script>
-  
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/annotation.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/autocomplete.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block script %}
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.autocomplete.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
     
     <script type="text/javascript">
         var acquisition_loaded = function() 
@@ -129,7 +125,7 @@
                     {% if manager.global_metadata %}
                     <h1>Global Metadata</h1>
                     <div style="height:250px; overflow:auto">
-                        <form class="quicksearch" id="quicksearch_global" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_global" value="search"> <span class="loading_global"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
+                        <form class="quicksearch" id="quicksearch_global" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_global" value="search"> <span class="loading_global"><img class="loader" alt="Loading" src="{% static "common/image/spinner.gif" %}"></span></form>
                         <table id="global_metadata" class="metadata_details"
                             style="word-wrap: break-word;"><tbody>
                             {% for gm in manager.global_metadata %}
@@ -144,7 +140,7 @@
                     <hr />
                     <h1>Series Metadata</h1>
                     <div style="height:250px; overflow:auto">
-                        <form class="quicksearch" id="quicksearch_series" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_series" value="search"> <span class="loading_series"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
+                        <form class="quicksearch" id="quicksearch_series" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_series" value="search"> <span class="loading_series"><img class="loader" alt="Loading" src="{% static "common/image/spinner.gif" %}"></span></form>
                         <table id="series_metadata" class="metadata_details"
                             style="word-wrap: break-word;"><tbody>
                             {% for sm in manager.series_metadata %}

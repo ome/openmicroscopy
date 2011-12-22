@@ -1,6 +1,6 @@
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+{% load common_filters %}
+
 
 {% comment %}
 <!--
@@ -23,16 +23,12 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "javascript/themes/default/style.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tree.css" %}" type="text/css" media="screen"/>
-{% endblock %}
-
-{% block jscript %}
-        
+    <link rel="stylesheet" href="{% static "webclient/javascript/themes/default/style.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/tree.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block script %}
-    
+        
 {% endblock %}
 
 {% block content %}
@@ -41,11 +37,11 @@
     {% if manager.image.countParents %}
     <ul>
         {% for c in manager.image.listParents %}
-            <li id='dataset-{{ c.id }}' rel="dataset" class="clear jstree-last {% if c.countParents %}jstree-open{% else %}jstree-leaf{% endif %}"><ins class="jstree-icon">&nbsp;</ins><a hre="#"><ins class="jstree-icon"><img src="{% url webstatic "images/folder_image16.png" %}"/></ins>{{ c.name|truncatebefor:"35" }}</a>
+            <li id='dataset-{{ c.id }}' rel="dataset" class="clear jstree-last {% if c.countParents %}jstree-open{% else %}jstree-leaf{% endif %}"><ins class="jstree-icon">&nbsp;</ins><a hre="#"><ins class="jstree-icon"><img src="{% static "webclient/image/folder_image16.png" %}"/></ins>{{ c.name|truncatebefor:"35" }}</a>
                 {% if c.countParents %}
                 <ul>
                     {% for d in c.listParents %}
-                        <li id='project-{{ d.id }}' rel="project" class="jstree-last jstree-leaf"><ins class="jstree-icon">&nbsp;</ins><a hre="#"><ins class="jstree-icon"><img src="{% url webstatic "images/folder16.png" %}"/></ins>{{ d.name|truncatebefor:"35" }}</a></li>
+                        <li id='project-{{ d.id }}' rel="project" class="jstree-last jstree-leaf"><ins class="jstree-icon">&nbsp;</ins><a hre="#"><ins class="jstree-icon"><img src="{% static "webclient/image/folder16.png" %}"/></ins>{{ d.name|truncatebefor:"35" }}</a></li>
                     {% endfor %}
                 </ul>
                 {% endif %}

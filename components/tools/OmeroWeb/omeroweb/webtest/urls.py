@@ -50,4 +50,7 @@ urlpatterns = patterns('django.views.generic.simple',
     # post a comment annotation to images. parameters are in request: imageIds=123,234  comment=blah 
     # ns=Namespace replace=true (replaces existing comment with same ns if found)
     url( r'^add_annotations/$', views.add_annotations, name="webtest_add_annotations"),
+    
+    # examples of using the 'common' templates
+    url(r'^common/(?P<base_template>[a-z0-9_]+)/', views.common_templates, name='common'),
 )

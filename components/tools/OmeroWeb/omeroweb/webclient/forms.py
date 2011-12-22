@@ -27,6 +27,7 @@ import time
 import logging
 import traceback
 
+from django.conf import settings
 from django import forms
 from django.forms.widgets import Textarea
 from django.forms.widgets import HiddenInput
@@ -47,7 +48,7 @@ logger = logging.getLogger('forms-web')
 # Static values
 
 # TODO: change to reverse
-help_button = "/appmedia/omeroweb/images/help16.png"
+help_button = "%scommon/image/help16.png" % settings.STATIC_URL
 
 help_wiki = '<span id="markup" title="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="%s" /></span>' % help_button
 
@@ -207,7 +208,7 @@ class MultiAnnotationForm(NonASCIIForm):
         
         self.fields.keyOrder = ['content', 'tag', 'description', 'annotation_file', 'tags', 'files', 'image', 'project', 'dataset', 'screen', 'plate', 'acquisition', 'well']
         
-    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}), required=False)
+    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}), required=False)
     tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 31}), required=False, label="Desc")
     annotation_file  = forms.FileField(required=False)
