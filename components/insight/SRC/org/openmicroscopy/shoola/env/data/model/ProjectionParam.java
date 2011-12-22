@@ -363,11 +363,11 @@ public class ProjectionParam
 	 */
 	public static ProjectionType convertType(int type)
 	{
-		if (ProjectionType.MAXIMUMINTENSITY.value() == type)
+		if (ProjectionType.MAXIMUMINTENSITY.ordinal() == type)
 			return ProjectionType.MAXIMUMINTENSITY;
-		if (ProjectionType.MEANINTENSITY.value() == type)
+		if (ProjectionType.MEANINTENSITY.ordinal() == type)
 			return ProjectionType.MEANINTENSITY;
-		if (ProjectionType.SUMINTENSITY.value() == type)
+		if (ProjectionType.SUMINTENSITY.ordinal() == type)
 			return ProjectionType.SUMINTENSITY;
 		return null;
 	}
