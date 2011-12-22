@@ -15,9 +15,11 @@ import omero
 import omero.clients
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
 from django.utils import simplejson
+from django.utils.encoding import smart_str
 from django.utils.http import urlquote
 from django.core import template_loader
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.template import RequestContext as Context
 from omero.rtypes import rlong
 
@@ -262,22 +264,52 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     """
     
     r = request.REQUEST
-    if server_id is None:
-        # If no server id is passed, the db entry will not be used and instead we'll depend on the
-        # request.session and request.REQUEST values
-        with_session = True
-        server_id = request.session.get('server',None)
-        if server_id is None:
-            return None
     
+    ## blitz will hold the settings.SERVER_LIST server entry, if we're using one
+    blitz = None
+
+    ####
+    ## Host and Port from request - server_id or 0, server = 0
+    server = None
+    host = r.get('host', None)
+    port = r.get('port', None)
+
+    if host is None or port is None:
+        ## Server from request - server_id or server.host, server = r.server OR
+        ## Server from session - server_id or session.server.host, server = session.server
+        server = r.get('server', request.session.get('server', None))
+        if server is not None:
+            with_session = True
+            blitz = settings.SERVER_LIST.get(server)
+
+        ## Use server_id arg- server_id = server_id, server = serverlist.find(server=server_id)
+        if blitz is None and server_id is not None:
+            blitz = settings.SERVER_LIST.find(server=server_id)
+            if len(blitz):
+                blitz = blitz[0]
+            else:
+                blitz = None
+
+        if blitz is not None:
+            server = blitz.id
+            host = blitz.host
+            port = blitz.port
+            server_id = server_id or blitz.server
+
+    if server_id is None:
+        server_id = '0'
+
+    # If we couldn't resolve host and port at this point, give up
+    if host is None or port is None:
+        return None
+
     browsersession_connection_key = 'cuuid#%s'%server_id
     browsersession_key = request.session.session_key
     blitz_session = None
 
+    ## TODO: stop storing username and password, right now we need it for shares
     username = request.session.get('username', r.get('username', None))
     passwd = request.session.get('password', r.get('password', None))
-    host = request.session.get('host', r.get('host', None))
-    port = request.session.get('port', r.get('port', None))
     secure = request.session.get('ssl', r.get('ssl', False))
     logger.debug(':: (session) %s %s %s' % (str(request.session.get('username', None)),
                                             str(request.session.get('host', None)),
@@ -287,8 +319,6 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                                             str(r.get('port', None))))
     #logger.debug(':: %s %s :: %s' % (str(username), str(passwd), str(browsersession_connection_key)))
 
-#    if r.has_key('logout'):
-#        logger.debug('logout required by HTTP GET or POST')
     if r.has_key('bsession'):
         blitz_session = r['bsession']
         request.session[browsersession_connection_key] = blitz_session
@@ -359,9 +389,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                     return None
                 logger.debug('Failed connection, logging out')
                 _session_logout(request, server_id)
-                #return blitzcon
                 return None
-                #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored)
             else:
                 ####
                 # Success, new connection created
@@ -375,6 +403,12 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                     # Because it was a login, store some data
                     if not force_key:
                         request.session[browsersession_connection_key] = blitzcon._sessionUuid
+                        request.session['server'] = server
+                        request.session['host'] = host
+                        request.session['port'] = port
+                        request.session['username'] = smart_str(username)
+                        request.session['password'] = smart_str(passwd)
+                        request.session['ssl'] = secure
                     logger.debug('blitz session key: ' + blitzcon._sessionUuid)
                     logger.debug('stored as session.' + ckey)
                     blitzcon.user.logIn()
@@ -385,26 +419,16 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
         # session could expire or be closed by another client. webclient needs to recreate connection with new uuid
         # otherwise it will forward user to login screen.
         logger.info("Failed keepalive for connection %s" % ckey)
-        #del request.session[browsersession_connection_key]
         del connectors[ckey]
-        #_session_logout(request, server_id)
-        #return blitzcon
         return getBlitzConnection(request, server_id, with_session, retry=False, group=group, try_super=try_super, useragent=useragent)
     if blitzcon and ckey.startswith('C:') and not blitzcon.isConnected():
         logger.info("Something killed the base connection, recreating")
         del connectors[ckey]
         return None
-        #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored, useragent=useragent)
     if r.has_key('logout') and not ckey.startswith('C:'):
         logger.debug('logout required by HTTP GET or POST : killing current connection')
         _session_logout(request, server_id)
         return None
-        #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored, useragent=useragent)
-#    # After keepalive the user session may have been replaced with an 'anonymous' one...
-#    if not force_key and blitzcon and request.session.get(browsersession_connection_key, None) != blitzcon._sessionUuid:
-#        logger.debug('Cleaning the user proxy %s!=%s' % (str(request.session.get(browsersession_connection_key, None)), str(blitzcon._sessionUuid)))
-#        blitzcon.user = UserProxy(blitzcon)
-
     return blitzcon
 
 def _split_channel_info (rchannels):
