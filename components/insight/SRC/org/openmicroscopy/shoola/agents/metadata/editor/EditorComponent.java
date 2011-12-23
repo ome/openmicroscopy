@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -920,7 +920,8 @@ class EditorComponent
 		if (dialog == null) {
 			dialog = new ScriptingDialog(f, 
 					model.getScript(script.getScriptID()), 
-					model.getSelectedObjects());
+					model.getSelectedObjects(), 
+					MetadataViewerAgent.isBinaryAvailable());
 			dialog.addPropertyChangeListener(controller);
 			UIUtilities.centerAndShow(dialog);
 		} else {

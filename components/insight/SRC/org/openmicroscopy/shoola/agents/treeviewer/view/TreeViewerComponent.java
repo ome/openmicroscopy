@@ -81,6 +81,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -159,6 +160,9 @@ class TreeViewerComponent
 	
 	/** The dialog presenting the list of available users. */
 	private UserManagerDialog	switchUserDialog;
+	
+	/** The dialog displaying the selected script.*/
+	private ScriptingDialog     scriptDialog;
 	
 	/**
 	 * Downloads the files.
@@ -1379,6 +1383,14 @@ class TreeViewerComponent
 			case CREATE_MENU_ADMIN:
 			case PERSONAL_MENU:
 			case CREATE_MENU_SCREENS:
+				break;
+			case AVAILABLE_SCRIPTS_MENU:
+				if (model.getAvailableScripts() == null) {
+					model.loadScripts(p);
+					firePropertyChange(SCRIPTS_LOADING_PROPERTY,
+							Boolean.valueOf(false), Boolean.valueOf(true));
+					return;
+				}
 				break;
 			default:
 				throw new IllegalArgumentException("Menu not supported.");
@@ -3538,7 +3550,61 @@ class TreeViewerComponent
 			}
 			model.fireDataSaving(data, images);
 		}
-		
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setAvailableScripts(List, Point)
+	 */
+	public void setAvailableScripts(List scripts, Point location)
+	{
+		if (model.getState() == DISCARDED) return;
+		model.setAvailableScripts(scripts);
+		firePropertyChange(SCRIPTS_LOADED_PROPERTY,
+				Boolean.valueOf(false), Boolean.valueOf(true));
+		if (location != null)
+			view.showMenu(AVAILABLE_SCRIPTS_MENU, null, location);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#loadScript(long)
+	 */
+	public void loadScript(long scriptID)
+	{
+		if (scriptID < 0) return;
+		model.loadScript(scriptID);
+		firePropertyChange(SCRIPTS_LOADING_PROPERTY, 
+				Boolean.valueOf(false), Boolean.valueOf(true));
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setScript(ScriptObject)
+	 */
+	public void setScript(ScriptObject script)
+	{
+		firePropertyChange(SCRIPTS_LOADED_PROPERTY, 
+				Boolean.valueOf(false), Boolean.valueOf(true));
+		if (script == null) return;
+		model.setScript(script);
+		Browser browser = model.getSelectedBrowser();
+		List<DataObject> objects;
+		if (browser == null) objects = new ArrayList<DataObject>();
+		else objects = browser.getSelectedDataObjects();
+
+		//setStatus(false);
+		if (scriptDialog == null) {
+			scriptDialog = new ScriptingDialog(view, 
+					model.getScript(script.getScriptID()), objects, 
+					TreeViewerAgent.isBinaryAvailable());
+			scriptDialog.addPropertyChangeListener(controller);
+			UIUtilities.centerAndShow(scriptDialog);
+		} else {
+			scriptDialog.reset(model.getScript(script.getScriptID()), objects);
+			if (!scriptDialog.isVisible())
+				UIUtilities.centerAndShow(scriptDialog);
+		}
 	}
 	
 }

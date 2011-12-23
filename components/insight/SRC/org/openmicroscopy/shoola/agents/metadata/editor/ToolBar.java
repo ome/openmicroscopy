@@ -55,9 +55,9 @@ import org.jdesktop.swingx.JXBusyLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptSubMenu;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptSubMenu;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.filter.file.CppFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -358,12 +358,15 @@ class ToolBar
     	bar.add(saveAsButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(publishingButton);
+    	/*
     	if (MetadataViewerAgent.isAdministrator()) {
     		bar.add(Box.createHorizontalStrut(5));
         	bar.add(uploadScriptButton);
     	}
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(scriptsButton);
+    	*/
+    	//bar.add(scriptsButton);
     	return bar;
     }
     

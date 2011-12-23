@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -178,6 +179,9 @@ public interface TreeViewer
 	/** Identifies the <code>Create popUp menu</code> menu. */
 	public static final int         CREATE_MENU_SCREENS = 8;
 
+	/** Identifies the <code>Available Scripts</code> menu. */
+	public static final int         AVAILABLE_SCRIPTS_MENU = 9;
+	
 	/** Identifies the <code>Copy and Paste</code> action. */
 	public static final int         COPY_AND_PASTE = 400;
 
@@ -237,7 +241,17 @@ public interface TreeViewer
 	 * automatically.
 	 */
 	public static final String      SELECTION_PROPERTY = "selection";
-
+	
+	/** 
+	 * Bound property indicating the start of the available scripts loading.
+	 */
+	public static final String      SCRIPTS_LOADING_PROPERTY = "scriptsLoading";
+	
+	/** 
+	 * Bound property indicating the start of the available scripts are loaded.
+	 */
+	public static final String      SCRIPTS_LOADED_PROPERTY = "scriptsLoaded";
+	
 	/** 
 	 * The title displayed in the {@link LoadingWindow} during the saving 
 	 * process.
@@ -1022,5 +1036,27 @@ public interface TreeViewer
 	 * @param data The object to create.
 	 */
 	void createDataObjectWithChildren(DataObject data);
+
+	/**
+	 * Sets the collection of available scripts.
+	 * 
+	 * @param scripts The available scripts.
+	 * @param location The location of the mouse click.
+	 */
+	void setAvailableScripts(List result, Point location);
+
+	/**
+	 * Loads the specified script.
+	 * 
+	 * @param scriptID The identifier of the script to load.
+	 */
+	void loadScript(long scriptID);
+
+	/**
+	 * Sets the script.
+	 * 
+	 * @param object The object hosting the script.
+	 */
+	void setScript(ScriptObject object);
 	
 }

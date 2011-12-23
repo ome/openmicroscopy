@@ -25,12 +25,14 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.awt.Point;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +41,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
@@ -54,6 +57,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.ParentLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.PlateWellsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ProjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RndSettingsSaver;
+import org.openmicroscopy.shoola.agents.treeviewer.ScriptLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.ScriptsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TagHierarchyLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TimeIntervalsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -64,12 +69,16 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -168,6 +177,37 @@ class TreeViewerModel
 	/** Flag indicating if there is an on-going import. */
 	private boolean 				importing;
 	
+	/** Collection of uploaded scripts. */
+	private Map<Long, ScriptObject>  scripts;
+	
+	/** Used to sort the various collections. */
+    private ViewerSorter			sorter;
+    
+    /** Scripts with a UI. */
+	private List<ScriptObject> scriptsWithUI;
+	
+    /**
+     * Returns the collection of scripts with a UI, mainly the figure scripts.
+     * 
+     * @return See above.
+     */
+    private List<ScriptObject> getScriptsWithUI()
+    {
+    	if (scriptsWithUI != null) return scriptsWithUI;
+    	try {
+    		OmeroImageService svc = 
+    			TreeViewerAgent.getRegistry().getImageService();
+    		scriptsWithUI = svc.loadAvailableScriptsWithUI();
+    		return scriptsWithUI;
+		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+			msg.print("Scripts with UI");
+			msg.print(e);
+			MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+		}
+    	return new ArrayList<ScriptObject>();
+    }
+    
 	/**
 	 * Builds the map linking the nodes to copy and the parents.
 	 * 
@@ -293,6 +333,7 @@ class TreeViewerModel
 		recycled = false;
 		refImage = null;
 		importing = false;
+		sorter = new ViewerSorter();
 	}
 	
 	/**
@@ -1176,5 +1217,101 @@ class TreeViewerModel
 			loader.load();
 		}
 	}
+
+	/**
+	 * Returns the script corresponding to the passed identifier.
+	 * 
+	 * @param scriptID The identifier of the script.
+	 * @return See above.
+	 */
+	ScriptObject getScript(long scriptID)
+	{
+		return scripts.get(scriptID);
+	}
+	
+	/** Loads the scripts.
+	 * 
+	 * @param location The location of the mouse.
+	 */
+	void loadScripts(Point location)
+	{
+		ScriptsLoader loader = new ScriptsLoader(component, false, location);
+		loader.load();
+	}
+	
+	/**
+	 * Returns the collection of available scripts.
+	 * 
+	 * @return See above.
+	 */
+	Collection<ScriptObject> getAvailableScripts()
+	{
+		if (scripts == null) return null;
+		return scripts.values();
+	}
+	
+	/**
+	 * Sets the collection of scripts.
+	 * 
+	 * @param scripts The value to set.
+	 */
+	void setAvailableScripts(List scripts)
+	{ 
+		if (scripts == null) {
+			this.scripts = null;
+			return;
+		}
+		//sort the scripts.
+		Map<Long, ScriptObject> map = new LinkedHashMap<Long, ScriptObject>();
+		List l = sorter.sort(scripts);
+		Iterator i = l.iterator();
+		ScriptObject s;
+		while (i.hasNext()) {
+			s = (ScriptObject) i.next();
+			map.put(s.getScriptID(), s);
+		}
+		this.scripts = map; 
+	}
+
+	/** 
+	 * Loads the specified script.
+	 * 
+	 * @param scriptID The identifier of the script to load.
+	 */
+	void loadScript(long scriptID)
+	{
+		ScriptLoader loader = new ScriptLoader(component, scriptID);
+		loader.load();
+	}
+	
+	/**
+	 * Sets the specified script.
+	 * 
+	 * @param script The loaded script.
+	 */
+	void setScript(ScriptObject script)
+	{
+		if (scripts == null || scripts.size() == 0) return;
+		ScriptObject sc = scripts.get(script.getScriptID());
+		if (sc != null) sc.setJobParams(script.getParameters());
+	}
+
+    /**
+     * Returns the script corresponding to the specified name.
+     * 
+     * @return See above.
+     */
+    ScriptObject getScriptFromName(String name)
+    { 
+    	List<ScriptObject> scripts = getScriptsWithUI();
+    	Iterator<ScriptObject> i = scripts.iterator();
+    	ScriptObject script;
+    	while (i.hasNext()) {
+    		script = i.next();
+			if (name.contains(script.getName()))
+				return script;
+		}
+    	return null;
+    }
 
 }
