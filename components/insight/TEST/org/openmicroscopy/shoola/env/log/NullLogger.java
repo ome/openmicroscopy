@@ -138,4 +138,9 @@ public class NullLogger
         
     }
 
+	public String getLogFile() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

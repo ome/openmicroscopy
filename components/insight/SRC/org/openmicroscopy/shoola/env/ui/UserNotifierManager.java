@@ -132,10 +132,8 @@ class UserNotifierManager
 	private void submitFiles(MessengerDialog source, 
 								MessengerDetails details)
 	{
-		FileUploader loader = new FileUploader(component, 
-				container.getRegistry(), 
-				source, details);
-		
+		FileUploader loader = new FileUploader(component,
+				container.getRegistry(), source, details);
 		loader.load();
 	}
 	
@@ -148,7 +146,8 @@ class UserNotifierManager
 	private void handleSendMessage(MessengerDialog source, 
 								MessengerDetails details)
 	{
-		if (details.getObjectToSubmit() != null) {
+		if (details.getObjectToSubmit() != null || 
+				details.getLogFile() != null) {
 			submitFiles(source, details);
 			return;
 		}
