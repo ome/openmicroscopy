@@ -202,10 +202,10 @@ class ToolBar
         a = controller.getAction(TreeViewerControl.AVAILABLE_SCRIPTS);
         b = new JButton(a);
         Icon icon  = b.getIcon();
-        Dimension d = new Dimension(16, 16);
-        if (icon != null) {
+        Dimension d = new Dimension(UIUtilities.DEFAULT_ICON_WIDTH,
+				UIUtilities.DEFAULT_ICON_HEIGHT);
+        if (icon != null) 
         	d = new Dimension(icon.getIconWidth(), icon.getIconHeight());
-        }
     	busyLabel = new JXBusyLabel(d);
     	busyLabel.setVisible(true);
         b.addMouseListener((RunScriptAction) a);

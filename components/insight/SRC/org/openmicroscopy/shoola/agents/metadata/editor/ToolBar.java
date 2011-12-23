@@ -149,6 +149,9 @@ class ToolBar
 	/** Component used to download the archived file.*/
 	private JMenuItem exportAsOmeTiffItem;
 	
+	/** View the image.*/
+	private JButton viewButton;
+	
     /** Turns off some controls if the binary data are not available. */
     private void checkBinaryAvailability()
     {
@@ -316,6 +319,12 @@ class ToolBar
 		});
 		saveAsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
+		viewButton = new JButton(icons.getIcon(IconManager.VIEW));
+		viewButton.setToolTipText("Open the Image Viewer");
+		viewButton.setActionCommand(""+EditorControl.VIEW_IMAGE);
+    	viewButton.addActionListener(controller);
+    	UIUtilities.unifiedButtonLookAndFeel(viewButton);
+    	
 		UIUtilities.unifiedButtonLookAndFeel(saveAsButton);
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
@@ -349,6 +358,8 @@ class ToolBar
     	bar.add(saveButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(refreshButton);
+    	bar.add(Box.createHorizontalStrut(5));
+    	bar.add(viewButton);
     	bar.add(Box.createHorizontalStrut(5));
     	/*
     	bar.add(downloadButton);
@@ -570,7 +581,7 @@ class ToolBar
 			scriptsButton.setEnabled(false);
 			return;
 		}
-    	
+		viewButton.setEnabled(false);
     	exportAsOmeTiffButton.setEnabled(false);
     	if (downloadItem != null)
 			downloadItem.setEnabled(false);
@@ -591,6 +602,7 @@ class ToolBar
         			}
         			if (downloadItem != null && img.isArchived())
         				downloadItem.setEnabled(true);
+        			viewButton.setEnabled(true);
     			} catch (Exception e) {}
         	}
     	}
