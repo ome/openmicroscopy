@@ -255,8 +255,8 @@ class ImporterUI
 					ImporterControl.CLOSE_BUTTON)));
 			p.add(Box.createHorizontalStrut(5));
 		}
-		//p.add(new JButton(controller.getAction(ImporterControl.RETRY_BUTTON)));
-		//p.add(Box.createHorizontalStrut(5));
+		p.add(new JButton(controller.getAction(ImporterControl.RETRY_BUTTON)));
+		p.add(Box.createHorizontalStrut(5));
 		p.add(new JButton(controller.getAction(ImporterControl.SEND_BUTTON)));
 		return UIUtilities.buildComponentPanelRight(p);
 	}
@@ -315,6 +315,13 @@ class ImporterUI
 			
 			public void stateChanged(ChangeEvent e) {
 				controlsBar.setVisible(tabs.getSelectedIndex() != 0);
+				List l = getFilesToReimport();
+				controller.getAction(
+						ImporterControl.RETRY_BUTTON).setEnabled(
+							l != null && l.size() > 0);
+				controller.getAction(
+						ImporterControl.SEND_BUTTON).setEnabled(
+								hasSelectedFailuresToSend());
 			}
 		});
 	}
@@ -506,10 +513,8 @@ class ImporterUI
 		if (n == 0 || element == null) return;
 		if (tabs.getSelectedComponent() == element) return;
 		Component[] components = tabs.getComponents();
-		int index = -1;
 		for (int i = 0; i < components.length; i++) {
 			if (components[i] == element) {
-				index = i;
 				tabs.setSelectedComponent(element);
 			}
 		}
@@ -607,7 +612,7 @@ class ImporterUI
 		}
 		return false;
 	}
-
+	
     /**
      * Brings up the menu on top of the specified component at 
      * the specified location.
@@ -668,4 +673,29 @@ class ImporterUI
         b.addMouseListener((PersonalManagementAction) a);
         return b;
     }
+    
+    /**
+     * Returns <code>true</code> if the selected pane has failures to send,
+     * <code>false/code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean hasSelectedFailuresToSend()
+    {
+    	ImporterUIElement pane = getSelectedPane();
+    	if (pane == null) return false;
+    	return pane.hasFailuresToSend();
+    }
+    
+    /**
+	 * Returns the collection of files that could not be imported.
+	 * 
+	 * @return See above.
+	 */
+	List<FileImportComponent> getFilesToReimport()
+	{
+		ImporterUIElement pane = getSelectedPane();
+    	if (pane == null) return null;
+    	return pane.getFilesToReimport();
+	}
 }

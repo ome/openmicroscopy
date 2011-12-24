@@ -478,6 +478,17 @@ class ImporterComponent
 		if (element == null) return;
 		List<FileImportComponent> l = element.getMarkedFiles();
 		if (l == null || l.size() == 0) return;
+		Iterator<FileImportComponent> i = l.iterator();
+		FileImportComponent fc;
+		ImportableObject object = element.getData();
+		List<File> files = new ArrayList<File>();
+		while (i.hasNext()) {
+			fc = i.next();
+			fc.setReimported(true);
+			files.add(fc.getFile());
+		}
+		object.reImport(files);
+		importData(object);
 	}
 
 	/** 

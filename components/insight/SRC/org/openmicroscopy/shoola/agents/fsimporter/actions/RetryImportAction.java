@@ -88,9 +88,6 @@ public class RetryImportAction
      * Tries to re-import failed imports.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    { 
-    	model.retryImport();
-    }
+    public void actionPerformed(ActionEvent e) { model.retryImport(); }
     
 }

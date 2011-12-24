@@ -293,6 +293,12 @@ public class FileImportComponent
 	 */
 	private boolean browsable;
 	
+	/** Set to <code>true</code> if attempt to re-import.*/
+	private boolean reimported;
+	
+	/** Indicates that the file has been re-imported.*/
+	private JLabel reimportedLabel;
+	
 	/** Displays the error box at the specified location.
 	 * 
 	 * @param p The location where to show the box.
@@ -379,6 +385,8 @@ public class FileImportComponent
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		reimportedLabel = new JLabel("Reimported");
+		reimportedLabel.setVisible(false);
 		showContainerLabel = true;
 		adapter = new MouseAdapter() {
 			
@@ -519,6 +527,7 @@ public class FileImportComponent
 		add(Box.createHorizontalStrut(15));
 		add(containerLabel);
 		add(browseButton);
+		add(reimportedLabel);
 	}
 	
 	/**
@@ -639,6 +648,13 @@ public class FileImportComponent
 		initComponents();
 		buildGUI();
 	}
+	
+	/**
+	 * Returns the file hosted by this component.
+	 * 
+	 * @return See above.
+	 */
+	public File getFile() { return file; }
 	
 	/**
 	 * Sets the location where to import the files.
@@ -1206,6 +1222,55 @@ public class FileImportComponent
 	public void showContainerLabel(boolean show)
 	{
 		showContainerLabel = show;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the file has already been marked for
+	 * re-import, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public List<FileImportComponent> getReImport()
+	{
+		List<FileImportComponent> l = null;
+		if (file.isFile()) {
+			if (errorBox != null && errorBox.isVisible()) {
+				if (errorBox.isEnabled() && image instanceof Exception) {
+					l = new ArrayList<FileImportComponent>();
+					if (!reimported) l.add(this);
+					return l;
+				}
+			}
+		} else {
+			if (components != null) {
+				Entry entry;
+				Iterator<FileImportComponent> i = components.values().iterator();
+				FileImportComponent fc;
+				l = new ArrayList<FileImportComponent>();
+				List<FileImportComponent> list;
+				while (i.hasNext()) {
+					fc = i.next();
+					list = fc.getReImport();
+					if (list != null && list.size() > 0)
+						l.addAll(list);
+				}
+			}
+		}
+		return l;
+	}
+	
+	/**
+	 * Sets to <code>true</code> to mark the file for reimport.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param Pass <code>true</code> to mark the file for reimport.
+	 * <code>false</code> otherwise.
+	 */
+	public void setReimported(boolean reimported)
+	{ 
+		this.reimported = reimported;
+		reimportedLabel.setVisible(true);
+		repaint();
 	}
 	
 	/**
