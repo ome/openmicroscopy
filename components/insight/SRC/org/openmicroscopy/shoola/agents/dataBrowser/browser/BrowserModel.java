@@ -775,6 +775,29 @@ class BrowserModel
 	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setSelectedDisplays(List)
+	 */
+	public void setSelectedDisplays(List<ImageDisplay> nodes)
+	{
+		if (nodes == null || nodes.size() == 0) return;
+		if (nodes.size() == 1) {
+			setSelectedDisplay(nodes.get(0), false, true);
+		} else {
+			thumbSelected = false;
+		    this.multiSelection = true;
+		    Set<ImageDisplay> oldValue = 
+		    	new HashSet<ImageDisplay>(selectedDisplays.size());
+		    Iterator<ImageDisplay> i = selectedDisplays.iterator();
+		    while (i.hasNext())
+		    	oldValue.add(i.next());
+		    selectedDisplays = nodes;
+		    firePropertyChange(SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY, 
+	    			oldValue, nodes);
+		}
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#scrollToNode(ImageDisplay)
 	 */
 	public void scrollToNode(ImageDisplay node)

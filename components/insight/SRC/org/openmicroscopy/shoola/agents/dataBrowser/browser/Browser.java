@@ -80,6 +80,13 @@ public interface Browser
 		"selectedDataBrowserNodeDisplay";
 	
 	/** 
+	 * Bound property name indicating {@link ImageDisplay} objects have been
+	 * selected in the visualization tree. 
+	 */
+	public static final String SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY = 
+		"selectedDataBrowserNodesDisplay";
+	
+	/** 
 	 * Bound property name indicating an {@link ImageDisplay} object has been
 	 * unselected in the visualization tree. 
 	 */
@@ -439,4 +446,11 @@ public interface Browser
 	 */
 	public void scrollToNode(ImageDisplay node);
 	
+	/**
+	 * Sets the nodes selected via multi-selection.
+	 * 
+	 * @param nodes The selected nodes. 
+	 */
+	public void setSelectedDisplays(List<ImageDisplay> nodes);
+
 }
