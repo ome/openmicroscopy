@@ -25,10 +25,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
@@ -41,7 +38,6 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 
@@ -497,7 +493,7 @@ class BrowserControl
     }
     
     /**
-     * Tells the model that either a popup point or a thumbnail selection
+     * Tells the model that either a pop-up point or a thumbnail selection
      * was detected.
      * @see MouseListener#mouseReleased(MouseEvent)
      */
@@ -555,15 +551,13 @@ class BrowserControl
     {
     	model.setRollOverNode(null);
     }
-    
     /**
-     * Required by the {@link MouseListener} I/F but no-op implementation
-     * in our case.
-     * @see MouseListener#mouseClicked(MouseEvent)
+     * Highlights the nodes if the <code>SHIFT</code> key is down.
+     * @see MouseMotionListener#mouseDragged(MouseEvent)
      */
-    public void mouseClicked(MouseEvent me) {}
-
-	public void mouseDragged(MouseEvent e) {
+	public void mouseDragged(MouseEvent e)
+	{
+		if (!shiftDown) return;
 		Point p = e.getPoint();
 		selection.width = Math.abs(p.x-anchor.x);
 		selection.height = Math.abs(p.y-anchor.y);
@@ -573,7 +567,19 @@ class BrowserControl
 		else selection.y = p.y;
 		handleMultiSelection(true);
 	}
+    
+    /**
+     * Required by the {@link MouseListener} I/F but no-operation implementation
+     * in our case.
+     * @see MouseListener#mouseClicked(MouseEvent)
+     */
+    public void mouseClicked(MouseEvent me) {}
 
+	/**
+     * Required by the {@link MouseMotionListener} I/F but no-operation
+     * implementation in our case.
+     * @see MouseMotionListener#mouseMoved(MouseEvent)
+     */
 	public void mouseMoved(MouseEvent e) {}
     
 }
