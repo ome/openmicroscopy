@@ -256,6 +256,42 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setSelectedDisplays(List)
+	 */
+	public void setSelectedDisplays(List<ImageDisplay> nodes)
+	{
+		List<Object> others = new ArrayList<Object>();
+		List<Object> objects = new ArrayList<Object>();
+		Iterator<ImageDisplay> i = nodes.iterator();
+		ImageDisplay node = nodes.get(0);
+		Object object = node.getHierarchyObject();
+		while (i.hasNext()) {
+			others.add(i.next().getHierarchyObject());
+		}
+		objects.add(others);
+		if (object instanceof DataObject) {
+			Object parent = null;
+			if (object instanceof WellSampleData) {
+				WellSampleNode wsn = (WellSampleNode) node;
+				parent = wsn.getParentObject();
+				((WellsModel) model).setSelectedWell(wsn.getParentWell());
+				view.onSelectedWell();
+			} else {
+				ImageDisplay p = node.getParentDisplay();
+				if (p != null) {
+					parent = p.getHierarchyObject();
+					if (!(parent instanceof DataObject))
+						parent = model.getParent();
+				}
+			}
+			if (parent != null)
+				objects.add(parent);
+		}
+		firePropertyChange(SELECTED_NODE_DISPLAY_PROPERTY, null, objects);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#setSelectedDisplay(ImageDisplay)
 	 */
 	public void setSelectedDisplay(ImageDisplay node)

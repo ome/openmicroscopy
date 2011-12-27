@@ -884,6 +884,30 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setSelectedNodes(Object)
+	 */
+	public void setSelectedNodes(Object object)
+	{
+		if (object == null) return;
+		if (!(object instanceof List)) return;
+		List l = (List) object;
+		int n = l.size();
+		List selection = (List) l.get(0);
+		Object parent = null;
+		if (n == 1) parent = l.get(1);
+		MetadataViewer mv = model.getMetadataViewer();
+		if (hasDataToSave()) {
+			MessageBox dialog = new MessageBox(view, "Save data", 
+					"Do you want to save the modified " +
+					"data \n before selecting a new item?");
+			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
+			else mv.clearDataToSave();
+		}
+		
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setSelectedNode(Object)
 	 */
 	public void setSelectedNode(Object object)

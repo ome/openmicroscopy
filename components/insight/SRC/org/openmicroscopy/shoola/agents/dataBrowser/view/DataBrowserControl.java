@@ -369,6 +369,10 @@ class DataBrowserControl
 			ImageDisplay node = (ImageDisplay) evt.getNewValue();
             if (node == null) return;
 			model.setSelectedDisplay(node);
+		} else if (Browser.SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY.equals(
+				name)) {
+			List<ImageDisplay> nodes = (List<ImageDisplay>) evt.getNewValue();
+			model.setSelectedDisplays(nodes);
 		} else if (Browser.UNSELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY.equals(
 				name)) {
 			ImageDisplay node = (ImageDisplay) evt.getNewValue();

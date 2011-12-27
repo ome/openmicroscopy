@@ -1187,6 +1187,9 @@ class TreeViewerControl
 			PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model, 
 					PasteRndSettingsCmd.SET_OWNER);
 			cmd.execute();
+		} else if (
+				DataBrowser.SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY.equals(
+						name)) {
 		}
 	}
 	

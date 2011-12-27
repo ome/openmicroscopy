@@ -44,6 +44,7 @@ import javax.swing.JScrollPane;
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -791,7 +792,7 @@ class BrowserModel
 		    while (i.hasNext())
 		    	oldValue.add(i.next());
 		    selectedDisplays = nodes;
-		    firePropertyChange(SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY, 
+		    firePropertyChange(SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY,
 	    			oldValue, nodes);
 		}
 	}
