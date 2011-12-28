@@ -76,9 +76,15 @@ class ShellControl(BaseControl):
             client = self.ctx.conn(args)
             ns = {"client": client, "omero":omero}
 
-        from IPython.Shell import IPShellEmbed
-        ipshell = IPShellEmbed(args.arg)
-        ipshell(local_ns=ns)
+        try:
+            # IPython 0.11 (see #7112)
+            from IPython import embed
+            embed()
+        except ImportError, ie:
+            import pdb; pdb.set_trace()
+            from IPython.Shell import IPShellEmbed
+            ipshell = IPShellEmbed(args.arg)
+            ipshell(local_ns=ns)
 
 
 class HelpControl(BaseControl):
