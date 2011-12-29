@@ -68,6 +68,10 @@ body.zoom {
     position: relative;
     margin: 0 5px;
     float:left;
+    top: -5px;
+}
+#baskets {
+    padding-left: 15px;
 }
 #jobstatus, #cartTotal {
     font-size: 80%;

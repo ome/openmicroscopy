@@ -57,11 +57,12 @@
 
 {% block middle_header_right %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-    {% include "webclient/base/menu.html" %}
+    <a href="{% url wamyaccount 'edit' %}" title="Edit Account"> {{ eContext.user.getFullName }}</a>
 {% endblock %}
 
 
 {% block middle_header_left %}
+    {% include "webclient/base/menu.html" %}
     {% include "webclient/base/header.html" %}
 {% endblock %}
 

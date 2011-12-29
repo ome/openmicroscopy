@@ -35,21 +35,21 @@
     color: #ddd;
 }
 
-#middle_header_right {
+#middle_header_right, #middle_header_left {
     margin: 6px 10px;
     position: absolute;
-    right: 0;
     top: 1px;
 }
 
 #middle_header_left {
-    position: absolute;
-    left: 10px;
-    top: 2px;
+    left: 0px;
+}
+#middle_header_right {
+    right: 0px;
 }
 
-#middle_header_right li {
-    float:right;
+#middle_header_left li {
+    float:left;
     margin: 0px 5px;
     display: block;
     font-size: 110%;
