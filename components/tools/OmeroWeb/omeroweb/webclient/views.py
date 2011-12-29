@@ -2344,7 +2344,7 @@ def basket_action (request, action=None, **kwargs):
             template = "webclient/basket/basket_discussion_action.html"
             context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
     else:
-        template = "webclient/basket/basket.html"
+        template = kwargs.get("template", "webclient/basket/basket.html")
         
         basket = BaseBasket(conn)
         basket.load_basket(request)

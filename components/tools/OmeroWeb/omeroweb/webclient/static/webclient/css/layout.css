@@ -214,7 +214,7 @@ ul.criteria li{
     display: none;
 }
 
-#activities_panel {
+.info_panel {
     color: #000;
     position: absolute;
     top: 18px;
@@ -225,7 +225,7 @@ ul.criteria li{
     overflow: auto;
     min-width: 500px;
 }
-#activities_panel h3 {
+.info_panel h3 {
     padding: 5px 5px;
     margin: 0px;
     font-weight: normal;
@@ -241,23 +241,18 @@ ul.criteria li{
     color: #666;
 }
 
-#activities_panel tr.even {
-  background-color: #ddf;
+.info_panel tr.even {
+  background-color: #eef;
 }
-#activities_panel tr.odd {
+.info_panel tr.odd {
   background-color: #fff;
 }
 
 #activities_panel tr.hidden {
     display: none;
 }
-#activities_panel tr.even {
-  background-color: #eef;
-}
-#activities_panel tr.odd {
-  background-color: #fff;
-}
-#activities_panel td a {
+
+#activities_panel a, #basket_panel a {
     text-decoration: none;
     color: #00f;
 }
@@ -285,8 +280,9 @@ ul.criteria li{
 #activities_panel .script_error {
     color: red;
 }
-#activities_spinner {
-    position: absolute;
-    top: 5px;
-    right: 5px;
+#activities_spinner, #basket_spinner {
+float: right;
+}
+#basket_panel_link {
+    float: right;
 }

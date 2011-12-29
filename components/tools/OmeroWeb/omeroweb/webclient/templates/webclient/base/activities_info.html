@@ -23,7 +23,8 @@
 
 {% ifnotequal nav.menu "status" %}
 <script>
-    
+
+    // TODO: This function should be moved up, to some general js file, since it is used by basket_info too.
     jQuery.fn.alternateRowColors = function() {
         var $rows = $(this).children().children('tr');
         $rows.not('.hidden').filter(':odd').removeClass('even').addClass('odd');
@@ -54,7 +55,6 @@
             $(this).css('visibility', 'hidden');
         });
 
-        //$(".script_error input[type='submit']").click(submitError);
     }
 
     // this is called by the setInterval loop below
@@ -109,16 +109,6 @@
             $('#jobstatus').text(count + '').show();
         }
     }
-    
-    var calculateCartTotal = function(total){
-        if ((typeof total == 'undefined') || (total == '0') || (total == 0)) {
-            $("#launch_basket").css('opacity', 0.25);
-            $('#cartTotal').hide();
-        } else {
-            $("#launch_basket").css('opacity', 1.0);
-            $('#cartTotal').text(total + '').show();
-        }
-    };
 
     var refreshActivities = function() {
         $('#activities_spinner').show();    // only show this before the first ajax update
@@ -131,51 +121,35 @@
         showJobCount(0);
         refreshActivities();
         $("#activities_panel").hide();
-        $("#activities_spinner").hide();
         
         // add click handler to entire body, to close the activities panel 
         $('body').click(function(event) {
-            var target = $(event.target);
-            if (target.attr('id') != 'launch_activities') {
-                $("#activities_panel").hide();
-            }
+            $("#activities_panel").hide();
         }); // BUT also stop any events bubbling up from panel itself
         $("#activities_panel").click(function(event) {
             return false;
         });
         $("#launch_activities").click(function(event) {
+            $(".info_panel").hide();
             showActivities();
             return false;
         });
-        
-        showJobCount(0);
-        calculateCartTotal({{ nav.basket }});
-        
     });
 </script>
 
 {% endifnotequal %}
 
-
-        <div id="baskets">
-            <a id="launch_basket" href="{% url basket_action %}" title="Basket">
-                <img src="{% static "common/image/basket_light_24.png" %}"/>
-                <div id="cartTotal">0</div>
-            </a>
-        </div>
-        
-        
         <div id="queue">
             <a id='launch_activities' class="align_left" title="Activities">
                 <img src="{% static "common/image/activity_light_24.png" %}"/>
+                <div id="jobstatus">0</div>
             </a>
-            <div id="jobstatus">0</div>
             
-            <div id="activities_panel">
+            <div id="activities_panel" class="info_panel">
                 <h3>
                     Activities
+                    <img id='activities_spinner' src="{% static "common/image/spinner.gif" %}"/>
                 </h3>
-                <img id='activities_spinner' src="{% static "common/image/spinner.gif" %}"/>
                 
                 
                 <div id="activities_content">
