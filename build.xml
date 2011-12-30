@@ -243,19 +243,8 @@ java component.
         <tryEclipse settingsRef="ivy.toplevel" filter="true"/>
     </target>
 
-    <target name="format">
-        <property name="eclipse.exe" value="eclipse"/>
-        <apply executable="${eclipse.exe}" failonerror="true" parallel="true">
-           <arg value="-vm"/>
-           <arg value="${java.home}/bin/java"/>
-           <arg value="-application"/>
-           <arg value="org.eclipse.jdt.core.JavaCodeFormatter"/>
-           <arg value="-verbose"/>
-           <arg value="-nosplash"/>
-           <arg value="-config"/>
-           <arg value="${omero.home}/.settings/org.eclipse.jdt.core.prefs"/>
-           <fileset dir="components" includes="**/*.java"/>
-        </apply>
+    <target name="format" depends="init">
+        <iterate buildpathref="all.buildpath" target="format"/>
     </target>
 
     <macrodef name="launchSuite">
