@@ -81,7 +81,6 @@ class ShellControl(BaseControl):
             from IPython import embed
             embed()
         except ImportError, ie:
-            import pdb; pdb.set_trace()
             from IPython.Shell import IPShellEmbed
             ipshell = IPShellEmbed(args.arg)
             ipshell(local_ns=ns)
