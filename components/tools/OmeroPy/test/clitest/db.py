@@ -25,39 +25,42 @@ class TestDatabase(unittest.TestCase):
         for x in ("version", "patch"):
             self.data[x] = data.properties.getProperty("omero.db."+x)
 
-    def invoke(self, string, strict=True):
-        self.cli.invoke(string % self.data, strict=strict)
+    def script(self, string, strict=True):
+        self.cli.invoke("db script -f - " + string % self.data, strict=strict)
+
+    def password(self, string, strict=True):
+        self.cli.invoke("db password " + string % self.data, strict=strict)
 
     def testBadVersionDies(self):
-        self.assertRaises(NonZeroReturnCode, self.invoke, "db script NONE NONE pw")
+        self.assertRaises(NonZeroReturnCode, self.script, "NONE NONE pw")
 
     def testPasswordIsAskedForAgainIfDiffer(self):
         self.expectPassword("ome")
         self.expectConfirmation("bad")
         self.expectPassword("ome")
         self.expectConfirmation("ome")
-        self.invoke("db script '' ''")
+        self.script("'' ''")
 
     def testPasswordIsAskedForAgainIfEmpty(self):
         self.expectPassword("")
         self.expectPassword("ome")
         self.expectConfirmation("ome")
-        self.invoke("db script %(version)s %(patch)s")
+        self.script("%(version)s %(patch)s")
 
     def testPassword(self):
         self.expectPassword("ome")
         self.expectConfirmation("ome")
-        self.invoke("db password")
+        self.password("")
 
     def testAutomatedPassword(self):
-        self.invoke("db password ome")
+        self.password("ome")
 
     def testScript(self):
         self.expectVersion(self.data["version"])
         self.expectPatch(self.data["patch"])
         self.expectPassword("ome")
         self.expectConfirmation("ome")
-        self.invoke("db script")
+        self.script("")
 
     def testAutomatedScript1(self):
 
@@ -67,15 +70,15 @@ class TestDatabase(unittest.TestCase):
         self.expectPatch(self.data["patch"])
         self.expectPassword("ome")
         self.expectConfirmation("ome")
-        self.invoke("db script %(version)s")
+        self.script("%(version)s")
 
     def testAutomatedScript2(self):
         self.expectPassword("ome")
         self.expectConfirmation("ome")
-        self.invoke("db script %(version)s %(patch)s")
+        self.script("%(version)s %(patch)s")
 
     def testAutomatedScript3(self):
-        self.invoke("db script %(version)s %(patch)s ome")
+        self.script("%(version)s %(patch)s ome")
 
     def expectPassword(self, pw, user="root"):
         self.cli.expect("Please enter password for OMERO %s user: " % user, pw)

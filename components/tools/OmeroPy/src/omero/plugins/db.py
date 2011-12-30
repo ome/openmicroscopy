@@ -22,6 +22,7 @@ from path import path
 
 import omero.java
 import time
+import sys
 
 HELP="""Database tools for creating scripts, setting passwords, etc."""
 
@@ -171,7 +172,8 @@ BEGIN;
 
         finally:
             output.flush()
-            output.close()
+            if output != sys.stdout:
+                output.close()
 
     def password(self, args):
         root_pass = None
