@@ -1,4 +1,4 @@
-#Fri Dec 30 16:22:32 CET 2011
+#Fri Dec 30 20:55:51 CET 2011
 cleanup.add_default_serial_version_id=true
 cleanup.add_generated_serial_version_id=false
 cleanup.add_missing_annotations=true
@@ -31,8 +31,8 @@ cleanup.qualify_static_member_accesses_with_declaring_class=true
 cleanup.qualify_static_method_accesses_with_declaring_class=false
 cleanup.remove_private_constructors=false
 cleanup.remove_trailing_whitespaces=true
-cleanup.remove_trailing_whitespaces_all=false
-cleanup.remove_trailing_whitespaces_ignore_empty=true
+cleanup.remove_trailing_whitespaces_all=true
+cleanup.remove_trailing_whitespaces_ignore_empty=false
 cleanup.remove_unnecessary_casts=true
 cleanup.remove_unnecessary_nls_tags=true
 cleanup.remove_unused_imports=true
@@ -53,6 +53,8 @@ cleanup.use_this_for_non_static_method_access_only_if_necessary=true
 cleanup_profile=_OME
 cleanup_settings_version=2
 eclipse.preferences.version=1
+formatter_profile=_OME
+formatter_settings_version=12
 org.eclipse.jdt.ui.exception.name=e
 org.eclipse.jdt.ui.gettersetter.use.is=true
 org.eclipse.jdt.ui.javadoc=false
