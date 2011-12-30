@@ -2,7 +2,6 @@
 {% load i18n %}
 {% load common_filters %}
 {% load common_tags %}
-{% load wikitags %}
 
 
 {% comment %}
@@ -214,6 +213,32 @@
                     );
                     return false;
                 }
+
+                // handle submit of Add Comment form
+                $("#add_comment_form").submit(function() {
+                    var $form = $(this);
+                    var add_comment_url = $form.attr('action');
+                    var postData = $form.serialize();
+                    var textArea = $('textarea', $form);
+                    $.ajax({
+                        type: "POST",
+                        url: add_comment_url,
+                        data:postData,
+                        contentType:'html',
+                        success: function(html){
+                            var $comment = $(html)
+                            $('#comments_container').prepend( $comment );
+                            $(".removeComment", $comment).click(function(event) {
+                                removeItem(event, "ann_comment_wrapper");
+                            });
+                            textArea.val('');
+                        },
+                        error: function(html) {
+                            alert("Internal server error. Cannot add comment.");
+                        }
+                    });
+                    return false;
+                });
 
                 // bind removeItem to various [-] buttons
                 $(".removeComment").click(function(event) {
@@ -812,7 +837,7 @@
                 <th colspan="3">                
                     {% trans "Comment:" %}
                     {% if manager.project.isEditable or manager.dataset.isEditable or manager.image.isEditable or manager.screen.isEditable or manager.plate.isEditable or manager.acquisition.isEditable or  manager.well.isEditable %}
-                    <form action="{% if manager.project %}{% url manage_action_containers "addcomment" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addcomment" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addcomment" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addcomment" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addcomment" "plate" manager.plate.id %}{% else %}{% if manager.acquisition %}{% url manage_action_containers "addcomment" "acquisition" manager.acquisition.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addcomment" "well" manager.well.id %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}" method="post">
+                    <form id="add_comment_form" action="{% if manager.project %}{% url manage_action_containers "addcomment" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addcomment" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addcomment" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addcomment" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addcomment" "plate" manager.plate.id %}{% else %}{% if manager.acquisition %}{% url manage_action_containers "addcomment" "acquisition" manager.acquisition.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addcomment" "well" manager.well.id %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}" method="post">
                     <table>
                         {% for field in form_comment %}
                             <tr>
@@ -830,26 +855,11 @@
             </tr>
             <tr>
                 <td colspan="3">
-                    {% if manager.txannSize %}
-                    <div class="lncomments">            
+                    <div id="comments_container" class="lncomments">
                         {% for tann in manager.text_annotations %}
-                        <div class="ann_comment_wrapper">
-                            <div class="avatar"><img src="{% url avatar tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" width="20" height="20" /></div>
-                            <div>
-                                <span class="ann_comment_header">{{ tann.getOwner.getFullName }} {% trans "at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
-                                {% if tann.canDelete %}
-                                    <img class='removeComment' id="{{ tann.id }}-comment" src="{% static "webclient/image/cancel12.png" %}" title="Delete comment"/>
-                                {% endif %}
-                                <div class='commentText'>
-                                {{ tann.textValue|wikify|safe|linebreaks }}
-                                </div>
-                            </div>
-                        </div>
+                            {% include "webclient/annotations/comment.html" %}
                         {% endfor %}
                     </div>
-                    {% else %}
-                        {% trans "No comments." %}                        
-                    {% endif %}
                 </td>
             </tr>            
             </table>            

@@ -530,7 +530,10 @@ class BaseContainer(BaseController):
         l_ann = getattr(omero.model, otype+"AnnotationLinkI")()
         l_ann.setParent(selfobject._obj)
         l_ann.setChild(ann)
-        self.conn.saveObject(l_ann)
+        #blitzObj = self.conn.saveAndReturnObject(l_ann)    # TODO: Can't use this since it returns an unloaded object
+        #return = blitzObj.getChild()                       # It works if we remove res.unload()  in webclient_gateway
+        blitzObj = self.conn.getUpdateService().saveAndReturnObject(l_ann)
+        return self.conn.getObject("CommentAnnotation", blitzObj.child.getId())
     
     # Tag annotation 
     def createTagAnnotationOnly(self, tag, desc):

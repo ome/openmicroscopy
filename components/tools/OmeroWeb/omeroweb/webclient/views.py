@@ -1866,9 +1866,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         form_comment = CommentAnnotationForm(data=request.REQUEST.copy())
         if form_comment.is_valid() and o_type is not None and o_id > 0:
             content = form_comment.cleaned_data['content']
-            manager.createCommentAnnotation(o_type, content)    
-            return HttpResponseRedirect(url)
+            textAnn = manager.createCommentAnnotation(o_type, content)
+            template = "webclient/annotations/comment.html"
+            context = {'tann': textAnn}
         else:
+            # This shouldn't happen now that we handle Comments with AJAX - TODO: Handle this differently?
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'index':index}
     elif action == 'addtag':
