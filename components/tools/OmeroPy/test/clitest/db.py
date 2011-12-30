@@ -11,6 +11,7 @@
 import unittest, os, subprocess, StringIO
 from path import path
 from omero.plugins.db import DatabaseControl
+from omero.util.temp_files import create_path
 from omero.cli import Context, CLI, NonZeroReturnCode
 from clitest.mocks import MockCLI
 
@@ -24,9 +25,14 @@ class TestDatabase(unittest.TestCase):
         self.data = {}
         for x in ("version", "patch"):
             self.data[x] = data.properties.getProperty("omero.db."+x)
+        self.file = create_path()
+
+    def tearDown(self):
+        self.file.remove()
 
     def script(self, string, strict=True):
-        self.cli.invoke("db script -f - " + string % self.data, strict=strict)
+        string = string % self.data
+        self.cli.invoke("db script -f %s %s" % (self.file, string), strict=strict)
 
     def password(self, string, strict=True):
         self.cli.invoke("db password " + string % self.data, strict=strict)
