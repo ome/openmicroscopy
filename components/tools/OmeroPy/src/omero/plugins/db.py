@@ -182,9 +182,7 @@ BEGIN;
         password_hash = self._get_password_hash(root_pass)
         self.ctx.out("""UPDATE password SET hash = '%s' WHERE experimenter_id = 0;""" % password_hash)
 
-    def script(self, args):
-
-        data = self.ctx.initData({})
+    def loaddefaults(self):
         try:
             data2 = self.ctx.initData({})
             output = self.ctx.readDefaults()
@@ -192,6 +190,12 @@ BEGIN;
         except Exception, e:
             self.ctx.dbg(str(e))
             data2 = None
+        return data2
+
+    def script(self, args):
+
+        data = self.ctx.initData({})
+        data2 = self.loaddefaults()
         map = {}
         root_pass = None
         try:
@@ -219,7 +223,8 @@ BEGIN;
 try:
     register("db", DatabaseControl, HELP)
 except NameError:
-    import sys
-    cli = CLI()
-    cli.register("db", DatabaseControl, HELP)
-    cli.invoke(sys.argv[1:])
+    if __name__ == "__main__":
+        import sys
+        cli = CLI()
+        cli.register("db", DatabaseControl, HELP)
+        cli.invoke(sys.argv[1:])

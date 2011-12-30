@@ -42,6 +42,7 @@ ice_compatibility="${ice.compatibility}"
 
     <target name="python-test-single" if="TEST">
         <setup_py failonerror="${test.with.fail}">
+            <env key="OMERODIR" value="${dist.dir}"/>
             <arg value="test"/>
             <arg value="-s"/>
             <arg value="${TEST}"/>

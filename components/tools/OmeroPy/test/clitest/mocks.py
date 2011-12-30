@@ -22,6 +22,7 @@ from omero_ext import mox
 class MockCLI(CLI):
 
     def __init__(self, *args, **kwargs):
+        self.__expect = []
         self.__output = []
         self.__error = []
         self.__popen = []
@@ -32,6 +33,21 @@ class MockCLI(CLI):
     #
     # Overrides
     #
+
+    def input(self, *args, **kwargs):
+        key = args[0]
+
+        for I, T in enumerate(self.__expect):
+            K, V = T
+            if key == K:
+                self.__expect.pop(I)
+                return V
+
+        # Not found
+        msg = """Couldn't find key: "%s". Options: %s""" % \
+                (key, [x[0] for x in self.__expect])
+        print msg
+        raise Exception(msg)
 
     def out(self, *args):
         self.__output.append(args[0])
@@ -54,6 +70,9 @@ class MockCLI(CLI):
     #
     # Test methods
     #
+
+    def expect(self, key, value):
+        self.__expect.append((key, value))
 
     def assertEquals(self, a, b):
         if a != b:
