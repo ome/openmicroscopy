@@ -51,6 +51,18 @@
    *   + dist.osx.installfile: The install instructions to include in the 
    *           Mac OS X bundle.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <if>
+      <isset property="dist.dir"/>
+      <then>
+          <fail>ERROR: dist.dir is currently set!
+
+        This most likely occurred because dist.dir was set on the top-level
+        build:  ./build.py -Ddist.dir=/tmp/example
+
+        This no longer works with the insight build. Instead, set dist.dir
+        in the etc/local.properties file.</fail>
+      </then>
+  </if>
   <property environment="dist.environment"/>
   <property name="dist.name" value="OMERO.insight"/>
   <property name="dist.dir" location="${build.dir}/dist"/>
