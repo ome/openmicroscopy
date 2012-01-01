@@ -262,21 +262,28 @@ ul.criteria li{
 #activities_panel .key {
     color: gray;
 }
-#activities_panel .result {
+.dropdown_menu {
     position: relative;
     list-style:none;
+    cursor: pointer;
 }
-#activities_panel .resultOptions {
+.menu_launch {
+    color: blue;
+}
+.dropdown_menu_options {
     visibility: hidden;
     position: absolute; top: 100%; left: 25%; z-index:50;
     margin: 0; padding: 0; list-style:none; border:solid gray 1px;
     background: white;
 }
-#activities_panel .resultOptions li {
+.dropdown_menu_options li {
     padding: 3px 5px;
-    width: 100px;
+    min-width: 100px;
+    white-space:nowrap;
 }
-#activities_panel .resultOptions li:hover          { background: #ddf;}
+.dropdown_menu_options li:hover {
+    background: #eef;
+}
 #activities_panel .script_error {
     color: red;
 }

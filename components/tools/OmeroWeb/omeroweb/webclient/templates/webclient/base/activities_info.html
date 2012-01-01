@@ -40,18 +40,18 @@
     }
     
     var setupResultOptions = function() {
-        $(".result a.browse").click(function() {
+        $(".dropdown_menu a.browse").click(function() {
             var href = $(this).attr('href');
             if (href) {
                 window.location.href = href;
             }
         });
-        $(".result").children('a').click(function(e){
+        $(".dropdown_menu .menu_launch").click(function(e){
             $(this).parent().find('ul').css('visibility', 'visible');
             return false;
         });
         // on hover-out of the menu itself, hide drop-down menus
-        $(".resultOptions").hover(function(){}, function(){
+        $(".dropdown_menu_options").hover(function(){}, function(){
             $(this).css('visibility', 'hidden');
         });
 

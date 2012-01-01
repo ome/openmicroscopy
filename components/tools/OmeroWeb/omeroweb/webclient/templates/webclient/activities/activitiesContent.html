@@ -125,12 +125,12 @@
                             {% for k,v in j.results.iteritems %}
                                 <div>
                                     {% if v.type and v.id %}
-                                        <span class="result">
+                                        <span class="dropdown_menu">
                                         <!-- Handle robjects, E.g. ImageI, FileAnnotation etc -->
-                                        <a href="#" title="Script Result: '{{ k }}'">
+                                        <span class="menu_launch" title="Script Result: '{{ k }}'">
                                         {% if v.name %} {{ v.name|truncatebefor:"30" }} {% else %} {{ v.type }} ID: {{ v.id }} {% endif %}
-                                        </a>
-                                            <ul class="resultOptions">
+                                        </span>
+                                            <ul class="dropdown_menu_options">
                                                 {% if v.browse_url %}
                                                     <li><a href='{{ v.browse_url}}' class='browse' title="Navigate to {{ v.type }} in the main window">
                                                         Go to {% ifequal v.type "FileAnnotation" %} Attachment {% else %} {{ v.type }} {% endifequal %}

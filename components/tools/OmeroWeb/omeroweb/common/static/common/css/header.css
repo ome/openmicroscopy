@@ -52,6 +52,8 @@
     float:left;
     margin: 0px 5px;
     display: block;
+}
+.menu_link {
     font-size: 110%;
 }
 
