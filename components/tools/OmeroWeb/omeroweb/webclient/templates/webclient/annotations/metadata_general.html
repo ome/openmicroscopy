@@ -275,7 +275,7 @@
                                         } else {
                                             // simply remove the item (parent class div)
                                             $parent.remove();
-                                            window.parent.refreshProgressBar();
+                                            window.parent.refreshActivities();
                                         }
                                     },
                                     error: function(response) {
@@ -290,6 +290,42 @@
                 
                 $(".deleteFile").click(function(event) {
                     deleteItem(event, "file_ann_wrapper");
+                });
+                
+                $(".dropdown_menu .menu_launch").click(function(e){
+                    $(this).parent().find('ul').css('visibility', 'visible');
+                    $(this).parent().find('.dropdown_menu_options').show();
+                    return false;
+                });
+                // on hover-out of the menu itself, hide drop-down menus
+                $(".dropdown_menu_options").hover(function(){}, function(){
+                    $(this).css('visibility', 'hidden');
+                }).hide();
+                
+                $("#choose_local_document").click(function(event) {
+                    $("#upload_file_form input[type=file]").click();
+                });
+                $('#upload_file_form input[type=file]').bind('change focus', function() {
+                    var value = $(this).val();
+                    var $form = $("#upload_file_form");
+                    if (value.trim().length > 0) {
+                        $form.submit();
+                    }
+                    return false;
+                });
+                
+                $('#upload_file_form').ajaxForm({
+                    success: function(data) {
+                        // update the list of file annotations and bind actions
+                        var $fileann = $(data)
+                        $("#fileanns_container").prepend( $fileann );
+                        $(".deleteFile", $fileann).click(function(event) {
+                            deleteItem(event, "file_ann_wrapper");
+                        });
+                        $(".removeFile", $fileann).click(function(event) {
+                            removeItem(event, "file_ann_wrapper");
+                        });
+                    }
                 });
 
             });
@@ -309,7 +345,7 @@
 
 <div id="annotation_form" >
     <div id="annotation_tabs" class="ui-tabs">
-        <ul>
+        <ul class="tabslist">
             {% if manager.tag %}
                 <li><a href="#metadata_tab">{% trans "General" %}</a></li>
             {% else %}
@@ -717,52 +753,32 @@
             <tr>
                 <th>{% trans "Attach" %}:</th>
                 <td>
-                    {% if manager.project.isEditable %}<a href="{% url manage_action_containers "newfile" "project" manager.project.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.dataset.isEditable %}<a href="{% url manage_action_containers "newfile" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.image.isEditable %}<a href="{% url manage_action_containers "newfile" "image" manager.image.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.screen.isEditable %}<a href="{% url manage_action_containers "newfile" "screen" manager.screen.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.plate.isEditable %}<a href="{% url manage_action_containers "newfile" "plate" manager.plate.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.acquisition.isEditable %}<a href="{% url manage_action_containers "newfile" "acquisition" manager.acquisition.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newfile" "well" manager.well.id %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>
-                    {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
+                    {% if manager.isEditable %}
+                    <span class="dropdown_menu">
+                        <span class="menu_launch">
+                            <img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attach an existing file."/>
+                        </span>
+                        <ul class="dropdown_menu_options">
+                            <li><a id="choose_local_document" href="#">Local document...</a></li>
+                            <li><a href="{% url manage_action_containers 'newfile' manager.obj_type manager.obj_id %}?url={{url}}">Uploaded document...</a></li>
+                        </ul>
+                    </span>
+                    {% endif %}
+                    
+                    <!-- hidden form for choosing file to upload. Activated & submitted by js -->
+                    <form id='upload_file_form' style="display:none"
+                        action="{% if manager.project %}{% url manage_action_containers "addfile" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addfile" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addfile" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addfile" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addfile" "plate" manager.plate.id %}{% else %}{% if manager.acquisition %}{% url manage_action_containers "addfile" "acquisition" manager.acquisition.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addfile" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}" enctype="multipart/form-data" method="post"><input type="hidden" name="action" value="file" />
+                    {% for field in form_file %}
+                        {{ field }}
+                    {% endfor %}
+                    </form>
                 </td>
                 <td>
-                    {% if manager.fileannSize %}
-                    <div class="lnfiles">
+                    <div id="fileanns_container" class="lnfiles">
                         {% for fileann in manager.file_annotations %}
-                        {% if fileann.getFileName %}
-                        <div style="padding:4px 0px" class="file_ann_wrapper">
-                            <a class='tooltip' href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';" 
-                                title="Linked by {{ fileann.link.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }}. {% trans "Owner:" %} {{ fileann.getDetails.getOwner.getNameWithInitial }}">
-                                {{ fileann.getFileName|shortening:40 }}
-                            </a>
-                            <span style='display:none'>
-                                <b>Owner:</b> {{ fileann.getOwner.getFullName }}<br />
-                                <b>Linked by:</b> {{ fileann.link.getDetails.getOwner.getFullName }}<br />
-                                <b>On:</b> {{ fileann.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
-                                <b>Description:</b> {{ fileann.description|default_if_none:""|truncatewords:10  }}
-                            </span>
-                            {% if fileann.getFileSize %}({{ fileann.getFileSize|default_if_none:0|filesizeformat }}){% endif %}
-                            {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}
-                                <img class='removeFile' id="{{ fileann.id }}-file" src="{% static "webclient/image/minus_11.png" %}" title="Unlink"/>
-                            {% endif %}
-                            {% if fileann.canDelete and not fileann.isOriginalMetadata %}
-                                <input class="deleteFile button" id="{{ fileann.id }}-file" type="image" src="{% static "webclient/image/cancel12.png" %}" alt="Delete" title="Delete"/>
-                            {% endif %}
-                            <!-- if we have 'volume' data attached - link for viewing in Open-Astex Viewer -->
-                            {% ifequal fileann.getFileName|slice:"-3:" 'map' %}
-                                <a href="#" onclick="return openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
-                            {% endifequal %}
-                            {% ifequal fileann.getFileName|slice:"-3:" 'bit' %}
-                                <a href="#" onclick="return openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
-                            {% endifequal %}
-                        </div>
-                        {% endif %}
+                            {% include "webclient/annotations/fileann.html" %}
                         {% endfor %}
                     </div>
-                    {% else %}
-                        {% trans "No attachments." %}
-                    {% endif %}
                 </td>
             </tr>  
             <!-- CUSTOM ANNOTATIONS -->

@@ -1100,7 +1100,7 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'index':index}
-
+    context['form_file'] = UploadFileForm()
     t = template_loader.get_template(template)
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
@@ -1919,8 +1919,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         form_file = UploadFileForm(request.REQUEST.copy(), request.FILES)
         if form_file.is_valid() and o_type is not None and o_id > 0:
             f = request.FILES['annotation_file']
-            manager.createFileAnnotation(o_type, f)
-            return HttpResponseRedirect(url)
+            fileann = manager.createFileAnnotation(o_type, f)
+            template = "webclient/annotations/fileann.html"
+            context = {'fileann': fileann}
         else:
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'index':index}

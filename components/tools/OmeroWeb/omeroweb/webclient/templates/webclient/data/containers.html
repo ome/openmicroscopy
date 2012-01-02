@@ -695,7 +695,7 @@
                                           data.args[0].each(function (i) {
                                               data.inst.get_container().find('#'+this.id).each(function() { data.inst.delete_node(this); });
                                           });
-                                          refreshProgressBar();
+                                          refreshActivities();
                                           data.inst.load_node($("li#orphaned-0"));
                                       }
                                 },
