@@ -3323,7 +3323,7 @@ class _AnnotationLinkWrapper (BlitzObjectWrapper):
     """
 
     def getAnnotation(self):
-        return AnnotationWrapper._wrap(self._conn, self.child)
+        return AnnotationWrapper._wrap(self._conn, self.child, self._obj)
 
 AnnotationLinkWrapper = _AnnotationLinkWrapper
                 
