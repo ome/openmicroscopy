@@ -423,14 +423,24 @@ class HdfStorage(object):
         self.__initcheck()
         self.__sizecheck(colNumbers, None)
         cols = self.cols(None, current)
-        rv   = []
+
+        rows = self._getrows(start, stop)
+        rv, l = self._rowstocols(rows, colNumbers, cols)
+        return self._as_data(rv, range(start, start+l))
+
+    def _getrows(self, start, stop):
+        return self.__mea.read(start, stop)
+
+    def _rowstocols(self, rows, colNumbers, cols):
         l = 0
+        rv   = []
         for i in colNumbers:
             col = cols[i]
-            col.read(self.__mea, start, stop)
+            col.fromrows(rows)
             rv.append(col)
-            l = len(col.values)
-        return self._as_data(rv, range(start, start+l))
+            if not l:
+                l = len(col.values)
+        return rv, l
 
     @stamped
     def slice(self, stamp, colNumbers, rowNumbers, current):
