@@ -137,6 +137,39 @@ class BaseContainer(BaseController):
                 raise AttributeError("We are sorry, but that annotation (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(annotation))
         if orphaned:
             self.orphaned = True
+            
+    def obj_type(self):
+        if self.project is not None: return "project"
+        if self.dataset is not None: return "dataset"
+        if self.image is not None: return "image"
+        if self.screen is not None: return "screen"
+        if self.plate is not None: return "plate"
+        if self.acquisition is not None: return "acquisition"
+        if self.well is not None: return "well"
+        if self.tag is not None: return "tag"
+        if self.file is not None: return "file"
+
+    def obj_id(self):
+        if self.project is not None: return self.project.id
+        if self.dataset is not None: return self.dataset.id
+        if self.image is not None: return self.image.id
+        if self.screen is not None: return self.screen.id
+        if self.plate is not None: return self.plate.id
+        if self.acquisition is not None: return self.acquisition.id
+        if self.well is not None: return self.well.id
+        if self.tag is not None: return self.tag.id
+        if self.file is not None: return self.file.id
+
+    def isEditable(self):
+        if self.project is not None: return self.project.isEditable()
+        if self.dataset is not None: return self.dataset.isEditable()
+        if self.image is not None: return self.image.isEditable()
+        if self.screen is not None: return self.screen.isEditable()
+        if self.plate is not None: return self.plate.isEditable()
+        if self.acquisition is not None: return self.acquisition.isEditable()
+        if self.well is not None: return self.well.isEditable()
+        if self.tag is not None: return self.tag.isEditable()
+        if self.file is not None: return self.file.isEditable()
 
     def openAstexViewerCompatible(self):
         """
