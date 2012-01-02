@@ -1,7 +1,6 @@
-{% extends "webclient/base/base_main.html" %}
+{% extends "common/base/container3.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+
 
 {% comment %}
 <!--
@@ -31,39 +30,38 @@
 -->
 {% endcomment %}
 
-{% block header %}
 
-<div id="path">
-    
-    <div id="actionWrapper">
-        
+{% block title %}
+    {% trans "Webclient" %}
+{% endblock %}
+
+
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
+{% endblock %}
+
+
+{% block nav_links %}
+    <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
+    {% include "webclient/base/menu.html" %}
+{% endblock %}
+
+
+{% block header_left %}
+
         <!-- left-hand side of toolbar (BASKET, STATUS, group chooser) -->
         {% include "webclient/base/header.html" %}
 
-    </div>
-    
-</div>
-
-<div class="clear"> </div>
-
 {% endblock %}
 
-{% block content %}
 
-<table cellspacing="0" cellpadding="0" class="contentWrapper">
-    <tbody>
-    <tr>
-        <td id="left_panel">{% block left %}{% endblock %}</td>
-        <td class="trayhandle-left collapsibletrayhandle-left">
-            <div id="swapTree"><img id="lhid_trayhandle_icon_left" class="expanded-left" src="{% url webstatic "images/spacer.gif" %}" tabindex="0"></div>
-        </td>
-        <td id="center_panel">{% block center %}{% endblock %}</td>
-        <td class="trayhandle collapsibletrayhandle-right">
-            <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="expanded-right" src="{% url webstatic "images/spacer.gif" %}" tabindex="0"></div>
-        </td>
-        <td id="right_panel">{% block right %}{% endblock %}</td>
-    </tr>
-    </tbody>
-</table>
+{% block header_right %}
+    {% include "webclient/base/logout.html" %}
+{% endblock %}
 
+
+{% block footer_content %}
+    {% include "webclient/base/footer_links.html" %}
 {% endblock %}

@@ -1,0 +1,29 @@
+{% load i18n %}
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+    <li class="contact"><a href="{% url csend %}" title="Contact">{% trans "Contact" %}</a></li>
+    <li class="help"><a href="{% url load_template "help" %}" title="Help">{% trans "Help" %}</a></li>
+    <li class="myaccount"><a href="{% url wamyaccount "edit" %}" title="Myaccount">{% trans "My Account" %}</a></li>
+    <li class="history"><a href="{% url load_template "history" %}" title="History">{% trans "History" %}</a></li>
+    <li class="search"><a href="{% url load_template "search" %}" title="Search">{% trans "Search" %}</a></li>
+    <li class="public"><a href="{% url load_template "public" %}" title="Public">{% trans "Public" %}</a></li>
+    <li class="userdata usertags basket status"><a href="{% url load_template "userdata" %}" title="Data">{% trans "Data" %}</a></li>
+    <li class="home"><a href="{% url webindex %}" title="Home">{% trans "Home" %}</a></li>

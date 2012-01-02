@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{% extends "common/base/base_html.html" %}
+{% load i18n %}
 
 {% comment %}
 <!--
@@ -21,10 +21,12 @@
 -->
 {% endcomment %}
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>{{ image.getName }}</title>
-    
+{% block title %}
+    {{ image.getName }}
+{% endblock %}
+
+{% block link %}
+    {{ block.super }}
     <style type="text/css">
         /*
 		back:	rgb(230,230,230)
@@ -92,7 +94,7 @@
         .dynamic-slider-control.horizontal .handle {
 		width:				10px;
 		height:				19px;
-		background-image:	url("{% url webstatic "images/handle.horizontal.gif" %}");
+		background-image:	url("{% static 'webclient/image/handle.horizontal.gif' %}");
         }
 
         .dynamic-slider-control.horizontal .handle div {}
@@ -136,6 +138,20 @@
     </style>
 
     <style type="text/css">
+        #controls {
+            position:absolute;
+            left: 10px;
+            top: 10px;
+            z-index:1;
+            background: green;
+        }
+        #applet {
+            position:absolute;
+            left: 0px;
+            top: 0px;
+            z-index:0;
+            background: red;
+        }
         h3 {
             text-align: center;
         }
@@ -170,11 +186,14 @@
             border: 1px solid #bbb;
         }
     </style>
+{% endblock %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/slider/range.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/slider/slider.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/slider/timer.js" %}"></script>
+{% block script %}
+    {{ block.super }}
+    {% include "common/base/includes/script_src_jquery.html" %}
+    <script type="text/javascript" src="{% static "webclient/javascript/slider/range.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/slider/slider.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/slider/timer.js" %}"></script>
     <script type="text/javascript">
         // pass javascript commands to the open astex viewer applet. 
         var execute_oav_command = function(command) {
@@ -263,26 +282,9 @@
         });
 
     </script>
+{% endblock %}
     
-    <style type="text/css">
-        #controls {
-            position:absolute;
-            left: 10px;
-            top: 10px;
-            z-index:1;
-            background: green;
-        }
-        #applet {
-            position:absolute;
-            left: 0px;
-            top: 0px;
-            z-index:0;
-            background: red;
-        }
-    </style>
-</head>
-<body>
-    
+{% block body %}
 <table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
     <tr>
     <td valign="top" width="190px" bgcolor="#eee">
@@ -370,7 +372,7 @@
         <applet
               width="100%" height="100%" name="av"
               code="MoleculeViewerApplet.class"
-              archive="{% url webstatic 'applet/OpenAstexViewer.jar' %} ">
+              archive="{% static 'webclient/applet/OpenAstexViewer.jar' %}">
          
                  <param name="script" value="
                  map load mapA '{{ data_url }}' {{ data_storage_mode }};
@@ -396,4 +398,4 @@
         </div>
     </td>
 </tr></table>
-</body>
+{% endblock %}

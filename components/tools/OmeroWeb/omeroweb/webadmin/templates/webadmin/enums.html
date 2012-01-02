@@ -1,7 +1,5 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
 
 {% comment %}
 <!--
@@ -23,37 +21,43 @@
 -->
 {% endcomment %}
 
-{% block css %}
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block title %}{% trans "Scientists" %}{% endblock %}
 
-{% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
+{% block script %}
+    {{ block.super }}
+    
+    <script type="text/javascript" src="{% static "common/javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
+    
+    <script type="text/javascript">
+        $(document).ready(function() 
+            { 
+                $("#enumsTable").tablesorter( {
+                    //sortList: [[1,0]],
+                    headers: {0: { sorter: 'digit' } }
+                } );
+                $('input#id_search').quicksearch('table#enumsTable tbody tr', {
+                    'delay': 300,
+                    'loader': 'span.loading' 
+                });
 
-<script type="text/javascript">
-    $(document).ready(function() 
-        { 
-            $("#enumsTable").tablesorter( {sortList: [[1,0]]} ); 
-
-            $('input#id_search').quicksearch('table#enumsTable tbody tr', {
-                'delay': 300,
-                'loader': 'span.loading' 
-            });
-
-    })
-</script>
+        })
+    </script>
 
 {% endblock %}
 
-{% block content %}
+{% block center_details %}
+{{ block.super }}
 
 <h2>{% trans "Enumerations" %}</h2>
 {% if controller.enumsCount %}
 
-<form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
+<form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "common/image/spinner.gif" %}"></span></form>
 
 
 <table id="enumsTable" class="tablesorter"> 
@@ -68,8 +72,8 @@
     {% for key, list in controller.enums.items %}
         <tr>
           <td class="action">
-            <a href="{% url wamanageenum "edit" key %}"><img src="{% url webstatic "images/edit.png" %}" alt="edit" title="edit"></a> 
-            {% if controller.check|hash:key %}<img src="{% url webstatic "images/reset-grey.png" %}" alt="ok" title="ok">{% else %}<a href="{% url wamanageenum "reset" key %}" onClick="return confirm('Reset {{ key }}?');"><img src="{% url webstatic "images/reset.png" %}" alt="reset" title="reset"></a>{% endif %}
+            <a href="{% url wamanageenum "edit" key %}"><img src="{% static "webadmin/image/edit.png" %}" alt="edit" title="edit"></a> 
+            {% if controller.check %}<img src="{% static "webclient/image/reset-grey.png" %}" alt="ok" title="ok">{% else %}<a href="{% url wamanageenum "reset" key %}" onClick="return confirm('Reset {{ key }}?');"><img src="{% static "webclient/image/reset.png" %}" alt="reset" title="reset"></a>{% endif %}
           </td>
           <td class="link"><a href="{% url wamanageenum "edit" key %}">{{ key|default_if_none:"-" }}</a></td>
           <td class="link">{{ list.0.getType }}</td>
@@ -78,10 +82,16 @@
   </tbody>
 </table>
 
-<p><img src="{% url webstatic "images/reset.png" %}" alt="admin" title="admin"> - enumeration values was changed and this button allows to reset to default values;<br/><img src="{% url webstatic "images/reset-grey.png" %}" alt="guest" title="guest"> - enumeration values are original, there is no reason to reset them;<p>
-
 {% else %}
 <p>{% trans "No scientists in OMERO." %}</p>
 {% endif %}
+
+{% endblock %}
+
+{% block metadata_details %}
+
+    <h1>{% trans "Legend" %}:</h1>
+    <div><img src="{% static "webclient/image/reset.png" %}" alt="reset" title="reset"> - enumeration values was changed and this button allows to reset to default values;</div>
+    <div><img src="{% static "webclient/image/reset-grey.png" %}" alt="origin" title="origin"> - enumeration values are original, there is no reason to reset them;</div>
 
 {% endblock %}

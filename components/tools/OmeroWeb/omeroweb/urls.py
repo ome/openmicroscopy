@@ -26,6 +26,7 @@ import os.path
 
 from django.conf.urls.defaults import *
 from django.views.static import serve
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 # error handler
 handler404 = "omeroweb.feedback.views.handler404"
@@ -34,11 +35,7 @@ handler500 = "omeroweb.feedback.views.handler500"
 # url patterns
 urlpatterns = patterns('',
     
-    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/appmedia/omeroweb/images/ome.ico'}),
-    (r'^appmedia/webgateway/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'webgateway/media')}),
-    (r'^appmedia/m/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'webmobile/media')}),
-    url( r'^appmedia/omeroweb/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media', 'omeroweb').replace('\\','/') }, name="webstatic" ),
-    #url(r'^appmedia/(?P<path>.*)$', serve, {'document_root': os.path.join(os.path.dirname(__file__), 'media')}, name="static"),
+    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/common/image/ome.ico'}),
     
     (r'(?i)^webadmin/', include('omeroweb.webadmin.urls')),
     (r'(?i)^webclient/', include('omeroweb.webclient.urls')),
@@ -49,4 +46,7 @@ urlpatterns = patterns('',
     #(r'(?i)^webemdb/', include('omeroweb.webemdb.urls')),
     (r'(?i)^m/', include('omeroweb.webmobile.urls')),
     (r'(?i)^url/', include('omeroweb.webredirect.urls')),
+    (r'(?i)^common/', include('omeroweb.common.urls')),
 )
+
+urlpatterns += staticfiles_urlpatterns()

@@ -1,8 +1,9 @@
-{% extends "webclient/base/base_frame.html" %}
+{% extends "common/base/base_frame.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+{% load common_filters %}
+{% load common_tags %}
 {% load wikitags %}
+
 
 {% comment %}
 <!--
@@ -25,29 +26,27 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/autocomplete.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
-    
-{% endblock %}
-
-{% block jscript %}
-
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.autocomplete.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.editinplace.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.form.js" %}"></script>
-  
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/googiespell.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/annotation.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/autocomplete.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
     
 {% endblock %}
 
 {% block script %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.autocomplete.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
+  
+    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/AJS.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/googiespell.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/cookiesupport.js" %}"></script>
 
     <script type="text/javascript">        
         $(document).ready(function() 
@@ -190,25 +189,29 @@
                     var parentId = $.trim($("#parent-id").text());
                     var url = "/webclient/action/remove/"+ dType +"/"+ annId +"/";
                     var $parent = $(event.target).parents("."+domClass);
-                    if (confirm('Remove '+ dType + '?')) {
-                        $.ajax({
-                            type: "POST",
-                            url: url,
-                            data: {'parent':parentId},
-                            contentType:'json',
-                            success: function(r){
-                                if(eval(r.bad)) {
-                                    alert(r.errs);
-                                } else {
-                                    // simply remove the item (parent class div)
-                                    $parent.remove();
-                                }
-                            },
-                            error: function(response) {
-                                alert("Internal server error. Cannot remove object.");
+                    var confirm_remove = confirm_dialog('Remove '+ dType + '?',
+                        function() {
+                            if(confirm_remove.data("clicked_button") == "OK") {
+                                $.ajax({
+                                    type: "POST",
+                                    url: url,
+                                    data: {'parent':parentId},
+                                    contentType:'json',
+                                    success: function(r){
+                                        if(eval(r.bad)) {
+                                            alert(r.errs);
+                                        } else {
+                                            // simply remove the item (parent class div)
+                                            $parent.remove();
+                                        }
+                                    },
+                                    error: function(response) {
+                                        alert("Internal server error. Cannot remove object.");
+                                    }
+                                });
                             }
-                        });
-                    }
+                        }
+                    );
                     return false;
                 }
 
@@ -231,25 +234,29 @@
                     var parentId = $.trim($("#parent-id").text());
                     var url = "/webclient/action/delete/"+ dType +"/"+ annId +"/";
                     var $parent = $(event.target).parents("."+domClass);
-                    if (confirm('Delete '+ dType + '?')) {
-                        $.ajax({
-                            type: "POST",
-                            url: url,
-                            contentType:'json',
-                            success: function(r){
-                                if(eval(r.bad)) {
-                                    alert(r.errs);
-                                } else {
-                                    // simply remove the item (parent class div)
-                                    $parent.remove();
-                                    window.parent.refreshProgressBar();
-                                }
-                            },
-                            error: function(response) {
-                                alert("Internal server error. Cannot remove object.");
+                    var confirm_remove = confirm_dialog('Delete '+ dType + '?',
+                        function() {
+                            if(confirm_remove.data("clicked_button") == "OK") {
+                                $.ajax({
+                                    type: "POST",
+                                    url: url,
+                                    contentType:'json',
+                                    success: function(r){
+                                        if(eval(r.bad)) {
+                                            alert(r.errs);
+                                        } else {
+                                            // simply remove the item (parent class div)
+                                            $parent.remove();
+                                            window.parent.refreshProgressBar();
+                                        }
+                                    },
+                                    error: function(response) {
+                                        alert("Internal server error. Cannot delete object.");
+                                    }
+                                });
                             }
-                        });
-                    }
+                        }
+                    );
                     return false;
                 }
                 
@@ -263,7 +270,7 @@
     
 {% endblock %}
 
-{% block content %}
+{% block body %}
 
 {% comment %}
     <!-- Example toolbar of links to webtest pages. Remove comments to activate -->
@@ -306,14 +313,14 @@
         <!-- VIEWER "Preview"-->
         <div id="preview_tab">
             <a id="preview-link" href="{% url load_metadata_preview manager.image.id %}" style='display:none'>Preview</a>
-            <img src="{% url webstatic "images/spinner.gif" %}" />
+            <img src="{% static "common/image/spinner.gif" %}" />
         </div>
         {% endif %}
         {% if manager.well %}
         <!-- VIEWER "Preview" -->
         <div id="preview_tab">
             <a id="preview-link" href="{% url load_metadata_preview manager.well.getWellSample.image.id %}" style='display:none'>Preview</a>
-            <img src="{% url webstatic "images/spinner.gif" %}" />
+            <img src="{% static "common/image/spinner.gif" %}" />
         </div>
         {% endif %}
         
@@ -323,14 +330,14 @@
         <div id="metadata_tab">
             <!-- content is loaded by ajax when this tab is first displayed -->
             <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.image.id %}" style='display:none' >Acquisition</a>
-            <img src="{% url webstatic "images/spinner.gif" %}" />
+            <img src="{% static "common/image/spinner.gif" %}" />
         </div>
         {% endif %}
         {% if manager.well %}
         <div id="metadata_tab">
             <!-- content is loaded by ajax when this tab is first displayed -->
             <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.well.getWellSample.image.id %}" style='display:none' >Acquisition</a>
-            <img src="{% url webstatic "images/spinner.gif" %}" />
+            <img src="{% static "common/image/spinner.gif" %}" />
         </div>
         {% endif %}
                 
@@ -339,7 +346,7 @@
         <!-- ANNOTATIONS "General" -->
         <div id="annotation_tab">
             {% if manager.image %}            
-            {% if manager.image.isOwned %}<div id="imagename-{{ manager.image.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="imagename-{{ manager.image.id }}-name" style="word-wrap: break-word;">{{ manager.image.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>{% endif %}
+            {% if manager.image.isOwned %}<div id="imagename-{{ manager.image.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="imagename-{{ manager.image.id }}-name" style="word-wrap: break-word;">{{ manager.image.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>{% endif %}
             
             <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>
             <!-- open-image link -->
@@ -347,25 +354,25 @@
                 {% if manager.image.countArchivedFiles %}
                     <div style="float:right">
                         <a href="{% url archived_files manager.image.id %}">
-                        <img src="{% url webstatic 'images/nuvola_download_manager16.png' %}"
+                        <img src="{% static "webclient/image/nuvola_download_manager16.png" %}"
                             title="Download {{ manager.image.countArchivedFiles }} Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}"/>
                         </a>
                     </div>
                 {% endif %}
                 {% trans "Launch full viewer" %} 
                 <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')">
-                    <img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/>
+                    <img id="{{ manager.image.id }}" src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/>
                 </a>
                 {% if manager.openAstexViewerCompatible %}
                 | Volume viewer
                 <a href="#" onclick="return openPopup('{% url open_astex_viewer 'image_8bit' manager.image.id %}')">
-                    <img src="{% url webstatic "images/oav_16.png" %}" alt="Open Astex Viewer" title="Open Astex Viewer"/>
+                    <img src="{% static "webclient/image/oav_16.png" %}" alt="Open Astex Viewer" title="Open Astex Viewer"/>
                 </a>
                 {% endif %}
             </div>
                     
             <div class="description">
-                {% if manager.image.isOwned %}<div id="imagedescription-{{ manager.image.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='image_desc'>{{ manager.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                {% if manager.image.isOwned %}<div id="imagedescription-{{ manager.image.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='image_desc'>{{ manager.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
             </div>
             <table>                    
                 {% if not manager.image.isOwned %}
@@ -416,12 +423,12 @@
             </table>
             {% else %}
                 {% if manager.dataset %}
-                {% if manager.dataset.isOwned %}<div id="datasetname-{{ manager.dataset.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="datasetname-{{ manager.dataset.id }}-name" style="word-wrap: break-word;">{{ manager.dataset.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.dataset.name }}</h1>{% endif %}
+                {% if manager.dataset.isOwned %}<div id="datasetname-{{ manager.dataset.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="datasetname-{{ manager.dataset.id }}-name" style="word-wrap: break-word;">{{ manager.dataset.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.dataset.name }}</h1>{% endif %}
 
                 <h2 id='dataset_id'>Dataset ID: {{ manager.dataset.id }}</h2>    
                 
                 <div class="description">
-                    {% if manager.dataset.isOwned %}<div id="datasetdescription-{{ manager.dataset.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="datasetdescription-{{ manager.dataset.id }}-description">{{ manager.dataset.description|default_if_none:""}}</span><p></div>{% else %}<span id='dataset_desc'>{{ manager.dataset.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                    {% if manager.dataset.isOwned %}<div id="datasetdescription-{{ manager.dataset.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="datasetdescription-{{ manager.dataset.id }}-description">{{ manager.dataset.description|default_if_none:""}}</span><p></div>{% else %}<span id='dataset_desc'>{{ manager.dataset.description|default_if_none:""|linebreaks }}</span>{% endif %}
                 </div>
                 
                 <table>
@@ -442,11 +449,11 @@
                 </table>
                 {% else %}
                     {% if manager.project %}
-                    {% if manager.project.isOwned %}<div id="projectname-{{ manager.project.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="projectname-{{ manager.project.id }}-name" style="word-wrap: break-word;">{{ manager.project.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.project.name }}</h1>{% endif %}
+                    {% if manager.project.isOwned %}<div id="projectname-{{ manager.project.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="projectname-{{ manager.project.id }}-name" style="word-wrap: break-word;">{{ manager.project.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.project.name }}</h1>{% endif %}
                     
                     <h2 id='project_id'>Project ID: {{ manager.project.id }}</h2>
                     <div class="description">
-                        {% if manager.project.isOwned %}<div id="projectdescription-{{ manager.project.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="projectdescription-{{ manager.project.id }}-description">{{ manager.project.description|default_if_none:""}}</span><p></div>{% else %}<span id='project_desc'>{{ manager.project.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                        {% if manager.project.isOwned %}<div id="projectdescription-{{ manager.project.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="projectdescription-{{ manager.project.id }}-description">{{ manager.project.description|default_if_none:""}}</span><p></div>{% else %}<span id='project_desc'>{{ manager.project.description|default_if_none:""|linebreaks }}</span>{% endif %}
                     </div>
                     <table>
                         {% if not manager.project.isOwned %}
@@ -469,12 +476,12 @@
             {% endif %}
             
             {% if manager.well %}            
-            {% if manager.well.getWellSample.image.isOwned %}<div id="wellname-{{ manager.well.getWellSample.image.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="wellname-{{ manager.well.getWellSample.image.id }}-name" style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</h1>{% endif %}
+            {% if manager.well.getWellSample.image.isOwned %}<div id="wellname-{{ manager.well.getWellSample.image.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="wellname-{{ manager.well.getWellSample.image.id }}-name" style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</h1>{% endif %}
                    
             <h2 id='well_id'>Image ID: {{ manager.well.getWellSample.image.id }} Well ID: {{ manager.well.id }}</h2>
-            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
+            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
             <div class="description">
-                {% if manager.well.getWellSample.image.isOwned %}<div id="welldescription-{{ manager.well.getWellSample.image.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="welldescription-{{ manager.well.getWellSample.image.id }}-description">{{ manager.well.getWellSample.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='well_desc'>{{ manager.well.getWellSample.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                {% if manager.well.getWellSample.image.isOwned %}<div id="welldescription-{{ manager.well.getWellSample.image.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="welldescription-{{ manager.well.getWellSample.image.id }}-description">{{ manager.well.getWellSample.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='well_desc'>{{ manager.well.getWellSample.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
             </div>
             <table>                    
                 {% if not manager.well.getWellSample.image.isOwned %}
@@ -529,12 +536,12 @@
             </table>
             {% else %}
                 {% if manager.acquisition %}
-                {% if manager.acquisition.isOwned %}<div id="acquisitionname-{{ manager.acquisition.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="acquisitionname-{{ manager.acquisition.id }}-name" style="word-wrap: break-word;">{{ manager.acquisition.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.acquisition.name }}</h1>{% endif %}
+                {% if manager.acquisition.isOwned %}<div id="acquisitionname-{{ manager.acquisition.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="acquisitionname-{{ manager.acquisition.id }}-name" style="word-wrap: break-word;">{{ manager.acquisition.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.acquisition.name }}</h1>{% endif %}
                 
                 <h2 id='acquisition_id'>Plate acquisition ID: {{ manager.acquisition.id }}</h2>
                 
                 <div class="description">
-                    {% if manager.acquisition.isOwned %}<div id="acquisitiondescription-{{ manager.acquisition.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="acquisitiondescription-{{ manager.acquisition.id }}-description">{{ manager.acquisition.description|default_if_none:""}}</span><p></div>{% else %}<span id='acquisition_desc'>{{ manager.acquisition.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                    {% if manager.acquisition.isOwned %}<div id="acquisitiondescription-{{ manager.acquisition.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="acquisitiondescription-{{ manager.acquisition.id }}-description">{{ manager.acquisition.description|default_if_none:""}}</span><p></div>{% else %}<span id='acquisition_desc'>{{ manager.acquisition.description|default_if_none:""|linebreaks }}</span>{% endif %}
                 </div>
                 
                 <table>
@@ -557,11 +564,11 @@
                 </table>
                 {% else %}
                     {% if manager.plate %}
-                    {% if manager.plate.isOwned %}<div id="platename-{{ manager.plate.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="platename-{{ manager.plate.id }}-name" style="word-wrap: break-word;">{{ manager.plate.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.plate.name }}</h1>{% endif %}
+                    {% if manager.plate.isOwned %}<div id="platename-{{ manager.plate.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="platename-{{ manager.plate.id }}-name" style="word-wrap: break-word;">{{ manager.plate.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.plate.name }}</h1>{% endif %}
               
                     <h2 id='plate_id'>Plate ID: {{ manager.plate.id }}</h2>
                     <div class="description">
-                        {% if manager.plate.isOwned %}<div id="platedescription-{{ manager.plate.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="platedescription-{{ manager.plate.id }}-description">{{ manager.plate.description|default_if_none:""}}</span><p></div>{% else %}<span id='plate_desc'>{{ manager.plate.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                        {% if manager.plate.isOwned %}<div id="platedescription-{{ manager.plate.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="platedescription-{{ manager.plate.id }}-description">{{ manager.plate.description|default_if_none:""}}</span><p></div>{% else %}<span id='plate_desc'>{{ manager.plate.description|default_if_none:""|linebreaks }}</span>{% endif %}
                     </div>
                     <table>
                         {% if not manager.plate.isOwned %}
@@ -583,11 +590,11 @@
                     </table>
                     {% else %}
                         {% if manager.screen %}
-                        {% if manager.screen.isOwned %}<div id="screenname-{{ manager.screen.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="screenname-{{ manager.screen.id }}-name" style="word-wrap: break-word;">{{ manager.screen.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.screen.name }}</h1>{% endif %}
+                        {% if manager.screen.isOwned %}<div id="screenname-{{ manager.screen.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="screenname-{{ manager.screen.id }}-name" style="word-wrap: break-word;">{{ manager.screen.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.screen.name }}</h1>{% endif %}
             
                         <h2 id='screen_id'>Screen ID: {{ manager.screen.id }}</h2>
                         <div class="description">
-                            {% if manager.screen.isOwned %}<div id="screendescription-{{ manager.screen.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="screendescription-{{ manager.screen.id }}-description">{{ manager.screen.description|default_if_none:""}}</span><p></div>{% else %}<span id='screen_desc'>{{ manager.screen.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                            {% if manager.screen.isOwned %}<div id="screendescription-{{ manager.screen.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="screendescription-{{ manager.screen.id }}-description">{{ manager.screen.description|default_if_none:""}}</span><p></div>{% else %}<span id='screen_desc'>{{ manager.screen.description|default_if_none:""|linebreaks }}</span>{% endif %}
                         </div>
                         <table>
                             {% if not manager.screen.isOwned %}
@@ -623,12 +630,12 @@
                         <table>
                     {% for rating in manager.rating_annotations %}
                     <tr><td valign="middle">
-                        {% ifequal rating.getValue 0 %}<img src="{% url webstatic "images/rating0.png" %}">{% endifequal %}
-                        {% ifequal rating.getValue 1 %}<img src="{% url webstatic "images/rating1.png" %}">{% endifequal %}
-                        {% ifequal rating.getValue 2 %}<img src="{% url webstatic "images/rating2.png" %}">{% endifequal %}
-                        {% ifequal rating.getValue 3 %}<img src="{% url webstatic "images/rating3.png" %}">{% endifequal %}
-                        {% ifequal rating.getValue 4 %}<img src="{% url webstatic "images/rating4.png" %}">{% endifequal %}
-                        {% ifequal rating.getValue 5 %}<img src="{% url webstatic "images/rating5.png" %}">{% endifequal %}
+                        {% ifequal rating.getValue 0 %}<img src="{% static "webclient/image/rating0.png" %}">{% endifequal %}
+                        {% ifequal rating.getValue 1 %}<img src="{% static "webclient/image/rating1.png" %}">{% endifequal %}
+                        {% ifequal rating.getValue 2 %}<img src="{% static "webclient/image/rating2.png" %}">{% endifequal %}
+                        {% ifequal rating.getValue 3 %}<img src="{% static "webclient/image/rating3.png" %}">{% endifequal %}
+                        {% ifequal rating.getValue 4 %}<img src="{% static "webclient/image/rating4.png" %}">{% endifequal %}
+                        {% ifequal rating.getValue 5 %}<img src="{% static "webclient/image/rating5.png" %}">{% endifequal %}
                         </td>
                         <td>
                         {{ rating.getDetails.getOwner.getNameWithInitial }}
@@ -646,13 +653,13 @@
             <tr>
                 <th>{% trans "Tag" %}:</th>
                 <td>
-                    {% if manager.project.isEditable %}<a href="{% url manage_action_containers "newtag" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.dataset.isEditable %}<a href="{% url manage_action_containers "newtag" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.image.isEditable %}<a href="{% url manage_action_containers "newtag" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" height='11' width='11' alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.screen.isEditable %}<a href="{% url manage_action_containers "newtag" "screen" manager.screen.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.plate.isEditable %}<a href="{% url manage_action_containers "newtag" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.acquisition.isEditable %}<a href="{% url manage_action_containers "newtag" "acquisition" manager.acquisition.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newtag" "well" manager.well.id %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>
+                    {% if manager.project.isEditable %}<a href="{% url manage_action_containers "newtag" "project" manager.project.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
+                    {% if manager.dataset.isEditable %}<a href="{% url manage_action_containers "newtag" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
+                    {% if manager.image.isEditable %}<a href="{% url manage_action_containers "newtag" "image" manager.image.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" height='11' width='11' alt="e" title="Create new tag or use an existing one."/></a>{% else %}
+                    {% if manager.screen.isEditable %}<a href="{% url manage_action_containers "newtag" "screen" manager.screen.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
+                    {% if manager.plate.isEditable %}<a href="{% url manage_action_containers "newtag" "plate" manager.plate.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
+                    {% if manager.acquisition.isEditable %}<a href="{% url manage_action_containers "newtag" "acquisition" manager.acquisition.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
+                    {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newtag" "well" manager.well.id %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>
                     {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
                 </td>
                 <td>
@@ -662,7 +669,7 @@
                         <span class="tag_annotation_wrapper">
                             <a class='tooltip' href="{% url load_template "usertags" %}{% if not tag.isOwned %}?experimenter={{ tag.getOwner.id }}{% endif %}" target="_top"> {{ tag.textValue }}</a> 
                             {% if tag.link.isOwned %}
-                                <img class='removeTag' id="{{ tag.id }}-tag" src="{% url webstatic "images/minus_11.png" %}" title="Unlink"/>
+                                <img class='removeTag' id="{{ tag.id }}-tag" src="{% static "webclient/image/minus_11.png" %}" title="Unlink"/>
                             {% endif %}
                             <span style='display:none'>
                                 <b>Owner:</b> {{ tag.getOwner.getFullName }}<br />
@@ -682,13 +689,13 @@
             <tr>
                 <th>{% trans "Attach" %}:</th>
                 <td>
-                    {% if manager.project.isEditable %}<a href="{% url manage_action_containers "newfile" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.dataset.isEditable %}<a href="{% url manage_action_containers "newfile" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.image.isEditable %}<a href="{% url manage_action_containers "newfile" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.screen.isEditable %}<a href="{% url manage_action_containers "newfile" "screen" manager.screen.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.plate.isEditable %}<a href="{% url manage_action_containers "newfile" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.acquisition.isEditable %}<a href="{% url manage_action_containers "newfile" "acquisition" manager.acquisition.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                    {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newfile" "well" manager.well.id %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>
+                    {% if manager.project.isEditable %}<a href="{% url manage_action_containers "newfile" "project" manager.project.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
+                    {% if manager.dataset.isEditable %}<a href="{% url manage_action_containers "newfile" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
+                    {% if manager.image.isEditable %}<a href="{% url manage_action_containers "newfile" "image" manager.image.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
+                    {% if manager.screen.isEditable %}<a href="{% url manage_action_containers "newfile" "screen" manager.screen.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
+                    {% if manager.plate.isEditable %}<a href="{% url manage_action_containers "newfile" "plate" manager.plate.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
+                    {% if manager.acquisition.isEditable %}<a href="{% url manage_action_containers "newfile" "acquisition" manager.acquisition.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
+                    {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newfile" "well" manager.well.id %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>
                     {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
                 </td>
                 <td>
@@ -709,10 +716,10 @@
                             </span>
                             {% if fileann.getFileSize %}({{ fileann.getFileSize|default_if_none:0|filesizeformat }}){% endif %}
                             {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}
-                                <img class='removeFile' id="{{ fileann.id }}-file" src="{% url webstatic "images/minus_11.png" %}" title="Unlink"/>
+                                <img class='removeFile' id="{{ fileann.id }}-file" src="{% static "webclient/image/minus_11.png" %}" title="Unlink"/>
                             {% endif %}
                             {% if fileann.canDelete and not fileann.isOriginalMetadata %}
-                                <input class="deleteFile button" id="{{ fileann.id }}-file" type="image" src="{% url webstatic "images/cancel12.png" %}" alt="Delete" title="Delete"/>
+                                <input class="deleteFile button" id="{{ fileann.id }}-file" type="image" src="{% static "webclient/image/cancel12.png" %}" alt="Delete" title="Delete"/>
                             {% endif %}
                             <!-- if we have 'volume' data attached - link for viewing in Open-Astex Viewer -->
                             {% ifequal fileann.getFileName|slice:"-3:" 'map' %}
@@ -827,11 +834,11 @@
                     <div class="lncomments">            
                         {% for tann in manager.text_annotations %}
                         <div class="ann_comment_wrapper">
-                            <div class="avatar"><img src="{% url load_photo tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" width="20" height="20" /></div>
+                            <div class="avatar"><img src="{% url avatar tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" width="20" height="20" /></div>
                             <div>
                                 <span class="ann_comment_header">{{ tann.getOwner.getFullName }} {% trans "at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
                                 {% if tann.canDelete %}
-                                    <img class='removeComment' id="{{ tann.id }}-comment" src="{% url webstatic "images/cancel12.png" %}" title="Delete comment"/>
+                                    <img class='removeComment' id="{{ tann.id }}-comment" src="{% static "webclient/image/cancel12.png" %}" title="Delete comment"/>
                                 {% endif %}
                                 <div class='commentText'>
                                 {{ tann.textValue|wikify|safe|linebreaks }}
@@ -854,7 +861,7 @@
             <div id="hierarchy-pane">
                 <!-- content is loaded by ajax when this tab is first displayed -->
                 <a id="hierarchy-link" href="{% url load_metadata_hierarchy 'image' manager.image.id %}">Load hierarchy...</a>
-                <img id="hierarchy-spinner" style="display:none" src="{% url webstatic 'images/spinner.gif' %}" />
+                <img id="hierarchy-spinner" style="display:none" src="{% static "common/image/spinner.gif" %}" />
             </div>
             {% endif %}
             
@@ -863,12 +870,12 @@
         {% endif %}
 
         {% if manager.tag %}
-        {% if manager.tag.isOwned %}<div id="tagname-{{ manager.tag.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="tagname-{{ manager.tag.id }}-name" style="word-wrap: break-word;">{{ manager.tag.getValue }}</p></h1></div>{% else %}<p style="word-wrap: break-word;">{{ manager.tag.getValue }}</p>{% endif %}
+        {% if manager.tag.isOwned %}<div id="tagname-{{ manager.tag.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="tagname-{{ manager.tag.id }}-name" style="word-wrap: break-word;">{{ manager.tag.getValue }}</p></h1></div>{% else %}<p style="word-wrap: break-word;">{{ manager.tag.getValue }}</p>{% endif %}
         
         <h2 id='tag_id'>Tag ID: {{ manager.tag.id }}</h2>   
 
         <div class="description">
-            {% if manager.tag.isOwned %}<div id="tagdescription-{{ manager.tag.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="tagdescription-{{ manager.tag.id }}-description">{{ manager.tag.description|default_if_none:""}}</span><p></div>{% else %}<span id='tag_desc'>{{ manager.tag.description|default_if_none:""|linebreaks }}</span>{% endif %}
+            {% if manager.tag.isOwned %}<div id="tagdescription-{{ manager.tag.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="tagdescription-{{ manager.tag.id }}-description">{{ manager.tag.description|default_if_none:""}}</span><p></div>{% else %}<span id='tag_desc'>{{ manager.tag.description|default_if_none:""|linebreaks }}</span>{% endif %}
         </div>
         
         <table>

@@ -4,6 +4,7 @@ from django.shortcuts import render_to_response
 from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webclient.views import isUserConnected
+from omeroweb.webadmin.custom_models import Server
 
 from webtest_utils import getSpimData
 from cStringIO import StringIO
@@ -45,7 +46,7 @@ def login (request):
     @return:            The http response - webtest_index or login page
     """
     if request.method == 'POST' and request.REQUEST['server']:
-        blitz = settings.SERVER_LIST.get(pk=request.REQUEST['server'])
+        blitz = Server.get(pk=request.REQUEST['server'])
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
@@ -54,7 +55,7 @@ def login (request):
     logger.debug(conn)
     if conn is not None:
         return HttpResponseRedirect(reverse('webtest_index'))
-    return render_to_response('webtest/login.html', {'gw':settings.SERVER_LIST})
+    return render_to_response('webtest/login.html', {'gw':Server})
 
 
 def logout (request):
@@ -709,3 +710,10 @@ def image_viewer (request, iid, **kwargs):
     kwargs['viewport_server'] = '/webclient'
     
     return webgateway_views.full_viewer(request, iid, _conn=conn, **kwargs)
+
+
+def common_templates (request, base_template):
+    """ Simply return the named template. Similar functionality to django.views.generic.simple.direct_to_template """
+    template_name = 'webtest/common/%s.html' % base_template
+    from django.template import RequestContext
+    return render_to_response(template_name, context_instance=RequestContext(request))

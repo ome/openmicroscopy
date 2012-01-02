@@ -1,8 +1,6 @@
-{% extends "webclient/base/base_frame.html" %}
+{% extends "common/base/base_frame.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
+
 
 {% comment %}
 <!--
@@ -25,23 +23,17 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/share.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/share.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block jscript %}
+{% block script %}
+    {{ block.super }}
     
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
 
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
-{% endblock %}
-
-{% block script %}    
     <script>
       $(document).ready(function(){
           $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
@@ -66,7 +58,7 @@
     
 {% endblock %}
 
-{% block content %}
+{% block body %}
 
 <h1>{% trans "Edit" %} {{ share.share.getShareType|lower }}:</h1>
 
@@ -88,10 +80,6 @@
                 <tr><td><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onClick="history.go(-1);return true;" value="{% trans 'Cancel' %}" /></td></tr>
             </table>
         </form>
-        <script type="text/javascript">
-            var googie_spell = new GoogieSpell("static_core/googiespell/", "{% url spellchecker %}"+"?lang=");
-            googie_spell.decorateTextarea("id_message", null, "600px");
-        </script>
     </div>
 
 {% endblock %}

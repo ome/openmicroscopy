@@ -1,0 +1,86 @@
+img {
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+    vertical-align: middle;
+}
+
+table.contentWrapper {
+    width: 100%; 
+    background: #f3f3f3;
+    table-layout:fixed;
+    height:100%;
+}
+
+#left_panel {
+    background-color: #ffffff;
+    position:absolute;
+    left:0px; top:0px; bottom:0px;
+    width:350px;
+    overflow: auto;
+}
+#center_panel {
+    background-color: #ffffff;
+    position:absolute;
+    left:20px; right:20px; top:0px; bottom:0px;
+    overflow: auto;
+}
+#right_panel {
+    background-color: #f3f3f3;
+    position:absolute;
+    width:370px;
+    right:0px; top:0px; bottom:0px;
+    overflow: auto;
+}
+
+.collapsibletrayhandle-right {
+    background:#F3F3F3 url(../image/tray_right_shadow.png) repeat-y scroll left top;
+}
+.collapsibletrayhandle-left {
+    background:#fff url(../image/tray_left_shadow.png) repeat-y scroll left top;
+}
+
+#trayhandle_left {
+    position:absolute; top:0px; left:0px; bottom:0px;
+    width:20px;
+}
+#trayhandle_right {
+    position:absolute;
+    top:0px; right:0px; bottom:0px;
+    width:20px;
+}
+#center_container {
+    position:absolute;
+    left:350px; right:370px; top:0px; bottom:0px;
+}
+
+#lhid_trayhandle_icon_right {
+    cursor:pointer;
+    position:relative;
+}
+
+#lhid_trayhandle_icon_left {
+    cursor:pointer;
+    position:relative;
+}
+
+.expanded-left {
+    background:transparent url(../image/tray_left_button.png) no-repeat scroll;
+    height:24px;
+    width:16px;
+}
+.expanded-right {
+    background:transparent url(../image/tray_right_button.png) no-repeat scroll;
+    height:24px;
+    width:16px;
+}
+.collapsed-left {
+    background:transparent url(../image/tray_left_expand_button.png) no-repeat scroll;
+    height:24px;
+    width:16px;
+}
+.collapsed-right {
+    background:transparent url(../image/tray_right_expand_button.png) no-repeat scroll;
+    height:24px;
+    width:16px;
+}

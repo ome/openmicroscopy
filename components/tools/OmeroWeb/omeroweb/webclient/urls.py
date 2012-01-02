@@ -33,7 +33,7 @@ urlpatterns = patterns('django.views.generic.simple',
     
     url( r'^$', views.index, name="webindex" ),
     # render main template
-    url( r'^(?P<menu>((?i)userdata|public|history|search|importer|help|usertags))/$', views.load_template, name="load_template" ),
+    url( r'^(?P<menu>((?i)userdata|public|history|search|help|usertags))/$', views.load_template, name="load_template" ),
 
     url( r'^context/$', views.index_context, name="index_context" ),
     url( r'^last_imports/$', views.index_last_imports, name="index_last_imports" ),
@@ -43,9 +43,6 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^login/$', views.login, name="weblogin" ),
     url( r'^logout/$', views.logout, name="weblogout" ),
     url( r'^active_group/$', views.change_active_group, name="change_active_group" ),
-    
-    url ( r'^myaccount/(?:(?P<action>((?i)save))/)?$', views.manage_myaccount, name="myaccount"),
-    url ( r'^upload_myphoto/(?:(?P<action>((?i)upload|crop|editphoto))/)?$', views.upload_myphoto, name="upload_myphoto"),
     
     # load basket
     url( r'^basket/empty/$', views.empty_basket, name="empty_basket"),
@@ -61,7 +58,7 @@ urlpatterns = patterns('django.views.generic.simple',
     
     # load history
     url( r'^load_calendar/(?:(\d{4})/(\d{1,2})/)?$', views.load_calendar, name="load_calendar"),
-    url( r'^load_history/(\d{4})/(\d{1,2})/(\d{1,2})/$', views.load_history, name="load_history"),
+    url( r'^load_history/(?:(\d{4})/(\d{1,2})/(\d{1,2})/)?$', views.load_history, name="load_history"),
     
     # load search
     url( r'^load_searching/(?:(?P<form>((?i)form))/)?$', views.load_searching, name="load_searching"),
@@ -70,7 +67,7 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^load_public/(?:(?P<share_id>[0-9]+)/)?$', views.load_public, name="load_public"),
     
     # metadata
-    url( r'^metadata_details/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_details, name="load_metadata_details" ),
+    url( r'^metadata_details/(?:(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/)?(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_details, name="load_metadata_details" ),
     url( r'^metadata_acquisition/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_acquisition, name="load_metadata_acquisition" ),
     url( r'^metadata_preview/(?P<imageId>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_preview, name="load_metadata_preview" ),
     url( r'^metadata_hierarchy/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_hierarchy, name="load_metadata_hierarchy" ),
@@ -113,15 +110,9 @@ urlpatterns = patterns('django.views.generic.simple',
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_col_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)/(?:(?P<w>[^/]+)/)?$', views.render_col_plot, name="web_render_col_plot"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', views.render_split_channel, name="web_render_split_channel"),
     
-    #url( r'^clipboard/$', views.update_clipboard, name="update_clipboard"),
-        
-    #url( r'^import/$', views.importer, name="importer"),
-    
     url( r'^help_search/$', 'direct_to_template', {'template': 'webclient/help/help_search.html'}, name="help_search" ),
     
-    url( r'^myphoto/$', views.myphoto, name="myphoto"),
-    url( r'^change_password/$', views.change_password, name="change_password"),
-    url( r'^userphoto/(?P<oid>[0-9]+)/$', views.load_photo, name="load_photo"),
+    url( r'^avatar/(?P<oid>[0-9]+)/$', views.avatar, name="avatar"),
     
     url( r'^spellchecker/$', views.spellchecker, name="spellchecker"), 
     

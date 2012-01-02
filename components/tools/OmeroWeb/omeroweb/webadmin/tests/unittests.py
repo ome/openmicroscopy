@@ -32,12 +32,68 @@ from webadmin import views as webadmin_views
 from webadmin.webadmin_utils import toBoolean
 from webadmin.forms import LoginForm, GroupForm, ExperimenterForm, \
                 ContainedExperimentersForm, ChangePassword
-                   
+
 from webadmin.controller.experimenter import BaseExperimenter
 from webadmin.controller.group import BaseGroup
 from webadmin_test_library import WebTest, WebAdminClientTest
 
+from webadmin.custom_models import Server
+
 from django.core.urlresolvers import reverse
+
+# Test model
+class ServerModelTest (unittest.TestCase):
+    
+    def setUp(self):
+        Server.reset()
+    
+    def test_constructor(self):
+        # Create object with alias
+        Server(host=u'example.com', port=4064, server=u'ome')
+        
+        # Create object without alias
+        Server(host=u'example2.com', port=4065)
+        
+        # without any params
+        try:
+            Server()
+        except Exception, x:
+            pass
+        else:
+            self.fail('Error:Parameters required')
+    
+    def test_get_and_find(self):
+        SERVER_LIST = [[u'example1.com', 4064, u'omero1'], [u'example2.com', 4064, u'omero2'], [u'example3.com', 4064], [u'example4.com', 4064]]
+        for s in SERVER_LIST:
+            server = (len(s) > 2) and s[2] or None
+            Server(host=s[0], port=s[1], server=server)
+        
+        s1 = Server.get(1)
+        self.assertEquals(s1.host, u'example1.com')
+        self.assertEquals(s1.port, 4064)
+        self.assertEquals(s1.server, u'omero1')
+        
+        s2 = Server.find('example2.com')
+        self.assertEquals(s2.host, u'example2.com')
+        self.assertEquals(s2.port, 4064)
+        self.assertEquals(s2.server, u'omero2')
+    
+    def test_load_server_list(self):
+        SERVER_LIST = [[u'example1.com', 4064, u'omero1'], [u'example2.com', 4064, u'omero2'], [u'example3.com', 4064], [u'example4.com', 4064]]
+        for s in SERVER_LIST:
+            server = (len(s) > 2) and s[2] or None
+            Server(host=s[0], port=s[1], server=server)
+        Server.freeze()
+        
+        try:
+            Server(host=u'example5.com', port=4064)
+        except Exception, x:
+            pass
+        else:
+            self.fail('Error:No more instances allowed')
+
+        Server(host=u'example1.com', port=4064)
+
 
 # Testing client, URLs
 class WebAdminUrlTest(WebAdminClientTest):
@@ -217,7 +273,7 @@ class WebAdminTest(WebTest):
         }        
         request = fakeRequest(method="post", path="/webadmin/login", params=params)
         
-        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
+        blitz = Server.get(pk=request.REQUEST.get('server')) 
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
@@ -244,7 +300,7 @@ class WebAdminTest(WebTest):
         form = LoginForm(data=request.REQUEST.copy())        
         if form.is_valid():
             
-            blitz = settings.SERVER_LIST.get(pk=form.cleaned_data['server']) 
+            blitz = Server.get(pk=form.cleaned_data['server']) 
             request.session['server'] = blitz.id
             request.session['host'] = blitz.host
             request.session['port'] = blitz.port
@@ -273,7 +329,7 @@ class WebAdminTest(WebTest):
         
         form = LoginForm(data=request.REQUEST.copy())        
         if form.is_valid():
-            blitz = settings.SERVER_LIST.get(pk=form.cleaned_data['server']) 
+            blitz = Server.get(pk=form.cleaned_data['server']) 
             request.session['server'] = blitz.id
             request.session['host'] = blitz.host
             request.session['port'] = blitz.port

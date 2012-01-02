@@ -104,7 +104,7 @@ class WebAdminTestBase (SeleniumTestBase):
         self.selenium.wait_for_page_to_load("30000")
         self.waitForElementPresence("//input[@value='Connect']")
         
-        
+
 class AdminTests (WebAdminTestBase):
 
     def setUp(self):
@@ -116,7 +116,9 @@ class AdminTests (WebAdminTestBase):
             omero_host = c.ic.getProperties().getProperty('omero.host')
         finally:
             c.__del__()
-        server_id = settings.SERVER_LIST.find(server_host=omero_host).id
+        
+        from omeroweb.webadmin.custom_models import Server
+        server_id = Server.find(server_host=omero_host).id
         self.login('root', root_password, server_id)
 
 

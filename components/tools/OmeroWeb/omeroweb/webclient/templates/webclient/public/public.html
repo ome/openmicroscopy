@@ -1,8 +1,6 @@
 {% extends "webclient/base/base_container.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
+
 
 {% comment %}
 <!--
@@ -24,26 +22,16 @@
 -->
 {% endcomment %}
 
-{% block jscript %}
-
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.cookie.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.hotkeys.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.jstree.js" %}"></script>
-
-{% endblock %}
-
 {% block script %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.cookie.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.hotkeys.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.js" %}"></script>
 
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
     <script type="text/javascript">
         $(function() 
             {
-                var h = $(window).height()-200;
-                $("div#tree_details").css('height', h);
-                $("div#metadata_details").css('height', h+31);
-                $("div#metadata_details iframe").attr('height', h+31);
-                $("div#content_details").css('height', h+31);
-                
                 var buttonsShowHide = function(selected) { 
                     var toolbar_config = new Object();
                     if(selected.length > 0) {
@@ -107,7 +95,7 @@
                                 "experimenter" : {
                                     "valid_children" : [ "share", "share-locked", "discussion", "discussion-locked" ],
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/personal16.png" %}'
+                                        "image" : '{% static "webclient/image/personal16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -117,7 +105,7 @@
                                 "share" : {
                                     "valid_children" : [ "image", "image-locked" ],
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/folder_html16.png" %}'
+                                        "image" : '{% static "webclient/image/folder_html16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -127,7 +115,7 @@
                                 "share-locked" : {
                                     "valid_children" : [ "image", "image-locked" ],
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/folder_html_locked16.png" %}'
+                                        "image" : '{% static "webclient/image/folder_html_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -137,7 +125,7 @@
                                 "share-disabled" : {
                                     "valid_children" : [ "image", "image-locked" ],
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/folder_html_locked16.png" %}'
+                                        "image" : '{% static "webclient/image/folder_html_locked16.png" %}'
                                     },
                                     "select_node" : false,
                                     "create_node" : false,
@@ -148,7 +136,7 @@
                                 "discussion" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/wp_protocol16.png" %}'
+                                        "image" : '{% static "webclient/image/wp_protocol16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -158,7 +146,7 @@
                                 "discussion-locked" : {
                                     "valid_children" :  "none",
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/wp_protocol_locked16.png" %}'
+                                        "image" : '{% static "webclient/image/wp_protocol_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -168,7 +156,7 @@
                                 "image" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/image16.png" %}'
+                                        "image" : '{% static "webclient/image/image16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -178,7 +166,7 @@
                                 "image-locked" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/image_locked16.png" %}'
+                                        "image" : '{% static "webclient/image/image_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -219,7 +207,7 @@
                 })
                 .bind("select_node.jstree", function (e, data) {
                     buttonsShowHide(data.rslt.obj);
-                    loadOtherPanels(data.inst, '{% url load_public %}');
+                    loadOtherPanels(data.inst, '{% url webindex %}');
                     syncPanels(data.inst.get_selected());
                 })
                 .bind("remove.jstree", function (e, data) {
@@ -261,6 +249,14 @@
                     makeDiscussion();
                     break;
                 case "removecontentButton":
+                    var confirm_remove = confirm_dialog('Remove Image?',
+                        function() {
+                            if(confirm_remove.data("clicked_button") == "OK") {
+                                var jstree = $.jstree._focused();
+                                $("#datashareTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
+                            }
+                        }
+                    );
                     if (confirm("Remove image?")) {
                         var jstree = $.jstree._focused();
                         $("#datashareTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
@@ -282,14 +278,11 @@
 
     <div class="toolbar">
         <div id="buttons" class="align_left">
-            <input id="refreshButton" class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
-            <input id="adddiscussionButton" class="button button-disabled" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="Create discussion" title="Create discussion" /> 
-            <input id="removecontentButton" class="button button-disabled" type="image" src="{% url webstatic "images/cancel16.png" %}" alt="Remove content" title="Remove content" /> 
+            <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
+            <input id="adddiscussionButton" class="button button-disabled" type="image" src="{% static "webclient/image/wp_protocol16.png" %}" alt="Create discussion" title="Create discussion" /> 
+            <input id="removecontentButton" class="button button-disabled" type="image" src="{% static "webclient/image/cancel16.png" %}" alt="Remove content" title="Remove content" /> 
         </div>
     </div>
-    
-</div>
-<div class="clear"> </div>
 
 <div id="tree_details">
     <div class="datashareTree" id="datashareTree"></div>

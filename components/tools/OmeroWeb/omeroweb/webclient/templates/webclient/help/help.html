@@ -1,7 +1,5 @@
 {% extends "webclient/base/base.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
 
 {% comment %}
 <!--
@@ -24,25 +22,23 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/help.css" %}" type="text/css" media="screen"/>
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/help.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block jscript %}
-    
-{% endblock %}
 
 {% block script %}
-    
+    {{ block.super }}
     <script type="text/javascript">
         $(document).ready(function() 
             {
                 var h = $(window).height()-200;
-                $("div#help_details").css('height', h+11);
                 $("div#help_search").html('<iframe width="370" height="'+(h+11)+'" src="{% url help_search %}" id="help_search" name="help_search"></iframe>');
                 $('iframe#help_search').load();
                 
                 $("#right_panel").show();
-                $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                $("#swapMeta").html('<img tabindex="0" src="{% static "common/image/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
                 
         })
     </script>
@@ -51,6 +47,7 @@
 
 {% block center %}
 
+<div id="content_details">
 <div id="help_details">
     
     <h1>{% trans "Help" %}</h1>
@@ -501,7 +498,7 @@
                 Use the calendar on the web client to browse your recent imports and other activity.
             </div>
             <div class="feature-link">
-                <a target="_blank" href="http://www.openmicroscopy.org.uk/site/products/feature-list/images/web_calendar.jpg/image_view_fullscreen">View screenshot</a>
+                <a target="_blank" href="http://www.openmicroscopy.org.uk/site/products/feature-list/image/web_calendar.jpg/image_view_fullscreen">View screenshot</a>
             </div>
         </div>
     </div>
@@ -658,7 +655,7 @@
     </div>
     
 </div>
-
+</div>
 {% endblock %}
 
 

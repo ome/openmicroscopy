@@ -1,8 +1,6 @@
 {% extends "webclient/base/base_container.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
+
 
 {% comment %}
 <!--
@@ -25,32 +23,22 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
-{% endblock %}
-
-{% block jscript %}
-
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
-    
-    
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webclient/css/container.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block script %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
 
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function() 
             {
-                var h = $(window).height()-200;
-                $("div#searching").css('height', h+11);
-                $("div#metadata_details").css('height', h+31);
-                $("div#metadata_details iframe").attr('height', h+31);
-                $("div#content_details").css('height', h+31);
-                
                 $('#dateperiodinput').datepicker({
                     changeMonth: true, 
                     changeYear: true,
@@ -58,7 +46,7 @@
                     dateFormat: 'yy-mm-dd', 
                 });
                 
-                $("#searching, #daterange").tooltip({ 
+                $(".searching_info, #daterange").tooltip({ 
                     track: true, 
                     delay: 0, 
                     showURL: false, 
@@ -97,7 +85,7 @@
                             url = this.value+"=on";
                         }
                     });
-                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "common/image/spinner.gif" %}"/></p>');
                     $("div#content_details").load('{% url load_searching "form" %}?'+url);
                     return false;
                 });
@@ -118,7 +106,7 @@
                         }
                     }
                     var data = $("#batch_searching_form").serialize();
-                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "common/image/spinner.gif" %}"/></p>');
                     $("div#content_details").load('{% url load_searching %}', data);
                     return false;
                 });
@@ -129,7 +117,7 @@
 
 {% block left %}
 
-<div id="searching">
+<div id="searching" class="padding">
     <div>
         <p>{% trans "Searching feature enables you to search within the images, datasets, projects, plates and screens stored on the server. It supports single and multiple character wildcard searches." %}</p>
     </div>
@@ -138,22 +126,49 @@
     <p>
     <form id="searching_form">
         <table>
-            <tr><th>{% trans "Search for" %} *:</th><td><input class="search" type="text" name="query" value="{{ manager.criteria.query }}" size="35"/>  <span id="searching" title="Searching - <small>Performs a single character wildcard search use the <b>'?'</b> symbol. The single character wildcard search looks for terms that match that with the single character replaced. To perform a multiple character wildcard search use the <b>'*'</b> symbol. <br/><br/>
-            For example, to search for <i>'text'</i> or <i>'test'</i> you can use the search: <b>'te?t'
-    </b>. Multiple character wildcard searches looks for 0 or more characters. For example, to search for <i>'test'</i>, <i>'tests'</i> or <i>'tester'</i>, you can use the search: <b>'test*'</b>. You can also use the wildcard searches in the middle or the beginning of a term.</small>"><img src="{% url webstatic "images/help16.png" %}" /></span></td></tr>
+            <tr>
+                <th>{% trans "Search for" %} *:</th>
+                <td>
+                    <input class="search" type="text" name="query" value="{{ manager.criteria.query }}" size="35"/>
+                    <span class="searching_info"
+                        title="Searching - <small>Performs a single character wildcard search use the <b>'?'</b> symbol.
+                            The single character wildcard search looks for terms that match that with the single character replaced.
+                            To perform a multiple character wildcard search use the <b>'*'</b> symbol. <br/><br/>
+                            For example, to search for <i>'text'</i> or <i>'test'</i> you can use the search: <b>'te?t'</b>.
+                            Multiple character wildcard searches looks for 0 or more characters.
+                            For example, to search for <i>'test'</i>, <i>'tests'</i> or <i>'tester'</i>, you can use the search: <b>'test*'</b>.
+                            You can also use the wildcard searches in the middle or the beginning of a term.</small>">
+                        <img src="{% static "common/image/help16.png" %}" />
+                    </span>
+                </td>
+            </tr>
             <!--<tr><th>by date:</th><td><input type="text" id="dateinput" name="date" value="" size="15"/></td></tr>-->
-            <tr><th>{% trans "Date" %}:</th><td><input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ manager.criteria.period }}" size="25"/> <span id="daterange" title="Date - <small>Enables you to specify the one particular date or range of the creation data. To select the range, separate them by '_'. If you want to change the date click on the field again and pick the date.</small>"><img src="{% url webstatic "images/help16.png" %}" /></span></td></tr>
-            <tr><th>{% trans "In" %} *:</th><td>
-                <ul class="criteria">
-                    <li><input type="checkbox" name="datatype" value="images" CHECKED />{% trans "Images" %}</li>
-                    <li><input type="checkbox" name="datatype" value="datasets" />{% trans "Datasets" %}</li>
-                    <li><input type="checkbox" name="datatype" value="projects" />{% trans "Projects" %}</li>
-                </ul>
-                <ul class="criteria">
-                    <li><input type="checkbox" name="datatype" value="plates" />{% trans "Plates" %}</li>
-                    <li><input type="checkbox" name="datatype" value="screens" />{% trans "Screens" %}</li>
-                </ul>
-            </td></tr>
+            <tr>
+                <th>{% trans "Date" %}:</th>
+                <td>
+                    <input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ manager.criteria.period }}" size="25"/>
+                    <span id="daterange"
+                        title="Date - <small>Enables you to specify the one particular date or range of the creation data. To select the range, separate them by '_'.
+                            If you want to change the date click on the field again and pick the date.</small>">
+                        <img src="{% static "common/image/help16.png" %}" />
+                    </span>
+                </td>
+            </tr>
+
+            <tr>
+                <th>{% trans "In" %} *:</th>
+                <td>
+                    <ul class="criteria">
+                        <li><input type="checkbox" name="datatype" value="images" CHECKED />{% trans "Images" %}</li>
+                        <li><input type="checkbox" name="datatype" value="datasets" />{% trans "Datasets" %}</li>
+                        <li><input type="checkbox" name="datatype" value="projects" />{% trans "Projects" %}</li>
+                    </ul>
+                    <ul class="criteria">
+                        <li><input type="checkbox" name="datatype" value="plates" />{% trans "Plates" %}</li>
+                        <li><input type="checkbox" name="datatype" value="screens" />{% trans "Screens" %}</li>
+                    </ul>
+                </td>
+            </tr>
         </table>
         <input id="search_button" type="button" value="Search" /> 
     </form>    
@@ -165,15 +180,33 @@
     <p>
     <form id="batch_searching_form">
         <table>
-            <tr><th>{% trans "Search for" %}</th>
-            <td><textarea name="batch_query" cols="30" rows="5" wrap="hard"></textarea><span id="searching" title="Batch search - <small>Each line of the textbox should consist of exactly 3 elements(/columns). The elements should contain the following information in order: plate name, row, column. The columns are separated by a delimiter which can be selected below the textbox.<br/><br/>
-    +</small><b>Example search:</b><small><pre>
-    +Foo    0    0
-    +Bar    2    3
-    +</pre> The above searches for images in two wells. The first well is located in row 0, column 0 (=well A01) of a plate with name Foo. The second well is located in row 2, column 3 (=well C04) of a plate with name Bar.</small>"><img src="{% url webstatic "images/help16.png" %}" /></span></td>
+            <tr>
+                <th>{% trans "Search for" %}</th>
+                <td>
+                    <textarea name="batch_query" cols="30" rows="5" wrap="hard"></textarea>
+                    <span class="searching_info"
+                        title="Batch search - <small>Each line of the textbox should consist of exactly 3 elements(/columns).
+                            The elements should contain the following information in order: plate name, row, column.
+                            The columns are separated by a delimiter which can be selected below the textbox.<br/><br/>
++</small><b>Example search:</b><small><pre>
++Foo    0    0
++Bar    2    3
++</pre> The above searches for images in two wells.
+                            The first well is located in row 0, column 0 (=well A01) of a plate with name Foo.
+                            The second well is located in row 2, column 3 (=well C04) of a plate with name Bar.</small>">
+                        <img src="{% static "common/image/help16.png" %}" />
+                    </span>
+                </td>
         </table>
         {% trans "Delimiter:" %}
-        <input type="radio" name="delimiter" value="," />{% trans "comma (,)"  %} <input type="radio" name="delimiter" value=";" />{% trans "semi-colon (;)" %} <input type="radio" name="delimiter" value="\t" checked="yes" />{% trans "horizontal tab" %} <input type="radio" name="delimiter" value="|" />{% trans "vertical bar (|)" %}
+        <input type="radio" name="delimiter" value="," />
+        {% trans "comma (,)"  %}
+        <input type="radio" name="delimiter" value=";" />
+        {% trans "semi-colon (;)" %}
+        <input type="radio" name="delimiter" value="\t" checked="yes" />
+        {% trans "horizontal tab" %}
+        <input type="radio" name="delimiter" value="|" />
+        {% trans "vertical bar (|)" %}
         <br/><input id="batch_search_button" type="button" value="Search"/>
     </form>
     </p>

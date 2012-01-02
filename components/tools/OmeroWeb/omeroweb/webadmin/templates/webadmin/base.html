@@ -1,8 +1,6 @@
+{% extends "common/base/base_main.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 {% comment %}
 <!--
@@ -24,53 +22,44 @@
 -->
 {% endcomment %}
 
-<html xmlns="http://www.w3.org/1999/xhtml">
 
-<head>
-    <link rel="stylesheet" href="{% url webstatic "css/layout-admin.css" %}" type="text/css" />
-    <link rel="shortcut icon" href="{% url webstatic "images/ome.ico" %}" type="image/x-icon" />
-    {% block css %}{% endblock %}
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webadmin/css/layout.css" %}" type="text/css" media="screen"/>
+{% endblock %}
+
+
+{% block nav_links %}
+    <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
+    <li><a href="{% url csend %}" title="Contact">{% trans "Contact" %}</a></li>
+    <li><a href="{% url wamyaccount "edit" %}"{% if info.myaccount %} class="menu" {% endif %}>{% trans "My Account" %}</a></li>
+    {% if eventContext.isAdmin %}
+    <li><a href="{% url wagroups %}"{% if info.groups %} class="menu" {% endif %}>{% trans "Groups" %}</a></li>
+    <li><a href="{% url waexperimenters %}"{% if info.experimenters %} class="menu" {% endif %}>{% trans "Scientists" %}</a></li>
+    {% endif %}
+    <li><a href="{% url wadrivespace %}"{% if info.drivespace %} class="menu" {% endif %}>{% trans "Drive Space" %}</a></li>
+    <li><a href="/webclient/">WEBCLIENT</a></li>
     
-    <title>{% trans "WebAdmin" %} - {% block title %}{% endblock %}</title>
+{% endblock %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/popup.js" %}"></script>
-    {% block jscript %}{% endblock %}
-        
-</head>
-<body>
-<div id="wrapper">
-<div id="header">
-    <div id="banner">
-        <div id="hello">
-            <h1>{% trans "Hello" %} {{ eventContext.userName }}! <a href="{% url walogout %}">{% trans "Logout" %}</a>
-            <br/>{{ info.today }}</h1>
-            <br/><br/>
-            <div> Version: <strong>OMERO {{ eventContext.version }}.</strong> Role: <strong>{% if eventContext.isAdmin %}admin{% else %}user{% endif %}</strong></div>
-        </div>
+
+{% block header_left %}
+    <strong>{% trans "Hello" %} {{ eventContext.userName }}!</strong> {% trans "Role" %}: <strong>{% if eventContext.isAdmin %}admin{% else %}user{% endif %}</strong> </strong>{% trans "Version" %}: <strong>OMERO {{ eventContext.version }}.</strong>
+{% endblock %}
+
+
+{% block header_right %}
+    {{ info.today }} {% include "webclient/base/logout.html" %}
+{% endblock %}
+
+{% block content %}
+    <div id="center_details" class="padding">
+        {% if info.message %}<div class="error">{{ info.message|safe|linebreaks }}</div>{% endif %}
+        {% block center_details %}{% endblock %}
+        <div id="metadata_details" class="overflow">{% block metadata_details %}{% endblock %}</div>
     </div>
-    <div class="nav">
-        <div id="navigation">
-            <ul>
-            <li><a href="/webclient/">{% trans "Web Client" %}</a></li>
-            <li><a href="{% url wadrivespace %}"{% if info.drivespace %} class="menu" {% endif %}>{% trans "Drive Space" %}</a></li>
-            {% if eventContext.isAdmin %}
-            <li><a href="{% url waexperimenters %}"{% if info.experimenters %} class="menu" {% endif %}>{% trans "Scientists" %}</a></li>
-            <li><a href="{% url wagroups %}"{% if info.groups %} class="menu" {% endif %}>{% trans "Groups" %}</a></li>
-            {% endif %}
-            <li><a href="{% url wamyaccount "edit" %}"{% if info.myaccount %} class="menu" {% endif %}>{% trans "My Account" %}</a></li>
-            </ul>
-        </div>
-    </div>
-</div>
+{% endblock %}
 
-<div id="center">
-    {% if info.error %}<ul class="errorlist"><li>{{ info.error|default_if_none:"" }}</li></ul>{% endif %}
-    {% block content %}{% endblock %}
-</div>
-
-<div id="footer"><p>&copy; 2007-2011 University of Dundee & Open Microscopy Environment</p></div>
-
-</div>
-</body>
-</html>
+{% block footer_content %}
+    <a href="/webclient/">WEBCLIENT</a> | <a href="{% url wadrivespace %}"{% if info.drivespace %} class="menu" {% endif %}>{% trans "Drive Space" %}</a> | {% if eventContext.isAdmin %} <a href="{% url waexperimenters %}"{% if info.experimenters %} class="menu" {% endif %}>{% trans "Scientists" %}</a> | <a href="{% url wagroups %}"{% if info.groups %} class="menu" {% endif %}>{% trans "Groups" %}</a> | {% endif %} <a href="{% url wamyaccount "edit" %}"{% if info.myaccount %} class="menu" {% endif %}>{% trans "My Account" %}</a> | <a href="{% url csend %}" title="Contact">{% trans "Contact" %}</a>
+{% endblock %}

@@ -148,7 +148,6 @@ class BaseContainer(BaseController):
         MIN_SIDE = settings.OPEN_ASTEX_MIN_SIDE     # default is 20
         MAX_VOXELS = settings.OPEN_ASTEX_MAX_VOXELS # default is 15625000 (250 * 250 * 250)
 
-        print "Max side, min side, max voxels", MAX_SIDE, MIN_SIDE, MAX_VOXELS
         if self.image is None:
             return False
         sizeZ = self.image.getSizeZ()

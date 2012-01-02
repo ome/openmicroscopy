@@ -1,7 +1,7 @@
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
+{% load common_filters %}
+{% load common_tags %}
+
 
 {% comment %}
 <!--
@@ -23,10 +23,8 @@
 -->
 {% endcomment %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/jquery.ui.selectable.js" %}"></script>
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function(){
@@ -63,7 +61,7 @@
                     rows.removeClass("ui-selected");
                     $clickedRow.addClass("ui-selected");
                     var obj = $clickedRow.attr('id').split("-");
-                    loadMetadataPanel('/webclient/metadata_details/'+obj[0]+'/'+obj[1]+'/');
+                    loadMetadataPanel('{% url load_metadata_details %}'+obj[0]+'/'+obj[1]+'/');
                     primaryIndex = selIndex;
                 }
             }
@@ -74,9 +72,9 @@
                 distance: 2,
                 stop: function(){  
                     var selected = $('tr.ui-selected', this);
-                    loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% url webstatic "images/knotes16.png" %}"/> Batch Annotate</a></p>');
+                    loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% static "common/image/knotes16.png" %}"/> Batch Annotate</a></p>');
                     $("#batchAnnotate").click(function() {
-                        multipleAnnotation(selected);
+                        multipleAnnotation(selected, null, '{% url webindex %}');
                         return false;
                     });
                 },
@@ -102,7 +100,7 @@
     <div>
         {% if controller.day_items_size %}
         
-        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
+        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "common/image/spinner.gif" %}"></span></form>
         
         <table id="dataTable" class="tablesorter">
             <thead> 
@@ -117,7 +115,7 @@
             {% for c in i.project %}
                 <tr id="project-{{ c.id }}">
                     <td class="action">
-                        <img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" alt="project" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "common/image/folder32.png" %}" alt="project" title="{{ c.name }}"/>
                         <input type="checkbox" name="project" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
@@ -127,7 +125,7 @@
             {% for c in i.screen %}
                 <tr id="screen-{{ c.id }}">
                     <td class="action">
-                        <img id="{{ c.id }}" src="{% url webstatic "images/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "common/image/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/>
                         <input type="checkbox" name="screen" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
@@ -137,7 +135,7 @@
             {% for c in i.dataset %}
                 <tr id="dataset-{{ c.id }}">
                     <td class="action">
-                        <img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" alt="dataset" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "common/image/folder_image32.png" %}" alt="dataset" title="{{ c.name }}"/>
                         <input type="checkbox" name="dataset" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
@@ -147,7 +145,7 @@
             {% for c in i.plate %}
                 <tr id="plate-{{ c.id }}">
                     <td class="action">
-                        <img id="{{ c.id }}" src="{% url webstatic "images/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "common/image/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/>
                         <input type="checkbox" name="plate" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
@@ -173,7 +171,7 @@
         {% endif %}
 
         {% if manager.c_size %}<div>
-            <p>{% trans "Legend" %}: <img src="{% url webstatic "images/folder16.png" %}" title="Project" alt="project"/> - {% trans "Project" %}; <img src="{% url webstatic "images/folder_image16.png" %}" title="Dataset" alt="dataset"/> - {% trans "Dataset" %}; <img src="{% url webstatic "images/folder_screen16.png" %}" title="Screen" alt="screen"/> - {% trans "Screen" %}; <img src="{% url webstatic "images/folder_plate16.png" %}" title="Plate" alt="plate"/> - {% trans "Plate" %};</p>
+            <p>{% trans "Legend" %}: <img src="{% static "webclient/image/folder16.png" %}" %}" title="Project" alt="project"/> - {% trans "Project" %}; <img src="{% static "webclient/image/folder_image16.png" %}" %}" title="Dataset" alt="dataset"/> - {% trans "Dataset" %}; <img src="{% static "webclient/image/folder_screen16.png" %}" %}" title="Screen" alt="screen"/> - {% trans "Screen; <img src="{% url webstatic "image/folder_plate16.png" title="Plate" alt="plate"/> - {% trans "Plate;</p>
         </div>{% endif %}
 
         {% include "webclient/history/history_paging.html" %}

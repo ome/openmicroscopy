@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{% extends "common/base/base_html.html" %}
+{% load i18n %}
 
-<html xmlns="http://www.w3.org/1999/xhtml">
 {% comment %}
 <!--
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
@@ -29,15 +28,71 @@
 -->
 {% endcomment %}
 
-<head>
+{% block title %}
+    Run {{ paramData.name }}
+{% endblock %}
 
-    <title>Run {{ paramData.name }}</title>
 
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
-       <script type="text/javascript" src="{% url webstatic "javascript/popup.js" %}"></script>
+{% block link %}
+    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
+    
+    <style type="text/css">
+        h3 {
+            margin: 0px;
+        }
+        div.param {
+            margin: 3px;
+            font-size: 85%;
+        }
+        div.parent {
+            border: 1px solid #aaa;
+            margin: 3px 0px;
+        }
+        div.parent > div:first-child {
+            background: #ddd;
+            border-bottom: 1px solid #ccc;
+            margin: 0px;
+            padding: 2px;
+        }
+        input {
+            padding: 0px;
+            margin: 0px;
+        }
+        body {
+            font-family: Arial;
+            background: #eee;
+            margin: 0px;
+            padding: 0px;
+        }
+        #script_desc {
+            font-size: 85%;
+            margin: 8px 0px;
+            background: #ddd;
+            border: 1px solid #aaa;
+        }
+        #script_desc p {
+            margin: 2px;
+        }
+        div.footer {
+            background: #ddd; 
+            position:fixed; 
+            bottom:0px; left:0px; right:0px;
+            padding: 7px;
+            border-top: 1px solid #aaa;
+            font-size: 80%;
+        }
+        a {
+            text-decoration: none;
+        }
 
-    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
+    </style>
+{% endblock %}
 
+
+{% block script %}
+    {{ block.super }}
+    {% include "common/base/includes/script_src_jquery.html" %}
+    {% include "common/base/includes/script_src_popup.html" %}
     <script type="text/javascript">
         jQuery.fn.runScript = function(actWindow) {
             var $form = $(this);
@@ -133,61 +188,10 @@
             });
         });
     </script>
+{% endblock %}
 
-    <style type="text/css">
-        h3 {
-            margin: 0px;
-        }
-        div.param {
-            margin: 3px;
-            font-size: 85%;
-        }
-        div.parent {
-            border: 1px solid #aaa;
-            margin: 3px 0px;
-        }
-        div.parent > div:first-child {
-            background: #ddd;
-            border-bottom: 1px solid #ccc;
-            margin: 0px;
-            padding: 2px;
-        }
-        input {
-            padding: 0px;
-            margin: 0px;
-        }
-        body {
-            font-family: Arial;
-            background: #eee;
-            margin: 0px;
-            padding: 0px;
-        }
-        #script_desc {
-            font-size: 85%;
-            margin: 8px 0px;
-            background: #ddd;
-            border: 1px solid #aaa;
-        }
-        #script_desc p {
-            margin: 2px;
-        }
-        div.footer {
-            background: #ddd; 
-            position:fixed; 
-            bottom:0px; left:0px; right:0px;
-            padding: 7px;
-            border-top: 1px solid #aaa;
-            font-size: 80%;
-        }
-        a {
-            text-decoration: none;
-        }
 
-    </style>
-</head>
-
-<body>
-
+{% block body %}
     <form id='script_form' method="post">
         <div style="padding:10px; margin-bottom:40px">
             <h3 id="scriptName">{{ paramData.name }}</h3>
@@ -222,6 +226,4 @@
             <a href="#" onClick="return openPopup('{% url get_original_file scriptId %}');">View Script</a>
         </div>
     </form>
-</body>
-
-</html>
+{% endblock %}

@@ -41,4 +41,4 @@ def index(request, **kwargs):
         url = "?".join([reverse(viewname="load_template", args=["userdata"]),"path="+request.REQUEST.get('path')])
         return HttpResponseRedirect(url)
     else:
-        return handlerInternalError("Path was not recognized. URL should follow the pattern: %s%s" % (settings.APPLICATION_HOST, reverse(viewname="webredirect")+("?path=server=1|project=1|dataset=2|image=3:selected")))
+        return handlerInternalError("Path was not recognized. URL should follow the pattern: %s%s" % (request.build_absolute_uri(reverse(viewname="webredirect")),("?path=server=1|project=1|dataset=2|image=3:selected")))

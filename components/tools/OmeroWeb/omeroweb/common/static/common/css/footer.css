@@ -1,0 +1,19 @@
+#footer {
+    background-color: #F3F3F3;
+    clear: both;
+    font-size: 11px;
+    height: 36px;
+    padding: 10px;
+    text-align: center;
+    border-top: 1px solid #BBBBBB;
+    min-width: 1010px;
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    margin:0px;
+    padding: 5px 0px;
+}
+
+#content {
+    bottom: 46px;
+}
