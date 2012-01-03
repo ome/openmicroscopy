@@ -318,13 +318,11 @@ java component.
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
         </zip>
         <!-- TODO: This should probably be made into another tools target tools-zip -->
-        <!-- FIXME
         <ant antfile="${OmeroImporter.comp}/build.xml" dir="${OmeroImporter.comp}" target="release-win-zip" inheritAll="false"/>
         <ant antfile="${OmeroImporter.comp}/build.xml" dir="${OmeroImporter.comp}" target="release-osx-zip" inheritAll="false"/>
 	<copy todir="target">
 	    <fileset dir="components/tools/OmeroImporter/target" includes="*.zip"/>
 	</copy>
-        -->
         <ant antfile="${OmeroImageJ.comp}/build.xml" dir="${OmeroImageJ.comp}" target="tools-dist" inheritAll="false"/>
 	<copy file="components/tools/OmeroM/target/OmeroMatlab.zip" tofile="target/OMERO.matlab-${omero.version}.zip"/>
 	<copy todir="target">
