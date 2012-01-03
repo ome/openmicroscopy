@@ -336,6 +336,18 @@ java component.
         </copy>
     </target>
 
+    <target name="release-clients">
+        <!-- This replaces the previous OMERO-trunk-clients build -->
+        <mkdir dir="target/pkg"/>
+        <delete includeemptydirs="true">
+            <fileset dir="target/pkg" includes="**/*"/>
+        </delete>
+        <apply executable="python" dir="${target.dir}/pkg" failonerror="true">
+           <env key="OMERO_VERSION" value="${omero.version}"/>
+           <fileset dir="${omero.home}/lib" includes="composite.py"/>
+       </apply>
+    </target>
+
     <target name="release-tar" description="Tar the dist directory into ${product-name}-${omero.version}.tar.bz2">
         <tar destfile="${product.name}-${omero.version}.tar.bz2" compress="bzip2">
             <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
