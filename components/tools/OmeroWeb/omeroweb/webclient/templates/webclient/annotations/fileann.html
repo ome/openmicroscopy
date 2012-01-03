@@ -43,7 +43,6 @@
         <b>Description:</b> {{ fileann.description|default_if_none:""|truncatewords:10  }}
     </span>
     {% if fileann.getFileSize %}({{ fileann.getFileSize|default_if_none:0|filesizeformat }}){% endif %}
-    isOwned: {{ fileann.link.isOwned }} fileann.isOriginalMetadata: {{ fileann.isOriginalMetadata }}
     {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}
         <img class='removeFile' id="{{ fileann.id }}-file" src="{% static "webclient/image/minus_11.png" %}" title="Unlink"/>
     {% endif %}

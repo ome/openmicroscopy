@@ -304,6 +304,7 @@
                 
                 $("#choose_local_document").click(function(event) {
                     $("#upload_file_form input[type=file]").click();
+                    return false;
                 });
                 $('#upload_file_form input[type=file]').bind('change focus', function() {
                     var value = $(this).val();
