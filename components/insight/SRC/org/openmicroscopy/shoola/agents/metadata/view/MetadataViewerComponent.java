@@ -281,7 +281,6 @@ class MetadataViewerComponent
 			throw new IllegalArgumentException("No node specified.");
 		Object userObject = node.getUserObject();
 		Object refObject = model.getRefObject();
-		System.err.println(userObject+" "+refObject+" "+userObject == refObject);
 		if (refObject == userObject) {
 			Browser browser = model.getBrowser();
 			if (result instanceof StructuredDataResults) {
