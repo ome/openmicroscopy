@@ -95,15 +95,18 @@ class HdfList(object):
         if not parent.exists():
             raise omero.ApiUsageException(None, None, "Parent directory does not exist: %s" % parent)
 
+        lock = None
         try:
             lock = open(hdfpath, "a+")
             portalocker.lock(lock, portalocker.LOCK_NB|portalocker.LOCK_EX)
             self.__locks[hdfpath] = lock
         except portalocker.LockException, le:
-            lock.close()
+            if lock:
+                lock.close()
             raise omero.LockTimeout(None, None, "Cannot acquire exclusive lock on: %s" % hdfpath, 0)
         except:
-            lock.close()
+            if lock:
+                lock.close()
             raise
 
         hdffile = hdfstorage.openfile("a")
