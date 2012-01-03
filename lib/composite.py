@@ -33,16 +33,13 @@ from zipfile import ZipFile
 
 NOW = time.ctime()
 
-BRANCH = os.environ["OMERO_BRANCH"]
-
 VERSION = os.environ["OMERO_VERSION"]
 
 print "="*40
 print " Version: %s" % VERSION
-print " Branch: %s" % BRANCH
 print "="*40
 
-TARGET_PREFIX = 'OMERO.clients-%s' % BRANCH
+TARGET_PREFIX = 'OMERO.clients-%s' % VERSION
 
 IMPORTER = 'OMERO.importer'
 
@@ -52,22 +49,6 @@ INSIGHT = 'OMERO.insight'
 # IGNORE = "bio-formats.jar jai_imageio.jar loci-common.jar mdbtools-java.jar ome-xml.jar poi-loci.jar".split()
 # IGNORE'ing them, however, causes Insight to not start.
 IGNORE = []
-
-if "BUILD_NUMBER" in os.environ:
-    TARGET_PREFIX = '%s-b%s' % (TARGET_PREFIX, os.environ["BUILD_NUMBER"])
-
-def version():
-        omero_properties = os.path.join(os.path.dirname(os.path.dirname(__file__)), "etc", "omero.properties")
-        f = open(omero_properties, "r")
-        try:
-                for line in f:
-                        if line.startswith("omero.version"):
-                                return line.replace("omero.version=", "")
-        finally:
-                f.close()
-        return "Unknown"
-
-VERSION = version()
 
 def find(pattern):
     """Grabs platform specific distribution targets from target"""
@@ -167,8 +148,8 @@ compress('%s.zip' % target, target)
 # Create the composite Linux client build
 #
 target_artifacts = list()
-target_artifacts += find("%s-%s.zip" % (INSIGHT, BRANCH))
-target_artifacts += find("%s-%s.zip" % (INSIGHT, BRANCH))
+target_artifacts += find("%s-%s.zip" % (INSIGHT, VERSION))
+target_artifacts += find("%s-%s.zip" % (INSIGHT, VERSION))
 target = '%s.linux' % TARGET_PREFIX
 # Since Insight relies on its MANIFEST to start via the JAR, we're leaving
 # libs/OmeroImporter-Beta-4.1.0-DEV.jar in the ZIP.
