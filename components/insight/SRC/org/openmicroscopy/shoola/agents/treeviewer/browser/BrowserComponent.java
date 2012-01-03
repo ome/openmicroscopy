@@ -1523,6 +1523,23 @@ class BrowserComponent
 			if (multiSelection) model.addFoundNode(foundNode);
 			else model.setSelectedDisplay(foundNode, true);
 			view.setFoundNode(model.getSelectedDisplays());
+		} else if (selected instanceof List) {
+			NodeSelectionVisitor visitor = new NodeSelectionVisitor(parent, 
+					(List<DataObject>) selected);
+			accept(visitor);
+			List<TreeImageDisplay> nodes = visitor.getSelectedNodes();
+			if (nodes.size() == 0) {
+				view.setFoundNode(null);
+			} else if (nodes.size() == 1) {
+				model.setSelectedDisplay(nodes.get(0), true);
+				view.setFoundNode(model.getSelectedDisplays());
+			} else {
+				model.setSelectedDisplay(null, true);
+				Iterator<TreeImageDisplay> i = nodes.iterator();
+				while (i.hasNext())
+					model.addFoundNode(i.next());
+				view.setFoundNode(model.getSelectedDisplays());
+			}
 		}
 	}
 	

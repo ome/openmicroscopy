@@ -1023,4 +1023,11 @@ public interface TreeViewer
 	 */
 	void createDataObjectWithChildren(DataObject data);
 	
+	/**
+	 * Sets the selected nodes, the nodes selected from middle panel.
+	 * 
+	 * @param nodes The value to set.
+	 */
+	void setSelectedNodes(Object nodes);
+
 }

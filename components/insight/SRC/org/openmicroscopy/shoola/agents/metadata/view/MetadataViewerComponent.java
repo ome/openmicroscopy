@@ -281,6 +281,7 @@ class MetadataViewerComponent
 			throw new IllegalArgumentException("No node specified.");
 		Object userObject = node.getUserObject();
 		Object refObject = model.getRefObject();
+		System.err.println(userObject+" "+refObject+" "+userObject == refObject);
 		if (refObject == userObject) {
 			Browser browser = model.getBrowser();
 			if (result instanceof StructuredDataResults) {
@@ -604,10 +605,7 @@ class MetadataViewerComponent
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#isSingleMode()
 	 */
-	public boolean isSingleMode()
-	{
-		return model.isSingleMode();
-	}
+	public boolean isSingleMode() { return model.isSingleMode(); }
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
@@ -615,6 +613,8 @@ class MetadataViewerComponent
 	 */
 	public void setRelatedNodes(List nodes)
 	{
+		if (nodes == null || nodes.size() == 0) return;
+		//model.setSelectionMode(false);
 		setRootObject(model.getRefObject(), model.getUserID());
 		model.setRelatedNodes(nodes);
 	}

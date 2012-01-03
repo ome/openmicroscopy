@@ -886,15 +886,16 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setSelectedNodes(Object)
 	 */
-	public void setSelectedNodes(Object object)
+	public void setSelectedNodes(Object nodes)
 	{
-		if (object == null) return;
-		if (!(object instanceof List)) return;
-		List l = (List) object;
+		if (nodes == null) return;
+		if (!(nodes instanceof List)) return;
+		List l = (List) nodes;
 		int n = l.size();
 		List selection = (List) l.get(0);
 		Object parent = null;
 		if (n == 1) parent = l.get(1);
+		if (selection == null || selection.size() == 0) return;
 		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
 			MessageBox dialog = new MessageBox(view, "Save data", 
@@ -903,7 +904,68 @@ class TreeViewerComponent
 			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
 			else mv.clearDataToSave();
 		}
+		Object selected = selection.get(0);
+		if (view.getDisplayMode() != SEARCH_MODE) {
+			Browser browser = model.getSelectedBrowser();
+			browser.onSelectedNode(parent, selection, selection.size() > 0);
+		}
+		int size = selection.size();
+		if (size == 1) {
+			Browser browser = model.getSelectedBrowser();
+			ExperimenterData exp = null;
+			TreeImageDisplay last = null;
+			if (browser != null) last = browser.getLastSelectedDisplay();
+			if (last != null) exp = browser.getNodeOwner(last);
+			if (exp == null) exp = model.getUserDetails();
+			mv.setRootObject(selected, exp.getId());
+			mv.setParentRootObject(parent, null);
+			if (model.getDataViewer() != null)
+				model.getDataViewer().setApplications(
+					TreeViewerFactory.getApplications(
+							model.getObjectMimeType(selected)));
+			if (!model.isFullScreen()) {
+				//Browser browser = model.getSelectedBrowser();
+				browse(browser.getLastSelectedDisplay(), null, false);
+			}
+			//Notifies actions.
+			firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false), 
+					Boolean.valueOf(true));
+			return;
+		}
+		List result = new ArrayList();
+		result.add(selection.subList(1, size-1));
+		result.add(selected);
+		result.add(parent);
+		setSelectedNode(result);
+		/*
+		int size = selection.size();
 		
+		Browser browser = model.getSelectedBrowser();
+		ExperimenterData exp = null;
+		TreeImageDisplay last = null;
+		if (browser != null) last = browser.getLastSelectedDisplay();
+		if (last != null) exp = browser.getNodeOwner(last);
+		if (exp == null) exp = model.getUserDetails();
+		mv.setRootObject(selected, exp.getId());
+		mv.setParentRootObject(parent, null);
+		
+		if (size > 1) {
+			//mv.setSelectionMode(false);
+			mv.setRelatedNodes(selection.subList(1, size-1));
+		}
+
+		if (model.getDataViewer() != null)
+			model.getDataViewer().setApplications(
+				TreeViewerFactory.getApplications(
+						model.getObjectMimeType(selected)));
+		if (!model.isFullScreen()) {
+			//Browser browser = model.getSelectedBrowser();
+			browse(browser.getLastSelectedDisplay(), null, false);
+		}
+		//Notifies actions.
+		firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
+				*/
 	}
 	
 	/**
@@ -957,8 +1019,6 @@ class TreeViewerComponent
 			Browser browser = model.getSelectedBrowser();
 			browser.onSelectedNode(parent, selected, size > 0);
 		}
-		size = siblings.size();
-		
 		mv.setSelectionMode(size == 0);
 		Browser browser = model.getSelectedBrowser();
 		ExperimenterData exp = null;
@@ -3564,5 +3624,5 @@ class TreeViewerComponent
 		}
 		
 	}
-	
+
 }

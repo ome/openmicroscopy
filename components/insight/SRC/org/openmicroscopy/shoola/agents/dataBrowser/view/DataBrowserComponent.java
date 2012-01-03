@@ -287,7 +287,8 @@ class DataBrowserComponent
 			if (parent != null)
 				objects.add(parent);
 		}
-		firePropertyChange(SELECTED_NODE_DISPLAY_PROPERTY, null, objects);
+		firePropertyChange(SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY, null, 
+				objects);
 	}
 	
 	/**

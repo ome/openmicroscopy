@@ -502,6 +502,7 @@ class BrowserControl
     	if (shiftDown) {
     		SelectionVisitor visitor = handleMultiSelection(false);
     		model.setSelectedDisplays(visitor.getSelected());
+    		shiftDown = false;
     		return;
     	}
     	leftMouseButton = SwingUtilities.isLeftMouseButton(me);
