@@ -197,7 +197,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="dist"
           depends="jar, jar-util, dist-osx-openGL, dist-osx, dist-win, 
-  	dist-win-openGL,dist-win64-openGL"
+  	dist-win-openGL,dist-win64-openGL,distEditor-win,distEditor-osx"
           description="Build and package the app for distribution."> 
 
     <!-- Main zip -->

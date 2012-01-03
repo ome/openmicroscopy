@@ -45,6 +45,8 @@ IMPORTER = 'OMERO.importer'
 
 INSIGHT = 'OMERO.insight'
 
+EDITOR = 'OMERO.editor'
+
 # The following libraries are duplicated in Insight and Importer:
 # IGNORE = "bio-formats.jar jai_imageio.jar loci-common.jar mdbtools-java.jar ome-xml.jar poi-loci.jar".split()
 # IGNORE'ing them, however, causes Insight to not start.
@@ -120,6 +122,7 @@ def compress(target, base):
 # Create the composite Windows client build
 #
 target_artifacts = list()
+target_artifacts += find(EDITOR + "*win.zip")
 target_artifacts += find(INSIGHT + "*win.zip")
 target_artifacts += find(IMPORTER + "*win.zip")
 target = '%s.win' % TARGET_PREFIX
@@ -135,6 +138,7 @@ compress('%s.zip' % target, target)
 # Create the composite Mac OS X client build
 #
 target_artifacts = list()
+target_artifacts += find(EDITOR + "*mac.zip")
 target_artifacts += find(INSIGHT + "*mac.zip")
 target_artifacts += find(IMPORTER + "*mac.zip")
 target = '%s.mac' % TARGET_PREFIX
@@ -149,7 +153,7 @@ compress('%s.zip' % target, target)
 #
 target_artifacts = list()
 target_artifacts += find("%s-%s.zip" % (INSIGHT, VERSION))
-target_artifacts += find("%s-%s.zip" % (INSIGHT, VERSION))
+target_artifacts += find("%s-%s.zip" % (IMPORTER, VERSION))
 target = '%s.linux' % TARGET_PREFIX
 # Since Insight relies on its MANIFEST to start via the JAR, we're leaving
 # libs/OmeroImporter-Beta-4.1.0-DEV.jar in the ZIP.
