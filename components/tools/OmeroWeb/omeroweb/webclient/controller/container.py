@@ -658,7 +658,7 @@ class BaseContainer(BaseController):
         l_ia.setParent(selfobject._obj)
         l_ia.setChild(fa)
         link_obj = self.conn.getUpdateService().saveAndReturnObject(l_ia)
-        # need to retrieve Annotation with link loaded
+        # need to retrieve Annotation with link loaded - should only be 1 link to this annotation
         links = self.conn.getAnnotationLinks (otype, ann_ids=[link_obj.child.getId().getValue()])
         fa_link = links.next()  # get first item in generator
         fa = fa_link.getAnnotation()
@@ -793,7 +793,11 @@ class BaseContainer(BaseController):
                     self.conn.saveObject(l)
                 except:
                     failed+=1
-        return failed
+
+        # need to retrieve Annotations with links loaded
+        links = self.conn.getAnnotationLinks (otype, parent_ids=[selfobject.getId()], ann_ids=ids)
+        fas = [fa_link.getAnnotation() for fa_link in links]
+        return fas
     
     def createAnnotationsLinks(self, atype, tids, oids):
         #TODO: check if link already exist !!!

@@ -1569,11 +1569,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         form_tags = TagListForm(initial={'tags':manager.getTagsByObject()})
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'form_tags':form_tags, 'index':index}
     elif action == 'newfile':
-        # form for attaching new file (upload) or existing one.
+        # form for attaching existing file Annotation (used via AJAX to load into dialog).
         template = "webclient/annotations/annotation_new_form.html"
-        form_file = UploadFileForm()
         form_files = FileListForm(initial={'files':manager.getFilesByObject()})
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'form_files':form_files, 'index':index}
+        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files, 'index':index}
     elif action == 'newsharecomment':
         # TODO: not used now?
         template = "webclient/annotations/annotation_new_form.html"
@@ -1933,8 +1932,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         form_files = FileListForm(data=request.REQUEST.copy(), initial={'files':file_list})
         if form_files.is_valid() and o_type is not None and o_id > 0:
             files = request.POST.getlist('files')
-            manager.createAnnotationLinks(o_type, 'file', files)    
-            return HttpResponseRedirect(url)
+            fileanns = manager.createAnnotationLinks(o_type, 'file', files)
+            template = "webclient/annotations/fileanns.html"
+            context = {'fileanns': fileanns}
         else:
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files, 'index':index}

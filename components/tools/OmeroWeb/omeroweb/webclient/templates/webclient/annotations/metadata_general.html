@@ -301,11 +301,14 @@
                 $(".dropdown_menu_options").hover(function(){}, function(){
                     $(this).css('visibility', 'hidden');
                 }).hide();
-                
+
+
+                // Choose to upload a local file...
                 $("#choose_local_document").click(function(event) {
-                    $("#upload_file_form input[type=file]").click();
+                    $("#upload_file_form input[type=file]").click();    // 'click' the hidden file field to launch file chooser
                     return false;
                 });
+                // handle the file chooser closing: submit the form if we have a value
                 $('#upload_file_form input[type=file]').bind('change focus', function() {
                     var value = $(this).val();
                     var $form = $("#upload_file_form");
@@ -314,7 +317,7 @@
                     }
                     return false;
                 });
-                
+                // set-up the form to use AJAX. (requires jquery.form.js plugin)
                 $('#upload_file_form').ajaxForm({
                     success: function(data) {
                         // update the list of file annotations and bind actions
@@ -324,6 +327,57 @@
                             deleteItem(event, "file_ann_wrapper");
                         });
                         $(".removeFile", $fileann).click(function(event) {
+                            removeItem(event, "file_ann_wrapper");
+                        });
+                    }
+                });
+
+
+                // prepare dialog for choosing file to attach...
+                $("#choose_attachments_form").dialog({
+                    autoOpen: false,
+                    resizable: true,
+                    height: 210,
+                    width:420,
+                    modal: true,
+                    buttons: {
+                        "Accept": function() {
+                            $("#choose_attachments_form").data("clicked_button", "Accept");
+                            $( this ).dialog( "close" );
+                        },
+                        "Cancel": function() {
+                            $("#choose_attachments_form").data("clicked_button", "Cancel");
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                // show dialog for choosing file to attach...
+                $("#choose_uploaded_document").click(function() {
+                    // show dialog first, then do the AJAX call to load files...
+                    var attach_form = $( "#choose_attachments_form" );
+                    attach_form.dialog( "open" );
+                    $.removeData(attach_form, "clicked_button");    // clear previous data
+                    attach_form.unbind("dialogclose");
+                    attach_form.bind("dialogclose", function(event, ui) {
+                        if (attach_form.data("clicked_button") == "Accept") {
+                            $("#choose_attachments_form form").submit();
+                        }
+                    });
+                    // load form via AJAX...
+                    var load_url = $(this).attr('href');
+                    $("form", attach_form).load(load_url + " #id_files");   // only load the files field
+                    return false;
+                });
+                // set-up the form to use AJAX. (requires jquery.form.js plugin)
+                $('#choose_attachments_form form').ajaxForm({
+                    success: function(data) {
+                        // update the list of file annotations and bind actions
+                        var $fileanns = $(data)
+                        $("#fileanns_container").prepend( $fileanns );
+                        $(".deleteFile", $fileanns).click(function(event) {
+                            deleteItem(event, "file_ann_wrapper");
+                        });
+                        $(".removeFile", $fileanns).click(function(event) {
                             removeItem(event, "file_ann_wrapper");
                         });
                     }
@@ -761,7 +815,11 @@
                         </span>
                         <ul class="dropdown_menu_options">
                             <li><a id="choose_local_document" href="#">Local document...</a></li>
-                            <li><a href="{% url manage_action_containers 'newfile' manager.obj_type manager.obj_id %}?url={{url}}">Uploaded document...</a></li>
+                            <li>
+                                <a id="choose_uploaded_document" href="{% url manage_action_containers 'newfile' manager.obj_type manager.obj_id %}?url={{url}}">
+                                    Uploaded document...
+                                </a>
+                            </li>
                         </ul>
                     </span>
                     {% endif %}
@@ -773,6 +831,15 @@
                         {{ field }}
                     {% endfor %}
                     </form>
+                    
+                    <!-- hidden form for choosing uploaded file in dialog - load form via AJAX when we show dialog -->
+                    <div id="choose_attachments_form" title="Select Attachments">
+                        <p>Select the Attachments to add</p>
+                        <form action="{% url manage_action_containers 'usefile' manager.obj_type manager.obj_id %}" method="post">
+                            Load form here...
+                        </form>
+                    </div>
+                    
                 </td>
                 <td>
                     <div id="fileanns_container" class="lnfiles">
