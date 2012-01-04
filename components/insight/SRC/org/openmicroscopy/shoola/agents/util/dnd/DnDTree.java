@@ -31,9 +31,11 @@ import java.awt.Cursor;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.SystemColor;
+import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
@@ -56,6 +58,7 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -64,8 +67,14 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.util.ui.IconManager;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Adds Drag and Drop facility to the tree.
@@ -113,6 +122,100 @@ public class DnDTree
 	private BufferedImage	imgGhost;
 	
 	/**
+	 * Flag indicating if the user currently logged in an administrator or not.
+	 */
+	private boolean administrator;
+	
+	/** The identifier of the user currently logged in.*/
+	private long userID;
+	
+	/** Cursor indicating that the drop action is not permitted.*/
+	private Image image;
+	
+	/** Flag indicating if the drop action is allowed or not.*/
+	private boolean dropAllowed;
+	
+	/** 
+	 * Sets the cursor depending on the selected node.
+	 * 
+	 * @param node The destination node.
+	 * @param transferable The object hosting the nodes to move.
+	 */
+	private void handleMouseOver(TreeImageDisplay node,
+			Transferable transferable)
+	{
+		Object ot = node.getUserObject();
+		if (ot instanceof GroupData && !administrator) {
+			setCursor(createCursor());
+			dropAllowed = false;
+			return;
+		}
+		if (!isUserOwner(ot)) {
+			dropAllowed = false;
+			setCursor(createCursor());
+			return;
+		}
+		//Now check that the src and target are compatible.
+		try {
+			Object droppedObject = transferable.getTransferData(localFlavor);
+			List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>();
+			if (droppedObject instanceof List) {
+				List l = (List) droppedObject;
+				Iterator i = l.iterator();
+				Object o;
+				while (i.hasNext()) {
+					o = i.next();
+					if (o instanceof TreeImageDisplay)
+						nodes.add((TreeImageDisplay) o);
+				}
+			} else if (droppedObject instanceof TreeImageDisplay) {
+				nodes.add((TreeImageDisplay) droppedObject);
+			}
+			if (nodes.size() == 0) return;
+			List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();
+			Iterator<TreeImageDisplay> i = nodes.iterator();
+			TreeImageDisplay n;
+			
+			Object os = null;
+			while (i.hasNext()) {
+				n = i.next();
+				os = n.getUserObject();
+				if (EditorUtil.isTransferable(ot, os)) {
+					if (ot instanceof GroupData) {
+						if (administrator) list.add(n);
+					} else {
+						if (isUserOwner(os)) list.add(n);
+					}
+				}
+			}
+			if (list.size() == 0) {
+				setCursor(createCursor());
+				dropAllowed = false;
+			}
+		} catch (Exception e) {
+			dropAllowed = false;
+		}
+	}
+	
+	/**
+	 * Returns <code>true</code> if the user currently logged in is the owner
+	 * of the object, <code>false</code> otherwise.
+	 * 
+	 * @param ho The object to handle.
+	 * @return See above.
+	 */
+	private boolean isUserOwner(Object ho)
+	{
+		if (ho instanceof TreeImageTimeSet) {
+			TreeImageDisplay n = EditorUtil.getDataOwner((TreeImageDisplay) ho);
+			if (n == null) return true;
+			ExperimenterData exp = (ExperimenterData) n.getUserObject();
+			return (exp.getId() == userID);
+		}
+		return EditorUtil.isUserOwner(ho, userID);
+	}
+	
+	/**
 	 * Returns the cursor corresponding to the dragged action.
 	 * 
 	 * @param action The action to handle.
@@ -127,6 +230,18 @@ public class DnDTree
 				default:
 				return DragSource.DefaultMoveDrop;
 		}
+	}
+	
+	/** 
+	 * Creates the cursor at the specified location.
+	 * 
+	 * @return See above.
+	 */
+	private Cursor createCursor()
+	{
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Cursor cursor = tk.createCustomCursor(image , new Point(0, 0), "img");
+		return cursor;
 	}
 	
 	/** 
@@ -193,10 +308,19 @@ public class DnDTree
 		g2.dispose();
 	}
 	
-	/** Creates a new instance.*/
-	public DnDTree()
+	/** 
+	 * Creates a new instance.
+	 * 
+	 * @param userID The identifier of the user currently logged in.
+	 * @param administrator Pass <code>true</code> to indicate that the user
+	 *                      currently logged in an administrator,
+	 *                      <code>false</code> otherwise.
+	 */
+	public DnDTree(long userID, boolean administrator)
 	{
 		super();
+		this.userID = userID;
+		this.administrator = administrator;
 		setDragEnabled(true);
 		dropTargetNode = null;
 		dragSource = new DragSource();
@@ -204,6 +328,9 @@ public class DnDTree
 		target.setDefaultActions(DnDConstants.ACTION_COPY_OR_MOVE);
 		dragSource.createDefaultDragGestureRecognizer(this,
 			DnDConstants.ACTION_MOVE, this);
+		//To be modified.
+		IconManager icons = IconManager.getInstance();
+		image = icons.getImageIcon(IconManager.NO_ENTRY).getImage();
 	}
 
     /** Resets.*/
@@ -236,6 +363,10 @@ public class DnDTree
 	 */
 	public void drop(DropTargetDropEvent dtde)
 	{
+		if (!dropAllowed) {
+			dtde.rejectDrop();
+			return;
+		}
 		Transferable transferable = dtde.getTransferable();
 		if (!transferable.isDataFlavorSupported(localFlavor)) {
 			dtde.rejectDrop();
@@ -360,15 +491,26 @@ public class DnDTree
 	}
 
 	/**
-	 * Implemented as specified by {@link DropTargetListener} I/F but
-	 * no-operation in our case.
+	 * Modifies the cursor if the elements can be dropped in the node mouse over.
 	 * {@link DragSourceListener#dragOver(DragSourceDragEvent)}
 	 */
 	public void dragOver(DragSourceDragEvent dsde)
 	{
-		dsde.getDragSourceContext().setCursor(getCursor(dsde.getDropAction()));
+		Point p = dsde.getLocation();
+		SwingUtilities.convertPointFromScreen(p, this);
+		TreePath path = getPathForLocation(p.x, p.y);
+		setCursor(getCursor(dsde.getDropAction()));
+		dropAllowed = true;
+		if (path != null) {
+			DefaultMutableTreeNode node =
+				(DefaultMutableTreeNode) path.getLastPathComponent();
+			Transferable trans = dsde.getDragSourceContext().getTransferable();
+			if (node instanceof TreeImageSet) {
+				handleMouseOver((TreeImageDisplay) node, trans);
+			}
+		}
 	}
-
+	
 	/**
 	 * Implemented as specified by {@link DragSourceListener} I/F but
 	 * no-operation in our case.

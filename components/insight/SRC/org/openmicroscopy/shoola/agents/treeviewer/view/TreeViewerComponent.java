@@ -184,38 +184,6 @@ class TreeViewerComponent
 	}
 	
 	/**
-	 * Returns <code>true</code> if the node can be transfered,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param target The target of the D&D action.
-	 * @param src    The node to transfer.
-	 * @return See above.
-	 */
-	private boolean isTransferable(Object target, Object src)
-	{
-		if (target instanceof ProjectData && src instanceof DatasetData)
-			return true;
-		else if (target instanceof DatasetData && src instanceof ImageData)
-			return true;
-		else if (target instanceof ScreenData && src instanceof PlateData)
-			return true;
-		else if (target instanceof GroupData && src instanceof ExperimenterData)
-			return true;
-		else if (target instanceof TagAnnotationData
-				&& src instanceof TagAnnotationData) {
-			TagAnnotationData tagSet = (TagAnnotationData) target;
-			TagAnnotationData tag = (TagAnnotationData) src;
-			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
-					tagSet.getNameSpace())) {
-				return !(TagAnnotationData.INSIGHT_TAGSET_NS.equals(
-						tag.getNameSpace()));
-			}
-			return false;
-		}
-		return false;
-	}
-	
-	/**
 	 * Downloads the files.
 	 * 
 	 * @param folder 	The folder to save the file into.
@@ -3645,7 +3613,7 @@ class TreeViewerComponent
 			if (target.contains(n)) {
 				childCount++;
 			} else {
-				if (isTransferable(ot, os)) {
+				if (EditorUtil.isTransferable(ot, os)) {
 					count++;
 					if (ot instanceof GroupData) {
 						if (TreeViewerAgent.isAdministrator())

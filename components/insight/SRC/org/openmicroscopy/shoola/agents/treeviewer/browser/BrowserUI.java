@@ -669,7 +669,8 @@ class BrowserUI
      */
     private void createTrees(ExperimenterData exp)
     {
-        treeDisplay = new DnDTree();
+        treeDisplay = new DnDTree(model.getUserID(),
+        		TreeViewerAgent.isAdministrator());
         treeDisplay.addPropertyChangeListener(this);
         treeDisplay.setVisible(true);
         treeDisplay.setRootVisible(false);
