@@ -333,42 +333,7 @@
                 });
 
 
-                // prepare dialog for choosing file to attach...
-                $("#choose_attachments_form").dialog({
-                    autoOpen: false,
-                    resizable: true,
-                    height: 210,
-                    width:420,
-                    modal: true,
-                    buttons: {
-                        "Accept": function() {
-                            $("#choose_attachments_form").data("clicked_button", "Accept");
-                            $( this ).dialog( "close" );
-                        },
-                        "Cancel": function() {
-                            $("#choose_attachments_form").data("clicked_button", "Cancel");
-                            $( this ).dialog( "close" );
-                        }
-                    }
-                });
-                // show dialog for choosing file to attach...
-                $("#choose_uploaded_document").click(function() {
-                    // show dialog first, then do the AJAX call to load files...
-                    var attach_form = $( "#choose_attachments_form" );
-                    attach_form.dialog( "open" );
-                    $.removeData(attach_form, "clicked_button");    // clear previous data
-                    attach_form.unbind("dialogclose");
-                    attach_form.bind("dialogclose", function(event, ui) {
-                        if (attach_form.data("clicked_button") == "Accept") {
-                            $("#choose_attachments_form form").submit();
-                        }
-                    });
-                    // load form via AJAX...
-                    var load_url = $(this).attr('href');
-                    $("form", attach_form).load(load_url + " #id_files");   // only load the files field
-                    return false;
-                });
-                // set-up the form to use AJAX. (requires jquery.form.js plugin)
+                // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
                 $('#choose_attachments_form form').ajaxForm({
                     success: function(data) {
                         // update the list of file annotations and bind actions
@@ -381,6 +346,35 @@
                             removeItem(event, "file_ann_wrapper");
                         });
                     }
+                });
+                // prepare dialog for choosing file to attach...
+                $("#choose_attachments_form").dialog({
+                    autoOpen: false,
+                    resizable: true,
+                    height: 210,
+                    width:420,
+                    modal: true,
+                    buttons: {
+                        "Accept": function() {
+                            // simply submit the form (AJAX handling set-up above)
+                            $("#choose_attachments_form form").submit();
+                            $( this ).dialog( "close" );
+                        },
+                        "Cancel": function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                // show dialog for choosing file to attach...
+                $("#choose_uploaded_document").click(function() {
+                    // show dialog first, then do the AJAX call to load files...
+                    var attach_form = $( "#choose_attachments_form" );
+                    attach_form.dialog( "open" );
+
+                    // load form via AJAX...
+                    var load_url = $(this).attr('href');
+                    $("form", attach_form).load(load_url + " #id_files");   // only load the files field
+                    return false;
                 });
 
             });
@@ -771,7 +765,7 @@
             <!-- TAGS -->               
             <tr>
                 <th>{% trans "Tag" %}:</th>
-                <td>
+                <td style="vertical-align: middle">
                     {% if manager.project.isEditable %}<a href="{% url manage_action_containers "newtag" "project" manager.project.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
                     {% if manager.dataset.isEditable %}<a href="{% url manage_action_containers "newtag" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
                     {% if manager.image.isEditable %}<a href="{% url manage_action_containers "newtag" "image" manager.image.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" height='11' width='11' alt="e" title="Create new tag or use an existing one."/></a>{% else %}
@@ -807,7 +801,7 @@
             <!-- FILES -->
             <tr>
                 <th>{% trans "Attach" %}:</th>
-                <td>
+                <td style="vertical-align: middle">
                     {% if manager.isEditable %}
                     <span class="dropdown_menu">
                         <span class="menu_launch">
