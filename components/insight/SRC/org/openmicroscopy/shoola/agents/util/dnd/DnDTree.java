@@ -130,7 +130,7 @@ public class DnDTree
 	private long userID;
 	
 	/** Cursor indicating that the drop action is not permitted.*/
-	private Image image;
+	private Cursor cursor;
 	
 	/** Flag indicating if the drop action is allowed or not.*/
 	private boolean dropAllowed;
@@ -233,14 +233,17 @@ public class DnDTree
 	}
 	
 	/** 
-	 * Creates the cursor at the specified location.
+	 * Creates or recycles the image cursor.
 	 * 
 	 * @return See above.
 	 */
 	private Cursor createCursor()
 	{
+		if (cursor != null) return cursor;
+		IconManager icons = IconManager.getInstance();
+		Image image = icons.getImageIcon(IconManager.NO_ENTRY).getImage();
 		Toolkit tk = Toolkit.getDefaultToolkit();
-		Cursor cursor = tk.createCustomCursor(image , new Point(0, 0), "img");
+		cursor = tk.createCustomCursor(image , new Point(0, 0), "img");
 		return cursor;
 	}
 	
@@ -328,9 +331,6 @@ public class DnDTree
 		target.setDefaultActions(DnDConstants.ACTION_COPY_OR_MOVE);
 		dragSource.createDefaultDragGestureRecognizer(this,
 			DnDConstants.ACTION_MOVE, this);
-		//To be modified.
-		IconManager icons = IconManager.getInstance();
-		image = icons.getImageIcon(IconManager.NO_ENTRY).getImage();
 	}
 
     /** Resets.*/
