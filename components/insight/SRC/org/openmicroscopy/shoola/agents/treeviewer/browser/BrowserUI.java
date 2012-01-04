@@ -2022,6 +2022,7 @@ class BrowserUI
 			int action = TreeViewer.CUT_AND_PASTE;
 			if (transfer.getDropAction() == DnDConstants.ACTION_COPY)
 				action = TreeViewer.COPY_AND_PASTE;
+			//check the node
 			model.transfer(transfer.getTarget(), transfer.getNodes(),
 					action);
 		}

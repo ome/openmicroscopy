@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.util.dnd;
 //Java imports
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
@@ -111,8 +112,22 @@ public class DnDTree
 	/** The image representing the dragged object.*/
 	private BufferedImage	imgGhost;
 	
-	/** The point, in the dragged image, the mouse clicked occurred.*/
-	//private Point			ptOffset;
+	/**
+	 * Returns the cursor corresponding to the dragged action.
+	 * 
+	 * @param action The action to handle.
+	 * @return See above.
+	 */
+	private Cursor getCursor(int action)
+	{
+		switch (action) {
+			case DnDConstants.ACTION_COPY:
+				return DragSource.DefaultCopyDrop;
+			case DnDConstants.ACTION_MOVE:
+				default:
+				return DragSource.DefaultMoveDrop;
+		}
+	}
 	
 	/** 
 	 * Creates a ghost image.
@@ -127,8 +142,8 @@ public class DnDTree
 		Rectangle rect = new Rectangle();
 		rect.x = Integer.MAX_VALUE;
 		rect.y = Integer.MIN_VALUE;
-		TreePath path;// = paths[0];
-		Rectangle r;// = getPathBounds(path);
+		TreePath path;
+		Rectangle r;
 		int[] values = new int[paths.length];
 		int y = 0;
 		for (int i = 0; i < paths.length; i++) {
@@ -155,17 +170,12 @@ public class DnDTree
 			label = (JLabel) getCellRenderer().getTreeCellRendererComponent(
 					this, path.getLastPathComponent(), false, isExpanded(path),
 					getModel().isLeaf(path.getLastPathComponent()), 0, false);
-			//label.setSize((int) r.getWidth(), (int) r.getHeight());
-			
-			//label.paint(g2);
 			icon = label.getIcon();
 			if (icon != null) {
 				icon.paintIcon(label, g2, 0, values[i]);
 			}
 			v = (icon == null) ? 0 : icon.getIconWidth();
 			v += label.getIconTextGap();
-			//label.setBounds(v, values[i], rect.width, r.height);
-			//label.paint(g2);]
 			g2.setColor(label.getForeground());
 			g2.setFont(label.getFont());
 			FontMetrics fm = g2.getFontMetrics();
@@ -181,32 +191,6 @@ public class DnDTree
 				SystemColor.controlShadow, getWidth(), 0, DEFAULT_COLOR));
 		g2.fillRect(offset, 0, getWidth(), imgGhost.getHeight());
 		g2.dispose();
-		/*
-		// Get the cell renderer (which is a JLabel) for the path being dragged
-		JLabel lbl = (JLabel) getCellRenderer().getTreeCellRendererComponent(
-		this, path.getLastPathComponent(), false, isExpanded(path),
-		getModel().isLeaf(path.getLastPathComponent()), 0, false);
-		
-		lbl.setSize((int) r.getWidth(), (int) r.getHeight()); 
-		// Get a buffered image of the selection for dragging a ghost image
-		imgGhost = new BufferedImage((int) r.getWidth(), (int) r.getHeight(), 
-				BufferedImage.TYPE_INT_ARGB_PRE);
-		Graphics2D g2 = imgGhost.createGraphics();
-
-		// Ask the cell renderer to paint itself into the BufferedImage
-		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, 0.5f));
-		lbl.paint(g2);
-
-		Icon icon = lbl.getIcon();
-		int nStartOfText = (icon == null) ? 0 : 
-			icon.getIconWidth()+lbl.getIconTextGap();
-		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OVER, 
-				0.5f));
-		g2.setPaint(new GradientPaint(nStartOfText, 0, 
-				SystemColor.controlShadow, getWidth(), 0, DEFAULT_COLOR));
-		g2.fillRect(nStartOfText, 0, getWidth(), imgGhost.getHeight());
-		g2.dispose();
-		*/
 	}
 	
 	/** Creates a new instance.*/
@@ -214,7 +198,6 @@ public class DnDTree
 	{
 		super();
 		setDragEnabled(true);
-		//ptOffset = new Point();
 		dropTargetNode = null;
 		dragSource = new DragSource();
 		DropTarget target = new DropTarget(this, this);
@@ -224,10 +207,7 @@ public class DnDTree
 	}
 
     /** Resets.*/
-    public void reset()
-    {
-    	dropTargetNode = null;
-    }
+    public void reset() { dropTargetNode = null; }
     
 	/**
 	 * Returns the drop target node.
@@ -235,62 +215,6 @@ public class DnDTree
 	 * @return See above.
 	 */
 	public TreeNode getDropTargetNode() { return dropTargetNode; }
-	
-	/**
-	 * Implemented as specified by {@link DragSourceListener} I/F but
-	 * no-operation in our case.
-	 * {@link DragSourceListener#dragDropEnd(DragSourceDragEvent)}
-	 */
-	public void dragDropEnd(DragSourceDropEvent dsde)
-	{
-		if (dsde.getDropSuccess() &&
-				dsde.getDropAction() == DnDConstants.ACTION_MOVE)
-		{
-			//pathSource = null;
-		}
-	}
-
-	/**
-	 * Implemented as specified by {@link DragSourceListener} I/F but
-	 * no-operation in our case.
-	 * {@link DragSourceListener#dragEnter(DragSourceDragEvent)}
-	 */
-	public void dragEnter(DragSourceDragEvent dsde) {}
-
-	/**
-	 * Implemented as specified by {@link DragSourceListener} I/F but
-	 * no-operation in our case.
-	 * {@link DragSourceListener#dragExit(DropTargetEvent)}
-	 */
-	public void dragExit(DragSourceEvent dse) {}
-
-	/**
-	 * Implemented as specified by {@link DropTargetListener} I/F but
-	 * no-operation in our case.
-	 * {@link DragSourceListener#dragOver(DragSourceDragEvent)}
-	 */
-	public void dragOver(DragSourceDragEvent dsde) {}
-
-	/**
-	 * Implemented as specified by {@link DragSourceListener} I/F but
-	 * no-operation in our case.
-	 * {@link DragSourceListener#dragOver(DragSourceDragEvent)}
-	 */
-	public void dropActionChanged(DragSourceDragEvent dsde) {}
-
-	/**
-	 * Implemented as specified by {@link DropTargetListener} I/F but
-	 * no-operation in our case.
-	 * {@link DropTargetListener#dragOver(DropTargetDragEvent)}
-	 */
-	public void dragEnter(DropTargetDragEvent dtde) {}
-
-	/**
-	 * Implemented as specified by {@link DropTargetListener} I/F but
-	 * no-operation in our case.
-	 * {@link DropTargetListener#dragExit(DropTargetDragEvent)}
-	 */
-	public void dragExit(DropTargetEvent dte) {}
 
 	/**
 	 * Sets the target node.
@@ -384,7 +308,10 @@ public class DnDTree
 		Transferable trans = new TransferableNode(nodes);
 		//dragSource.startDrag(e, getCursor(e.getDragAction()), trans, this);
 		try {
-			e.startDrag(null, imgGhost, new Point(5, 5), trans, this);
+			setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+			dragSource.startDrag(e, getCursor(e.getDragAction()), imgGhost,
+					new Point(5, 5),
+					trans, this);
 		} catch (Exception ex) {
 			//already an on-going dragging action.
 		}
@@ -396,4 +323,73 @@ public class DnDTree
 	 * {@link DropTargetListener#dragExit(DropTargetDragEvent)}
 	 */
 	public void dropActionChanged(DropTargetDragEvent dtde) {}
+	
+	
+	/**
+	 * Implemented as specified by {@link DragSourceListener} I/F but
+	 * no-operation in our case.
+	 * {@link DragSourceListener#dragDropEnd(DragSourceDragEvent)}
+	 */
+	public void dragDropEnd(DragSourceDropEvent dsde)
+	{
+		if (dsde.getDropSuccess() &&
+				dsde.getDropAction() == DnDConstants.ACTION_MOVE)
+		{
+			//pathSource = null;
+		}
+	}
+
+	/**
+	 * Implemented as specified by {@link DragSourceListener} I/F but
+	 * no-operation in our case.
+	 * {@link DragSourceListener#dragEnter(DragSourceDragEvent)}
+	 */
+	public void dragEnter(DragSourceDragEvent dsde)
+	{
+		dsde.getDragSourceContext().setCursor(getCursor(dsde.getDropAction()));
+	}
+
+	/**
+	 * Implemented as specified by {@link DragSourceListener} I/F but
+	 * no-operation in our case.
+	 * {@link DragSourceListener#dragExit(DropTargetEvent)}
+	 */
+	public void dragExit(DragSourceEvent dse)
+	{
+		dse.getDragSourceContext().setCursor(DragSource.DefaultMoveNoDrop);
+	}
+
+	/**
+	 * Implemented as specified by {@link DropTargetListener} I/F but
+	 * no-operation in our case.
+	 * {@link DragSourceListener#dragOver(DragSourceDragEvent)}
+	 */
+	public void dragOver(DragSourceDragEvent dsde)
+	{
+		dsde.getDragSourceContext().setCursor(getCursor(dsde.getDropAction()));
+	}
+
+	/**
+	 * Implemented as specified by {@link DragSourceListener} I/F but
+	 * no-operation in our case.
+	 * {@link DragSourceListener#dragOver(DragSourceDragEvent)}
+	 */
+	public void dropActionChanged(DragSourceDragEvent dsde)
+	{
+		dsde.getDragSourceContext().setCursor(getCursor(dsde.getDropAction()));
+	}
+
+	/**
+	 * Implemented as specified by {@link DropTargetListener} I/F but
+	 * no-operation in our case.
+	 * {@link DropTargetListener#dragOver(DropTargetDragEvent)}
+	 */
+	public void dragEnter(DropTargetDragEvent dtde) {}
+
+	/**
+	 * Implemented as specified by {@link DropTargetListener} I/F but
+	 * no-operation in our case.
+	 * {@link DropTargetListener#dragExit(DropTargetDragEvent)}
+	 */
+	public void dragExit(DropTargetEvent dte) {}
 }
