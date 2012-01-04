@@ -3603,15 +3603,18 @@ class TreeViewerComponent
 			int transferAction)
 	{
 		if (target == null || nodes == null || nodes.size() == 0) return;
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
 		Object ot = target.getUserObject();
 		Object os;
 		if (nodes.size() == 1) { //check if src = destination
 			TreeImageDisplay src = nodes.get(0);
-			if (src == target) return;
+			if (src == target) {
+				browser.rejectTransfer();
+				return;
+			}
 		}
 		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-		
-		Browser browser = model.getSelectedBrowser();
 		if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
 			if (!(ot instanceof GroupData) ||
 					!TreeViewerAgent.isAdministrator()) {
@@ -3635,18 +3638,27 @@ class TreeViewerComponent
 		String child;
 		String parent;
 		os = null;
+		int childCount = 0;
 		while (i.hasNext()) {
 			n = i.next();
 			os = n.getUserObject();
-			if (isTransferable(ot, os)) {
-				count++;
-				if (ot instanceof GroupData) {
-					if (TreeViewerAgent.isAdministrator())
-						list.add(n);
-				} else {
-					if (isUserOwner(os)) list.add(n);
+			if (target.contains(n)) {
+				childCount++;
+			} else {
+				if (isTransferable(ot, os)) {
+					count++;
+					if (ot instanceof GroupData) {
+						if (TreeViewerAgent.isAdministrator())
+							list.add(n);
+					} else {
+						if (isUserOwner(os)) list.add(n);
+					}
 				}
 			}
+		}
+		if (childCount == nodes.size()) {
+			browser.rejectTransfer();
+			return;
 		}
 		if (list.size() == 0) {
 			String s = "";
