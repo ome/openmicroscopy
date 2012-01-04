@@ -3603,8 +3603,14 @@ class TreeViewerComponent
 			int transferAction)
 	{
 		if (target == null || nodes == null || nodes.size() == 0) return;
-		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 		Object ot = target.getUserObject();
+		Object os;
+		if (nodes.size() == 1) { //check if src = destination
+			TreeImageDisplay src = nodes.get(0);
+			if (src == target) return;
+		}
+		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+		
 		Browser browser = model.getSelectedBrowser();
 		if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
 			if (!(ot instanceof GroupData) ||
@@ -3624,7 +3630,7 @@ class TreeViewerComponent
 		List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();
 		Iterator<TreeImageDisplay> i = nodes.iterator();
 		TreeImageDisplay n;
-		Object os;
+		
 		int count = 0;
 		String child;
 		String parent;
