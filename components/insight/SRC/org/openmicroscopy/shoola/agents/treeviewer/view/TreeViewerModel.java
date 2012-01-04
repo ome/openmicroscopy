@@ -230,7 +230,7 @@ class TreeViewerModel
 	/**
 	 * Builds the map linking the nodes to cut and the parents.
 	 * 
-	 * @param nodes The parents of the node to cut.
+	 * @param nodes The nodes to cut.
 	 * @return See above.
 	 */
 	private Map buildCutMap(TreeImageDisplay[] nodes)
@@ -1176,5 +1176,27 @@ class TreeViewerModel
 			loader.load();
 		}
 	}
+
+	/**
+	 * Transfers the nodes.
+	 * 
+	 * @param target The target.
+	 * @param nodes The nodes to transfer.
+	 */
+	void transfer(TreeImageDisplay target, List<TreeImageDisplay> nodes)
+	{
+		nodesToCopy = (TreeImageDisplay[]) nodes.toArray(
+				new TreeImageDisplay[0]);
+		copyIndex = TreeViewer.CUT_AND_PASTE;
+		Map toRemove = buildCutMap(nodesToCopy);
+		TreeImageDisplay[] parents = new TreeImageDisplay[1];
+		parents[0] = target;
+		Map map = buildCopyMap(parents);
+		currentLoader = new DataObjectUpdater(component, map, toRemove,
+				DataObjectUpdater.CUT_AND_PASTE);
+		currentLoader.load();
+		state = TreeViewer.SAVE;
+	}
+
 
 }

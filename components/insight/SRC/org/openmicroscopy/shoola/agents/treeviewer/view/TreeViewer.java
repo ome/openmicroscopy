@@ -1022,5 +1022,15 @@ public interface TreeViewer
 	 * @param data The object to create.
 	 */
 	void createDataObjectWithChildren(DataObject data);
+
+	/**
+	 * Transfers the nodes.
+	 * 
+	 * @param target The target.
+	 * @param nodes The nodes to transfer.
+	 * @param transferAction The transfer action.
+	 */
+	void transfer(TreeImageDisplay target, List<TreeImageDisplay> nodes, int
+			transferAction);
 	
 }
