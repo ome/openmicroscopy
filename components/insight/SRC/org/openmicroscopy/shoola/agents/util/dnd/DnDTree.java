@@ -53,7 +53,6 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -423,19 +422,20 @@ public class DnDTree
 				dtde.dropComplete(dropped);
 				return;
 			}
-			TreeImageDisplay parent;
+			TreeImageDisplay parent = null;
 			DefaultMutableTreeNode dropNode =
 				(DefaultMutableTreeNode) path.getLastPathComponent();
-			if (dropNode instanceof TreeImageDisplay) {
-				parent = (TreeImageDisplay) dropNode;
-				if (dropNode.isLeaf() && dropNode instanceof TreeImageNode) {
+			//if (dropNode instanceof TreeImageDisplay) {
+				if (dropNode instanceof TreeImageDisplay)
+					parent = (TreeImageDisplay) dropNode;
+				if (dropNode.isLeaf()) {
 					parent = (TreeImageDisplay) dropNode.getParent();
 				}
 				int action = DnDConstants.ACTION_MOVE;
 				ObjectToTransfer transfer = new ObjectToTransfer(parent, nodes, 
 						action);
 				firePropertyChange(DRAGGED_PROPERTY, null, transfer);
-			}
+			//}
 			dropped = true;
 		} catch (Exception e) {}
 		dtde.dropComplete(dropped);
