@@ -408,6 +408,17 @@ class ImporterComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#hasFailuresToSend()
+	 */
+	public boolean hasFailuresToReimport()
+	{
+		if (model.getState() == DISCARDED || model.getState() == IMPORTING)
+			return false;
+		return view.hasFailuresToReimport();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#setDiskSpace(DiskQuota)
 	 */
 	public void setDiskSpace(DiskQuota quota)
@@ -476,8 +487,19 @@ class ImporterComponent
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getSelectedPane();
 		if (element == null) return;
-		List<FileImportComponent> l = element.getMarkedFiles();
+		List<FileImportComponent> l = element.getFilesToReimport();
 		if (l == null || l.size() == 0) return;
+		Iterator<FileImportComponent> i = l.iterator();
+		FileImportComponent fc;
+		ImportableObject object = element.getData();
+		List<File> files = new ArrayList<File>();
+		while (i.hasNext()) {
+			fc = i.next();
+			fc.setReimported(true);
+			files.add(fc.getFile());
+		}
+		object.reImport(files);
+		importData(object);
 	}
 
 	/** 

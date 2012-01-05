@@ -743,30 +743,17 @@ class PropertiesUI
     private JPanel buildProperties()
     {
     	Object refObject = model.getRefObject();
-        boolean view = false;
         if (refObject instanceof ImageData) {
         	ImageData img = (ImageData) refObject;
         	try {
         		img.getDefaultPixels();
-        		view = true;
     		} catch (Exception e) {}
         } else if (refObject instanceof WellSampleData) {
         	ImageData img = ((WellSampleData) refObject).getImage();
         	if (img != null && img.getId() > 0) {
         		img.getDefaultPixels();
-        		view = true;
         	}
         }
-        JButton button = null;
-        if (view) {
-        	IconManager icons = IconManager.getInstance();
-        	button = new JButton(icons.getIcon(IconManager.VIEW));
-        	button.setToolTipText("Open the Image Viewer");
-        	button.setActionCommand(""+EditorControl.VIEW_IMAGE);
-        	button.addActionListener(controller);
-        	UIUtilities.unifiedButtonLookAndFeel(button);
-        }
-        
         JPanel p = new JPanel();
         p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -774,7 +761,7 @@ class PropertiesUI
         JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         int w = editName.getIcon().getIconWidth()+4;
-        p.add(layoutEditablefield(button, l));
+        p.add(layoutEditablefield(null, l));
         l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));

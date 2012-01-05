@@ -689,7 +689,6 @@ public class IconManager
         relPaths[ERROR_32] = "nuvola_no32.png";
         relPaths[UPLOAD_SCRIPT_48] = "nuvola_script_add48.png";
         relPaths[UPLOAD_SCRIPT] = "nuvola_script_add16.png";
-
     }
 	
 	/**

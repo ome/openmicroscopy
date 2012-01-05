@@ -227,6 +227,25 @@ public class ImportableObject
 	private Map<Long, List<DatasetData>> projectDatasetMap;
 
 	/**
+	 * Returns the object corresponding to the passed file.
+	 * 
+	 * @param f The file to handle.
+	 * @return See above.
+	 */
+	private ImportableFile getImportableFile(File f)
+	{
+		Iterator<ImportableFile> i = files.iterator();
+		String path = f.getAbsolutePath();
+		ImportableFile iFile;
+		while (i.hasNext()) {
+			iFile = i.next();
+			if (path.equals(iFile.getFile().getAbsolutePath()))
+				return iFile;
+		}
+		return null;
+	}
+
+	/**
 	 * Returns the name of the object.
 	 * 
 	 * @param object The object to handle.
@@ -655,6 +674,51 @@ public class ImportableObject
 				return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Returns a copy of the object.
+	 * 
+	 * @return See above.
+	 */
+	public ImportableObject copy()
+	{
+		Iterator<ImportableFile> i = this.files.iterator();
+		List<ImportableFile> copy = new ArrayList<ImportableFile>();
+		while (i.hasNext()) {
+			copy.add(i.next().copy());
+		}
+		ImportableObject newObject = new ImportableObject(copy, 
+				this.overrideName);
+		newObject.depthForName = this.depthForName;
+		newObject.loadThumbnail = this.loadThumbnail;
+		newObject.newObjects = this.newObjects;
+		newObject.overrideName = this.overrideName;
+		newObject.pixelsSize = this.pixelsSize;
+		newObject.projectDatasetMap = this.projectDatasetMap;
+		newObject.refNodes = this.refNodes;
+		newObject.scanningDepth = this.scanningDepth;
+		newObject.tags = this.tags;
+		newObject.type = this.type;
+		return newObject;
+	}
+	
+	/**
+	 * Resets the files to reimport.
+	 * 
+	 * @param list The list of files to handle.
+	 */
+	public void reImport(List<File> list)
+	{
+		if (list == null || list.size() == 0) return;
+		Iterator<File> i = list.iterator();
+		List<ImportableFile> values = new ArrayList<ImportableFile>();
+		ImportableFile v;
+		while (i.hasNext()) {
+			v = getImportableFile(i.next());
+			if (v != null) values.add(v);
+		}
+		this.files = values;
 	}
 
 }

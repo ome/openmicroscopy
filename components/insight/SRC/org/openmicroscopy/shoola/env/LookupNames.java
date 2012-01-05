@@ -236,10 +236,10 @@ public class LookupNames
      */
     public static final String LOGIN_TIME_OUT = "/services/LOGIN/omeds/timeout";
     
-    /** Field to access the URL of the server where obtain an token. */
+    /** Field to access the URL where to obtain a token. */
     public static final String TOKEN_URL = "/services/DEBUGGER/hostnameToken";
     
-    /** Field to access the URL of the server where to submit the files. */
+    /** Field to access the URL where to submit the files. */
     public static final String PROCESSING_URL = 
     	"/services/DEBUGGER/hostnameProcessing";
     

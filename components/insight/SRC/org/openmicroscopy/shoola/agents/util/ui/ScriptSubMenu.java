@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.metadata.util;
+package org.openmicroscopy.shoola.agents.util.ui;
 
 
 //Java imports
@@ -142,6 +142,5 @@ public class ScriptSubMenu
 	 * @return See above.
 	 */
 	public String getUnformattedText() { return unformattedText; }
-	
-	
+
 }

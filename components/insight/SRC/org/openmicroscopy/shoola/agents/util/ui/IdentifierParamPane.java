@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.metadata.util;
+package org.openmicroscopy.shoola.agents.util.ui;
 
 
 //Java imports

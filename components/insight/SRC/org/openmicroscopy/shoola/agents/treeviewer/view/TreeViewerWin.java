@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -916,6 +917,9 @@ class TreeViewerWin
                 break;
             case TreeViewer.PERSONAL_MENU:
             	toolBar.showPersonalMenu(c, p);
+            	break;
+            case TreeViewer.AVAILABLE_SCRIPTS_MENU:
+            	toolBar.showAvailableScriptsMenu(c, p);
         }  
     }
     
@@ -1080,6 +1084,28 @@ class TreeViewerWin
 	 */
 	String getObjectMimeType() { return model.getObjectMimeType(); }
 	
+	/**
+	 * Returns the script corresponding to the specified name.
+	 * 
+	 * @param value The name of the script.
+	 * @return See above
+	 */
+	ScriptObject getScriptFromName(String name)
+	{
+		return model.getScriptFromName(name);
+	}
+	
+	/** 
+	 * Invokes when loadings scripts.
+	 * 
+	 * @param loading Passes <code>true</code> if there is an on-going loading.
+	 *                <code>false</code> otherwise.
+	 */
+	void setScriptsLoadingStatus(boolean loading)
+	{
+		toolBar.setScriptsLoadingStatus(loading);
+	}
+	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {
@@ -1088,5 +1114,7 @@ class TreeViewerWin
         UIUtilities.incrementRelativeToAndShow(invokerBounds, this);
         invokerBounds = null;
     }
+
+
 
 }

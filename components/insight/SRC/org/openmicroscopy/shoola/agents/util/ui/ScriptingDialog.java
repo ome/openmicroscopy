@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.metadata.util;
+package org.openmicroscopy.shoola.agents.util.ui;
 
 //Java imports
 import java.awt.BorderLayout;
@@ -57,7 +57,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -66,12 +65,11 @@ import javax.swing.event.DocumentListener;
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.model.ParamData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -177,6 +175,9 @@ public class ScriptingDialog
 	
 	/** The component related to the identifier.*/
 	private IdentifierParamPane identifier;
+	
+	/** Flag indicating if the binary data are available.*/
+	private boolean binaryAvailable;
 	
 	/** Populates the changes of data types.*/
 	private void handleDataTypeChanges()
@@ -297,8 +298,7 @@ public class ScriptingDialog
 			}
 		}
 		applyButton.setEnabled(required == valueSet);
-		if (!MetadataViewerAgent.isBinaryAvailable())
-			applyButton.setEnabled(false);
+		if (!binaryAvailable) applyButton.setEnabled(false);
 	}
 	
 	/** Collects the data and fires a property.*/
@@ -357,7 +357,7 @@ public class ScriptingDialog
 		applyButton.setActionCommand(""+APPLY);
 		applyButton.addActionListener(this);
 		IconManager icons = IconManager.getInstance();
-		menuButton = new JButton(icons.getIcon(IconManager.BLACK_ARROW_DOWN));
+		menuButton = new JButton(icons.getIcon(IconManager.FILTER_MENU));
 		menuButton.setText("Script");
 		menuButton.setHorizontalTextPosition(JButton.LEFT);
 		menuButton.addMouseListener(new MouseAdapter() {
@@ -768,11 +768,13 @@ public class ScriptingDialog
 	 * @param parent The parent of the frame.
 	 * @param script The script to run. Mustn't be <code>null</code>.
 	 * @param refObjects The objects of reference.
+	 * @param binaryAvailable Flag indicating if binary data are available.
 	 */
 	public ScriptingDialog(JFrame parent, ScriptObject script, 
-			List<DataObject> refObjects)
+			List<DataObject> refObjects, boolean binaryAvailable)
 	{
 		super(parent);
+		this.binaryAvailable = binaryAvailable;
 		//setModal(true);
 		reset(script, refObjects);
 	}
