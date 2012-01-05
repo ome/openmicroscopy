@@ -291,11 +291,21 @@ java component.
         <launchSuite suite="test-compile"/>
     </target>
 
-    <target name="test-unit" description="Run all unit tests" depends="init">
+    <target name="test-unit" description="Run all non-native unit tests" depends="init">
+        <property name="env.NOMAKE" value="1"/>
         <launchSuite suite="test"/>
     </target>
 
-    <target name="test-integration" description="Run all integration tests" depends="init">
+    <target name="test-unit-all" description="Run all unit (including C++) tests" depends="init">
+        <launchSuite suite="test"/>
+    </target>
+
+    <target name="test-integration" description="Run all non-native integration tests" depends="init">
+        <property name="env.NOMAKE" value="1"/>
+        <launchSuite suite="integration"/>
+    </target>
+
+    <target name="test-integration-all" description="Run all integration (including C++) tests" depends="init">
         <launchSuite suite="integration"/>
     </target>
 
