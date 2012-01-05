@@ -44,6 +44,68 @@
             return this.charAt(0).toUpperCase() + this.slice(1);
         }
 
+        var handleDelete = function() {
+            var selected = $.jstree._focused().get_selected();
+
+            var del_form = $( "#delete-dialog-form" );
+            del_form.dialog( "open" );
+            // clear previous stuff from form
+            $.removeData(del_form, "clicked_button");
+            $("#delete_contents_form").show();
+            del_form.unbind("dialogclose");
+            del_form.find("input[type='checkbox']").attr('checked', false);
+
+            // set up form - process all the objects for data-types and children
+            var ajax_data = new Array();
+            var q = false;
+            var dtypes = {};
+            selected.each(function (i) {
+                ajax_data[i] = $(this).attr('id').replace("-","=");
+                var dtype = $(this).attr('rel');
+                if (dtype in dtypes) dtypes[dtype] += 1;
+                else dtypes[dtype] = 1;
+                if (!q && $(this).attr('rel').indexOf('image')<0) q = true;
+            });
+            var type_strings = [];
+            for (var key in dtypes) {
+                type_strings.push(key.capitalize() + (dtypes[key]>1 && "s" || ""));
+            }
+            var type_str = type_strings.join(" & ");    // For delete dialog: E.g. 'Project & Datasets'
+            $("#delete_type").text(type_str);
+            if (!q) $("#delete_contents_form").hide();  // don't ask about deleting contents
+
+            // callback when delete dialog is closed
+            del_form.bind("dialogclose", function(event, ui) {
+                if (del_form.data("clicked_button") == "Yes") {
+                    var delete_anns = $("#delete_anns").attr('checked');
+                    var delete_content = $("#delete_content").attr('checked');
+                    if (delete_content) ajax_data[ajax_data.length] = 'child=on';
+                    if (delete_anns) ajax_data[ajax_data.length] = 'anns=on';
+                    url = '{% url manage_action_containers "deletemany" %}'
+                    $.ajax({
+                        async : false,
+                        url: url,
+                        data : ajax_data.join("&"),
+                        dataType: "json",
+                        type: "POST",
+                        success: function(r){
+                            if(eval(r.bad)) {
+                                  $.jstree.rollback(data.rlbk);
+                                  alert(r.errs);
+                              } else {
+                                  $("#dataTree").jstree('remove', selected);
+                                  refreshProgressBar();
+                              }
+                        },
+                        error: function(response) {
+                            $.jstree.rollback(data.rlbk);
+                            alert("Internal server error. Cannot remove object.");
+                        }
+                    });
+                }
+            });
+        }
+
         var remove_nodes = function(tree, selected) {
             if (selected.length>0) {
                 var images = selected.filter('li[id|=image]');
@@ -431,7 +493,7 @@
                             config["delete"] = {
                                 "label" : "Delete",
                                 "icon"  : '{% static "webclient/image/cancel16.png" %}',
-                                "action": function(){ this.remove(this.get_selected()) }
+                                "action": handleDelete
                             };
                             
                             config["basket"] = {
@@ -652,80 +714,12 @@
                         refreshCenterPanel();
                     }
                 })
-                // Delete functionality: This is called AFTER the item is removed from tree. Need to rollback if user does not confirm
-                .bind("remove.jstree", function (e, data) {
-                    var del_form = $( "#delete-dialog-form" );
-                    del_form.dialog( "open" );
-                    // clear previous stuff from form
-                    $.removeData(del_form, "clicked_button");
-                    $("#delete_contents_form").show();
-                    del_form.unbind("dialogclose");
-                    del_form.find("input[type='checkbox']").attr('checked', false);
-                    
-                    // set up form - process all the objects for data-types and children
-                    var ajax_data = new Array();
-                    var q = false;
-                    var dtypes = {};
-                    data.args[0].each(function (i) {
-                        ajax_data[i] = $(this).attr('id').replace("-","=");
-                        var dtype = $(this).attr('rel');
-                        if (dtype in dtypes) dtypes[dtype] += 1;
-                        else dtypes[dtype] = 1;
-                        if (!q && $(this).attr('rel').indexOf('image')<0) q = true;
-                    });
-                    var type_strings = [];
-                    for (var key in dtypes) {
-                        type_strings.push(key.capitalize() + (dtypes[key]>1 && "s" || ""));
-                    }
-                    var type_str = type_strings.join(" & ");    // For delete dialog: E.g. 'Project & Datasets'
-                    $("#delete_type").text(type_str);
-                    if (!q) $("#delete_contents_form").hide();  // don't ask about deleting contents
-
-                    // callback when delete dialog is closed
-                    del_form.bind("dialogclose", function(event, ui) {
-                        if (del_form.data("clicked_button") == "Yes") {
-                            var delete_anns = $("#delete_anns").attr('checked');
-                            var delete_content = $("#delete_content").attr('checked');
-                            if (delete_content) ajax_data[ajax_data.length] = 'child=on';
-                            if (delete_anns) ajax_data[ajax_data.length] = 'anns=on';
-                            url = '{% url manage_action_containers "deletemany" %}'
-                            $.ajax({
-                                async : false,
-                                url: url,
-                                data : ajax_data.join("&"),
-                                dataType: "json",
-                                type: "POST",
-                                success: function(r){
-                                    if(eval(r.bad)) {
-                                          $.jstree.rollback(data.rlbk);
-                                          alert(r.errs);
-                                      } else {
-                                          data.args[0].each(function (i) {
-                                              data.inst.get_container().find('#'+this.id).each(function() { data.inst.delete_node(this); });
-                                          });
-                                          refreshProgressBar();
-                                          data.inst.load_node($("li#orphaned-0"));
-                                      }
-                                },
-                                error: function(response) {
-                                    $.jstree.rollback(data.rlbk);
-                                    alert("Internal server error. Cannot remove object.");
-                                }
-                            });
-                        }
-                        else {
-                            $.jstree.rollback(data.rlbk);
-                        }
-
-                    });
-
-                })
-                
             });
             
     </script>
     
     <script type="text/javascript">
+    
     $(function () {
         $("#buttons input").click(function () {
             switch(this.id) {
@@ -755,7 +749,7 @@
                     remove_nodes(jstree, selected);
                     break;
                 case "deleteButton":
-                        $("#dataTree").jstree('remove', $.jstree._focused().get_selected());
+                        handleDelete();
                     break;
                 case "basketButton":
                     addToBasket($.jstree._focused().get_selected(), '{% url update_basket %}');
