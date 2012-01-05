@@ -51,6 +51,9 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -70,7 +73,6 @@ import javax.swing.tree.TreePath;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import pojos.ExperimenterData;
@@ -132,6 +134,9 @@ public class DnDTree
 	/** Cursor indicating that the drop action is not permitted.*/
 	private Cursor cursor;
 	
+	/** The default cursor.*/
+	private Cursor defaultCursor;
+
 	/** Flag indicating if the drop action is allowed or not.*/
 	private boolean dropAllowed;
 	
@@ -233,6 +238,7 @@ public class DnDTree
 	 */
 	private Cursor getCursor(int action)
 	{
+		/*
 		switch (action) {
 			case DnDConstants.ACTION_COPY:
 				return DragSource.DefaultCopyDrop;
@@ -240,6 +246,8 @@ public class DnDTree
 				default:
 				return DragSource.DefaultMoveDrop;
 		}
+		*/
+		return defaultCursor;
 	}
 	
 	/** 
@@ -332,6 +340,7 @@ public class DnDTree
 	public DnDTree(long userID, boolean administrator)
 	{
 		super();
+		defaultCursor = getCursor();
 		this.userID = userID;
 		this.administrator = administrator;
 		setDragEnabled(true);
@@ -341,6 +350,12 @@ public class DnDTree
 		target.setDefaultActions(DnDConstants.ACTION_COPY_OR_MOVE);
 		dragSource.createDefaultDragGestureRecognizer(this,
 			DnDConstants.ACTION_MOVE, this);
+		addFocusListener(new FocusAdapter() {
+			
+			public void focusLost(FocusEvent e) {
+				setCursor(defaultCursor);
+			}
+		});
 	}
 
     /** Resets.*/
