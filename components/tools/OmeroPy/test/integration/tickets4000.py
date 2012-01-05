@@ -25,10 +25,10 @@ class TestTickets4000(lib.ITest):
 
         self.root.sf.getAdminService().changeUserPassword(name, rstring("GOOD"))
 
-        self.loginAttempt(name, 0.1, less=True)
+        self.loginAttempt(name, 0.15, less=True)
         self.loginAttempt(name, 3.0)
-        self.loginAttempt(name, 0.1, "GOOD", less=True)
-        self.loginAttempt(name, 0.1, less=True)
+        self.loginAttempt(name, 0.15, "GOOD", less=True)
+        self.loginAttempt(name, 0.15, less=True)
         self.loginAttempt(name, 3.0)
 
     def loginAttempt(self, name, t, pw="BAD", less=False):
