@@ -319,9 +319,16 @@ public class BasicSecuritySystem implements SecuritySystem,
         // Call to session manager throws an exception on failure
         final Principal p = clearAndCheckPrincipal();
 
+        // ticket:6639 - Rather than catch the RemoveSessionException
+        // we are going to check the type of the context and if it
+        // matches, then we know we should do no more loading.
+        EventContext ec = cd.getCurrentEventContext();
+        if (ec instanceof BasicSecurityWiring.CloseOnNoSessionContext) {
+            throw new SessionTimeoutException("closing", ec);
+        }
+
         // ticket:1855 - Catching SessionTimeoutException in order to permit
         // the close of a stateful service.
-        EventContext ec;
         try {
             ec = sessionManager.getEventContext(p);
         } catch (SessionTimeoutException ste) {
