@@ -61,7 +61,6 @@ import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
 import pojos.FileAnnotationData;
-import pojos.WellSampleData;
 
 /** 
  * Component displaying the acquisition information.

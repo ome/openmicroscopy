@@ -967,7 +967,7 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		List<FileAnnotationData> list = new ArrayList<FileAnnotationData>();
 		if (data == null) return list;
-		Collection<FileAnnotationData> attachements = data.getAttachments(); 
+		Collection<FileAnnotationData> attachements = data.getAttachments();
 		if (attachements == null) return list;
 		Iterator<FileAnnotationData> i = attachements.iterator();
 		FileAnnotationData f;
@@ -978,6 +978,22 @@ class EditorModel
 			if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) && 
 					f != originalMetadata) {
 				list.add(f);
+			}
+		}
+		if (refObject instanceof WellSampleData) {
+			data = parent.getParentStructuredData();
+			if (data != null) {
+				attachements = data.getAttachments();
+				if (attachements != null) {
+					while (i.hasNext()) {
+						f = i.next();
+						ns = f.getNameSpace();
+						if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) && 
+								f != originalMetadata) {
+							list.add(f);
+						}
+					}
+				}
 			}
 		}
 		return (Collection<FileAnnotationData>) sorter.sort(list); 
@@ -1011,6 +1027,25 @@ class EditorModel
 				l.add(f);
 			}
 			
+		}
+		if (getRefObject() instanceof WellSampleData) {
+			data = parent.getParentStructuredData();
+			if (data != null) {
+				attachements = data.getAttachments();
+				if (attachements != null) {
+					i = attachements.iterator();
+					while (i.hasNext()) {
+						f = i.next();
+						ns = f.getNameSpace();
+						if (FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
+							String name = f.getFileName();
+							if (name.contains(
+									FileAnnotationData.ORIGINAL_METADATA_NAME))
+								originalMetadata = f;
+						}
+					}
+				}
+			}
 		}
 		return (Collection<FileAnnotationData>) sorter.sort(l); 
 	}

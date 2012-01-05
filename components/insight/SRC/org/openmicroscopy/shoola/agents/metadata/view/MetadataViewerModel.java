@@ -112,6 +112,9 @@ class MetadataViewerModel
 	/** The object hosting the various annotations linked to an object. */
 	private StructuredDataResults					data;
 	
+	/** The object hosting the various annotations linked to an object. */
+	private StructuredDataResults					parentData;
+	
 	/** Reference to the browser. */
 	private Browser									browser;
 	
@@ -377,6 +380,14 @@ class MetadataViewerModel
 			if (uo instanceof WellSampleData) {
 				WellSampleData wsd = (WellSampleData) uo;
 				uo = wsd.getImage();
+				if (!loaders.containsKey(refNode) && parentData == null) {
+					StructuredDataLoader l = new StructuredDataLoader(component,
+							refNode, parentRefObject);
+					loaders.put(refNode, l);
+					l.load();
+					state = MetadataViewer.LOADING_METADATA;
+					return;
+				}
 			}
 			StructuredDataLoader loader = new StructuredDataLoader(component, 
 									refNode, uo);
@@ -582,10 +593,26 @@ class MetadataViewerModel
 	 * Sets the structured data.
 	 * 
 	 * @param data The value to set.
+	 * @param refNode The node of reference.
 	 */
-	void setStructuredDataResults(StructuredDataResults data)
+	void setStructuredDataResults(StructuredDataResults data,
+			TreeBrowserDisplay refNode)
 	{
 		this.data = data;
+		state = MetadataViewer.READY;
+	}
+	
+	/**
+	 * Sets the structured data of the parent.
+	 * 
+	 * @param parentData The value to set.
+	 * @param refNode The node of reference.
+	 */
+	void setParentDataResults(StructuredDataResults parentData,
+			TreeBrowserDisplay refNode)
+	{
+		loaders.remove(refNode);
+		this.parentData = parentData;
 		state = MetadataViewer.READY;
 	}
 	
@@ -595,6 +622,13 @@ class MetadataViewerModel
 	 * @return See above.
 	 */
 	StructuredDataResults getStructuredData() { return data; }
+	
+	/**
+	 * Returns the structured data.
+	 * 
+	 * @return See above.
+	 */
+	StructuredDataResults getParentStructuredData() { return parentData; }
 	
 	/**
 	 * Returns <code>true</code> if the imported set of pixels has been 

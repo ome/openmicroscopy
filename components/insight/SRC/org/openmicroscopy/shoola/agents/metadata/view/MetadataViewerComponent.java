@@ -273,7 +273,7 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setMetadata(TreeBrowserDisplay, Object)
+	 * @see MetadataViewer#setMetadata(TreeBrowserDisplay, Object, boolean)
 	 */
 	public void setMetadata(TreeBrowserDisplay node, Object result)
 	{
@@ -281,25 +281,37 @@ class MetadataViewerComponent
 			throw new IllegalArgumentException("No node specified.");
 		Object userObject = node.getUserObject();
 		Object refObject = model.getRefObject();
-		if (refObject == userObject) {
-			Browser browser = model.getBrowser();
-			if (result instanceof StructuredDataResults) {
-				model.setStructuredDataResults((StructuredDataResults) result);
+		if (refObject != userObject) {
+			model.setStructuredDataResults(null, node);
+			fireStateChange();
+			return;
+		}
+		Browser browser = model.getBrowser();
+		if (result instanceof StructuredDataResults) {
+			StructuredDataResults data = (StructuredDataResults) result;
+			Object object = data.getRelatedObject();
+			if (object == model.getParentRefObject()) {
+				model.setParentDataResults((StructuredDataResults) result,
+						node);
+				loadMetadata(node);
+			} else {
+				model.setStructuredDataResults((StructuredDataResults) result,
+						node);
 				browser.setParents(node, 
 						model.getStructuredData().getParents());
 				model.getEditor().setStructuredDataResults();
 				view.setOnScreen();
-				fireStateChange();
-				return;
 			}
-			if (!(userObject instanceof String)) return;
-			String name = (String) userObject;
-			
-			if (browser == null) return;
-			if (Browser.DATASETS.equals(name) || Browser.PROJECTS.equals(name)) 
-				browser.setParents((TreeBrowserSet) node, (Collection) result);
-			model.notifyLoadingEnd(node);
+			fireStateChange();
+			return;
 		}
+		if (!(userObject instanceof String)) return;
+		String name = (String) userObject;
+		
+		if (browser == null) return;
+		if (Browser.DATASETS.equals(name) || Browser.PROJECTS.equals(name)) 
+			browser.setParents((TreeBrowserSet) node, (Collection) result);
+		model.notifyLoadingEnd(node);
 	}
 
 	/** 
@@ -693,6 +705,16 @@ class MetadataViewerComponent
 		return model.getStructuredData();
 	}
 
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getParentStructuredData()
+	 */
+	public StructuredDataResults getParentStructuredData()
+	{
+		//TODO: Check state
+		return model.getParentStructuredData();
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#setStatus(boolean)
