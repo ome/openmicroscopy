@@ -315,10 +315,9 @@ class ImporterUI
 			
 			public void stateChanged(ChangeEvent e) {
 				controlsBar.setVisible(tabs.getSelectedIndex() != 0);
-				List l = getFilesToReimport();
 				controller.getAction(
 						ImporterControl.RETRY_BUTTON).setEnabled(
-							l != null && l.size() > 0);
+							hasFailuresToReimport());
 				controller.getAction(
 						ImporterControl.SEND_BUTTON).setEnabled(
 								hasSelectedFailuresToSend());
@@ -605,13 +604,18 @@ class ImporterUI
 	 */
 	boolean hasFailuresToSend()
 	{
+		/*
 		Iterator<ImporterUIElement> i = uiElements.values().iterator();
 		while (i.hasNext()) {
 			if (i.next().hasFailuresToSend())
 				return true;
 		}
 		return false;
+		*/
+		
+		return hasSelectedFailuresToSend();
 	}
+	
 	
     /**
      * Brings up the menu on top of the specified component at 
@@ -698,4 +702,18 @@ class ImporterUI
     	if (pane == null) return null;
     	return pane.getFilesToReimport();
 	}
+	
+	/**
+	 * Returns <code>true</code> if file to re-import, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasFailuresToReimport()
+	{
+		ImporterUIElement element = getSelectedPane();
+		if (element == null) return false;
+		return element.hasFailuresToReimport();
+	}
+
 }

@@ -66,7 +66,7 @@ public class RetryImportAction
     	if (model.getState() == Importer.IMPORTING) {
     		setEnabled(false);
     	} else {
-    		setEnabled(model.hasFailuresToSend());
+    		setEnabled(model.hasFailuresToReimport());
     	}
     }
     

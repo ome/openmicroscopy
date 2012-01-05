@@ -351,8 +351,7 @@ class ImporterControl
 		} else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
 			//getAction(SEND_BUTTON).setEnabled(model.hasFailuresToSend());
 			getAction(SEND_BUTTON).setEnabled(view.hasSelectedFailuresToSend());
-			List l = view.getFilesToReimport();
-			getAction(RETRY_BUTTON).setEnabled(l != null && l.size() > 0);
+			getAction(RETRY_BUTTON).setEnabled(view.hasFailuresToReimport());
 		} else if (FileImportComponent.DISPLAY_ERROR_PROPERTY.equals(name)) {
 			ErrorDialog d = new ErrorDialog(view, 
 					(Throwable) evt.getNewValue());

@@ -299,6 +299,9 @@ public class FileImportComponent
 	/** Indicates that the file has been re-imported.*/
 	private JLabel reimportedLabel;
 	
+	/** Flag indicating that the file should be reimported.*/
+	private boolean toReImport;
+	
 	/** Displays the error box at the specified location.
 	 * 
 	 * @param p The location where to show the box.
@@ -773,6 +776,7 @@ public class FileImportComponent
 				img.getDefaultPixels();
 			} catch (Exception e) {
 				error = e;
+				toReImport = true;
 			}
 			if (error != null) {
 				exception = error;
@@ -931,6 +935,7 @@ public class FileImportComponent
 					ImportException ie = (ImportException) image;
 					fileNameLabel.setForeground(ERROR_COLOR);
 					resultLabel.setVisible(false);
+					toReImport = true;
 					errorButton.setToolTipText(
 							UIUtilities.formatExceptionForToolTip(ie));
 					exception = ie;
@@ -1052,6 +1057,30 @@ public class FileImportComponent
 		Iterator<FileImportComponent> i = components.values().iterator();
 		while (i.hasNext()) {
 			if (i.next().hasFailuresToSend()) 
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if file to reimport, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasFailuresToReimport()
+	{
+		if (file.isFile()) {
+			//if (errorButton.isVisible() && !reimported)
+			//	return true;
+			return (toReImport && !reimported);
+		}
+		if (components == null) {
+			return false;
+		}
+		Iterator<FileImportComponent> i = components.values().iterator();
+		while (i.hasNext()) {
+			if (i.next().hasFailuresToReimport()) 
 				return true;
 		}
 		return false;
@@ -1234,12 +1263,19 @@ public class FileImportComponent
 	{
 		List<FileImportComponent> l = null;
 		if (file.isFile()) {
-			if (errorBox != null && errorBox.isVisible()) {
-				if (errorBox.isEnabled() && image instanceof Exception) {
+			/*
+			if (errorButton != null && errorButton.isVisible()) {
+				if (image instanceof Exception) {
 					l = new ArrayList<FileImportComponent>();
 					if (!reimported) l.add(this);
 					return l;
 				}
+			}
+			*/
+			if (toReImport && !reimported) {
+				l = new ArrayList<FileImportComponent>();
+				l.add(this);
+				return l;
 			}
 		} else {
 			if (components != null) {
