@@ -144,7 +144,11 @@ public class DnDTree
 	private void handleMouseOver(TreeImageDisplay node,
 			Transferable transferable)
 	{
-		Object ot = node.getUserObject();
+		TreeImageDisplay parent = node;
+		if (node.isLeaf() && node instanceof TreeImageNode) {
+			parent = (TreeImageDisplay) node.getParent();
+		}
+		Object ot = parent.getUserObject();
 		if (ot instanceof GroupData && !administrator) {
 			setCursor(createCursor());
 			dropAllowed = false;
@@ -177,18 +181,24 @@ public class DnDTree
 			TreeImageDisplay n;
 			
 			Object os = null;
+			int childCount = 0;
 			while (i.hasNext()) {
 				n = i.next();
 				os = n.getUserObject();
-				if (EditorUtil.isTransferable(ot, os)) {
-					if (ot instanceof GroupData) {
-						if (administrator) list.add(n);
-					} else {
-						if (isUserOwner(os)) list.add(n);
-					}
+				if (parent.contains(n)) {
+					childCount++;
+				} else {
+					if (EditorUtil.isTransferable(ot, os)) {
+						if (ot instanceof GroupData) {
+							if (administrator) list.add(n);
+						} else {
+							if (isUserOwner(os)) list.add(n);
+						}
+					}	
 				}
 			}
-			if (list.size() == 0) {
+			if (childCount == nodes.size() || list.size() == 0 ||
+					(list.size() == 1 && parent == list.get(0))) {
 				setCursor(createCursor());
 				dropAllowed = false;
 			}
@@ -505,7 +515,7 @@ public class DnDTree
 			DefaultMutableTreeNode node =
 				(DefaultMutableTreeNode) path.getLastPathComponent();
 			Transferable trans = dsde.getDragSourceContext().getTransferable();
-			if (node instanceof TreeImageSet) {
+			if (node instanceof TreeImageDisplay) {
 				handleMouseOver((TreeImageDisplay) node, trans);
 			}
 		}
