@@ -108,4 +108,7 @@
     <target name="findbugs">
         <echo>Not yet implemented</echo>
     </target>
+    <target name="format">
+        <echo>Not yet implemented</echo>
+    </target>
 </project>

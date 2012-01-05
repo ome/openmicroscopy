@@ -32,6 +32,7 @@
     <target name="test" description="No-op"/>
     <target name="integration" description="No-op"/>
     <target name="findbugs" description="No-op"/>
+    <target name="format" description="No-op"/>
 
     <target name="runall" depends="run-3to8,run-7to8,run-8to8,run-8to9,run-3to9"/>
     <target name="run-3to8">

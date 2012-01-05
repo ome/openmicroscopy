@@ -245,6 +245,7 @@ java component.
 
     <target name="format" depends="init">
         <iterate buildpathref="all.buildpath" target="format"/>
+        <iterate buildpathref="all-tools.buildpath" target="format"/>
     </target>
 
     <macrodef name="launchSuite">
