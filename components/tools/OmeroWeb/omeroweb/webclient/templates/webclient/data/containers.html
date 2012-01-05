@@ -634,14 +634,22 @@
                         });
                     });
                     if (refresh) {
-                        //data.inst.refresh();
-                        if (refresh) {
-                            data.inst.deselect_all();
-                            if (!data.inst.is_leaf(data.rslt.op) && $.inArray(data.rslt.op.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) data.inst.refresh(data.inst._get_node('#'+data.rslt.op.attr('id')));
-                            data.inst.select_node(data.rslt.op);
-                            if (!data.inst.is_leaf(data.rslt.cr) && $.inArray(data.rslt.cr.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) data.inst.refresh(data.inst._get_node('#'+data.rslt.cr.attr('id')));
-                            if(!data.inst.data.crrm.cp_nodes && !data.inst.data.crrm.ct_nodes) refreshCenterPanel();
+                        data.inst.deselect_all();
+                        // refresh source
+                        if (!data.inst.is_leaf(data.rslt.op) && $.inArray(data.rslt.op.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) {
+                            data.inst.refresh(data.inst._get_node('#'+data.rslt.op.attr('id')));
                         }
+                        //refresh destination (will already be expanded, even if orphaned)
+                        if (!data.inst.is_leaf(data.rslt.cr) && $.inArray(data.rslt.cr.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) {
+                            data.inst.refresh(data.inst._get_node('#'+data.rslt.cr.attr('id')));
+                        }
+                        // select the destination (select source if destination is orphaned)
+                        if (data.rslt.cr.attr("rel").replace("-locked", "") === "orphaned") {
+                            data.inst.select_node(data.rslt.op);
+                        } else {
+                            data.inst.select_node(data.rslt.cr);
+                        }
+                        refreshCenterPanel();
                     }
                 })
                 // Delete functionality: This is called AFTER the item is removed from tree. Need to rollback if user does not confirm
