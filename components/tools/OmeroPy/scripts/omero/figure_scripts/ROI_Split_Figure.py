@@ -165,6 +165,7 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
         re.setActive(i, False)
         
     # for each channel in the splitview...
+    box = (roiX, roiY, roiX+roiWidth, roiY+roiHeight)
     for index in splitIndexes:
         if index >= sizeC:
             channelMismatch = True        # can't turn channel on - simply render black square! 
@@ -180,7 +181,6 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
                 re.setRGBA(index,255,255,255,255)    # if not colourChannels - channels are white
             info = (channelNames[index], re.getChannelWindowStart(index), re.getChannelWindowEnd(index))
             log("  Render channel: %s  start: %d  end: %d" % info)
-            box = (roiX, roiY, roiX+roiWidth, roiY+roiHeight)
             if proStart == proEnd:
                 # if it's a single plane, we can render a region (region not supported with projection)
                 planeDef = omero.romio.PlaneDef()
@@ -236,7 +236,10 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
         
     if channelMismatch:
         log(" WARNING channel mismatch: The current image has fewer channels than the primary image.")
-            
+        
+    if panelWidth == 0: # E.g. No split-view panels
+        panelWidth = roiMergedImage.size[0]
+
     # now assemble the roi split-view canvas
     font = imgUtil.getFont(fontsize)
     textHeight = font.getsize("Textq")[1]
@@ -248,7 +251,8 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
             topSpacer = textHeight + spacer
     imageCount = len(renderedImages) + 1     # extra image for merged image
     canvasWidth = ((panelWidth + spacer) * imageCount) - spacer    # no spaces around panels
-    canvasHeight = renderedImages[0].size[1] + topSpacer
+    canvasHeight = roiMergedImage.size[1] + topSpacer
+    print "imageCount", imageCount, "canvasWidth", canvasWidth, "canvasHeight", canvasHeight
     size = (canvasWidth, canvasHeight)
     canvas = Image.new(mode, size, white)        # create a canvas of appropriate width, height
     
@@ -678,14 +682,11 @@ def roiFigure(session, commandArgs):
         for c in range(sizeC):
             channelNames[c] = str(c)
     
-    # Make split-indexes list. If argument wasn't specified, include them all. 
+    # Make split-indexes list. If no "Split_Indexes", show none: http://www.openmicroscopy.org/community/viewtopic.php?f=4&t=940
     splitIndexes = []
     if "Split_Indexes" in commandArgs:
         for index in commandArgs["Split_Indexes"]:
             splitIndexes.append(index.getValue())
-    else:
-        for c in range(sizeC):
-            splitIndexes = range(sizeC)
             
     colourChannels = True
     if "Split_Panels_Grey" in commandArgs and commandArgs["Split_Panels_Grey"]:
