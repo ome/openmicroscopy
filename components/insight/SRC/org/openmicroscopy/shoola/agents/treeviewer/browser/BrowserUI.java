@@ -29,11 +29,14 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.dnd.DnDConstants;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -83,6 +86,8 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
+import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
+import org.openmicroscopy.shoola.agents.util.dnd.ObjectToTransfer;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
@@ -112,6 +117,7 @@ import pojos.TagAnnotationData;
  */
 class BrowserUI
     extends JPanel
+    implements PropertyChangeListener
 {
     
 	/** The text of the dummy default node. */
@@ -663,7 +669,9 @@ class BrowserUI
      */
     private void createTrees(ExperimenterData exp)
     {
-        treeDisplay = new JTree();
+        treeDisplay = new DnDTree(model.getUserID(),
+        		TreeViewerAgent.isAdministrator());
+        treeDisplay.addPropertyChangeListener(this);
         treeDisplay.setVisible(true);
         treeDisplay.setRootVisible(false);
         ToolTipManager.sharedInstance().registerComponent(treeDisplay);
@@ -2001,5 +2009,24 @@ class BrowserUI
 		}
 		return null;
     }
+
+
+    /**
+     * Reacts to the D&D properties.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (DnDTree.DRAGGED_PROPERTY.equals(name)) {
+			ObjectToTransfer transfer = (ObjectToTransfer) evt.getNewValue();
+			int action = TreeViewer.CUT_AND_PASTE;
+			if (transfer.getDropAction() == DnDConstants.ACTION_COPY)
+				action = TreeViewer.COPY_AND_PASTE;
+			//check the node
+			model.transfer(transfer.getTarget(), transfer.getNodes(),
+					action);
+		}
+	}
 
 }

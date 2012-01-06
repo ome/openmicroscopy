@@ -231,4 +231,20 @@ public class TreeImageSet
         return copy;
     }
     
+    /**
+	 * Returns <code>false</code> b/c an image node cannot have children.
+	 * @see TreeImageDisplay#contains(TreeImageDisplay)
+	 */
+	public boolean contains(TreeImageDisplay node)
+	{
+		if (node == null) return false;
+		Iterator i = this.getChildrenDisplay().iterator();
+		TreeImageDisplay child;
+		while (i.hasNext()) {
+			child = (TreeImageDisplay) i.next();
+			if (child == node) return true;
+		}
+		return false; 
+	}
+
 }
