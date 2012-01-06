@@ -165,6 +165,29 @@ class TreeViewerComponent
 	private ScriptingDialog     scriptDialog;
 	
 	/**
+	 * Returns the name corresponding the specified object.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	private String getObjectType(Object object)
+	{
+		if (object instanceof DatasetData) return "dataset";
+		else if (object instanceof ProjectData) return "project";
+		else if (object instanceof GroupData) return "group";
+		else if (object instanceof ScreenData) return "screen";
+		else if (object instanceof PlateData) return "plate";
+		else if (object instanceof ImageData) return "image";
+		else if (object instanceof TagAnnotationData) {
+			TagAnnotationData tag = (TagAnnotationData) object;
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
+				return "tagSet";
+			return "tag";
+		}
+		return "item";
+	}
+	
+	/**
 	 * Downloads the files.
 	 * 
 	 * @param folder 	The folder to save the file into.
@@ -3607,4 +3630,81 @@ class TreeViewerComponent
 		}
 	}
 	
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#transfer(TreeImageDisplay, List, int)
+	 */
+	public void transfer(TreeImageDisplay target, List<TreeImageDisplay> nodes,
+			int transferAction)
+	{
+		if (target == null || nodes == null || nodes.size() == 0) return;
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
+		Object ot = target.getUserObject();
+		Object os;
+		if (nodes.size() == 1) { //check if src = destination
+			TreeImageDisplay src = nodes.get(0);
+			if (src == target) {
+				browser.rejectTransfer();
+				return;
+			}
+		}
+		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+		if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+			if (!(ot instanceof GroupData) ||
+					!TreeViewerAgent.isAdministrator()) {
+				un.notifyInfo("DnD", "Only administrator can perform" +
+						"such action.");
+				browser.rejectTransfer();
+				return;
+			}
+		}
+		if (!isUserOwner(ot)) {
+			un.notifyInfo("DnD", 
+					"You must be the owner of the container.");
+			browser.rejectTransfer();
+			return;
+		}
+		List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();
+		Iterator<TreeImageDisplay> i = nodes.iterator();
+		TreeImageDisplay n;
+		
+		int count = 0;
+		String child;
+		String parent;
+		os = null;
+		int childCount = 0;
+		while (i.hasNext()) {
+			n = i.next();
+			os = n.getUserObject();
+			if (target.contains(n)) {
+				childCount++;
+			} else {
+				if (EditorUtil.isTransferable(ot, os)) {
+					count++;
+					if (ot instanceof GroupData) {
+						if (TreeViewerAgent.isAdministrator())
+							list.add(n);
+					} else {
+						if (isUserOwner(os)) list.add(n);
+					}
+				}
+			}
+		}
+		if (childCount == nodes.size()) {
+			browser.rejectTransfer();
+			return;
+		}
+		if (list.size() == 0) {
+			String s = "";
+			if (nodes.size() > 1) s = "s";
+			un.notifyInfo("DnD", 
+			"The "+getObjectType(os)+s+" cannot be moved to the selected "+
+				getObjectType(ot)+".");
+			browser.rejectTransfer();
+			return;
+		}
+		model.transfer(target, list);
+	}
+
 }

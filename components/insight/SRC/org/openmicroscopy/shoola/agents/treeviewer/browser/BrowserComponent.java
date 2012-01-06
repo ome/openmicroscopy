@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
+import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -1900,6 +1901,18 @@ class BrowserComponent
 		if (model.getState() == DISCARDED) return null;
 		if (userID < 0) return null;
 		return view.getNodesForUser(userID);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#rejectTransfer()
+	 */
+	public void rejectTransfer()
+	{
+		JTree tree = view.getTreeDisplay();
+		if (tree instanceof DnDTree) {
+			((DnDTree) tree).reset();
+		}
 	}
 
 }
