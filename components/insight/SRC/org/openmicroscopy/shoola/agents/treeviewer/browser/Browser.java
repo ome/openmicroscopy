@@ -785,4 +785,7 @@ public interface Browser
 	 */
 	public TreeImageDisplay getLoggedExperimenterNode();
 
+	/** Indicates that the transfer has been rejected.*/
+	void rejectTransfer();
+
 }
