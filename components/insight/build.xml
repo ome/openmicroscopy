@@ -64,28 +64,36 @@
         </description>
         <!-- Hard coding paths for the moment to work around hudson regex issues -->
         <copy todir="${target.dir}">
-            <fileset dir="${basedir}/OUT/dist" includes="*.zip" excludes="*-mac*.zip,*-win*.zip"/>
+            <fileset dir="${basedir}/OUT/dist" includes="OMERO.insight*.zip" excludes="*-mac*.zip,*-win*.zip"/>
             <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight.zip"/>
         </copy>
         <copy todir="${target.dir}">
-            <fileset dir="${basedir}/OUT/dist" includes="*-win.zip"/>
+            <fileset dir="${basedir}/OUT/dist" includes="OMERO.insight*-win.zip"/>
             <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight-win.zip"/>
         </copy>
         <copy todir="${target.dir}">
-            <fileset dir="${basedir}/OUT/dist" includes="*-win-openGL.zip"/>
+            <fileset dir="${basedir}/OUT/dist" includes="OMERO.insight*-win-openGL.zip"/>
             <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight-win-openGL.zip"/>
         </copy>
         <copy todir="${target.dir}">
-            <fileset dir="${basedir}/OUT/dist" includes="*-win64-openGL.zip"/>
+            <fileset dir="${basedir}/OUT/dist" includes="OMERO.insight*-win64-openGL.zip"/>
             <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight-win64-openGL.zip"/>
         </copy>
         <copy todir="${target.dir}">
-            <fileset dir="${basedir}/OUT/dist" includes="*-mac.zip"/>
+            <fileset dir="${basedir}/OUT/dist" includes="OMERO.insight*-mac.zip"/>
             <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight-mac.zip"/>
         </copy>
         <copy todir="${target.dir}">
-            <fileset dir="${basedir}/OUT/dist" includes="*-mac-openGL.zip"/>
+            <fileset dir="${basedir}/OUT/dist" includes="OMERO.insight*-mac-openGL.zip"/>
             <mapper type="regexp" from="OMERO.insight-[^-]+(.*).zip"  to="insight-mac-openGL.zip"/>
+        </copy>
+        <copy todir="${target.dir}">
+            <fileset dir="${basedir}/OUT/dist" includes="OMERO.editor*-mac.zip"/>
+            <mapper type="regexp" from="OMERO.editor-[^-]+(.*).zip"  to="editor-mac.zip"/>
+        </copy>
+        <copy todir="${target.dir}">
+            <fileset dir="${basedir}/OUT/dist" includes="OMERO.editor*-win.zip"/>
+            <mapper type="regexp" from="OMERO.editor-[^-]+(.*).zip"  to="editor-win.zip"/>
         </copy>
     </target>
 
