@@ -453,21 +453,25 @@ public class DnDTree
 		if (path == null) return;
 		TreeNode draggedNode = (TreeNode) path.getLastPathComponent();
 		if (draggedNode == null) return;
-		createGhostImage(p);
+		
 		//setSelectionPath(path);
 		//pathSource = path;
 		TreePath[] paths = getSelectionPaths();
 		List<TreeNode> nodes = new ArrayList<TreeNode>();
+		TreeNode n;
 		for (int i = 0; i < paths.length; i++) {
-			nodes.add((TreeNode) paths[i].getLastPathComponent());
+			n = (TreeNode) paths[i].getLastPathComponent();
+			if (n instanceof TreeImageDisplay)
+				nodes.add(n);
 		}
+		if (nodes.size() == 0) return;
+		createGhostImage(p);
 		Transferable trans = new TransferableNode(nodes);
 		//dragSource.startDrag(e, getCursor(e.getDragAction()), trans, this);
 		try {
 			setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 			dragSource.startDrag(e, getCursor(e.getDragAction()), imgGhost,
-					new Point(5, 5),
-					trans, this);
+					new Point(5, 5), trans, this);
 		} catch (Exception ex) {
 			//already an on-going dragging action.
 		}
