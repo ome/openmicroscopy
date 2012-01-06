@@ -227,7 +227,7 @@ class ToolBar
 		rndButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		refreshButton = new JButton(icons.getIcon(IconManager.REFRESH));
-		refreshButton.setToolTipText("Refresh the selected tab.");
+		refreshButton.setToolTipText("Refresh.");
 		refreshButton.addActionListener(controller);
 		refreshButton.setActionCommand(""+EditorControl.REFRESH);
 		refreshButton.setBackground(UIUtilities.BACKGROUND_COLOR);

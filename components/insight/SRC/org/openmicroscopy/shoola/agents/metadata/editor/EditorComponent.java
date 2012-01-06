@@ -678,6 +678,7 @@ class EditorComponent
 	 */
 	public void refresh()
 	{
+		/*
 		switch (view.getSelectedTab()) {
 			case EditorUI.GENERAL_INDEX:
 				model.refresh();
@@ -689,6 +690,8 @@ class EditorComponent
 			case EditorUI.ACQUISITION_INDEX:
 				view.refreshAcquisition();
 		};
+		*/
+		model.refresh();
 	}
 
 	/** 
