@@ -30,22 +30,24 @@
     <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
     
     <script type="text/javascript">
+        var handleRemove = function (e, data) {
+            var content_id = $("#content_details").attr("rel");     // content, E.g. 'dataset-123'
+            data.rslt.obj.each(function() {
+                // if we're removing the current dataset...
+                if (content_id == $(this).attr('id')) {
+                    $("#content_details").remove();
+                } else if ($(this).attr('id').split("-")[0] == "image") {
+                    // else, remove image
+                    var imgId = $(this).attr('id').split("-")[1];
+                    $("#dataTable tr[id='" + imgId + "']").remove();
+                }
+            });
+        };
+
         $(document).ready(function(){
 
             // when the jstree removes objects from the tree, handle each object...
-            $("#dataTree").bind("remove.jstree", function (e, data) {
-                var content_id = $("#content_details").attr("rel");     // content, E.g. 'dataset-123'
-                data.rslt.obj.each(function() {
-                    // if we're removing the current dataset...
-                    if (content_id == $(this).attr('id')) {
-                        $("#content_details").remove();
-                    } else if ($(this).attr('id').split("-")[0] == "image") {
-                        // else, remove image
-                        var imgId = $(this).attr('id').split("-")[1];
-                        $("#dataTable tr[id='" + imgId + "']").remove();
-                    }
-                });
-            })
+            $("#dataTree").one("remove.jstree", handleRemove});
             
             var datatree = $.jstree._focused();
 
