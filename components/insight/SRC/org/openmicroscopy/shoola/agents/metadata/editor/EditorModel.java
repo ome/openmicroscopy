@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.sql.Timestamp;
@@ -182,7 +181,7 @@ class EditorModel
     /** The list of emission wavelengths for a given set of pixels. */
     private Map						emissionsWavelengths;
     
-    /** Used to sort the various collection. */
+    /** Used to sort the various collections. */
     private ViewerSorter			sorter;
 
 	/** Reference to the browser. */

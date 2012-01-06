@@ -293,6 +293,15 @@ public class FileImportComponent
 	 */
 	private boolean browsable;
 	
+	/** Set to <code>true</code> if attempt to re-import.*/
+	private boolean reimported;
+	
+	/** Indicates that the file has been re-imported.*/
+	private JLabel reimportedLabel;
+	
+	/** Flag indicating that the file should be reimported.*/
+	private boolean toReImport;
+	
 	/** Displays the error box at the specified location.
 	 * 
 	 * @param p The location where to show the box.
@@ -379,6 +388,8 @@ public class FileImportComponent
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		reimportedLabel = new JLabel("Reimported");
+		reimportedLabel.setVisible(false);
 		showContainerLabel = true;
 		adapter = new MouseAdapter() {
 			
@@ -519,6 +530,7 @@ public class FileImportComponent
 		add(Box.createHorizontalStrut(15));
 		add(containerLabel);
 		add(browseButton);
+		add(reimportedLabel);
 	}
 	
 	/**
@@ -641,6 +653,13 @@ public class FileImportComponent
 	}
 	
 	/**
+	 * Returns the file hosted by this component.
+	 * 
+	 * @return See above.
+	 */
+	public File getFile() { return file; }
+	
+	/**
 	 * Sets the location where to import the files.
 	 * 
 	 * @param data The data where to import the folder or screening data.
@@ -757,6 +776,7 @@ public class FileImportComponent
 				img.getDefaultPixels();
 			} catch (Exception e) {
 				error = e;
+				toReImport = true;
 			}
 			if (error != null) {
 				exception = error;
@@ -915,6 +935,7 @@ public class FileImportComponent
 					ImportException ie = (ImportException) image;
 					fileNameLabel.setForeground(ERROR_COLOR);
 					resultLabel.setVisible(false);
+					toReImport = true;
 					errorButton.setToolTipText(
 							UIUtilities.formatExceptionForToolTip(ie));
 					exception = ie;
@@ -1036,6 +1057,30 @@ public class FileImportComponent
 		Iterator<FileImportComponent> i = components.values().iterator();
 		while (i.hasNext()) {
 			if (i.next().hasFailuresToSend()) 
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if file to reimport, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasFailuresToReimport()
+	{
+		if (file.isFile()) {
+			//if (errorButton.isVisible() && !reimported)
+			//	return true;
+			return (toReImport && !reimported);
+		}
+		if (components == null) {
+			return false;
+		}
+		Iterator<FileImportComponent> i = components.values().iterator();
+		while (i.hasNext()) {
+			if (i.next().hasFailuresToReimport()) 
 				return true;
 		}
 		return false;
@@ -1206,6 +1251,62 @@ public class FileImportComponent
 	public void showContainerLabel(boolean show)
 	{
 		showContainerLabel = show;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the file has already been marked for
+	 * re-import, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public List<FileImportComponent> getReImport()
+	{
+		List<FileImportComponent> l = null;
+		if (file.isFile()) {
+			/*
+			if (errorButton != null && errorButton.isVisible()) {
+				if (image instanceof Exception) {
+					l = new ArrayList<FileImportComponent>();
+					if (!reimported) l.add(this);
+					return l;
+				}
+			}
+			*/
+			if (toReImport && !reimported) {
+				l = new ArrayList<FileImportComponent>();
+				l.add(this);
+				return l;
+			}
+		} else {
+			if (components != null) {
+				Entry entry;
+				Iterator<FileImportComponent> i = components.values().iterator();
+				FileImportComponent fc;
+				l = new ArrayList<FileImportComponent>();
+				List<FileImportComponent> list;
+				while (i.hasNext()) {
+					fc = i.next();
+					list = fc.getReImport();
+					if (list != null && list.size() > 0)
+						l.addAll(list);
+				}
+			}
+		}
+		return l;
+	}
+	
+	/**
+	 * Sets to <code>true</code> to mark the file for reimport.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param Pass <code>true</code> to mark the file for reimport.
+	 * <code>false</code> otherwise.
+	 */
+	public void setReimported(boolean reimported)
+	{ 
+		this.reimported = reimported;
+		reimportedLabel.setVisible(true);
+		repaint();
 	}
 	
 	/**

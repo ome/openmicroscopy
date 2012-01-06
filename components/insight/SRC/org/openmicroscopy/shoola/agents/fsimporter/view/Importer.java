@@ -186,6 +186,14 @@ public interface Importer
 	 */
 	public boolean hasFailuresToSend();
 	
+	/**
+	 * Returns <code>true</code> if files to re-import, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasFailuresToReimport();
+	
 	/** 
 	 * Sets the used and available disk space.
 	 * 

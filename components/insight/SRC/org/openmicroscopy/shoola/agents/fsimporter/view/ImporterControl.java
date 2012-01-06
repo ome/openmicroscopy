@@ -27,6 +27,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -285,6 +286,10 @@ class ImporterControl
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		String email = exp.getEmail();
 		if (email == null) email = "";
+		//Get log File
+		File f = new File(ImporterAgent.getRegistry().getLogger().getLogFile());
+		object = new ImportErrorObject(f, null);
+		toSubmit.add(object);
 		un.notifyError("Import Failures", "Files that failed to import", email, 
 				toSubmit, this);
 	}
@@ -344,7 +349,9 @@ class ImporterControl
 		} else if (ClosableTabbedPane.CLOSE_TAB_PROPERTY.equals(name)) {
 			model.removeImportElement(evt.getNewValue());
 		} else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
-			getAction(SEND_BUTTON).setEnabled(model.hasFailuresToSend());
+			//getAction(SEND_BUTTON).setEnabled(model.hasFailuresToSend());
+			getAction(SEND_BUTTON).setEnabled(view.hasSelectedFailuresToSend());
+			getAction(RETRY_BUTTON).setEnabled(view.hasFailuresToReimport());
 		} else if (FileImportComponent.DISPLAY_ERROR_PROPERTY.equals(name)) {
 			ErrorDialog d = new ErrorDialog(view, 
 					(Throwable) evt.getNewValue());

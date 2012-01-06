@@ -575,6 +575,7 @@ public class TaskBarManager
     /** Opens the directory where the log file is. */
     private void logFile()
     {
+    	//To be reviewed
     	String logDirName = (String) container.getRegistry().lookup(
     			LookupNames.LOG_DIR);	
 		String name = (String) container.getRegistry().lookup(

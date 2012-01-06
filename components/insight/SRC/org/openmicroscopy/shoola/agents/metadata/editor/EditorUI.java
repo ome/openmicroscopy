@@ -193,7 +193,7 @@ class EditorUI
 		groupUI.addPropertyChangeListener(controller);
 		userUI = new UserUI(model, controller);
 		toolBar = new ToolBar(model, controller);
-		generalPane = new GeneralPaneUI(this, model, controller);
+		generalPane = new GeneralPaneUI(this, model, controller, toolBar);
 		acquisitionPane = new AcquisitionDataUI(this, model, controller);
 		tabPane = new JTabbedPane();
 		tabPane.addChangeListener(controller);
@@ -212,7 +212,7 @@ class EditorUI
 	{
 		setLayout(new BorderLayout(0, 0));
 		setBackground(UIUtilities.BACKGROUND_COLOR);
-		add(toolBar, BorderLayout.NORTH);
+		//add(toolBar, BorderLayout.NORTH);
 		add(component, BorderLayout.CENTER);
 	}
 	
