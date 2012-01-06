@@ -392,34 +392,6 @@ class MetadataViewerComponent
 				imageID = data.getId();
 				pixelsID = data.getDefaultPixels().getId();
 			}
-			//check if I can save first
-			/*
-			if (model.isWritable()) {
-				Registry reg = MetadataViewerAgent.getRegistry();
-				RndProxyDef def = null;
-				try {
-					def = rnd.saveCurrentSettings();
-				} catch (Exception e) {
-					try {
-						reg.getImageService().resetRenderingService(pixelsID);
-						def = rnd.saveCurrentSettings();
-					} catch (Exception ex) {
-						String s = "Data Retrieval Failure: ";
-				    	LogMessage msg = new LogMessage();
-				        msg.print(s);
-				        msg.print(e);
-				        reg.getLogger().error(this, msg);
-					}
-				}
-				EventBus bus = 
-					MetadataViewerAgent.getRegistry().getEventBus();
-				bus.post(new RndSettingsSaved(pixelsID, def));
-			}
-			
-			if (imageID >= 0 && model.isWritable()) {
-				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
-			}
-			*/
 		}
 		model.setRootObject(root);
 		view.setRootObject();
@@ -428,6 +400,12 @@ class MetadataViewerComponent
 		setParentRootObject(null, null);
 	}
 
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#refresh()
+	 */
+	public void refresh() { model.refresh(); }
+	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#setParentRootObject(Object, Object)

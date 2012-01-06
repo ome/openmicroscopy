@@ -635,4 +635,6 @@ public interface MetadataViewer
 	 */
 	JFrame getParentUI();
 	
+	/** Refreshes the view. */
+	void refresh();
 }

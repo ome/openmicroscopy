@@ -2500,7 +2500,7 @@ class EditorModel
 	}
 	
 	/** Refreshes the view. */
-	void refresh() { parent.setRootObject(getRefObject(), getUserID()); }
+	void refresh() { parent.refresh(); }
 	
 	/**
 	 * Sets the collection of scripts.

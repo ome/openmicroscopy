@@ -265,8 +265,19 @@ class MetadataViewerModel
 		browser.setRootObject(refObject);
 		editor.setRootObject(refObject);
 		data = null;
+		if (!(refObject instanceof WellSampleData) && parentData != null) {
+			parentData = null;
+		}
 		parentRefObject = null;
 		viewedBy = null;
+	}
+	
+	/** Refreshes the general view.*/
+	void refresh()
+	{
+		data = null;
+		parentData = null;
+		browser.setRootObject(refObject);
 	}
 	
 	/**
