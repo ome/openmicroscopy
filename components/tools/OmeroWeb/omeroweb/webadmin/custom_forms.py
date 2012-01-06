@@ -36,7 +36,7 @@ from django.utils.encoding import smart_unicode
 # Fields
 
 class OmeNameField(forms.CharField):
-    def clean(self, value):
+    def to_python(self, value):
         omeName = value
         if not value:
             raise forms.ValidationError('This field is required.')
@@ -88,8 +88,7 @@ class ServerModelChoiceField(ModelChoiceField):
 
     choices = property(_get_choices, _set_choices)
 
-    def clean(self, value):
-        Field.clean(self, value)
+    def to_python(self, value):
         if value in EMPTY_VALUES:
             return None
         res = False
@@ -147,8 +146,7 @@ class GroupModelChoiceField(ModelChoiceField):
 
     choices = property(_get_choices, _set_choices)
 
-    def clean(self, value):
-        Field.clean(self, value)
+    def to_python(self, value):
         if value in EMPTY_VALUES:
             return None
         res = False
@@ -179,7 +177,7 @@ class GroupModelMultipleChoiceField(GroupModelChoiceField):
             cache_choices, required, widget, label, initial, help_text,
             *args, **kwargs)
 
-    def clean(self, value):
+    def to_python(self, value):
         if self.required and not value:
             raise ValidationError(self.error_messages['required'])
         elif not self.required and not value:
@@ -279,8 +277,7 @@ class ExperimenterModelChoiceField(ModelChoiceField):
 
     choices = property(_get_choices, _set_choices)
 
-    def clean(self, value):
-        Field.clean(self, value)
+    def to_python(self, value):
         if value in EMPTY_VALUES:
             return None
         res = False
@@ -312,7 +309,7 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
             *args, **kwargs)
         
 
-    def clean(self, value):
+    def to_python(self, value):
         if self.required and not value:
             raise ValidationError(self.error_messages['required'])
         elif not self.required and not value:
@@ -342,7 +339,7 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
 
 class DefaultGroupField(ChoiceField):
     
-    def clean(self, value):
+    def to_python(self, value):
         """
         Check that the field was selected.
         """
