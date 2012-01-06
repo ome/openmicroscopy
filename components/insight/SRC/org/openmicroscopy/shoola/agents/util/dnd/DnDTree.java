@@ -470,8 +470,13 @@ public class DnDTree
 		//dragSource.startDrag(e, getCursor(e.getDragAction()), trans, this);
 		try {
 			setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
-			dragSource.startDrag(e, getCursor(e.getDragAction()), imgGhost,
-					new Point(5, 5), trans, this);
+			if (DragSource.isDragImageSupported()) {
+				e.startDrag(getCursor(e.getDragAction()), imgGhost,
+						new Point(5, 5), trans, this);
+			} else {
+				e.startDrag(getCursor(e.getDragAction()), trans, this);
+			}
+				
 		} catch (Exception ex) {
 			//already an on-going dragging action.
 		}
@@ -506,7 +511,8 @@ public class DnDTree
 	 */
 	public void dragEnter(DragSourceDragEvent dsde)
 	{
-		dsde.getDragSourceContext().setCursor(getCursor(dsde.getDropAction()));
+		setCursor(defaultCursor);
+		//dsde.getDragSourceContext().setCursor(getCursor(dsde.getDropAction()));
 	}
 
 	/**
