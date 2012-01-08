@@ -600,6 +600,7 @@ class BaseContainer(BaseController):
             ann = self.conn.findTag(tag, desc)._obj
         except:
             pass
+        t_ann = None
         if ann is None:
             ann = omero.model.TagAnnotationI()
             ann.textValue = rstring(str(tag))
@@ -607,7 +608,6 @@ class BaseContainer(BaseController):
             t_ann = getattr(omero.model, otype+"AnnotationLinkI")()
             t_ann.setParent(selfobject._obj)
             t_ann.setChild(ann)
-            self.conn.saveObject(t_ann)
         else:
             # Tag exists - check it isn't already linked to parent by this user
             params = omero.sys.Parameters()
@@ -619,7 +619,13 @@ class BaseContainer(BaseController):
                 t_ann = getattr(omero.model, otype+"AnnotationLinkI")()
                 t_ann.setParent(selfobject._obj)
                 t_ann.setChild(ann)
-                self.conn.saveObject(t_ann)
+        if t_ann is None: return
+        link_obj = self.conn.getUpdateService().saveAndReturnObject(t_ann)
+        # need to retrieve Tags with link loaded - should only be 1 link to this tag
+        links = self.conn.getAnnotationLinks (otype, parent_ids=[selfobject.getId()], ann_ids=[link_obj.child.getId().getValue()])
+        fa_link = links.next()  # get first item in generator
+        fa = fa_link.getAnnotation()
+        return fa
     
     def checkMimetype(self, file_type):
         if file_type is None or len(file_type) == 0:

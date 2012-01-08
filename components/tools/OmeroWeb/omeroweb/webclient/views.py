@@ -1564,7 +1564,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag}
     elif action == 'newtag':
         # form allows creating new tag AND adding existing tags
-        template = "webclient/annotations/annotation_new_form.html"
+        template = "webclient/annotations/tags_form.html"
         form_tag = TagAnnotationForm()
         form_tags = TagListForm(initial={'tags':manager.getTagsByObject()})
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'form_tags':form_tags, 'index':index}
@@ -1873,18 +1873,25 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'index':index}
     elif action == 'addtag':
-        # Handles creation of a new tag from the 'newtag' form above
+        print "addtag"
+        # Handles creation of a new tag AND uses existing tags from the 'newtag' form above
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newtag", o_type, o_id]))
         form_tag = TagAnnotationForm(data=request.REQUEST.copy())
+        tag_list = manager.getTagsByObject()
+        form_tags = TagListForm(data=request.REQUEST.copy(), initial={'tags':tag_list})
+        linked_tags = []
+        if form_tags.is_valid() and o_type is not None and o_id > 0:
+            tags = form_tags.cleaned_data['tags']
+            linked_tags = manager.createAnnotationLinks(o_type, 'tag', tags)
         if form_tag.is_valid() and o_type is not None and o_id > 0:
             tag = form_tag.cleaned_data['tag']
             desc = form_tag.cleaned_data['description']
-            manager.createTagAnnotation(o_type, tag, desc)
-            return HttpResponseRedirect(url)
-        else:
-            template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'index':index}
+            new_tag = manager.createTagAnnotation(o_type, tag, desc)
+            print new_tag.link
+            linked_tags.append(new_tag)
+        template = "webclient/annotations/tags.html"
+        context = {'tags':linked_tags}
     elif action == 'addtagonly':
         # Creates a new tag. Submitted from the 'newtagonly' form above. TODO: not used now?
         if not request.method == 'POST':

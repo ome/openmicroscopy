@@ -303,6 +303,44 @@
                 }).hide();
 
 
+                // Choose to add tags...
+                $("#launch_tags_form").click(function(event) {
+                    $("#add_tags_form").dialog("open");
+                    // load form via AJAX...
+                    var load_url = $(this).attr('href');
+                    $("#add_tags_form form").load(load_url);
+                    return false;
+                });
+                // set-up the tags form to use dialog
+                $("#add_tags_form").dialog({
+                    autoOpen: false,
+                    resizable: true,
+                    height: 410,
+                    width:420,
+                    modal: true,
+                    buttons: {
+                        "Accept": function() {
+                            // simply submit the form (AJAX handling set-up above)
+                            $("#add_tags_form form").submit();
+                            $( this ).dialog( "close" );
+                        },
+                        "Cancel": function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                $('#add_tags_form form').ajaxForm({
+                    success: function(data) {
+                        // update the list of tags
+                        var $tag = $(data);
+                        $("#tags_container").prepend($tag);
+                        $(".removeTag", $tag).click(function(event) {
+                            removeItem(event, "tag_annotation_wrapper");
+                        });
+                    }
+                });
+
+
                 // Choose to upload a local file...
                 $("#choose_local_document").click(function(event) {
                     $("#upload_file_form input[type=file]").click();    // 'click' the hidden file field to launch file chooser
@@ -370,7 +408,6 @@
                     // show dialog first, then do the AJAX call to load files...
                     var attach_form = $( "#choose_attachments_form" );
                     attach_form.dialog( "open" );
-
                     // load form via AJAX...
                     var load_url = $(this).attr('href');
                     $("form", attach_form).load(load_url + " #id_files");   // only load the files field
@@ -766,36 +803,26 @@
             <tr>
                 <th>{% trans "Tag" %}:</th>
                 <td style="vertical-align: middle">
-                    {% if manager.project.isEditable %}<a href="{% url manage_action_containers "newtag" "project" manager.project.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.dataset.isEditable %}<a href="{% url manage_action_containers "newtag" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.image.isEditable %}<a href="{% url manage_action_containers "newtag" "image" manager.image.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" height='11' width='11' alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.screen.isEditable %}<a href="{% url manage_action_containers "newtag" "screen" manager.screen.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.plate.isEditable %}<a href="{% url manage_action_containers "newtag" "plate" manager.plate.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.acquisition.isEditable %}<a href="{% url manage_action_containers "newtag" "acquisition" manager.acquisition.id %}?url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                    {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newtag" "well" manager.well.id %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}"><img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>
-                    {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
+                    {% if manager.isEditable %}
+                    <a id="launch_tags_form" href="{% url manage_action_containers 'newtag' manager.obj_type manager.obj_id %}">
+                        <!-- link for loading tags we can add to this object. Loaded by AJAX into form below & displayed as dialog -->
+                        <img src="{% static 'webclient/image/plus_11.png' %}" alt="e" title="Add Tags."/>
+                    </a>
+                    {% endif %}
                 </td>
+                <!-- hidden form for choosing new or existing Tags in dialog - load form via AJAX when we show dialog -->
+                <div id='add_tags_form' title="Tags Selection">
+                    <p>Select the Tags to add, or Create new Tags</p>
+                    <form action="{% url manage_action_containers 'addtag' manager.obj_type manager.obj_id %}" method="post">
+                    </form>
+                </div>
+                <!-- display existing Tags -->
                 <td>
-                    {% if manager.tgannSize %}
-                    <div class="lntags">
+                    <div id="tags_container" class="lntags">
                     {% for tag in manager.tag_annotations %}
-                        <span class="tag_annotation_wrapper">
-                            <a class='tooltip' href="{% url load_template "usertags" %}{% if not tag.isOwned %}?experimenter={{ tag.getOwner.id }}{% endif %}" target="_top"> {{ tag.textValue }}</a> 
-                            {% if tag.link.isOwned %}
-                                <img class='removeTag' id="{{ tag.id }}-tag" src="{% static "webclient/image/minus_11.png" %}" title="Unlink"/>
-                            {% endif %}
-                            <span style='display:none'>
-                                <b>Owner:</b> {{ tag.getOwner.getFullName }}<br />
-                                <b>Linked by:</b> {{ tag.link.getDetails.getOwner.getFullName }}<br />
-                                <b>On:</b> {{ tag.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
-                                <b>Description:</b> {{ tag.description|default_if_none:""|truncatewords:10  }}
-                            </span>
-                        </span>
+                        {% include "webclient/annotations/tag.html" %}
                     {% endfor %}
                     </div>
-                    {% else %}
-                        {% trans "No tags" %}
-                    {% endif %}
                 </td>
             </tr>
             <!-- FILES -->
@@ -810,7 +837,7 @@
                         <ul class="dropdown_menu_options">
                             <li><a id="choose_local_document" href="#">Local document...</a></li>
                             <li>
-                                <a id="choose_uploaded_document" href="{% url manage_action_containers 'newfile' manager.obj_type manager.obj_id %}?url={{url}}">
+                                <a id="choose_uploaded_document" href="{% url manage_action_containers 'newfile' manager.obj_type manager.obj_id %}">
                                     Uploaded document...
                                 </a>
                             </li>
@@ -835,6 +862,7 @@
                     </div>
                     
                 </td>
+                <!-- display existing file annotations -->
                 <td>
                     <div id="fileanns_container" class="lnfiles">
                         {% for fileann in manager.file_annotations %}
