@@ -31,26 +31,6 @@ class TestTickets4000(lib.ITest):
         self.loginAttempt(name, 0.15, less=True)
         self.loginAttempt(name, 3.0)
 
-    def loginAttempt(self, name, t, pw="BAD", less=False):
-        c = omero.client()
-        try:
-            t1 = time.time()
-            try:
-                c.createSession(name, pw)
-                if pw == "BAD":
-                    self.fail("Should not reach this point")
-            except Glacier2.PermissionDeniedException:
-                if pw != "BAD":
-                    raise
-            t2 = time.time()
-            T = (t2-t1)
-            if less:
-                self.assertTrue(T < t, "%s > %s" % (T, t))
-            else:
-                self.assertTrue(T > t, "%s < %s" % (T, t))
-        finally:
-            c.__del__()
-
     def testChangeActiveGroup(self):
         admin = self.client.sf.getAdminService()
 
