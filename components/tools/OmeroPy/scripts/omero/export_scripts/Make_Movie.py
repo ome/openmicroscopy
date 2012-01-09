@@ -277,15 +277,15 @@ def calculateRanges(sizeZ, sizeT, commandArgs):
     if "Plane_Map" not in commandArgs:
         zStart = 0
         zEnd = sizeZ
-        if "Z_Start" in commandArgs and commandArgs["Z_Start"] > 0 and commandArgs["Z_Start"] < sizeZ:
+        if "Z_Start" in commandArgs and commandArgs["Z_Start"] >= 0 and commandArgs["Z_Start"] < sizeZ:
             zStart = commandArgs["Z_Start"]
-        if "Z_End" in commandArgs and commandArgs["Z_End"] > 0 and commandArgs["Z_End"] < sizeZ:
+        if "Z_End" in commandArgs and commandArgs["Z_End"] >= 0 and commandArgs["Z_End"] < sizeZ and commandArgs["Z_End"] >= zStart:
             zEnd = commandArgs["Z_End"]+1
         tStart = 0
         tEnd = sizeT-1
-        if "T_Start" in commandArgs and commandArgs["T_Start"] > 0 and commandArgs["T_Start"] < sizeT:
+        if "T_Start" in commandArgs and commandArgs["T_Start"] >= 0 and commandArgs["T_Start"] < sizeT:
             tStart = commandArgs["T_Start"]
-        if "T_End" in commandArgs and commandArgs["T_End"] > 0 and commandArgs["T_End"] < sizeT:
+        if "T_End" in commandArgs and commandArgs["T_End"] >= 0 and commandArgs["T_End"] < sizeT and commandArgs["T_End"] >= tStart:
             tEnd = commandArgs["T_End"]+1
         if(zEnd==zStart):
             zEnd=zEnd+1;
