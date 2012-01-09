@@ -273,13 +273,34 @@
         </condition>
         <property name="ice.home" value="/usr/share/Ice"/>
 
+        <!-- Checking the slice2* version before continuing. See #1185 -->
+        <exec outputproperty="executable.ice.version" executable="slice2java">
+            <arg value="--version"/>
+        </exec>
+
         <!-- Checking ice compatibility and choose the proper version -->
-        <if>
-            <equals arg1="3.3" arg2="${ice.compatibility}"/>
+        <if><equals arg1="auto" arg2="${ice.compatibility}"/>
             <then>
-                <property name="versions.ice" value="${versions.ice33}"/>
-                <property name="versions.ice_lib" value="${versions.ice33_lib}"/>
+                <if><matches string="${executable.ice.version}" pattern="^3[.]3"/>
+                    <then>
+                        <property name="versions.ice" value="${versions.ice33}"/>
+                        <property name="versions.ice_lib" value="${versions.ice33_lib}"/>
+                    </then>
+                </if>
+                <if><matches string="${executable.ice.version}" pattern="^3[.]4"/>
+                    <then>
+                        <property name="versions.ice" value="${versions.ice34}"/>
+                        <property name="versions.ice_lib" value="${versions.ice34_lib}"/>
+                    </then>
+                </if>
             </then>
+            <elseif>
+                <equals arg1="3.3" arg2="${ice.compatibility}"/>
+                <then>
+                    <property name="versions.ice" value="${versions.ice33}"/>
+                    <property name="versions.ice_lib" value="${versions.ice33_lib}"/>
+                </then>
+            </elseif>
             <elseif>
                 <equals arg1="3.4" arg2="${ice.compatibility}"/>
                 <then>

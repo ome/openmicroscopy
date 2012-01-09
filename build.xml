@@ -122,7 +122,13 @@ java component.
         <exec outputproperty="executable.ice.version" executable="slice2java">
             <arg value="--version"/>
         </exec>
-        <if><not><matches pattern="^${ice.compatibility}" string="${executable.ice.version}"/></not>
+        <if>
+            <not>
+                <or>
+                    <matches pattern="^${ice.compatibility}" string="${executable.ice.version}"/>
+                    <matches pattern="^${ice.compatibility}" string="auto"/>
+                </or>
+            </not>
             <then><fail>WRONG ICE VERSION!
 
                 slice2java version = ${executable.ice.version}
@@ -712,7 +718,7 @@ omero.version=${omero.version}
     </target>
 
     <target name="version">
-      <echo>${omero.version}</echo>
+        <echo>${omero.version}-ice${versions.ice_lib}</echo>
     </target>
 
 </project>
