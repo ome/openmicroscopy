@@ -28,9 +28,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -105,6 +102,9 @@ class BrowserControl
     /** The location of the mouse pressed.*/
     private Point anchor;
     
+    /** The source of the mouse pressed.*/
+    private Component source;
+    
     /** The rectangle used to select multiple nodes.*/
     private Rectangle selection = new Rectangle();
     
@@ -164,6 +164,7 @@ class BrowserControl
     {
     	if (me.getClickCount() == 1) {
     		ImageDisplay d = findParentDisplay(me.getSource());
+    		if (d == view) return;
         	d.moveToFront();
         	handleSelection(d, me);
         	me = SwingUtilities.convertMouseEvent((Component) me.getSource(),
@@ -182,6 +183,7 @@ class BrowserControl
         		|| me.isControlDown() || me.isShiftDown())) {
     		Object src = me.getSource();
             ImageDisplay d = findParentDisplay(src);
+            if (d == view) return;
             if (d instanceof ImageNode && !(d.getTitleBar() == src)
                 && isSelectionValid(d)) {
             	model.viewDisplay(d);
@@ -342,14 +344,6 @@ class BrowserControl
     	node.addMouseListenerToComponents(this);
     	node.addPropertyChangeListener(this);
     }
-
-    private void handleKeySelection()
-    {
-    	SelectionVisitor visitor = new SelectionVisitor(selection, 
-				true);
-		view.accept(visitor);
-		model.setSelectedDisplays(visitor.getSelected());
-    }
     
     /**
      * Creates a new Controller for the specified <code>model</code> and
@@ -365,26 +359,11 @@ class BrowserControl
         if (model == null) throw new NullPointerException("No model.");
         if (view == null) throw new NullPointerException("No view.");
         model.addPropertyChangeListener(
-        		Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY,
-                                        this);
-        model.addPropertyChangeListener(Browser.ROLL_OVER_PROPERTY,
-                                            this);
+        		Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY, this);
+        model.addPropertyChangeListener(Browser.ROLL_OVER_PROPERTY, this);
         this.model = model;
         this.view = view;
         view.getInternalDesktop().addMouseMotionListener(this);
-        System.err.println("here");
-        view.addKeyListener(new KeyAdapter() {
-        	public void keyPressed(KeyEvent e) {
-        		System.err.println(e.getKeyCode() == KeyEvent.VK_A);
-        		switch (e.getKeyCode()) {
-        			case KeyEvent.VK_A:
-        				if ((e.isControlDown() && UIUtilities.isWindowsOS()) || 
-        					(e.isMetaDown() && !UIUtilities.isWindowsOS())) {
-        					handleKeySelection();
-        				}
-        		}
-        	}
-		});
     }
     
     /**
@@ -505,14 +484,15 @@ class BrowserControl
      */
     public void mousePressed(MouseEvent me)
     {
-    	Collection l = model.getSelectedDisplays();
-    	boolean b = shiftDown && l != null && l.size() > 0;
-    	if (!dragging && !b)
-    		anchor = SwingUtilities.convertPoint((Component) me.getSource(), me.getPoint(), view.getInternalDesktop());;//me.getPoint();
+    	anchor = me.getPoint();
     	shiftDown = me.isShiftDown();
 		if (dragging) return;
-		
-		if (shiftDown && l != null && l.size() > 0)
+		Collection l = model.getSelectedDisplays();
+		if (source == null) {
+			if (l.size() == 0) source = (JComponent) me.getSource();
+			else source = (JComponent) ((List) l).get(0);
+		}
+		if (shiftDown && l.size() > 0)
 			return;
     	rightClickPad = UIUtilities.isMacOS() && 
     	SwingUtilities.isLeftMouseButton(me) && me.isControlDown();
@@ -538,17 +518,26 @@ class BrowserControl
     		return;
     	}
     	Collection l = model.getSelectedDisplays();
-    	if (shiftDown && l != null && l.size() >= 1) {
-    		Point p = me.getPoint();
-    		SwingUtilities.convertPoint((Component) me.getSource(), p, view.getInternalDesktop());
-			setSelection(me.getPoint());
-			System.err.println("shift");
+    	if (shiftDown && l.size() >= 1) {
+    		if (source == null) source = (JComponent) ((List) l).get(0);
+    		ImageDisplay display = findParentDisplay((Component) me.getSource());
+    		Rectangle rS = display.getBounds();
+    		display = findParentDisplay(source);
+    		Rectangle rAnchor =  display.getBounds();
+    		selection.width = Math.abs(rS.x-rAnchor.x)+rS.width;
+    		selection.height = Math.abs(rS.y-rAnchor.y)+rS.height;
+    		if (rAnchor.x < rS.x) selection.x = rAnchor.x;
+    		else selection.x = rS.x;
+    		if (rAnchor.y < rS.y) selection.y = rAnchor.y;
+    		else selection.y = rS.y;
 			SelectionVisitor visitor = new SelectionVisitor(selection, true);
 			view.accept(visitor);
 			shiftDown = me.isShiftDown();
-			//model.setSelectedDisplays(visitor.getSelected());
+			if (!shiftDown) source = null;
+			model.setSelectedDisplays(visitor.getSelected());
 			return;
 		}
+    	source = null;
     	leftMouseButton = SwingUtilities.isLeftMouseButton(me);
     	if (UIUtilities.isWindowsOS()) onClick(me, true);
     }
@@ -597,21 +586,6 @@ class BrowserControl
     	model.setRollOverNode(null);
     }
     
-    /** 
-     * Sets the selection.
-     * 
-     * @param p The location of the mouse.
-     */
-    private void setSelection(Point p)
-    {
-    	selection.width = Math.abs(p.x-anchor.x);
-		selection.height = Math.abs(p.y-anchor.y);
-		if (anchor.x < p.x) selection.x = anchor.x;
-		else selection.x = p.x;
-		if (anchor.y < p.y) selection.y = anchor.y;
-		else selection.y = p.y;
-    }
-    
     /**
      * Highlights the nodes if the <code>SHIFT</code> key is down.
      * @see MouseMotionListener#mouseDragged(MouseEvent)
@@ -620,7 +594,13 @@ class BrowserControl
 	{
 		if (e.getSource() != view.getInternalDesktop()) return;
 		dragging = true;
-		setSelection(e.getPoint());
+		Point p = e.getPoint();
+		selection.width = Math.abs(p.x-anchor.x);
+		selection.height = Math.abs(p.y-anchor.y);
+		if (anchor.x < p.x) selection.x = anchor.x;
+		else selection.x = p.x;
+		if (anchor.y < p.y) selection.y = anchor.y;
+		else selection.y = p.y;
 		handleMultiSelection(true);
 	}
     
