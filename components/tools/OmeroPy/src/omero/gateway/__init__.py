@@ -14,6 +14,7 @@
 import os,sys
 THISPATH = os.path.dirname(os.path.abspath(__file__))
 
+import warnings
 import shutil
 import tempfile
 from types import IntType, LongType, UnicodeType, ListType, TupleType, StringType, StringTypes
@@ -2813,16 +2814,36 @@ class _BlitzGateway (object):
         u = self.getUpdateService() 
         u.deleteObject(obj)
 
-    def deleteObjects(self, obj_type, obj_ids, deleteAnns=False, deleteChildren=False):
+    def deleteObjects(self, delete_spec, obj_ids, deleteAnns=False,
+                      deleteChildren=False):
         """
-        Generic method for deleting using the delete queue.
-        Supports deletion of 'Project', 'Dataset', 'Image', 'Screen', 'Plate', 'Well', 'Annotation'.
-        Options allow to delete 'independent' Annotations (Tag, Term, File) and to delete child objects.
+        Generic method for deleting using the delete queue. Options allow to
+        delete 'independent' Annotations (Tag, Term, File) and to delete
+        child objects.
 
-        @param obj_type:        String to indicate 'Project', 'Image' etc.
+        @param delete_spec:     String to indicate the delete specification.
+                                E.g. '/Project', '/Image', etc. NOTE: Prior
+                                to OMERO 4.4.0 'Project', 'Image', etc. were
+                                valid delete specifications for this method
+                                and this functionality is preserved but
+                                deprecated for:
+                                 * 'Project'
+                                 * 'Dataset'
+                                 * 'Image'
+                                 * 'Screen'
+                                 * 'Plate'
+                                 * 'Well'
+                                 * 'Annotation'
+                                A deprecation warning is raised if a legacy
+                                object type is passed in. Furthermore using
+                                the correct case is now explicitly required,
+                                the use of 'project' or 'dataset' is no
+                                longer supported.
         @param obj_ids:         List of IDs for the objects to delete
-        @param deleteAnns:      If true, delete linked Tag, Term and File annotations
-        @param deleteChildren:  If true, delete children. E.g. Delete Project AND it's Datasets & Images.
+        @param deleteAnns:      If true, delete linked Tag, Term and File
+                                annotations
+        @param deleteChildren:  If true, delete children. E.g. Delete Project
+                                AND it's Datasets & Images.
         @return:                Delete handle
         @rtype:                 L{omero.api.delete.DeleteHandle}
         """
@@ -2830,33 +2851,39 @@ class _BlitzGateway (object):
         if not isinstance(obj_ids, list) and len(obj_ids) < 1:
             raise AttributeError('Must be a list of object IDs')
 
+        if not delete_spec.startswith('/'):
+            delete_spec = '/%s' % delete_spec
+            warnings.warn('Legacy object types are deprecated, using "/%s"' % \
+                    delete_spec)
+
         op = dict()
-        if not deleteAnns and obj_type not in ["Annotation", "TagAnnotation"]:
+        if not deleteAnns and delete_spec not in ["/Annotation",
+                                                  "/TagAnnotation"]:
             op["/TagAnnotation"] = "KEEP"
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
 
-        childTypes = {'Project':['/Dataset', '/Image'],
-                'Dataset':['/Image'],
-                'Image':[],
-                'Screen':['/Plate'],
-                'Plate':['/Image'],
-                'Well':[],
-                'Annotation':[] }
+        childTypes = {'/Project':['/Dataset', '/Image'],
+                '/Dataset':['/Image'],
+                '/Image':[],
+                '/Screen':['/Plate'],
+                '/Plate':['/Image'],
+                '/Well':[],
+                '/Annotation':[] }
 
-        obj_type = obj_type.title()
-        if obj_type not in childTypes:
-            m = """%s is not an object type. Must be: Project, Dataset, Image, Screen, Plate, Well, Annotation""" % obj_type
-            raise AttributeError(m)
         if not deleteChildren:
-            for c in childTypes[obj_type]:
-                op[c] = "KEEP"
+            try:
+                for c in childTypes[delete_spec]:
+                    op[c] = "KEEP"
+            except KeyError:
+                pass
 
-        #return self.simpleDelete(obj_type, obj_ids, op)
         dcs = list()
-        logger.debug('Deleting %s [%s]. Options: %s' % (obj_type, str(obj_ids), op))
+        logger.debug('Deleting %s [%s]. Options: %s' % \
+                (delete_spec, str(obj_ids), op))
         for oid in obj_ids:
-            dcs.append(omero.api.delete.DeleteCommand("/%s" % obj_type, long(oid), op))
+            dcs.append(omero.api.delete.DeleteCommand(
+                delete_spec, long(oid), op))
         handle = self.getDeleteService().queueDelete(dcs)
         return handle
 
