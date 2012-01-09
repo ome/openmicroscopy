@@ -423,6 +423,39 @@ class ITest(unittest.TestCase):
         jpeg = Image.open(tfile) # Raises if invalid
         return jpeg
 
+    def loginAttempt(self, name, t, pw="BAD", less=False):
+        """
+        Checks that login happens in less than or greater than
+        the given time. By default, the password "BAD" is used,
+        and the expectation is that login will take greather
+        than the specified time since the password won't match.
+        To check that logins happen more quickly, pass the
+        correct password and less=True:
+
+            loginAttempt("user", 0.15, pw="REALVALUE", less=True)
+
+        See integration.tickets4000 and 5000
+        """
+        c = omero.client()
+        try:
+            t1 = time.time()
+            try:
+                c.createSession(name, pw)
+                if pw == "BAD":
+                    self.fail("Should not reach this point")
+            except Glacier2.PermissionDeniedException:
+                if pw != "BAD":
+                    raise
+            t2 = time.time()
+            T = (t2-t1)
+            if less:
+                self.assertTrue(T < t, "%s > %s" % (T, t))
+            else:
+                self.assertTrue(T > t, "%s < %s" % (T, t))
+        finally:
+            c.__del__()
+
+
     def tearDown(self):
         failure = False
         self.__clients.__del__()
