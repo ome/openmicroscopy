@@ -2815,14 +2815,14 @@ class _BlitzGateway (object):
 
     def deleteObjects(self, obj_type, obj_ids, deleteAnns=False, deleteChildren=False):
         """
-        Generic method for deleting using the delete queue. 
+        Generic method for deleting using the delete queue.
         Supports deletion of 'Project', 'Dataset', 'Image', 'Screen', 'Plate', 'Well', 'Annotation'.
         Options allow to delete 'independent' Annotations (Tag, Term, File) and to delete child objects.
 
-        @param obj_type:        String to indicate 'Project', 'Image' etc. 
+        @param obj_type:        String to indicate 'Project', 'Image' etc.
         @param obj_ids:         List of IDs for the objects to delete
         @param deleteAnns:      If true, delete linked Tag, Term and File annotations
-        @param deleteChildren:  If true, delete children. E.g. Delete Project AND it's Datasets & Images.  
+        @param deleteChildren:  If true, delete children. E.g. Delete Project AND it's Datasets & Images.
         @return:                Delete handle
         @rtype:                 L{omero.api.delete.DeleteHandle}
         """
@@ -2843,7 +2843,7 @@ class _BlitzGateway (object):
                 'Plate':['/Image'],
                 'Well':[],
                 'Annotation':[] }
-    
+
         obj_type = obj_type.title()
         if obj_type not in childTypes:
             m = """%s is not an object type. Must be: Project, Dataset, Image, Screen, Plate, Well, Annotation""" % obj_type
@@ -2859,7 +2859,6 @@ class _BlitzGateway (object):
             dcs.append(omero.api.delete.DeleteCommand("/%s" % obj_type, long(oid), op))
         handle = self.getDeleteService().queueDelete(dcs)
         return handle
-
 
     ###################
     # Searching stuff #
