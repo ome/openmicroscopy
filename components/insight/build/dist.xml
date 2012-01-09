@@ -125,6 +125,9 @@
     <zip destfile="${dist.dir}/${main-dist-prefix}-win64-openGL.zip">
       <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
     </zip>
+    <zip destfile="${dist.dir}/${distEditor.bundle.name}-${dist.bundle.version}-win.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
   </target>
 
   <target name="exe4j-echo-on-missing" unless="dist.exe4j.exists">
