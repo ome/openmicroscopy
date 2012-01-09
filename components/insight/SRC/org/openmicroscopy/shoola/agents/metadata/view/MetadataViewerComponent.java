@@ -377,22 +377,6 @@ class MetadataViewerComponent
 			userID = -1;
 		}
 		//Previewed the image.
-		Renderer rnd = model.getEditor().getRenderer();
-		if (rnd != null && getRndIndex() == RND_GENERAL) {
-			//save settings 
-			long imageID = -1;
-			long pixelsID = -1;
-			Object obj = model.getRefObject();
-			if (obj instanceof WellSampleData) {
-				WellSampleData wsd = (WellSampleData) obj;
-				obj = wsd.getImage();
-			}
-			if (obj instanceof ImageData) {
-				ImageData data = (ImageData) obj;
-				imageID = data.getId();
-				pixelsID = data.getDefaultPixels().getId();
-			}
-		}
 		model.setRootObject(root);
 		view.setRootObject();
 		//reset the parent.
@@ -605,7 +589,7 @@ class MetadataViewerComponent
 	 */
 	public void setRelatedNodes(List nodes)
 	{
-		setRootObject(model.getRefObject(), model.getUserID());
+		//setRootObject(model.getRefObject(), model.getUserID());
 		model.setRelatedNodes(nodes);
 	}
 

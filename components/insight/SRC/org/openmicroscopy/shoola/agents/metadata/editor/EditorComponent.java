@@ -383,6 +383,7 @@ class EditorComponent
 	 */
 	public void setSelectionMode(boolean single)
 	{
+		if (!single) view.layoutUI();
 		view.repaint();
 	}
 

@@ -338,8 +338,10 @@ class GeneralPaneUI
 			protocolTaskPane.add(n);
 			container.add(protocolTaskPane);
 		}
-		
-		
+		container.remove(propertiesTaskPane);
+		if (!multi) {
+			container.add(propertiesTaskPane, 0); //first index
+		}
 		if (h > 0) {
 			container.add(browserTaskPane);
 			if (!browserTaskPane.isCollapsed())
