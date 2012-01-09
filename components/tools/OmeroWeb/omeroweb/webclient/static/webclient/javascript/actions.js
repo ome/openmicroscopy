@@ -174,20 +174,25 @@ var multipleAnnotation = function(selected, index, prefix){
 };
 
 var loadMetadataPanel = function(src, html) {
-    var iframe = $("div#metadata_details").find('iframe');
-    var description = $("div#metadata_description");
+    
+    var $metadataPanel = $("#metadata_details");
+    //var iframe = $("div#metadata_details").find('iframe');
+    //var description = $("div#metadata_description");
 
-    $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="../../static/common/image/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+    //$("#right_panel").show();
+    //$("#swapMeta").html('<img tabindex="0" src="../../static/common/image/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
 
     if (src!=null) {
-        description.hide();
-        iframe.show();
+        //description.hide();
+        //iframe.show();
+        $metadataPanel.load(src);
     } else {
-        iframe.hide();
-        description.show();
+        //iframe.hide();
+        //description.show();
+        $metadataPanel.html(html);
     }
 
+/*
     if (iframe.length > 0) {
         if (html!=null) {
             iframe.attr('src', "");
@@ -203,6 +208,7 @@ var loadMetadataPanel = function(src, html) {
         $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details" frameborder="0"></iframe>');
         $('iframe#metadata_details').load();
     }
+    */
 };
 
 var refreshCenterPanel = function() {

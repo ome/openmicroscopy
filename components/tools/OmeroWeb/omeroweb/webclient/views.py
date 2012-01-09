@@ -1873,7 +1873,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'index':index}
     elif action == 'addtag':
-        print "addtag"
         # Handles creation of a new tag AND uses existing tags from the 'newtag' form above
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newtag", o_type, o_id]))
@@ -1888,7 +1887,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             tag = form_tag.cleaned_data['tag']
             desc = form_tag.cleaned_data['description']
             new_tag = manager.createTagAnnotation(o_type, tag, desc)
-            print new_tag.link
             linked_tags.append(new_tag)
         template = "webclient/annotations/tags.html"
         context = {'tags':linked_tags}

@@ -1,4 +1,4 @@
-{% extends "common/base/base_frame.html" %}
+{% extends "common/base/base_html.html" %}
 {% load i18n %}
 {% load common_filters %}
 {% load common_tags %}
@@ -25,8 +25,6 @@
 {% endcomment %}
 
 {% block link %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "webclient/css/googiespell.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "webclient/css/annotation.css" %}" type="text/css" media="screen"/>
