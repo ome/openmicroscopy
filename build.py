@@ -12,6 +12,19 @@ import sys
 import time
 import subprocess
 
+
+def popen(args, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
+        copy = os.environ.copy()
+        return subprocess.Popen(args, env=copy, stdin=stdin, stdout=stdout, stderr=stderr)
+
+
+def execute(args):
+    p = popen(args, stdout=sys.stdout, stderr=sys.stderr)
+    rc = p.wait()
+    if rc != 0:
+        sys.exit(rc)
+
+
 def notification(msg, prio):
     """
     Provides UI notification.
@@ -22,8 +35,7 @@ def notification(msg, prio):
         return
 
     try:
-        p = subprocess.Popen(["growlnotify","-t","OMERO Build Status","-p",str(prio)],\
-            stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        p = popen(["growlnotify","-t","OMERO Build Status","-p",str(prio)], stdin=subprocess.PIPE)
         p.communicate(msg)
         rc = p.wait()
         if rc != 0:
@@ -98,7 +110,7 @@ def choose_omero_version():
         omero_build = os.environ["OMERO_BUILD"]
         command = [ find_java(), "omero","-q","version" ]
         try:
-            p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p = popen(command)
             omero_version,err = p.communicate()
             omero_version = omero_version.split()[1]
             return [ "-Domero.version=%s-%s" % (omero_version, omero_build) ]
@@ -107,11 +119,6 @@ def choose_omero_version():
             print err
     except KeyError, ke:
         return [] # Use default
-
-def execute(args):
-    rc = subprocess.call(args)
-    if rc != 0:
-	sys.exit(rc)
 
 
 if __name__ == "__main__":
