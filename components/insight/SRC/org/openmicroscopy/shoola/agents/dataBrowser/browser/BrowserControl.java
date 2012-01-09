@@ -28,6 +28,9 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -113,6 +116,9 @@ class BrowserControl
     
     /** Flag indicating that the {@link #glassPane} has already been added.*/
     private boolean added;
+    
+    /** Flag indicating that the multi-selection is on.*/
+    private boolean dragging;
     
     /**
      * Handles the multi-selection.
@@ -337,6 +343,14 @@ class BrowserControl
     	node.addPropertyChangeListener(this);
     }
 
+    private void handleKeySelection()
+    {
+    	SelectionVisitor visitor = new SelectionVisitor(selection, 
+				true);
+		view.accept(visitor);
+		model.setSelectedDisplays(visitor.getSelected());
+    }
+    
     /**
      * Creates a new Controller for the specified <code>model</code> and
      * <code>view</code>.
@@ -358,6 +372,19 @@ class BrowserControl
         this.model = model;
         this.view = view;
         view.getInternalDesktop().addMouseMotionListener(this);
+        System.err.println("here");
+        view.addKeyListener(new KeyAdapter() {
+        	public void keyPressed(KeyEvent e) {
+        		System.err.println(e.getKeyCode() == KeyEvent.VK_A);
+        		switch (e.getKeyCode()) {
+        			case KeyEvent.VK_A:
+        				if ((e.isControlDown() && UIUtilities.isWindowsOS()) || 
+        					(e.isMetaDown() && !UIUtilities.isWindowsOS())) {
+        					handleKeySelection();
+        				}
+        		}
+        	}
+		});
     }
     
     /**
@@ -478,10 +505,15 @@ class BrowserControl
      */
     public void mousePressed(MouseEvent me)
     {
-    	anchor = me.getPoint();
-		shiftDown = me.isShiftDown();
-		if (shiftDown) return;
+    	Collection l = model.getSelectedDisplays();
+    	boolean b = shiftDown && l != null && l.size() > 0;
+    	if (!dragging && !b)
+    		anchor = SwingUtilities.convertPoint((Component) me.getSource(), me.getPoint(), view.getInternalDesktop());;//me.getPoint();
+    	shiftDown = me.isShiftDown();
+		if (dragging) return;
 		
+		if (shiftDown && l != null && l.size() > 0)
+			return;
     	rightClickPad = UIUtilities.isMacOS() && 
     	SwingUtilities.isLeftMouseButton(me) && me.isControlDown();
     	rightClickButton = SwingUtilities.isRightMouseButton(me);
@@ -499,12 +531,24 @@ class BrowserControl
      */
     public void mouseReleased(MouseEvent me) 
     {
-    	if (shiftDown) {
+    	if (dragging) {
     		SelectionVisitor visitor = handleMultiSelection(false);
     		model.setSelectedDisplays(visitor.getSelected());
-    		shiftDown = false;
+    		dragging = false;
     		return;
     	}
+    	Collection l = model.getSelectedDisplays();
+    	if (shiftDown && l != null && l.size() >= 1) {
+    		Point p = me.getPoint();
+    		SwingUtilities.convertPoint((Component) me.getSource(), p, view.getInternalDesktop());
+			setSelection(me.getPoint());
+			System.err.println("shift");
+			SelectionVisitor visitor = new SelectionVisitor(selection, true);
+			view.accept(visitor);
+			shiftDown = me.isShiftDown();
+			//model.setSelectedDisplays(visitor.getSelected());
+			return;
+		}
     	leftMouseButton = SwingUtilities.isLeftMouseButton(me);
     	if (UIUtilities.isWindowsOS()) onClick(me, true);
     }
@@ -552,20 +596,31 @@ class BrowserControl
     {
     	model.setRollOverNode(null);
     }
+    
+    /** 
+     * Sets the selection.
+     * 
+     * @param p The location of the mouse.
+     */
+    private void setSelection(Point p)
+    {
+    	selection.width = Math.abs(p.x-anchor.x);
+		selection.height = Math.abs(p.y-anchor.y);
+		if (anchor.x < p.x) selection.x = anchor.x;
+		else selection.x = p.x;
+		if (anchor.y < p.y) selection.y = anchor.y;
+		else selection.y = p.y;
+    }
+    
     /**
      * Highlights the nodes if the <code>SHIFT</code> key is down.
      * @see MouseMotionListener#mouseDragged(MouseEvent)
      */
 	public void mouseDragged(MouseEvent e)
 	{
-		if (!shiftDown) return;
-		Point p = e.getPoint();
-		selection.width = Math.abs(p.x-anchor.x);
-		selection.height = Math.abs(p.y-anchor.y);
-		if (anchor.x < p.x) selection.x = anchor.x;
-		else selection.x = p.x;
-		if (anchor.y < p.y) selection.y = anchor.y;
-		else selection.y = p.y;
+		if (e.getSource() != view.getInternalDesktop()) return;
+		dragging = true;
+		setSelection(e.getPoint());
 		handleMultiSelection(true);
 	}
     
@@ -582,5 +637,5 @@ class BrowserControl
      * @see MouseMotionListener#mouseMoved(MouseEvent)
      */
 	public void mouseMoved(MouseEvent e) {}
-    
+
 }

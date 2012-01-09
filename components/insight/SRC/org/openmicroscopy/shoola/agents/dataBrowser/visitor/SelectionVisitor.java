@@ -106,11 +106,16 @@ public class SelectionVisitor
 	 */
 	public void visit(ImageNode node)
 	{
-		if (containsInSelection(node.getBounds())) {
+		if (selection == null) { //select all.
 			node.setHighlight(colors.getSelectedHighLight(node, false));
 			if (selected != null) selected.add(node);
-		} else node.setHighlight(colors.getDeselectedHighLight(node));
-		
+		} else {
+			if (containsInSelection(node.getBounds())) {
+				node.setHighlight(colors.getSelectedHighLight(node, false));
+				if (selected != null) selected.add(node);
+			} else node.setHighlight(colors.getDeselectedHighLight(node));
+			
+		}
 	}
 
 	/**
