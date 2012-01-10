@@ -23,6 +23,7 @@ import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.services.SearchBean;
 import ome.services.query.Query;
 import ome.services.search.FullText;
 import ome.services.search.SearchValues;
@@ -405,19 +406,25 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                     "IQuery not configured for full text search.\n"
                             + "Please use ome.api.Search instead.");
         }
-        return (List<T>) getHibernateTemplate().execute(
-                new HibernateCallback() {
 
-                    public Object doInHibernate(Session session)
+        List<IObject> results = (List<IObject>) getHibernateTemplate().execute(
+                new HibernateCallback<List<IObject>>() {
+                    @SuppressWarnings("rawtypes")
+                    public List<IObject> doInHibernate(Session session)
                             throws HibernateException, SQLException {
                         SearchValues values = new SearchValues();
                         values.onlyTypes = Arrays.asList((Class) type);
                         values.copy(params);
                         FullText fullText = new FullText(values, query,
                                 analyzer);
-                        return fullText.doWork(session, null);
+                        return (List<IObject>) fullText.doWork(session, null);
                     }
                 });
+
+        SearchBean search = new SearchBean();
+        search.addParameters(params);
+        search.addResult(results);
+        return search.results();
     }
 
     // ~ Aggregations
