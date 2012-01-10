@@ -277,15 +277,18 @@ public class TwoKnobsSlider
 			else {
 				if (left > right && right < xmax) left = right-1;
 			}
-
-			model.setStartValue(uiDelegate.xValueForPosition(left));
+			int e = 0;
+			if (model.allowOverlap()) e++;
+			model.setStartValue(uiDelegate.xValueForPosition(left)+e);
 		} else if (knobControl == RIGHT) { //right knob moved.
 			if (right > xmax) right = xmax;
 			else if (right < (xmin+knobWidth)) right = xmin+knobWidth;
 			else {
 				if (right < left && left > xmin) right = left+1;
 			}
-			model.setEndValue(uiDelegate.xValueForPosition(right));
+			int e = 0;
+			if (model.allowOverlap()) e++;
+			model.setEndValue(uiDelegate.xValueForPosition(right)-e);
 		}
 		repaint();
 	}
@@ -714,6 +717,14 @@ public class TwoKnobsSlider
 	 * @return See above.
 	 */
 	public boolean getColourGradient() { return colourGradient; }
+	
+	/**
+	 * Sets the flag indicating that we allow to have <code>start == end</code>.
+	 * 
+	 * @param overlap Pass <code>true</code> to allow <code>start == end</code>,
+	 * <code>false</code> otherwise.
+	 */
+	public void setOverlap(boolean overlap) { model.setOverlap(overlap); }
 	
 	/**
 	 * Overrides method to return the <code>Preferred Size</code>.
