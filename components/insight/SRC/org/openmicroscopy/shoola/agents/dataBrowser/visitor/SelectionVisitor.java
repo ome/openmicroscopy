@@ -59,15 +59,7 @@ public class SelectionVisitor
 	 */
 	private boolean containsInSelection(Rectangle bounds)
 	{
-		if (selection.contains(bounds.x, bounds.y))
-			return true;
-		if (selection.contains(bounds.x+bounds.width, bounds.y))
-			return true;
-		if (selection.contains(bounds.x, bounds.y+bounds.height))
-			return true;
-		if (selection.contains(bounds.x+bounds.width, bounds.y+bounds.height))
-			return true;
-		return false;
+		return (bounds.intersects(selection));
 	}
 	
 	/** The selection rectangle.*/
