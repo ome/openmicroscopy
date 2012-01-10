@@ -10,7 +10,7 @@
 
     <echo file="${basedir}/omero_version.py">
 omero_version="${omero.version}"
-ice_compatibility="${ice.compatibility}"
+ice_compatibility="${versions.ice}"
     </echo>
 
     <target name="test-compile" description="Dummy target for python since no compile needed"/>
