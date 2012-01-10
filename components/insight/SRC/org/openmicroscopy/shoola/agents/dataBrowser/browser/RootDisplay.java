@@ -48,7 +48,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
  * </small>
  * @since OME3.0
  */
-class RootDisplay   
+class RootDisplay
 	extends ImageSet
 {
 

@@ -368,7 +368,6 @@ class EditorUI
 				}
 				load = true;
 			}
-			
 			generalPane.setRootObject();
 			acquisitionPane.setRootObject(load);
 		}

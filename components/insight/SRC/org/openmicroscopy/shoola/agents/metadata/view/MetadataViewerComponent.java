@@ -604,10 +604,7 @@ class MetadataViewerComponent
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#isSingleMode()
 	 */
-	public boolean isSingleMode()
-	{
-		return model.isSingleMode();
-	}
+	public boolean isSingleMode() { return model.isSingleMode(); }
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
@@ -615,6 +612,8 @@ class MetadataViewerComponent
 	 */
 	public void setRelatedNodes(List nodes)
 	{
+		if (nodes == null || nodes.size() == 0) return;
+		//model.setSelectionMode(false);
 		setRootObject(model.getRefObject(), model.getUserID());
 		model.setRelatedNodes(nodes);
 	}

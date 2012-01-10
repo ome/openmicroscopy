@@ -48,7 +48,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
  * </small>
  * @since OME3.0
  */
-public class ImageSet    
+public class ImageSet
 	extends ImageDisplay
 {
 
