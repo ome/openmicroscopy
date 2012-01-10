@@ -2821,12 +2821,8 @@ class _BlitzGateway (object):
         delete 'independent' Annotations (Tag, Term, File) and to delete
         child objects.
 
-        @param delete_spec:     String to indicate the delete specification.
-                                E.g. '/Project', '/Image', etc. NOTE: Prior
-                                to OMERO 4.4.0 'Project', 'Image', etc. were
-                                valid delete specifications for this method
-                                and this functionality is preserved but
-                                deprecated for:
+        @param delete_spec:     String to indicate the object type or delete
+                                specification. Examples include:
                                  * 'Project'
                                  * 'Dataset'
                                  * 'Image'
@@ -2834,11 +2830,12 @@ class _BlitzGateway (object):
                                  * 'Plate'
                                  * 'Well'
                                  * 'Annotation'
-                                A deprecation warning is raised if a legacy
-                                object type is passed in. Furthermore using
-                                the correct case is now explicitly required,
-                                the use of 'project' or 'dataset' is no
-                                longer supported.
+                                 * '/OriginalFile'
+                                 * '/Image+Only'
+                                 * '/Image/Pixels/Channel'
+                                As of OMERO 4.4.0 the correct case is now
+                                explicitly required, the use of 'project'
+                                or 'dataset' is no longer supported.
         @param obj_ids:         List of IDs for the objects to delete
         @param deleteAnns:      If true, delete linked Tag, Term and File
                                 annotations
@@ -2853,8 +2850,7 @@ class _BlitzGateway (object):
 
         if not delete_spec.startswith('/'):
             delete_spec = '/%s' % delete_spec
-            warnings.warn('Legacy object types are deprecated, using "/%s"' % \
-                    delete_spec)
+            logger.debug('Received object type, using "%s"' % delete_spec)
 
         op = dict()
         if not deleteAnns and delete_spec not in ["/Annotation",
