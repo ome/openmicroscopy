@@ -94,19 +94,21 @@ def choose_omero_version():
     If OMERO_BULID is set, then "-Domero.version=${omero-version}-${OMERO_BUILD}"
     otherwise nothing.
     """
+
+    omero_build = os.environ.get("OMERO_BUILD", "")
+    if omero_build:
+        omero_build = "-%s" % omero_build
+
+    command = [ find_java(), "omero","-q","version" ]
     try:
-        omero_build = os.environ["OMERO_BUILD"]
-        command = [ find_java(), "omero","-q","version" ]
-        try:
-            p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            omero_version,err = p.communicate()
-            omero_version = omero_version.split()[1]
-            return [ "-Domero.version=%s-%s" % (omero_version, omero_build) ]
-        except:
-            print "Error getting version for OMERO_BUILD=%s" % omero_build
-            print err
-    except KeyError, ke:
-        return [] # Use default
+        p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        omero_version,err = p.communicate()
+        omero_version = omero_version.split()[1]
+        return [ "-Domero.version=%s%s" % (omero_version, omero_build) ]
+    except:
+        print "Error getting version for OMERO_BUILD=%s" % omero_build
+        print err
+        sys.exit(rc)
 
 def execute(args):
     rc = subprocess.call(args)

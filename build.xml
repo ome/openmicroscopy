@@ -82,6 +82,10 @@ java component.
             <fileset dir="${lib.dir}/repository" includes="omero/**,omero-tools/**"/>
         </delete>
         <delete dir="${target.dir}" quiet="true"/>
+        <delete dir="${omero.home}/test-output" quiet="true"/>
+        <delete includeemptydirs="true" quiet="true">
+            <fileset dir="${omero.home}/examples" includes="config.log,**/*.o,**/*.class,**/*.exe"/>
+        </delete>
     </target>
 
     <macrodef name="setup-py-install">
@@ -114,6 +118,29 @@ java component.
     <target name="check-ice" description="Checks for slice/include files and unpacks">
         <available property="slice.dir" value="true" filepath="${target.dir}" file="Ice" />
         <antcall target="build-ice" inheritAll="true" inheritRefs="true"/>
+        <!-- Checking the slice2* version before continuing. See #1185 -->
+        <exec outputproperty="executable.ice.version" executable="slice2java">
+            <arg value="--version"/>
+        </exec>
+        <if>
+            <not>
+                <or>
+                    <matches pattern="^${ice.compatibility}" string="${executable.ice.version}"/>
+                    <matches pattern="^${ice.compatibility}" string="auto"/>
+                </or>
+            </not>
+            <then><fail>WRONG ICE VERSION!
+
+                slice2java version = ${executable.ice.version}
+                Expected version = ${ice.compatibility}
+
+                If you would like to configure which Ice to use,
+                set ice.compatibility=3.3 or ice.compatibility=3.4
+                in your etc/local.properties file or on the command-
+                line: ./build.py -Dice.compatibility=3.3
+
+            </fail></then>
+        </if>
     </target>
 
     <target name="build-ice" depends="check-scons" description="Installs the Ice code generation executables" unless="slice2java.exe">
@@ -705,7 +732,7 @@ omero.version=${omero.version}
     </target>
 
     <target name="version">
-      <echo>${omero.version}</echo>
+        <echo>${omero.version}-ice${versions.ice_lib}</echo>
     </target>
 
 </project>
