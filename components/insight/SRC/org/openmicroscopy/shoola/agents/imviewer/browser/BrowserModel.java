@@ -646,7 +646,6 @@ class BrowserModel
 			}
 			if (img != null) displayedImage = img;
         } else displayedImage = renderedImage;
-        System.err.println(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed()/Math.pow(10, 6));
         System.gc();
     }
    
@@ -1195,7 +1194,7 @@ class BrowserModel
 		if (this.projectedImageAsTexture != null)
 			this.projectedImageAsTexture.flush();
 		this.projectedImageAsTexture = projectedImage;
-		System.gc();s
+		System.gc();
 	}
 	
 	/**

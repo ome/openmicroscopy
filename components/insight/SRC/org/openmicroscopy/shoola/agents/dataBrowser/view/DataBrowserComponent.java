@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.visitor.FlushVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
@@ -202,8 +203,8 @@ class DataBrowserComponent
 		} else {
 			view.setSelectedView(DataBrowserUI.COLUMNS_VIEW);
 		}
-		if (model.getBrowser() != null) {
-			Browser browser = model.getBrowser();
+		Browser browser = model.getBrowser();
+		if (browser != null) {
 	    	ResetNodesVisitor visitor = new ResetNodesVisitor(null, false);
 	    	browser.accept(visitor, ImageDisplayVisitor.IMAGE_SET_ONLY);
 	    	browser.addPropertyChangeListener(controller);
@@ -217,7 +218,13 @@ class DataBrowserComponent
 	 */
 	public void discard()
 	{
+		Browser browser = model.getBrowser();
+		if (browser != null) {
+			browser.accept(new FlushVisitor(),
+				ImageDisplayVisitor.IMAGE_NODE_ONLY);
+		}
 		model.discard();
+		fireStateChange();
 	}
 
 	/**
@@ -849,6 +856,12 @@ class DataBrowserComponent
 						"invoked in the DISCARDED state.");
 			case NEW:
 				return;
+		}
+		//flush the previous one first
+		Browser browser = model.getBrowser();
+		if (browser != null) {
+			browser.accept(new FlushVisitor(),
+					ImageDisplayVisitor.IMAGE_NODE_ONLY);
 		}
 		model.loadData(true, ids);
 		fireStateChange();
