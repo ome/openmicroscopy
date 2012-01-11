@@ -592,8 +592,11 @@ class BrowserModel
         if (zoomFactor != ZoomAction.DEFAULT_ZOOM_FACTOR) {
         	BufferedImage img = null;
         	try {
+        		long start = System.currentTimeMillis();
 				img = Factory.magnifyImage(renderedImage, zoomFactor, 0);
+				System.err.println("time:"+(System.currentTimeMillis()-start));
 			} catch (Throwable e) {
+				e.printStackTrace();
 				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("Magnification", 
 						"An error occurs while magnifying the image.");
