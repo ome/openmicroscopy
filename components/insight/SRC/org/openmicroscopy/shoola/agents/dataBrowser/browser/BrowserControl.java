@@ -66,7 +66,7 @@ import pojos.ImageData;
  * </small>
  * @since OME3.0
  */
-class BrowserControl     
+class BrowserControl
 	implements MouseListener, ImageDisplayVisitor, PropertyChangeListener
 {
     
@@ -330,13 +330,6 @@ class BrowserControl
 			img.getDefaultPixels();
 			return true;
 		} catch (Exception e) {
-			/*
-			UserNotifier un = 
-				DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Image Not valid", "The selected image is not valid");
-			node.setHighlight(
-					Colors.getInstance().getDeselectedHighLight(node));
-					*/
 			return false;
 		}
     }
@@ -424,34 +417,6 @@ class BrowserControl
      */
     public void mousePressed(MouseEvent me)
     {
-    	/*
-    	ImageDisplay d = findParentDisplay(me.getSource());
-    	d.moveToFront();
-    	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
-    	
-    	boolean macOS = UIUtilities.isMacOS();
-    	Point p = me.getPoint();
-    	boolean b;
-    	if (macOS) b = me.isShiftDown() || me.isMetaDown();
-    	else b = me.isShiftDown() || me.isControlDown();
-    	me.consume();
-    	if ((me.isControlDown() && SwingUtilities.isLeftMouseButton(me) &&
-				macOS)) {
-			if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
-				//if (isSelectionValid(d)) {
-				if (d instanceof CellDisplay) {
-					setSelectedCell(me.getPoint(), (CellDisplay) d);
-				} else model.setSelectedDisplay(d, false, true);
-			}
-			model.setPopupPoint(p, true);
-			return;
-    	}
-    	if (me.isPopupTrigger() && b) {
-    		model.setPopupPoint(p, true);
-    		return;
-    	}
-    	if (macOS) handleSelection(d, b, me.getPoint());
-    	*/
     	rightClickPad = UIUtilities.isMacOS() && 
     	SwingUtilities.isLeftMouseButton(me) && me.isControlDown();
     	rightClickButton = SwingUtilities.isRightMouseButton(me);
@@ -471,42 +436,6 @@ class BrowserControl
     {
     	leftMouseButton = SwingUtilities.isLeftMouseButton(me);
     	if (UIUtilities.isWindowsOS()) onClick(me, true);
-    	/*
-    	int count = me.getClickCount();
-    	if (count == 2 && !(me.isShiftDown() 
-    			|| me.isControlDown() || me.isMetaDown())) {
-    		if (UIUtilities.isMacOS()) {
-        		if (!me.isControlDown()) {
-        			Object src = me.getSource();
-                    ImageDisplay d = findParentDisplay(src);
-                    if (d instanceof ImageNode && !(d.getTitleBar() == src) 
-                        && isSelectionValid(d)) {
-                    	model.viewDisplay(d);
-                    }   
-        		} 
-        	} else {
-        		Object src = me.getSource();
-                ImageDisplay d = findParentDisplay(src);
-                if (d instanceof ImageNode && !(d.getTitleBar() == src) 
-                    && isSelectionValid(d)) {
-                	model.viewDisplay(d);
-                }   
-        	}
-    	} else if (count == 1) {
-    		boolean b;
-    		boolean macOS = UIUtilities.isMacOS();
-    		if (macOS) return;
-        	b = me.isShiftDown() || me.isControlDown();
-        	if (SwingUtilities.isRightMouseButton(me) || 
-    				(me.isPopupTrigger() && b)) {
-    			model.setPopupPoint(me.getPoint(), true);
-    			return;
-    		}
-    		ImageDisplay d = findParentDisplay(me.getSource());
-    		d.moveToFront();
-    		handleSelection(d, b, me.getPoint());
-    	}
-    	*/	
     }
 
     /**
@@ -548,18 +477,10 @@ class BrowserControl
      * Displays the name of the selected node if any when the mouse exited.
      * @see MouseListener#mouseExited(MouseEvent)
      */
-    public void mouseExited(MouseEvent me)
-    {
-    	model.setRollOverNode(null);
-    	//if (model.isRollOver()) return;
-        //ImageDisplay d = model.getLastSelectedDisplay();
-        //if (d != null) view.setTitle(model.currentPathString(d));
-        //else view.setTitle("");
-        //model.setNodeForProperty(Browser.SELECTED_DISPLAY_PROPERTY, d);
-    }
+    public void mouseExited(MouseEvent me) { model.setRollOverNode(null); }
     
     /**
-     * Required by the {@link MouseListener} I/F but no-op implementation
+     * Required by the {@link MouseListener} I/F but no-operation implementation
      * in our case.
      * @see MouseListener#mouseClicked(MouseEvent)
      */
