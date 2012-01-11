@@ -242,7 +242,7 @@ class ITest(unittest.TestCase):
         if not self.root:
             raise exceptions.Exception("No root client. Cannot create user")
 
-        admin = self.root.getSession().getAdminService()
+        adminService = self.root.getSession().getAdminService()
         name = self.uuid()
 
         # Create group if necessary
@@ -257,11 +257,11 @@ class ITest(unittest.TestCase):
         e.omeName = rstring(name)
         e.firstName = rstring(name)
         e.lastName = rstring(name)
-        uid = admin.createUser(e, group)
-        e = admin.lookupExperimenter(name)
+        uid = adminService.createUser(e, group)
+        e = adminService.lookupExperimenter(name)
         if admin:
-            admin.setGroupOwner(g, e)
-        return admin.getExperimenter(uid)
+            adminService.setGroupOwner(g, e)
+        return adminService.getExperimenter(uid)
 
     def new_client(self, group = None, user = None, perms = None, admin = False):
         """

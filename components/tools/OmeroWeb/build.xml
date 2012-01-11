@@ -31,7 +31,7 @@
 
     <target name="_test">
         <exec dir="${basedir}/omeroweb" executable="python" failonerror="fals">
-            <env key="PYTHONPATH" value="${omero.home}/dist/lib/python"/>
+           <env key="PYTHONPATH" value="${dist.dir}/lib/python"/>
            <arg line="manage.py test"/>
         </exec>
     </target>
