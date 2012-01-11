@@ -299,8 +299,14 @@ class ScriptControl(BaseControl):
         client = self.ctx.conn(args)
         scriptSvc = client.sf.getScriptService()
         script_id, ofile = self._file(args, client)
+        txt = None
         try:
             txt = client.sf.getScriptService().getScriptText(script_id)
+            if not txt:
+                self.ctx.err("No text for script: %s" % script_id)
+                self.ctx.err("Does this file appear in the script list?")
+                self.ctx.err("If not, try 'replace'")
+                return
             from omero.util.temp_files import create_path
             from omero.util import edit_path
             p = create_path()
