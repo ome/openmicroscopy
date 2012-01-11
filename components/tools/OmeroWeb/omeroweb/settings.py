@@ -149,6 +149,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.application_server.host": ["APPLICATION_SERVER_HOST", "0.0.0.0", str],
     "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
     "omero.web.static_url": ["STATIC_URL", "/static/", str],
+    "omero.web.staticfile_dirs": ["STATICFILES_DIRS", '[]', json.loads],
     "omero.web.caches": ["CACHES", '{}', json.loads],
     "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
     "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
@@ -169,10 +170,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int],
     "omero.web.open_astex_max_voxels": ["OPEN_ASTEX_MAX_VOXELS", 27000000, int],  # 300 x 300 x 300
     "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', parse_paths],
-    
-    # sharing no longer use this variable. replaced by request.build_absolute_uri
-    # after testing this line should be removed.
-    # "omero.web.application_host": ["APPLICATION_HOST", None, remove_slash], 
     
 }
 
