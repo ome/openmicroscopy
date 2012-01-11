@@ -79,7 +79,7 @@ class ShellControl(BaseControl):
         try:
             # IPython 0.11 (see #7112)
             from IPython import embed
-            embed()
+            embed(user_ns=ns)
         except ImportError, ie:
             from IPython.Shell import IPShellEmbed
             ipshell = IPShellEmbed(args.arg)
