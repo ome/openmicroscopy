@@ -9,6 +9,7 @@ package ome.logic;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -420,6 +421,10 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                         return (List<IObject>) fullText.doWork(session, null);
                     }
                 });
+
+        if (results == null || results.size() == 0) {
+            return new ArrayList<T>();
+        }
 
         SearchBean search = new SearchBean();
         search.addParameters(params);
