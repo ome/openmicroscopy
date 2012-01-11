@@ -30,11 +30,14 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.Icon;
 
 //Third-party libraries
@@ -195,7 +198,9 @@ class BrowserModel
     	int maxC = parent.getMaxC();
     	List l = parent.getActiveChannelsInGrid();
 		int n = l.size();	
-		
+		clearList(gridImages);
+		if (combinedImage != null) combinedImage.flush();
+		System.gc();
 		switch (n) {
 			case 0:
 				for (int i = 0; i < maxC; i++) 
@@ -292,16 +297,14 @@ class BrowserModel
 								images.get(last));
     		images.remove(last);
     		Iterator i = images.iterator();
+    		boolean b = originalGridImages.size() == 0 &&
+    		!isImageMappedRGB(channels);
+    		BufferedImage img;
         	while (i.hasNext()) {
-        		gridImages.add(Factory.magnifyImage(gridRatio, 
-        					(BufferedImage) i.next()));
+        		img = (BufferedImage) i.next();
+        		gridImages.add(Factory.magnifyImage(gridRatio, img));
+        		if (b) originalGridImages.add(img);
     		}
-        	if (originalGridImages.size() == 0 && !isImageMappedRGB(channels)) {
-        		i = images.iterator();
-	        	while (i.hasNext()) {
-	        		originalGridImages.add((BufferedImage) i.next());
-	    		}
-        	}
     	}
     }
     
@@ -313,19 +316,15 @@ class BrowserModel
     private void retrieveGridImages()
     {
     	List<BufferedImage> images = parent.getGridImages();
-    	
-    	
     	if (images != null) {
     		Iterator i = images.iterator();
+    		boolean b = originalGridImages.size() == 0;
+    		BufferedImage img;
         	while (i.hasNext()) {
-        		gridImages.add(Factory.magnifyImage(gridRatio, 
-        					(BufferedImage) i.next()));
+        		img = (BufferedImage) i.next();
+        		gridImages.add(Factory.magnifyImage(gridRatio, img));
+        		if (b) originalGridImages.add(img);
     		}
-        	if (originalGridImages.size() == 0) {
-        		i = images.iterator();
-	        	while (i.hasNext()) 
-	        		originalGridImages.add((BufferedImage) i.next());
-        	}
         	combinedImage = Factory.magnifyImage(gridRatio, renderedImage);
     	}
     }
@@ -334,12 +333,52 @@ class BrowserModel
     private void createGridImagesAsTextures()
     {
     	if (parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
-    		if (!hasGridImagesAsTexture())
+    		if (!hasGridImagesAsTexture()) {
+    			clearTextureMap(gridImagesAsTextures);
     			gridImagesAsTextures = parent.getGridImagesAsTexture();
+    		}
+    			
     	} else {
     		//if (isRenderedImageRGB()) return;
+    		clearTextureMap(gridImagesAsTextures);
         	gridImagesAsTextures = parent.getGridImagesAsTexture();
     	}
+    }
+    
+    /**
+     * Clears the passed map.
+     * 
+     * @param map The map to handle.
+     */
+    private void clearTextureMap(Map<Integer, TextureData> map)
+    {
+    	if (map == null) return;
+    	Entry e;
+    	TextureData data;
+    	Iterator i = map.entrySet().iterator();
+    	while (i.hasNext()) {
+			e = (Entry) i.next();
+			data = (TextureData) e.getValue();
+			if (data != null) data.flush();
+		}
+    	map.clear();
+    }
+    
+    /**
+     * Clears the list and frees space.
+     * 
+     * @param l The list to handle.
+     */
+    private void clearList(List<BufferedImage> l)
+    {
+    	if (l == null) return;
+    	Iterator<BufferedImage> k = gridImages.iterator();
+    	BufferedImage img;
+    	while (k.hasNext()) {
+    		img = k.next();
+			if (img != null) img.flush();
+		}
+    	l.clear();
     }
     
     /** Creates the images composing the grid. */
@@ -348,12 +387,12 @@ class BrowserModel
     	//if (combinedImage == null) return;
     	if (originalGridImages == null)
     		originalGridImages = new ArrayList<BufferedImage>();
-    	gridImages.clear();
+    	clearList(gridImages);
     	if (ImViewer.GREY_SCALE_MODEL.equals(parent.getColorModel())) {
     		createGridImagesForGreyScale();
     		return;
     	}
-    	
+    	System.gc();
     	List l = parent.getActiveChannels();
     	int maxC = parent.getMaxC();
     	switch (l.size()) {
@@ -365,7 +404,8 @@ class BrowserModel
 			case 2:
 			case 3:
 				if (isImageMappedRGB(l)) {
-					//if (combinedImage == null) 
+					//if (combinedImage == null)
+					if (combinedImage != null) combinedImage.flush();
 					combinedImage = Factory.magnifyImage(gridRatio, 
 								renderedImage);
 					int w = combinedImage.getWidth();
@@ -489,6 +529,7 @@ class BrowserModel
      */
     void setRenderedImage(BufferedImage image)
     {
+    	if (renderedImage != null) renderedImage.flush();
         renderedImage = image;
         if (renderedImage != null) {
         	if (init) {
@@ -503,16 +544,19 @@ class BrowserModel
         		init = false;
         	}
         }
+        if (displayedImage != null) displayedImage.flush();
+        if (combinedImage != null) combinedImage.flush();
+        clearList(gridImages);
+        System.gc();
         displayedImage = null;
         combinedImage = null;
-        gridImages.clear();
     }
     
     /** Sets the images composing the grid. */
     void setGridImages()
     {
     	if (gridImages.size() != 0) return;
-    	if (originalGridImages != null) originalGridImages.clear();
+    	clearList(originalGridImages);
     	if (gridImagesAsTextures.size() != 0) return;
     	try {
     		if (ImViewerAgent.hasOpenGLSupport()) createGridImagesAsTextures();
@@ -520,6 +564,7 @@ class BrowserModel
 		} catch (Exception e) {
 			handleGridImageCreationException(e);
 		}
+		System.gc();
     }
     
     /**
@@ -589,20 +634,20 @@ class BrowserModel
     void createDisplayedImage()
     {
         if (renderedImage == null) return;
+        if (displayedImage != null) displayedImage.flush();
         if (zoomFactor != ZoomAction.DEFAULT_ZOOM_FACTOR) {
         	BufferedImage img = null;
         	try {
-        		long start = System.currentTimeMillis();
 				img = Factory.magnifyImage(renderedImage, zoomFactor, 0);
-				System.err.println("time:"+(System.currentTimeMillis()-start));
 			} catch (Throwable e) {
-				e.printStackTrace();
 				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("Magnification", 
-						"An error occurs while magnifying the image.");
+						"An error occured while magnifying the image.");
 			}
 			if (img != null) displayedImage = img;
         } else displayedImage = renderedImage;
+        System.err.println(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed()/Math.pow(10, 6));
+        System.gc();
     }
    
     /**
@@ -612,6 +657,7 @@ class BrowserModel
     void createDisplayedProjectedImage()
     {
         if (projectedImage == null) return;
+        if (displayedProjectedImage != null) displayedProjectedImage.flush();
         if (zoomFactor != ZoomAction.DEFAULT_ZOOM_FACTOR) {
         	BufferedImage img = null;
         	try {
@@ -623,6 +669,7 @@ class BrowserModel
 			}
 			if (img != null) displayedProjectedImage = img;
         } else displayedProjectedImage = projectedImage;
+        System.gc();
     }
     
     /** 
@@ -1004,7 +1051,8 @@ class BrowserModel
 			return;
 		}
 		int n = originalGridImages.size();
-		gridImages.clear();
+		clearList(gridImages);
+		System.gc();
 		int maxC = parent.getMaxC();
 		switch (n) {
 			case 0:
@@ -1022,6 +1070,7 @@ class BrowserModel
 						handleGridImageCreationException(e);
 					}
 				} else {
+					combinedImage.flush();
 					combinedImage = Factory.magnifyImage(gridRatio, 
 														renderedImage);
 					Iterator i = originalGridImages.iterator();
@@ -1032,6 +1081,7 @@ class BrowserModel
 				}
 				break;
 			default:
+				combinedImage.flush();
 				combinedImage = Factory.magnifyImage(gridRatio, renderedImage);
 				Iterator i = originalGridImages.iterator();
 				while (i.hasNext()) {
@@ -1083,7 +1133,9 @@ class BrowserModel
 	 */
 	void setProjectedImage(BufferedImage projectedImage)
 	{
+		if (this.projectedImage != null) this.projectedImage.flush();
 		this.projectedImage = projectedImage;
+		System.gc();
 	}
 
 	/** Builds a projected image to preview. */
@@ -1099,7 +1151,7 @@ class BrowserModel
 	/** Clears the grid images when the color model changes. */
 	void clearGridImages()
 	{ 
-		if (gridImages != null) gridImages.clear(); 
+		clearList(gridImages);
 		if (gridImagesAsTextures != null) gridImagesAsTextures.clear();
 		//if (originalGridImages != null) originalGridImages.clear();
 	}
@@ -1111,6 +1163,8 @@ class BrowserModel
      */
     void setRenderedImageAsTexture(TextureData image)
     {
+    	if (renderedImageAsTexture != null)
+    		renderedImageAsTexture.flush();
     	renderedImageAsTexture = image;
         if (renderedImageAsTexture != null) {
         	if (init) {
@@ -1127,7 +1181,8 @@ class BrowserModel
         }
         //displayedImage = null;
         //combinedImage = null;
-        gridImagesAsTextures.clear();
+        clearTextureMap(gridImagesAsTextures);
+        System.gc();
     }
 	
 	/**
@@ -1137,7 +1192,10 @@ class BrowserModel
 	 */
 	void setProjectedImageAsTexture(TextureData projectedImage)
 	{
+		if (this.projectedImageAsTexture != null)
+			this.projectedImageAsTexture.flush();
 		this.projectedImageAsTexture = projectedImage;
+		System.gc();s
 	}
 	
 	/**
@@ -1275,5 +1333,20 @@ class BrowserModel
 	 * @return See above.
 	 */
 	int getTiledImageSizeY() { return parent.getTiledImageSizeY(); }
-	
+
+	void discard()
+	{
+		if (combinedImage != null) combinedImage.flush();
+		if (displayedImage != null) displayedImage.flush();
+		if (displayedProjectedImage != null) displayedProjectedImage.flush();
+		if (projectedImage != null) projectedImage.flush();
+		if (renderedImage != null) renderedImage.flush();
+		clearList(gridImages);
+		clearList(originalGridImages);
+		clearTextureMap(gridImagesAsTextures);
+		if (projectedImageAsTexture != null) projectedImageAsTexture.flush();
+		if (renderedImageAsTexture != null) renderedImageAsTexture.flush();
+		System.gc();
+	}
+
 }
