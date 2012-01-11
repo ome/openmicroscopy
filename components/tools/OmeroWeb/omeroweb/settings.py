@@ -216,6 +216,8 @@ for key in sorted(CUSTOM_SETTINGS_MAPPINGS):
     else:
         logger.debug("%s = '***' (source:%s)", global_name, source)
 
+SITE_ID = 1
+
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
 # although not all variations may be possible on all operating systems.
