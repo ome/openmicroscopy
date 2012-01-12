@@ -106,7 +106,6 @@ public class SelectionVisitor
 				node.setHighlight(colors.getSelectedHighLight(node, false));
 				if (selected != null) selected.add(node);
 			} else node.setHighlight(colors.getDeselectedHighLight(node));
-			
 		}
 	}
 

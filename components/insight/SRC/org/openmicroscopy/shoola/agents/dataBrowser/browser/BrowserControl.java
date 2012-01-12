@@ -29,6 +29,9 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -120,6 +123,17 @@ class BrowserControl
     
     /** Flag indicating that the multi-selection is on.*/
     private boolean dragging;
+    
+    /** The listener to add to the nodes.*/
+    private KeyAdapter keyListener;
+    
+    /** Handles the multi-selection using key.*/
+    private void handleKeySelection()
+    {
+		SelectionVisitor visitor = new SelectionVisitor(null, true);
+		view.accept(visitor);
+		model.setSelectedDisplays(visitor.getSelected());
+    }
     
     /**
      * Handles the multi-selection.
@@ -342,8 +356,8 @@ class BrowserControl
     private void attachListeners(ImageNode node)
     {
     	if (node == null) return;
-    	node.addMouseListenerToComponents(this);
     	node.addPropertyChangeListener(this);
+    	node.addListenerToComponents(this);
     }
     
     /**
@@ -366,6 +380,25 @@ class BrowserControl
         this.view = view;
         view.getInternalDesktop().addMouseMotionListener(this);
 		view.getInternalDesktop().setCursor(Cursor.getDefaultCursor());
+		keyListener = new KeyAdapter() {
+			
+			/** 
+			 * Selects all the nodes if <code>Ctrl-A</code> or
+			 * <code>Cmd-A</code> is pressed.
+			 * @see KeyListener#keyPressed(KeyEvent)
+			 */
+			public void keyPressed(KeyEvent e)
+			{
+				switch (e.getKeyCode()) {
+					case KeyEvent.VK_A:
+						if ((UIUtilities.isMacOS() && e.isMetaDown()) ||
+							(!UIUtilities.isMacOS() && e.isControlDown())) {
+							handleKeySelection();
+						}
+				}
+			}
+			
+		};
     }
     
     /**
@@ -480,6 +513,8 @@ class BrowserControl
     public void mousePressed(MouseEvent me)
     {
     	anchor = me.getPoint();
+    	((Component) me.getSource()).requestFocus();
+    	((Component) me.getSource()).addKeyListener(keyListener);
     	shiftDown = me.isShiftDown();
 		if (dragging) return;
 		Collection l = model.getSelectedDisplays();
@@ -598,7 +633,6 @@ class BrowserControl
 		else selection.y = p.y;
 		handleMultiSelection(true);
 	}
-    
 
     /**
      * Required by the {@link MouseListener} I/F but no-operation implementation
