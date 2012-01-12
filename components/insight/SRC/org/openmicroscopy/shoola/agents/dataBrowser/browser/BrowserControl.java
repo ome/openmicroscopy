@@ -165,7 +165,7 @@ class BrowserControl
     {
     	if (me.getClickCount() == 1) {
     		ImageDisplay d = findParentDisplay(me.getSource());
-    		if (d == view) return;
+    		//if (d == view) return;
         	d.moveToFront();
         	handleSelection(d, me);
         	me = SwingUtilities.convertMouseEvent((Component) me.getSource(),
@@ -599,12 +599,8 @@ class BrowserControl
 		handleMultiSelection(true);
 	}
     
+
     /**
-=======
-    public void mouseExited(MouseEvent me) { model.setRollOverNode(null); }
-    
-    /**
->>>>>>> 9dccc3e2851d35ebb244814f64bdb3d34a4be66f
      * Required by the {@link MouseListener} I/F but no-operation implementation
      * in our case.
      * @see MouseListener#mouseClicked(MouseEvent)
