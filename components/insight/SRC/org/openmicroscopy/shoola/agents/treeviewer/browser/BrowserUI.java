@@ -318,6 +318,9 @@ class BrowserUI
         							tee.getPath().getLastPathComponent();
         node.setExpanded(expanded);
         controller.onNodeNavigation(node, expanded);
+        treeDisplay.clearSelection();
+        treeDisplay.setSelectionPath(new TreePath(node.getPath()));
+		treeDisplay.repaint();
     }
     
     /**
