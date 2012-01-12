@@ -1276,6 +1276,10 @@ class TreeViewerControl
 			view.setScriptsLoadingStatus(true);
 		} else if (TreeViewer.SCRIPTS_LOADED_PROPERTY.equals(name)) {
 			view.setScriptsLoadingStatus(false);
+		} else if (
+				DataBrowser.SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY.equals(
+						name)) {
+			model.setSelectedNodes(pce.getNewValue());
 		}
 	}
 	
