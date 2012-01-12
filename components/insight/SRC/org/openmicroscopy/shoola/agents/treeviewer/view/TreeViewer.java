@@ -1068,4 +1068,11 @@ public interface TreeViewer
 	void transfer(TreeImageDisplay target, List<TreeImageDisplay> nodes, int
 			transferAction);
 	
+	/**
+	 * Sets the selected nodes, the nodes selected from middle panel.
+	 * 
+	 * @param nodes The value to set.
+	 */
+	void setSelectedNodes(Object nodes);
+
 }

@@ -32,12 +32,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.WellSampleData;
