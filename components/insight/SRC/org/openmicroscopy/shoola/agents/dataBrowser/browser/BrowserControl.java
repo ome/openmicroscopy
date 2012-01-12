@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
@@ -364,6 +365,7 @@ class BrowserControl
         this.model = model;
         this.view = view;
         view.getInternalDesktop().addMouseMotionListener(this);
+		view.getInternalDesktop().setCursor(Cursor.getDefaultCursor());
     }
     
     /**
