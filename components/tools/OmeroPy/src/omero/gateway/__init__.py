@@ -2814,6 +2814,13 @@ class _BlitzGateway (object):
         u = self.getUpdateService() 
         u.deleteObject(obj)
 
+    def getAvailableDeleteCommands(self):
+        """
+        Retrieves the current set of delete commands with type and options
+        filled.
+        """
+        return self.getDeleteService().availableCommands()
+
     def deleteObjects(self, delete_spec, obj_ids, deleteAnns=False,
                       deleteChildren=False):
         """
