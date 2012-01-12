@@ -54,7 +54,7 @@ import pojos.DataObject;
  * </small>
  * @since OME3.0
  */
-public class ResetNodesVisitor 	
+public class ResetNodesVisitor
 	implements ImageDisplayVisitor
 {
 

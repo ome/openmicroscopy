@@ -41,6 +41,8 @@ import java.util.Map.Entry;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JTree;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries

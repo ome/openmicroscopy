@@ -114,7 +114,8 @@ import pojos.WellSampleData;
  * @since OME3.0
  */
 class EditorControl
-	implements ActionListener, ChangeListener, PropertyChangeListener, MouseListener
+	implements ActionListener, ChangeListener, PropertyChangeListener,
+	MouseListener
 {
 
 	/** Bound property indicating that the save status has been modified. */

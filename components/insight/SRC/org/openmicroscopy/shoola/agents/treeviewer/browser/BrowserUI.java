@@ -49,6 +49,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -57,6 +58,7 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.TreeExpansionEvent;
@@ -65,6 +67,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -661,6 +664,123 @@ class BrowserUI
     	//if (!ctrl) 
     	controller.onClick(added);
     }
+
+    /** 
+     * Handles multi-selection using <codeCtrl-A</code> or <code>Meta-A</code>.
+     */
+    private void handleMultiSelection()
+    {
+    	TreeImageDisplay[] nodes = model.getSelectedDisplays();
+		if (nodes == null || nodes.length == 0) return;
+		TreeImageDisplay n = nodes[0];
+		Object o = n.getUserObject();
+		TreeImageDisplay p;
+		if (o instanceof ImageData) {
+			p = n.getParentDisplay();
+			controller.selectNodes(p.getChildrenDisplay(), ImageData.class);
+		} else if (o instanceof DatasetData) {
+			if (n.isExpanded()) {
+				controller.selectNodes(n.getChildrenDisplay(), ImageData.class);
+			} else {
+				p = n.getParentDisplay();
+				controller.selectNodes(p.getChildrenDisplay(),
+						DatasetData.class);
+			}
+		} else if (o instanceof ProjectData) {
+			if (n.isExpanded()) {
+				controller.selectNodes(n.getChildrenDisplay(),
+						DatasetData.class);
+			} else {
+				p = n.getParentDisplay();
+				controller.selectNodes(p.getChildrenDisplay(),
+						ProjectData.class);
+			}
+		} else if (o instanceof ScreenData) {
+			if (n.isExpanded()) {
+				controller.selectNodes(
+						n.getChildrenDisplay(),
+						PlateData.class);
+			} else {
+				p = n.getParentDisplay();
+				controller.selectNodes(p.getChildrenDisplay(),
+						ScreenData.class);
+			}
+		} else if (o instanceof PlateData) {
+			if (n.isExpanded()) {
+				controller.selectNodes(
+						n.getChildrenDisplay(),
+						PlateAcquisitionData.class);
+			} else {
+				p = n.getParentDisplay();
+				controller.selectNodes(p.getChildrenDisplay(),
+						PlateData.class);
+			}
+		} else if (o instanceof TagAnnotationData) {
+			TagAnnotationData tag = (TagAnnotationData) o;
+			String ns = tag.getNameSpace();
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+				//dealing with a tag set.
+				if (n.isExpanded()) {
+					controller.selectNodes(n.getChildrenDisplay(),
+							TagAnnotationData.class);
+				} else {
+					p = n.getParentDisplay();
+					List l = p.getChildrenDisplay();
+					Iterator i = l.iterator();
+					List values = new ArrayList();
+					TreeImageDisplay node;
+					Object data;
+					while (i.hasNext()) {
+						node = (TreeImageDisplay) i.next();
+						data = node.getUserObject();
+						if (data instanceof TagAnnotationData) {
+							tag = (TagAnnotationData) data;
+							ns = tag.getNameSpace();
+							if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
+								values.add(node);
+						}
+					}
+					controller.selectNodes(values, TagAnnotationData.class);
+				}
+			} else { //tag
+				if (n.isExpanded()) {
+					controller.selectNodes(n.getChildrenDisplay(),
+							ImageData.class);
+				} else {
+					p = n.getParentDisplay();
+					List l = p.getChildrenDisplay();
+					Iterator i = l.iterator();
+					List values = new ArrayList();
+					TreeImageDisplay node;
+					Object data;
+					while (i.hasNext()) {
+						node = (TreeImageDisplay) i.next();
+						data = node.getUserObject();
+						if (data instanceof TagAnnotationData) {
+							tag = (TagAnnotationData) data;
+							ns = tag.getNameSpace();
+							if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
+								values.add(node);
+						}
+					}
+					controller.selectNodes(values, TagAnnotationData.class);
+				}
+			}
+		} else if (o instanceof FileAnnotationData) {
+			p = n.getParentDisplay();
+			controller.selectNodes(p.getChildrenDisplay(),
+					FileAnnotationData.class);
+		} else if (n instanceof TreeImageTimeSet) {
+			TreeImageTimeSet time = (TreeImageTimeSet) n;
+			if (time.containsImages()) {
+				controller.selectNodes(n.getChildrenDisplay(),
+						ImageData.class);
+			}
+		} else if (n instanceof TreeFileSet) {
+			controller.selectNodes(n.getChildrenDisplay(),
+					FileAnnotationData.class);
+		}
+    }
     
     /** 
      * Helper method to create the trees hosting the display. 
@@ -672,15 +792,15 @@ class BrowserUI
         treeDisplay = new DnDTree(model.getUserID(),
         		TreeViewerAgent.isAdministrator());
         treeDisplay.addPropertyChangeListener(this);
+        String key = "meta pressed A";
+        if (UIUtilities.isWindowsOS()) key = "ctrl pressed A";
+        KeyStroke ks = KeyStroke.getKeyStroke(key);
+        treeDisplay.getInputMap().put(ks, "none");
         treeDisplay.setVisible(true);
         treeDisplay.setRootVisible(false);
         ToolTipManager.sharedInstance().registerComponent(treeDisplay);
         treeDisplay.setCellRenderer(new TreeCellRenderer());
         treeDisplay.setShowsRootHandles(true);
-        //treeDisplay.putClientProperty("JTree.lineStyle", "Angled");
-        treeDisplay.getSelectionModel().setSelectionMode(
-                TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
-        
         TreeImageSet root = new TreeImageSet("");
         treeDisplay.setModel(new DefaultTreeModel(root));
         TreeImageSet node = createExperimenterNode(exp);
@@ -750,6 +870,7 @@ class BrowserUI
             }
         };
         treeDisplay.addTreeSelectionListener(selectionListener);
+        //remove standard behaviour
         treeDisplay.addKeyListener(new KeyAdapter() {
 	
 			public void keyPressed(KeyEvent e)
@@ -775,7 +896,13 @@ class BrowserUI
 						break;
 					case KeyEvent.VK_META:
 						if (UIUtilities.isMacOS()) ctrl = true;
-				}
+						break;
+					case KeyEvent.VK_A:
+						if (UIUtilities.isWindowsOS() && e.isControlDown() ||
+							!UIUtilities.isWindowsOS() && e.isMetaDown()) {
+							handleMultiSelection();
+						}
+					}
 			}
 			
 			public void keyReleased(KeyEvent e)

@@ -392,13 +392,6 @@ class BrowserControl
 			img.getDefaultPixels();
 			return true;
 		} catch (Exception e) {
-			/*
-			UserNotifier un = 
-				DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Image Not valid", "The selected image is not valid");
-			node.setHighlight(
-					Colors.getInstance().getDeselectedHighLight(node));
-					*/
 			return false;
 		}
     }
@@ -607,6 +600,11 @@ class BrowserControl
 	}
     
     /**
+=======
+    public void mouseExited(MouseEvent me) { model.setRollOverNode(null); }
+    
+    /**
+>>>>>>> 9dccc3e2851d35ebb244814f64bdb3d34a4be66f
      * Required by the {@link MouseListener} I/F but no-operation implementation
      * in our case.
      * @see MouseListener#mouseClicked(MouseEvent)
